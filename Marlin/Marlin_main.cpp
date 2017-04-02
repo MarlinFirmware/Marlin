@@ -796,39 +796,6 @@ inline void echo_command(const char* cmd) {
 }
 
 /**
- * Shove a command in RAM to the front of the main command queue.
- * Return true if the command is successfully added.
- */
-inline bool _shovecommand(const char* cmd, bool say_ok=false) {
-  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
-  cmd_queue_index_r = (cmd_queue_index_r + BUFSIZE - 1) % BUFSIZE; // Index of the previous slot
-  commands_in_queue++;
-  strcpy(command_queue[cmd_queue_index_r], cmd);
-  send_ok[cmd_queue_index_r] = say_ok;
-  return true;
-}
-
-/**
- * Shove a command to the front of the queue with Serial Echo
- * Return true if the command is successfully added.
- */
-bool shove_and_echo_command(const char* cmd, bool say_ok=false) {
-  if (_shovecommand(cmd, say_ok)) {
-    echo_command(cmd);
-    return true;
-  }
-  return false;
-}
-
-/**
- * Shove a command onto the front of the queue,
- * and don't return until successful.
- */
-void shove_and_echo_command_now(const char* cmd) {
-  while (!shove_and_echo_command(cmd)) idle();
-}
-
-/**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
  */
@@ -840,7 +807,7 @@ static bool drain_injected_commands_P() {
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
-    if (shove_and_echo_command(cmd))       // success?
+    if (enqueue_and_echo_command(cmd))     // success?
       injected_commands_P = c ? injected_commands_P + i + 1 : NULL; // next command or done
   }
   return (injected_commands_P != NULL);    // return whether any more remain
