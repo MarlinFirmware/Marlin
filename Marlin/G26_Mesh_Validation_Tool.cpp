@@ -36,24 +36,27 @@
   #include "UBL.h"
   #include "ultralcd.h"
 
-  #define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
-  #define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
-  #define NOZZLE 0.3                  // these numbers for their printer so they don't need to type all
-  #define FILAMENT 1.75               // the options every time they do a Mesh Validation Print.
+  #define EXTRUSION_MULTIPLIER 1.0
+  #define RETRACTION_MULTIPLIER 1.0
+  #define NOZZLE 0.3
+  #define FILAMENT 1.75
   #define LAYER_HEIGHT 0.2
-  #define PRIME_LENGTH 10.0           // So, we put these number in an easy to find and change place.
+  #define PRIME_LENGTH 10.0
   #define BED_TEMP 60.0
   #define HOTEND_TEMP 205.0
   #define OOZE_AMOUNT 0.3
 
   #define SIZE_OF_INTERSECTION_CIRCLES 5
-  #define SIZE_OF_CROSSHAIRS 3 // crosshairs inside the circle.  This number should be
-                               // less than SIZE_OR_INTERSECTION_CIRCLES
+  #define SIZE_OF_CROSSHAIRS 3
+
+  #if SIZE_OF_CROSSHAIRS >= SIZE_OF_INTERSECTION_CIRCLES
+    #error "SIZE_OF_CROSSHAIRS must be less than SIZE_OF_INTERSECTION_CIRCLES."
+  #endif
 
   /**
-   *   Roxy's G26 Mesh Validation Tool
+   *   G26 Mesh Validation Tool
    *
-   *   G26 Is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
+   *   G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
    *   In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
    *   be defined.  G29 is designed to allow the user to quickly validate the correctness of her Mesh.  It will
    *   first heat the bed and nozzle. It will then print lines and circles along the Mesh Cell boundaries and
@@ -118,7 +121,7 @@
   //#if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
   //#endif
-  extern float destination[];
+  extern float destination[XYZE];
   extern void set_destination_to_current();
   extern void set_current_to_destination();
   extern float code_value_float();
