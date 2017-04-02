@@ -243,8 +243,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
+void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
 extern millis_t previous_cmd_ms;
