@@ -29,6 +29,7 @@
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+    #define UBL_VERSION "1.00"
     #define UBL_OK false
     #define UBL_ERR true
 

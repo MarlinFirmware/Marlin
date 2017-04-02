@@ -128,7 +128,7 @@
   extern bool code_value_bool();
   extern bool code_has_value();
   extern void lcd_init();
-  extern void lcd_setstatuspgm(const char* const message, uint8_t level);
+  extern void lcd_setstatuspgm(const char* const message, const uint8_t level);
   #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
