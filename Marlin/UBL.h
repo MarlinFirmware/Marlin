@@ -29,6 +29,7 @@
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+    #define UBL_VERSION "1.00"
     #define UBL_OK false
     #define UBL_ERR true
 
@@ -98,9 +99,6 @@
         float g29_correction_fade_height = 10.0,
               g29_fade_height_multiplier = 1.0 / 10.0; // It's cheaper to do a floating point multiply than divide,
                                                        // so keep this value and its reciprocal.
-      #else
-        const float g29_correction_fade_height = 10.0,
-                    g29_fade_height_multiplier = 1.0 / 10.0;
       #endif
 
       // If you change this struct, adjust TOTAL_STRUCT_SIZE
@@ -118,8 +116,7 @@
     class unified_bed_leveling {
       private:
 
-        static float last_specified_z,
-                     fade_scaling_factor_for_current_height;
+        static float last_specified_z;
 
       public:
 
@@ -307,31 +304,28 @@
         }
 
         /**
-         * This routine is used to scale the Z correction depending upon the current nozzle height. It is
-         * optimized for speed. It avoids floating point operations by checking if the requested scaling
-         * factor is going to be the same as the last time the function calculated a value. If so, it just
-         * returns it.
+         * This function sets the Z leveling fade factor based on the given Z height,
+         * only re-calculating when necessary.
          *
-         * It returns a scaling factor of 1.0 if UBL is inactive.
-         * It returns a scaling factor of 0.0 if Z is past the specified 'Fade Height'
+         *  Returns 1.0 if g29_correction_fade_height is 0.0.
+         *  Returns 0.0 if Z is past the specified 'Fade Height'.
          */
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
           static FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+            if (state.g29_correction_fade_height == 0.0) return 1.0;
+
+            static float fade_scaling_factor = 1.0;
             const float rz = RAW_Z_POSITION(lz);
             if (last_specified_z != rz) {
               last_specified_z = rz;
-              fade_scaling_factor_for_current_height =
-                state.active && rz < state.g29_correction_fade_height
+              fade_scaling_factor =
+                rz < state.g29_correction_fade_height
                   ? 1.0 - (rz * state.g29_fade_height_multiplier)
                   : 0.0;
             }
-            return fade_scaling_factor_for_current_height;
+            return fade_scaling_factor;
           }
-
-        #else
-
-          static constexpr float fade_scaling_factor_for_z(const float &lz) { UNUSED(lz); return 1.0; }
 
         #endif
 
