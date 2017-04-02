@@ -8903,7 +8903,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING && !ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
+      #if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
