@@ -1132,8 +1132,7 @@
     safe_delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
     #endif
 
     SERIAL_PROTOCOLPGM("z_offset: ");
