@@ -61,7 +61,6 @@
 
   float unified_bed_leveling::z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS],
         unified_bed_leveling::last_specified_z,
-        unified_bed_leveling::fade_scaling_factor_for_current_height,
         unified_bed_leveling::mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
         unified_bed_leveling::mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
 
@@ -102,8 +101,9 @@
        * updated, but until then, we try to ease the transition
        * for our Beta testers.
        */
-      if (ubl.state.g29_fade_height_multiplier != 1.0 / ubl.state.g29_correction_fade_height) {
-        ubl.state.g29_fade_height_multiplier = 1.0 / ubl.state.g29_correction_fade_height;
+      const float recip = ubl.state.g29_correction_fade_height ? 1.0 / ubl.state.g29_correction_fade_height : 1.0;
+      if (ubl.state.g29_fade_height_multiplier != recip) {
+        ubl.state.g29_fade_height_multiplier = recip;
         store_state();
       }
     #endif
@@ -160,7 +160,6 @@
     ZERO(z_values);
 
     last_specified_z = -999.9;
-    fade_scaling_factor_for_current_height = 0.0;
   }
 
   void unified_bed_leveling::invalidate() {
