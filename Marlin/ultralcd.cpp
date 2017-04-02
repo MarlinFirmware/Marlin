@@ -918,7 +918,7 @@ void kill_screen(const char* lcd_msg) {
   /**
    * Watch temperature callbacks
    */
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+  #if WATCH_HOTENDS
     #if TEMP_SENSOR_0 != 0
       void watch_temp_callback_E0() { thermalManager.start_watching_heater(0); }
     #endif
@@ -946,14 +946,8 @@ void kill_screen(const char* lcd_msg) {
     #endif // HOTENDS > 3
   #endif
 
-  #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
-    #if TEMP_SENSOR_BED != 0
-      void watch_temp_callback_bed() { thermalManager.start_watching_bed(); }
-    #endif
-  #else
-    #if TEMP_SENSOR_BED != 0
-      void watch_temp_callback_bed() {}
-    #endif
+  #if WATCH_THE_BED
+    void watch_temp_callback_bed() { thermalManager.start_watching_bed(); }
   #endif
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -1021,7 +1015,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if TEMP_SENSOR_BED != 0
+    #if WATCH_THE_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
@@ -2180,7 +2174,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if TEMP_SENSOR_BED != 0
+    #if WATCH_THE_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
