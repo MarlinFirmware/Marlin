@@ -345,6 +345,9 @@
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
     #undef SERVO_DELAY
     #define SERVO_DELAY 50
+    #ifndef BLTOUCH_DELAY
+      #define BLTOUCH_DELAY 375
+    #endif
     #undef Z_SERVO_ANGLES
     #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
