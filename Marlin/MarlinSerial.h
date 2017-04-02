@@ -119,21 +119,21 @@
 
     public:
       MarlinSerial() {};
-      static void begin(long);
+      static void begin(const long);
       static void end();
       static int peek(void);
       static int read(void);
       static void flush(void);
       static uint8_t available(void);
       static void checkRx(void);
-      static void write(uint8_t c);
+      static void write(const uint8_t c);
       #if TX_BUFFER_SIZE > 0
         static uint8_t availableForWrite(void);
         static void flushTX(void);
       #endif
 
     private:
-      static void printNumber(unsigned long, uint8_t);
+      static void printNumber(unsigned long, const uint8_t);
       static void printFloat(double, uint8_t);
 
     public:
