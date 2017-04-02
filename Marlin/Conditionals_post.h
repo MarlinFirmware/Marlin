@@ -522,6 +522,9 @@
 
   #define HAS_THERMALLY_PROTECTED_BED (HAS_TEMP_BED && HAS_HEATER_BED && ENABLED(THERMAL_PROTECTION_BED))
 
+  #define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
+  #define WATCH_THE_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
+
   /**
    * This setting is also used by M109 when trying to calculate
    * a ballpark safe margin to prevent wait-forever situation.
