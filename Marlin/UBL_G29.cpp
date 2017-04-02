@@ -315,7 +315,8 @@
   static float x_pos, y_pos, measured_z, card_thickness = 0.0, ubl_constant = 0.0;
 
   #if ENABLED(ULTRA_LCD)
-    void lcd_setstatus(const char* message, bool persist);
+    extern void lcd_setstatus(const char* message, const bool persist);
+    extern void lcd_setstatuspgm(const char* message, const uint8_t level);
   #endif
 
   void gcode_G29() {
@@ -667,7 +668,7 @@
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            lcd_setstatus("Z-Offset Stopped", true);
+            lcd_setstatuspgm("Z-Offset Stopped");
             restore_ubl_active_state_and_leave();
             goto LEAVE;
           }
@@ -685,7 +686,8 @@
     LEAVE:
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatus("G29 UBL done!         ", true);
+      lcd_reset_alert_level();
+      lcd_setstatuspgm("G29 UBL done!");
       lcd_quick_feedback();
     #endif
 
@@ -998,7 +1000,7 @@
     #endif
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatus("Doing G29 UBL !", true);
+      lcd_setstatuspgm("Doing G29 UBL!");
       lcd_quick_feedback();
     #endif
 
@@ -1109,7 +1111,7 @@
     ubl_state_recursion_chk++;
     if (ubl_state_recursion_chk != 1) {
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-      lcd_setstatus("save_UBL_active() error", true);
+      lcd_setstatuspgm("save_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1120,7 +1122,7 @@
   void restore_ubl_active_state_and_leave() {
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-      lcd_setstatus("restore_UBL_active() error", true);
+      lcd_setstatuspgm("restore_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1134,7 +1136,7 @@
   void g29_what_command() {
     const uint16_t k = E2END - ubl.eeprom_start;
 
-    SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
+    SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version " UBL_VERSION " ");
     if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
@@ -1152,8 +1154,7 @@
     safe_delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
     #endif
 
     SERIAL_PROTOCOLPGM("z_offset: ");
@@ -1364,7 +1365,7 @@
     memset(not_done, 0xFF, sizeof(not_done));
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatus("Fine Tuning Mesh.", true);
+      lcd_setstatuspgm("Fine Tuning Mesh");
     #endif
 
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
@@ -1423,7 +1424,7 @@
           lcd_return_to_status();
           //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          lcd_setstatus("Mesh Editing Stopped", true);
+          lcd_setstatuspgm("Mesh Editing Stopped");
 
           while (ubl_lcd_clicked()) idle();
 
@@ -1451,13 +1452,14 @@
     do_blocking_move_to_xy(lx, ly);
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatus("Done Editing Mesh", true);
+      lcd_setstatuspgm("Done Editing Mesh");
     #endif
-    SERIAL_ECHOLNPGM("Done Editing Mesh.");
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       handle_led_print_event(all_off);
     #endif
+
+    SERIAL_ECHOLNPGM("Done Editing Mesh");
   }
 
 #endif // AUTO_BED_LEVELING_UBL
