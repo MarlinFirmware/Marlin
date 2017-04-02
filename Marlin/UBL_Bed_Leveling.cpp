@@ -193,7 +193,7 @@
     const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
                 current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
-    for (uint8_t j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
+    for (int8_t j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
         const bool is_current = i == current_xi && j == current_yi;
 
