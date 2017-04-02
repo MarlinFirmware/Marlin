@@ -778,13 +778,6 @@ extern "C" {
   extern void digipot_i2c_init();
 #endif
 
-inline void echo_command(const char* cmd) {
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
-  SERIAL_CHAR('"');
-  SERIAL_EOL;
-}
-
 /**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
@@ -847,7 +840,10 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
  */
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
-    echo_command(cmd);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
+    SERIAL_CHAR('"');
+    SERIAL_EOL;
     return true;
   }
   return false;
