@@ -1789,15 +1789,10 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
       #if ENABLED(ULTRA_LCD)
-        char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
-        strcat_P(message, PSTR(MSG_HOME " "));
-        if (xx) strcat_P(message, PSTR(MSG_X));
-        if (yy) strcat_P(message, PSTR(MSG_Y));
-        if (zz) strcat_P(message, PSTR(MSG_Z));
-        strcat_P(message, PSTR(" " MSG_FIRST));
-        lcd_setstatus(message);
+        lcd_status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
       return true;
+
     }
     return false;
   }
@@ -5153,7 +5148,6 @@ inline void gcode_M31() {
   char buffer[21];
   duration_t elapsed = print_job_timer.duration();
   elapsed.toString(buffer);
-
   lcd_setstatus(buffer);
 
   SERIAL_ECHO_START;
@@ -5700,7 +5694,7 @@ inline void gcode_M104() {
       }
     #endif
 
-    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) status_printf(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
   }
 
   #if ENABLED(AUTOTEMP)
@@ -5898,7 +5892,7 @@ inline void gcode_M109() {
       else print_job_timer.start();
     #endif
 
-    if (thermalManager.isHeatingHotend(target_extruder)) status_printf(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+    if (thermalManager.isHeatingHotend(target_extruder)) lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
   }
 
   #if ENABLED(AUTOTEMP)
