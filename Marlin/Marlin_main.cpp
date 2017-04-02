@@ -178,7 +178,7 @@
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
- * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING)
+ * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING or AUTO_BED_LEVELING_UBL)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies.
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
@@ -7557,8 +7557,7 @@ void quickstop_stepper() {
   }
 #endif
 
-#if ENABLED(MESH_BED_LEVELING)
-
+#if ENABLED(MESH_BED_LEVELING) 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
@@ -7628,7 +7627,34 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  /**
+   * M421: Set a single Mesh Bed Leveling Z coordinate
+   *
+   *   M421 I<xindex> J<yindex> Z<linear>
+   */
+  inline void gcode_M421() {
+    int8_t px = 0, py = 0;
+    float z = 0;
+    bool hasI, hasJ, hasZ;
+    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
+    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
+    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
+    if (hasI && hasJ && hasZ) {
+      if (WITHIN(px, 0, UBL_MESH_NUM_Y_POINTS - 1) && WITHIN(py, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+        ubl.z_values[px][py] = z;
+      }
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      }
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+    }
+  }
 #endif
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
@@ -9387,7 +9413,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(MESH_BED_LEVELING)
+      #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
         case 421: // M421: Set a Mesh Bed Leveling Z coordinate
           gcode_M421();
           break;
