@@ -447,8 +447,6 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
-const char errormagic[] PROGMEM = "Error:";
-const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[XYZE] = {'X', 'Y', 'Z', 'E'};
 
 // Number of characters read in the current line of serial input
@@ -695,14 +693,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   void plan_cubic_move(const float offset[4]);
 #endif
-
-void serial_echopair_P(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
-void serial_echopair_P(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 static void report_current_position();
