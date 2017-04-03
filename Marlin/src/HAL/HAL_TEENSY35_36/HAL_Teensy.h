@@ -62,6 +62,8 @@
   #define MYSERIAL Serial3
 #endif
 
+#define HAL_SERVO_LIB libServo
+
 //#define _BV(bit) 	(1 << (bit))
 
 #ifndef analogInputToDigitalPin

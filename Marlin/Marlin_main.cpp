@@ -628,11 +628,7 @@ float cartes[XYZ] = { 0 };
 static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
-  #if defined(__MK64FX512__) || defined(__MK65FX1M0__)
-    libServo servo[NUM_SERVOS];
-  #else
-    Servo servo[NUM_SERVOS];
-  #endif
+  HAL_SERVO_LIB servo[NUM_SERVOS];
   #define MOVE_SERVO(I, P) servo[I].move(P)
   #if HAS_Z_SERVO_ENDSTOP
     #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
