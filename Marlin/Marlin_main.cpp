@@ -1007,6 +1007,7 @@ inline void get_serial_commands() {
         if (M110) {
           char* n2pos = strchr(command + 4, 'N');
           if (n2pos) npos = n2pos;
+          else { gcode_LastN = strtol(npos + 1, NULL, 10); return;}
         }
 
         gcode_N = strtol(npos + 1, NULL, 10);
