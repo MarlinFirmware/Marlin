@@ -20,6 +20,12 @@ Make must be installed on the following path:
 C:\Program Files (x86)\GnuWin32
 ```
 
+Make sure that make.exe exists on the following path:
+
+```
+C:\Program Files (x86)\GnuWin32\bin
+```
+
 ### Arduino 1.6.7
 The compilation and flash processes use the AVR toolchain. The easy way to get these tools is to install the Arduino SDK (version 1.6.7).
 
@@ -34,6 +40,19 @@ The Arduino files should be installed on the root folder of your sistem (C:\Ardu
   C:\Arduino
   ```
 
+## Getting the Source Code
+[Clone](https://help.github.com/articles/cloning-a-repository/) or download the source code from the following locations:
+
+* Master at [bq/Marlin](https://github.com/bq/Marlin)
+* Previous releases at [bq/Marlin/Releases](https://github.com/bq/Marlin/releases), including prebuilt binaries and source code for those releases.
+
+Avoid using whitespaces for firmware path, for example.
+
+  ```
+  C:\witbox-fw
+  ```
+
+## Build Process
 On Windows, the building and flashing processes have been automatized on a batch file.
 
 1. Open a new Command Prompt. Press "WinKey + R" and type "cmd" on the recently open window.
@@ -44,14 +63,20 @@ On Windows, the building and flashing processes have been automatized on a batch
   cd C:\your_folder_path\witbox-fw
   ```
 
+  If the firmware code was downloaded to the previously suggested path.
+
+  ```
+  cd C:\witbox-fw
+  ```
+
 3. Connect your computer to the printer and identify the COM port assigned.
 
-3. Launch the script.
+4. Launch the script.
 
   ```
   make.cmd
   ```
 
-4. Follow the wizard's instructions to select your device configuration and the COM port used by the printer.
+5. Follow the wizard's instructions to select your device configuration and the COM port used by the printer.
 
-5. Wait until the script finish.
+6. Wait until the script finishes.

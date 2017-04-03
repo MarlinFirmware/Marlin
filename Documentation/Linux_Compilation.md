@@ -28,6 +28,10 @@ The Arduino files should be installed on your user home folder (/home/your_user_
 3. Rename the uncompressed folder to 'arduino'.
 
 ## Getting the Source Code
+[Clone](https://help.github.com/articles/cloning-a-repository/) or download the source code from the following locations:
+
+* Master at [bq/Marlin](https://github.com/bq/Marlin)
+* Previous releases at [bq/Marlin/Releases](https://github.com/bq/Marlin/releases), including prebuilt binaries and source code for those releases.
 
 ## Compiling the Source Code
 The compilation process has two stages:
@@ -69,6 +73,6 @@ The compilation process has two stages:
 ## Flashing the Binary Image
 For upload the generated image, connect your computer to the printer and type the next line:
 
-```
+  ```
   make upload
-```
+  ```
