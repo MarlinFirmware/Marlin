@@ -269,7 +269,7 @@
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(MESH_ADJUST)) {
               SERIAL_ECHOPAIR(" raw get_z_correction(", lx0);
-              SERIAL_CHAR(',')
+              SERIAL_CHAR(",");
               SERIAL_ECHO(ly0);
               SERIAL_ECHOPGM(") = ");
               SERIAL_ECHO_F(z0, 6);
