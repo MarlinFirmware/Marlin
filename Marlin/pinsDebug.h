@@ -21,11 +21,12 @@
  */
 
 #include "macros.h"
+#include "src/HAL/HAL_pinsDebug.h"
 
 bool endstop_monitor_flag = false;
 
 #if !defined(TIMER1B)    // working with Teensyduino extension so need to re-define some things
-  #include "pinsDebug_Teensyduino.h"
+  //#include "pinsDebug_Teensyduino.h"
 #endif
 
 #define  NAME_FORMAT "%-28s"   // one place to specify the format of all the sources of names
@@ -36,38 +37,6 @@ bool endstop_monitor_flag = false;
 
 #define _ANALOG_PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
-
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
-#else
-  #define IS_ANALOG(P) ( WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(15)) || (P) <= analogInputToDigitalPin(5) )
-#endif
-
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-  #define FTM0_CH0_PIN 22
-  #define FTM0_CH1_PIN 23
-  #define FTM0_CH2_PIN  9
-  #define FTM0_CH3_PIN 10
-  #define FTM0_CH4_PIN  6
-  #define FTM0_CH5_PIN 20
-  #define FTM0_CH6_PIN 21
-  #define FTM0_CH7_PIN  5
-  #define FTM1_CH0_PIN  3
-  #define FTM1_CH1_PIN  4
-  #define FTM2_CH0_PIN 29
-  #define FTM2_CH1_PIN 30
-  #define FTM3_CH0_PIN  2
-  #define FTM3_CH1_PIN 14
-  #define FTM3_CH2_PIN  7
-  #define FTM3_CH3_PIN  8
-  #define FTM3_CH4_PIN 35
-  #define FTM3_CH5_PIN 36
-  #define FTM3_CH6_PIN 37
-  #define FTM3_CH7_PIN 38
-#elif defined(__MK66FX1M0__)
-  #define TPM1_CH0_PIN 16
-  #define TPM1_CH1_PIN 17
-#endif
 
 int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
   uint8_t port = digitalPinToPort(pin);
@@ -83,12 +52,7 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   pin_is_analog = false;   // default to digital pin
 
   if (IS_ANALOG(pin)) {
-    #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-      if (pin <= 23)      sprintf(buffer, "(A%2d)  ", int(pin - 14));
-      else if (pin <= 39) sprintf(buffer, "(A%2d)  ", int(pin - 19));
-    #else
-      sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
-    #endif
+    HAL_print_analog_pin(buffer, pin);
     SERIAL_ECHO(buffer);
   }
   else SERIAL_ECHOPGM("       ");
@@ -699,101 +663,6 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   return false;
 } // report_pin_name
 
-#define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", V); SERIAL_ECHO(buffer); }while(0)
-#define PWM_CASE(N,Z) \
-  case TIMER##N##Z: \
-    if (TCCR##N##A & (_BV(COM##N##Z##1) | _BV(COM##N##Z##0))) { \
-      PWM_PRINT(OCR##N##Z); \
-      return true; \
-    } else return false
-#define FTM_CASE(N,Z) \
-  case FTM##N##_CH##Z##_PIN: \
-    if (FTM##N##_C##Z##V) { \
-      PWM_PRINT(FTM##N##_C##Z##V); \
-      return true; \
-    } else return false
-
-
-/**
- * Print a pin's PWM status.
- * Return true if it's currently a PWM pin.
- */
-static bool pwm_status(uint8_t pin) {
-  char buffer[20];   // for the sprintf statements
-
-  #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-  switch(pin) {
-    FTM_CASE(0,0);
-    FTM_CASE(0,1);
-    FTM_CASE(0,2);
-    FTM_CASE(0,3);
-    FTM_CASE(0,4);
-    FTM_CASE(0,5);
-    FTM_CASE(0,6);
-    FTM_CASE(0,7);
-    FTM_CASE(1,0);
-    FTM_CASE(1,1);
-    FTM_CASE(2,0);
-    FTM_CASE(2,1);
-    FTM_CASE(3,0);
-    FTM_CASE(3,1);
-    FTM_CASE(3,2);
-    FTM_CASE(3,3);
-    FTM_CASE(3,4);
-    FTM_CASE(3,5);
-    FTM_CASE(3,6);
-    FTM_CASE(3,7);
-  }
-  #else
-
-  switch(digitalPinToTimer(pin)) {
-
-    #if defined(TCCR0A) && defined(COM0A1)
-      PWM_CASE(0,A);
-      PWM_CASE(0,B);
-    #endif
-
-    #if defined(TCCR1A) && defined(COM1A1)
-      PWM_CASE(1,A);
-      PWM_CASE(1,B);
-      #if defined(COM1C1) && defined(TIMER1C)
-        PWM_CASE(1,C);
-      #endif
-    #endif
-
-    #if defined(TCCR2A) && defined(COM2A1)
-      PWM_CASE(2,A);
-      PWM_CASE(2,B);
-    #endif
-
-    #if defined(TCCR3A) && defined(COM3A1)
-      PWM_CASE(3,A);
-      PWM_CASE(3,B);
-      #ifdef COM3C1
-        PWM_CASE(3,C);
-      #endif
-    #endif
-
-    #ifdef TCCR4A
-      PWM_CASE(4,A);
-      PWM_CASE(4,B);
-      PWM_CASE(4,C);
-    #endif
-
-    #if defined(TCCR5A) && defined(COM5A1)
-      PWM_CASE(5,A);
-      PWM_CASE(5,B);
-      PWM_CASE(5,C);
-    #endif
-
-    case NOT_ON_TIMER:
-    default:
-      return false;
-  }
-  #endif
-  SERIAL_PROTOCOLPGM("  ");
-} // pwm_status
-
 #define WGM_MAKE3(N) (((TCCR##N##B & _BV(WGM##N##2)) >> 1) | (TCCR##N##A & (_BV(WGM##N##0) | _BV(WGM##N##1))))
 #define WGM_MAKE4(N) (WGM_MAKE3(N) | (TCCR##N##B & _BV(WGM##N##3)) >> 1)
 #define TIMER_PREFIX(T,L,N) do{ \
@@ -806,163 +675,6 @@ static bool pwm_status(uint8_t pin) {
 
 #define WGM_TEST1 (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6)
 #define WGM_TEST2 (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)
-
-static void err_is_counter() {
-  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-}
-static void err_is_interrupt() {
-  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because it's being used as an interrupt");
-}
-static void err_prob_interrupt() {
-  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer is being used as an interrupt");
-}
-static void can_be_used() { SERIAL_PROTOCOLPGM("   can be used as PWM   "); }
-
-static void pwm_details(uint8_t pin) {
-
-  uint8_t WGM;
-
-  switch(digitalPinToTimer(pin)) {
-
-    #if defined(TCCR0A) && defined(COM0A1)
-      case TIMER0A:
-        TIMER_PREFIX(0,A,3);
-        if (WGM_TEST1) err_is_counter();
-        else if (TEST(TIMSK0, OCIE0A)) err_is_interrupt();
-        else if (TEST(TIMSK0, TOIE0)) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER0B:
-        TIMER_PREFIX(0,B,3);
-        if (WGM_TEST1) err_is_counter();
-        else if (TEST(TIMSK0, OCIE0B)) err_is_interrupt();
-        else if (TEST(TIMSK0, TOIE0)) err_prob_interrupt();
-        else can_be_used();
-        break;
-    #endif
-
-    #if defined(TCCR1A) && defined(COM1A1)
-      case TIMER1A:
-        TIMER_PREFIX(1,A,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK1, OCIE1A)) err_is_interrupt();
-        else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER1B:
-        TIMER_PREFIX(1,B,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK1, OCIE1B)) err_is_interrupt();
-        else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      #if defined(COM1C1) && defined(TIMER1C)
-        case TIMER1C:
-          TIMER_PREFIX(1,C,4);
-          if (WGM_TEST2) err_is_counter();
-          else if (TEST(TIMSK1, OCIE1C)) err_is_interrupt();
-          else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
-          else can_be_used();
-          break;
-      #endif
-    #endif
-
-    #if defined(TCCR2A) && defined(COM2A1)
-      case TIMER2A:
-        TIMER_PREFIX(2,A,3);
-        if (WGM_TEST1) err_is_counter();
-        else if (TIMSK2 & (_BV(TOIE2) | _BV(OCIE2A))) err_is_interrupt();
-        else if (TEST(TIMSK2, TOIE2)) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER2B:
-        TIMER_PREFIX(2,B,3);
-        if (WGM_TEST1) err_is_counter();
-        else if (TEST(TIMSK2, OCIE2B)) err_is_interrupt();
-        else if (TEST(TIMSK2, TOIE2)) err_prob_interrupt();
-        else can_be_used();
-        break;
-    #endif
-
-    #if defined(TCCR3A) && defined(COM3A1)
-      case TIMER3A:
-        TIMER_PREFIX(3,A,3);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK3, OCIE3A)) err_is_interrupt();
-        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER3B:
-        TIMER_PREFIX(3,B,3);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK3, OCIE3B)) err_is_interrupt();
-        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      #ifdef COM3C1
-      case TIMER3C:
-        TIMER_PREFIX(3,C,3);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
-        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      #endif
-    #endif
-
-    #ifdef TCCR4A
-      case TIMER4A:
-        TIMER_PREFIX(4,A,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK4, OCIE4A)) err_is_interrupt();
-        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER4B:
-        TIMER_PREFIX(4,B,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK4, OCIE4B)) err_is_interrupt();
-        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER4C:
-        TIMER_PREFIX(4,C,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK4, OCIE4C)) err_is_interrupt();
-        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
-        else can_be_used();
-        break;
-    #endif
-
-    #if defined(TCCR5A) && defined(COM5A1)
-      case TIMER5A:
-        TIMER_PREFIX(5,A,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK5, OCIE5A)) err_is_interrupt();
-        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER5B:
-        TIMER_PREFIX(5,B,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK5, OCIE5B)) err_is_interrupt();
-        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
-        else can_be_used();
-        break;
-      case TIMER5C:
-        TIMER_PREFIX(5,C,4);
-        if (WGM_TEST2) err_is_counter();
-        else if (TEST(TIMSK5, OCIE5C)) err_is_interrupt();
-        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
-        else can_be_used();
-        break;
-    #endif
-
-    case NOT_ON_TIMER: break;
-
-  }
-  SERIAL_PROTOCOLPGM("  ");
-} // pwm_details
 
 inline void report_pin_state(int8_t pin) {
   SERIAL_ECHO((int)pin);
@@ -1005,12 +717,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore) {
     SERIAL_ECHOPGM("protected ");
   else {
     if (analog_pin) {
-      #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-        if (pin <= 23)      sprintf(buffer, "Analog in =% 5d", analogRead(pin - 14));
-        else if (pin <= 39) sprintf(buffer, "Analog in =% 5d", analogRead(pin - 19));
-      #else
-        sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
-      #endif
+      HAL_analog_pin_state(buffer, pin);
       SERIAL_ECHO(buffer);
     }
     else {
@@ -1018,7 +725,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore) {
         pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating
         SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
       }
-      else if (pwm_status(pin)) {
+      else if (HAL_pwm_status(pin)) {
         // do nothing
       }
       else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
@@ -1026,6 +733,6 @@ inline void report_pin_state_extended(int8_t pin, bool ignore) {
   }
 
   // report PWM capabilities
-  pwm_details(pin);
+  HAL_pwm_details(pin);
   SERIAL_EOL;
 }
