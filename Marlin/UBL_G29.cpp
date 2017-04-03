@@ -327,8 +327,13 @@
     // Invalidate Mesh Points. This command is a little bit asymetrical because
     // it directly specifies the repetition count and does not use the 'R' parameter.
     if (code_seen('I')) {
+      int cnt = 0;
       repetition_cnt = code_has_value() ? code_value_int() : 1;
       while (repetition_cnt--) {
+        if (cnt>20) {
+          cnt = 0;
+          idle();
+        }
         const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, 0, NULL, false);  // The '0' says we want to use the nozzle's position
         if (location.x_index < 0) {
           SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
@@ -1120,7 +1125,7 @@
     if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
-      SERIAL_PROTOCOLPGM("In");
+      SERIAL_PROTOCOLPGM("Ina");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     safe_delay(50);
 
