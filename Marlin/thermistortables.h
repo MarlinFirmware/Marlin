@@ -55,6 +55,9 @@
 #if ANY_THERMISTOR_IS(5) // 100k ParCan thermistor (104GT-2)
   #include "thermistortable_5.h"
 #endif
+#if ANY_THERMISTOR_IS(53) // 100k Cartridge thermistor (104GTA-2)
+  #include "thermistortable_53.h"
+#endif
 #if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
   #include "thermistortable_6.h"
 #endif
@@ -90,6 +93,9 @@
 #endif
 #if ANY_THERMISTOR_IS(55) // 100k ATC Semitec 104GT-2 (Used on ParCan) (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
   #include "thermistortable_53.h"
+#endif
+#if ANY_THERMISTOR_IS(56) // 100k Cartridge thermistor (104GTA-2) (1k pullup)
+  #include "thermistortable_56.h"
 #endif
 #if ANY_THERMISTOR_IS(60) // Maker's Tool Works Kapton Bed Thermistor
   #include "thermistortable_60.h"
