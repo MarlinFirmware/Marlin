@@ -1125,7 +1125,7 @@
     if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
-      SERIAL_PROTOCOLPGM("In");
+      SERIAL_PROTOCOLPGM("Ina");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     safe_delay(50);
 
