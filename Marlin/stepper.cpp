@@ -317,7 +317,7 @@ void Stepper::isr() {
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
     DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+    #if !defined(CPU_32_BIT)
       sei();
     #endif
   #endif

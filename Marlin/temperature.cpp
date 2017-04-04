@@ -1484,7 +1484,7 @@ void Temperature::isr() {
 
   // Allow UART and stepper ISRs
   DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
-  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+  #if !defined(CPU_32_BIT)
     sei();
   #endif
 
@@ -1954,7 +1954,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+  #if !defined(CPU_32_BIT)
     cli();
   #endif
   in_temp_isr = false;
