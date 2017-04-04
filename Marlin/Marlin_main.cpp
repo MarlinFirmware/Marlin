@@ -1346,7 +1346,7 @@ bool get_target_extruder_from_command(int code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = workspace_offset[axis] = LOGICAL_POSITION(0, axis);
+    const float offs = workspace_offset[axis] = home_offset[axis] + position_shift[axis];
 
     #if ENABLED(DUAL_X_CARRIAGE)
       if (axis == X_AXIS) {
