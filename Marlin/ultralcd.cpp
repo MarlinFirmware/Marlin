@@ -79,6 +79,15 @@ uint16_t max_display_update_time = 0;
   #define LCDVIEW_KEEP_REDRAWING LCDVIEW_REDRAW_NOW
 #endif
 
+#if ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
+  #include "RGB_Strip.h"
+#endif 
+
+#if ENABLED(LEDSTRIP)
+  #include "ledstrip.h"
+  static void lcd_led_lighting();
+#endif
+
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
   uint16_t driverPercent[XYZE];
@@ -803,6 +812,13 @@ void kill_screen(const char* lcd_msg) {
       }
     #endif //SDSUPPORT
 
+    //
+    // LEDSTRIP COMMAND
+    //  
+    #if ENABLED(LEDSTRIP)
+      MENU_ITEM(submenu, MSG_LED_LIGHTING, lcd_led_lighting );
+    #endif
+
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
     #endif
@@ -1459,6 +1475,11 @@ void kill_screen(const char* lcd_msg) {
 
           lcd_return_to_status();
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
+
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            handle_led_print_event(all_off);
+          #endif
+
           lcd_completion_feedback();
         }
         else {
@@ -1532,6 +1553,11 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
       if (lcd_clicked) {
         manual_probe_index = 0;
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(manual_leveling);
+		#endif
+
         #if ENABLED(MESH_BED_LEVELING)
           _lcd_level_goto_next_point();
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2011,6 +2037,63 @@ void kill_screen(const char* lcd_msg) {
     END_MENU();
   }
 
+/**
+ *
+ * "Main" > "Lightning" submenu
+ *    
+ */
+#if ENABLED(LEDSTRIP)
+
+  int ledstrip_segment = 0;
+  char ledstripgcode[15];
+
+  void lcd_led_command (int pi) {
+    sprintf_P(ledstripgcode, PSTR("M150 S%i P%i"), ledstrip_segment, pi);
+    enqueue_and_echo_command(ledstripgcode);
+  }
+
+  void lcd_led_poweron() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWERON = ", LED_POWERON);
+    #endif
+    lcd_led_command(LED_POWERON);
+  }
+
+  void lcd_led_poweroff() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWEROFF = ", LED_POWEROFF);
+    #endif
+    lcd_led_command(LED_POWEROFF);
+  }
+
+  void lcd_led_powerhalf() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWERHALF = ", LED_POWERHALF);
+    #endif
+    lcd_led_command(LED_POWERHALF);
+  }
+
+  static void lcd_led_lighting() {
+
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM_EDIT(int3, "Strip Segment ", &ledstrip_segment, 0, LEDSTRIP_NSEGMENT );
+    MENU_ITEM(function, "Strip Power On", lcd_led_poweron);
+    MENU_ITEM(function, "Strip Power Half", lcd_led_powerhalf);
+    MENU_ITEM(function, "Strip Power Off", lcd_led_poweroff);
+    END_MENU();
+  }
+ #endif // LEDSTRIP
+
   /**
    *
    * "Control" submenu
@@ -2063,11 +2146,11 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(PID_AUTOTUNE_MENU)
 
     #if ENABLED(PIDTEMP)
-      int autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
+      int autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(195);
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      int autotune_temp_bed = 70;
+      int autotune_temp_bed = 50;
     #endif
 
     void _lcd_autotune(int e) {

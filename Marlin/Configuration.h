@@ -1461,16 +1461,6 @@
 // Support for the BariCUDA Paste Extruder.
 //#define BARICUDA
 
-//define BlinkM/CyzRgb Support
-//#define BLINKM
-
-// Support for an RGB LED using 3 separate pins with optional PWM
-//#define RGB_LED
-#if ENABLED(RGB_LED)
-  #define RGB_LED_R_PIN 34
-  #define RGB_LED_G_PIN 43
-  #define RGB_LED_B_PIN 35
-#endif
 
 /*********************************************************************\
 * R/C SERVO support
@@ -1524,6 +1514,6 @@
 
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
-#endif
+#endif //FILAMENT_WIDTH_SENSOR
 
 #endif // CONFIGURATION_H

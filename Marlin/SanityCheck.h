@@ -929,8 +929,38 @@ static_assert(1 >= 0
 #if ENABLED(RGB_LED)
   #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
     #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(LEDSTRIP)
+    #error "RGB_LED and LEDSTRIP are currently incompatible (both use M150)."
   #elif ENABLED(BLINKM)
     #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
+  #endif
+#endif
+
+/**
+ * RGB_STRIP Requirements
+ */
+#if ENABLED(RGB_STRIP)
+  #if !(PIN_EXISTS(RGB_STRIP_R) && PIN_EXISTS(RGB_STRIP_G) && PIN_EXISTS(RGB_STRIP_B))
+    #error "RGB_STRIP requires RGB_STRIP_R_PIN, RGB_STRIP_G_PIN, and RGB_STRIP_B_PIN."
+  #elif ENABLED(LEDSTRIP)
+    #error "RGB_STRIP and LEDSTRIP are currently incompatible (both use M150)."
+  #elif ENABLED(BLINKM)
+    #error "RGB_STRIP and BLINKM are currently incompatible (both use M150)."
+  #endif
+#endif
+
+/**
+ * RGBW_STRIP Requirements
+ */
+#if ENABLED(RGBW_STRIP)
+  #if !ENABLED(RGB_STRIP)
+    #error "RGBW_STRIP requires RGB_STRIP to be enabled."
+  #elif !(PIN_EXISTS(RGB_STRIP_R) && PIN_EXISTS(RGB_STRIP_G) && PIN_EXISTS(RGB_STRIP_B) && PIN_EXISTS(RGB_STRIP_W))
+    #error "RGBW_STRIP requires RGB_STRIP_R_PIN, RGB_STRIP_G_PIN, RGB_STRIP_B_PIN, and RGB_STRIP_W_PIN."
+  #elif ENABLED(LEDSTRIP)
+    #error "RGBW_STRIP and LEDSTRIP are currently incompatible (both use M150)."
+  #elif ENABLED(BLINKM)
+    #error "RGBW_STRIP and BLINKM are currently incompatible (both use M150)."
   #endif
 #endif
 

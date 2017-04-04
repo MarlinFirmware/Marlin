@@ -525,7 +525,9 @@
 #ifndef MSG_LIGHTS_OFF
   #define MSG_LIGHTS_OFF                      _UxGT("Case light off")
 #endif
-
+#ifndef MSG_LED_LIGHTING
+  #define MSG_LED_LIGHTING                    _UxGT("Lighting")
+#endif
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              _UxGT("Print Count")
@@ -569,7 +571,6 @@
 #ifndef MSG_INFO_PSU
   #define MSG_INFO_PSU                        _UxGT("Power Supply")
 #endif
-
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")
 #endif

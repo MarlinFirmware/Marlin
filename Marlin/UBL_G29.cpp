@@ -33,6 +33,14 @@
   #include "planner.h"
   #include "ultralcd.h"
 
+  #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+    #include "RGB_Strip.h"
+  #endif
+  
+  #if ENABLED(LEDSTRIP)
+    #include "ledstrip.h"
+  #endif
+
   #include <math.h>
 
   void lcd_babystep_z();
@@ -327,13 +335,8 @@
     // Invalidate Mesh Points. This command is a little bit asymetrical because
     // it directly specifies the repetition count and does not use the 'R' parameter.
     if (code_seen('I')) {
-      int cnt = 0;
       repetition_cnt = code_has_value() ? code_value_int() : 1;
       while (repetition_cnt--) {
-        if (cnt>20) {
-          cnt = 0;
-          idle();
-        }
         const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, 0, NULL, false);  // The '0' says we want to use the nozzle's position
         if (location.x_index < 0) {
           SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
@@ -618,6 +621,10 @@
       ubl.store_state();    // Always save an updated copy of the UBL State info
 
       SERIAL_PROTOCOLLNPGM("Done.\n");
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(all_off);
+      #endif
     }
 
     if (code_seen('O') || code_seen('M'))
@@ -680,11 +687,15 @@
 
     #if ENABLED(ULTRA_LCD)
       lcd_reset_alert_level();
-      lcd_setstatuspgm("");
+      lcd_setstatuspgm("G29 UBL done!");
       lcd_quick_feedback();
     #endif
 
     ubl.has_control_of_lcd_panel = false;
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(all_off);
+    #endif
   }
 
   void find_mean_mesh_height() {
@@ -983,6 +994,11 @@
   }
 
   bool g29_parameter_parsing() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(auto_leveling);
+    #endif
+
     #if ENABLED(ULTRA_LCD)
       lcd_setstatuspgm("Doing G29 UBL!");
       lcd_quick_feedback();
@@ -1113,7 +1129,6 @@
     ubl.state.active = ubl_state_at_invocation;
   }
 
-
   /**
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items
@@ -1125,7 +1140,7 @@
     if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
-      SERIAL_PROTOCOLPGM("Ina");
+      SERIAL_PROTOCOLPGM("In");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     safe_delay(50);
 
@@ -1338,6 +1353,10 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(manual_leveling);
+    #endif
+
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;
@@ -1435,7 +1454,10 @@
     #if ENABLED(ULTRA_LCD)
       lcd_setstatuspgm("Done Editing Mesh");
     #endif
-    SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(all_off);
+    #endif
   }
 
 #endif // AUTO_BED_LEVELING_UBL
