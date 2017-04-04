@@ -945,6 +945,31 @@ void servo_init() {
 
 #endif
 
+#if HAS_COLOR_LEDS
+
+  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+
+    #if ENABLED(BLINKM)
+
+      // This variant uses i2c to send the RGB components to the device.
+      SendColors(r, g, b);
+
+    #else
+
+      // This variant uses 3 separate pins for the RGB components.
+      // If the pins can do PWM then their intensity will be set.
+      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+      analogWrite(RGB_LED_R_PIN, r);
+      analogWrite(RGB_LED_G_PIN, g);
+      analogWrite(RGB_LED_B_PIN, b);
+
+    #endif
+  }
+
+#endif // HAS_COLOR_LEDS
+
 void gcode_line_error(const char* err, bool doFlush = true) {
   SERIAL_ERROR_START;
   serialprintPGM(err);
@@ -1129,6 +1154,19 @@ inline void get_serial_commands() {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           card.printingHasFinished();
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+            set_led_color(0, 255, 0);
+            #if HAS_RESUME_CONTINUE
+              KEEPALIVE_STATE(PAUSED_FOR_USER);
+              wait_for_user = true;
+              while (wait_for_user) idle();
+              KEEPALIVE_STATE(IN_HANDLER);
+            #else
+              safe_delay(1000);
+            #endif
+            set_led_color(0, 0, 0);
+          #endif
           card.checkautostart(true);
         }
         else if (n == -1) {
@@ -6084,6 +6122,11 @@ inline void gcode_M109() {
 
   KEEPALIVE_STATE(NOT_BUSY);
 
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    const float start_temp = thermalManager.degHotend(target_extruder);
+    uint8_t old_blue = 0;
+  #endif
+
   do {
     // Target temperature might be changed during the loop
     if (target_temp != thermalManager.degTargetHotend(target_extruder)) {
@@ -6117,6 +6160,14 @@ inline void gcode_M109() {
 
     const float temp = thermalManager.degHotend(target_extruder);
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      // Gradually change LED strip from violet to red as nozzle heats up
+      if (!wants_to_cool) {
+        const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
+      }
+    #endif
+
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = fabs(target_temp - temp);
@@ -6145,7 +6196,12 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) {
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      set_led_color(255, 255, 255); // Set LEDs ALL WHITE
+    #endif
+  }
 
   KEEPALIVE_STATE(IN_HANDLER);
 }
@@ -6195,6 +6251,11 @@ inline void gcode_M109() {
 
     target_extruder = active_extruder; // for print_heaterstates
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      const float start_temp = thermalManager.degBed();
+      uint8_t old_red = 255;
+    #endif
+
     do {
       // Target temperature might be changed during the loop
       if (target_temp != thermalManager.degTargetBed()) {
@@ -6227,6 +6288,15 @@ inline void gcode_M109() {
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
       const float temp = thermalManager.degBed();
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        // Gradually change LED strip from blue to violet as bed heats up
+        if (!wants_to_cool) {
+          const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+          if (red != old_red) set_led_color((old_red = red), 0, 255);
+        }
+      }
+      #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
@@ -6771,28 +6841,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // PARK_HEAD_ON_PAUSE
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED)
-
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #else
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-    #endif
-  }
+#if HAS_COLOR_LEDS
 
   /**
    * M150: Set Status LED Color - Use R-U-B for R-G-B
@@ -9388,7 +9437,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED)
+      #if HAS_COLOR_LEDS
 
         case 150: // M150: Set Status LED Color
           gcode_M150();
