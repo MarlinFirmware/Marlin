@@ -25,7 +25,7 @@
 
   #include "HAL_DUE/spi_pins.h"
 
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__) // Teensy3.5 or Teensy3.6
+#elif defined(IS_32BIT_TEENSY)
 
   #include "HAL_TEENSY35_36/spi_pins.h"
 

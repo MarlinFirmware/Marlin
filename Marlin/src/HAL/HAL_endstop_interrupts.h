@@ -40,7 +40,7 @@ void endstop_ISR(void) { endstop_ISR_worker(); }
 
   #include "HAL_DUE/endstop_interrupts.h"
 
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif IS_32BIT_TEENSY
 
   #include "HAL_TEENSY35_36/endstop_interrupts.h"
 

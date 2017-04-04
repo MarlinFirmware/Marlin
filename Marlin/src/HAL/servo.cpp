@@ -57,7 +57,7 @@
 
 #include "HAL.h"
 
-#if HAS_SERVOS && !(defined(__MK64FX512__) || defined(__MK66FX1M0__))
+#if HAS_SERVOS && !IS_32BIT_TEENSY
 
 //#include <Arduino.h>
 

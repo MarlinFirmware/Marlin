@@ -26,7 +26,7 @@
   #include "HAL_AVR/HAL_pinsDebug_AVR.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #include "HAL_DUE/HAL_pinsDebug_Due.h"
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif IS_32BIT_TEENSY
   #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
 #else
   #error Unsupported Platform!

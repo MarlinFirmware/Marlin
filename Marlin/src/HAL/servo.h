@@ -69,7 +69,7 @@
 #ifndef servo_h
 #define servo_h
 
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__) // Teensy3.x
+#if IS_32BIT_TEENSY
   #include "HAL_TEENSY35_36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
 #else
 
