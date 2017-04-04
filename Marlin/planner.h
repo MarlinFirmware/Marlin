@@ -210,6 +210,7 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
+      static float advance_ed_ratio;
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -243,7 +244,7 @@ class Planner {
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
-    #if PLANNER_LEVELING
+    #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
 
       #define ARG_X float lx
       #define ARG_Y float ly
@@ -266,7 +267,9 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      void advance_M905(const float &k);
+      static void set_extruder_advance_k(const float &k) { extruder_advance_k = k; };
+      static float get_extruder_advance_k() { return extruder_advance_k; };
+      static void set_advance_ed_ratio(const float &ratio) { advance_ed_ratio = ratio; };
     #endif
 
     /**
@@ -297,7 +300,7 @@ class Planner {
      *  extruder     - target extruder
      */
     static FORCE_INLINE void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder) {
-      #if PLANNER_LEVELING && IS_CARTESIAN
+      #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL) && IS_CARTESIAN
         apply_leveling(lx, ly, lz);
       #endif
       _buffer_line(lx, ly, lz, e, fr_mm_s, extruder);
@@ -313,7 +316,7 @@ class Planner {
      *  extruder - target extruder
      */
     static FORCE_INLINE void buffer_line_kinematic(const float ltarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
-      #if PLANNER_LEVELING
+      #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
         float lpos[XYZ] = { ltarget[X_AXIS], ltarget[Y_AXIS], ltarget[Z_AXIS] };
         apply_leveling(lpos);
       #else
@@ -337,7 +340,7 @@ class Planner {
      * Clears previous speed values.
      */
     static FORCE_INLINE void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
-      #if PLANNER_LEVELING && IS_CARTESIAN
+      #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL) && IS_CARTESIAN
         apply_leveling(lx, ly, lz);
       #endif
       _set_position_mm(lx, ly, lz, e);
@@ -345,13 +348,7 @@ class Planner {
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float &e) {
-      set_position_mm(AxisEnum(E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + active_extruder
-        #endif
-      ), e);
-    }
+    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(AxisEnum(E_AXIS), e); }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -417,9 +414,7 @@ class Planner {
     #endif
 
     #if ENABLED(AUTOTEMP)
-      static float autotemp_max;
-      static float autotemp_min;
-      static float autotemp_factor;
+      static float autotemp_min, autotemp_max, autotemp_factor;
       static bool autotemp_enabled;
       static void getHighESpeed();
       static void autotemp_M104_M109();

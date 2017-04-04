@@ -184,7 +184,7 @@
    */
   #if ENABLED(ADVANCE)
     #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS] / (EXTRUSION_AREA))
+    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS_N] / (EXTRUSION_AREA))
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -522,6 +522,9 @@
 
   #define HAS_THERMALLY_PROTECTED_BED (HAS_TEMP_BED && HAS_HEATER_BED && ENABLED(THERMAL_PROTECTION_BED))
 
+  #define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
+  #define WATCH_THE_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
+
   /**
    * This setting is also used by M109 when trying to calculate
    * a ballpark safe margin to prevent wait-forever situation.
@@ -589,7 +592,7 @@
 
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
 
-  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED)
+  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
@@ -630,7 +633,7 @@
   #endif
 
   /**
-   * Delta radius/rod trimmers
+   * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
     #ifndef DELTA_RADIUS_TRIM_TOWER_1
@@ -651,6 +654,15 @@
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
       #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
     #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_1
+      #define DELTA_TOWER_ANGLE_TRIM_1 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_2
+      #define DELTA_TOWER_ANGLE_TRIM_2 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_3
+      #define DELTA_TOWER_ANGLE_TRIM_3 0.0
+    #endif
   #endif
 
   /**
@@ -658,7 +670,7 @@
    */
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
-  #define HAS_ABL    (ABL_PLANAR || ABL_GRID)
+  #define HAS_ABL    (ABL_PLANAR || ABL_GRID || ENABLED(AUTO_BED_LEVELING_UBL))
 
   #define PLANNER_LEVELING      (HAS_ABL || ENABLED(MESH_BED_LEVELING))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
@@ -700,6 +712,11 @@
   #ifndef Z_CLEARANCE_BETWEEN_PROBES
     #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
   #endif
+  #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+  #endif
 
   #if IS_KINEMATIC
     // Check for this in the code instead
@@ -724,6 +741,11 @@
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+  #endif
+
+  // LCD timeout to status screen default is 15s
+  #ifndef LCD_TIMEOUT_TO_STATUS
+    #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
 
 #endif // CONDITIONALS_POST_H

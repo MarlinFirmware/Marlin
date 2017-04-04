@@ -39,6 +39,7 @@
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   void lcd_kill_screen();
@@ -64,7 +65,6 @@
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
   #define LCD_UPDATE_INTERVAL 100
-  #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
 
@@ -78,9 +78,10 @@
     #define EN_B (_BV(BLEN_B))
     #define EN_C (_BV(BLEN_C))
 
-    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
-    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
+    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       void lcd_filament_change_show_message(const FilamentChangeMessage message);
@@ -92,7 +93,7 @@
 
   #endif
 
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
+  #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     extern millis_t previous_lcd_status_ms;
   #endif
 
@@ -153,6 +154,7 @@
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatuspgm(const char* const message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
   inline bool lcd_detected() { return true; }
@@ -161,5 +163,12 @@
   #define LCD_ALERTMESSAGEPGM(x) NOOP
 
 #endif // ULTRA_LCD
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void lcd_mesh_edit_setup(float initial);
+  float lcd_mesh_edit();
+  void lcd_z_offset_edit_setup(float);
+  float lcd_z_offset_edit();
+#endif
 
 #endif // ULTRALCD_H

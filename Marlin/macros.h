@@ -75,10 +75,12 @@
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
-#define NUMERIC(a) ((a) >= '0' && '9' >= (a))
+#define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
+#define NUMERIC(a) WITHIN(a, '0', '9')
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
+#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -132,9 +134,10 @@
 #define MAX4(a, b, c, d) max(max(a, b), max(c, d))
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
-#define NEAR_ZERO(x) ((x) > -0.000001 && (x) < 0.000001)
+#define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
+#define FIXFLOAT(f) (f + 0.00001)
 
 #endif //__MACROS_H

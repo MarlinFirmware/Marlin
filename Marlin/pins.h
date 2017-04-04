@@ -166,8 +166,8 @@
   #include "pins_MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"
-#elif MB(AJ4P)
-  #include "pins_AJ4P.h"
+#elif MB(SCOOVO_X9H)
+  #include "pins_SCOOVO_X9H.h"
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"
 #elif MB(SAINSMART_2IN1)

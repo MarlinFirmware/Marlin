@@ -105,6 +105,9 @@
 #ifndef MSG_PREHEAT_1_ALL
   #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
 #endif
+#ifndef MSG_PREHEAT_1_END
+  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+#endif
 #ifndef MSG_PREHEAT_1_BEDONLY
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
@@ -119,6 +122,9 @@
 #endif
 #ifndef MSG_PREHEAT_2_ALL
   #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_2_END
+  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
 #endif
 #ifndef MSG_PREHEAT_2_BEDONLY
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
@@ -304,10 +310,10 @@
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #endif
 #ifndef MSG_STORE_EPROM
-  #define MSG_STORE_EPROM                     _UxGT("Store memory")
+  #define MSG_STORE_EEPROM                    _UxGT("Store memory")
 #endif
 #ifndef MSG_LOAD_EPROM
-  #define MSG_LOAD_EPROM                      _UxGT("Load memory")
+  #define MSG_LOAD_EEPROM                     _UxGT("Load memory")
 #endif
 #ifndef MSG_RESTORE_FAILSAFE
   #define MSG_RESTORE_FAILSAFE                _UxGT("Restore failsafe")

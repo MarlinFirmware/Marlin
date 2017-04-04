@@ -20,6 +20,8 @@
  *
  */
 
+#include "macros.h"
+
 bool endstop_monitor_flag = false;
 
 #if !defined(TIMER1B)    // working with Teensyduino extension so need to re-define some things
@@ -35,7 +37,7 @@ bool endstop_monitor_flag = false;
 #define _ANALOG_PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
 
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
+#define IS_ANALOG(P) ( WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(15)) || (P) <= analogInputToDigitalPin(5) )
 
 int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
   uint8_t port = digitalPinToPort(pin);
@@ -700,7 +702,7 @@ static bool pwm_status(uint8_t pin) {
     #if defined(TCCR3A) && defined(COM3A1)
       PWM_CASE(3,A);
       PWM_CASE(3,B);
-      #if defined(COM3C1)
+      #ifdef COM3C1
         PWM_CASE(3,C);
       #endif
     #endif
@@ -829,14 +831,14 @@ static void pwm_details(uint8_t pin) {
         else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
         else can_be_used();
         break;
-      #if defined(COM3C1)
+      #ifdef COM3C1
       case TIMER3C:
-          TIMER_PREFIX(3,C,3);
-          if (WGM_TEST2) err_is_counter();
-          else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
-          else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
-          else can_be_used();
-          break;
+        TIMER_PREFIX(3,C,3);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
+        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
+        else can_be_used();
+        break;
       #endif
     #endif
 

@@ -47,8 +47,8 @@ install:
   # - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
   #
   # Install: TMC2130 Stepper Motor Controller library
-  - git clone https://github.com/MarlinFirmware/Trinamic_TMC2130.git
-  - sudo mv Trinamic_TMC2130/Trinamic_TMC2130 /usr/local/share/arduino/libraries/Trinamic_TMC2130
+  - git clone https://github.com/teemuatlut/TMC2130Stepper.git
+  - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
 before_script:
   #
@@ -117,25 +117,24 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
-  # Test a Sled Z Probe
+  # Test a simple build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable Z_PROBE_SLED
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
   - build_marlin
   #
+  # Test a Sled Z Probe
   # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
   #
-  - opt_enable AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - restore_configs
+  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - build_marlin
   #
   # Test a Servo Probe
+  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
-  - build_marlin
-  #
-  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
-  #
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES
   - build_marlin
@@ -143,7 +142,13 @@ script:
   # Test MESH_BED_LEVELING feature, with LCD
   #
   - restore_configs
-  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN MANUAL_BED_LEVELING ULTIMAKERCONTROLLER
+  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
+  - build_marlin
+  #
+  # Test PROBE_MANUALLY feature, with LCD support
+  #
+  - restore_configs
+  - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Test EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
@@ -195,11 +200,11 @@ script:
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - build_marlin
   #
-  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
+  # Test FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, and LCD_INFO_MENU
   #
   - restore_configs
   - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - build_marlin
   #
   # Enable filament sensor
@@ -226,10 +231,10 @@ script:
   - opt_enable COREXY
   - build_marlin
   #
-  # Enable COREXZ
+  # Enable COREYX (swapped)
   #
   - restore_configs
-  - opt_enable COREXZ
+  - opt_enable COREYX
   - build_marlin
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
@@ -396,7 +401,9 @@ script:
   # TMC2130 Config
   #
   - restore_configs
-  - opt_enable_adv HAVE_TMC2130DRIVER X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130 E0_IS_TMC2130
+  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
+  - build_marlin
+  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
