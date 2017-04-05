@@ -4300,7 +4300,7 @@ inline void gcode_G28() {
 
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-          bed_level_grid[xCount][yCount] = measured_z + zoffset;
+          bed_level_grid[xCount][yCount] = measured_z;
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
@@ -4472,7 +4472,7 @@ inline void gcode_G28() {
 
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-              bed_level_grid[xCount][yCount] = measured_z + zoffset;
+              bed_level_grid[xCount][yCount] = measured_z;
 
             #endif
 
