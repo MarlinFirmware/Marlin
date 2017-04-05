@@ -7486,9 +7486,9 @@ void quickstop_stepper() {
    *   Z[height] Sets the Z fade height (0 or none to disable)
    *   V[bool]   Verbose - Print the leveling grid
    *
-   *   With AUTO_BED_LEVELING_UBL only:
+   * With AUTO_BED_LEVELING_UBL only:
    *
-   *     L[index]  Load UBL mesh from index (0 is default)
+   *   L[index]  Load UBL mesh from index (0 is default)
    */
   inline void gcode_M420() {
 
@@ -7505,9 +7505,6 @@ void quickstop_stepper() {
         ubl.load_mesh(storage_slot);
         if (storage_slot != ubl.state.eeprom_storage_slot) ubl.store_state();
         ubl.state.eeprom_storage_slot = storage_slot;
-        ubl.display_map(0);  // Right now, we only support one type of map
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
       }
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -7522,10 +7519,6 @@ void quickstop_stepper() {
             bed_level_virt_print();
           #endif
         }
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.display_map(0);  // Currently only supports one map type
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -7533,6 +7526,15 @@ void quickstop_stepper() {
         }
       #endif
     }
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // L to load a mesh from the EEPROM
+      if (code_seen('L') || code_seen('V')) {
+        ubl.display_map(0);  // Currently only supports one map type
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      }
+    #endif
 
     bool to_enable = false;
     if (code_seen('S')) {
