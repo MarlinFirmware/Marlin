@@ -8,6 +8,7 @@
 *.ino text eol=lf
 *.py  text eol=lf
 *.sh  text eol=lf
+*.scad text eol=lf
 
 # Files with native line endings
 # *.sln text
