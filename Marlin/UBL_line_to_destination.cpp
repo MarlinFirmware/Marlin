@@ -135,7 +135,7 @@
        * But we detect it and isolate it. For now, we just pass along the request.
        */
 
-      if (!WITHIN(cell_dest_xi, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(cell_dest_yi, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+      if (!WITHIN(cell_dest_xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cell_dest_yi, 0, GRID_MAX_POINTS_Y - 1)) {
 
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
         // a reasonable correction would be.

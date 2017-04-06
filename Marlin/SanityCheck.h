@@ -147,9 +147,15 @@
 #elif defined(AUTO_BED_LEVELING_FEATURE)
   #error "AUTO_BED_LEVELING_FEATURE is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(ABL_GRID_POINTS)
-  #error "ABL_GRID_POINTS is now ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y. Please update your configuration."
+  #error "ABL_GRID_POINTS is now GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y. Please update your configuration."
 #elif defined(ABL_GRID_POINTS_X) || defined(ABL_GRID_POINTS_Y)
-  #error "ABL_GRID_POINTS_[XY] is now ABL_GRID_MAX_POINTS_[XY]. Please update your configuration."
+  #error "ABL_GRID_POINTS_[XY] is now GRID_MAX_POINTS_[XY]. Please update your configuration."
+#elif defined(ABL_GRID_MAX_POINTS_X) || defined(ABL_GRID_MAX_POINTS_Y)
+  #error "ABL_GRID_MAX_POINTS_[XY] is now GRID_MAX_POINTS_[XY]. Please update your configuration."
+#elif defined(MESH_NUM_X_POINTS) || defined(MESH_NUM_Y_POINTS)
+  #error "MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
+#elif defined(UBL_MESH_NUM_X_POINTS) || defined(UBL_MESH_NUM_Y_POINTS)
+  #error "UBL_MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(UBL_MESH_EDIT_ENABLED)
   #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_EDITING. Please update your configuration."
 #elif defined(BEEPER)
@@ -242,10 +248,10 @@
     #error "DELTA is incompatible with ENABLE_LEVELING_FADE_HEIGHT. Please disable it."
   #endif
   #if ABL_GRID
-    #if (ABL_GRID_MAX_POINTS_X & 1) == 0 || (ABL_GRID_MAX_POINTS_Y & 1) == 0
-      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be odd numbers."
-    #elif ABL_GRID_MAX_POINTS_X < 3
-      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be 3 or higher."
+    #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
+      #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
+    #elif GRID_MAX_POINTS_X < 3
+      #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
@@ -411,8 +417,8 @@ static_assert(1 >= 0
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
-  #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
-    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
+  #elif GRID_MAX_POINTS_X > 9 || GRID_MAX_POINTS_Y > 9
+    #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
   #endif
 #endif
 
@@ -424,8 +430,6 @@ static_assert(1 >= 0
     #error "AUTO_BED_LEVELING_UBL does not yet support DELTA printers."
   #elif DISABLED(NEWPANEL)
     #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
-  #elif UBL_MESH_NUM_X_POINTS > 15 || UBL_MESH_NUM_Y_POINTS > 15
-    #error "UBL_MESH_NUM_X_POINTS and UBL_MESH_NUM_Y_POINTS must be less than 16."
   #endif
 #endif
 
@@ -602,8 +606,8 @@ static_assert(1 >= 0
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     #if DISABLED(EEPROM_SETTINGS)
       #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
-    #elif !WITHIN(UBL_MESH_NUM_X_POINTS, 3, 15) || !WITHIN(UBL_MESH_NUM_Y_POINTS, 3, 15)
-      #error "UBL_MESH_NUM_[XY]_POINTS must be a whole number between 3 and 15."
+    #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
+      #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
     #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
       #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
     #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
