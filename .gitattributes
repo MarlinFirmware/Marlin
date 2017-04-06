@@ -3,11 +3,12 @@
 
 # Files with Unix line endings
 *.c   text eol=lf
-# *.cpp text eol=lf
+*.cpp text eol=lf
 *.h   text eol=lf
 *.ino text eol=lf
 *.py  text eol=lf
 *.sh  text eol=lf
+*.scad text eol=lf
 
 # Files with native line endings
 # *.sln text
