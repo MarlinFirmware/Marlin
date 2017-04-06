@@ -47,7 +47,7 @@
     safe_delay(10);
   }
 
-  static void serial_echo_10x_spaces() {
+  static void serial_echo_11x_spaces() {
     for (uint8_t i = GRID_MAX_POINTS_X - 1; --i;) {
       SERIAL_ECHOPGM("          ");
       #if TX_BUFFER_SIZE > 0
@@ -92,15 +92,6 @@
       SERIAL_PROTOCOLLNPGM("?In load_state() sanity_check() failed.\n");
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      /**
-       * These lines can go away in a few weeks.  They are just
-       * to make sure people updating their firmware won't be using
-       * an incomplete Bed_Leveling.state structure. For speed
-       * we now multiply by the inverse of the Fade Height instead of
-       * dividing by it. Soon... all of the old structures will be
-       * updated, but until then, we try to ease the transition
-       * for our Beta testers.
-       */
       const float recip = ubl.state.g29_correction_fade_height ? 1.0 / ubl.state.g29_correction_fade_height : 1.0;
       if (ubl.state.g29_fade_height_multiplier != recip) {
         ubl.state.g29_fade_height_multiplier = recip;
@@ -181,11 +172,11 @@
     }
 
     if (map0) {
-      serial_echo_10x_spaces();
+      serial_echo_11x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      serial_echo_10x_spaces();
+      serial_echo_11x_spaces();
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
@@ -231,12 +222,12 @@
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHOPGM("    ");
-      serial_echo_10x_spaces();
+      serial_echo_11x_spaces();
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
       SERIAL_ECHOPGM("       ");
-      serial_echo_10x_spaces();
+      serial_echo_11x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
       SERIAL_EOL;
     }
