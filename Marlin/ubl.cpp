@@ -25,7 +25,7 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  #include "UBL.h"
+  #include "ubl.h"
   #include "hex_print_routines.h"
 
   /**
