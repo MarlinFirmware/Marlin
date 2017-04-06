@@ -40,16 +40,16 @@
     MBL_STATUS_REACTIVATE_BIT = 2
   };
 
-  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (MESH_NUM_X_POINTS - 1))
-  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (MESH_NUM_Y_POINTS - 1))
+  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
+  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_POINTS_Y - 1))
 
   class mesh_bed_leveling {
   public:
     static uint8_t status; // Has Mesh and Is Active bits
     static float z_offset,
-                 z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS],
-                 index_to_xpos[MESH_NUM_X_POINTS],
-                 index_to_ypos[MESH_NUM_Y_POINTS];
+                 z_values[GRID_MAX_POINTS_Y][GRID_MAX_POINTS_X],
+                 index_to_xpos[GRID_MAX_POINTS_X],
+                 index_to_ypos[GRID_MAX_POINTS_Y];
 
     mesh_bed_leveling();
 
@@ -65,9 +65,9 @@
     static void set_reactivate(const bool onOff) { onOff ? SBI(status, MBL_STATUS_REACTIVATE_BIT) : CBI(status, MBL_STATUS_REACTIVATE_BIT); }
 
     static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
-      px = index % (MESH_NUM_X_POINTS);
-      py = index / (MESH_NUM_X_POINTS);
-      if (py & 1) px = (MESH_NUM_X_POINTS - 1) - px; // Zig zag
+      px = index % (GRID_MAX_POINTS_X);
+      py = index / (GRID_MAX_POINTS_X);
+      if (py & 1) px = (GRID_MAX_POINTS_X - 1) - px; // Zig zag
     }
 
     static void set_zigzag_z(const int8_t index, const float &z) {
@@ -78,22 +78,22 @@
 
     static int8_t cell_index_x(const float &x) {
       int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
-      return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
+      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);
     }
 
     static int8_t cell_index_y(const float &y) {
       int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
-      return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
+      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);
     }
 
     static int8_t probe_index_x(const float &x) {
       int8_t px = (x - (MESH_MIN_X) + 0.5 * (MESH_X_DIST)) * (1.0 / (MESH_X_DIST));
-      return WITHIN(px, 0, MESH_NUM_X_POINTS - 1) ? px : -1;
+      return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
     }
 
     static int8_t probe_index_y(const float &y) {
       int8_t py = (y - (MESH_MIN_Y) + 0.5 * (MESH_Y_DIST)) * (1.0 / (MESH_Y_DIST));
-      return WITHIN(py, 0, MESH_NUM_Y_POINTS - 1) ? py : -1;
+      return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
     }
 
     static float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {

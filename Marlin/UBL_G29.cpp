@@ -354,24 +354,24 @@
       SERIAL_PROTOCOLLNPGM("Loading test_pattern values.\n");
       switch (test_pattern) {
         case 0:
-          for (uint8_t x = 0; x < UBL_MESH_NUM_X_POINTS; x++) {   // Create a bowl shape - similar to
-            for (uint8_t y = 0; y < UBL_MESH_NUM_Y_POINTS; y++) { // a poorly calibrated Delta.
-              const float p1 = 0.5 * (UBL_MESH_NUM_X_POINTS) - x,
-                          p2 = 0.5 * (UBL_MESH_NUM_Y_POINTS) - y;
+          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {   // Create a bowl shape - similar to
+            for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) { // a poorly calibrated Delta.
+              const float p1 = 0.5 * (GRID_MAX_POINTS_X) - x,
+                          p2 = 0.5 * (GRID_MAX_POINTS_Y) - y;
               ubl.z_values[x][y] += 2.0 * HYPOT(p1, p2);
             }
           }
           break;
         case 1:
-          for (uint8_t x = 0; x < UBL_MESH_NUM_X_POINTS; x++) {  // Create a diagonal line several Mesh cells thick that is raised
+          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {  // Create a diagonal line several Mesh cells thick that is raised
             ubl.z_values[x][x] += 9.999;
-            ubl.z_values[x][x + (x < UBL_MESH_NUM_Y_POINTS - 1) ? 1 : -1] += 9.999; // We want the altered line several mesh points thick
+            ubl.z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999; // We want the altered line several mesh points thick
           }
           break;
         case 2:
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
-          for (uint8_t x = (UBL_MESH_NUM_X_POINTS) / 3; x < 2 * (UBL_MESH_NUM_X_POINTS) / 3; x++)   // Create a rectangular raised area in
-            for (uint8_t y = (UBL_MESH_NUM_Y_POINTS) / 3; y < 2 * (UBL_MESH_NUM_Y_POINTS) / 3; y++) // the center of the bed
+          for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
+            for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
               ubl.z_values[x][y] += code_seen('C') ? ubl_constant : 9.99;
           break;
       }
@@ -592,8 +592,8 @@
 
       if (storage_slot == -1) {                     // Special case, we are going to 'Export' the mesh to the
         SERIAL_ECHOLNPGM("G29 I 999");              // host in a form it can be reconstructed on a different machine
-        for (uint8_t x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-          for (uint8_t y = 0;  y < UBL_MESH_NUM_Y_POINTS; y++)
+        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+          for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
             if (!isnan(ubl.z_values[x][y])) {
               SERIAL_ECHOPAIR("M421 I ", x);
               SERIAL_ECHOPAIR(" J ", y);
@@ -694,8 +694,8 @@
 
     sum = sum_of_diff_squared = 0.0;
     n = 0;
-    for (x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-      for (y = 0; y < UBL_MESH_NUM_Y_POINTS; y++)
+    for (x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (y = 0; y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(ubl.z_values[x][y])) {
           sum += ubl.z_values[x][y];
           n++;
@@ -706,8 +706,8 @@
     //
     // Now do the sumation of the squares of difference from mean
     //
-    for (x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-      for (y = 0; y < UBL_MESH_NUM_Y_POINTS; y++)
+    for (x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (y = 0; y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(ubl.z_values[x][y])) {
           difference = (ubl.z_values[x][y] - mean);
           sum_of_diff_squared += difference * difference;
@@ -724,15 +724,15 @@
     SERIAL_EOL;
 
     if (c_flag)
-      for (x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-        for (y = 0; y < UBL_MESH_NUM_Y_POINTS; y++)
+      for (x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (y = 0; y < GRID_MAX_POINTS_Y; y++)
           if (!isnan(ubl.z_values[x][y]))
             ubl.z_values[x][y] -= mean + ubl_constant;
   }
 
   void shift_mesh_height() {
-    for (uint8_t x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-      for (uint8_t y = 0; y < UBL_MESH_NUM_Y_POINTS; y++)
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(ubl.z_values[x][y]))
           ubl.z_values[x][y] += ubl_constant;
   }
@@ -848,8 +848,8 @@
     SERIAL_ECHO_F(c, 6);
     SERIAL_EOL;
 
-    for (i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-      for (j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
+    for (i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
         c = -((normal.x * (UBL_MESH_MIN_X + i * (MESH_X_DIST)) + normal.y * (UBL_MESH_MIN_Y + j * (MESH_Y_DIST))) - d);
         ubl.z_values[i][j] += c;
       }
@@ -1148,7 +1148,7 @@
     safe_delay(50);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[i]), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
@@ -1156,7 +1156,7 @@
     SERIAL_EOL;
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < UBL_MESH_NUM_Y_POINTS; i++) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
       SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[i]), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
@@ -1195,8 +1195,8 @@
 
     SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
 
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_X_POINTS  ", UBL_MESH_NUM_X_POINTS);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_Y_POINTS  ", UBL_MESH_NUM_Y_POINTS);
+    SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
+    SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
     safe_delay(50);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
@@ -1245,7 +1245,7 @@
    * use cases for the users. So we can wait and see what to do with it.
    */
   void g29_compare_current_mesh_to_stored_mesh() {
-    float tmp_z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS];
+    float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
     if (!code_has_value()) {
       SERIAL_PROTOCOLLNPGM("?Mesh # required.\n");
@@ -1267,8 +1267,8 @@
     SERIAL_PROTOCOLLNPAIR(" loaded from EEPROM address 0x", hex_word(j)); // Soon, we can remove the extra clutter of printing
                                                                         // the address in the EEPROM where the Mesh is stored.
 
-    for (uint8_t x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
-      for (uint8_t y = 0; y < UBL_MESH_NUM_Y_POINTS; y++)
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
         ubl.z_values[x][y] -= tmp_z_values[x][y];
   }
 
@@ -1285,8 +1285,8 @@
     const float px = lx - (probe_as_reference ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
                 py = ly - (probe_as_reference ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
-    for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-      for (uint8_t j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
         if ( (type == INVALID && isnan(ubl.z_values[i][j]))  // Check to see if this location holds the right thing
           || (type == REAL && !isnan(ubl.z_values[i][j]))
@@ -1314,8 +1314,8 @@
           distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.1;
 
           if (far_flag) {                                           // If doing the far_flag action, we want to be as far as possible
-            for (uint8_t k = 0; k < UBL_MESH_NUM_X_POINTS; k++) {   // from the starting point and from any other probed points.  We
-              for (uint8_t l = 0; l < UBL_MESH_NUM_Y_POINTS; l++) { // want the next point spread out and filling in any blank spaces
+            for (uint8_t k = 0; k < GRID_MAX_POINTS_X; k++) {   // from the starting point and from any other probed points.  We
+              for (uint8_t l = 0; l < GRID_MAX_POINTS_Y; l++) { // want the next point spread out and filling in any blank spaces
                 if (!isnan(ubl.z_values[k][l])) {                       // in the mesh. So we add in some of the distance to every probed
                   distance += sq(i - k) * (MESH_X_DIST) * .05       // point we can find.
                             + sq(j - l) * (MESH_Y_DIST) * .05;
