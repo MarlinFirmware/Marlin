@@ -321,16 +321,21 @@
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-#elif ENABLED(SINGLENOZZLE)
+#elif ENABLED(SINGLENOZZLE) 
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+#endif
+
+#if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && (EXTRUDERS == 1 || EXTRUDERS == 3)
+  #error "SINGLENOZZLE_SWITCHING_EXTRUDER requires 2 or 4 EXTRUDERS."
 #endif
 
 /**
  * Only one type of extruder allowed
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
+#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER))) \
+  || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER))) \
   || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, SINGLENOZZLE_SWITCHING_EXTRUDER or MIXING_EXTRUDER."
 #endif
 
 /**
@@ -343,6 +348,19 @@
     #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+  #endif
+#endif
+
+/**
+ * Single Nozzle + Single Stepper Dual Extruder with switching servo
+ */
+#if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "SINGLENOZZLE_SWITCHING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
+  #elif (EXTRUDERS != 2) && (EXTRUDERS != 4)
+    #error "SINGLENOZZLE_SWITCHING_EXTRUDER requires exactly 2 or 4 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SINGLENOZZLE_SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
   #endif
 #endif
 
@@ -847,13 +865,21 @@ static_assert(1 >= 0
     #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with MIXING_EXTRUDER."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SWITCHING_EXTRUDER."
+  #elif ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SINGLENOZZLE_SWITCHING_EXTRUDER."
   #endif
 #endif
 
 /**
  * Test Extruder Pins
  */
-#if EXTRUDERS > 3
+#if ENABLED (SINGLENOZZLE_SWITCHING_EXTRUDER) // needs only one stepper for 2 Extruder
+  #if EXTRUDERS > 2
+    #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+    #endif
+  #endif
+#elif EXTRUDERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
     #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif

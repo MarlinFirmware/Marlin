@@ -63,7 +63,7 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
-
+ 
 // The main status screen
 void lcd_status_screen();
 
@@ -128,7 +128,7 @@ uint16_t max_display_update_time = 0;
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
-
+        
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   void lcd_main_menu();
   void lcd_tune_menu();
@@ -1920,7 +1920,20 @@ void kill_screen(const char* lcd_msg) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+         #if E_MANUAL == 1
+            STATIC_ITEM(MSG_MOVE_E, true, true); break;
+          #else
+            switch(axis - E_AXIS) {
+              case 0: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E1, true, true); break;
+              case 1: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E2, true, true); break;
+              #if E_MANUAL > 2
+                case 2: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E3, true, true); break;
+                #if E_MANUAL > 3
+                  case 3: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E4, true, true); break;
+                #endif
+              #endif
+            }
+          #endif
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
@@ -1933,14 +1946,32 @@ void kill_screen(const char* lcd_msg) {
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
   void lcd_move_get_y_amount()        { _lcd_move_distance_menu(Y_AXIS, lcd_move_y); }
   void lcd_move_get_z_amount()        { _lcd_move_distance_menu(Z_AXIS, lcd_move_z); }
-  void lcd_move_get_e_amount()        { _lcd_move_distance_menu(E_AXIS, lcd_move_e); }
-  #if E_MANUAL > 1
-    void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
-    void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
-    #if E_MANUAL > 2
-      void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS, lcd_move_e2); }
-      #if E_MANUAL > 3
-        void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
+  void lcd_move_get_e_amount()        { _lcd_move_distance_menu(E_AXIS 
+                                                                      #if E_MANUAL > 1 
+                                                                         + active_extruder
+                                                                      #endif
+                                                                      , lcd_move_e); }
+    
+  #if DISABLED(SWITCHING_EXTRUDER) && DISABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    #if E_MANUAL > 1
+      void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
+      void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS + 1, lcd_move_e1); }
+      #if E_MANUAL > 2
+        void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS + 2, lcd_move_e2); }
+        #if E_MANUAL > 3
+          void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS + 3, lcd_move_e3); }
+        #endif
+      #endif
+    #endif
+  #else // ENABLED(SWITCHING_EXTRUDER) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    #if E_MANUAL > 1
+      void lcd_move_get_e0_amount()       { enqueue_and_echo_commands_P(PSTR("T0")); _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
+      void lcd_move_get_e1_amount()       { enqueue_and_echo_commands_P(PSTR("T1")); _lcd_move_distance_menu(E_AXIS + 1, lcd_move_e1); }
+      #if E_MANUAL > 2
+        void lcd_move_get_e2_amount()     { enqueue_and_echo_commands_P(PSTR("T2")); _lcd_move_distance_menu(E_AXIS + 2, lcd_move_e2); }
+        #if E_MANUAL > 3
+          void lcd_move_get_e3_amount()   { enqueue_and_echo_commands_P(PSTR("T3")); _lcd_move_distance_menu(E_AXIS + 3, lcd_move_e3); }
+        #endif
       #endif
     #endif
   #endif
@@ -1988,13 +2019,6 @@ void kill_screen(const char* lcd_msg) {
     }
     else
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-
-    #if ENABLED(SWITCHING_EXTRUDER)
-      if (active_extruder)
-        MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
-      else
-        MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1"));
-    #endif
 
     MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);
     #if E_MANUAL > 1
@@ -2315,9 +2339,9 @@ void kill_screen(const char* lcd_msg) {
     void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) _reset_acceleration_rates(); }
     void _reset_e0_acceleration_rate() { _reset_e_acceleration_rate(0); }
     void _reset_e1_acceleration_rate() { _reset_e_acceleration_rate(1); }
-    #if E_STEPPERS > 2
+    #if EXTRUDERS > 2
       void _reset_e2_acceleration_rate() { _reset_e_acceleration_rate(2); }
-      #if E_STEPPERS > 3
+      #if EXTRUDERS > 3
         void _reset_e3_acceleration_rate() { _reset_e_acceleration_rate(3); }
       #endif
     #endif
@@ -2333,9 +2357,9 @@ void kill_screen(const char* lcd_msg) {
     }
     void _planner_refresh_e0_positioning() { _reset_e_acceleration_rate(0); }
     void _planner_refresh_e1_positioning() { _reset_e_acceleration_rate(1); }
-    #if E_STEPPERS > 2
+    #if EXTRUDERS > 2
       void _planner_refresh_e2_positioning() { _reset_e_acceleration_rate(2); }
-      #if E_STEPPERS > 3
+      #if EXTRUDERS > 3
         void _planner_refresh_e3_positioning() { _reset_e_acceleration_rate(3); }
       #endif
     #endif
@@ -2377,9 +2401,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
-      #if E_STEPPERS > 2
+      #if EXTRUDERS > 2
         MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
-        #if E_STEPPERS > 3
+        #if EXTRUDERS > 3
           MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
         #endif
       #endif
@@ -2401,9 +2425,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
-      #if E_STEPPERS > 2
+      #if EXTRUDERS > 2
         MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
-        #if E_STEPPERS > 3
+        #if EXTRUDERS > 3
           MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
         #endif
       #endif
@@ -2425,9 +2449,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
-      #if E_STEPPERS > 2
+      #if EXTRUDERS > 2
         MENU_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
-        #if E_STEPPERS > 3
+        #if EXTRUDERS > 3
           MENU_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
         #endif
       #endif

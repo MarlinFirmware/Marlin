@@ -37,23 +37,24 @@
 //
 // Servos
 //
-#define SERVO0_PIN         13 // untested
+#define SERVO0_PIN         24 // ex x-max pin
+#define SERVO1_PIN         28 // ex y-max pin              
 
 //
 // Limit Switches
 //
 #define X_MIN_PIN          22
-#define X_MAX_PIN          24
+#define X_MAX_PIN          -1 // 24
 #define Y_MIN_PIN          26
-#define Y_MAX_PIN          28
+#define Y_MAX_PIN          -1 // 28
 #define Z_MIN_PIN          30
-#define Z_MAX_PIN          32
+#define Z_MAX_PIN          -1 // 32
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
+  #define Z_MIN_PROBE_PIN  32                           // ex Z_MAX_PIN 
 #endif
 
 //
@@ -79,11 +80,21 @@
 #define E1_DIR_PIN         47
 #define E1_ENABLE_PIN      48
 
+#define E2_STEP_PIN        49
+#define E2_DIR_PIN         47
+#define E2_ENABLE_PIN      48
+
+#define E3_STEP_PIN        E2_STEP_PIN
+#define E3_DIR_PIN         E2_DIR_PIN
+#define E3_ENABLE_PIN      E2_ENABLE_PIN
+
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN          8   // Analog Input
-#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_1_PIN          8   // 9   // Analog Input
+#define TEMP_2_PIN          8   // Analog Input
+#define TEMP_3_PIN          8   // Analog Input
 #define TEMP_BED_PIN       10   // Analog Input
 
 //
@@ -91,9 +102,11 @@
 //
 #define HEATER_0_PIN        2
 #define HEATER_1_PIN        3
+#define HEATER_2_PIN        3
+#define HEATER_3_PIN        3
 #define HEATER_BED_PIN      4
 
-#define FAN_PIN             7
+#define FAN_PIN             7 
 
 //
 // Misc. Functions
