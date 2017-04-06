@@ -24,8 +24,6 @@
  * temperature.cpp - temperature control
  */
 
-
-
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
@@ -1538,8 +1536,8 @@ void Temperature::isr() {
   CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
   sei();
 
-  static uint8_t temp_count = 0;
-  static TempState temp_state = StartupDelay;
+  static int8_t temp_count = -1;
+  static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
@@ -1812,6 +1810,22 @@ void Temperature::isr() {
 
   #endif // SLOW_PWM_HEATERS
 
+  //
+  // Update lcd buttons 488 times per second
+  //
+  static bool do_buttons;
+  if ((do_buttons ^= true)) lcd_buttons_update();
+
+  /**
+   * One sensor is sampled on every other call of the ISR.
+   * Each sensor is read 16 (OVERSAMPLENR) times, taking the average.
+   *
+   * On each Prepare pass, ADC is started for a sensor pin.
+   * On the next pass, the ADC value is read and accumulated.
+   *
+   * This gives each ADC 0.9765ms to charge up.
+   */
+
   #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
   #ifdef MUX5
     #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
@@ -1819,122 +1833,94 @@ void Temperature::isr() {
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
 
-  // Prepare or measure a sensor, each one every 14th frame
-  switch (temp_state) {
-    case PrepareTemp_0:
-      #if HAS_TEMP_0
+  switch (adc_sensor_state) {
+
+    case SensorsReady: {
+      // All sensors have been read. Stay in this state for a few
+      // ISRs to save on calls to temp update/checking code below.
+      constexpr int extra_loops = MIN_ADC_ISR_LOOPS - (int)SensorsReady;
+      static uint8_t delay_count = 0;
+      if (extra_loops > 0) {
+        if (delay_count == 0) delay_count = extra_loops;   // Init this delay
+        if (--delay_count)                                 // While delaying...
+          adc_sensor_state = (ADCSensorState)(int(SensorsReady) - 1); // retain this state (else, next state will be 0)
+        break;
+      }
+      else
+        adc_sensor_state = (ADCSensorState)0; // Fall-through to start first sensor now
+    }
+
+    #if HAS_TEMP_0
+      case PrepareTemp_0:
         START_ADC(TEMP_0_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_0;
-      break;
-    case MeasureTemp_0:
-      #if HAS_TEMP_0
+        break;
+      case MeasureTemp_0:
         raw_temp_value[0] += ADC;
-      #endif
-      temp_state = PrepareTemp_BED;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_BED:
-      #if HAS_TEMP_BED
+    #if HAS_TEMP_BED
+      case PrepareTemp_BED:
         START_ADC(TEMP_BED_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_BED;
-      break;
-    case MeasureTemp_BED:
-      #if HAS_TEMP_BED
+        break;
+      case MeasureTemp_BED:
         raw_temp_bed_value += ADC;
-      #endif
-      temp_state = PrepareTemp_1;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_1:
-      #if HAS_TEMP_1
+    #if HAS_TEMP_1
+      case PrepareTemp_1:
         START_ADC(TEMP_1_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_1;
-      break;
-    case MeasureTemp_1:
-      #if HAS_TEMP_1
+        break;
+      case MeasureTemp_1:
         raw_temp_value[1] += ADC;
-      #endif
-      temp_state = PrepareTemp_2;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_2:
-      #if HAS_TEMP_2
+    #if HAS_TEMP_2
+      case PrepareTemp_2:
         START_ADC(TEMP_2_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_2;
-      break;
-    case MeasureTemp_2:
-      #if HAS_TEMP_2
+        break;
+      case MeasureTemp_2:
         raw_temp_value[2] += ADC;
-      #endif
-      temp_state = PrepareTemp_3;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_3:
-      #if HAS_TEMP_3
+    #if HAS_TEMP_3
+      case PrepareTemp_3:
         START_ADC(TEMP_3_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_3;
-      break;
-    case MeasureTemp_3:
-      #if HAS_TEMP_3
+        break;
+      case MeasureTemp_3:
         raw_temp_value[3] += ADC;
-      #endif
-      temp_state = PrepareTemp_4;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_4:
-      #if HAS_TEMP_4
+    #if HAS_TEMP_4
+      case PrepareTemp_4:
         START_ADC(TEMP_4_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_4;
-      break;
-    case MeasureTemp_4:
-      #if HAS_TEMP_4
+        break;
+      case MeasureTemp_4:
         raw_temp_value[4] += ADC;
-      #endif
-      temp_state = Prepare_FILWIDTH;
-      break;
+        break;
+    #endif
 
-    case Prepare_FILWIDTH:
-      #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      case Prepare_FILWIDTH:
         START_ADC(FILWIDTH_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = Measure_FILWIDTH;
       break;
-    case Measure_FILWIDTH:
-      #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
-        if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
-          raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
-          raw_filwidth_value += ((unsigned long)ADC << 7); //add new ADC reading
+      case Measure_FILWIDTH:
+        if (ADC > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
+          raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
+          raw_filwidth_value += ((unsigned long)ADC << 7); // Add new ADC reading, scaled by 128
         }
-      #endif
-      temp_state = PrepareTemp_0;
-      temp_count++;
-      break;
+        break;
+    #endif
 
-    case StartupDelay:
-      temp_state = PrepareTemp_0;
-      break;
+    case StartupDelay: break;
 
-    // default:
-    //   SERIAL_ERROR_START;
-    //   SERIAL_ERRORLNPGM("Temp measurement error!");
-    //   break;
-  } // switch(temp_state)
+  } // switch(adc_sensor_state)
 
-  if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+  if (!adc_sensor_state && ++temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
 
     temp_count = 0;
 
@@ -1997,6 +1983,9 @@ void Temperature::isr() {
     #endif
 
   } // temp_count >= OVERSAMPLENR
+
+  // Go to the next state, up to SensorsReady
+  adc_sensor_state = (ADCSensorState)((int(adc_sensor_state) + 1) % int(StartupDelay));
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
