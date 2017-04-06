@@ -963,7 +963,11 @@ void Config_ResetDefault() {
     COPY(delta_diagonal_rod_trim, drt);
     COPY(delta_tower_angle_trim, dta);
   #elif ENABLED(Z_DUAL_ENDSTOPS)
-    z_endstop_adj = 0;
+    #if defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
+      float z_endstop_adj = Z_DUAL_ENDSTOPS_ADJUSTMENT;
+    #else
+      float z_endstop_adj = 0;
+    #endif
   #endif
 
   #if ENABLED(ULTIPANEL)
