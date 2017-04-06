@@ -78,15 +78,15 @@
 
     enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_ACTIVE_BIT = 1 };
 
-    #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(UBL_MESH_NUM_X_POINTS - 1))
-    #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(UBL_MESH_NUM_Y_POINTS - 1))
+    #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
+    #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
     typedef struct {
       bool active = false;
       float z_offset = 0.0;
       int8_t eeprom_storage_slot = -1,
-             n_x = UBL_MESH_NUM_X_POINTS,
-             n_y = UBL_MESH_NUM_Y_POINTS;
+             n_x = GRID_MAX_POINTS_X,
+             n_y = GRID_MAX_POINTS_Y;
 
       float mesh_x_min = UBL_MESH_MIN_X,
             mesh_y_min = UBL_MESH_MIN_Y,
@@ -122,9 +122,9 @@
 
         static ubl_state state, pre_initialized;
 
-        static float z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS],
-                     mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
-                     mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
+        static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
+                     mesh_index_to_xpos[GRID_MAX_POINTS_X + 1], // +1 safety margin for now, until determinism prevails
+                     mesh_index_to_ypos[GRID_MAX_POINTS_Y + 1];
 
         static bool g26_debug_flag,
                     has_control_of_lcd_panel;
@@ -151,14 +151,14 @@
 
         static int8_t get_cell_index_x(const float &x) {
           const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
-          return constrain(cx, 0, (UBL_MESH_NUM_X_POINTS) - 1);   // -1 is appropriate if we want all movement to the X_MAX
+          return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
         }                                                         // position. But with this defined this way, it is possible
                                                                   // to extrapolate off of this point even further out. Probably
                                                                   // that is OK because something else should be keeping that from
                                                                   // happening and should not be worried about at this level.
         static int8_t get_cell_index_y(const float &y) {
           const int8_t cy = (y - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
-          return constrain(cy, 0, (UBL_MESH_NUM_Y_POINTS) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
+          return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
         }                                                         // position. But with this defined this way, it is possible
                                                                   // to extrapolate off of this point even further out. Probably
                                                                   // that is OK because something else should be keeping that from
@@ -166,12 +166,12 @@
 
         static int8_t find_closest_x_index(const float &x) {
           const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
-          return WITHIN(px, 0, UBL_MESH_NUM_X_POINTS - 1) ? px : -1;
+          return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
         }
 
         static int8_t find_closest_y_index(const float &y) {
           const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
-          return WITHIN(py, 0, UBL_MESH_NUM_Y_POINTS - 1) ? py : -1;
+          return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
         }
 
         /**
@@ -198,7 +198,7 @@
          * the rare occasion when a point lies exactly on a Mesh line (denoted by index yi).
          */
         static inline float z_correction_for_x_on_horizontal_mesh_line(const float &lx0, const int x1_i, const int yi) {
-          if (!WITHIN(x1_i, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(yi, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+          if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
             SERIAL_ECHOPAIR("? in z_correction_for_x_on_horizontal_mesh_line(lx0=", lx0);
             SERIAL_ECHOPAIR(",x1_i=", x1_i);
             SERIAL_ECHOPAIR(",yi=", yi);
@@ -217,7 +217,7 @@
         // See comments above for z_correction_for_x_on_horizontal_mesh_line
         //
         static inline float z_correction_for_y_on_vertical_mesh_line(const float &ly0, const int xi, const int y1_i) {
-          if (!WITHIN(xi, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(y1_i, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+          if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
             SERIAL_ECHOPAIR("? in get_z_correction_along_vertical_mesh_line_at_specific_x(ly0=", ly0);
             SERIAL_ECHOPAIR(", x1_i=", xi);
             SERIAL_ECHOPAIR(", yi=", y1_i);
@@ -242,7 +242,7 @@
           const int8_t cx = get_cell_index_x(RAW_X_POSITION(lx0)),
                        cy = get_cell_index_y(RAW_Y_POSITION(ly0));
 
-          if (!WITHIN(cx, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(cy, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+          if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 1)) {
 
             SERIAL_ECHOPAIR("? in get_z_correction(lx0=", lx0);
             SERIAL_ECHOPAIR(", ly0=", ly0);
