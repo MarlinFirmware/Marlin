@@ -399,11 +399,11 @@ int feedrate_percentage = 100, saved_feedrate_percentage,
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
      volumetric_enabled =
-      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-        true
-      #else
-        false
-      #endif
+        #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+          true
+        #else
+          false
+        #endif
       ;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
@@ -588,7 +588,6 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define UNPROBED 9999.0f
   int bilinear_grid_spacing[2], bilinear_start[2];
   float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
 #endif
@@ -2344,7 +2343,7 @@ static void clean_up_after_endstop_or_probe_move() {
         bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
-            bed_level_grid[x][y] = UNPROBED;
+            bed_level_grid[x][y] = NAN;
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.reset();
       #endif
@@ -2352,6 +2351,76 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
 #endif // PLANNER_LEVELING
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+
+  //
+  // Enable if you prefer your output in JSON format
+  // suitable for SCAD or JavaScript mesh visualizers.
+  // 
+  // Visualize meshes in OpenSCAD using the included script.
+  // 
+  //   buildroot/shared/scripts/MarlinMesh.scad
+  //
+  //#define SCAD_MESH_OUTPUT
+
+  /**
+   * Print calibration results for plotting or manual frame adjustment.
+   */
+  static void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, float (*fn)(const uint8_t, const uint8_t)) {
+    #ifndef SCAD_MESH_OUTPUT
+      for (uint8_t x = 0; x < sx; x++) {
+        for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
+          SERIAL_PROTOCOLCHAR(' ');
+        SERIAL_PROTOCOL((int)x);
+      }
+      SERIAL_EOL;
+    #endif
+    #ifdef SCAD_MESH_OUTPUT
+      SERIAL_PROTOCOLLNPGM("measured_z = ["); // open 2D array
+    #endif
+    for (uint8_t y = 0; y < sy; y++) {
+      #ifdef SCAD_MESH_OUTPUT
+        SERIAL_PROTOCOLLNPGM(" [");           // open sub-array
+      #else
+        if (y < 10) SERIAL_PROTOCOLCHAR(' ');
+        SERIAL_PROTOCOL((int)y);
+      #endif
+      for (uint8_t x = 0; x < sx; x++) {
+        SERIAL_PROTOCOLCHAR(' ');
+        const float offset = fn(x, y);
+        if (offset != NAN) {
+          if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
+          SERIAL_PROTOCOL_F(offset, precision);
+        }
+        else {
+          #ifdef SCAD_MESH_OUTPUT
+            for (uint8_t i = 3; i < precision + 3; i++)
+              SERIAL_PROTOCOLCHAR(' ');
+            SERIAL_PROTOCOLPGM("NAN");
+          #else
+            for (uint8_t i = 0; i < precision + 3; i++)
+              SERIAL_PROTOCOLCHAR(i ? '=' : ' ');
+          #endif
+        }
+        #ifdef SCAD_MESH_OUTPUT
+          if (x < sx - 1) SERIAL_PROTOCOLCHAR(',');
+        #endif
+      }
+      #ifdef SCAD_MESH_OUTPUT
+        SERIAL_PROTOCOLCHAR(' ');
+        SERIAL_PROTOCOLCHAR(']');                     // close sub-array
+        if (y < sy - 1) SERIAL_PROTOCOLCHAR(',');
+      #endif
+      SERIAL_EOL;
+    }
+    #ifdef SCAD_MESH_OUTPUT
+      SERIAL_PROTOCOLPGM("\n];");                     // close 2D array
+    #endif
+    SERIAL_EOL;
+  }
+
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -2372,7 +2441,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_CHAR(']');
       }
     #endif
-    if (bed_level_grid[x][y] != UNPROBED) {
+    if (bed_level_grid[x][y] != NAN) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
       #endif
@@ -2386,9 +2455,9 @@ static void clean_up_after_endstop_or_probe_move() {
           c1 = bed_level_grid[x + xdir][y + ydir], c2 = bed_level_grid[x + xdir * 2][y + ydir * 2];
 
     // Treat far unprobed points as zero, near as equal to far
-    if (a2 == UNPROBED) a2 = 0.0; if (a1 == UNPROBED) a1 = a2;
-    if (b2 == UNPROBED) b2 = 0.0; if (b1 == UNPROBED) b1 = b2;
-    if (c2 == UNPROBED) c2 = 0.0; if (c1 == UNPROBED) c1 = c2;
+    if (a2 == NAN) a2 = 0.0; if (a1 == NAN) a1 = a2;
+    if (b2 == NAN) b2 = 0.0; if (b1 == NAN) b1 = b2;
+    if (c2 == NAN) c2 = 0.0; if (c1 == NAN) c1 = c2;
 
     const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 
@@ -2453,39 +2522,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
   }
 
-  /**
-   * Print calibration results for plotting or manual frame adjustment.
-   */
-  static void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, float (*fn)(const uint8_t, const uint8_t)) {
-    for (uint8_t x = 0; x < sx; x++) {
-      for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
-        SERIAL_PROTOCOLCHAR(' ');
-      SERIAL_PROTOCOL((int)x);
-    }
-    SERIAL_EOL;
-    for (uint8_t y = 0; y < sy; y++) {
-      if (y < 10) SERIAL_PROTOCOLCHAR(' ');
-      SERIAL_PROTOCOL((int)y);
-      for (uint8_t x = 0; x < sx; x++) {
-        SERIAL_PROTOCOLCHAR(' ');
-        float offset = fn(x, y);
-        if (offset != UNPROBED) {
-          if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
-          SERIAL_PROTOCOL_F(offset, precision);
-        }
-        else
-          for (uint8_t i = 0; i < precision + 3; i++)
-            SERIAL_PROTOCOLCHAR(i ? '=' : ' ');
-      }
-      SERIAL_EOL;
-    }
-    SERIAL_EOL;
-  }
-
   static void print_bilinear_leveling_grid() {
     SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-    print_2d_array(ABL_GRID_MAX_POINTS_X, ABL_GRID_MAX_POINTS_Y, 2,
-      [](const uint8_t x, const uint8_t y) { return bed_level_grid[x][y]; }
+    print_2d_array(ABL_GRID_MAX_POINTS_X, ABL_GRID_MAX_POINTS_Y, 3,
+      [](const uint8_t ix, const uint8_t iy) { return bed_level_grid[ix][iy]; }
     );
   }
 
@@ -2501,7 +2541,7 @@ static void clean_up_after_endstop_or_probe_move() {
     static void bed_level_virt_print() {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
       print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
-        [](const uint8_t x, const uint8_t y) { return bed_level_grid_virt[x][y]; }
+        [](const uint8_t ix, const uint8_t iy) { return bed_level_grid_virt[ix][iy]; }
       );
     }
 
@@ -3715,13 +3755,9 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
-    for (uint8_t py = 0; py < MESH_NUM_Y_POINTS; py++) {
-      for (uint8_t px = 0; px < MESH_NUM_X_POINTS; px++) {
-        SERIAL_PROTOCOLPGM("  ");
-        SERIAL_PROTOCOL_F(mbl.z_values[py][px], 5);
-      }
-      SERIAL_EOL;
-    }
+    print_2d_array(MESH_NUM_X_POINTS, MESH_NUM_Y_POINTS, 5,
+      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
+    );
   }
 
   /**
@@ -6440,6 +6476,13 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:Z_PROBE:0");
     #endif
 
+    // MESH_REPORT (M420 V)
+    #if PLANNER_LEVELING
+      SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
+    #endif
+
     // SOFTWARE_POWER (G30)
     #if HAS_POWER_SWITCH
       SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:1");
@@ -7479,9 +7522,9 @@ void quickstop_stepper() {
    *   Z[height] Sets the Z fade height (0 or none to disable)
    *   V[bool]   Verbose - Print the leveling grid
    *
-   *   With AUTO_BED_LEVELING_UBL only:
+   * With AUTO_BED_LEVELING_UBL only:
    *
-   *     L[index]  Load UBL mesh from index (0 is default)
+   *   L[index]  Load UBL mesh from index (0 is default)
    */
   inline void gcode_M420() {
 
@@ -7498,9 +7541,6 @@ void quickstop_stepper() {
         ubl.load_mesh(storage_slot);
         if (storage_slot != ubl.state.eeprom_storage_slot) ubl.store_state();
         ubl.state.eeprom_storage_slot = storage_slot;
-        ubl.display_map(0);  // Right now, we only support one type of map
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
       }
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -7515,10 +7555,6 @@ void quickstop_stepper() {
             bed_level_virt_print();
           #endif
         }
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.display_map(0);  // Currently only supports one map type
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -7526,6 +7562,15 @@ void quickstop_stepper() {
         }
       #endif
     }
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // L to load a mesh from the EEPROM
+      if (code_seen('L') || code_seen('V')) {
+        ubl.display_map(0);  // Currently only supports one map type
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      }
+    #endif
 
     bool to_enable = false;
     if (code_seen('S')) {
