@@ -1983,8 +1983,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   #endif
 
-  #define DEPLOY_PROBE() set_probe_deployed(true)
-  #define STOW_PROBE() set_probe_deployed(false)
 
   #if ENABLED(BLTOUCH)
     void bltouch_command(int angle) {
