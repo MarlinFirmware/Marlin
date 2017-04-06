@@ -4159,9 +4159,6 @@ inline void gcode_G28() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         zoffset = code_seen('Z') ? code_value_axis_units(Z_AXIS) : 0;
-        #if HAS_BED_PROBE
-          zoffset += zprobe_zoffset;
-        #endif
 
       #endif
 
@@ -4336,7 +4333,7 @@ inline void gcode_G28() {
 
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-          bed_level_grid[xCount][yCount] = measured_z;
+          bed_level_grid[xCount][yCount] = measured_z + zoffset;
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
@@ -4508,7 +4505,7 @@ inline void gcode_G28() {
 
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-              bed_level_grid[xCount][yCount] = measured_z;
+              bed_level_grid[xCount][yCount] = measured_z + zoffset;
 
             #endif
 
