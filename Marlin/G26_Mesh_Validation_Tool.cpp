@@ -219,8 +219,8 @@
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], ooze_amount);
 
-    ubl.has_control_of_lcd_panel++;
-    //debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
+    ubl.has_control_of_lcd_panel = true;
+    //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
     /**
      * Declare and generate a sin() & cos() table to be used during the circle drawing.  This will lighten
@@ -346,12 +346,12 @@
 
         }
 
-        //debug_current_and_destination((char*)"Looking for lines to connect.");
+        //debug_current_and_destination(PSTR("Looking for lines to connect."));
         look_for_lines_to_connect();
-        //debug_current_and_destination((char*)"Done with line connect.");
+        //debug_current_and_destination(PSTR("Done with line connect."));
       }
 
-      //debug_current_and_destination((char*)"Done with current circle.");
+      //debug_current_and_destination(PSTR("Done with current circle."));
 
     } while (location.x_index >= 0 && location.y_index >= 0);
 
@@ -362,16 +362,16 @@
     retract_filament(destination);
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
-    //debug_current_and_destination((char*)"ready to do Z-Raise.");
+    //debug_current_and_destination(PSTR("ready to do Z-Raise."));
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Raise the nozzle
-    //debug_current_and_destination((char*)"done doing Z-Raise.");
+    //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
     destination[X_AXIS] = x_pos;                                               // Move back to the starting position
     destination[Y_AXIS] = y_pos;
     //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                        // Keep the nozzle where it is
 
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
-    //debug_current_and_destination((char*)"done doing X/Y move.");
+    //debug_current_and_destination(PSTR("done doing X/Y move."));
 
     ubl.has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
 
@@ -458,7 +458,7 @@
                 SERIAL_ECHOPAIR(", ey=", ey);
                 SERIAL_CHAR(')');
                 SERIAL_EOL;
-                //debug_current_and_destination((char*)"Connecting horizontal line.");
+                //debug_current_and_destination(PSTR("Connecting horizontal line."));
               }
 
               print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
@@ -489,7 +489,7 @@
                   SERIAL_ECHOPAIR(", ey=", ey);
                   SERIAL_CHAR(')');
                   SERIAL_EOL;
-                  debug_current_and_destination((char*)"Connecting vertical line.");
+                  debug_current_and_destination(PSTR("Connecting vertical line."));
                 }
                 print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
                 bit_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
@@ -525,7 +525,7 @@
       stepper.synchronize();
       set_destination_to_current();
 
-      //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() done with Z move");
+      //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() done with Z move"));
     }
 
     // Check if X or Y is involved in the movement.
@@ -538,11 +538,11 @@
     destination[Y_AXIS] = y;
     destination[E_AXIS] += e_delta;
 
-    //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() doing last move");
+    //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() doing last move"));
 
     ubl_line_to_destination(feed_value, 0);
 
-    //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() after last move");
+    //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() after last move"));
 
     stepper.synchronize();
     set_destination_to_current();
@@ -613,7 +613,7 @@
 
     //if (ubl.g26_debug_flag) {
     //  SERIAL_ECHOLNPGM("  doing printing move.");
-    //  debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
+    //  debug_current_and_destination(PSTR("doing final move_to() inside print_line_from_here_to_there()"));
     //}
     move_to(ex, ey, ez, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
   }
@@ -771,7 +771,7 @@
           lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
       #endif
-          ubl.has_control_of_lcd_panel++;
+          ubl.has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
@@ -808,7 +808,7 @@
 
     if (prime_flag == -1) {  // The user wants to control how much filament gets purged
 
-      ubl.has_control_of_lcd_panel++;
+      ubl.has_control_of_lcd_panel = true;
 
       lcd_setstatuspgm(PSTR("User-Controlled Prime"), 99);
       chirp_at_user();

@@ -288,6 +288,13 @@ float code_value_temp_diff();
   void set_bed_leveling_enabled(bool enable=true);
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+struct linear_fit {
+	double A, B, D;
+};
+struct linear_fit *lsf_linear_fit( double *, double *, double *, int );
+#endif
+
 #if PLANNER_LEVELING
   void reset_bed_level();
 #endif
@@ -298,6 +305,8 @@ float code_value_temp_diff();
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+  #define DEPLOY_PROBE() set_probe_deployed(true)
+  #define STOW_PROBE() set_probe_deployed(false)
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

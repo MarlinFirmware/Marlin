@@ -39,7 +39,7 @@
       SERIAL_ECHO_F(destination[X_AXIS], 6);
   }
 
-  void debug_current_and_destination(char *title) {
+  void debug_current_and_destination(const char *title) {
 
     // if the title message starts with a '!' it is so important, we are going to
     // ignore the status of the g26_debug_flag
@@ -85,12 +85,6 @@
     SERIAL_ECHO(title);
     SERIAL_EOL;
 
-    SET_INPUT_PULLUP(66); // Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
-
-    //if (been_to_2_6) {
-    //while ((digitalRead(66) & 0x01) != 0)
-    //  idle();
-    //}
   }
 
   void ubl_line_to_destination(const float &feed_rate, uint8_t extruder) {
@@ -124,7 +118,7 @@
       SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
       SERIAL_CHAR(')');
       SERIAL_EOL;
-      debug_current_and_destination((char*)"Start of ubl_line_to_destination()");
+      debug_current_and_destination(PSTR("Start of ubl_line_to_destination()"));
     }
 
     if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) { // if the whole move is within the same cell,
@@ -144,7 +138,7 @@
         set_current_to_destination();
 
         if (ubl.g26_debug_flag)
-          debug_current_and_destination((char*)"out of bounds in ubl_line_to_destination()");
+          debug_current_and_destination(PSTR("out of bounds in ubl_line_to_destination()"));
 
         return;
       }
@@ -181,7 +175,7 @@
         z_optimized = z0;
         z0 = ubl.get_z_correction(end[X_AXIS], end[Y_AXIS]);
         if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-        debug_current_and_destination((char*)"FINAL_MOVE: z_correction()");
+        debug_current_and_destination(PSTR("FINAL_MOVE: z_correction()"));
         if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
         if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
         SERIAL_ECHOPAIR("  end[X_AXIS]=", end[X_AXIS]);
@@ -191,7 +185,8 @@
         SERIAL_ECHOPAIR("  err=",fabs(z_optimized - z0));
         SERIAL_EOL;
         }
-      //*/
+      */
+
       z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
       /**
@@ -206,7 +201,7 @@
       planner.buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0 + ubl.state.z_offset, end[E_AXIS], feed_rate, extruder);
 
       if (ubl.g26_debug_flag)
-        debug_current_and_destination((char*)"FINAL_MOVE in ubl_line_to_destination()");
+        debug_current_and_destination(PSTR("FINAL_MOVE in ubl_line_to_destination()"));
 
       set_current_to_destination();
       return;
@@ -286,7 +281,7 @@
           z_optimized = z0;
           z0 = ubl.get_z_correction(x, next_mesh_line_y);
           if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination((char*)"VERTICAL z_correction()");
+            debug_current_and_destination(PSTR("VERTICAL z_correction()"));
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
           SERIAL_ECHOPAIR("  x=", x);
@@ -296,7 +291,7 @@
           SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
-        //*/
+        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -333,7 +328,7 @@
       }
 
       if (ubl.g26_debug_flag)
-        debug_current_and_destination((char*)"vertical move done in ubl_line_to_destination()");
+        debug_current_and_destination(PSTR("vertical move done in ubl_line_to_destination()"));
 
       //
       // Check if we are at the final destination. Usually, we won't be, but if it is on a Y Mesh Line, we are done.
@@ -371,7 +366,7 @@
           z_optimized = z0;
           z0 = ubl.get_z_correction(next_mesh_line_x, y);
           if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination((char*)"HORIZONTAL z_correction()");
+            debug_current_and_destination(PSTR("HORIZONTAL z_correction()"));
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
           SERIAL_ECHOPAIR("  next_mesh_line_x=", next_mesh_line_x);
@@ -381,7 +376,7 @@
           SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
-        //*/
+        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -418,7 +413,7 @@
       }
 
       if (ubl.g26_debug_flag)
-        debug_current_and_destination((char*)"horizontal move done in ubl_line_to_destination()");
+        debug_current_and_destination(PSTR("horizontal move done in ubl_line_to_destination()"));
 
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -466,7 +461,7 @@
           z_optimized = z0;
           z0 = ubl.get_z_correction(x, next_mesh_line_y);
           if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination((char*)"General_1: z_correction()");
+            debug_current_and_destination(PSTR("General_1: z_correction()"));
             if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  "); {
               SERIAL_ECHOPAIR("  x=", x);
@@ -477,7 +472,7 @@
             SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
             SERIAL_ECHO("\n");
           }
-        //*/
+        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -517,7 +512,7 @@
           z_optimized = z0;
           z0 = ubl.get_z_correction(next_mesh_line_x, y);
           if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-          debug_current_and_destination((char*)"General_2: z_correction()");
+          debug_current_and_destination(PSTR("General_2: z_correction()"));
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
           if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
           SERIAL_ECHOPAIR("  next_mesh_line_x=", next_mesh_line_x);
@@ -527,7 +522,7 @@
           SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
-        //*/
+        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -557,7 +552,7 @@
     }
 
     if (ubl.g26_debug_flag)
-      debug_current_and_destination((char*)"generic move done in ubl_line_to_destination()");
+      debug_current_and_destination(PSTR("generic move done in ubl_line_to_destination()"));
 
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
