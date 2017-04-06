@@ -293,22 +293,22 @@
           end_angle   =  90.0;
           if (yi == 0)        // it is an edge, check for the two left corners
             start_angle = 0.0;
-          else if (yi == UBL_MESH_NUM_Y_POINTS - 1)
+          else if (yi == GRID_MAX_POINTS_Y - 1)
             end_angle = 0.0;
         }
-        else if (xi == UBL_MESH_NUM_X_POINTS - 1) { // Check for top edge
+        else if (xi == GRID_MAX_POINTS_X - 1) { // Check for top edge
           start_angle =  90.0;
           end_angle   = 270.0;
           if (yi == 0)                  // it is an edge, check for the two right corners
             end_angle = 180.0;
-          else if (yi == UBL_MESH_NUM_Y_POINTS - 1)
+          else if (yi == GRID_MAX_POINTS_Y - 1)
             start_angle = 180.0;
         }
         else if (yi == 0) {
           start_angle =   0.0;         // only do the top   side of the cirlce
           end_angle   = 180.0;
         }
-        else if (yi == UBL_MESH_NUM_Y_POINTS - 1) {
+        else if (yi == GRID_MAX_POINTS_Y - 1) {
           start_angle = 180.0;         // only do the bottom side of the cirlce
           end_angle   = 360.0;
         }
@@ -397,8 +397,8 @@
 
     return_val.x_index = return_val.y_index = -1;
 
-    for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-      for (uint8_t j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
           const float mx = ubl.mesh_index_to_xpos[i],  // We found a circle that needs to be printed
                       my = ubl.mesh_index_to_ypos[j];
@@ -432,10 +432,10 @@
   void look_for_lines_to_connect() {
     float sx, sy, ex, ey;
 
-    for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-      for (uint8_t j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        if (i < UBL_MESH_NUM_X_POINTS) { // We can't connect to anything to the right than UBL_MESH_NUM_X_POINTS.
+        if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
                                          // This is already a half circle because we are at the edge of the bed.
 
           if (is_bit_set(circle_flags, i, j) && is_bit_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
@@ -467,7 +467,7 @@
             }
           }
 
-          if (j < UBL_MESH_NUM_Y_POINTS) { // We can't connect to anything further back than UBL_MESH_NUM_Y_POINTS.
+          if (j < GRID_MAX_POINTS_Y) { // We can't connect to anything further back than GRID_MAX_POINTS_Y.
                                            // This is already a half circle because we are at the edge  of the bed.
 
             if (is_bit_set(circle_flags, i, j) && is_bit_set(circle_flags, i, j + 1)) { // check if we can do a line straight down

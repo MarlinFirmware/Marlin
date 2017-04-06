@@ -29,14 +29,14 @@
   uint8_t mesh_bed_leveling::status;
 
   float mesh_bed_leveling::z_offset,
-        mesh_bed_leveling::z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS],
-        mesh_bed_leveling::index_to_xpos[MESH_NUM_X_POINTS],
-        mesh_bed_leveling::index_to_ypos[MESH_NUM_Y_POINTS];
+        mesh_bed_leveling::z_values[GRID_MAX_POINTS_Y][GRID_MAX_POINTS_X],
+        mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
+        mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    for (uint8_t i = 0; i < MESH_NUM_X_POINTS; ++i)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < MESH_NUM_Y_POINTS; ++i)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
