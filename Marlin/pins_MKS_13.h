@@ -29,8 +29,8 @@
  *  MKS v1.4  (Extruder, Extruder, Fan, Bed)
  */
 
-#if HOTENDS > 2
-  #error "MKS 1.3/1.4 supports up to 2 hotends. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS 1.3/1.4 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "MKS > v1.3"
