@@ -122,7 +122,7 @@ uint16_t max_display_update_time = 0;
   int32_t lastEncoderMovementMillis;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #include "UBL.h"
+    #include "ubl.h"
   #endif
 
   #if HAS_POWER_SWITCH
