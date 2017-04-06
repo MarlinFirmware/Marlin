@@ -28,12 +28,11 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
 
+  #include "ubl.h"
   #include "Marlin.h"
-  #include "Configuration.h"
   #include "planner.h"
   #include "stepper.h"
   #include "temperature.h"
-  #include "UBL.h"
   #include "ultralcd.h"
 
   #define EXTRUSION_MULTIPLIER 1.0

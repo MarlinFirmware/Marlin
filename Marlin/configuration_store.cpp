@@ -165,7 +165,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "UBL.h"
+  #include "ubl.h"
 #endif
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
