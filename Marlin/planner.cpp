@@ -882,9 +882,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
               if (g_uc_extruder_last_move[2] == 0) disable_e2();
               #if EXTRUDERS > 3
                 if (g_uc_extruder_last_move[3] == 0) disable_e3();
-              #endif
-            #endif
-          #endif
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_e4();
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
+          #endif // EXTRUDERS > 1
         break;
         #if EXTRUDERS > 1
           case 1:
@@ -895,8 +898,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
               if (g_uc_extruder_last_move[2] == 0) disable_e2();
               #if EXTRUDERS > 3
                 if (g_uc_extruder_last_move[3] == 0) disable_e3();
-              #endif
-            #endif
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_e4();
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
           break;
           #if EXTRUDERS > 2
             case 2:
@@ -906,6 +912,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
               if (g_uc_extruder_last_move[1] == 0) disable_e1();
               #if EXTRUDERS > 3
                 if (g_uc_extruder_last_move[3] == 0) disable_e3();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_e4();
+                #endif
               #endif
             break;
             #if EXTRUDERS > 3
@@ -915,7 +924,20 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
                 if (g_uc_extruder_last_move[0] == 0) disable_e0();
                 if (g_uc_extruder_last_move[1] == 0) disable_e1();
                 if (g_uc_extruder_last_move[2] == 0) disable_e2();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_e4();
+                #endif
               break;
+              #if EXTRUDERS > 4
+                case 4:
+                  enable_e4();
+                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
+                  if (g_uc_extruder_last_move[0] == 0) disable_e0();
+                  if (g_uc_extruder_last_move[1] == 0) disable_e1();
+                  if (g_uc_extruder_last_move[2] == 0) disable_e2();
+                  if (g_uc_extruder_last_move[3] == 0) disable_e3();
+                break;
+              #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
           #endif // EXTRUDERS > 2
         #endif // EXTRUDERS > 1
@@ -925,6 +947,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       enable_e1();
       enable_e2();
       enable_e3();
+      enable_e4();
     #endif
   }
 
