@@ -100,7 +100,7 @@
 #endif
 
 #if TEMP_SENSOR_2 == -1
-  #define TEMP_2_PIN        7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_BED is defined as thermocouple)
+  #define TEMP_2_PIN        7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can not be used when TEMP_SENSOR_BED is defined as thermocouple)
 #else
   #define TEMP_2_PIN       13   // Analog Input (default connector for thermistor *T2* on rumba board is used)
 #endif
@@ -109,7 +109,7 @@
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
+  #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can not be used when TEMP_SENSOR_2 is defined as thermocouple)
 #else
   #define TEMP_BED_PIN     11   // Analog Input (default connector for thermistor *THB* on rumba board is used)
 #endif
@@ -148,3 +148,11 @@
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
+
+//  added 2 DEC 2016
+#define SPINDLE_SPEED_LASER_POWER_PIN      4
+#define SPINDLE_LASER_ENABLE_PIN    14  // should have a pullup resistor on this pin
+#define SPINDLE_DIR_PIN       15
+
+// misc
+#define CASE_LIGHT_PIN      45

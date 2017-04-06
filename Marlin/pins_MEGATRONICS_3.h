@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define MEGATRONICS_31
+
 #if ENABLED(MEGATRONICS_31)
   #define BOARD_NAME       "Megatronics v3.1"
 #else
@@ -166,3 +168,27 @@
   #endif
 
 #endif
+
+// added 1 DEC
+
+#if !ENABLED(REPRAPWORLD_KEYPAD)     // try to use the keypad connector first
+  #define SPINDLE_SPEED_LASER_POWER_PIN     44
+  #define SPINDLE_LASER_ENABLE_PIN    43  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN       42
+#elif EXTRUDERS <= 2                 // try to hijack the last extruder so that we can get the PWM signal off the Y breakout
+  // move all the Y signals to the E2 extruder socket - makes dual Y steppers harder
+  #undef Y_ENABLE_PIN
+  #undef Y_STEP_PIN
+  #undef Y_DIR_PIN
+  #undef E2_STEP_PIN
+  #undef E2_ENABLE_PIN
+  #undef E2_DIR_PIN
+  #define Y_ENABLE_PIN          23
+  #define Y_STEP_PIN            22
+  #define Y_DIR_PIN             60
+  #define SPINDLE_SPEED_LASER_POWER_PIN      4
+  #define SPINDLE_LASER_ENABLE_PIN    17  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN        5
+#endif
+
+#define CASE_LIGHT_PIN        45    // try to use the keypad connector
