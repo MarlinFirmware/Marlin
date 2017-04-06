@@ -67,8 +67,8 @@
  * Mesh bed leveling:
  *  219  M420 S    from mbl.status (bool)
  *  220            mbl.z_offset (float)
- *  224            MESH_NUM_X_POINTS (uint8 as set in firmware)
- *  225            MESH_NUM_Y_POINTS (uint8 as set in firmware)
+ *  224            GRID_MAX_POINTS_X (uint8 as set in firmware)
+ *  225            GRID_MAX_POINTS_Y (uint8 as set in firmware)
  *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81) +288
  *
  * AUTO BED LEVELING
@@ -78,8 +78,8 @@
  *  266            planner.bed_level_matrix        (matrix_3x3 = float x9)
  *
  * AUTO_BED_LEVELING_BILINEAR (or placeholder):    47 bytes
- *  302            ABL_GRID_MAX_POINTS_X           (uint8_t)
- *  303            ABL_GRID_MAX_POINTS_Y           (uint8_t)
+ *  302            GRID_MAX_POINTS_X               (uint8_t)
+ *  303            GRID_MAX_POINTS_Y               (uint8_t)
  *  304            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
  *  308  G29 L F   bilinear_start                  (int x2)
  *  312            bed_level_grid[][]              (float x9, up to float x256) +988
@@ -294,9 +294,9 @@ void Config_Postprocess() {
 
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
-      typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
+      typedef char c_assert[(sizeof(mbl.z_values) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(dummy)) ? 1 : -1];
       const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
-      const uint8_t mesh_num_x = MESH_NUM_X_POINTS, mesh_num_y = MESH_NUM_Y_POINTS;
+      const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
       EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(mbl.z_offset);
       EEPROM_WRITE(mesh_num_x);
@@ -336,8 +336,8 @@ void Config_Postprocess() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Compile time test that sizeof(bed_level_grid) is as expected
-      typedef char c_assert[(sizeof(bed_level_grid) == (ABL_GRID_MAX_POINTS_X) * (ABL_GRID_MAX_POINTS_Y) * sizeof(dummy)) ? 1 : -1];
-      const uint8_t grid_max_x = ABL_GRID_MAX_POINTS_X, grid_max_y = ABL_GRID_MAX_POINTS_Y;
+      typedef char c_assert[(sizeof(bed_level_grid) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(dummy)) ? 1 : -1];
+      const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
       EEPROM_WRITE(grid_max_x);            // 1 byte
       EEPROM_WRITE(grid_max_y);            // 1 byte
       EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
@@ -631,7 +631,7 @@ void Config_Postprocess() {
       #if ENABLED(MESH_BED_LEVELING)
         mbl.status = leveling_is_on ? _BV(MBL_STATUS_HAS_MESH_BIT) : 0;
         mbl.z_offset = dummy;
-        if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
+        if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
           // EEPROM data fits the current mesh
           EEPROM_READ(mbl.z_values);
         }
@@ -668,7 +668,7 @@ void Config_Postprocess() {
       EEPROM_READ(grid_max_x);                       // 1 byte
       EEPROM_READ(grid_max_y);                       // 1 byte
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (grid_max_x == ABL_GRID_MAX_POINTS_X && grid_max_y == ABL_GRID_MAX_POINTS_Y) {
+        if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
           set_bed_leveling_enabled(false);
           EEPROM_READ(bilinear_grid_spacing);        // 2 ints
           EEPROM_READ(bilinear_start);               // 2 ints
@@ -1203,8 +1203,8 @@ void Config_ResetDefault() {
         CONFIG_ECHO_START;
       }
       SERIAL_ECHOLNPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
-      for (uint8_t py = 1; py <= MESH_NUM_Y_POINTS; py++) {
-        for (uint8_t px = 1; px <= MESH_NUM_X_POINTS; px++) {
+      for (uint8_t py = 1; py <= GRID_MAX_POINTS_Y; py++) {
+        for (uint8_t px = 1; px <= GRID_MAX_POINTS_X; px++) {
           CONFIG_ECHO_START;
           SERIAL_ECHOPAIR("  G29 S3 X", (int)px);
           SERIAL_ECHOPAIR(" Y", (int)py);
@@ -1235,14 +1235,14 @@ void Config_ResetDefault() {
         SERIAL_ECHOPAIR("EEPROM can hold ", (int)((UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values)));
         SERIAL_ECHOLNPGM(" meshes.\n");
 
-        SERIAL_ECHOLNPGM("UBL_MESH_NUM_X_POINTS  " STRINGIFY(UBL_MESH_NUM_X_POINTS));
-        SERIAL_ECHOLNPGM("UBL_MESH_NUM_Y_POINTS  " STRINGIFY(UBL_MESH_NUM_Y_POINTS));
+        SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  " STRINGIFY(GRID_MAX_POINTS_X));
+        SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  " STRINGIFY(GRID_MAX_POINTS_Y));
 
-        SERIAL_ECHOLNPGM("UBL_MESH_MIN_X         " STRINGIFY(UBL_MESH_MIN_X));
-        SERIAL_ECHOLNPGM("UBL_MESH_MIN_Y         " STRINGIFY(UBL_MESH_MIN_Y));
+        SERIAL_ECHOLNPGM("UBL_MESH_MIN_X     " STRINGIFY(UBL_MESH_MIN_X));
+        SERIAL_ECHOLNPGM("UBL_MESH_MIN_Y     " STRINGIFY(UBL_MESH_MIN_Y));
 
-        SERIAL_ECHOLNPGM("UBL_MESH_MAX_X         " STRINGIFY(UBL_MESH_MAX_X));
-        SERIAL_ECHOLNPGM("UBL_MESH_MAX_Y         " STRINGIFY(UBL_MESH_MAX_Y));
+        SERIAL_ECHOLNPGM("UBL_MESH_MAX_X     " STRINGIFY(UBL_MESH_MAX_X));
+        SERIAL_ECHOLNPGM("UBL_MESH_MAX_Y     " STRINGIFY(UBL_MESH_MAX_Y));
 
         SERIAL_ECHOLNPGM("MESH_X_DIST        " STRINGIFY(MESH_X_DIST));
         SERIAL_ECHOLNPGM("MESH_Y_DIST        " STRINGIFY(MESH_Y_DIST));

@@ -589,7 +589,7 @@ static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   int bilinear_grid_spacing[2], bilinear_start[2];
-  float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
+  float bed_level_grid[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 #if IS_SCARA
@@ -2341,8 +2341,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
         bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
-        for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
-          for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
+        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
             bed_level_grid[x][y] = NAN;
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.reset();
@@ -2473,9 +2473,9 @@ static void clean_up_after_endstop_or_probe_move() {
   //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
-    #if ABL_GRID_MAX_POINTS_X < ABL_GRID_MAX_POINTS_Y
+    #if GRID_MAX_POINTS_X < GRID_MAX_POINTS_Y
       #define HALF_IN_X
-    #elif ABL_GRID_MAX_POINTS_Y < ABL_GRID_MAX_POINTS_X
+    #elif GRID_MAX_POINTS_Y < GRID_MAX_POINTS_X
       #define HALF_IN_Y
     #endif
   #endif
@@ -2486,18 +2486,18 @@ static void clean_up_after_endstop_or_probe_move() {
    */
   static void extrapolate_unprobed_bed_level() {
     #ifdef HALF_IN_X
-      const uint8_t ctrx2 = 0, xlen = ABL_GRID_MAX_POINTS_X - 1;
+      const uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
     #else
-      const uint8_t ctrx1 = (ABL_GRID_MAX_POINTS_X - 1) / 2, // left-of-center
-                    ctrx2 = ABL_GRID_MAX_POINTS_X / 2,       // right-of-center
+      const uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
+                    ctrx2 = GRID_MAX_POINTS_X / 2,       // right-of-center
                     xlen = ctrx1;
     #endif
 
     #ifdef HALF_IN_Y
-      const uint8_t ctry2 = 0, ylen = ABL_GRID_MAX_POINTS_Y - 1;
+      const uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
     #else
-      const uint8_t ctry1 = (ABL_GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
-                    ctry2 = ABL_GRID_MAX_POINTS_Y / 2,       // bottom-of-center
+      const uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
+                    ctry2 = GRID_MAX_POINTS_Y / 2,       // bottom-of-center
                     ylen = ctry1;
     #endif
 
@@ -2524,17 +2524,17 @@ static void clean_up_after_endstop_or_probe_move() {
 
   static void print_bilinear_leveling_grid() {
     SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-    print_2d_array(ABL_GRID_MAX_POINTS_X, ABL_GRID_MAX_POINTS_Y, 3,
+    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3,
       [](const uint8_t ix, const uint8_t iy) { return bed_level_grid[ix][iy]; }
     );
   }
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
 
-    #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
-    #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
-    #define ABL_TEMP_POINTS_X (ABL_GRID_MAX_POINTS_X + 2)
-    #define ABL_TEMP_POINTS_Y (ABL_GRID_MAX_POINTS_Y + 2)
+    #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
+    #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
     float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
     int bilinear_grid_spacing_virt[2] = { 0 };
 
@@ -2550,8 +2550,8 @@ static void clean_up_after_endstop_or_probe_move() {
       uint8_t ep = 0, ip = 1;
       if (!x || x == ABL_TEMP_POINTS_X - 1) {
         if (x) {
-          ep = ABL_GRID_MAX_POINTS_X - 1;
-          ip = ABL_GRID_MAX_POINTS_X - 2;
+          ep = GRID_MAX_POINTS_X - 1;
+          ip = GRID_MAX_POINTS_X - 2;
         }
         if (WITHIN(y, 1, ABL_TEMP_POINTS_Y - 2))
           return LINEAR_EXTRAPOLATION(
@@ -2566,8 +2566,8 @@ static void clean_up_after_endstop_or_probe_move() {
       }
       if (!y || y == ABL_TEMP_POINTS_Y - 1) {
         if (y) {
-          ep = ABL_GRID_MAX_POINTS_Y - 1;
-          ip = ABL_GRID_MAX_POINTS_Y - 2;
+          ep = GRID_MAX_POINTS_Y - 1;
+          ip = GRID_MAX_POINTS_Y - 2;
         }
         if (WITHIN(x, 1, ABL_TEMP_POINTS_X - 2))
           return LINEAR_EXTRAPOLATION(
@@ -2604,11 +2604,11 @@ static void clean_up_after_endstop_or_probe_move() {
     }
 
     void bed_level_virt_interpolate() {
-      for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
-        for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
           for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
             for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
-              if ((ty && y == ABL_GRID_MAX_POINTS_Y - 1) || (tx && x == ABL_GRID_MAX_POINTS_X - 1))
+              if ((ty && y == GRID_MAX_POINTS_Y - 1) || (tx && x == GRID_MAX_POINTS_X - 1))
                 continue;
               bed_level_grid_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
                 bed_level_virt_2cmr(
@@ -3752,10 +3752,10 @@ inline void gcode_G28() {
   void say_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
   void mbl_mesh_report() {
-    SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
+    SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
-    print_2d_array(MESH_NUM_X_POINTS, MESH_NUM_Y_POINTS, 5,
+    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
       [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
   }
@@ -3832,7 +3832,7 @@ inline void gcode_G28() {
           #endif
         }
         // If there's another point to sample, move there with optional lift.
-        if (mbl_probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
+        if (mbl_probe_index < (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)) {
           mbl.zigzag(mbl_probe_index, px, py);
           _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
@@ -3864,8 +3864,8 @@ inline void gcode_G28() {
       case MeshSet:
         if (code_seen('X')) {
           px = code_value_int() - 1;
-          if (!WITHIN(px, 0, MESH_NUM_X_POINTS - 1)) {
-            SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").");
+          if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
+            SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(GRID_MAX_POINTS_X) ").");
             return;
           }
         }
@@ -3876,8 +3876,8 @@ inline void gcode_G28() {
 
         if (code_seen('Y')) {
           py = code_value_int() - 1;
-          if (!WITHIN(py, 0, MESH_NUM_Y_POINTS - 1)) {
-            SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").");
+          if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
+            SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
             return;
           }
         }
@@ -4034,16 +4034,16 @@ inline void gcode_G28() {
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
-      #define ABL_GRID_MAX (ABL_GRID_MAX_POINTS_X) * (ABL_GRID_MAX_POINTS_Y)
+      #define ABL_GRID_MAX (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
 
       #if ABL_PLANAR
-        ABL_VAR uint8_t abl_grid_points_x = ABL_GRID_MAX_POINTS_X,
-                        abl_grid_points_y = ABL_GRID_MAX_POINTS_Y;
+        ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
+                        abl_grid_points_y = GRID_MAX_POINTS_Y;
         ABL_VAR int abl2;
         ABL_VAR bool do_topography_map;
       #else // 3-point
-        uint8_t constexpr abl_grid_points_x = ABL_GRID_MAX_POINTS_X,
-                          abl_grid_points_y = ABL_GRID_MAX_POINTS_Y;
+        uint8_t constexpr abl_grid_points_x = GRID_MAX_POINTS_X,
+                          abl_grid_points_y = GRID_MAX_POINTS_Y;
 
         int constexpr abl2 = ABL_GRID_MAX;
       #endif
@@ -4054,7 +4054,7 @@ inline void gcode_G28() {
 
       #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-        ABL_VAR int indexIntoAB[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
+        ABL_VAR int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
         ABL_VAR float eqnAMatrix[ABL_GRID_MAX * 3], // "A" matrix of the linear system of equations
                      eqnBVector[ABL_GRID_MAX],     // "B" vector of Z points
@@ -4105,10 +4105,10 @@ inline void gcode_G28() {
             // Get nearest i / j from x / y
             i = (x - LOGICAL_X_POSITION(bilinear_start[X_AXIS]) + 0.5 * xGridSpacing) / xGridSpacing;
             j = (y - LOGICAL_Y_POSITION(bilinear_start[Y_AXIS]) + 0.5 * yGridSpacing) / yGridSpacing;
-            i = constrain(i, 0, ABL_GRID_MAX_POINTS_X - 1);
-            j = constrain(j, 0, ABL_GRID_MAX_POINTS_Y - 1);
+            i = constrain(i, 0, GRID_MAX_POINTS_X - 1);
+            j = constrain(j, 0, GRID_MAX_POINTS_Y - 1);
           }
-          if (WITHIN(i, 0, ABL_GRID_MAX_POINTS_X - 1) && WITHIN(j, 0, ABL_GRID_MAX_POINTS_Y)) {
+          if (WITHIN(i, 0, GRID_MAX_POINTS_X - 1) && WITHIN(j, 0, GRID_MAX_POINTS_Y)) {
             set_bed_leveling_enabled(false);
             bed_level_grid[i][j] = z;
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -4145,8 +4145,8 @@ inline void gcode_G28() {
 
         // X and Y specify points in each direction, overriding the default
         // These values may be saved with the completed mesh
-        abl_grid_points_x = code_seen('X') ? code_value_int() : ABL_GRID_MAX_POINTS_X;
-        abl_grid_points_y = code_seen('Y') ? code_value_int() : ABL_GRID_MAX_POINTS_Y;
+        abl_grid_points_x = code_seen('X') ? code_value_int() : GRID_MAX_POINTS_X;
+        abl_grid_points_y = code_seen('Y') ? code_value_int() : GRID_MAX_POINTS_Y;
         if (code_seen('P')) abl_grid_points_x = abl_grid_points_y = code_value_int();
 
         if (abl_grid_points_x < 2 || abl_grid_points_y < 2) {
@@ -7627,7 +7627,7 @@ void quickstop_stepper() {
       }
     }
     else if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, MESH_NUM_X_POINTS - 1) && WITHIN(py, 0, MESH_NUM_Y_POINTS - 1))
+      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1))
         mbl.set_z(px, py, z);
       else {
         SERIAL_ERROR_START;
@@ -7656,7 +7656,7 @@ void quickstop_stepper() {
     if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
     if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, ABL_GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, ABL_GRID_MAX_POINTS_X - 1)) {
+      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
         bed_level_grid[px][py] = z;
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
           bed_level_virt_interpolate();
@@ -7687,7 +7687,7 @@ void quickstop_stepper() {
     if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
     if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, UBL_MESH_NUM_Y_POINTS - 1) && WITHIN(py, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+      if (WITHIN(px, 0, GRID_MAX_POINTS_Y - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
         ubl.z_values[px][py] = z;
       }
       else {
@@ -7801,8 +7801,8 @@ inline void gcode_M503() {
           // Correct bilinear grid for new probe offset
           const float diff = value - zprobe_zoffset;
           if (diff) {
-            for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
-              for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
+            for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+              for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
                 bed_level_grid[x][y] += diff;
           }
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -9661,8 +9661,8 @@ void ok_to_send() {
     #define ABL_BG_GRID(X,Y)  bed_level_grid_virt[X][Y]
   #else
     #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
-    #define ABL_BG_POINTS_X   ABL_GRID_MAX_POINTS_X
-    #define ABL_BG_POINTS_Y   ABL_GRID_MAX_POINTS_Y
+    #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
+    #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
     #define ABL_BG_GRID(X,Y)  bed_level_grid[X][Y]
   #endif
 
@@ -9989,10 +9989,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
         cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
         cy2 = mbl.cell_index_y(RAW_Y_POSITION(destination[Y_AXIS]));
-    NOMORE(cx1, MESH_NUM_X_POINTS - 2);
-    NOMORE(cy1, MESH_NUM_Y_POINTS - 2);
-    NOMORE(cx2, MESH_NUM_X_POINTS - 2);
-    NOMORE(cy2, MESH_NUM_Y_POINTS - 2);
+    NOMORE(cx1, GRID_MAX_POINTS_X - 2);
+    NOMORE(cy1, GRID_MAX_POINTS_Y - 2);
+    NOMORE(cx2, GRID_MAX_POINTS_X - 2);
+    NOMORE(cy2, GRID_MAX_POINTS_Y - 2);
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
