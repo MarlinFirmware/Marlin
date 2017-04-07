@@ -417,7 +417,7 @@
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
 #define DIGIPOT_MOTOR_CURRENT {150, 170, 180, 190, 180} // Values 0-255 (bq ZUM Mega 3D (default): X = 150 [~1.17A]; Y = 170 [~1.33A]; Z = 180 [~1.41A]; E0 = 190 [~1.49A])
 
-//#define DAC_STEPPER_DFLT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
+//#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
 
 /*  5DPRINT & AZTEEG_X3_PRO */
 //#define DIGIPOT_I2C  // uncomment to enable
