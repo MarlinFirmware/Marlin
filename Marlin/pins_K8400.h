@@ -66,3 +66,8 @@
 #undef PS_ON_PIN
 #undef KILL_PIN
 #undef SD_DETECT_PIN
+
+#if Z_STEP_PIN == 26
+  #undef Z_STEP_PIN
+  #define Z_STEP_PIN 32
+#endif
