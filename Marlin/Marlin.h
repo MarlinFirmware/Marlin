@@ -113,6 +113,8 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   #define disable_e2() NOOP
   #define  enable_e3() NOOP
   #define disable_e3() NOOP
+  #define  enable_e4() NOOP
+  #define disable_e4() NOOP
 
 #else // !MIXING_EXTRUDER
 
@@ -146,6 +148,14 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   #else
     #define  enable_e3() NOOP
     #define disable_e3() NOOP
+  #endif
+
+  #if E_STEPPERS > 4 && HAS_E4_ENABLE
+    #define  enable_e4() E4_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_e4() E4_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_e4() NOOP
+    #define disable_e4() NOOP
   #endif
 
 #endif // !MIXING_EXTRUDER

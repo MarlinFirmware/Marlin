@@ -174,7 +174,7 @@ class Temperature {
       static millis_t next_bed_check_ms;
     #endif
 
-    static unsigned long raw_temp_value[4],
+    static unsigned long raw_temp_value[MAX_EXTRUDERS],
                          raw_temp_bed_value;
 
     // Init min and max temp with extreme values to prevent false errors during startup
