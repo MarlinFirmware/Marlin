@@ -137,6 +137,7 @@
 #define LED_PIN            13
 #define FILWIDTH_PIN        3   // Analog Input
 #define PS_ON_PIN           4
+#define CASE_LIGHT_PIN     46
 
 //
 // LCD / Controller
@@ -208,3 +209,10 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN    45  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 31  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN          32
