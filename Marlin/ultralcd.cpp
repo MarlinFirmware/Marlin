@@ -2751,7 +2751,7 @@ void kill_screen(const char* lcd_msg) {
           ++encoderLine; \
         } \
         else \
-          lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW; \
+          lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING; \
       } \
       ++_thisItemNr; \
     } while(0)
