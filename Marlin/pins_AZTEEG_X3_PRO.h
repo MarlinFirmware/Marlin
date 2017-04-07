@@ -24,6 +24,10 @@
  * AZTEEG_X3_PRO (Arduino Mega) pin assignments
  */
 
+#if HOTENDS > 5 || E_STEPPERS > 5
+  #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
+#endif
+
 #define BOARD_NAME "Azteeg X3 Pro"
 
 #include "pins_RAMPS.h"

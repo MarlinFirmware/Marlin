@@ -24,8 +24,8 @@
  * BAM&DICE Due (Arduino Mega) pin assignments
  */
 
-#if HOTENDS > 2
-  #error "2PrintBeta Due supports up to 2 hotends. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "2PrintBeta Due supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "2PrintBeta Due"

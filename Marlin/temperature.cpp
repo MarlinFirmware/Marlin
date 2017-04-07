@@ -51,8 +51,8 @@
   static void* heater_ttbl_map[2] = {(void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
-  static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE);
-  static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN);
+  static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
+  static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN);
 #endif
 
 Temperature thermalManager;
@@ -161,8 +161,8 @@ unsigned long Temperature::raw_temp_value[MAX_EXTRUDERS] = { 0 };
 unsigned long Temperature::raw_temp_bed_value = 0;
 
 // Init min and max temp with extreme values to prevent false errors during startup
-int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP),
-    Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP),
+int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP, HEATER_4_RAW_LO_TEMP),
+    Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP, HEATER_4_RAW_HI_TEMP),
     Temperature::minttemp[HOTENDS] = { 0 },
     Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
 
@@ -460,12 +460,13 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    const int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN };
-    const int fanBit[] = {
+    constexpr int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    constexpr int fanBit[] = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
-      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 : 3
+      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 :               3,
+      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 : 4
     };
     uint8_t fanState = 0;
 
@@ -973,6 +974,9 @@ void Temperature::init() {
   #if HAS_HEATER_3
     SET_OUTPUT(HEATER_3_PIN);
   #endif
+  #if HAS_HEATER_4
+    SET_OUTPUT(HEATER_3_PIN);
+  #endif
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif
@@ -1033,6 +1037,9 @@ void Temperature::init() {
   #if HAS_TEMP_3
     ANALOG_SELECT(TEMP_3_PIN);
   #endif
+  #if HAS_TEMP_4
+    ANALOG_SELECT(TEMP_4_PIN);
+  #endif
   #if HAS_TEMP_BED
     ANALOG_SELECT(TEMP_BED_PIN);
   #endif
@@ -1078,6 +1085,16 @@ void Temperature::init() {
       #endif
     #else
       SET_OUTPUT(E3_AUTO_FAN_PIN);
+    #endif
+  #endif
+  #if HAS_AUTO_FAN_4 && !AUTO_4_IS_0 && !AUTO_4_IS_1 && !AUTO_4_IS_2 && !AUTO_4_IS_3
+    #if E4_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E4_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(E4_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      SET_OUTPUT(E4_AUTO_FAN_PIN);
     #endif
   #endif
 
@@ -1133,6 +1150,14 @@ void Temperature::init() {
         #ifdef HEATER_3_MAXTEMP
           TEMP_MAX_ROUTINE(3);
         #endif
+        #if HOTENDS > 4
+          #ifdef HEATER_4_MINTEMP
+            TEMP_MIN_ROUTINE(4);
+          #endif
+          #ifdef HEATER_4_MAXTEMP
+            TEMP_MAX_ROUTINE(4);
+          #endif
+        #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
@@ -1264,18 +1289,18 @@ void Temperature::disable_all_heaters() {
 
   #if HAS_TEMP_HOTEND
     DISABLE_HEATER(0);
-  #endif
-
-  #if HOTENDS > 1 && HAS_TEMP_1
-    DISABLE_HEATER(1);
-  #endif
-
-  #if HOTENDS > 2 && HAS_TEMP_2
-    DISABLE_HEATER(2);
-  #endif
-
-  #if HOTENDS > 3 && HAS_TEMP_3
-    DISABLE_HEATER(3);
+    #if HOTENDS > 1
+      DISABLE_HEATER(1);
+      #if HOTENDS > 2
+        DISABLE_HEATER(2);
+        #if HOTENDS > 3
+          DISABLE_HEATER(3);
+          #if HOTENDS > 4
+            DISABLE_HEATER(4);
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
   #endif
 
   #if HAS_TEMP_BED
@@ -1384,6 +1409,9 @@ void Temperature::set_current_temp_raw() {
       current_temperature_raw[2] = raw_temp_value[2];
       #if HAS_TEMP_3
         current_temperature_raw[3] = raw_temp_value[3];
+        #if HAS_TEMP_4
+          current_temperature_raw[4] = raw_temp_value[4];
+        #endif
       #endif
     #endif
   #endif
@@ -1525,9 +1553,12 @@ void Temperature::isr() {
       ISR_STATICS(2);
       #if HOTENDS > 3
         ISR_STATICS(3);
-      #endif
-    #endif
-  #endif
+        #if HOTENDS > 4
+          ISR_STATICS(4);
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
   #if HAS_HEATER_BED
     ISR_STATICS(BED);
   #endif
@@ -1561,9 +1592,13 @@ void Temperature::isr() {
           #if HOTENDS > 3
             soft_pwm_3 = (soft_pwm_3 & pwm_mask) + soft_pwm[3];
             WRITE_HEATER_3(soft_pwm_3 > pwm_mask ? HIGH : LOW);
-          #endif
-        #endif
-      #endif
+            #if HOTENDS > 4
+              soft_pwm_4 = (soft_pwm_4 & pwm_mask) + soft_pwm[4];
+              WRITE_HEATER_4(soft_pwm_4 > pwm_mask ? HIGH : LOW);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
 
       #if HAS_HEATER_BED
         soft_pwm_BED = (soft_pwm_BED & pwm_mask) + soft_pwm_bed;
@@ -1589,13 +1624,16 @@ void Temperature::isr() {
       if (soft_pwm_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
       #if HOTENDS > 1
         if (soft_pwm_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
-      #endif
-      #if HOTENDS > 2
-        if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
-      #endif
-      #if HOTENDS > 3
-        if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
-      #endif
+        #if HOTENDS > 2
+          if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
+          #if HOTENDS > 3
+            if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+            #if HOTENDS > 4
+              if (soft_pwm_4 <= pwm_count_tmp) WRITE_HEATER_4(0);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
 
       #if HAS_HEATER_BED
         if (soft_pwm_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
@@ -1665,32 +1703,38 @@ void Temperature::isr() {
 
     if (slow_pwm_count == 0) {
 
-      SLOW_PWM_ROUTINE(0); // EXTRUDER 0
+      SLOW_PWM_ROUTINE(0);
       #if HOTENDS > 1
-        SLOW_PWM_ROUTINE(1); // EXTRUDER 1
+        SLOW_PWM_ROUTINE(1);
         #if HOTENDS > 2
-          SLOW_PWM_ROUTINE(2); // EXTRUDER 2
+          SLOW_PWM_ROUTINE(2);
           #if HOTENDS > 3
-            SLOW_PWM_ROUTINE(3); // EXTRUDER 3
-          #endif
-        #endif
-      #endif
+            SLOW_PWM_ROUTINE(3);
+            #if HOTENDS > 4
+              SLOW_PWM_ROUTINE(4);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
       #if HAS_HEATER_BED
         _SLOW_PWM_ROUTINE(BED, soft_pwm_bed); // BED
       #endif
 
     } // slow_pwm_count == 0
 
-    PWM_OFF_ROUTINE(0); // EXTRUDER 0
+    PWM_OFF_ROUTINE(0);
     #if HOTENDS > 1
-      PWM_OFF_ROUTINE(1); // EXTRUDER 1
+      PWM_OFF_ROUTINE(1);
       #if HOTENDS > 2
-        PWM_OFF_ROUTINE(2); // EXTRUDER 2
+        PWM_OFF_ROUTINE(2);
         #if HOTENDS > 3
-          PWM_OFF_ROUTINE(3); // EXTRUDER 3
-        #endif
-      #endif
-    #endif
+          PWM_OFF_ROUTINE(3);
+          #if HOTENDS > 4
+            PWM_OFF_ROUTINE(4);
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
     #if HAS_HEATER_BED
       PWM_OFF_ROUTINE(BED); // BED
     #endif
@@ -1738,17 +1782,19 @@ void Temperature::isr() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      // EXTRUDER 0
       if (state_timer_heater_0 > 0) state_timer_heater_0--;
-      #if HOTENDS > 1    // EXTRUDER 1
+      #if HOTENDS > 1
         if (state_timer_heater_1 > 0) state_timer_heater_1--;
-        #if HOTENDS > 2    // EXTRUDER 2
+        #if HOTENDS > 2
           if (state_timer_heater_2 > 0) state_timer_heater_2--;
-          #if HOTENDS > 3    // EXTRUDER 3
+          #if HOTENDS > 3
             if (state_timer_heater_3 > 0) state_timer_heater_3--;
-          #endif
-        #endif
-      #endif
+            #if HOTENDS > 4
+              if (state_timer_heater_4 > 0) state_timer_heater_4--;
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
       #if HAS_HEATER_BED
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
@@ -1763,7 +1809,7 @@ void Temperature::isr() {
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
 
-  // Prepare or measure a sensor, each one every 12th frame
+  // Prepare or measure a sensor, each one every 14th frame
   switch (temp_state) {
     case PrepareTemp_0:
       #if HAS_TEMP_0
@@ -1832,6 +1878,20 @@ void Temperature::isr() {
       #if HAS_TEMP_3
         raw_temp_value[3] += ADC;
       #endif
+      temp_state = PrepareTemp_4;
+      break;
+
+    case PrepareTemp_4:
+      #if HAS_TEMP_4
+        START_ADC(TEMP_4_PIN);
+      #endif
+      lcd_buttons_update();
+      temp_state = MeasureTemp_4;
+      break;
+    case MeasureTemp_4:
+      #if HAS_TEMP_4
+        raw_temp_value[4] += ADC;
+      #endif
       temp_state = Prepare_FILWIDTH;
       break;
 
@@ -1879,35 +1939,26 @@ void Temperature::isr() {
     ZERO(raw_temp_value);
     raw_temp_bed_value = 0;
 
+    #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) > (HEATER_##N##_RAW_HI_TEMP) ? -1 : 1)
+
     int constexpr temp_dir[] = {
       #if ENABLED(HEATER_0_USES_MAX6675)
          0
-      #elif HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-        -1
       #else
-         1
+        TEMPDIR(0)
       #endif
-      #if HAS_TEMP_1 && HOTENDS > 1
-        #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
-      #if HAS_TEMP_2 && HOTENDS > 2
-        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
-      #if HAS_TEMP_3 && HOTENDS > 3
-        #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
+      #if HOTENDS > 1
+        , TEMPDIR(1)
+        #if HOTENDS > 2
+          , TEMPDIR(2)
+          #if HOTENDS > 3
+            , TEMPDIR(3)
+            #if HOTENDS > 4
+              , TEMPDIR(4)
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
     };
 
     for (uint8_t e = 0; e < COUNT(temp_dir); e++) {

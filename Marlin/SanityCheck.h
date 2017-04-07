@@ -309,8 +309,8 @@
  */
 #if EXTRUDERS > 1
 
-  #if EXTRUDERS > 4
-    #error "The maximum number of EXTRUDERS in Marlin is 4."
+  #if EXTRUDERS > 5
+    #error "Marlin supports a maximum of 5 EXTRUDERS."
   #endif
 
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
@@ -800,19 +800,34 @@ static_assert(1 >= 0
     #endif
     #if HOTENDS > 3
       #if TEMP_SENSOR_3 == 0
-        #error "TEMP_SENSOR_3 is required with 4 HOTENDS."
+        #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
       #elif !HAS_HEATER_3
         #error "HEATER_3_PIN not defined for this board."
       #elif !PIN_EXISTS(TEMP_3)
         #error "TEMP_3_PIN not defined for this board."
       #endif
+      #if HOTENDS > 4
+        #if TEMP_SENSOR_4 == 0
+          #error "TEMP_SENSOR_4 is required with 5 HOTENDS."
+        #elif !HAS_HEATER_4
+          #error "HEATER_4_PIN not defined for this board."
+        #elif !PIN_EXISTS(TEMP_4)
+          #error "TEMP_4_PIN not defined for this board."
+        #endif
+      #elif TEMP_SENSOR_4 != 0
+        #error "TEMP_SENSOR_4 shouldn't be set with only 4 extruders."
+      #endif
     #elif TEMP_SENSOR_3 != 0
       #error "TEMP_SENSOR_3 shouldn't be set with only 3 extruders."
+    #elif TEMP_SENSOR_4 != 0
+      #error "TEMP_SENSOR_4 shouldn't be set with only 3 extruders."
     #endif
   #elif TEMP_SENSOR_2 != 0
     #error "TEMP_SENSOR_2 shouldn't be set with only 2 extruders."
   #elif TEMP_SENSOR_3 != 0
     #error "TEMP_SENSOR_3 shouldn't be set with only 2 extruders."
+  #elif TEMP_SENSOR_4 != 0
+    #error "TEMP_SENSOR_4 shouldn't be set with only 2 extruders."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   #error "TEMP_SENSOR_1 shouldn't be set with only 1 extruder."
@@ -820,6 +835,8 @@ static_assert(1 >= 0
   #error "TEMP_SENSOR_2 shouldn't be set with only 1 extruder."
 #elif TEMP_SENSOR_3 != 0
   #error "TEMP_SENSOR_3 shouldn't be set with only 1 extruder."
+#elif TEMP_SENSOR_4 != 0
+  #error "TEMP_SENSOR_4 shouldn't be set with only 1 extruder."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
@@ -853,7 +870,11 @@ static_assert(1 >= 0
 /**
  * Test Extruder Pins
  */
-#if EXTRUDERS > 3
+#if EXTRUDERS > 4
+  #if !PIN_EXISTS(E4_STEP) || !PIN_EXISTS(E4_DIR) || !PIN_EXISTS(E4_ENABLE)
+    #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+  #endif
+#elif EXTRUDERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
     #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif

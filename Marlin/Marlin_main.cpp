@@ -10704,9 +10704,12 @@ void prepare_move_to_destination() {
               || E2_ENABLE_READ == E_ENABLE_ON
               #if E_STEPPERS > 3
                 || E3_ENABLE_READ == E_ENABLE_ON
-              #endif
-            #endif
-          #endif
+                #if E_STEPPERS > 4
+                  || E4_ENABLE_READ == E_ENABLE_ON
+                #endif // E_STEPPERS > 4
+              #endif // E_STEPPERS > 3
+            #endif // E_STEPPERS > 2
+          #endif // E_STEPPERS > 1
       ) {
         lastMotorOn = ms; //... set time to NOW so the fan will turn on
       }
@@ -10927,6 +10930,7 @@ void enable_all_steppers() {
   enable_e1();
   enable_e2();
   enable_e3();
+  enable_e4();
 }
 
 void disable_e_steppers() {
@@ -10934,6 +10938,7 @@ void disable_e_steppers() {
   disable_e1();
   disable_e2();
   disable_e3();
+  disable_e4();
 }
 
 void disable_all_steppers() {
@@ -11132,9 +11137,15 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
                   oldstatus = E3_ENABLE_READ;
                   enable_e3();
                   break;
-              #endif
-            #endif
-          #endif
+                #if E_STEPPERS > 4
+                  case 4:
+                    oldstatus = E4_ENABLE_READ;
+                    enable_e4();
+                    break;
+                #endif // E_STEPPERS > 4
+              #endif // E_STEPPERS > 3
+            #endif // E_STEPPERS > 2
+          #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
 
@@ -11165,9 +11176,14 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
                 case 3:
                   E3_ENABLE_WRITE(oldstatus);
                   break;
-              #endif
-            #endif
-          #endif
+                #if E_STEPPERS > 4
+                  case 4:
+                    E4_ENABLE_WRITE(oldstatus);
+                    break;
+                #endif // E_STEPPERS > 4
+              #endif // E_STEPPERS > 3
+            #endif // E_STEPPERS > 2
+          #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
     }

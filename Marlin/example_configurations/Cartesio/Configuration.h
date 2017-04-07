@@ -255,6 +255,7 @@
 #define TEMP_SENSOR_1 -1
 #define TEMP_SENSOR_2 1
 #define TEMP_SENSOR_3 0
+#define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_BED 1
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -283,6 +284,7 @@
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
+#define HEATER_4_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -752,6 +754,7 @@
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
 
 // @section homing
 

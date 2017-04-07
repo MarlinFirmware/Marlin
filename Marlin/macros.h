@@ -128,10 +128,12 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-#define MIN3(a, b, c)    min(min(a, b), c)
-#define MIN4(a, b, c, d) min(min(a, b), min(c, d))
-#define MAX3(a, b, c)    max(max(a, b), c)
-#define MAX4(a, b, c, d) max(max(a, b), max(c, d))
+#define MIN3(a, b, c)       min(min(a, b), c)
+#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       max(max(a, b), c)
+#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
