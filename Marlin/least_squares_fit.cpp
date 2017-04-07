@@ -34,7 +34,7 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include <math.h>
-  #include "UBL.h"
+  #include "ubl.h"
   #include "Marlin.h"
 
 double linear_fit_average(double *, int);
