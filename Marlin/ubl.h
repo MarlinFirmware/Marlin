@@ -45,7 +45,7 @@
   void dump(char * const str, const float &f);
   bool ubl_lcd_clicked();
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void debug_current_and_destination(const char *title);
+  void debug_current_and_destination(const char * const title);
   void ubl_line_to_destination(const float&, uint8_t);
   void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
   vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
@@ -271,7 +271,7 @@
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(MESH_ADJUST)) {
             SERIAL_ECHOPAIR(" raw get_z_correction(", lx0);
-            SERIAL_CHAR(',')
+            SERIAL_CHAR(',');
             SERIAL_ECHO(ly0);
             SERIAL_ECHOPGM(") = ");
             SERIAL_ECHO_F(z0, 6);
