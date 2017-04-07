@@ -1492,9 +1492,9 @@
       }
       
       if ((x_max - x_min + 1) < (grid_size_G) || (y_max - y_min + 1) < (grid_size_G)) {
-        SERIAL_PROTOCOLPAIR("ERROR - probeable UBL MESH smaller than grid - X points: ", x_max - x_min + 1);
-        SERIAL_PROTOCOLPAIR("  Y points: ", y_max - y_min + 1);
-        SERIAL_PROTOCOLLNPAIR("  grid: ", grid_size_G);
+        SERIAL_ECHOPAIR("ERROR - probeable UBL MESH smaller than grid - X points: ", x_max - x_min + 1);
+        SERIAL_ECHOPAIR("  Y points: ", y_max - y_min + 1);
+        SERIAL_ECHOLNPAIR("  grid: ", grid_size_G);
         return;
       }
       
@@ -1540,7 +1540,7 @@
         
         int8_t inStart, inStop, inInc;
         
-SERIAL_PROTOCOLPAIR("\nPR_OUTER_VAR: ", PR_OUTER_VAR);
+SERIAL_ECHOPAIR("\nPR_OUTER_VAR: ", PR_OUTER_VAR);
 
         if (zig) { // away from origin
           inStart = 0;
@@ -1557,40 +1557,40 @@ SERIAL_PROTOCOLPAIR("\nPR_OUTER_VAR: ", PR_OUTER_VAR);
         
         // Inner loop is Y with PROBE_Y_FIRST enabled
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
-SERIAL_PROTOCOLPAIR("\nPR_INNER_VAR: ", PR_INNER_VAR);
+SERIAL_ECHOPAIR("\nPR_INNER_VAR: ", PR_INNER_VAR);
 
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 1);
+SERIAL_ECHOPAIR("\nCheckpoint: ", 1);
           
           // end of G29 AUTO_BED_LEVELING_BILINEAR method/code
           if (ubl_lcd_clicked()) {
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 2);
-            SERIAL_PROTOCOLLNPGM("\nGrid only partially populated.\n");
+SERIAL_ECHOPAIR("\nCheckpoint: ", 2);
+            SERIAL_ECHOLNPGM("\nGrid only partially populated.\n");
             lcd_quick_feedback();
             STOW_PROBE();
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 3);
+SERIAL_ECHOPAIR("\nCheckpoint: ", 3);
             while (ubl_lcd_clicked()) idle();
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 4);
+SERIAL_ECHOPAIR("\nCheckpoint: ", 4);
               ubl.has_control_of_lcd_panel = false;
               restore_ubl_active_state_and_leave();
               safe_delay(50);  // Debounce the Encoder wheel
               return;
             }
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 5);
+SERIAL_ECHOPAIR("\nCheckpoint: ", 5);
           
           const float probeX = ubl.mesh_index_to_xpos[grid_G_index_to_xpos[xCount]],  //where we want the probe to be
           probeY = ubl.mesh_index_to_ypos[grid_G_index_to_ypos[yCount]];
-SERIAL_PROTOCOLPAIR("\nCheckpoint: ", 6);
+SERIAL_ECHOPAIR("\nCheckpoint: ", 6);
           
           const float measured_z = probe_pt(LOGICAL_X_POSITION(probeX), LOGICAL_Y_POSITION(probeY), code_seen('E'), (code_seen('V') && code_has_value()) ? code_value_int() : 0 );  // takes into account the offsets
 
-SERIAL_PROTOCOLPAIR("\nmeasured_z: ", measured_z );
+SERIAL_ECHOPAIR("\nmeasured_z: ", measured_z );
 
           z_values_G[xCount][yCount] = measured_z;
-//SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
+//SERIAL_LNPGM("\nFine Tuning of Mesh Stopped.");
         }
       }
       
-SERIAL_PROTOCOL("\nDone probing...\n");
+SERIAL_ECHO("\nDone probing...\n");
 
       STOW_PROBE();
       restore_ubl_active_state_and_leave();
@@ -1615,22 +1615,22 @@ double zzz[] = { 0.05, 0.05, 0.15, 0.15 };
 int three_size = sizeof(xxx) / sizeof(double);
 
       results = lsf_linear_fit(xxx9, yyy9, zzz9, nine_size);
-SERIAL_PROTOCOLPAIR("\nxxx9->A =", results->A); 
-SERIAL_PROTOCOLPAIR("\nxxx9->B =", results->B); 
-SERIAL_PROTOCOLPAIR("\nxxx9->D =", results->D); 
-SERIAL_PROTOCOL("\n");
+SERIAL_ECHOPAIR("\nxxx9->A =", results->A); 
+SERIAL_ECHOPAIR("\nxxx9->B =", results->B); 
+SERIAL_ECHOPAIR("\nxxx9->D =", results->D); 
+SERIAL_ECHO("\n");
 
       results = lsf_linear_fit(xxx0, yyy0, zzz0, zero_size);
-SERIAL_PROTOCOLPAIR("\nxxx0->A =", results->A); 
-SERIAL_PROTOCOLPAIR("\nxxx0->B =", results->B); 
-SERIAL_PROTOCOLPAIR("\nxxx0->D =", results->D); 
-SERIAL_PROTOCOL("\n");
+SERIAL_ECHOPAIR("\nxxx0->A =", results->A); 
+SERIAL_ECHOPAIR("\nxxx0->B =", results->B); 
+SERIAL_ECHOPAIR("\nxxx0->D =", results->D); 
+SERIAL_ECHO("\n");
 
       results = lsf_linear_fit(xxx, yyy, zzz, three_size);
-SERIAL_PROTOCOLPAIR("\nxxx->A =", results->A); 
-SERIAL_PROTOCOLPAIR("\nxxx->B =", results->B); 
-SERIAL_PROTOCOLPAIR("\nxxx->D =", results->D); 
-SERIAL_PROTOCOL("\n");
+SERIAL_ECHOPAIR("\nxxx->A =", results->A); 
+SERIAL_ECHOPAIR("\nxxx->B =", results->B); 
+SERIAL_ECHOPAIR("\nxxx->D =", results->D); 
+SERIAL_ECHO("\n");
 
       return;
     }  // end of tilt_mesh_based_on_probed_grid()
