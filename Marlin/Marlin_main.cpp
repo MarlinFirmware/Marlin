@@ -11247,7 +11247,7 @@ void kill(const char* lcd_msg) {
     UNUSED(lcd_msg);
   #endif
 
-  _delay_ms(250); // Wait a short time
+  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
   cli(); // Stop interrupts
 
   _delay_ms(250); //Wait to ensure all interrupts routines stopped
@@ -11272,11 +11272,12 @@ void kill(const char* lcd_msg) {
 void stop() {
   thermalManager.disable_all_heaters();
   if (IsRunning()) {
-    Running = false;
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
+    safe_delay(350);       // allow enough time for messages to get out before stopping
+    Running = false;
   }
 }
 
