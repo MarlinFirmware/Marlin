@@ -47,9 +47,9 @@
     safe_delay(10);
   }
 
-  static void serial_echo_11x_spaces() {
+  static void serial_echo_12x_spaces() {
     for (uint8_t i = GRID_MAX_POINTS_X - 1; --i;) {
-      SERIAL_ECHOPGM("          ");
+      SERIAL_ECHOPGM("            ");
       #if TX_BUFFER_SIZE > 0
         MYSERIAL.flushTX();
       #endif
@@ -172,11 +172,11 @@
     }
 
     if (map0) {
-      serial_echo_11x_spaces();
+      serial_echo_12x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      serial_echo_11x_spaces();
+      serial_echo_12x_spaces();
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
@@ -222,12 +222,12 @@
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHOPGM("    ");
-      serial_echo_11x_spaces();
+      serial_echo_12x_spaces();
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
       SERIAL_ECHOPGM("       ");
-      serial_echo_11x_spaces();
+      serial_echo_12x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
       SERIAL_EOL;
     }
