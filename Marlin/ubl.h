@@ -45,7 +45,7 @@
   void dump(char * const str, const float &f);
   bool ubl_lcd_clicked();
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void debug_current_and_destination(char *title);
+  void debug_current_and_destination(const char *title);
   void ubl_line_to_destination(const float&, uint8_t);
   void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
   vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
