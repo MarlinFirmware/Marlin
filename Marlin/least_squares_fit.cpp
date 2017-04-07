@@ -32,7 +32,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+#if ENABLED(AUTO_BED_LEVELING_UBL)	// Currently only used by UBL, but is applicable to Grid Based (Linear) Bed Leveling
   #include <math.h>
   #include "ubl.h"
   #include "Marlin.h"
