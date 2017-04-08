@@ -596,7 +596,7 @@
  *   is enabled then it also applies to Z_PROBE_SPEED_SLOW.
  */
 
-/*   Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.  */
+// Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
@@ -623,16 +623,16 @@
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
-/*   X and Y axis travel speed (mm/m) between probes */
+// X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
 
-/*   Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH) */
+// Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
-/*   Speed for the "accurate" probe of each point  */
+// Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
-/*   Use double touch for probing  */
+// Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
 
 /**
