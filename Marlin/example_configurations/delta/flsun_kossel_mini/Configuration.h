@@ -877,19 +877,13 @@
 
 // @section machine
 
-/**
- * Travel limits after homing (units are in mm)
- *
- * Marlin assumes these are the limits to which the nozzle can travel
- *
- * When homing in the + direction, G28 sets the position to the xx_MAX_POS
- */
+// Travel limits after homing (units are in mm)
 #define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
-#define X_MAX_POS DELTA_PRINTABLE_RADIUS
-#define Y_MAX_POS DELTA_PRINTABLE_RADIUS
-#define Z_MAX_POS MANUAL_Z_HOME_POS
+#define X_MAX_POS DELTA_PRINTABLE_RADIUS    // G28 sets X to this when homing in +X direction
+#define Y_MAX_POS DELTA_PRINTABLE_RADIUS    // G28 sets Y to this when homing in +Y direction
+#define Z_MAX_POS MANUAL_Z_HOME_POS         // G28 sets Z to this when homing in +Z direction
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 #define MIN_SOFTWARE_ENDSTOPS
