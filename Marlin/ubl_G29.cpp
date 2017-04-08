@@ -674,7 +674,7 @@
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            lcd_setstatuspgm(PSTR("Z-Offset Stopped"));
+            LCD_MESSAGEPGM("Z-Offset Stopped");
             restore_ubl_active_state_and_leave();
             goto LEAVE;
           }
@@ -693,7 +693,7 @@
 
     #if ENABLED(ULTRA_LCD)
       lcd_reset_alert_level();
-      lcd_setstatuspgm(PSTR(""));
+      LCD_MESSAGEPGM("");
       lcd_quick_feedback();
     #endif
 
@@ -997,7 +997,7 @@
 
   bool g29_parameter_parsing() {
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Doing G29 UBL!"));
+      LCD_MESSAGEPGM("Doing G29 UBL!");
       lcd_quick_feedback();
     #endif
 
@@ -1121,7 +1121,7 @@
     ubl_state_recursion_chk++;
     if (ubl_state_recursion_chk != 1) {
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-      lcd_setstatuspgm(PSTR("save_UBL_active() error"));
+      LCD_MESSAGEPGM("save_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1132,7 +1132,7 @@
   void restore_ubl_active_state_and_leave() {
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-      lcd_setstatuspgm(PSTR("restore_UBL_active() error"));
+      LCD_MESSAGEPGM("restore_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1371,9 +1371,7 @@
     save_ubl_active_state_and_disable();
     memset(not_done, 0xFF, sizeof(not_done));
 
-    #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Fine Tuning Mesh"));
-    #endif
+    LCD_MESSAGEPGM("Fine Tuning Mesh");
 
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
@@ -1431,7 +1429,7 @@
           lcd_return_to_status();
           //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          lcd_setstatuspgm(PSTR("Mesh Editing Stopped"));
+          LCD_MESSAGEPGM("Mesh Editing Stopped");
 
           while (ubl_lcd_clicked()) idle();
 
@@ -1458,9 +1456,7 @@
 
     do_blocking_move_to_xy(lx, ly);
 
-    #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Done Editing Mesh"));
-    #endif
+    LCD_MESSAGEPGM("Done Editing Mesh");
     SERIAL_ECHOLNPGM("Done Editing Mesh");
   }
 
