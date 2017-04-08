@@ -5317,25 +5317,17 @@ inline void gcode_M42() {
   #include "pinsDebug.h"
 
   inline void toggle_pins() {
-    int pin, j, start = 0, I_flag = 0, end = NUM_DIGITAL_PINS - 1, wait = 500, repeat = 1;
+    int pin, j;
 
-    if (code_seen('R'))
-      repeat = code_value_int();
+    bool I_flag = code_seen('I') ? code_value_bool() : false;
 
-    if (code_seen('S'))
-      start = code_value_int();
+    int repeat = code_seen('R') ? code_value_int() : 1,
+        start = code_seen('S') ? code_value_int() : 0,
+        end = code_seen('E') ? code_value_int() : NUM_DIGITAL_PINS - 1,
+        wait = code_seen('W') ? code_value_int() : 500;
 
-    if (code_seen('E'))
-      end = code_value_int();
-
-    if (code_seen('I') )
-      I_flag++;
-
-    if (code_seen('W'))
-      wait = code_value_int();
-
-    for(pin = start; pin <= end; pin++) {
-        if ( I_flag == 0 && pin_is_protected(pin)) {
+    for (pin = start; pin <= end; pin++) {
+        if (!I_flag && pin_is_protected(pin)) {
           SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
           SERIAL_ECHOPGM(" untouched.\n");
         }
@@ -5344,22 +5336,17 @@ inline void gcode_M42() {
           pinMode(pin, OUTPUT);
           for(j = 0; j < repeat; j++) {
             digitalWrite(pin, 0);
-            idle();
-            delay(wait);
+            safe_delay(wait);
             digitalWrite(pin, 1);
-            idle();
-            delay(wait);
+            safe_delay(wait);
             digitalWrite(pin, 0);
-            idle();
-            delay(wait);
+            safe_delay(wait);
           }
         }
       SERIAL_ECHOPGM("\n");
     }
     SERIAL_ECHOPGM("Done\n");
-    return;
-  }  // toggle pin(s)
-
+  } // toggle_pins
 
   inline void servo_probe_test(){
     #if !(NUM_SERVOS >= 1 && HAS_SERVO_0)
@@ -5505,10 +5492,10 @@ inline void gcode_M42() {
       if (first_pin > NUM_DIGITAL_PINS - 1) return;
     }
 
-    bool ignore_protection = code_seen('I');
+    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
 
     // Watch until click, M108, or reset
-    if (code_seen('W')) { // watch digital pins
+    if (code_seen('W') && code_value_bool()) { // watch digital pins
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
