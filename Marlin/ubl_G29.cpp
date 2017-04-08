@@ -1001,6 +1001,12 @@
       lcd_quick_feedback();
     #endif
 
+    x_pos = current_position[X_AXIS];
+    y_pos = current_position[Y_AXIS];
+    x_flag = 0;
+    y_flag = 0;
+    repeat_flag = 0;
+
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("Invalid Verbose Level specified. (0-4)\n");
