@@ -1001,46 +1001,44 @@
       lcd_quick_feedback();
     #endif
 
-    x_pos = current_position[X_AXIS];
-    y_pos = current_position[Y_AXIS];
-    x_flag = 0;
-    y_flag = 0;
-    repeat_flag = 0;
+    x_flag = code_seen('X') && code_has_value();
+    y_flag = code_seen('Y') && code_has_value();
+    x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
+    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
+    repeat_flag = code_seen('R') ? code_value_bool() : false;
+
+    bool err_flag = false;
 
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("Invalid Verbose Level specified. (0-4)\n");
-      return UBL_ERR;
+      err_flag = true;
     }
 
     if (code_seen('G')) {
-      grid_size_G = 3;
-      if (code_has_value())
-        grid_size_G = code_value_int();
+      grid_size_G = code_has_value() ? code_value_int() : 3;
       if (!WITHIN(grid_size_G, 2, 10)) {
         SERIAL_PROTOCOLLNPGM("Invalid grid probe points specified.\n");
-        return UBL_ERR;
+        err_flag = true;
       }
-    }
-
-    x_flag = code_seen('X') && code_has_value();
-    x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
-    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
-      return UBL_ERR;
-    }
-
-    y_flag = code_seen('Y') && code_has_value();
-    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
-    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
-      return UBL_ERR;
     }
 
     if (x_flag != y_flag) {
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
-      return UBL_ERR;
+      err_flag = true;
     }
+
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
+      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
+      err_flag = true;
+    }
+
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
+      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
+      err_flag = true;
+    }
+
+    if (err_flag) return UBL_ERR;
 
     if (code_seen('A')) {     // Activate the Unified Bed Leveling System
       ubl.state.active = 1;
@@ -1069,7 +1067,6 @@
       }
     #endif
 
-    repeat_flag = code_seen('R');
     repetition_cnt = repeat_flag ? (code_has_value() ? code_value_int() : 9999) : 1;
     if (repetition_cnt < 1) {
       SERIAL_PROTOCOLLNPGM("Invalid Repetition count.\n");
