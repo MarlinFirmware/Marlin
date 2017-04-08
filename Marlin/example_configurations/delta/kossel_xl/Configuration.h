@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -458,6 +458,9 @@
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET) + 1)
 
+  // height from z=0.00 to home position
+  #define DELTA_HEIGHT 380 // get this value from auto calibrate
+
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 140.0
 
@@ -470,6 +473,11 @@
 
   //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
 
+  #define ENABLE_DELTA_AUTO_CALIBRATION // enable G33 auto delta calibration (EEPROM must be turned on in order to store results)
+  #ifdef ENABLE_DELTA_AUTO_CALIBRATION
+    #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - 10) // set the radius for the calibration probe points
+    #define CONVERGENCE_FACTOR 0.75 // <1.00 lower to prevent overshooting solution, higher to speed up convergence
+  #endif
 #endif
 
 // Enable this option for Toshiba steppers
@@ -1065,7 +1073,7 @@
 // For DELTA this is the top-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 381.4 // Distance between the nozzle to printbed after homing
+#define MANUAL_Z_HOME_POS DELTA_HEIGHT // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
