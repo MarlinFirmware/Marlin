@@ -299,10 +299,8 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-struct linear_fit {
-	double A, B, D;
-};
-struct linear_fit *lsf_linear_fit( double *, double *, double *, int );
+  typedef struct { double A, B, D; } linear_fit;
+  linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
 #endif
 
 #if PLANNER_LEVELING
