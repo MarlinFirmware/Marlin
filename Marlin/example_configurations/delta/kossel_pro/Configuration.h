@@ -808,7 +808,7 @@
  */
 #define Z_CLEARANCE_DEPLOY_PROBE   100 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES   5 // Z Clearance between probe points
- 
+
 /* For M851 give a range for adjusting the Z probe offset */
 
 #define Z_PROBE_OFFSET_RANGE_MIN -15
@@ -863,7 +863,13 @@
 
 // @section machine
 
-// Travel limits after homing (units are in mm)
+/**
+ * Travel limits after homing (units are in mm)
+ *
+ * Marlin assumes these are the limits to which the nozzle can travel
+ *
+ * When homing in the + direction, G28 sets the position to the xx_MAX_POS
+ */
 #define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
