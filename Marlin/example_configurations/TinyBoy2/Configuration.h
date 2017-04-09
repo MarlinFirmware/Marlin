@@ -821,16 +821,16 @@
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
+#define X_MIN_POS 0      // G28 sets X to this when homing in -X direction
+#define Y_MIN_POS 0      // G28 sets Y to this when homing in -Y direction
+#define Z_MIN_POS 0      // G28 sets Z to this when homing in -Z direction
 // Tinyboy2: 100mm are marketed, actual length between endstop and end of rail is 98mm
-#define X_MAX_POS 98
-#define Y_MAX_POS 98
+#define X_MAX_POS 98     // G28 sets X to this when homing in +X direction
+#define Y_MAX_POS 98     // G28 sets Y to this when homing in +Y direction
 #if ENABLED(TB2_L10)
-  #define Z_MAX_POS 98
+  #define Z_MAX_POS 98   // G28 sets Z to this when homing in +Z direction
 #else
-  #define Z_MAX_POS 158
+  #define Z_MAX_POS 158  // G28 sets Z to this when homing in +Z direction
 #endif
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.

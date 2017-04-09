@@ -770,12 +770,12 @@
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
-#define X_MAX_POS 254  // RigidBot regular is 254mm, RigitBot Big is 406mm
-#define Y_MAX_POS 248  // RigidBot regular is 248mm, RigitBot Big is 304mm
-#define Z_MAX_POS 254  // RigidBot regular and Big are 254mm
+#define X_MIN_POS 0    // G28 sets X to this when homing in -X direction
+#define Y_MIN_POS 0    // G28 sets Y to this when homing in -Y direction
+#define Z_MIN_POS 0    // G28 sets Z to this when homing in -Z direction
+#define X_MAX_POS 254  // RigidBot regular is 254mm, RigitBot Big is 406mm    // G28 sets X to this when homing in +X direction
+#define Y_MAX_POS 248  // RigidBot regular is 248mm, RigitBot Big is 304mm    // G28 sets Y to this when homing in +Y direction
+#define Z_MAX_POS 254  // RigidBot regular and Big are 254mm                  // G28 sets Z to this when homing in +Z direction
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 #define MIN_SOFTWARE_ENDSTOPS
