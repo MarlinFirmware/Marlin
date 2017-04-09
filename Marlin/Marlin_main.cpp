@@ -4475,7 +4475,7 @@ inline void gcode_G28() {
             inInc = -1;
           }
 
-          zig = !zig; // zag
+          zig ^= true; // zag
 
           // Inner loop is Y with PROBE_Y_FIRST enabled
           for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
@@ -5799,7 +5799,7 @@ inline void gcode_M42() {
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
 
   inline void gcode_M49() {
-    ubl.g26_debug_flag = !ubl.g26_debug_flag;
+    ubl.g26_debug_flag ^= true;
     SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
     serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
   }
