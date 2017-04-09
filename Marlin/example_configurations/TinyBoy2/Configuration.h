@@ -164,7 +164,7 @@
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
-// :[1, 2, 3, 4]
+// :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Enable if your E steppers or extruder gear ratios are not identical
@@ -987,13 +987,6 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
-
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #define MBL_Z_STEP 0.025     // Step size while manually probing Z axis.
-  #endif
 
 #endif // BED_LEVELING
 

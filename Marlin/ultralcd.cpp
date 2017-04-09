@@ -918,39 +918,26 @@ void kill_screen(const char* lcd_msg) {
   /**
    * Watch temperature callbacks
    */
-  #if WATCH_HOTENDS
-    #if HAS_TEMP_HOTEND
-      void watch_temp_callback_E0() { thermalManager.start_watching_heater(0); }
-      #if HOTENDS > 1
-        void watch_temp_callback_E1() { thermalManager.start_watching_heater(1); }
-        #if HOTENDS > 2
-          void watch_temp_callback_E2() { thermalManager.start_watching_heater(2); }
-          #if HOTENDS > 3
-            void watch_temp_callback_E3() { thermalManager.start_watching_heater(3); }
-            #if HOTENDS > 4
-              void watch_temp_callback_E4() { thermalManager.start_watching_heater(4); }
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
+  #if HAS_TEMP_HOTEND
+    #if WATCH_HOTENDS
+      #define _WATCH_FUNC(N) thermalManager.start_watching_heater(N)
+    #else
+      #define _WATCH_FUNC(N) NOOP
     #endif
-  #else
-    #if HAS_TEMP_HOTEND
-      void watch_temp_callback_E0() {}
-      #if HOTENDS > 1
-        void watch_temp_callback_E1() {}
-        #if HOTENDS > 2
-          void watch_temp_callback_E2() {}
-          #if HOTENDS > 3
-            void watch_temp_callback_E3() {}
-            #if HOTENDS > 4
-              void watch_temp_callback_E4() {}
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
-    #endif
-  #endif
+    void watch_temp_callback_E0() { _WATCH_FUNC(0); }
+    #if HOTENDS > 1
+      void watch_temp_callback_E1() { _WATCH_FUNC(1); }
+      #if HOTENDS > 2
+        void watch_temp_callback_E2() { _WATCH_FUNC(2); }
+        #if HOTENDS > 3
+          void watch_temp_callback_E3() { _WATCH_FUNC(3); }
+          #if HOTENDS > 4
+            void watch_temp_callback_E4() { _WATCH_FUNC(4); }
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  #endif // HAS_TEMP_HOTEND
 
   #if WATCH_THE_BED
     void watch_temp_callback_bed() { thermalManager.start_watching_bed(); }
@@ -1905,10 +1892,13 @@ void kill_screen(const char* lcd_msg) {
             case 2: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E3); break;
             #if E_MANUAL > 3
               case 3: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E4); break;
-            #endif
-          #endif
+              #if E_MANUAL > 4
+                case 4: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E5); break;
+              #endif // E_MANUAL > 4
+            #endif // E_MANUAL > 3
+          #endif // E_MANUAL > 2
         }
-      #endif
+      #endif // E_MANUAL > 1
       lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]));
     }
   }
@@ -1921,9 +1911,12 @@ void kill_screen(const char* lcd_msg) {
       void lcd_move_e2() { _lcd_move_e(2); }
       #if E_MANUAL > 3
         void lcd_move_e3() { _lcd_move_e(3); }
-      #endif
-    #endif
-  #endif
+        #if E_MANUAL > 4
+          void lcd_move_e4() { _lcd_move_e(4); }
+        #endif // E_MANUAL > 4
+      #endif // E_MANUAL > 3
+    #endif // E_MANUAL > 2
+  #endif // E_MANUAL > 1
 
   /**
    *
@@ -1970,9 +1963,12 @@ void kill_screen(const char* lcd_msg) {
       void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS, lcd_move_e2); }
       #if E_MANUAL > 3
         void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
-      #endif
-    #endif
-  #endif
+        #if E_MANUAL > 4
+          void lcd_move_get_e4_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e4); }
+        #endif // E_MANUAL > 4
+      #endif // E_MANUAL > 3
+    #endif // E_MANUAL > 2
+  #endif // E_MANUAL > 1
 
   /**
    *
@@ -2033,9 +2029,12 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_get_e2_amount);
         #if E_MANUAL > 3
           MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_get_e3_amount);
-        #endif
-      #endif
-    #endif
+          #if E_MANUAL > 4
+            MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E5, lcd_move_get_e4_amount);
+          #endif // E_MANUAL > 4
+        #endif // E_MANUAL > 3
+      #endif // E_MANUAL > 2
+    #endif // E_MANUAL > 1
 
     END_MENU();
   }
@@ -2239,6 +2238,7 @@ void kill_screen(const char* lcd_msg) {
     // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
     // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
+    // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
     #if ENABLED(PIDTEMP)
 
@@ -2350,8 +2350,11 @@ void kill_screen(const char* lcd_msg) {
       void _reset_e2_acceleration_rate() { _reset_e_acceleration_rate(2); }
       #if E_STEPPERS > 3
         void _reset_e3_acceleration_rate() { _reset_e_acceleration_rate(3); }
-      #endif
-    #endif
+        #if E_STEPPERS > 4
+          void _reset_e4_acceleration_rate() { _reset_e_acceleration_rate(4); }
+        #endif // E_STEPPERS > 4
+      #endif // E_STEPPERS > 3
+    #endif // E_STEPPERS > 2
   #endif
 
   void _planner_refresh_positioning() { planner.refresh_positioning(); }
@@ -2368,8 +2371,11 @@ void kill_screen(const char* lcd_msg) {
       void _planner_refresh_e2_positioning() { _reset_e_acceleration_rate(2); }
       #if E_STEPPERS > 3
         void _planner_refresh_e3_positioning() { _reset_e_acceleration_rate(3); }
-      #endif
-    #endif
+        #if E_STEPPERS > 4
+          void _planner_refresh_e4_positioning() { _reset_e_acceleration_rate(4); }
+        #endif // E_STEPPERS > 4
+      #endif // E_STEPPERS > 3
+    #endif // E_STEPPERS > 2
   #endif
 
   /**
@@ -2411,9 +2417,12 @@ void kill_screen(const char* lcd_msg) {
       #if E_STEPPERS > 2
         MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
         #if E_STEPPERS > 3
-          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
-        #endif
-      #endif
+          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
+          #if E_STEPPERS > 4
+            MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
     #else
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
     #endif
@@ -2436,8 +2445,11 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
         #if E_STEPPERS > 3
           MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
-        #endif
-      #endif
+          #if E_STEPPERS > 4
+            MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
     #else
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
     #endif
@@ -2460,8 +2472,11 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
         #if E_STEPPERS > 3
           MENU_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
-        #endif
-      #endif
+          #if E_STEPPERS > 4
+            MENU_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
     #else
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif

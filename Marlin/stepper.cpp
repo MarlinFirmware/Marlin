@@ -931,6 +931,9 @@ void Stepper::init() {
   #if HAS_E3_DIR
     E3_DIR_INIT;
   #endif
+  #if HAS_E4_DIR
+    E4_DIR_INIT;
+  #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
@@ -972,6 +975,10 @@ void Stepper::init() {
   #if HAS_E3_ENABLE
     E3_ENABLE_INIT;
     if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
+  #endif
+  #if HAS_E4_ENABLE
+    E4_ENABLE_INIT;
+    if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
   #endif
 
   // Init endstops and pullups

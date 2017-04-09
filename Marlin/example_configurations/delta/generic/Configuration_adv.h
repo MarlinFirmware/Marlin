@@ -421,11 +421,29 @@
 //#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
 
-/*  5DPRINT & AZTEEG_X3_PRO */
-//#define DIGIPOT_I2C  // uncomment to enable
+// Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+//#define DIGIPOT_I2C
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
-/* actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS */
+// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
 #define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}  //  AZTEEG_X3_PRO
+
+//===========================================================================
+//============================== Delta Settings =============================
+//===========================================================================
+
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  /**
+   * Set the height short (H-10) with M665 Hx.xx.
+   * Set the delta_radius offset (R-5, R-10, R+5, R+10) with M665 Rx.xx.
+   * Run G33 Cx V3 with different values (C2, C-2).
+   * Take the average for R_FACTOR and maximum for H_FACTOR.
+   * If R_FACTOR is too low accuracy is reduced. Too high reduces iteration speed.
+   * Run the tests with default values!!!
+   */
+  //#define DELTA_CALIBRATE_EXPERT_MODE
+  //#define H_FACTOR  1.02 //  1.0 < H_FACTOR <  1.11, default  1.00
+  //#define R_FACTOR -3.95 // -6.7 < R_FACTOR < -2.25, default -2.25
+#endif
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -647,6 +665,11 @@
   #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
   #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
   #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define UBL_MESH_MIN_X (X_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
+  #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
 #endif
 
 // @section extras
@@ -802,6 +825,7 @@
   //#define E1_IS_TMC
   //#define E2_IS_TMC
   //#define E3_IS_TMC
+  //#define E4_IS_TMC
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -842,6 +866,10 @@
   #define E3_MAX_CURRENT    1000
   #define E3_SENSE_RESISTOR   91
   #define E3_MICROSTEPS       16
+
+  #define E4_MAX_CURRENT    1000
+  #define E4_SENSE_RESISTOR   91
+  #define E4_MICROSTEPS       16
 
 #endif
 
@@ -884,6 +912,7 @@
   //#define E1_IS_TMC2130
   //#define E2_IS_TMC2130
   //#define E3_IS_TMC2130
+  //#define E4_IS_TMC2130
 
   /**
    * Stepper driver settings
@@ -969,6 +998,7 @@
   //#define E1_IS_L6470
   //#define E2_IS_L6470
   //#define E3_IS_L6470
+  //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
@@ -1019,6 +1049,11 @@
   #define E3_K_VAL          50
   #define E3_OVERCURRENT  2000
   #define E3_STALLCURRENT 1500
+
+  #define E4_MICROSTEPS     16
+  #define E4_K_VAL          50
+  #define E4_OVERCURRENT  2000
+  #define E4_STALLCURRENT 1500
 
 #endif
 

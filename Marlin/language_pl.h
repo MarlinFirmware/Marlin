@@ -112,6 +112,7 @@
 #define MSG_E2STEPS                         _UxGT("krokiE2/mm")
 #define MSG_E3STEPS                         _UxGT("krokiE3/mm")
 #define MSG_E4STEPS                         _UxGT("krokiE4/mm")
+#define MSG_E5STEPS                         _UxGT("krokiE5/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Ruch")
 #define MSG_VOLUMETRIC                      _UxGT("Filament")

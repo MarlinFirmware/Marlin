@@ -162,7 +162,7 @@
 #endif
 
 // This defines the number of extruders
-// :[1, 2, 3, 4]
+// :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Enable if your E steppers or extruder gear ratios are not identical

@@ -113,6 +113,7 @@
 #define MSG_E2STEPS                         _UxGT("E2 стъпки/mm")
 #define MSG_E3STEPS                         _UxGT("E3 стъпки/mm")
 #define MSG_E4STEPS                         _UxGT("E4 стъпки/mm")
+#define MSG_E5STEPS                         _UxGT("E5 стъпки/mm")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Движение")
 #define MSG_VOLUMETRIC                      _UxGT("Нишка")

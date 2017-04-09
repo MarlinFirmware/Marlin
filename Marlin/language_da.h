@@ -114,6 +114,7 @@
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
+#define MSG_E5STEPS                         _UxGT("E5steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatur")
 #define MSG_MOTION                          _UxGT("Bevægelse")
 #define MSG_VOLUMETRIC                      _UxGT("Filament")
