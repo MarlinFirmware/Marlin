@@ -808,6 +808,7 @@
   //#define E1_IS_TMC
   //#define E2_IS_TMC
   //#define E3_IS_TMC
+  //#define E4_IS_TMC
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -848,6 +849,10 @@
   #define E3_MAX_CURRENT    1000
   #define E3_SENSE_RESISTOR   91
   #define E3_MICROSTEPS       16
+
+  #define E4_MAX_CURRENT    1000
+  #define E4_SENSE_RESISTOR   91
+  #define E4_MICROSTEPS       16
 
 #endif
 
@@ -890,6 +895,7 @@
   //#define E1_IS_TMC2130
   //#define E2_IS_TMC2130
   //#define E3_IS_TMC2130
+  //#define E4_IS_TMC2130
 
   /**
    * Stepper driver settings
@@ -975,6 +981,7 @@
   //#define E1_IS_L6470
   //#define E2_IS_L6470
   //#define E3_IS_L6470
+  //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
@@ -1025,6 +1032,11 @@
   #define E3_K_VAL          50
   #define E3_OVERCURRENT  2000
   #define E3_STALLCURRENT 1500
+
+  #define E4_MICROSTEPS     16
+  #define E4_K_VAL          50
+  #define E4_OVERCURRENT  2000
+  #define E4_STALLCURRENT 1500
 
 #endif
 

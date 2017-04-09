@@ -142,7 +142,7 @@
 #define MACHINE_UUID "8d083632-40c5-4649-85b8-43d9ae6c5d55" // BQ Hephestos 2 standard config
 
 // This defines the number of extruders
-// :[1, 2, 3, 4]
+// :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Enable if your E steppers or extruder gear ratios are not identical

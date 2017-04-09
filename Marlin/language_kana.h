@@ -137,6 +137,7 @@
   #define MSG_E2STEPS                         "E2steps/mm"
   #define MSG_E3STEPS                         "E3steps/mm"
   #define MSG_E4STEPS                         "E4steps/mm"
+  #define MSG_E5STEPS                         "E5steps/mm"
 #else
   #define MSG_XSTEPS                          "Xsteps"
   #define MSG_YSTEPS                          "Ysteps"
@@ -146,6 +147,7 @@
   #define MSG_E2STEPS                         "E2steps"
   #define MSG_E3STEPS                         "E3steps"
   #define MSG_E4STEPS                         "E4steps"
+  #define MSG_E5STEPS                         "E5steps"
 #endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
