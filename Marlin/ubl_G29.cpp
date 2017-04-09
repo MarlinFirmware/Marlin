@@ -674,7 +674,7 @@
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            lcd_setstatuspgm(PSTR("Z-Offset Stopped"));
+            LCD_MESSAGEPGM("Z-Offset Stopped");
             restore_ubl_active_state_and_leave();
             goto LEAVE;
           }
@@ -693,7 +693,7 @@
 
     #if ENABLED(ULTRA_LCD)
       lcd_reset_alert_level();
-      lcd_setstatuspgm(PSTR(""));
+      LCD_MESSAGEPGM("");
       lcd_quick_feedback();
     #endif
 
@@ -997,50 +997,48 @@
 
   bool g29_parameter_parsing() {
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Doing G29 UBL!"));
+      LCD_MESSAGEPGM("Doing G29 UBL!");
       lcd_quick_feedback();
     #endif
 
-    x_pos = current_position[X_AXIS];
-    y_pos = current_position[Y_AXIS];
-    x_flag = 0;
-    y_flag = 0;
-    repeat_flag = 0;
+    x_flag = code_seen('X') && code_has_value();
+    y_flag = code_seen('Y') && code_has_value();
+    x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
+    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
+    repeat_flag = code_seen('R') ? code_value_bool() : false;
+
+    bool err_flag = false;
 
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("Invalid Verbose Level specified. (0-4)\n");
-      return UBL_ERR;
+      err_flag = true;
     }
 
     if (code_seen('G')) {
-      grid_size_G = 3;
-      if (code_has_value())
-        grid_size_G = code_value_int();
+      grid_size_G = code_has_value() ? code_value_int() : 3;
       if (!WITHIN(grid_size_G, 2, 10)) {
         SERIAL_PROTOCOLLNPGM("Invalid grid probe points specified.\n");
-        return UBL_ERR;
+        err_flag = true;
       }
-    }
-
-    x_flag = code_seen('X') && code_has_value();
-    x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
-    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
-      return UBL_ERR;
-    }
-
-    y_flag = code_seen('Y') && code_has_value();
-    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
-    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
-      return UBL_ERR;
     }
 
     if (x_flag != y_flag) {
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
-      return UBL_ERR;
+      err_flag = true;
     }
+
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
+      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
+      err_flag = true;
+    }
+
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
+      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
+      err_flag = true;
+    }
+
+    if (err_flag) return UBL_ERR;
 
     if (code_seen('A')) {     // Activate the Unified Bed Leveling System
       ubl.state.active = 1;
@@ -1069,7 +1067,6 @@
       }
     #endif
 
-    repeat_flag = code_seen('R');
     repetition_cnt = repeat_flag ? (code_has_value() ? code_value_int() : 9999) : 1;
     if (repetition_cnt < 1) {
       SERIAL_PROTOCOLLNPGM("Invalid Repetition count.\n");
@@ -1124,7 +1121,7 @@
     ubl_state_recursion_chk++;
     if (ubl_state_recursion_chk != 1) {
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-      lcd_setstatuspgm(PSTR("save_UBL_active() error"));
+      LCD_MESSAGEPGM("save_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1135,7 +1132,7 @@
   void restore_ubl_active_state_and_leave() {
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-      lcd_setstatuspgm(PSTR("restore_UBL_active() error"));
+      LCD_MESSAGEPGM("restore_UBL_active() error");
       lcd_quick_feedback();
       return;
     }
@@ -1374,9 +1371,7 @@
     save_ubl_active_state_and_disable();
     memset(not_done, 0xFF, sizeof(not_done));
 
-    #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Fine Tuning Mesh"));
-    #endif
+    LCD_MESSAGEPGM("Fine Tuning Mesh");
 
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
@@ -1434,7 +1429,7 @@
           lcd_return_to_status();
           //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          lcd_setstatuspgm(PSTR("Mesh Editing Stopped"));
+          LCD_MESSAGEPGM("Mesh Editing Stopped");
 
           while (ubl_lcd_clicked()) idle();
 
@@ -1461,9 +1456,7 @@
 
     do_blocking_move_to_xy(lx, ly);
 
-    #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Done Editing Mesh"));
-    #endif
+    LCD_MESSAGEPGM("Done Editing Mesh");
     SERIAL_ECHOLNPGM("Done Editing Mesh");
   }
 
