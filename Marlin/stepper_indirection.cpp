@@ -75,6 +75,9 @@
   #if ENABLED(E3_IS_TMC)
     _TMC_DEFINE(E3);
   #endif
+  #if ENABLED(E4_IS_TMC)
+    _TMC_DEFINE(E4);
+  #endif
 
   #define _TMC_INIT(A) do{ \
     stepper##A.setMicrosteps(A##_MICROSTEPS); \
@@ -111,6 +114,9 @@
     #endif
     #if ENABLED(E3_IS_TMC)
       _TMC_INIT(E3);
+    #endif
+    #if ENABLED(E4_IS_TMC)
+      _TMC_INIT(E4);
     #endif
   }
 
@@ -156,6 +162,9 @@
   #endif
   #if ENABLED(E3_IS_TMC2130)
     _TMC2130_DEFINE(E3);
+  #endif
+  #if ENABLED(E4_IS_TMC2130)
+    _TMC2130_DEFINE(E4);
   #endif
 
   // Use internal reference voltage for current calculations. This is the default.
@@ -213,6 +222,9 @@
     #if ENABLED(E3_IS_TMC2130)
       _TMC2130_INIT(E3);
     #endif
+    #if ENABLED(E4_IS_TMC2130)
+      _TMC2130_INIT(E4);
+    #endif
 
     TMC2130_ADV()
   }
@@ -260,6 +272,9 @@
   #if ENABLED(E3_IS_L6470)
     _L6470_DEFINE(E3);
   #endif
+  #if ENABLED(E4_IS_L6470)
+    _L6470_DEFINE(E4);
+  #endif
 
   #define _L6470_INIT(A) do{ \
     stepper##A.init(A##_K_VAL); \
@@ -299,6 +314,9 @@
     #endif
     #if ENABLED(E3_IS_L6470)
       _L6470_INIT(E3);
+    #endif
+    #if ENABLED(E4_IS_L6470)
+      _L6470_INIT(E4);
     #endif
   }
 
