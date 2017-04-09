@@ -465,6 +465,17 @@
 
   //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
 
+  // Trim adjustments for individual towers
+  #define DELTA_RADIUS_TRIM_TOWER_1 0.0
+  #define DELTA_RADIUS_TRIM_TOWER_2 0.0
+  #define DELTA_RADIUS_TRIM_TOWER_3 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_1 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_2 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_3 0.0
+
 #endif
 
 // Enable this option for Toshiba steppers

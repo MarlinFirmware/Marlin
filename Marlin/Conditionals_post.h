@@ -658,6 +658,9 @@
    * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
+    #ifndef DELTA_ENDSTOP_ADJ
+      #define DELTA_ENDSTOP_ADJ { 0 }
+    #endif
     #ifndef DELTA_RADIUS_TRIM_TOWER_1
       #define DELTA_RADIUS_TRIM_TOWER_1 0.0
     #endif
@@ -756,10 +759,6 @@
 
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
-
-  #ifndef DELTA_ENDSTOP_ADJ
-    #define DELTA_ENDSTOP_ADJ { 0 }
-  #endif
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
