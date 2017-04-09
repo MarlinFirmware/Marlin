@@ -1777,7 +1777,6 @@ static void clean_up_after_endstop_or_probe_move() {
         lcd_status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
       return true;
-
     }
     return false;
   }
@@ -1974,7 +1973,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if HAS_BED_PROBE
 
- // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
+  // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
   #if ENABLED(PROBE_IS_TRIGGERED_WHEN_STOWED_TEST)
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
@@ -1982,7 +1981,6 @@ static void clean_up_after_endstop_or_probe_move() {
       #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
     #endif
   #endif
-
 
   #if ENABLED(BLTOUCH)
     void bltouch_command(int angle) {
@@ -1995,7 +1993,7 @@ static void clean_up_after_endstop_or_probe_move() {
         bltouch_command(BLTOUCH_RESET);    // try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
         bltouch_command(BLTOUCH_STOW);     // clear the triggered condition.
-        safe_delay(1500);             // wait for internal self test to complete
+        safe_delay(1500);                  // wait for internal self test to complete
                                            //   measured completion time was 0.65 seconds
                                            //   after reset, deploy & stow sequence
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
@@ -2206,8 +2204,7 @@ static void clean_up_after_endstop_or_probe_move() {
   //   - Raise to the BETWEEN height
   // - Return the probed Z position
   //
-//float probe_pt(const float &x, const float &y, const bool stow = true, const int verbose_level = 1) {
-  float probe_pt(const float x, const float y, const bool stow, const int verbose_level) {
+  float probe_pt(const float x, const float y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -2371,9 +2368,9 @@ static void clean_up_after_endstop_or_probe_move() {
   //
   // Enable if you prefer your output in JSON format
   // suitable for SCAD or JavaScript mesh visualizers.
-  // 
+  //
   // Visualize meshes in OpenSCAD using the included script.
-  // 
+  //
   //   buildroot/shared/scripts/MarlinMesh.scad
   //
   //#define SCAD_MESH_OUTPUT
@@ -5319,27 +5316,18 @@ inline void gcode_M42() {
 
   #include "pinsDebug.h"
 
-
   inline void toggle_pins() {
-    int pin, j, start = 0, I_flag = 0, end = NUM_DIGITAL_PINS - 1, wait = 500, repeat = 1;
+    int pin, j;
 
-    if (code_seen('R'))
-      repeat = code_value_int();
+    bool I_flag = code_seen('I') ? code_value_bool() : false;
 
-    if (code_seen('S'))
-      start = code_value_int();
+    int repeat = code_seen('R') ? code_value_int() : 1,
+        start = code_seen('S') ? code_value_int() : 0,
+        end = code_seen('E') ? code_value_int() : NUM_DIGITAL_PINS - 1,
+        wait = code_seen('W') ? code_value_int() : 500;
 
-    if (code_seen('E'))
-      end = code_value_int();
-
-    if (code_seen('I') )
-      I_flag++;
-
-    if (code_seen('W'))
-      wait = code_value_int();
-
-    for(pin = start; pin <= end; pin++) {
-        if ( I_flag == 0 && pin_is_protected(pin)) {
+    for (pin = start; pin <= end; pin++) {
+        if (!I_flag && pin_is_protected(pin)) {
           SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
           SERIAL_ECHOPGM(" untouched.\n");
         }
@@ -5348,22 +5336,17 @@ inline void gcode_M42() {
           pinMode(pin, OUTPUT);
           for(j = 0; j < repeat; j++) {
             digitalWrite(pin, 0);
-            idle();
-            delay(wait);
+            safe_delay(wait);
             digitalWrite(pin, 1);
-            idle();
-            delay(wait);
+            safe_delay(wait);
             digitalWrite(pin, 0);
-            idle();
-            delay(wait);
+            safe_delay(wait);
           }
         }
       SERIAL_ECHOPGM("\n");
     }
     SERIAL_ECHOPGM("Done\n");
-    return;
-  }  // toggle pin(s)
-
+  } // toggle_pins
 
   inline void servo_probe_test(){
     #if !(NUM_SERVOS >= 1 && HAS_SERVO_0)
@@ -5452,7 +5435,7 @@ inline void gcode_M42() {
         if (probe_counter == 0) SERIAL_PROTOCOLLNPGM("trigger not detected");
       }      // measure active signal length
     #endif
-  }        // servo_probe_test
+  } // servo_probe_test
 
   /**
    * M43: Pin debug - report pin state, watch pins, toggle pins and servo probe test/report
@@ -5481,7 +5464,6 @@ inline void gcode_M42() {
    *  M43 S       - Servo probe test
    *                  P<index> - Probe index (optional - defaults to 0
    */
-
   inline void gcode_M43() {
 
     if (code_seen('T')) {   // must be first ot else it's "S" and "E" parameters will execute endstop or servo test
@@ -5503,7 +5485,6 @@ inline void gcode_M42() {
       return;
     }
 
-
     // Get the range of pins to test or watch
     int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
     if (code_seen('P')) {
@@ -5511,10 +5492,10 @@ inline void gcode_M42() {
       if (first_pin > NUM_DIGITAL_PINS - 1) return;
     }
 
-    bool ignore_protection = code_seen('I');
+    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
 
     // Watch until click, M108, or reset
-    if (code_seen('W')) { // watch digital pins
+    if (code_seen('W') && code_value_bool()) { // watch digital pins
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
@@ -5557,7 +5538,6 @@ inline void gcode_M42() {
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
       report_pin_state_extended(pin, ignore_protection);
   }
-
 
 #endif // PINS_DEBUGGING
 
@@ -6041,17 +6021,18 @@ inline void gcode_M105() {
 
 #endif
 
-  #ifndef MIN_COOLING_SLOPE_DEG
-    #define MIN_COOLING_SLOPE_DEG 1.50
-  #endif
-  #ifndef MIN_COOLING_SLOPE_TIME
-    #define MIN_COOLING_SLOPE_TIME 60
-  #endif
-
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
+
+#ifndef MIN_COOLING_SLOPE_DEG
+  #define MIN_COOLING_SLOPE_DEG 1.50
+#endif
+#ifndef MIN_COOLING_SLOPE_TIME
+  #define MIN_COOLING_SLOPE_TIME 60
+#endif
+
 inline void gcode_M109() {
 
   if (get_target_extruder_from_command(109)) return;
@@ -6275,11 +6256,11 @@ inline void gcode_M109() {
           residency_start_ms = now;
         }
 
-      #endif //TEMP_BED_RESIDENCY_TIME > 0
+      #endif // TEMP_BED_RESIDENCY_TIME > 0
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        // break after MIN_COOLING_SLOPE_TIME_BED seconds
+        // Break after MIN_COOLING_SLOPE_TIME_BED seconds
         // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
           if (old_temp - temp < MIN_COOLING_SLOPE_DEG_BED) break;
@@ -6307,7 +6288,7 @@ inline void gcode_M110() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = code_seen('S') ? code_value_byte() : (uint8_t) DEBUG_NONE;
+  marlin_debug_flags = code_seen('S') ? code_value_byte() : (uint8_t)DEBUG_NONE;
 
   const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
   const static char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
@@ -6463,7 +6444,6 @@ inline void gcode_M140() {
     #if ENABLED(ULTIPANEL)
       powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
-      lcd_update();
     #endif
   }
 
@@ -6496,7 +6476,6 @@ inline void gcode_M81() {
       powersupply = false;
     #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
-    lcd_update();
   #endif
 }
 
@@ -7774,7 +7753,7 @@ void quickstop_stepper() {
   }
 #endif
 
-#if ENABLED(MESH_BED_LEVELING) 
+#if ENABLED(MESH_BED_LEVELING)
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'

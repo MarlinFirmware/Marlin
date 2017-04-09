@@ -303,6 +303,9 @@
 #if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
   #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
 #endif
+#if !defined(E4_AUTO_FAN_PIN) && defined(ORIG_E4_AUTO_FAN_PIN)
+  #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
+#endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
 #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
