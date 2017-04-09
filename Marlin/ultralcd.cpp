@@ -688,7 +688,7 @@ void kill_screen(const char* lcd_msg) {
     extern void update_case_light();
 
     void toggle_case_light() {
-      case_light_on = !case_light_on;
+      case_light_on ^= true;
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       update_case_light();
     }
@@ -3196,7 +3196,7 @@ void kill_screen(const char* lcd_msg) {
 
   #endif //SDSUPPORT
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
+  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr ^= true; lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
