@@ -1551,7 +1551,7 @@
           inInc = -1;
         }
 
-        zig = !zig; // zag
+        zig ^= true; // zag
 
         // Inner loop is Y with PROBE_Y_FIRST enabled
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
