@@ -690,7 +690,7 @@
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 
-/* Enable Z Probe Repeatability test to see how accurate your probe is  */
+// Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
@@ -710,7 +710,7 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   0 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES 2 // Z Clearance between probe points
 
-/* For M851 give a range for adjusting the Z probe offset */
+// For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -2
 #define Z_PROBE_OFFSET_RANGE_MAX  0
 
