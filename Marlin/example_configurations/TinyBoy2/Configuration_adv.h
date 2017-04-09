@@ -400,11 +400,11 @@
 // Motor Current controlled via PWM (Overridable on supported boards with PWM-driven motor driver current)
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
 
-// uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+// Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
 // Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
 #define DIGIPOT_I2C_NUM_CHANNELS 8
-// actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
+// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
 #define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
 //===========================================================================
