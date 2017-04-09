@@ -142,7 +142,7 @@
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
-// :[1, 2, 3, 4]
+// :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Enable if your E steppers or extruder gear ratios are not identical
@@ -311,9 +311,9 @@
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
-  // Set/get with gcode: M301 E[extruder number, 0-2]
+                                  // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
-  // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
+                                  // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
@@ -754,7 +754,6 @@
 
 #endif // Z_PROBE_ALLEN_KEY
 
-
 /**
  *
  *   *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
@@ -810,11 +809,10 @@
  *          ignored by Marlin
  */
 
-//#define Z_MIN_PROBE_ENDSTOP // A3K leave disable!
+//#define Z_MIN_PROBE_ENDSTOP // A3K leave disabled!
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-
-/* Enable Z Probe Repeatability test to see how accurate your probe is  */
+// Enable Z Probe Repeatability test to see how accurate your probe is
 #define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
@@ -834,7 +832,7 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   50 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 
-/* For M851 give a range for adjusting the Z probe offset */
+// For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
@@ -959,9 +957,9 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT // Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling.
-//#define AUTO_BED_LEVELING_LINEAR // Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling.
-#define AUTO_BED_LEVELING_BILINEAR // Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling.
+//#define AUTO_BED_LEVELING_3POINT
+//#define AUTO_BED_LEVELING_LINEAR
+#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 

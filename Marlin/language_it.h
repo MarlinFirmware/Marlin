@@ -120,6 +120,7 @@
 #define MSG_E2STEPS                         _UxGT("E2passi/mm")
 #define MSG_E3STEPS                         _UxGT("E3passi/mm")
 #define MSG_E4STEPS                         _UxGT("E4passi/mm")
+#define MSG_E5STEPS                         _UxGT("E5passi/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_VOLUMETRIC                      _UxGT("Filamento")

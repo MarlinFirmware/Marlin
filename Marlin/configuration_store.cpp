@@ -144,9 +144,10 @@
  *  568  M906 E1   stepperE1 current                (uint16_t)
  *  570  M906 E2   stepperE2 current                (uint16_t)
  *  572  M906 E3   stepperE3 current                (uint16_t)
+ *  572  M906 E4   stepperE4 current                (uint16_t)
  *
- *  574                                Minimum end-point
- * 1895 (574 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  576                                Minimum end-point
+ * 1897 (576 + 36 + 9 + 288 + 988)     Maximum end-point
  */
 #include "Marlin.h"
 #include "language.h"
@@ -520,7 +521,7 @@ void Config_Postprocess() {
       EEPROM_WRITE(val);
     #else
       val = 0;
-      for (uint8_t q = 0; q < 10; ++q) EEPROM_WRITE(val);
+      for (uint8_t q = 0; q < 11; ++q) EEPROM_WRITE(val);
     #endif
 
     if (!eeprom_write_error) {
@@ -824,8 +825,12 @@ void Config_Postprocess() {
         #if ENABLED(E3_IS_TMC2130)
           stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
+        EEPROM_READ(val);
+        #if ENABLED(E4_IS_TMC2130)
+          stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+        #endif
       #else
-        for (uint8_t q = 0; q < 10; q++) EEPROM_READ(val);
+        for (uint8_t q = 0; q < 11; q++) EEPROM_READ(val);
       #endif
 
       if (eeprom_checksum == stored_checksum) {

@@ -116,6 +116,7 @@
 #define MSG_E2STEPS                         _UxGT("E2kroku/mm")
 #define MSG_E3STEPS                         _UxGT("E3kroku/mm")
 #define MSG_E4STEPS                         _UxGT("E4kroku/mm")
+#define MSG_E5STEPS                         _UxGT("E5kroku/mm")
 #define MSG_TEMPERATURE                     _UxGT("Teplota")
 #define MSG_MOTION                          _UxGT("Pohyb")
 #define MSG_VOLUMETRIC                      _UxGT("Filament")

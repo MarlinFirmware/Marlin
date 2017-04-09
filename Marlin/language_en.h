@@ -291,6 +291,9 @@
 #ifndef MSG_E4STEPS
   #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #endif
+#ifndef MSG_E5STEPS
+  #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
 #endif
