@@ -443,7 +443,7 @@ static bool relative_mode = false;
 volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   volatile bool wait_for_user = false;
 #endif
 
@@ -4967,7 +4967,7 @@ inline void gcode_G92() {
   report_current_position();
 }
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -5504,7 +5504,7 @@ inline void gcode_M42() {
           pin_state[pin - first_pin] = digitalRead(pin);
       }
 
-      #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+      #if HAS_RESUME_CONTINUE
         wait_for_user = true;
       #endif
 
@@ -5522,7 +5522,7 @@ inline void gcode_M42() {
           }
         }
 
-        #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+        #if HAS_RESUME_CONTINUE
           if (!wait_for_user) break;
         #endif
 
@@ -9139,7 +9139,7 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
+      #if HAS_RESUME_CONTINUE
         case 0: // M0: Unconditional stop - Wait for user button press on LCD
         case 1: // M1: Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();

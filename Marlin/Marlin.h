@@ -221,7 +221,7 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   extern volatile bool wait_for_user;
 #endif
 
