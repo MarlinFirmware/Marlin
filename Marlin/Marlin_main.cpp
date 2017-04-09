@@ -6077,7 +6077,7 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (wants_to_cool ? thermalManager.isCoolingHotend(target_extruder) : thermalManager.isHeatingHotend(target_extruder))
   #endif
 
-  float theTarget = -1.0, old_temp = 9999.0;
+  float target_temp = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
   wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
@@ -6086,9 +6086,9 @@ inline void gcode_M109() {
 
   do {
     // Target temperature might be changed during the loop
-    if (theTarget != thermalManager.degTargetHotend(target_extruder)) {
+    if (target_temp != thermalManager.degTargetHotend(target_extruder)) {
       wants_to_cool = thermalManager.isCoolingHotend(target_extruder);
-      theTarget = thermalManager.degTargetHotend(target_extruder);
+      target_temp = thermalManager.degTargetHotend(target_extruder);
 
       // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
       if (no_wait_for_cooling && wants_to_cool) break;
@@ -6115,11 +6115,11 @@ inline void gcode_M109() {
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-    float temp = thermalManager.degHotend(target_extruder);
+    const float temp = thermalManager.degHotend(target_extruder);
 
     #if TEMP_RESIDENCY_TIME > 0
 
-      float temp_diff = fabs(theTarget - temp);
+      const float temp_diff = fabs(target_temp - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -6186,7 +6186,7 @@ inline void gcode_M109() {
       #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
     #endif
 
-    float theTarget = -1.0, old_temp = 9999.0;
+    float target_temp = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
     wait_for_heatup = true;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
@@ -6197,9 +6197,9 @@ inline void gcode_M109() {
 
     do {
       // Target temperature might be changed during the loop
-      if (theTarget != thermalManager.degTargetBed()) {
+      if (target_temp != thermalManager.degTargetBed()) {
         wants_to_cool = thermalManager.isCoolingBed();
-        theTarget = thermalManager.degTargetBed();
+        target_temp = thermalManager.degTargetBed();
 
         // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
         if (no_wait_for_cooling && wants_to_cool) break;
@@ -6226,11 +6226,11 @@ inline void gcode_M109() {
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-      float temp = thermalManager.degBed();
+      const float temp = thermalManager.degBed();
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
-        float temp_diff = fabs(theTarget - temp);
+        const float temp_diff = fabs(target_temp - temp);
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
