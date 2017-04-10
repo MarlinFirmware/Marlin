@@ -312,10 +312,10 @@
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #endif
-#ifndef MSG_STORE_EPROM
+#ifndef MSG_STORE_EEPROM
   #define MSG_STORE_EEPROM                    _UxGT("Store memory")
 #endif
-#ifndef MSG_LOAD_EPROM
+#ifndef MSG_LOAD_EEPROM
   #define MSG_LOAD_EEPROM                     _UxGT("Load memory")
 #endif
 #ifndef MSG_RESTORE_FAILSAFE
