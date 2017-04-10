@@ -1045,6 +1045,11 @@
 
 // @section lcd
 
+// LCD Timeout interval
+//
+// Timeout in ms before returning to the main screen (moved from ultralcd.h, original value 15000).
+#define LCD_TIMEOUT_TO_STATUS 15000
+
 //
 // LCD LANGUAGE
 //
