@@ -5483,10 +5483,10 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
+    int first_pin = 0, last_pin = (NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS) - 1;
     if (code_seen('P')) {
       first_pin = last_pin = code_value_byte();
-      if (first_pin > NUM_DIGITAL_PINS - 1) return;
+      if (first_pin > (NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS) - 1) return;
     }
 
     bool ignore_protection = code_seen('I') ? code_value_bool() : false;
