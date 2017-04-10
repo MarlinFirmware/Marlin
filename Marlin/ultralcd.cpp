@@ -1564,9 +1564,9 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_level_bed_homing() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
         lcd_goto_screen(_lcd_level_bed_homing_done);
+      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
     }
 
     /**
