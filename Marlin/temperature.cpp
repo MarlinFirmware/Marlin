@@ -31,6 +31,7 @@
 #include "temperature.h"
 #include "thermistortables.h"
 #include "language.h"
+#include "spi.h"
 #if ENABLED(BABYSTEPPING)
   #include "stepper.h"
 #endif
@@ -942,6 +943,15 @@ void Temperature::updateTemperaturesFromRawValues() {
 
 #endif
 
+#if ENABLED(HEATER_0_USES_MAX6675)
+  #ifndef MAX6675_SCK_PIN
+    #define MAX6675_SCK_PIN SCK_PIN
+  #endif
+  #ifndef MAX6675_DO_PIN
+    #define MAX6675_DO_PIN MISO_PIN
+  #endif
+  Spi<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+#endif
 
 /**
  * Initialize the temperature manager
@@ -1007,11 +1017,13 @@ void Temperature::init() {
     OUT_WRITE(SCK_PIN, LOW);
     OUT_WRITE(MOSI_PIN, HIGH);
     SET_INPUT_PULLUP(MISO_PIN);
-    OUT_WRITE(SS_PIN, HIGH);
 
+    max6675_spi.init();
+
+    OUT_WRITE(SS_PIN, HIGH);
     OUT_WRITE(MAX6675_SS, HIGH);
 
-  #endif //HEATER_0_USES_MAX6675
+  #endif // HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
     #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
@@ -1356,9 +1368,7 @@ void Temperature::disable_all_heaters() {
     // Read a big-endian temperature value
     max6675_temp = 0;
     for (uint8_t i = sizeof(max6675_temp); i--;) {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      max6675_temp |= SPDR;
+      max6675_temp |= max6675_spi.receive();
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
