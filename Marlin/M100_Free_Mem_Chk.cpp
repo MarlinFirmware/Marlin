@@ -226,6 +226,10 @@ int free_memory_is_corrupted() {
     sp = top_of_stack();
 
     n = sp - ptr;
+    SERIAL_ECHOPAIR("\nfmc() n=", n);
+    SERIAL_ECHOPAIR(" __brkval=", hex_word(__brkval));
+    SERIAL_ECHOPAIR(" &__bss_end=", hex_word(&__bss_end));
+    SERIAL_ECHOPAIR(" sp=", hex_word(sp));
 
     // Scan through the range looking for the biggest block of 0xE5's we can find
     for (i = 0; i < n; i++) {
@@ -237,14 +241,23 @@ int free_memory_is_corrupted() {
 
           i += j;
           block_cnt++;
+    SERIAL_ECHOPAIR(" (", block_cnt);
+    SERIAL_ECHOPAIR(") found=", j);
+    SERIAL_ECHOPGM("  ");
         }
       }
     }
+    SERIAL_ECHOPAIR("  block_cnt=", block_cnt);
 
 //  if (block_cnt > 1) {
 //    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
 //   SERIAL_ECHOLNPAIR("\nLargest free block is ", max_cnt);
 //  }
+    if (block_cnt==1)  {  // if the block_cnt is 1, nothing has broken up the free memory
+      SERIAL_ECHOPGM(" return=0\n");
+      return 0;     }     // area and it is appropriate to say 'no corruption'.
+
+    SERIAL_ECHOPGM(" return=true\n");
     return block_cnt;
   }
 

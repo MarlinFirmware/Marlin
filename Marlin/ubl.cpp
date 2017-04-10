@@ -163,15 +163,15 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
 
-    const bool map0 = map_type == 0;
+    const bool map_type_0_active = (map_type==0);
 
-    if (map0) {
+    if (map_type_0_active) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
       SERIAL_ECHOPGM("    ");
     }
 
-    if (map0) {
+    if (map_type_0_active) {
       serial_echo_12x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
@@ -186,40 +186,44 @@
 
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-        const bool is_current = i == current_xi && j == current_yi;
+        bool is_current;
+
+        is_current = ((i==current_xi) && (j==current_yi) );
 
         // is the nozzle here? then mark the number
-        if (map0) SERIAL_CHAR(is_current ? '[' : ' ');
+        if (map_type_0_active) SERIAL_CHAR(is_current ? '[' : ' ');
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
+          serialprintPGM(map_type_0_active ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely
-          if (map0 && f >= 0.0) SERIAL_CHAR(' ');
+          if (map_type_0_active && f >= 0.0) SERIAL_CHAR(' ');
           SERIAL_PROTOCOL_F(f, 3);
           idle();
         }
-        if (!map0 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
+        if (!map_type_0_active && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
 
         #if TX_BUFFER_SIZE > 0
           MYSERIAL.flushTX();
         #endif
         safe_delay(15);
-        if (map0) {
+        if (map_type_0_active) {
           SERIAL_CHAR(is_current ? ']' : ' ');
           SERIAL_CHAR(' ');
         }
       }
-      SERIAL_EOL;
-      if (j && map0) { // we want the (0,0) up tight against the block of numbers
+
+      if (j && map_type_0_active) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL;
       }
+      SERIAL_CHAR(' '); // For some reason, the serial routines eat back to back new lines.  
+      SERIAL_EOL;       // So we have to send something extra to split them up.
     }
 
-    if (map0) {
+    if (map_type_0_active) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHOPGM("    ");
       serial_echo_12x_spaces();
