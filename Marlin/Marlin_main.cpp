@@ -279,6 +279,10 @@
   #include "endstop_interrupts.h"
 #endif
 
+#if ENABLED(EEPROM_SETTINGS)
+  uint8_t wait_for_host_init_string_to_finish = 1;
+#endif
+
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
 #endif
@@ -11461,6 +11465,17 @@ void setup() {
  */
 void loop() {
   if (commands_in_queue < BUFSIZE) get_available_commands();
+
+  #if ENABLED(EEPROM_SETTINGS)
+    if (wait_for_host_init_string_to_finish) {
+      if (commands_in_queue != 0 && wait_for_host_init_string_to_finish == 1) wait_for_host_init_string_to_finish = 2;
+      if (commands_in_queue == 0 && wait_for_host_init_string_to_finish >= 2) wait_for_host_init_string_to_finish++;
+      if (wait_for_host_init_string_to_finish >= 250) {
+        wait_for_host_init_string_to_finish = 0;
+        eeprom_version_change_check();
+      }
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
