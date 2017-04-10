@@ -573,7 +573,7 @@ static uint8_t target_extruder;
         endstop_adj[ABC] = { 0 };
 
   // These values are loaded or reset at boot time when setup() calls
-  // Config_RetrieveSettings(), which calls recalc_delta_settings().
+  // settings.load(), which calls recalc_delta_settings().
   float delta_radius,
         delta_tower_angle_trim[ABC],
         delta_tower[ABC][2],
@@ -7898,28 +7898,28 @@ void quickstop_stepper() {
  * M500: Store settings in EEPROM
  */
 inline void gcode_M500() {
-  (void)Config_StoreSettings();
+  (void)settings.save();
 }
 
 /**
  * M501: Read settings from EEPROM
  */
 inline void gcode_M501() {
-  (void)Config_RetrieveSettings();
+  (void)settings.load();
 }
 
 /**
  * M502: Revert to default settings
  */
 inline void gcode_M502() {
-  (void)Config_ResetDefault();
+  (void)settings.reset();
 }
 
 /**
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  (void)Config_PrintSettings(code_seen('S') && !code_value_bool());
+  (void)settings.report(code_seen('S') && !code_value_bool());
 }
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -11343,7 +11343,7 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)Config_RetrieveSettings();
+  (void)settings.load();
 
   #if DISABLED(NO_WORKSPACE_OFFSETS)
     // Initialize current position based on home_offset
