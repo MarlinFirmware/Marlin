@@ -55,7 +55,8 @@ extern char __bss_end;
 
 char* top_of_stack();
 int how_many_E5s_are_here(char*);
-
+int free_memory_is_corrupted();         // int not bool!!!!  it will tell us how many blocks of
+                                        // free memory it found.
 void gcode_M100() {
   static bool m100_not_initialized = true;
   char* sp, *ptr;
@@ -69,18 +70,26 @@ void gcode_M100() {
   // probably caused by bad pointers.  Any unexpected values will be flagged in
   // the right hand column to help spotting them.
   //
+    SERIAL_ECHOPAIR("\n__brkval : 0x", hex_word((uint16_t)__brkval) );
+    SERIAL_ECHOPAIR("\n__bss_end : 0x", hex_word((uint16_t)&__bss_end));
+  //
+  // With out malloc() we need to be smart and use &__bss_end
+  //
+    ptr = __brkval ? __brkval : &__bss_end;    
+    SERIAL_ECHOPAIR("\nstart of free space : 0x", hex_word((uint16_t)ptr));
+
+    sp = top_of_stack();
+    SERIAL_ECHOLNPAIR("\nStack Pointer : 0x", hex_word((uint16_t)sp));
+
   #if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
     if (code_seen('D')) {
-      ptr = __brkval ? __brkval : &__bss_end;
       //
       // We want to start and end the dump on a nice 16 byte boundry even though
       // the values we are using are not 16 byte aligned.
       //
-      SERIAL_ECHOPAIR("\nbss_end : 0x", hex_word((uint16_t)ptr));
-      ptr = (char*)((uint32_t)ptr & 0xfff0);
-      sp = top_of_stack();
-      SERIAL_ECHOLNPAIR("\nStack Pointer : 0x", hex_word((uint16_t)sp));
-      sp = (char*)((uint32_t)sp | 0x000f);
+      ptr = (char*) ((uint16_t) ptr & 0xfff0);
+      sp  = (char*) ((uint16_t) sp  | 0x000f);
+
       n = sp - ptr;
       //
       // This is the main loop of the Dump command.
@@ -89,6 +98,8 @@ void gcode_M100() {
         print_hex_word((uint16_t)ptr); // Print the address
         SERIAL_CHAR(':');
         for (i = 0; i < 16; i++) {      // and 16 data bytes
+          if (i==8)
+            SERIAL_CHAR('-');
           print_hex_byte(*(ptr + i));
           SERIAL_CHAR(' ');
         }
@@ -97,6 +108,7 @@ void gcode_M100() {
           SERIAL_CHAR((*(ptr + i) == (char)0xe5) ? ' ' : '?');
         SERIAL_EOL;
         ptr += 16;
+        idle();
       }
       return;
     }
@@ -106,11 +118,8 @@ void gcode_M100() {
   // other vital statistics that define the memory pool.
   //
   if (code_seen('F')) {
-    #if 0
-      int max_addr = (int)  __brkval ? __brkval : &__bss_end;
-      int max_cnt = 0;
-    #endif
-    int block_cnt = 0;
+    int max_cnt = -1, block_cnt = 0;
+    uint16_t max_addr=0;
     ptr =  __brkval ? __brkval : &__bss_end;
     sp = top_of_stack();
     n = sp - ptr;
@@ -121,19 +130,21 @@ void gcode_M100() {
         if (j > 8) {
           SERIAL_ECHOPAIR("Found ", j);
           SERIAL_ECHOLNPAIR(" bytes free at 0x", hex_word((uint16_t)(ptr + i)));
+          if (j > max_cnt) {  
+            max_cnt  = j;    
+            max_addr = (uint16_t) ptr + i;
+          }
           i += j;
           block_cnt++;
         }
-        #if 0
-          if (j > max_cnt) {      // We don't do anything with this information yet
-            max_cnt  = j;     // but we do know where the biggest free memory block is.
-            max_addr = (int) ptr + i;
-          }
-        #endif
       }
     }
-    if (block_cnt > 1)
+    if (block_cnt > 1) {
       SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+      SERIAL_ECHOPAIR("\nLargest free block is ", max_cnt);
+      SERIAL_ECHOLNPAIR(" bytes big at 0x", hex_word(max_addr));
+    }
+    SERIAL_ECHOLNPAIR("free_memory_is_corrupted() = ", free_memory_is_corrupted()); 
     return;
   }
   //
@@ -144,14 +155,10 @@ void gcode_M100() {
     if (code_seen('C')) {
       int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
       SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-      ptr = __brkval ? __brkval : &__bss_end;
-      SERIAL_ECHOPAIR("\nbss_end : ", ptr);
       ptr += 8;
       sp = top_of_stack();
-      SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
-      SERIAL_ECHOLNPGM("\n");
-      n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
-      // has altered the stack.
+      n = sp - ptr - 250;    // -250 just to keep us from finding interrupt activity that
+                            // has altered the stack.
       j = n / (x + 1);
       for (i = 1; i <= x; i++) {
         *(ptr + (i * j)) = i;
@@ -167,13 +174,11 @@ void gcode_M100() {
   //
   if (m100_not_initialized || code_seen('I')) {            // If no sub-command is specified, the first time
     SERIAL_ECHOLNPGM("Initializing free memory block.\n"); // this happens, it will Initialize.
-    ptr = __brkval ? __brkval : &__bss_end;                // Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\nbss_end : ", ptr);                  // state of the initialized free memory pool.
+                                                           // Repeated M100 with no sub-command will not destroy the
+                                                           // state of the initialized free memory pool.
     ptr += 8;
-    sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
     SERIAL_ECHOLNPGM("\n");
-    n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
+    n = sp - ptr - 250;    // -250 just to keep us from finding interrupt activity that
     // has altered the stack.
     SERIAL_ECHO(n);
     SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
@@ -181,8 +186,8 @@ void gcode_M100() {
       *(ptr + i) = (char)0xe5;
     for (i = 0; i < n; i++) {
       if (*(ptr + i) != (char)0xe5) {
-        SERIAL_ECHOPAIR("? address : ", ptr + i);
-        SERIAL_ECHOPAIR("=", *(ptr + i));
+        SERIAL_ECHOPAIR("? address : ", hex_word(ptr+i) );
+        SERIAL_ECHOPAIR("=", hex_byte(*(ptr + i)) );
         SERIAL_ECHOLNPGM("\n");
       }
     }
@@ -211,6 +216,37 @@ int how_many_E5s_are_here(char* p) {
   }
   return -1;
 }
+
+
+int free_memory_is_corrupted() {
+  char *sp, *ptr;
+  int block_cnt = 0, i, j, n;
+
+    ptr = __brkval ? __brkval : &__bss_end;    
+    sp = top_of_stack();
+
+    n = sp - ptr;
+
+    // Scan through the range looking for the biggest block of 0xE5's we can find
+    for (i = 0; i < n; i++) {
+      if (*(ptr + i) == (char)0xe5) {
+        j = how_many_E5s_are_here(ptr + i);
+        if (j > 8) {
+//        SERIAL_ECHOPAIR("Found ", j);
+//        SERIAL_ECHOLNPAIR(" bytes free at 0x", hex_word((uint16_t)(ptr + i)));
+
+          i += j;
+          block_cnt++;
+        }
+      }
+    }
+
+//  if (block_cnt > 1) {
+//    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+//   SERIAL_ECHOLNPAIR("\nLargest free block is ", max_cnt);
+//  }
+    return block_cnt;
+  }
 
 #endif
 
