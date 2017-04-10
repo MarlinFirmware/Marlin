@@ -478,9 +478,6 @@
 
 #endif
 
-// Enable this option for Toshiba steppers
-//#define CONFIG_STEPPERS_TOSHIBA
-
 //===========================================================================
 //============================== Endstop Settings ===========================
 //===========================================================================
@@ -848,6 +845,9 @@
 #define INVERT_X_DIR false // DELTA does not invert
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
+
+// Enable this option for Toshiba stepper drivers
+//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 
