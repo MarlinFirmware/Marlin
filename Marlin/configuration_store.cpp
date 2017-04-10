@@ -23,7 +23,7 @@
 /**
  * configuration_store.cpp
  *
- * Configuration and EEPROM storage
+ * Settings and EEPROM storage
  *
  * IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
  * in the functions below, also increment the version number. This makes sure that
@@ -152,13 +152,16 @@
  *  580                                Minimum end-point
  * 1901 (580 + 36 + 9 + 288 + 988)     Maximum end-point
  */
+#include "configuration_store.h"
+
+MarlinSettings settings;
+
 #include "Marlin.h"
 #include "language.h"
 #include "endstops.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
-#include "configuration_store.h"
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -179,7 +182,7 @@
 /**
  * Post-process after Retrieve or Reset
  */
-void Config_Postprocess() {
+void MarlinSettings::postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
@@ -217,12 +220,14 @@ void Config_Postprocess() {
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  uint16_t eeprom_checksum;
   const char version[4] = EEPROM_VERSION;
 
-  bool eeprom_write_error;
+  uint16_t MarlinSettings::eeprom_checksum;
 
-  void _EEPROM_writeData(int &pos, const uint8_t* value, uint16_t size) {
+  bool MarlinSettings::eeprom_write_error,
+       MarlinSettings::eeprom_read_error;
+
+  void MarlinSettings::write_data(int &pos, const uint8_t* value, uint16_t size) {
     if (eeprom_write_error) return;
     while (size--) {
       uint8_t * const p = (uint8_t * const)pos;
@@ -243,8 +248,7 @@ void Config_Postprocess() {
       value++;
     };
   }
-  bool eeprom_read_error;
-  void _EEPROM_readData(int &pos, uint8_t* value, uint16_t size) {
+  void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size) {
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
       if (!eeprom_read_error) *value = c;
@@ -257,14 +261,14 @@ void Config_Postprocess() {
   #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
-  #define EEPROM_WRITE(VAR) _EEPROM_writeData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
-  #define EEPROM_READ(VAR) _EEPROM_readData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
-  #define EEPROM_ASSERT(TST,ERR) if () do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error |= true; }while(0)
+  #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_READ(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
 
   /**
    * M500 - Store Configuration
    */
-  bool Config_StoreSettings() {
+  bool MarlinSettings::save() {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -576,7 +580,7 @@ void Config_Postprocess() {
   /**
    * M501 - Retrieve Configuration
    */
-  bool Config_RetrieveSettings() {
+  bool MarlinSettings::load() {
 
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
@@ -597,7 +601,7 @@ void Config_Postprocess() {
       SERIAL_ECHOPGM("EEPROM version mismatch ");
       SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
       SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
-      Config_ResetDefault();
+      reset();
     }
     else {
       float dummy = 0;
@@ -747,6 +751,11 @@ void Config_Postprocess() {
       EEPROM_READ(lcd_preheat_bed_temp);
       EEPROM_READ(lcd_preheat_fan_speed);
 
+      //EEPROM_ASSERT(
+      //  WITHIN(lcd_preheat_fan_speed, 0, 255),
+      //  "lcd_preheat_fan_speed out of range"
+      //);
+
       #if ENABLED(PIDTEMP)
         for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
           EEPROM_READ(dummy); // Kp
@@ -869,9 +878,9 @@ void Config_Postprocess() {
 
       if (eeprom_checksum == stored_checksum) {
         if (eeprom_read_error)
-          Config_ResetDefault();
+          reset();
         else {
-          Config_Postprocess();
+          postprocess();
           SERIAL_ECHO_START;
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
@@ -881,7 +890,7 @@ void Config_Postprocess() {
       else {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
-        Config_ResetDefault();
+        reset();
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -923,7 +932,7 @@ void Config_Postprocess() {
       #endif
     }
     #if ENABLED(EEPROM_CHITCHAT)
-      Config_PrintSettings();
+      report();
     #endif
 
     return !eeprom_read_error;
@@ -931,7 +940,7 @@ void Config_Postprocess() {
 
 #else // !EEPROM_SETTINGS
 
-  bool Config_StoreSettings() {
+  bool MarlinSettings::save() {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("EEPROM disabled");
     return false;
@@ -942,7 +951,7 @@ void Config_Postprocess() {
 /**
  * M502 - Reset Configuration
  */
-void Config_ResetDefault() {
+void MarlinSettings::reset() {
   const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
   const uint32_t tmp3[] = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
@@ -1118,7 +1127,7 @@ void Config_ResetDefault() {
     #endif
   #endif
 
-  Config_Postprocess();
+  postprocess();
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
@@ -1129,10 +1138,11 @@ void Config_ResetDefault() {
   #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
   /**
-   * M503 - Print Configuration
+   * M503 - Report current settings in RAM
+   *   
+   * Unless specifically disabled, M503 is available even without EEPROM
    */
-  void Config_PrintSettings(bool forReplay) {
-    // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
+  void MarlinSettings::report(bool forReplay) {
 
     CONFIG_ECHO_START;
 

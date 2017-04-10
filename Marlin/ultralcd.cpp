@@ -2046,12 +2046,12 @@ void kill_screen(const char* lcd_msg) {
    */
 
   #if ENABLED(EEPROM_SETTINGS)
-    static void lcd_store_settings()   { lcd_completion_feedback(Config_StoreSettings()); }
-    static void lcd_load_settings()    { lcd_completion_feedback(Config_RetrieveSettings()); }
+    static void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
+    static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
   static void lcd_factory_settings() {
-    Config_ResetDefault();
+    settings.reset();
     lcd_completion_feedback();
   }
 
