@@ -655,13 +655,13 @@ void kill_screen(const char* lcd_msg) {
       card.pauseSDPrint();
       print_job_timer.pause();
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M125"))
+        enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
     }
 
     void lcd_sdcard_resume() {
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M24"))
+        enqueue_and_echo_commands_P(PSTR("M24"));
       #else
         card.startFileprint();
         print_job_timer.start();
