@@ -561,7 +561,8 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
     }
 
     if (code_seen('T')) {
- /*
+      SERIAL_PROTOCOLLNPAIR("Checkpoint 36:", free_memory_is_corrupted() );
+ 
       const float lx1 = LOGICAL_X_POSITION(ubl_3_point_1_X),
                   lx2 = LOGICAL_X_POSITION(ubl_3_point_2_X),
                   lx3 = LOGICAL_X_POSITION(ubl_3_point_3_X),
@@ -579,7 +580,8 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
       z1 -= ubl.get_z_correction(lx1, ly1);
       z2 -= ubl.get_z_correction(lx2, ly2);
       z3 -= ubl.get_z_correction(lx3, ly3);
-*/
+      SERIAL_PROTOCOLLNPAIR("Checkpoint 37:", free_memory_is_corrupted() );
+/*
 
       float z1 = probe_pt( LOGICAL_X_POSITION(ubl_3_point_1_X), LOGICAL_Y_POSITION(ubl_3_point_1_Y), false, g29_verbose_level),
             z2 = probe_pt( LOGICAL_X_POSITION(ubl_3_point_2_X), LOGICAL_Y_POSITION(ubl_3_point_2_Y), false, g29_verbose_level),
@@ -594,6 +596,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
 
       do_blocking_move_to_xy((X_MAX_POS - (X_MIN_POS)) / 2.0, (Y_MAX_POS - (Y_MIN_POS)) / 2.0);
       tilt_mesh_based_on_3pts(z1, z2, z3);
+*/
     }
 
 SERIAL_PROTOCOLLNPAIR("Checkpoint 3:", free_memory_is_corrupted() );
