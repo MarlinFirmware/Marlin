@@ -2400,7 +2400,7 @@ static void clean_up_after_endstop_or_probe_move() {
       for (uint8_t x = 0; x < sx; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         const float offset = fn(x, y);
-        if (offset != NAN) {
+        if (!isnan(offset)) {
           if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
           SERIAL_PROTOCOL_F(offset, precision);
         }
@@ -2452,7 +2452,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_CHAR(']');
       }
     #endif
-    if (bed_level_grid[x][y] != NAN) {
+    if (!isnan(bed_level_grid[x][y])) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
       #endif
@@ -2466,9 +2466,9 @@ static void clean_up_after_endstop_or_probe_move() {
           c1 = bed_level_grid[x + xdir][y + ydir], c2 = bed_level_grid[x + xdir * 2][y + ydir * 2];
 
     // Treat far unprobed points as zero, near as equal to far
-    if (a2 == NAN) a2 = 0.0; if (a1 == NAN) a1 = a2;
-    if (b2 == NAN) b2 = 0.0; if (b1 == NAN) b1 = b2;
-    if (c2 == NAN) c2 = 0.0; if (c1 == NAN) c1 = c2;
+    if (isnan(a2)) a2 = 0.0; if (isnan(a1)) a1 = a2;
+    if (isnan(b2)) b2 = 0.0; if (isnan(b1)) b1 = b2;
+    if (isnan(c2)) c2 = 0.0; if (isnan(c1)) c1 = c2;
 
     const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 
@@ -4498,7 +4498,7 @@ inline void gcode_G28() {
 
             measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
-            if (measured_z == NAN) {
+            if (isnan(measured_z)) {
               planner.abl_enabled = abl_should_enable;
               return;
             }
@@ -4534,7 +4534,7 @@ inline void gcode_G28() {
           measured_z = points[i].z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
         }
 
-        if (measured_z == NAN) {
+        if (isnan(measured_z)) {
           planner.abl_enabled = abl_should_enable;
           return;
         }
