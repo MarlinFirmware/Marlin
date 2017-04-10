@@ -321,7 +321,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
 
 
   void gcode_G299() {
-
+/*
     SERIAL_PROTOCOLLNPAIR("Checkpoint 298:", free_memory_is_corrupted() );
     if (code_seen('T')) {
  
@@ -332,9 +332,9 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
                   ly2 = LOGICAL_Y_POSITION(ubl_3_point_2_Y),
                   ly3 = LOGICAL_Y_POSITION(ubl_3_point_3_Y);
 
-      float z1 = probe_pt(lx1, ly1, false /*Stow Flag*/, g29_verbose_level),
-            z2 = probe_pt(lx2, ly2, false /*Stow Flag*/, g29_verbose_level),
-            z3 = probe_pt(lx3, ly3, true  /*Stow Flag*/, g29_verbose_level);
+      float z1 = probe_pt(lx1, ly1, false, g29_verbose_level),
+            z2 = probe_pt(lx2, ly2, false, g29_verbose_level),
+            z3 = probe_pt(lx3, ly3, true , g29_verbose_level);
 
       //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
       //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
@@ -345,6 +345,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
       do_blocking_move_to_xy((X_MAX_POS - (X_MIN_POS)) / 2.0, (Y_MAX_POS - (Y_MIN_POS)) / 2.0);
       tilt_mesh_based_on_3pts(z1, z2, z3);
     }
+*/
     SERIAL_PROTOCOLLNPAIR("Checkpoint 299:", free_memory_is_corrupted() );
   }
 
