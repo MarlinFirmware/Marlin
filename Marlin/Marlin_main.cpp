@@ -9108,15 +9108,6 @@ void process_next_command() {
                  // or provides access to the UBL System if enabled.
           gcode_G29();
           break;
-
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        void gcode_G299();
-        case 299: // G299  stack frame debug
-          gcode_G299();
-          break;
-      #endif // Stack frame debug
-
-
       #endif // PLANNER_LEVELING
 
       #if HAS_BED_PROBE

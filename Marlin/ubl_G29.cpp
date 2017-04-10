@@ -320,35 +320,6 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
 #endif
 
 
-  void gcode_G299() {
-/*
-    SERIAL_PROTOCOLLNPAIR("Checkpoint 298:", free_memory_is_corrupted() );
-    if (code_seen('T')) {
- 
-      const float lx1 = LOGICAL_X_POSITION(ubl_3_point_1_X),
-                  lx2 = LOGICAL_X_POSITION(ubl_3_point_2_X),
-                  lx3 = LOGICAL_X_POSITION(ubl_3_point_3_X),
-                  ly1 = LOGICAL_Y_POSITION(ubl_3_point_1_Y),
-                  ly2 = LOGICAL_Y_POSITION(ubl_3_point_2_Y),
-                  ly3 = LOGICAL_Y_POSITION(ubl_3_point_3_Y);
-
-      float z1 = probe_pt(lx1, ly1, false, g29_verbose_level),
-            z2 = probe_pt(lx2, ly2, false, g29_verbose_level),
-            z3 = probe_pt(lx3, ly3, true , g29_verbose_level);
-
-      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
-      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
-
-      z1 -= ubl.get_z_correction(lx1, ly1);
-      z2 -= ubl.get_z_correction(lx2, ly2);
-      z3 -= ubl.get_z_correction(lx3, ly3);
-      do_blocking_move_to_xy((X_MAX_POS - (X_MIN_POS)) / 2.0, (Y_MAX_POS - (Y_MIN_POS)) / 2.0);
-      tilt_mesh_based_on_3pts(z1, z2, z3);
-    }
-*/
-    SERIAL_PROTOCOLLNPAIR("Checkpoint 299:", free_memory_is_corrupted() );
-  }
-
   void gcode_G29() {
     SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", ubl.eeprom_start);
     if (ubl.eeprom_start < 0) {
@@ -562,7 +533,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
     }
 
     if (code_seen('T')) {
-      SERIAL_PROTOCOLLNPAIR("Checkpoint 36:", free_memory_is_corrupted() );
+//      SERIAL_PROTOCOLLNPAIR("Checkpoint 36:", free_memory_is_corrupted() );
  
       const float lx1 = LOGICAL_X_POSITION(ubl_3_point_1_X),
                   lx2 = LOGICAL_X_POSITION(ubl_3_point_2_X),
@@ -581,7 +552,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
       z1 -= ubl.get_z_correction(lx1, ly1);
       z2 -= ubl.get_z_correction(lx2, ly2);
       z3 -= ubl.get_z_correction(lx3, ly3);
-      SERIAL_PROTOCOLLNPAIR("Checkpoint 37:", free_memory_is_corrupted() );
+//      SERIAL_PROTOCOLLNPAIR("Checkpoint 37:", free_memory_is_corrupted() );
 /*
 
       float z1 = probe_pt( LOGICAL_X_POSITION(ubl_3_point_1_X), LOGICAL_Y_POSITION(ubl_3_point_1_Y), false, g29_verbose_level),
@@ -600,7 +571,7 @@ int free_memory_is_corrupted();   // the memory corruption problems I'm seeing.
 */
     }
 
-SERIAL_PROTOCOLLNPAIR("Checkpoint 3:", free_memory_is_corrupted() );
+//SERIAL_PROTOCOLLNPAIR("Checkpoint 3:", free_memory_is_corrupted() );
 
     //
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
