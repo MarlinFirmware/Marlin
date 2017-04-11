@@ -216,6 +216,10 @@ void MarlinSettings::postprocess() {
       //#endif
     );
   #endif
+
+  #if HAS_BED_PROBE
+    refresh_zprobe_zoffset();
+  #endif
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -344,7 +348,7 @@ void MarlinSettings::postprocess() {
     #endif // MESH_BED_LEVELING
 
     #if !HAS_BED_PROBE
-      float zprobe_zoffset = 0;
+      const float zprobe_zoffset = 0;
     #endif
     EEPROM_WRITE(zprobe_zoffset);
 
@@ -685,7 +689,7 @@ void MarlinSettings::postprocess() {
       #endif // MESH_BED_LEVELING
 
       #if !HAS_BED_PROBE
-        float zprobe_zoffset = 0;
+        float zprobe_zoffset;
       #endif
       EEPROM_READ(zprobe_zoffset);
 
