@@ -307,6 +307,10 @@ float code_value_temp_diff();
   void reset_bed_level();
 #endif
 
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  void set_z_fade_height(const float zfh);
+#endif
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
