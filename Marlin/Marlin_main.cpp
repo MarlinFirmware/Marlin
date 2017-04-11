@@ -443,7 +443,7 @@ static bool relative_mode = false;
 volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   volatile bool wait_for_user = false;
 #endif
 
@@ -945,6 +945,41 @@ void servo_init() {
 
 #endif
 
+#if HAS_COLOR_LEDS
+
+  void set_led_color(
+    const uint8_t r, const uint8_t g, const uint8_t b
+      #if ENABLED(RGBW_LED)
+        , const uint8_t w=0
+      #endif
+  ) {
+
+    #if ENABLED(BLINKM)
+
+      // This variant uses i2c to send the RGB components to the device.
+      SendColors(r, g, b);
+
+    #else
+
+      // This variant uses 3 separate pins for the RGB components.
+      // If the pins can do PWM then their intensity will be set.
+      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+      analogWrite(RGB_LED_R_PIN, r);
+      analogWrite(RGB_LED_G_PIN, g);
+      analogWrite(RGB_LED_B_PIN, b);
+
+      #if ENABLED(RGBW_LED)
+        digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
+        analogWrite(RGB_LED_W_PIN, w);
+      #endif
+
+    #endif
+  }
+
+#endif // HAS_COLOR_LEDS
+
 void gcode_line_error(const char* err, bool doFlush = true) {
   SERIAL_ERROR_START;
   serialprintPGM(err);
@@ -1129,6 +1164,19 @@ inline void get_serial_commands() {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           card.printingHasFinished();
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+            set_led_color(0, 255, 0); // Green
+            #if HAS_RESUME_CONTINUE
+              KEEPALIVE_STATE(PAUSED_FOR_USER);
+              wait_for_user = true;
+              while (wait_for_user) idle();
+              KEEPALIVE_STATE(IN_HANDLER);
+            #else
+              safe_delay(1000);
+            #endif
+            set_led_color(0, 0, 0);   // OFF
+          #endif
           card.checkautostart(true);
         }
         else if (n == -1) {
@@ -4967,7 +5015,7 @@ inline void gcode_G92() {
   report_current_position();
 }
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -5504,7 +5552,7 @@ inline void gcode_M42() {
           pin_state[pin - first_pin] = digitalRead(pin);
       }
 
-      #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+      #if HAS_RESUME_CONTINUE
         wait_for_user = true;
       #endif
 
@@ -5522,7 +5570,7 @@ inline void gcode_M42() {
           }
         }
 
-        #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+        #if HAS_RESUME_CONTINUE
           if (!wait_for_user) break;
         #endif
 
@@ -5692,8 +5740,8 @@ inline void gcode_M42() {
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
             while (HYPOT(X_current, Y_current) > DELTA_PROBEABLE_RADIUS) {
-              X_current /= 1.25;
-              Y_current /= 1.25;
+              X_current *= 0.8;
+              Y_current *= 0.8;
               if (verbose_level > 3) {
                 SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
                 SERIAL_ECHOLNPAIR(", ", Y_current);
@@ -6077,18 +6125,23 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (wants_to_cool ? thermalManager.isCoolingHotend(target_extruder) : thermalManager.isHeatingHotend(target_extruder))
   #endif
 
-  float theTarget = -1.0, old_temp = 9999.0;
+  float target_temp = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
   wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
   KEEPALIVE_STATE(NOT_BUSY);
 
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    const float start_temp = thermalManager.degHotend(target_extruder);
+    uint8_t old_blue = 0;
+  #endif
+
   do {
     // Target temperature might be changed during the loop
-    if (theTarget != thermalManager.degTargetHotend(target_extruder)) {
+    if (target_temp != thermalManager.degTargetHotend(target_extruder)) {
       wants_to_cool = thermalManager.isCoolingHotend(target_extruder);
-      theTarget = thermalManager.degTargetHotend(target_extruder);
+      target_temp = thermalManager.degTargetHotend(target_extruder);
 
       // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
       if (no_wait_for_cooling && wants_to_cool) break;
@@ -6115,11 +6168,19 @@ inline void gcode_M109() {
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-    float temp = thermalManager.degHotend(target_extruder);
+    const float temp = thermalManager.degHotend(target_extruder);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      // Gradually change LED strip from violet to red as nozzle heats up
+      if (!wants_to_cool) {
+        const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
+      }
+    #endif
 
     #if TEMP_RESIDENCY_TIME > 0
 
-      float temp_diff = fabs(theTarget - temp);
+      const float temp_diff = fabs(target_temp - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -6145,7 +6206,16 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) {
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      #if ENABLED(RGBW_LED)
+        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+      #else
+        set_led_color(255, 255, 255); // Set LEDs All On
+      #endif
+    #endif
+  }
 
   KEEPALIVE_STATE(IN_HANDLER);
 }
@@ -6186,7 +6256,7 @@ inline void gcode_M109() {
       #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
     #endif
 
-    float theTarget = -1.0, old_temp = 9999.0;
+    float target_temp = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
     wait_for_heatup = true;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
@@ -6195,11 +6265,16 @@ inline void gcode_M109() {
 
     target_extruder = active_extruder; // for print_heaterstates
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      const float start_temp = thermalManager.degBed();
+      uint8_t old_red = 255;
+    #endif
+
     do {
       // Target temperature might be changed during the loop
-      if (theTarget != thermalManager.degTargetBed()) {
+      if (target_temp != thermalManager.degTargetBed()) {
         wants_to_cool = thermalManager.isCoolingBed();
-        theTarget = thermalManager.degTargetBed();
+        target_temp = thermalManager.degTargetBed();
 
         // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
         if (no_wait_for_cooling && wants_to_cool) break;
@@ -6226,11 +6301,20 @@ inline void gcode_M109() {
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-      float temp = thermalManager.degBed();
+      const float temp = thermalManager.degBed();
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        // Gradually change LED strip from blue to violet as bed heats up
+        if (!wants_to_cool) {
+          const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+          if (red != old_red) set_led_color((old_red = red), 0, 255);
+        }
+      }
+      #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
-        float temp_diff = fabs(theTarget - temp);
+        const float temp_diff = fabs(target_temp - temp);
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -6771,33 +6855,12 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // PARK_HEAD_ON_PAUSE
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED)
-
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #else
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-    #endif
-  }
+#if HAS_COLOR_LEDS
 
   /**
-   * M150: Set Status LED Color - Use R-U-B for R-G-B
+   * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
    *
-   * Always sets all 3 components. If a component is left out, set to 0.
+   * Always sets all 3 or 4 components. If a component is left out, set to 0.
    *
    * Examples:
    *
@@ -6805,6 +6868,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150 R255 U127  ; Turn LED orange (PWM only)
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
+   *   M150 W          ; Turn LED white using a white LED
    *
    */
   inline void gcode_M150() {
@@ -6812,6 +6876,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #if ENABLED(RGBW_LED)
+        , code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #endif
     );
   }
 
@@ -8266,7 +8333,7 @@ inline void gcode_M503() {
 
   inline void gcode_M605() {
     stepper.synchronize();
-    extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
+    extruder_duplication_enabled = code_seen('S') && code_value_int() == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
@@ -9139,7 +9206,7 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
+      #if HAS_RESUME_CONTINUE
         case 0: // M0: Unconditional stop - Wait for user button press on LCD
         case 1: // M1: Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();
@@ -9388,7 +9455,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED)
+      #if HAS_COLOR_LEDS
 
         case 150: // M150: Set Status LED Color
           gcode_M150();
