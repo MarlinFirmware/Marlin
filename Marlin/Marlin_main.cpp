@@ -8266,7 +8266,7 @@ inline void gcode_M503() {
 
   inline void gcode_M605() {
     stepper.synchronize();
-    extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
+    extruder_duplication_enabled = code_seen('S') && code_value_int() == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
