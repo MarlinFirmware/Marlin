@@ -36,8 +36,49 @@
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
-// Clock speed factor
-#define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20
+// Clock speed factors
+#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
+#define INT0_PRESCALER 8
+
+// Highly granular delays for step pulses, etc.
+#define DELAY_0_NOP NOOP
+#define DELAY_1_NOP __asm__("nop\n\t")
+#define DELAY_2_NOP DELAY_1_NOP; DELAY_1_NOP
+#define DELAY_3_NOP DELAY_1_NOP; DELAY_2_NOP
+#define DELAY_4_NOP DELAY_1_NOP; DELAY_3_NOP
+#define DELAY_5_NOP DELAY_1_NOP; DELAY_4_NOP
+
+#define DELAY_NOPS(X) \
+  switch (X) { \
+    case 20: DELAY_1_NOP; case 19: DELAY_1_NOP; \
+    case 18: DELAY_1_NOP; case 17: DELAY_1_NOP; \
+    case 16: DELAY_1_NOP; case 15: DELAY_1_NOP; \
+    case 14: DELAY_1_NOP; case 13: DELAY_1_NOP; \
+    case 12: DELAY_1_NOP; case 11: DELAY_1_NOP; \
+    case 10: DELAY_1_NOP; case 9:  DELAY_1_NOP; \
+    case 8:  DELAY_1_NOP; case 7:  DELAY_1_NOP; \
+    case 6:  DELAY_1_NOP; case 5:  DELAY_1_NOP; \
+    case 4:  DELAY_1_NOP; case 3:  DELAY_1_NOP; \
+    case 2:  DELAY_1_NOP; case 1:  DELAY_1_NOP; \
+  }
+
+#define DELAY_10_NOP DELAY_5_NOP;  DELAY_5_NOP
+#define DELAY_20_NOP DELAY_10_NOP; DELAY_10_NOP
+
+#if CYCLES_PER_MICROSECOND == 16
+  #define DELAY_1US DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP
+#else
+  #define DELAY_1US DELAY_20_NOP
+#endif
+#define DELAY_2US  DELAY_1US; DELAY_1US
+#define DELAY_3US  DELAY_1US; DELAY_2US
+#define DELAY_4US  DELAY_1US; DELAY_3US
+#define DELAY_5US  DELAY_1US; DELAY_4US
+#define DELAY_6US  DELAY_1US; DELAY_5US
+#define DELAY_7US  DELAY_1US; DELAY_6US
+#define DELAY_8US  DELAY_1US; DELAY_7US
+#define DELAY_9US  DELAY_1US; DELAY_8US
+#define DELAY_10US DELAY_1US; DELAY_9US
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)

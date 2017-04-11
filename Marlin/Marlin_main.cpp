@@ -6489,9 +6489,9 @@ inline void gcode_M18_M84() {
     }
     else {
       stepper.synchronize();
-      if (code_seen('X')) disable_x();
-      if (code_seen('Y')) disable_y();
-      if (code_seen('Z')) disable_z();
+      if (code_seen('X')) disable_X();
+      if (code_seen('Y')) disable_Y();
+      if (code_seen('Z')) disable_Z();
       #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
         if (code_seen('E')) disable_e_steppers();
       #endif
@@ -10888,28 +10888,28 @@ void calculate_volumetric_multipliers() {
 }
 
 void enable_all_steppers() {
-  enable_x();
-  enable_y();
-  enable_z();
-  enable_e0();
-  enable_e1();
-  enable_e2();
-  enable_e3();
-  enable_e4();
+  enable_X();
+  enable_Y();
+  enable_Z();
+  enable_E0();
+  enable_E1();
+  enable_E2();
+  enable_E3();
+  enable_E4();
 }
 
 void disable_e_steppers() {
-  disable_e0();
-  disable_e1();
-  disable_e2();
-  disable_e3();
-  disable_e4();
+  disable_E0();
+  disable_E1();
+  disable_E2();
+  disable_E3();
+  disable_E4();
 }
 
 void disable_all_steppers() {
-  disable_x();
-  disable_y();
-  disable_z();
+  disable_X();
+  disable_Y();
+  disable_Z();
   disable_e_steppers();
 }
 
@@ -11011,13 +11011,13 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
-      disable_x();
+      disable_X();
     #endif
     #if ENABLED(DISABLE_INACTIVE_Y)
-      disable_y();
+      disable_Y();
     #endif
     #if ENABLED(DISABLE_INACTIVE_Z)
-      disable_z();
+      disable_Z();
     #endif
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
@@ -11080,32 +11080,32 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       bool oldstatus;
       #if ENABLED(SWITCHING_EXTRUDER)
         oldstatus = E0_ENABLE_READ;
-        enable_e0();
+        enable_E0();
       #else // !SWITCHING_EXTRUDER
         switch (active_extruder) {
           case 0:
             oldstatus = E0_ENABLE_READ;
-            enable_e0();
+            enable_E0();
             break;
           #if E_STEPPERS > 1
             case 1:
               oldstatus = E1_ENABLE_READ;
-              enable_e1();
+              enable_E1();
               break;
             #if E_STEPPERS > 2
               case 2:
                 oldstatus = E2_ENABLE_READ;
-                enable_e2();
+                enable_E2();
                 break;
               #if E_STEPPERS > 3
                 case 3:
                   oldstatus = E3_ENABLE_READ;
-                  enable_e3();
+                  enable_E3();
                   break;
                 #if E_STEPPERS > 4
                   case 4:
                     oldstatus = E4_ENABLE_READ;
-                    enable_e4();
+                    enable_E4();
                     break;
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
