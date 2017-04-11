@@ -863,11 +863,12 @@ void kill_screen(const char* lcd_msg) {
 
           const float new_zoffset = zprobe_zoffset + steps_to_mm[Z_AXIS] * babystep_increment;
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-            
+
             if (planner.abl_enabled)
               thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-      
+
             zprobe_zoffset = new_zoffset;
+            refresh_zprobe_zoffset(true);
             lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
           }
         }
@@ -2412,7 +2413,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(BABYSTEPPING)
         MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
       #else
-        MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+        MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, refresh_zprobe_zoffset);
       #endif
     #endif
     // Manual bed leveling, Bed Z:

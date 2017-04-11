@@ -7968,46 +7968,53 @@ inline void gcode_M503() {
 
 #if HAS_BED_PROBE
 
+  void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
+    static float last_zoffset = NAN;
+
+    if (!isnan(last_zoffset)) {
+
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEPPING)
+        const float diff = zprobe_zoffset - last_zoffset;
+      #endif
+
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        // Correct bilinear grid for new probe offset
+        if (diff) {
+          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+            for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+              bed_level_grid[x][y] -= diff;
+        }
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_interpolate();
+        #endif
+      #endif
+
+      #if ENABLED(BABYSTEPPING)
+        if (!no_babystep && planner.abl_enabled)
+          thermalManager.babystep_axis(Z_AXIS, -lround(diff * planner.axis_steps_per_mm[Z_AXIS]));
+      #else
+        UNUSED(no_babystep);
+      #endif
+    }
+
+    last_zoffset = zprobe_zoffset;
+  }
+
   inline void gcode_M851() {
-
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
-    SERIAL_CHAR(' ');
-
+    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
     if (code_seen('Z')) {
-      float value = code_value_axis_units(Z_AXIS);
+      const float value = code_value_axis_units(Z_AXIS);
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-
-        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          // Correct bilinear grid for new probe offset
-          const float diff = value - zprobe_zoffset;
-          if (diff) {
-            for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-              for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-                bed_level_grid[x][y] -= diff;
-          }
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
-        #endif
-
-        #if ENABLED(BABYSTEPPING)
-          if (planner.abl_enabled)
-            thermalManager.babystep_axis(Z_AXIS, lround(-(value - zprobe_zoffset) * planner.axis_steps_per_mm[Z_AXIS]));
-        #endif
-
         zprobe_zoffset = value;
+        refresh_zprobe_zoffset();
         SERIAL_ECHO(zprobe_zoffset);
       }
-      else {
-        SERIAL_ECHOPAIR(MSG_Z_MIN, Z_PROBE_OFFSET_RANGE_MIN);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHOPAIR(MSG_Z_MAX, Z_PROBE_OFFSET_RANGE_MAX);
-      }
+      else
+        SERIAL_ECHOPGM(MSG_Z_MIN " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " " MSG_Z_MAX " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX));
     }
-    else {
+    else
       SERIAL_ECHOPAIR(": ", zprobe_zoffset);
-    }
 
     SERIAL_EOL;
   }
