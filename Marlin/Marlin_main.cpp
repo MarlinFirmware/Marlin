@@ -947,7 +947,12 @@ void servo_init() {
 
 #if HAS_COLOR_LEDS
 
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+  void set_led_color(
+    const uint8_t r, const uint8_t g, const uint8_t b
+      #if ENABLED(RGBW_LED)
+        , const uint8_t w=0
+      #endif
+  ) {
 
     #if ENABLED(BLINKM)
 
@@ -964,6 +969,11 @@ void servo_init() {
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
+
+      #if ENABLED(RGBW_LED)
+        digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
+        analogWrite(RGB_LED_W_PIN, w);
+      #endif
 
     #endif
   }
@@ -1156,7 +1166,7 @@ inline void get_serial_commands() {
           card.printingHasFinished();
           #if ENABLED(PRINTER_EVENT_LEDS)
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-            set_led_color(0, 255, 0);
+            set_led_color(0, 255, 0); // Green
             #if HAS_RESUME_CONTINUE
               KEEPALIVE_STATE(PAUSED_FOR_USER);
               wait_for_user = true;
@@ -1165,7 +1175,7 @@ inline void get_serial_commands() {
             #else
               safe_delay(1000);
             #endif
-            set_led_color(0, 0, 0);
+            set_led_color(0, 0, 0);   // OFF
           #endif
           card.checkautostart(true);
         }
@@ -6199,7 +6209,11 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      set_led_color(255, 255, 255); // Set LEDs ALL WHITE
+      #if ENABLED(RGBW_LED)
+        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+      #else
+        set_led_color(255, 255, 255); // Set LEDs All On
+      #endif
     #endif
   }
 
@@ -6844,9 +6858,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 #if HAS_COLOR_LEDS
 
   /**
-   * M150: Set Status LED Color - Use R-U-B for R-G-B
+   * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
    *
-   * Always sets all 3 components. If a component is left out, set to 0.
+   * Always sets all 3 or 4 components. If a component is left out, set to 0.
    *
    * Examples:
    *
@@ -6854,6 +6868,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150 R255 U127  ; Turn LED orange (PWM only)
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
+   *   M150 W          ; Turn LED white using a white LED
    *
    */
   inline void gcode_M150() {
@@ -6861,6 +6876,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #if ENABLED(RGBW_LED)
+        , code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #endif
     );
   }
 
