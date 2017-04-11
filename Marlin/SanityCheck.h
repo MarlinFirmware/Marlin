@@ -34,10 +34,10 @@
 #endif
 
 /**
- * We try our best to include sanity checks for all the changes configuration
- * directives because people have a tendency to use outdated config files with
- * the bleding edge source code, but sometimes this is not enough. This check
- * will force a minimum config file revision, otherwise Marlin will not build.
+ * We try our best to include sanity checks for all changed configuration
+ * directives because users have a tendency to use outdated config files with
+ * the bleeding-edge source code, but sometimes this is not enough. This check
+ * forces a minimum config file revision. Otherwise Marlin will not build.
  */
 #if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
   #error "You are using an old Configuration.h file, update it before building Marlin."
@@ -951,12 +951,23 @@ static_assert(1 >= 0
 /**
  * RGB_LED Requirements
  */
+#define _RGB_TEST (PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
 #if ENABLED(RGB_LED)
-  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
+  #if !_RGB_TEST
     #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(RGBW_LED)
+    #error "Please enable only one of RGB_LED and RGBW_LED."
   #elif ENABLED(BLINKM)
     #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
   #endif
+#elif ENABLED(RGBW_LED)
+  #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
+    #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGBW_LED and BLINKM are currently incompatible (both use M150)."
+  #endif
+#elif DISABLED(BLINKM) && ENABLED(PRINTER_EVENT_LEDS)
+  #error "PRINTER_EVENT_LEDS requires BLINKM, RGB_LED, or RGBW_LED."
 #endif
 
 /**

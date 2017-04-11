@@ -1521,10 +1521,27 @@
 
 // Support for an RGB LED using 3 separate pins with optional PWM
 //#define RGB_LED
-#if ENABLED(RGB_LED)
+//#define RGBW_LED
+#if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
+  #define RGB_LED_W_PIN -1
+#endif
+
+/**
+ * Printer Event LEDs
+ *
+ * During printing, the LEDs will reflect the printer status:
+ *
+ *  - Gradually change from blue to violet as the heated bed gets to target temp
+ *  - Gradually change from violet to red as the hotend gets to temperature
+ *  - Change to white to illuminate work surface
+ *  - Change to green once print has finished
+ *  - Turn off after the print has finished and the user has pushed a button
+ */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+  #define PRINTER_EVENT_LEDS
 #endif
 
 /*********************************************************************\
