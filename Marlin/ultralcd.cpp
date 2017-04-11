@@ -408,7 +408,7 @@ uint16_t max_display_update_time = 0;
   bool screen_changed;
 
   // LCD and menu clicks
-  bool lcd_clicked, wait_for_unclick, defer_return_to_status, no_reentrance;
+  bool lcd_clicked, wait_for_unclick, defer_return_to_status;
 
   // Variables used when editing values.
   const char* editLabel;
@@ -460,16 +460,17 @@ uint16_t max_display_update_time = 0;
   extern uint8_t commands_in_queue;
 
   inline void lcd_synchronize() {
+    static bool no_reentry = false;
     lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_MOVING));
-    if (no_reentrance) return;
-    no_reentrance = true;
+    if (no_reentry) return;
+    no_reentry = true;
     screenFunc_t old_screen = currentScreen;
     lcd_goto_screen(lcd_synchronize);
     while (commands_in_queue) {
       idle();
       stepper.synchronize();
     }
-    no_reentrance = false;
+    no_reentry = false;
     lcd_goto_screen(old_screen);
   }
 
@@ -1365,7 +1366,6 @@ void kill_screen(const char* lcd_msg) {
 
       // Utility to go to the next mesh point
       inline void _manual_probe_goto_xy(float x, float y) {
-        if (no_reentrance) return;
         #if MANUAL_PROBE_HEIGHT > 0
           current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
           line_to_current(Z_AXIS);
@@ -1408,8 +1408,6 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_level_bed_get_z() {
       ENCODER_DIRECTION_NORMAL();
-
-      if (no_reentrance) goto KeepDrawing;
 
       // Encoder wheel adjusts the Z position
       if (encoderPosition) {
@@ -1491,8 +1489,6 @@ void kill_screen(const char* lcd_msg) {
           #endif
         }
       }
-
-      KeepDrawing:
 
       // Update on first display, then only on updates to Z position
       // Show message above on clicks instead
@@ -1745,8 +1741,6 @@ void kill_screen(const char* lcd_msg) {
     // Move directly to the tower position with uninterpolated moves
     // If we used interpolated moves it would cause this to become re-entrant
     void _goto_tower_pos(const float &a) {
-      if (no_reentrance) return;
-
       current_position[Z_AXIS] = max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5;
       line_to_current(Z_AXIS);
 
@@ -1981,11 +1975,9 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(DELTA)
       #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
       void lcd_lower_z_to_clip_height() {
-        if (!no_reentrance) {
-          current_position[Z_AXIS] = delta_clip_start_height;
-          line_to_current(Z_AXIS);
-          lcd_synchronize();
-        }
+        current_position[Z_AXIS] = delta_clip_start_height;
+        line_to_current(Z_AXIS);
+        lcd_synchronize();
       }
     #else
       #define _MOVE_XY_ALLOWED true
