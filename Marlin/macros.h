@@ -36,8 +36,9 @@
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
-// Clock speed factor
-#define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20
+// Clock speed factors
+#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
+#define INT0_PRESCALER 8
 
 // Highly granular delays for step pulses, etc.
 #define DELAY_0_NOP NOOP
