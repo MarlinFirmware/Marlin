@@ -5854,10 +5854,9 @@ inline void gcode_M104() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * Stop the timer at the end of print, starting is managed by
-       * 'heat and wait' M109.
+       * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
        * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-       * stand by mode, for instance in a dual extruder setup, without affecting
+       * standby mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
       if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
@@ -6039,7 +6038,7 @@ inline void gcode_M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  bool no_wait_for_cooling = code_seen('S');
+  const bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
     thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -6049,24 +6048,21 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-       * stand by mode, for instance in a dual extruder setup, without affecting
+       * Use half EXTRUDE_MINTEMP to allow nozzles to be put into hot
+       * standby mode, (e.g., in a dual extruder setup) without affecting
        * the running print timer.
        */
-      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
-      /**
-       * We do not check if the timer is already running because this check will
-       * be done for us inside the Stopwatch::start() method thus a running timer
-       * will not restart.
-       */
-      else print_job_timer.start();
+      else
+        print_job_timer.start();
     #endif
 
     if (thermalManager.isHeatingHotend(target_extruder)) lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
   }
+  else return;
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
@@ -6079,7 +6075,7 @@ inline void gcode_M109() {
   #else
     // Loop until the temperature is very close target
     #define TEMP_CONDITIONS (wants_to_cool ? thermalManager.isCoolingHotend(target_extruder) : thermalManager.isHeatingHotend(target_extruder))
-  #endif //TEMP_RESIDENCY_TIME > 0
+  #endif
 
   float theTarget = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
@@ -6134,7 +6130,7 @@ inline void gcode_M109() {
         residency_start_ms = now;
       }
 
-    #endif //TEMP_RESIDENCY_TIME > 0
+    #endif
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
@@ -6171,23 +6167,15 @@ inline void gcode_M109() {
     if (DEBUGGING(DRYRUN)) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
-    bool no_wait_for_cooling = code_seen('S');
+    const bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-        if (code_value_temp_abs() > BED_MINTEMP) {
-          /**
-          * We start the timer when 'heating and waiting' command arrives, LCD
-          * functions never wait. Cooling down managed by extruders.
-          *
-          * We do not check if the timer is already running because this check will
-          * be done for us inside the Stopwatch::start() method thus a running timer
-          * will not restart.
-          */
+        if (code_value_temp_abs() > BED_MINTEMP)
           print_job_timer.start();
-        }
       #endif
     }
+    else return;
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -6196,7 +6184,7 @@ inline void gcode_M109() {
     #else
       // Loop until the temperature is very close target
       #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
-    #endif //TEMP_BED_RESIDENCY_TIME > 0
+    #endif
 
     float theTarget = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
@@ -6378,6 +6366,7 @@ inline void gcode_M140() {
 
   /**
    * M145: Set the heatup state for a material in the LCD menu
+   *
    *   S<material> (0=PLA, 1=ABS)
    *   H<hotend temp>
    *   B<bed temp>
