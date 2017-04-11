@@ -428,7 +428,7 @@ void Stepper::isr() {
 
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
-          enable_z();
+          enable_Z();
           _NEXT_ISR(2000); // Run at slow speed - 1 KHz
           _ENABLE_ISRs(); // re-enable ISRs
           return;
@@ -986,14 +986,14 @@ void Stepper::init() {
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
-  #define _DISABLE(axis) disable_## axis()
+  #define _DISABLE(AXIS) disable_## AXIS()
 
-  #define AXIS_INIT(axis, AXIS, PIN) \
+  #define AXIS_INIT(AXIS, PIN) \
     _STEP_INIT(AXIS); \
     _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
-    _DISABLE(axis)
+    _DISABLE(AXIS)
 
-  #define E_AXIS_INIT(NUM) AXIS_INIT(e## NUM, E## NUM, E)
+  #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
 
   // Init Step Pins
   #if HAS_X_STEP
@@ -1001,7 +1001,7 @@ void Stepper::init() {
       X2_STEP_INIT;
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
-    AXIS_INIT(x, X, X);
+    AXIS_INIT(X, X);
   #endif
 
   #if HAS_Y_STEP
@@ -1009,7 +1009,7 @@ void Stepper::init() {
       Y2_STEP_INIT;
       Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
     #endif
-    AXIS_INIT(y, Y, Y);
+    AXIS_INIT(Y, Y);
   #endif
 
   #if HAS_Z_STEP
@@ -1017,7 +1017,7 @@ void Stepper::init() {
       Z2_STEP_INIT;
       Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
-    AXIS_INIT(z, Z, Z);
+    AXIS_INIT(Z, Z);
   #endif
 
   #if HAS_E0_STEP
@@ -1237,7 +1237,7 @@ void Stepper::report_positions() {
 
   #define CYCLES_EATEN_BY_BABYSTEP 60
 
-  #define _ENABLE(axis) enable_## axis()
+  #define _ENABLE(AXIS) enable_## AXIS()
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
@@ -1298,9 +1298,10 @@ void Stepper::report_positions() {
 
           bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          enable_x();
-          enable_y();
-          enable_z();
+          enable_X();
+          enable_Y();
+          enable_Z();
+
           uint8_t old_x_dir_pin = X_DIR_READ,
                   old_y_dir_pin = Y_DIR_READ,
                   old_z_dir_pin = Z_DIR_READ;
