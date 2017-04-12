@@ -988,7 +988,7 @@ void servo_init() {
 
   // Handle the various printer events
   void handle_led_print_event(uint8_t code) {
-    uint8_t wait_for_user_timeout = 0;
+    uint16_t wait_for_user_timeout = 0;
     switch(code) {
       case(0):        // Print Complete
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
@@ -4591,7 +4591,6 @@ inline void gcode_G28() {
 
 
     #else // !PROBE_MANUALLY
-
 
       bool stow_probe_after_each = code_seen('E');
 
