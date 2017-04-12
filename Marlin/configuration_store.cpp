@@ -192,7 +192,7 @@ MarlinSettings settings;
   #include "mesh_bed_leveling.h"
 #endif
 
-#if ENABLED(HAVE_TMC2130)
+#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
   #include "stepper_indirection.h"
 #endif
 
@@ -551,68 +551,68 @@ void MarlinSettings::postprocess() {
 
     // Save TMC2130 Configuration, and placeholder values
     uint16_t val;
-    #if ENABLED(HAVE_TMC2130)
-      #if ENABLED(X_IS_TMC2130)
+    #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+      #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
         val = stepperX.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y_IS_TMC2130)
+      #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
         val = stepperY.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z_IS_TMC2130)
+      #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
         val = stepperZ.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(X2_IS_TMC2130)
+      #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
         val = stepperX2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y2_IS_TMC2130)
+      #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
         val = stepperY2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z2_IS_TMC2130)
+      #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
         val = stepperZ2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E0_IS_TMC2130)
+      #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
         val = stepperE0.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E1_IS_TMC2130)
+      #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
         val = stepperE1.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E2_IS_TMC2130)
+      #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
         val = stepperE2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E3_IS_TMC2130)
+      #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
         val = stepperE3.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E4_IS_TMC2130)
+      #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
         val = stepperE4.getCurrent();
       #else
         val = 0;
@@ -939,49 +939,49 @@ void MarlinSettings::postprocess() {
       }
 
       uint16_t val;
-      #if ENABLED(HAVE_TMC2130)
+      #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
         EEPROM_READ(val);
-        #if ENABLED(X_IS_TMC2130)
+        #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
           stepperX.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y_IS_TMC2130)
+        #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
           stepperY.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z_IS_TMC2130)
+        #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
           stepperZ.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(X2_IS_TMC2130)
+        #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
           stepperX2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y2_IS_TMC2130)
+        #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
           stepperY2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z2_IS_TMC2130)
+        #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
           stepperZ2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E0_IS_TMC2130)
+        #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
           stepperE0.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E1_IS_TMC2130)
+        #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
           stepperE1.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E2_IS_TMC2130)
+        #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
           stepperE2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E3_IS_TMC2130)
+        #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
           stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E4_IS_TMC2130)
+        #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
@@ -1321,36 +1321,39 @@ void MarlinSettings::reset() {
     #endif
   );
 
-  #if ENABLED(HAVE_TMC2130)
-    #if ENABLED(X_IS_TMC2130)
+  #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+    #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
       stepperX.setCurrent(X_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(Y_IS_TMC2130)
+    #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
       stepperY.setCurrent(Y_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(Z_IS_TMC2130)
+    #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
       stepperZ.setCurrent(Z_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(X2_IS_TMC2130)
+    #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
       stepperX2.setCurrent(X2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(Y2_IS_TMC2130)
+    #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
       stepperY2.setCurrent(Y2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(Z2_IS_TMC2130)
+    #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
       stepperZ2.setCurrent(Z2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(E0_IS_TMC2130)
+    #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
       stepperE0.setCurrent(E0_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(E1_IS_TMC2130)
+    #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
       stepperE1.setCurrent(E1_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(E2_IS_TMC2130)
+    #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
       stepperE2.setCurrent(E2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if ENABLED(E3_IS_TMC2130)
+    #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
       stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
+      stepperE4.setCurrent(E4_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
   #endif
 
@@ -1801,35 +1804,38 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHO("  M906");
-      #if ENABLED(X_IS_TMC2130)
+      #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
         SERIAL_ECHOPAIR(" X", stepperX.getCurrent());
       #endif
-      #if ENABLED(Y_IS_TMC2130)
+      #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
         SERIAL_ECHOPAIR(" Y", stepperY.getCurrent());
       #endif
-      #if ENABLED(Z_IS_TMC2130)
+      #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
         SERIAL_ECHOPAIR(" Z", stepperZ.getCurrent());
       #endif
-      #if ENABLED(X2_IS_TMC2130)
+      #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
         SERIAL_ECHOPAIR(" X2", stepperX2.getCurrent());
       #endif
-      #if ENABLED(Y2_IS_TMC2130)
+      #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
         SERIAL_ECHOPAIR(" Y2", stepperY2.getCurrent());
       #endif
-      #if ENABLED(Z2_IS_TMC2130)
+      #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
         SERIAL_ECHOPAIR(" Z2", stepperZ2.getCurrent());
       #endif
-      #if ENABLED(E0_IS_TMC2130)
+      #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
         SERIAL_ECHOPAIR(" E0", stepperE0.getCurrent());
       #endif
-      #if ENABLED(E1_IS_TMC2130)
+      #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
         SERIAL_ECHOPAIR(" E1", stepperE1.getCurrent());
       #endif
-      #if ENABLED(E2_IS_TMC2130)
+      #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
         SERIAL_ECHOPAIR(" E2", stepperE2.getCurrent());
       #endif
-      #if ENABLED(E3_IS_TMC2130)
+      #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
         SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
+      #endif
+      #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E4", stepperE4.getCurrent());
       #endif
       SERIAL_EOL();
     #endif

@@ -1044,6 +1044,91 @@
 
 #endif // HAVE_TMC2130
 
+// @section TMC2208
+
+/**
+ * Enable this for SilentStepStick Trinamic TMC2208 UART-configurable stepper drivers.
+ * Connect #_SERIAL_TX_PIN to the driver side PDN_UART pin.
+ * To use the reading capabilities, also connect #_SERIAL_RX_PIN
+ * to #_SERIAL_TX_PIN with a 1K resistor.
+ *
+ * You'll also need the TMC2208Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2208Stepper).
+ */
+//#define HAVE_TMC2208
+
+#if ENABLED(HAVE_TMC2208)
+  // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
+  //#define X_IS_TMC2208
+  //#define X2_IS_TMC2208
+  //#define Y_IS_TMC2208
+  //#define Y2_IS_TMC2208
+  //#define Z_IS_TMC2208
+  //#define Z2_IS_TMC2208
+  //#define E0_IS_TMC2208
+  //#define E1_IS_TMC2208
+  //#define E2_IS_TMC2208
+  //#define E3_IS_TMC2208
+  //#define E4_IS_TMC2208
+
+  /**
+   * Stepper driver settings
+   */
+
+  #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2208
+  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+  #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
+
+  #define X_CURRENT         1000  // rms current in mA
+  #define X_MICROSTEPS        16  // FULLSTEP..256
+
+  #define Y_CURRENT         1000
+  #define Y_MICROSTEPS        16
+
+  #define Z_CURRENT         1000
+  #define Z_MICROSTEPS        16
+
+  //#define X2_CURRENT      1000
+  //#define X2_MICROSTEPS     16
+
+  //#define Y2_CURRENT      1000
+  //#define Y2_MICROSTEPS     16
+
+  //#define Z2_CURRENT      1000
+  //#define Z2_MICROSTEPS     16
+
+  //#define E0_CURRENT      1000
+  //#define E0_MICROSTEPS     16
+
+  //#define E1_CURRENT      1000
+  //#define E1_MICROSTEPS     16
+
+  //#define E2_CURRENT      1000
+  //#define E2_MICROSTEPS     16
+
+  //#define E3_CURRENT      1000
+  //#define E3_MICROSTEPS     16
+
+  //#define E4_CURRENT      1000
+  //#define E4_MICROSTEPS     16
+
+  #define STEALTHCHOP
+
+  /**
+   * You can set your own advanced settings by filling in predefined functions.
+   * A list of available functions can be found on the library github page
+   * https://github.com/teemuatlut/TMC2208Stepper
+   *
+   * Example:
+   * #define TMC2208_ADV() { \
+   *   stepperX.diag0_temp_prewarn(1); \
+   *   stepperX.interpolate(0); \
+   * }
+   */
+  #define  TMC2208_ADV() {  }
+
+#endif // ENABLED(HAVE_TMC2208)
+
 // @section L6470
 
 /**

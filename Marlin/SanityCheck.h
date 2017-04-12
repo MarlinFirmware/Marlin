@@ -1215,6 +1215,19 @@ static_assert(1 >= 0
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
 #endif
+#if ENABLED(HAVE_TMC2208) && !( \
+       ENABLED(  X_IS_TMC2208 ) \
+    || ENABLED( X2_IS_TMC2208 ) \
+    || ENABLED(  Y_IS_TMC2208 ) \
+    || ENABLED( Y2_IS_TMC2208 ) \
+    || ENABLED(  Z_IS_TMC2208 ) \
+    || ENABLED( Z2_IS_TMC2208 ) \
+    || ENABLED( E0_IS_TMC2208 ) \
+    || ENABLED( E1_IS_TMC2208 ) \
+    || ENABLED( E2_IS_TMC2208 ) \
+    || ENABLED( E3_IS_TMC2208 ) )
+  #error "Choose at least one TMC2208 stepper."
+#endif
 
 /**
  * Make sure HAVE_L6470DRIVER is warranted
