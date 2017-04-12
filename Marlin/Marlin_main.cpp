@@ -3769,7 +3769,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
-      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[iy][ix]; }
+      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
   }
 
@@ -3900,7 +3900,7 @@ inline void gcode_G28() {
         }
 
         if (code_seen('Z')) {
-          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
+          mbl.z_values[px][py] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_CHAR('Z'); say_not_entered();
