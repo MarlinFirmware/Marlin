@@ -1564,7 +1564,7 @@
  *           **         https://github.com/FastLED/FastLED.git              **
  *           *****************************************************************
  */
-#define LEDSTRIP
+//#define LEDSTRIP
 
 #if ENABLED(LEDSTRIP)
 
