@@ -359,6 +359,10 @@
        G38_endstop_hit = false;
 #endif
 
+#if ENABLED(PATH_CONTROL_MODES)
+  float inverse_time_feedrate;
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
 #endif
@@ -3358,16 +3362,42 @@ inline void gcode_G0_G1(
   if (IsRunning() && G0_G1_CONDITION) {
     gcode_get_destination(); // For X Y Z E F
 
+    #if ENABLED(PATH_CONTROL_MODES)
+      const bool e_only = parser.seen('E') && !parser.seen('X') && !parser.seen('Y') && !parser.seen('Z');
+      const float saved_feedrate_mm_s = feedrate_mm_s;
+      if (parser.path_control_mode == PCM_INVERSE_TIME) {   // In this mode the feedrate not changed by 'F'
+        if (parser.seenval('F')) {                          // Instead an 'F' just sets inverse_time_feedrate
+          const float length_mm = e_only
+            ? current_position[E_AXIS] - destination[E_AXIS]
+            : SQRT(
+              sq(current_position[X_AXIS] - destination[X_AXIS]) +
+              sq(current_position[Y_AXIS] - destination[Y_AXIS]) +
+              sq(current_position[Z_AXIS] - destination[Z_AXIS])
+            );
+          feedrate_mm_s = MMM_TO_MMS(length_mm / inverse_time_feedrate);  // Divide length by value for mm/m (100mm / 2.0 min == 50mm/m)
+        }
+        else {
+          SERIAL_ERROR_START();
+          SERIAL_ERRORLNPGM("F word required for Inverse Time.");
+        }
+      }
+    #endif
+
     #if ENABLED(FWRETRACT)
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/prime moves
-        if (fwretract.autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
-          const float echange = destination[E_AXIS] - current_position[E_AXIS];
-          // Is this a retract or prime move?
-          if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
-            current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/prime from calculations
-            sync_plan_position_e();                         // AND from the planner
-            return fwretract.retract(echange < 0.0);        // Firmware-based retract/prime (double-retract ignored)
+        if (fwretract.autoretract_enabled) {
+          #if DISABLED(PATH_CONTROL_MODES)
+            const bool e_only = parser.seen('E') && !parser.seen('X') && !parser.seen('Y') && !parser.seen('Z');
+          #endif
+          if (e_only) { // knew!
+            const float echange = destination[E_AXIS] - current_position[E_AXIS];
+            // Is this a retract or prime move?
+            if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
+              current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/prime from calculations
+              sync_plan_position_e();                         // AND from the planner
+              return fwretract.retract(echange < 0.0);        // Firmware-based retract/prime (double-retract ignored)
+            }
           }
         }
       }
@@ -3389,6 +3419,10 @@ inline void gcode_G0_G1(
         planner.synchronize();
         SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
       }
+    #endif
+
+    #if ENABLED(PATH_CONTROL_MODES)
+      feedrate_mm_s = saved_feedrate_mm_s;
     #endif
   }
 }
@@ -6400,6 +6434,14 @@ inline void gcode_G92() {
 
   report_current_position();
 }
+
+#if ENABLED(PATH_CONTROL_MODES)
+
+  inline void gcode_G93() { parser.path_control_mode = PCM_INVERSE_TIME; }
+  inline void gcode_G94() { parser.path_control_mode = PCM_UNITS_PER_MINUTE; }
+  inline void gcode_G95() { parser.path_control_mode = PCM_UNITS_PER_REV; }
+
+#endif // PATH_CONTROL_MODES
 
 #if HAS_RESUME_CONTINUE
 

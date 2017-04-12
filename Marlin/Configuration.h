@@ -1919,4 +1919,7 @@
 // With this option servos are powered only during movement, then turned off to prevent jitter.
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 
+// Enable G93, G94, and G95 to set path control mode
+//#define PATH_CONTROL_MODES
+
 #endif // CONFIGURATION_H

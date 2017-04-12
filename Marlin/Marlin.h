@@ -220,6 +220,10 @@ inline void reset_stepper_timeout() { previous_move_ms = millis(); }
 extern float feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
+#if ENABLED(PATH_CONTROL_MODES)
+  extern float inverse_time_feedrate; // Inverse time to complete given distance (e.g., 2.0 = 1/2 minute)
+#endif
+
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
 extern bool axis_relative_modes[XYZE];
