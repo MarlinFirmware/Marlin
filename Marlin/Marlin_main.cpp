@@ -947,12 +947,7 @@ void servo_init() {
 
 #if HAS_COLOR_LEDS
 
-  void set_led_color(
-    const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED)
-        , const uint8_t w=0
-      #endif
-  ) {
+  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w) {
 
     #if ENABLED(BLINKM)
 
@@ -974,7 +969,6 @@ void servo_init() {
         digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
         analogWrite(RGB_LED_W_PIN, w);
       #endif
-
     #endif
   }
 
@@ -1166,7 +1160,7 @@ inline void get_serial_commands() {
           card.printingHasFinished();
           #if ENABLED(PRINTER_EVENT_LEDS)
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-            set_led_color(0, 255, 0); // Green
+            set_led_color(0, 255, 0, 0); // Green
             #if HAS_RESUME_CONTINUE
               KEEPALIVE_STATE(PAUSED_FOR_USER);
               wait_for_user = true;
@@ -1175,7 +1169,7 @@ inline void get_serial_commands() {
             #else
               safe_delay(1000);
             #endif
-            set_led_color(0, 0, 0);   // OFF
+            set_led_color(0, 0, 0, 0);   // OFF
           #endif
           card.checkautostart(true);
         }
@@ -6134,7 +6128,7 @@ inline void gcode_M109() {
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     const float start_temp = thermalManager.degHotend(target_extruder);
-    uint8_t old_blue = 0;
+    const uint8_t old_blue = 255;
   #endif
 
   do {
@@ -6172,9 +6166,11 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       // Gradually change LED strip from violet to red as nozzle heats up
-      if (!wants_to_cool) {
-        const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
-        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
+      if (wait_for_heatup && !wants_to_cool) {
+        uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+        if (blue == old_blue) set_led_color(255, 0, 255, 0);   //Purple to start
+        if (blue != old_blue) set_led_color(255, 0, blue, 0);  //Start transitioning to Red
+        safe_delay(70);
       }
     #endif
 
@@ -6212,7 +6208,7 @@ inline void gcode_M109() {
       #if ENABLED(RGBW_LED)
         set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
       #else
-        set_led_color(255, 255, 255); // Set LEDs All On
+        set_led_color(255, 255, 255, 0); // Set LEDs All On
       #endif
     #endif
   }
@@ -6267,7 +6263,7 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = thermalManager.degBed();
-      uint8_t old_red = 255;
+      const uint8_t red, old_red = 0;
     #endif
 
     do {
@@ -6305,11 +6301,12 @@ inline void gcode_M109() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         // Gradually change LED strip from blue to violet as bed heats up
-        if (!wants_to_cool) {
-          const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
-          if (red != old_red) set_led_color((old_red = red), 0, 255);
+        if (wait_for_heatup && !wants_to_cool) {
+          uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+          if (red == old_red) set_led_color(0, 0, 255, 0);     //Blue to start
+          if (red != old_red) set_led_color(red, 0, 255, 0);   //Start transitioning to Purple
+          safe_delay(70);
         }
-      }
       #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
@@ -6875,11 +6872,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     set_led_color(
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
-      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
-      #if ENABLED(RGBW_LED)
-        , code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
-      #endif
-    );
+      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0);
   }
 
 #endif // BLINKM || RGB_LED
