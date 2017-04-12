@@ -41,6 +41,9 @@
   void lcd_implementation_clear();
   void lcd_mesh_edit_setup(float initial);
   void tilt_mesh_based_on_probed_grid(const bool);
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    extern void handle_led_print_event(uint8_t code);
+  #endif
   float lcd_mesh_edit();
   void lcd_z_offset_edit_setup(float);
   float lcd_z_offset_edit();
@@ -631,6 +634,10 @@
       ubl.store_state();    // Always save an updated copy of the UBL State info
 
       SERIAL_PROTOCOLLNPGM("Done.\n");
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(all_off);
+      #endif
     }
 
     if (code_seen('O') || code_seen('M'))
@@ -691,6 +698,23 @@
 
     LEAVE:
 
+/*
+    #if ENABLED(ULTRA_LCD)
+      if (partial_mesh) {
+        lcd_reset_alert_level();
+        LCD_MESSAGEPGM("Partial Mesh!");
+        //lcd_setstatuspgm(PSTR("Partial Mesh!"));
+        lcd_quick_feedback();
+        partial_mesh = false;
+      }
+      else {
+        lcd_reset_alert_level();
+        LCD_MESSAGEPGM("G29 UBL done!");
+        //lcd_setstatuspgm(PSTR("G29 UBL done!"));
+        lcd_quick_feedback();
+      }
+    #endif
+*/
     #if ENABLED(ULTRA_LCD)
       lcd_reset_alert_level();
       LCD_MESSAGEPGM("");
@@ -698,6 +722,10 @@
     #endif
 
     ubl.has_control_of_lcd_panel = false;
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(all_off);
+    #endif
   }
 
   void find_mean_mesh_height() {
@@ -996,6 +1024,11 @@
   }
 
   bool g29_parameter_parsing() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(auto_leveling);
+    #endif
+
     #if ENABLED(ULTRA_LCD)
       LCD_MESSAGEPGM("Doing G29 UBL!");
       lcd_quick_feedback();
@@ -1364,6 +1397,11 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(manual_leveling);
+    #endif
+
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;
@@ -1458,6 +1496,10 @@
 
     LCD_MESSAGEPGM("Done Editing Mesh");
     SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(all_off);
+    #endif
   }
 
   void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {

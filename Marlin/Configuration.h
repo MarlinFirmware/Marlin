@@ -1538,6 +1538,8 @@
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
   #define RGB_LED_W_PIN -1
+  
+  //#define LIGHT_ON_POWERUP      // Light the entire strip WHITE on startup.
 #endif
 
 /**
@@ -1553,6 +1555,21 @@
  */
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define PRINTER_EVENT_LEDS
+  #define LED_reset_time 60      // Set time for LEDs to turn off. (secs)
+  //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
+#endif
+
+#if ENABLED(PRINTER_EVENT_LEDS)
+  /* Printer events color selection */
+  #define homing                  2  // Yellow
+  #define auto_leveling           7  // Blacklight
+  #define manual_leveling         1  // White
+  #define printing                1  // White
+  #define filamentchange          4  // Aqua
+  #define filamentchange_timeout  5  // Aqua Dimmed
+  #define filemantchange_heat     6  // Aqua Half
+  #define printing_done           0  // Green
+  #define all_off                 9  // Off
 #endif
 
 /*********************************************************************\
