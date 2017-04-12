@@ -271,7 +271,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
  *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
  */
 void Stepper::wake_up() {
-  //  TCNT1 = 0;
+  // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 

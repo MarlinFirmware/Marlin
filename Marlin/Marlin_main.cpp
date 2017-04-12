@@ -5858,10 +5858,6 @@ inline void gcode_M42() {
 
     #else
 
-      #if !defined(z_servo_angle)
-        const int z_servo_angle[2] = Z_SERVO_ANGLES;
-      #endif
-
       const uint8_t probe_index = code_seen('P') ? code_value_byte() : Z_ENDSTOP_SERVO_NR;
 
       SERIAL_PROTOCOLLNPGM("Servo probe test");
