@@ -115,6 +115,8 @@
 #define E1_ENABLE_PIN      30
 #define E1_CS_PIN          44
 
+//#define SUICIDE_PIN        57  //Uncomment if you have a PIN that has to be turned on right after start, to keep power flowing.
+
 //
 // Temperature Sensors
 //
