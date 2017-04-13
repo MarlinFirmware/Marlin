@@ -262,12 +262,12 @@
 #if ENABLED(BABYSTEPPING)
   #if DISABLED(ULTRA_LCD)
     #error "BABYSTEPPING requires an LCD controller."
-  #endif
-  #if ENABLED(SCARA)
+  #elif ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #endif
-  #if ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
+  #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
+  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
+    #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
   #endif
 #endif
 
