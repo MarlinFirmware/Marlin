@@ -7973,7 +7973,7 @@ inline void gcode_M503() {
 
     if (!isnan(last_zoffset)) {
 
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEPPING)
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET)
         const float diff = zprobe_zoffset - last_zoffset;
       #endif
 
@@ -7989,7 +7989,7 @@ inline void gcode_M503() {
         #endif
       #endif
 
-      #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (!no_babystep && planner.abl_enabled)
           thermalManager.babystep_axis(Z_AXIS, -lround(diff * planner.axis_steps_per_mm[Z_AXIS]));
       #else
