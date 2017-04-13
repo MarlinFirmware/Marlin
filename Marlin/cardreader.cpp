@@ -877,8 +877,10 @@ void CardReader::printingHasFinished() {
     print_job_timer.stop();
     if (print_job_timer.duration() > 60)
       enqueue_and_echo_commands_P(PSTR("M31"));
-         if (kill_at_eof)
-         enqueue_and_echo_commands_P(PSTR("M81"));
+         #if HAS_SUICIDE
+            if (kill_at_eof)
+            enqueue_and_echo_commands_P(PSTR("M81"));
+         #endif 
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
