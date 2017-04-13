@@ -857,6 +857,7 @@ void CardReader::updir() {
 #endif // SDCARD_SORT_ALPHA
 
 void CardReader::printingHasFinished() {
+  extern bool kill_at_eof;
   stepper.synchronize();
   file.close();
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
@@ -872,6 +873,8 @@ void CardReader::printingHasFinished() {
     print_job_timer.stop();
     if (print_job_timer.duration() > 60)
       enqueue_and_echo_commands_P(PSTR("M31"));
+       if (kill_at_eof)
+      	   enqueue_and_echo_commands_P(PSTR("M81"));
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
