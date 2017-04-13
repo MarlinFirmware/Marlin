@@ -737,6 +737,17 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // HAS_DEBUG_MENU
 
+  #if HAS_KILL	
+
+    extern bool kill_at_eof;
+
+    void toggle_kill_at_eof() {
+       kill_at_eof = !kill_at_eof;
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+    }
+
+  #endif // HAS_KILL
+
   /**
    *
    * "Main" menu
