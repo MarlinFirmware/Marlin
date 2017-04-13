@@ -262,8 +262,6 @@ void gcode_M100() {
   #endif
 }
 
-#endif // M100_FREE_MEMORY_WATCHER
-
 int check_for_free_memory_corruption(char *title) {
   char *sp, *ptr;
   int block_cnt = 0, i, j, n;
@@ -324,4 +322,7 @@ int check_for_free_memory_corruption(char *title) {
     SERIAL_ECHOPGM(" return=true\n");
     return block_cnt;
   }
+
+#endif // M100_FREE_MEMORY_WATCHER
+
 
