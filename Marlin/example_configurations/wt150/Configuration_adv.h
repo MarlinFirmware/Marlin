@@ -573,15 +573,21 @@
 
 // @section lcd
 
-// Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
-// it can e.g. be used to change z-positions in the print startup phase in real-time
-// does not respect endstops!
+/**
+ * Babystepping enables movement of the axes by tiny increments without changing
+ * the current position values. This feature is used primarily to adjust the Z
+ * axis in the first layer of a print in real-time.
+ *
+ * Warning: Does not respect endstops!
+ */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
-                       //not implemented for deltabots!
-  #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
-  #define BABYSTEP_MULTIPLICATOR 1 //faster movements
+  #define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
+  #define BABYSTEP_INVERT_Z false  // Change if Z babysteps should go the other way
+  #define BABYSTEP_MULTIPLICATOR 1 // Babysteps are very small. Increase for faster motion.
+  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
+                                        // Note: Extra time may be added to mitigate controller latency.
 #endif
 
 // @section extruder
@@ -1087,13 +1093,6 @@
  * Include capabilities in M115 output
  */
 //#define EXTENDED_CAPABILITIES_REPORT
-
-/**
- * Double-click the Encoder button on the Status Screen for Z Babystepping.
- */
-//#define DOUBLECLICK_FOR_Z_BABYSTEPPING
-#define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
-                                        // Note: You may need to add extra time to mitigate controller latency.
 
 /**
  * Volumetric extrusion default state
