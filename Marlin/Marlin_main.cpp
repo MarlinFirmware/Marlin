@@ -3817,7 +3817,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
-      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[iy][ix]; }
+      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
   }
 
@@ -3948,7 +3948,7 @@ inline void gcode_G28() {
         }
 
         if (code_seen('Z')) {
-          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
+          mbl.z_values[px][py] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_CHAR('Z'); say_not_entered();
@@ -7844,7 +7844,7 @@ void quickstop_stepper() {
     }
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -7861,9 +7861,13 @@ void quickstop_stepper() {
 
     if (hasI && hasJ && hasZ) {
       if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
-        bed_level_grid[px][py] = z;
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] = z;
+        #else
+          bed_level_grid[px][py] = z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
         #endif
       }
       else {
@@ -7876,34 +7880,7 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  /**
-   * M421: Set a single Mesh Bed Leveling Z coordinate
-   *
-   *   M421 I<xindex> J<yindex> Z<linear>
-   */
-  inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ;
-    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
-    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
-    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_Y - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-        ubl.z_values[px][py] = z;
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-      }
-    }
-    else {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-    }
-  }
 #endif
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
