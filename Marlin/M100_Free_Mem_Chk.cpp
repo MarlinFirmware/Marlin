@@ -86,7 +86,6 @@ int16_t count_test_bytes(const uint8_t * const ptr) {
   return -1;
 }
 
-
 //
 // M100 sub-commands
 //
@@ -172,7 +171,7 @@ void free_memory_pool_report(const char * const ptr, const uint16_t size) {
       const uint16_t j = count_test_bytes(addr);
       if (j > 8) {
         SERIAL_ECHOPAIR("Found ", j);
-        SERIAL_ECHOLNPAIR(" bytes free at 0x", hex_word((uint16_t)addr));
+        SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
         if (j > max_cnt) {
           max_cnt  = j;
           max_addr = addr;
@@ -185,7 +184,7 @@ void free_memory_pool_report(const char * const ptr, const uint16_t size) {
   if (block_cnt > 1) {
     SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
     SERIAL_ECHOPAIR("\nLargest free block is ", max_cnt);
-    SERIAL_ECHOLNPAIR(" bytes at 0x", hex_word((uint16_t)max_addr));
+    SERIAL_ECHOLNPAIR(" bytes at ", hex_address(max_addr));
   }
   SERIAL_ECHOLNPAIR("check_for_free_memory_corruption() = ", check_for_free_memory_corruption("M100 F "));
 }
@@ -206,7 +205,7 @@ void free_memory_pool_report(const char * const ptr, const uint16_t size) {
       for (uint16_t i = 1; i <= size; i++) {
         char * const addr = ptr + i * j;
         *addr = i;
-        SERIAL_ECHOPAIR("\nCorrupting address: 0x", hex_word((uint16_t)addr));
+        SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
       }
       SERIAL_EOL;
     }
@@ -235,8 +234,9 @@ void init_free_memory(uint8_t *ptr, int16_t size) {
 
   for (uint16_t i = 0; i < size; i++) {
     if (((char) ptr[i]) != TEST_BYTE) {
-      SERIAL_ECHOPAIR("? address : 0x", hex_word((uint16_t)ptr + i));
-      SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
+      SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
+      SERIAL_ECHOPAIR("=", hex_byte(ptr[i]));
+      SERIAL_EOL; SERIAL_EOL;
     }
   }
 }
@@ -245,13 +245,13 @@ void init_free_memory(uint8_t *ptr, int16_t size) {
  * M100: Free Memory Check
  */
 void gcode_M100() {
-  SERIAL_ECHOPAIR("\n__brkval : 0x", hex_word((uint16_t)__brkval));
-  SERIAL_ECHOPAIR("\n__bss_end: 0x", hex_word((uint16_t)&__bss_end));
+  SERIAL_ECHOPAIR("\n__brkval : ", hex_address(__brkval));
+  SERIAL_ECHOPAIR("\n__bss_end : ", hex_address(&__bss_end));
 
   uint8_t *ptr = END_OF_HEAP(), *sp = top_of_stack();
 
-  SERIAL_ECHOPAIR("\nstart of free space : 0x", hex_word((uint16_t)ptr));
-  SERIAL_ECHOLNPAIR("\nStack Pointer : 0x", hex_word((uint16_t)sp));
+  SERIAL_ECHOPAIR("\nstart of free space : ", hex_address(ptr));
+  SERIAL_ECHOLNPAIR("\nStack Pointer : ", hex_address(sp));
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;
@@ -287,9 +287,9 @@ int check_for_free_memory_corruption(char *title) {
 
     n = sp - ptr;
     SERIAL_ECHOPAIR("\nfmc() n=", n);
-    SERIAL_ECHOPAIR("\n&__brkval: 0x", hex_word((uint16_t)&__brkval));
-    SERIAL_ECHOPAIR("=0x",             hex_word((uint16_t)__brkval));
-    SERIAL_ECHOPAIR("\n__bss_end: 0x", hex_word((uint16_t)&__bss_end));
+    SERIAL_ECHOPAIR("\n&__brkval: ", hex_address(&__brkval));
+    SERIAL_ECHOPAIR("=",             hex_address(__brkval));
+    SERIAL_ECHOPAIR("\n__bss_end: ", hex_address(&__bss_end));
     SERIAL_ECHOPAIR(" sp=", hex_word(sp));
 
     if (sp < ptr)  {

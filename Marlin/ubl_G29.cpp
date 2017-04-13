@@ -1206,9 +1206,9 @@
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
     SERIAL_EOL;
     safe_delay(50);
-    SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: 0x", hex_word(ubl.eeprom_start));
+    SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)ubl.eeprom_start));
 
-    SERIAL_PROTOCOLLNPAIR("end of EEPROM              : 0x", hex_word(E2END));
+    SERIAL_PROTOCOLLNPAIR("end of EEPROM              : ", hex_address((void*)E2END));
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
@@ -1217,7 +1217,7 @@
     SERIAL_EOL;
     safe_delay(50);
 
-    SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: 0x", hex_word(k));
+    SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)k));
     safe_delay(50);
 
     SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(ubl.z_values));
@@ -1295,7 +1295,7 @@
     eeprom_read_block((void *)&tmp_z_values, (void *)j, sizeof(tmp_z_values));
 
     SERIAL_ECHOPAIR("Subtracting Mesh ", storage_slot);
-    SERIAL_PROTOCOLLNPAIR(" loaded from EEPROM address 0x", hex_word(j)); // Soon, we can remove the extra clutter of printing
+    SERIAL_PROTOCOLLNPAIR(" loaded from EEPROM address ", hex_address((void*)j)); // Soon, we can remove the extra clutter of printing
                                                                         // the address in the EEPROM where the Mesh is stored.
 
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)

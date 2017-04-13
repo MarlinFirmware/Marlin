@@ -118,7 +118,7 @@
     eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
 
     SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", m);
-    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
+    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
   }
 
   void unified_bed_leveling::store_mesh(const int16_t m) {
@@ -140,7 +140,7 @@
     eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
 
     SERIAL_PROTOCOLPAIR("Mesh saved in slot ", m);
-    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
+    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
   }
 
   void unified_bed_leveling::reset() {
