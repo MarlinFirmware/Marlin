@@ -105,6 +105,7 @@
 #define MSG_E2STEPS                         "E2/mm"
 #define MSG_E3STEPS                         "E3/mm"
 #define MSG_E4STEPS                         "E4/mm"
+#define MSG_E5STEPS                         "E5/mm"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_VOLUMETRIC                      "Filamento"

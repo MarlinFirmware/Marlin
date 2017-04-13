@@ -381,6 +381,37 @@
 #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
 #define E3_STEP_READ READ(E3_STEP_PIN)
 
+// E4 Stepper
+#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E4_IS_L6470)
+  extern L6470 stepperE4;
+  #define E4_ENABLE_INIT NOOP
+  #define E4_ENABLE_WRITE(STATE) do{ if (STATE) stepperE4.Step_Clock(stepperE4.getStatus() & STATUS_HIZ); else stepperE4.softFree(); }while(0)
+  #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
+  #define E4_DIR_INIT NOOP
+  #define E4_DIR_WRITE(STATE) stepperE4.Step_Clock(STATE)
+  #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
+#else
+  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E4_IS_TMC)
+    extern TMC26XStepper stepperE4;
+    #define E4_ENABLE_INIT NOOP
+    #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
+    #define E4_ENABLE_READ stepperE4.isEnabled()
+  #else
+    #if ENABLED(HAVE_TMC2130) && ENABLED(E4_IS_TMC2130)
+      extern TMC2130Stepper stepperE4;
+    #endif
+    #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
+    #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
+    #define E4_ENABLE_READ READ(E4_ENABLE_PIN)
+  #endif
+  #define E4_DIR_INIT SET_OUTPUT(E4_DIR_PIN)
+  #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,STATE)
+  #define E4_DIR_READ READ(E4_DIR_PIN)
+#endif
+#define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
+#define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
+#define E4_STEP_READ READ(E4_STEP_PIN)
+
 /**
  * Extruder indirection for the single E axis
  */
@@ -388,6 +419,10 @@
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
   #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
   #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
+#elif EXTRUDERS > 4
+  #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }
+  #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }
+  #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(INVERT_E4_DIR); } }
 #elif EXTRUDERS > 3
   #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); } }
   #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); } }
@@ -408,7 +443,11 @@
   #endif
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEP_WRITE(v) NOOP /* not used for mixing extruders! */
-  #if MIXING_STEPPERS > 3
+  #if MIXING_STEPPERS > 4
+    #define En_STEP_WRITE(n,v) { switch (n) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }
+    #define NORM_E_DIR() { E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E1_DIR); E2_DIR_WRITE(!INVERT_E2_DIR); E3_DIR_WRITE(!INVERT_E3_DIR); E4_DIR_WRITE(!INVERT_E4_DIR); }
+    #define REV_E_DIR()  { E0_DIR_WRITE( INVERT_E0_DIR); E1_DIR_WRITE( INVERT_E1_DIR); E2_DIR_WRITE( INVERT_E2_DIR); E3_DIR_WRITE( INVERT_E3_DIR); E4_DIR_WRITE( INVERT_E4_DIR); }
+  #elif MIXING_STEPPERS > 3
     #define En_STEP_WRITE(n,v) { switch (n) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); } }
     #define NORM_E_DIR() { E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E1_DIR); E2_DIR_WRITE(!INVERT_E2_DIR); E3_DIR_WRITE(!INVERT_E3_DIR); }
     #define REV_E_DIR()  { E0_DIR_WRITE( INVERT_E0_DIR); E1_DIR_WRITE( INVERT_E1_DIR); E2_DIR_WRITE( INVERT_E2_DIR); E3_DIR_WRITE( INVERT_E3_DIR); }

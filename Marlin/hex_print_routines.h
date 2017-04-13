@@ -23,11 +23,23 @@
 #ifndef HEX_PRINT_ROUTINES_H
 #define HEX_PRINT_ROUTINES_H
 
-//
-// 3 support routines to print hex numbers.  We can print a nibble, byte and word
-//
-void prt_hex_nibble(uint8_t n);
-void prt_hex_byte(uint8_t b);
-void prt_hex_word(uint16_t w);
+#include "MarlinConfig.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER)
+
+//
+// Utility functions to create and print hex strings as nybble, byte, and word.
+//
+
+inline char hex_nybble(const uint8_t n) {
+  return (n & 0xF) + ((n & 0xF) < 10 ? '0' : 'A' - 10);
+}
+char* hex_byte(const uint8_t b);
+char* hex_word(const uint16_t w);
+
+void print_hex_nybble(const uint8_t n);
+void print_hex_byte(const uint8_t b);
+void print_hex_word(const uint16_t w);
+
+#endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER
 #endif // HEX_PRINT_ROUTINES_H

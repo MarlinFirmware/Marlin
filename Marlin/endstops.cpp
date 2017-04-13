@@ -170,9 +170,7 @@ void Endstops::report_state() {
     SERIAL_EOL;
 
     #if ENABLED(ULTRA_LCD)
-      char msg[3 * strlen(MSG_LCD_ENDSTOPS) + 8 + 1]; // Room for a UTF 8 string
-      sprintf_P(msg, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
-      lcd_setstatus(msg);
+      lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
     hit_on_purpose();
@@ -259,26 +257,25 @@ void Endstops::update() {
   // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
   #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT(DST, DST_BIT, TEST(DST, SRC_BIT))
 
-  #define _UPDATE_ENDSTOP(AXIS,MINMAX,CODE) do { \
+  #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
       if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX)) && stepper.current_block->steps[_AXIS(AXIS)] > 0) { \
         _ENDSTOP_HIT(AXIS); \
         stepper.endstop_triggered(_AXIS(AXIS)); \
-        CODE; \
       } \
     } while(0)
 
-  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction
-
-    #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
-        _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP); \
-        if (G38_move) _UPDATE_ENDSTOP(Z, MIN, G38_endstop_hit = true); \
-      } while(0)
-
-  #else
-
-    #define UPDATE_ENDSTOP(AXIS,MINMAX) _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP)
-
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+  // If G38 command then check Z_MIN_PROBE for every axis and every direction
+    if (G38_move) {
+      UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+      if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
+        if      (stepper.current_block->steps[_AXIS(X)] > 0) {_ENDSTOP_HIT(X); stepper.endstop_triggered(_AXIS(X));}
+        else if (stepper.current_block->steps[_AXIS(Y)] > 0) {_ENDSTOP_HIT(Y); stepper.endstop_triggered(_AXIS(Y));}
+        else if (stepper.current_block->steps[_AXIS(Z)] > 0) {_ENDSTOP_HIT(Z); stepper.endstop_triggered(_AXIS(Z));}
+        G38_endstop_hit = true;
+      }
+    }
   #endif
 
   #if CORE_IS_XY || CORE_IS_XZ

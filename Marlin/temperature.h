@@ -113,12 +113,12 @@ class Temperature {
       static volatile int babystepsTodo[3];
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+    #if WATCH_HOTENDS
       static int watch_target_temp[HOTENDS];
       static millis_t watch_heater_next_ms[HOTENDS];
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+    #if WATCH_THE_BED
       static int watch_target_bed_temp;
       static millis_t watch_bed_next_ms;
     #endif
@@ -174,7 +174,7 @@ class Temperature {
       static millis_t next_bed_check_ms;
     #endif
 
-    static unsigned long raw_temp_value[4],
+    static unsigned long raw_temp_value[MAX_EXTRUDERS],
                          raw_temp_bed_value;
 
     // Init min and max temp with extreme values to prevent false errors during startup
@@ -306,11 +306,11 @@ class Temperature {
     }
     static float degTargetBed() { return target_temperature_bed; }
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+    #if WATCH_HOTENDS
       static void start_watching_heater(uint8_t e = 0);
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+    #if WATCH_THE_BED
       static void start_watching_bed();
     #endif
 
@@ -325,14 +325,14 @@ class Temperature {
           start_preheat_time(HOTEND_INDEX);
       #endif
       target_temperature[HOTEND_INDEX] = celsius;
-      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+      #if WATCH_HOTENDS
         start_watching_heater(HOTEND_INDEX);
       #endif
     }
 
     static void setTargetBed(const float& celsius) {
       target_temperature_bed = celsius;
-      #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+      #if WATCH_THE_BED
         start_watching_bed();
       #endif
     }

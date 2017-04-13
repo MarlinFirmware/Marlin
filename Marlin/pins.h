@@ -37,6 +37,8 @@
   #include "pins_CNCONTROLS_12.h"
 #elif MB(CHEAPTRONIC)
   #include "pins_CHEAPTRONIC.h"
+#elif MB(CHEAPTRONIC_V2)
+  #include "pins_CHEAPTRONICv2.h"
 #elif MB(SETHI)
   #include "pins_SETHI.h"
 #elif MB(MIGHTYBOARD_REVE)
@@ -255,6 +257,9 @@
 #ifndef TEMP_3_PIN
   #define TEMP_3_PIN -1
 #endif
+#ifndef TEMP_4_PIN
+  #define TEMP_4_PIN -1
+#endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN -1
 #endif
@@ -282,7 +287,7 @@
 #endif
 
 #ifndef MAX_EXTRUDERS
-  #define MAX_EXTRUDERS 4
+  #define MAX_EXTRUDERS 5
 #endif
 
 // Marlin needs to account for pins that equal -1
@@ -302,6 +307,9 @@
 #endif
 #if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
   #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+#endif
+#if !defined(E4_AUTO_FAN_PIN) && defined(ORIG_E4_AUTO_FAN_PIN)
+  #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
 #endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
@@ -323,10 +331,10 @@
       #if EXTRUDERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
-      #endif
-    #endif
-  #endif
-#endif
+      #endif // EXTRUDERS > 4
+    #endif // EXTRUDERS > 3
+  #endif // EXTRUDERS > 2
+#endif // EXTRUDERS > 1
 
 #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
 #define _H1_PINS
@@ -346,9 +354,9 @@
       #if HOTENDS > 4
         #undef _H4_PINS
         #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),
-      #endif
-    #endif
-  #endif
+      #endif // HOTENDS > 4
+    #endif // HOTENDS > 3
+  #endif // HOTENDS > 2
 #elif ENABLED(MIXING_EXTRUDER)
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
@@ -361,10 +369,10 @@
       #if MIXING_STEPPERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
-      #endif
-    #endif
-  #endif
-#endif
+      #endif // MIXING_STEPPERS > 4
+    #endif // MIXING_STEPPERS > 3
+  #endif // MIXING_STEPPERS > 2
+#endif // MIXING_STEPPERS > 1
 
 #define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
 

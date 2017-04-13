@@ -106,6 +106,8 @@ enum TempState {
   MeasureTemp_2,
   PrepareTemp_3,
   MeasureTemp_3,
+  PrepareTemp_4,
+  MeasureTemp_4,
   Prepare_FILWIDTH,
   Measure_FILWIDTH,
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
@@ -162,16 +164,6 @@ enum TempState {
     IN_PROCESS,         // Known to be blocking command input (as in G29)
     PAUSED_FOR_USER,    // Blocking pending any input
     PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-  };
-#endif
-
-#if ENABLED(PROBE_MANUALLY)
-  enum ABLState {
-    ABLReport,
-    ABLStart,
-    ABLNext,
-    ABLSet,
-    ABLReset
   };
 #endif
 

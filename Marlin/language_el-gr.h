@@ -112,6 +112,7 @@
 #define MSG_E2STEPS                         _UxGT("Bήματα Ε2 ανά μμ")
 #define MSG_E3STEPS                         _UxGT("Bήματα Ε3 ανά μμ")
 #define MSG_E4STEPS                         _UxGT("Bήματα Ε4 ανά μμ")
+#define MSG_E5STEPS                         _UxGT("Bήματα Ε5 ανά μμ")
 #define MSG_TEMPERATURE                     _UxGT("Θερμοκρασία")
 #define MSG_MOTION                          _UxGT("Κίνηση")
 #define MSG_VOLUMETRIC                      _UxGT("Νήμα")

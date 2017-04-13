@@ -221,6 +221,7 @@
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
+#define E4_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
@@ -267,7 +268,6 @@
   #define INVERT_X2_VS_X_DIR true
 #endif
 
-
 // Dual Y Steppers
 // Uncomment this option to drive two Y axis motors.
 // The next unused E driver will be assigned to the second Y stepper.
@@ -297,6 +297,7 @@
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine this value
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -407,18 +408,36 @@
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
 
-// Motor Current setting (Only functional when motor driver current ref pins are connected to a digital trimpot on supported boards)
-#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
-
-// Motor Current controlled via PWM (Overridable on supported boards with PWM-driven motor driver current)
+/**
+ *  @section  stepper motor current
+ *
+ *  Some boards have a means of setting the stepper motor current via firmware.
+ *
+ *  The power on motor currents are set by:
+ *    PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
+ *                         known compatible chips: A4982
+ *    DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
+ *                         known compatible chips: AD5206
+ *    DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
+ *                         known compatible chips: MCP4728
+ *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, MIGHTYBOARD_REVE
+ *                         known compatible chips: MCP4451, MCP4018
+ *
+ *  Motor currents can also be set by M907 - M910 and by the LCD.
+ *    M907 - applies to all.
+ *    M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
+ *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
+ */
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
+//#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+//#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
 
-// uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+// Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
-// Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
-#define DIGIPOT_I2C_NUM_CHANNELS 8
-// actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+//#define DIGIPOT_MCP4018
+#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
+// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
+#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}  //  AZTEEG_X3_PRO
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -640,6 +659,11 @@
   #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
   #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
   #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define UBL_MESH_MIN_X (X_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
+  #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
 #endif
 
 // @section extras
@@ -653,6 +677,7 @@
 //#define BEZIER_CURVE_SUPPORT
 
 // G38.2 and G38.3 Probe Target
+// ENABLE PROBE_DOUBLE_TOUCH if you want G38 to double touch
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
   #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
@@ -794,6 +819,7 @@
   //#define E1_IS_TMC
   //#define E2_IS_TMC
   //#define E3_IS_TMC
+  //#define E4_IS_TMC
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -834,6 +860,10 @@
   #define E3_MAX_CURRENT    1000
   #define E3_SENSE_RESISTOR   91
   #define E3_MICROSTEPS       16
+
+  #define E4_MAX_CURRENT    1000
+  #define E4_SENSE_RESISTOR   91
+  #define E4_MICROSTEPS       16
 
 #endif
 
@@ -876,6 +906,7 @@
   //#define E1_IS_TMC2130
   //#define E2_IS_TMC2130
   //#define E3_IS_TMC2130
+  //#define E4_IS_TMC2130
 
   /**
    * Stepper driver settings
@@ -961,6 +992,7 @@
   //#define E1_IS_L6470
   //#define E2_IS_L6470
   //#define E3_IS_L6470
+  //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
@@ -1012,6 +1044,11 @@
   #define E3_OVERCURRENT  2000
   #define E3_STALLCURRENT 1500
 
+  #define E4_MICROSTEPS     16
+  #define E4_K_VAL          50
+  #define E4_OVERCURRENT  2000
+  #define E4_STALLCURRENT 1500
+
 #endif
 
 /**
@@ -1048,7 +1085,7 @@
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 /**
- * Add M43 command for pins info and testing
+ * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
 //#define PINS_DEBUGGING
 
