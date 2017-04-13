@@ -366,7 +366,7 @@ void Stepper::isr() {
     #define SPLIT(L) do { \
       _SPLIT(L); \
       if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
-        uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+        const uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
@@ -447,8 +447,6 @@ void Stepper::isr() {
   }
 
   // Update endstops state, if enabled
-
-
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     if (e_hit && ENDSTOPS_ENABLED) {
       endstops.update();
@@ -640,7 +638,7 @@ void Stepper::isr() {
 
   #if ENABLED(LIN_ADVANCE)
     if (current_block->use_advance_lead) {
-      int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
+      const int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
       current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
       #if ENABLED(MIXING_EXTRUDER)
         // Mixing extruders apply advance lead proportionally
@@ -668,7 +666,7 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    uint16_t timer = calc_timer(acc_step_rate);
+    const uint16_t timer = calc_timer(acc_step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -691,8 +689,8 @@ void Stepper::isr() {
       advance += advance_rate * step_loops;
       //NOLESS(advance, current_block->advance);
 
-      long advance_whole = advance >> 8,
-           advance_factor = advance_whole - old_advance;
+      const long advance_whole = advance >> 8,
+                 advance_factor = advance_whole - old_advance;
 
       // Do E steps + advance steps
       #if ENABLED(MIXING_EXTRUDER)
@@ -724,7 +722,7 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    uint16_t timer = calc_timer(step_rate);
+    const uint16_t timer = calc_timer(step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -748,8 +746,8 @@ void Stepper::isr() {
       NOLESS(advance, final_advance);
 
       // Do E steps + advance steps
-      long advance_whole = advance >> 8,
-           advance_factor = advance_whole - old_advance;
+      const long advance_whole = advance >> 8,
+                 advance_factor = advance_whole - old_advance;
 
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j)
@@ -1179,7 +1177,7 @@ void Stepper::set_e_position(const long &e) {
  */
 long Stepper::position(AxisEnum axis) {
   CRITICAL_SECTION_START;
-  long count_pos = count_position[axis];
+  const long count_pos = count_position[axis];
   CRITICAL_SECTION_END;
   return count_pos;
 }
@@ -1246,9 +1244,9 @@ void Stepper::endstop_triggered(AxisEnum axis) {
 
 void Stepper::report_positions() {
   CRITICAL_SECTION_START;
-  long xpos = count_position[X_AXIS],
-       ypos = count_position[Y_AXIS],
-       zpos = count_position[Z_AXIS];
+  const long xpos = count_position[X_AXIS],
+             ypos = count_position[Y_AXIS],
+             zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
   #if CORE_IS_XY || CORE_IS_XZ || IS_SCARA
@@ -1290,7 +1288,7 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START (pulse_start = TCNT0)
+    #define _SAVE_START const uint32_t pulse_start = TCNT0
     #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
@@ -1322,10 +1320,6 @@ void Stepper::report_positions() {
     cli();
     uint8_t old_dir;
 
-    #if EXTRA_CYCLES_BABYSTEP > 20
-      uint32_t pulse_start;
-    #endif
-
     switch (axis) {
 
       #if ENABLED(BABYSTEP_XY)
@@ -1348,15 +1342,15 @@ void Stepper::report_positions() {
 
         #else // DELTA
 
-          bool z_direction = direction ^ BABYSTEP_INVERT_Z;
+          const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
           enable_X();
           enable_Y();
           enable_Z();
 
-          uint8_t old_x_dir_pin = X_DIR_READ,
-                  old_y_dir_pin = Y_DIR_READ,
-                  old_z_dir_pin = Z_DIR_READ;
+          const uint8_t old_x_dir_pin = X_DIR_READ,
+                        old_y_dir_pin = Y_DIR_READ,
+                        old_z_dir_pin = Z_DIR_READ;
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
