@@ -2082,6 +2082,13 @@ void kill_screen(const char* lcd_msg) {
 
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     END_MENU();
+   
+    #if HAS_KILL
+      if (kill_at_eof)
+        MENU_ITEM(function, MSG_KILL_AT_EOF_ON, toggle_kill_at_eof);
+      else
+        MENU_ITEM(function, MSG_KILL_AT_EOF_OFF, toggle_kill_at_eof);
+    #endif
   }
 
   /**
