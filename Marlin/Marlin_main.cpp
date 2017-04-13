@@ -567,6 +567,10 @@ static uint8_t target_extruder;
   ;
 #endif
 
+#if HAS_KILL
+  bool kill_at_eof = false;
+#endif
+
 #if ENABLED(DELTA)
 
   float delta[ABC],
