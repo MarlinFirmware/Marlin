@@ -1076,6 +1076,9 @@ void Stepper::init() {
   #if HAS_E3_STEP
     E_AXIS_INIT(3);
   #endif
+  #if HAS_E4_STEP
+    E_AXIS_INIT(4);
+  #endif
 
   // waveform generation = 0100 = CTC
   CBI(TCCR1B, WGM13);
@@ -1477,6 +1480,18 @@ void Stepper::report_positions() {
       SET_OUTPUT(E1_MS1_PIN);
       SET_OUTPUT(E1_MS2_PIN);
     #endif
+    #if HAS_MICROSTEPS_E2
+      SET_OUTPUT(E2_MS1_PIN);
+      SET_OUTPUT(E2_MS2_PIN);
+    #endif
+    #if HAS_MICROSTEPS_E3
+      SET_OUTPUT(E3_MS1_PIN);
+      SET_OUTPUT(E3_MS2_PIN);
+    #endif
+    #if HAS_MICROSTEPS_E4
+      SET_OUTPUT(E4_MS1_PIN);
+      SET_OUTPUT(E4_MS2_PIN);
+    #endif
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
       microstep_mode(i, microstep_modes[i]);
@@ -1497,6 +1512,15 @@ void Stepper::report_positions() {
       #if HAS_MICROSTEPS_E1
         case 4: WRITE(E1_MS1_PIN, ms1); break;
       #endif
+      #if HAS_MICROSTEPS_E2
+        case 5: WRITE(E2_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_MICROSTEPS_E3
+        case 6: WRITE(E3_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_MICROSTEPS_E4
+        case 7: WRITE(E4_MS1_PIN, ms1); break;
+      #endif
     }
     if (ms2 >= 0) switch (driver) {
       case 0: WRITE(X_MS2_PIN, ms2); break;
@@ -1511,6 +1535,15 @@ void Stepper::report_positions() {
       #endif
       #if HAS_MICROSTEPS_E1
         case 4: WRITE(E1_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_E2
+        case 5: WRITE(E2_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_E3
+        case 6: WRITE(E3_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_E4
+        case 7: WRITE(E4_MS2_PIN, ms2); break;
       #endif
     }
   }
@@ -1549,6 +1582,21 @@ void Stepper::report_positions() {
       SERIAL_PROTOCOLPGM("E1: ");
       SERIAL_PROTOCOL(READ(E1_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E1_MS2_PIN));
+    #endif
+    #if HAS_MICROSTEPS_E2
+      SERIAL_PROTOCOLPGM("E2: ");
+      SERIAL_PROTOCOL(READ(E2_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E2_MS2_PIN));
+    #endif
+    #if HAS_MICROSTEPS_E3
+      SERIAL_PROTOCOLPGM("E3: ");
+      SERIAL_PROTOCOL(READ(E3_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E3_MS2_PIN));
+    #endif
+    #if HAS_MICROSTEPS_E4
+      SERIAL_PROTOCOLPGM("E4: ");
+      SERIAL_PROTOCOL(READ(E4_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E4_MS2_PIN));
     #endif
   }
 
