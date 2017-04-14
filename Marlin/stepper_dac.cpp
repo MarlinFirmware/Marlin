@@ -49,7 +49,7 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-  uint16_t dac_channel_pct[XYZE] = DAC_STEPPER_DFLT;
+  uint16_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
@@ -64,7 +64,7 @@
 
     mcp4728_setVref_all(DAC_STEPPER_VREF);
     mcp4728_setGain_all(DAC_STEPPER_GAIN);
-    
+
     if (mcp4728_getDrvPct(0) < 1 || mcp4728_getDrvPct(1) < 1 || mcp4728_getDrvPct(2) < 1 || mcp4728_getDrvPct(3) < 1 ) {
       mcp4728_setDrvPct(dac_channel_pct);
       mcp4728_eepromWrite();

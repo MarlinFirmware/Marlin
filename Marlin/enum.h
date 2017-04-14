@@ -75,6 +75,7 @@ enum DebugFlags {
   DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
   DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
   DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
   DEBUG_ALL           = 0xFF
 };
 
@@ -88,26 +89,6 @@ enum EndstopEnum {
   Z_MAX,
   Z2_MIN,
   Z2_MAX
-};
-
-/**
- * Temperature
- * Stages in the ISR loop
- */
-enum TempState {
-  PrepareTemp_0,
-  MeasureTemp_0,
-  PrepareTemp_BED,
-  MeasureTemp_BED,
-  PrepareTemp_1,
-  MeasureTemp_1,
-  PrepareTemp_2,
-  MeasureTemp_2,
-  PrepareTemp_3,
-  MeasureTemp_3,
-  Prepare_FILWIDTH,
-  Measure_FILWIDTH,
-  StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -161,23 +142,6 @@ enum TempState {
     IN_PROCESS,         // Known to be blocking command input (as in G29)
     PAUSED_FOR_USER,    // Blocking pending any input
     PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-  };
-#endif
-
-#if ENABLED(MESH_BED_LEVELING)
-  enum MeshLevelingState {
-    MeshReport,
-    MeshStart,
-    MeshNext,
-    MeshSet,
-    MeshSetZOffset,
-    MeshReset
-  };
-
-  enum MBLStatus {
-    MBL_STATUS_NONE = 0,
-    MBL_STATUS_HAS_MESH_BIT = 0,
-    MBL_STATUS_ACTIVE_BIT = 1
   };
 #endif
 

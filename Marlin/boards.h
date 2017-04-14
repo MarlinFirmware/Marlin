@@ -32,6 +32,7 @@
 #define BOARD_CNCONTROLS_11     111  // Cartesio CN Controls V11
 #define BOARD_CNCONTROLS_12     112  // Cartesio CN Controls V12
 #define BOARD_CHEAPTRONIC       2    // Cheaptronic v1.0
+#define BOARD_CHEAPTRONIC_V2    21   // Cheaptronic v2.0
 #define BOARD_SETHI             20   // Sethi 3D_1
 #define BOARD_MIGHTYBOARD_REVE  200  // Makerbot Mightyboard Revision E
 #define BOARD_RAMPS_OLD         3    // MEGA/RAMPS up to 1.2
@@ -83,7 +84,7 @@
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
 #define BOARD_MINIRAMBO         302  // Mini-Rambo
-#define BOARD_AJ4P              303  // AJ4P
+#define BOARD_SCOOVO_X9H        303  // abee Scoovo X9H
 #define BOARD_MEGACONTROLLER    310  // Mega controller
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board

@@ -30,6 +30,7 @@
 #ifndef LANGUAGE_FR_H
 #define LANGUAGE_FR_H
 
+#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prête.")
@@ -116,14 +117,15 @@
 #define MSG_E2STEPS                         _UxGT("E2pas/mm")
 #define MSG_E3STEPS                         _UxGT("E3pas/mm")
 #define MSG_E4STEPS                         _UxGT("E4pas/mm")
+#define MSG_E5STEPS                         _UxGT("E5pas/mm")
 #define MSG_TEMPERATURE                     _UxGT("Tempzrature")
 #define MSG_MOTION                          _UxGT("Mouvement")
 #define MSG_VOLUMETRIC                      _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E en mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Diam. Fil.")
 #define MSG_CONTRAST                        _UxGT("Contraste LCD")
-#define MSG_STORE_EPROM                     _UxGT("Sauver config")
-#define MSG_LOAD_EPROM                      _UxGT("Lire config")
+#define MSG_STORE_EEPROM                    _UxGT("Sauver config")
+#define MSG_LOAD_EEPROM                     _UxGT("Lire config")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Restaurer défauts")
 #define MSG_REFRESH                         _UxGT("Actualiser")
 #define MSG_WATCH                           _UxGT("Surveiller")

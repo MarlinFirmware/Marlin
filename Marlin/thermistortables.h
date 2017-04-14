@@ -28,7 +28,7 @@
 
 #define OVERSAMPLENR 16
 
-#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORBED == n)
+#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n)
 
 // Pt1000 and Pt100 handling
 //
@@ -103,6 +103,9 @@
 #if ANY_THERMISTOR_IS(70) // bqh2 stock thermistor
   #include "thermistortable_70.h"
 #endif
+#if ANY_THERMISTOR_IS(75) // Many of the generic silicon heat pads use the MGB18-104F39050L32 Thermistor
+  #include "thermistortable_75.h"
+#endif
 #if ANY_THERMISTOR_IS(110) // Pt100 with 1k0 pullup
   #include "thermistortable_110.h"
 #endif
@@ -163,6 +166,16 @@
 #else
   #define HEATER_3_TEMPTABLE NULL
   #define HEATER_3_TEMPTABLE_LEN 0
+#endif
+
+#ifdef THERMISTORHEATER_4
+  #define HEATER_4_TEMPTABLE TT_NAME(THERMISTORHEATER_4)
+  #define HEATER_4_TEMPTABLE_LEN COUNT(HEATER_4_TEMPTABLE)
+#elif defined(HEATER_4_USES_THERMISTOR)
+  #error "No heater 4 thermistor table specified"
+#else
+  #define HEATER_4_TEMPTABLE NULL
+  #define HEATER_4_TEMPTABLE_LEN 0
 #endif
 
 #ifdef THERMISTORBED

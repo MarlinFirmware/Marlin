@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -42,7 +42,7 @@ void TWIBus::reset() {
 }
 
 void TWIBus::address(const uint8_t adr) {
-  if (adr < 8 || adr > 127) {
+  if (!WITHIN(adr, 8, 127)) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Bad I2C address (8-127)");
   }

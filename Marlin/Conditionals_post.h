@@ -184,7 +184,7 @@
    */
   #if ENABLED(ADVANCE)
     #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS] / (EXTRUSION_AREA))
+    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS_N] / (EXTRUSION_AREA))
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -277,6 +277,18 @@
   #elif TEMP_SENSOR_3 > 0
     #define THERMISTORHEATER_3 TEMP_SENSOR_3
     #define HEATER_3_USES_THERMISTOR
+  #endif
+
+  #if TEMP_SENSOR_4 <= -2
+    #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
+  #elif TEMP_SENSOR_4 == -1
+    #define HEATER_4_USES_AD595
+  #elif TEMP_SENSOR_4 == 0
+    #undef HEATER_4_MINTEMP
+    #undef HEATER_4_MAXTEMP
+  #elif TEMP_SENSOR_4 > 0
+    #define THERMISTORHEATER_4 TEMP_SENSOR_4
+    #define HEATER_4_USES_THERMISTOR
   #endif
 
   #if TEMP_SENSOR_BED <= -2
@@ -427,16 +439,19 @@
   #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
   #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
   #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
+  #define HAS_TEMP_4 (PIN_EXISTS(TEMP_4) && TEMP_SENSOR_4 != 0 && TEMP_SENSOR_4 > -2)
   #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
   #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
   #define HAS_HEATER_1 (PIN_EXISTS(HEATER_1))
   #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
   #define HAS_HEATER_3 (PIN_EXISTS(HEATER_3))
+  #define HAS_HEATER_4 (PIN_EXISTS(HEATER_4))
   #define HAS_HEATER_BED (PIN_EXISTS(HEATER_BED))
   #define HAS_AUTO_FAN_0 (PIN_EXISTS(E0_AUTO_FAN))
   #define HAS_AUTO_FAN_1 (HOTENDS > 1 && PIN_EXISTS(E1_AUTO_FAN))
   #define HAS_AUTO_FAN_2 (HOTENDS > 2 && PIN_EXISTS(E2_AUTO_FAN))
   #define HAS_AUTO_FAN_3 (HOTENDS > 3 && PIN_EXISTS(E3_AUTO_FAN))
+  #define HAS_AUTO_FAN_4 (HOTENDS > 4 && PIN_EXISTS(E4_AUTO_FAN))
   #define HAS_AUTO_FAN (HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3)
   #define AUTO_1_IS_0 (E1_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
   #define AUTO_2_IS_0 (E2_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
@@ -444,6 +459,10 @@
   #define AUTO_3_IS_0 (E3_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
   #define AUTO_3_IS_1 (E3_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
   #define AUTO_3_IS_2 (E3_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_4_IS_0 (E4_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_4_IS_1 (E4_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_4_IS_2 (E4_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_4_IS_3 (E4_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
   #define HAS_FAN0 (PIN_EXISTS(FAN))
   #define HAS_FAN1 (PIN_EXISTS(FAN1) && CONTROLLERFAN_PIN != FAN1_PIN && E0_AUTO_FAN_PIN != FAN1_PIN && E1_AUTO_FAN_PIN != FAN1_PIN && E2_AUTO_FAN_PIN != FAN1_PIN && E3_AUTO_FAN_PIN != FAN1_PIN)
   #define HAS_FAN2 (PIN_EXISTS(FAN2) && CONTROLLERFAN_PIN != FAN2_PIN && E0_AUTO_FAN_PIN != FAN2_PIN && E1_AUTO_FAN_PIN != FAN2_PIN && E2_AUTO_FAN_PIN != FAN2_PIN && E3_AUTO_FAN_PIN != FAN2_PIN)
@@ -522,6 +541,9 @@
 
   #define HAS_THERMALLY_PROTECTED_BED (HAS_TEMP_BED && HAS_HEATER_BED && ENABLED(THERMAL_PROTECTION_BED))
 
+  #define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
+  #define WATCH_THE_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
+
   /**
    * This setting is also used by M109 when trying to calculate
    * a ballpark safe margin to prevent wait-forever situation.
@@ -540,9 +562,12 @@
       #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
       #if HOTENDS > 3
         #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
-      #endif
-    #endif
-  #endif
+        #if HOTENDS > 4
+          #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, v)
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
   #if ENABLED(HEATERS_PARALLEL)
     #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
   #else
@@ -589,7 +614,7 @@
 
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
 
-  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED)
+  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
@@ -630,9 +655,12 @@
   #endif
 
   /**
-   * Delta radius/rod trimmers
+   * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
+    #ifndef DELTA_ENDSTOP_ADJ
+      #define DELTA_ENDSTOP_ADJ { 0 }
+    #endif
     #ifndef DELTA_RADIUS_TRIM_TOWER_1
       #define DELTA_RADIUS_TRIM_TOWER_1 0.0
     #endif
@@ -651,6 +679,15 @@
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
       #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
     #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_1
+      #define DELTA_TOWER_ANGLE_TRIM_1 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_2
+      #define DELTA_TOWER_ANGLE_TRIM_2 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_3
+      #define DELTA_TOWER_ANGLE_TRIM_3 0.0
+    #endif
   #endif
 
   /**
@@ -658,7 +695,7 @@
    */
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
-  #define HAS_ABL    (ABL_PLANAR || ABL_GRID)
+  #define HAS_ABL    (ABL_PLANAR || ABL_GRID || ENABLED(AUTO_BED_LEVELING_UBL))
 
   #define PLANNER_LEVELING      (HAS_ABL || ENABLED(MESH_BED_LEVELING))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
@@ -700,6 +737,11 @@
   #ifndef Z_CLEARANCE_BETWEEN_PROBES
     #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
   #endif
+  #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+  #endif
 
   #if IS_KINEMATIC
     // Check for this in the code instead
@@ -718,12 +760,13 @@
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
 
-  #ifndef DELTA_ENDSTOP_ADJ
-    #define DELTA_ENDSTOP_ADJ { 0 }
-  #endif
-
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+  #endif
+
+  // LCD timeout to status screen default is 15s
+  #ifndef LCD_TIMEOUT_TO_STATUS
+    #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
 
 #endif // CONDITIONALS_POST_H

@@ -39,72 +39,13 @@
 #include "types.h"
 #include "fastio.h"
 #include "utility.h"
-
-#ifdef USBCON
-  #include "HardwareSerial.h"
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
-  #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
-#else
-  #include "MarlinSerial.h"
-  #define MYSERIAL customizedSerial
-#endif
-
-#include "WString.h"
+#include "serial.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
 #else
   #include "stopwatch.h"
 #endif
-
-extern const char echomagic[] PROGMEM;
-extern const char errormagic[] PROGMEM;
-
-#define SERIAL_CHAR(x) (MYSERIAL.write(x))
-#define SERIAL_EOL SERIAL_CHAR('\n')
-
-#define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x)                  (MYSERIAL.print(x))
-#define SERIAL_PROTOCOL_F(x,y)              (MYSERIAL.print(x,y))
-#define SERIAL_PROTOCOLPGM(x)               (serialprintPGM(PSTR(x)))
-#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x)             (serialprintPGM(PSTR(x "\n")))
-#define SERIAL_PROTOCOLPAIR(name, value)    (serial_echopair_P(PSTR(name),(value)))
-#define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL; }while(0)
-
-#define SERIAL_ECHO_START             (serialprintPGM(echomagic))
-#define SERIAL_ECHO(x)                 SERIAL_PROTOCOL(x)
-#define SERIAL_ECHOPGM(x)              SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
-#define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
-#define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
-#define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
-
-#define SERIAL_ERROR_START            (serialprintPGM(errormagic))
-#define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
-#define SERIAL_ERRORPGM(x)             SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ERRORLN(x)              SERIAL_PROTOCOLLN(x)
-#define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
-
-void serial_echopair_P(const char* s_P, const char *v);
-void serial_echopair_P(const char* s_P, char v);
-void serial_echopair_P(const char* s_P, int v);
-void serial_echopair_P(const char* s_P, long v);
-void serial_echopair_P(const char* s_P, float v);
-void serial_echopair_P(const char* s_P, double v);
-void serial_echopair_P(const char* s_P, unsigned long v);
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
-
-// Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
-}
 
 void idle(
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -119,36 +60,36 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #endif
 
 #if HAS_X2_ENABLE
-  #define  enable_x() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
-  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #elif HAS_X_ENABLE
-  #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define  enable_X() X_ENABLE_WRITE( X_ENABLE_ON)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #else
-  #define  enable_x() NOOP
-  #define disable_x() NOOP
+  #define  enable_X() NOOP
+  #define disable_X() NOOP
 #endif
 
 #if HAS_Y2_ENABLE
-  #define  enable_y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
-  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
 #elif HAS_Y_ENABLE
-  #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define  enable_Y() Y_ENABLE_WRITE( Y_ENABLE_ON)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
 #else
-  #define  enable_y() NOOP
-  #define disable_y() NOOP
+  #define  enable_Y() NOOP
+  #define disable_Y() NOOP
 #endif
 
 #if HAS_Z2_ENABLE
-  #define  enable_z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
-  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
 #elif HAS_Z_ENABLE
-  #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define  enable_Z() Z_ENABLE_WRITE( Z_ENABLE_ON)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
 #else
-  #define  enable_z() NOOP
-  #define disable_z() NOOP
+  #define  enable_Z() NOOP
+  #define disable_Z() NOOP
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -157,54 +98,64 @@ void manage_inactivity(bool ignore_stepper_queue = false);
    * Mixing steppers synchronize their enable (and direction) together
    */
   #if MIXING_STEPPERS > 3
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
   #elif MIXING_STEPPERS > 2
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); }
   #else
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); }
   #endif
-  #define  enable_e1() NOOP
-  #define disable_e1() NOOP
-  #define  enable_e2() NOOP
-  #define disable_e2() NOOP
-  #define  enable_e3() NOOP
-  #define disable_e3() NOOP
+  #define  enable_E1() NOOP
+  #define disable_E1() NOOP
+  #define  enable_E2() NOOP
+  #define disable_E2() NOOP
+  #define  enable_E3() NOOP
+  #define disable_E3() NOOP
+  #define  enable_E4() NOOP
+  #define disable_E4() NOOP
 
 #else // !MIXING_EXTRUDER
 
   #if HAS_E0_ENABLE
-    #define  enable_e0() E0_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E0() E0_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E0() E0_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e0() NOOP
-    #define disable_e0() NOOP
+    #define  enable_E0() NOOP
+    #define disable_E0() NOOP
   #endif
 
   #if E_STEPPERS > 1 && HAS_E1_ENABLE
-    #define  enable_e1() E1_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E1() E1_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e1() NOOP
-    #define disable_e1() NOOP
+    #define  enable_E1() NOOP
+    #define disable_E1() NOOP
   #endif
 
   #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define  enable_e2() E2_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E2() E2_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e2() NOOP
-    #define disable_e2() NOOP
+    #define  enable_E2() NOOP
+    #define disable_E2() NOOP
   #endif
 
   #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define  enable_e3() E3_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E3() E3_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e3() NOOP
-    #define disable_e3() NOOP
+    #define  enable_E3() NOOP
+    #define disable_E3() NOOP
+  #endif
+
+  #if E_STEPPERS > 4 && HAS_E4_ENABLE
+    #define  enable_E4() E4_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_E4() NOOP
+    #define disable_E4() NOOP
   #endif
 
 #endif // !MIXING_EXTRUDER
@@ -220,6 +171,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
+void disable_e_steppers();
 void disable_all_steppers();
 
 void FlushSerialRequestResend();
@@ -240,9 +192,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
-void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
+void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
 extern millis_t previous_cmd_ms;
@@ -270,32 +221,24 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   extern volatile bool wait_for_user;
 #endif
 
 extern float current_position[NUM_AXIS];
-extern float position_shift[XYZ];
-extern float home_offset[XYZ];
 
-#if HOTENDS > 1
-  extern float hotend_offset[XYZ][HOTENDS];
-#endif
-
-// Software Endstops
-void update_software_endstops(AxisEnum axis);
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
-  extern bool soft_endstops_enabled;
-  void clamp_to_software_endstops(float target[XYZ]);
+// Workspace offsets
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  extern float position_shift[XYZ],
+               home_offset[XYZ],
+               workspace_offset[XYZ];
+  #define LOGICAL_POSITION(POS, AXIS) ((POS) + workspace_offset[AXIS])
+  #define RAW_POSITION(POS, AXIS)     ((POS) - workspace_offset[AXIS])
 #else
-  #define soft_endstops_enabled false
-  #define clamp_to_software_endstops(x) NOOP
+  #define LOGICAL_POSITION(POS, AXIS) (POS)
+  #define RAW_POSITION(POS, AXIS)     (POS)
 #endif
-extern float soft_endstop_min[XYZ];
-extern float soft_endstop_max[XYZ];
 
-#define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
-#define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
 #define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
 #define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
@@ -303,6 +246,26 @@ extern float soft_endstop_max[XYZ];
 #define RAW_Y_POSITION(POS)         RAW_POSITION(POS, Y_AXIS)
 #define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
 #define RAW_CURRENT_POSITION(AXIS)  RAW_POSITION(current_position[AXIS], AXIS)
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
+
+// Software Endstops
+extern float soft_endstop_min[XYZ];
+extern float soft_endstop_max[XYZ];
+
+#if HAS_SOFTWARE_ENDSTOPS
+  extern bool soft_endstops_enabled;
+  void clamp_to_software_endstops(float target[XYZ]);
+#else
+  #define soft_endstops_enabled false
+  #define clamp_to_software_endstops(x) NOOP
+#endif
+
+#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+  void update_software_endstops(const AxisEnum axis);
+#endif
 
 // GCode support for external objects
 bool code_seen(char);
@@ -320,9 +283,8 @@ float code_value_temp_diff();
                delta_radius,
                delta_diagonal_rod,
                delta_segments_per_second,
-               delta_diagonal_rod_trim_tower_1,
-               delta_diagonal_rod_trim_tower_2,
-               delta_diagonal_rod_trim_tower_3,
+               delta_diagonal_rod_trim[ABC],
+               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA
@@ -331,13 +293,22 @@ float code_value_temp_diff();
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   extern int bilinear_grid_spacing[2], bilinear_start[2];
-  extern float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
+  extern float bed_level_grid[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   float bilinear_z_offset(float logical[XYZ]);
   void set_bed_leveling_enabled(bool enable=true);
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  typedef struct { double A, B, D; } linear_fit;
+  linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
+#endif
+
 #if PLANNER_LEVELING
   void reset_bed_level();
+#endif
+
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  void set_z_fade_height(const float zfh);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -346,10 +317,16 @@ float code_value_temp_diff();
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+  void refresh_zprobe_zoffset(const bool no_babystep=false);
+  #define DEPLOY_PROBE() set_probe_deployed(true)
+  #define STOW_PROBE() set_probe_deployed(false)
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-  extern uint8_t host_keepalive_interval;
+  extern MarlinBusyState busy_state;
+  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
+#else
+  #define KEEPALIVE_STATE(n) NOOP
 #endif
 
 #if FAN_COUNT > 0
@@ -412,5 +389,9 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
+
+#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+  bool axis_unhomed_error(const bool x, const bool y, const bool z);
+#endif
 
 #endif //MARLIN_H

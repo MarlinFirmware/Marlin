@@ -161,7 +161,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
-  #if defined(SR_STROBE_PIN)
+  #if PIN_EXISTS(SR_STROBE)
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN, SR_STROBE_PIN);
   #else
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
@@ -378,7 +378,7 @@ static void lcd_implementation_init(
   lcd.clear();
 }
 
-static void lcd_implementation_clear() { lcd.clear(); }
+void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 void lcd_printPGM(const char *str) {
@@ -396,7 +396,7 @@ void lcd_print(char c) { charset_mapper(c); }
   void lcd_erase_line(const int line) {
     lcd.setCursor(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
-      lcd_print(' ');
+      lcd.print(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
@@ -592,14 +592,6 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 #endif // LCD_PROGRESS_BAR
 
-static void lcd_implementation_hotend_status() {
-  lcd.setCursor(10, 3);
-  lcd.print(LCD_STR_THERMOMETER[active_extruder]);
-  lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
-  lcd.print('/');
-  lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
-}
-
 /**
 Possible status screens:
 16x2   |000/000 B000/000|
@@ -737,7 +729,7 @@ static void lcd_implementation_status_screen() {
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd.print(ftostr52sp(current_position[Z_AXIS] + 0.00001));
+    lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
   #endif // LCD_HEIGHT > 2
 
@@ -783,14 +775,12 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
-    if (card.isFileOpen()) {
-      // Draw the progress bar if the message has shown long enough
-      // or if there is no message set.
-      if (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
-        return lcd_draw_progress_bar(card.percentDone());
-    } //card.isFileOpen
+    // Draw the progress bar if the message has shown long enough
+    // or if there is no message set.
+    if (card.isFileOpen() && ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
+      return lcd_draw_progress_bar(card.percentDone());
 
-  #elif ENABLED(FILAMENT_LCD_DISPLAY)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
@@ -803,12 +793,26 @@ static void lcd_implementation_status_screen() {
       return;
     }
 
-  #endif // FILAMENT_LCD_DISPLAY
+  #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
   lcd_print(lcd_status_message);
 }
 
 #if ENABLED(ULTIPANEL)
+
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
+    static void lcd_implementation_hotend_status(const uint8_t row) {
+      if (row < LCD_HEIGHT) {
+        lcd.setCursor(LCD_WIDTH - 9, row);
+        lcd.print(LCD_STR_THERMOMETER[0]);
+        lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
+        lcd.print('/');
+        lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      }
+    }
+
+  #endif // FILAMENT_CHANGE_FEATURE
 
   static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);

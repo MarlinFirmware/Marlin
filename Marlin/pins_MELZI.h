@@ -26,7 +26,7 @@
 
 #define BOARD_NAME "Melzi"
 
-#if defined(__AVR_ATmega1284P__)
+#ifdef __AVR_ATmega1284P__
   #define LARGE_FLASH true
 #endif
 
