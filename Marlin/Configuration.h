@@ -695,7 +695,6 @@
 //#define Z_MIN_PROBE_ENDSTOP
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-
 // Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
