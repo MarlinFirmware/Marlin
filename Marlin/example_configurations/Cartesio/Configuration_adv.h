@@ -327,7 +327,11 @@
   // Default x offset in duplication mode (typically set to half print bed width)
   #define DEFAULT_DUPLICATION_X_OFFSET 100
 
-#endif //DUAL_X_CARRIAGE
+#endif // DUAL_X_CARRIAGE
+
+// Activate a solenoid on the active extruder with M380. Disable all with M381.
+// Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+//#define EXT_SOLENOID
 
 // @section homing
 
