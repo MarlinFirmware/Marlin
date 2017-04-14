@@ -1854,8 +1854,8 @@ static void clean_up_after_endstop_or_probe_move() {
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
 
-    #if PIN_EXISTS(SLED)
-      digitalWrite(SLED_PIN, !stow); // switch solenoid
+    #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
+      WRITE(SOL1_PIN, !stow); // switch solenoid
     #endif
   }
 
@@ -2123,7 +2123,13 @@ static void clean_up_after_endstop_or_probe_move() {
                                                      // otherwise an Allen-Key probe can't be stowed.
     #endif
 
-        #if ENABLED(Z_PROBE_SLED)
+        #if ENABLED(SOLENOID_PROBE)
+
+          #if HAS_SOLENOID_1
+            WRITE(SOL1_PIN, deploy);
+          #endif
+
+        #elif ENABLED(Z_PROBE_SLED)
 
           dock_sled(!deploy);
 
@@ -7588,7 +7594,7 @@ inline void gcode_M303() {
 
 #if ENABLED(EXT_SOLENOID)
 
-  void enable_solenoid(uint8_t num) {
+  void enable_solenoid(const uint8_t num) {
     switch (num) {
       case 0:
         OUT_WRITE(SOL0_PIN, HIGH);
@@ -11437,9 +11443,9 @@ void setup() {
     dac_init();
   #endif
 
-  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
-    OUT_WRITE(SLED_PIN, LOW); // turn it off
-  #endif // Z_PROBE_SLED
+  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+  #endif
 
   setup_homepin();
 
