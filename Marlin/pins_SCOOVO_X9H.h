@@ -57,8 +57,6 @@
   #define Z_MIN_PROBE_PIN   30
 #endif
 
-#define SLED_PIN -1
-
 //
 // Steppers
 //
