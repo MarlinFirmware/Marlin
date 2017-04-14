@@ -1484,33 +1484,33 @@ void Stepper::report_positions() {
 
   void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
     if (ms1 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS1_PIN, ms1); break;
+      case 0: WRITE(X_MS1_PIN, ms1); break;
       #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS1_PIN, ms1); break;
+        case 1: WRITE(Y_MS1_PIN, ms1); break;
       #endif
       #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS1_PIN, ms1); break;
+        case 2: WRITE(Z_MS1_PIN, ms1); break;
       #endif
       #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS1_PIN, ms1); break;
+        case 3: WRITE(E0_MS1_PIN, ms1); break;
       #endif
       #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS1_PIN, ms1); break;
+        case 4: WRITE(E1_MS1_PIN, ms1); break;
       #endif
     }
     if (ms2 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS2_PIN, ms2); break;
+      case 0: WRITE(X_MS2_PIN, ms2); break;
       #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS2_PIN, ms2); break;
+        case 1: WRITE(Y_MS2_PIN, ms2); break;
       #endif
       #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS2_PIN, ms2); break;
+        case 2: WRITE(Z_MS2_PIN, ms2); break;
       #endif
       #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS2_PIN, ms2); break;
+        case 3: WRITE(E0_MS2_PIN, ms2); break;
       #endif
       #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS2_PIN, ms2); break;
+        case 4: WRITE(E1_MS2_PIN, ms2); break;
       #endif
     }
   }

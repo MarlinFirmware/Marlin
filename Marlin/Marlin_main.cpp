@@ -963,15 +963,15 @@ void servo_init() {
 
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
+      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
+      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
 
       #if ENABLED(RGBW_LED)
-        digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
+        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
         analogWrite(RGB_LED_W_PIN, w);
       #endif
 
@@ -8548,7 +8548,7 @@ inline void gcode_M907() {
   uint8_t case_light_brightness = 255;
 
   void update_case_light() {
-    digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
+    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
     analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
 
@@ -10739,7 +10739,7 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      digitalWrite(CONTROLLERFAN_PIN, speed);
+      WRITE(CONTROLLERFAN_PIN, speed);
       analogWrite(CONTROLLERFAN_PIN, speed);
     }
   }
