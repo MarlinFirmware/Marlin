@@ -1143,7 +1143,7 @@ void MarlinSettings::reset() {
 
   /**
    * M503 - Report current settings in RAM
-   *   
+   *
    * Unless specifically disabled, M503 is available even without EEPROM
    */
   void MarlinSettings::report(bool forReplay) {
@@ -1315,8 +1315,8 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("UBL_MESH_MAX_X     " STRINGIFY(UBL_MESH_MAX_X));
         SERIAL_ECHOLNPGM("UBL_MESH_MAX_Y     " STRINGIFY(UBL_MESH_MAX_Y));
 
-        SERIAL_ECHOLNPGM("MESH_X_DIST        " STRINGIFY(MESH_X_DIST));
-        SERIAL_ECHOLNPGM("MESH_Y_DIST        " STRINGIFY(MESH_Y_DIST));
+        SERIAL_ECHOLNPAIR("MESH_X_DIST        ", MESH_X_DIST);
+        SERIAL_ECHOLNPAIR("MESH_Y_DIST        ", MESH_Y_DIST);
         SERIAL_EOL;
       }
 
