@@ -11718,10 +11718,16 @@ void setup() {
   #endif
 
   //Turn on White at Powerup
-  #if HAS_COLOR_LEDS && ENABLED(LIGHT_ON_POWERUP)
-    handle_led_print_event(PRINTING)  // Turn on white LEDS
-  #else
-    handle_led_print_event(ALL_OFF);  // Turn off all LEDS
+  #if HAS_COLOR_LEDS
+    #if ENABLED(LIGHT_ON_POWERUP)
+      #if ENABLED(RGBW_STRIP)
+        set_rgb_color(0, 0, 0, 255, 0, 0)    // Turn on White LED
+      #else
+        set_rgb_color(255, 255, 255, 0, 0, 0)  // Turn on RGBs to white
+      #endif
+    #else
+      set_rgb_color(0, 0, 0, 0, 0, 0);       // Turn off all LEDS
+    #endif
   #endif
 }
 
