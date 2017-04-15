@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V33"
+#define EEPROM_VERSION "V34"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -216,6 +216,10 @@ void MarlinSettings::postprocess() {
       //#endif
     );
   #endif
+
+  #if HAS_BED_PROBE
+    refresh_zprobe_zoffset();
+  #endif
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -344,7 +348,7 @@ void MarlinSettings::postprocess() {
     #endif // MESH_BED_LEVELING
 
     #if !HAS_BED_PROBE
-      float zprobe_zoffset = 0;
+      const float zprobe_zoffset = 0;
     #endif
     EEPROM_WRITE(zprobe_zoffset);
 
@@ -685,7 +689,7 @@ void MarlinSettings::postprocess() {
       #endif // MESH_BED_LEVELING
 
       #if !HAS_BED_PROBE
-        float zprobe_zoffset = 0;
+        float zprobe_zoffset;
       #endif
       EEPROM_READ(zprobe_zoffset);
 
@@ -1267,13 +1271,13 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPAIR(" Z", planner.z_fade_height);
       #endif
       SERIAL_EOL;
-      for (uint8_t py = 1; py <= GRID_MAX_POINTS_Y; py++) {
-        for (uint8_t px = 1; px <= GRID_MAX_POINTS_X; px++) {
+      for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+        for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  G29 S3 X", (int)px);
-          SERIAL_ECHOPAIR(" Y", (int)py);
+          SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
+          SERIAL_ECHOPAIR(" Y", (int)py + 1);
           SERIAL_ECHOPGM(" Z");
-          SERIAL_PROTOCOL_F(mbl.z_values[py-1][px-1], 5);
+          SERIAL_PROTOCOL_F(mbl.z_values[px][py], 5);
           SERIAL_EOL;
         }
       }

@@ -172,6 +172,8 @@
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
 #elif defined(min_software_endstops) || defined(max_software_endstops)
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
+#elif ENABLED(Z_PROBE_SLED) && defined(SLED_PIN)
+  #error "Replace SLED_PIN with SOL1_PIN (applies to both Z_PROBE_SLED and SOLENOID_PROBE)."
 #endif
 
 /**
@@ -262,12 +264,12 @@
 #if ENABLED(BABYSTEPPING)
   #if DISABLED(ULTRA_LCD)
     #error "BABYSTEPPING requires an LCD controller."
-  #endif
-  #if ENABLED(SCARA)
+  #elif ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #endif
-  #if ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
+  #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
+  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
+    #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
   #endif
 #endif
 
@@ -459,6 +461,9 @@ static_assert(1 >= 0
   #if ENABLED(Z_PROBE_SLED)
     + 1
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    + 1
+  #endif
   , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
 );
 
@@ -470,6 +475,17 @@ static_assert(1 >= 0
    */
   #if ENABLED(Z_PROBE_SLED) && ENABLED(DELTA)
     #error "You cannot use Z_PROBE_SLED with DELTA."
+  #endif
+
+  /**
+   * SOLENOID_PROBE requirements
+   */
+  #if ENABLED(SOLENOID_PROBE)
+    #if ENABLED(EXT_SOLENOID)
+      #error "SOLENOID_PROBE is incompatible with EXT_SOLENOID."
+    #elif !HAS_SOLENOID_1
+      #error "SOLENOID_PROBE requires SOL1_PIN. It can be added to your Configuration.h."
+    #endif
   #endif
 
   /**
@@ -1089,3 +1105,16 @@ static_assert(1 >= 0
   #endif
   , "Please select no more than one LCD controller option."
 );
+
+/**
+ * Require 4 or more elements in per-axis initializers
+ */
+constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
+                sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
+                sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
+static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
+static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
+static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");

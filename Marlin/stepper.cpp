@@ -366,7 +366,7 @@ void Stepper::isr() {
     #define SPLIT(L) do { \
       _SPLIT(L); \
       if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
-        uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+        const uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
@@ -447,8 +447,6 @@ void Stepper::isr() {
   }
 
   // Update endstops state, if enabled
-
-
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     if (e_hit && ENDSTOPS_ENABLED) {
       endstops.update();
@@ -640,7 +638,7 @@ void Stepper::isr() {
 
   #if ENABLED(LIN_ADVANCE)
     if (current_block->use_advance_lead) {
-      int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
+      const int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
       current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
       #if ENABLED(MIXING_EXTRUDER)
         // Mixing extruders apply advance lead proportionally
@@ -668,7 +666,7 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    uint16_t timer = calc_timer(acc_step_rate);
+    const uint16_t timer = calc_timer(acc_step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -691,8 +689,8 @@ void Stepper::isr() {
       advance += advance_rate * step_loops;
       //NOLESS(advance, current_block->advance);
 
-      long advance_whole = advance >> 8,
-           advance_factor = advance_whole - old_advance;
+      const long advance_whole = advance >> 8,
+                 advance_factor = advance_whole - old_advance;
 
       // Do E steps + advance steps
       #if ENABLED(MIXING_EXTRUDER)
@@ -724,7 +722,7 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    uint16_t timer = calc_timer(step_rate);
+    const uint16_t timer = calc_timer(step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -748,8 +746,8 @@ void Stepper::isr() {
       NOLESS(advance, final_advance);
 
       // Do E steps + advance steps
-      long advance_whole = advance >> 8,
-           advance_factor = advance_whole - old_advance;
+      const long advance_whole = advance >> 8,
+                 advance_factor = advance_whole - old_advance;
 
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j)
@@ -1078,6 +1076,9 @@ void Stepper::init() {
   #if HAS_E3_STEP
     E_AXIS_INIT(3);
   #endif
+  #if HAS_E4_STEP
+    E_AXIS_INIT(4);
+  #endif
 
   // waveform generation = 0100 = CTC
   CBI(TCCR1B, WGM13);
@@ -1179,7 +1180,7 @@ void Stepper::set_e_position(const long &e) {
  */
 long Stepper::position(AxisEnum axis) {
   CRITICAL_SECTION_START;
-  long count_pos = count_position[axis];
+  const long count_pos = count_position[axis];
   CRITICAL_SECTION_END;
   return count_pos;
 }
@@ -1246,9 +1247,9 @@ void Stepper::endstop_triggered(AxisEnum axis) {
 
 void Stepper::report_positions() {
   CRITICAL_SECTION_START;
-  long xpos = count_position[X_AXIS],
-       ypos = count_position[Y_AXIS],
-       zpos = count_position[Z_AXIS];
+  const long xpos = count_position[X_AXIS],
+             ypos = count_position[Y_AXIS],
+             zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
   #if CORE_IS_XY || CORE_IS_XZ || IS_SCARA
@@ -1290,7 +1291,7 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START (pulse_start = TCNT0)
+    #define _SAVE_START const uint32_t pulse_start = TCNT0
     #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
@@ -1322,10 +1323,6 @@ void Stepper::report_positions() {
     cli();
     uint8_t old_dir;
 
-    #if EXTRA_CYCLES_BABYSTEP > 20
-      uint32_t pulse_start;
-    #endif
-
     switch (axis) {
 
       #if ENABLED(BABYSTEP_XY)
@@ -1348,15 +1345,15 @@ void Stepper::report_positions() {
 
         #else // DELTA
 
-          bool z_direction = direction ^ BABYSTEP_INVERT_Z;
+          const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
           enable_X();
           enable_Y();
           enable_Z();
 
-          uint8_t old_x_dir_pin = X_DIR_READ,
-                  old_y_dir_pin = Y_DIR_READ,
-                  old_z_dir_pin = Z_DIR_READ;
+          const uint8_t old_x_dir_pin = X_DIR_READ,
+                        old_y_dir_pin = Y_DIR_READ,
+                        old_z_dir_pin = Z_DIR_READ;
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
@@ -1467,21 +1464,33 @@ void Stepper::report_positions() {
   void Stepper::microstep_init() {
     SET_OUTPUT(X_MS1_PIN);
     SET_OUTPUT(X_MS2_PIN);
-    #if HAS_MICROSTEPS_Y
+    #if HAS_Y_MICROSTEPS
       SET_OUTPUT(Y_MS1_PIN);
       SET_OUTPUT(Y_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_Z
+    #if HAS_Z_MICROSTEPS
       SET_OUTPUT(Z_MS1_PIN);
       SET_OUTPUT(Z_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_E0
+    #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_E1
+    #if HAS_E1_MICROSTEPS
       SET_OUTPUT(E1_MS1_PIN);
       SET_OUTPUT(E1_MS2_PIN);
+    #endif
+    #if HAS_E2_MICROSTEPS
+      SET_OUTPUT(E2_MS1_PIN);
+      SET_OUTPUT(E2_MS2_PIN);
+    #endif
+    #if HAS_E3_MICROSTEPS
+      SET_OUTPUT(E3_MS1_PIN);
+      SET_OUTPUT(E3_MS2_PIN);
+    #endif
+    #if HAS_E4_MICROSTEPS
+      SET_OUTPUT(E4_MS1_PIN);
+      SET_OUTPUT(E4_MS2_PIN);
     #endif
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
@@ -1490,33 +1499,51 @@ void Stepper::report_positions() {
 
   void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
     if (ms1 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS1_PIN, ms1); break;
-      #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS1_PIN, ms1); break;
+      case 0: WRITE(X_MS1_PIN, ms1); break;
+      #if HAS_Y_MICROSTEPS
+        case 1: WRITE(Y_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS1_PIN, ms1); break;
+      #if HAS_Z_MICROSTEPS
+        case 2: WRITE(Z_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS1_PIN, ms1); break;
+      #if HAS_E0_MICROSTEPS
+        case 3: WRITE(E0_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS1_PIN, ms1); break;
+      #if HAS_E1_MICROSTEPS
+        case 4: WRITE(E1_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E2_MICROSTEPS
+        case 5: WRITE(E2_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E3_MICROSTEPS
+        case 6: WRITE(E3_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E4_MICROSTEPS
+        case 7: WRITE(E4_MS1_PIN, ms1); break;
       #endif
     }
     if (ms2 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS2_PIN, ms2); break;
-      #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS2_PIN, ms2); break;
+      case 0: WRITE(X_MS2_PIN, ms2); break;
+      #if HAS_Y_MICROSTEPS
+        case 1: WRITE(Y_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS2_PIN, ms2); break;
+      #if HAS_Z_MICROSTEPS
+        case 2: WRITE(Z_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS2_PIN, ms2); break;
+      #if HAS_E0_MICROSTEPS
+        case 3: WRITE(E0_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS2_PIN, ms2); break;
+      #if HAS_E1_MICROSTEPS
+        case 4: WRITE(E1_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E2_MICROSTEPS
+        case 5: WRITE(E2_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E3_MICROSTEPS
+        case 6: WRITE(E3_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E4_MICROSTEPS
+        case 7: WRITE(E4_MS2_PIN, ms2); break;
       #endif
     }
   }
@@ -1536,25 +1563,40 @@ void Stepper::report_positions() {
     SERIAL_PROTOCOLPGM("X: ");
     SERIAL_PROTOCOL(READ(X_MS1_PIN));
     SERIAL_PROTOCOLLN(READ(X_MS2_PIN));
-    #if HAS_MICROSTEPS_Y
+    #if HAS_Y_MICROSTEPS
       SERIAL_PROTOCOLPGM("Y: ");
       SERIAL_PROTOCOL(READ(Y_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(Y_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_Z
+    #if HAS_Z_MICROSTEPS
       SERIAL_PROTOCOLPGM("Z: ");
       SERIAL_PROTOCOL(READ(Z_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(Z_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_E0
+    #if HAS_E0_MICROSTEPS
       SERIAL_PROTOCOLPGM("E0: ");
       SERIAL_PROTOCOL(READ(E0_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E0_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_E1
+    #if HAS_E1_MICROSTEPS
       SERIAL_PROTOCOLPGM("E1: ");
       SERIAL_PROTOCOL(READ(E1_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E1_MS2_PIN));
+    #endif
+    #if HAS_E2_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E2: ");
+      SERIAL_PROTOCOL(READ(E2_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E2_MS2_PIN));
+    #endif
+    #if HAS_E3_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E3: ");
+      SERIAL_PROTOCOL(READ(E3_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E3_MS2_PIN));
+    #endif
+    #if HAS_E4_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E4: ");
+      SERIAL_PROTOCOL(READ(E4_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E4_MS2_PIN));
     #endif
   }
 

@@ -2005,8 +2005,8 @@ static void clean_up_after_endstop_or_probe_move() {
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
 
-    #if PIN_EXISTS(SLED)
-      digitalWrite(SLED_PIN, !stow); // switch solenoid
+    #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
+      WRITE(SOL1_PIN, !stow); // switch solenoid
     #endif
   }
 
@@ -2274,7 +2274,13 @@ static void clean_up_after_endstop_or_probe_move() {
                                                      // otherwise an Allen-Key probe can't be stowed.
     #endif
 
-        #if ENABLED(Z_PROBE_SLED)
+        #if ENABLED(SOLENOID_PROBE)
+
+          #if HAS_SOLENOID_1
+            WRITE(SOL1_PIN, deploy);
+          #endif
+
+        #elif ENABLED(Z_PROBE_SLED)
 
           dock_sled(!deploy);
 
@@ -3976,7 +3982,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
-      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[iy][ix]; }
+      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
   }
 
@@ -4111,7 +4117,7 @@ inline void gcode_G28() {
         }
 
         if (code_seen('Z')) {
-          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
+          mbl.z_values[px][py] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_CHAR('Z'); say_not_entered();
@@ -7769,24 +7775,29 @@ inline void gcode_M303() {
 
 #if ENABLED(EXT_SOLENOID)
 
-  void enable_solenoid(uint8_t num) {
+  void enable_solenoid(const uint8_t num) {
     switch (num) {
       case 0:
         OUT_WRITE(SOL0_PIN, HIGH);
         break;
-        #if HAS_SOLENOID_1
+        #if HAS_SOLENOID_1 && EXTRUDERS > 1
           case 1:
             OUT_WRITE(SOL1_PIN, HIGH);
             break;
         #endif
-        #if HAS_SOLENOID_2
+        #if HAS_SOLENOID_2 && EXTRUDERS > 2
           case 2:
             OUT_WRITE(SOL2_PIN, HIGH);
             break;
         #endif
-        #if HAS_SOLENOID_3
+        #if HAS_SOLENOID_3 && EXTRUDERS > 3
           case 3:
             OUT_WRITE(SOL3_PIN, HIGH);
+            break;
+        #endif
+        #if HAS_SOLENOID_4 && EXTRUDERS > 4
+          case 4:
+            OUT_WRITE(SOL4_PIN, HIGH);
             break;
         #endif
       default:
@@ -7800,9 +7811,18 @@ inline void gcode_M303() {
 
   void disable_all_solenoids() {
     OUT_WRITE(SOL0_PIN, LOW);
-    OUT_WRITE(SOL1_PIN, LOW);
-    OUT_WRITE(SOL2_PIN, LOW);
-    OUT_WRITE(SOL3_PIN, LOW);
+    #if HAS_SOLENOID_1 && EXTRUDERS > 1
+      OUT_WRITE(SOL1_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_2 && EXTRUDERS > 2
+      OUT_WRITE(SOL2_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_3 && EXTRUDERS > 3
+      OUT_WRITE(SOL3_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_4 && EXTRUDERS > 4
+      OUT_WRITE(SOL4_PIN, LOW);
+    #endif
   }
 
   /**
@@ -8025,7 +8045,7 @@ void quickstop_stepper() {
     }
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -8042,9 +8062,13 @@ void quickstop_stepper() {
 
     if (hasI && hasJ && hasZ) {
       if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
-        bed_level_grid[px][py] = z;
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] = z;
+        #else
+          bed_level_grid[px][py] = z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
         #endif
       }
       else {
@@ -8057,34 +8081,7 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  /**
-   * M421: Set a single Mesh Bed Leveling Z coordinate
-   *
-   *   M421 I<xindex> J<yindex> Z<linear>
-   */
-  inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ;
-    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
-    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
-    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_Y - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-        ubl.z_values[px][py] = z;
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-      }
-    }
-    else {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-    }
-  }
 #endif
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
@@ -8172,41 +8169,53 @@ inline void gcode_M503() {
 
 #if HAS_BED_PROBE
 
-  inline void gcode_M851() {
+  void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
+    static float last_zoffset = NAN;
 
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
-    SERIAL_CHAR(' ');
+    if (!isnan(last_zoffset)) {
 
-    if (code_seen('Z')) {
-      float value = code_value_axis_units(Z_AXIS);
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        const float diff = zprobe_zoffset - last_zoffset;
+      #endif
 
-        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          // Correct bilinear grid for new probe offset
-          const float diff = value - zprobe_zoffset;
-          if (diff) {
-            for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-              for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-                bed_level_grid[x][y] += diff;
-          }
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        // Correct bilinear grid for new probe offset
+        if (diff) {
+          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+            for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+              bed_level_grid[x][y] -= diff;
+        }
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_interpolate();
         #endif
+      #endif
 
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        if (!no_babystep && planner.abl_enabled)
+          thermalManager.babystep_axis(Z_AXIS, -lround(diff * planner.axis_steps_per_mm[Z_AXIS]));
+      #else
+        UNUSED(no_babystep);
+      #endif
+    }
+
+    last_zoffset = zprobe_zoffset;
+  }
+
+  inline void gcode_M851() {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
+    if (code_seen('Z')) {
+      const float value = code_value_axis_units(Z_AXIS);
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         zprobe_zoffset = value;
+        refresh_zprobe_zoffset();
         SERIAL_ECHO(zprobe_zoffset);
       }
-      else {
-        SERIAL_ECHOPAIR(MSG_Z_MIN, Z_PROBE_OFFSET_RANGE_MIN);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHOPAIR(MSG_Z_MAX, Z_PROBE_OFFSET_RANGE_MAX);
-      }
+      else
+        SERIAL_ECHOPGM(MSG_Z_MIN " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " " MSG_Z_MAX " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX));
     }
-    else {
+    else
       SERIAL_ECHOPAIR(": ", zprobe_zoffset);
-    }
 
     SERIAL_EOL;
   }
@@ -8760,7 +8769,7 @@ inline void gcode_M907() {
   uint8_t case_light_brightness = 255;
 
   void update_case_light() {
-    digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
+    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
     analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
 
@@ -10951,7 +10960,7 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      digitalWrite(CONTROLLERFAN_PIN, speed);
+      WRITE(CONTROLLERFAN_PIN, speed);
       analogWrite(CONTROLLERFAN_PIN, speed);
     }
   }
@@ -11649,9 +11658,9 @@ void setup() {
     dac_init();
   #endif
 
-  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
-    OUT_WRITE(SLED_PIN, LOW); // turn it off
-  #endif // Z_PROBE_SLED
+  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+  #endif
 
   setup_homepin();
 
@@ -11663,10 +11672,13 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(RGB_LED)
+  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
     SET_OUTPUT(RGB_LED_R_PIN);
     SET_OUTPUT(RGB_LED_G_PIN);
     SET_OUTPUT(RGB_LED_B_PIN);
+    #if ENABLED(RGBW_LED)
+      SET_OUTPUT(RGB_LED_W_PIN);
+    #endif
   #endif
 
   lcd_init();
