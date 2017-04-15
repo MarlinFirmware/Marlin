@@ -10877,7 +10877,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // If the move is only in Z/E don't split up the move
     if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
       planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
-      return true;
+      return false;
     }
 
     // Get the cartesian distances moved in XYZE
@@ -10891,7 +10891,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
 
     // No E move either? Game over.
-    if (UNEAR_ZERO(cartesian_mm)) return false;
+    if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
     float seconds = cartesian_mm / _feedrate_mm_s;
@@ -10976,7 +10976,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
     #endif
 
-    return true;
+    return false;
   }
 
 #else // !IS_KINEMATIC
@@ -10996,25 +10996,25 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
           mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return false;
+          return true;
         }
         else
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.state.active) {
           ubl_line_to_destination(MMS_SCALED(feedrate_mm_s), active_extruder);
-          return false;
+          return true;
         }
         else
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         if (planner.abl_enabled) {
           bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return false;
+          return true;
         }
         else
       #endif
           line_to_destination(MMS_SCALED(feedrate_mm_s));
     }
-    return true;
+    return false;
   }
 
 #endif // !IS_KINEMATIC
@@ -11038,7 +11038,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
               set_current_to_destination();
               NOLESS(raised_parked_position[Z_AXIS], destination[Z_AXIS]);
               delayed_move_time = millis();
-              return false;
+              return true;
             }
           }
           // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
@@ -11093,7 +11093,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           break;
       }
     }
-    return true;
+    return false;
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -11130,12 +11130,12 @@ void prepare_move_to_destination() {
   #endif
 
   #if IS_KINEMATIC
-    if (!prepare_kinematic_move_to(destination)) return;
+    if (prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (!prepare_move_to_destination_dualx()) return;
+      if (prepare_move_to_destination_dualx()) return;
     #endif
-    if (!prepare_move_to_destination_cartesian()) return;
+    if (prepare_move_to_destination_cartesian()) return;
   #endif
 
   set_current_to_destination();
