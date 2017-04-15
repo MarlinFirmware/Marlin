@@ -915,12 +915,12 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void _lcd_mesh_edit() {
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
+      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
     }
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
+      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
       return mesh_edit_value;
     }
 

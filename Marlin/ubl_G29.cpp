@@ -47,6 +47,7 @@
   extern float meshedit_done;
   extern long babysteps_done;
   extern float code_value_float();
+  extern uint8_t code_value_byte();
   extern bool code_value_bool();
   extern bool code_has_value();
   extern float probe_pt(float x, float y, bool, int);
@@ -920,8 +921,6 @@
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
-      if (do_ubl_mesh_map) ubl.display_map(map_type);
-
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, 0, NULL, false); // The '0' says we want to use the nozzle's position
       // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
@@ -954,6 +953,8 @@
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       ubl.has_control_of_lcd_panel = true;
+
+      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
 
       while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
@@ -1364,6 +1365,10 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+    // do all mesh points unless R option has a value of 1 or more
+    repetition_cnt = code_seen('R') && code_has_value() ? code_value_byte() : GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y;
+    if (repetition_cnt == 0) repetition_cnt = GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y;
+
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;
@@ -1376,8 +1381,6 @@
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
     do {
-      if (do_ubl_mesh_map) ubl.display_map(map_type);
-
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, 0, not_done, false); // The '0' says we want to use the nozzle's position
                                                                                               // It doesn't matter if the probe can not reach this
                                                                                               // location. This is a manual edit of the Mesh Point.
@@ -1407,6 +1410,8 @@
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       ubl.has_control_of_lcd_panel = true;
+
+      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
 
       lcd_implementation_clear();
       lcd_mesh_edit_setup(new_z);
