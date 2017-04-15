@@ -1609,17 +1609,23 @@ void kill_screen(const char* lcd_msg) {
       lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
     }
 
+  #endif // LCD_BED_LEVELING
+
+  #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
+
     /**
      * Step 2: Continue Bed Leveling...
      */
     void _lcd_level_bed_continue() {
-      #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
-        reset_bed_level();
+      #if ENABLED(LCD_BED_LEVELING)
+        defer_return_to_status = true;
+        axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
+        lcd_goto_screen(_lcd_level_bed_homing);
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      #else
+        lcd_return_to_status();
+        enqueue_and_echo_commands_P(axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29"));
       #endif
-      defer_return_to_status = true;
-      axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
-      lcd_goto_screen(_lcd_level_bed_homing);
-      enqueue_and_echo_commands_P(PSTR("G28"));
     }
 
     /**
@@ -1632,7 +1638,7 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
 
-  #endif // LCD_BED_LEVELING
+  #endif // LCD_BED_LEVELING || HAS_ABL
 
   /**
    *
@@ -1669,18 +1675,12 @@ void kill_screen(const char* lcd_msg) {
     //
     // Level Bed
     //
-    #if ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
 
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
           MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
-
-    #elif HAS_ABL
-
-      MENU_ITEM(gcode, MSG_LEVEL_BED,
-        axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
-      );
 
     #endif
 
