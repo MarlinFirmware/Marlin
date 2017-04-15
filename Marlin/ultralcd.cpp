@@ -817,7 +817,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+  #if HAS_M206_COMMAND
     /**
      * Set the home offset based on the current_position
      */
@@ -1672,7 +1672,7 @@ void kill_screen(const char* lcd_msg) {
 
     #endif
 
-    #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+    #if HAS_M206_COMMAND
       //
       // Set Home Offsets
       //

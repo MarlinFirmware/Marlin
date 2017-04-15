@@ -202,7 +202,7 @@ void MarlinSettings::postprocess() {
 
   calculate_volumetric_multipliers();
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+  #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
     // Software endstops depend on home_offset
     LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
   #endif
@@ -299,7 +299,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
     EEPROM_WRITE(planner.min_segment_time);
     EEPROM_WRITE(planner.max_jerk);
-    #if ENABLED(NO_WORKSPACE_OFFSETS)
+    #if !HAS_HOME_OFFSET
       const float home_offset[XYZ] = { 0 };
     #endif
     #if ENABLED(DELTA)
@@ -653,7 +653,7 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.min_segment_time);
       EEPROM_READ(planner.max_jerk);
 
-      #if ENABLED(NO_WORKSPACE_OFFSETS)
+      #if !HAS_HOME_OFFSET
         float home_offset[XYZ];
       #endif
       EEPROM_READ(home_offset);
@@ -999,7 +999,7 @@ void MarlinSettings::reset() {
     planner.z_fade_height = 0.0;
   #endif
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if HAS_HOME_OFFSET
     ZERO(home_offset);
   #endif
 
@@ -1039,10 +1039,10 @@ void MarlinSettings::reset() {
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     COPY(delta_diagonal_rod_trim, drt);
     COPY(delta_tower_angle_trim, dta);
-    #if ENABLED(DELTA)
-      home_offset[Z_AXIS] = 0;
-    #endif
+    home_offset[Z_AXIS] = 0;
+
   #elif ENABLED(Z_DUAL_ENDSTOPS)
+
     float z_endstop_adj =
       #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
         Z_DUAL_ENDSTOPS_ADJUSTMENT
@@ -1050,6 +1050,7 @@ void MarlinSettings::reset() {
         0
       #endif
     ;
+
   #endif
 
   #if ENABLED(ULTIPANEL)
@@ -1254,7 +1255,7 @@ void MarlinSettings::reset() {
     SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
     SERIAL_EOL;
 
-    #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+    #if HAS_M206_COMMAND
       CONFIG_ECHO_START;
       if (!forReplay) {
         SERIAL_ECHOLNPGM("Home offset (mm)");

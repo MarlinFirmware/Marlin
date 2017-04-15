@@ -147,7 +147,7 @@
             S<print> T<travel> minimum speeds
             B<minimum segment time>
             X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
- * M206 - Set additional homing offset.
+ * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
@@ -180,7 +180,7 @@
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING or AUTO_BED_LEVELING_UBL)
- * M428 - Set the home_offset based on the current_position. Nearest edge applies.
+ * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -409,18 +409,20 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-
-  // The distance that XYZ has been offset by G92. Reset by G28.
-  float position_shift[XYZ] = { 0 };
-
-  // This offset is added to the configured home position.
-  // Set by M206, M428, or menu item. Saved to EEPROM.
-  float home_offset[XYZ] = { 0 };
-
-  // The above two are combined to save on computes
-  float workspace_offset[XYZ] = { 0 };
-
+#if HAS_WORKSPACE_OFFSET
+  #if HAS_POSITION_SHIFT
+    // The distance that XYZ has been offset by G92. Reset by G28.
+    float position_shift[XYZ] = { 0 };
+  #endif
+  #if HAS_HOME_OFFSET
+    // This offset is added to the configured home position.
+    // Set by M206, M428, or menu item. Saved to EEPROM.
+    float home_offset[XYZ] = { 0 };
+  #endif
+  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+    // The above two are combined to save on computes
+    float workspace_offset[XYZ] = { 0 };
+  #endif
 #endif
 
 // Software Endstops are based on the configured limits.
@@ -1382,7 +1384,7 @@ bool get_target_extruder_from_command(int code) {
 
 #endif // DUAL_X_CARRIAGE
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -1394,7 +1396,18 @@ bool get_target_extruder_from_command(int code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = workspace_offset[axis] = home_offset[axis] + position_shift[axis];
+    const float offs = 0.0
+      #if HAS_HOME_OFFSET
+        + home_offset[axis]
+      #endif
+      #if HAS_POSITION_SHIFT
+        + position_shift[axis]
+      #endif
+    ;
+
+    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+      workspace_offset[axis] = offs;
+    #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
       if (axis == X_AXIS) {
@@ -1427,8 +1440,10 @@ bool get_target_extruder_from_command(int code) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        #if DISABLED(NO_WORKSPACE_OFFSETS)
+        #if HAS_HOME_OFFSET
           SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+        #endif
+        #if HAS_POSITION_SHIFT
           SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
         #endif
         SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
@@ -1442,9 +1457,9 @@ bool get_target_extruder_from_command(int code) {
     #endif
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+#if HAS_M206_COMMAND
   /**
    * Change the home offset for an axis, update the current
    * position and the software endstops to retain the same
@@ -1458,7 +1473,7 @@ bool get_target_extruder_from_command(int code) {
     home_offset[axis] = v;
     update_software_endstops(axis);
   }
-#endif // !NO_WORKSPACE_OFFSETS && !DELTA
+#endif // HAS_M206_COMMAND
 
 /**
  * Set an axis' current position to its home position (after homing).
@@ -1489,7 +1504,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   axis_known_position[axis] = axis_homed[axis] = true;
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
     update_software_endstops(axis);
   #endif
@@ -1565,7 +1580,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if HAS_HOME_OFFSET
         SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
         SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
       #endif
@@ -5366,7 +5381,7 @@ inline void gcode_G92() {
         current_position[i] = code_value_axis_units(i);
         if (i != E_AXIS) didXYZ = true;
       #else
-        #if DISABLED(NO_WORKSPACE_OFFSETS)
+        #if HAS_POSITION_SHIFT
           float p = current_position[i];
         #endif
         float v = code_value_axis_units(i);
@@ -5375,7 +5390,7 @@ inline void gcode_G92() {
 
         if (i != E_AXIS) {
           didXYZ = true;
-          #if DISABLED(NO_WORKSPACE_OFFSETS)
+          #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
           #endif
@@ -7382,7 +7397,7 @@ inline void gcode_M205() {
   if (code_seen('E')) planner.max_jerk[E_AXIS] = code_value_axis_units(E_AXIS);
 }
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+#if HAS_M206_COMMAND
 
   /**
    * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -7401,7 +7416,7 @@ inline void gcode_M205() {
     report_current_position();
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_M206_COMMAND
 
 #if ENABLED(DELTA)
   /**
@@ -8280,7 +8295,7 @@ void quickstop_stepper() {
 
 #endif
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+#if HAS_M206_COMMAND
 
   /**
    * M428: Set home_offset based on the distance between the
@@ -8322,7 +8337,7 @@ void quickstop_stepper() {
     }
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_M206_COMMAND
 
 /**
  * M500: Store settings in EEPROM
@@ -9301,9 +9316,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          #if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE)
+          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
             for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-              #if DISABLED(NO_WORKSPACE_OFFSETS)
+              #if HAS_POSITION_SHIFT
                 position_shift[i] += xydiff[i];
               #endif
               update_software_endstops((AxisEnum)i);
@@ -9895,7 +9910,7 @@ void process_next_command() {
         gcode_M205();
         break;
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+      #if HAS_M206_COMMAND
         case 206: // M206: Set home offsets
           gcode_M206();
           break;
@@ -10063,7 +10078,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
+      #if HAS_M206_COMMAND
         case 428: // M428: Apply current_position to home_offset
           gcode_M428();
           break;
@@ -10584,8 +10599,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * splitting the move where it crosses mesh borders.
    */
   void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
-        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
+    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
+        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
         cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
         cy2 = mbl.cell_index_y(RAW_Y_POSITION(destination[Y_AXIS]));
     NOMORE(cx1, GRID_MAX_POINTS_X - 2);
@@ -11799,7 +11814,7 @@ void setup() {
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
     COPY(current_position, home_offset);
   #else

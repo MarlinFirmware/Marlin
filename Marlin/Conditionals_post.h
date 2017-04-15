@@ -805,6 +805,15 @@
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
   #endif
 
+  // Updated G92 behavior shifts the workspace
+  #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
+  // The home offset also shifts the coordinate space
+  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DELTA))
+  // Either offset yields extra calculations on all moves
+  #define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
+  // M206 doesn't apply to DELTA
+  #define HAS_M206_COMMAND (HAS_HOME_OFFSET && DISABLED(DELTA))
+
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000
