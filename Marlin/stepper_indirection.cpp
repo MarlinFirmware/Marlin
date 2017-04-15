@@ -129,8 +129,9 @@
 
   #include <SPI.h>
   #include <TMC2130Stepper.h>
+  #include "enum.h"
 
-  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CHIP_SELECT)
+  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
 
   // Stepper objects of TMC2130 steppers used
   #if ENABLED(X_IS_TMC2130)
@@ -169,61 +170,74 @@
 
   // Use internal reference voltage for current calculations. This is the default.
   // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
-  void tmc2130_init(TMC2130Stepper &st, const uint16_t max_current, const uint16_t microsteps) {
+  // https://www.trinamic.com/products/integrated-circuits/details/tmc2130/
+  void tmc2130_init(TMC2130Stepper &st, const uint16_t microsteps, const uint32_t thrs, const uint32_t spmm) {
     st.begin();
     st.setCurrent(st.getCurrent(), R_SENSE, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
-    st.blank_time(24);
-    st.off_time(8);
+    st.blank_time(36);
+    st.off_time(5); // Only enables the driver if used with stealthChop
     st.interpolate(INTERPOLATE);
+    st.power_down_delay(128); // ~2s until driver lowers to hold current
+    st.hysterisis_start(0); // HSTRT = 1
+    st.hysterisis_low(1); // HEND = -2
+    st.diag1_active_high(1); // For sensorless homing
     #if ENABLED(STEALTHCHOP)
+      st.stealth_freq(1); // f_pwm = 2/683 f_clk
+      st.stealth_autoscale(1);
+      st.stealth_gradient(5);
+      st.stealth_amplitude(255);
       st.stealthChop(1);
-    #endif
-    #if ENABLED(SENSORLESS_HOMING)
-      st.coolstep_min_speed(1048575);
-      st.sg_stall_value(STALL_THRESHOLD);
-      st.sg_filter(1);
-      st.diag1_stall(1);
-      st.diag1_active_high(1);
+      #if ENABLED(HYBRID_THRESHOLD)
+        st.stealth_max_speed(12650000UL*st.microsteps()/(256*thrs*spmm));
+      #endif
+    #elif ENABLED(SENSORLESS_HOMING)
+      st.coolstep_min_speed(1024UL * 1024UL - 1UL);
     #endif
   }
 
-  #define _TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS)
+  #define _TMC2130_INIT(ST, SPMM) tmc2130_init(stepper##ST, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
 
   void tmc2130_init() {
-    delay(500); // Let power stabilize before configuring the steppers
+    constexpr uint16_t steps_per_mm[] = DEFAULT_AXIS_STEPS_PER_UNIT;
     #if ENABLED(X_IS_TMC2130)
-      _TMC2130_INIT(X);
+      _TMC2130_INIT( X, steps_per_mm[X_AXIS]);
+      #if ENABLED(SENSORLESS_HOMING)
+        stepperX.sg_stall_value(X_HOMING_SENSITIVITY);
+      #endif
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      _TMC2130_INIT(X2);
+      _TMC2130_INIT(X2, steps_per_mm[X_AXIS]);
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      _TMC2130_INIT(Y);
+      _TMC2130_INIT( Y, steps_per_mm[Y_AXIS]);
+      #if ENABLED(SENSORLESS_HOMING)
+        stepperY.sg_stall_value(Y_HOMING_SENSITIVITY);
+      #endif
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      _TMC2130_INIT(Y2);
+      _TMC2130_INIT(Y2, steps_per_mm[Y_AXIS]);
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      _TMC2130_INIT(Z);
+      _TMC2130_INIT( Z, steps_per_mm[Z_AXIS]);
     #endif
     #if ENABLED(Z2_IS_TMC2130)
-      _TMC2130_INIT(Z2);
+      _TMC2130_INIT(Z2, steps_per_mm[Z_AXIS]);
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      _TMC2130_INIT(E0);
+      _TMC2130_INIT(E0, steps_per_mm[E_AXIS]);
     #endif
     #if ENABLED(E1_IS_TMC2130)
-      _TMC2130_INIT(E1);
+      { constexpr int extruder = 1; _TMC2130_INIT(E1, steps_per_mm[E_AXIS_N]); }
     #endif
     #if ENABLED(E2_IS_TMC2130)
-      _TMC2130_INIT(E2);
+      { constexpr int extruder = 2; _TMC2130_INIT(E2, steps_per_mm[E_AXIS_N]); }
     #endif
     #if ENABLED(E3_IS_TMC2130)
-      _TMC2130_INIT(E3);
+      { constexpr int extruder = 3; _TMC2130_INIT(E3, steps_per_mm[E_AXIS_N]); }
     #endif
     #if ENABLED(E4_IS_TMC2130)
-      _TMC2130_INIT(E4);
+      { constexpr int extruder = 4; _TMC2130_INIT(E4, steps_per_mm[E_AXIS_N]); }
     #endif
 
     TMC2130_ADV()

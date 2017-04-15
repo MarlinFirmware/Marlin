@@ -882,18 +882,6 @@
 //#define HAVE_TMC2130
 
 #if ENABLED(HAVE_TMC2130)
-  #define STEALTHCHOP
-
-  /**
-   * Let Marlin automatically control stepper current.
-   * This is still an experimental feature.
-   * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
-   * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
-   * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
-   */
-  //#define AUTOMATIC_CURRENT_CONTROL
-  #define CURRENT_STEP          50  // [mA]
-  #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
 
   // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
   //#define X_IS_TMC2130
@@ -916,45 +904,104 @@
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #define X_MAX_CURRENT     1000  // rms current in mA
-  #define X_MICROSTEPS        16  // FULLSTEP..256
-  #define X_CHIP_SELECT       40  // Pin
+  #define X_CURRENT         1000  // rms current in mA. Multiply by 1.41 for peak current.
+  #define X_MICROSTEPS        16  // 0..256
 
-  #define Y_MAX_CURRENT     1000
+  #define Y_CURRENT         1000
   #define Y_MICROSTEPS        16
-  #define Y_CHIP_SELECT       42
 
-  #define Z_MAX_CURRENT     1000
+  #define Z_CURRENT         1000
   #define Z_MICROSTEPS        16
-  #define Z_CHIP_SELECT       65
 
-  //#define X2_MAX_CURRENT  1000
+  //#define X2_CURRENT      1000
   //#define X2_MICROSTEPS     16
-  //#define X2_CHIP_SELECT    -1
 
-  //#define Y2_MAX_CURRENT  1000
+  //#define Y2_CURRENT      1000
   //#define Y2_MICROSTEPS     16
-  //#define Y2_CHIP_SELECT    -1
 
-  //#define Z2_MAX_CURRENT  1000
+  //#define Z2_CURRENT      1000
   //#define Z2_MICROSTEPS     16
-  //#define Z2_CHIP_SELECT    -1
 
-  //#define E0_MAX_CURRENT  1000
+  //#define E0_CURRENT      1000
   //#define E0_MICROSTEPS     16
-  //#define E0_CHIP_SELECT    -1
 
-  //#define E1_MAX_CURRENT  1000
+  //#define E1_CURRENT      1000
   //#define E1_MICROSTEPS     16
-  //#define E1_CHIP_SELECT    -1
 
-  //#define E2_MAX_CURRENT  1000
+  //#define E2_CURRENT      1000
   //#define E2_MICROSTEPS     16
-  //#define E2_CHIP_SELECT    -1
 
-  //#define E3_MAX_CURRENT  1000
+  //#define E3_CURRENT      1000
   //#define E3_MICROSTEPS     16
-  //#define E3_CHIP_SELECT    -1
+
+  //#define E4_CURRENT      1000
+  //#define E4_MICROSTEPS     16
+
+  /**
+   * Use Trinamic's ultra quiet stepping mode.
+   * When disabled, Marlin will use spreadCycle stepping mode.
+   */
+  #define STEALTHCHOP
+
+  /**
+   * Let Marlin automatically control stepper current.
+   * This is still an experimental feature.
+   * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
+   * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
+   * Adjusting starts from X/Y/Z/E_CURRENT but will not increase over AUTO_ADJUST_MAX
+   * Relevant g-codes:
+   * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given.
+   * M906 S1 - Start adjusting current
+   * M906 S0 - Stop adjusting current
+   * M911 - Report stepper driver overtemperature pre-warn condition.
+   * M912 - Clear stepper driver overtemperature pre-warn condition flag.
+   */
+  //#define AUTOMATIC_CURRENT_CONTROL
+
+  #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
+    #define CURRENT_STEP          50  // [mA]
+    #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
+    #define REPORT_CURRENT_CHANGE
+  #endif
+
+  /**
+   * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
+   * This mode allows for faster movements at the expense of higher noise levels.
+   * STEALTHCHOP needs to be enabled.
+   * M913 X/Y/Z/E to live tune the setting
+   */
+  //#define HYBRID_THRESHOLD
+
+  #define X_HYBRID_THRESHOLD     100  // [mm/s]
+  #define X2_HYBRID_THRESHOLD    100
+  #define Y_HYBRID_THRESHOLD     100
+  #define Y2_HYBRID_THRESHOLD    100
+  #define Z_HYBRID_THRESHOLD       4
+  #define Z2_HYBRID_THRESHOLD      4
+  #define E0_HYBRID_THRESHOLD     30
+  #define E1_HYBRID_THRESHOLD     30
+  #define E2_HYBRID_THRESHOLD     30
+  #define E3_HYBRID_THRESHOLD     30
+  #define E4_HYBRID_THRESHOLD     30
+
+  /**
+   * Use stallGuard2 to sense an obstacle and trigger an endstop.
+   * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
+   * If used along with STEALTHCHOP, the movement will be louder when homing. This is normal.
+   *
+   * X/Y_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * Higher values make the system LESS sensitive.
+   * Lower value make the system MORE sensitive.
+   * Too low values can lead to false positives, while too high values will collide the axis without triggering.
+   * It is advised to set X/Y_HOME_BUMP_MM to 0.
+   * M914 X/Y to live tune the setting
+   */
+  //#define SENSORLESS_HOMING
+
+  #if ENABLED(SENSORLESS_HOMING)
+    #define X_HOMING_SENSITIVITY  19
+    #define Y_HOMING_SENSITIVITY  19
+  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
