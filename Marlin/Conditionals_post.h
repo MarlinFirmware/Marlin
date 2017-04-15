@@ -721,6 +721,14 @@
     #ifndef DELTA_TOWER_ANGLE_TRIM_3
       #define DELTA_TOWER_ANGLE_TRIM_3 0.0
     #endif
+    #if ENABLED(DELTA_AUTO_CALIBRATION)
+      #ifndef H_FACTOR
+        #define H_FACTOR 1.00
+      #endif
+      #ifndef R_FACTOR
+        #define R_FACTOR -2.25
+      #endif
+    #endif
   #endif
 
   /**
@@ -796,6 +804,15 @@
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
   #endif
+
+  // Updated G92 behavior shifts the workspace
+  #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
+  // The home offset also shifts the coordinate space
+  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DELTA))
+  // Either offset yields extra calculations on all moves
+  #define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
+  // M206 doesn't apply to DELTA
+  #define HAS_M206_COMMAND (HAS_HOME_OFFSET && DISABLED(DELTA))
 
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS

@@ -439,12 +439,13 @@
   /**
    * Set the height short (H-10) with M665 Hx.xx.
    * Set the delta_radius offset (R-5, R-10, R+5, R+10) with M665 Rx.xx.
-   * Run G33 Cx V3 with different values (C2, C-2).
+   * Run G33 Cx V3 (C2, C-2) with different values for C and R
    * Take the average for R_FACTOR and maximum for H_FACTOR.
-   * If R_FACTOR is too low accuracy is reduced. Too high reduces iteration speed.
    * Run the tests with default values!!!
    */
   //#define DELTA_CALIBRATE_EXPERT_MODE
+
+  // Remove the comments of the folling 2 lines to overide default values
   //#define H_FACTOR  1.02 //  1.0 < H_FACTOR <  1.11, default  1.00
   //#define R_FACTOR -3.95 // -6.7 < R_FACTOR < -2.25, default -2.25
 #endif
@@ -694,7 +695,7 @@
 //#define BEZIER_CURVE_SUPPORT
 
 // G38.2 and G38.3 Probe Target
-// ENABLE PROBE_DOUBLE_TOUCH if you want G38 to double touch
+// Enable PROBE_DOUBLE_TOUCH if you want G38 to double touch
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
   #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)

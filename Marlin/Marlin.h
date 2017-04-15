@@ -228,32 +228,52 @@ extern volatile bool wait_for_heatup;
 extern float current_position[NUM_AXIS];
 
 // Workspace offsets
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-  extern float position_shift[XYZ],
-               home_offset[XYZ],
-               workspace_offset[XYZ];
-  #define LOGICAL_POSITION(POS, AXIS) ((POS) + workspace_offset[AXIS])
-  #define RAW_POSITION(POS, AXIS)     ((POS) - workspace_offset[AXIS])
-#else
-  #define LOGICAL_POSITION(POS, AXIS) (POS)
-  #define RAW_POSITION(POS, AXIS)     (POS)
+#if HAS_WORKSPACE_OFFSET
+  #if HAS_HOME_OFFSET
+    extern float home_offset[XYZ];
+  #endif
+  #if HAS_POSITION_SHIFT
+    extern float position_shift[XYZ];
+  #endif
 #endif
 
-#define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
-#define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
-#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
-#define RAW_X_POSITION(POS)         RAW_POSITION(POS, X_AXIS)
-#define RAW_Y_POSITION(POS)         RAW_POSITION(POS, Y_AXIS)
-#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
-#define RAW_CURRENT_POSITION(AXIS)  RAW_POSITION(current_position[AXIS], AXIS)
+#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+  extern float workspace_offset[XYZ];
+  #define WORKSPACE_OFFSET(AXIS) workspace_offset[AXIS]
+#elif HAS_HOME_OFFSET
+  #define WORKSPACE_OFFSET(AXIS) home_offset[AXIS]
+#elif HAS_POSITION_SHIFT
+  #define WORKSPACE_OFFSET(AXIS) position_shift[AXIS]
+#else
+  #define WORKSPACE_OFFSET(AXIS) 0
+#endif
 
+#define LOGICAL_POSITION(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
+#define RAW_POSITION(POS, AXIS)     ((POS) - WORKSPACE_OFFSET(AXIS))
+
+#if HAS_POSITION_SHIFT || DISABLED(DELTA)
+  #define LOGICAL_X_POSITION(POS)   LOGICAL_POSITION(POS, X_AXIS)
+  #define LOGICAL_Y_POSITION(POS)   LOGICAL_POSITION(POS, Y_AXIS)
+  #define RAW_X_POSITION(POS)       RAW_POSITION(POS, X_AXIS)
+  #define RAW_Y_POSITION(POS)       RAW_POSITION(POS, Y_AXIS)
+#else
+  #define LOGICAL_X_POSITION(POS)   (POS)
+  #define LOGICAL_Y_POSITION(POS)   (POS)
+  #define RAW_X_POSITION(POS)       (POS)
+  #define RAW_Y_POSITION(POS)       (POS)
+#endif
+
+#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
+#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
+#define RAW_CURRENT_POSITION(A)     RAW_##A##_POSITION(current_position[A##_AXIS])
+
+// Hotend Offsets
 #if HOTENDS > 1
   extern float hotend_offset[XYZ][HOTENDS];
 #endif
 
 // Software Endstops
-extern float soft_endstop_min[XYZ];
-extern float soft_endstop_max[XYZ];
+extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
@@ -263,7 +283,7 @@ extern float soft_endstop_max[XYZ];
   #define clamp_to_software_endstops(x) NOOP
 #endif
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
   void update_software_endstops(const AxisEnum axis);
 #endif
 
