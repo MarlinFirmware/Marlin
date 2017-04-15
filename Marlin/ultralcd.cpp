@@ -51,7 +51,11 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
 
 #if ENABLED(BABYSTEPPING)
   long babysteps_done = 0;
-  static void lcd_babystep_z();
+  #if HAS_BED_PROBE
+    static void lcd_babystep_zoffset();
+  #else
+    static void lcd_babystep_z();
+  #endif
 #endif
 
 uint8_t lcd_status_message_level;
@@ -431,7 +435,13 @@ uint16_t max_display_update_time = 0;
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
         else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms))
-          screen = lcd_babystep_z;
+        {
+          #if HAS_BED_PROBE
+            screen = lcd_babystep_zoffset;
+          #else
+            screen = lcd_babystep_z;
+          #endif
+        }
       #endif
 
       currentScreen = screen;
