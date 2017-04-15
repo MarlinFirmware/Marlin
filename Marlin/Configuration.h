@@ -1595,19 +1595,6 @@
   //#define LIGHT_ON_POWERUP      // Light the LED(s) WHITE on startup.
 #endif
 
-#if ENABLED(PRINTER_EVENT_LEDS)
-  /* Printer events color selection */
-  #define homing                  2  // Yellow
-  #define auto_leveling           7  // Blacklight
-  #define manual_leveling         1  // White
-  #define printing                1  // White
-  #define filamentchange          4  // Aqua
-  #define filamentchange_timeout  5  // Aqua Dimmed
-  #define filemantchange_heat     6  // Aqua Half
-  #define printing_done           0  // Green
-  #define all_off                 9  // Off
-#endif
-
 /*********************************************************************\
 * R/C SERVO support
 * Sponsored by TrinityLabs, Reworked by codexmas

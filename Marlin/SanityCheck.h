@@ -955,10 +955,8 @@ static_assert(1 >= 0
 #if ENABLED(RGB_LED)
   #if !_RGB_TEST
     #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
-  #elif ENABLED(RGBW_LED)
-    #error "Please enable only one of RGB_LED and RGBW_LED."
-  #elif ENABLED(LEDSTRIP)
-    #error "Please enable only one of RGB_LED and LEDSTRIP."
+  #elif ENABLED(RGBW_LED) || ENABLED(LEDSTRIP)
+    #error "Please enable only one of RGB_LED, RGBW_LED and LEDSTRIP."
   #elif ENABLED(BLINKM)
     #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
   #endif
@@ -966,31 +964,27 @@ static_assert(1 >= 0
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #elif ENABLED(LEDSTRIP)
-    #error "Please enable only one of RGBW_LED and LEDSTRIP."
+    #error "Please enable only one of RGB_LED, RGBW_LED, and LEDSTRIP."
   #elif ENABLED(BLINKM)
     #error "RGBW_LED and BLINKM are currently incompatible (both use M150)."
   #endif
 #elif ENABLED(LEDSTRIP)
-  #if ENABLED(BLINKM)
-    #error "LEDSTRIP and BLINKM are currently incompatible (both use M150)."
+  #ifndef LEDSTRIP_PIN
+    #error "LEDSTRIP_NOLEDSPIN must be defined."
   #endif
+  #ifndef LEDSTRIP_NLED
+    #error "LEDSTRIP_NONLEDS must be defined."
+  #endif
+  #ifndef LEDSTRIP_NSEGMENT
+    #error "At least one segment must be defined."
+  #endif
+#elif ENABLED(BLINKM)
+  #error "LEDSTRIP and BLINKM are currently incompatible (both use M150)."
 #elif DISABLED(BLINKM) && ENABLED(PRINTER_EVENT_LEDS)
   #error "PRINTER_EVENT_LEDS requires BLINKM, RGB_LED, RGBW_LED, or LEDSTRIP."
 #endif
 
-#if ENABLED(LEDSTRIP)
-  #if !defined(LEDSTRIP_PIN)
-    #error "LEDSTRIP_NOLEDSPIN must be defined."
-    return LEDSTRIP_NOLEDSPIN;
-  #endif
-  #if !defined(LEDSTRIP_NLED)
-    #error "LEDSTRIP_NONLEDS must be defined."
-    return LEDSTRIP_NONLEDS;
-  #endif
-  #if !defined(LEDSTRIP_NSEGMENT)
-    #define LEDSTRIP_NSEGMENT 1
-  #endif
-#endif
+
 /**
  * Auto Fan check for PWM pins
  */

@@ -55,6 +55,7 @@
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
 
+  bool partial_mesh = false;
   bool ProbeStay = true;
 
   constexpr float ubl_3_point_1_X = UBL_PROBE_PT_1_X,
@@ -454,6 +455,7 @@
           }
 
           if (code_seen('C')) {
+            partial_mesh = false;
             x_pos = current_position[X_AXIS];
             y_pos = current_position[Y_AXIS];
           }
@@ -636,7 +638,7 @@
       SERIAL_PROTOCOLLNPGM("Done.\n");
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(all_off);
+        handle_led_print_event(ALL_OFF);
       #endif
     }
 
@@ -698,7 +700,6 @@
 
     LEAVE:
 
-/*
     #if ENABLED(ULTRA_LCD)
       if (partial_mesh) {
         lcd_reset_alert_level();
@@ -714,17 +715,11 @@
         lcd_quick_feedback();
       }
     #endif
-*/
-    #if ENABLED(ULTRA_LCD)
-      lcd_reset_alert_level();
-      LCD_MESSAGEPGM("");
-      lcd_quick_feedback();
-    #endif
 
     ubl.has_control_of_lcd_panel = false;
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(all_off);
+      handle_led_print_event(ALL_OFF);
     #endif
   }
 
@@ -792,6 +787,7 @@
     do {
       if (ubl_lcd_clicked()) {
         SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+        partial_mesh = true;
         lcd_quick_feedback();
         STOW_PROBE();
         while (ubl_lcd_clicked()) idle();
@@ -996,6 +992,7 @@
         idle();
         if (ELAPSED(millis(), nxt)) {
           SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+          partial_mesh = true;
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           lcd_quick_feedback();
           while (ubl_lcd_clicked()) idle();
@@ -1026,7 +1023,7 @@
   bool g29_parameter_parsing() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(auto_leveling);
+      handle_led_print_event(AUTO_LEVELING);
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -1399,7 +1396,7 @@
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(manual_leveling);
+      handle_led_print_event(MANUAL_LEVELING);
     #endif
 
     mesh_index_pair location;
@@ -1498,7 +1495,7 @@
     SERIAL_ECHOLNPGM("Done Editing Mesh");
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(all_off);
+      handle_led_print_event(ALL_OFF);
     #endif
   }
 

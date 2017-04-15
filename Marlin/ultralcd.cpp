@@ -1463,7 +1463,7 @@ void kill_screen(const char* lcd_msg) {
 
             mbl.set_has_mesh(true);
             mbl.set_reactivate(true);
-            enqueue_and_echo_commands_P(PSTR("G28"));
+            enqueue_and_echo_commands_P(PSTR("G28")); //Not adhering to QUICK_HOME
 
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1550,14 +1550,14 @@ void kill_screen(const char* lcd_msg) {
         manual_probe_index = 0;
         #if ENABLED(MESH_BED_LEVELING)
           #if ENABLED(PRINTER_EVENT_LEDS)
-            handle_led_print_event(manual_leveling);
+            handle_led_print_event(MANUAL_LEVELING);
           #endif
           _lcd_level_goto_next_point();
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
           // UBL click handling should go here
         #elif ENABLED(PROBE_MANUALLY)
           #if ENABLED(PRINTER_EVENT_LEDS)
-            handle_led_print_event(manual_leveling);
+            handle_led_print_event(MANUAL_LEVELING);
           #endif
           enqueue_and_echo_commands_P(PSTR("G29"));
           _lcd_level_goto_next_point();

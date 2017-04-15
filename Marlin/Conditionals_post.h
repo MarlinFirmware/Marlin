@@ -770,8 +770,8 @@
   #endif
 
 
-  //Settings for the FastLED library
-  #if ENABLED(LEDSTRIP)
+  // Settings for the FastLED library
+  #if HAS_COLOR_LEDS
     #define LEDSTRIP_OK         0
     #define LEDSTRIP_NOLEDSPIN  1
     #define LEDSTRIP_NONLEDS    2
@@ -783,4 +783,5 @@
     #define LED_POWERHALF       2
     #define LED_POWERNOCHG      3
   #endif
+
 #endif // CONDITIONALS_POST_H
