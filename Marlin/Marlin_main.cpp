@@ -61,6 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
+ * G33 - Delta '4-point' auto calibration iteration
  * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
@@ -146,7 +147,7 @@
             S<print> T<travel> minimum speeds
             B<minimum segment time>
             X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
- * M206 - Set additional homing offset.
+ * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
@@ -179,7 +180,7 @@
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING or AUTO_BED_LEVELING_UBL)
- * M428 - Set the home_offset based on the current_position. Nearest edge applies.
+ * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -412,18 +413,20 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-
-  // The distance that XYZ has been offset by G92. Reset by G28.
-  float position_shift[XYZ] = { 0 };
-
-  // This offset is added to the configured home position.
-  // Set by M206, M428, or menu item. Saved to EEPROM.
-  float home_offset[XYZ] = { 0 };
-
-  // The above two are combined to save on computes
-  float workspace_offset[XYZ] = { 0 };
-
+#if HAS_WORKSPACE_OFFSET
+  #if HAS_POSITION_SHIFT
+    // The distance that XYZ has been offset by G92. Reset by G28.
+    float position_shift[XYZ] = { 0 };
+  #endif
+  #if HAS_HOME_OFFSET
+    // This offset is added to the configured home position.
+    // Set by M206, M428, or menu item. Saved to EEPROM.
+    float home_offset[XYZ] = { 0 };
+  #endif
+  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+    // The above two are combined to save on computes
+    float workspace_offset[XYZ] = { 0 };
+  #endif
 #endif
 
 // Software Endstops are based on the configured limits.
@@ -1527,7 +1530,7 @@ bool get_target_extruder_from_command(int code) {
 
 #endif // DUAL_X_CARRIAGE
 
-#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -1539,7 +1542,18 @@ bool get_target_extruder_from_command(int code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = workspace_offset[axis] = home_offset[axis] + position_shift[axis];
+    const float offs = 0.0
+      #if HAS_HOME_OFFSET
+        + home_offset[axis]
+      #endif
+      #if HAS_POSITION_SHIFT
+        + position_shift[axis]
+      #endif
+    ;
+
+    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+      workspace_offset[axis] = offs;
+    #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
       if (axis == X_AXIS) {
@@ -1572,8 +1586,10 @@ bool get_target_extruder_from_command(int code) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        #if DISABLED(NO_WORKSPACE_OFFSETS)
+        #if HAS_HOME_OFFSET
           SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+        #endif
+        #if HAS_POSITION_SHIFT
           SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
         #endif
         SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
@@ -1587,9 +1603,9 @@ bool get_target_extruder_from_command(int code) {
     #endif
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+#if HAS_M206_COMMAND
   /**
    * Change the home offset for an axis, update the current
    * position and the software endstops to retain the same
@@ -1603,7 +1619,7 @@ bool get_target_extruder_from_command(int code) {
     home_offset[axis] = v;
     update_software_endstops(axis);
   }
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_M206_COMMAND
 
 /**
  * Set an axis' current position to its home position (after homing).
@@ -1634,7 +1650,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   axis_known_position[axis] = axis_homed[axis] = true;
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
     update_software_endstops(axis);
   #endif
@@ -1710,7 +1726,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if HAS_HOME_OFFSET
         SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
         SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
       #endif
@@ -2450,7 +2466,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL_F(FIXFLOAT(measured_z), 3);
+      SERIAL_PROTOCOL_F(measured_z, 3);
       SERIAL_EOL;
     }
 
@@ -4202,6 +4218,11 @@ inline void gcode_G28() {
    *  L  Set the Left limit of the probing grid
    *  R  Set the Right limit of the probing grid
    *
+   * Parameters with DEBUG_LEVELING_FEATURE only:
+   *
+   *  C  Make a totally fake grid with no actual probing.
+   *     For use in testing when no probing is possible.
+   *
    * Parameters with BILINEAR leveling only:
    *
    *  Z  Supply an additional Z probe offset
@@ -4246,6 +4267,12 @@ inline void gcode_G28() {
       #if DISABLED(PROBE_MANUALLY)
         if (query) return;
       #endif
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
+      const bool faux = code_seen('C') && code_value_bool();
+    #else
+      bool constexpr faux = false;
     #endif
 
     // Don't allow auto-leveling without homing first
@@ -4463,7 +4490,7 @@ inline void gcode_G28() {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      setup_for_endstop_or_probe_move();
+      if (!faux) setup_for_endstop_or_probe_move();
 
       //xProbe = yProbe = measured_z = 0;
 
@@ -4720,7 +4747,7 @@ inline void gcode_G28() {
               if (!position_is_reachable(pos, true)) continue;
             #endif
 
-            measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
             if (isnan(measured_z)) {
               planner.abl_enabled = abl_should_enable;
@@ -4755,7 +4782,7 @@ inline void gcode_G28() {
           // Retain the last probe position
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
-          measured_z = points[i].z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = points[i].z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
         }
 
         if (isnan(measured_z)) {
@@ -4794,7 +4821,7 @@ inline void gcode_G28() {
     //
 
     // Restore state after probing
-    clean_up_after_endstop_or_probe_move();
+    if (!faux) clean_up_after_endstop_or_probe_move();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
@@ -5064,7 +5091,365 @@ inline void gcode_G28() {
 
   #endif // Z_PROBE_SLED
 
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    /**
+     * G33: Delta '4-point' auto calibration iteration
+     *
+     * Usage: G33 <Cn> <Vn>
+     *
+     *  C  (default) = Calibrate endstops, height and delta radius
+     *
+     *  -2, 1-4: n x n probe points, default 3 x 3
+     *
+     *    1: probe center
+     *       set height only - useful when z_offset is changed
+     *    2: probe center and towers
+     *       solve one '4 point' calibration
+     *   -2: probe center and opposite the towers
+     *       solve one '4 point' calibration
+     *    3: probe 3 center points, towers and opposite-towers
+     *       averages between 2 '4 point' calibrations
+     *    4: probe 4 center points, towers, opposite-towers and itermediate points
+     *       averages between 4 '4 point' calibrations
+     *
+     *  V  Verbose level (0-3, default 1)
+     *
+     *    0: Dry-run mode: no calibration
+     *    1: Settings
+     *    2: Setting + probe results
+     *    3: Expert mode: setting + iteration factors (see Configuration_adv.h)
+     *       This prematurely stops the iteration process when factors are found
+     */
+    inline void gcode_G33() {
+
+      stepper.synchronize();
+
+      #if PLANNER_LEVELING
+        set_bed_leveling_enabled(false);
+      #endif
+
+      const int8_t pp = code_seen('C') ? code_value_int() : DELTA_CALIBRATION_DEFAULT_POINTS,
+                   probe_points = (WITHIN(pp, 1, 4) || pp == -2) ? pp : DELTA_CALIBRATION_DEFAULT_POINTS;
+
+      int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
+
+      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+        #define _MAX_M33_V 3
+        if (verbose_level == 3 && probe_points == 1) verbose_level--; // needs at least 4 points
+      #else
+        #define _MAX_M33_V 2
+        if (verbose_level > 2)
+          SERIAL_PROTOCOLLNPGM("Enable DELTA_CALIBRATE_EXPERT_MODE in Configuration_adv.h");
+      #endif
+
+      if (!WITHIN(verbose_level, 0, _MAX_M33_V)) verbose_level = 1;
+
+      float zero_std_dev = verbose_level ? 999.0 : 0.0; // 0.0 in dry-run mode : forced end
+
+      gcode_G28();
+
+      float e_old[XYZ],
+            dr_old = delta_radius,
+            zh_old = home_offset[Z_AXIS];
+      COPY(e_old,endstop_adj);
+      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+        // expert variables
+        float h_f_old = 1.00, r_f_old = 0.00,
+              h_diff_min = 1.00, r_diff_max = 0.10;
+      #endif
+
+      // print settings
+
+      SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
+      SERIAL_PROTOCOLPGM("Checking... AC");
+      if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
+      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+        if (verbose_level == 3) SERIAL_PROTOCOLPGM(" (EXPERT)");
+      #endif
+      SERIAL_EOL;
+      LCD_MESSAGEPGM("Checking... AC");
+
+      SERIAL_PROTOCOLPAIR("Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+      if (abs(probe_points) > 1) {
+        SERIAL_PROTOCOLPGM("    Ex:");
+        if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
+        SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
+        SERIAL_PROTOCOLPGM("  Ey:");
+        if (endstop_adj[B_AXIS] >= 0) SERIAL_CHAR('+');
+        SERIAL_PROTOCOL_F(endstop_adj[B_AXIS], 2);
+        SERIAL_PROTOCOLPGM("  Ez:");
+        if (endstop_adj[C_AXIS] >= 0) SERIAL_CHAR('+');
+        SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
+        SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
+      }
+      SERIAL_EOL;
+
+      #if ENABLED(Z_PROBE_SLED)
+        DEPLOY_PROBE();
+      #endif
+
+      float test_precision;
+      int8_t iterations = 0;
+
+      do { // start iterations
+
+        setup_for_endstop_or_probe_move();
+
+        test_precision =
+          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+            // Expert mode : forced end at std_dev < 0.1
+            (verbose_level == 3 && zero_std_dev < 0.1) ? 0.0 :
+          #endif
+          zero_std_dev
+        ;
+
+        float z_at_pt[13] = { 0 };
+
+        iterations++;
+
+        // probe the points
+
+        int16_t center_points = 0;
+
+        if (probe_points != 3) {
+          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
+          center_points = 1;
+        }
+
+        int16_t step_axis = 4;
+        if (probe_points >= 3) {
+          for (int8_t axis = 9; axis > 0; axis -= step_axis) { // uint8_t starts endless loop
+            z_at_pt[0] += probe_pt(
+              0.1 * cos(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS),
+              0.1 * sin(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS), true, 1);
+          }
+          center_points += 3;
+          z_at_pt[0] /= center_points;
+        }
+
+        float S1 = z_at_pt[0], S2 = sq(S1);
+
+        int16_t N = 1, start = (probe_points == -2) ? 3 : 1;
+        step_axis = (abs(probe_points) == 2) ? 4 : (probe_points == 3) ? 2 : 1;
+
+        if (probe_points != 1) {
+          for (uint8_t axis = start; axis < 13; axis += step_axis)
+            z_at_pt[axis] += probe_pt(
+              cos(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS),
+              sin(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS), true, 1
+            );
+
+          if (probe_points == 4) step_axis = 2;
+        }
+
+        for (uint8_t axis = start; axis < 13; axis += step_axis) {
+          if (probe_points == 4)
+            z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
+
+          S1 += z_at_pt[axis];
+          S2 += sq(z_at_pt[axis]);
+          N++;
+        }
+        zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001; // deviation from zero plane
+
+        // Solve matrices
+
+        if (zero_std_dev < test_precision) {
+          COPY(e_old, endstop_adj);
+          dr_old = delta_radius;
+          zh_old = home_offset[Z_AXIS];
+
+          float e_delta[XYZ] = { 0.0 }, r_delta = 0.0;
+
+          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+            float h_f_new = 0.0, r_f_new = 0.0 , t_f_new = 0.0,
+                  h_diff = 0.00, r_diff = 0.00;
+          #endif
+
+          #define ZP(N,I) ((N) * z_at_pt[I])
+          #define Z1000(I) ZP(1.00, I)
+          #define Z1050(I) ZP(H_FACTOR, I)
+          #define Z0700(I) ZP((H_FACTOR) * 2.0 / 3.00, I)
+          #define Z0350(I) ZP((H_FACTOR) / 3.00, I)
+          #define Z0175(I) ZP((H_FACTOR) / 6.00, I)
+          #define Z2250(I) ZP(R_FACTOR, I)
+          #define Z0750(I) ZP((R_FACTOR) / 3.00, I)
+          #define Z0375(I) ZP((R_FACTOR) / 6.00, I)
+
+          switch (probe_points) {
+            case 1:
+              LOOP_XYZ(i) e_delta[i] = Z1000(0);
+              r_delta = 0.00;
+              break;
+
+            case 2:
+              e_delta[X_AXIS] = Z1050(0) + Z0700(1) - Z0350(5) - Z0350(9);
+              e_delta[Y_AXIS] = Z1050(0) - Z0350(1) + Z0700(5) - Z0350(9);
+              e_delta[Z_AXIS] = Z1050(0) - Z0350(1) - Z0350(5) + Z0700(9);
+              r_delta         = Z2250(0) - Z0750(1) - Z0750(5) - Z0750(9);
+              break;
+
+            case -2:
+              e_delta[X_AXIS] = Z1050(0) - Z0700(7) + Z0350(11) + Z0350(3);
+              e_delta[Y_AXIS] = Z1050(0) + Z0350(7) - Z0700(11) + Z0350(3);
+              e_delta[Z_AXIS] = Z1050(0) + Z0350(7) + Z0350(11) - Z0700(3);
+              r_delta         = Z2250(0) - Z0750(7) - Z0750(11) - Z0750(3);
+              break;
+
+            default:
+              e_delta[X_AXIS] = Z1050(0) + Z0350(1) - Z0175(5) - Z0175(9) - Z0350(7) + Z0175(11) + Z0175(3);
+              e_delta[Y_AXIS] = Z1050(0) - Z0175(1) + Z0350(5) - Z0175(9) + Z0175(7) - Z0350(11) + Z0175(3);
+              e_delta[Z_AXIS] = Z1050(0) - Z0175(1) - Z0175(5) + Z0350(9) + Z0175(7) + Z0175(11) - Z0350(3);
+              r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
+              break;
+          }
+
+          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+            // Calculate h & r factors
+            if (verbose_level == 3) {
+              LOOP_XYZ(axis) h_f_new += e_delta[axis] / 3;
+              r_f_new = r_delta;
+              h_diff = (1.0 / H_FACTOR) * (h_f_old - h_f_new) / h_f_old;
+              if (h_diff < h_diff_min && h_diff > 0.9) h_diff_min = h_diff;
+              if (r_f_old != 0)
+                r_diff = (   0.0301 * sq(R_FACTOR) * R_FACTOR
+                           + 0.311  * sq(R_FACTOR)
+                           + 1.1493 * R_FACTOR
+                           + 1.7952
+                         ) * (r_f_old - r_f_new) / r_f_old;
+              if (r_diff > r_diff_max && r_diff < 0.4444) r_diff_max = r_diff;
+              SERIAL_EOL;
+
+              h_f_old = h_f_new;
+              r_f_old = r_f_new;
+            }
+          #endif // DELTA_CALIBRATE_EXPERT_MODE
+
+          // Adjust delta_height and endstops by the max amount
+          LOOP_XYZ(axis) endstop_adj[axis] += e_delta[axis];
+          delta_radius += r_delta;
+
+          const float z_temp = MAX3(endstop_adj[0], endstop_adj[1], endstop_adj[2]);
+          home_offset[Z_AXIS] -= z_temp;
+          LOOP_XYZ(i) endstop_adj[i] -= z_temp;
+
+          recalc_delta_settings(delta_radius, delta_diagonal_rod);
+        }
+        else { // !iterate
+          // step one back
+          COPY(endstop_adj, e_old);
+          delta_radius = dr_old;
+          home_offset[Z_AXIS] = zh_old;
+
+          recalc_delta_settings(delta_radius, delta_diagonal_rod);
+        }
+
+        // print report
+
+        #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+          if (verbose_level == 3) {
+            const float r_factor =   22.902 * sq(r_diff_max) * r_diff_max
+                                   - 44.988 * sq(r_diff_max)
+                                   + 31.697 * r_diff_max
+                                   - 9.4439;
+            SERIAL_PROTOCOLPAIR("h_factor:", 1.0 / h_diff_min);
+            SERIAL_PROTOCOLPAIR("              r_factor:", r_factor);
+            SERIAL_EOL;
+          }
+        #endif
+        if (verbose_level == 2) {
+          SERIAL_PROTOCOLPGM(".     c:");
+          if (z_at_pt[0] > 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(z_at_pt[0], 2);
+          if (probe_points > 1) {
+            SERIAL_PROTOCOLPGM("     x:");
+            if (z_at_pt[1] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[1], 2);
+            SERIAL_PROTOCOLPGM("   y:");
+            if (z_at_pt[5] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[5], 2);
+            SERIAL_PROTOCOLPGM("   z:");
+            if (z_at_pt[9] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[9], 2);
+          }
+          if (probe_points > 0) SERIAL_EOL;
+          if (probe_points > 2 || probe_points == -2) {
+            if (probe_points > 2) SERIAL_PROTOCOLPGM(".            ");
+            SERIAL_PROTOCOLPGM("    yz:");
+            if (z_at_pt[7] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[7], 2);
+            SERIAL_PROTOCOLPGM("  zx:");
+            if (z_at_pt[11] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[11], 2);
+            SERIAL_PROTOCOLPGM("  xy:");
+            if (z_at_pt[3] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(z_at_pt[3], 2);
+            SERIAL_EOL;
+          }
+        }
+        if (test_precision != 0.0) {            // !forced end
+          if (zero_std_dev >= test_precision) {
+            SERIAL_PROTOCOLPGM("Calibration OK");
+            SERIAL_PROTOCOLLNPGM("                                   rolling back 1");
+            LCD_MESSAGEPGM("Calibration OK");
+            SERIAL_EOL;
+          }
+          else {                                // !end iterations
+            char mess[15] = "No convergence";
+            if (iterations < 31)
+              sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
+            SERIAL_PROTOCOL(mess);
+            SERIAL_PROTOCOLPGM("                                   std dev:");
+            SERIAL_PROTOCOL_F(zero_std_dev, 3);
+            SERIAL_EOL;
+            lcd_setstatus(mess);
+          }
+          SERIAL_PROTOCOLPAIR("Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+          if (abs(probe_points) > 1) {
+            SERIAL_PROTOCOLPGM("    Ex:");
+            if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
+            SERIAL_PROTOCOLPGM("  Ey:");
+            if (endstop_adj[B_AXIS] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(endstop_adj[B_AXIS], 2);
+            SERIAL_PROTOCOLPGM("  Ez:");
+            if (endstop_adj[C_AXIS] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
+            SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
+          }
+          SERIAL_EOL;
+          if (zero_std_dev >= test_precision)
+            SERIAL_PROTOCOLLNPGM("Save with M500");
+        }
+        else {                                  // forced end
+          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
+            if (verbose_level == 3)
+              SERIAL_PROTOCOLLNPGM("Copy to Configuration_adv.h");
+            else
+          #endif
+            {
+              SERIAL_PROTOCOLPGM("End DRY-RUN                                      std dev:");
+              SERIAL_PROTOCOL_F(zero_std_dev, 3);
+              SERIAL_EOL;
+            }
+        }
+
+        clean_up_after_endstop_or_probe_move();
+        stepper.synchronize();
+
+        gcode_G28();
+
+      } while (zero_std_dev < test_precision && iterations < 31);
+
+      #if ENABLED(Z_PROBE_SLED)
+        RETRACT_PROBE();
+      #endif
+    }
+
+  #endif // DELTA_AUTO_CALIBRATION
+
 #endif // HAS_BED_PROBE
+
 
 #if ENABLED(G38_PROBE_TARGET)
 
@@ -5170,7 +5555,7 @@ inline void gcode_G92() {
         current_position[i] = code_value_axis_units(i);
         if (i != E_AXIS) didXYZ = true;
       #else
-        #if DISABLED(NO_WORKSPACE_OFFSETS)
+        #if HAS_POSITION_SHIFT
           float p = current_position[i];
         #endif
         float v = code_value_axis_units(i);
@@ -5179,7 +5564,7 @@ inline void gcode_G92() {
 
         if (i != E_AXIS) {
           didXYZ = true;
-          #if DISABLED(NO_WORKSPACE_OFFSETS)
+          #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
           #endif
@@ -5794,7 +6179,7 @@ inline void gcode_M42() {
 
     if (axis_unhomed_error(true, true, true)) return;
 
-    int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
+    const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (!WITHIN(verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
       return;
@@ -7193,7 +7578,7 @@ inline void gcode_M205() {
   if (code_seen('E')) planner.max_jerk[E_AXIS] = code_value_axis_units(E_AXIS);
 }
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+#if HAS_M206_COMMAND
 
   /**
    * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -7212,12 +7597,13 @@ inline void gcode_M205() {
     report_current_position();
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_M206_COMMAND
 
 #if ENABLED(DELTA)
   /**
    * M665: Set delta configurations
    *
+   *    H = diagonal rod // AC-version
    *    L = diagonal rod
    *    R = delta radius
    *    S = segments per second
@@ -7226,6 +7612,12 @@ inline void gcode_M205() {
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   inline void gcode_M665() {
+    if (code_seen('H')) {
+      home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
+      current_position[Z_AXIS] += code_value_linear_units() - DELTA_HEIGHT - home_offset[Z_AXIS];
+      home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
+      update_software_endstops(Z_AXIS);
+    }
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
     if (code_seen('R')) delta_radius = code_value_linear_units();
     if (code_seen('S')) delta_segments_per_second = code_value_float();
@@ -8084,7 +8476,7 @@ void quickstop_stepper() {
 
 #endif
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+#if HAS_M206_COMMAND
 
   /**
    * M428: Set home_offset based on the distance between the
@@ -8126,7 +8518,7 @@ void quickstop_stepper() {
     }
   }
 
-#endif // NO_WORKSPACE_OFFSETS
+#endif // HAS_M206_COMMAND
 
 /**
  * M500: Store settings in EEPROM
@@ -9125,9 +9517,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          #if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE)
+          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
             for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-              #if DISABLED(NO_WORKSPACE_OFFSETS)
+              #if HAS_POSITION_SHIFT
                 position_shift[i] += xydiff[i];
               #endif
               update_software_endstops((AxisEnum)i);
@@ -9393,6 +9785,15 @@ void process_next_command() {
               break;
 
         #endif // Z_PROBE_SLED
+
+        #if ENABLED(DELTA_AUTO_CALIBRATION)
+
+          case 33: // G33: Delta Auto Calibrate
+            gcode_G33();
+            break;
+
+        #endif // DELTA_AUTO_CALIBRATION
+
       #endif // HAS_BED_PROBE
 
       #if ENABLED(G38_PROBE_TARGET)
@@ -9710,7 +10111,7 @@ void process_next_command() {
         gcode_M205();
         break;
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if HAS_M206_COMMAND
         case 206: // M206: Set home offsets
           gcode_M206();
           break;
@@ -9878,7 +10279,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if HAS_M206_COMMAND
         case 428: // M428: Apply current_position to home_offset
           gcode_M428();
           break;
@@ -10399,8 +10800,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * splitting the move where it crosses mesh borders.
    */
   void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
-        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
+    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
+        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
         cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
         cy2 = mbl.cell_index_y(RAW_Y_POSITION(destination[Y_AXIS]));
     NOMORE(cx1, GRID_MAX_POINTS_X - 2);
@@ -11244,6 +11645,9 @@ void disable_all_steppers() {
       #if ENABLED(E3_IS_TMC2130)
         automatic_current_control(stepperE3);
       #endif
+      #if ENABLED(E4_IS_TMC2130)
+        automatic_current_control(stepperE4);
+      #endif
     }
   }
 
@@ -11611,7 +12015,7 @@ void setup() {
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
     COPY(current_position, home_offset);
   #else

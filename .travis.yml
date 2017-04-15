@@ -388,9 +388,9 @@ script:
   - opt_enable AUTO_BED_LEVELING_BILINEAR Z_PROBE_ALLEN_KEY
   - build_marlin
   #
-  # Delta Config (Mini Kossel)
+  # Delta Config (FLSUN AC because it's complex)
   #
-  - use_example_configs delta/kossel_mini
+  - use_example_configs delta/FLSUN/auto_calibrate
   - build_marlin
   #
   # Makibox Config  need to check board type for Teensy++ 2.0
