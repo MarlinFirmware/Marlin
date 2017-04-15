@@ -43,7 +43,7 @@ char* hex_word(const uint16_t w) {
   return _hex;
 }
 
-void print_hex_nybble(const uint8_t n) { SERIAL_CHAR(hex_nybble(n));  }
+void print_hex_nybble(const uint8_t n) { SERIAL_CHAR(hex_nybble(n)); }
 void print_hex_byte(const uint8_t b)   { SERIAL_ECHO(hex_byte(b)); }
 void print_hex_word(const uint16_t w)  { SERIAL_ECHO(hex_word(w)); }
 

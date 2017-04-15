@@ -408,7 +408,7 @@ uint16_t max_display_update_time = 0;
   bool screen_changed;
 
   // LCD and menu clicks
-  bool lcd_clicked, wait_for_unclick, defer_return_to_status, no_reentrance;
+  bool lcd_clicked, wait_for_unclick, defer_return_to_status;
 
   // Variables used when editing values.
   const char* editLabel;
@@ -460,16 +460,17 @@ uint16_t max_display_update_time = 0;
   extern uint8_t commands_in_queue;
 
   inline void lcd_synchronize() {
+    static bool no_reentry = false;
     lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_MOVING));
-    if (no_reentrance) return;
-    no_reentrance = true;
+    if (no_reentry) return;
+    no_reentry = true;
     screenFunc_t old_screen = currentScreen;
     lcd_goto_screen(lcd_synchronize);
     while (commands_in_queue) {
       idle();
       stepper.synchronize();
     }
-    no_reentrance = false;
+    no_reentry = false;
     lcd_goto_screen(old_screen);
   }
 
@@ -655,13 +656,13 @@ void kill_screen(const char* lcd_msg) {
       card.pauseSDPrint();
       print_job_timer.pause();
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M125"))
+        enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
     }
 
     void lcd_sdcard_resume() {
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M24"))
+        enqueue_and_echo_commands_P(PSTR("M24"));
       #else
         card.startFileprint();
         print_job_timer.start();
@@ -833,7 +834,7 @@ void kill_screen(const char* lcd_msg) {
       if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
-        int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
+        const int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         thermalManager.babystep_axis(axis, babystep_increment);
@@ -849,8 +850,38 @@ void kill_screen(const char* lcd_msg) {
       void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+
+    #if HAS_BED_PROBE
+
+      void lcd_babystep_zoffset() {
+        if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+        defer_return_to_status = true;
+        ENCODER_DIRECTION_NORMAL();
+        if (encoderPosition) {
+          const int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
+          encoderPosition = 0;
+
+          const float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
+          if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+
+            if (planner.abl_enabled)
+              thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+
+            zprobe_zoffset = new_zoffset;
+            refresh_zprobe_zoffset(true);
+            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          }
+        }
+        if (lcdDrawUpdate)
+          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+      }
+
+    #else // !HAS_BED_PROBE
+
+      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+      void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+
+    #endif // HAS_BED_PROBE
 
   #endif //BABYSTEPPING
 
@@ -1055,8 +1086,10 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(BABYSTEP_XY)
         MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
         MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
-      #endif //BABYSTEP_XY
-      MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      #endif
+      #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
+        MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      #endif
     #endif
 
     //
@@ -1365,7 +1398,6 @@ void kill_screen(const char* lcd_msg) {
 
       // Utility to go to the next mesh point
       inline void _manual_probe_goto_xy(float x, float y) {
-        if (no_reentrance) return;
         #if MANUAL_PROBE_HEIGHT > 0
           current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
           line_to_current(Z_AXIS);
@@ -1408,8 +1440,6 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_level_bed_get_z() {
       ENCODER_DIRECTION_NORMAL();
-
-      if (no_reentrance) goto KeepDrawing;
 
       // Encoder wheel adjusts the Z position
       if (encoderPosition) {
@@ -1491,8 +1521,6 @@ void kill_screen(const char* lcd_msg) {
           #endif
         }
       }
-
-      KeepDrawing:
 
       // Update on first display, then only on updates to Z position
       // Show message above on clicks instead
@@ -1745,8 +1773,6 @@ void kill_screen(const char* lcd_msg) {
     // Move directly to the tower position with uninterpolated moves
     // If we used interpolated moves it would cause this to become re-entrant
     void _goto_tower_pos(const float &a) {
-      if (no_reentrance) return;
-
       current_position[Z_AXIS] = max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5;
       line_to_current(Z_AXIS);
 
@@ -1946,8 +1972,7 @@ void kill_screen(const char* lcd_msg) {
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
-    if (axis == X_AXIS || axis == Y_AXIS)
-      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     END_MENU();
@@ -1981,11 +2006,9 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(DELTA)
       #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
       void lcd_lower_z_to_clip_height() {
-        if (!no_reentrance) {
-          current_position[Z_AXIS] = delta_clip_start_height;
-          line_to_current(Z_AXIS);
-          lcd_synchronize();
-        }
+        current_position[Z_AXIS] = delta_clip_start_height;
+        line_to_current(Z_AXIS);
+        lcd_synchronize();
       }
     #else
       #define _MOVE_XY_ALLOWED true
@@ -2046,12 +2069,12 @@ void kill_screen(const char* lcd_msg) {
    */
 
   #if ENABLED(EEPROM_SETTINGS)
-    static void lcd_store_settings()   { lcd_completion_feedback(Config_StoreSettings()); }
-    static void lcd_load_settings()    { lcd_completion_feedback(Config_RetrieveSettings()); }
+    static void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
+    static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
   static void lcd_factory_settings() {
-    Config_ResetDefault();
+    settings.reset();
     lcd_completion_feedback();
   }
 
@@ -2386,8 +2409,10 @@ void kill_screen(const char* lcd_msg) {
   void lcd_control_motion_menu() {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
-    #if HAS_BED_PROBE
-      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    #elif HAS_BED_PROBE
+      MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, refresh_zprobe_zoffset);
     #endif
     // Manual bed leveling, Bed Z:
     #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)

@@ -23,7 +23,7 @@
 /**
  * configuration_store.cpp
  *
- * Configuration and EEPROM storage
+ * Settings and EEPROM storage
  *
  * IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
  * in the functions below, also increment the version number. This makes sure that
@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V32"
+#define EEPROM_VERSION "V34"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V32 EEPROM Layout:
+ * V33 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM Checksum                            (uint16_t)
@@ -64,25 +64,28 @@
  *  195  M206 XYZ  home_offset                      (float x3)
  *  207  M218 XYZ  hotend_offset                    (float x3 per additional hotend)
  *
+ * Global Leveling:
+ *  219            z_fade_height                    (float)
+ *
  * Mesh bed leveling:                               43 bytes
- *  219  M420 S    from mbl.status                  (bool)
- *  220            mbl.z_offset                     (float)
- *  224            GRID_MAX_POINTS_X                (uint8_t)
- *  225            GRID_MAX_POINTS_Y                (uint8_t)
- *  226 G29 S3 XYZ z_values[][]                     (float x9, up to float x 81) +288
+ *  223  M420 S    from mbl.status                  (bool)
+ *  224            mbl.z_offset                     (float)
+ *  228            GRID_MAX_POINTS_X                (uint8_t)
+ *  229            GRID_MAX_POINTS_Y                (uint8_t)
+ *  230 G29 S3 XYZ z_values[][]                     (float x9, up to float x 81) +288
  *
  * AUTO BED LEVELING                                4 bytes
- *  262  M851      zprobe_zoffset                   (float)
+ *  266  M851      zprobe_zoffset                   (float)
  *
  * ABL_PLANAR (or placeholder):                     36 bytes
- *  266            planner.bed_level_matrix         (matrix_3x3 = float x9)
+ *  270            planner.bed_level_matrix         (matrix_3x3 = float x9)
  *
  * AUTO_BED_LEVELING_BILINEAR (or placeholder):     47 bytes
- *  302            GRID_MAX_POINTS_X                (uint8_t)
- *  303            GRID_MAX_POINTS_Y                (uint8_t)
- *  304            bilinear_grid_spacing            (int x2)
- *  308  G29 L F   bilinear_start                   (int x2)
- *  312            bed_level_grid[][]               (float x9, up to float x256) +988
+ *  306            GRID_MAX_POINTS_X                (uint8_t)
+ *  307            GRID_MAX_POINTS_Y                (uint8_t)
+ *  308            bilinear_grid_spacing            (int x2)
+ *  312  G29 L F   bilinear_start                   (int x2)
+ *  316            bed_level_grid[][]               (float x9, up to float x256) +988
  *
  * DELTA (if deltabot):                             48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -144,18 +147,21 @@
  *  568  M906 E1   stepperE1 current                (uint16_t)
  *  570  M906 E2   stepperE2 current                (uint16_t)
  *  572  M906 E3   stepperE3 current                (uint16_t)
- *  572  M906 E4   stepperE4 current                (uint16_t)
+ *  576  M906 E4   stepperE4 current                (uint16_t)
  *
- *  576                                Minimum end-point
- * 1897 (576 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  580                                Minimum end-point
+ * 1901 (580 + 36 + 9 + 288 + 988)     Maximum end-point
  */
+#include "configuration_store.h"
+
+MarlinSettings settings;
+
 #include "Marlin.h"
 #include "language.h"
 #include "endstops.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
-#include "configuration_store.h"
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -176,7 +182,7 @@
 /**
  * Post-process after Retrieve or Reset
  */
-void Config_Postprocess() {
+void MarlinSettings::postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
@@ -200,16 +206,32 @@ void Config_Postprocess() {
     // Software endstops depend on home_offset
     LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
   #endif
+
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    set_z_fade_height(
+      //#if ENABLED(AUTO_BED_LEVELING_UBL)
+      //  ubl.state.g29_correction_fade_height
+      //#else
+        planner.z_fade_height
+      //#endif
+    );
+  #endif
+
+  #if HAS_BED_PROBE
+    refresh_zprobe_zoffset();
+  #endif
 }
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  uint16_t eeprom_checksum;
   const char version[4] = EEPROM_VERSION;
 
-  bool eeprom_write_error;
+  uint16_t MarlinSettings::eeprom_checksum;
 
-  void _EEPROM_writeData(int &pos, const uint8_t* value, uint16_t size) {
+  bool MarlinSettings::eeprom_write_error,
+       MarlinSettings::eeprom_read_error;
+
+  void MarlinSettings::write_data(int &pos, const uint8_t* value, uint16_t size) {
     if (eeprom_write_error) return;
     while (size--) {
       uint8_t * const p = (uint8_t * const)pos;
@@ -230,8 +252,7 @@ void Config_Postprocess() {
       value++;
     };
   }
-  bool eeprom_read_error;
-  void _EEPROM_readData(int &pos, uint8_t* value, uint16_t size) {
+  void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size) {
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
       if (!eeprom_read_error) *value = c;
@@ -244,14 +265,14 @@ void Config_Postprocess() {
   #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
-  #define EEPROM_WRITE(VAR) _EEPROM_writeData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
-  #define EEPROM_READ(VAR) _EEPROM_readData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
-  #define EEPROM_ASSERT(TST,ERR) if () do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error |= true; }while(0)
+  #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_READ(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
 
   /**
    * M500 - Store Configuration
    */
-  bool Config_StoreSettings() {
+  bool MarlinSettings::save() {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -290,6 +311,17 @@ void Config_Postprocess() {
     #endif
 
     //
+    // General Leveling
+    //
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      EEPROM_WRITE(planner.z_fade_height);
+    #else
+      dummy = 10.0;
+      EEPROM_WRITE(dummy);
+    #endif
+
+    //
     // Mesh Bed Leveling
     //
 
@@ -316,7 +348,7 @@ void Config_Postprocess() {
     #endif // MESH_BED_LEVELING
 
     #if !HAS_BED_PROBE
-      float zprobe_zoffset = 0;
+      const float zprobe_zoffset = 0;
     #endif
     EEPROM_WRITE(zprobe_zoffset);
 
@@ -552,7 +584,7 @@ void Config_Postprocess() {
   /**
    * M501 - Retrieve Configuration
    */
-  bool Config_RetrieveSettings() {
+  bool MarlinSettings::load() {
 
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
@@ -573,7 +605,7 @@ void Config_Postprocess() {
       SERIAL_ECHOPGM("EEPROM version mismatch ");
       SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
       SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
-      Config_ResetDefault();
+      reset();
     }
     else {
       float dummy = 0;
@@ -619,6 +651,16 @@ void Config_Postprocess() {
       #endif
 
       //
+      // General Leveling
+      //
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        EEPROM_READ(planner.z_fade_height);
+      #else
+        EEPROM_READ(dummy);
+      #endif
+
+      //
       // Mesh (Manual) Bed Leveling
       //
 
@@ -647,7 +689,7 @@ void Config_Postprocess() {
       #endif // MESH_BED_LEVELING
 
       #if !HAS_BED_PROBE
-        float zprobe_zoffset = 0;
+        float zprobe_zoffset;
       #endif
       EEPROM_READ(zprobe_zoffset);
 
@@ -712,6 +754,11 @@ void Config_Postprocess() {
       EEPROM_READ(lcd_preheat_hotend_temp);
       EEPROM_READ(lcd_preheat_bed_temp);
       EEPROM_READ(lcd_preheat_fan_speed);
+
+      //EEPROM_ASSERT(
+      //  WITHIN(lcd_preheat_fan_speed, 0, 255),
+      //  "lcd_preheat_fan_speed out of range"
+      //);
 
       #if ENABLED(PIDTEMP)
         for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
@@ -835,9 +882,9 @@ void Config_Postprocess() {
 
       if (eeprom_checksum == stored_checksum) {
         if (eeprom_read_error)
-          Config_ResetDefault();
+          reset();
         else {
-          Config_Postprocess();
+          postprocess();
           SERIAL_ECHO_START;
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
@@ -847,7 +894,7 @@ void Config_Postprocess() {
       else {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
-        Config_ResetDefault();
+        reset();
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -889,7 +936,7 @@ void Config_Postprocess() {
       #endif
     }
     #if ENABLED(EEPROM_CHITCHAT)
-      Config_PrintSettings();
+      report();
     #endif
 
     return !eeprom_read_error;
@@ -897,7 +944,7 @@ void Config_Postprocess() {
 
 #else // !EEPROM_SETTINGS
 
-  bool Config_StoreSettings() {
+  bool MarlinSettings::save() {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("EEPROM disabled");
     return false;
@@ -908,7 +955,7 @@ void Config_Postprocess() {
 /**
  * M502 - Reset Configuration
  */
-void Config_ResetDefault() {
+void MarlinSettings::reset() {
   const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
   const uint32_t tmp3[] = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
@@ -927,6 +974,11 @@ void Config_ResetDefault() {
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    planner.z_fade_height = 0.0;
+  #endif
+
   #if DISABLED(NO_WORKSPACE_OFFSETS)
     ZERO(home_offset);
   #endif
@@ -968,11 +1020,13 @@ void Config_ResetDefault() {
     COPY(delta_diagonal_rod_trim, drt);
     COPY(delta_tower_angle_trim, dta);
   #elif ENABLED(Z_DUAL_ENDSTOPS)
-    #if defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
-      float z_endstop_adj = Z_DUAL_ENDSTOPS_ADJUSTMENT;
-    #else
-      float z_endstop_adj = 0;
-    #endif
+    float z_endstop_adj =
+      #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
+        Z_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
   #endif
 
   #if ENABLED(ULTIPANEL)
@@ -1027,11 +1081,11 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled =
-  #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-    true
-  #else
-    false
-  #endif
+    #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+      true
+    #else
+      false
+    #endif
   ;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -1077,7 +1131,7 @@ void Config_ResetDefault() {
     #endif
   #endif
 
-  Config_Postprocess();
+  postprocess();
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
@@ -1088,10 +1142,11 @@ void Config_ResetDefault() {
   #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
   /**
-   * M503 - Print Configuration
+   * M503 - Report current settings in RAM
+   *   
+   * Unless specifically disabled, M503 is available even without EEPROM
    */
-  void Config_PrintSettings(bool forReplay) {
-    // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
+  void MarlinSettings::report(bool forReplay) {
 
     CONFIG_ECHO_START;
 
@@ -1211,14 +1266,18 @@ void Config_ResetDefault() {
         SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         CONFIG_ECHO_START;
       }
-      SERIAL_ECHOLNPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
-      for (uint8_t py = 1; py <= GRID_MAX_POINTS_Y; py++) {
-        for (uint8_t px = 1; px <= GRID_MAX_POINTS_X; px++) {
+      SERIAL_ECHOPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        SERIAL_ECHOLNPAIR(" Z", planner.z_fade_height);
+      #endif
+      SERIAL_EOL;
+      for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+        for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  G29 S3 X", (int)px);
-          SERIAL_ECHOPAIR(" Y", (int)py);
+          SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
+          SERIAL_ECHOPAIR(" Y", (int)py + 1);
           SERIAL_ECHOPGM(" Z");
-          SERIAL_PROTOCOL_F(mbl.z_values[py-1][px-1], 5);
+          SERIAL_PROTOCOL_F(mbl.z_values[px][py], 5);
           SERIAL_EOL;
         }
       }
@@ -1229,8 +1288,11 @@ void Config_ResetDefault() {
         SERIAL_ECHOLNPGM("Unified Bed Leveling:");
         CONFIG_ECHO_START;
       }
-
-      SERIAL_ECHOLNPAIR("  M420 S", ubl.state.active ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", ubl.state.active ? 1 : 0);
+      //#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      //  SERIAL_ECHOLNPAIR(" Z", ubl.state.g29_correction_fade_height);
+      //#endif
+      SERIAL_EOL;
 
       if (!forReplay) {
         SERIAL_ECHOPGM("\nUBL is ");
@@ -1264,7 +1326,11 @@ void Config_ResetDefault() {
         SERIAL_ECHOLNPGM("Auto Bed Leveling:");
         CONFIG_ECHO_START;
       }
-      SERIAL_ECHOLNPAIR("  M420 S", planner.abl_enabled ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", planner.abl_enabled ? 1 : 0);
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        SERIAL_ECHOLNPAIR(" Z", planner.z_fade_height);
+      #endif
+      SERIAL_EOL;
 
     #endif
 

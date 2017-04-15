@@ -60,36 +60,36 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #endif
 
 #if HAS_X2_ENABLE
-  #define  enable_x() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
-  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #elif HAS_X_ENABLE
-  #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define  enable_X() X_ENABLE_WRITE( X_ENABLE_ON)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #else
-  #define  enable_x() NOOP
-  #define disable_x() NOOP
+  #define  enable_X() NOOP
+  #define disable_X() NOOP
 #endif
 
 #if HAS_Y2_ENABLE
-  #define  enable_y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
-  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
 #elif HAS_Y_ENABLE
-  #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define  enable_Y() Y_ENABLE_WRITE( Y_ENABLE_ON)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
 #else
-  #define  enable_y() NOOP
-  #define disable_y() NOOP
+  #define  enable_Y() NOOP
+  #define disable_Y() NOOP
 #endif
 
 #if HAS_Z2_ENABLE
-  #define  enable_z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
-  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
 #elif HAS_Z_ENABLE
-  #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define  enable_Z() Z_ENABLE_WRITE( Z_ENABLE_ON)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
 #else
-  #define  enable_z() NOOP
-  #define disable_z() NOOP
+  #define  enable_Z() NOOP
+  #define disable_Z() NOOP
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -98,64 +98,64 @@ void manage_inactivity(bool ignore_stepper_queue = false);
    * Mixing steppers synchronize their enable (and direction) together
    */
   #if MIXING_STEPPERS > 3
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
   #elif MIXING_STEPPERS > 2
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); }
   #else
-    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); }
-    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); }
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); }
   #endif
-  #define  enable_e1() NOOP
-  #define disable_e1() NOOP
-  #define  enable_e2() NOOP
-  #define disable_e2() NOOP
-  #define  enable_e3() NOOP
-  #define disable_e3() NOOP
-  #define  enable_e4() NOOP
-  #define disable_e4() NOOP
+  #define  enable_E1() NOOP
+  #define disable_E1() NOOP
+  #define  enable_E2() NOOP
+  #define disable_E2() NOOP
+  #define  enable_E3() NOOP
+  #define disable_E3() NOOP
+  #define  enable_E4() NOOP
+  #define disable_E4() NOOP
 
 #else // !MIXING_EXTRUDER
 
   #if HAS_E0_ENABLE
-    #define  enable_e0() E0_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E0() E0_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E0() E0_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e0() NOOP
-    #define disable_e0() NOOP
+    #define  enable_E0() NOOP
+    #define disable_E0() NOOP
   #endif
 
   #if E_STEPPERS > 1 && HAS_E1_ENABLE
-    #define  enable_e1() E1_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E1() E1_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e1() NOOP
-    #define disable_e1() NOOP
+    #define  enable_E1() NOOP
+    #define disable_E1() NOOP
   #endif
 
   #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define  enable_e2() E2_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E2() E2_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e2() NOOP
-    #define disable_e2() NOOP
+    #define  enable_E2() NOOP
+    #define disable_E2() NOOP
   #endif
 
   #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define  enable_e3() E3_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E3() E3_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e3() NOOP
-    #define disable_e3() NOOP
+    #define  enable_E3() NOOP
+    #define disable_E3() NOOP
   #endif
 
   #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define  enable_e4() E4_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_e4() E4_ENABLE_WRITE(!E_ENABLE_ON)
+    #define  enable_E4() E4_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_e4() NOOP
-    #define disable_e4() NOOP
+    #define  enable_E4() NOOP
+    #define disable_E4() NOOP
   #endif
 
 #endif // !MIXING_EXTRUDER
@@ -221,7 +221,7 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   extern volatile bool wait_for_user;
 #endif
 
@@ -307,12 +307,17 @@ float code_value_temp_diff();
   void reset_bed_level();
 #endif
 
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  void set_z_fade_height(const float zfh);
+#endif
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+  void refresh_zprobe_zoffset(const bool no_babystep=false);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #endif

@@ -598,6 +598,9 @@
  *   is enabled then it also applies to Z_PROBE_SPEED_SLOW.
  */
 
+// A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
+//#define SOLENOID_PROBE
+
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
@@ -1521,10 +1524,27 @@
 
 // Support for an RGB LED using 3 separate pins with optional PWM
 //#define RGB_LED
-#if ENABLED(RGB_LED)
+//#define RGBW_LED
+#if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
+  #define RGB_LED_W_PIN -1
+#endif
+
+/**
+ * Printer Event LEDs
+ *
+ * During printing, the LEDs will reflect the printer status:
+ *
+ *  - Gradually change from blue to violet as the heated bed gets to target temp
+ *  - Gradually change from violet to red as the hotend gets to temperature
+ *  - Change to white to illuminate work surface
+ *  - Change to green once print has finished
+ *  - Turn off after the print has finished and the user has pushed a button
+ */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+  #define PRINTER_EVENT_LEDS
 #endif
 
 /*********************************************************************\

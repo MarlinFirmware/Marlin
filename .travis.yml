@@ -83,18 +83,23 @@ script:
   - opt_set TEMP_SENSOR_1 1
   - build_marlin
   #
-  # Test 3 extruders on RUMBA (can use any board with >=3 extruders defined)
+  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
   # Include a test for LIN_ADVANCE here also
   #
-  - opt_set MOTHERBOARD BOARD_RUMBA
-  - opt_set EXTRUDERS 3
-  - opt_set TEMP_SENSOR_2 1
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
+  - opt_set EXTRUDERS 5
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_2 5
+  - opt_set TEMP_SENSOR_3 20
+  - opt_set TEMP_SENSOR_4 999
+  - opt_set TEMP_SENSOR_BED 1
   - opt_enable_adv LIN_ADVANCE
   - build_marlin
   #
   # Test PIDTEMPBED
   #
   - restore_configs
+  - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED
   - build_marlin
   #
@@ -155,14 +160,15 @@ script:
   #   INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
   #
   - restore_configs
-  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - build_marlin
   #
-  # Mixing Extruder
+  # Mixing Extruder with 5 steppers
   #
   - restore_configs
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
   - opt_enable MIXING_EXTRUDER
-  - opt_set MIXING_STEPPERS 2
+  - opt_set MIXING_STEPPERS 5
   - build_marlin
   #
   # Test DUAL_X_CARRIAGE

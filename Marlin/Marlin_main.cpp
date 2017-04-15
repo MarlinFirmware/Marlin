@@ -445,7 +445,7 @@ static bool relative_mode = false;
 volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
   volatile bool wait_for_user = false;
 #endif
 
@@ -575,7 +575,7 @@ static uint8_t target_extruder;
         endstop_adj[ABC] = { 0 };
 
   // These values are loaded or reset at boot time when setup() calls
-  // Config_RetrieveSettings(), which calls recalc_delta_settings().
+  // settings.load(), which calls recalc_delta_settings().
   float delta_radius,
         delta_tower_angle_trim[ABC],
         delta_tower[ABC][2],
@@ -951,6 +951,41 @@ void servo_init() {
 
 #endif
 
+#if HAS_COLOR_LEDS
+
+  void set_led_color(
+    const uint8_t r, const uint8_t g, const uint8_t b
+      #if ENABLED(RGBW_LED)
+        , const uint8_t w=0
+      #endif
+  ) {
+
+    #if ENABLED(BLINKM)
+
+      // This variant uses i2c to send the RGB components to the device.
+      SendColors(r, g, b);
+
+    #else
+
+      // This variant uses 3 separate pins for the RGB components.
+      // If the pins can do PWM then their intensity will be set.
+      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
+      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
+      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
+      analogWrite(RGB_LED_R_PIN, r);
+      analogWrite(RGB_LED_G_PIN, g);
+      analogWrite(RGB_LED_B_PIN, b);
+
+      #if ENABLED(RGBW_LED)
+        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
+        analogWrite(RGB_LED_W_PIN, w);
+      #endif
+
+    #endif
+  }
+
+#endif // HAS_COLOR_LEDS
+
 void gcode_line_error(const char* err, bool doFlush = true) {
   SERIAL_ERROR_START;
   serialprintPGM(err);
@@ -1135,6 +1170,19 @@ inline void get_serial_commands() {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           card.printingHasFinished();
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+            set_led_color(0, 255, 0); // Green
+            #if HAS_RESUME_CONTINUE
+              KEEPALIVE_STATE(PAUSED_FOR_USER);
+              wait_for_user = true;
+              while (wait_for_user) idle();
+              KEEPALIVE_STATE(IN_HANDLER);
+            #else
+              safe_delay(1000);
+            #endif
+            set_led_color(0, 0, 0);   // OFF
+          #endif
           card.checkautostart(true);
         }
         else if (n == -1) {
@@ -1812,8 +1860,8 @@ static void clean_up_after_endstop_or_probe_move() {
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
 
-    #if PIN_EXISTS(SLED)
-      digitalWrite(SLED_PIN, !stow); // switch solenoid
+    #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
+      WRITE(SOL1_PIN, !stow); // switch solenoid
     #endif
   }
 
@@ -2081,7 +2129,13 @@ static void clean_up_after_endstop_or_probe_move() {
                                                      // otherwise an Allen-Key probe can't be stowed.
     #endif
 
-        #if ENABLED(Z_PROBE_SLED)
+        #if ENABLED(SOLENOID_PROBE)
+
+          #if HAS_SOLENOID_1
+            WRITE(SOL1_PIN, deploy);
+          #endif
+
+        #elif ENABLED(Z_PROBE_SLED)
 
           dock_sled(!deploy);
 
@@ -3947,7 +4001,7 @@ inline void gcode_G28() {
         }
 
         if (code_seen('Z')) {
-          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
+          mbl.z_values[px][py] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_CHAR('Z'); say_not_entered();
@@ -5014,7 +5068,7 @@ inline void gcode_G92() {
   report_current_position();
 }
 
-#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+#if HAS_RESUME_CONTINUE
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -5551,7 +5605,7 @@ inline void gcode_M42() {
           pin_state[pin - first_pin] = digitalRead(pin);
       }
 
-      #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+      #if HAS_RESUME_CONTINUE
         wait_for_user = true;
       #endif
 
@@ -5569,7 +5623,7 @@ inline void gcode_M42() {
           }
         }
 
-        #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+        #if HAS_RESUME_CONTINUE
           if (!wait_for_user) break;
         #endif
 
@@ -5739,8 +5793,8 @@ inline void gcode_M42() {
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
             while (HYPOT(X_current, Y_current) > DELTA_PROBEABLE_RADIUS) {
-              X_current /= 1.25;
-              Y_current /= 1.25;
+              X_current *= 0.8;
+              Y_current *= 0.8;
               if (verbose_level > 3) {
                 SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
                 SERIAL_ECHOLNPAIR(", ", Y_current);
@@ -5901,10 +5955,9 @@ inline void gcode_M104() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * Stop the timer at the end of print, starting is managed by
-       * 'heat and wait' M109.
+       * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
        * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-       * stand by mode, for instance in a dual extruder setup, without affecting
+       * standby mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
       if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
@@ -6086,7 +6139,7 @@ inline void gcode_M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  bool no_wait_for_cooling = code_seen('S');
+  const bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
     thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -6096,24 +6149,21 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-       * stand by mode, for instance in a dual extruder setup, without affecting
+       * Use half EXTRUDE_MINTEMP to allow nozzles to be put into hot
+       * standby mode, (e.g., in a dual extruder setup) without affecting
        * the running print timer.
        */
-      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
-      /**
-       * We do not check if the timer is already running because this check will
-       * be done for us inside the Stopwatch::start() method thus a running timer
-       * will not restart.
-       */
-      else print_job_timer.start();
+      else
+        print_job_timer.start();
     #endif
 
     if (thermalManager.isHeatingHotend(target_extruder)) lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
   }
+  else return;
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
@@ -6126,20 +6176,25 @@ inline void gcode_M109() {
   #else
     // Loop until the temperature is very close target
     #define TEMP_CONDITIONS (wants_to_cool ? thermalManager.isCoolingHotend(target_extruder) : thermalManager.isHeatingHotend(target_extruder))
-  #endif //TEMP_RESIDENCY_TIME > 0
+  #endif
 
-  float theTarget = -1.0, old_temp = 9999.0;
+  float target_temp = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
   wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
   KEEPALIVE_STATE(NOT_BUSY);
 
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    const float start_temp = thermalManager.degHotend(target_extruder);
+    uint8_t old_blue = 0;
+  #endif
+
   do {
     // Target temperature might be changed during the loop
-    if (theTarget != thermalManager.degTargetHotend(target_extruder)) {
+    if (target_temp != thermalManager.degTargetHotend(target_extruder)) {
       wants_to_cool = thermalManager.isCoolingHotend(target_extruder);
-      theTarget = thermalManager.degTargetHotend(target_extruder);
+      target_temp = thermalManager.degTargetHotend(target_extruder);
 
       // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
       if (no_wait_for_cooling && wants_to_cool) break;
@@ -6166,11 +6221,19 @@ inline void gcode_M109() {
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-    float temp = thermalManager.degHotend(target_extruder);
+    const float temp = thermalManager.degHotend(target_extruder);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      // Gradually change LED strip from violet to red as nozzle heats up
+      if (!wants_to_cool) {
+        const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
+      }
+    #endif
 
     #if TEMP_RESIDENCY_TIME > 0
 
-      float temp_diff = fabs(theTarget - temp);
+      const float temp_diff = fabs(target_temp - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -6181,7 +6244,7 @@ inline void gcode_M109() {
         residency_start_ms = now;
       }
 
-    #endif //TEMP_RESIDENCY_TIME > 0
+    #endif
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
@@ -6196,7 +6259,16 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) {
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      #if ENABLED(RGBW_LED)
+        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+      #else
+        set_led_color(255, 255, 255); // Set LEDs All On
+      #endif
+    #endif
+  }
 
   KEEPALIVE_STATE(IN_HANDLER);
 }
@@ -6218,23 +6290,15 @@ inline void gcode_M109() {
     if (DEBUGGING(DRYRUN)) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
-    bool no_wait_for_cooling = code_seen('S');
+    const bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-        if (code_value_temp_abs() > BED_MINTEMP) {
-          /**
-          * We start the timer when 'heating and waiting' command arrives, LCD
-          * functions never wait. Cooling down managed by extruders.
-          *
-          * We do not check if the timer is already running because this check will
-          * be done for us inside the Stopwatch::start() method thus a running timer
-          * will not restart.
-          */
+        if (code_value_temp_abs() > BED_MINTEMP)
           print_job_timer.start();
-        }
       #endif
     }
+    else return;
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -6243,9 +6307,9 @@ inline void gcode_M109() {
     #else
       // Loop until the temperature is very close target
       #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
-    #endif //TEMP_BED_RESIDENCY_TIME > 0
+    #endif
 
-    float theTarget = -1.0, old_temp = 9999.0;
+    float target_temp = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
     wait_for_heatup = true;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
@@ -6254,11 +6318,16 @@ inline void gcode_M109() {
 
     target_extruder = active_extruder; // for print_heaterstates
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      const float start_temp = thermalManager.degBed();
+      uint8_t old_red = 255;
+    #endif
+
     do {
       // Target temperature might be changed during the loop
-      if (theTarget != thermalManager.degTargetBed()) {
+      if (target_temp != thermalManager.degTargetBed()) {
         wants_to_cool = thermalManager.isCoolingBed();
-        theTarget = thermalManager.degTargetBed();
+        target_temp = thermalManager.degTargetBed();
 
         // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
         if (no_wait_for_cooling && wants_to_cool) break;
@@ -6285,11 +6354,20 @@ inline void gcode_M109() {
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-      float temp = thermalManager.degBed();
+      const float temp = thermalManager.degBed();
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        // Gradually change LED strip from blue to violet as bed heats up
+        if (!wants_to_cool) {
+          const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+          if (red != old_red) set_led_color((old_red = red), 0, 255);
+        }
+      }
+      #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
-        float temp_diff = fabs(theTarget - temp);
+        const float temp_diff = fabs(target_temp - temp);
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -6425,6 +6503,7 @@ inline void gcode_M140() {
 
   /**
    * M145: Set the heatup state for a material in the LCD menu
+   *
    *   S<material> (0=PLA, 1=ABS)
    *   H<hotend temp>
    *   B<bed temp>
@@ -6552,9 +6631,9 @@ inline void gcode_M18_M84() {
     }
     else {
       stepper.synchronize();
-      if (code_seen('X')) disable_x();
-      if (code_seen('Y')) disable_y();
-      if (code_seen('Z')) disable_z();
+      if (code_seen('X')) disable_X();
+      if (code_seen('Y')) disable_Y();
+      if (code_seen('Z')) disable_Z();
       #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
         if (code_seen('E')) disable_e_steppers();
       #endif
@@ -6834,33 +6913,12 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // PARK_HEAD_ON_PAUSE
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED)
-
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #else
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-    #endif
-  }
+#if HAS_COLOR_LEDS
 
   /**
-   * M150: Set Status LED Color - Use R-U-B for R-G-B
+   * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
    *
-   * Always sets all 3 components. If a component is left out, set to 0.
+   * Always sets all 3 or 4 components. If a component is left out, set to 0.
    *
    * Examples:
    *
@@ -6868,6 +6926,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150 R255 U127  ; Turn LED orange (PWM only)
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
+   *   M150 W          ; Turn LED white using a white LED
    *
    */
   inline void gcode_M150() {
@@ -6875,6 +6934,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #if ENABLED(RGBW_LED)
+        , code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
+      #endif
     );
   }
 
@@ -7584,24 +7646,29 @@ inline void gcode_M303() {
 
 #if ENABLED(EXT_SOLENOID)
 
-  void enable_solenoid(uint8_t num) {
+  void enable_solenoid(const uint8_t num) {
     switch (num) {
       case 0:
         OUT_WRITE(SOL0_PIN, HIGH);
         break;
-        #if HAS_SOLENOID_1
+        #if HAS_SOLENOID_1 && EXTRUDERS > 1
           case 1:
             OUT_WRITE(SOL1_PIN, HIGH);
             break;
         #endif
-        #if HAS_SOLENOID_2
+        #if HAS_SOLENOID_2 && EXTRUDERS > 2
           case 2:
             OUT_WRITE(SOL2_PIN, HIGH);
             break;
         #endif
-        #if HAS_SOLENOID_3
+        #if HAS_SOLENOID_3 && EXTRUDERS > 3
           case 3:
             OUT_WRITE(SOL3_PIN, HIGH);
+            break;
+        #endif
+        #if HAS_SOLENOID_4 && EXTRUDERS > 4
+          case 4:
+            OUT_WRITE(SOL4_PIN, HIGH);
             break;
         #endif
       default:
@@ -7615,9 +7682,18 @@ inline void gcode_M303() {
 
   void disable_all_solenoids() {
     OUT_WRITE(SOL0_PIN, LOW);
-    OUT_WRITE(SOL1_PIN, LOW);
-    OUT_WRITE(SOL2_PIN, LOW);
-    OUT_WRITE(SOL3_PIN, LOW);
+    #if HAS_SOLENOID_1 && EXTRUDERS > 1
+      OUT_WRITE(SOL1_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_2 && EXTRUDERS > 2
+      OUT_WRITE(SOL2_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_3 && EXTRUDERS > 3
+      OUT_WRITE(SOL3_PIN, LOW);
+    #endif
+    #if HAS_SOLENOID_4 && EXTRUDERS > 4
+      OUT_WRITE(SOL4_PIN, LOW);
+    #endif
   }
 
   /**
@@ -7840,7 +7916,7 @@ void quickstop_stepper() {
     }
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -7857,9 +7933,13 @@ void quickstop_stepper() {
 
     if (hasI && hasJ && hasZ) {
       if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
-        bed_level_grid[px][py] = z;
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] = z;
+        #else
+          bed_level_grid[px][py] = z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
         #endif
       }
       else {
@@ -7872,34 +7952,7 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  /**
-   * M421: Set a single Mesh Bed Leveling Z coordinate
-   *
-   *   M421 I<xindex> J<yindex> Z<linear>
-   */
-  inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ;
-    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
-    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
-    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_Y - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-        ubl.z_values[px][py] = z;
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-      }
-    }
-    else {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-    }
-  }
 #endif
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
@@ -7950,28 +8003,28 @@ void quickstop_stepper() {
  * M500: Store settings in EEPROM
  */
 inline void gcode_M500() {
-  (void)Config_StoreSettings();
+  (void)settings.save();
 }
 
 /**
  * M501: Read settings from EEPROM
  */
 inline void gcode_M501() {
-  (void)Config_RetrieveSettings();
+  (void)settings.load();
 }
 
 /**
  * M502: Revert to default settings
  */
 inline void gcode_M502() {
-  (void)Config_ResetDefault();
+  (void)settings.reset();
 }
 
 /**
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  (void)Config_PrintSettings(code_seen('S') && !code_value_bool());
+  (void)settings.report(code_seen('S') && !code_value_bool());
 }
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -7987,41 +8040,53 @@ inline void gcode_M503() {
 
 #if HAS_BED_PROBE
 
-  inline void gcode_M851() {
+  void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
+    static float last_zoffset = NAN;
 
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
-    SERIAL_CHAR(' ');
+    if (!isnan(last_zoffset)) {
 
-    if (code_seen('Z')) {
-      float value = code_value_axis_units(Z_AXIS);
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        const float diff = zprobe_zoffset - last_zoffset;
+      #endif
 
-        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          // Correct bilinear grid for new probe offset
-          const float diff = value - zprobe_zoffset;
-          if (diff) {
-            for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-              for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-                bed_level_grid[x][y] += diff;
-          }
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        // Correct bilinear grid for new probe offset
+        if (diff) {
+          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+            for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+              bed_level_grid[x][y] -= diff;
+        }
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_interpolate();
         #endif
+      #endif
 
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        if (!no_babystep && planner.abl_enabled)
+          thermalManager.babystep_axis(Z_AXIS, -lround(diff * planner.axis_steps_per_mm[Z_AXIS]));
+      #else
+        UNUSED(no_babystep);
+      #endif
+    }
+
+    last_zoffset = zprobe_zoffset;
+  }
+
+  inline void gcode_M851() {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
+    if (code_seen('Z')) {
+      const float value = code_value_axis_units(Z_AXIS);
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         zprobe_zoffset = value;
+        refresh_zprobe_zoffset();
         SERIAL_ECHO(zprobe_zoffset);
       }
-      else {
-        SERIAL_ECHOPAIR(MSG_Z_MIN, Z_PROBE_OFFSET_RANGE_MIN);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHOPAIR(MSG_Z_MAX, Z_PROBE_OFFSET_RANGE_MAX);
-      }
+      else
+        SERIAL_ECHOPGM(MSG_Z_MIN " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " " MSG_Z_MAX " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX));
     }
-    else {
+    else
       SERIAL_ECHOPAIR(": ", zprobe_zoffset);
-    }
 
     SERIAL_EOL;
   }
@@ -8329,7 +8394,7 @@ inline void gcode_M503() {
 
   inline void gcode_M605() {
     stepper.synchronize();
-    extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
+    extruder_duplication_enabled = code_seen('S') && code_value_int() == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
@@ -8628,7 +8693,7 @@ inline void gcode_M907() {
   uint8_t case_light_brightness = 255;
 
   void update_case_light() {
-    digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
+    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
     analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
 
@@ -9275,7 +9340,7 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
+      #if HAS_RESUME_CONTINUE
         case 0: // M0: Unconditional stop - Wait for user button press on LCD
         case 1: // M1: Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();
@@ -9524,7 +9589,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED)
+      #if HAS_COLOR_LEDS
 
         case 150: // M150: Set Status LED Color
           gcode_M150();
@@ -10831,7 +10896,7 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      digitalWrite(CONTROLLERFAN_PIN, speed);
+      WRITE(CONTROLLERFAN_PIN, speed);
       analogWrite(CONTROLLERFAN_PIN, speed);
     }
   }
@@ -11036,28 +11101,28 @@ void calculate_volumetric_multipliers() {
 }
 
 void enable_all_steppers() {
-  enable_x();
-  enable_y();
-  enable_z();
-  enable_e0();
-  enable_e1();
-  enable_e2();
-  enable_e3();
-  enable_e4();
+  enable_X();
+  enable_Y();
+  enable_Z();
+  enable_E0();
+  enable_E1();
+  enable_E2();
+  enable_E3();
+  enable_E4();
 }
 
 void disable_e_steppers() {
-  disable_e0();
-  disable_e1();
-  disable_e2();
-  disable_e3();
-  disable_e4();
+  disable_E0();
+  disable_E1();
+  disable_E2();
+  disable_E3();
+  disable_E4();
 }
 
 void disable_all_steppers() {
-  disable_x();
-  disable_y();
-  disable_z();
+  disable_X();
+  disable_Y();
+  disable_Z();
   disable_e_steppers();
 }
 
@@ -11194,13 +11259,13 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
-      disable_x();
+      disable_X();
     #endif
     #if ENABLED(DISABLE_INACTIVE_Y)
-      disable_y();
+      disable_Y();
     #endif
     #if ENABLED(DISABLE_INACTIVE_Z)
-      disable_z();
+      disable_Z();
     #endif
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
@@ -11263,32 +11328,32 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       bool oldstatus;
       #if ENABLED(SWITCHING_EXTRUDER)
         oldstatus = E0_ENABLE_READ;
-        enable_e0();
+        enable_E0();
       #else // !SWITCHING_EXTRUDER
         switch (active_extruder) {
           case 0:
             oldstatus = E0_ENABLE_READ;
-            enable_e0();
+            enable_E0();
             break;
           #if E_STEPPERS > 1
             case 1:
               oldstatus = E1_ENABLE_READ;
-              enable_e1();
+              enable_E1();
               break;
             #if E_STEPPERS > 2
               case 2:
                 oldstatus = E2_ENABLE_READ;
-                enable_e2();
+                enable_E2();
                 break;
               #if E_STEPPERS > 3
                 case 3:
                   oldstatus = E3_ENABLE_READ;
-                  enable_e3();
+                  enable_E3();
                   break;
                 #if E_STEPPERS > 4
                   case 4:
                     oldstatus = E4_ENABLE_READ;
-                    enable_e4();
+                    enable_E4();
                     break;
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
@@ -11515,7 +11580,7 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)Config_RetrieveSettings();
+  (void)settings.load();
 
   #if DISABLED(NO_WORKSPACE_OFFSETS)
     // Initialize current position based on home_offset
@@ -11564,9 +11629,9 @@ void setup() {
     dac_init();
   #endif
 
-  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
-    OUT_WRITE(SLED_PIN, LOW); // turn it off
-  #endif // Z_PROBE_SLED
+  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+  #endif
 
   setup_homepin();
 
@@ -11578,10 +11643,13 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(RGB_LED)
+  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
     SET_OUTPUT(RGB_LED_R_PIN);
     SET_OUTPUT(RGB_LED_G_PIN);
     SET_OUTPUT(RGB_LED_B_PIN);
+    #if ENABLED(RGBW_LED)
+      SET_OUTPUT(RGB_LED_W_PIN);
+    #endif
   #endif
 
   lcd_init();
