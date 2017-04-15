@@ -70,8 +70,8 @@
 //===========================================================================
 //============================= DELTA Printer ===============================
 //===========================================================================
-// For a Delta printer replace the configuration files with the files in the
-// example_configurations/delta directory.
+// For Delta printers start with one of the configuration files in the
+// example_configurations/delta directory and customize for your machine.
 //
 
 //===========================================================================
