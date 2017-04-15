@@ -409,7 +409,7 @@ script:
   - restore_configs
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
   - build_marlin
-  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
+  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
