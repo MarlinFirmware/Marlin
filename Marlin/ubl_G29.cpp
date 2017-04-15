@@ -42,6 +42,7 @@
   void lcd_mesh_edit_setup(float initial);
   void tilt_mesh_based_on_probed_grid(const bool);
   float lcd_mesh_edit();
+  float lcd_manual_probe();
   void lcd_z_offset_edit_setup(float);
   float lcd_z_offset_edit();
   extern float meshedit_done;
@@ -952,17 +953,25 @@
       last_y = yProbe;
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
+
       ubl.has_control_of_lcd_panel = true;
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
 
-      while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
+      lcd_implementation_clear();
+      lcd_mesh_edit_setup(current_position[Z_AXIS]);
+
+      do {
+        current_position[Z_AXIS] = lcd_manual_probe();
+        do_blocking_move_to_z(current_position[Z_AXIS]);
         idle();
-        if (ubl.encoder_diff) {
-          do_blocking_move_to_z(current_position[Z_AXIS] + float(ubl.encoder_diff) / 100.0);
-          ubl.encoder_diff = 0;
-        }
-      }
+      } while (!ubl_lcd_clicked());
+
+      lcd_return_to_status();
+
+      ubl.has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
+                                           // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
+                                           // or here.
 
       const millis_t nxt = millis() + 1500L;
       while (ubl_lcd_clicked()) {     // debounce and watch for abort
@@ -1405,28 +1414,29 @@
 
       float new_z = ubl.z_values[location.x_index][location.y_index];
 
-      round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
-      new_z = float(round_off) / 1000.0;
+      if (!isnan(new_z)) {  //can't fine tune a point that hasn't been probed
+        round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
+        new_z = float(round_off) / 1000.0;
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      ubl.has_control_of_lcd_panel = true;
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        ubl.has_control_of_lcd_panel = true;
 
-      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
+        if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
 
-      lcd_implementation_clear();
-      lcd_mesh_edit_setup(new_z);
+        lcd_implementation_clear();
+        lcd_mesh_edit_setup(new_z);
 
-      do {
-        new_z = lcd_mesh_edit();
-        idle();
-      } while (!ubl_lcd_clicked());
+        do {
+          new_z = lcd_mesh_edit();
+          idle();
+        } while (!ubl_lcd_clicked());
 
-      lcd_return_to_status();
+        lcd_return_to_status();
 
-      ubl.has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
-                                           // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                           // or here.
-
+        ubl.has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
+                                             // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
+                                             // or here.
+      }
       const millis_t nxt = millis() + 1500UL;
       while (ubl_lcd_clicked()) { // debounce and watch for abort
         idle();

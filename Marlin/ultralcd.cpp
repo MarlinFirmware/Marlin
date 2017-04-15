@@ -198,6 +198,7 @@ uint16_t max_display_update_time = 0;
   void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
   void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
   void menu_action_setting_edit_float32(const char* pstr, float* ptr, float minValue, float maxValue);
+  void menu_action_setting_edit_float42(const char* pstr, float* ptr, float minValue, float maxValue);
   void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
   void menu_action_setting_edit_float5(const char* pstr, float* ptr, float minValue, float maxValue);
   void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
@@ -208,6 +209,7 @@ uint16_t max_display_update_time = 0;
   void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callbackFunc);
   void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
   void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  void menu_action_setting_edit_callback_float42(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
   void menu_action_setting_edit_callback_float43(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
   void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
   void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
@@ -910,6 +912,25 @@ void kill_screen(const char* lcd_msg) {
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
     }
 
+    static void _lcd_manual_probe(const char* msg) {
+      defer_return_to_status = true;
+      if (ubl.encoder_diff) {
+        ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
+        ubl.encoder_diff = 0;
+
+        mesh_edit_accumulator += float(ubl_encoderPosition) * 0.01 / 2.0;
+        mesh_edit_value = mesh_edit_accumulator;
+        encoderPosition = 0;
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+
+        const int32_t rounded = (int32_t)(mesh_edit_value * 100.0);
+        mesh_edit_value = float(rounded - (rounded % 4L)) / 100.0;
+      }
+
+      if (lcdDrawUpdate)
+        lcd_implementation_drawedit(msg, ftostr42sign(mesh_edit_value));
+    }
+
     void _lcd_mesh_edit_NOP() {
       defer_return_to_status = true;
     }
@@ -924,6 +945,11 @@ void kill_screen(const char* lcd_msg) {
       return mesh_edit_value;
     }
 
+    float lcd_manual_probe() {
+      lcd_goto_screen(_lcd_mesh_edit_NOP);
+      _lcd_manual_probe(PSTR("Z compensation"));
+      return mesh_edit_value;
+    }
     void lcd_mesh_edit_setup(float initial) {
       mesh_edit_value = mesh_edit_accumulator = initial;
       lcd_goto_screen(_lcd_mesh_edit_NOP);
@@ -3141,6 +3167,7 @@ void kill_screen(const char* lcd_msg) {
   menu_edit_type(int, int3, itostr3, 1);
   menu_edit_type(float, float3, ftostr3, 1.0);
   menu_edit_type(float, float32, ftostr32, 100.0);
+  menu_edit_type(float, float42, ftostr42sign, 100.0);
   menu_edit_type(float, float43, ftostr43sign, 1000.0);
   menu_edit_type(float, float5, ftostr5rj, 0.01);
   menu_edit_type(float, float51, ftostr51sign, 10.0);

@@ -159,6 +159,19 @@ void safe_delay(millis_t ms) {
     return conv;
   }
 
+  // Convert signed float to string (6 digit) with -11.23 / -1.23/ -0.23 / _0.00 / +1.23 / _11.23 / +11.23 format
+  char* ftostr42sign(const float& x, char plus/*=' '*/) {
+    long xx = x * 100;
+    conv[0] = WITHIN(x,-9.99, 9.99) ? ' ': MINUSOR(xx, plus);
+    conv[1] = !WITHIN(x,-9.99, 9.99) ? DIGIMOD(xx, 1000) : MINUSOR(xx, plus);
+    conv[2] = DIGIMOD(xx, 100);
+    conv[3] = '.';
+    conv[4] = DIGIMOD(xx, 10);
+    conv[5] = DIGIMOD(xx, 1);
+    conv[6] = '\0';
+    return conv;
+  }
+
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
   char* ftostr43sign(const float& x, char plus/*=' '*/) {
     long xx = x * 1000;
