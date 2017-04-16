@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V34"
+#define EEPROM_VERSION "V35"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -149,8 +149,12 @@
  *  572  M906 E3   stepperE3 current                (uint16_t)
  *  576  M906 E4   stepperE4 current                (uint16_t)
  *
- *  580                                Minimum end-point
- * 1901 (580 + 36 + 9 + 288 + 988)     Maximum end-point
+ * LIN_ADVANCE:                                     8 bytes
+ *  580  M905 K    extruder_advance_k               (float)
+ *  584  M905 WHD  advance_ed_ratio                 (float)
+ *
+ *  588                                Minimum end-point
+ * 1909 (588 + 36 + 9 + 288 + 988)     Maximum end-point
  */
 #include "configuration_store.h"
 
@@ -570,6 +574,20 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 0; q < 11; ++q) EEPROM_WRITE(val);
     #endif
 
+    //
+    // Linear Advance
+    //
+
+    float extruder_advance_k = 0.0f, advance_ed_ratio = 0.0f;
+
+    #if ENABLED(LIN_ADVANCE)
+      extruder_advance_k = planner.get_extruder_advance_k();
+      advance_ed_ratio = planner.get_advance_ed_ratio();
+    #endif
+
+    EEPROM_WRITE(extruder_advance_k);
+    EEPROM_WRITE(advance_ed_ratio);
+
     if (!eeprom_write_error) {
 
       const uint16_t final_checksum = eeprom_checksum,
@@ -900,6 +918,19 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = 0; q < 11; q++) EEPROM_READ(val);
       #endif
 
+      //
+      // Linear Advance
+      //
+
+      float extruder_advance_k, advance_ed_ratio;
+      EEPROM_READ(extruder_advance_k);
+      EEPROM_READ(advance_ed_ratio);
+
+      #if ENABLED(LIN_ADVANCE)
+        planner.set_extruder_advance_k(extruder_advance_k);
+        planner.set_advance_ed_ratio(advance_ed_ratio);
+      #endif
+
       if (eeprom_checksum == stored_checksum) {
         if (eeprom_read_error)
           reset();
@@ -1153,6 +1184,11 @@ void MarlinSettings::reset() {
     #if ENABLED(E3_IS_TMC2130)
       stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
     #endif
+  #endif
+
+  #if ENABLED(LIN_ADVANCE)
+    planner.set_extruder_advance_k(LIN_ADVANCE_K);
+    planner.set_advance_ed_ratio(LIN_ADVANCE_E_D_RATIO);
   #endif
 
   postprocess();
@@ -1618,6 +1654,19 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
       #endif
       SERIAL_EOL;
+    #endif
+
+    /**
+     * Linear Advance
+     */
+    #if ENABLED(LIN_ADVANCE)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Linear Advance:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHOPAIR("  M905 K", planner.get_extruder_advance_k());
+      SERIAL_ECHOLNPAIR(" R", planner.get_advance_ed_ratio());
     #endif
   }
 

@@ -267,9 +267,10 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static void set_extruder_advance_k(const float &k) { extruder_advance_k = k; };
+      static void set_extruder_advance_k(float k) { extruder_advance_k = k; };
       static float get_extruder_advance_k() { return extruder_advance_k; };
-      static void set_advance_ed_ratio(const float &ratio) { advance_ed_ratio = ratio; };
+      static void set_advance_ed_ratio(float ratio) { advance_ed_ratio = ratio; };
+      static float get_advance_ed_ratio() { return advance_ed_ratio; };
     #endif
 
     /**
