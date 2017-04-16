@@ -284,7 +284,7 @@
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
-  void M100_dump_routine( char *title, char *start, char *end); 
+  void M100_dump_routine(const char * const title, const char *start, const char *end);
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -9571,8 +9571,8 @@ void process_next_command() {
     SERIAL_ECHO_START;
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_WATCHER)
-      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);                                                
-      M100_dump_routine( "   Command Queue:", &command_queue[0][0], &command_queue[BUFSIZE][MAX_CMD_SIZE] );  
+      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
+      M100_dump_routine("   Command Queue:", &command_queue[0][0], &command_queue[BUFSIZE][MAX_CMD_SIZE]);
     #endif
   }
 

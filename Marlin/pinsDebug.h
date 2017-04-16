@@ -524,7 +524,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
 
       SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
-    //if (!pwm_status(pin)) SERIAL_ECHOCHAR(' ');    // add padding if it's not a PWM pin
+    //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
     if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
     SERIAL_EOL;
   }
