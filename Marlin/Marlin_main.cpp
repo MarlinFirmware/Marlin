@@ -8797,28 +8797,34 @@ inline void gcode_M503() {
 
 #if ENABLED(LIN_ADVANCE)
   /**
-   * M905: Set advance factor
+   * M905: Set and/or Get advance K factor and WH/D ratio
+   *
+   *  K<factor>                  Set advance K factor
+   *  R<ratio>                   Set ratio directly (overrides WH/D)
+   *  W<width> H<height> D<diam> Set ratio from WH/D
    */
   inline void gcode_M905() {
     stepper.synchronize();
 
-    const float newK = code_seen('K') ? code_value_float() : -1,
-                newD = code_seen('D') ? code_value_float() : -1,
-                newW = code_seen('W') ? code_value_float() : -1,
-                newH = code_seen('H') ? code_value_float() : -1;
+    const float newK = code_seen('K') ? code_value_float() : -1;
+    if (newK >= 0) planner.set_extruder_advance_k(newK);
 
-    if (newK >= 0.0) planner.set_extruder_advance_k(newK);
+    float newR = code_seen('R') ? code_value_float() : -1;
+    if (newR < 0) {
+      const float newD = code_seen('D') ? code_value_float() : -1,
+                  newW = code_seen('W') ? code_value_float() : -1,
+                  newH = code_seen('H') ? code_value_float() : -1;
+      if (newD >= 0 && newW >= 0 && newH >= 0)
+        newR = newD ? (newW * newH) / (sq(newD * 0.5) * M_PI) : 0;
+    }
+    if (newR >= 0) planner.set_advance_ed_ratio(newR);
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPAIR("Advance factor: ", planner.get_extruder_advance_k());
-
-    if (newD >= 0 || newW >= 0 || newH >= 0) {
-      const float ratio = (!newD || !newW || !newH) ? 0 : (newW * newH) / (sq(newD * 0.5) * M_PI);
-      planner.set_advance_ed_ratio(ratio);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("E/D ratio: ");
-      if (ratio) SERIAL_ECHOLN(ratio); else SERIAL_ECHOLNPGM("Automatic");
-    }
+    SERIAL_ECHOPAIR("Advance K=", planner.get_extruder_advance_k());
+    SERIAL_ECHOPGM(" E/D=");
+    const float ratio = planner.get_advance_ed_ratio();
+    ratio ? SERIAL_ECHO(ratio) : SERIAL_ECHOPGM("Auto");
+    SERIAL_EOL;
   }
 #endif // LIN_ADVANCE
 
