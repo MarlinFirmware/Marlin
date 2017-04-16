@@ -1572,11 +1572,11 @@
 #if ENABLED(LEDSTRIP)
 
       /* Strip specific items */
-  #define LEDSTRIP_PIN 42         // Output pin for the strip.
-  #define LEDSTRIP_NLED 45        // Number of LEDs in the strip.
-  #define LEDSTRIP_NSEGMENT 3     // LEDS maybe divided in segments for ease of use.
-  #define LEDSTRIP_TYPE WS2812B   // APA102, WS2811, WS2812, WS2812B, UCS1903, UCS2903, LPD8806, P9813
-  #define LEDSTRIP_EXCHANGE_RU    // GRB LEDs if enabled, else RGB LEDs.
+  #define LEDSTRIP_PIN         42      // Output pin for the strip.
+  #define LEDSTRIP_NLED        45      // Number of LEDs in the strip.
+  #define LEDSTRIP_NSEGMENT    3       // LEDS maybe divided in segments for ease of use.
+  #define LEDSTRIP_TYPE        WS2812B // APA102, WS2811, WS2812, WS2812B, UCS1903, UCS2903, LPD8806, P9813
+  #define LEDSTRIP_EXCHANGE_RU         // GRB LEDs if enabled, else RGB LEDs.
 
 #endif // LEDSTRIP
 

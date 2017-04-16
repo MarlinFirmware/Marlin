@@ -1038,9 +1038,7 @@ void servo_init() {
        return LEDSTRIP_OK;
     }
   
-  #endif //LEDSTRIP
-
-  #if DISABLED(LEDSTRIP)
+  #else // !LEDSTRIP
 
     #define set_rgb_color(R, G, B, W, S, P) set_led_color(R, G, B, W, 0, 0)
 
@@ -1068,7 +1066,7 @@ void servo_init() {
           #endif
         #endif  //BLINKM
     }
-  #endif  //!LEDSTRIP
+  #endif  // HAS_COLOR_LEDS
 
     /*  Handle the various printer events
    *  
