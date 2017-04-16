@@ -387,6 +387,9 @@
     if (code_seen('J')) {
       if (grid_size<2 || grid_size>5) {
         SERIAL_PROTOCOLLNPGM("ERROR - grid size must be between 2 and 5");
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
         return;
       }
       tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M'));
@@ -455,6 +458,9 @@
 
             if (fabs(card_thickness) > 1.5) {
               SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.\n");
+              #if ENABLED(PRINTER_EVENT_LEDS)
+                handle_led_print_event(ALL_OFF);
+              #endif
               return;
             }
           }
@@ -580,6 +586,9 @@
 
       if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
         return;
       }
       ubl.load_mesh(storage_slot);
