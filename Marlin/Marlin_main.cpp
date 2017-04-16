@@ -284,6 +284,7 @@
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
+  void M100_dump_routine( char *title, char *start, char *end); 
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -359,7 +360,11 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 uint8_t commands_in_queue = 0; // Count of commands in the queue
 static uint8_t cmd_queue_index_r = 0, // Ring buffer read position
                cmd_queue_index_w = 0; // Ring buffer write position
+#if ENABLED(M100_FREE_MEMORY_WATCHER)
+  char command_queue[BUFSIZE][MAX_CMD_SIZE];  // Necessary so M100 Free Memory Dumper can show us the commands and any corruption
+#else                                         // This can be collapsed back to the way it was soon.
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
+#endif
 
 /**
  * Current GCode Command
@@ -9561,6 +9566,10 @@ void process_next_command() {
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLN(current_command);
+    #if ENABLED(M100_FREE_MEMORY_WATCHER)
+      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);                                                
+      M100_dump_routine( "   Command Queue:", &command_queue[0][0], &command_queue[BUFSIZE][MAX_CMD_SIZE] );  
+    #endif
   }
 
   // Sanitize the current command:
