@@ -67,27 +67,27 @@
  * Global Leveling:
  *  219            z_fade_height                    (float)
  *
- * Mesh bed leveling:                               43 bytes
+ * MESH_BED_LEVELING:                               43 bytes
  *  223  M420 S    from mbl.status                  (bool)
  *  224            mbl.z_offset                     (float)
  *  228            GRID_MAX_POINTS_X                (uint8_t)
  *  229            GRID_MAX_POINTS_Y                (uint8_t)
  *  230 G29 S3 XYZ z_values[][]                     (float x9, up to float x 81) +288
  *
- * AUTO BED LEVELING                                4 bytes
+ * HAS_BED_PROBE:                                   4 bytes
  *  266  M851      zprobe_zoffset                   (float)
  *
- * ABL_PLANAR (or placeholder):                     36 bytes
+ * ABL_PLANAR:                                      36 bytes
  *  270            planner.bed_level_matrix         (matrix_3x3 = float x9)
  *
- * AUTO_BED_LEVELING_BILINEAR (or placeholder):     47 bytes
+ * AUTO_BED_LEVELING_BILINEAR:                      47 bytes
  *  306            GRID_MAX_POINTS_X                (uint8_t)
  *  307            GRID_MAX_POINTS_Y                (uint8_t)
  *  308            bilinear_grid_spacing            (int x2)
  *  312  G29 L F   bilinear_start                   (int x2)
  *  316            bed_level_grid[][]               (float x9, up to float x256) +988
  *
- * DELTA (if deltabot):                             48 bytes
+ * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
  *  360  M665 R    delta_radius                     (float)
  *  364  M665 L    delta_diagonal_rod               (float)
@@ -99,7 +99,7 @@
  *  388  M665 J    delta_tower_angle_trim[B]        (float)
  *  392  M665 K    delta_tower_angle_trim[C]        (float)
  *
- * Z_DUAL_ENDSTOPS (if not deltabot):               48 bytes
+ * Z_DUAL_ENDSTOPS:                                 48 bytes
  *  348  M666 Z    z_endstop_adj                    (float)
  *  ---            dummy data                       (float x11)
  *
@@ -136,7 +136,7 @@
  *  533  M200 D    volumetric_enabled               (bool)
  *  534  M200 T D  filament_size                    (float x5) (T0..3)
  *
- * TMC2130 Stepper Current:                         20 bytes
+ * HAVE_TMC2130:                                    20 bytes
  *  554  M906 X    stepperX current                 (uint16_t)
  *  556  M906 Y    stepperY current                 (uint16_t)
  *  558  M906 Z    stepperZ current                 (uint16_t)
