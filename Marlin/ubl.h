@@ -97,15 +97,15 @@
           mesh_x_dist = MESH_X_DIST,
           mesh_y_dist = MESH_Y_DIST;
 
+    // If you change this struct, adjust TOTAL_STRUCT_SIZEs below
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       float g29_correction_fade_height = 10.0,
             g29_fade_height_multiplier = 1.0 / 10.0; // It's cheaper to do a floating point multiply than divide,
                                                      // so keep this value and its reciprocal.
+      #define TOTAL_STRUCT_SIZE 40 // Total size of the above fields
+    #else
+      #define TOTAL_STRUCT_SIZE 32 // Total size of the above fields
     #endif
-
-    // If you change this struct, adjust TOTAL_STRUCT_SIZE
-
-    #define TOTAL_STRUCT_SIZE 40 // Total size of the above fields
 
     // padding provides space to add state variables without
     // changing the location of data structures in the EEPROM.
