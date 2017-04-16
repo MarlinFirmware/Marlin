@@ -55,7 +55,11 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
 
 #if ENABLED(BABYSTEPPING)
   long babysteps_done = 0;
-  static void lcd_babystep_z();
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    static void lcd_babystep_zoffset();
+  #else
+    static void lcd_babystep_z();
+  #endif
 #endif
 
 uint8_t lcd_status_message_level;
@@ -435,7 +439,13 @@ uint16_t max_display_update_time = 0;
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
         else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms))
-          screen = lcd_babystep_z;
+          screen =
+            #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+              lcd_babystep_zoffset
+            #else
+              lcd_babystep_z
+            #endif
+          ;
       #endif
 
       currentScreen = screen;
@@ -855,7 +865,7 @@ void kill_screen(const char* lcd_msg) {
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
 
-    #if HAS_BED_PROBE
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       void lcd_babystep_zoffset() {
         if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
@@ -880,14 +890,14 @@ void kill_screen(const char* lcd_msg) {
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
       }
 
-    #else // !HAS_BED_PROBE
+    #else // !BABYSTEP_ZPROBE_OFFSET
 
       void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
       void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
 
-    #endif // HAS_BED_PROBE
+    #endif // !BABYSTEP_ZPROBE_OFFSET
 
-  #endif //BABYSTEPPING
+  #endif // BABYSTEPPING
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -919,12 +929,12 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void _lcd_mesh_edit() {
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
+      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
     }
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
+      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
       return mesh_edit_value;
     }
 
@@ -1076,10 +1086,10 @@ void kill_screen(const char* lcd_msg) {
           MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N4, &flow_percentage[3], 10, 999);
           #if EXTRUDERS > 4
             MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N5, &flow_percentage[4], 10, 999);
-          #endif //EXTRUDERS > 4
-        #endif //EXTRUDERS > 3
-      #endif //EXTRUDERS > 2
-    #endif //EXTRUDERS > 1
+          #endif // EXTRUDERS > 4
+        #endif // EXTRUDERS > 3
+      #endif // EXTRUDERS > 2
+    #endif // EXTRUDERS > 1
 
     //
     // Babystep X:
@@ -1091,7 +1101,9 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
         MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
       #endif
-      #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      #else
         MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
       #endif
     #endif
@@ -1607,17 +1619,23 @@ void kill_screen(const char* lcd_msg) {
       lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
     }
 
+  #endif // LCD_BED_LEVELING
+
+  #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
+
     /**
      * Step 2: Continue Bed Leveling...
      */
     void _lcd_level_bed_continue() {
-      #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
-        reset_bed_level();
+      #if ENABLED(LCD_BED_LEVELING)
+        defer_return_to_status = true;
+        axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
+        lcd_goto_screen(_lcd_level_bed_homing);
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      #else
+        lcd_return_to_status();
+        enqueue_and_echo_commands_P(axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29"));
       #endif
-      defer_return_to_status = true;
-      axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
-      lcd_goto_screen(_lcd_level_bed_homing);
-      enqueue_and_echo_commands_P(PSTR("G28"));
     }
 
     /**
@@ -1630,7 +1648,7 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
 
-  #endif // LCD_BED_LEVELING
+  #endif // LCD_BED_LEVELING || HAS_ABL
 
   /**
    *
@@ -1667,18 +1685,12 @@ void kill_screen(const char* lcd_msg) {
     //
     // Level Bed
     //
-    #if ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
 
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
           MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
-
-    #elif HAS_ABL
-
-      MENU_ITEM(gcode, MSG_LEVEL_BED,
-        axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
-      );
 
     #endif
 

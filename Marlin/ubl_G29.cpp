@@ -50,6 +50,7 @@
   extern float meshedit_done;
   extern long babysteps_done;
   extern float code_value_float();
+  extern uint8_t code_value_byte();
   extern bool code_value_bool();
   extern bool code_has_value();
   extern float probe_pt(float x, float y, bool, int);
@@ -105,8 +106,6 @@
    *                    specified height, no correction is applied and natural printer kenimatics take over. If no
    *                    number is specified for the command, 10mm is assumed to be reasonable.
    *
-   *   G #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
-   *
    *   H #   Height     Specify the Height to raise the nozzle after each manual probe of the bed. The
    *                    default is 5mm.
    *
@@ -119,6 +118,10 @@
    *                    where the nozzle is positioned in the Mesh with (#). You can move the nozzle around on
    *                    the bed and use this feature to select the center of the area (or cell) you want to
    *                    invalidate.
+   *
+   *   J #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
+   *
+   *   j  EEPROM Dump   This function probably goes away after debug is complete.
    *
    *   K #   Kompare    Kompare current Mesh with stored Mesh # replacing current Mesh with the result. This
    *                    command literally performs a diff between two Meshes.
@@ -306,7 +309,7 @@
 
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
   static int g29_verbose_level, phase_value = -1, repetition_cnt,
-             storage_slot = 0, map_type, grid_size_G ; //unlevel_value = -1;
+             storage_slot=0, map_type, grid_size;
   static bool repeat_flag, c_flag, x_flag, y_flag;
   static float x_pos, y_pos, measured_z, card_thickness = 0.0, ubl_constant = 0.0;
 
@@ -381,24 +384,9 @@
       }
     }
 
-    /*
-    if (code_seen('U')) {
-      unlevel_value = code_value_int();
-      //if (!WITHIN(unlevel_value, 0, 7)) {
-      //  SERIAL_PROTOCOLLNPGM("Invalid Unlevel value. (0-4)\n");
-      //  return;
-      //}
-    }
-    */
-
-    if (code_seen('G')) {
-      uint8_t grid_size_G = code_has_value() ? code_value_int() : 3;
-      if (grid_size_G < 2) {
-        SERIAL_PROTOCOLLNPGM("ERROR - grid size must be 2 or more");
-        return;
-      }
-      if (grid_size_G > GRID_MAX_POINTS_X || grid_size_G > GRID_MAX_POINTS_Y) {
-        SERIAL_PROTOCOLLNPGM("ERROR - grid size can NOT exceed GRID_MAX_POINTS_X nor GRID_MAX_POINTS_Y");
+    if (code_seen('J')) {
+      if (grid_size<2 || grid_size>5) {
+        SERIAL_PROTOCOLLNPGM("ERROR - grid size must be between 2 and 5");
         return;
       }
       tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M'));
@@ -571,7 +559,7 @@
     // When we are fully debugged, the EEPROM dump command will get deleted also. But
     // right now, it is good to have the extra information. Soon... we prune this.
     //
-    if (code_seen('J')) g29_eeprom_dump();   // EEPROM Dump
+    if (code_seen('j')) g29_eeprom_dump();   // EEPROM Dump
 
     //
     // When we are fully debugged, this may go away. But there are some valid
@@ -944,8 +932,6 @@
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
-      if (do_ubl_mesh_map) ubl.display_map(map_type);
-
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, 0, NULL, false); // The '0' says we want to use the nozzle's position
       // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
@@ -978,6 +964,8 @@
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       ubl.has_control_of_lcd_panel = true;
+
+      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
 
       while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
@@ -1026,18 +1014,26 @@
       handle_led_print_event(AUTO_LEVELING);
     #endif
 
-    #if ENABLED(ULTRA_LCD)
-      LCD_MESSAGEPGM("Doing G29 UBL!");
-      lcd_quick_feedback();
-    #endif
+    bool err_flag = false;
+
+    LCD_MESSAGEPGM("Doing G29 UBL!");
+    lcd_quick_feedback();
 
     x_flag = code_seen('X') && code_has_value();
-    y_flag = code_seen('Y') && code_has_value();
     x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
-    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
-    repeat_flag = code_seen('R') ? code_value_bool() : false;
 
-    bool err_flag = false;
+    y_flag = code_seen('Y') && code_has_value();
+    y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
+
+    repetition_cnt = 0;
+    repeat_flag = code_seen('R');
+    if (repeat_flag) {
+      repetition_cnt = code_has_value() ? code_value_int() : GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y;
+      if (repetition_cnt < 1) {
+        SERIAL_PROTOCOLLNPGM("Invalid Repetition count.\n");
+        return UBL_ERR;
+      }
+    }
 
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
@@ -1046,8 +1042,8 @@
     }
 
     if (code_seen('G')) {
-      grid_size_G = code_has_value() ? code_value_int() : 3;
-      if (!WITHIN(grid_size_G, 2, 10)) {
+      grid_size = code_has_value() ? code_value_int() : 3;
+      if (!WITHIN(grid_size, 2, 5)) {
         SERIAL_PROTOCOLLNPGM("Invalid grid probe points specified.\n");
         err_flag = true;
       }
@@ -1061,11 +1057,27 @@
     if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
+      SERIAL_PROTOCOLPAIR("\nx_flag = ", x_flag);     // These print blocks are only useful because sometimes the
+      SERIAL_PROTOCOLPAIR("\nx_pos  = ", x_pos );     // data corruption causes x_pos and y_pos to be crazy.  This gets deleted soon.
+      SERIAL_PROTOCOLPAIR("\ncurrent[] = ", current_position[X_AXIS]);
+      SERIAL_PROTOCOLPAIR("\nX_MIN_POS = ", X_MIN_POS);
+      SERIAL_PROTOCOLPAIR("\nX_MAX_POS = ", X_MAX_POS);
+      SERIAL_PROTOCOLPAIR("\nRAW_X_POSITION() = ", RAW_X_POSITION(x_pos));
+      SERIAL_PROTOCOLPAIR("\nwithin() = ", WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS));
+      SERIAL_PROTOCOL("\n");
     }
 
     if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       err_flag = true;
+      SERIAL_PROTOCOLPAIR("\ny_flag = ", y_flag);    // These print blocks are only useful because sometimes the
+      SERIAL_PROTOCOLPAIR("\ny_pos  = ", y_pos );    // data corruption causes x_pos and y_pos to be crazy.  This gets deleted soon.
+      SERIAL_PROTOCOLPAIR("\ncurrent[] = ", current_position[Y_AXIS]);
+      SERIAL_PROTOCOLPAIR("\nY_MIN_POS = ", Y_MIN_POS);
+      SERIAL_PROTOCOLPAIR("\nY_MAX_POS = ", Y_MAX_POS);
+      SERIAL_PROTOCOLPAIR("\nRAW_Y_POSITION() = ", RAW_Y_POSITION(y_pos));
+      SERIAL_PROTOCOLPAIR("\nwithin() = ", WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS));
+      SERIAL_PROTOCOL("\n");
     }
 
     if (err_flag) return UBL_ERR;
@@ -1097,11 +1109,6 @@
       }
     #endif
 
-    repetition_cnt = repeat_flag ? (code_has_value() ? code_value_int() : 9999) : 1;
-    if (repetition_cnt < 1) {
-      SERIAL_PROTOCOLLNPGM("Invalid Repetition count.\n");
-      return UBL_ERR;
-    }
 
     map_type = code_seen('O') && code_has_value() ? code_value_int() : 0;
     if (!WITHIN(map_type, 0, 1)) {
@@ -1399,6 +1406,9 @@
       handle_led_print_event(MANUAL_LEVELING);
     #endif
 
+    if (!code_seen('R'))    // fine_tune_mesh() is special.  If no repetion count flag is specified
+      repetition_cnt = 1;   // we know to do exactly one mesh location. Otherwise we use what the parser decided.
+
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;
@@ -1411,8 +1421,6 @@
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
     do {
-      if (do_ubl_mesh_map) ubl.display_map(map_type);
-
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, 0, not_done, false); // The '0' says we want to use the nozzle's position
                                                                                               // It doesn't matter if the probe can not reach this
                                                                                               // location. This is a manual edit of the Mesh Point.
@@ -1442,6 +1450,8 @@
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       ubl.has_control_of_lcd_panel = true;
+
+      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
 
       lcd_implementation_clear();
       lcd_mesh_edit_setup(new_z);
@@ -1478,7 +1488,7 @@
 
       lcd_implementation_clear();
 
-    } while (location.x_index >= 0 && location.y_index >= 0 && --repetition_cnt);
+    } while (location.x_index >= 0 && location.y_index >= 0 && (--repetition_cnt>0));
 
     FINE_TUNE_EXIT:
 
@@ -1500,16 +1510,16 @@
   }
 
   void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {
-      int8_t grid_G_index_to_xpos[grid_size_G],  //  UBL MESH X index to be probed
-             grid_G_index_to_ypos[grid_size_G],  //  UBL MESH Y index to be probed
-             i, j ,k, xCount, yCount, G_X_index, G_Y_index;  // counter variables
-      float z_values_G[grid_size_G][grid_size_G];
+      int8_t grid_G_index_to_xpos[grid_size],  //  UBL MESH X index to be probed
+             grid_G_index_to_ypos[grid_size],  //  UBL MESH Y index to be probed
+             i, j ,k, xCount, yCount, xi, yi;  // counter variables
+      float z_values_G[grid_size][grid_size];
 
       linear_fit *results;
 
-      for (G_Y_index = 0; G_Y_index < grid_size_G; G_Y_index++)
-       for (G_X_index = 0; G_X_index < grid_size_G; G_X_index++)
-        z_values_G[G_X_index][G_Y_index] = NAN;
+      for (yi = 0; yi < grid_size; yi++)
+        for (xi = 0; xi < grid_size; xi++)
+          z_values_G[xi][yi] = NAN;
 
       uint8_t x_min = GRID_MAX_POINTS_X - 1,
               x_max = 0,
@@ -1528,26 +1538,26 @@
         }
       }
 
-      if (x_max - x_min + 1 < grid_size_G || y_max - y_min + 1 < grid_size_G) {
+      if (x_max - x_min + 1 < grid_size || y_max - y_min + 1 < grid_size) {
         SERIAL_ECHOPAIR("ERROR - probeable UBL MESH smaller than grid - X points: ", x_max - x_min + 1);
         SERIAL_ECHOPAIR("  Y points: ", y_max - y_min + 1);
-        SERIAL_ECHOLNPAIR("  grid: ", grid_size_G);
+        SERIAL_ECHOLNPAIR("  grid: ", grid_size);
         return;
       }
 
       // populate X matrix
-      for (G_X_index = 0; G_X_index < grid_size_G; G_X_index++) {
-        grid_G_index_to_xpos[G_X_index] = x_min + G_X_index * (x_max - x_min) / (grid_size_G - 1);
-        if (G_X_index > 0 && grid_G_index_to_xpos[G_X_index - 1] == grid_G_index_to_xpos[G_X_index]) {
-          grid_G_index_to_xpos[G_X_index] = grid_G_index_to_xpos[G_X_index - 1] + 1;
+      for (xi = 0; xi < grid_size; xi++) {
+        grid_G_index_to_xpos[xi] = x_min + xi * (x_max - x_min) / (grid_size - 1);
+        if (xi > 0 && grid_G_index_to_xpos[xi - 1] == grid_G_index_to_xpos[xi]) {
+          grid_G_index_to_xpos[xi] = grid_G_index_to_xpos[xi - 1] + 1;
         }
       }
 
       // populate Y matrix
-      for (G_Y_index = 0; G_Y_index < grid_size_G; G_Y_index++) {
-        grid_G_index_to_ypos[G_Y_index] = y_min + G_Y_index * (y_max - y_min) / (grid_size_G - 1);
-        if (G_Y_index > 0 && grid_G_index_to_ypos[G_Y_index - 1] == grid_G_index_to_ypos[G_Y_index]) {
-          grid_G_index_to_ypos[G_Y_index] = grid_G_index_to_ypos[G_Y_index - 1] + 1;
+      for (yi = 0; yi < grid_size; yi++) {
+        grid_G_index_to_ypos[yi] = y_min + yi * (y_max - y_min) / (grid_size - 1);
+        if (yi > 0 && grid_G_index_to_ypos[yi - 1] == grid_G_index_to_ypos[yi]) {
+          grid_G_index_to_ypos[yi] = grid_G_index_to_ypos[yi - 1] + 1;
         }
       }
 
@@ -1560,14 +1570,14 @@
       #undef PROBE_Y_FIRST
       #if ENABLED(PROBE_Y_FIRST)
         #define PR_OUTER_VAR xCount
-        #define PR_OUTER_NUM grid_size_G
+        #define PR_OUTER_NUM grid_size
         #define PR_INNER_VAR yCount
-        #define PR_INNER_NUM grid_size_G
+        #define PR_INNER_NUM grid_size
         #else
         #define PR_OUTER_VAR yCount
-        #define PR_OUTER_NUM grid_size_G
+        #define PR_OUTER_NUM grid_size
         #define PR_INNER_VAR xCount
-        #define PR_INNER_NUM grid_size_G
+        #define PR_INNER_NUM grid_size
       #endif
 
       bool zig = PR_OUTER_NUM & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
@@ -1635,9 +1645,9 @@
       //do_blocking_move_to_xy(ubl.mesh_index_to_xpos[grid_G_index_to_xpos[0]], ubl.mesh_index_to_ypos[grid_G_index_to_ypos[0]]);
 
       // least squares code
-      double xxx9[] = { 0,50,100,150,200,           20,70,120,165,195,         0,50,100,150,200,           0,55,100,150,200,           0,65,100,150,205 },
-             yyy9[] = { 0, 1,  2,  3, 4,            50, 51,  52,  53, 54,     100, 101,102,103,104,        150,151,152,153,154,        200,201,202,203,204 },
-             zzz9[] = { 0.01,.002,-.01,-.02,0,      0.01,.002,-.01,-.02,0,     0.01,.002,-.01,-.02,0,      0.01,.002,-.01,-.02,0,      0.01,.002,-.01,-.012,0.01},
+      double xxx5[] = { 0,50,100,150,200,      20,70,120,165,195,     0,50,100,150,200,      0,55,100,150,200,      0,65,100,150,205 },
+             yyy5[] = { 0, 1,  2,  3, 4,       50, 51,  52,  53, 54,  100, 101,102,103,104,  150,151,152,153,154,   200,201,202,203,204 },
+             zzz5[] = { 0.01,.002,-.01,-.02,0, 0.01,.002,-.01,-.02,0, 0.01,.002,-.01,-.02,0, 0.01,.002,-.01,-.02,0, 0.01,.002,-.01,-.012,0.01},
              xxx0[] = { 0.0, 0.0, 1.0 },  // Expect [0,0,0.1,0]
              yyy0[] = { 0.0, 1.0, 0.0 },
              zzz0[] = { 0.1, 0.1, 0.1 },
@@ -1645,10 +1655,10 @@
              yyy[] = { 0.0, 1.0, 0.0, 1.0 },
              zzz[] = { 0.05, 0.05, 0.15, 0.15 };
 
-      results = lsf_linear_fit(xxx9, yyy9, zzz9, COUNT(xxx9));
-      SERIAL_ECHOPAIR("\nxxx9->A =", results->A);
-      SERIAL_ECHOPAIR("\nxxx9->B =", results->B);
-      SERIAL_ECHOPAIR("\nxxx9->D =", results->D);
+      results = lsf_linear_fit(xxx5, yyy5, zzz5, COUNT(xxx5));
+      SERIAL_ECHOPAIR("\nxxx5->A =", results->A);
+      SERIAL_ECHOPAIR("\nxxx5->B =", results->B);
+      SERIAL_ECHOPAIR("\nxxx5->D =", results->D);
       SERIAL_EOL;
 
       results = lsf_linear_fit(xxx0, yyy0, zzz0, COUNT(xxx0));

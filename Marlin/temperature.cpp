@@ -29,7 +29,11 @@
 #include "temperature.h"
 #include "thermistortables.h"
 #include "language.h"
-#include "spi.h"
+
+#if ENABLED(HEATER_0_USES_MAX6675)
+  #include "spi.h"
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #include "stepper.h"
 #endif
