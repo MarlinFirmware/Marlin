@@ -143,7 +143,7 @@ uint16_t max_display_update_time = 0;
   void lcd_control_temperature_preheat_material1_settings_menu();
   void lcd_control_temperature_preheat_material2_settings_menu();
   void lcd_control_motion_menu();
-  void lcd_control_volumetric_menu();
+  void lcd_control_filament_menu();
 
   #if ENABLED(DAC_STEPPER_CURRENT)
     void dac_driver_commit();
@@ -198,26 +198,31 @@ uint16_t max_display_update_time = 0;
   void menu_action_submenu(screenFunc_t data);
   void menu_action_gcode(const char* pgcode);
   void menu_action_function(screenFunc_t data);
+
+  #define define_menu_edit_type(_type, _name) \
+    bool _menu_edit_ ## _name (); \
+    void menu_edit_ ## _name (); \
+    void menu_edit_callback_ ## _name (); \
+    void _menu_action_setting_edit_ ## _name (const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_callback_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback); \
+    void _menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue); \
+    typedef void _name
+
+  define_menu_edit_type(int, int3);
+  define_menu_edit_type(float, float3);
+  define_menu_edit_type(float, float32);
+  define_menu_edit_type(float, float43);
+  define_menu_edit_type(float, float5);
+  define_menu_edit_type(float, float51);
+  define_menu_edit_type(float, float52);
+  define_menu_edit_type(float, float62);
+  define_menu_edit_type(unsigned long, long5);
+  
   void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
-  void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
-  void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float32(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float5(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float52(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float62(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue);
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float43(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float62(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, screenFunc_t callbackFunc);
+  void menu_action_setting_edit_accessor_bool(const char* pstr, bool (*pget)(), void (*pset)(bool));
 
   #if ENABLED(SDSUPPORT)
     void lcd_sdcard_menu();
@@ -375,12 +380,15 @@ uint16_t max_display_update_time = 0;
   #define MENU_ITEM_DUMMY() do { _thisItemNr++; } while(0)
   #define MENU_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #define MENU_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #else //!ENCODER_RATE_MULTIPLIER
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #endif //!ENCODER_RATE_MULTIPLIER
 
   /** Used variables to keep track of the menu */
@@ -417,6 +425,7 @@ uint16_t max_display_update_time = 0;
   // Variables used when editing values.
   const char* editLabel;
   void* editValue;
+  void* editSetter;
   int32_t minEditValue, maxEditValue;
   screenFunc_t callbackFunc;              // call this after editing
 
@@ -2105,7 +2114,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-    MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+    MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
 
     #if HAS_LCD_CONTRAST
       //MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -2543,9 +2552,13 @@ void kill_screen(const char* lcd_msg) {
    * "Control" > "Filament" submenu
    *
    */
-  void lcd_control_volumetric_menu() {
+  void lcd_control_filament_menu() {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
+
+    #if ENABLED(LIN_ADVANCE)
+      MENU_ITEM_EDIT_ACCESSOR(float3, MSG_ADVANCE_K, planner.get_extruder_advance_k, planner.set_extruder_advance_k, 0, 999);
+    #endif
 
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
 
@@ -3101,6 +3114,8 @@ void kill_screen(const char* lcd_msg) {
    *   void _menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
    *   void menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
    *   void menu_action_setting_edit_callback_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue, const screenFunc_t callback); // edit int with callback
+   *   void _menu_action_setting_edit_accessor_int3(const char * const pstr, int (*pget)(), void (*pset)(int), const int minValue, const int maxValue);
+   *   void menu_action_setting_edit_accessor_int3(const char * const pstr, int (*pget)(), void (*pset)(int), const int minValue, const int maxValue); // edit int via pget and pset accessor functions
    *
    * You can then use one of the menu macros to present the edit interface:
    *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -3112,6 +3127,9 @@ void kill_screen(const char* lcd_msg) {
    * Also: MENU_MULTIPLIER_ITEM_EDIT, MENU_ITEM_EDIT_CALLBACK, and MENU_MULTIPLIER_ITEM_EDIT_CALLBACK
    *
    *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+   *
+   * Values that are get/set via functions (As opposed to global variables) can use the accessor form:
+   *   MENU_ITEM_EDIT_ACCESSOR(int3, MSG_SPEED, get_feedrate_percentage, set_feedrate_percentage, 10, 999)
    */
   #define menu_edit_type(_type, _name, _strFunc, _scale) \
     bool _menu_edit_ ## _name () { \
@@ -3121,7 +3139,11 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) \
         lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale))); \
       if (lcd_clicked) { \
-        *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
+        _type value = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
+        if (editValue != NULL) \
+          *((_type*)editValue) = value; \
+        else if (editSetter != NULL) \
+          ((void (*)(_type))editSetter)(value); \
         lcd_goto_previous_menu(); \
       } \
       return lcd_clicked; \
@@ -3135,6 +3157,7 @@ void kill_screen(const char* lcd_msg) {
       \
       editLabel = pstr; \
       editValue = ptr; \
+      editSetter = NULL; \
       minEditValue = minValue * _scale; \
       maxEditValue = maxValue * _scale - minEditValue; \
       encoderPosition = (*ptr) * _scale - minEditValue; \
@@ -3142,11 +3165,27 @@ void kill_screen(const char* lcd_msg) {
     void menu_action_setting_edit_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_ ## _name; \
-    }\
+    } \
     void menu_action_setting_edit_callback_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
+    } \
+    void _menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue) { \
+      lcd_save_previous_screen(); \
+      \
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; \
+      \
+      editLabel = pstr; \
+      editValue = NULL; \
+      editSetter = pset; \
+      minEditValue = minValue * _scale; \
+      maxEditValue = maxValue * _scale - minEditValue; \
+      encoderPosition = pget() * _scale - minEditValue; \
+    } \
+    void menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue) { \
+      _menu_action_setting_edit_accessor_ ## _name(pstr, pget, pset, minValue, maxValue); \
+      currentScreen = menu_edit_ ## _name; \
     } \
     typedef void _name
 
@@ -3251,6 +3290,11 @@ void kill_screen(const char* lcd_msg) {
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
+  }
+  void menu_action_setting_edit_accessor_bool(const char* pstr, bool (*pget)(), void (*pset)(bool)) {
+    UNUSED(pstr);
+    pset(!pget());
+    lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
   }
 
 #endif // ULTIPANEL

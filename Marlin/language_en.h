@@ -300,8 +300,8 @@
 #ifndef MSG_MOTION
   #define MSG_MOTION                          _UxGT("Motion")
 #endif
-#ifndef MSG_VOLUMETRIC
-  #define MSG_VOLUMETRIC                      _UxGT("Filament")
+#ifndef MSG_FILAMENT
+  #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
   #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
@@ -669,5 +669,9 @@
     #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
   #endif
 #endif // LCD_HEIGHT < 4
+
+#ifndef MSG_ADVANCE_K
+  #define MSG_ADVANCE_K                         _UxGT("Advance K")
+#endif
 
 #endif // LANGUAGE_EN_H

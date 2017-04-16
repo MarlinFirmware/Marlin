@@ -108,7 +108,7 @@
 #define MSG_E5STEPS                         "E5steps/mm"
 #define MSG_TEMPERATURE                     "\xc9\xd2"
 #define MSG_MOTION                          "\xdf\xb2"
-#define MSG_VOLUMETRIC                      "Filament"
+#define MSG_FILAMENT                        "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "LCD contrast"
