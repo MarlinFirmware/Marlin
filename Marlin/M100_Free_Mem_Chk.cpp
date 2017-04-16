@@ -41,7 +41,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(char * const ptr);
- *    void M100_dump_free_memory(char *ptr, char *sp);
+ *    void M100_dump_routine( char *title, char *start, char *end);
  *
  * Initial version by Roxy-3D
  */
@@ -52,7 +52,9 @@
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
 
-#define TEST_BYTE ((uint8_t) 0xE5)
+#define TEST_BYTE ((char) 0xE5)
+
+extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
@@ -78,7 +80,7 @@ char* top_of_stack() {
 // Count the number of test bytes at the specified location.
 int16_t count_test_bytes(const uint8_t * const ptr) {
   for (uint16_t i = 0; i < 32000; i++)
-    if (ptr[i] != TEST_BYTE)
+    if (((char) ptr[i]) != TEST_BYTE)
       return i - 1;
 
   return -1;
@@ -118,8 +120,20 @@ int16_t count_test_bytes(const uint8_t * const ptr) {
       }
       safe_delay(25);
       SERIAL_CHAR('|');                   // Point out non test bytes
-      for (uint8_t i = 0; i < 16; i++)
-        SERIAL_CHAR(ptr[i] == TEST_BYTE ? ' ' : '?');
+      for (uint8_t i = 0; i < 16; i++) {
+        char ccc;
+        ccc = (char) ptr[i];                     
+        if ( &ptr[i]>=&command_queue[0][0] && &ptr[i]<&command_queue[BUFSIZE][MAX_CMD_SIZE]) { // Print out ASCII in the command
+          if ( ccc<' ' || ccc>0x7e)                                                            // buffer area
+            ccc = ' ';
+        } 
+        else
+          if (ccc != TEST_BYTE)           // If not display data in the command buffer
+            ccc = '?';                    // area, we flag bytes that don't match the test byte
+          else
+            ccc = ' ';
+        SERIAL_CHAR(ccc);
+      }
       SERIAL_EOL;
       ptr += 16;
       safe_delay(25);
@@ -220,7 +234,7 @@ void init_free_memory(uint8_t *ptr, int16_t size) {
   SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
 
   for (uint16_t i = 0; i < size; i++) {
-    if (ptr[i] != TEST_BYTE) {
+    if (((char) ptr[i]) != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : 0x", hex_word((uint16_t)ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
     }
@@ -288,7 +302,9 @@ int check_for_free_memory_corruption(char *title) {
 //      while ( !READ(63))
 //        idle();
         safe_delay(20);
+        #ifdef M100_FREE_MEMORY_DUMPER  
         M100_dump_routine( "   Memory corruption detected with sp<Heap\n", (char *)0x1b80,  0x21ff );
+        #endif
     }
 
     // Scan through the range looking for the biggest block of 0xE5's we can find
