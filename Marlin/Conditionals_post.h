@@ -821,7 +821,7 @@
 
 
   // Settings for the FastLED library
-  #if HAS_COLOR_LEDS
+  #if ENABLED(LEDSTRIP)
     #define LEDSTRIP_OK         0
     #define LEDSTRIP_NOLEDSPIN  1
     #define LEDSTRIP_NONLEDS    2
