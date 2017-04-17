@@ -150,8 +150,8 @@
  *  576  M906 E4   stepperE4 current                (uint16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
- *  580  M905 K    extruder_advance_k               (float)
- *  584  M905 WHD  advance_ed_ratio                 (float)
+ *  580  M900 K    extruder_advance_k               (float)
+ *  584  M900 WHD  advance_ed_ratio                 (float)
  *
  *  588                                Minimum end-point
  * 1909 (588 + 36 + 9 + 288 + 988)     Maximum end-point
@@ -1665,7 +1665,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Linear Advance:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M905 K", planner.get_extruder_advance_k());
+      SERIAL_ECHOPAIR("  M900 K", planner.get_extruder_advance_k());
       SERIAL_ECHOLNPAIR(" R", planner.get_advance_ed_ratio());
     #endif
   }

@@ -8797,13 +8797,13 @@ inline void gcode_M503() {
 
 #if ENABLED(LIN_ADVANCE)
   /**
-   * M905: Set and/or Get advance K factor and WH/D ratio
+   * M900: Set and/or Get advance K factor and WH/D ratio
    *
    *  K<factor>                  Set advance K factor
    *  R<ratio>                   Set ratio directly (overrides WH/D)
    *  W<width> H<height> D<diam> Set ratio from WH/D
    */
-  inline void gcode_M905() {
+  inline void gcode_M900() {
     stepper.synchronize();
 
     const float newK = code_seen('K') ? code_value_float() : -1;
@@ -10264,8 +10264,8 @@ void process_next_command() {
       #endif // DUAL_X_CARRIAGE
 
       #if ENABLED(LIN_ADVANCE)
-        case 905: // M905: Set advance K factor.
-          gcode_M905();
+        case 900: // M900: Set advance K factor.
+          gcode_M900();
           break;
       #endif
 
