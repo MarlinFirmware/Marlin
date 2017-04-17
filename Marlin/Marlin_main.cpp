@@ -11417,7 +11417,7 @@ void prepare_move_to_destination() {
 
 #endif // MORGAN_SCARA
 
-#if ENABLED(TEMP_STAT_LEDS)
+#ifdef TEMP_STAT_LEDS
 
   static bool red_led = false;
   static millis_t next_status_led_update_ms = 0;
@@ -11432,7 +11432,7 @@ void prepare_move_to_destination() {
       HOTEND_LOOP() {
         max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
       }
-      bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
+      bool new_led = (max_temp > TEMP_STAT_LEDS+1.0) ? true : (max_temp < TEMP_STAT_LEDS) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;
         #if PIN_EXISTS(STAT_LED_RED)
@@ -11851,7 +11851,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if ENABLED(TEMP_STAT_LEDS)
+  #ifdef TEMP_STAT_LEDS
     handle_status_leds();
   #endif
 

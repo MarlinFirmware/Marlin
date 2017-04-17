@@ -1499,9 +1499,10 @@
 //#define SOFT_PWM_DITHER
 
 // Temperature status LEDs that display the hotend and bed temperature.
-// If all hotends, bed temperature, and target temperature are under 54C
-// then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
-//#define TEMP_STAT_LEDS
+// If all hotends, bed temperature, and target temperature are under the
+// defined value (default 54.0C, 1C hysteresis), the BLUE led is on;
+// otherwise, the RED led is on.  To disable entirely, comment out.
+#define TEMP_STAT_LEDS 54.0
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
