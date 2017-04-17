@@ -116,7 +116,7 @@
 #define MSG_E5STEPS                         _UxGT("E5кроків/мм")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Рух")
-#define MSG_VOLUMETRIC                      _UxGT("Волокно")
+#define MSG_FILAMENT                        _UxGT("Волокно")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E в мм3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Діам. волок.")
 #define MSG_CONTRAST                        _UxGT("контраст LCD")

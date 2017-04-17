@@ -120,7 +120,7 @@
 #define MSG_E5STEPS                         _UxGT("E5steps/mm")                                         // E4steps/mm
 #define MSG_TEMPERATURE                     _UxGT("Sıcaklık")                                           // Sıcaklık
 #define MSG_MOTION                          _UxGT("Hareket")                                            // Hareket
-#define MSG_VOLUMETRIC                      _UxGT("Filaman")                                            // Filaman
+#define MSG_FILAMENT                        _UxGT("Filaman")                                            // Filaman
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")                                           // E in mm3
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Çap")                                           // Fil. Çap
 #define MSG_CONTRAST                        _UxGT("LCD Kontrast")                                       // LCD Kontrast
