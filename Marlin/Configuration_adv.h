@@ -227,6 +227,7 @@
 
 // Define a pin to turn case light on/off
 //#define CASE_LIGHT_PIN 4
+
 #if PIN_EXISTS(CASE_LIGHT)
   #define INVERT_CASE_LIGHT false   // Set to true if HIGH is the OFF state (active low)
   //#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
@@ -585,6 +586,7 @@
  * Warning: Does not respect endstops!
  */
 //#define BABYSTEPPING
+
 #if ENABLED(BABYSTEPPING)
   #define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false  // Change if Z babysteps should go the other way

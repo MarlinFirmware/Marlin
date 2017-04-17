@@ -49,6 +49,10 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
   millis_t previous_lcd_status_ms = 0;
 #endif
 
+#if ENABLED(PRINTER_EVENT_LEDS)
+  extern void handle_led_print_event(uint8_t code);
+#endif
+
 #if ENABLED(BABYSTEPPING)
   long babysteps_done = 0;
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -1589,10 +1593,16 @@ void kill_screen(const char* lcd_msg) {
       if (lcd_clicked) {
         manual_probe_index = 0;
         #if ENABLED(MESH_BED_LEVELING)
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            handle_led_print_event(MANUAL_LEVELING);
+          #endif
           _lcd_level_goto_next_point();
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
           // UBL click handling should go here
         #elif ENABLED(PROBE_MANUALLY)
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            handle_led_print_event(MANUAL_LEVELING);
+          #endif
           enqueue_and_echo_commands_P(PSTR("G29"));
           _lcd_level_goto_next_point();
         #endif
