@@ -24,13 +24,16 @@
  * temperature.cpp - temperature control
  */
 
-
-
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
 #include "thermistortables.h"
 #include "language.h"
+
+#if ENABLED(HEATER_0_USES_MAX6675)
+  #include "spi.h"
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #include "stepper.h"
 #endif
@@ -51,8 +54,8 @@
   static void* heater_ttbl_map[2] = {(void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
-  static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE);
-  static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN);
+  static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
+  static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN);
 #endif
 
 Temperature thermalManager;
@@ -161,8 +164,8 @@ unsigned long Temperature::raw_temp_value[MAX_EXTRUDERS] = { 0 };
 unsigned long Temperature::raw_temp_bed_value = 0;
 
 // Init min and max temp with extreme values to prevent false errors during startup
-int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP),
-    Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP),
+int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP, HEATER_4_RAW_LO_TEMP),
+    Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP, HEATER_4_RAW_HI_TEMP),
     Temperature::minttemp[HOTENDS] = { 0 },
     Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
 
@@ -466,12 +469,13 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    const int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN };
-    const int fanBit[] = {
+    constexpr int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    constexpr int fanBit[] = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
-      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 : 3
+      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 :               3,
+      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 : 4
     };
     uint8_t fanState = 0;
 
@@ -947,6 +951,15 @@ void Temperature::updateTemperaturesFromRawValues() {
 
 #endif
 
+#if ENABLED(HEATER_0_USES_MAX6675)
+  #ifndef MAX6675_SCK_PIN
+    #define MAX6675_SCK_PIN SCK_PIN
+  #endif
+  #ifndef MAX6675_DO_PIN
+    #define MAX6675_DO_PIN MISO_PIN
+  #endif
+  Spi<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+#endif
 
 /**
  * Initialize the temperature manager
@@ -979,6 +992,9 @@ void Temperature::init() {
   #if HAS_HEATER_3
     SET_OUTPUT(HEATER_3_PIN);
   #endif
+  #if HAS_HEATER_4
+    SET_OUTPUT(HEATER_3_PIN);
+  #endif
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif
@@ -1009,11 +1025,13 @@ void Temperature::init() {
     OUT_WRITE(SCK_PIN, LOW);
     OUT_WRITE(MOSI_PIN, HIGH);
     SET_INPUT_PULLUP(MISO_PIN);
-    OUT_WRITE(SS_PIN, HIGH);
 
+    max6675_spi.init();
+
+    OUT_WRITE(SS_PIN, HIGH);
     OUT_WRITE(MAX6675_SS, HIGH);
 
-  #endif //HEATER_0_USES_MAX6675
+  #endif // HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
     #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
@@ -1038,6 +1056,9 @@ void Temperature::init() {
   #endif
   #if HAS_TEMP_3
     ANALOG_SELECT(TEMP_3_PIN);
+  #endif
+  #if HAS_TEMP_4
+    ANALOG_SELECT(TEMP_4_PIN);
   #endif
   #if HAS_TEMP_BED
     ANALOG_SELECT(TEMP_BED_PIN);
@@ -1084,6 +1105,16 @@ void Temperature::init() {
       #endif
     #else
       SET_OUTPUT(E3_AUTO_FAN_PIN);
+    #endif
+  #endif
+  #if HAS_AUTO_FAN_4 && !AUTO_4_IS_0 && !AUTO_4_IS_1 && !AUTO_4_IS_2 && !AUTO_4_IS_3
+    #if E4_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E4_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(E4_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      SET_OUTPUT(E4_AUTO_FAN_PIN);
     #endif
   #endif
 
@@ -1139,6 +1170,14 @@ void Temperature::init() {
         #ifdef HEATER_3_MAXTEMP
           TEMP_MAX_ROUTINE(3);
         #endif
+        #if HOTENDS > 4
+          #ifdef HEATER_4_MINTEMP
+            TEMP_MIN_ROUTINE(4);
+          #endif
+          #ifdef HEATER_4_MAXTEMP
+            TEMP_MAX_ROUTINE(4);
+          #endif
+        #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
@@ -1270,18 +1309,18 @@ void Temperature::disable_all_heaters() {
 
   #if HAS_TEMP_HOTEND
     DISABLE_HEATER(0);
-  #endif
-
-  #if HOTENDS > 1 && HAS_TEMP_1
-    DISABLE_HEATER(1);
-  #endif
-
-  #if HOTENDS > 2 && HAS_TEMP_2
-    DISABLE_HEATER(2);
-  #endif
-
-  #if HOTENDS > 3 && HAS_TEMP_3
-    DISABLE_HEATER(3);
+    #if HOTENDS > 1
+      DISABLE_HEATER(1);
+      #if HOTENDS > 2
+        DISABLE_HEATER(2);
+        #if HOTENDS > 3
+          DISABLE_HEATER(3);
+          #if HOTENDS > 4
+            DISABLE_HEATER(4);
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
   #endif
 
   #if HAS_TEMP_BED
@@ -1337,9 +1376,7 @@ void Temperature::disable_all_heaters() {
     // Read a big-endian temperature value
     max6675_temp = 0;
     for (uint8_t i = sizeof(max6675_temp); i--;) {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      max6675_temp |= SPDR;
+      max6675_temp |= max6675_spi.receive();
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
@@ -1390,6 +1427,9 @@ void Temperature::set_current_temp_raw() {
       current_temperature_raw[2] = raw_temp_value[2];
       #if HAS_TEMP_3
         current_temperature_raw[3] = raw_temp_value[3];
+        #if HAS_TEMP_4
+          current_temperature_raw[4] = raw_temp_value[4];
+        #endif
       #endif
     #endif
   #endif
@@ -1506,8 +1546,8 @@ void Temperature::isr() {
   CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
   sei();
 
-  static uint8_t temp_count = 0;
-  static TempState temp_state = StartupDelay;
+  static int8_t temp_count = -1;
+  static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
@@ -1531,9 +1571,12 @@ void Temperature::isr() {
       ISR_STATICS(2);
       #if HOTENDS > 3
         ISR_STATICS(3);
-      #endif
-    #endif
-  #endif
+        #if HOTENDS > 4
+          ISR_STATICS(4);
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
   #if HAS_HEATER_BED
     ISR_STATICS(BED);
   #endif
@@ -1567,9 +1610,13 @@ void Temperature::isr() {
           #if HOTENDS > 3
             soft_pwm_3 = (soft_pwm_3 & pwm_mask) + soft_pwm[3];
             WRITE_HEATER_3(soft_pwm_3 > pwm_mask ? HIGH : LOW);
-          #endif
-        #endif
-      #endif
+            #if HOTENDS > 4
+              soft_pwm_4 = (soft_pwm_4 & pwm_mask) + soft_pwm[4];
+              WRITE_HEATER_4(soft_pwm_4 > pwm_mask ? HIGH : LOW);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
 
       #if HAS_HEATER_BED
         soft_pwm_BED = (soft_pwm_BED & pwm_mask) + soft_pwm_bed;
@@ -1595,13 +1642,16 @@ void Temperature::isr() {
       if (soft_pwm_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
       #if HOTENDS > 1
         if (soft_pwm_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
-      #endif
-      #if HOTENDS > 2
-        if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
-      #endif
-      #if HOTENDS > 3
-        if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
-      #endif
+        #if HOTENDS > 2
+          if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
+          #if HOTENDS > 3
+            if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+            #if HOTENDS > 4
+              if (soft_pwm_4 <= pwm_count_tmp) WRITE_HEATER_4(0);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
 
       #if HAS_HEATER_BED
         if (soft_pwm_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
@@ -1671,32 +1721,38 @@ void Temperature::isr() {
 
     if (slow_pwm_count == 0) {
 
-      SLOW_PWM_ROUTINE(0); // EXTRUDER 0
+      SLOW_PWM_ROUTINE(0);
       #if HOTENDS > 1
-        SLOW_PWM_ROUTINE(1); // EXTRUDER 1
+        SLOW_PWM_ROUTINE(1);
         #if HOTENDS > 2
-          SLOW_PWM_ROUTINE(2); // EXTRUDER 2
+          SLOW_PWM_ROUTINE(2);
           #if HOTENDS > 3
-            SLOW_PWM_ROUTINE(3); // EXTRUDER 3
-          #endif
-        #endif
-      #endif
+            SLOW_PWM_ROUTINE(3);
+            #if HOTENDS > 4
+              SLOW_PWM_ROUTINE(4);
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
       #if HAS_HEATER_BED
         _SLOW_PWM_ROUTINE(BED, soft_pwm_bed); // BED
       #endif
 
     } // slow_pwm_count == 0
 
-    PWM_OFF_ROUTINE(0); // EXTRUDER 0
+    PWM_OFF_ROUTINE(0);
     #if HOTENDS > 1
-      PWM_OFF_ROUTINE(1); // EXTRUDER 1
+      PWM_OFF_ROUTINE(1);
       #if HOTENDS > 2
-        PWM_OFF_ROUTINE(2); // EXTRUDER 2
+        PWM_OFF_ROUTINE(2);
         #if HOTENDS > 3
-          PWM_OFF_ROUTINE(3); // EXTRUDER 3
-        #endif
-      #endif
-    #endif
+          PWM_OFF_ROUTINE(3);
+          #if HOTENDS > 4
+            PWM_OFF_ROUTINE(4);
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
     #if HAS_HEATER_BED
       PWM_OFF_ROUTINE(BED); // BED
     #endif
@@ -1744,23 +1800,41 @@ void Temperature::isr() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      // EXTRUDER 0
       if (state_timer_heater_0 > 0) state_timer_heater_0--;
-      #if HOTENDS > 1    // EXTRUDER 1
+      #if HOTENDS > 1
         if (state_timer_heater_1 > 0) state_timer_heater_1--;
-        #if HOTENDS > 2    // EXTRUDER 2
+        #if HOTENDS > 2
           if (state_timer_heater_2 > 0) state_timer_heater_2--;
-          #if HOTENDS > 3    // EXTRUDER 3
+          #if HOTENDS > 3
             if (state_timer_heater_3 > 0) state_timer_heater_3--;
-          #endif
-        #endif
-      #endif
+            #if HOTENDS > 4
+              if (state_timer_heater_4 > 0) state_timer_heater_4--;
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
       #if HAS_HEATER_BED
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
     } // ((pwm_count >> SOFT_PWM_SCALE) & 0x3F) == 0
 
   #endif // SLOW_PWM_HEATERS
+
+  //
+  // Update lcd buttons 488 times per second
+  //
+  static bool do_buttons;
+  if ((do_buttons ^= true)) lcd_buttons_update();
+
+  /**
+   * One sensor is sampled on every other call of the ISR.
+   * Each sensor is read 16 (OVERSAMPLENR) times, taking the average.
+   *
+   * On each Prepare pass, ADC is started for a sensor pin.
+   * On the next pass, the ADC value is read and accumulated.
+   *
+   * This gives each ADC 0.9765ms to charge up.
+   */
 
   #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
   #ifdef MUX5
@@ -1769,108 +1843,94 @@ void Temperature::isr() {
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
 
-  // Prepare or measure a sensor, each one every 12th frame
-  switch (temp_state) {
-    case PrepareTemp_0:
-      #if HAS_TEMP_0
+  switch (adc_sensor_state) {
+
+    case SensorsReady: {
+      // All sensors have been read. Stay in this state for a few
+      // ISRs to save on calls to temp update/checking code below.
+      constexpr int extra_loops = MIN_ADC_ISR_LOOPS - (int)SensorsReady;
+      static uint8_t delay_count = 0;
+      if (extra_loops > 0) {
+        if (delay_count == 0) delay_count = extra_loops;   // Init this delay
+        if (--delay_count)                                 // While delaying...
+          adc_sensor_state = (ADCSensorState)(int(SensorsReady) - 1); // retain this state (else, next state will be 0)
+        break;
+      }
+      else
+        adc_sensor_state = (ADCSensorState)0; // Fall-through to start first sensor now
+    }
+
+    #if HAS_TEMP_0
+      case PrepareTemp_0:
         START_ADC(TEMP_0_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_0;
-      break;
-    case MeasureTemp_0:
-      #if HAS_TEMP_0
+        break;
+      case MeasureTemp_0:
         raw_temp_value[0] += ADC;
-      #endif
-      temp_state = PrepareTemp_BED;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_BED:
-      #if HAS_TEMP_BED
+    #if HAS_TEMP_BED
+      case PrepareTemp_BED:
         START_ADC(TEMP_BED_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_BED;
-      break;
-    case MeasureTemp_BED:
-      #if HAS_TEMP_BED
+        break;
+      case MeasureTemp_BED:
         raw_temp_bed_value += ADC;
-      #endif
-      temp_state = PrepareTemp_1;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_1:
-      #if HAS_TEMP_1
+    #if HAS_TEMP_1
+      case PrepareTemp_1:
         START_ADC(TEMP_1_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_1;
-      break;
-    case MeasureTemp_1:
-      #if HAS_TEMP_1
+        break;
+      case MeasureTemp_1:
         raw_temp_value[1] += ADC;
-      #endif
-      temp_state = PrepareTemp_2;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_2:
-      #if HAS_TEMP_2
+    #if HAS_TEMP_2
+      case PrepareTemp_2:
         START_ADC(TEMP_2_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_2;
-      break;
-    case MeasureTemp_2:
-      #if HAS_TEMP_2
+        break;
+      case MeasureTemp_2:
         raw_temp_value[2] += ADC;
-      #endif
-      temp_state = PrepareTemp_3;
-      break;
+        break;
+    #endif
 
-    case PrepareTemp_3:
-      #if HAS_TEMP_3
+    #if HAS_TEMP_3
+      case PrepareTemp_3:
         START_ADC(TEMP_3_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_3;
-      break;
-    case MeasureTemp_3:
-      #if HAS_TEMP_3
+        break;
+      case MeasureTemp_3:
         raw_temp_value[3] += ADC;
-      #endif
-      temp_state = Prepare_FILWIDTH;
-      break;
+        break;
+    #endif
 
-    case Prepare_FILWIDTH:
-      #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    #if HAS_TEMP_4
+      case PrepareTemp_4:
+        START_ADC(TEMP_4_PIN);
+        break;
+      case MeasureTemp_4:
+        raw_temp_value[4] += ADC;
+        break;
+    #endif
+
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      case Prepare_FILWIDTH:
         START_ADC(FILWIDTH_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = Measure_FILWIDTH;
       break;
-    case Measure_FILWIDTH:
-      #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
-        if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
-          raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
-          raw_filwidth_value += ((unsigned long)ADC << 7); //add new ADC reading
+      case Measure_FILWIDTH:
+        if (ADC > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
+          raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
+          raw_filwidth_value += ((unsigned long)ADC << 7); // Add new ADC reading, scaled by 128
         }
-      #endif
-      temp_state = PrepareTemp_0;
-      temp_count++;
-      break;
+        break;
+    #endif
 
-    case StartupDelay:
-      temp_state = PrepareTemp_0;
-      break;
+    case StartupDelay: break;
 
-    // default:
-    //   SERIAL_ERROR_START;
-    //   SERIAL_ERRORLNPGM("Temp measurement error!");
-    //   break;
-  } // switch(temp_state)
+  } // switch(adc_sensor_state)
 
-  if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+  if (!adc_sensor_state && ++temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
 
     temp_count = 0;
 
@@ -1885,35 +1945,26 @@ void Temperature::isr() {
     ZERO(raw_temp_value);
     raw_temp_bed_value = 0;
 
+    #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) > (HEATER_##N##_RAW_HI_TEMP) ? -1 : 1)
+
     int constexpr temp_dir[] = {
       #if ENABLED(HEATER_0_USES_MAX6675)
          0
-      #elif HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-        -1
       #else
-         1
+        TEMPDIR(0)
       #endif
-      #if HAS_TEMP_1 && HOTENDS > 1
-        #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
-      #if HAS_TEMP_2 && HOTENDS > 2
-        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
-      #if HAS_TEMP_3 && HOTENDS > 3
-        #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-          , -1
-        #else
-          ,  1
-        #endif
-      #endif
+      #if HOTENDS > 1
+        , TEMPDIR(1)
+        #if HOTENDS > 2
+          , TEMPDIR(2)
+          #if HOTENDS > 3
+            , TEMPDIR(3)
+            #if HOTENDS > 4
+              , TEMPDIR(4)
+            #endif // HOTENDS > 4
+          #endif // HOTENDS > 3
+        #endif // HOTENDS > 2
+      #endif // HOTENDS > 1
     };
 
     for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
@@ -1942,6 +1993,9 @@ void Temperature::isr() {
     #endif
 
   } // temp_count >= OVERSAMPLENR
+
+  // Go to the next state, up to SensorsReady
+  adc_sensor_state = (ADCSensorState)((int(adc_sensor_state) + 1) % int(StartupDelay));
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {

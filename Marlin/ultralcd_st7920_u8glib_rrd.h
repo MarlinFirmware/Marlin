@@ -43,13 +43,6 @@
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
 
-#define DELAY_0_NOP  NOOP
-#define DELAY_1_NOP  __asm__("nop\n\t")
-#define DELAY_2_NOP  __asm__("nop\n\t" "nop\n\t")
-#define DELAY_3_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t")
-#define DELAY_4_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t")
-
-
 // If you want you can define your own set of delays in Configuration.h
 //#define ST7920_DELAY_1 DELAY_0_NOP
 //#define ST7920_DELAY_2 DELAY_0_NOP

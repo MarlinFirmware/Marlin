@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -74,8 +74,8 @@
 //===========================================================================
 //============================= DELTA Printer ===============================
 //===========================================================================
-// For a Delta printer replace the configuration files with the files in the
-// example_configurations/delta directory.
+// For Delta printers start with one of the configuration files in the
+// example_configurations/delta directory and customize for your machine.
 //
 
 //===========================================================================
@@ -146,7 +146,7 @@
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
-// :[1, 2, 3, 4]
+// :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Enable if your E steppers or extruder gear ratios are not identical
@@ -258,6 +258,7 @@
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
+#define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_BED 5
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -286,6 +287,7 @@
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
+#define HEATER_4_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -295,6 +297,7 @@
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 //===========================================================================
@@ -437,6 +440,9 @@
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
 
+  // height from z=0.00 to home position
+  #define DELTA_HEIGHT 277 // get this value from auto calibrate
+
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 127.0
 
@@ -444,15 +450,30 @@
   // See http://minow.blogspot.com/index.html#4918805519571907051
   //#define DELTA_CALIBRATION_MENU
 
+  // G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
+  //#define DELTA_AUTO_CALIBRATION
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    #define DELTA_CALIBRATION_DEFAULT_POINTS 3 // set the default number of probe points : n*n (1-4)
+    #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - 15) // set the radius for the calibration probe points
+  #endif
+
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
 
   //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
 
-#endif
+  // Trim adjustments for individual towers
+  #define DELTA_RADIUS_TRIM_TOWER_1 0.0
+  #define DELTA_RADIUS_TRIM_TOWER_2 0.0
+  #define DELTA_RADIUS_TRIM_TOWER_3 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_1 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_2 0.0
+  #define DELTA_TOWER_ANGLE_TRIM_3 0.0
 
-// Enable this option for Toshiba steppers
-//#define CONFIG_STEPPERS_TOSHIBA
+#endif
 
 //===========================================================================
 //============================== Endstop Settings ===========================
@@ -569,83 +590,118 @@
 #define DEFAULT_EJERK                  5.0
 
 
-//===========================================================================
-//============================= Z Probe Options =============================
-//===========================================================================
-// @section probes
+/**
+ * ===========================================================================
+ * ============================= Z Probe Options =============================
+ * ===========================================================================
+ *    @section probes
+ *
+ *
+ *   Probe Type
+ *   Probes are sensors/switches that are activated / deactivated before/after use.
+ *
+ *   Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
+ *   You must activate one of these to use Auto Bed Leveling below.
+ *
+ *   Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
+ */
 
-//
-// Probe Type
-// Probes are sensors/switches that are activated / deactivated before/after use.
-//
-// Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
-// You must activate one of these to use Auto Bed Leveling below.
-//
-// Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
-//
-
-// The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
-// Use G29 repeatedly, adjusting the Z height at each point with movement commands
-// or (with LCD_BED_LEVELING) the LCD controller.
+/**
+ *   The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
+ *   Use G29 repeatedly, adjusting the Z height at each point with movement commands
+ *   or (with LCD_BED_LEVELING) the LCD controller.
+ */
 //#define PROBE_MANUALLY
 
-// A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
-// For example an inductive probe, or a setup that uses the nozzle to probe.
-// An inductive probe must be deactivated to go below
-// its trigger-point if hardware endstops are active.
+/**
+ *   A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
+ *   For example an inductive probe, or a setup that uses the nozzle to probe.
+ *   An inductive probe must be deactivated to go below
+ *   its trigger-point if hardware endstops are active.
+ */
 //#define FIX_MOUNTED_PROBE
 
-// The BLTouch probe emulates a servo probe.
-// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
+/**
+ *   Z Servo Probe, such as an endstop switch on a rotating arm.
+ *   NUM_SERVOS also needs to be set.  This is found later in this file.  Set it to
+ *   1 + the number of other servos in your system.
+ */
+//#define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
+//#define Z_SERVO_ANGLES {70,0}  // Z Servo Deploy and Stow angles
+
+ /**
+ *   The BLTouch probe emulates a servo probe.
+ *   If using a BLTouch then NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES
+ *   are setup for you in the background and you shouldn't need to set/modify/enable them
+ *   with the possible exception of Z_ENDSTOP_SERVO_NR.
+ */
 //#define BLTOUCH
 //#define BLTOUCH_DELAY 375 // (ms) Enable and increase if needed
 
-// Z Servo Probe, such as an endstop switch on a rotating arm.
-//#define Z_ENDSTOP_SERVO_NR 0
-//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
+/**
+ *   BLTouch WARNING  -  ONLY APPLIES TO VERSIONS OF MARLIN BEFORE 15 FEB 2017
+ *   Unless using interrupt endstops, there is a MINIMUM feedrate for Marlin to reliably
+ *   sense the BLTouch.  If the feedrate is too slow then G28 & G29 can sometimes result
+ *   in the print head being driven into the bed until manual intervention.
+ *   The minimum feedrate calculation is:
+ *
+ *     feedrate minimum =  24000 / DEFAULT_AXIS_STEPS_PER_UNIT
+ *        where feedrate is in "mm/minute" or "inches/minute" depending on the units used
+ *        in DEFAULT_AXIS_STEPS_PER_UNIT
+ *
+ *   This applies to the HOMING_FEEDRATE_Z and Z_PROBE_SPEED_FAST.  If PROBE_DOUBLE_TOUCH
+ *   is enabled then it also applies to Z_PROBE_SPEED_SLOW.
+ */
+
+// A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
+//#define SOLENOID_PROBE
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
-//#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+//#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-//
-// Allen Key Probe is defined in the Delta example configurations.
-//
-
-// Z Probe to nozzle (X,Y) offset, relative to (0, 0).
-// X and Y offsets must be integers.
-//
-// In the following example the X and Y offsets are both positive:
-// #define X_PROBE_OFFSET_FROM_EXTRUDER 10
-// #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
-//
-//    +-- BACK ---+
-//    |           |
-//  L |    (+) P  | R <-- probe (20,20)
-//  E |           | I
-//  F | (-) N (+) | G <-- nozzle (10,10)
-//  T |           | H
-//    |    (-)    | T
-//    |           |
-//    O-- FRONT --+
-//  (0,0)
+/**
+ *   Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+ *   X and Y offsets must be integers.
+ *
+ *   In the following example the X and Y offsets are both positive:
+ *   #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+ *   #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+ *
+ *      +-- BACK ---+
+ *      |           |
+ *    L |    (+) P  | R <-- probe (20,20)
+ *    E |           | I
+ *    F | (-) N (+) | G <-- nozzle (10,10)
+ *    T |           | H
+ *      |    (-)    | T
+ *      |           |
+ *      O-- FRONT --+
+ *    (0,0)
+ */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -23 // KosselPro actual: -22.919
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -6  // KosselPro actual: -6.304
-// Kossel Pro note: The correct value is likely -17.45 but I'd rather err on the side of
-// not giving someone a head crash. Use something like G29 Z-0.2 to adjust as needed.
+/**
+ * Kossel Pro note: The correct value is likely -17.45 but I'd rather err on the side of
+ * not giving someone a head crash. Use something like G29 Z-0.2 to adjust as needed.
+ */
 #define Z_PROBE_OFFSET_FROM_EXTRUDER -17.25  // Increase this if the first layer is too thin (remember: it's a negative number so increase means closer to zero).
-
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
+
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
+
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
 
-// Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
-// Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
+/**
+ * Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
+ * Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
+ */
 #define Z_PROBE_ALLEN_KEY
 
 #if ENABLED(Z_PROBE_ALLEN_KEY)
@@ -695,47 +751,64 @@
 
 #endif // Z_PROBE_ALLEN_KEY
 
-// *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
-//
-// To continue using the Z-min-endstop for homing, be sure to disable Z_SAFE_HOMING.
-// Example: To park the head outside the bed area when homing with G28.
-//
-// To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
-//
-// For a servo-based Z probe, just set Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES above.
-//
-// - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
-// - Use 5V for powered (usu. inductive) sensors.
-// - Otherwise connect:
-//   - normally-closed switches to GND and D32.
-//   - normally-open switches to 5V and D32.
-//
-// Normally-closed switches are advised and are the default.
-//
+/**
+ *
+ *   *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
+ *
+ *   - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
+ *   - Use 5V for powered (usu. inductive) sensors.
+ *   - Otherwise connect:
+ *     - normally-closed switches to GND and D32.
+ *     - normally-open switches to 5V and D32.
+ *
+ *   Normally-closed switches are advised and are the default.
+ *
+ *
+ *   PIN OPTIONS\SETUP FOR Z PROBES
+ *
+ *
+ *   WARNING:
+ *   Setting the wrong pin may have unexpected and potentially disastrous consequences.
+ *   Use with caution and do your homework.
+ *
+ *
+ *   All Z PROBE pin options are configured by defining (or not defining)
+ *   the following five items:
+ *       Z_MIN_PROBE_ENDSTOP – defined below
+ *       Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN – defined below
+ *       Z_MIN_PIN - defined in the pins_YOUR_BOARD.h file
+ *       Z_MIN_PROBE_PIN - defined in the pins_YOUR_BOARD.h file
+ *
+ *   If you're using a probe then you need to tell Marlin which pin to use as
+ *   the Z MIN ENDSTOP.  Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN determines if the
+ *   Z_MIN_PIN or if the Z_MIN_PROBE_PIN is used.
+ *
+ *   The pin selected for the probe is ONLY checked during probing operations.
+ *   If you want to use the Z_MIN_PIN as an endstop AND you want to have a Z PROBE
+ *   then you’ll need to use the Z_MIN_PROBE_PIN option.
+ *
+ *   Z_MIN_PROBE_ENDSTOP also needs to be enabled if you want to use Z_MIN_PROBE_PIN.
+ *
+ *   The settings needed to use the Z_MIN_PROBE_PIN are:
+ *       1. select the type of probe you're using
+ *       2. define Z_MIN_PROBE_PIN in your pins_YOUR_BOARD.h file
+ *       3. disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+ *       4. enable Z_MIN_PROBE_ENDSTOP
+ *   NOTE – if Z_MIN_PIN is defined then it’ll be checked during all moves in the
+ *          negative Z direction.
+ *
+ *   The settings needed to use the Z_MIN_PIN are:
+ *       1. select the type of probe you're using
+ *       2. enable Z_MIN _PIN in your pins_YOUR_BOARD.h file
+ *       3. enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+ *       4. disable Z_MIN_PROBE_ENDSTOP
+ *   NOTES – if Z_MIN_PROBE_PIN is defined in the pins_YOUR_BOARD.h file then it’ll be
+ *          ignored by Marlin
+ */
 
-//
-// The Z_MIN_PROBE_PIN sets the Arduino pin to use. (See your board's pins file.)
-// Since the RAMPS Aux4->D32 pin maps directly to the Arduino D32 pin, D32 is the
-// default pin for all RAMPS-based boards. Most boards use the X_MAX_PIN by default.
-// To use a different pin you can override it here.
-//
-// WARNING:
-// Setting the wrong pin may have unexpected and potentially disastrous consequences.
-// Use with caution and do your homework.
-//
-//#define Z_MIN_PROBE_PIN X_MAX_PIN
-
-//
-// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
-// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
-//
 //#define Z_MIN_PROBE_ENDSTOP
-
-// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
-// The Z_MIN_PIN will then be used for both Z-homing and probing.
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-// To use a probe you must enable one of the two options above!
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -757,9 +830,8 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   100 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES   5 // Z Clearance between probe points
 
-//
 // For M851 give a range for adjusting the Z probe offset
-//
+
 #define Z_PROBE_OFFSET_RANGE_MIN -15
 #define Z_PROBE_OFFSET_RANGE_MAX   5
 
@@ -790,6 +862,9 @@
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
 
+// Enable this option for Toshiba stepper drivers
+//#define CONFIG_STEPPERS_TOSHIBA
+
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
@@ -797,6 +872,7 @@
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
 
 // @section homing
 
@@ -1005,7 +1081,7 @@
 // For DELTA this is the top-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 277 // Distance between the nozzle to printbed after homing
+#define MANUAL_Z_HOME_POS DELTA_HEIGHT // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1557,12 +1633,45 @@
 //define BlinkM/CyzRgb Support
 //#define BLINKM
 
-// Support for an RGB LED using 3 separate pins with optional PWM
+/**
+ * RGB LED / LED Strip Control
+ *
+ * Enable support for an RGB LED connected to 5V digital pins, or
+ * an RGB Strip connected to MOSFETs controlled by digital pins.
+ *
+ * Adds the M150 command to set the LED (or LED strip) color.
+ * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
+ * luminance values can be set from 0 to 255.
+ *
+ * *** CAUTION ***
+ *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
+ *  as the Arduino cannot handle the current the LEDs will require.
+ *  Failure to follow this precaution can destroy your Arduino!
+ * *** CAUTION ***
+ *
+ */
 //#define RGB_LED
-#if ENABLED(RGB_LED)
+//#define RGBW_LED
+#if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
+  #define RGB_LED_W_PIN -1
+#endif
+
+/**
+ * Printer Event LEDs
+ *
+ * During printing, the LEDs will reflect the printer status:
+ *
+ *  - Gradually change from blue to violet as the heated bed gets to target temp
+ *  - Gradually change from violet to red as the hotend gets to temperature
+ *  - Change to white to illuminate work surface
+ *  - Change to green once print has finished
+ *  - Turn off after the print has finished and the user has pushed a button
+ */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+  #define PRINTER_EVENT_LEDS
 #endif
 
 /*********************************************************************\
@@ -1589,33 +1698,39 @@
 // With this option servos are powered only during movement, then turned off to prevent jitter.
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 
-/**********************************************************************\
- * Support for a filament diameter sensor
- * Also allows adjustment of diameter at print time (vs  at slicing)
- * Single extruder only at this point (extruder 0)
+/**
+ * Filament Width Sensor
  *
- * Motherboards
- * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector
- * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
- * 301 - Rambo  - uses Analog input 3
- * Note may require analog pins to be defined for different motherboards
- **********************************************************************/
-// Uncomment below to enable
+ * Measures the filament width in real-time and adjusts
+ * flow rate to compensate for any irregularities.
+ *
+ * Also allows the measured filament diameter to set the
+ * extrusion rate, so the slicer only has to specify the
+ * volume.
+ *
+ * Only a single extruder is supported at this time.
+ *
+ *  34 RAMPS_14    : Analog input 5 on the AUX2 connector
+ *  81 PRINTRBOARD : Analog input 2 on the Exp1 connector (version B,C,D,E)
+ * 301 RAMBO       : Analog input 3
+ *
+ * Note: May require analog pins to be defined for other boards.
+ */
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define FILAMENT_SENSOR_EXTRUDER_NUM 0   //The number of the extruder that has the filament sensor (0,1,2)
-  #define MEASUREMENT_DELAY_CM        14   //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
+  #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)
+  #define MEASUREMENT_DELAY_CM        14    // (cm) The distance from the filament sensor to the melting chamber
 
-  #define MEASURED_UPPER_LIMIT         3.30  //upper limit factor used for sensor reading validation in mm
-  #define MEASURED_LOWER_LIMIT         1.90  //lower limit factor for sensor reading validation in mm
-  #define MAX_MEASUREMENT_DELAY       20     //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
+  #define MEASURED_UPPER_LIMIT         3.30 // (mm) Upper limit used to validate sensor reading
+  #define MEASURED_LOWER_LIMIT         1.90 // (mm) Lower limit used to validate sensor reading
+  #define MAX_MEASUREMENT_DELAY       20    // (bytes) Buffer size for stored measurements (1 byte per cm). Must be larger than MEASUREMENT_DELAY_CM.
 
-  #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially
+  #define DEFAULT_MEASURED_FILAMENT_DIA DEFAULT_NOMINAL_FILAMENT_DIA // Set measured to nominal initially
 
-  //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+  // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
 #endif
 

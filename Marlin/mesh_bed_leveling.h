@@ -47,7 +47,7 @@
   public:
     static uint8_t status; // Has Mesh and Is Active bits
     static float z_offset,
-                 z_values[GRID_MAX_POINTS_Y][GRID_MAX_POINTS_X],
+                 z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                  index_to_xpos[GRID_MAX_POINTS_X],
                  index_to_ypos[GRID_MAX_POINTS_Y];
 
@@ -55,7 +55,7 @@
 
     static void reset();
 
-    static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[py][px] = z; }
+    static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
     static bool active()                       { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
     static void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
@@ -108,8 +108,8 @@
       #endif
     ) {
       const int8_t cx = cell_index_x(x0), cy = cell_index_y(y0);
-      const float z1 = calc_z0(x0, index_to_xpos[cx], z_values[cy][cx], index_to_xpos[cx + 1], z_values[cy][cx + 1]),
-                  z2 = calc_z0(x0, index_to_xpos[cx], z_values[cy + 1][cx], index_to_xpos[cx + 1], z_values[cy + 1][cx + 1]),
+      const float z1 = calc_z0(x0, index_to_xpos[cx], z_values[cx][cy], index_to_xpos[cx + 1], z_values[cx + 1][cy]),
+                  z2 = calc_z0(x0, index_to_xpos[cx], z_values[cx][cy + 1], index_to_xpos[cx + 1], z_values[cx + 1][cy + 1]),
                   z0 = calc_z0(y0, index_to_ypos[cy], z1, index_to_ypos[cy + 1], z2);
 
       return z_offset + z0

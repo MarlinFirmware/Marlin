@@ -42,13 +42,6 @@
 #define Z_STOP_PIN         20
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN         -1
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN         15

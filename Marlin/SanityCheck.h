@@ -34,10 +34,10 @@
 #endif
 
 /**
- * We try our best to include sanity checks for all the changes configuration
- * directives because people have a tendency to use outdated config files with
- * the bleding edge source code, but sometimes this is not enough. This check
- * will force a minimum config file revision, otherwise Marlin will not build.
+ * We try our best to include sanity checks for all changed configuration
+ * directives because users have a tendency to use outdated config files with
+ * the bleeding-edge source code, but sometimes this is not enough. This check
+ * forces a minimum config file revision. Otherwise Marlin will not build.
  */
 #if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
   #error "You are using an old Configuration.h file, update it before building Marlin."
@@ -172,6 +172,8 @@
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
 #elif defined(min_software_endstops) || defined(max_software_endstops)
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
+#elif ENABLED(Z_PROBE_SLED) && defined(SLED_PIN)
+  #error "Replace SLED_PIN with SOL1_PIN (applies to both Z_PROBE_SLED and SOLENOID_PROBE)."
 #endif
 
 /**
@@ -262,12 +264,12 @@
 #if ENABLED(BABYSTEPPING)
   #if DISABLED(ULTRA_LCD)
     #error "BABYSTEPPING requires an LCD controller."
-  #endif
-  #if ENABLED(SCARA)
+  #elif ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #endif
-  #if ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
+  #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
+  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
+    #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
   #endif
 #endif
 
@@ -309,8 +311,8 @@
  */
 #if EXTRUDERS > 1
 
-  #if EXTRUDERS > 4
-    #error "The maximum number of EXTRUDERS in Marlin is 4."
+  #if EXTRUDERS > 5
+    #error "Marlin supports a maximum of 5 EXTRUDERS."
   #endif
 
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
@@ -477,6 +479,9 @@ static_assert(1 >= 0
   #if ENABLED(Z_PROBE_SLED)
     + 1
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    + 1
+  #endif
   , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
 );
 
@@ -488,6 +493,17 @@ static_assert(1 >= 0
    */
   #if ENABLED(Z_PROBE_SLED) && ENABLED(DELTA)
     #error "You cannot use Z_PROBE_SLED with DELTA."
+  #endif
+
+  /**
+   * SOLENOID_PROBE requirements
+   */
+  #if ENABLED(SOLENOID_PROBE)
+    #if ENABLED(EXT_SOLENOID)
+      #error "SOLENOID_PROBE is incompatible with EXT_SOLENOID."
+    #elif !HAS_SOLENOID_1
+      #error "SOLENOID_PROBE requires SOL1_PIN. It can be added to your Configuration.h."
+    #endif
   #endif
 
   /**
@@ -788,7 +804,7 @@ static_assert(1 >= 0
  */
 #if !HAS_HEATER_0
   #error "HEATER_0_PIN not defined for this board."
-#elif !PIN_EXISTS(TEMP_0)
+#elif !PIN_EXISTS(TEMP_0) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
   #error "TEMP_0_PIN not defined for this board."
 #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
@@ -818,19 +834,34 @@ static_assert(1 >= 0
     #endif
     #if HOTENDS > 3
       #if TEMP_SENSOR_3 == 0
-        #error "TEMP_SENSOR_3 is required with 4 HOTENDS."
+        #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
       #elif !HAS_HEATER_3
         #error "HEATER_3_PIN not defined for this board."
       #elif !PIN_EXISTS(TEMP_3)
         #error "TEMP_3_PIN not defined for this board."
       #endif
+      #if HOTENDS > 4
+        #if TEMP_SENSOR_4 == 0
+          #error "TEMP_SENSOR_4 is required with 5 HOTENDS."
+        #elif !HAS_HEATER_4
+          #error "HEATER_4_PIN not defined for this board."
+        #elif !PIN_EXISTS(TEMP_4)
+          #error "TEMP_4_PIN not defined for this board."
+        #endif
+      #elif TEMP_SENSOR_4 != 0
+        #error "TEMP_SENSOR_4 shouldn't be set with only 4 extruders."
+      #endif
     #elif TEMP_SENSOR_3 != 0
       #error "TEMP_SENSOR_3 shouldn't be set with only 3 extruders."
+    #elif TEMP_SENSOR_4 != 0
+      #error "TEMP_SENSOR_4 shouldn't be set with only 3 extruders."
     #endif
   #elif TEMP_SENSOR_2 != 0
     #error "TEMP_SENSOR_2 shouldn't be set with only 2 extruders."
   #elif TEMP_SENSOR_3 != 0
     #error "TEMP_SENSOR_3 shouldn't be set with only 2 extruders."
+  #elif TEMP_SENSOR_4 != 0
+    #error "TEMP_SENSOR_4 shouldn't be set with only 2 extruders."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   #error "TEMP_SENSOR_1 shouldn't be set with only 1 extruder."
@@ -838,6 +869,8 @@ static_assert(1 >= 0
   #error "TEMP_SENSOR_2 shouldn't be set with only 1 extruder."
 #elif TEMP_SENSOR_3 != 0
   #error "TEMP_SENSOR_3 shouldn't be set with only 1 extruder."
+#elif TEMP_SENSOR_4 != 0
+  #error "TEMP_SENSOR_4 shouldn't be set with only 1 extruder."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
@@ -956,12 +989,23 @@ static_assert(1 >= 0
 /**
  * RGB_LED Requirements
  */
+#define _RGB_TEST (PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
 #if ENABLED(RGB_LED)
-  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
+  #if !_RGB_TEST
     #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(RGBW_LED)
+    #error "Please enable only one of RGB_LED and RGBW_LED."
   #elif ENABLED(BLINKM)
     #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
   #endif
+#elif ENABLED(RGBW_LED)
+  #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
+    #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGBW_LED and BLINKM are currently incompatible (both use M150)."
+  #endif
+#elif DISABLED(BLINKM) && ENABLED(PRINTER_EVENT_LEDS)
+  #error "PRINTER_EVENT_LEDS requires BLINKM, RGB_LED, or RGBW_LED."
 #endif
 
 /**
@@ -1068,3 +1112,34 @@ static_assert(1 >= 0
   #endif
   , "Please select no more than one LCD controller option."
 );
+
+#if ENABLED(HAVE_TMC2130) && !( \
+       ENABLED(  X_IS_TMC2130 ) \
+    || ENABLED( X2_IS_TMC2130 ) \
+    || ENABLED(  Y_IS_TMC2130 ) \
+    || ENABLED( Y2_IS_TMC2130 ) \
+    || ENABLED(  Z_IS_TMC2130 ) \
+    || ENABLED( Z2_IS_TMC2130 ) \
+    || ENABLED( E0_IS_TMC2130 ) \
+    || ENABLED( E1_IS_TMC2130 ) \
+    || ENABLED( E2_IS_TMC2130 ) \
+    || ENABLED( E3_IS_TMC2130 ) )
+  #error "Choose at least one TMC2130 stepper."
+#endif
+
+#if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+  #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+#endif
+
+/**
+ * Require 4 or more elements in per-axis initializers
+ */
+constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
+                sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
+                sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
+static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
+static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
+static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
+static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");

@@ -105,6 +105,7 @@
 #define MSG_E2STEPS                         "E2steps/mm"
 #define MSG_E3STEPS                         "E3steps/mm"
 #define MSG_E4STEPS                         "E4steps/mm"
+#define MSG_E5STEPS                         "E5steps/mm"
 #define MSG_TEMPERATURE                     "\xc9\xd2"
 #define MSG_MOTION                          "\xdf\xb2"
 #define MSG_VOLUMETRIC                      "Filament"

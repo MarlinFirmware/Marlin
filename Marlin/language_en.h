@@ -291,6 +291,9 @@
 #ifndef MSG_E4STEPS
   #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #endif
+#ifndef MSG_E5STEPS
+  #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
 #endif
@@ -309,10 +312,10 @@
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #endif
-#ifndef MSG_STORE_EPROM
+#ifndef MSG_STORE_EEPROM
   #define MSG_STORE_EEPROM                    _UxGT("Store memory")
 #endif
-#ifndef MSG_LOAD_EPROM
+#ifndef MSG_LOAD_EEPROM
   #define MSG_LOAD_EEPROM                     _UxGT("Load memory")
 #endif
 #ifndef MSG_RESTORE_FAILSAFE
@@ -494,6 +497,12 @@
 #endif
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
+#endif
+#ifndef MSG_DELTA_AUTO_CALIBRATE
+  #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")
+#endif
+#ifndef MSG_DELTA_HEIGHT_CALIBRATE
+  #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")
