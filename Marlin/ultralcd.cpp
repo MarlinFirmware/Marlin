@@ -63,7 +63,7 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
- 
+
 // The main status screen
 void lcd_status_screen();
 
@@ -128,7 +128,7 @@ uint16_t max_display_update_time = 0;
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
-        
+
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   void lcd_main_menu();
   void lcd_tune_menu();
@@ -1920,10 +1920,10 @@ void kill_screen(const char* lcd_msg) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-         #if E_MANUAL == 1
+          #if E_MANUAL == 1
             STATIC_ITEM(MSG_MOVE_E, true, true); break;
           #else
-            switch(axis - E_AXIS) {
+            switch (axis - E_AXIS) {
               case 0: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E1, true, true); break;
               case 1: STATIC_ITEM(MSG_MOVE_E MSG_MOVE_E2, true, true); break;
               #if E_MANUAL > 2
@@ -2339,9 +2339,9 @@ void kill_screen(const char* lcd_msg) {
     void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) _reset_acceleration_rates(); }
     void _reset_e0_acceleration_rate() { _reset_e_acceleration_rate(0); }
     void _reset_e1_acceleration_rate() { _reset_e_acceleration_rate(1); }
-    #if EXTRUDERS > 2
+    #if E_STEPPERS > 2 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 2)
       void _reset_e2_acceleration_rate() { _reset_e_acceleration_rate(2); }
-      #if EXTRUDERS > 3
+      #if E_STEPPERS > 3 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 3)
         void _reset_e3_acceleration_rate() { _reset_e_acceleration_rate(3); }
       #endif
     #endif
@@ -2357,9 +2357,9 @@ void kill_screen(const char* lcd_msg) {
     }
     void _planner_refresh_e0_positioning() { _reset_e_acceleration_rate(0); }
     void _planner_refresh_e1_positioning() { _reset_e_acceleration_rate(1); }
-    #if EXTRUDERS > 2
+    #if E_STEPPERS > 2 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 2)
       void _planner_refresh_e2_positioning() { _reset_e_acceleration_rate(2); }
-      #if EXTRUDERS > 3
+      #if E_STEPPERS > 3 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 3)
         void _planner_refresh_e3_positioning() { _reset_e_acceleration_rate(3); }
       #endif
     #endif
@@ -2401,9 +2401,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
-      #if EXTRUDERS > 2
+      #if E_STEPPERS > 2 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 2)
         MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
-        #if EXTRUDERS > 3
+        #if E_STEPPERS > 3 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 3)
           MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
         #endif
       #endif
@@ -2425,9 +2425,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
-      #if EXTRUDERS > 2
+      #if E_STEPPERS > 2 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 2)
         MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
-        #if EXTRUDERS > 3
+        #if E_STEPPERS > 3 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 3)
           MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
         #endif
       #endif
@@ -2449,9 +2449,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
-      #if EXTRUDERS > 2
+      #if E_STEPPERS > 2 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 2)
         MENU_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
-        #if EXTRUDERS > 3
+        #if E_STEPPERS > 3 || (ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) && EXTRUDERS > 3)
           MENU_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
         #endif
       #endif

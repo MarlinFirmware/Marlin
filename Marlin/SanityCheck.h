@@ -321,7 +321,7 @@
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-#elif ENABLED(SINGLENOZZLE) 
+#elif ENABLED(SINGLENOZZLE)
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
 #endif
 

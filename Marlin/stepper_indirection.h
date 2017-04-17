@@ -384,17 +384,13 @@
 /**
  * Extruder indirection for the single E axis
  */
-#if ENABLED(SWITCHING_EXTRUDER)
-  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
-  #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
-#elif ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+#if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS == 2
     #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
     #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
     #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
   #elif EXTRUDERS == 4
-    #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E0_STEP_WRITE(v); break; case 2: E1_STEP_WRITE(v); break; case 3: E1_STEP_WRITE(v); } }
+    #define E_STEP_WRITE(v) { if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else E1_STEP_WRITE(v); }
     #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); } }
     #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }
   #endif
