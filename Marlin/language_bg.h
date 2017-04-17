@@ -116,7 +116,7 @@
 #define MSG_E5STEPS                         _UxGT("E5 стъпки/mm")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Движение")
-#define MSG_VOLUMETRIC                      _UxGT("Нишка")
+#define MSG_FILAMENT                        _UxGT("Нишка")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Диам. нишка")
 #define MSG_CONTRAST                        _UxGT("LCD контраст")

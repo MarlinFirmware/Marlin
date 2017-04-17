@@ -108,7 +108,7 @@
 #define MSG_E5STEPS                         "E5/mm"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
-#define MSG_VOLUMETRIC                      "Filamento"
+#define MSG_FILAMENT                        "Filamento"
 #define MSG_VOLUMETRIC_ENABLED              "Extr. em mm3"
 #define MSG_FILAMENT_DIAM                   "Diametro Fil."
 #define MSG_CONTRAST                        "Contraste"
