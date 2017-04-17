@@ -167,6 +167,7 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void lcd_mesh_edit_setup(float initial);
   float lcd_mesh_edit();
+  float lcd_manual_probe();
   void lcd_z_offset_edit_setup(float);
   float lcd_z_offset_edit();
 #endif

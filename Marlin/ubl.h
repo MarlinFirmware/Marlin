@@ -61,6 +61,7 @@
   void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+  char *ftostr42sign(const float&, char);
   char *ftostr43sign(const float&, char);
 
   void gcode_G26();
