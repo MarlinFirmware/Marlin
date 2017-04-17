@@ -59,8 +59,8 @@ bool endstop_monitor_flag = false;
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
-  static const unsigned char RXD_NAME[] PROGMEM = {"RXD"};
-  static const unsigned char TXD_NAME[] PROGMEM = {"TXD"};
+  static const char RXD_NAME[] PROGMEM = {"RXD"};
+  static const char TXD_NAME[] PROGMEM = {"TXD"};
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,11 +92,11 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      {RXD_NAME, 0, 1},
-      {TXD_NAME, 1, 1},
+      {RXD_NAME, "0", "1"},
+      {TXD_NAME, "1", "1"},
     #elif AVR_ATmega1284_FAMILY
-      {RXD_NAME, 8, 1},
-      {TXD_NAME, 9, 1},
+      {RXD_NAME, "8", "1"},
+      {TXD_NAME, "9", "1"},
     #endif
   #endif
 
@@ -181,7 +181,7 @@ static bool pwm_status(uint8_t pin) {
 
 
 
-const uint8_t* const PWM_other[][3] PROGMEM = {
+const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     {&TCCR0A, &TCCR0B, &TIMSK0},
     {&TCCR1A, &TCCR1B, &TIMSK1},
   #if defined(TCCR2A) && defined(COM2A1)
@@ -199,7 +199,7 @@ const uint8_t* const PWM_other[][3] PROGMEM = {
 };
 
 
-const uint8_t* const PWM_OCR[][3] PROGMEM = {
+const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
   #ifdef TIMER0A
     {&OCR0A,&OCR0B,0},
