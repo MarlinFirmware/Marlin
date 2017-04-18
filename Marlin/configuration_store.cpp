@@ -1201,13 +1201,6 @@ void MarlinSettings::reset() {
 
   #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
-  #if ENABLED(INCH_MODE_SUPPORT)
-    extern float linear_unit_factor;
-    #define LINEAR_UNIT(N) ((N) / linear_unit_factor)
-  #else
-    #define LINEAR_UNIT(N) N
-  #endif
-
   /**
    * M503 - Report current settings in RAM
    *
