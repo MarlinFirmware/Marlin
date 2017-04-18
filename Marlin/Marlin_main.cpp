@@ -5021,7 +5021,9 @@ inline void gcode_G28() {
 
       float e_old[XYZ],
             dr_old = delta_radius,
-            zh_old = home_offset[Z_AXIS];
+            zh_old = home_offset[Z_AXIS],
+            alpha_old = delta_tower_angle_trim[A_AXIS],
+            beta_old = delta_tower_angle_trim[B_AXIS];
       COPY(e_old,endstop_adj);
 
       // print settings
@@ -5032,7 +5034,7 @@ inline void gcode_G28() {
       SERIAL_EOL;
       LCD_MESSAGEPGM("Checking... AC");
 
-      SERIAL_PROTOCOLPAIR("Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+      SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (abs(probe_points) > 1) {
         SERIAL_PROTOCOLPGM("    Ex:");
         if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
@@ -5046,6 +5048,16 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
       }
       SERIAL_EOL;
+      if (probe_points > 2) {
+        SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
+        if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
+        SERIAL_PROTOCOL_F(delta_tower_angle_trim[A_AXIS], 2);
+        SERIAL_PROTOCOLPGM("  Ty:");
+        if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
+        SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
+        SERIAL_PROTOCOLPGM("  Tz:+0.00");
+        SERIAL_EOL;
+      }
 
       #if ENABLED(Z_PROBE_SLED)
         DEPLOY_PROBE();
@@ -5121,11 +5133,15 @@ inline void gcode_G28() {
           COPY(e_old, endstop_adj);
           dr_old = delta_radius;
           zh_old = home_offset[Z_AXIS];
+          alpha_old = delta_tower_angle_trim[A_AXIS];
+          beta_old = delta_tower_angle_trim[B_AXIS];
 
-          float e_delta[XYZ] = { 0.0 }, r_delta = 0.0;
+          float e_delta[XYZ] = { 0.0 }, r_delta = 0.0,
+                t_alpha = 0.0, t_beta = 0.0;
           const float r_diff = delta_radius - delta_calibration_radius,
                       h_factor = 1.00 + r_diff * 0.001,
-                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)); //2.25 for r_diff = 20mm
+                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)), //2.25 for r_diff = 20mm
+                      a_factor = 100.0 / delta_calibration_radius;
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z1000(I) ZP(1.00, I)
@@ -5136,6 +5152,8 @@ inline void gcode_G28() {
           #define Z2250(I) ZP(r_factor, I)
           #define Z0750(I) ZP(r_factor / 3.00, I)
           #define Z0375(I) ZP(r_factor / 6.00, I)
+          #define Z0444(I) ZP(a_factor * 4.0 / 9.0, I)
+          #define Z0888(I) ZP(a_factor * 8.0 / 9.0, I)
 
           switch (probe_points) {
             case 1:
@@ -5151,10 +5169,10 @@ inline void gcode_G28() {
               break;
 
             case -2:
-              e_delta[X_AXIS] = Z1050(0) - Z0700(7) + Z0350(11) + Z0350(3);
-              e_delta[Y_AXIS] = Z1050(0) + Z0350(7) - Z0700(11) + Z0350(3);
-              e_delta[Z_AXIS] = Z1050(0) + Z0350(7) + Z0350(11) - Z0700(3);
-              r_delta         = Z2250(0) - Z0750(7) - Z0750(11) - Z0750(3);
+              e_delta[X_AXIS] = Z1050(0)                                  - Z0700(7) + Z0350(11) + Z0350(3);
+              e_delta[Y_AXIS] = Z1050(0)                                  + Z0350(7) - Z0700(11) + Z0350(3);
+              e_delta[Z_AXIS] = Z1050(0)                                  + Z0350(7) + Z0350(11) - Z0700(3);
+              r_delta         = Z2250(0)                                  - Z0750(7) - Z0750(11) - Z0750(3);
               break;
 
             default:
@@ -5162,6 +5180,8 @@ inline void gcode_G28() {
               e_delta[Y_AXIS] = Z1050(0) - Z0175(1) + Z0350(5) - Z0175(9) + Z0175(7) - Z0350(11) + Z0175(3);
               e_delta[Z_AXIS] = Z1050(0) - Z0175(1) - Z0175(5) + Z0350(9) + Z0175(7) + Z0175(11) - Z0350(3);
               r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
+              t_alpha         =          + Z0444(1) - Z0888(5) + Z0444(9) + Z0444(7) - Z0888(11) + Z0444(3);
+              t_beta          =          - Z0888(1) + Z0444(5) + Z0444(9) - Z0888(7) + Z0444(11) + Z0444(3);
               break;
           }
 
@@ -5173,6 +5193,9 @@ inline void gcode_G28() {
           home_offset[Z_AXIS] -= z_temp;
           LOOP_XYZ(i) endstop_adj[i] -= z_temp;
 
+          delta_tower_angle_trim[A_AXIS] += t_alpha;
+          delta_tower_angle_trim[B_AXIS] -= t_beta;
+
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
         else { // !iterate
@@ -5180,6 +5203,8 @@ inline void gcode_G28() {
           COPY(endstop_adj, e_old);
           delta_radius = dr_old;
           home_offset[Z_AXIS] = zh_old;
+          delta_tower_angle_trim[A_AXIS] = alpha_old;
+          delta_tower_angle_trim[B_AXIS] = beta_old;
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
@@ -5219,7 +5244,7 @@ inline void gcode_G28() {
         if (test_precision != 0.0) {            // !forced end
           if (zero_std_dev >= test_precision) { // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
-            SERIAL_PROTOCOLLNPGM("                                   rolling back 1");
+            SERIAL_PROTOCOLLNPGM("                                    rolling back.");
             LCD_MESSAGEPGM("Calibration OK");
             SERIAL_EOL;
           }
@@ -5228,12 +5253,12 @@ inline void gcode_G28() {
             if (iterations < 31)
               sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
             SERIAL_PROTOCOL(mess);
-            SERIAL_PROTOCOLPGM("                                   std dev:");
+            SERIAL_PROTOCOLPGM("                                    std dev:");
             SERIAL_PROTOCOL_F(zero_std_dev, 3);
             SERIAL_EOL;
             lcd_setstatus(mess);
           }
-          SERIAL_PROTOCOLPAIR("Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+          SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
           if (abs(probe_points) > 1) {
             SERIAL_PROTOCOLPGM("    Ex:");
             if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
@@ -5247,6 +5272,16 @@ inline void gcode_G28() {
             SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
           }
           SERIAL_EOL;
+          if (probe_points > 2) {
+            SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
+            if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(delta_tower_angle_trim[A_AXIS], 2);
+            SERIAL_PROTOCOLPGM("  Ty:");
+            if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
+            SERIAL_PROTOCOLPGM("  Tz:+0.00");
+            SERIAL_EOL;
+          }
           if (zero_std_dev >= test_precision)
             SERIAL_PROTOCOLLNPGM("save with M500 and/or copy to configuration.h");
         }

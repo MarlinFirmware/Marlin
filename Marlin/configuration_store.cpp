@@ -1477,7 +1477,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" R", LINEAR_UNIT(delta_radius));
       SERIAL_ECHOPAIR(" H", LINEAR_UNIT(DELTA_HEIGHT + home_offset[Z_AXIS]));
       SERIAL_ECHOPAIR(" S", delta_segments_per_second);
-      SERIAL_ECHOPAIR(" B", LINEAR_UNIT(delta_calibration_radius);
+      SERIAL_ECHOPAIR(" B", LINEAR_UNIT(delta_calibration_radius));
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(delta_tower_angle_trim[A_AXIS]));
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
       SERIAL_ECHOPAIR(" Z", 0.00);
