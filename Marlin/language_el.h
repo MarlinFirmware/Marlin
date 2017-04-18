@@ -115,7 +115,7 @@
 #define MSG_E5STEPS                         _UxGT("Bήματα Ε5 ανά μμ")
 #define MSG_TEMPERATURE                     _UxGT("Θερμοκρασία")
 #define MSG_MOTION                          _UxGT("Κίνηση")
-#define MSG_VOLUMETRIC                      _UxGT("Νήμα")
+#define MSG_FILAMENT                        _UxGT("Νήμα")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("Ε σε μμ3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Διάμετρος νήματος")
 #define MSG_CONTRAST                        _UxGT("Κοντράστ LCD")

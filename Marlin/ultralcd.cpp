@@ -90,50 +90,25 @@ uint16_t max_display_update_time = 0;
 
 #if ENABLED(ULTIPANEL)
 
-  // place-holders for Ki and Kd edits
-  float raw_Ki, raw_Kd;
-
-  /**
-   * REVERSE_MENU_DIRECTION
-   *
-   * To reverse the menu direction we need a general way to reverse
-   * the direction of the encoder everywhere. So encoderDirection is
-   * added to allow the encoder to go the other way.
-   *
-   * This behavior is limited to scrolling Menus and SD card listings,
-   * and is disabled in other contexts.
-   */
-  #if ENABLED(REVERSE_MENU_DIRECTION)
-    int8_t encoderDirection = 1;
-    #define ENCODER_DIRECTION_NORMAL() (encoderDirection = 1)
-    #define ENCODER_DIRECTION_MENUS() (encoderDirection = -1)
-  #else
-    #define ENCODER_DIRECTION_NORMAL() ;
-    #define ENCODER_DIRECTION_MENUS() ;
+  #ifndef TALL_FONT_CORRECTION
+    #define TALL_FONT_CORRECTION 0
   #endif
 
-  int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
-
-  millis_t manual_move_start_time = 0;
-  int8_t manual_move_axis = (int8_t)NO_AXIS;
-  #if EXTRUDERS > 1
-    int8_t manual_move_e_index = 0;
-  #else
-    #define manual_move_e_index 0
-  #endif
-
-  bool encoderRateMultiplierEnabled;
-  int32_t lastEncoderMovementMillis;
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #include "ubl.h"
-  #endif
+  // Function pointer to menu functions.
+  typedef void (*screenFunc_t)();
 
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
 
-  const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #include "ubl.h"
+  #endif
+
+  ////////////////////////////////////////////
+  ///////////////// Menu Tree ////////////////
+  ////////////////////////////////////////////
+
   void lcd_main_menu();
   void lcd_tune_menu();
   void lcd_prepare_menu();
@@ -143,14 +118,7 @@ uint16_t max_display_update_time = 0;
   void lcd_control_temperature_preheat_material1_settings_menu();
   void lcd_control_temperature_preheat_material2_settings_menu();
   void lcd_control_motion_menu();
-  void lcd_control_volumetric_menu();
-
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    void dac_driver_commit();
-    void dac_driver_getValues();
-    void lcd_dac_menu();
-    void lcd_dac_write_eeprom();
-  #endif
+  void lcd_control_filament_menu();
 
   #if ENABLED(LCD_INFO_MENU)
     #if ENABLED(PRINTCOUNTER)
@@ -173,6 +141,13 @@ uint16_t max_display_update_time = 0;
     void lcd_filament_change_resume_message();
   #endif
 
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    void dac_driver_commit();
+    void dac_driver_getValues();
+    void lcd_dac_menu();
+    void lcd_dac_write_eeprom();
+  #endif
+
   #if HAS_LCD_CONTRAST
     void lcd_set_contrast();
   #endif
@@ -189,35 +164,40 @@ uint16_t max_display_update_time = 0;
     #include "mesh_bed_leveling.h"
   #endif
 
-  // Function pointer to menu functions.
-  typedef void (*screenFunc_t)();
+  ////////////////////////////////////////////
+  //////////// Menu System Actions ///////////
+  ////////////////////////////////////////////
 
-  // Different types of actions that can be used in menu items.
   #define menu_action_back(dummy) _menu_action_back()
   void _menu_action_back();
   void menu_action_submenu(screenFunc_t data);
   void menu_action_gcode(const char* pgcode);
   void menu_action_function(screenFunc_t data);
+
+  #define DECLARE_MENU_EDIT_TYPE(_type, _name) \
+    bool _menu_edit_ ## _name(); \
+    void menu_edit_ ## _name(); \
+    void menu_edit_callback_ ## _name(); \
+    void _menu_action_setting_edit_ ## _name(const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback); \
+    void _menu_action_setting_edit_accessor_ ## _name(const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_accessor_ ## _name(const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue); \
+    typedef void _name##_void
+
+  DECLARE_MENU_EDIT_TYPE(int, int3);
+  DECLARE_MENU_EDIT_TYPE(float, float3);
+  DECLARE_MENU_EDIT_TYPE(float, float32);
+  DECLARE_MENU_EDIT_TYPE(float, float43);
+  DECLARE_MENU_EDIT_TYPE(float, float5);
+  DECLARE_MENU_EDIT_TYPE(float, float51);
+  DECLARE_MENU_EDIT_TYPE(float, float52);
+  DECLARE_MENU_EDIT_TYPE(float, float62);
+  DECLARE_MENU_EDIT_TYPE(unsigned long, long5);
+  
   void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
-  void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
-  void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float32(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float5(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float52(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_float62(const char* pstr, float* ptr, float minValue, float maxValue);
-  void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue);
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float43(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_float62(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
-  void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, screenFunc_t callbackFunc);
+  void menu_action_setting_edit_accessor_bool(const char* pstr, bool (*pget)(), void (*pset)(bool));
 
   #if ENABLED(SDSUPPORT)
     void lcd_sdcard_menu();
@@ -225,7 +205,9 @@ uint16_t max_display_update_time = 0;
     void menu_action_sddirectory(const char* filename, char* longFilename);
   #endif
 
-  /* Helper macros for menus */
+  ////////////////////////////////////////////
+  //////////// Menu System Macros ////////////
+  ////////////////////////////////////////////
 
   #ifndef ENCODER_FEEDRATE_DEADZONE
     #define ENCODER_FEEDRATE_DEADZONE 10
@@ -236,59 +218,6 @@ uint16_t max_display_update_time = 0;
   #ifndef ENCODER_PULSES_PER_STEP
     #define ENCODER_PULSES_PER_STEP 1
   #endif
-
-  #ifndef TALL_FONT_CORRECTION
-    #define TALL_FONT_CORRECTION 0
-  #endif
-
-  /**
-   * START_SCREEN_OR_MENU generates init code for a screen or menu
-   *
-   *   encoderLine is the position based on the encoder
-   *   encoderTopLine is the top menu line to display
-   *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
-   *   _menuLineNr is the menu item to draw and process
-   *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
-   *   _countedItems is the total number of items in the menu (after one call)
-   */
-  #define START_SCREEN_OR_MENU(LIMIT) \
-    ENCODER_DIRECTION_MENUS(); \
-    encoderRateMultiplierEnabled = false; \
-    if (encoderPosition > 0x8000) encoderPosition = 0; \
-    static int8_t _countedItems = 0; \
-    int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
-    if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
-      encoderLine = max(0, _countedItems - (LIMIT)); \
-      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
-    }
-
-  #define SCREEN_OR_MENU_LOOP() \
-    int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - (TALL_FONT_CORRECTION); _lcdLineNr++, _menuLineNr++) { \
-      _thisItemNr = 0
-
-  /**
-   * START_SCREEN  Opening code for a screen having only static items.
-   *               Do simplified scrolling of the entire screen.
-   *
-   * START_MENU    Opening code for a screen with menu items.
-   *               Scroll as-needed to keep the selected line in view.
-   */
-  #define START_SCREEN() \
-    START_SCREEN_OR_MENU(LCD_HEIGHT - (TALL_FONT_CORRECTION)); \
-    encoderTopLine = encoderLine; \
-    bool _skipStatic = false; \
-    SCREEN_OR_MENU_LOOP()
-
-  #define START_MENU() \
-    START_SCREEN_OR_MENU(1); \
-    screen_changed = false; \
-    NOMORE(encoderTopLine, encoderLine); \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT - (TALL_FONT_CORRECTION)) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - (TALL_FONT_CORRECTION) - 1); \
-    } \
-    bool _skipStatic = true; \
-    SCREEN_OR_MENU_LOOP()
 
   /**
    * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -347,16 +276,10 @@ uint16_t max_display_update_time = 0;
     } \
     ++_thisItemNr
 
-  #define END_SCREEN() \
-    } \
-    _countedItems = _thisItemNr
-
-  #define END_MENU() \
-    } \
-    _countedItems = _thisItemNr; \
-    UNUSED(_skipStatic)
-
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
+
+    bool encoderRateMultiplierEnabled;
+    #define ENCODER_RATE_MULTIPLY(F) (encoderRateMultiplierEnabled = F)
 
     //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
 
@@ -370,55 +293,155 @@ uint16_t max_display_update_time = 0;
         _MENU_ITEM_PART_2(type, ## __VA_ARGS__); \
       } while(0)
 
-  #endif //ENCODER_RATE_MULTIPLIER
+  #else  // !ENCODER_RATE_MULTIPLIER
+    #define ENCODER_RATE_MULTIPLY(F) NOOP
+  #endif // !ENCODER_RATE_MULTIPLIER
 
   #define MENU_ITEM_DUMMY() do { _thisItemNr++; } while(0)
   #define MENU_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #define MENU_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #else //!ENCODER_RATE_MULTIPLIER
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_ACCESSOR(type, label, ...) MENU_ITEM(setting_edit_accessor_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #endif //!ENCODER_RATE_MULTIPLIER
 
-  /** Used variables to keep track of the menu */
-  volatile uint8_t buttons;  //the last checked buttons in a bit array.
-  #if ENABLED(REPRAPWORLD_KEYPAD)
-    volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
+  /**
+   * START_SCREEN_OR_MENU generates init code for a screen or menu
+   *
+   *   encoderLine is the position based on the encoder
+   *   encoderTopLine is the top menu line to display
+   *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
+   *   _menuLineNr is the menu item to draw and process
+   *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
+   *   _countedItems is the total number of items in the menu (after one call)
+   */
+  #define START_SCREEN_OR_MENU(LIMIT) \
+    ENCODER_DIRECTION_MENUS(); \
+    ENCODER_RATE_MULTIPLY(false); \
+    if (encoderPosition > 0x8000) encoderPosition = 0; \
+    static int8_t _countedItems = 0; \
+    int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
+    if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
+      encoderLine = max(0, _countedItems - (LIMIT)); \
+      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
+    }
+
+  #define SCREEN_OR_MENU_LOOP() \
+    int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - (TALL_FONT_CORRECTION); _lcdLineNr++, _menuLineNr++) { \
+      _thisItemNr = 0
+
+  /**
+   * START_SCREEN  Opening code for a screen having only static items.
+   *               Do simplified scrolling of the entire screen.
+   *
+   * START_MENU    Opening code for a screen with menu items.
+   *               Scroll as-needed to keep the selected line in view.
+   */
+  #define START_SCREEN() \
+    START_SCREEN_OR_MENU(LCD_HEIGHT - (TALL_FONT_CORRECTION)); \
+    encoderTopLine = encoderLine; \
+    bool _skipStatic = false; \
+    SCREEN_OR_MENU_LOOP()
+
+  #define START_MENU() \
+    START_SCREEN_OR_MENU(1); \
+    screen_changed = false; \
+    NOMORE(encoderTopLine, encoderLine); \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT - (TALL_FONT_CORRECTION)) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - (TALL_FONT_CORRECTION) - 1); \
+    } \
+    bool _skipStatic = true; \
+    SCREEN_OR_MENU_LOOP()
+
+  #define END_SCREEN() \
+    } \
+    _countedItems = _thisItemNr
+
+  #define END_MENU() \
+    } \
+    _countedItems = _thisItemNr; \
+    UNUSED(_skipStatic)
+
+  ////////////////////////////////////////////
+  ///////////// Global Variables /////////////
+  ////////////////////////////////////////////
+
+  /**
+   * REVERSE_MENU_DIRECTION
+   *
+   * To reverse the menu direction we need a general way to reverse
+   * the direction of the encoder everywhere. So encoderDirection is
+   * added to allow the encoder to go the other way.
+   *
+   * This behavior is limited to scrolling Menus and SD card listings,
+   * and is disabled in other contexts.
+   */
+  #if ENABLED(REVERSE_MENU_DIRECTION)
+    int8_t encoderDirection = 1;
+    #define ENCODER_DIRECTION_NORMAL() (encoderDirection = 1)
+    #define ENCODER_DIRECTION_MENUS() (encoderDirection = -1)
+  #else
+    #define ENCODER_DIRECTION_NORMAL() ;
+    #define ENCODER_DIRECTION_MENUS() ;
   #endif
 
-  #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-    volatile uint8_t slow_buttons; // Bits of the pressed buttons.
-  #endif
-  int8_t encoderTopLine;              /* scroll offset in the current menu */
-  millis_t next_button_update_ms;
-  uint8_t lastEncoderBits;
+  // Encoder Movement
+  volatile int8_t encoderDiff; // Updated in lcd_buttons_update, added to encoderPosition every LCD update
   uint32_t encoderPosition;
-  #if PIN_EXISTS(SD_DETECT)
-    uint8_t lcd_sd_status;
+  millis_t lastEncoderMovementMillis = 0;
+
+  // Button States
+  bool lcd_clicked, wait_for_unclick;
+  volatile uint8_t buttons;
+  millis_t next_button_update_ms;
+  #if ENABLED(REPRAPWORLD_KEYPAD)
+    volatile uint8_t buttons_reprapworld_keypad;
+  #endif
+  #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+    volatile uint8_t slow_buttons;
   #endif
 
+  // Menu System Navigation
+  screenFunc_t currentScreen = lcd_status_screen;
+  int8_t encoderTopLine;
   typedef struct {
     screenFunc_t menu_function;
     uint32_t encoder_position;
   } menuPosition;
-
-  screenFunc_t currentScreen = lcd_status_screen; // pointer to the currently active menu handler
-
-  menuPosition screen_history[10];
+  menuPosition screen_history[6];
   uint8_t screen_history_depth = 0;
-  bool screen_changed;
+  bool screen_changed, defer_return_to_status;
 
-  // LCD and menu clicks
-  bool lcd_clicked, wait_for_unclick, defer_return_to_status;
-
-  // Variables used when editing values.
-  const char* editLabel;
-  void* editValue;
+  // Value Editing
+  const char *editLabel;
+  void *editValue, *editSetter;
   int32_t minEditValue, maxEditValue;
-  screenFunc_t callbackFunc;              // call this after editing
+  screenFunc_t callbackFunc;
+
+  // Manual Moves
+  const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
+  millis_t manual_move_start_time = 0;
+  int8_t manual_move_axis = (int8_t)NO_AXIS;
+  #if EXTRUDERS > 1
+    int8_t manual_move_e_index = 0;
+  #else
+    #define manual_move_e_index 0
+  #endif
+
+  #if PIN_EXISTS(SD_DETECT)
+    uint8_t lcd_sd_status;
+  #endif
+
+  #if ENABLED(PIDTEMP)
+    float raw_Ki, raw_Kd; // place-holders for Ki and Kd edits
+  #endif
 
   /**
    * General function to go directly to a screen
@@ -519,7 +542,7 @@ void lcd_status_screen() {
 
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
-    encoderRateMultiplierEnabled = false;
+    ENCODER_RATE_MULTIPLY(false);
   #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
@@ -2105,7 +2128,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-    MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+    MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
 
     #if HAS_LCD_CONTRAST
       //MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -2177,28 +2200,28 @@ void kill_screen(const char* lcd_msg) {
       PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
       thermalManager.updatePID();
     }
-    #define _PIDTEMP_BASE_FUNCTIONS(N) \
+    #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
       void copy_and_scalePID_i_E ## N() { copy_and_scalePID_i(N); } \
       void copy_and_scalePID_d_E ## N() { copy_and_scalePID_d(N); }
 
     #if ENABLED(PID_AUTOTUNE_MENU)
-      #define _PIDTEMP_FUNCTIONS(N) \
-        _PIDTEMP_BASE_FUNCTIONS(N); \
-        void lcd_autotune_callback_E ## N() { _lcd_autotune(N); }
+      #define DEFINE_PIDTEMP_FUNCS(N) \
+        _DEFINE_PIDTEMP_BASE_FUNCS(N); \
+        void lcd_autotune_callback_E ## N() { _lcd_autotune(N); } typedef void _pid_##N##_void
     #else
-      #define _PIDTEMP_FUNCTIONS(N) _PIDTEMP_BASE_FUNCTIONS(N)
+      #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N) typedef void _pid_##N##_void
     #endif
 
-    _PIDTEMP_FUNCTIONS(0)
+    DEFINE_PIDTEMP_FUNCS(0);
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       #if HOTENDS > 1
-        _PIDTEMP_FUNCTIONS(1)
+        DEFINE_PIDTEMP_FUNCS(1);
         #if HOTENDS > 2
-          _PIDTEMP_FUNCTIONS(2)
+          DEFINE_PIDTEMP_FUNCS(2);
           #if HOTENDS > 3
-            _PIDTEMP_FUNCTIONS(3)
+            DEFINE_PIDTEMP_FUNCS(3);
             #if HOTENDS > 4
-              _PIDTEMP_FUNCTIONS(4)
+              DEFINE_PIDTEMP_FUNCS(4);
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -2543,9 +2566,13 @@ void kill_screen(const char* lcd_msg) {
    * "Control" > "Filament" submenu
    *
    */
-  void lcd_control_volumetric_menu() {
+  void lcd_control_filament_menu() {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
+
+    #if ENABLED(LIN_ADVANCE)
+      MENU_ITEM_EDIT_ACCESSOR(float3, MSG_ADVANCE_K, planner.get_extruder_advance_k, planner.set_extruder_advance_k, 0, 999);
+    #endif
 
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
 
@@ -2647,7 +2674,7 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
       if (!lcdDrawUpdate && !lcd_clicked) return; // nothing to do (so don't thrash the SD card)
-      uint16_t fileCnt = card.getnrfilenames();
+      const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
@@ -2662,11 +2689,11 @@ void kill_screen(const char* lcd_msg) {
 
       for (uint16_t i = 0; i < fileCnt; i++) {
         if (_menuLineNr == _thisItemNr) {
-          #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-            int nr = fileCnt - 1 - i;
-          #else
-            int nr = i;
-          #endif
+          const uint16_t nr =
+            #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+              fileCnt - 1 -
+            #endif
+          i;
 
           #if ENABLED(SDCARD_SORT_ALPHA)
             card.getfilename_sorted(nr);
@@ -3091,9 +3118,9 @@ void kill_screen(const char* lcd_msg) {
    *
    * Functions for editing single values
    *
-   * The "menu_edit_type" macro generates the functions needed to edit a numerical value.
+   * The "DEFINE_MENU_EDIT_TYPE" macro generates the functions needed to edit a numerical value.
    *
-   * For example, menu_edit_type(int, int3, itostr3, 1) expands into these functions:
+   * For example, DEFINE_MENU_EDIT_TYPE(int, int3, itostr3, 1) expands into these functions:
    *
    *   bool _menu_edit_int3();
    *   void menu_edit_int3(); // edit int (interactively)
@@ -3101,6 +3128,8 @@ void kill_screen(const char* lcd_msg) {
    *   void _menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
    *   void menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
    *   void menu_action_setting_edit_callback_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue, const screenFunc_t callback); // edit int with callback
+   *   void _menu_action_setting_edit_accessor_int3(const char * const pstr, int (*pget)(), void (*pset)(int), const int minValue, const int maxValue);
+   *   void menu_action_setting_edit_accessor_int3(const char * const pstr, int (*pget)(), void (*pset)(int), const int minValue, const int maxValue); // edit int via pget and pset accessor functions
    *
    * You can then use one of the menu macros to present the edit interface:
    *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -3112,8 +3141,11 @@ void kill_screen(const char* lcd_msg) {
    * Also: MENU_MULTIPLIER_ITEM_EDIT, MENU_ITEM_EDIT_CALLBACK, and MENU_MULTIPLIER_ITEM_EDIT_CALLBACK
    *
    *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+   *
+   * Values that are get/set via functions (As opposed to global variables) can use the accessor form:
+   *   MENU_ITEM_EDIT_ACCESSOR(int3, MSG_SPEED, get_feedrate_percentage, set_feedrate_percentage, 10, 999)
    */
-  #define menu_edit_type(_type, _name, _strFunc, _scale) \
+  #define DEFINE_MENU_EDIT_TYPE(_type, _name, _strFunc, _scale) \
     bool _menu_edit_ ## _name () { \
       ENCODER_DIRECTION_NORMAL(); \
       if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
@@ -3121,7 +3153,11 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) \
         lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale))); \
       if (lcd_clicked) { \
-        *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
+        _type value = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
+        if (editValue != NULL) \
+          *((_type*)editValue) = value; \
+        else if (editSetter != NULL) \
+          ((void (*)(_type))editSetter)(value); \
         lcd_goto_previous_menu(); \
       } \
       return lcd_clicked; \
@@ -3135,6 +3171,7 @@ void kill_screen(const char* lcd_msg) {
       \
       editLabel = pstr; \
       editValue = ptr; \
+      editSetter = NULL; \
       minEditValue = minValue * _scale; \
       maxEditValue = maxValue * _scale - minEditValue; \
       encoderPosition = (*ptr) * _scale - minEditValue; \
@@ -3142,23 +3179,39 @@ void kill_screen(const char* lcd_msg) {
     void menu_action_setting_edit_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_ ## _name; \
-    }\
+    } \
     void menu_action_setting_edit_callback_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
     } \
+    void _menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue) { \
+      lcd_save_previous_screen(); \
+      \
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; \
+      \
+      editLabel = pstr; \
+      editValue = NULL; \
+      editSetter = pset; \
+      minEditValue = minValue * _scale; \
+      maxEditValue = maxValue * _scale - minEditValue; \
+      encoderPosition = pget() * _scale - minEditValue; \
+    } \
+    void menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue) { \
+      _menu_action_setting_edit_accessor_ ## _name(pstr, pget, pset, minValue, maxValue); \
+      currentScreen = menu_edit_ ## _name; \
+    } \
     typedef void _name
 
-  menu_edit_type(int, int3, itostr3, 1);
-  menu_edit_type(float, float3, ftostr3, 1.0);
-  menu_edit_type(float, float32, ftostr32, 100.0);
-  menu_edit_type(float, float43, ftostr43sign, 1000.0);
-  menu_edit_type(float, float5, ftostr5rj, 0.01);
-  menu_edit_type(float, float51, ftostr51sign, 10.0);
-  menu_edit_type(float, float52, ftostr52sign, 100.0);
-  menu_edit_type(float, float62, ftostr62rj, 100.0);
-  menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
+  DEFINE_MENU_EDIT_TYPE(int, int3, itostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1.0);
+  DEFINE_MENU_EDIT_TYPE(float, float32, ftostr32, 100.0);
+  DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000.0);
+  DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01);
+  DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10.0);
+  DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52sign, 100.0);
+  DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100.0);
+  DEFINE_MENU_EDIT_TYPE(unsigned long, long5, ftostr5rj, 0.01);
 
   /**
    *
@@ -3251,6 +3304,11 @@ void kill_screen(const char* lcd_msg) {
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
+  }
+  void menu_action_setting_edit_accessor_bool(const char* pstr, bool (*pget)(), void (*pset)(bool)) {
+    UNUSED(pstr);
+    pset(!pget());
+    lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
   }
 
 #endif // ULTIPANEL
@@ -3422,7 +3480,7 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    bool sd_status = IS_SD_INSERTED;
+    const bool sd_status = IS_SD_INSERTED;
     if (sd_status != lcd_sd_status && lcd_detected()) {
 
       if (sd_status) {
@@ -3445,7 +3503,7 @@ void lcd_update() {
 
   #endif //SDSUPPORT && SD_DETECT_PIN
 
-  millis_t ms = millis();
+  const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
     #if ENABLED(DOGLCD)
       || drawing_screen
@@ -3715,6 +3773,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
    * Warning: This function is called from interrupt context!
    */
   void lcd_buttons_update() {
+    static uint8_t lastEncoderBits;
     millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
