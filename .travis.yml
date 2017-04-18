@@ -334,7 +334,7 @@ script:
   # RA_CONTROL_PANEL
   #
   - restore_configs
-  - opt_enable RA_CONTROL_PANEL
+  - opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
   - build_marlin
   #
   ######## I2C LCD/PANELS ##############

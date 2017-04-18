@@ -5841,12 +5841,11 @@ inline void gcode_M42() {
     #if !(NUM_SERVOS >= 1 && HAS_SERVO_0)
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM("SERVO not setup");
+    #elif !HAS_Z_SERVO_ENDSTOP
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Z_ENDSTOP_SERVO_NR not setup");
     #else
-
-      #if !defined(z_servo_angle)
-        const int z_servo_angle[2] = Z_SERVO_ANGLES;
-      #endif
-      uint8_t probe_index = code_seen('P') ? code_value_byte() : 0;
+      uint8_t probe_index = code_seen('P') ? code_value_byte() : Z_ENDSTOP_SERVO_NR;
       SERIAL_PROTOCOLLNPGM("Servo probe test");
       SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
       SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", z_servo_angle[0]);
@@ -5862,7 +5861,6 @@ inline void gcode_M42() {
         probe_inverting = Z_MIN_ENDSTOP_INVERTING;
       #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
         #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
-
         SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
         SERIAL_PROTOCOLLNPGM(". uses Z_MIN_PROBE_ENDSTOP_INVERTING (ignores Z_MIN_ENDSTOP_INVERTING)");
         SERIAL_PROTOCOLPGM(". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
@@ -5887,7 +5885,7 @@ inline void gcode_M42() {
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
       refresh_cmd_timeout();
       if (deploy_state != stow_state) {
-        SERIAL_PROTOCOLLNPGM("TLTouch detected");         // BLTouch clone?
+        SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
         if (deploy_state) {
           SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: HIGH (logic 1)");
           SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: LOW (logic 0)");
@@ -5896,6 +5894,10 @@ inline void gcode_M42() {
           SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: LOW (logic 0)");
           SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: HIGH (logic 1)");
         }
+        #if ENABLED(BLTOUCH)
+          SERIAL_PROTOCOLLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
+        #endif
+
       }
       else {                                           // measure active signal length
         servo[probe_index].move(z_servo_angle[0]); //deploy
