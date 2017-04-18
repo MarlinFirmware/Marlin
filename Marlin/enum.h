@@ -170,18 +170,18 @@ enum LCDViewAction {
 #endif
 
 #if ENABLED(PRINTER_EVENT_LEDS)
-  //enum PrinterEventColors {
-    /* Printer events color selection */
-    #define HOMING                  2  // Yellow
-    #define AUTO_LEVELING           7  // Blacklight
-    #define MANUAL_LEVELING         1  // White
-    #define PRINTING                1  // White
-    #define FILAMENTCHANGE          4  // Aqua
-    #define FILAMENTCHANGE_TIMEOUT  5  // Aqua Dimmed
-    #define FILAMENTCHANGE_HEAT     6  // Aqua Half
-    #define PRINTING_DONE           0  // Green
-    #define ALL_OFF                 9  // Off
-  //};
+  /* Printer events color selection */
+  #define HOMING                  2  // Yellow
+  #define COLOR_FADE_HOTEND       3  // Purple
+  #define COLOR_FADE_BED          8  // Blue
+  #define AUTO_LEVELING           7  // Blacklight
+  #define MANUAL_LEVELING         1  // White
+  #define PRINTING                1  // White
+  #define FILAMENTCHANGE          4  // Aqua
+  #define FILAMENTCHANGE_TIMEOUT  5  // Aqua Dimmed
+  #define FILAMENTCHANGE_HEAT     6  // Aqua Half
+  #define PRINTING_DONE           0  // Green to Off
+  #define ALL_OFF                 9  // Off
 #endif
 
 #endif // __ENUM_H__

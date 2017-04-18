@@ -979,19 +979,19 @@ void servo_init() {
          return  LEDSTRIP_BADSEGMENT;
   
        if (!initialized){
-        #if ENABLED(LEDSTRIP_EXCHANGE_RU)
-          FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, GRB>(leds, LEDSTRIP_NLED);
-        #else
-          FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, RGB>(leds, LEDSTRIP_NLED);
-        #endif
-        FastLED.clear();
-        colorSaved[0]=CRGB::Linen;
-        for (int i = 1; i <= LEDSTRIP_NSEGMENT; i++)
-          colorSaved[i]=CRGB::Seashell;
-  
-        initialized = true;
+         #if ENABLED(LEDSTRIP_EXCHANGE_RU)
+           FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, GRB>(leds, LEDSTRIP_NLED);
+         #else
+           FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, RGB>(leds, LEDSTRIP_NLED);
+         #endif
+         FastLED.clear();
+         colorSaved[0]=CRGB::Linen;
+         for (int i = 1; i <= LEDSTRIP_NSEGMENT; i++)
+           colorSaved[i]=CRGB::Seashell;
+
+         initialized = true;
        }
-  
+
        // update saved color
        if (red != colorSaved[segment].red)
          colorSaved[segment].red = red;
@@ -999,16 +999,16 @@ void servo_init() {
          colorSaved[segment].green = grn;
        if (blu != colorSaved[segment].blue)
          colorSaved[segment].blue = blu;
-  
+
        uint8_t updtend = (segment > 0) ? LEDSTRIP_NLED/LEDSTRIP_NSEGMENT : LEDSTRIP_NLED ;
        uint8_t updshift = (segment > 0) ? (segment-1) : 0;
        uint8_t j;
-  
+
        if (red + grn + blu <= 3){  // no color change use the saved color or black
          switch(power) {
            case LED_POWEROFF:
              for(uint8_t i = 0; i < updtend; i++) 
-              leds[i + (updshift * updtend)] = CRGB::Black;
+               leds[i + (updshift * updtend)] = CRGB::Black;
              break;
            case LED_POWERON:
              for(uint8_t i = 0; i < updtend; i++) 
@@ -1016,7 +1016,7 @@ void servo_init() {
              break;
            case LED_POWERHALF:
              for(uint8_t i = 0; i < updtend; i++) 
-              leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
+               leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
              break;
            case LED_POWERNOCHG:
              return LEDSTRIP_NOACTION;
@@ -1025,7 +1025,7 @@ void servo_init() {
        }
        else {
          for(uint8_t i = 0; i < updtend; i++) {
-          j = i + (updshift * updtend);
+           j = i + (updshift * updtend);
            if (red >= 0)
              leds[j].red = red;
            if (grn >= 0)
@@ -1037,38 +1037,37 @@ void servo_init() {
        FastLED.show();
        return LEDSTRIP_OK;
     }
-  
+
   #else // !LEDSTRIP
 
     #define set_rgb_color(R, G, B, W, S, P) set_led_color(R, G, B, W, 0, 0)
 
     void set_led_color(const uint8_t red, const uint8_t grn, const uint8_t blu, const uint8_t whi, const uint8_t segment, const uint8_t power) {
+    
+      #if ENABLED(BLINKM) 
+        // This variant uses i2c to send the RGB components to the device.
+        SendColors(r, g, b);
+      #else
   
-        #if ENABLED(BLINKM)
+        // This variant uses 3 separate pins for the RGB components.
+        // If the pins can do PWM then their intensity will be set.
+        digitalWrite(RGB_LED_R_PIN, red ? HIGH : LOW);
+        digitalWrite(RGB_LED_G_PIN, grn ? HIGH : LOW);
+        digitalWrite(RGB_LED_B_PIN, blu ? HIGH : LOW);
+        analogWrite(RGB_LED_R_PIN, red);
+        analogWrite(RGB_LED_G_PIN, grn);
+        analogWrite(RGB_LED_B_PIN, blu);
   
-          // This variant uses i2c to send the RGB components to the device.
-          SendColors(r, g, b);
-  
-        #else
-  
-          // This variant uses 3 separate pins for the RGB components.
-          // If the pins can do PWM then their intensity will be set.
-          digitalWrite(RGB_LED_R_PIN, red ? HIGH : LOW);
-          digitalWrite(RGB_LED_G_PIN, grn ? HIGH : LOW);
-          digitalWrite(RGB_LED_B_PIN, blu ? HIGH : LOW);
-          analogWrite(RGB_LED_R_PIN, red);
-          analogWrite(RGB_LED_G_PIN, grn);
-          analogWrite(RGB_LED_B_PIN, blu);
-  
-          #if ENABLED(RGBW_LED)
-            digitalWrite(RGB_LED_W_PIN, whi ? HIGH : LOW);
-            analogWrite(RGB_LED_W_PIN, whi);
-          #endif
-        #endif  //BLINKM
+        #if ENABLED(RGBW_LED)
+          digitalWrite(RGB_LED_W_PIN, whi ? HIGH : LOW);
+          analogWrite(RGB_LED_W_PIN, whi);
+        #endif
+      #endif  //BLINKM
     }
-  #endif  // HAS_COLOR_LEDS
 
-    /*  Handle the various printer events
+#endif  // HAS_COLOR_LEDS
+
+  /**  Handle the various printer events
    *  
    *  0 - Green       - Timed or click to OFF.
    *  1 - White       - Used for main printing as a case light.
@@ -1130,11 +1129,14 @@ void servo_init() {
       case 7:      // Turn RGB LEDs Blacklight
         set_rgb_color(167, 0, 255, 0, 0, 1);
         break;
+      case 8:      // Turn RGB LEDs Blue
+        set_rgb_color(0, 0, 255, 0, 0, 1);
+        break;
       case 9:      // Turn RGB LEDs off
         set_rgb_color(0, 0, 0, 0, 0, 0);
         break;
     } // switch(code)
-}
+  }
 
 #endif // HAS_COLOR_LEDS
 
@@ -1324,7 +1326,7 @@ inline void get_serial_commands() {
           card.printingHasFinished();
           #if ENABLED(PRINTER_EVENT_LEDS)
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-              set_rgb_color(0, 255, 0, 0, 0, 1); // Green
+              handle_led_print_event(PRINTING_DONE); // Green
             #if HAS_RESUME_CONTINUE
               KEEPALIVE_STATE(PAUSED_FOR_USER);
               wait_for_user = true;
@@ -6788,12 +6790,10 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       // Gradually change LED strip from violet to red as nozzle heats up
-      if (wait_for_heatup && !wants_to_cool) {
-        uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
-        if (blue == old_blue) set_rgb_color(255, 0, 255, 0, 0, 1);   //Purple to start
-        if (blue != old_blue) set_rgb_color(255, 0, blue, 0, 0, 1);  //Start transitioning to Red
-        safe_delay(70);
-      }
+      uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+      if (blue == old_blue) handle_led_print_event(COLOR_FADE_HOTEND); //Purple to start
+      if (blue != old_blue) set_rgb_color(255, 0, blue, 0, 0, 1);      //Start transitioning to Red
+      safe_delay(70);
     #endif
 
     #if TEMP_RESIDENCY_TIME > 0
@@ -6920,12 +6920,10 @@ inline void gcode_M109() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         // Gradually change LED strip from blue to violet as bed heats up
-        if (wait_for_heatup && !wants_to_cool) {
-          uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
-          if (red == old_red) set_rgb_color(0, 0, 255, 0, 0, 1);     //Blue to start
-          if (red != old_red) set_rgb_color(red, 0, 255, 0, 0, 1);   //Start transitioning to Purple
-          safe_delay(70);
-        }
+        uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+        if (red == old_red) handle_led_print_event(COLOR_FADE_BED);   //Blue to start
+        if (red != old_red) set_rgb_color(red, 0, 255, 0, 0, 1);      //Start transitioning to Purple
+        safe_delay(70);
       #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
@@ -7500,15 +7498,15 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M150() {
 
-      set_rgb_color(
-        code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
-        code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
-        code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
-        code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0,
-        code_seen('S') ? code_has_value() : 0,
-        code_seen('P') ? (byte)code_has_value() : LED_POWERNOCHG
-      );
-  }
+    set_rgb_color(
+      code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('S') ? code_has_value() : 0,
+      code_seen('P') ? (byte)code_has_value() : LED_POWERNOCHG
+    );
+  }  
 
 #endif // HAS_COLOR_LEDS
 
@@ -10210,7 +10208,7 @@ void process_next_command() {
           gcode_M150();
           break;
 
-      #endif // BLINKM
+      #endif // HAS_COLOR_LEDS
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
@@ -12327,7 +12325,7 @@ void setup() {
   #endif
 
   //Turn on White at Powerup
-  #if HAS_COLOR_LEDS
+  #if HAS_COLOR_LEDS  // Does not require PRINTER_EVENT_LEDS
     #if ENABLED(LIGHT_ON_POWERUP)
       #if ENABLED(RGBW_STRIP)
         set_rgb_color(0, 0, 0, 255, 0, 0)    // Turn on White LED
