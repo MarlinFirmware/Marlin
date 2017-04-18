@@ -966,7 +966,7 @@ void servo_init() {
 #if HAS_COLOR_LEDS
 
   #if ENABLED(LEDSTRIP)
-    #define set_rgb_color(R, G, B, W, S, P) set_ledstrip_color(R, G, B, W, S, P)
+    #define set_led_color(R, G, B, W, S, P) set_ledstrip_color(R, G, B, W, S, P)
   
     CRGB leds[LEDSTRIP_NLED];
     CRGB colorSaved[LEDSTRIP_NSEGMENT+1];
@@ -1040,9 +1040,9 @@ void servo_init() {
 
   #else // !LEDSTRIP
 
-    #define set_rgb_color(R, G, B, W, S, P) set_led_color(R, G, B, W, 0, 0)
+    #define set_led_color(R, G, B, W, S, P) set_rgb_color(R, G, B, W, 0, 0)
 
-    void set_led_color(const uint8_t red, const uint8_t grn, const uint8_t blu, const uint8_t whi, const uint8_t segment, const uint8_t power) {
+    void set_rgb_color(const uint8_t red, const uint8_t grn, const uint8_t blu, const uint8_t whi, const uint8_t segment, const uint8_t power) {
     
       #if ENABLED(BLINKM) 
         // This variant uses i2c to send the RGB components to the device.
@@ -1087,7 +1087,7 @@ void servo_init() {
       case 0:        // Print Complete
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         lcd_update();
-        set_rgb_color(0, 255, 0, 0, 0, 1);  // Turn LEDs Green
+        set_led_color(0, 255, 0, 0, 0, 1);  // Turn LEDs Green
 
         #if DISABLED(NO_PAUSE_OR_TIMEOUT)
           wait_for_user = true;
@@ -1098,7 +1098,7 @@ void servo_init() {
             if (wait_for_user_timeout >= (LED_reset_time * 10)) break;
           } while (wait_for_user);
           wait_for_user = false;
-          set_rgb_color(0, 0, 0, 0, 0, 0);  // Turn RGB LEDs off
+          set_led_color(0, 0, 0, 0, 0, 0);  // Turn RGB LEDs off
         #endif  // NO_PAUSE_OR_TIMEOUT
 
         LCD_MESSAGEPGM(WELCOME_MSG);
@@ -1106,34 +1106,34 @@ void servo_init() {
         break;
       case 1:      // Turn RGB LEDs White
         #if ENABLED(RGBW_STRIP)
-          set_rgb_color(0, 0, 0, 255, 0, 1);
+          set_led_color(0, 0, 0, 255, 0, 1);
         #else
-          set_rgb_color(255, 255, 255, 0, 0, 1);
+          set_led_color(255, 255, 255, 0, 0, 1);
         #endif
         break;
       case 2:      // Turn RGB LEDs Yellow
-        set_rgb_color(255, 255, 0, 0, 0, 1);
+        set_led_color(255, 255, 0, 0, 0, 1);
         break;
       case 3:      // Turn RGB LEDs Purple
-        set_rgb_color(255, 0, 255, 0, 0, 1);
+        set_led_color(255, 0, 255, 0, 0, 1);
         break;
       case 4:      // Turn RGB LEDs Aqua
-        set_rgb_color(0, 255, 255, 0, 0, 1);
+        set_led_color(0, 255, 255, 0, 0, 1);
         break;
       case 5:      // Turn RGB LEDs Aqua dimmed
-        set_rgb_color(0, 50, 50, 0, 0, 1);
+        set_led_color(0, 50, 50, 0, 0, 1);
         break;
       case 6:      // Turn RGB LEDs Aqua half
-        set_rgb_color(0, 127, 127, 0, 0, 1);
+        set_led_color(0, 127, 127, 0, 0, 1);
         break;
       case 7:      // Turn RGB LEDs Blacklight
-        set_rgb_color(167, 0, 255, 0, 0, 1);
+        set_led_color(167, 0, 255, 0, 0, 1);
         break;
       case 8:      // Turn RGB LEDs Blue
-        set_rgb_color(0, 0, 255, 0, 0, 1);
+        set_led_color(0, 0, 255, 0, 0, 1);
         break;
       case 9:      // Turn RGB LEDs off
-        set_rgb_color(0, 0, 0, 0, 0, 0);
+        set_led_color(0, 0, 0, 0, 0, 0);
         break;
     } // switch(code)
   }
@@ -6792,8 +6792,8 @@ inline void gcode_M109() {
       // Gradually change LED strip from violet to red as nozzle heats up
       uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
       if (blue == old_blue) handle_led_print_event(COLOR_FADE_HOTEND); //Purple to start
-      if (blue != old_blue) set_rgb_color(255, 0, blue, 0, 0, 1);      //Start transitioning to Red
-      safe_delay(70);
+      if (blue != old_blue) set_led_color(255, 0, blue, 0, 0, 1);      //Start transitioning to Red
+      safe_delay(75);
     #endif
 
     #if TEMP_RESIDENCY_TIME > 0
@@ -6922,7 +6922,7 @@ inline void gcode_M109() {
         // Gradually change LED strip from blue to violet as bed heats up
         uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
         if (red == old_red) handle_led_print_event(COLOR_FADE_BED);   //Blue to start
-        if (red != old_red) set_rgb_color(red, 0, 255, 0, 0, 1);      //Start transitioning to Purple
+        if (red != old_red) set_led_color(red, 0, 255, 0, 0, 1);      //Start transitioning to Purple
         safe_delay(70);
       #endif
 
@@ -7498,7 +7498,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M150() {
 
-    set_rgb_color(
+    set_led_color(
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
@@ -12328,12 +12328,12 @@ void setup() {
   #if HAS_COLOR_LEDS  // Does not require PRINTER_EVENT_LEDS
     #if ENABLED(LIGHT_ON_POWERUP)
       #if ENABLED(RGBW_STRIP)
-        set_rgb_color(0, 0, 0, 255, 0, 0)    // Turn on White LED
+        set_led_color(0, 0, 0, 255, 0, 0)    // Turn on White LED
       #else
-        set_rgb_color(255, 255, 255, 0, 0, 0)  // Turn on RGBs to white
+        set_led_color(255, 255, 255, 0, 0, 0)  // Turn on RGBs to white
       #endif
     #else
-      set_rgb_color(0, 0, 0, 0, 0, 0);       // Turn off all LEDS
+      set_led_color(0, 0, 0, 0, 0, 0);       // Turn off all LEDS
     #endif
   #endif
 }
