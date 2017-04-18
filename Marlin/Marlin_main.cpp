@@ -5806,70 +5806,94 @@ inline void gcode_M42() {
   #include "pinsDebug.h"
 
   inline void toggle_pins() {
-    int pin, j;
+    const bool I_flag = code_seen('I') && code_value_bool();
+    const int repeat = code_seen('R') ? code_value_int() : 1,
+              start = code_seen('S') ? code_value_int() : 0,
+              end = code_seen('E') ? code_value_int() : NUM_DIGITAL_PINS - 1,
+              wait = code_seen('W') ? code_value_int() : 500;
 
-    bool I_flag = code_seen('I') ? code_value_bool() : false;
-
-    int repeat = code_seen('R') ? code_value_int() : 1,
-        start = code_seen('S') ? code_value_int() : 0,
-        end = code_seen('E') ? code_value_int() : NUM_DIGITAL_PINS - 1,
-        wait = code_seen('W') ? code_value_int() : 500;
-
-    for (pin = start; pin <= end; pin++) {
-        if (!I_flag && pin_is_protected(pin)) {
-          SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
-          SERIAL_ECHOPGM(" untouched.\n");
+    for (uint8_t pin = start; pin <= end; pin++) {
+      if (!I_flag && pin_is_protected(pin)) {
+        SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
+        SERIAL_ECHOLNPGM(" untouched.");
+      }
+      else {
+        SERIAL_ECHOPAIR("Pulsing Pin: ", pin);
+        pinMode(pin, OUTPUT);
+        for (int16_t j = 0; j < repeat; j++) {
+          digitalWrite(pin, 0);
+          safe_delay(wait);
+          digitalWrite(pin, 1);
+          safe_delay(wait);
+          digitalWrite(pin, 0);
+          safe_delay(wait);
         }
-        else {
-          SERIAL_ECHOPAIR("Pulsing Pin: ", pin);
-          pinMode(pin, OUTPUT);
-          for(j = 0; j < repeat; j++) {
-            digitalWrite(pin, 0);
-            safe_delay(wait);
-            digitalWrite(pin, 1);
-            safe_delay(wait);
-            digitalWrite(pin, 0);
-            safe_delay(wait);
-          }
-        }
-      SERIAL_ECHOPGM("\n");
+      }
+      SERIAL_CHAR('\n');
     }
-    SERIAL_ECHOPGM("Done\n");
+    SERIAL_ECHOLNPGM("Done.");
+
   } // toggle_pins
 
-  inline void servo_probe_test(){
-    #if !(NUM_SERVOS >= 1 && HAS_SERVO_0)
+  inline void servo_probe_test() {
+    #if !(NUM_SERVOS > 0 && HAS_SERVO_0)
+
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM("SERVO not setup");
+
     #elif !HAS_Z_SERVO_ENDSTOP
+
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM("Z_ENDSTOP_SERVO_NR not setup");
+
     #else
-      uint8_t probe_index = code_seen('P') ? code_value_byte() : Z_ENDSTOP_SERVO_NR;
+
+      #if !defined(z_servo_angle)
+        const int z_servo_angle[2] = Z_SERVO_ANGLES;
+      #endif
+
+      const uint8_t probe_index = code_seen('P') ? code_value_byte() : Z_ENDSTOP_SERVO_NR;
+
       SERIAL_PROTOCOLLNPGM("Servo probe test");
       SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
       SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", z_servo_angle[0]);
       SERIAL_PROTOCOLLNPAIR(".  stow angle:   ", z_servo_angle[1]);
+
       bool probe_inverting;
+
       #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+
         #define PROBE_TEST_PIN Z_MIN_PIN
+
         SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN pin: ", PROBE_TEST_PIN);
         SERIAL_PROTOCOLLNPGM(". uses Z_MIN_ENDSTOP_INVERTING (ignores Z_MIN_PROBE_ENDSTOP_INVERTING)");
         SERIAL_PROTOCOLPGM(". Z_MIN_ENDSTOP_INVERTING: ");
-        if (Z_MIN_ENDSTOP_INVERTING) SERIAL_PROTOCOLLNPGM("true");
-        else  SERIAL_PROTOCOLLNPGM("false");
+
+        #if Z_MIN_ENDSTOP_INVERTING
+          SERIAL_PROTOCOLLNPGM("true");
+        #else
+          SERIAL_PROTOCOLLNPGM("false");
+        #endif
+
         probe_inverting = Z_MIN_ENDSTOP_INVERTING;
+
       #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+
         #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
         SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
         SERIAL_PROTOCOLLNPGM(". uses Z_MIN_PROBE_ENDSTOP_INVERTING (ignores Z_MIN_ENDSTOP_INVERTING)");
         SERIAL_PROTOCOLPGM(". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
-        if (Z_MIN_PROBE_ENDSTOP_INVERTING) SERIAL_PROTOCOLLNPGM("true");
-        else  SERIAL_PROTOCOLLNPGM("false");
+
+        #if Z_MIN_PROBE_ENDSTOP_INVERTING
+          SERIAL_PROTOCOLLNPGM("true");
+        #else
+          SERIAL_PROTOCOLLNPGM("false");
+        #endif
+
         probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
-      #else
-        #error "ERROR - probe pin not defined - strange, SANITY_CHECK should have caught this"
+
       #endif
+
       SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
       pinMode(PROBE_TEST_PIN, INPUT_PULLUP);
       bool deploy_state;
@@ -5883,7 +5907,9 @@ inline void gcode_M42() {
         stow_state = digitalRead(PROBE_TEST_PIN);
       }
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
+
       refresh_cmd_timeout();
+
       if (deploy_state != stow_state) {
         SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
         if (deploy_state) {
@@ -5900,32 +5926,43 @@ inline void gcode_M42() {
 
       }
       else {                                           // measure active signal length
-        servo[probe_index].move(z_servo_angle[0]); //deploy
+        servo[probe_index].move(z_servo_angle[0]);     // deploy
         safe_delay(500);
         SERIAL_PROTOCOLLNPGM("please trigger probe");
         uint16_t probe_counter = 0;
-        for (uint16_t j = 0; j < 500*30 && probe_counter == 0 ; j++) {   // allow 30 seconds max for operator to trigger probe
+
+        // Allow 30 seconds max for operator to trigger probe
+        for (uint16_t j = 0; j < 500 * 30 && probe_counter == 0 ; j++) {
+
           safe_delay(2);
-          if ( 0 == j%(500*1)) {refresh_cmd_timeout(); watchdog_reset();}  // beat the dog every 45 seconds
-          if (deploy_state != digitalRead(PROBE_TEST_PIN)) {             // probe triggered
-            for (probe_counter = 1; probe_counter < 50 && (deploy_state != digitalRead(PROBE_TEST_PIN)); probe_counter ++) {
+
+          if (0 == j % (500 * 1)) // keep cmd_timeout happy
+            refresh_cmd_timeout();
+
+          if (deploy_state != digitalRead(PROBE_TEST_PIN)) { // probe triggered
+
+            for (probe_counter = 1; probe_counter < 50 && deploy_state != digitalRead(PROBE_TEST_PIN); ++probe_counter)
               safe_delay(2);
-            }
-            if (probe_counter == 50) {
-              SERIAL_PROTOCOLLNPGM("Z Servo Probe detected");   // >= 100mS active time
-            }
-            else if (probe_counter >= 2 ) {
-              SERIAL_PROTOCOLLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2 );   // allow 4 - 100mS pulse
-            }
-            else {
-              SERIAL_PROTOCOLLNPGM("noise detected - please re-run test");   // less than 2mS pulse
-            }
+
+            if (probe_counter == 50)
+              SERIAL_PROTOCOLLNPGM("Z Servo Probe detected"); // >= 100mS active time
+            else if (probe_counter >= 2)
+              SERIAL_PROTOCOLLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2); // allow 4 - 100mS pulse
+            else
+              SERIAL_PROTOCOLLNPGM("noise detected - please re-run test"); // less than 2mS pulse
+
             servo[probe_index].move(z_servo_angle[1]); //stow
+
           }  // pulse detected
-        }    // for loop waiting for trigger
+
+        } // for loop waiting for trigger
+
         if (probe_counter == 0) SERIAL_PROTOCOLLNPGM("trigger not detected");
-      }      // measure active signal length
+
+      } // measure active signal length
+
     #endif
+
   } // servo_probe_test
 
   /**
@@ -5977,39 +6014,43 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
-    if (code_seen('P')) {
-      first_pin = last_pin = code_value_byte();
-      if (first_pin > NUM_DIGITAL_PINS - 1) return;
-    }
+    const uint8_t first_pin = code_seen('P') ? code_value_byte() : 0,
+                  last_pin = code_seen('P') ? first_pin : NUM_DIGITAL_PINS - 1;
 
-    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+    if (first_pin > last_pin) return;
+
+    const bool ignore_protection = code_seen('I') && code_value_bool();
 
     // Watch until click, M108, or reset
-    if (code_seen('W') && code_value_bool()) { // watch digital pins
+    if (code_seen('W') && code_value_bool()) {
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
         if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
-        // if (IS_ANALOG(pin))
-        //   pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
-        // else
-          pin_state[pin - first_pin] = digitalRead(pin);
+        /*
+          if (IS_ANALOG(pin))
+            pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
+          else
+        //*/
+            pin_state[pin - first_pin] = digitalRead(pin);
       }
 
       #if HAS_RESUME_CONTINUE
         wait_for_user = true;
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
       #endif
 
-      for(;;) {
+      for (;;) {
         for (int8_t pin = first_pin; pin <= last_pin; pin++) {
           if (pin_is_protected(pin)) continue;
-          byte val;
-          // if (IS_ANALOG(pin))
-          //   val = analogRead(pin - analogInputToDigitalPin(0)); // int16_t val
-          // else
-            val = digitalRead(pin);
+          const byte val =
+            /*
+              IS_ANALOG(pin)
+                ? analogRead(pin - analogInputToDigitalPin(0)) : // int16_t val
+                :
+            //*/
+              digitalRead(pin);
           if (val != pin_state[pin - first_pin]) {
             report_pin_state(pin);
             pin_state[pin - first_pin] = val;
@@ -6017,7 +6058,10 @@ inline void gcode_M42() {
         }
 
         #if HAS_RESUME_CONTINUE
-          if (!wait_for_user) break;
+          if (!wait_for_user) {
+            KEEPALIVE_STATE(IN_HANDLER);
+            break;
+          }
         #endif
 
         safe_delay(500);
