@@ -61,7 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G33 - Delta '4-point' auto calibration iteration
+ * G33 - Delta '4-7-point' auto calibration : "G33 C<points> V<verbose>" (Requires DELTA)
  * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
@@ -4982,32 +4982,23 @@ inline void gcode_G28() {
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     /**
-     * G33: Delta '4-point' auto calibration iteration
-     *
-     * Usage: G33 <Cn> <Vn>
-     *
-     *  C  (default) = Calibrate endstops, height and delta radius
-     *
-     *  -2, 1-4: n x n probe points, default 3 x 3
-     *
-     *    1: probe center
-     *       set height only - useful when z_offset is changed
-     *    2: probe center and towers
-     *       solve one '4 point' calibration
-     *   -2: probe center and opposite the towers
-     *       solve one '4 point' calibration
-     *    3: probe 3 center points, towers and opposite-towers
-     *       averages between 2 '4 point' calibrations
-     *    4: probe 4 center points, towers, opposite-towers and itermediate points
-     *       averages between 4 '4 point' calibrations
-     *
-     *  V  Verbose level (0-3, default 1)
-     *
-     *    0: Dry-run mode: no calibration
-     *    1: Settings
-     *    2: Setting + probe results
-     *    3: Expert mode: setting + iteration factors (see Configuration_adv.h)
-     *       This prematurely stops the iteration process when factors are found
+     * G33 - Delta '4-7-point' auto calibration (Requires DELTA)
+     * 
+     * Usage:
+     *   G33 <Cn> <Vn>
+     *   
+     *     Cn = (default) = calibrates height ('1 point'), endstops, and delta radius with '4 point' 
+     *                      and calibrates tower angles with '7+ point'
+     *          n= -2, 1-7 : n*n probe points
+     *          n=1  probes center - sets height only - usefull when z_offset is changed
+     *          n=2  probes center and towers
+     *          n=-2 probes center and opposite towers
+     *          n=3 probes all points: center, towers and opposite towers
+     *          n>3 probes all points multiple times and averages
+     *     Vn = verbose level (n=0-3 default 1)
+     *          n=0 dry-run mode: no calibration
+     *          n=1 settings 
+     *          n=2 setting + probe results 
      */
     inline void gcode_G33() {
 
@@ -5022,16 +5013,7 @@ inline void gcode_G28() {
 
       int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
 
-      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-        #define _MAX_M33_V 3
-        if (verbose_level == 3 && probe_points == 1) verbose_level--; // needs at least 4 points
-      #else
-        #define _MAX_M33_V 2
-        if (verbose_level > 2)
-          SERIAL_PROTOCOLLNPGM("Enable DELTA_CALIBRATE_EXPERT_MODE in Configuration_adv.h");
-      #endif
-
-      if (!WITHIN(verbose_level, 0, _MAX_M33_V)) verbose_level = 1;
+      if (!WITHIN(verbose_level, 0, 2)) verbose_level = 1;
 
       float zero_std_dev = verbose_level ? 999.0 : 0.0; // 0.0 in dry-run mode : forced end
 
@@ -5041,20 +5023,12 @@ inline void gcode_G28() {
             dr_old = delta_radius,
             zh_old = home_offset[Z_AXIS];
       COPY(e_old,endstop_adj);
-      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-        // expert variables
-        float h_f_old = 1.00, r_f_old = 0.00,
-              h_diff_min = 1.00, r_diff_max = 0.10;
-      #endif
 
       // print settings
 
       SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
-      #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-        if (verbose_level == 3) SERIAL_PROTOCOLPGM(" (EXPERT)");
-      #endif
       SERIAL_EOL;
       LCD_MESSAGEPGM("Checking... AC");
 
@@ -5084,16 +5058,8 @@ inline void gcode_G28() {
 
         setup_for_endstop_or_probe_move();
 
-        test_precision =
-          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-            // Expert mode : forced end at std_dev < 0.1
-            (verbose_level == 3 && zero_std_dev < 0.1) ? 0.0 :
-          #endif
-          zero_std_dev
-        ;
-
+        test_precision = zero_std_dev;
         float z_at_pt[13] = { 0 };
-
         iterations++;
 
         // probe the points
@@ -5149,21 +5115,19 @@ inline void gcode_G28() {
           zh_old = home_offset[Z_AXIS];
 
           float e_delta[XYZ] = { 0.0 }, r_delta = 0.0;
-
-          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-            float h_f_new = 0.0, r_f_new = 0.0 , t_f_new = 0.0,
-                  h_diff = 0.00, r_diff = 0.00;
-          #endif
+          const float r_diff = delta_radius - delta_calibration_radius,
+                      h_factor = 1.00 + r_diff * 0.001,
+                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)); //2.25 for r_diff = 20mm
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z1000(I) ZP(1.00, I)
-          #define Z1050(I) ZP(H_FACTOR, I)
-          #define Z0700(I) ZP((H_FACTOR) * 2.0 / 3.00, I)
-          #define Z0350(I) ZP((H_FACTOR) / 3.00, I)
-          #define Z0175(I) ZP((H_FACTOR) / 6.00, I)
-          #define Z2250(I) ZP(R_FACTOR, I)
-          #define Z0750(I) ZP((R_FACTOR) / 3.00, I)
-          #define Z0375(I) ZP((R_FACTOR) / 6.00, I)
+          #define Z1050(I) ZP(h_factor, I)
+          #define Z0700(I) ZP(h_factor * 2.0 / 3.00, I)
+          #define Z0350(I) ZP(h_factor / 3.00, I)
+          #define Z0175(I) ZP(h_factor / 6.00, I)
+          #define Z2250(I) ZP(r_factor, I)
+          #define Z0750(I) ZP(r_factor / 3.00, I)
+          #define Z0375(I) ZP(r_factor / 6.00, I)
 
           switch (probe_points) {
             case 1:
@@ -5193,28 +5157,7 @@ inline void gcode_G28() {
               break;
           }
 
-          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-            // Calculate h & r factors
-            if (verbose_level == 3) {
-              LOOP_XYZ(axis) h_f_new += e_delta[axis] / 3;
-              r_f_new = r_delta;
-              h_diff = (1.0 / H_FACTOR) * (h_f_old - h_f_new) / h_f_old;
-              if (h_diff < h_diff_min && h_diff > 0.9) h_diff_min = h_diff;
-              if (r_f_old != 0)
-                r_diff = (   0.0301 * sq(R_FACTOR) * R_FACTOR
-                           + 0.311  * sq(R_FACTOR)
-                           + 1.1493 * R_FACTOR
-                           + 1.7952
-                         ) * (r_f_old - r_f_new) / r_f_old;
-              if (r_diff > r_diff_max && r_diff < 0.4444) r_diff_max = r_diff;
-              SERIAL_EOL;
-
-              h_f_old = h_f_new;
-              r_f_old = r_f_new;
-            }
-          #endif // DELTA_CALIBRATE_EXPERT_MODE
-
-          // Adjust delta_height and endstops by the max amount
+          // adjust delta_height and endstops by the max amount
           LOOP_XYZ(axis) endstop_adj[axis] += e_delta[axis];
           delta_radius += r_delta;
 
@@ -5235,17 +5178,6 @@ inline void gcode_G28() {
 
         // print report
 
-        #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-          if (verbose_level == 3) {
-            const float r_factor =   22.902 * sq(r_diff_max) * r_diff_max
-                                   - 44.988 * sq(r_diff_max)
-                                   + 31.697 * r_diff_max
-                                   - 9.4439;
-            SERIAL_PROTOCOLPAIR("h_factor:", 1.0 / h_diff_min);
-            SERIAL_PROTOCOLPAIR("              r_factor:", r_factor);
-            SERIAL_EOL;
-          }
-        #endif
         if (verbose_level == 2) {
           SERIAL_PROTOCOLPGM(".     c:");
           if (z_at_pt[0] > 0) SERIAL_CHAR('+');
@@ -5277,7 +5209,7 @@ inline void gcode_G28() {
           }
         }
         if (test_precision != 0.0) {            // !forced end
-          if (zero_std_dev >= test_precision) {
+          if (zero_std_dev >= test_precision) { // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
             SERIAL_PROTOCOLLNPGM("                                   rolling back 1");
             LCD_MESSAGEPGM("Calibration OK");
@@ -5311,16 +5243,9 @@ inline void gcode_G28() {
             SERIAL_PROTOCOLLNPGM("save with M500 and/or copy to configuration.h");
         }
         else {                                  // forced end
-          #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
-            if (verbose_level == 3)
-              SERIAL_PROTOCOLLNPGM("Copy to Configuration_adv.h");
-            else
-          #endif
-            {
-              SERIAL_PROTOCOLPGM("End DRY-RUN                                      std dev:");
-              SERIAL_PROTOCOL_F(zero_std_dev, 3);
-              SERIAL_EOL;
-            }
+          SERIAL_PROTOCOLPGM("End DRY-RUN                                      std dev:");
+          SERIAL_PROTOCOL_F(zero_std_dev, 3);
+          SERIAL_EOL;
         }
 
         clean_up_after_endstop_or_probe_move();
