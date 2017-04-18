@@ -5009,7 +5009,7 @@ inline void gcode_G28() {
       #endif
 
       const int8_t pp = code_seen('C') ? code_value_int() : DELTA_CALIBRATION_DEFAULT_POINTS,
-                   probe_points = (WITHIN(pp, 1, 4) || pp == -2) ? pp : DELTA_CALIBRATION_DEFAULT_POINTS;
+                   probe_points = (WITHIN(pp, 1, 7) || pp == -2) ? pp : DELTA_CALIBRATION_DEFAULT_POINTS;
 
       int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
 
@@ -5066,39 +5066,47 @@ inline void gcode_G28() {
 
         int16_t center_points = 0;
 
-        if (probe_points != 3) {
+        if (probe_points != 3 &&  probe_points != 6) {                                 // probe centre
           z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
           center_points = 1;
         }
 
-        int16_t step_axis = 4;
-        if (probe_points >= 3) {
-          for (int8_t axis = 9; axis > 0; axis -= step_axis) { // uint8_t starts endless loop
+        int16_t step_axis = (probe_points > 4) ? 2 : 4;                                              
+        if (probe_points >= 3) {                                                       // probe extra 3 or 6 centre points
+          for (int8_t axis = (probe_points > 4) ? 11 : 9; axis > 0; axis -= step_axis) {              
             z_at_pt[0] += probe_pt(
-              0.1 * cos(RADIANS(180 + 30 * axis)) * (delta_calibration_radius),
-              0.1 * sin(RADIANS(180 + 30 * axis)) * (delta_calibration_radius), true, 1);
+              cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
+              sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
           }
-          center_points += 3;
+          center_points += (probe_points > 4) ? 6 : 3;                                  // average centre points
           z_at_pt[0] /= center_points;
         }
 
         float S1 = z_at_pt[0], S2 = sq(S1);
 
         int16_t N = 1, start = (probe_points == -2) ? 3 : 1;
-        step_axis = (abs(probe_points) == 2) ? 4 : (probe_points == 3) ? 2 : 1;
+        step_axis = (abs(probe_points) == 2) ? 4 : (probe_points == 4 || probe_points > 5) ? 1 : 2;
+        float start_circles = (probe_points > 6) ? -1.5 : (probe_points > 4) ? -1 : 0,  // one or multi radius points
+              end_circles = (probe_points > 6) ? 1.5 : (probe_points > 4) ? 1 : 0;      // one or multi radius points
+        int8_t zig_zag = 1;
 
         if (probe_points != 1) {
-          for (uint8_t axis = start; axis < 13; axis += step_axis)
-            z_at_pt[axis] += probe_pt(
-              cos(RADIANS(180 + 30 * axis)) * (delta_calibration_radius),
-              sin(RADIANS(180 + 30 * axis)) * (delta_calibration_radius), true, 1
-            );
+          for (uint8_t axis = start; axis < 13; axis += step_axis) { // probes 3, 6 or 12 points on the calibration radius
+            for (float circles = start_circles ; circles <= end_circles; circles++)     // one or multi radius points
+              z_at_pt[axis] += probe_pt(
+                cos(RADIANS(180 + 30 * axis)) * ((1 + circles * 0.1 * zig_zag) * delta_calibration_radius), 
+                sin(RADIANS(180 + 30 * axis)) * ((1 + circles * 0.1 * zig_zag) * delta_calibration_radius), true, 1);
 
-          if (probe_points == 4) step_axis = 2;
+            if (probe_points > 5) start_circles += (zig_zag == 1) ? +0.5 : -0.5;        // opposite one radius point less
+            if (probe_points > 5) end_circles += (zig_zag == 1) ? -0.5 : +0.5;
+            zig_zag = -zig_zag;
+            if (probe_points > 4) z_at_pt[axis] /= (zig_zag == 1) ? 3.0 : 2.0;          // average between radius points
+          }
         }
+        if (probe_points == 4 || probe_points > 5) step_axis = 2;
 
-        for (uint8_t axis = start; axis < 13; axis += step_axis) {
-          if (probe_points == 4)
+        for (uint8_t axis = start; axis < 13; axis += step_axis) {                      // average half intermediates to tower and opposite
+          if (probe_points == 4 || probe_points > 5)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
           S1 += z_at_pt[axis];
