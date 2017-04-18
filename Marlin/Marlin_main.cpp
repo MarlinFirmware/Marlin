@@ -585,10 +585,10 @@ static uint8_t target_extruder;
   // These values are loaded or reset at boot time when setup() calls
   // settings.load(), which calls recalc_delta_settings().
   float delta_radius,
-        delta_tower_angle_trim[ABC],
+        delta_tower_angle_trim[2],
         delta_tower[ABC][2],
         delta_diagonal_rod,
-        delta_diagonal_rod_trim[ABC],
+        delta_calibration_radius,
         delta_diagonal_rod_2_tower[ABC],
         delta_segments_per_second,
         delta_clip_start_height = Z_MAX_POS;
@@ -5109,8 +5109,8 @@ inline void gcode_G28() {
         if (probe_points >= 3) {
           for (int8_t axis = 9; axis > 0; axis -= step_axis) { // uint8_t starts endless loop
             z_at_pt[0] += probe_pt(
-              0.1 * cos(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS),
-              0.1 * sin(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS), true, 1);
+              0.1 * cos(RADIANS(180 + 30 * axis)) * (delta_calibration_radius),
+              0.1 * sin(RADIANS(180 + 30 * axis)) * (delta_calibration_radius), true, 1);
           }
           center_points += 3;
           z_at_pt[0] /= center_points;
@@ -5124,8 +5124,8 @@ inline void gcode_G28() {
         if (probe_points != 1) {
           for (uint8_t axis = start; axis < 13; axis += step_axis)
             z_at_pt[axis] += probe_pt(
-              cos(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS),
-              sin(RADIANS(180 + 30 * axis)) * (DELTA_CALIBRATION_RADIUS), true, 1
+              cos(RADIANS(180 + 30 * axis)) * (delta_calibration_radius),
+              sin(RADIANS(180 + 30 * axis)) * (delta_calibration_radius), true, 1
             );
 
           if (probe_points == 4) step_axis = 2;
@@ -5308,7 +5308,7 @@ inline void gcode_G28() {
           }
           SERIAL_EOL;
           if (zero_std_dev >= test_precision)
-            SERIAL_PROTOCOLLNPGM("Save with M500");
+            SERIAL_PROTOCOLLNPGM("save with M500 and/or copy to configuration.h");
         }
         else {                                  // forced end
           #if ENABLED(DELTA_CALIBRATE_EXPERT_MODE)
@@ -7546,12 +7546,13 @@ inline void gcode_M205() {
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
     if (code_seen('R')) delta_radius = code_value_linear_units();
     if (code_seen('S')) delta_segments_per_second = code_value_float();
-    if (code_seen('A')) delta_diagonal_rod_trim[A_AXIS] = code_value_linear_units();
-    if (code_seen('B')) delta_diagonal_rod_trim[B_AXIS] = code_value_linear_units();
-    if (code_seen('C')) delta_diagonal_rod_trim[C_AXIS] = code_value_linear_units();
-    if (code_seen('I')) delta_tower_angle_trim[A_AXIS] = code_value_linear_units();
-    if (code_seen('J')) delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
-    if (code_seen('K')) delta_tower_angle_trim[C_AXIS] = code_value_linear_units();
+    if (code_seen('B')) delta_calibration_radius = code_value_float();
+    if (code_seen('X')) delta_tower_angle_trim[A_AXIS] = code_value_linear_units();
+    if (code_seen('Y')) delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
+    if (code_seen('Z')) { // rotate all 3 axis for Z = 0
+      delta_tower_angle_trim[A_AXIS] += code_value_linear_units();
+      delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
+    }
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**
@@ -10555,15 +10556,17 @@ void ok_to_send() {
    * settings have been changed (e.g., by M665).
    */
   void recalc_delta_settings(float radius, float diagonal_rod) {
-    delta_tower[A_AXIS][X_AXIS] = -sin(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_1); // front left tower
-    delta_tower[A_AXIS][Y_AXIS] = -cos(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_1);
-    delta_tower[B_AXIS][X_AXIS] =  sin(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_2); // front right tower
-    delta_tower[B_AXIS][Y_AXIS] = -cos(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_2);
-    delta_tower[C_AXIS][X_AXIS] = -sin(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_3); // back middle tower
-    delta_tower[C_AXIS][Y_AXIS] =  cos(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_3);
-    delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[A_AXIS]);
-    delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[B_AXIS]);
-    delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[C_AXIS]);
+    const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
+                drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+    delta_tower[A_AXIS][X_AXIS] = -cos(RADIANS(30 + delta_tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]); // front left tower
+    delta_tower[A_AXIS][Y_AXIS] = -sin(RADIANS(30 + delta_tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]);
+    delta_tower[B_AXIS][X_AXIS] =  cos(RADIANS(30 - delta_tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]); // front right tower
+    delta_tower[B_AXIS][Y_AXIS] = -sin(RADIANS(30 - delta_tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]);
+    delta_tower[C_AXIS][X_AXIS] = 0.0; // back middle tower
+    delta_tower[C_AXIS][Y_AXIS] = (radius + trt[C_AXIS]);
+    delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + drt[A_AXIS]);
+    delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + drt[B_AXIS]);
+    delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + drt[C_AXIS]);
   }
 
   #if ENABLED(DELTA_FAST_SQRT)

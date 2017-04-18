@@ -448,28 +448,30 @@
   // See http://minow.blogspot.com/index.html#4918805519571907051
   //#define DELTA_CALIBRATION_MENU
 
+
+
+  // set the radius for the calibration probe points - max 0.8 * DELTA_PRINTABLE_RADIUS if DELTA_AUTO_CALIBRATION enabled
+  #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - 17) // mm
+  
   // G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
-  //#define DELTA_AUTO_CALIBRATION
+  #define DELTA_AUTO_CALIBRATION
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    #define DELTA_CALIBRATION_DEFAULT_POINTS 3 // set the default number of probe points : n*n (1-4)
-    #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - 15) // set the radius for the calibration probe points
+    #define DELTA_CALIBRATION_DEFAULT_POINTS 3 // set the default number of probe points : n*n (-2,1-7)
   #endif
 
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
 
-  //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
+  #define DELTA_ENDSTOP_ADJ { -0.00, -0.00, -0.00 } // get these from auto calibrate
 
   // Trim adjustments for individual towers
-  #define DELTA_RADIUS_TRIM_TOWER_1 0.0
-  #define DELTA_RADIUS_TRIM_TOWER_2 0.0
-  #define DELTA_RADIUS_TRIM_TOWER_3 0.0
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
-  #define DELTA_TOWER_ANGLE_TRIM_1 0.0
-  #define DELTA_TOWER_ANGLE_TRIM_2 0.0
-  #define DELTA_TOWER_ANGLE_TRIM_3 0.0
+  // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
+  // measured in degrees anticlockwise looking from above the printer
+  #define DELTA_TOWER_ANGLE_TRIM { -0.00, -0.00 } // get these from auto calibrate
+
+  // delta radius and diaginal rod adjustments measured in mm
+  //#define DELTA_RADIUS_TRIM_TOWER {0.0, 0.0, 0.0}
+  //#define DELTA_DIAGONAL_ROD_TRIM_TOWER {0.0, 0.0, 0.0}
 
 #endif
 
