@@ -4167,17 +4167,25 @@ inline void gcode_G28() {
       #define ABL_VAR
     #endif
 
-    ABL_VAR int verbose_level, abl_probe_index;
+    ABL_VAR int verbose_level;
     ABL_VAR float xProbe, yProbe, measured_z;
     ABL_VAR bool dryrun, abl_should_enable;
+
+    #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
+      ABL_VAR int abl_probe_index;
+    #endif
 
     #if HAS_SOFTWARE_ENDSTOPS
       ABL_VAR bool enable_soft_endstops = true;
     #endif
 
     #if ABL_GRID
-      ABL_VAR uint8_t PR_OUTER_VAR;
-      ABL_VAR  int8_t PR_INNER_VAR;
+
+      #if ENABLED(PROBE_MANUALLY)
+        ABL_VAR uint8_t PR_OUTER_VAR;
+        ABL_VAR  int8_t PR_INNER_VAR;
+      #endif
+
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
@@ -4186,13 +4194,18 @@ inline void gcode_G28() {
       #if ABL_PLANAR
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
-        ABL_VAR int abl2;
         ABL_VAR bool do_topography_map;
       #else // 3-point
         uint8_t constexpr abl_grid_points_x = GRID_MAX_POINTS_X,
                           abl_grid_points_y = GRID_MAX_POINTS_Y;
+      #endif
 
-        int constexpr abl2 = ABL_GRID_MAX;
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(PROBE_MANUALLY)
+        #if ABL_PLANAR
+          ABL_VAR int abl2;
+        #else // 3-point
+          int constexpr abl2 = ABL_GRID_MAX;
+        #endif
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -4224,7 +4237,10 @@ inline void gcode_G28() {
      */
     if (!g29_in_progress) {
 
-      abl_probe_index = 0;
+      #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
+        abl_probe_index = 0;
+      #endif
+
       abl_should_enable = planner.abl_enabled;
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -4284,7 +4300,7 @@ inline void gcode_G28() {
         return;
       }
 
-      dryrun = code_seen('D') ? code_value_bool() : false;
+      dryrun = code_seen('D') && code_value_bool();
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -4455,7 +4471,7 @@ inline void gcode_G28() {
       g29_in_progress = true;
 
       if (abl_probe_index == 0) {
-        // For the initial G29 S2 save software endstop state
+        // For the initial G29 save software endstop state
         #if HAS_SOFTWARE_ENDSTOPS
           enable_soft_endstops = soft_endstops_enabled;
         #endif
@@ -4585,7 +4601,6 @@ inline void gcode_G28() {
 
 
     #else // !PROBE_MANUALLY
-
 
       bool stow_probe_after_each = code_seen('E');
 
