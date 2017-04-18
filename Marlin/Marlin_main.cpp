@@ -1091,7 +1091,7 @@ inline void get_serial_commands() {
       if (IsStopped()) {
         char* gpos = strchr(command, 'G');
         if (gpos) {
-          int codenum = strtol(gpos + 1, NULL, 10);
+          const int codenum = strtol(gpos + 1, NULL, 10);
           switch (codenum) {
             case 0:
             case 1:
@@ -4927,13 +4927,11 @@ inline void gcode_G28() {
    *     S = Stows the probe if 1 (default=1)
    */
   inline void gcode_G30() {
-    float X_probe_location = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-          Y_probe_location = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    const float xpos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
+                ypos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
+                pos[XYZ] = { xpos, ypos, LOGICAL_Z_POSITION(0) };
 
-    float pos[XYZ] = { X_probe_location, Y_probe_location, LOGICAL_Z_POSITION(0) };
     if (!position_is_reachable(pos, true)) return;
-
-    bool stow = code_seen('S') ? code_value_bool() : true;
 
     // Disable leveling so the planner won't mess with us
     #if PLANNER_LEVELING
@@ -4942,14 +4940,11 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
-    float measured_z = probe_pt(X_probe_location, Y_probe_location, stow, 1);
+    const float measured_z = probe_pt(xpos, ypos, !code_seen('S') || code_value_bool(), 1);
 
-    SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL(FIXFLOAT(X_probe_location));
-    SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL(FIXFLOAT(Y_probe_location));
-    SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOLLN(FIXFLOAT(measured_z));
+    SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
+    SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
+    SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
 
     clean_up_after_endstop_or_probe_move();
 
@@ -5466,7 +5461,7 @@ inline void gcode_G92() {
    * M1: Conditional stop   - Wait for user button press on LCD
    */
   inline void gcode_M0_M1() {
-    char* args = current_command_args;
+    const char * const args = current_command_args;
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -5524,7 +5519,7 @@ inline void gcode_G92() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-#endif // EMERGENCY_PARSER || ULTIPANEL
+#endif // HAS_RESUME_CONTINUE
 
 /**
  * M17: Enable power on all stepper motors
@@ -11210,19 +11205,20 @@ void prepare_move_to_destination() {
    */
   void plan_arc(
     float logical[XYZE], // Destination position
-    float* offset,           // Center of rotation relative to current_position
-    uint8_t clockwise        // Clockwise?
+    float *offset,       // Center of rotation relative to current_position
+    uint8_t clockwise    // Clockwise?
   ) {
 
-    float radius = HYPOT(offset[X_AXIS], offset[Y_AXIS]),
-          center_X = current_position[X_AXIS] + offset[X_AXIS],
-          center_Y = current_position[Y_AXIS] + offset[Y_AXIS],
-          linear_travel = logical[Z_AXIS] - current_position[Z_AXIS],
-          extruder_travel = logical[E_AXIS] - current_position[E_AXIS],
-          r_X = -offset[X_AXIS],  // Radius vector from center to current location
-          r_Y = -offset[Y_AXIS],
-          rt_X = logical[X_AXIS] - center_X,
-          rt_Y = logical[Y_AXIS] - center_Y;
+    float r_X = -offset[X_AXIS],  // Radius vector from center to current location
+          r_Y = -offset[Y_AXIS];
+
+    const float radius = HYPOT(r_X, r_Y),
+                center_X = current_position[X_AXIS] - r_X,
+                center_Y = current_position[Y_AXIS] - r_Y,
+                rt_X = logical[X_AXIS] - center_X,
+                rt_Y = logical[Y_AXIS] - center_Y,
+                linear_travel = logical[Z_AXIS] - current_position[Z_AXIS],
+                extruder_travel = logical[E_AXIS] - current_position[E_AXIS];
 
     // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
     float angular_travel = atan2(r_X * rt_Y - r_Y * rt_X, r_X * rt_X + r_Y * rt_Y);
@@ -11266,12 +11262,12 @@ void prepare_move_to_destination() {
      * This is important when there are successive arc motions.
      */
     // Vector rotation matrix values
-    float arc_target[XYZE],
-          theta_per_segment = angular_travel / segments,
-          linear_per_segment = linear_travel / segments,
-          extruder_per_segment = extruder_travel / segments,
-          sin_T = theta_per_segment,
-          cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
+    float arc_target[XYZE];
+    const float theta_per_segment = angular_travel / segments,
+                linear_per_segment = linear_travel / segments,
+                extruder_per_segment = extruder_travel / segments,
+                sin_T = theta_per_segment,
+                cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
 
     // Initialize the linear axis
     arc_target[Z_AXIS] = current_position[Z_AXIS];
@@ -11279,7 +11275,7 @@ void prepare_move_to_destination() {
     // Initialize the extruder axis
     arc_target[E_AXIS] = current_position[E_AXIS];
 
-    float fr_mm_s = MMS_SCALED(feedrate_mm_s);
+    const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
     millis_t next_idle_ms = millis() + 200UL;
 
@@ -11294,7 +11290,7 @@ void prepare_move_to_destination() {
 
       if (++count < N_ARC_CORRECTION) {
         // Apply vector rotation matrix to previous r_X / 1
-        float r_new_Y = r_X * sin_T + r_Y * cos_T;
+        const float r_new_Y = r_X * sin_T + r_Y * cos_T;
         r_X = r_X * cos_T - r_Y * sin_T;
         r_Y = r_new_Y;
       }
@@ -11303,8 +11299,8 @@ void prepare_move_to_destination() {
         // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
         // To reduce stuttering, the sin and cos could be computed at different times.
         // For now, compute both at the same time.
-        float cos_Ti = cos(i * theta_per_segment),
-              sin_Ti = sin(i * theta_per_segment);
+        const float cos_Ti = cos(i * theta_per_segment),
+                    sin_Ti = sin(i * theta_per_segment);
         r_X = -offset[X_AXIS] * cos_Ti + offset[Y_AXIS] * sin_Ti;
         r_Y = -offset[X_AXIS] * sin_Ti - offset[Y_AXIS] * cos_Ti;
         count = 0;
@@ -11818,30 +11814,15 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
         enable_E0();
       #else // !SWITCHING_EXTRUDER
         switch (active_extruder) {
-          case 0:
-            oldstatus = E0_ENABLE_READ;
-            enable_E0();
-            break;
+          case 0: oldstatus = E0_ENABLE_READ; enable_E0(); break;
           #if E_STEPPERS > 1
-            case 1:
-              oldstatus = E1_ENABLE_READ;
-              enable_E1();
-              break;
+            case 1: oldstatus = E1_ENABLE_READ; enable_E1(); break;
             #if E_STEPPERS > 2
-              case 2:
-                oldstatus = E2_ENABLE_READ;
-                enable_E2();
-                break;
+              case 2: oldstatus = E2_ENABLE_READ; enable_E2(); break;
               #if E_STEPPERS > 3
-                case 3:
-                  oldstatus = E3_ENABLE_READ;
-                  enable_E3();
-                  break;
+                case 3: oldstatus = E3_ENABLE_READ; enable_E3(); break;
                 #if E_STEPPERS > 4
-                  case 4:
-                    oldstatus = E4_ENABLE_READ;
-                    enable_E4();
-                    break;
+                  case 4: oldstatus = E4_ENABLE_READ; enable_E4(); break;
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
@@ -11861,25 +11842,15 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
         E0_ENABLE_WRITE(oldstatus);
       #else
         switch (active_extruder) {
-          case 0:
-            E0_ENABLE_WRITE(oldstatus);
-            break;
+          case 0: E0_ENABLE_WRITE(oldstatus); break;
           #if E_STEPPERS > 1
-            case 1:
-              E1_ENABLE_WRITE(oldstatus);
-              break;
+            case 1: E1_ENABLE_WRITE(oldstatus); break;
             #if E_STEPPERS > 2
-              case 2:
-                E2_ENABLE_WRITE(oldstatus);
-                break;
+              case 2: E2_ENABLE_WRITE(oldstatus); break;
               #if E_STEPPERS > 3
-                case 3:
-                  E3_ENABLE_WRITE(oldstatus);
-                  break;
+                case 3: E3_ENABLE_WRITE(oldstatus); break;
                 #if E_STEPPERS > 4
-                  case 4:
-                    E4_ENABLE_WRITE(oldstatus);
-                    break;
+                  case 4: E4_ENABLE_WRITE(oldstatus); break;
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
