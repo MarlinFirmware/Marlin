@@ -2051,7 +2051,13 @@ static void clean_up_after_endstop_or_probe_move() {
           deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
         #elif ENABLED(Z_RACK_PINION)
-        
+
+          if(deploy==true)
+          {
+            if(current_position[Z_AXIS] < Z_CLEARANCE_DEPLOY_PROBE)
+               do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+            
+          }
           do_blocking_move_to_x(deploy? 0:X_MAX_POS);
           
         #endif

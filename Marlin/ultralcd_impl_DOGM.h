@@ -537,7 +537,7 @@ static void lcd_implementation_status_screen() {
   static char xstring[5], ystring[5], zstring[7];
 
   // At the first page, regenerate the XYZ strings
-  if (page.page == 0) {
+  if (page.page == 0) {    
     strcpy(xstring, ftostr4sign(current_position[X_AXIS]));
     strcpy(ystring, ftostr4sign(current_position[Y_AXIS]));
     strcpy(zstring, ftostr52sp(current_position[Z_AXIS] + 0.00001));
@@ -560,17 +560,20 @@ static void lcd_implementation_status_screen() {
       u8g.setPrintPos(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
       u8g.setPrintPos(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(xstring);
+      if(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING) lcd_print("HIT");
+      else lcd_print(xstring);
 
       u8g.setPrintPos(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
       u8g.setPrintPos(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(ystring);
+      if(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING) lcd_print("HIT");
+      else lcd_print(ystring);
 
       u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
       u8g.setPrintPos(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(zstring);
+      if(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING) lcd_print("HIT");
+      else lcd_print(zstring);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
