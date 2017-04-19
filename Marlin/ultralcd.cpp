@@ -3485,11 +3485,11 @@ void lcd_update() {
 
       if (sd_status) {
         card.initsd();
-        if (lcd_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_INSERTED);
+        if (sd_status != 2) LCD_MESSAGEPGM(MSG_SD_INSERTED);
       }
       else {
         card.release();
-        if (lcd_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_REMOVED);
+        if (sd_status != 2) LCD_MESSAGEPGM(MSG_SD_REMOVED);
       }
 
       lcd_sd_status = sd_status;
