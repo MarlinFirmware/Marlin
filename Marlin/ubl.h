@@ -30,6 +30,7 @@
   #include "Marlin.h"
   #include "math.h"
   #include "vector_3.h"
+  #include "planner.h"
 
   #define UBL_VERSION "1.00"
   #define UBL_OK false
@@ -97,15 +98,9 @@
           mesh_x_dist = MESH_X_DIST,
           mesh_y_dist = MESH_Y_DIST;
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      float g29_correction_fade_height = 10.0,
-            g29_fade_height_multiplier = 1.0 / 10.0; // It's cheaper to do a floating point multiply than divide,
-                                                     // so keep this value and its reciprocal.
-    #endif
-
     // If you change this struct, adjust TOTAL_STRUCT_SIZE
 
-    #define TOTAL_STRUCT_SIZE 40 // Total size of the above fields
+    #define TOTAL_STRUCT_SIZE 32 // Total size of the above fields
 
     // padding provides space to add state variables without
     // changing the location of data structures in the EEPROM.
@@ -309,21 +304,21 @@
        * This function sets the Z leveling fade factor based on the given Z height,
        * only re-calculating when necessary.
        *
-       *  Returns 1.0 if g29_correction_fade_height is 0.0.
+       *  Returns 1.0 if planner.z_fade_height is 0.0.
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
         static FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
-          if (state.g29_correction_fade_height == 0.0) return 1.0;
+          if (planner.z_fade_height == 0.0) return 1.0;
 
           static float fade_scaling_factor = 1.0;
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
             last_specified_z = rz;
             fade_scaling_factor =
-              rz < state.g29_correction_fade_height
-                ? 1.0 - (rz * state.g29_fade_height_multiplier)
+              rz < planner.z_fade_height
+                ? 1.0 - (rz * planner.inverse_z_fade_height)
                 : 0.0;
           }
           return fade_scaling_factor;

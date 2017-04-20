@@ -212,13 +212,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(
-      //#if ENABLED(AUTO_BED_LEVELING_UBL)
-      //  ubl.state.g29_correction_fade_height
-      //#else
-        planner.z_fade_height
-      //#endif
-    );
+    set_z_fade_height(planner.z_fade_height);
   #endif
 
   #if HAS_BED_PROBE
@@ -1412,9 +1406,9 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M420 S", ubl.state.active ? 1 : 0);
-      //#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      //  SERIAL_ECHOPAIR(" Z", ubl.state.g29_correction_fade_height);
-      //#endif
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        SERIAL_ECHOPAIR(" Z", planner.z_fade_height);
+      #endif
       SERIAL_EOL;
 
       if (!forReplay) {
