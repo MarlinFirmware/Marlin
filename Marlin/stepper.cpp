@@ -271,7 +271,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
  *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
  */
 void Stepper::wake_up() {
-  //  TCNT1 = 0;
+  // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
@@ -1081,21 +1081,17 @@ void Stepper::init() {
   #endif
 
   // waveform generation = 0100 = CTC
-  CBI(TCCR1B, WGM13);
-  SBI(TCCR1B, WGM12);
-  CBI(TCCR1A, WGM11);
-  CBI(TCCR1A, WGM10);
+  SET_WGM(1, WGM_CTC_OCRnA);
 
   // output mode = 00 (disconnected)
-  TCCR1A &= ~(3 << COM1A0);
-  TCCR1A &= ~(3 << COM1B0);
+  SET_COMS(1, COM_NORMAL, COM_NORMAL);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
   // sure to regenerate speed_lookuptable.h with
   // create_speed_lookuptable.py
-  TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
+  SET_CS(1, CS_PRESCALER_8);  //  CS 2 = 1/8 prescaler
 
   // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;

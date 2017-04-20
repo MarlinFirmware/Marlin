@@ -5858,10 +5858,6 @@ inline void gcode_M42() {
 
     #else
 
-      #if !defined(z_servo_angle)
-        const int z_servo_angle[2] = Z_SERVO_ANGLES;
-      #endif
-
       const uint8_t probe_index = code_seen('P') ? code_value_byte() : Z_ENDSTOP_SERVO_NR;
 
       SERIAL_PROTOCOLLNPGM("Servo probe test");
@@ -11528,15 +11524,13 @@ void prepare_move_to_destination() {
       #ifdef TCCR0A
         case TIMER0A:
         case TIMER0B:
-          // TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
-          // TCCR0B |= val;
+          //SET_CS(0, val);
           break;
       #endif
       #ifdef TCCR1A
         case TIMER1A:
         case TIMER1B:
-          // TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-          // TCCR1B |= val;
+          //SET_CS(1, val);
           break;
       #endif
       #ifdef TCCR2
@@ -11549,32 +11543,28 @@ void prepare_move_to_destination() {
       #ifdef TCCR2A
         case TIMER2A:
         case TIMER2B:
-          TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
-          TCCR2B |= val;
+          SET_CS(2, val);
           break;
       #endif
       #ifdef TCCR3A
         case TIMER3A:
         case TIMER3B:
         case TIMER3C:
-          TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
-          TCCR3B |= val;
+          SET_CS(3, val);
           break;
       #endif
       #ifdef TCCR4A
         case TIMER4A:
         case TIMER4B:
         case TIMER4C:
-          TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
-          TCCR4B |= val;
+          SET_CS(4, val);
           break;
       #endif
       #ifdef TCCR5A
         case TIMER5A:
         case TIMER5B:
         case TIMER5C:
-          TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
-          TCCR5B |= val;
+          SET_CS(5, val);
           break;
       #endif
     }
