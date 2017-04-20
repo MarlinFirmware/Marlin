@@ -30,7 +30,6 @@
   #include "Marlin.h"
   #include "hex_print_routines.h"
   #include "configuration_store.h"
-  #include "planner.h"
   #include "ultralcd.h"
 
   #include <math.h>
@@ -1068,8 +1067,7 @@
           SERIAL_PROTOCOLLNPGM("?Bed Level Correction Fade Height Not Plausible.\n");
           return UBL_ERR;
         }
-        ubl.state.g29_correction_fade_height = fh;
-        ubl.state.g29_fade_height_multiplier = 1.0 / fh;
+        set_z_fade_height(fh);
       }
     #endif
 
@@ -1166,7 +1164,7 @@
     safe_delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLLNPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
+      SERIAL_PROTOCOLLNPAIR("planner.z_fade_height : ", planner.z_fade_height);
     #endif
 
     SERIAL_PROTOCOLPGM("z_offset: ");

@@ -90,14 +90,6 @@
 
     if (sanity_check())
       SERIAL_PROTOCOLLNPGM("?In load_state() sanity_check() failed.\n");
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float recip = ubl.state.g29_correction_fade_height ? 1.0 / ubl.state.g29_correction_fade_height : 1.0;
-      if (ubl.state.g29_fade_height_multiplier != recip) {
-        ubl.state.g29_fade_height_multiplier = recip;
-        store_state();
-      }
-    #endif
   }
 
   void unified_bed_leveling::load_mesh(const int16_t m) {
