@@ -1543,9 +1543,9 @@
 #define RGB_LED
 //#define RGBW_LED
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-  #define RGB_LED_R_PIN 34
-  #define RGB_LED_G_PIN 43
-  #define RGB_LED_B_PIN 35
+  #define RGB_LED_R_PIN 41 // correct pin # for K8400, 2017-04-21 r. cormier
+  #define RGB_LED_G_PIN 40 // correct pin # for K8400
+  #define RGB_LED_B_PIN 12 // correct pin # for K8400
   #define RGB_LED_W_PIN -1
 #endif
 
