@@ -25,8 +25,9 @@ if [[ $ORG != MarlinFirmware ]]; then
 fi
 
 case "$REPO" in
-  Marlin    ) TARG=RCBugFix ;;
-  MarlinDev ) TARG=dev ;;
+  Marlin              ) TARG=RCBugFix ;;
+  MarlinDev           ) TARG=dev ;;
+  MarlinDocumentation ) TARG=master ;;
 esac
 
 FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
