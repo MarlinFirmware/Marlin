@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# mfqp
+#
+# Add all changed files, commit as "patch", do `mfrb` and `git push -f`
+#
+
+MFINFO=$(mfinfo) || exit
+IFS=' ' read -a INFO <<< "$MFINFO"
+
+case "$#" in
+  0 ) ;;
+  * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
+esac
+
+git add * .travis.yml
+git commit -m "patch"
+mfrb
+git push -f
