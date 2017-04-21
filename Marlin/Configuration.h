@@ -328,9 +328,14 @@
   //#define  DEFAULT_Kd 12
 
   // Mendel Parts V9 on 12V
-  #define  DEFAULT_Kp 63.0
-  #define  DEFAULT_Ki 2.25
-  #define  DEFAULT_Kd 440
+  //#define  DEFAULT_Kp 63.0
+  //#define  DEFAULT_Ki 2.25
+  //#define  DEFAULT_Kd 440
+
+  // Auto tune PID on K8400 (M303 S200 C8); much less undershoot and oscillations ; 2017-04-21 r. cormier
+  #define  DEFAULT_Kp 32.11
+  #define  DEFAULT_Ki  2.67
+  #define  DEFAULT_Kd 96.93
 
 #endif // PIDTEMP
 
@@ -1535,7 +1540,7 @@
  * *** CAUTION ***
  *
  */
-//#define RGB_LED
+#define RGB_LED
 //#define RGBW_LED
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
