@@ -599,7 +599,8 @@ static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   int bilinear_grid_spacing[2], bilinear_start[2];
-  float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  float bilinear_grid_factor[2],
+        z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 #if IS_SCARA
@@ -2371,6 +2372,13 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
 
       if (can_change && enable != planner.abl_enabled) {
+
+        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          // Force bilinear_z_offset to re-calculate next time
+          const float reset[XYZ] = { -9999.999, -9999.999, 0 };
+          (void)bilinear_z_offset(reset);
+        #endif
+
         planner.abl_enabled = enable;
         if (!enable)
           set_current_from_steppers_for_axis(
@@ -2629,6 +2637,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
     float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
     int bilinear_grid_spacing_virt[2] = { 0 };
+    float bilinear_grid_factor_virt[2] = { 0 };
 
     static void bed_level_virt_print() {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
@@ -2698,6 +2707,8 @@ static void clean_up_after_endstop_or_probe_move() {
     void bed_level_virt_interpolate() {
       bilinear_grid_spacing_virt[X_AXIS] = bilinear_grid_spacing[X_AXIS] / (BILINEAR_SUBDIVISIONS);
       bilinear_grid_spacing_virt[Y_AXIS] = bilinear_grid_spacing[Y_AXIS] / (BILINEAR_SUBDIVISIONS);
+      bilinear_grid_factor_virt[X_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[X_AXIS]);
+      bilinear_grid_factor_virt[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[Y_AXIS]);
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
         for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
           for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
@@ -2717,6 +2728,8 @@ static void clean_up_after_endstop_or_probe_move() {
 
   // Refresh after other values have been updated
   void refresh_bed_level() {
+    bilinear_grid_factor[X_AXIS] = RECIPROCAL(bilinear_grid_spacing[X_AXIS]);
+    bilinear_grid_factor[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing[Y_AXIS]);
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       bed_level_virt_interpolate();
     #endif
@@ -3130,7 +3143,7 @@ void unknown_command_error() {
 
 #endif //HOST_KEEPALIVE_FEATURE
 
-bool position_is_reachable(float target[XYZ]
+bool position_is_reachable(const float target[XYZ]
   #if HAS_BED_PROBE
     , bool by_probe=false
   #endif
@@ -4648,7 +4661,7 @@ inline void gcode_G28() {
 
             #if IS_KINEMATIC
               // Avoid probing outside the round or hexagonal area
-              float pos[XYZ] = { xProbe, yProbe, 0 };
+              const float pos[XYZ] = { xProbe, yProbe, 0 };
               if (!position_is_reachable(pos, true)) continue;
             #endif
 
@@ -10484,49 +10497,72 @@ void ok_to_send() {
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt[A]
+    #define ABL_BG_FACTOR(A)  bilinear_grid_factor_virt[A]
     #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
     #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
     #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
   #else
     #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
+    #define ABL_BG_FACTOR(A)  bilinear_grid_factor[A]
     #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
     #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
     #define ABL_BG_GRID(X,Y)  z_values[X][Y]
   #endif
 
   // Get the Z adjustment for non-linear bed leveling
-  float bilinear_z_offset(float cartesian[XYZ]) {
+  float bilinear_z_offset(const float logical[XYZ]) {
 
-    // XY relative to the probed area
-    const float x = RAW_X_POSITION(cartesian[X_AXIS]) - bilinear_start[X_AXIS],
-                y = RAW_Y_POSITION(cartesian[Y_AXIS]) - bilinear_start[Y_AXIS];
-
-    // Convert to grid box units
-    float ratio_x = x / ABL_BG_SPACING(X_AXIS),
-          ratio_y = y / ABL_BG_SPACING(Y_AXIS);
+    static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
+                 last_x = -999.999, last_y = -999.999;
 
     // Whole units for the grid line indices. Constrained within bounds.
-    const int gridx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1),
-              gridy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1),
-              nextx = min(gridx + 1, ABL_BG_POINTS_X - 1),
-              nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
+    static int8_t gridx, gridy, nextx, nexty,
+                  last_gridx = -99, last_gridy = -99;
 
-    // Subtract whole to get the ratio within the grid box
-    ratio_x -= gridx; ratio_y -= gridy;
+    // XY relative to the probed area
+    const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
+                y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
 
-    // Never less than 0.0. (Over 1.0 is fine due to previous contraints.)
-    NOLESS(ratio_x, 0); NOLESS(ratio_y, 0);
+    if (last_x != x) {
+      last_x = x;
+      ratio_x = x * ABL_BG_FACTOR(X_AXIS);
+      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1);
+      ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
+      NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
+      gridx = gx;
+      nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
+    }
 
-    // Z at the box corners
-    const float z1 = ABL_BG_GRID(gridx, gridy),  // left-front
-                z2 = ABL_BG_GRID(gridx, nexty),  // left-back
-                z3 = ABL_BG_GRID(nextx, gridy),  // right-front
-                z4 = ABL_BG_GRID(nextx, nexty),  // right-back
+    if (last_y != y || last_gridx != gridx) {
 
-                // Bilinear interpolate
-                L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
-                R = z3 + (z4 - z3) * ratio_y,   // Linear interp. RF -> RB
-                offset = L + ratio_x * (R - L);
+      if (last_y != y) {
+        last_y = y;
+        ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
+        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1);
+        ratio_y -= gy;
+        NOLESS(ratio_y, 0);
+        gridy = gy;
+        nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
+      }
+
+      if (last_gridx != gridx || last_gridy != gridy) {
+        last_gridx = gridx;
+        last_gridy = gridy;
+        // Z at the box corners
+        z1 = ABL_BG_GRID(gridx, gridy);       // left-front
+        d2 = ABL_BG_GRID(gridx, nexty) - z1;  // left-back (delta)
+        z3 = ABL_BG_GRID(nextx, gridy);       // right-front
+        d4 = ABL_BG_GRID(nextx, nexty) - z3;  // right-back (delta)
+      }
+
+      // Bilinear interpolate. Needed since y or gridx has changed.
+                  L = z1 + d2 * ratio_y;   // Linear interp. LF -> LB
+      const float R = z3 + d4 * ratio_y;   // Linear interp. RF -> RB
+
+      D = R - L;
+    }
+
+    const float offset = L + ratio_x * D;   // the offset almost always changes
 
     /*
     static float last_offset = 0;
@@ -10549,7 +10585,7 @@ void ok_to_send() {
       SERIAL_ECHOLNPAIR(" offset=", offset);
     }
     last_offset = offset;
-    */
+    //*/
 
     return offset;
   }
@@ -10869,7 +10905,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
 
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / ABL_BG_SPACING(A##_AXIS))
+  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
