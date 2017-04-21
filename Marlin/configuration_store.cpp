@@ -1195,7 +1195,7 @@ void MarlinSettings::reset() {
         #endif
         ; i++) {
         SERIAL_ECHOPAIR("  M92 T", (int)i);
-        SERIAL_ECHOLNPAIR(" E", planner.axis_steps_per_mm[E_AXIS + i]);
+        SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS + i]));
       }
     #endif
 
@@ -1222,7 +1222,7 @@ void MarlinSettings::reset() {
         #endif
         ; i++) {
         SERIAL_ECHOPAIR("  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR(" E", planner.max_feedrate_mm_s[E_AXIS + i]);
+        SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS + i]));
       }
     #endif
 
@@ -1248,7 +1248,7 @@ void MarlinSettings::reset() {
         #endif
         ; i++) {
         SERIAL_ECHOPAIR("  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
+        SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS + i]));
       }
     #endif
 
