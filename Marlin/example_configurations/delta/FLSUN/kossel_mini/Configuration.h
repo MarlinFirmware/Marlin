@@ -446,8 +446,6 @@
   // and processor overload (too many expensive sqrt calls).
   #define DELTA_SEGMENTS_PER_SECOND 160
 
-  // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
-
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 218.0 // mm
 
@@ -1403,7 +1401,6 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-// INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics.
 //#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //

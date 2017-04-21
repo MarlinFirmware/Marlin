@@ -441,8 +441,6 @@
   // and processor overload (too many expensive sqrt calls).
   #define DELTA_SEGMENTS_PER_SECOND 160
 
-  // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
-
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 317.3 + 2.5 // mm
 
