@@ -117,6 +117,66 @@
 #ifndef MSG_PREHEAT_2_SETTINGS
   #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " conf"
 #endif
+#ifndef MSG_PREHEAT_3
+  #define MSG_PREHEAT_3                       "Preheat PET"
+#endif
+#ifndef MSG_PREHEAT_3_N
+  #define MSG_PREHEAT_3_N                     MSG_PREHEAT_3 " "
+#endif
+#ifndef MSG_PREHEAT_3_ALL
+  #define MSG_PREHEAT_3_ALL                   MSG_PREHEAT_3 " All"
+#endif
+#ifndef MSG_PREHEAT_3_BEDONLY
+  #define MSG_PREHEAT_3_BEDONLY               MSG_PREHEAT_3 " Bed"
+#endif
+#ifndef MSG_PREHEAT_3_SETTINGS
+  #define MSG_PREHEAT_3_SETTINGS              MSG_PREHEAT_3 " conf"
+#endif
+#ifndef MSG_PREHEAT_4
+  #define MSG_PREHEAT_4                       "Preheat RUBBER"
+#endif
+#ifndef MSG_PREHEAT_4_N
+  #define MSG_PREHEAT_4_N                     MSG_PREHEAT_4 " "
+#endif
+#ifndef MSG_PREHEAT_4_ALL
+  #define MSG_PREHEAT_4_ALL                   MSG_PREHEAT_4 " All"
+#endif
+#ifndef MSG_PREHEAT_4_BEDONLY
+  #define MSG_PREHEAT_4_BEDONLY               MSG_PREHEAT_4 " Bed"
+#endif
+#ifndef MSG_PREHEAT_4_SETTINGS
+  #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4 " conf"
+#endif
+#ifndef MSG_PREHEAT_5
+  #define MSG_PREHEAT_5                       "Preheat HIPS"
+#endif
+#ifndef MSG_PREHEAT_5_N
+  #define MSG_PREHEAT_5_N                     MSG_PREHEAT_5 " "
+#endif
+#ifndef MSG_PREHEAT_5_ALL
+  #define MSG_PREHEAT_5_ALL                   MSG_PREHEAT_5 " All"
+#endif
+#ifndef MSG_PREHEAT_5_BEDONLY
+  #define MSG_PREHEAT_5_BEDONLY               MSG_PREHEAT_5 " Bed"
+#endif
+#ifndef MSG_PREHEAT_5_SETTINGS
+  #define MSG_PREHEAT_5_SETTINGS              MSG_PREHEAT_5 " conf"
+#endif
+#ifndef MSG_PREHEAT_6
+  #define MSG_PREHEAT_6                       "Preheat NYLON"
+#endif
+#ifndef MSG_PREHEAT_6_N
+  #define MSG_PREHEAT_6_N                     MSG_PREHEAT_6 " "
+#endif
+#ifndef MSG_PREHEAT_6_ALL
+  #define MSG_PREHEAT_6_ALL                   MSG_PREHEAT_6 " All"
+#endif
+#ifndef MSG_PREHEAT_6_BEDONLY
+  #define MSG_PREHEAT_6_BEDONLY               MSG_PREHEAT_6 " Bed"
+#endif
+#ifndef MSG_PREHEAT_6_SETTINGS
+  #define MSG_PREHEAT_6_SETTINGS              MSG_PREHEAT_6 " conf"
+#endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        "Cooldown"
 #endif
