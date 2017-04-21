@@ -5570,8 +5570,8 @@ inline void gcode_M17() {
     }
   }
 
-  static bool pause_print(float retract, float z_lift, float x_pos, float y_pos,
-                          float unload_length = 0 , int max_beep_count = 0, bool show_lcd = false) {
+  static bool pause_print(const float& retract, const float& z_lift, const float& x_pos, const float& y_pos,
+                          const float& unload_length = 0 , int max_beep_count = 0, bool show_lcd = false) {
     if (move_away_flag) return false; // already paused
 
     if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder) && unload_length > 0) {
@@ -5693,7 +5693,7 @@ inline void gcode_M17() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  static void resume_print(float load_length = 0, float initial_extrude_length = 0, int max_beep_count = 0) {
+  static void resume_print(const float& load_length = 0, const float& initial_extrude_length = 0, int max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
     if (!move_away_flag) return;
@@ -8799,13 +8799,13 @@ inline void gcode_M503() {
 
     // Load filament
     const float load_length = code_seen('L') ? code_value_axis_units(E_AXIS) : 0
-      #if defined(FILAMENT_CHANGE_LOAD_LENGTH)
+      #ifdef FILAMENT_CHANGE_LOAD_LENGTH
         + FILAMENT_CHANGE_UNLOAD_LENGTH
       #endif
     ;
 
     const int beep_count = code_seen('B') ? code_value_int() :
-      #if defined(FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS)
+      #ifdef FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
         FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
       #else
         -1
