@@ -1186,7 +1186,8 @@ void MarlinSettings::reset() {
     #endif
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
-      for (uint8_t i = 0; i < 
+      CONFIG_ECHO_START;
+      for (uint8_t i = 0; i <
         #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
           EXTRUDERS
         #else
@@ -1212,7 +1213,8 @@ void MarlinSettings::reset() {
     #endif
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
-     for (uint8_t i = 0; i < 
+      CONFIG_ECHO_START;
+      for (uint8_t i = 0; i <
         #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
           EXTRUDERS
         #else
@@ -1237,7 +1239,8 @@ void MarlinSettings::reset() {
     #endif
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
-     for (uint8_t i = 0; i < 
+      CONFIG_ECHO_START;
+      for (uint8_t i = 0; i <
         #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
           EXTRUDERS
         #else
