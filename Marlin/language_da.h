@@ -215,8 +215,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driv %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Skriv")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("SKIFT FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("Skift muligheder:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruder mere")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Forsæt print")
 

@@ -203,8 +203,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("% мотору")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Запис ЦАП на ПЗП")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ЗАМІНА ВОЛОКНА")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("НАЛАШТ. ЗАМІНИ:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Екструдувати")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Відновити друк")
 

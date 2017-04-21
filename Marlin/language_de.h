@@ -222,8 +222,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ÄNDERE FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ÄNDERE OPTIONEN:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude mehr")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Drucke weiter")
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Temperatur ist ")

@@ -260,6 +260,11 @@ class Temperature {
       static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
     #endif
 
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static millis_t heater_idle_timeout_ms[HOTENDS];
+      static bool heater_idle_timeout_exceeded[HOTENDS];
+    #endif
+
   public:
 
     /**
@@ -461,6 +466,34 @@ class Temperature {
       }
 
     #endif // BABYSTEPPING
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static void start_heater_idle_timer(uint8_t e, millis_t timeout_ms) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        heater_idle_timeout_ms[HOTEND_INDEX] = millis() + timeout_ms;
+        heater_idle_timeout_exceeded[HOTEND_INDEX] = false;
+      }
+
+      static void reset_heater_idle_timer(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        heater_idle_timeout_ms[HOTEND_INDEX] = 0;
+        heater_idle_timeout_exceeded[HOTEND_INDEX] = false;
+        #if WATCH_HOTENDS
+          start_watching_heater(HOTEND_INDEX);
+        #endif
+      }
+
+      static bool is_heater_idle(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return heater_idle_timeout_exceeded[HOTEND_INDEX];
+      }
+    #endif
 
   private:
 

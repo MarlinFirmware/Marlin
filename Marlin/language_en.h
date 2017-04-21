@@ -357,6 +357,9 @@
 #ifndef MSG_USERWAIT
   #define MSG_USERWAIT                        _UxGT("Wait for user...")
 #endif
+#ifndef MSG_PRINT_PAUSED
+  #define MSG_PRINT_PAUSED                    _UxGT("Print paused")
+#endif
 #ifndef MSG_RESUMING
   #define MSG_RESUMING                        _UxGT("Resuming print")
 #endif
@@ -592,10 +595,10 @@
   #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER
-  #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("CHANGE FILAMENT")
+  #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_OPTION_HEADER
-  #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CHANGE OPTIONS:")
+  #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_OPTION_EXTRUDE
   #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude more")
