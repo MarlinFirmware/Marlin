@@ -138,7 +138,7 @@ typedef enum {
   }while(0)
 
 #define SET_COM(T,Q,V) do{ \
-    TCCR##T##Q = (TCCR##T##Q & !(0x3 << COM1##Q##0) | (int(V) & 0x3) << COM1##Q##0); \
+    TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM1##Q##0) | (int(V) & 0x3) << COM1##Q##0); \
   }while(0)
 #define SET_COMA(T,V) SET_COM(T,A,V)
 #define SET_COMB(T,V) SET_COM(T,B,V)
