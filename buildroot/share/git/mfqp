@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# mfrb
+# mfqp
 #
-# Do "git rebase -i" against the "target" branch (RCBugFix or dev)
+# Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
 
 MFINFO=$(mfinfo) || exit
@@ -13,4 +13,7 @@ case "$#" in
   * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
 esac
 
-git rebase -i ${INFO[3]}
+git add * .travis.yml
+git commit -m "patch"
+mfrb
+git push -f
