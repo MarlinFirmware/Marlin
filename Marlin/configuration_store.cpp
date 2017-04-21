@@ -1187,13 +1187,7 @@ void MarlinSettings::reset() {
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
-      for (uint8_t i = 0; i <
-        #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
-          EXTRUDERS
-        #else
-          E_STEPPERS
-        #endif
-        ; i++) {
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR("  M92 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS + i]));
       }
@@ -1214,13 +1208,7 @@ void MarlinSettings::reset() {
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
-      for (uint8_t i = 0; i <
-        #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
-          EXTRUDERS
-        #else
-          E_STEPPERS
-        #endif
-        ; i++) {
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR("  M203 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS + i]));
       }
@@ -1240,13 +1228,7 @@ void MarlinSettings::reset() {
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
-      for (uint8_t i = 0; i <
-        #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
-          EXTRUDERS
-        #else
-          E_STEPPERS
-        #endif
-        ; i++) {
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR("  M201 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS + i]));
       }
