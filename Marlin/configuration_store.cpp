@@ -85,7 +85,7 @@
  *  307            GRID_MAX_POINTS_Y                (uint8_t)
  *  308            bilinear_grid_spacing            (int x2)
  *  312  G29 L F   bilinear_start                   (int x2)
- *  316            bed_level_grid[][]               (float x9, up to float x256) +988
+ *  316            z_values[][]                     (float x9, up to float x256) +988
  *
  * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -179,8 +179,8 @@ MarlinSettings settings;
   #include "ubl.h"
 #endif
 
-#if ENABLED(ABL_BILINEAR_SUBDIVISION)
-  extern void bed_level_virt_interpolate();
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern void refresh_bed_level();
 #endif
 
 /**
@@ -217,6 +217,11 @@ void MarlinSettings::postprocess() {
 
   #if HAS_BED_PROBE
     refresh_zprobe_zoffset();
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    refresh_bed_level();
+    //set_bed_leveling_enabled(leveling_is_on);
   #endif
 }
 
@@ -377,9 +382,9 @@ void MarlinSettings::postprocess() {
     //
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Compile time test that sizeof(bed_level_grid) is as expected
+      // Compile time test that sizeof(z_values) is as expected
       static_assert(
-        sizeof(bed_level_grid) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(bed_level_grid[0][0]),
+        sizeof(z_values) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(z_values[0][0]),
         "Bilinear Z array is the wrong size."
       );
       const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
@@ -387,7 +392,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(grid_max_y);            // 1 byte
       EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
       EEPROM_WRITE(bilinear_start);        // 2 ints
-      EEPROM_WRITE(bed_level_grid);        // 9-256 floats
+      EEPROM_WRITE(z_values);              // 9-256 floats
     #else
       // For disabled Bilinear Grid write an empty 3x3 grid
       const uint8_t grid_max_x = 3, grid_max_y = 3;
@@ -578,15 +583,14 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
 
-    float extruder_advance_k = 0.0f, advance_ed_ratio = 0.0f;
-
     #if ENABLED(LIN_ADVANCE)
-      extruder_advance_k = planner.get_extruder_advance_k();
-      advance_ed_ratio = planner.get_advance_ed_ratio();
+      EEPROM_WRITE(planner.extruder_advance_k);
+      EEPROM_WRITE(planner.advance_ed_ratio);
+    #else
+      dummy = 0.0f;
+      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(dummy);
     #endif
-
-    EEPROM_WRITE(extruder_advance_k);
-    EEPROM_WRITE(advance_ed_ratio);
 
     if (!eeprom_write_error) {
 
@@ -753,11 +757,7 @@ void MarlinSettings::postprocess() {
           set_bed_leveling_enabled(false);
           EEPROM_READ(bilinear_grid_spacing);        // 2 ints
           EEPROM_READ(bilinear_start);               // 2 ints
-          EEPROM_READ(bed_level_grid);               // 9 to 256 floats
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
-          //set_bed_leveling_enabled(leveling_is_on);
+          EEPROM_READ(z_values);                     // 9 to 256 floats
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR
@@ -922,13 +922,12 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
 
-      float extruder_advance_k, advance_ed_ratio;
-      EEPROM_READ(extruder_advance_k);
-      EEPROM_READ(advance_ed_ratio);
-
       #if ENABLED(LIN_ADVANCE)
-        planner.set_extruder_advance_k(extruder_advance_k);
-        planner.set_advance_ed_ratio(advance_ed_ratio);
+        EEPROM_READ(planner.extruder_advance_k);
+        EEPROM_READ(planner.advance_ed_ratio);
+      #else
+        EEPROM_READ(dummy);
+        EEPROM_READ(dummy);
       #endif
 
       if (eeprom_checksum == stored_checksum) {
@@ -1187,8 +1186,8 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    planner.set_extruder_advance_k(LIN_ADVANCE_K);
-    planner.set_advance_ed_ratio(LIN_ADVANCE_E_D_RATIO);
+    planner.extruder_advance_k = LIN_ADVANCE_K;
+    planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
   #endif
 
   postprocess();
@@ -1658,8 +1657,8 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Linear Advance:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M900 K", planner.get_extruder_advance_k());
-      SERIAL_ECHOLNPAIR(" R", planner.get_advance_ed_ratio());
+      SERIAL_ECHOPAIR("  M900 K", planner.extruder_advance_k);
+      SERIAL_ECHOLNPAIR(" R", planner.advance_ed_ratio);
     #endif
   }
 
