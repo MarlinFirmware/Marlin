@@ -2714,6 +2714,14 @@ static void clean_up_after_endstop_or_probe_move() {
             }
     }
   #endif // ABL_BILINEAR_SUBDIVISION
+
+  // Refresh after other values have been updated
+  void refresh_bed_level() {
+    #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+      bed_level_virt_interpolate();
+    #endif
+  }
+
 #endif // AUTO_BED_LEVELING_BILINEAR
 
 /**
@@ -4730,8 +4738,9 @@ inline void gcode_G28() {
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bilinear_leveling_grid();
 
+      refresh_bed_level();
+
       #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_interpolate();
         bed_level_virt_print();
       #endif
 

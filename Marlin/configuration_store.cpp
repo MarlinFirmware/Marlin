@@ -179,8 +179,8 @@ MarlinSettings settings;
   #include "ubl.h"
 #endif
 
-#if ENABLED(ABL_BILINEAR_SUBDIVISION)
-  extern void bed_level_virt_interpolate();
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern void refresh_bed_level();
 #endif
 
 /**
@@ -217,6 +217,11 @@ void MarlinSettings::postprocess() {
 
   #if HAS_BED_PROBE
     refresh_zprobe_zoffset();
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    refresh_bed_level();
+    //set_bed_leveling_enabled(leveling_is_on);
   #endif
 }
 
@@ -753,10 +758,6 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(bilinear_grid_spacing);        // 2 ints
           EEPROM_READ(bilinear_start);               // 2 ints
           EEPROM_READ(bed_level_grid);               // 9 to 256 floats
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
-          //set_bed_leveling_enabled(leveling_is_on);
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR
