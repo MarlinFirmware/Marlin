@@ -60,9 +60,12 @@
   ubl_state unified_bed_leveling::state, unified_bed_leveling::pre_initialized;
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        unified_bed_leveling::last_specified_z,
-        unified_bed_leveling::mesh_index_to_xpos[GRID_MAX_POINTS_X + 1], // +1 safety margin for now, until determinism prevails
-        unified_bed_leveling::mesh_index_to_ypos[GRID_MAX_POINTS_Y + 1];
+        unified_bed_leveling::last_specified_z;
+
+  // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
+  // until determinism prevails
+  constexpr float unified_bed_leveling::mesh_index_to_xpos[16],
+                  unified_bed_leveling::mesh_index_to_ypos[16];
 
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
@@ -72,10 +75,6 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    for (uint8_t i = 0; i < COUNT(mesh_index_to_xpos); i++)
-      mesh_index_to_xpos[i] = UBL_MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < COUNT(mesh_index_to_ypos); i++)
-      mesh_index_to_ypos[i] = UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
 
