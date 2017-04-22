@@ -10578,7 +10578,7 @@ void ok_to_send() {
       x2 = number * 0.5f;
       y  = number;
       i  = * ( long * ) &y;                       // evil floating point bit level hacking
-      i  = 0x5f3759df - ( i >> 1 );               // what the f***?
+      i  = 0x5F3759DF - ( i >> 1 );               // what the f***?
       y  = * ( float * ) &i;
       y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
       // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
@@ -10804,7 +10804,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a mesh-leveled linear move in a Cartesian setup,
    * splitting the move where it crosses mesh borders.
    */
-  void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
+  void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xFF, uint8_t y_splits = 0xFF) {
     int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
         cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
         cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),

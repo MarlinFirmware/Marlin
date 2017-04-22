@@ -664,8 +664,8 @@ fail:
 bool Sd2Card::writeData(uint8_t token, const uint8_t* src) {
   spiSendBlock(token, src);
 
-  spiSend(0xff);  // dummy crc
-  spiSend(0xff);  // dummy crc
+  spiSend(0xFF);  // dummy crc
+  spiSend(0xFF);  // dummy crc
 
   status_ = spiRec();
   if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {
