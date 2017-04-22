@@ -1066,13 +1066,14 @@ void MarlinSettings::reset() {
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
-                dta[2] = DELTA_TOWER_ANGLE_TRIM;
+                dta[3] = DELTA_TOWER_ANGLE_TRIM;
     COPY(endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
-    COPY(delta_tower_angle_trim, dta);
+    delta_tower_angle_trim[A_AXIS] = dta[A_AXIS] - dta[C_AXIS];
+    delta_tower_angle_trim[B_AXIS] = dta[B_AXIS] - dta[C_AXIS];
     home_offset[Z_AXIS] = 0;
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)

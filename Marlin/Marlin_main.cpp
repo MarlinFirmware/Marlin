@@ -7524,8 +7524,8 @@ inline void gcode_M205() {
     if (code_seen('X')) delta_tower_angle_trim[A_AXIS] = code_value_linear_units();
     if (code_seen('Y')) delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
     if (code_seen('Z')) { // rotate all 3 axis for Z = 0
-      delta_tower_angle_trim[A_AXIS] += code_value_linear_units();
-      delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
+      delta_tower_angle_trim[A_AXIS] -= code_value_linear_units();
+      delta_tower_angle_trim[B_AXIS] -= code_value_linear_units();
     }
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }

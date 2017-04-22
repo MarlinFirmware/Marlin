@@ -698,7 +698,7 @@
       #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 }
     #endif
     #ifndef DELTA_TOWER_ANGLE_TRIM
-      #define DELTA_TOWER_ANGLE_TRIM {0.0, 0.0}
+      #define DELTA_TOWER_ANGLE_TRIM {0.0, 0.0, 0.0}
     #endif
     #ifndef DELTA_RADIUS_TRIM_TOWER
       #define DELTA_RADIUS_TRIM_TOWER {0.0, 0.0, 0.0}
