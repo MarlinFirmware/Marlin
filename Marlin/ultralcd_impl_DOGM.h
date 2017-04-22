@@ -422,17 +422,17 @@ static void lcd_implementation_status_screen() {
       _draw_heater_status(81, -1);
     #endif
 
-    if (PAGE_CONTAINS(20, 27)) {
-      // Fan
-      u8g.setPrintPos(104, 27);
-      #if HAS_FAN0
-        int per = ((fanSpeeds[0] + 1) * 100) / 256;
+    #if HAS_FAN0
+      if (PAGE_CONTAINS(20, 27)) {
+        // Fan
+        const int per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
+          u8g.setPrintPos(104, 27);
           lcd_print(itostr3(per));
           u8g.print('%');
         }
-      #endif
-    }
+      }
+    #endif
   }
 
   #if ENABLED(SDSUPPORT)
