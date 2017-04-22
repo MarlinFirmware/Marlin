@@ -87,27 +87,7 @@
   typedef struct {
     bool active = false;
     float z_offset = 0.0;
-    int8_t eeprom_storage_slot = -1,
-           n_x = GRID_MAX_POINTS_X,
-           n_y = GRID_MAX_POINTS_Y;
-
-    float mesh_x_min = UBL_MESH_MIN_X,
-          mesh_y_min = UBL_MESH_MIN_Y,
-          mesh_x_max = UBL_MESH_MAX_X,
-          mesh_y_max = UBL_MESH_MAX_Y,
-          mesh_x_dist = MESH_X_DIST,
-          mesh_y_dist = MESH_Y_DIST;
-
-    // If you change this struct, adjust TOTAL_STRUCT_SIZE
-
-    #define TOTAL_STRUCT_SIZE 32 // Total size of the above fields
-
-    // padding provides space to add state variables without
-    // changing the location of data structures in the EEPROM.
-    // This is for compatibility with future versions to keep
-    // users from having to regenerate their mesh data.
-    unsigned char padding[64 - TOTAL_STRUCT_SIZE];
-
+    int8_t eeprom_storage_slot = -1;
   } ubl_state;
 
   class unified_bed_leveling {
@@ -117,7 +97,7 @@
 
     public:
 
-      static ubl_state state, pre_initialized;
+      static ubl_state state;
 
       static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
@@ -156,8 +136,6 @@
       static void reset();
       static void invalidate();
 
-      static void store_state();
-      static void load_state();
       static void store_mesh(const int16_t);
       static void load_mesh(const int16_t);
 
@@ -351,7 +329,7 @@
 
   extern unified_bed_leveling ubl;
 
-  #define UBL_LAST_EEPROM_INDEX (E2END - sizeof(unified_bed_leveling::state))
+  #define UBL_LAST_EEPROM_INDEX E2END
 
 #endif // AUTO_BED_LEVELING_UBL
 #endif // UNIFIED_BED_LEVELING_H

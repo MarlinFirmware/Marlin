@@ -247,8 +247,8 @@
    *                    current state of the Unified Bed Leveling system in the EEPROM.
    *
    *   S #   Store      Store the current Mesh at the specified location in EEPROM. Activate this location
-   *                    for subsequent Load and Store operations. It will also store the current state of
-   *                    the Unified Bed Leveling system in the EEPROM.
+   *                    for subsequent Load and Store operations. Valid storage slot numbers begin at 0 and
+   *                    extend to a limit related to the available EEPROM storage.
    *
    *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into the system
    *                    at a later date. The GCode output can be saved and later replayed by the host software
@@ -574,8 +574,6 @@
       }
       ubl.load_mesh(storage_slot);
       ubl.state.eeprom_storage_slot = storage_slot;
-      if (storage_slot != ubl.state.eeprom_storage_slot)
-        ubl.store_state();
       SERIAL_PROTOCOLLNPGM("Done.\n");
     }
 
@@ -609,9 +607,6 @@
       }
       ubl.store_mesh(storage_slot);
       ubl.state.eeprom_storage_slot = storage_slot;
-      //
-      //  if (storage_slot != ubl.state.eeprom_storage_slot)
-      ubl.store_state();    // Always save an updated copy of the UBL State info
 
       SERIAL_PROTOCOLLNPGM("Done.\n");
     }
@@ -1048,7 +1043,6 @@
     if (code_seen('A')) {     // Activate the Unified Bed Leveling System
       ubl.state.active = 1;
       SERIAL_PROTOCOLLNPGM("Unified Bed Leveling System activated.\n");
-      ubl.store_state();
     }
 
     c_flag = code_seen('C') && code_has_value();
@@ -1057,7 +1051,6 @@
     if (code_seen('D')) {     // Disable the Unified Bed Leveling System
       ubl.state.active = 0;
       SERIAL_PROTOCOLLNPGM("Unified Bed Leveling System de-activated.\n");
-      ubl.store_state();
     }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

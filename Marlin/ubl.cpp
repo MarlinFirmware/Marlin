@@ -57,7 +57,7 @@
     }
   }
 
-  ubl_state unified_bed_leveling::state, unified_bed_leveling::pre_initialized;
+  ubl_state unified_bed_leveling::state;
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
         unified_bed_leveling::last_specified_z;
@@ -78,59 +78,46 @@
     reset();
   }
 
-  void unified_bed_leveling::store_state() {
-    const uint16_t i = UBL_LAST_EEPROM_INDEX;
-    eeprom_write_block((void *)&ubl.state, (void *)i, sizeof(state));
-  }
-
-  void unified_bed_leveling::load_state() {
-    const uint16_t i = UBL_LAST_EEPROM_INDEX;
-    eeprom_read_block((void *)&ubl.state, (void *)i, sizeof(state));
-
-    if (sanity_check())
-      SERIAL_PROTOCOLLNPGM("?In load_state() sanity_check() failed.\n");
-  }
-
-  void unified_bed_leveling::load_mesh(const int16_t m) {
+  void unified_bed_leveling::load_mesh(const int16_t slot) {
     int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
 
-    if (m == -1) {
+    if (slot == -1) {
       SERIAL_PROTOCOLLNPGM("?No mesh saved in EEPROM. Zeroing mesh in memory.\n");
       reset();
       return;
     }
 
-    if (!WITHIN(m, 0, j - 1) || eeprom_start <= 0) {
+    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       return;
     }
 
-    j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
+    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
     eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", m);
+    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", slot);
     SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
   }
 
-  void unified_bed_leveling::store_mesh(const int16_t m) {
+  void unified_bed_leveling::store_mesh(const int16_t slot) {
     int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
 
-    if (!WITHIN(m, 0, j - 1) || eeprom_start <= 0) {
+    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
-      SERIAL_PROTOCOL(m);
+      SERIAL_PROTOCOL(slot);
       SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
       SERIAL_PROTOCOLLNPAIR("E2END     : ", E2END);
       SERIAL_PROTOCOLLNPAIR("k         : ", (int)UBL_LAST_EEPROM_INDEX);
       SERIAL_PROTOCOLLNPAIR("j         : ", j);
-      SERIAL_PROTOCOLLNPAIR("m         : ", m);
+      SERIAL_PROTOCOLLNPAIR("m         : ", slot);
       SERIAL_EOL;
       return;
     }
 
-    j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
+    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
     eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", m);
+    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", slot);
     SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
   }
 
@@ -227,48 +214,11 @@
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
-    if (state.n_x != GRID_MAX_POINTS_X) {
-      SERIAL_PROTOCOLLNPGM("?GRID_MAX_POINTS_X set wrong\n");
-      error_flag++;
-    }
-    if (state.n_y != GRID_MAX_POINTS_Y) {
-      SERIAL_PROTOCOLLNPGM("?GRID_MAX_POINTS_Y set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_x_min != UBL_MESH_MIN_X) {
-      SERIAL_PROTOCOLLNPGM("?UBL_MESH_MIN_X set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_y_min != UBL_MESH_MIN_Y) {
-      SERIAL_PROTOCOLLNPGM("?UBL_MESH_MIN_Y set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_x_max != UBL_MESH_MAX_X) {
-      SERIAL_PROTOCOLLNPGM("?UBL_MESH_MAX_X set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_y_max != UBL_MESH_MAX_Y) {
-      SERIAL_PROTOCOLLNPGM("?UBL_MESH_MAX_Y set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_x_dist != MESH_X_DIST) {
-      SERIAL_PROTOCOLLNPGM("?MESH_X_DIST set wrong\n");
-      error_flag++;
-    }
-    if (state.mesh_y_dist != MESH_Y_DIST) {
-      SERIAL_PROTOCOLLNPGM("?MESH_Y_DIST set wrong\n");
-      error_flag++;
-    }
-
     const int j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
     if (j < 1) {
       SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
       error_flag++;
     }
-
-    //  SERIAL_PROTOCOLPGM("?sanity_check() return value: ");
-    //  SERIAL_PROTOCOL(error_flag);
-    //  SERIAL_EOL;
 
     return !!error_flag;
   }

@@ -8282,7 +8282,6 @@ void quickstop_stepper() {
         }
 
         ubl.load_mesh(storage_slot);
-        if (storage_slot != ubl.state.eeprom_storage_slot) ubl.store_state();
         ubl.state.eeprom_storage_slot = storage_slot;
       }
     #endif // AUTO_BED_LEVELING_UBL
