@@ -59,11 +59,13 @@
 #define MSG_PREHEAT_1                       _UxGT("Ön Isınma PLA")                                      // Ön Isınma PLA
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")                                    //
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Tüm")                                 //  Tüm
+#define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" Nozül")                               //  Nozül
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Tabla")                               //  Tabla
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Ayar")                                //  Ayar
 #define MSG_PREHEAT_2                       _UxGT("Ön Isınma ABS")                                      // Ön Isınma ABS
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")                                    //
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Tüm")                                 //  Tüm
+#define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" Nozül")                               //  Nozül
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Tabla")                               //  Tabla
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" Ayar")                                //  Ayar
 #define MSG_COOLDOWN                        _UxGT("Soğut")                                              // Soğut
@@ -81,7 +83,7 @@
 #define MSG_MOVE_1MM                        _UxGT("1mm")                                                // 1mm
 #define MSG_MOVE_10MM                       _UxGT("10mm")                                               // 10mm
 #define MSG_SPEED                           _UxGT("Hız")                                                // Hız
-#define MSG_BED_Z                           _UxGT("Tabla Z")                                            // Tabla Z
+#define MSG_BED_Z                           _UxGT("Tabla-Nozül Mesafesi")                               // Tabla-Nozül Mesafesi
 #define MSG_NOZZLE                          _UxGT("Nozül")                                              // Nozül
 #define MSG_BED                             _UxGT("Tabla")                                              // Tabla
 #define MSG_FAN_SPEED                       _UxGT("Fan Hızı")                                           // Fan Hızı
