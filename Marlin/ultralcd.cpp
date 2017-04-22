@@ -3185,7 +3185,7 @@ void kill_screen(const char* lcd_msg) {
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
     } \
-    void _menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset)(_type), const _type minValue, const _type maxValue) { \
+    void _menu_action_setting_edit_accessor_ ## _name (const char * const pstr, _type (*pget)(), void (*pset), const _type minValue, const _type maxValue) { \
       lcd_save_previous_screen(); \
       \
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; \
