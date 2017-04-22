@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V35"
+#define EEPROM_VERSION "V36"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -72,7 +72,7 @@
  *  224            mbl.z_offset                     (float)
  *  228            GRID_MAX_POINTS_X                (uint8_t)
  *  229            GRID_MAX_POINTS_Y                (uint8_t)
- *  230 G29 S3 XYZ z_values[][]                     (float x9, up to float x 81) +288
+ *  230 G29 S3 XYZ z_values[][]                     (float x9, up to float x81) +288
  *
  * HAS_BED_PROBE:                                   4 bytes
  *  266  M851      zprobe_zoffset                   (float)
@@ -86,6 +86,11 @@
  *  308            bilinear_grid_spacing            (int x2)
  *  312  G29 L F   bilinear_start                   (int x2)
  *  316            z_values[][]                     (float x9, up to float x256) +988
+ *
+ * AUTO_BED_LEVELING_UBL:                           6 bytes
+ *  324  G29 A     ubl.state.active                 (bool)
+ *  325  G29 Z     ubl.state.z_offset               (float)
+ *  329  G29 S     ubl.state.eeprom_storage_slot    (int8_t)
  *
  * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -322,15 +327,15 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // General Leveling
+    // Global Leveling
     //
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      EEPROM_WRITE(planner.z_fade_height);
+      const float zfh = planner.z_fade_height;
     #else
-      dummy = 10.0;
-      EEPROM_WRITE(dummy);
+      const float zfh = 10.0;
     #endif
+    EEPROM_WRITE(zfh);
 
     //
     // Mesh Bed Leveling
@@ -349,8 +354,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
       EEPROM_WRITE(mbl.z_values);
-    #else
-      // For disabled MBL write a default mesh
+    #else // For disabled MBL write a default mesh
       const bool leveling_is_on = false;
       dummy = 0.0f;
       const uint8_t mesh_num_x = 3, mesh_num_y = 3;
@@ -404,6 +408,19 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(bilinear_start);
       for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummy);
     #endif // AUTO_BED_LEVELING_BILINEAR
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      EEPROM_WRITE(ubl.state.active);
+      EEPROM_WRITE(ubl.state.z_offset);
+      EEPROM_WRITE(ubl.state.eeprom_storage_slot);
+    #else
+      const bool ubl_active = 0;
+      dummy = 0.0f;
+      const int8_t eeprom_slot = -1;
+      EEPROM_WRITE(ubl_active);
+      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(eeprom_slot);
+    #endif //AUTO_BED_LEVELING_UBL
 
     // 9 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -608,8 +625,7 @@ void MarlinSettings::postprocess() {
       SERIAL_ECHOLNPGM(" bytes)");
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.store_state();
+    #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
       if (ubl.state.eeprom_storage_slot >= 0)
         ubl.store_mesh(ubl.state.eeprom_storage_slot);
     #endif
@@ -693,7 +709,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // General Leveling
+      // Global Leveling
       //
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -768,6 +784,18 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(bs);
           for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
         }
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        EEPROM_READ(ubl.state.active);
+        EEPROM_READ(ubl.state.z_offset);
+        EEPROM_READ(ubl.state.eeprom_storage_slot);
+      #else
+        bool dummyb;
+        uint8_t dummyui8;
+        EEPROM_READ(dummyb);
+        EEPROM_READ(dummy);
+        EEPROM_READ(dummyui8);
+      #endif //AUTO_BED_LEVELING_UBL
 
       #if ENABLED(DELTA)
         EEPROM_READ(endstop_adj);               // 3 floats
@@ -951,27 +979,16 @@ void MarlinSettings::postprocess() {
         ubl.eeprom_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
                                                          // can float up or down a little bit without
                                                          // disrupting the Unified Bed Leveling data
-        ubl.load_state();
-
         SERIAL_ECHOPGM(" UBL ");
         if (!ubl.state.active) SERIAL_ECHO("not ");
         SERIAL_ECHOLNPGM("active!");
 
         if (!ubl.sanity_check()) {
-          int tmp_mesh;                                // We want to preserve whether the UBL System is Active
-          bool tmp_active;                             // If it is, we want to preserve the Mesh that is being used.
-          tmp_mesh = ubl.state.eeprom_storage_slot;
-          tmp_active = ubl.state.active;
-          SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
-          ubl.state = ubl.pre_initialized;             // Initialize with the pre_initialized data structure
-          ubl.state.eeprom_storage_slot = tmp_mesh;    // But then restore some data we don't want mangled
-          ubl.state.active = tmp_active;
+          SERIAL_ECHOLNPGM("\nUnified Bed Leveling system initialized.\n");
         }
         else {
-          SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
-          ubl.state = ubl.pre_initialized;
+          SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling system.\n");
           ubl.reset();
-          ubl.store_state();
         }
 
         if (ubl.state.eeprom_storage_slot >= 0) {
@@ -985,6 +1002,7 @@ void MarlinSettings::postprocess() {
         }
       #endif
     }
+
     #if ENABLED(EEPROM_CHITCHAT)
       report();
     #endif
@@ -1188,6 +1206,10 @@ void MarlinSettings::reset() {
   #if ENABLED(LIN_ADVANCE)
     planner.extruder_advance_k = LIN_ADVANCE_K;
     planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    ubl.reset();
   #endif
 
   postprocess();
