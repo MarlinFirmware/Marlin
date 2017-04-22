@@ -34,6 +34,7 @@
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prête.")
+#define MSG_BACK                            _UxGT("Retour")
 #define MSG_SD_INSERTED                     _UxGT("Carte insérée")
 #define MSG_SD_REMOVED                      _UxGT("Carte retirée")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Butées") // Max length 8 characters
@@ -57,11 +58,13 @@
 #define MSG_PREHEAT_1                       _UxGT("Préchauffage PLA")
 #define MSG_PREHEAT_1_N                     _UxGT("Préchauff. PLA ")
 #define MSG_PREHEAT_1_ALL                   _UxGT("Préch. PLA Tout")
+#define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" fini")
 #define MSG_PREHEAT_1_BEDONLY               _UxGT("Préch. PLA lit")
 #define MSG_PREHEAT_1_SETTINGS              _UxGT("Regl. prech. PLA")
 #define MSG_PREHEAT_2                       _UxGT("Préchauffage ABS")
 #define MSG_PREHEAT_2_N                     _UxGT("Préchauff. ABS ")
 #define MSG_PREHEAT_2_ALL                   _UxGT("Préch. ABS Tout")
+#define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" fini")
 #define MSG_PREHEAT_2_BEDONLY               _UxGT("Préch. ABS lit")
 #define MSG_PREHEAT_2_SETTINGS              _UxGT("Regl. prech. ABS")
 #define MSG_COOLDOWN                        _UxGT("Refroidir")
@@ -123,6 +126,7 @@
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E en mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Diam. Fil.")
+#define MSG_ADVANCE_K                       _UxGT("Advance K")
 #define MSG_CONTRAST                        _UxGT("Contraste LCD")
 #define MSG_STORE_EEPROM                    _UxGT("Sauver config")
 #define MSG_LOAD_EEPROM                     _UxGT("Lire config")
@@ -188,6 +192,8 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrer Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Calibrer Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrer centre")
+#define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Calibration Auto")
+#define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Hauteur Delta")
 
 #define MSG_INFO_MENU                       _UxGT("Infos imprimante")
 #define MSG_INFO_PRINTER_MENU               _UxGT("Infos imprimante")
@@ -225,6 +231,8 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CHANGER OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("+ extrusion")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Reprendre impr.")
+#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("La temp. minimum est ")
+#define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Buse: ")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
@@ -236,6 +244,10 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("insérer filament")
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("et app. bouton")
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("pour continuer...")
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Appuyer sur le bouton...")
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("Pour chauffer la buse.")
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Buse en chauffe")
+  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Patientez SVP...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("attente de")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("chargement filament")
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("attente de")
