@@ -578,15 +578,14 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
 
-    float extruder_advance_k = 0.0f, advance_ed_ratio = 0.0f;
-
     #if ENABLED(LIN_ADVANCE)
-      extruder_advance_k = planner.get_extruder_advance_k();
-      advance_ed_ratio = planner.get_advance_ed_ratio();
+      EEPROM_WRITE(planner.extruder_advance_k);
+      EEPROM_WRITE(planner.advance_ed_ratio);
+    #else
+      dummy = 0.0f;
+      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(dummy);
     #endif
-
-    EEPROM_WRITE(extruder_advance_k);
-    EEPROM_WRITE(advance_ed_ratio);
 
     if (!eeprom_write_error) {
 
@@ -922,13 +921,12 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
 
-      float extruder_advance_k, advance_ed_ratio;
-      EEPROM_READ(extruder_advance_k);
-      EEPROM_READ(advance_ed_ratio);
-
       #if ENABLED(LIN_ADVANCE)
-        planner.set_extruder_advance_k(extruder_advance_k);
-        planner.set_advance_ed_ratio(advance_ed_ratio);
+        EEPROM_READ(planner.extruder_advance_k);
+        EEPROM_READ(planner.advance_ed_ratio);
+      #else
+        EEPROM_READ(dummy);
+        EEPROM_READ(dummy);
       #endif
 
       if (eeprom_checksum == stored_checksum) {
@@ -1187,8 +1185,8 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    planner.set_extruder_advance_k(LIN_ADVANCE_K);
-    planner.set_advance_ed_ratio(LIN_ADVANCE_E_D_RATIO);
+    planner.extruder_advance_k = LIN_ADVANCE_K;
+    planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
   #endif
 
   postprocess();
@@ -1658,8 +1656,8 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Linear Advance:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M900 K", planner.get_extruder_advance_k());
-      SERIAL_ECHOLNPAIR(" R", planner.get_advance_ed_ratio());
+      SERIAL_ECHOPAIR("  M900 K", planner.extruder_advance_k);
+      SERIAL_ECHOLNPAIR(" R", planner.advance_ed_ratio);
     #endif
   }
 
