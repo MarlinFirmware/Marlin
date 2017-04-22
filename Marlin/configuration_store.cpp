@@ -85,7 +85,7 @@
  *  307            GRID_MAX_POINTS_Y                (uint8_t)
  *  308            bilinear_grid_spacing            (int x2)
  *  312  G29 L F   bilinear_start                   (int x2)
- *  316            bed_level_grid[][]               (float x9, up to float x256) +988
+ *  316            z_values[][]                     (float x9, up to float x256) +988
  *
  * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -382,9 +382,9 @@ void MarlinSettings::postprocess() {
     //
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Compile time test that sizeof(bed_level_grid) is as expected
+      // Compile time test that sizeof(z_values) is as expected
       static_assert(
-        sizeof(bed_level_grid) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(bed_level_grid[0][0]),
+        sizeof(z_values) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(z_values[0][0]),
         "Bilinear Z array is the wrong size."
       );
       const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
@@ -392,7 +392,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(grid_max_y);            // 1 byte
       EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
       EEPROM_WRITE(bilinear_start);        // 2 ints
-      EEPROM_WRITE(bed_level_grid);        // 9-256 floats
+      EEPROM_WRITE(z_values);              // 9-256 floats
     #else
       // For disabled Bilinear Grid write an empty 3x3 grid
       const uint8_t grid_max_x = 3, grid_max_y = 3;
@@ -757,7 +757,7 @@ void MarlinSettings::postprocess() {
           set_bed_leveling_enabled(false);
           EEPROM_READ(bilinear_grid_spacing);        // 2 ints
           EEPROM_READ(bilinear_start);               // 2 ints
-          EEPROM_READ(bed_level_grid);               // 9 to 256 floats
+          EEPROM_READ(z_values);                     // 9 to 256 floats
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR
