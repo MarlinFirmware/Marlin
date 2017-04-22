@@ -6,6 +6,11 @@
 # Great way to clean up your branches after messing around a lot
 #
 
+echo "Fetching latest upstream and origin..."
+git fetch upstream
+git fetch origin
+echo
+
 echo "Pruning Merged Branches..."
 git branch --merged | egrep -v "^\*|RC|RCBugFix|dev" | xargs -n 1 git branch -d
 echo
@@ -14,9 +19,9 @@ echo "Pruning Remotely-deleted Branches..."
 git branch -vv | egrep -v "^\*|RC|RCBugFix|dev" | grep ': gone]' | gawk '{print $1}' | xargs -n 1 git branch -D
 echo
 
-echo "You may want to remove these remote tracking references..."
+echo "You may want to remove (or checkout) these refs..."
 comm -23 \
   <(git branch --all | sed 's/^[\* ] //' | grep origin/ | grep -v "\->" | awk '{ print $1; }' | sed 's/remotes\/origin\///') \
   <(git branch --all | sed 's/^[\* ] //' | grep -v remotes/ | awk '{ print $1; }') \
-  | awk '{ print "git branch -d -r origin/" $1; }'
+  | awk '{ print "git branch -d -r origin/" $1; print "git checkout origin/" $1 " -b " $1; }'
 echo

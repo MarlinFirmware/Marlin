@@ -50,6 +50,49 @@
   #define EXTRUDER_IDX  active_extruder
 #endif
 
+/**
+ * States for ADC reading in the ISR
+ */
+enum ADCSensorState {
+  #if HAS_TEMP_0
+    PrepareTemp_0,
+    MeasureTemp_0,
+  #endif
+  #if HAS_TEMP_1
+    PrepareTemp_1,
+    MeasureTemp_1,
+  #endif
+  #if HAS_TEMP_2
+    PrepareTemp_2,
+    MeasureTemp_2,
+  #endif
+  #if HAS_TEMP_3
+    PrepareTemp_3,
+    MeasureTemp_3,
+  #endif
+  #if HAS_TEMP_4
+    PrepareTemp_4,
+    MeasureTemp_4,
+  #endif
+  #if HAS_TEMP_BED
+    PrepareTemp_BED,
+    MeasureTemp_BED,
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    Prepare_FILWIDTH,
+    Measure_FILWIDTH,
+  #endif
+  SensorsReady, // Temperatures ready. Delay the next round of readings to let ADC pins settle.
+  StartupDelay  // Startup, delay initial temp reading a tiny bit so the hardware can settle
+};
+
+// Minimum number of Temperature::ISR loops between sensor readings.
+// Multiplied by 16 (OVERSAMPLENR) to obtain the total time to
+// get all oversampled sensor readings
+#define MIN_ADC_ISR_LOOPS 10
+
+#define ACTUAL_ADC_SAMPLES max(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
+
 class Temperature {
 
   public:
@@ -74,7 +117,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-      #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+      #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (F_CPU / 64.0 / 256.0))
     #endif
 
     #if ENABLED(PIDTEMP)
@@ -113,12 +156,12 @@ class Temperature {
       static volatile int babystepsTodo[3];
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+    #if WATCH_HOTENDS
       static int watch_target_temp[HOTENDS];
       static millis_t watch_heater_next_ms[HOTENDS];
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+    #if WATCH_THE_BED
       static int watch_target_bed_temp;
       static millis_t watch_bed_next_ms;
     #endif
@@ -174,7 +217,7 @@ class Temperature {
       static millis_t next_bed_check_ms;
     #endif
 
-    static unsigned long raw_temp_value[4],
+    static unsigned long raw_temp_value[MAX_EXTRUDERS],
                          raw_temp_bed_value;
 
     // Init min and max temp with extreme values to prevent false errors during startup
@@ -241,7 +284,8 @@ class Temperature {
     /**
      * Call periodically to manage heaters
      */
-    static void manage_heater();
+    //static void manage_heater(); // changed to address compiler error
+    static void manage_heater()  __attribute__((__optimize__("O2")));
 
     /**
      * Preheating hotends
@@ -305,11 +349,11 @@ class Temperature {
     }
     static float degTargetBed() { return target_temperature_bed; }
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+    #if WATCH_HOTENDS
       static void start_watching_heater(uint8_t e = 0);
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+    #if WATCH_THE_BED
       static void start_watching_bed();
     #endif
 
@@ -324,14 +368,14 @@ class Temperature {
           start_preheat_time(HOTEND_INDEX);
       #endif
       target_temperature[HOTEND_INDEX] = celsius;
-      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+      #if WATCH_HOTENDS
         start_watching_heater(HOTEND_INDEX);
       #endif
     }
 
     static void setTargetBed(const float& celsius) {
       target_temperature_bed = celsius;
-      #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+      #if WATCH_THE_BED
         start_watching_bed();
       #endif
     }
@@ -387,31 +431,33 @@ class Temperature {
     #if ENABLED(BABYSTEPPING)
 
       static void babystep_axis(const AxisEnum axis, const int distance) {
-        #if IS_CORE
-          #if ENABLED(BABYSTEP_XY)
-            switch (axis) {
-              case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
-                babystepsTodo[CORE_AXIS_1] += distance * 2;
-                babystepsTodo[CORE_AXIS_2] += distance * 2;
-                break;
-              case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
-                babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-                babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
-                break;
-              case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
-                babystepsTodo[NORMAL_AXIS] += distance;
-                break;
-            }
-          #elif CORE_IS_XZ || CORE_IS_YZ
-            // Only Z stepping needs to be handled here
-            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+        if (axis_known_position[axis]) {
+          #if IS_CORE
+            #if ENABLED(BABYSTEP_XY)
+              switch (axis) {
+                case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
+                  babystepsTodo[CORE_AXIS_1] += distance * 2;
+                  babystepsTodo[CORE_AXIS_2] += distance * 2;
+                  break;
+                case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
+                  babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+                  babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+                  break;
+                case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+                  babystepsTodo[NORMAL_AXIS] += distance;
+                  break;
+              }
+            #elif CORE_IS_XZ || CORE_IS_YZ
+              // Only Z stepping needs to be handled here
+              babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+              babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+            #else
+              babystepsTodo[Z_AXIS] += distance;
+            #endif
           #else
-            babystepsTodo[Z_AXIS] += distance;
+            babystepsTodo[axis] += distance;
           #endif
-        #else
-          babystepsTodo[axis] += distance;
-        #endif
+        }
       }
 
     #endif // BABYSTEPPING

@@ -108,12 +108,12 @@
 #define MSG_ESTEPS                          _UxGT("擠出機步數/mm")  //"Esteps/mm"
 #define MSG_TEMPERATURE                     _UxGT("溫度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("運動")  //"Motion"
-#define MSG_VOLUMETRIC                      _UxGT("絲料測容")  //"Filament" lcd_control_volumetric_menu
+#define MSG_FILAMENT                        _UxGT("絲料測容")  //"Filament" lcd_control_volumetric_menu
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("測容積mm³")  //"E in mm3" volumetric_enabled
 #define MSG_FILAMENT_DIAM                   _UxGT("絲料直徑")  //"Fil. Dia."
 #define MSG_CONTRAST                        _UxGT("LCD對比度")  //"LCD contrast"
-#define MSG_STORE_EPROM                     _UxGT("保存設置")  //"Store memory"
-#define MSG_LOAD_EPROM                      _UxGT("裝載設置")  //"Load memory"
+#define MSG_STORE_EEPROM                    _UxGT("保存設置")  //"Store memory"
+#define MSG_LOAD_EEPROM                     _UxGT("裝載設置")  //"Load memory"
 #define MSG_RESTORE_FAILSAFE                _UxGT("恢複安全值")  //"Restore failsafe"
 #define MSG_REFRESH                         _UxGT("刷新")  //"Refresh"
 #define MSG_WATCH                           _UxGT("資訊界面")  //"Info screen"

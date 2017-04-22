@@ -74,7 +74,7 @@ char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
  * Dive into a folder and recurse depth-first to perform a pre-set operation lsAction:
  *   LS_Count       - Add +1 to nrFiles for every file within the parent
  *   LS_GetFilename - Get the filename of the file indexed by nrFiles
- *   LS_SerialPrint - Print the full path of each file to serial output
+ *   LS_SerialPrint - Print the full path and size of each file to serial output
  */
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
   dir_t p;
@@ -133,11 +133,15 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
         case LS_Count:
           nrFiles++;
           break;
+
         case LS_SerialPrint:
           createFilename(filename, p);
           SERIAL_PROTOCOL(prepend);
-          SERIAL_PROTOCOLLN(filename);
+          SERIAL_PROTOCOL(filename);
+          SERIAL_PROTOCOLCHAR(' ');
+          SERIAL_PROTOCOLLN(p.fileSize);
           break;
+
         case LS_GetFilename:
           createFilename(filename, p);
           if (match != NULL) {
@@ -152,7 +156,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
   } // while readDir
 }
 
-void CardReader::ls()  {
+void CardReader::ls() {
   lsAction = LS_SerialPrint;
   root.rewind();
   lsDive("", root);

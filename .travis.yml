@@ -47,8 +47,8 @@ install:
   # - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
   #
   # Install: TMC2130 Stepper Motor Controller library
-  - git clone https://github.com/MarlinFirmware/Trinamic_TMC2130.git
-  - sudo mv Trinamic_TMC2130/Trinamic_TMC2130 /usr/local/share/arduino/libraries/Trinamic_TMC2130
+  - git clone https://github.com/teemuatlut/TMC2130Stepper.git
+  - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
 before_script:
   #
@@ -83,18 +83,23 @@ script:
   - opt_set TEMP_SENSOR_1 1
   - build_marlin
   #
-  # Test 3 extruders on RUMBA (can use any board with >=3 extruders defined)
+  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
   # Include a test for LIN_ADVANCE here also
   #
-  - opt_set MOTHERBOARD BOARD_RUMBA
-  - opt_set EXTRUDERS 3
-  - opt_set TEMP_SENSOR_2 1
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
+  - opt_set EXTRUDERS 5
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_2 5
+  - opt_set TEMP_SENSOR_3 20
+  - opt_set TEMP_SENSOR_4 999
+  - opt_set TEMP_SENSOR_BED 1
   - opt_enable_adv LIN_ADVANCE
   - build_marlin
   #
   # Test PIDTEMPBED
   #
   - restore_configs
+  - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED
   - build_marlin
   #
@@ -117,25 +122,24 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
-  # Test a Sled Z Probe
+  # Test a simple build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable Z_PROBE_SLED
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
   - build_marlin
   #
+  # Test a Sled Z Probe
   # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
   #
-  - opt_enable AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - restore_configs
+  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - build_marlin
   #
   # Test a Servo Probe
+  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
-  - build_marlin
-  #
-  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
-  #
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES
   - build_marlin
@@ -143,21 +147,28 @@ script:
   # Test MESH_BED_LEVELING feature, with LCD
   #
   - restore_configs
-  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN MANUAL_BED_LEVELING ULTIMAKERCONTROLLER
+  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
+  - build_marlin
+  #
+  # Test PROBE_MANUALLY feature, with LCD support
+  #
+  - restore_configs
+  - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Test EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
   #   INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
   #
   - restore_configs
-  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - build_marlin
   #
-  # Mixing Extruder
+  # Mixing Extruder with 5 steppers
   #
   - restore_configs
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
   - opt_enable MIXING_EXTRUDER
-  - opt_set MIXING_STEPPERS 2
+  - opt_set MIXING_STEPPERS 5
   - build_marlin
   #
   # Test DUAL_X_CARRIAGE
@@ -195,11 +206,11 @@ script:
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - build_marlin
   #
-  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
+  # Test FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, and LCD_INFO_MENU
   #
   - restore_configs
   - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - build_marlin
   #
   # Enable filament sensor
@@ -226,10 +237,10 @@ script:
   - opt_enable COREXY
   - build_marlin
   #
-  # Enable COREXZ
+  # Enable COREYX (swapped)
   #
   - restore_configs
-  - opt_enable COREXZ
+  - opt_enable COREYX
   - build_marlin
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
@@ -323,7 +334,7 @@ script:
   # RA_CONTROL_PANEL
   #
   - restore_configs
-  - opt_enable RA_CONTROL_PANEL
+  - opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
   - build_marlin
   #
   ######## I2C LCD/PANELS ##############
@@ -377,9 +388,9 @@ script:
   - opt_enable AUTO_BED_LEVELING_BILINEAR Z_PROBE_ALLEN_KEY
   - build_marlin
   #
-  # Delta Config (Mini Kossel)
+  # Delta Config (FLSUN AC because it's complex)
   #
-  - use_example_configs delta/kossel_mini
+  - use_example_configs delta/FLSUN/auto_calibrate
   - build_marlin
   #
   # Makibox Config  need to check board type for Teensy++ 2.0
@@ -396,7 +407,9 @@ script:
   # TMC2130 Config
   #
   - restore_configs
-  - opt_enable_adv HAVE_TMC2130DRIVER X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130 E0_IS_TMC2130
+  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
+  - build_marlin
+  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p

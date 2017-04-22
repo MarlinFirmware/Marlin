@@ -105,6 +105,9 @@
 #ifndef MSG_PREHEAT_1_ALL
   #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
 #endif
+#ifndef MSG_PREHEAT_1_END
+  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+#endif
 #ifndef MSG_PREHEAT_1_BEDONLY
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
@@ -119,6 +122,9 @@
 #endif
 #ifndef MSG_PREHEAT_2_ALL
   #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_2_END
+  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
 #endif
 #ifndef MSG_PREHEAT_2_BEDONLY
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
@@ -285,14 +291,17 @@
 #ifndef MSG_E4STEPS
   #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #endif
+#ifndef MSG_E5STEPS
+  #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
 #endif
 #ifndef MSG_MOTION
   #define MSG_MOTION                          _UxGT("Motion")
 #endif
-#ifndef MSG_VOLUMETRIC
-  #define MSG_VOLUMETRIC                      _UxGT("Filament")
+#ifndef MSG_FILAMENT
+  #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
   #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
@@ -300,14 +309,17 @@
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
+#ifndef MSG_ADVANCE_K
+  #define MSG_ADVANCE_K                       _UxGT("Advance K")
+#endif
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #endif
-#ifndef MSG_STORE_EPROM
-  #define MSG_STORE_EPROM                     _UxGT("Store memory")
+#ifndef MSG_STORE_EEPROM
+  #define MSG_STORE_EEPROM                    _UxGT("Store memory")
 #endif
-#ifndef MSG_LOAD_EPROM
-  #define MSG_LOAD_EPROM                      _UxGT("Load memory")
+#ifndef MSG_LOAD_EEPROM
+  #define MSG_LOAD_EEPROM                     _UxGT("Load memory")
 #endif
 #ifndef MSG_RESTORE_FAILSAFE
   #define MSG_RESTORE_FAILSAFE                _UxGT("Restore failsafe")
@@ -488,6 +500,12 @@
 #endif
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
+#endif
+#ifndef MSG_DELTA_AUTO_CALIBRATE
+  #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")
+#endif
+#ifndef MSG_DELTA_HEIGHT_CALIBRATE
+  #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")

@@ -137,6 +137,7 @@
   #define MSG_E2STEPS                         "E2steps/mm"
   #define MSG_E3STEPS                         "E3steps/mm"
   #define MSG_E4STEPS                         "E4steps/mm"
+  #define MSG_E5STEPS                         "E5steps/mm"
 #else
   #define MSG_XSTEPS                          "Xsteps"
   #define MSG_YSTEPS                          "Ysteps"
@@ -146,10 +147,11 @@
   #define MSG_E2STEPS                         "E2steps"
   #define MSG_E3STEPS                         "E3steps"
   #define MSG_E4STEPS                         "E4steps"
+  #define MSG_E5STEPS                         "E5steps"
 #endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
-#define MSG_VOLUMETRIC                      "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
+#define MSG_FILAMENT                        "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #if LCD_WIDTH >= 20
   #define MSG_FILAMENT_DIAM                 "\xcc\xa8\xd7\xd2\xdd\xc4\xc1\xae\xaf\xb9\xb2"                     // "ﾌｨﾗﾒﾝﾄﾁｮｯｹｲ" ("Fil. Dia.")
@@ -157,8 +159,8 @@
   #define MSG_FILAMENT_DIAM                 "\xcc\xa8\xd7\xd2\xdd\xc4\xb9\xb2"                                 // "ﾌｨﾗﾒﾝﾄｹｲ" ("Fil. Dia.")
 #endif
 #define MSG_CONTRAST                        "LCD\xba\xdd\xc4\xd7\xbd\xc4"                                      // "LCDｺﾝﾄﾗｽﾄ" ("LCD contrast")
-#define MSG_STORE_EPROM                     "\xd2\xd3\xd8\xcd\xb6\xb8\xc9\xb3"                                 // "ﾒﾓﾘﾍｶｸﾉｳ" ("Store memory")
-#define MSG_LOAD_EPROM                      "\xd2\xd3\xd8\xb6\xd7\xd6\xd0\xba\xd0"                             // "ﾒﾓﾘｶﾗﾖﾐｺﾐ" ("Load memory")
+#define MSG_STORE_EEPROM                    "\xd2\xd3\xd8\xcd\xb6\xb8\xc9\xb3"                                 // "ﾒﾓﾘﾍｶｸﾉｳ" ("Store memory")
+#define MSG_LOAD_EEPROM                     "\xd2\xd3\xd8\xb6\xd7\xd6\xd0\xba\xd0"                             // "ﾒﾓﾘｶﾗﾖﾐｺﾐ" ("Load memory")
 #define MSG_RESTORE_FAILSAFE                "\xbe\xaf\xc3\xb2\xd8\xbe\xaf\xc4"                                 // "ｾｯﾃｲﾘｾｯﾄ" ("Restore failsafe")
 #define MSG_REFRESH                         "\xd8\xcc\xda\xaf\xbc\xad"                                         // "ﾘﾌﾚｯｼｭ" ("Refresh")
 #define MSG_WATCH                           "\xbc\xde\xae\xb3\xce\xb3\xb6\xde\xd2\xdd"                         // "ｼﾞｮｳﾎｳｶﾞﾒﾝ" ("Info screen")

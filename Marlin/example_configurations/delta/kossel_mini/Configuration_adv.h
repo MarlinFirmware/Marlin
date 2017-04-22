@@ -221,6 +221,7 @@
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
+#define E4_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
@@ -255,7 +256,6 @@
   #define INVERT_X2_VS_X_DIR true
 #endif
 
-
 // Dual Y Steppers
 // Uncomment this option to drive two Y axis motors.
 // The next unused E driver will be assigned to the second Y stepper.
@@ -285,6 +285,7 @@
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine this value
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -326,7 +327,11 @@
   // Default x offset in duplication mode (typically set to half print bed width)
   #define DEFAULT_DUPLICATION_X_OFFSET 100
 
-#endif //DUAL_X_CARRIAGE
+#endif // DUAL_X_CARRIAGE
+
+// Activate a solenoid on the active extruder with M380. Disable all with M381.
+// Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+//#define EXT_SOLENOID
 
 // @section homing
 
@@ -395,18 +400,55 @@
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
 
-// Motor Current setting (Only functional when motor driver current ref pins are connected to a digital trimpot on supported boards)
-#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
-
-// Motor Current controlled via PWM (Overridable on supported boards with PWM-driven motor driver current)
+/**
+ *  @section  stepper motor current
+ *
+ *  Some boards have a means of setting the stepper motor current via firmware.
+ *
+ *  The power on motor currents are set by:
+ *    PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
+ *                         known compatible chips: A4982
+ *    DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
+ *                         known compatible chips: AD5206
+ *    DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
+ *                         known compatible chips: MCP4728
+ *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, MIGHTYBOARD_REVE
+ *                         known compatible chips: MCP4451, MCP4018
+ *
+ *  Motor currents can also be set by M907 - M910 and by the LCD.
+ *    M907 - applies to all.
+ *    M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
+ *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
+ */
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
+//#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+//#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
 
-// uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+// Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
-// Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
-#define DIGIPOT_I2C_NUM_CHANNELS 8
-// actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+//#define DIGIPOT_MCP4018
+#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
+// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
+#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}  //  AZTEEG_X3_PRO
+
+//===========================================================================
+//============================== Delta Settings =============================
+//===========================================================================
+
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  /**
+   * Set the height short (H-10) with M665 Hx.xx.
+   * Set the delta_radius offset (R-5, R-10, R+5, R+10) with M665 Rx.xx.
+   * Run G33 Cx V3 (C2, C-2) with different values for C and R
+   * Take the average for R_FACTOR and maximum for H_FACTOR.
+   * Run the tests with default values!!!
+   */
+  //#define DELTA_CALIBRATE_EXPERT_MODE
+
+  // Remove the comments of the folling 2 lines to overide default values
+  //#define H_FACTOR  1.02 //  1.0 < H_FACTOR <  1.11, default  1.00
+  //#define R_FACTOR -3.95 // -6.7 < R_FACTOR < -2.25, default -2.25
+#endif
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -553,15 +595,22 @@
 
 // @section lcd
 
-// Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
-// it can e.g. be used to change z-positions in the print startup phase in real-time
-// does not respect endstops!
+/**
+ * Babystepping enables movement of the axes by tiny increments without changing
+ * the current position values. This feature is used primarily to adjust the Z
+ * axis in the first layer of a print in real-time.
+ *
+ * Warning: Does not respect endstops!
+ */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
-                       //not implemented for deltabots!
-  #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
-  #define BABYSTEP_MULTIPLICATOR 1 //faster movements
+  #define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
+  #define BABYSTEP_INVERT_Z false  // Change if Z babysteps should go the other way
+  #define BABYSTEP_MULTIPLICATOR 1 // Babysteps are very small. Increase for faster motion.
+  //#define BABYSTEP_ZPROBE_OFFSET // Enable to combine M851 and Babystepping
+  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
+                                        // Note: Extra time may be added to mitigate controller latency.
 #endif
 
 // @section extruder
@@ -591,6 +640,33 @@
 
 #if ENABLED(LIN_ADVANCE)
   #define LIN_ADVANCE_K 75
+
+  /**
+   * Some Slicers produce Gcode with randomly jumping extrusion widths occasionally.
+   * For example within a 0.4mm perimeter it may produce a single segment of 0.05mm width.
+   * While this is harmless for normal printing (the fluid nature of the filament will
+   * close this very, very tiny gap), it throws off the LIN_ADVANCE pressure adaption.
+   *
+   * For this case LIN_ADVANCE_E_D_RATIO can be used to set the extrusion:distance ratio
+   * to a fixed value. Note that using a fixed ratio will lead to wrong nozzle pressures
+   * if the slicer is using variable widths or layer heights within one print!
+   *
+   * This option sets the default E:D ratio at startup. Use `M900` to override this value.
+   *
+   * Example: `M900 W0.4 H0.2 D1.75`, where:
+   *   - W is the extrusion width in mm
+   *   - H is the layer height in mm
+   *   - D is the filament diameter in mm
+   *
+   * Example: `M900 R0.0458` to set the ratio directly.
+   *
+   * Set to 0 to auto-detect the ratio based on given Gcode G1 print moves.
+   *
+   * Slic3r (including Prusa Slic3r) produces Gcode compatible with the automatic mode.
+   * Cura (as of this writing) may produce Gcode incompatible with the automatic mode.
+   */
+  #define LIN_ADVANCE_E_D_RATIO 0 // The calculated ratio (or 0) according to the formula W * H / ((D / 2) ^ 2 * PI)
+                                  // Example: 0.4 * 0.2 / ((1.75 / 2) ^ 2 * PI) = 0.033260135
 #endif
 
 // @section leveling
@@ -603,6 +679,11 @@
   #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
   #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
   #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define UBL_MESH_MIN_X (X_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
+  #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
+  #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
 #endif
 
 // @section extras
@@ -616,6 +697,7 @@
 //#define BEZIER_CURVE_SUPPORT
 
 // G38.2 and G38.3 Probe Target
+// Enable PROBE_DOUBLE_TOUCH if you want G38 to double touch
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
   #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
@@ -729,20 +811,22 @@
                                               // 0 to disable for manual extrusion
                                               // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                               // or until outcoming filament color is not clear for filament color change
-  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45L  // Turn off nozzle if user doesn't change filament within this time limit in seconds
-  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  5L  // Number of alert beeps before printer goes quiet
-  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
-                                                     // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45   // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
+  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT  // Enable to have stepper motors hold position during filament change
+                                              // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
 #endif
-
-/******************************************************************************\
- * enable this section if you have TMC26X motor drivers.
- * you need to import the TMC26XStepper library into the Arduino IDE for this
- ******************************************************************************/
 
 // @section tmc
 
+/**
+ * Enable this section if you have TMC26X motor drivers.
+ * You will need to import the TMC26XStepper library into the Arduino IDE for this
+ * (https://github.com/trinamic/TMC26XStepper.git)
+ */
 //#define HAVE_TMCDRIVER
+
 #if ENABLED(HAVE_TMCDRIVER)
 
   //#define X_IS_TMC
@@ -755,6 +839,7 @@
   //#define E1_IS_TMC
   //#define E2_IS_TMC
   //#define E3_IS_TMC
+  //#define E4_IS_TMC
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -796,27 +881,27 @@
   #define E3_SENSE_RESISTOR   91
   #define E3_MICROSTEPS       16
 
+  #define E4_MAX_CURRENT    1000
+  #define E4_SENSE_RESISTOR   91
+  #define E4_MICROSTEPS       16
+
 #endif
 
 // @section TMC2130
 
-
 /**
  * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
  *
- * To use TMC2130 drivers in SPI mode, you'll also need the TMC2130 Arduino library
- * (https://github.com/makertum/Trinamic_TMC2130).
+ * You'll also need the TMC2130Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2130Stepper).
  *
  * To use TMC2130 stepper drivers in SPI mode connect your SPI2130 pins to
  * the hardware SPI interface on your board and define the required CS pins
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  */
+//#define HAVE_TMC2130
 
-//#define HAVE_TMC2130DRIVER
-
-#if ENABLED(HAVE_TMC2130DRIVER)
-
-  //#define TMC2130_ADVANCED_CONFIGURATION
+#if ENABLED(HAVE_TMC2130)
 
   // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
   //#define X_IS_TMC2130
@@ -829,181 +914,129 @@
   //#define E1_IS_TMC2130
   //#define E2_IS_TMC2130
   //#define E3_IS_TMC2130
+  //#define E4_IS_TMC2130
 
-  #if ENABLED(TMC2130_ADVANCED_CONFIGURATION)
+  /**
+   * Stepper driver settings
+   */
 
-    // If you've enabled TMC2130_ADVANCED_CONFIGURATION, define global settings below.
-    // Enabled settings will be automatically applied to all axes specified above.
-    //
-    // Please read the TMC2130 datasheet:
-    // http://www.trinamic.com/_articles/products/integrated-circuits/tmc2130/_datasheet/TMC2130_datasheet.pdf
-    // All settings here have the same (sometimes cryptic) names as in the datasheet.
-    //
-    // The following, uncommented settings are only suggestion.
+  #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
+  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+  #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-    /* GENERAL CONFIGURATION */
+  #define X_CURRENT         1000  // rms current in mA. Multiply by 1.41 for peak current.
+  #define X_MICROSTEPS        16  // 0..256
 
-    //#define GLOBAL_EN_PWM_MODE        0
-    #define GLOBAL_I_SCALE_ANALOG     1 // [0,1] 0: Normal, 1: AIN
-    //#define GLOBAL_INTERNAL_RSENSE    0 // [0,1] 0: Normal, 1: Internal
-    #define GLOBAL_EN_PWM_MODE        0 // [0,1] 0: Normal, 1: stealthChop with velocity threshold
-    //#define GLOBAL_ENC_COMMUTATION    0 // [0,1]
-    #define GLOBAL_SHAFT              0 // [0,1] 0: normal, 1: invert
-    //#define GLOBAL_DIAG0_ERROR        0 // [0,1]
-    //#define GLOBAL_DIAG0_OTPW         0 // [0,1]
-    //#define GLOBAL_DIAG0_STALL        0 // [0,1]
-    //#define GLOBAL_DIAG1_STALL        0 // [0,1]
-    //#define GLOBAL_DIAG1_INDEX        0 // [0,1]
-    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
-    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
-    //#define GLOBAL_DIAG0_INT_PUSHPULL 0 // [0,1]
-    //#define GLOBAL_DIAG1_INT_PUSHPULL 0 // [0,1]
-    //#define GLOBAL_SMALL_HYSTERESIS   0 // [0,1]
-    //#define GLOBAL_STOP_ENABLE        0 // [0,1]
-    //#define GLOBAL_DIRECT_MODE        0 // [0,1]
+  #define Y_CURRENT         1000
+  #define Y_MICROSTEPS        16
 
-    /* VELOCITY-DEPENDENT DRIVE FEATURES */
+  #define Z_CURRENT         1000
+  #define Z_MICROSTEPS        16
 
-    #define GLOBAL_IHOLD             22 // [0-31] 0: min, 31: max
-    #define GLOBAL_IRUN              31 // [0-31] 0: min, 31: max
-    #define GLOBAL_IHOLDDELAY        15 // [0-15] 0: min, 15: about 4 seconds
-    //#define GLOBAL_TPOWERDOWN         0 // [0-255] 0: min, 255: about 4 seconds
-    //#define GLOBAL_TPWMTHRS           0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
-    //#define GLOBAL_TCOOLTHRS          0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
-    #define GLOBAL_THIGH             10 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
+  //#define X2_CURRENT      1000
+  //#define X2_MICROSTEPS     16
 
-    /* SPI MODE CONFIGURATION */
+  //#define Y2_CURRENT      1000
+  //#define Y2_MICROSTEPS     16
 
-    //#define GLOBAL_XDIRECT            0
+  //#define Z2_CURRENT      1000
+  //#define Z2_MICROSTEPS     16
 
-    /* DCSTEP MINIMUM VELOCITY */
+  //#define E0_CURRENT      1000
+  //#define E0_MICROSTEPS     16
 
-    //#define GLOBAL_VDCMIN             0
+  //#define E1_CURRENT      1000
+  //#define E1_MICROSTEPS     16
 
-    /* MOTOR DRIVER CONFIGURATION*/
+  //#define E2_CURRENT      1000
+  //#define E2_MICROSTEPS     16
 
-    //#define GLOBAL_DEDGE              0
-    //#define GLOBAL_DISS2G             0
-    #define GLOBAL_INTPOL             1 // 0: off 1: 256 microstep interpolation
-    #define GLOBAL_MRES              16 // number of microsteps
-    #define GLOBAL_SYNC               1 // [0-15]
-    #define GLOBAL_VHIGHCHM           1 // [0,1] 0: normal, 1: high velocity stepper mode
-    #define GLOBAL_VHIGHFS            0 // [0,1] 0: normal, 1: switch to full steps for high velocities
-    // #define GLOBAL_VSENSE            0 // [0,1] 0: normal, 1: high sensitivity (not recommended)
-    #define GLOBAL_TBL                1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
-    #define GLOBAL_CHM                0 // [0,1] 0: spreadCycle, 1: Constant off time with fast decay time.
-    //#define GLOBAL_RNDTF              0
-    //#define GLOBAL_DISFDCC            0
-    //#define GLOBAL_FD                 0
-    //#define GLOBAL_HEND               0
-    //#define GLOBAL_HSTRT              0
-    #define GLOBAL_TOFF              10 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
+  //#define E3_CURRENT      1000
+  //#define E3_MICROSTEPS     16
 
-    //#define GLOBAL_SFILT              0
-    //#define GLOBAL_SGT                0
-    //#define GLOBAL_SEIMIN             0
-    //#define GLOBAL_SEDN               0
-    //#define GLOBAL_SEMAX              0
-    //#define GLOBAL_SEUP               0
-    //#define GLOBAL_SEMIN              0
+  //#define E4_CURRENT      1000
+  //#define E4_MICROSTEPS     16
 
-    //#define GLOBAL_DC_TIME            0
-    //#define GLOBAL_DC_SG              0
+  /**
+   * Use Trinamic's ultra quiet stepping mode.
+   * When disabled, Marlin will use spreadCycle stepping mode.
+   */
+  #define STEALTHCHOP
 
-    //#define GLOBAL_FREEWHEEL          0
-    //#define GLOBAL_PWM_SYMMETRIC      0
-    //#define GLOBAL_PWM_AUTOSCALE      0
-    //#define GLOBAL_PWM_FREQ           0
-    //#define GLOBAL_PWM_GRAD           0
-    //#define GLOBAL_PWM_AMPL           0
+  /**
+   * Let Marlin automatically control stepper current.
+   * This is still an experimental feature.
+   * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
+   * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
+   * Adjusting starts from X/Y/Z/E_CURRENT but will not increase over AUTO_ADJUST_MAX
+   * Relevant g-codes:
+   * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given.
+   * M906 S1 - Start adjusting current
+   * M906 S0 - Stop adjusting current
+   * M911 - Report stepper driver overtemperature pre-warn condition.
+   * M912 - Clear stepper driver overtemperature pre-warn condition flag.
+   */
+  //#define AUTOMATIC_CURRENT_CONTROL
 
-    //#define GLOBAL_ENCM_CTRL          0
+  #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
+    #define CURRENT_STEP          50  // [mA]
+    #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
+    #define REPORT_CURRENT_CHANGE
+  #endif
 
-  #else
+  /**
+   * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
+   * This mode allows for faster movements at the expense of higher noise levels.
+   * STEALTHCHOP needs to be enabled.
+   * M913 X/Y/Z/E to live tune the setting
+   */
+  //#define HYBRID_THRESHOLD
 
-    #define X_IHOLD          31 // [0-31] 0: min, 31: max
-    #define X_IRUN           31 // [0-31] 0: min, 31: max
-    #define X_IHOLDDELAY     15 // [0-15] 0: min, 15: about 4 seconds
-    #define X_I_SCALE_ANALOG  1 // 0: Normal, 1: AIN
-    #define X_MRES           16 // number of microsteps
-    #define X_TBL             1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
-    #define X_TOFF            8 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
+  #define X_HYBRID_THRESHOLD     100  // [mm/s]
+  #define X2_HYBRID_THRESHOLD    100
+  #define Y_HYBRID_THRESHOLD     100
+  #define Y2_HYBRID_THRESHOLD    100
+  #define Z_HYBRID_THRESHOLD       4
+  #define Z2_HYBRID_THRESHOLD      4
+  #define E0_HYBRID_THRESHOLD     30
+  #define E1_HYBRID_THRESHOLD     30
+  #define E2_HYBRID_THRESHOLD     30
+  #define E3_HYBRID_THRESHOLD     30
+  #define E4_HYBRID_THRESHOLD     30
 
-    #define X2_IHOLD         31
-    #define X2_IRUN          31
-    #define X2_IHOLDDELAY    15
-    #define X2_I_SCALE_ANALOG 1
-    #define X2_MRES          16
-    #define X2_TBL            1
-    #define X2_TOFF           8
+  /**
+   * Use stallGuard2 to sense an obstacle and trigger an endstop.
+   * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
+   * If used along with STEALTHCHOP, the movement will be louder when homing. This is normal.
+   *
+   * X/Y_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * Higher values make the system LESS sensitive.
+   * Lower value make the system MORE sensitive.
+   * Too low values can lead to false positives, while too high values will collide the axis without triggering.
+   * It is advised to set X/Y_HOME_BUMP_MM to 0.
+   * M914 X/Y to live tune the setting
+   */
+  //#define SENSORLESS_HOMING
 
-    #define Y_IHOLD          31
-    #define Y_IRUN           31
-    #define Y_IHOLDDELAY     15
-    #define Y_I_SCALE_ANALOG  1
-    #define Y_MRES           16
-    #define Y_TBL             1
-    #define Y_TOFF            8
+  #if ENABLED(SENSORLESS_HOMING)
+    #define X_HOMING_SENSITIVITY  19
+    #define Y_HOMING_SENSITIVITY  19
+  #endif
 
-    #define Y2_IHOLD         31
-    #define Y2_IRUN          31
-    #define Y2_IHOLDDELAY    15
-    #define Y2_I_SCALE_ANALOG 1
-    #define Y2_MRES          16
-    #define Y2_TBL            1
-    #define Y2_TOFF           8
+  /**
+   * You can set your own advanced settings by filling in predefined functions.
+   * A list of available functions can be found on the library github page
+   * https://github.com/teemuatlut/TMC2130Stepper
+   *
+   * Example:
+   * #define TMC2130_ADV() { \
+   *   stepperX.diag0_temp_prewarn(1); \
+   *   stepperX.interpolate(0); \
+   * }
+   */
+  #define  TMC2130_ADV() {  }
 
-    #define Z_IHOLD          31
-    #define Z_IRUN           31
-    #define Z_IHOLDDELAY     15
-    #define Z_I_SCALE_ANALOG  1
-    #define Z_MRES           16
-    #define Z_TBL             1
-    #define Z_TOFF            8
-
-    #define Z2_IHOLD         31
-    #define Z2_IRUN          31
-    #define Z2_IHOLDDELAY    15
-    #define Z2_I_SCALE_ANALOG 1
-    #define Z2_MRES          16
-    #define Z2_TBL            1
-    #define Z2_TOFF           8
-
-    #define E0_IHOLD         31
-    #define E0_IRUN          31
-    #define E0_IHOLDDELAY    15
-    #define E0_I_SCALE_ANALOG 1
-    #define E0_MRES          16
-    #define E0_TBL            1
-    #define E0_TOFF           8
-
-    #define E1_IHOLD         31
-    #define E1_IRUN          31
-    #define E1_IHOLDDELAY    15
-    #define E1_I_SCALE_ANALOG 1
-    #define E1_MRES          16
-    #define E1_TBL            1
-    #define E1_TOFF           8
-
-    #define E2_IHOLD         31
-    #define E2_IRUN          31
-    #define E2_IHOLDDELAY    15
-    #define E2_I_SCALE_ANALOG 1
-    #define E2_MRES          16
-    #define E2_TBL            1
-    #define E2_TOFF           8
-
-    #define E3_IHOLD         31
-    #define E3_IRUN          31
-    #define E3_IHOLDDELAY    15
-    #define E3_I_SCALE_ANALOG 1
-    #define E3_MRES          16
-    #define E3_TBL            1
-    #define E3_TOFF           8
-
-  #endif // TMC2130_ADVANCED_CONFIGURATION
-
-#endif // HAVE_TMC2130DRIVER
+#endif // ENABLED(HAVE_TMC2130)
 
 // @section L6470
 
@@ -1026,6 +1059,7 @@
   //#define E1_IS_L6470
   //#define E2_IS_L6470
   //#define E3_IS_L6470
+  //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
@@ -1077,6 +1111,11 @@
   #define E3_OVERCURRENT  2000
   #define E3_STALLCURRENT 1500
 
+  #define E4_MICROSTEPS     16
+  #define E4_K_VAL          50
+  #define E4_OVERCURRENT  2000
+  #define E4_STALLCURRENT 1500
+
 #endif
 
 /**
@@ -1113,7 +1152,7 @@
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 /**
- * Add M43 command for pins info and testing
+ * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
 //#define PINS_DEBUGGING
 
@@ -1133,7 +1172,16 @@
  * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
  *
  * M200 D0 to disable, M200 Dn to set a new diameter.
- */ 
+ */
 //#define VOLUMETRIC_DEFAULT_ON
+
+/**
+ * Enable this option for a leaner build of Marlin that removes all
+ * workspace offsets, simplifying coordinate transformations, leveling, etc.
+ *
+ *  - M206 and M428 are disabled.
+ *  - G92 will revert to its behavior from Marlin 1.0.
+ */
+//#define NO_WORKSPACE_OFFSETS
 
 #endif // CONFIGURATION_ADV_H

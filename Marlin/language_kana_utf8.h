@@ -122,14 +122,15 @@
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
+#define MSG_E5STEPS                         _UxGT("E5steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("オンド")                      // "Temperature"
 #define MSG_MOTION                          _UxGT("ウゴキセッテイ")                // "Motion"
-#define MSG_VOLUMETRIC                      _UxGT("フィラメント")                   // "Filament"
+#define MSG_FILAMENT                        _UxGT("フィラメント")                   // "Filament"
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("フィラメントチョッケイ")            // "Fil. Dia."
 #define MSG_CONTRAST                        _UxGT("LCDコントラスト")               // "LCD contrast"
-#define MSG_STORE_EPROM                     _UxGT("メモリヘカクノウ")               // "Store memory"
-#define MSG_LOAD_EPROM                      _UxGT("メモリカラヨミコミ")               // "Load memory"
+#define MSG_STORE_EEPROM                    _UxGT("メモリヘカクノウ")               // "Store memory"
+#define MSG_LOAD_EEPROM                     _UxGT("メモリカラヨミコミ")               // "Load memory"
 #define MSG_RESTORE_FAILSAFE                _UxGT("セッテイリセット")               // "Restore failsafe"
 #define MSG_REFRESH                         _UxGT("リフレッシュ")                  // "Refresh"
 #define MSG_WATCH                           _UxGT("ジョウホウガメン")               // "Info screen"

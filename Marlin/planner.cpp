@@ -109,8 +109,8 @@ float Planner::min_feedrate_mm_s,
 #endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float Planner::z_fade_height = 0.0,
-        Planner::inverse_z_fade_height = 0.0;
+  float Planner::z_fade_height,
+        Planner::inverse_z_fade_height;
 #endif
 
 #if ENABLED(AUTOTEMP)
@@ -142,6 +142,7 @@ float Planner::previous_speed[NUM_AXIS],
 
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_k = LIN_ADVANCE_K,
+        Planner::advance_ed_ratio = LIN_ADVANCE_E_D_RATIO,
         Planner::position_float[NUM_AXIS] = { 0 };
 #endif
 
@@ -440,26 +441,21 @@ void Planner::check_axes_activity() {
     }
   }
   #if ENABLED(DISABLE_X)
-    if (!axis_active[X_AXIS]) disable_x();
+    if (!axis_active[X_AXIS]) disable_X();
   #endif
   #if ENABLED(DISABLE_Y)
-    if (!axis_active[Y_AXIS]) disable_y();
+    if (!axis_active[Y_AXIS]) disable_Y();
   #endif
   #if ENABLED(DISABLE_Z)
-    if (!axis_active[Z_AXIS]) disable_z();
+    if (!axis_active[Z_AXIS]) disable_Z();
   #endif
   #if ENABLED(DISABLE_E)
-    if (!axis_active[E_AXIS]) {
-      disable_e0();
-      disable_e1();
-      disable_e2();
-      disable_e3();
-    }
+    if (!axis_active[E_AXIS]) disable_e_steppers();
   #endif
 
   #if FAN_COUNT > 0
 
-    #if defined(FAN_MIN_PWM)
+    #ifdef FAN_MIN_PWM
       #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
       #define CALC_FAN_SPEED(f) tail_fan_speed[f]
@@ -534,7 +530,7 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-#if PLANNER_LEVELING
+#if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
   /**
    * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
@@ -638,7 +634,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-#endif // PLANNER_LEVELING
+#endif // PLANNER_LEVELING && !AUTO_BED_LEVELING_UBL
 
 /**
  * Planner::_buffer_line
@@ -836,29 +832,29 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   //enable active axes
   #if CORE_IS_XY
     if (block->steps[A_AXIS] || block->steps[B_AXIS]) {
-      enable_x();
-      enable_y();
+      enable_X();
+      enable_Y();
     }
     #if DISABLED(Z_LATE_ENABLE)
-      if (block->steps[Z_AXIS]) enable_z();
+      if (block->steps[Z_AXIS]) enable_Z();
     #endif
   #elif CORE_IS_XZ
     if (block->steps[A_AXIS] || block->steps[C_AXIS]) {
-      enable_x();
-      enable_z();
+      enable_X();
+      enable_Z();
     }
-    if (block->steps[Y_AXIS]) enable_y();
+    if (block->steps[Y_AXIS]) enable_Y();
   #elif CORE_IS_YZ
     if (block->steps[B_AXIS] || block->steps[C_AXIS]) {
-      enable_y();
-      enable_z();
+      enable_Y();
+      enable_Z();
     }
-    if (block->steps[X_AXIS]) enable_x();
+    if (block->steps[X_AXIS]) enable_X();
   #else
-    if (block->steps[X_AXIS]) enable_x();
-    if (block->steps[Y_AXIS]) enable_y();
+    if (block->steps[X_AXIS]) enable_X();
+    if (block->steps[Y_AXIS]) enable_Y();
     #if DISABLED(Z_LATE_ENABLE)
-      if (block->steps[Z_AXIS]) enable_z();
+      if (block->steps[Z_AXIS]) enable_Z();
     #endif
   #endif
 
@@ -872,63 +868,86 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
       switch(extruder) {
         case 0:
-          enable_e0();
+          enable_E0();
           #if ENABLED(DUAL_X_CARRIAGE)
             if (extruder_duplication_enabled) {
-              enable_e1();
+              enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
             }
           #endif
           g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
           #if EXTRUDERS > 1
-            if (g_uc_extruder_last_move[1] == 0) disable_e1();
+            if (g_uc_extruder_last_move[1] == 0) disable_E1();
             #if EXTRUDERS > 2
-              if (g_uc_extruder_last_move[2] == 0) disable_e2();
+              if (g_uc_extruder_last_move[2] == 0) disable_E2();
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_e3();
-              #endif
-            #endif
-          #endif
+                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
+          #endif // EXTRUDERS > 1
         break;
         #if EXTRUDERS > 1
           case 1:
-            enable_e1();
+            enable_E1();
             g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            if (g_uc_extruder_last_move[0] == 0) disable_e0();
+            if (g_uc_extruder_last_move[0] == 0) disable_E0();
             #if EXTRUDERS > 2
-              if (g_uc_extruder_last_move[2] == 0) disable_e2();
+              if (g_uc_extruder_last_move[2] == 0) disable_E2();
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_e3();
-              #endif
-            #endif
+                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
           break;
           #if EXTRUDERS > 2
             case 2:
-              enable_e2();
+              enable_E2();
               g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-              if (g_uc_extruder_last_move[0] == 0) disable_e0();
-              if (g_uc_extruder_last_move[1] == 0) disable_e1();
+              if (g_uc_extruder_last_move[0] == 0) disable_E0();
+              if (g_uc_extruder_last_move[1] == 0) disable_E1();
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_e3();
+                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                #endif
               #endif
             break;
             #if EXTRUDERS > 3
               case 3:
-                enable_e3();
+                enable_E3();
                 g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-                if (g_uc_extruder_last_move[0] == 0) disable_e0();
-                if (g_uc_extruder_last_move[1] == 0) disable_e1();
-                if (g_uc_extruder_last_move[2] == 0) disable_e2();
+                if (g_uc_extruder_last_move[0] == 0) disable_E0();
+                if (g_uc_extruder_last_move[1] == 0) disable_E1();
+                if (g_uc_extruder_last_move[2] == 0) disable_E2();
+                #if EXTRUDERS > 4
+                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                #endif
               break;
+              #if EXTRUDERS > 4
+                case 4:
+                  enable_E4();
+                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
+                  if (g_uc_extruder_last_move[0] == 0) disable_E0();
+                  if (g_uc_extruder_last_move[1] == 0) disable_E1();
+                  if (g_uc_extruder_last_move[2] == 0) disable_E2();
+                  if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                break;
+              #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
           #endif // EXTRUDERS > 2
         #endif // EXTRUDERS > 1
       }
     #else
-      enable_e0();
-      enable_e1();
-      enable_e2();
-      enable_e3();
+      enable_E0();
+      enable_E1();
+      enable_E2();
+      enable_E3();
+      enable_E4();
     #endif
   }
 
@@ -946,7 +965,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
    * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
    */
   #if IS_CORE
-    float delta_mm[7];
+    float delta_mm[Z_HEAD + 1];
     #if CORE_IS_XY
       delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
       delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
@@ -967,7 +986,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       delta_mm[C_AXIS] = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
     #endif
   #else
-    float delta_mm[4];
+    float delta_mm[XYZE];
     delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
     delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
     delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
@@ -999,11 +1018,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
+    // Segment time im micro seconds
     unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
   #endif
   #if ENABLED(SLOWDOWN)
-    // Segment time im micro seconds
-    if (moves_queued > 1 && moves_queued < (BLOCK_BUFFER_SIZE) / 2) {
+    if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
       if (segment_time < min_segment_time) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
@@ -1061,6 +1080,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
   LOOP_XYZE(i) {
     const float cs = fabs(current_speed[i] = delta_mm[i] * inverse_mm_s);
+    #if ENABLED(DISTINCT_E_FACTORS)
+      if (i == E_AXIS) i += extruder;
+    #endif
     if (cs > max_feedrate_mm_s[i]) NOMORE(speed_factor, max_feedrate_mm_s[i] / cs);
   }
 
@@ -1134,18 +1156,24 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // Start with print or travel acceleration
     accel = ceil((esteps ? acceleration : travel_acceleration) * steps_per_mm);
 
+    #if ENABLED(DISTINCT_E_FACTORS)
+      #define ACCEL_IDX extruder
+    #else
+      #define ACCEL_IDX 0
+    #endif
+
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long) {
-      LIMIT_ACCEL_LONG(X_AXIS,0);
-      LIMIT_ACCEL_LONG(Y_AXIS,0);
-      LIMIT_ACCEL_LONG(Z_AXIS,0);
-      LIMIT_ACCEL_LONG(E_AXIS,extruder);
+      LIMIT_ACCEL_LONG(X_AXIS, 0);
+      LIMIT_ACCEL_LONG(Y_AXIS, 0);
+      LIMIT_ACCEL_LONG(Z_AXIS, 0);
+      LIMIT_ACCEL_LONG(E_AXIS, ACCEL_IDX);
     }
     else {
-      LIMIT_ACCEL_FLOAT(X_AXIS,0);
-      LIMIT_ACCEL_FLOAT(Y_AXIS,0);
-      LIMIT_ACCEL_FLOAT(Z_AXIS,0);
-      LIMIT_ACCEL_FLOAT(E_AXIS,extruder);
+      LIMIT_ACCEL_FLOAT(X_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(Y_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(Z_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(E_AXIS, ACCEL_IDX);
     }
   }
   block->acceleration_steps_per_s2 = accel;
@@ -1251,6 +1279,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         v_exit *= v_factor;
         v_entry *= v_factor;
       }
+
       // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
       const float jerk = (v_exit > v_entry)
           ? //                                  coasting             axis reversal
@@ -1297,7 +1326,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   block->flag |= BLOCK_FLAG_RECALCULATE | (block->nominal_speed <= v_allowable ? BLOCK_FLAG_NOMINAL_LENGTH : 0);
 
   // Update previous path unit_vector and nominal speed
-  memcpy(previous_speed, current_speed, sizeof(previous_speed));
+  COPY(previous_speed, current_speed);
   previous_nominal_speed = block->nominal_speed;
   previous_safe_speed = safe_speed;
 
@@ -1324,7 +1353,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
                             && (uint32_t)esteps != block->step_event_count
                             && de_float > 0.0;
     if (block->use_advance_lead)
-      block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS_N] * 256.0);
+      block->abs_adv_steps_multiplier8 = lround(
+        extruder_advance_k
+        * (UNEAR_ZERO(advance_ed_ratio) ? de_float / mm_D_float : advance_ed_ratio) // Use the fixed ratio, if set
+        * (block->nominal_speed / (float)block->nominal_rate)
+        * axis_steps_per_mm[E_AXIS_N] * 256.0
+      );
 
   #elif ENABLED(ADVANCE)
 
@@ -1354,7 +1388,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   block_buffer_head = next_buffer_head;
 
   // Update the position (only when a move was queued)
-  memcpy(position, target, sizeof(position));
+  COPY(position, target);
   #if ENABLED(LIN_ADVANCE)
     position_float[X_AXIS] = a;
     position_float[Y_AXIS] = b;
@@ -1398,7 +1432,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
-  #if PLANNER_LEVELING
+  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
     float lpos[XYZ] = { position[X_AXIS], position[Y_AXIS], position[Z_AXIS] };
     apply_leveling(lpos);
   #else
@@ -1475,17 +1509,6 @@ void Planner::refresh_positioning() {
     if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
     if (code_seen('B')) autotemp_max = code_value_temp_abs();
-  }
-
-#endif
-
-#if ENABLED(LIN_ADVANCE)
-
-  void Planner::advance_M905(const float &k) {
-    if (k >= 0.0) extruder_advance_k = k;
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("Advance factor: ", extruder_advance_k);
-    SERIAL_EOL;
   }
 
 #endif
