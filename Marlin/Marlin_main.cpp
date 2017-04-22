@@ -8858,7 +8858,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     const float newK = code_seen('K') ? code_value_float() : -1;
-    if (newK >= 0) planner.set_extruder_advance_k(newK);
+    if (newK >= 0) planner.extruder_advance_k = newK;
 
     float newR = code_seen('R') ? code_value_float() : -1;
     if (newR < 0) {
@@ -8868,12 +8868,12 @@ inline void gcode_M503() {
       if (newD >= 0 && newW >= 0 && newH >= 0)
         newR = newD ? (newW * newH) / (sq(newD * 0.5) * M_PI) : 0;
     }
-    if (newR >= 0) planner.set_advance_ed_ratio(newR);
+    if (newR >= 0) planner.advance_ed_ratio = newR;
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("Advance K=", planner.get_extruder_advance_k());
+    SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_k);
     SERIAL_ECHOPGM(" E/D=");
-    const float ratio = planner.get_advance_ed_ratio();
+    const float ratio = planner.advance_ed_ratio;
     ratio ? SERIAL_ECHO(ratio) : SERIAL_ECHOPGM("Auto");
     SERIAL_EOL;
   }

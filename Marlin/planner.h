@@ -168,6 +168,10 @@ class Planner {
       static float z_fade_height, inverse_z_fade_height;
     #endif
 
+    #if ENABLED(LIN_ADVANCE)
+      static float extruder_advance_k, advance_ed_ratio;
+    #endif
+
   private:
 
     /**
@@ -209,8 +213,6 @@ class Planner {
 
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
-      static float extruder_advance_k;
-      static float advance_ed_ratio;
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -264,13 +266,6 @@ class Planner {
       #define ARG_Y const float &ly
       #define ARG_Z const float &lz
 
-    #endif
-
-    #if ENABLED(LIN_ADVANCE)
-      static void set_extruder_advance_k(float k) { extruder_advance_k = k; };
-      static float get_extruder_advance_k() { return extruder_advance_k; };
-      static void set_advance_ed_ratio(float ratio) { advance_ed_ratio = ratio; };
-      static float get_advance_ed_ratio() { return advance_ed_ratio; };
     #endif
 
     /**
