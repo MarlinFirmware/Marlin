@@ -757,8 +757,8 @@
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL, do_furthest);  // the '1' says we want the location to be relative to the probe
       if (location.x_index >= 0 && location.y_index >= 0) {
 
-        const float rawx = ubl.mesh_index_to_xpos[location.x_index],
-                    rawy = ubl.mesh_index_to_ypos[location.y_index];
+        const float rawx = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
+                    rawy = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
 
         // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
         if (!WITHIN(rawx, MIN_PROBE_X, MAX_PROBE_X) || !WITHIN(rawy, MIN_PROBE_Y, MAX_PROBE_Y)) {
@@ -905,8 +905,8 @@
       // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
 
-      const float rawx = ubl.mesh_index_to_xpos[location.x_index],
-                  rawy = ubl.mesh_index_to_ypos[location.y_index];
+      const float rawx = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
+                  rawy = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
       if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) {
@@ -1174,7 +1174,7 @@
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[i]), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[i]))), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
     }
@@ -1182,7 +1182,7 @@
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[i]), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[i]))), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
     }
@@ -1320,8 +1320,8 @@
 
           // We only get here if we found a Mesh Point of the specified type
 
-          const float rawx = ubl.mesh_index_to_xpos[i], // Check if we can probe this mesh location
-                      rawy = ubl.mesh_index_to_ypos[j];
+          const float rawx = pgm_read_float(&(ubl.mesh_index_to_xpos[i])), // Check if we can probe this mesh location
+                      rawy = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
 
           // If using the probe as the reference there are some unreachable locations.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
@@ -1386,8 +1386,8 @@
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
                                                                 // different location the next time through the loop
 
-      const float rawx = ubl.mesh_index_to_xpos[location.x_index],
-                  rawy = ubl.mesh_index_to_ypos[location.y_index];
+      const float rawx = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
+                  rawy = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
       if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) { // In theory, we don't need this check.
@@ -1482,7 +1482,8 @@
       //find min & max probeable points in the mesh
       for (xCount = 0; xCount < GRID_MAX_POINTS_X; xCount++) {
         for (yCount = 0; yCount < GRID_MAX_POINTS_Y; yCount++) {
-          if (WITHIN(ubl.mesh_index_to_xpos[xCount], MIN_PROBE_X, MAX_PROBE_X) && WITHIN(ubl.mesh_index_to_ypos[yCount], MIN_PROBE_Y, MAX_PROBE_Y)) {
+          if (WITHIN(pgm_read_float(&(ubl.mesh_index_to_xpos[xCount])), MIN_PROBE_X, MAX_PROBE_X) &&
+              WITHIN(pgm_read_float(&(ubl.mesh_index_to_ypos[yCount])), MIN_PROBE_Y, MAX_PROBE_Y)) {
             NOMORE(x_min, xCount);
             NOLESS(x_max, xCount);
             NOMORE(y_min, yCount);
@@ -1577,11 +1578,12 @@
           }
           //SERIAL_ECHOPAIR("\nCheckpoint: ", 5);
 
-          const float probeX = ubl.mesh_index_to_xpos[grid_G_index_to_xpos[xCount]],  //where we want the probe to be
-          probeY = ubl.mesh_index_to_ypos[grid_G_index_to_ypos[yCount]];
+          const float probeX = pgm_read_float(&(ubl.mesh_index_to_xpos[grid_G_index_to_xpos[xCount]])),  //where we want the probe to be
+                      probeY = pgm_read_float(&(ubl.mesh_index_to_ypos[grid_G_index_to_ypos[yCount]]));
           //SERIAL_ECHOPAIR("\nCheckpoint: ", 6);
 
-          const float measured_z = probe_pt(LOGICAL_X_POSITION(probeX), LOGICAL_Y_POSITION(probeY), code_seen('E'), (code_seen('V') && code_has_value()) ? code_value_int() : 0);  // takes into account the offsets
+          const float measured_z = probe_pt(LOGICAL_X_POSITION(probeX), LOGICAL_Y_POSITION(probeY), code_seen('E'),
+                                            (code_seen('V') && code_has_value()) ? code_value_int() : 0);  // takes into account the offsets
 
           //SERIAL_ECHOPAIR("\nmeasured_z: ", measured_z);
 
@@ -1595,7 +1597,7 @@
       restore_ubl_active_state_and_leave();
 
       // ?? ubl.has_control_of_lcd_panel = true;
-      //do_blocking_move_to_xy(ubl.mesh_index_to_xpos[grid_G_index_to_xpos[0]], ubl.mesh_index_to_ypos[grid_G_index_to_ypos[0]]);
+      //do_blocking_move_to_xy(pgm_read_float(&(ubl.mesh_index_to_xpos[grid_G_index_to_xpos[0]])),pgm_read_float(&(ubl.mesh_index_to_ypos[grid_G_index_to_ypos[0]])));
 
       // least squares code
       double xxx5[] = { 0,50,100,150,200,      20,70,120,165,195,     0,50,100,150,200,      0,55,100,150,200,      0,65,100,150,205 },
