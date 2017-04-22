@@ -250,9 +250,9 @@
    *                    for subsequent Load and Store operations. It will also store the current state of
    *                    the Unified Bed Leveling system in the EEPROM.
    *
-   *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into
-   *                    the system at a later date. The text generated can be saved and later sent by PronterFace or
-   *                    Repetier Host to reconstruct the current mesh on another machine.
+   *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into the system
+   *                    at a later date. The GCode output can be saved and later replayed by the host software
+   *                    to reconstruct the current mesh on another machine.
    *
    *   T     3-Point    Perform a 3 Point Bed Leveling on the current Mesh
    *

@@ -164,7 +164,7 @@
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
- *   - Optional support for Repetier Host M163, M164, and virtual extruder.
+ *   - Optional support for Repetier Firmware M163, M164, and virtual extruder.
  *   - This implementation supports only a single extruder.
  *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
  */
