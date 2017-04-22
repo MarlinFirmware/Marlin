@@ -302,14 +302,14 @@ class Stepper {
       step_rate -= F_CPU / 500000; // Correct for minimal speed
       if (step_rate >= (8 * 256)) { // higher step rate
         unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-        unsigned char tmp_step_rate = (step_rate & 0x00ff);
+        unsigned char tmp_step_rate = (step_rate & 0x00FF);
         unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
         MultiU16X8toH16(timer, tmp_step_rate, gain);
         timer = (unsigned short)pgm_read_word_near(table_address) - timer;
       }
       else { // lower step rates
         unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-        table_address += ((step_rate) >> 1) & 0xfffc;
+        table_address += ((step_rate) >> 1) & 0xFFFC;
         timer = (unsigned short)pgm_read_word_near(table_address);
         timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
       }

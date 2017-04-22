@@ -141,8 +141,8 @@ void M100_dump_routine(const char * const title, const char *start, const char *
   //
   // Round the start and end locations to produce full lines of output
   //
-  start = (char*)((uint16_t) start & 0xfff0);
-  end   = (char*)((uint16_t) end   | 0x000f);
+  start = (char*)((uint16_t) start & 0xFFF0);
+  end   = (char*)((uint16_t) end   | 0x000F);
   dump_free_memory(start, end);
 }
 
