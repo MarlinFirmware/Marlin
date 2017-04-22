@@ -4175,7 +4175,7 @@ inline void gcode_G28() {
       ABL_VAR int abl_probe_index;
     #endif
 
-    #if HAS_SOFTWARE_ENDSTOPS
+    #if HAS_SOFTWARE_ENDSTOPS && ENABLED(PROBE_MANUALLY)
       ABL_VAR bool enable_soft_endstops = true;
     #endif
 
@@ -4598,7 +4598,6 @@ inline void gcode_G28() {
         }
 
       #endif // AUTO_BED_LEVELING_3POINT
-
 
     #else // !PROBE_MANUALLY
 
