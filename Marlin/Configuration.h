@@ -89,7 +89,8 @@
 #define STRING_CONFIG_H_AUTHOR "(remi cormier, K8400 H2 config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
+//#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE2 "  cormier 2017  "         // will be shown during bootup in line 2
 
 //
 // *** VENDORS PLEASE READ *****************************************************
@@ -784,7 +785,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
 #define Y_MAX_POS 200
-#define Z_MAX_POS 190
+#define Z_MAX_POS 191
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 #define MIN_SOFTWARE_ENDSTOPS
@@ -1167,6 +1168,15 @@
 //=============================================================================
 
 // @section lcd
+
+// r. cormier 2017-04-21
+// Original behavior of Marlin :
+// if WAIT_FOR_USER_AT_SD_EOF is enabled :
+//  if PRINTER_EVENT_LEDS is enabled, when SD card eof is encountered, Marlin waits for user push button.
+//  so already buffered gcode commands are not executed until push button, wich may sause issues
+// 
+// -> enable WAIT_FOR_USER_AT_SD_EOF to restore original behavior 
+// #define WAIT_FOR_USER_AT_SD_EOF
 
 //
 // LCD LANGUAGE
@@ -1562,6 +1572,10 @@
  */
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define PRINTER_EVENT_LEDS
+  /* BINARY_RGB_LED :
+   * set color from blue to red in 3 steps when heating (M109) ; r. cormier 2017-04-21
+   */
+  #define BINARY_RGB_LED
 #endif
 
 /*********************************************************************\
