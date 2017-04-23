@@ -39,6 +39,9 @@
   void lcd_implementation_clear();
   void lcd_mesh_edit_setup(float initial);
   void tilt_mesh_based_on_probed_grid(const bool);
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    extern void handle_led_print_event(uint8_t code);
+  #endif
   float lcd_mesh_edit();
   void lcd_z_offset_edit_setup(float);
   float lcd_z_offset_edit();
@@ -51,6 +54,7 @@
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
 
+  bool partial_mesh = false;
   bool ProbeStay = true;
 
   constexpr float ubl_3_point_1_X = UBL_PROBE_PT_1_X,
@@ -378,6 +382,9 @@
     if (code_seen('J')) {
       if (!WITHIN(grid_size, 2, 5)) {
         SERIAL_PROTOCOLLNPGM("ERROR - grid size must be between 2 and 5");
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
         return;
       }
       tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M'));
@@ -434,6 +441,7 @@
           }
 
           if (code_seen('C')) {
+            partial_mesh = false;
             x_pos = current_position[X_AXIS];
             y_pos = current_position[Y_AXIS];
           }
@@ -445,6 +453,9 @@
 
             if (fabs(card_thickness) > 1.5) {
               SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.\n");
+              #if ENABLED(PRINTER_EVENT_LEDS)
+                handle_led_print_event(ALL_OFF);
+              #endif
               return;
             }
           }
@@ -570,6 +581,9 @@
 
       if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
         return;
       }
       ubl.load_mesh(storage_slot);
@@ -609,6 +623,10 @@
       ubl.state.eeprom_storage_slot = storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.\n");
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(ALL_OFF);
+      #endif
     }
 
     if (code_seen('O') || code_seen('M'))
@@ -669,11 +687,27 @@
 
     LEAVE:
 
-    lcd_reset_alert_level();
-    LCD_MESSAGEPGM("");
-    lcd_quick_feedback();
+    #if ENABLED(ULTRA_LCD)
+      if (partial_mesh) {
+        lcd_reset_alert_level();
+        LCD_MESSAGEPGM("Partial Mesh!");
+        //lcd_setstatuspgm(PSTR("Partial Mesh!"));
+        lcd_quick_feedback();
+        partial_mesh = false;
+      }
+      else {
+        lcd_reset_alert_level();
+        LCD_MESSAGEPGM("G29 UBL done!");
+        //lcd_setstatuspgm(PSTR("G29 UBL done!"));
+        lcd_quick_feedback();
+      }
+    #endif
 
     ubl.has_control_of_lcd_panel = false;
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
   void find_mean_mesh_height() {
@@ -740,6 +774,7 @@
     do {
       if (ubl_lcd_clicked()) {
         SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+        partial_mesh = true;
         lcd_quick_feedback();
         STOW_PROBE();
         while (ubl_lcd_clicked()) idle();
@@ -944,6 +979,7 @@
         idle();
         if (ELAPSED(millis(), nxt)) {
           SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+          partial_mesh = true;
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           lcd_quick_feedback();
           while (ubl_lcd_clicked()) idle();
@@ -972,10 +1008,15 @@
   }
 
   bool g29_parameter_parsing() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(AUTO_LEVELING);
+    #endif
+
     bool err_flag = false;
 
-      LCD_MESSAGEPGM("Doing G29 UBL!");
-      lcd_quick_feedback();
+    LCD_MESSAGEPGM("Doing G29 UBL!");
+    lcd_quick_feedback();
 
     x_flag = code_seen('X') && code_has_value();
     x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
@@ -1356,6 +1397,11 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(MANUAL_LEVELING);
+    #endif
+
     if (!code_seen('R'))    // fine_tune_mesh() is special.  If no repetion count flag is specified
       repetition_cnt = 1;   // we know to do exactly one mesh location. Otherwise we use what the parser decided.
 
@@ -1453,6 +1499,10 @@
 
     LCD_MESSAGEPGM("Done Editing Mesh");
     SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
   void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {
