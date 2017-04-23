@@ -578,9 +578,9 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle] - JAIME: Changed from 10
+#define X_PROBE_OFFSET_FROM_EXTRUDER 30  // X offset: -left  +right  [of the nozzle] - JAIME: Changed from 10
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle] - JAIME: Changed from 10
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.9   // Z offset: -below +above  [the nozzle] - JAIME: Changed from 0
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0.0   // Z offset: -below +above  [the nozzle] - JAIME: Changed from 0
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -639,7 +639,7 @@
 // To use a probe you must enable one of the two options above!
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST //JAIME
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -720,7 +720,7 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 200
+#define X_MAX_POS 210 // JAIME
 #define Y_MAX_POS 200
 #define Z_MAX_POS 200
 
@@ -741,7 +741,7 @@
 //============================ Mesh Bed Leveling ============================
 //===========================================================================
 
-//#define MESH_BED_LEVELING    // Enable mesh bed leveling. - JAIME: Enabled
+// #define MESH_BED_LEVELING    // Enable mesh bed leveling. - JAIME: Enabled
 
 #if ENABLED(MESH_BED_LEVELING)
   #define MESH_INSET 10        // Mesh inset margin on print area
@@ -791,8 +791,8 @@
  *   The result is a mesh, best for large or uneven beds.
  */
 //#define AUTO_BED_LEVELING_3POINT
-//#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR // JAIME: Enabled if using Z-Probe
+#define AUTO_BED_LEVELING_LINEAR
+//#define AUTO_BED_LEVELING_BILINEAR // JAIME: Enabled if using Z-Probe
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -809,8 +809,8 @@
 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 36 // JAIME: Changed from 15
-  #define RIGHT_PROBE_BED_POSITION 190 // JAIME: Ganged from 170
-  #define FRONT_PROBE_BED_POSITION 20
+  #define RIGHT_PROBE_BED_POSITION 210 // JAIME: Ganged from 170
+  #define FRONT_PROBE_BED_POSITION 10
   #define BACK_PROBE_BED_POSITION 190 // JAIME: Ganged from 170
 
   // The Z probe minimum outer margin (to validate G29 parameters).
