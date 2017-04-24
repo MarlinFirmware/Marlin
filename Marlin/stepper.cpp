@@ -1081,17 +1081,17 @@ void Stepper::init() {
   #endif
 
   // waveform generation = 0100 = CTC
-  SET_WGM(1, WGM_CTC_OCRnA);
+  SET_WGM(1, CTC_OCRnA);
 
   // output mode = 00 (disconnected)
-  SET_COMS(1, COM_NORMAL, COM_NORMAL);
+  SET_COMS(1, NORMAL, NORMAL, NORMAL);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
   // sure to regenerate speed_lookuptable.h with
   // create_speed_lookuptable.py
-  SET_CS(1, CS_PRESCALER_8);  //  CS 2 = 1/8 prescaler
+  SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
 
   // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;

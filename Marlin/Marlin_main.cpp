@@ -11569,47 +11569,46 @@ void prepare_move_to_destination() {
       #ifdef TCCR0A
         case TIMER0A:
         case TIMER0B:
-          //SET_CS(0, val);
+          //_SET_CS(0, val);
           break;
       #endif
       #ifdef TCCR1A
         case TIMER1A:
         case TIMER1B:
-          //SET_CS(1, val);
+          //_SET_CS(1, val);
           break;
       #endif
       #ifdef TCCR2
         case TIMER2:
         case TIMER2:
-          TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-          TCCR2 |= val;
+          _SET_CS(2, val);
           break;
       #endif
       #ifdef TCCR2A
         case TIMER2A:
         case TIMER2B:
-          SET_CS(2, val);
+          _SET_CS(2, val);
           break;
       #endif
       #ifdef TCCR3A
         case TIMER3A:
         case TIMER3B:
         case TIMER3C:
-          SET_CS(3, val);
+          _SET_CS(3, val);
           break;
       #endif
       #ifdef TCCR4A
         case TIMER4A:
         case TIMER4B:
         case TIMER4C:
-          SET_CS(4, val);
+          _SET_CS(4, val);
           break;
       #endif
       #ifdef TCCR5A
         case TIMER5A:
         case TIMER5B:
         case TIMER5C:
-          SET_CS(5, val);
+          _SET_CS(5, val);
           break;
       #endif
     }

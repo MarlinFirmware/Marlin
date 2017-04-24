@@ -85,7 +85,7 @@
 #define OUT_WRITE(IO, v) do{ SET_OUTPUT(IO); WRITE(IO, v); }while(0)
 
 /**
- * Interrupt Control
+ * Timer and Interrupt Control
  */
 
 // Waveform Generation Modes
@@ -128,24 +128,86 @@ typedef enum {
   CS_EXT_RISING        //  7
 } ClockSource;
 
-#define SET_WGM(T,V) do{ \
+// Clock Sources (Timer 2 only)
+typedef enum {
+  CS2_NONE,            //  0
+  CS2_PRESCALER_1,     //  1
+  CS2_PRESCALER_8,     //  2
+  CS2_PRESCALER_32,    //  3
+  CS2_PRESCALER_64,    //  4
+  CS2_PRESCALER_128,   //  5
+  CS2_PRESCALER_256,   //  6
+  CS2_PRESCALER_1024   //  7
+} ClockSource2;
+
+// Get interrupt bits in an orderly way
+#define GET_WGM(T)   (((TCCR##T##A >> WGM##T##0) & 0x3) | ((TCCR##T##B >> WGM##T##2 << 2) & 0xC))
+#define GET_CS(T)    ((TCCR##T##B >> CS##T##0) & 0x7)
+#define GET_COM(T,Q) ((TCCR##T##Q >> COM##T##Q##0) & 0x3)
+#define GET_COMA(T)  GET_COM(T,A)
+#define GET_COMB(T)  GET_COM(T,B)
+#define GET_COMC(T)  GET_COM(T,C)
+#define GET_ICNC(T)  (!!(TCCR##T##B & _BV(ICNC##T)))
+#define GET_ICES(T)  (!!(TCCR##T##B & _BV(ICES##T)))
+#define GET_FOC(T,Q) (!!(TCCR##T##C & _BV(FOC##T##Q)))
+#define GET_FOCA(T)  GET_FOC(T,A)
+#define GET_FOCB(T)  GET_FOC(T,B)
+#define GET_FOCC(T)  GET_FOC(T,C)
+
+// Set Wave Generation Mode bits
+#define _SET_WGM(T,V) do{ \
     TCCR##T##A = (TCCR##T##A & ~(0x3 << WGM##T##0)) | (( int(V)       & 0x3) << WGM##T##0); \
     TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
   }while(0)
+#define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
 
-#define SET_CS(T,V) do{ \
-    TCCR##T##B = (TCCR##T##B & ~(0x7 << CS10)) | ((int(V) & 0x7) << CS10); \
-  }while(0)
+// Set Clock Select bits
+#define _SET_CS(T,V) (TCCR##T##B = (TCCR##T##B & ~(0x7 << CS##T##0)) | ((int(V) & 0x7) << CS##T##0))
+#define _SET_CS0(V) _SET_CS(0,V)
+#define _SET_CS1(V) _SET_CS(1,V)
+#ifdef TCCR2
+  #define _SET_CS2(V) (TCCR2 = (TCCR2 & ~(0x7 << CS20)) | (int(V) << CS20))
+#else
+  #define _SET_CS2(V) _SET_CS(2,V)
+#endif
+#define _SET_CS3(V) _SET_CS(3,V)
+#define _SET_CS4(V) _SET_CS(4,V)
+#define _SET_CS5(V) _SET_CS(5,V)
+#define SET_CS0(V) _SET_CS0(CS_##V)
+#define SET_CS1(V) _SET_CS1(CS_##V)
+#ifdef TCCR2
+  #define SET_CS2(V) _SET_CS2(CS2_##V)
+#else
+  #define SET_CS2(V) _SET_CS2(CS_##V)
+#endif
+#define SET_CS3(V) _SET_CS3(CS_##V)
+#define SET_CS4(V) _SET_CS4(CS_##V)
+#define SET_CS5(V) _SET_CS5(CS_##V)
+#define SET_CS(T,V) SET_CS##T(V)
 
-#define SET_COM(T,Q,V) do{ \
-    TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM1##Q##0)) | ((int(V) & 0x3) << COM1##Q##0); \
-  }while(0)
+// Set Compare Mode bits
+#define _SET_COM(T,Q,V) (TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM##T##Q##0)) | (int(V) << COM##T##Q##0))
+#define _SET_COMA(T,V) _SET_COM(T,A,V)
+#define _SET_COMB(T,V) _SET_COM(T,B,V)
+#define _SET_COMC(T,V) _SET_COM(T,C,V)
+#define _SET_COMS(T,V1,V2,V3) do{ _SET_COMA(T,V1); _SET_COMB(T,V2); _SET_COMC(T,V3); }while(0)
+#define SET_COM(T,Q,V) _SET_COM(T,Q,COM_##V)
 #define SET_COMA(T,V) SET_COM(T,A,V)
 #define SET_COMB(T,V) SET_COM(T,B,V)
-#define SET_COMS(T,V1,V2) do{ SET_COMA(T,V1); SET_COMB(T,V2); }while(0)
+#define SET_COMC(T,V) SET_COM(T,C,V)
+#define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
 
-#define SET_ICNC(T,V) (TCCR##T##B = (TCCR##T##B & ~_BV(7) | ((V) & 1) << 7))
-#define SET_ICES(T,V) (TCCR##T##B = (TCCR##T##B & ~_BV(6) | ((V) & 1) << 6))
+// Set Noise Canceler bit
+#define SET_ICNC(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICNC##T) : TCCR##T##B & ~_BV(ICNC##T))
+
+// Set Input Capture Edge Select bit
+#define SET_ICES(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICES##T) : TCCR##T##B & ~_BV(ICES##T))
+
+// Set Force Output Compare bit
+#define SET_FOC(T,Q,V) (TCCR##T##C = (V) ? TCCR##T##C | _BV(FOC##T##Q) : TCCR##T##C & ~_BV(FOC##T##Q))
+#define SET_FOCA(T,V) SET_FOC(T,A,V)
+#define SET_FOCB(T,V) SET_FOC(T,B,V)
+#define SET_FOCC(T,V) SET_FOC(T,C,V)
 
 /**
  * Ports and Functions
@@ -177,8 +239,8 @@ typedef enum {
   #define DEBUG_LED   AIO5
 
   /**
-  pins
-  */
+   * Pins Info
+   */
 
   #define DIO0_PIN    PIND0
   #define DIO0_RPORT  PIND
@@ -513,9 +575,10 @@ typedef enum {
   #define OC2B        DIO14
 
   #define DEBUG_LED   DIO0
+
   /**
-  pins
-  */
+   * Pins Info
+   */
 
   #define DIO0_PIN    PINB0
   #define DIO0_RPORT  PINB
@@ -756,8 +819,6 @@ typedef enum {
   #define AIO7_WPORT  PORTA
   #define AIO7_DDR    DDRA
   #define AIO7_PWM    NULL
-
-
 
   #undef PA0
   #define PA0_PIN     PINA0
@@ -1023,8 +1084,9 @@ typedef enum {
   #define DEBUG_LED   DIO21
 
   /**
-  pins
-  */
+   * Pins Info
+   */
+
   #define DIO0_PIN    PINE0
   #define DIO0_RPORT  PINE
   #define DIO0_WPORT  PORTE
@@ -2075,7 +2137,7 @@ typedef enum {
   #define DEBUG_LED   DIO31 /* led D5 red */
 
   /**
-   * pins
+   * Pins Info
    */
 
   //#define AT90USBxx_TEENSYPP_ASSIGNMENTS // Use Teensy++ 2.0 assignments
@@ -3402,8 +3464,9 @@ typedef enum {
   #define DEBUG_LED   DIO46
 
   /**
-  pins
-  */
+   * Pins Info
+   */
+
   #define DIO0_PIN    PINE0
   #define DIO0_RPORT  PINE
   #define DIO0_WPORT  PORTE
@@ -3727,9 +3790,6 @@ typedef enum {
   #define DIO53_WPORT PORTF
   #define DIO53_DDR   DDRF
   #define DIO53_PWM   NULL
-
-
-
 
   #undef PA0
   #define PA0_PIN     PINA0
