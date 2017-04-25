@@ -25,13 +25,13 @@
 #if ENABLED(EXPERIMENTAL_I2CBUS)
 
 #include "twibus.h"
-#include <Wire.h>
+#include "I2C.h"
 
 TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
-    Wire.begin();                  // No address joins the BUS as the master
+    I2c.begin();                  // No address joins the BUS as the master
   #else
-    Wire.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
+    I2c.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
   #endif
   this->reset();
 }
@@ -81,9 +81,7 @@ void TWIBus::send() {
     debug(PSTR("send"), this->addr);
   #endif
 
-  Wire.beginTransmission(this->addr);
-  Wire.write(this->buffer, this->buffer_s);
-  Wire.endTransmission();
+  I2c.write(this->addr,this->buffer, this->buffer_s);
 
   this->reset();
 }
@@ -100,7 +98,7 @@ void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
 // static
 void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
   echoprefix(bytes, prefix, adr);
-  while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
+  while (bytes-- && I2c.available()) SERIAL_CHAR(I2c.receive());
   SERIAL_EOL;
 }
 
@@ -118,7 +116,7 @@ bool TWIBus::request(const uint8_t bytes) {
   #endif
 
   // requestFrom() is a blocking function
-  if (Wire.requestFrom(this->addr, bytes) == 0) {
+  if (I2c.read(this->addr, bytes) == 0) {
     #if ENABLED(DEBUG_TWIBUS)
       debug("request fail", this->addr);
     #endif
@@ -140,9 +138,9 @@ void TWIBus::relay(const uint8_t bytes) {
 uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
   this->reset();
   uint8_t count = 0;
-  while (count < bytes && Wire.available())
-    dst[count++] = Wire.read();
-
+  while (count < bytes && I2c.available())
+    dst[count++] = I2c.receive();
+  
   #if ENABLED(DEBUG_TWIBUS)
     debug(PSTR("capture"), count);
   #endif
@@ -152,7 +150,7 @@ uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
 
 // static
 void TWIBus::flush() {
-  while (Wire.available()) Wire.read();
+  while (I2c.available()) I2c.receive();
 }
 
 #if I2C_SLAVE_ADDRESS > 0
@@ -174,7 +172,7 @@ void TWIBus::flush() {
       this->addstring(str);
     }
 
-    Wire.write(this->buffer, this->buffer_s);
+    I2c.write(this->addr, this->buffer, this->buffer_s);
 
     this->reset();
   }
