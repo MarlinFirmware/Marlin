@@ -30,7 +30,7 @@
 #include "MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-#include "Wire.h"
+#include "I2C.h"
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
 #define BASE_ADDR      0x60
