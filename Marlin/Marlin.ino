@@ -32,13 +32,51 @@
 
 #if ENABLED(ULTRA_LCD)
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
-    #include <Wire.h>
+    #include  or FITNESS FOR A PARTICULAR PURPOSE.  See the * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * About Marlin
+ *
+ * This firmware is a mashup between Sprinter and grbl.
+ *  - https://github.com/kliment/Sprinter
+ *  - https://github.com/simen/grbl/tree
+ */
+
+#include "MarlinConfig.h"
+
+#if ENABLED(ULTRA_LCD)
+  #if ENABLED(LCD_I2C_TYPE_PCF8575)
+    #include  or FITNESS FOR A PARTICULAR PURPOSE.  See the * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * About Marlin
+ *
+ * This firmware is a mashup between Sprinter and grbl.
+ *  - https://github.com/kliment/Sprinter
+ *  - https://github.com/simen/grbl/tree
+ */
+
+#include "MarlinConfig.h"
+
+#if ENABLED(ULTRA_LCD)
+  #if ENABLED(LCD_I2C_TYPE_PCF8575)
+    #include "I2C.h"
     #include <LiquidCrystal_I2C.h>
   #elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
-    #include <Wire.h>
+    #include "I2C.h"
     #include <LiquidTWI2.h>
   #elif ENABLED(LCM1602)
-    #include <Wire.h>
+    #include "I2C.h"
     #include <LCD.h>
     #include <LiquidCrystal_I2C.h>
   #elif ENABLED(DOGLCD)
@@ -53,7 +91,7 @@
 #endif
 
 #if ENABLED(DIGIPOT_I2C)
-  #include <Wire.h>
+  #include "I2C.h"
 #endif
 
 #if ENABLED(HAVE_TMCDRIVER)
