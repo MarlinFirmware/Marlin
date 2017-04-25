@@ -78,7 +78,7 @@
 #define MSG_MOVE_1MM                        _UxGT("1mm")                                                        //1mm
 #define MSG_MOVE_10MM                       _UxGT("10mm")                                                       //10mm
 #define MSG_SPEED                           _UxGT("Hız")                                                        //Hız
-#define MSG_BED_Z                           _UxGT("Tabla-Nozül Mesafesi")                                       //Tabla-Nozül Mesafesi
+#define MSG_BED_Z                           _UxGT("Z Mesafesi")                                                 //Z Mesafesi
 #define MSG_NOZZLE                          _UxGT("Nozül")                                                      //Nozül
 #define MSG_BED                             _UxGT("Tabla")                                                      //Tabla
 #define MSG_FAN_SPEED                       _UxGT("Fan Hızı")                                                   //Fan Hızı
