@@ -26,7 +26,7 @@
 
 #include "Stream.h"
 #include "utility/twi.h"
-#include "Wire.h"
+#include "I2C.h"
 
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
 #if MB(5DPRINT)
@@ -41,12 +41,7 @@ static byte current_to_wiper(float current) {
   return byte(ceil(float((DIGIPOT_I2C_FACTOR * current))));
 }
 
-static void i2c_send(byte addr, byte a, byte b) {
-  Wire.beginTransmission(addr);
-  Wire.write(a);
-  Wire.write(b);
-  Wire.endTransmission();
-}
+static void i2c_send(byte addr, byte a, byte b) { I2c.write(addr,a,b); }
 
 // This is for the MCP4451 I2C based digipot
 void digipot_i2c_set_current(int channel, float current) {
@@ -70,7 +65,7 @@ void digipot_i2c_set_current(int channel, float current) {
 
 void digipot_i2c_init() {
   const float digipot_motor_current[] = DIGIPOT_I2C_MOTOR_CURRENTS;
-  Wire.begin();
+  I2c.begin();
   // setup initial currents as defined in Configuration_adv.h
   for (int i = 0; i < COUNT(digipot_motor_current); i++)
     digipot_i2c_set_current(i, digipot_motor_current[i]);
