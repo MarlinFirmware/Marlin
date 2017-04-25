@@ -80,7 +80,7 @@ uint8_t mcp4728_eepromWrite() {
  * Write Voltage reference setting to all input regiters
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
-  return I2c.write(DAC_DEV_ADDRESS, VREFWRITE | (value ? 0x0F : 0x00))
+  return I2c.write(DAC_DEV_ADDRESS, VREFWRITE | (value ? 0x0F : 0x00));
 }
 /**
  * Write Gain setting to all input regiters
