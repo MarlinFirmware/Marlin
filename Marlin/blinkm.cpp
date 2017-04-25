@@ -32,14 +32,16 @@
 #include "blinkm.h"
 
 void SendColors(byte red, byte grn, byte blu) {
-  Wire.begin();
-  Wire.beginTransmission(0x09);
-  Wire.write('o');                    //to disable ongoing script, only needs to be used once
-  Wire.write('n');
-  Wire.write(red);
-  Wire.write(grn);
-  Wire.write(blu);
-  Wire.endTransmission();
+  I2c.begin();
+  uint8_t ary[5];
+  ary[0] = 'o';                    //to disable ongoing script, only needs to be used once
+  ary[1] = 'n';
+  ary[2] = red;
+  ary[3] = grn;
+  ary[4] = blu;
+  uint8_t ary4[4];
+  for (int i=1;i<4;i++){ary4[i-1] = ary[i]};
+  I2c.write(0x09,ary[0],ary4);
 }
 
 #endif //BLINKM
