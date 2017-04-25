@@ -676,14 +676,15 @@ static inline signed char pgm_read_any(const signed char *p) { return pgm_read_b
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
   static const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }; \
-  static inline type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); }
+  static inline type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
+  typedef void __void_##CONFIG##__
 
-XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS)
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS)
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS)
-XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH)
-XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM)
-XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR)
+XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
+XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
+XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
+XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 /**
  * ***************************************************************************
@@ -714,13 +715,13 @@ static void report_current_position();
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
     serialprintPGM(prefix);
-    SERIAL_ECHOPAIR("(", x);
+    SERIAL_CHAR('(');
+    SERIAL_ECHO(x);
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
     SERIAL_CHAR(')');
 
-    if (suffix) serialprintPGM(suffix);
-    else SERIAL_EOL;
+    suffix ? serialprintPGM(suffix) : SERIAL_EOL;
   }
 
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
@@ -11567,47 +11568,46 @@ void prepare_move_to_destination() {
       #ifdef TCCR0A
         case TIMER0A:
         case TIMER0B:
-          //SET_CS(0, val);
+          //_SET_CS(0, val);
           break;
       #endif
       #ifdef TCCR1A
         case TIMER1A:
         case TIMER1B:
-          //SET_CS(1, val);
+          //_SET_CS(1, val);
           break;
       #endif
       #ifdef TCCR2
         case TIMER2:
         case TIMER2:
-          TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-          TCCR2 |= val;
+          _SET_CS(2, val);
           break;
       #endif
       #ifdef TCCR2A
         case TIMER2A:
         case TIMER2B:
-          SET_CS(2, val);
+          _SET_CS(2, val);
           break;
       #endif
       #ifdef TCCR3A
         case TIMER3A:
         case TIMER3B:
         case TIMER3C:
-          SET_CS(3, val);
+          _SET_CS(3, val);
           break;
       #endif
       #ifdef TCCR4A
         case TIMER4A:
         case TIMER4B:
         case TIMER4C:
-          SET_CS(4, val);
+          _SET_CS(4, val);
           break;
       #endif
       #ifdef TCCR5A
         case TIMER5A:
         case TIMER5B:
         case TIMER5C:
-          SET_CS(5, val);
+          _SET_CS(5, val);
           break;
       #endif
     }
