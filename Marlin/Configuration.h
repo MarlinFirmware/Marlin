@@ -479,7 +479,7 @@
  * If fewer factors are given, the last will apply to the rest.
  *
  * Note that if EEPROM is enabled, saved values will override these.
- */
+*/
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -526,6 +526,7 @@
 #define DEFAULT_YJERK                 20.0
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
+
 
 //===========================================================================
 //============================= Z Probe Options =============================
