@@ -42,8 +42,11 @@
 #define MSG_SD_REMOVED                      _UxGT("SD Çıkarıldı.")                                      // SD Çıkarıldı.
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters                // Endstops
 #define MSG_MAIN                            _UxGT("Ana")                                                // Ana
+#define MSG_BACK                            _UxGT("Geri")                                               // Geri
 #define MSG_AUTOSTART                       _UxGT("Otobaşlat")                                          // Otobaşlat
 #define MSG_DISABLE_STEPPERS                _UxGT("Motorları Durdur")                                   // Motorları Durdur
+#define MSG_DEBUG_MENU                      _UxGT("Hata Ayıklama")                                      // Hata Ayıklama
+#define MSG_PROGRESS_BAR_TEST               _UxGT("Durum Çubuğu Testi")                                 // Durum Çubuğu Testi
 #define MSG_AUTO_HOME                       _UxGT("Eksenleri Sıfırla")                                  // Eksenleri Sıfırla
 #define MSG_AUTO_HOME_X                     _UxGT("X Sıfırla")                                          // X Sıfırla
 #define MSG_AUTO_HOME_Y                     _UxGT("Y Sıfırla")                                          // Y Sıfırla
@@ -75,6 +78,8 @@
 #define MSG_RETRACT                         _UxGT("Geri Çek")                                           // Geri Çek
 #define MSG_MOVE_AXIS                       _UxGT("Eksen Yönet")                                        // Eksenleri Yönet
 #define MSG_LEVEL_BED                       _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
+#define MSG_MOVING                          _UxGT("Konumlanıyor...")                                    // Konumlanıyor...
+#define MSG_FREE_XY                         _UxGT("Durdur XY")                                          // Durdur XY
 #define MSG_MOVE_X                          _UxGT("X")                                                  // X
 #define MSG_MOVE_Y                          _UxGT("Y")                                                  // Y
 #define MSG_MOVE_Z                          _UxGT("Z")                                                  // Z
@@ -125,6 +130,7 @@
 #define MSG_FILAMENT                        _UxGT("Filaman")                                            // Filaman
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")                                           // E in mm3
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Çap")                                           // Fil. Çap
+#define MSG_ADVANCE_K                       _UxGT("K İlerlet")                                          // K İlerlet
 #define MSG_CONTRAST                        _UxGT("LCD Kontrast")                                       // LCD Kontrast
 #define MSG_STORE_EEPROM                    _UxGT("Hafızaya Al")                                        // Hafızaya Al
 #define MSG_LOAD_EEPROM                     _UxGT("Hafızadan Yükle")                                    // Hafızadan Yükle
@@ -188,7 +194,8 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Ayarla Y")                                           // Ayarla Y
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Ayarla Z")                                           // Ayarla Z
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Ayarla Merkez")                                      // Ayarla Merkez
-
+#define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Oto Kalibrasyon")                                    // Oto Kalibrasyon
+#define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Delta Yük. Ayarla")                                  // Delta Yük. Ayarla
 #define MSG_INFO_MENU                       _UxGT("Yazıcı Hakkında")                                    // Yazıcı Hakkında
 #define MSG_INFO_PRINTER_MENU               _UxGT("Yazıcı Bilgisi")                                     // Yazıcı Bilgisi
 #define MSG_INFO_STATS_MENU                 _UxGT("İstatistikler")                                      // İstatistikler
@@ -200,7 +207,7 @@
 #define MSG_LIGHTS_ON                       _UxGT("Aydınlatmayı Aç")                                    // Aydınlatmayı Aç
 #define MSG_LIGHTS_OFF                      _UxGT("Aydınlatmayı Kapa")                                  // Aydınlaymayı Kapa
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Baskı Sayısı")                                       // Baskı Sayısı
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Tamamlanan")                                         // Tamamlanan
   #define MSG_INFO_PRINT_TIME               _UxGT("Toplam Baskı Süresi")                                // Toplam Baskı Süresi
@@ -225,6 +232,8 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("Seçenekler:")                                        // Seçenekler:
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Daha Akıt")                                          // Daha Akıt
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Baskıyı sürdür")                                     // Baskıyı sürdür
+#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Sıcaklık")                                      // Min. Sıcaklık:
+#define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozül: ")                                          //   Nozül: 
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
@@ -236,6 +245,10 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Filamanı yükle")                                   // Filamanı yükle
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("ve devam için")                                    // ve devam için
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("tuşa bas...")                                      // tuşa bas...
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Nozülü Isıtmak için")                              // Nozülü Isıtmak için
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("Butona Bas.")                                      // Butona Bas.
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nozül Isınıyor")                                   // Nozül Isınıyor
+  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Lütfen Bekleyin...")                               // Lütfen Bekleyin...
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Bekleniyor")                                       // Bekleniyor
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filamanın yüklenmesi")                             // filamanın yüklenmesi
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Bekleniyor")                                       // Bekleniyor
