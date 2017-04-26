@@ -87,7 +87,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
-#define SHOW_BOOTSCREEN
+//#define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
@@ -919,8 +919,8 @@
   //===========================================================================
 
     #define UBL_MESH_INSET 1         // Mesh inset margin on print area
-    #define UBL_MESH_NUM_X_POINTS 10 // Don't use more than 15 points per axis, implementation limited.
-    #define UBL_MESH_NUM_Y_POINTS 10
+    #define GRID_MAX_POINTS_X 10     // Don't use more than 15 points per axis, implementation limited.
+    #define GRID_MAX_POINTS_Y 10
     #define UBL_PROBE_PT_1_X 39    // These set the probe locations for when UBL does a 3-Point leveling	
     #define UBL_PROBE_PT_1_Y 170   // of the mesh.
     #define UBL_PROBE_PT_2_X 39
