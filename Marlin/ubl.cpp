@@ -27,6 +27,7 @@
 
   #include "ubl.h"
   #include "hex_print_routines.h"
+  #include "temperature.h"
 
   /**
    * These support functions allow the use of large bit arrays of flags that take very
@@ -37,6 +38,8 @@
   void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+
+  int ubl_cnt=0;
 
   static void serial_echo_xy(const uint16_t x, const uint16_t y) {
     SERIAL_CHAR('(');
@@ -50,9 +53,6 @@
   static void serial_echo_12x_spaces() {
     for (uint8_t i = GRID_MAX_POINTS_X - 1; --i;) {
       SERIAL_ECHOPGM("            ");
-      #if TX_BUFFER_SIZE > 0
-        MYSERIAL.flushTX();
-      #endif
       safe_delay(10);
     }
   }
@@ -70,11 +70,13 @@
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
 
-  int8_t unified_bed_leveling::eeprom_start = -1;
+  int16_t unified_bed_leveling::eeprom_start = -1;  // Please stop changing this to 8 bits in size
+                                                    // It needs to hold values bigger than this.
 
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
+    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.
     reset();
   }
 
