@@ -616,12 +616,12 @@ static uint8_t target_extruder;
 float cartes[XYZ] = { 0 };
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404
+  bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
         filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
-  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
-  int filwidth_delay_index[2] = { 0, -1 };  // Indexes into ring buffer
-  int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
+  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1];          // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+  int filwidth_delay_index[2] = { 0, -1 };                      // Indexes into ring buffer
+  int meas_delay_cm = MEASUREMENT_DELAY_CM;                     // Distance delay setting
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -8220,10 +8220,10 @@ inline void gcode_M400() { stepper.synchronize(); }
     NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
     if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
-      int temp_ratio = thermalManager.widthFil_to_size_ratio();
+      const int temp_ratio = thermalManager.widthFil_to_size_ratio() - 100; // -100 to scale within a signed byte
 
       for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
-        measurement_delay[i] = temp_ratio - 100;  // Subtract 100 to scale within a signed byte
+        measurement_delay[i] = temp_ratio;
 
       filwidth_delay_index[0] = filwidth_delay_index[1] = 0;
     }
@@ -10279,7 +10279,7 @@ void process_next_command() {
         case 407:   // M407: Display measured filament diameter
           gcode_M407();
           break;
-      #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
+      #endif // FILAMENT_WIDTH_SENSOR
 
       #if PLANNER_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
