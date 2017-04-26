@@ -1084,7 +1084,7 @@ void Stepper::init() {
   SET_WGM(1, CTC_OCRnA);
 
   // output mode = 00 (disconnected)
-  SET_COMS(1, NORMAL, NORMAL, NORMAL);
+  SET_COMA(1, NORMAL);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
