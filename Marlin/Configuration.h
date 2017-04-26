@@ -479,7 +479,7 @@
  * If fewer factors are given, the last will apply to the rest.
  *
  * Note that if EEPROM is enabled, saved values will override these.
-*/
+ */
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
