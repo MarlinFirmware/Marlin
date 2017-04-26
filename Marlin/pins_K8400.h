@@ -65,4 +65,4 @@
 //
 #undef PS_ON_PIN
 #undef KILL_PIN
-#undef SD_DETECT_PIN
+#undef SD_DETECT_PIN // K8400 has no SD detect pin r. cormier 2017-04-19

@@ -1183,15 +1183,17 @@ inline void get_serial_commands() {
           #if ENABLED(PRINTER_EVENT_LEDS)
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
             set_led_color(0, 255, 0); // Green
-            #if HAS_RESUME_CONTINUE
+            #if HAS_RESUME_CONTINUE && ENABLED(WAIT_FOR_USER_AT_SD_EOF) // added WAIT_FOR_USER_AT_SD_EOF in Config.h
               KEEPALIVE_STATE(PAUSED_FOR_USER);
-              wait_for_user = true;
-              while (wait_for_user) idle();
+              wait_for_user = true; 
+              while (wait_for_user) idle(); // may stop printing before (buffered) last gcode commands executed ; 2017-04-22 r. cormier
               KEEPALIVE_STATE(IN_HANDLER);
             #else
               safe_delay(1000);
             #endif
-            set_led_color(0, 0, 0);   // OFF
+              #if ENABLED(WAIT_FOR_USER_AT_SD_EOF)
+                set_led_color(0, 0, 0);   // OFF
+              #endif
           #endif
           card.checkautostart(true);
         }
@@ -6651,8 +6653,11 @@ inline void gcode_M109() {
   KEEPALIVE_STATE(NOT_BUSY);
 
   #if ENABLED(PRINTER_EVENT_LEDS)
+    #if ENABLED(BINARY_RGB_LED)
+    #else
     const float start_temp = thermalManager.degHotend(target_extruder);
     uint8_t old_blue = 0;
+    #endif
   #endif
 
   do {
@@ -6689,11 +6694,24 @@ inline void gcode_M109() {
     const float temp = thermalManager.degHotend(target_extruder);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
+      #if ENABLED(BINARY_RGB_LED)
+      // change LED strip from blue to red as nozzle heats up
+      uint8_t temp_index=constrain(floor(3.0*temp/target_temp),0,2);
+      switch (temp_index){
+        case 0 : set_led_color(  0,  0,255); // blue
+          break;
+        case 1 : set_led_color(255,  0,255); // magenta
+          break;
+        case 2 : set_led_color(255,  0,  0); // red
+          break;       
+        }
+      #else
       // Gradually change LED strip from violet to red as nozzle heats up
       if (!wants_to_cool) {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
       }
+      #endif
     #endif
 
     #if TEMP_RESIDENCY_TIME > 0
@@ -12163,12 +12181,13 @@ void setup() {
     #if ENABLED(DOGLCD)
       safe_delay(BOOTSCREEN_TIMEOUT);
     #elif ENABLED(ULTRA_LCD)
-      bootscreen();
+      bootscreen(); 
       #if DISABLED(SDSUPPORT)
         lcd_init();
       #endif
     #endif
   #endif
+  
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     // Initialize mixing to 100% color 1
@@ -12193,6 +12212,7 @@ void setup() {
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
   #endif
+
 }
 
 /**
