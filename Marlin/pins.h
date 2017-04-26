@@ -83,6 +83,8 @@
   #include "pins_SANGUINOLOLU_11.h"
 #elif MB(SANGUINOLOLU_12)
   #include "pins_SANGUINOLOLU_12.h"
+#elif MB(ANET_10)
+  #include "pins_ANET_10.h"
 #elif MB(MELZI)
   #include "pins_MELZI.h"
 #elif MB(STB_11)
