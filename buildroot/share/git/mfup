@@ -15,11 +15,6 @@ REPO=${INFO[2]}
 TARG=${INFO[3]}
 OLDBRANCH=${INFO[4]}
 
-if [[ $OLDBRANCH == "(no" ]]; then
-  echo "Branch is unavailable!"
-  exit 1
-fi
-
 case "$#" in
   0 ) BRANCH=$OLDBRANCH ;;
   1 ) BRANCH=$1 ;;

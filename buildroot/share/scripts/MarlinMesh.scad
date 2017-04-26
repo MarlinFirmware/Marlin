@@ -115,7 +115,7 @@ module point_markers(show_home=true) {
           $fn=8;
           rotate([90,0])
             text(str(z), 6, label_font_lg, halign="center", valign="center");
-      
+
           translate([0,0,down?-6:6]) rotate([90,0])
             text(str(down ? "" : "+", v), 3, label_font_sm, halign="center", valign="center");
         }

@@ -255,12 +255,11 @@ static void err_is_counter() {
   SERIAL_PROTOCOLPGM("   non-standard PWM mode");
 }
 static void err_is_interrupt() {
-  SERIAL_PROTOCOLPGM("   compare interrupt enabled ");
+  SERIAL_PROTOCOLPGM("   compare interrupt enabled");
 }
 static void err_prob_interrupt() {
   SERIAL_PROTOCOLPGM("   overflow interrupt enabled");
 }
-static void can_be_used() { SERIAL_PROTOCOLPGM("   can be used as PWM   "); }
 
 void com_print(uint8_t N, uint8_t Z) {
   uint8_t *TCCRA = (uint8_t*) TCCR_A(N);
@@ -325,9 +324,6 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
 }
 
 static void pwm_details(uint8_t pin) {
-  char buffer[20];   // for the sprintf statements
-  uint8_t WGM;
-
   switch(digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
@@ -524,7 +520,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
 
       SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
-    //if (!pwm_status(pin)) SERIAL_ECHOCHAR(' ');    // add padding if it's not a PWM pin
+    //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
     if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
     SERIAL_EOL;
   }

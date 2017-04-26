@@ -106,7 +106,7 @@
 #define MSG_E5STEPS                         _UxGT("E5 pausoak/mm")
 #define MSG_TEMPERATURE                     _UxGT("Tenperatura")
 #define MSG_MOTION                          _UxGT("Mugimendua")
-#define MSG_VOLUMETRIC                      _UxGT("Filament")
+#define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #define MSG_CONTRAST                        _UxGT("LCD kontrastea")

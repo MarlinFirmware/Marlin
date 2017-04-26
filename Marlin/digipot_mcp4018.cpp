@@ -30,7 +30,7 @@
 
 // Settings for the I2C based DIGIPOT (MCP4018) based on WT150
 
-#define DIGIPOT_I2C_ADDRESS             0x2f
+#define DIGIPOT_I2C_ADDRESS             0x2F
 
 #define DIGIPOT_A4988_Rsx               0.250
 #define DIGIPOT_A4988_Vrefmax           5.0

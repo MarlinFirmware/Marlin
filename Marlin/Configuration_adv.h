@@ -633,12 +633,14 @@
    * to a fixed value. Note that using a fixed ratio will lead to wrong nozzle pressures
    * if the slicer is using variable widths or layer heights within one print!
    *
-   * This option sets the default E:D ratio at startup. Use `M905` to override this value.
+   * This option sets the default E:D ratio at startup. Use `M900` to override this value.
    *
-   * Example: `M905 W0.4 H0.2 D1.75`, where:
+   * Example: `M900 W0.4 H0.2 D1.75`, where:
    *   - W is the extrusion width in mm
    *   - H is the layer height in mm
    *   - D is the filament diameter in mm
+   *
+   * Example: `M900 R0.0458` to set the ratio directly.
    *
    * Set to 0 to auto-detect the ratio based on given Gcode G1 print moves.
    *
@@ -664,6 +666,10 @@
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
+
+  // If this is defined, the currently active mesh will be saved in the
+  // current slot on M500.
+  #define UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 // @section extras

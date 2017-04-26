@@ -151,7 +151,7 @@
 #endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
-#define MSG_VOLUMETRIC                      "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
+#define MSG_FILAMENT                        "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #if LCD_WIDTH >= 20
   #define MSG_FILAMENT_DIAM                 "\xcc\xa8\xd7\xd2\xdd\xc4\xc1\xae\xaf\xb9\xb2"                     // "ﾌｨﾗﾒﾝﾄﾁｮｯｹｲ" ("Fil. Dia.")

@@ -164,7 +164,7 @@
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
- *   - Optional support for Repetier Host M163, M164, and virtual extruder.
+ *   - Optional support for Repetier Firmware M163, M164, and virtual extruder.
  *   - This implementation supports only a single extruder.
  *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
  */
@@ -436,8 +436,6 @@
   // and processor overload (too many expensive sqrt calls).
   #define DELTA_SEGMENTS_PER_SECOND 200
 
-  // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
-
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 250.0 // mm
 
@@ -700,7 +698,6 @@
 
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
-
 
 /**
  * Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
