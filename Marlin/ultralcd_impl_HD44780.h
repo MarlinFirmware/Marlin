@@ -530,15 +530,15 @@ void lcd_print(char c) { charset_mapper(c); }
       safe_delay(2000);
     #endif
 
-    /*
     lcd.clear();
 
+    safe_delay(100);
+    
     lcd_set_custom_characters(
       #if ENABLED(LCD_PROGRESS_BAR)
         false
       #endif
     );
-    //*/
   }
 
 #endif // SHOW_BOOTSCREEN
