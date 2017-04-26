@@ -24,15 +24,15 @@
  * Arduino library for MicroChip MCP4728 I2C D/A converter.
  */
 
-#ifndef mcp4728_h
-#define mcp4728_h
+#ifndef DAC_MCP4728_H
+#define DAC_MCP4728_H
 
 #include "MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 #include "Wire.h"
 
-#define defaultVDD     5000
+#define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
 #define BASE_ADDR      0x60
 #define RESET          0B00000110
 #define WAKE           0B00001001
@@ -59,7 +59,8 @@ uint8_t mcp4728_setGain_all(uint8_t value);
 uint16_t mcp4728_getValue(uint8_t channel);
 uint8_t mcp4728_fastWrite();
 uint8_t mcp4728_simpleCommand(byte simpleCommand);
+uint16_t mcp4728_getDrvPct(uint8_t channel);
+void mcp4728_setDrvPct(uint16_t pct[XYZE]);
 
 #endif
-#endif
-
+#endif // DAC_MCP4728_H

@@ -34,8 +34,6 @@
 #ifndef LANGUAGE_CZ_H
 #define LANGUAGE_CZ_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pripraven."
@@ -67,10 +65,6 @@
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " Vse"
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " Podloz"
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " Nast"
-#define MSG_H1                              "1"
-#define MSG_H2                              "2"
-#define MSG_H3                              "3"
-#define MSG_H4                              "4"
 #define MSG_COOLDOWN                        "Zchladit"
 #define MSG_SWITCH_PS_ON                    "Zapnout napajeni"
 #define MSG_SWITCH_PS_OFF                   "Vypnout napajeni"
@@ -82,20 +76,12 @@
 #define MSG_MOVE_Y                          "Posunout Y"
 #define MSG_MOVE_Z                          "Posunout Z"
 #define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_E1                         "1"
-#define MSG_MOVE_E2                         "2"
-#define MSG_MOVE_E3                         "3"
-#define MSG_MOVE_E4                         "4"
 #define MSG_MOVE_01MM                       "Posunout o 0,1mm"
 #define MSG_MOVE_1MM                        "Posunout o 1mm"
 #define MSG_MOVE_10MM                       "Posunout o 10mm"
 #define MSG_SPEED                           "Rychlost"
 #define MSG_BED_Z                           "Vyska podl."
 #define MSG_NOZZLE                          "Tryska"
-#define MSG_N1                              " 1"
-#define MSG_N2                              " 2"
-#define MSG_N3                              " 3"
-#define MSG_N4                              " 4"
 #define MSG_BED                             "Podlozka"
 #define MSG_FAN_SPEED                       "Rychlost vent."
 #define MSG_FLOW                            "Prutok"
@@ -111,19 +97,12 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "Vybrat"
-#define MSG_E1                              " E1"
-#define MSG_E2                              " E2"
-#define MSG_E3                              " E3"
-#define MSG_E4                              " E4"
 #define MSG_ACC                             "Zrychl"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
@@ -138,10 +117,6 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E na mm3"
 #define MSG_FILAMENT_DIAM                   "Fil. Prum."
-#define MSG_DIAM_E1                         " 1"
-#define MSG_DIAM_E2                         " 2"
-#define MSG_DIAM_E3                         " 3"
-#define MSG_DIAM_E4                         " 4"
 #define MSG_CONTRAST                        "Kontrast LCD"
 #define MSG_STORE_EPROM                     "Ulozit nastaveni"
 #define MSG_LOAD_EPROM                      "Nacist nastaveni"
@@ -174,6 +149,8 @@
 #define MSG_INIT_SDCARD                     "Nacist SD kartu"
 #define MSG_CNG_SDCARD                      "Vymenit SD kartu"
 #define MSG_ZPROBE_OUT                      "Sonda Z mimo podl"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch Self-Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch Reset"
 #define MSG_HOME                            "Domu"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "prvni"
 #define MSG_ZPROBE_ZOFFSET                  "Z ofset"
@@ -188,6 +165,7 @@
 #define MSG_ERR_MINTEMP                     "NIZKA TEPLOTA"
 #define MSG_ERR_MAXTEMP_BED                 "VYS. TEPL. PODL."
 #define MSG_ERR_MINTEMP_BED                 "NIZ. TEPL. PODL."
+#define MSG_ERR_Z_HOMING                    "G28 Z ZAKAZANO"
 #define MSG_HALTED                          "TISK. ZASTAVENA"
 #define MSG_PLEASE_RESET                    "Provedte reset"
 #define MSG_SHORT_DAY                       "d"
@@ -210,7 +188,9 @@
 #define MSG_INFO_EXTRUDERS                  "Extrudery"
 #define MSG_INFO_BAUDRATE                   "Rychlost"
 #define MSG_INFO_PROTOCOL                   "Protokol"
-#if LCD_WIDTH > 19
+#define MSG_LIGHTS_ON                       "Osvetleni Zap"
+#define MSG_LIGHTS_OFF                      "Osvetleni Vyp"
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
   #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno"
   #define MSG_INFO_PRINT_TIME               "Celkovy cas"
@@ -226,12 +206,17 @@
 #define MSG_INFO_MIN_TEMP                   "Teplota min"
 #define MSG_INFO_MAX_TEMP                   "Teplota max"
 #define MSG_INFO_PSU                        "Nap. zdroj"
+#define MSG_DRIVE_STRENGTH                  "Buzeni motoru"
+#define MSG_DAC_PERCENT                     "Motor %"
+#define MSG_DAC_EEPROM_WRITE                "Ulozit do EEPROM"
 
 #define MSG_FILAMENT_CHANGE_HEADER          "VYMENA FILAMENTU"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CO DAL?"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Jeste vytlacit"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Obnovit tisk"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte prosim"
   #define MSG_FILAMENT_CHANGE_INIT_2          "na zahajeni"
   #define MSG_FILAMENT_CHANGE_INIT_3          "vymeny filamentu"
@@ -251,6 +236,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "na pokracovani"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "tisku"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Vysouvani..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Vlozte, kliknete"

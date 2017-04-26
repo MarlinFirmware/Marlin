@@ -38,4 +38,4 @@
 #endif
 
 #define IS_RAMPS_13
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"

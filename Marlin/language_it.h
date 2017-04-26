@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
@@ -46,7 +44,7 @@
 #define MSG_AUTO_HOME_Y                     "Home asse Y"
 #define MSG_AUTO_HOME_Z                     "Home asse Z"
 #define MSG_LEVEL_BED_HOMING                "Home assi XYZ"
-#define MSG_LEVEL_BED_WAITING               "Premi per Iniziare"
+#define MSG_LEVEL_BED_WAITING               "Premi per iniziare"
 #define MSG_LEVEL_BED_NEXT_POINT            "Punto successivo"
 #define MSG_LEVEL_BED_DONE                  "Livel. terminato!"
 #define MSG_LEVEL_BED_CANCEL                "Annulla"
@@ -77,11 +75,19 @@
 #define MSG_MOVE_01MM                       "Muovi di 0.1mm"
 #define MSG_MOVE_1MM                        "Muovi di   1mm"
 #define MSG_MOVE_10MM                       "Muovi di  10mm"
-#define MSG_SPEED                           "Velocità"
+#if ENABLED(DOGLCD)
+  #define MSG_SPEED                         "Velocità"
+#else
+  #define MSG_SPEED                         "Velocita"
+#endif
 #define MSG_BED_Z                           "piatto Z"
 #define MSG_NOZZLE                          "Ugello"
 #define MSG_BED                             "Piatto"
-#define MSG_FAN_SPEED                       "Velocità ventola"
+#if ENABLED(DOGLCD)
+  #define MSG_FAN_SPEED                     "Velocità ventola"
+#else
+  #define MSG_FAN_SPEED                     "Velocita ventola"
+#endif
 #define MSG_FLOW                            "Flusso"
 #define MSG_CONTROL                         "Controllo"
 #define MSG_MIN                             LCD_STR_THERMOMETER " Min"
@@ -96,14 +102,11 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "Seleziona"
 #define MSG_ACC                             "Accel"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
@@ -150,8 +153,10 @@
 #define MSG_INIT_SDCARD                     "Iniz. SD-Card"
 #define MSG_CNG_SDCARD                      "Cambia SD-Card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
+#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
+#define MSG_BLTOUCH_RESET                   "Resetta BLTouch"
 #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "first"
+#define MSG_FIRST                           "prima"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
@@ -164,6 +169,7 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP MINIMA"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP MASSIMA PIATTO"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
+#define MSG_ERR_Z_HOMING                    "G28 Z Vietato"
 #define MSG_HALTED                          "STAMPANTE FERMATA"
 #define MSG_PLEASE_RESET                    "Riavviare prego"
 #define MSG_SHORT_DAY                       "g" // One character only
@@ -186,28 +192,44 @@
 #define MSG_INFO_EXTRUDERS                  "Estrusori"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocollo"
-#if LCD_WIDTH > 19
+#define MSG_LIGHTS_ON                       "Luci Case on"
+#define MSG_LIGHTS_OFF                      "Luci Case off"
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
   #define MSG_INFO_COMPLETED_PRINTS         "Completati"
   #define MSG_INFO_PRINT_TIME               "Tempo totale"
-  #define MSG_INFO_PRINT_LONGEST            "Lavoro piu lungo"
+  #if ENABLED(DOGLCD)
+    #define MSG_INFO_PRINT_LONGEST          "Lavoro più lungo"
+  #else
+    #define MSG_INFO_PRINT_LONGEST          "Lavoro piu lungo"
+  #endif
   #define MSG_INFO_PRINT_FILAMENT           "Totale estruso"
 #else
   #define MSG_INFO_PRINT_COUNT              "Stampe"
   #define MSG_INFO_COMPLETED_PRINTS         "Completati"
   #define MSG_INFO_PRINT_TIME               "Durata"
-  #define MSG_INFO_PRINT_LONGEST            "Piu lungo"
+  #if ENABLED(DOGLCD)
+    #define MSG_INFO_PRINT_LONGEST          "Più lungo"
+  #else
+    #define MSG_INFO_PRINT_LONGEST          "Piu lungo"
+  #endif
   #define MSG_INFO_PRINT_FILAMENT           "Estruso"
 #endif
 #define MSG_INFO_MIN_TEMP                   "Temp min"
 #define MSG_INFO_MAX_TEMP                   "Temp max"
 #define MSG_INFO_PSU                        "Alimentatore"
 
+#define MSG_DRIVE_STRENGTH                  "Potenza Drive"
+#define MSG_DAC_PERCENT                     "Driver %"
+#define MSG_DAC_EEPROM_WRITE                "Scrivi DAC EEPROM"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "CAMBIA FILAMENTO"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CAMBIA OPZIONI:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Estrusione"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Riprendi stampa"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere avvio"
   #define MSG_FILAMENT_CHANGE_INIT_2          "del cambio"
   #define MSG_FILAMENT_CHANGE_INIT_3          "di filamento"
@@ -227,6 +249,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "la ripresa"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "della stampa"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Espulsione..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserisci e premi"

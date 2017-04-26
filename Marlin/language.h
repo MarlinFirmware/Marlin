@@ -25,6 +25,9 @@
 
 #include "MarlinConfig.h"
 
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+
 // Fallback if no language is set. DON'T CHANGE
 #ifndef LCD_LANGUAGE
   #define LCD_LANGUAGE en
@@ -67,6 +70,8 @@
 // pt-br_utf8 Portuguese (Brazilian UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// tr         Turkish
+// uk         Ukrainian
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -125,7 +130,7 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID EMERGENCY_PARSER_CAPABILITIES "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
@@ -142,11 +147,14 @@
 #define MSG_Y_MAX                           "y_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
+#define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
 #define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
+#define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
+#define MSG_ERR_PROTECTED_PIN               "Protected Pin"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
@@ -154,6 +162,9 @@
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
 #define MSG_DUPLICATION_MODE                "Duplication mode: "
+#define MSG_SOFT_ENDSTOPS                   "Soft endstops: "
+#define MSG_SOFT_MIN                        "  Min: "
+#define MSG_SOFT_MAX                        "  Max: "
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
@@ -238,7 +249,44 @@
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 #define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
 
+// Never translate these strings
+#define MSG_X "X"
+#define MSG_Y "Y"
+#define MSG_Z "Z"
+#define MSG_E "E"
+#define MSG_H1 "1"
+#define MSG_H2 "2"
+#define MSG_H3 "3"
+#define MSG_H4 "4"
+#define MSG_N1 " 1"
+#define MSG_N2 " 2"
+#define MSG_N3 " 3"
+#define MSG_N4 " 4"
+#define MSG_E1 " E1"
+#define MSG_E2 " E2"
+#define MSG_E3 " E3"
+#define MSG_E4 " E4"
+#define MSG_MOVE_E1 "1"
+#define MSG_MOVE_E2 "2"
+#define MSG_MOVE_E3 "3"
+#define MSG_MOVE_E4 "4"
+#define MSG_DIAM_E1 " 1"
+#define MSG_DIAM_E2 " 2"
+#define MSG_DIAM_E3 " 3"
+#define MSG_DIAM_E4 " 4"
+
 #include INCLUDE_LANGUAGE
+
+#if DISABLED(SIMULATE_ROMFONT) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_1) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_TR)
+  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#endif
+
 #include "language_en.h"
 
 #endif //__LANGUAGE_H

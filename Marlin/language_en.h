@@ -30,11 +30,6 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
-#if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
-  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
-#endif
-
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME " ready."
 #endif
@@ -122,18 +117,6 @@
 #ifndef MSG_PREHEAT_2_SETTINGS
   #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " conf"
 #endif
-#ifndef MSG_H1
-  #define MSG_H1                              "1"
-#endif
-#ifndef MSG_H2
-  #define MSG_H2                              "2"
-#endif
-#ifndef MSG_H3
-  #define MSG_H3                              "3"
-#endif
-#ifndef MSG_H4
-  #define MSG_H4                              "4"
-#endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        "Cooldown"
 #endif
@@ -167,18 +150,6 @@
 #ifndef MSG_MOVE_E
   #define MSG_MOVE_E                          "Extruder"
 #endif
-#ifndef MSG_MOVE_E1
-  #define MSG_MOVE_E1                         "1"
-#endif
-#ifndef MSG_MOVE_E2
-  #define MSG_MOVE_E2                         "2"
-#endif
-#ifndef MSG_MOVE_E3
-  #define MSG_MOVE_E3                         "3"
-#endif
-#ifndef MSG_MOVE_E4
-  #define MSG_MOVE_E4                         "4"
-#endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       "Move 0.1mm"
 #endif
@@ -196,18 +167,6 @@
 #endif
 #ifndef MSG_NOZZLE
   #define MSG_NOZZLE                          "Nozzle"
-#endif
-#ifndef MSG_N1
-  #define MSG_N1                              " 1"
-#endif
-#ifndef MSG_N2
-  #define MSG_N2                              " 2"
-#endif
-#ifndef MSG_N3
-  #define MSG_N3                              " 3"
-#endif
-#ifndef MSG_N4
-  #define MSG_N4                              " 4"
 #endif
 #ifndef MSG_BED
   #define MSG_BED                             "Bed"
@@ -254,23 +213,14 @@
 #ifndef MSG_SELECT
   #define MSG_SELECT                          "Select"
 #endif
-#ifndef MSG_E1
-  #define MSG_E1                              " E1"
-#endif
-#ifndef MSG_E2
-  #define MSG_E2                              " E2"
-#endif
-#ifndef MSG_E3
-  #define MSG_E3                              " E3"
-#endif
-#ifndef MSG_E4
-  #define MSG_E4                              " E4"
-#endif
 #ifndef MSG_ACC
   #define MSG_ACC                             "Accel"
 #endif
-#ifndef MSG_VXY_JERK
-  #define MSG_VXY_JERK                        "Vxy-jerk"
+#ifndef MSG_VX_JERK
+  #define MSG_VX_JERK                         "Vx-jerk"
+#endif
+#ifndef MSG_VY_JERK
+  #define MSG_VY_JERK                         "Vy-jerk"
 #endif
 #ifndef MSG_VZ_JERK
   #define MSG_VZ_JERK                         "Vz-jerk"
@@ -280,18 +230,6 @@
 #endif
 #ifndef MSG_VMAX
   #define MSG_VMAX                            "Vmax "
-#endif
-#ifndef MSG_X
-  #define MSG_X                               "X"
-#endif
-#ifndef MSG_Y
-  #define MSG_Y                               "Y"
-#endif
-#ifndef MSG_Z
-  #define MSG_Z                               "Z"
-#endif
-#ifndef MSG_E
-  #define MSG_E                               "E"
 #endif
 #ifndef MSG_VMIN
   #define MSG_VMIN                            "Vmin"
@@ -334,18 +272,6 @@
 #endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   "Fil. Dia."
-#endif
-#ifndef MSG_DIAM_E1
-  #define MSG_DIAM_E1                         " 1"
-#endif
-#ifndef MSG_DIAM_E2
-  #define MSG_DIAM_E2                         " 2"
-#endif
-#ifndef MSG_DIAM_E3
-  #define MSG_DIAM_E3                         " 3"
-#endif
-#ifndef MSG_DIAM_E4
-  #define MSG_DIAM_E4                         " 4"
 #endif
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        "LCD contrast"
@@ -443,6 +369,12 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #endif
+#ifndef MSG_BLTOUCH_SELFTEST
+  #define MSG_BLTOUCH_SELFTEST                "BLTouch Self-Test"
+#endif
+#ifndef MSG_BLTOUCH_RESET
+  #define MSG_BLTOUCH_RESET                   "Reset BLTouch"
+#endif
 #ifndef MSG_HOME
   #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #endif
@@ -484,6 +416,9 @@
 #endif
 #ifndef MSG_ERR_MINTEMP_BED
   #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
+#endif
+#ifndef MSG_ERR_Z_HOMING
+  #define MSG_ERR_Z_HOMING                    "G28 Z Forbidden"
 #endif
 #ifndef MSG_HALTED
   #define MSG_HALTED                          "PRINTER HALTED"
@@ -552,8 +487,14 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   "Protocol"
 #endif
+#ifndef MSG_LIGHTS_ON
+  #define MSG_LIGHTS_ON                       "Case light on"
+#endif
+#ifndef MSG_LIGHTS_OFF
+  #define MSG_LIGHTS_OFF                      "Case light off"
+#endif
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif
@@ -597,6 +538,15 @@
   #define MSG_INFO_PSU                        "Power Supply"
 #endif
 
+#ifndef MSG_DRIVE_STRENGTH
+  #define MSG_DRIVE_STRENGTH                  "Drive Strength"
+#endif
+#ifndef MSG_DAC_PERCENT
+  #define MSG_DAC_PERCENT                     "Driver %"
+#endif
+#ifndef MSG_DAC_EEPROM_WRITE
+  #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+#endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER
   #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #endif
@@ -609,60 +559,37 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 #endif
+
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
 #if LCD_HEIGHT >= 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_2
     #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_3
     #define MSG_FILAMENT_CHANGE_INIT_3          "change"
   #endif
   #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
     #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_2
     #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_3
-    #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_2
     #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_3
     #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_2
     #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_3
-    #define MSG_FILAMENT_CHANGE_LOAD_3          ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
     #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_2
     #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_3
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_2
     #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_3
-    #define MSG_FILAMENT_CHANGE_RESUME_3        ""
   #endif
 #else // LCD_HEIGHT < 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1

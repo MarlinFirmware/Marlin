@@ -24,4 +24,4 @@
  * Conditionals.h
  * OBSOLETE: Replaced by Conditionals_LCD.h and Conditionals_post.h
  */
-#include "SanityCheck.h"
+#error "Old configurations? Please delete all #include lines from Configuration.h and Configuration_adv.h."

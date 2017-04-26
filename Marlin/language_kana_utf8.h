@@ -32,8 +32,6 @@
 #define LANGUAGE_KANA_UTF_H
 
 #define MAPPER_E382E383
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // This just to show the potential benefit of unicode.
@@ -102,14 +100,11 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "センタク"                     // "Select"
 #define MSG_ACC                             "カソクド mm/s2"               // "Accel"
-#define MSG_VXY_JERK                        "XYジク ヤクド mm/s"            // "Vxy-jerk"
+#define MSG_VX_JERK                         "Xジク ヤクド mm/s"             // "Vx-jerk"
+#define MSG_VY_JERK                         "Yジク ヤクド mm/s"             // "Vy-jerk"
 #define MSG_VZ_JERK                         "Zジク ヤクド mm/s"             // "Vz-jerk"
 #define MSG_VE_JERK                         "エクストルーダー ヤクド"          // "Ve-jerk"
 #define MSG_VMAX                            "サイダイオクリソクド "            // "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "サイショウオクリソクド"           // "Vmin"
 #define MSG_VTRAV_MIN                       "サイショウイドウソクド"           // "VTrav min"
 #define MSG_AMAX                            "サイダイカソクド "              // "Amax "
@@ -156,6 +151,8 @@
 #define MSG_INIT_SDCARD                     "SDカードサイヨミコミ"             // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SDカードコウカン"               // "Change SD card"
 #define MSG_ZPROBE_OUT                      "Zプローブ ベッドガイ"            // "Z probe out. bed"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch ジコシンダン"          // "BLTouch Self-Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch リセット"             // "Reset BLTouch"
 #define MSG_HOME                            "サキニ"                      // "Home" // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "ヲフッキサセテクダサイ"           // "first"
 #define MSG_ZPROBE_ZOFFSET                  "Zオフセット"                   // "Z Offset"
@@ -170,6 +167,7 @@
 #define MSG_ERR_MINTEMP                     "エラー:サイテイオンミマン"          // "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 "エラー:ベッド サイコウオンチョウカ"    // "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 "エラー:ベッド サイテイオンミマン"     // "Err: MINTEMP BED"
+#define MSG_ERR_Z_HOMING                    MSG_HOME " " MSG_X MSG_Y " " MSG_FIRST // "G28 Z Forbidden"
 #define MSG_HALTED                          "プリンターハテイシシマシタ"         // "PRINTER HALTED"
 #define MSG_PLEASE_RESET                    "リセットシテクダサイ"              // "Please reset"
 #define MSG_SHORT_DAY                       "d"                          // One character only
@@ -192,7 +190,9 @@
 #define MSG_INFO_EXTRUDERS                  "エクストルーダースウ"             // "Extruders"
 #define MSG_INFO_BAUDRATE                   "ボーレート"                    // "Baud"
 #define MSG_INFO_PROTOCOL                   "プロトコル"                    // "Protocol"
-#define MSG_INFO_PRINT_COUNT                "プリントスウ   "                // "Print Count"
+#define MSG_LIGHTS_ON                       "キョウタイナイショウメイ オン"       // "Case light on"
+#define MSG_LIGHTS_OFF                      "キョウタイナイショウメイ オフ"       // "Case light off"
+#define MSG_INFO_PRINT_COUNT                "プリントスウ "                  // "Print Count"
 #define MSG_INFO_COMPLETED_PRINTS           "カンリョウスウ"                  // "Completed"
 #define MSG_INFO_PRINT_TIME                 "プリントジカンルイケイ"            // "Total print time"
 #define MSG_INFO_PRINT_LONGEST              "サイチョウプリントジカン"           // "Longest job time"
@@ -200,27 +200,24 @@
 #define MSG_INFO_MIN_TEMP                   "セッテイサイテイオン"              // "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "セッテイサイコウオン"              // "Max Temp"
 #define MSG_INFO_PSU                        "デンゲンシュベツ"                // "Power Supply"
+#define MSG_DRIVE_STRENGTH                  "モータークドウリョク"              // "Drive Strength"
+#define MSG_DAC_PERCENT                     "DACシュツリョク %"               // "Driver %"
+#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EPROM              // "DAC EEPROM Write"
 #define MSG_FILAMENT_CHANGE_HEADER          "フィラメントコウカン"              // "CHANGE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "ドウサヲセンタクシテクダサイ"        // "CHANGE OPTIONS:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "サラニオシダス"                 // "Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "プリントサイカイ"                // "Resume print"
 #define MSG_FILAMENT_CHANGE_INIT_1          "コウカンヲカイシシマス"            // "Wait for start"
 #define MSG_FILAMENT_CHANGE_INIT_2          "シバラクオマチクダサイ"            // "of the filament"
-#define MSG_FILAMENT_CHANGE_INIT_3          ""                           // "change"
 #define MSG_FILAMENT_CHANGE_UNLOAD_1        "フィラメントヌキダシチュウ"          // "Wait for"
 #define MSG_FILAMENT_CHANGE_UNLOAD_2        "シバラクオマチクダサイ"            // "filament unload"
-#define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
 #define MSG_FILAMENT_CHANGE_INSERT_1        "フィラメントヲソウニュウシ,"         // "Insert filament"
 #define MSG_FILAMENT_CHANGE_INSERT_2        "クリックスルトゾッコウシマス"         // "and press button"
-#define MSG_FILAMENT_CHANGE_INSERT_3        ""                           // "to continue..."
 #define MSG_FILAMENT_CHANGE_LOAD_1          "フィラメントソウテンチュウ"          // "Wait for"
 #define MSG_FILAMENT_CHANGE_LOAD_2          "シバラクオマチクダサイ"            // "filament load"
-#define MSG_FILAMENT_CHANGE_LOAD_3          ""
 #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "フィラメントオシダシチュウ"          // "Wait for"
 #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "シバラクオマチクダサイ"            // "filament extrude"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
 #define MSG_FILAMENT_CHANGE_RESUME_1        "プリントヲサイカイシマス"           // "Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        "シバラクオマチクダサイ"            // "to resume"
-#define MSG_FILAMENT_CHANGE_RESUME_3        ""
 
 #endif // LANGUAGE_KANA_UTF_H

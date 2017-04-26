@@ -24,18 +24,31 @@
  * FELIXprinters v2.0/3.0 (RAMPS v1.4) pin assignments
  */
 
+#if HOTENDS > 2
+  #error "Felix 2.0+ supports up to 2 hotends. Comment this line to keep going."
+#endif
+
 #define BOARD_NAME "Felix 2.0+"
 
-#include "pins_RAMPS_14_EFB.h"
+//
+// Heaters / Fans
+//
+// Power outputs EFBF or EFBE
+#define MOSFET_D_PIN 7
 
-#undef HEATER_1_PIN
-#define HEATER_1_PIN        7 // EXTRUDER 2
+#include "pins_RAMPS.h"
 
+//
+// Misc. Functions
+//
 #undef SDPOWER
 #define SDPOWER             1
 
 #define PS_ON_PIN          12
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   #define SD_DETECT_PIN 6
