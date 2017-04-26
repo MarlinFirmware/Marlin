@@ -8488,6 +8488,10 @@ inline void gcode_M503() {
       #else
         UNUSED(no_babystep);
       #endif
+ 
+      #if ENABLED(DELTA) // correct the delta_height
+        home_offset[Z_AXIS] -= diff;
+      #endif
     }
 
     last_zoffset = zprobe_zoffset;
