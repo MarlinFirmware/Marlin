@@ -26,11 +26,10 @@
 #include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-
   #include "Marlin.h"
+  #include "planner.h"
   #include "math.h"
   #include "vector_3.h"
-  #include "planner.h"
 
   #define UBL_VERSION "1.00"
   #define UBL_OK false
@@ -49,10 +48,8 @@
   void debug_current_and_destination(const char * const title);
   void ubl_line_to_destination(const float&, uint8_t);
   void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
-  vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
   float measure_business_card_thickness(const float&);
   mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
-  void find_mean_mesh_height();
   void shift_mesh_height();
   bool g29_parameter_parsing();
   void g29_what_command();
@@ -67,10 +64,8 @@
   void gcode_G26();
   void gcode_G28();
   void gcode_G29();
-  extern char conv[9];
 
-  void save_ubl_active_state_and_disable();
-  void restore_ubl_active_state_and_leave();
+  extern int ubl_cnt;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +74,6 @@
     void lcd_quick_feedback();
   #endif
 
-  enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_ACTIVE_BIT = 1 };
 
   #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
   #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
@@ -96,6 +90,43 @@
       static float last_specified_z;
 
     public:
+
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
+      void find_mean_mesh_height();
+      void shift_mesh_height();
+      void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
+      void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
+      void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
+      void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
+      void save_ubl_active_state_and_disable();
+      void restore_ubl_active_state_and_leave();
+      void g29_what_command(); 
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
+      void g29_eeprom_dump() ;
+      void g29_compare_current_mesh_to_stored_mesh();
+      void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map);
+      void smart_fill_mesh();
+      void display_map(const int);
+      void reset();
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
+      void invalidate();
+      void store_state();
+      void load_state();
+      void store_mesh(const int16_t);
+      void load_mesh(const int16_t);
+      bool sanity_check();
 
       static ubl_state state;
 
@@ -125,32 +156,27 @@
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
 
-      static int8_t eeprom_start;
+      static int16_t eeprom_start;    // Please do no change this to 8 bits in size
+                                      // It needs to hold values bigger than this.
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
       unified_bed_leveling();
 
-      static void display_map(const int);
-
-      static void reset();
-      static void invalidate();
-
-      static void store_mesh(const int16_t);
-      static void load_mesh(const int16_t);
-
-      static bool sanity_check();
-
-      static FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
-
-      static int8_t get_cell_index_x(const float &x) {
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
+      FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
+        int8_t get_cell_index_x(const float &x) {
         const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
         return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
       }                                                     // position. But with this defined this way, it is possible
                                                             // to extrapolate off of this point even further out. Probably
                                                             // that is OK because something else should be keeping that from
                                                             // happening and should not be worried about at this level.
-      static int8_t get_cell_index_y(const float &y) {
+      int8_t get_cell_index_y(const float &y) {
         const int8_t cy = (y - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
         return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
       }                                                     // position. But with this defined this way, it is possible
@@ -158,12 +184,17 @@
                                                             // that is OK because something else should be keeping that from
                                                             // happening and should not be worried about at this level.
 
-      static int8_t find_closest_x_index(const float &x) {
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
+      int8_t find_closest_x_index(const float &x) {
         const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
         return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
       }
 
-      static int8_t find_closest_y_index(const float &y) {
+      int8_t find_closest_y_index(const float &y) {
         const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
         return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
       }
@@ -183,15 +214,20 @@
        *  It is fairly expensive with its 4 floating point additions and 2 floating point
        *  multiplications.
        */
-      static FORCE_INLINE float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
+      FORCE_INLINE float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
         return z1 + (z2 - z1) * (a0 - a1) / (a2 - a1);
       }
+//
+// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
+// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
+// functions that call STATIC functions.
+//
 
       /**
        * z_correction_for_x_on_horizontal_mesh_line is an optimization for
        * the rare occasion when a point lies exactly on a Mesh line (denoted by index yi).
        */
-      static inline float z_correction_for_x_on_horizontal_mesh_line(const float &lx0, const int x1_i, const int yi) {
+      inline float z_correction_for_x_on_horizontal_mesh_line(const float &lx0, const int x1_i, const int yi) {
         if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
           SERIAL_ECHOPAIR("? in z_correction_for_x_on_horizontal_mesh_line(lx0=", lx0);
           SERIAL_ECHOPAIR(",x1_i=", x1_i);
@@ -210,7 +246,7 @@
       //
       // See comments above for z_correction_for_x_on_horizontal_mesh_line
       //
-      static inline float z_correction_for_y_on_vertical_mesh_line(const float &ly0, const int xi, const int y1_i) {
+      inline float z_correction_for_y_on_vertical_mesh_line(const float &ly0, const int xi, const int y1_i) {
         if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
           SERIAL_ECHOPAIR("? in get_z_correction_along_vertical_mesh_line_at_specific_x(ly0=", ly0);
           SERIAL_ECHOPAIR(", x1_i=", xi);
@@ -232,7 +268,7 @@
        * Z-Height at both ends. Then it does a linear interpolation of these heights based
        * on the Y position within the cell.
        */
-      static float get_z_correction(const float &lx0, const float &ly0) {
+      float get_z_correction(const float &lx0, const float &ly0) {
         const int8_t cx = get_cell_index_x(RAW_X_POSITION(lx0)),
                      cy = get_cell_index_y(RAW_Y_POSITION(ly0));
 
@@ -308,7 +344,7 @@
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        static FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
           if (planner.z_fade_height == 0.0) return 1.0;
 
           static float fade_scaling_factor = 1.0;
