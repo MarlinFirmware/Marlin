@@ -624,7 +624,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER 38     // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -9.65  // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.1  // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 7500
@@ -778,7 +778,7 @@
 #define Y_MIN_POS 3
 #define Z_MIN_POS 0
 #define X_MAX_POS 207
-#define Y_MAX_POS 177
+#define Y_MAX_POS 182
 #define Z_MAX_POS 175
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 //#define MIN_SOFTWARE_ENDSTOPS
