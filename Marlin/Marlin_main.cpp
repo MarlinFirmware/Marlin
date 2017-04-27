@@ -11193,8 +11193,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS])) return true;
 
     // Get the cartesian distances moved in XYZE
-    float difference[XYZE];
-    LOOP_XYZE(i) difference[i] = ltarget[i] - current_position[i];
+    const float difference[XYZE] = {
+      ltarget[X_AXIS] - current_position[X_AXIS],
+      ltarget[Y_AXIS] - current_position[Y_AXIS],
+      ltarget[Z_AXIS] - current_position[Z_AXIS],
+      ltarget[E_AXIS] - current_position[E_AXIS]
+    };
 
     // Get the linear distance in XYZ
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
