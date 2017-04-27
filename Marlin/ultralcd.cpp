@@ -705,7 +705,7 @@ void kill_screen(const char* lcd_msg) {
         thermalManager.autotempShutdown();
       #endif
       wait_for_heatup = false;
-      lcd_setstatuspgm(PSTR(MSG_PRINT_ABORTED), true);
+      LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
     }
 
   #endif // SDSUPPORT
@@ -2725,7 +2725,7 @@ void kill_screen(const char* lcd_msg) {
 
         START_SCREEN();                                                                                // 12345678901234567890
         STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));          // Print Count: 999
-        STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints)); // Completed  : 666
+        STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints));   // Completed  : 666
 
         duration_t elapsed = stats.printTime;
         elapsed.toString(buffer);
