@@ -1456,5 +1456,4 @@
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
 #endif
-
-// CONFIGURATION_H
+ // CONFIGURATION_H
