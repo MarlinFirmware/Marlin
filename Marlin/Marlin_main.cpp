@@ -2065,7 +2065,49 @@ static void clean_up_after_endstop_or_probe_move() {
       safe_delay(BLTOUCH_DELAY);
     }
 
+    // 
+    // The BL-Touch probes have a HAL effect sensor.  The high currents switching
+    // on and off cause big magnetic fields that can affect the reliability of the
+    // sensor.  So, for BL-Touch probes, we turn off the heaters during the actual probe.
+    // And then we quickly turn them back on after we have sampled the point
+    //
+    void turn_heaters_on_or_off_for_bltouch(const bool deploy) {
+      static int8_t bltouch_recursion_cnt=0;
+      static millis_t last_emi_protection=0;
+      static float temps_at_entry[HOTENDS]; 
+      #if HAS_TEMP_BED
+        static float bed_temp_at_entry;
+      #endif
+
+      if (deploy && bltouch_recursion_cnt>0)         // if already in the correct state, we don't need to do anything
+        return;                                      // with the heaters.
+      if (!deploy && bltouch_recursion_cnt<1)        // if already in the correct state, we don't need to do anything
+        return;                                      // with the heaters.
+
+      if (deploy) {
+        bltouch_recursion_cnt++;
+        last_emi_protection = millis();
+        HOTEND_LOOP() temps_at_entry[e] = thermalManager.degTargetHotend(e);        // save the current target temperatures 
+        HOTEND_LOOP() thermalManager.setTargetHotend(0, e);                         // so we know what to restore them to.
+
+        #if HAS_TEMP_BED
+          bed_temp_at_entry = thermalManager.degTargetBed();
+          thermalManager.setTargetBed(0.0);
+        #endif
+      } 
+      else {
+        bltouch_recursion_cnt--;                                                    // the heaters are only turned back on
+	if (bltouch_recursion_cnt==0 && ((last_emi_protection+20000L)>millis())) {  // if everything is perfect.  It is expected
+          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);       // that the bltouch_recursion_cnt is zero and 
+          #if HAS_TEMP_BED                                                          // that the heaters were shut off less than 
+            thermalManager.setTargetBed(bed_temp_at_entry);                         // 20 seconds ago
+          #endif
+        }
+      }
+    }
+
     void set_bltouch_deployed(const bool deploy) {
+      turn_heaters_on_or_off_for_bltouch(deploy);
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    // try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
@@ -2098,6 +2140,10 @@ static void clean_up_after_endstop_or_probe_move() {
         DEBUG_POS("set_probe_deployed", current_position);
         SERIAL_ECHOLNPAIR("deploy: ", deploy);
       }
+    #endif
+
+    #if ENABLED(BLTOUCH)
+      turn_heaters_on_or_off_for_bltouch(deploy);
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
