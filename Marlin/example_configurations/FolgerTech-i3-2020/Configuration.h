@@ -87,7 +87,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
-//#define SHOW_BOOTSCREEN
+#define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
@@ -347,7 +347,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -569,8 +569,8 @@
  *   NUM_SERVOS also needs to be set.  This is found later in this file.  Set it to
  *   1 + the number of other servos in your system.
  */
-//#define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
-//#define Z_SERVO_ANGLES {70,0}  // Z Servo Deploy and Stow angles
+#define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
+#define Z_SERVO_ANGLES {40,85}  // Z Servo Deploy and Stow angles
 
  /**
  *   The BLTouch probe emulates a servo probe.
@@ -622,9 +622,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 38     // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -9.65  // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 7500
@@ -695,7 +695,6 @@
 //#define Z_MIN_PROBE_ENDSTOP
 
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
 #define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -775,11 +774,11 @@
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS 6
+#define Y_MIN_POS 3
 #define Z_MIN_POS 0
-#define X_MAX_POS 203
-#define Y_MAX_POS 180
+#define X_MAX_POS 207
+#define Y_MAX_POS 177
 #define Z_MAX_POS 175
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 //#define MIN_SOFTWARE_ENDSTOPS
@@ -921,12 +920,12 @@
     #define UBL_MESH_INSET 1         // Mesh inset margin on print area
     #define GRID_MAX_POINTS_X 10     // Don't use more than 15 points per axis, implementation limited.
     #define GRID_MAX_POINTS_Y 10
-    #define UBL_PROBE_PT_1_X 39    // These set the probe locations for when UBL does a 3-Point leveling	
+    #define UBL_PROBE_PT_1_X 45    // These set the probe locations for when UBL does a 3-Point leveling	
     #define UBL_PROBE_PT_1_Y 170   // of the mesh.
-    #define UBL_PROBE_PT_2_X 39
-    #define UBL_PROBE_PT_2_Y 20
+    #define UBL_PROBE_PT_2_X 45
+    #define UBL_PROBE_PT_2_Y 25
     #define UBL_PROBE_PT_3_X 180
-    #define UBL_PROBE_PT_3_Y 20
+    #define UBL_PROBE_PT_3_Y 25
     #define UBL_G26_MESH_EDITING     // Enable G26 mesh editing
 #elif ENABLED(MESH_BED_LEVELING)
 
