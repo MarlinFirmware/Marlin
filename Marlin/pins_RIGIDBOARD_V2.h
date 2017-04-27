@@ -32,8 +32,10 @@
 //
 // Steppers
 //
+
 // I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
+
 // Channels available for DAC, For Rigidboard there are 4
 #define DAC_STEPPER_ORDER { 0, 1, 2, 3 }
 
@@ -44,3 +46,7 @@
 #define DAC_STEPPER_GAIN     1 // value of 1 here sets gain of 2
 #define DAC_DISABLE_PIN     42 // set low to enable DAC
 #define DAC_OR_ADDRESS    0x01
+
+#ifndef DAC_MOTOR_CURRENT_DEFAULT
+  #define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
+#endif
