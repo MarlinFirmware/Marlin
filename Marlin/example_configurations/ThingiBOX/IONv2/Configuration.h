@@ -1457,4 +1457,4 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
-#endif // CONFIGURATION_H
+// CONFIGURATION_H
