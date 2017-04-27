@@ -1811,8 +1811,8 @@ void kill_screen(const char* lcd_msg) {
       current_position[Z_AXIS] = max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5;
       line_to_current(Z_AXIS);
 
-      current_position[X_AXIS] = a < 0 ? LOGICAL_X_POSITION(X_HOME_POS) : sin(a) * -(delta_calibration_radius);
-      current_position[Y_AXIS] = a < 0 ? LOGICAL_Y_POSITION(Y_HOME_POS) : cos(a) *  (delta_calibration_radius);
+      current_position[X_AXIS] = a < 0 ? LOGICAL_X_POSITION(X_HOME_POS) : cos(RADIANS(a)) * delta_calibration_radius;
+      current_position[Y_AXIS] = a < 0 ? LOGICAL_Y_POSITION(Y_HOME_POS) : sin(RADIANS(a)) * delta_calibration_radius;
       line_to_current(Z_AXIS);
 
       current_position[Z_AXIS] = 4.0;
@@ -1824,9 +1824,9 @@ void kill_screen(const char* lcd_msg) {
       lcd_goto_screen(lcd_move_z);
     }
 
-    void _goto_tower_x() { _goto_tower_pos(RADIANS(120)); }
-    void _goto_tower_y() { _goto_tower_pos(RADIANS(240)); }
-    void _goto_tower_z() { _goto_tower_pos(0); }
+    void _goto_tower_x() { _goto_tower_pos(210); }
+    void _goto_tower_y() { _goto_tower_pos(330); }
+    void _goto_tower_z() { _goto_tower_pos(90); }
     void _goto_center()  { _goto_tower_pos(-1); }
 
     void lcd_delta_calibrate_menu() {
