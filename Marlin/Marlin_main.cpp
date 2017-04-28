@@ -2110,7 +2110,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_bltouch_deployed(const bool deploy) {
       #if ENABLED(BLTOUCH_HEATERS_OFF)
-      turn_heaters_on_or_off_for_bltouch(deploy);
+        turn_heaters_on_or_off_for_bltouch(deploy);
       #endif
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    // try to reset it.
@@ -2146,10 +2146,8 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    #if ENABLED(BLTOUCH)
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
+    #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
       turn_heaters_on_or_off_for_bltouch(deploy);
-      #endif
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
