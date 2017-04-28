@@ -87,13 +87,13 @@ void safe_delay(millis_t ms) {
         conv[5] = DIGIMOD(xx, 10);
       }
       else {
+        conv[3] = ' ';
         conv[4] = ' ';
         if (xx >= 10) {
           conv[4] = neg ? '-' : ' ';
           conv[5] = DIGIMOD(xx, 10);
         }
         else {
-          conv[4] = ' ';
           conv[5] = neg ? '-' : ' ';
         }
       }
