@@ -576,7 +576,8 @@
  *   with the possible exception of Z_ENDSTOP_SERVO_NR.
  */
 //#define BLTOUCH
-//#define BLTOUCH_DELAY 375 // (ms) Enable and increase if needed
+//#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+//#define BLTOUCH_HEATERS_OFF // if defined the printer's heaters are turned off during probe event
 
 /**
  *   BLTouch WARNING  -  ONLY APPLIES TO VERSIONS OF MARLIN BEFORE 15 FEB 2017

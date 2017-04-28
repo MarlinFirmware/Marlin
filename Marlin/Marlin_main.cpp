@@ -2067,10 +2067,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // 
     // The BL-Touch probes have a HAL effect sensor.  The high currents switching
-    // on and off cause big magnetic fields that can affect the reliability of the
+    // on and off cause big magnetic fields that can affect the repeatability of the
     // sensor.  So, for BL-Touch probes, we turn off the heaters during the actual probe.
     // And then we quickly turn them back on after we have sampled the point
     //
+  #if ENABLED(BLTOUCH_HEATERS_OFF)
     void turn_heaters_on_or_off_for_bltouch(const bool deploy) {
       static int8_t bltouch_recursion_cnt=0;
       static millis_t last_emi_protection=0;
@@ -2105,9 +2106,12 @@ static void clean_up_after_endstop_or_probe_move() {
         }
       }
     }
+    #endif
 
     void set_bltouch_deployed(const bool deploy) {
+      #if ENABLED(BLTOUCH_HEATERS_OFF)
       turn_heaters_on_or_off_for_bltouch(deploy);
+      #endif
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    // try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
@@ -2143,7 +2147,9 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     #if ENABLED(BLTOUCH)
+      #if ENABLED(BLTOUCH_HEATERS_OFF)
       turn_heaters_on_or_off_for_bltouch(deploy);
+      #endif
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
