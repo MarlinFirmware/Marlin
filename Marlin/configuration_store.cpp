@@ -1066,7 +1066,7 @@ void MarlinSettings::reset() {
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
-                dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+                dta[2] = DELTA_TOWER_ANGLE_TRIM;
     COPY(endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
