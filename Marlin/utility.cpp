@@ -31,7 +31,7 @@ void safe_delay(millis_t ms) {
     thermalManager.manage_heater();
   }
   delay(ms);
-  thermalManager.manage_heater();	// This keeps us safe if too many small safe_delay() calls are made
+  thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
 #if ENABLED(ULTRA_LCD)

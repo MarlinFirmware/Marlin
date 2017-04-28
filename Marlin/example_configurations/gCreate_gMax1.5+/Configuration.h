@@ -133,8 +133,8 @@
 //#define MOTHERBOARD BOARD_RAMPS_14_EEF
   #define MOTHERBOARD BOARD_RAMPS_14_EFB       // gMax users please note:  This is a Roxy modification.   I print on glass and
                                                // I use Marlin to control the bed's temperature.  So, if you have a single nozzle
-                                               // machine, this will work fine for you.  You just set the 
-                                               // #define TEMP_SENSOR_BED 75 to 0 down below so Marlin doesn't mess with the bed 
+                                               // machine, this will work fine for you.  You just set the
+                                               // #define TEMP_SENSOR_BED 75 to 0 down below so Marlin doesn't mess with the bed
                                                // temp.
 #endif
 
@@ -261,8 +261,8 @@
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_BED 75   // gMax-1.5+ users please note:   This is a Roxy modification to the printer.   I want
-                             // to print on glass.   And I'm using a 400mm x 400mm silicon heat pad powered through 
-                             // a Fortek SSR to do it.   If you are using an unaltered gCreate machine, this needs 
+                             // to print on glass.   And I'm using a 400mm x 400mm silicon heat pad powered through
+                             // a Fortek SSR to do it.   If you are using an unaltered gCreate machine, this needs
                              // to be set to 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -325,12 +325,12 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  
+
   // gMax J-Head
     #define  DEFAULT_Kp 15.35
     #define  DEFAULT_Ki 0.85
     #define  DEFAULT_Kd 69.45
-    
+
   // Ultimaker
 //  #define  DEFAULT_Kp 22.2
 //  #define  DEFAULT_Ki 1.08
@@ -793,7 +793,7 @@
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS 420		// These numbers are not accurate for an unaltered gMax 1.5+ printer.  My print bed
-#define Y_MAX_POS 420		// is inset a noticable amount from the edge of the bed.  Combined with the inset, 
+#define Y_MAX_POS 420		// is inset a noticable amount from the edge of the bed.  Combined with the inset,
                                 // the nozzle can reach all cordinates of the mesh.
 #define Z_MAX_POS 500
 

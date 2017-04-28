@@ -316,8 +316,7 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  
-    
+
   // FolgerTech i3-2020
   #define  DEFAULT_Kp 11.50
   #define  DEFAULT_Ki 0.50
@@ -921,7 +920,7 @@
     #define UBL_MESH_INSET 1         // Mesh inset margin on print area
     #define GRID_MAX_POINTS_X 10     // Don't use more than 15 points per axis, implementation limited.
     #define GRID_MAX_POINTS_Y 10
-    #define UBL_PROBE_PT_1_X 45    // These set the probe locations for when UBL does a 3-Point leveling	
+    #define UBL_PROBE_PT_1_X 45    // These set the probe locations for when UBL does a 3-Point leveling
     #define UBL_PROBE_PT_1_Y 170   // of the mesh.
     #define UBL_PROBE_PT_2_X 45
     #define UBL_PROBE_PT_2_Y 25

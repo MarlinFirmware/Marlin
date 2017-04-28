@@ -2065,7 +2065,7 @@ static void clean_up_after_endstop_or_probe_move() {
       safe_delay(BLTOUCH_DELAY);
     }
 
-    // 
+    //
     // The BL-Touch probes have a HAL effect sensor.  The high currents switching
     // on and off cause big magnetic fields that can affect the repeatability of the
     // sensor.  So, for BL-Touch probes, we turn off the heaters during the actual probe.
@@ -2075,7 +2075,7 @@ static void clean_up_after_endstop_or_probe_move() {
     void turn_heaters_on_or_off_for_bltouch(const bool deploy) {
       static int8_t bltouch_recursion_cnt=0;
       static millis_t last_emi_protection=0;
-      static float temps_at_entry[HOTENDS]; 
+      static float temps_at_entry[HOTENDS];
       #if HAS_TEMP_BED
         static float bed_temp_at_entry;
       #endif
@@ -2088,19 +2088,19 @@ static void clean_up_after_endstop_or_probe_move() {
       if (deploy) {
         bltouch_recursion_cnt++;
         last_emi_protection = millis();
-        HOTEND_LOOP() temps_at_entry[e] = thermalManager.degTargetHotend(e);        // save the current target temperatures 
+        HOTEND_LOOP() temps_at_entry[e] = thermalManager.degTargetHotend(e);        // save the current target temperatures
         HOTEND_LOOP() thermalManager.setTargetHotend(0, e);                         // so we know what to restore them to.
 
         #if HAS_TEMP_BED
           bed_temp_at_entry = thermalManager.degTargetBed();
           thermalManager.setTargetBed(0.0);
         #endif
-      } 
+      }
       else {
         bltouch_recursion_cnt--;                                                    // the heaters are only turned back on
 	if (bltouch_recursion_cnt==0 && ((last_emi_protection+20000L)>millis())) {  // if everything is perfect.  It is expected
-          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);       // that the bltouch_recursion_cnt is zero and 
-          #if HAS_TEMP_BED                                                          // that the heaters were shut off less than 
+          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);       // that the bltouch_recursion_cnt is zero and
+          #if HAS_TEMP_BED                                                          // that the heaters were shut off less than
             thermalManager.setTargetBed(bed_temp_at_entry);                         // 20 seconds ago
           #endif
         }
@@ -2113,12 +2113,12 @@ static void clean_up_after_endstop_or_probe_move() {
         turn_heaters_on_or_off_for_bltouch(deploy);
       #endif
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
-        bltouch_command(BLTOUCH_RESET);    // try to reset it.
+        bltouch_command(BLTOUCH_RESET);    //  try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
-        bltouch_command(BLTOUCH_STOW);     // clear the triggered condition.
-        safe_delay(1500);                  // wait for internal self test to complete
-                                           //   measured completion time was 0.65 seconds
-                                           //   after reset, deploy & stow sequence
+        bltouch_command(BLTOUCH_STOW);     //  clear the triggered condition.
+        safe_delay(1500);                  // Wait for internal self-test to complete.
+                                           //  (Measured completion time was 0.65 seconds
+                                           //   after reset, deploy, and stow sequence)
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
@@ -2328,15 +2328,15 @@ static void clean_up_after_endstop_or_probe_move() {
     return current_position[Z_AXIS] + zprobe_zoffset;
   }
 
-  //
-  // - Move to the given XY
-  // - Deploy the probe, if not already deployed
-  // - Probe the bed, get the Z position
-  // - Depending on the 'stow' flag
-  //   - Stow the probe, or
-  //   - Raise to the BETWEEN height
-  // - Return the probed Z position
-  //
+  /**
+   * - Move to the given XY
+   * - Deploy the probe, if not already deployed
+   * - Probe the bed, get the Z position
+   * - Depending on the 'stow' flag
+   *   - Stow the probe, or
+   *   - Raise to the BETWEEN height
+   * - Return the probed Z position
+   */
   float probe_pt(const float x, const float y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -2505,14 +2505,14 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
 
-  //
-  // Enable if you prefer your output in JSON format
-  // suitable for SCAD or JavaScript mesh visualizers.
-  //
-  // Visualize meshes in OpenSCAD using the included script.
-  //
-  //   buildroot/shared/scripts/MarlinMesh.scad
-  //
+  /**
+   * Enable to produce output in JSON format suitable
+   * for SCAD or JavaScript mesh visualizers.
+   *
+   * Visualize meshes in OpenSCAD using the included script.
+   *
+   *   buildroot/shared/scripts/MarlinMesh.scad
+   */
   //#define SCAD_MESH_OUTPUT
 
   /**
