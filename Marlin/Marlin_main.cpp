@@ -8486,7 +8486,7 @@ inline void gcode_M503() {
 
     if (!isnan(last_zoffset)) {
 
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET) || ENABLED(DELTA)
         const float diff = zprobe_zoffset - last_zoffset;
       #endif
 
