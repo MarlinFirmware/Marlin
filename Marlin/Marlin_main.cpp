@@ -4988,26 +4988,24 @@ inline void gcode_G28() {
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     /**
-     * G33 - Delta '4-7-point' auto calibration (Requires DELTA)
-     * 
-     * Usage:
-     *   G33 <Cn> <Vn>
-     *   
-     *     Cn = n=-7 -> +7 : n*n probe points
-     *          calibrates height ('1 point'), endstops, and delta radius ('4 points') 
-     *          and calibrates tower angles with n >= 3 ('7+ points')
-     *          n=0  <default>
-     *          n=1  probes center / sets height only
-     *          n=-1 same but 1 iteration only
-     *          n=2  probes center and towers / sets height, endstops and delta radius
-     *          n=-2 same but opposite towers
-     *          n=3  probes all points: center, towers and opposite towers / sets all
-     *          n>3  probes all points multiple times and averages
-     *          n<=3 same but tower angle calibration disabled
-     *     Vn = verbose level (n=0-2 default 1)
-     *          n=0 dry-run mode: no calibration
-     *          n=1 settings 
-     *          n=2 setting + probe results 
+     * G33 - Delta Auto Calibration
+     *       Utility to calibrate height, endstop offsets, delta radius, and tower angles.
+     *
+     * Parameters:
+     *
+     *   C0     Calibrate height
+     *   C1     Probe the center to set the Z height
+     *   C-1    same but 1 iteration only
+     *   C2     probes center and towers / sets height, endstops and delta radius
+     *   C-2    same but opposite towers
+     *   C3     probes all points: center, towers and opposite towers / sets all
+     *   C0-C3  same but tower angle calibration disabled
+     *   C4-C7  probes all points multiple times and averages
+     *
+     *   V Verbose level (0-2, default 1)
+     *     V0 dry-run mode. no calibration
+     *     V1 settings
+     *     V2 setting and probe results
      */
     inline void gcode_G33() {
 
