@@ -130,7 +130,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-//#define MOTHERBOARD BOARD_RAMPS_14_EEF
+  //#define MOTHERBOARD BOARD_RAMPS_14_EEF
   #define MOTHERBOARD BOARD_RAMPS_14_EFB       // gMax users please note:  This is a Roxy modification.   I print on glass and
                                                // I use Marlin to control the bed's temperature.  So, if you have a single nozzle
                                                // machine, this will work fine for you.  You just set the
@@ -327,14 +327,14 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // gMax J-Head
-    #define  DEFAULT_Kp 15.35
-    #define  DEFAULT_Ki 0.85
-    #define  DEFAULT_Kd 69.45
+  #define  DEFAULT_Kp 15.35
+  #define  DEFAULT_Ki 0.85
+  #define  DEFAULT_Kd 69.45
 
   // Ultimaker
-//  #define  DEFAULT_Kp 22.2
-//  #define  DEFAULT_Ki 1.08
-//  #define  DEFAULT_Kd 114
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -474,7 +474,7 @@
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -548,7 +548,7 @@
  * ===========================================================================
  * ============================= Z Probe Options =============================
  * ===========================================================================
- *    @section probes
+ * @section probes
  *
  *
  *   Probe Type
@@ -730,8 +730,6 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  6 // Z Clearance between probe points
 
-//
-
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
@@ -792,9 +790,9 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 420		// These numbers are not accurate for an unaltered gMax 1.5+ printer.  My print bed
-#define Y_MAX_POS 420		// is inset a noticable amount from the edge of the bed.  Combined with the inset,
-                                // the nozzle can reach all cordinates of the mesh.
+#define X_MAX_POS 420   // These numbers are not accurate for an unaltered gMax 1.5+ printer.  My print bed
+#define Y_MAX_POS 420   // is inset a noticable amount from the edge of the bed.  Combined with the inset,
+                        // the nozzle can reach all cordinates of the mesh.
 #define Z_MAX_POS 500
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
@@ -994,8 +992,8 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT (((X_MIN_POS+X_MAX_POS)/2)-4) // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT (((Y_MIN_POS+Y_MAX_POS)/2)+4) // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT (((X_MIN_POS + X_MAX_POS) / 2) - 4) // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT (((Y_MIN_POS + Y_MAX_POS) / 2) + 4) // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Homing speeds (mm/m)
@@ -1035,7 +1033,7 @@
 //
 // M100 Free Memory Watcher
 //
-#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
+//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
 
 //
 // G20/G21 Inch mode support
@@ -1619,7 +1617,7 @@
  */
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)
@@ -1633,6 +1631,6 @@
 
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
-#endif //FILAMENT_WIDTH_SENSOR
+#endif
 
 #endif // CONFIGURATION_H

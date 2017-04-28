@@ -293,6 +293,7 @@
 #define HEATER_1_MAXTEMP 245
 #define HEATER_2_MAXTEMP 245
 #define HEATER_3_MAXTEMP 245
+#define HEATER_4_MAXTEMP 245
 #define BED_MAXTEMP 115
 
 //===========================================================================
@@ -321,6 +322,11 @@
   #define  DEFAULT_Kp 11.50
   #define  DEFAULT_Ki 0.50
   #define  DEFAULT_Kd 60.00
+
+  // Ultimaker
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -562,7 +568,6 @@
  */
 //#define FIX_MOUNTED_PROBE
 
-
 /**
  *   Z Servo Probe, such as an endstop switch on a rotating arm.
  *   NUM_SERVOS also needs to be set.  This is found later in this file.  Set it to
@@ -578,7 +583,7 @@
  *   with the possible exception of Z_ENDSTOP_SERVO_NR.
  */
 //#define BLTOUCH
-//#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+//#define BLTOUCH_DELAY 375 // (ms) Enable and increase if needed
 //#define BLTOUCH_HEATERS_OFF // if defined the printer's heaters are turned off during probe event
 
 /**
@@ -601,7 +606,7 @@
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
-//#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+//#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
 /**
  *   Z Probe to nozzle (X,Y) offset, relative to (0, 0).
@@ -630,8 +635,10 @@
 #define XY_PROBE_SPEED 7500
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
+
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
 
@@ -693,7 +700,6 @@
  */
 
 //#define Z_MIN_PROBE_ENDSTOP
-
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
@@ -770,7 +776,6 @@
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-
 // @section machine
 
 // Travel limits after homing (units are in mm)
@@ -803,7 +808,6 @@
 //===========================================================================
 //=============================== Bed Leveling ==============================
 //===========================================================================
-
 // @section bedlevel
 
 /**
@@ -849,7 +853,6 @@
 //#define AUTO_BED_LEVELING_BILINEAR
 #define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
-
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -901,7 +904,6 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-
   #define ABL_PROBE_PT_1_X 39
   #define ABL_PROBE_PT_1_Y 170
   #define ABL_PROBE_PT_2_X 39
@@ -917,16 +919,17 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-    #define UBL_MESH_INSET 1         // Mesh inset margin on print area
-    #define GRID_MAX_POINTS_X 10     // Don't use more than 15 points per axis, implementation limited.
-    #define GRID_MAX_POINTS_Y 10
-    #define UBL_PROBE_PT_1_X 45    // These set the probe locations for when UBL does a 3-Point leveling
-    #define UBL_PROBE_PT_1_Y 170   // of the mesh.
-    #define UBL_PROBE_PT_2_X 45
-    #define UBL_PROBE_PT_2_Y 25
-    #define UBL_PROBE_PT_3_X 180
-    #define UBL_PROBE_PT_3_Y 25
-    #define UBL_G26_MESH_EDITING     // Enable G26 mesh editing
+  #define UBL_MESH_INSET 1          // Mesh inset margin on print area
+  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_Y 10
+  #define UBL_PROBE_PT_1_X 45       // These set the probe locations for when UBL does a 3-Point leveling
+  #define UBL_PROBE_PT_1_Y 170      // of the mesh.
+  #define UBL_PROBE_PT_2_X 45
+  #define UBL_PROBE_PT_2_Y 25
+  #define UBL_PROBE_PT_3_X 180
+  #define UBL_PROBE_PT_3_Y 25
+  #define UBL_G26_MESH_EDITING    // Enable G26 mesh editing
+
 #elif ENABLED(MESH_BED_LEVELING)
 
   //===========================================================================
@@ -1606,7 +1609,7 @@
  */
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)
