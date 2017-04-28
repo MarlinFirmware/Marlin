@@ -33,12 +33,15 @@
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gereed.")
+#define MSG_BACK                            _UxGT("Terug")
 #define MSG_SD_INSERTED                     _UxGT("Kaart ingestoken")
 #define MSG_SD_REMOVED                      _UxGT("Kaart verwijderd")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Hoofdmenu")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
 #define MSG_DISABLE_STEPPERS                _UxGT("Motoren uit")
+#define MSG_DEBUG_MENU                      _UxGT("Debug Menu") //accepted English terms
+#define MSG_PROGRESS_BAR_TEST               _UxGT("Vooruitgang Test")
 #define MSG_AUTO_HOME                       _UxGT("Auto home")
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
@@ -54,11 +57,13 @@
 #define MSG_PREHEAT_1                       _UxGT("PLA voorverwarmen")
 #define MSG_PREHEAT_1_N                     _UxGT("PLA voorverw. ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1_N _UxGT("aan")
+#define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" Einde")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1_N _UxGT("Bed")
 #define MSG_PREHEAT_1_SETTINGS              _UxGT("PLA verw. conf")
 #define MSG_PREHEAT_2                       _UxGT("ABS voorverwarmen")
 #define MSG_PREHEAT_2_N                     _UxGT("ABS voorverw. ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2_N _UxGT("aan")
+#define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" Einde")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2_N _UxGT("Bed")
 #define MSG_PREHEAT_2_SETTINGS              _UxGT("ABS verw. conf")
 #define MSG_COOLDOWN                        _UxGT("Afkoelen")
@@ -68,6 +73,8 @@
 #define MSG_RETRACT                         _UxGT("Retract")
 #define MSG_MOVE_AXIS                       _UxGT("As verplaatsen")
 #define MSG_LEVEL_BED                       _UxGT("Level bed")
+#define MSG_MOVING                          _UxGT("Verplaatsen...")
+#define MSG_FREE_XY                         _UxGT("Vrij XY")
 #define MSG_MOVE_X                          _UxGT("Verplaats X")
 #define MSG_MOVE_Y                          _UxGT("Verplaats Y")
 #define MSG_MOVE_Z                          _UxGT("Verplaats Z")
@@ -116,7 +123,8 @@
 #define MSG_TEMPERATURE                     _UxGT("Temperatuur")
 #define MSG_MOTION                          _UxGT("Beweging")
 #define MSG_FILAMENT                        _UxGT("Filament")
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+#define MSG_ADVANCE_K                       _UxGT("Advance K") //accepted english dutch
+#define MSG_FILAMENT_ENABLED                _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #define MSG_STORE_EEPROM                    _UxGT("Geheugen opslaan")
@@ -181,6 +189,8 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibreer Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibreer Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibreer Midden")
+#define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibratie")
+#define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Zet Delta Hoogte")
 
 #define MSG_INFO_STATS_MENU                 _UxGT("Printer Stats")
 #define MSG_INFO_BOARD_MENU                 _UxGT("Board Info") //accepted English term in Dutch
@@ -218,7 +228,8 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("WISSEL OPTIES:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeer meer")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Hervat print")
-
+#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
+#define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ") //accepeted English term
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display
@@ -231,6 +242,10 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filament uit")
   #define MSG_FILAMENT_CHANGE_UNLOAD_3        _UxGT("te laden")
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Klik knop om...")
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("verw. nozzle.") //nozzle accepted English term
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nozzle verw.")
+  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Wacht a.u.b.")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Laad filament")
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("en druk knop")
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("om verder...")
@@ -249,6 +264,9 @@
   #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("start...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("uitladen...")
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Klik knop om...")
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("verw. nozzle.") //nozzle accepted English term
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Verwarmen...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Laad filament")
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("en druk knop")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
