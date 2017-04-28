@@ -34,10 +34,6 @@
   #include "buzzer.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "endstops.h"
-#endif
-
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
   #include "duration_t.h"
@@ -723,6 +719,28 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
+  #if ENABLED(BLTOUCH)
+
+    /**
+     *
+     * "BLTouch" submenu
+     *
+     */
+    static void bltouch_menu() {
+      START_MENU();
+      //
+      // ^ Main
+      //
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
+      END_MENU();
+    }
+
+  #endif // BLTOUCH
+
   #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
     static void progress_bar_test() {
@@ -792,8 +810,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     #if ENABLED(BLTOUCH)
-      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
-        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+      MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
