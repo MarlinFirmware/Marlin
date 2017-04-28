@@ -91,11 +91,6 @@
 
     public:
 
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
       void find_mean_mesh_height();
       void shift_mesh_height();
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
@@ -104,23 +99,13 @@
       void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
-      void g29_what_command(); 
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
+      void g29_what_command();
       void g29_eeprom_dump() ;
       void g29_compare_current_mesh_to_stored_mesh();
       void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map);
       void smart_fill_mesh();
       void display_map(const int);
       void reset();
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
       void invalidate();
       void store_state();
       void load_state();
@@ -165,11 +150,6 @@
 
       unified_bed_leveling();
 
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
       FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
         int8_t get_cell_index_x(const float &x) {
         const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
@@ -186,11 +166,6 @@
                                                             // that is OK because something else should be keeping that from
                                                             // happening and should not be worried about at this level.
 
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
       int8_t find_closest_x_index(const float &x) {
         const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
         return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
@@ -219,11 +194,6 @@
       FORCE_INLINE float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
         return z1 + (z2 - z1) * (a0 - a1) / (a2 - a1);
       }
-//
-// Please do not put STATIC qualifiers in front of ANYTHING in this file.   You WILL cause problems by doing that.
-// The GCC optimizer inlines static functions and this DRAMATICALLY increases the size of the stack frame of 
-// functions that call STATIC functions.
-//
 
       /**
        * z_correction_for_x_on_horizontal_mesh_line is an optimization for
