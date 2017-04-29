@@ -33,6 +33,7 @@
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
+#define MSG_BACK                            _UxGT("Atras")
 #define MSG_SD_INSERTED                     _UxGT("Tarjeta colocada")
 #define MSG_SD_REMOVED                      _UxGT("Tarjeta retirada")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
@@ -252,5 +253,7 @@
 #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("Extruir filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
+#define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima boton para")
+#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Calentando boquilla")
 
 #endif // LANGUAGE_ES_H
