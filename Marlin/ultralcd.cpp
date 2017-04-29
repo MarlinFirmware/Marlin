@@ -1349,7 +1349,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Filament load and unload
     //
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
       MENU_ITEM(function, MSG_FILAMENTLOAD, lcd_enqueue_filament_load);
       MENU_ITEM(function, MSG_FILAMENTUNLOAD, lcd_enqueue_filament_unload);
     #endif
