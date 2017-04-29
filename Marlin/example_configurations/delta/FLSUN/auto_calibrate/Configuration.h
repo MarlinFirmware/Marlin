@@ -450,21 +450,12 @@
 
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 218.0 // mm
-/*
-  // Horizontal offset from middle of printer to smooth rod center.
-  #define DELTA_SMOOTH_ROD_OFFSET 150.0 // mm
 
-  // Horizontal offset of the universal joints on the end effector.
-  #define DELTA_EFFECTOR_OFFSET 24.0 // mm
-
-  // Horizontal offset of the universal joints on the carriages.
-  #define DELTA_CARRIAGE_OFFSET 22.0 // mm
-*/
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS 100.00 //mm // get this value from auto calibrate
 
-  // height from z=0.00 to home position
-  #define DELTA_HEIGHT 295.00 // get this value from auto calibrate - use G33 C-1 at 1st time calibration
+  // height from z=0 to home position
+  #define DELTA_HEIGHT 295.00 // get this value from auto calibrate - use G33 P1 A at 1st time calibration
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 85.0
@@ -486,16 +477,16 @@
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
 
-  #define DELTA_ENDSTOP_ADJ { -0.00, -0.00, -0.00 } // get these from auto calibrate
+  #define DELTA_ENDSTOP_ADJ { 0, 0, 0 } // get these from auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
-  #define DELTA_TOWER_ANGLE_TRIM { 0.00, 0.00 } // get these from auto calibrate
+  #define DELTA_TOWER_ANGLE_TRIM { 0, 0, 0 } // get these from auto calibrate
 
   // delta radius and diaginal rod adjustments measured in mm
-  //#define DELTA_RADIUS_TRIM_TOWER {0.0, 0.0, 0.0}
-  //#define DELTA_DIAGONAL_ROD_TRIM_TOWER {0.0, 0.0, 0.0}
+  //#define DELTA_RADIUS_TRIM_TOWER {0, 0, 0}
+  //#define DELTA_DIAGONAL_ROD_TRIM_TOWER {0, 0, 0}
 
 #endif
 
@@ -604,7 +595,7 @@
 #define DEFAULT_XJERK                 20.0
 #define DEFAULT_YJERK                 DEFAULT_XJERK
 #define DEFAULT_ZJERK                 DEFAULT_YJERK // Must be same as XY for delta
-#define DEFAULT_EJERK                 5.0
+#define DEFAULT_EJERK                  5.0
 
 
 /**
@@ -670,6 +661,9 @@
  *   is enabled then it also applies to Z_PROBE_SPEED_SLOW.
  */
 
+// A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
+//#define SOLENOID_PROBE
+
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
@@ -704,7 +698,7 @@
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Speed for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 6)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST) / 6
 
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
@@ -728,7 +722,7 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_SPEED/10)
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_SPEED)/10
 
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X Z_PROBE_ALLEN_KEY_DEPLOY_2_X * 0.75
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y Z_PROBE_ALLEN_KEY_DEPLOY_2_Y * 0.75
@@ -868,7 +862,7 @@
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
 
-// Enable this option for Toshiba steppers
+// Enable this option for Toshiba steppers drivers
 //#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder

@@ -42,7 +42,7 @@
 #define EEPROM_OFFSET 100
 
 /**
- * V33 EEPROM Layout:
+ * V35 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM Checksum                            (uint16_t)
@@ -410,8 +410,10 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_radius);              // 1 float
       EEPROM_WRITE(delta_diagonal_rod);        // 1 float
       EEPROM_WRITE(delta_segments_per_second); // 1 float
-      EEPROM_WRITE(delta_calibration_radius);  // 1 floats
+      EEPROM_WRITE(delta_calibration_radius);  // 1 float
       EEPROM_WRITE(delta_tower_angle_trim);    // 2 floats
+      dummy = 0.0f;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(z_endstop_adj);             // 1 float
       dummy = 0.0f;
@@ -778,8 +780,10 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(delta_radius);              // 1 float
         EEPROM_READ(delta_diagonal_rod);        // 1 float
         EEPROM_READ(delta_segments_per_second); // 1 float
-        EEPROM_READ(delta_calibration_radius);  // 1 floats
+        EEPROM_READ(delta_calibration_radius);  // 1 float
         EEPROM_READ(delta_tower_angle_trim);    // 2 floats
+        dummy = 0.0f;
+        for (uint8_t q=3; q--;) EEPROM_READ(dummy);
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(z_endstop_adj);
         dummy = 0.0f;
@@ -1066,7 +1070,7 @@ void MarlinSettings::reset() {
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
-                dta[2] = DELTA_TOWER_ANGLE_TRIM;
+                dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
     COPY(endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;

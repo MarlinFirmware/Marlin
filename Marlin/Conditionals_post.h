@@ -695,16 +695,16 @@
       #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
     #endif
     #ifndef DELTA_ENDSTOP_ADJ
-      #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 }
+      #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
     #endif
     #ifndef DELTA_TOWER_ANGLE_TRIM
-      #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0 } // C always 0.0
+      #define DELTA_TOWER_ANGLE_TRIM {0, 0, 0}
     #endif
     #ifndef DELTA_RADIUS_TRIM_TOWER
-      #define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
+      #define DELTA_RADIUS_TRIM_TOWER {0, 0, 0}
     #endif
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
-      #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 }
+      #define DELTA_DIAGONAL_ROD_TRIM_TOWER {0, 0, 0}
     #endif
   #endif
 
