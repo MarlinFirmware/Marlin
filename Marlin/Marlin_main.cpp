@@ -187,6 +187,8 @@
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires FILAMENT_CHANGE_FEATURE)
+ * M701 - Load filament
+ * M702 - Unload filament
  * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s>" (Requires DELTA)
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -7317,8 +7319,144 @@ inline void gcode_M503() {
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
   }
+  #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
+  /**
+   * M701: Load filament
+   */
+  inline void gcode_M701() {
+    
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M701_M702);
+      return;
+    }
 
-#endif // FILAMENT_CHANGE_FEATURE
+    disable_e0();
+    disable_e1();
+    disable_e2();
+    disable_e3();
+    delay(100);
+
+    #if HAS_BUZZER
+      millis_t next_buzz = 0;
+    #endif
+
+    // Wait for filament insert by user and press button
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+
+    // LCD click or M108 will clear this
+    wait_for_user = true;
+
+    while (wait_for_user) {
+      #if HAS_BUZZER
+        millis_t ms = millis();
+        if (ms >= next_buzz) {
+          BUZZ(300, 2000);
+          next_buzz = ms + 2500; // Beep every 2.5s while waiting
+        }
+      #endif
+      idle(true);
+    }
+
+    // Show load message
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
+
+    // Load filament
+    if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
+    #if defined(FILAMENT_CHANGE_LOAD_LENGTH) && FILAMENT_CHANGE_LOAD_LENGTH > 0
+      else destination[E_AXIS] += FILAMENT_CHANGE_LOAD_LENGTH;
+    #endif
+
+    RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
+    stepper.synchronize();
+
+    #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
+      do {
+        // Extrude filament to get into hotend
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
+        destination[E_AXIS] += FILAMENT_CHANGE_EXTRUDE_LENGTH;
+        RUNPLAN(FILAMENT_CHANGE_EXTRUDE_FEEDRATE);
+        stepper.synchronize();
+        // Ask user if more filament should be extruded
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_OPTION);
+        while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_WAIT_FOR) idle(true);
+        KEEPALIVE_STATE(IN_HANDLER);
+      } while (filament_change_menu_response != FILAMENT_CHANGE_RESPONSE_RESUME_PRINT);
+    #endif
+    stepper.synchronize();
+
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      filament_ran_out = false;
+    #endif
+
+    // Show status screen
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+
+  }
+  /**
+   * M702: Unload filament
+   */
+  inline void gcode_M702() {
+    
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M701_M702);
+      return;
+    }
+
+    // Show initial message and wait for synchronize steppers
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+    stepper.synchronize();
+
+    float lastpos[NUM_AXIS];
+
+    // Save current position of all axes
+    LOOP_XYZE(i)
+      lastpos[i] = destination[i] = current_position[i];
+
+    // Define runplan for move axes
+    #if IS_KINEMATIC
+      #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder);
+    #else
+      #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
+    #endif
+
+    KEEPALIVE_STATE(IN_HANDLER);
+
+    // Initial retract before move to filament change position
+    if (code_seen('E')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
+    #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
+      else destination[E_AXIS] -= FILAMENT_CHANGE_RETRACT_LENGTH;
+    #endif
+
+    RUNPLAN(FILAMENT_CHANGE_RETRACT_FEEDRATE);
+
+    stepper.synchronize();
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_UNLOAD);
+
+    // Unload filament
+    if (code_seen('L')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
+    #if defined(FILAMENT_CHANGE_UNLOAD_LENGTH) && FILAMENT_CHANGE_UNLOAD_LENGTH > 0
+      else destination[E_AXIS] -= FILAMENT_CHANGE_UNLOAD_LENGTH;
+    #endif
+
+    RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+
+    // Synchronize steppers and then disable extruders steppers for manual filament changing
+    stepper.synchronize();
+    disable_e0();
+    disable_e1();
+    disable_e2();
+    disable_e3();
+    delay(100);
+
+    // Show status screen
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+
+  }
+  #endif
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -8595,7 +8733,15 @@ void process_next_command() {
         case 600: // M600: Pause for filament change
           gcode_M600();
           break;
-      #endif // FILAMENT_CHANGE_FEATURE
+        #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
+          case 701: // M701: Load filament
+            gcode_M701();
+            break;
+          case 702: // M702: Unload filament
+            gcode_M702();
+            break;
+        #endif
+      #endif
 
       #if ENABLED(DUAL_X_CARRIAGE)
         case 605: // M605: Set Dual X Carriage movement mode

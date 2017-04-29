@@ -360,6 +360,12 @@
 #ifndef MSG_FILAMENTCHANGE
   #define MSG_FILAMENTCHANGE                  "Change filament"
 #endif
+#ifndef MSG_FILAMENTLOAD
+  #define MSG_FILAMENTLOAD                    "Load filament"
+#endif
+#ifndef MSG_FILAMENTUNLOAD
+  #define MSG_FILAMENTUNLOAD                  "Unload filament"
+#endif
 #ifndef MSG_INIT_SDCARD
   #define MSG_INIT_SDCARD                     "Init. SD card"
 #endif
@@ -613,3 +619,5 @@
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_EN_H
+
+
