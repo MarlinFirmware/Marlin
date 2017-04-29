@@ -7386,7 +7386,7 @@ inline void gcode_M503() {
     #endif
 	  stepper.synchronize();
 	
-	  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+	#if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
     #endif
 

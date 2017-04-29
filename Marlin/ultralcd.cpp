@@ -600,16 +600,55 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
+  #if ENABLED(BABYSTEPPING)
+
+    long babysteps_done = 0;
+
+    void _lcd_babystep(const AxisEnum axis, const char* msg) {
+      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+      ENCODER_DIRECTION_NORMAL();
+      if (encoderPosition) {
+        int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
+        encoderPosition = 0;
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        thermalManager.babystep_axis(axis, babystep_increment);
+        babysteps_done += babystep_increment;
+      }
+      if (lcdDrawUpdate)
+        lcd_implementation_drawedit(msg, ftostr43sign(
+          ((1000 * babysteps_done) * planner.steps_to_mm[axis]) * 0.001f
+        ));
+    }
+
+    #if ENABLED(BABYSTEP_XY)
+      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
+      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+      void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
+      void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
+    #endif
+    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+
+  #endif //BABYSTEPPING
+
   /**
    *
    * "Main" menu
    *
    */
-
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
-
+	
+	//
+	// Quick access to Z Axis babystepping
+	//
+	#if ENABLED(BABYSTEPPING)
+	  if (IS_SD_PRINTING) {
+	    MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+	  }
+	#endif
+	
     //
     // Switch case light on/off
     //
@@ -681,37 +720,6 @@ void kill_screen(const char* lcd_msg) {
     enqueue_and_echo_commands_P(PSTR("M428"));
     lcd_return_to_status();
   }
-
-  #if ENABLED(BABYSTEPPING)
-
-    long babysteps_done = 0;
-
-    void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
-      ENCODER_DIRECTION_NORMAL();
-      if (encoderPosition) {
-        int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
-        encoderPosition = 0;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        thermalManager.babystep_axis(axis, babystep_increment);
-        babysteps_done += babystep_increment;
-      }
-      if (lcdDrawUpdate)
-        lcd_implementation_drawedit(msg, ftostr43sign(
-          ((1000 * babysteps_done) * planner.steps_to_mm[axis]) * 0.001f
-        ));
-    }
-
-    #if ENABLED(BABYSTEP_XY)
-      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
-      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
-      void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
-      void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
-    #endif
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
-
-  #endif //BABYSTEPPING
 
   /**
    * Watch temperature callbacks
