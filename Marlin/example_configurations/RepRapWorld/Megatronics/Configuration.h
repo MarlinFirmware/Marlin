@@ -133,9 +133,6 @@
 // :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
-// Enable if your E steppers or extruder gear ratios are not identical
-//#define DISTINCT_E_FACTORS
-
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
@@ -464,11 +461,15 @@
  *
  * These settings can be reset by M502
  *
- * You can set distinct factors for each E stepper, if needed.
- * If fewer factors are given, the last will apply to the rest.
- *
  * Note that if EEPROM is enabled, saved values will override these.
  */
+
+/**
+ * With this option each E stepper can have its own factors for the
+ * following movement settings. If fewer factors are given than the
+ * total number of extruders, the last value applies to the rest.
+ */
+//#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
