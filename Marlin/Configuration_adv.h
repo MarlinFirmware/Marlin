@@ -335,7 +335,7 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
@@ -499,9 +499,9 @@
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
-#define BABYSTEPPING
+//#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
+  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
                        //not implemented for deltabots!
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
@@ -679,7 +679,7 @@
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+  // #define FILAMENT_CHANGE_FEATURE            // Enable filament exchange menu and M600 g-code (used for runout sensor too)
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
     #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
@@ -693,16 +693,16 @@
                                                 // Longer length for bowden printers to unload filament from whole bowden tube,
                                                 // shorter lenght for printers without bowden to unload filament from extruder only,
                                                 // 0 to disable unloading for manual unloading
-    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 40  // Unload filament feedrate in mm/s - filament unloading can be 
-    #define FILAMENT_CHANGE_LOAD_LENGTH 20       // Load filament length over hotend in mm
+    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+    #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
                                                 // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                                 // Short or zero length for printers without bowden where loading is not used
-    #define FILAMENT_CHANGE_LOAD_FEEDRATE 40    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+    #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
     #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
                                                 // 0 to disable for manual extrusion
                                                 // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                                 // or until outcoming filament color is not clear for filament color change
-    #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 5  // Extrude filament feedrate in mm/s - must be slower than load feedrate
+    #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
     // #define FILAMENT_LOADUNLOAD_SUPPORT      // Enable filament loading and unloading directly from prepare menu
   #endif
 #endif
