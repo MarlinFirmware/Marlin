@@ -32,18 +32,6 @@
  */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
-
-/**
- *
- *  ***********************************
- *  **  ATTENTION TO ALL DEVELOPERS  **
- *  ***********************************
- *
- * You must increment this version number for every significant change such as,
- * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option.
- *
- * Note: Update also Version.h !
- */
 #define CONFIGURATION_ADV_H_VERSION 010100
 
 // @section temperature
