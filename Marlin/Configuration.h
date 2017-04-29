@@ -86,7 +86,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(enter801, v1.1.0-RC8)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(v1.1.0-RC8 RCBugFix)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -130,12 +130,12 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_13_EFB 
+  #define MOTHERBOARD BOARD_RAMPS_14_EFB 
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "3D Lyfe Yo"
+#define CUSTOM_MACHINE_NAME "Melty McGoo"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -308,7 +308,7 @@
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
-  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+  #define PID_FUNCTIONAL_RANGE 16 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define K1 0.95 //smoothing factor within the PID
 
@@ -317,9 +317,10 @@
   //#define  DEFAULT_Kp 22.2
   //#define  DEFAULT_Ki 1.08
   //#define  DEFAULT_Kd 114
-  #define  DEFAULT_Kp 19.74
-  #define  DEFAULT_Ki 1.52
-  #define  DEFAULT_Kd 64.05
+  #define  DEFAULT_Kp 21.96
+  #define  DEFAULT_Ki 1.72
+  #define  DEFAULT_Kd 70.15
+  //set 4.9.17
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -458,11 +459,11 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -489,14 +490,16 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 414.4 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 427.63 }//split the middle of the last entry of 414.40 and 440.85, newest entry as of 4.08.17
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 440.85 }
+
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 3, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -514,7 +517,7 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1200    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   2000    // X, Y, Z acceleration for travel (non printing) moves
 
@@ -551,11 +554,11 @@
 // For example an inductive probe, or a setup that uses the nozzle to probe.
 // An inductive probe must be deactivated to go below
 // its trigger-point if hardware endstops are active.
-#define FIX_MOUNTED_PROBE
+//#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
-//#define BLTOUCH
+#define BLTOUCH
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
 //#define Z_ENDSTOP_SERVO_NR 0
@@ -584,16 +587,16 @@
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER 30  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 16  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 10000
+#define XY_PROBE_SPEED 8000
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
-//#define PROBE_DOUBLE_TOUCH
+#define PROBE_DOUBLE_TOUCH
 
 //
 // Allen Key Probe is defined in the Delta example configurations.
@@ -612,9 +615,9 @@
 // - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
 // - Use 5V for powered (usu. inductive) sensors.
 // - Otherwise connect:
+//
 //   - normally-closed switches to GND and D32.
 //   - normally-open switches to 5V and D32.
-//
 // Normally-closed switches are advised and are the default.
 //
 
@@ -643,7 +646,7 @@
 // To use a probe you must enable one of the two options above!
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -659,14 +662,14 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   2 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  1 // Z Clearance between probe points
+#define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
 
 //
 // For M851 give a range for adjusting the Z probe offset
 //
-#define Z_PROBE_OFFSET_RANGE_MIN -15
-#define Z_PROBE_OFFSET_RANGE_MAX 15
+#define Z_PROBE_OFFSET_RANGE_MIN -100
+#define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -715,18 +718,18 @@
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
+#define min_software_endstops false // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS 10
-#define Y_MIN_POS 20
+#define X_MIN_POS 0
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 230
-#define Y_MAX_POS 290
-#define Z_MAX_POS 180
+#define X_MAX_POS 220
+#define Y_MAX_POS 285
+#define Z_MAX_POS 220
 
 /**
  * Filament Runout Sensor
@@ -750,16 +753,12 @@
 //#define MESH_BED_LEVELING    // Enable mesh bed leveling.
 
 #if ENABLED(MESH_BED_LEVELING)
-  #define MESH_MIN_X 10
-  #define MESH_MAX_X 200
-  #define MESH_MIN_Y 10
-  #define MESH_MAX_Y (Y_MAX_POS - (MESH_MIN_Y))
   #define MESH_INSET 10        // Mesh inset margin on print area
   #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
 
-  #define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
   #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
@@ -809,22 +808,29 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define ABL_GRID_POINTS_X 4
-  #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
+  #define ABL_GRID_MAX_POINTS_X 4
+  #define ABL_GRID_MAX_POINTS_Y ABL_GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 40
-  #define RIGHT_PROBE_BED_POSITION 220
-  #define FRONT_PROBE_BED_POSITION 50//Should be y min position + y probe offset as a minimum -> 0 + 70 (real offset from nozzle) = 70 + 10 (for margin) = 80 (update to use vars) -BM
+  #define LEFT_PROBE_BED_POSITION 30
+  #define RIGHT_PROBE_BED_POSITION 205
+  #define FRONT_PROBE_BED_POSITION 26//Should be y min position + y probe offset as a minimum -> 0 + 70 (real offset from nozzle) = 70 + 10 (for margin) = 80 (update to use vars) -BM
   #define BACK_PROBE_BED_POSITION 275
 
+//  Probe position calculations from Conditionals_post.h - use to figure out above.  -BM 2.27.17
+//   #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) - for left
+//    #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) - for right probe position
+//    #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) - front
+//    #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) - back... 
+ 
+
   // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 10
+  #define MIN_PROBE_EDGE 0
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -834,16 +840,16 @@
     // Gradually reduce leveling correction until a set height is reached,
     // at which point movement will be level to the machine's XY plane.
     // The height can be set with M420 Z<height>
-    #define ENABLE_LEVELING_FADE_HEIGHT
+    //#define ENABLE_LEVELING_FADE_HEIGHT
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
     //
-    #define ABL_BILINEAR_SUBDIVISION
+    //#define ABL_BILINEAR_SUBDIVISION
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
-      #define BILINEAR_SUBDIVISIONS 4
+      #define BILINEAR_SUBDIVISIONS 2
     #endif
 
   #endif
@@ -865,7 +871,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
 
 
 // @section homing
@@ -896,7 +902,7 @@
 
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_Z  (2*60)
 
 //=============================================================================
 //============================= Additional Features ===========================
@@ -926,7 +932,7 @@
 // every couple of seconds when it can't accept commands.
 //
 #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
-#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
+#define DEFAULT_KEEPALIVE_INTERVAL 5  // Number of seconds between "busy" messages. Set with M113.
 
 //
 // M100 Free Memory Watcher
@@ -946,12 +952,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 190
+#define PREHEAT_1_TEMP_HOTEND 195
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 230
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_BED    100
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
@@ -1057,7 +1063,7 @@
 //  - Total time printing
 //
 // This information can be viewed by the M78 command.
-#define PRINTCOUNTER
+//#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
@@ -1429,12 +1435,12 @@
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
 
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY 300
+#define SERVO_DELAY 200
 
 // Servo deactivation
 //
