@@ -8733,13 +8733,15 @@ void process_next_command() {
         case 600: // M600: Pause for filament change
           gcode_M600();
           break;
-        case 701: // M701: Load filament
-          gcode_M701();
-          break;
-        case 702: // M702: Unload filament
-          gcode_M702();
-          break;
-      #endif // FILAMENT_CHANGE_FEATURE
+        #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
+          case 701: // M701: Load filament
+            gcode_M701();
+            break;
+          case 702: // M702: Unload filament
+            gcode_M702();
+            break;
+        #endif
+      #endif
 
       #if ENABLED(DUAL_X_CARRIAGE)
         case 605: // M605: Set Dual X Carriage movement mode
