@@ -1126,6 +1126,18 @@
 //#define SD_CHECK_AND_RETRY
 
 //
+// Additional moves after stopping print from sdcard
+// Moves (like G1) will not work!
+//
+#ifdef SDSUPPORT
+  #define SDCARD_STOP_GCODE_1 PSTR("M104 S0")
+  #define SDCARD_STOP_GCODE_2 PSTR("M140 S0")
+  //#define SDCARD_STOP_GCODE_3 PSTR("G91")
+  //#define SDCARD_STOP_GCODE_4 PSTR("G1 Z+10 F5000")
+  //#define SDCARD_STOP_GCODE_5 PSTR("G1 X-10 Y-10")
+#endif
+
+//
 // ENCODER SETTINGS
 //
 // This option overrides the default number of encoder pulses needed to
@@ -1137,7 +1149,7 @@
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-//#define ENCODER_STEPS_PER_MENU_ITEM 5
+#define ENCODER_STEPS_PER_MENU_ITEM 4
 
 /**
  * Encoder Direction Options

@@ -578,10 +578,30 @@ void kill_screen(const char* lcd_msg) {
       clear_command_queue();
       quickstop_stepper();
       print_job_timer.stop();
+      
       #if ENABLED(AUTOTEMP)
         thermalManager.autotempShutdown();
       #endif
       wait_for_heatup = false;
+      
+      delay(100);
+      
+  	  #ifdef SDCARD_STOP_GCODE_1
+  		  enqueue_and_echo_commands_P(SDCARD_STOP_GCODE_1);
+  	  #endif
+  	  #ifdef SDCARD_STOP_GCODE_2
+  		  enqueue_and_echo_commands_P(SDCARD_STOP_GCODE_2);
+  	  #endif
+  	  #ifdef SDCARD_STOP_GCODE_3
+  		  enqueue_and_echo_commands_P(SDCARD_STOP_GCODE_3);
+  	  #endif
+  	  #ifdef SDCARD_STOP_GCODE_4
+  		  enqueue_and_echo_commands_P(SDCARD_STOP_GCODE_4);
+  	  #endif
+  	  #ifdef SDCARD_STOP_GCODE_5
+  		  enqueue_and_echo_commands_P(SDCARD_STOP_GCODE_5);
+  	  #endif
+  	  
       lcd_setstatus(MSG_PRINT_ABORTED, true);
     }
 
