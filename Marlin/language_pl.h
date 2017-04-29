@@ -142,6 +142,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "Cof. wycof.  V"
 #define MSG_AUTORETRACT                     "Auto. wycofanie"
 #define MSG_FILAMENTCHANGE                  "Zmien filament"
+#define MSG_FILAMENTLOAD                    "Wprowadz filament"
+#define MSG_FILAMENTUNLOAD                  "Wyjmij filament"
 #define MSG_INIT_SDCARD                     "Inicjal. karty SD"
 #define MSG_CNG_SDCARD                      "Zmiana karty SD"
 #define MSG_ZPROBE_OUT                      "Sonda Z za stolem"

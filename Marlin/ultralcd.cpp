@@ -759,12 +759,14 @@ void kill_screen(const char* lcd_msg) {
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600"));
     }
-	void lcd_enqueue_filament_load() {
-      enqueue_and_echo_commands_P(PSTR("M701"));
-    }
-	void lcd_enqueue_filament_unload() {
-      enqueue_and_echo_commands_P(PSTR("M702"));
-    }
+    #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
+      void lcd_enqueue_filament_load() {
+        enqueue_and_echo_commands_P(PSTR("M701"));
+      }
+      void lcd_enqueue_filament_unload() {
+        enqueue_and_echo_commands_P(PSTR("M702"));
+      }
+    #endif
   #endif
 
   /**
@@ -1343,14 +1345,14 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
       MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
-	
-	//
-	// Filament load and unload
-	//
-	#if ENABLED(FILAMENT_CHANGE_FEATURE)
-	  MENU_ITEM(function, MSG_FILAMENTLOAD, lcd_enqueue_filament_load);
-	  MENU_ITEM(function, MSG_FILAMENTUNLOAD, lcd_enqueue_filament_unload);
-	#endif
+
+    //
+    // Filament load and unload
+    //
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      MENU_ITEM(function, MSG_FILAMENTLOAD, lcd_enqueue_filament_load);
+      MENU_ITEM(function, MSG_FILAMENTUNLOAD, lcd_enqueue_filament_unload);
+    #endif
 
     END_MENU();
   }

@@ -7319,8 +7319,8 @@ inline void gcode_M503() {
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
   }
-
-    /**
+  #if ENABLED(FILAMENT_LOADUNLOAD_SUPPORT)
+  /**
    * M701: Load filament
    */
   inline void gcode_M701() {
@@ -7330,7 +7330,7 @@ inline void gcode_M503() {
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M701_M702);
       return;
     }
-	
+
     disable_e0();
     disable_e1();
     disable_e2();
@@ -7357,10 +7357,10 @@ inline void gcode_M503() {
       #endif
       idle(true);
     }
-	
+
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
-	
+
     // Load filament
     if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
     #if defined(FILAMENT_CHANGE_LOAD_LENGTH) && FILAMENT_CHANGE_LOAD_LENGTH > 0
@@ -7369,7 +7369,7 @@ inline void gcode_M503() {
 
     RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
     stepper.synchronize();
-	
+
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
       do {
         // Extrude filament to get into hotend
@@ -7384,28 +7384,27 @@ inline void gcode_M503() {
         KEEPALIVE_STATE(IN_HANDLER);
       } while (filament_change_menu_response != FILAMENT_CHANGE_RESPONSE_RESUME_PRINT);
     #endif
-	  stepper.synchronize();
-	
-	  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    stepper.synchronize();
+
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
     #endif
 
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
-	
-  }
 
+  }
   /**
    * M702: Unload filament
    */
   inline void gcode_M702() {
     
-	  if (thermalManager.tooColdToExtrude(active_extruder)) {
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M701_M702);
       return;
     }
-	
+
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
@@ -7450,14 +7449,14 @@ inline void gcode_M503() {
     disable_e1();
     disable_e2();
     disable_e3();
-	  delay(100);
+    delay(100);
 
-	  // Show status screen
+    // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
-	
-  } // gcode M702
-  
-#endif // FILAMENT_CHANGE_FEATURE
+
+  }
+  #endif
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -8734,12 +8733,12 @@ void process_next_command() {
         case 600: // M600: Pause for filament change
           gcode_M600();
           break;
-		case 701: // M701: Load filament
-		  gcode_M701();
-		  break;
-		case 702: // M702: Unload filament
-		  gcode_M702();
-		  break;
+        case 701: // M701: Load filament
+          gcode_M701();
+          break;
+        case 702: // M702: Unload filament
+          gcode_M702();
+          break;
       #endif // FILAMENT_CHANGE_FEATURE
 
       #if ENABLED(DUAL_X_CARRIAGE)
