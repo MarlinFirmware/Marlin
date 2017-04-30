@@ -44,3 +44,5 @@
 #define DAC_STEPPER_GAIN     1 // value of 1 here sets gain of 2
 #define DAC_DISABLE_PIN     42 // set low to enable DAC
 #define DAC_OR_ADDRESS    0x01
+
+#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
