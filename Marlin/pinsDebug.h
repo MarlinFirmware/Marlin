@@ -72,7 +72,7 @@ bool endstop_monitor_flag = false;
 #undef REPORT_NAME_DIGITAL
 #undef REPORT_NAME_ANALOG
 
-#define _ADD_PIN_2( ENTRY_NAME, NAME, IS_DIGITAL) {(const char*) ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL},
+#define _ADD_PIN_2( ENTRY_NAME, NAME, IS_DIGITAL) {(const char*)ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL},
 #define _ADD_PIN( NAME, COUNTER, IS_DIGITAL)  _ADD_PIN_2( entry_NAME_##COUNTER, NAME, IS_DIGITAL)
 #define REPORT_NAME_DIGITAL(NAME, COUNTER)  _ADD_PIN( NAME, COUNTER, (uint8_t)1)
 #define REPORT_NAME_ANALOG(NAME, COUNTER)  _ADD_PIN( analogInputToDigitalPin(NAME), COUNTER, 0)
@@ -208,9 +208,9 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
   #endif
 
   #if defined(COM1C1) && defined(TIMER1C)
-   { (const uint8_t*) &OCR1A, (const uint8_t*) &OCR1B, (const uint8_t*) &OCR1C},
+   { (const uint8_t*)&OCR1A, (const uint8_t*)&OCR1B, (const uint8_t*)&OCR1C},
   #else
-   { (const uint8_t*) &OCR1A, (const uint8_t*) &OCR1B,0},
+   { (const uint8_t*)&OCR1A, (const uint8_t*)&OCR1B,0},
   #endif
 
   #if defined(TCCR2A) && defined(COM2A1)
@@ -219,18 +219,18 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
   #if defined(TCCR3A) && defined(COM3A1)
     #ifdef COM3C1
-      { (const uint8_t*) &OCR3A, (const uint8_t*) &OCR3B, (const uint8_t*) &OCR3C},
+      { (const uint8_t*)&OCR3A, (const uint8_t*)&OCR3B, (const uint8_t*)&OCR3C},
     #else
-      { (const uint8_t*) &OCR3A, (const uint8_t*) &OCR3B,0},
+      { (const uint8_t*)&OCR3A, (const uint8_t*)&OCR3B,0},
     #endif
   #endif
 
   #ifdef TCCR4A
-    { (const uint8_t*) &OCR4A, (const uint8_t*) &OCR4B, (const uint8_t*) &OCR4C},
+    { (const uint8_t*)&OCR4A, (const uint8_t*)&OCR4B, (const uint8_t*)&OCR4C},
   #endif
 
   #if defined(TCCR5A) && defined(COM5A1)
-    { (const uint8_t*) &OCR5A, (const uint8_t*) &OCR5B, (const uint8_t*) &OCR5C},
+    { (const uint8_t*)&OCR5A, (const uint8_t*)&OCR5B, (const uint8_t*)&OCR5C},
   #endif
 };
 
@@ -262,7 +262,7 @@ static void err_prob_interrupt() {
 }
 
 void com_print(uint8_t N, uint8_t Z) {
-  uint8_t *TCCRA = (uint8_t*) TCCR_A(N);
+  uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_PROTOCOLPGM("    COM");
   SERIAL_PROTOCOLCHAR(N + '0');
   switch(Z) {
@@ -278,8 +278,7 @@ void com_print(uint8_t N, uint8_t Z) {
   }
 }
 
-
-void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - WGM bit layout
+void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
   char buffer[20];   // for the sprintf statements
   uint8_t *TCCRB = (uint8_t*)TCCR_B(T);
   uint8_t *TCCRA = (uint8_t*)TCCR_A(T);
@@ -292,11 +291,11 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
   SERIAL_PROTOCOLPGM("   ");
 
   if (N == 3) {
-    uint8_t *OCRVAL8 = (uint8_t*) OCR_VAL(T, L - 'A');
+    uint8_t *OCRVAL8 = (uint8_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL8);
   }
   else {
-    uint16_t *OCRVAL16 = (uint16_t*) OCR_VAL(T, L - 'A');
+    uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL16);
   }
   SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
@@ -311,7 +310,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR("B: ", *TCCRB);
 
-  uint8_t *TMSK = (uint8_t*) TIMSK(T);
+  uint8_t *TMSK = (uint8_t*)TIMSK(T);
   SERIAL_PROTOCOLPGM("    TIMSK");
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR(": ", *TMSK);
@@ -327,76 +326,43 @@ static void pwm_details(uint8_t pin) {
   switch(digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
-
       #ifdef TIMER0A
-        case TIMER0A:
-          timer_prefix(0,'A',3);
-          break;
+        case TIMER0A: timer_prefix(0, 'A', 3); break;
       #endif
-      case TIMER0B:
-        timer_prefix(0,'B',3);
-        break;
+      case TIMER0B: timer_prefix(0, 'B', 3); break;
     #endif
 
     #if defined(TCCR1A) && defined(COM1A1)
-      case TIMER1A:
-        timer_prefix(1,'A',4);
-        break;
-      case TIMER1B:
-        timer_prefix(1,'B',4);
-        break;
+      case TIMER1A: timer_prefix(1, 'A', 4); break;
+      case TIMER1B: timer_prefix(1, 'B', 4); break;
       #if defined(COM1C1) && defined(TIMER1C)
-        case TIMER1C:
-          timer_prefix(1,'C',4);
-          break;
+        case TIMER1C: timer_prefix(1, 'C', 4); break;
       #endif
     #endif
 
     #if defined(TCCR2A) && defined(COM2A1)
-      case TIMER2A:
-        timer_prefix(2,'A',3);
-        break;
-      case TIMER2B:
-        timer_prefix(2,'B',3);
-        break;
+      case TIMER2A: timer_prefix(2, 'A', 3); break;
+      case TIMER2B: timer_prefix(2, 'B', 3); break;
     #endif
 
     #if defined(TCCR3A) && defined(COM3A1)
-      case TIMER3A:
-        timer_prefix(3,'A',4);
-        break;
-      case TIMER3B:
-        timer_prefix(3,'B',4);
-        break;
+      case TIMER3A: timer_prefix(3, 'A', 4); break;
+      case TIMER3B: timer_prefix(3, 'B', 4); break;
       #ifdef COM3C1
-        case TIMER3C:
-          timer_prefix(3,'C',4);
-          break;
+        case TIMER3C: timer_prefix(3, 'C', 4); break;
       #endif
     #endif
 
     #ifdef TCCR4A
-      case TIMER4A:
-        timer_prefix(4,'A',4);
-        break;
-      case TIMER4B:
-        timer_prefix(4,'B',4);
-        break;
-      case TIMER4C:
-        timer_prefix(4,'C',4);
-        break;
+      case TIMER4A: timer_prefix(4, 'A', 4); break;
+      case TIMER4B: timer_prefix(4, 'B', 4); break;
+      case TIMER4C: timer_prefix(4, 'C', 4); break;
     #endif
 
     #if defined(TCCR5A) && defined(COM5A1)
-      case TIMER5A:
-        timer_prefix(5,'A',4);
-        break;
-      case TIMER5B:
-        timer_prefix(5,'B',4);
-        break;
-      case TIMER5C:
-        timer_prefix(5,'C',4);
-        break;
+      case TIMER5A: timer_prefix(5, 'A', 4); break;
+      case TIMER5B: timer_prefix(5, 'B', 4); break;
+      case TIMER5C: timer_prefix(5, 'C', 4); break;
     #endif
 
     case NOT_ON_TIMER: break;
@@ -472,8 +438,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
         SERIAL_CHAR('.');
         SERIAL_ECHO_SP(25);  // add padding if not the first instance found
       }
-      else SERIAL_ECHOPGM(".                         ");  // add padding if not the first instance found
-      name_mem_pointer = (char*) pgm_read_word(&pin_array[x][0]);
+      name_mem_pointer = (char*)pgm_read_word(&pin_array[x][0]);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0) MYSERIAL.write(temp_char);
