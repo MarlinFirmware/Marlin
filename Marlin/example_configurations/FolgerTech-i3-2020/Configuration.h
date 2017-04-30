@@ -37,18 +37,6 @@
  */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-
-/**
- *
- *  ***********************************
- *  **  ATTENTION TO ALL DEVELOPERS  **
- *  ***********************************
- *
- * You must increment this version number for every significant change such as,
- * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option.
- *
- * Note: Update also Version.h !
- */
 #define CONFIGURATION_H_VERSION 010100
 
 //===========================================================================
@@ -144,9 +132,6 @@
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
-
-// Enable if your E steppers or extruder gear ratios are not identical
-//#define DISTINCT_E_FACTORS
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -293,6 +278,7 @@
 #define HEATER_1_MAXTEMP 245
 #define HEATER_2_MAXTEMP 245
 #define HEATER_3_MAXTEMP 245
+#define HEATER_4_MAXTEMP 245
 #define BED_MAXTEMP 115
 
 //===========================================================================
@@ -316,12 +302,16 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  
-    
+
   // FolgerTech i3-2020
   #define  DEFAULT_Kp 11.50
   #define  DEFAULT_Ki 0.50
   #define  DEFAULT_Kd 60.00
+
+  // Ultimaker
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -477,11 +467,15 @@
  *
  * These settings can be reset by M502
  *
- * You can set distinct factors for each E stepper, if needed.
- * If fewer factors are given, the last will apply to the rest.
- *
  * Note that if EEPROM is enabled, saved values will override these.
  */
+
+/**
+ * With this option each E stepper can have its own factors for the
+ * following movement settings. If fewer factors are given than the
+ * total number of extruders, the last value applies to the rest.
+ */
+//#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -531,77 +525,89 @@
 #define DEFAULT_EJERK                  4.0
 
 
+//===========================================================================
+//============================= Z Probe Options =============================
+//===========================================================================
+// @section probes
+
+//
+// See http://marlinfw.org/configuration/probes.html
+//
 
 /**
- * ===========================================================================
- * ============================= Z Probe Options =============================
- * ===========================================================================
- *    @section probes
+ * Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
  *
+ * Enable this option for a probe connected to the Z Min endstop pin.
+ */
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+/**
+ * Z_MIN_PROBE_ENDSTOP
  *
- *   Probe Type
- *   Probes are sensors/switches that are activated / deactivated before/after use.
+ * Enable this option for a probe connected to any pin except Z-Min.
+ * (By default Marlin assumes the Z-Max endstop pin.)
+ * To use a custom Z Probe pin, set Z_MIN_PROBE_PIN below.
  *
- *   Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
- *   You must activate one of these to use Auto Bed Leveling below.
+ *  - The simplest option is to use a free endstop connector.
+ *  - Use 5V for powered (usually inductive) sensors.
  *
- *   Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
+ *  - RAMPS 1.3/1.4 boards may use the 5V, GND, and Aux4->D32 pin:
+ *    - For simple switches connect...
+ *      - normally-closed switches to GND and D32.
+ *      - normally-open switches to 5V and D32.
+ *
+ * WARNING: Setting the wrong pin may have unexpected and potentially
+ * disastrous consequences. Use with caution and do your homework.
+ *
+ */
+//#define Z_MIN_PROBE_ENDSTOP
+//#define Z_MIN_PROBE_PIN Z_MAX_PIN
+
+/**
+ * Probe Type
+ *
+ * Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
+ * Activate one of these to use Auto Bed Leveling below.
  */
 
 /**
- *   The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
- *   Use G29 repeatedly, adjusting the Z height at each point with movement commands
- *   or (with LCD_BED_LEVELING) the LCD controller.
+ * The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
+ * Use G29 repeatedly, adjusting the Z height at each point with movement commands
+ * or (with LCD_BED_LEVELING) the LCD controller.
  */
 //#define PROBE_MANUALLY
 
 /**
- *   A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
- *   For example an inductive probe, or a setup that uses the nozzle to probe.
- *   An inductive probe must be deactivated to go below
- *   its trigger-point if hardware endstops are active.
+ * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
+ *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
 //#define FIX_MOUNTED_PROBE
 
-
 /**
- *   Z Servo Probe, such as an endstop switch on a rotating arm.
- *   NUM_SERVOS also needs to be set.  This is found later in this file.  Set it to
- *   1 + the number of other servos in your system.
+ * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 #define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
 #define Z_SERVO_ANGLES {40,85}  // Z Servo Deploy and Stow angles
 
- /**
- *   The BLTouch probe emulates a servo probe.
- *   If using a BLTouch then NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES
- *   are setup for you in the background and you shouldn't need to set/modify/enable them
- *   with the possible exception of Z_ENDSTOP_SERVO_NR.
+/**
+ * The BLTouch probe is a Hall effect sensor that emulates a servo.
  */
 //#define BLTOUCH
-//#define BLTOUCH_DELAY 375 // (ms) Enable and increase if needed
-
-/**
- *   BLTouch WARNING  -  ONLY APPLIES TO VERSIONS OF MARLIN BEFORE 15 FEB 2017
- *   Unless using interrupt endstops, there is a MINIMUM feedrate for Marlin to reliably
- *   sense the BLTouch.  If the feedrate is too slow then G28 & G29 can sometimes result
- *   in the print head being driven into the bed until manual intervention.
- *   The minimum feedrate calculation is:
- *
- *     feedrate minimum =  24000 / DEFAULT_AXIS_STEPS_PER_UNIT
- *        where feedrate is in "mm/minute" or "inches/minute" depending on the units used
- *        in DEFAULT_AXIS_STEPS_PER_UNIT
- *
- *   This applies to the HOMING_FEEDRATE_Z and Z_PROBE_SPEED_FAST.  If PROBE_DOUBLE_TOUCH
- *   is enabled then it also applies to Z_PROBE_SPEED_SLOW.
- */
+#if ENABLED(BLTOUCH)
+  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  //#define BLTOUCH_HEATERS_OFF // Enable if the probe seems unreliable. Heaters will be disabled for each probe.
+#endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
 
-// Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
+// A sled-mounted probe like those designed by Charles Bell.
 //#define Z_PROBE_SLED
-//#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+//#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+
+//
+// For Z_PROBE_ALLEN_KEY see the Delta example configurations.
+//
 
 /**
  *   Z Probe to nozzle (X,Y) offset, relative to (0, 0).
@@ -630,74 +636,12 @@
 #define XY_PROBE_SPEED 7500
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
+
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
-
-/**
- *   Allen Key Probe is defined in the Delta example configurations.
- *
- *
- *   *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
- *
- *   - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
- *   - Use 5V for powered (usu. inductive) sensors.
- *   - Otherwise connect:
- *     - normally-closed switches to GND and D32.
- *     - normally-open switches to 5V and D32.
- *
- *   Normally-closed switches are advised and are the default.
- *
- *
- *   PIN OPTIONS\SETUP FOR Z PROBES
- *
- *
- *   WARNING:
- *   Setting the wrong pin may have unexpected and potentially disastrous consequences.
- *   Use with caution and do your homework.
- *
- *
- *   All Z PROBE pin options are configured by defining (or not defining)
- *   the following five items:
- *       Z_MIN_PROBE_ENDSTOP – defined below
- *       Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN – defined below
- *       Z_MIN_PIN - defined in the pins_YOUR_BOARD.h file
- *       Z_MIN_PROBE_PIN - defined in the pins_YOUR_BOARD.h file
- *
- *   If you're using a probe then you need to tell Marlin which pin to use as
- *   the Z MIN ENDSTOP.  Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN determines if the
- *   Z_MIN_PIN or if the Z_MIN_PROBE_PIN is used.
- *
- *   The pin selected for the probe is ONLY checked during probing operations.
- *   If you want to use the Z_MIN_PIN as an endstop AND you want to have a Z PROBE
- *   then you’ll need to use the Z_MIN_PROBE_PIN option.
- *
- *   Z_MIN_PROBE_ENDSTOP also needs to be enabled if you want to use Z_MIN_PROBE_PIN.
- *
- *   The settings needed to use the Z_MIN_PROBE_PIN are:
- *       1. select the type of probe you're using
- *       2. define Z_MIN_PROBE_PIN in your pins_YOUR_BOARD.h file
- *       3. disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. enable Z_MIN_PROBE_ENDSTOP
- *   NOTE – if Z_MIN_PIN is defined then it’ll be checked during all moves in the
- *          negative Z direction.
- *
- *   The settings needed to use the Z_MIN_PIN are:
- *       1. select the type of probe you're using
- *       2. enable Z_MIN _PIN in your pins_YOUR_BOARD.h file
- *       3. enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. disable Z_MIN_PROBE_ENDSTOP
- *   NOTES – if Z_MIN_PROBE_PIN is defined in the pins_YOUR_BOARD.h file then it’ll be
- *          ignored by Marlin
- */
-
-//#define Z_MIN_PROBE_ENDSTOP
-
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-
-// Enable Z Probe Repeatability test to see how accurate your probe is
-#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -716,10 +660,11 @@
 #define Z_CLEARANCE_DEPLOY_PROBE    3 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
 
-
-// For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -20
+// For M851 give a range for adjusting the Z probe offset#define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
+
+// Enable the M48 repeatability test to test probe accuracy
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -739,7 +684,7 @@
 // @section extruder
 
 #define DISABLE_E false // For all extruders
-#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
+#define DISABLE_INACTIVE_EXTRUDER true // Keep only the active extruder enabled.
 
 // @section machine
 
@@ -769,7 +714,6 @@
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
-
 
 // @section machine
 
@@ -803,7 +747,6 @@
 //===========================================================================
 //=============================== Bed Leveling ==============================
 //===========================================================================
-
 // @section bedlevel
 
 /**
@@ -849,7 +792,6 @@
 //#define AUTO_BED_LEVELING_BILINEAR
 #define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
-
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -901,7 +843,6 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-
   #define ABL_PROBE_PT_1_X 39
   #define ABL_PROBE_PT_1_Y 170
   #define ABL_PROBE_PT_2_X 39
@@ -917,16 +858,17 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-    #define UBL_MESH_INSET 1         // Mesh inset margin on print area
-    #define GRID_MAX_POINTS_X 10     // Don't use more than 15 points per axis, implementation limited.
-    #define GRID_MAX_POINTS_Y 10
-    #define UBL_PROBE_PT_1_X 45    // These set the probe locations for when UBL does a 3-Point leveling	
-    #define UBL_PROBE_PT_1_Y 170   // of the mesh.
-    #define UBL_PROBE_PT_2_X 45
-    #define UBL_PROBE_PT_2_Y 25
-    #define UBL_PROBE_PT_3_X 180
-    #define UBL_PROBE_PT_3_Y 25
-    #define UBL_G26_MESH_EDITING     // Enable G26 mesh editing
+  #define UBL_MESH_INSET 1          // Mesh inset margin on print area
+  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_Y 10
+  #define UBL_PROBE_PT_1_X 45       // These set the probe locations for when UBL does a 3-Point leveling
+  #define UBL_PROBE_PT_1_Y 170      // of the mesh.
+  #define UBL_PROBE_PT_2_X 45
+  #define UBL_PROBE_PT_2_Y 25
+  #define UBL_PROBE_PT_3_X 180
+  #define UBL_PROBE_PT_3_Y 25
+  #define UBL_G26_MESH_EDITING    // Enable G26 mesh editing
+
 #elif ENABLED(MESH_BED_LEVELING)
 
   //===========================================================================
@@ -1606,7 +1548,7 @@
  */
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)

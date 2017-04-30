@@ -406,7 +406,9 @@
     #endif
   #endif
 
-  #define IS_Z2_OR_PROBE(P) (P == Z2_MIN_PIN || P == Z2_MAX_PIN || P == Z_MIN_PROBE_PIN)
+  #define IS_Z2_OR_PROBE(P) (PIN_EXISTS(Z2_MIN_PIN)      && (P == Z2_MIN_PIN) \
+                          || PIN_EXISTS(Z2_MAX_PIN)      && (P == Z2_MAX_PIN) \ 
+                          || PIN_EXISTS(Z_MIN_PROBE_PIN) && (P == Z_MIN_PROBE_PIN))
 
   /**
    * Set ENDSTOPPULLUPS for active endstop switches
@@ -691,43 +693,20 @@
    * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
+    #ifndef DELTA_CALIBRATION_RADIUS
+      #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
+    #endif
     #ifndef DELTA_ENDSTOP_ADJ
-      #define DELTA_ENDSTOP_ADJ { 0 }
+      #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
     #endif
-    #ifndef DELTA_RADIUS_TRIM_TOWER_1
-      #define DELTA_RADIUS_TRIM_TOWER_1 0.0
+    #ifndef DELTA_TOWER_ANGLE_TRIM
+      #define DELTA_TOWER_ANGLE_TRIM {0, 0, 0}
     #endif
-    #ifndef DELTA_RADIUS_TRIM_TOWER_2
-      #define DELTA_RADIUS_TRIM_TOWER_2 0.0
+    #ifndef DELTA_RADIUS_TRIM_TOWER
+      #define DELTA_RADIUS_TRIM_TOWER {0, 0, 0}
     #endif
-    #ifndef DELTA_RADIUS_TRIM_TOWER_3
-      #define DELTA_RADIUS_TRIM_TOWER_3 0.0
-    #endif
-    #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_1
-      #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
-    #endif
-    #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_2
-      #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
-    #endif
-    #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
-      #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
-    #endif
-    #ifndef DELTA_TOWER_ANGLE_TRIM_1
-      #define DELTA_TOWER_ANGLE_TRIM_1 0.0
-    #endif
-    #ifndef DELTA_TOWER_ANGLE_TRIM_2
-      #define DELTA_TOWER_ANGLE_TRIM_2 0.0
-    #endif
-    #ifndef DELTA_TOWER_ANGLE_TRIM_3
-      #define DELTA_TOWER_ANGLE_TRIM_3 0.0
-    #endif
-    #if ENABLED(DELTA_AUTO_CALIBRATION)
-      #ifndef H_FACTOR
-        #define H_FACTOR 1.00
-      #endif
-      #ifndef R_FACTOR
-        #define R_FACTOR -2.25
-      #endif
+    #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
+      #define DELTA_DIAGONAL_ROD_TRIM_TOWER {0, 0, 0}
     #endif
   #endif
 

@@ -37,7 +37,7 @@
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
-  #define NOZZLE 0.3
+  #define NOZZLE 0.4
   #define FILAMENT 1.75
   #define LAYER_HEIGHT 0.2
   #define PRIME_LENGTH 10.0

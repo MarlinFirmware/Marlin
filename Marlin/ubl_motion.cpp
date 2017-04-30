@@ -250,8 +250,10 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    const bool inf_normalized_flag = NEAR_ZERO(on_axis_distance),
-               inf_m_flag = NEAR_ZERO(dx);
+    bool inf_normalized_flag, inf_m_flag; 
+
+    inf_normalized_flag = isinf(e_normalized_dist);
+    inf_m_flag = isinf(m);
 
     /**
      * This block handles vertical lines. These are lines that stay within the same
@@ -265,7 +267,7 @@
         const float next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi])));
 
         /**
-         * inf_m_flag? the slope of the line is infinite, we won't do the calculations
+         * if the slope of the line is infinite, we won't do the calculations
          * else, we know the next X is the same so we can recover and continue!
          * Calculate X at the next Y mesh line
          */

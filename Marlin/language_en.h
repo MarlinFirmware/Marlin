@@ -408,6 +408,9 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
 #endif
+#ifndef MSG_BLTOUCH
+  #define MSG_BLTOUCH                         _UxGT("BLTouch")
+#endif
 #ifndef MSG_BLTOUCH_SELFTEST
   #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #endif
