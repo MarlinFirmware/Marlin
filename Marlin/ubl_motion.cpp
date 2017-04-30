@@ -250,7 +250,7 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    bool inf_normalized_flag=false, inf_m_flag=false; 
+    bool inf_normalized_flag, inf_m_flag; 
 
     inf_normalized_flag = isinf(e_normalized_dist);
     inf_m_flag = isinf(m);
