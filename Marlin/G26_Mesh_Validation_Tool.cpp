@@ -178,6 +178,7 @@
    * nozzle in a problem area and doing a G29 P4 R command.
    */
   void gcode_G26() {
+    SERIAL_ECHOLNPGM("G26 command started.  Waiting on heater(s).");
     float tmp, start_angle, end_angle;
     int   i, xi, yi;
     mesh_index_pair location;
@@ -765,6 +766,7 @@
    * wait for them to get up to temperature.
    */
   bool turn_on_heaters() {
+    millis_t next;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (bed_temp > 25) {
@@ -773,8 +775,13 @@
       #endif
           ubl.has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
+          next = millis() + 5000;
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
+            if (millis() > next) {
+              next = millis() + 5000;
+              print_heaterstates();
+            }
             idle();
           }
       #if ENABLED(ULTRA_LCD)
@@ -788,6 +795,10 @@
     thermalManager.setTargetHotend(hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
       if (ubl_lcd_clicked()) return exit_from_g26();
+      if (millis() > next) {
+        next = millis() + 5000;
+        print_heaterstates();
+      }
       idle();
     }
 
