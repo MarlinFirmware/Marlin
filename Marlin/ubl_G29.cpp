@@ -342,6 +342,7 @@
           break;            // No more invalid Mesh Points to populate
         }
         ubl.z_values[location.x_index][location.y_index] = NAN;
+        cnt++;
       }
       SERIAL_PROTOCOLLNPGM("Locations invalidated.\n");
     }
