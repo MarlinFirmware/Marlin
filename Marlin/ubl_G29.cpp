@@ -31,9 +31,13 @@
   #include "hex_print_routines.h"
   #include "configuration_store.h"
   #include "ultralcd.h"
+  #include "stepper.h"
 
   #include <math.h>
   #include "least_squares_fit.h"
+
+  extern float destination[XYZE];
+  extern float current_position[XYZE];
 
   void lcd_return_to_status();
   bool lcd_clicked();
@@ -317,6 +321,7 @@
 
   void __attribute__((optimize("O0"))) gcode_G29() {
 
+
     if (ubl.eeprom_start < 0) {
       SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
       SERIAL_PROTOCOLLNPGM("with M502, M500, M501 in that order.\n");
@@ -435,8 +440,8 @@
             // have Delta printers default to the center of the bed.
             // For now, until that is decided, it can be forced with the X
             // and Y parameters.
-            x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_MAX_POS : X_MIN_POS;
-            y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_MAX_POS : Y_MIN_POS;
+            x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? UBL_MESH_MAX_X : UBL_MESH_MIN_X;
+            y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? UBL_MESH_MAX_Y : UBL_MESH_MIN_Y;
           }
 
           if (code_seen('C')) {
@@ -455,8 +460,9 @@
             }
           }
           manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
-
-        } break;
+          SERIAL_PROTOCOLLNPGM("G29 P2 finished");
+          }
+          break;
 
         case 3: {
           //
@@ -900,6 +906,10 @@
   }
 
   float use_encoder_wheel_to_measure_point() {
+
+    while (ubl_lcd_clicked()) delay(50);;  // wait for user to release encoder wheel
+    delay(50);  // debounce
+
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
       idle();
@@ -917,15 +927,18 @@
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
 
-    SERIAL_PROTOCOLLNPGM("Place Shim Under Nozzle and Perform Measurement.");
     do_blocking_move_to_z(in_height);
-    do_blocking_move_to_xy((float(X_MAX_POS) - float(X_MIN_POS)) / 2.0, (float(Y_MAX_POS) - float(Y_MIN_POS)) / 2.0);
+    do_blocking_move_to_xy((float(UBL_MESH_MAX_X) - float(UBL_MESH_MIN_X)) / 2.0, (float(UBL_MESH_MAX_Y) - float(UBL_MESH_MIN_Y)) / 2.0);
       //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])/2.0);
+
+    stepper.synchronize();
+    SERIAL_PROTOCOLLNPGM("Place Shim Under Nozzle and Perform Measurement.");
+
 
     const float z1 = use_encoder_wheel_to_measure_point();
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
-    ubl.has_control_of_lcd_panel = false;
 
+    stepper.synchronize();
     SERIAL_PROTOCOLLNPGM("Remove Shim and Measure Bed Height.");
     const float z2 = use_encoder_wheel_to_measure_point();
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
@@ -935,6 +948,8 @@
       SERIAL_PROTOCOL_F(abs(z1 - z2), 6);
       SERIAL_PROTOCOLLNPGM("mm thick.");
     }
+    ubl.has_control_of_lcd_panel = false;
+
     ubl.restore_ubl_active_state_and_leave();
     return abs(z1 - z2);
   }
@@ -957,7 +972,7 @@
                   rawy = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) {
+      if (!WITHIN(rawx, UBL_MESH_MIN_X, UBL_MESH_MAX_X) || !WITHIN(rawy, UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
         ubl.has_control_of_lcd_panel = false;
@@ -984,6 +999,10 @@
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
 
+
+      while (ubl_lcd_clicked()) delay(50);;  // wait for user to release encoder wheel
+      delay(50);  // debounce
+
       while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
         if (ubl.encoder_diff) {
@@ -991,6 +1010,7 @@
           ubl.encoder_diff = 0;
         }
       }
+
 
       const millis_t nxt = millis() + 1500L;
       while (ubl_lcd_clicked()) {     // debounce and watch for abort
@@ -1037,6 +1057,7 @@
 
     y_flag = code_seen('Y') && code_has_value();
     y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
+
 
     repeat_flag = code_seen('R');
     if (repeat_flag) {
@@ -1436,33 +1457,52 @@
         goto FINE_TUNE_EXIT;
       }
 
-      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
-      do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
-
       float new_z = ubl.z_values[location.x_index][location.y_index];
 
-      round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
-      new_z = float(round_off) / 1000.0;
+      if (!isnan(new_z)) {  //can't fine tune a point that hasn't been probed
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      ubl.has_control_of_lcd_panel = true;
+        do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
+        do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
-      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
 
-      lcd_implementation_clear();
-      lcd_mesh_edit_setup(new_z);
 
-      do {
-        new_z = lcd_mesh_edit();
-        idle();
-      } while (!ubl_lcd_clicked());
 
-      lcd_return_to_status();
 
-      ubl.has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
-                                           // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                           // or here.
 
+        round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
+        new_z = float(round_off) / 1000.0;
+
+
+
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        ubl.has_control_of_lcd_panel = true;
+
+
+        if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
+
+
+
+        lcd_implementation_clear();
+
+        lcd_mesh_edit_setup(new_z);
+
+
+
+        do {
+          new_z = lcd_mesh_edit();
+          idle();
+        } while (!ubl_lcd_clicked());
+
+
+        lcd_return_to_status();
+
+
+
+
+        ubl.has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
+                                             // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
+                                             // or here.
+      }
       const millis_t nxt = millis() + 1500UL;
       while (ubl_lcd_clicked()) { // debounce and watch for abort
         idle();
@@ -1630,10 +1670,10 @@
               SERIAL_ECHOPGM("   final >>>---> ");
               SERIAL_PROTOCOL_F( measured_z, 7);
               SERIAL_ECHOPGM("\n");
-        }
+            }
           #endif
           incremental_LSF(&lsf_results, x, y, measured_z);
-      }
+        }
 
         zig_zag = !zig_zag;
       }
@@ -1647,7 +1687,7 @@
       SERIAL_ECHOPGM("  D=");
       SERIAL_PROTOCOL_F( lsf_results.D, 7);
       SERIAL_CHAR('\n');
-        }
+    }
 
     normal = vector_3( lsf_results.A, lsf_results.B, 1.0000);
     normal = normal.get_normal();
@@ -1660,46 +1700,46 @@
       SERIAL_ECHOPGM(",");
       SERIAL_PROTOCOL_F( normal.z, 7);
       SERIAL_ECHOPGM("]\n");
-      }
+    }
 
     rotation = matrix_3x3::create_look_at( vector_3( lsf_results.A,  lsf_results.B, 1));
 
     for (i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
         float x_tmp, y_tmp, z_tmp;
-          x_tmp = pgm_read_float(&(ubl.mesh_index_to_xpos[i]));
-          y_tmp = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
-          z_tmp = ubl.z_values[i][j];
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("before rotation = [");
-              SERIAL_PROTOCOL_F( x_tmp, 7);
-              SERIAL_ECHOPGM(",");
-              SERIAL_PROTOCOL_F( y_tmp, 7);
-              SERIAL_ECHOPGM(",");
-              SERIAL_PROTOCOL_F( z_tmp, 7);
-              SERIAL_ECHOPGM("]   ---> ");
-              safe_delay(20);
-        }
-          #endif
-          apply_rotation_xyz(rotation, x_tmp, y_tmp, z_tmp);
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("after rotation = [");
-              SERIAL_PROTOCOL_F( x_tmp, 7);
-              SERIAL_ECHOPGM(",");
-              SERIAL_PROTOCOL_F( y_tmp, 7);
-              SERIAL_ECHOPGM(",");
-              SERIAL_PROTOCOL_F( z_tmp, 7);
-              SERIAL_ECHOPGM("]\n");
-              safe_delay(55);
+        x_tmp = pgm_read_float(&(ubl.mesh_index_to_xpos[i]));
+        y_tmp = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
+        z_tmp = ubl.z_values[i][j];
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPGM("before rotation = [");
+            SERIAL_PROTOCOL_F( x_tmp, 7);
+            SERIAL_ECHOPGM(",");
+            SERIAL_PROTOCOL_F( y_tmp, 7);
+            SERIAL_ECHOPGM(",");
+            SERIAL_PROTOCOL_F( z_tmp, 7);
+            SERIAL_ECHOPGM("]   ---> ");
+            safe_delay(20);
+          }
+        #endif
+        apply_rotation_xyz(rotation, x_tmp, y_tmp, z_tmp);
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPGM("after rotation = [");
+            SERIAL_PROTOCOL_F( x_tmp, 7);
+            SERIAL_ECHOPGM(",");
+            SERIAL_PROTOCOL_F( y_tmp, 7);
+            SERIAL_ECHOPGM(",");
+            SERIAL_PROTOCOL_F( z_tmp, 7);
+            SERIAL_ECHOPGM("]\n");
+            safe_delay(55);
+          }
+
+        #endif
+
+        ubl.z_values[i][j] += z_tmp - lsf_results.D;
       }
-
-      #endif
-
-          ubl.z_values[i][j] += z_tmp - lsf_results.D;
-        }
-        }
+    }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -1723,7 +1763,7 @@
         SERIAL_CHAR('\n');
       }
     #endif
-            return;
-          }
+    return;
+  }
 
 #endif // AUTO_BED_LEVELING_UBL
