@@ -600,6 +600,8 @@
               SERIAL_ECHOPAIR(" J ", y);
               SERIAL_ECHOPGM(" Z ");
               SERIAL_ECHO_F(ubl.z_values[x][y], 6);
+              SERIAL_ECHOPAIR(" ; X ", LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[x]))));
+              SERIAL_ECHOPAIR(", Y ", LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[y]))));
               SERIAL_EOL;
             }
         return;
