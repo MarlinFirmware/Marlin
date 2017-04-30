@@ -27,7 +27,7 @@
  * Its results are identical to both the Iterative Least-Squares published
  * earlier by Roxy and the QR_SOLVE solution. If used in place of QR_SOLVE
  * it saves roughly 10K of program memory.   And even better...  the data
- * fed into the algorithm does not need to all be present at the same time.  
+ * fed into the algorithm does not need to all be present at the same time.
  * A point can be probed and its values fed into the algorithm and then discarded.
  *
  */
@@ -42,14 +42,14 @@
 
 struct linear_fit_data {
   int n;
-  float xbar, ybar, zbar;
-  float x2bar, y2bar, z2bar;
-  float xybar, xzbar, yzbar;
-  float max_absx, max_absy;
-  float A, B, D;
+  float xbar, ybar, zbar,
+        x2bar, y2bar, z2bar,
+        xybar, xzbar, yzbar,
+        max_absx, max_absy,
+        A, B, D;
 };
 
-void incremental_LSF_reset(struct linear_fit_data *); 
+void incremental_LSF_reset(struct linear_fit_data *);
 void incremental_LSF(struct linear_fit_data *, float x, float y, float z);
 int finish_incremental_LSF(struct linear_fit_data *);
 

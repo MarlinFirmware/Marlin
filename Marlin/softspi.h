@@ -19,11 +19,11 @@ bool fastDigitalRead(uint8_t pin) {
  */
 static inline __attribute__((always_inline))
 void fastDigitalWrite(uint8_t pin, bool value) {
-	if (value) {
-		*portSetRegister(pin) = 1;
-	} else {
-		*portClearRegister(pin) = 1;
-	}
+  if (value) {
+    *portSetRegister(pin) = 1;
+  } else {
+    *portClearRegister(pin) = 1;
+  }
 }
 #else  // CORE_TEENSY
 //------------------------------------------------------------------------------
@@ -574,7 +574,7 @@ class DigitalPin {
   /** Parenthesis operator
    * @return Pin's level
    */
-	inline operator bool () const __attribute__((always_inline)) {
+  inline operator bool () const __attribute__((always_inline)) {
     return read();
   }
   //----------------------------------------------------------------------------

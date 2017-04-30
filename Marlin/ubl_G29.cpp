@@ -50,10 +50,9 @@
   extern bool code_has_value();
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
-  void smart_fill_mesh();  
+  void smart_fill_mesh();
 
   bool ProbeStay = true;
-
 
   #define SIZE_OF_LITTLE_RAISE 0
   #define BIG_RAISE_NOT_NEEDED 0
@@ -189,13 +188,13 @@
    *   P3    Phase 3    Fill the unpopulated regions of the Mesh with a fixed value. There are two different paths the
    *                    user can go down.  If the user specifies the value using the C parameter, the closest invalid
    *                    mesh points to the nozzle will be filled.   The user can specify a repeat count using the R
-   *                    parameter with the C version of the command. 
+   *                    parameter with the C version of the command.
    *
-   *                    A second version of the fill command is available if no C constant is specified.  Not 
+   *                    A second version of the fill command is available if no C constant is specified.  Not
    *                    specifying a C constant will invoke the 'Smart Fill' algorithm.  The G29 P3 command will search
    *                    from the edges of the mesh inward looking for invalid mesh points.  It will look at the next
    *                    several mesh points to determine if the print bed is sloped up or down.  If the bed is sloped
-   *                    upward from the invalid mesh point, it will be replaced with the value of the nearest mesh point. 
+   *                    upward from the invalid mesh point, it will be replaced with the value of the nearest mesh point.
    *                    If the bed is sloped downward from the invalid mesh point, it will be replaced with a value that
    *                    puts all three points in a line.   The second version of the G29 P3 command is a quick, easy and
    *                    usually safe way to populate the unprobed regions of your mesh so you can continue to the G26
@@ -336,7 +335,7 @@
       repetition_cnt = code_has_value() ? code_value_int() : 1;
       while (repetition_cnt--) {
         if (cnt > 20) { cnt = 0; idle(); }
-        const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false); 
+        const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
         if (location.x_index < 0) {
           SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
           break;            // No more invalid Mesh Points to populate
@@ -461,7 +460,7 @@
 
         case 3: {
           //
-          // Populate invalid Mesh areas.  Two choices are available to the user.  The user can 
+          // Populate invalid Mesh areas.  Two choices are available to the user.  The user can
           // specify the constant to be used with a C # paramter.   Or the user can allow the G29 P3 command to
           // apply a 'reasonable' constant to the invalid mesh point.  Some caution and scrutiny should be used
           // on either of these paths!
@@ -812,9 +811,9 @@
      * Z is negative, we need to invert the sign of all components of the vector
      */
     if ( normal.z < 0.0 ) {
-      normal.x = -normal.x; 
-      normal.y = -normal.y; 
-      normal.z = -normal.z; 
+      normal.x = -normal.x;
+      normal.y = -normal.y;
+      normal.z = -normal.z;
     }
 
     rotation = matrix_3x3::create_look_at( vector_3( normal.x,  normal.y, 1));
@@ -864,7 +863,7 @@
     for (i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
         float x_tmp, y_tmp, z_tmp;
-          x_tmp = pgm_read_float(ubl.mesh_index_to_xpos[i]); 
+          x_tmp = pgm_read_float(ubl.mesh_index_to_xpos[i]);
           y_tmp = pgm_read_float(ubl.mesh_index_to_ypos[j]);
           z_tmp = ubl.z_values[i][j];
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -948,7 +947,7 @@
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
-      location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_NOZZLE_AS_REFERENCE, NULL, false); 
+      location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_NOZZLE_AS_REFERENCE, NULL, false);
       // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
 
@@ -1416,7 +1415,7 @@
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
     do {
-      location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false); 
+      location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
                                                                                               // It doesn't matter if the probe can not reach this
                                                                                               // location. This is a manual edit of the Mesh Point.
       if (location.x_index < 0 && location.y_index < 0) continue; // abort if we can't find any more points.
@@ -1501,7 +1500,7 @@
   }
 
   //
-  // The routine provides the 'Smart Fill' capability.  It scans from the 
+  // The routine provides the 'Smart Fill' capability.  It scans from the
   // outward edges of the mesh towards the center.  If it finds an invalid
   // location, it uses the next two points (assumming they are valid) to
   // calculate a 'reasonable' value for the unprobed mesh point.
@@ -1511,14 +1510,14 @@
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {             // Bottom of the mesh looking up
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y-2; y++) {
         if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x][y+1]))                        // we only deal with the first NAN next to a block of 
+          if (isnan(ubl.z_values[x][y+1]))                        // we only deal with the first NAN next to a block of
             continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x][y+2]))  
-            continue;                      
+          if (isnan(ubl.z_values[x][y+2]))
+            continue;
           if (ubl.z_values[x][y+1] < ubl.z_values[x][y+2])        // The bed is angled down near this edge. So to be safe, we
             ubl.z_values[x][y] = ubl.z_values[x][y+1];            // use the closest value, which is probably a little too high
           else {
-            diff = ubl.z_values[x][y+1] - ubl.z_values[x][y+2];   // The bed is angled up near this edge. So we will use the closest 
+            diff = ubl.z_values[x][y+1] - ubl.z_values[x][y+2];   // The bed is angled up near this edge. So we will use the closest
             ubl.z_values[x][y] = ubl.z_values[x][y+1] + diff;     // height and add in the difference between that and the next point
           }
           break;
@@ -1528,14 +1527,14 @@
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {             // Top of the mesh looking down
       for (uint8_t y=GRID_MAX_POINTS_Y-1; y>=1; y--) {
         if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x][y-1]))                        // we only deal with the first NAN next to a block of 
+          if (isnan(ubl.z_values[x][y-1]))                        // we only deal with the first NAN next to a block of
             continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x][y-2]))  
-            continue;                      
+          if (isnan(ubl.z_values[x][y-2]))
+            continue;
           if (ubl.z_values[x][y-1] < ubl.z_values[x][y-2])        // The bed is angled down near this edge. So to be safe, we
             ubl.z_values[x][y] = ubl.z_values[x][y-1];            // use the closest value, which is probably a little too high
           else {
-            diff = ubl.z_values[x][y-1] - ubl.z_values[x][y-2];   // The bed is angled up near this edge. So we will use the closest 
+            diff = ubl.z_values[x][y-1] - ubl.z_values[x][y-2];   // The bed is angled up near this edge. So we will use the closest
             ubl.z_values[x][y] = ubl.z_values[x][y-1] + diff;     // height and add in the difference between that and the next point
           }
           break;
@@ -1545,14 +1544,14 @@
     for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X-2; x++) {         // Left side of the mesh looking right
         if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x+1][y]))                        // we only deal with the first NAN next to a block of 
+          if (isnan(ubl.z_values[x+1][y]))                        // we only deal with the first NAN next to a block of
             continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x+2][y]))  
-            continue;                      
+          if (isnan(ubl.z_values[x+2][y]))
+            continue;
           if (ubl.z_values[x+1][y] < ubl.z_values[x+2][y])        // The bed is angled down near this edge. So to be safe, we
             ubl.z_values[x][y] = ubl.z_values[x][y+1];            // use the closest value, which is probably a little too high
           else {
-            diff = ubl.z_values[x+1][y] - ubl.z_values[x+2][y];   // The bed is angled up near this edge. So we will use the closest 
+            diff = ubl.z_values[x+1][y] - ubl.z_values[x+2][y];   // The bed is angled up near this edge. So we will use the closest
             ubl.z_values[x][y] = ubl.z_values[x+1][y] + diff;     // height and add in the difference between that and the next point
           }
           break;
@@ -1562,18 +1561,18 @@
     for (uint8_t y=0; y < GRID_MAX_POINTS_Y; y++) {
       for (uint8_t x=GRID_MAX_POINTS_X-1; x>=1; x--) {            // Right side of the mesh looking left
         if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x-1][y]))                        // we only deal with the first NAN next to a block of 
+          if (isnan(ubl.z_values[x-1][y]))                        // we only deal with the first NAN next to a block of
             continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x-2][y]))  
-            continue;                      
+          if (isnan(ubl.z_values[x-2][y]))
+            continue;
           if (ubl.z_values[x-1][y] < ubl.z_values[x-2][y])        // The bed is angled down near this edge. So to be safe, we
             ubl.z_values[x][y] = ubl.z_values[x-1][y];            // use the closest value, which is probably a little too high
           else {
-            diff = ubl.z_values[x-1][y] - ubl.z_values[x-2][y];   // The bed is angled up near this edge. So we will use the closest 
+            diff = ubl.z_values[x-1][y] - ubl.z_values[x-2][y];   // The bed is angled up near this edge. So we will use the closest
             ubl.z_values[x][y] = ubl.z_values[x-1][y] + diff;     // height and add in the difference between that and the next point
           }
           break;
-        } 
+        }
       }
     }
   }
@@ -1600,7 +1599,7 @@
     for(ix=0; ix<grid_size; ix++) {
       x = ((float)x_min) + ix*dx;
       for(iy=0; iy<grid_size; iy++) {
-        if (zig_zag) 
+        if (zig_zag)
           y = ((float)y_min) + (grid_size-iy-1)*dy;
         else
           y = ((float)y_min) + iy*dy;
@@ -1666,7 +1665,7 @@
     for (i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
         float x_tmp, y_tmp, z_tmp;
-          x_tmp = pgm_read_float(&(ubl.mesh_index_to_xpos[i])); 
+          x_tmp = pgm_read_float(&(ubl.mesh_index_to_xpos[i]));
           y_tmp = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
           z_tmp = ubl.z_values[i][j];
           #if ENABLED(DEBUG_LEVELING_FEATURE)
