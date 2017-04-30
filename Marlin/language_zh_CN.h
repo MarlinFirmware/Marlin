@@ -108,7 +108,7 @@
 #define MSG_ESTEPS                          _UxGT("挤出机步数/mm")  //"Esteps/mm"
 #define MSG_TEMPERATURE                     _UxGT("温度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("运动")  //"Motion"
-#define MSG_VOLUMETRIC                      _UxGT("丝料测容")  //"Filament" lcd_control_volumetric_menu
+#define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" lcd_control_volumetric_menu
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("测容积mm³")  //"E in mm3" volumetric_enabled
 #define MSG_FILAMENT_DIAM                   _UxGT("丝料直径")  //"Fil. Dia."
 #define MSG_CONTRAST                        _UxGT("LCD对比度")  //"LCD contrast"

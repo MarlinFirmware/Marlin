@@ -300,14 +300,17 @@
 #ifndef MSG_MOTION
   #define MSG_MOTION                          _UxGT("Motion")
 #endif
-#ifndef MSG_VOLUMETRIC
-  #define MSG_VOLUMETRIC                      _UxGT("Filament")
+#ifndef MSG_FILAMENT
+  #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
   #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
+#endif
+#ifndef MSG_ADVANCE_K
+  #define MSG_ADVANCE_K                       _UxGT("Advance K")
 #endif
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
@@ -497,6 +500,12 @@
 #endif
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
+#endif
+#ifndef MSG_DELTA_AUTO_CALIBRATE
+  #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")
+#endif
+#ifndef MSG_DELTA_HEIGHT_CALIBRATE
+  #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")

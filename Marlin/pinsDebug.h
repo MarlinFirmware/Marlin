@@ -59,8 +59,8 @@ bool endstop_monitor_flag = false;
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
-  static const unsigned char RXD_NAME[] PROGMEM = {"RXD"};
-  static const unsigned char TXD_NAME[] PROGMEM = {"TXD"};
+  static const char RXD_NAME[] PROGMEM = {"RXD"};
+  static const char TXD_NAME[] PROGMEM = {"TXD"};
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,11 +92,11 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      {RXD_NAME, 0, 1},
-      {TXD_NAME, 1, 1},
+      {RXD_NAME, "0", "1"},
+      {TXD_NAME, "1", "1"},
     #elif AVR_ATmega1284_FAMILY
-      {RXD_NAME, 8, 1},
-      {TXD_NAME, 9, 1},
+      {RXD_NAME, "8", "1"},
+      {TXD_NAME, "9", "1"},
     #endif
   #endif
 
@@ -181,7 +181,7 @@ static bool pwm_status(uint8_t pin) {
 
 
 
-const uint8_t* const PWM_other[][3] PROGMEM = {
+const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     {&TCCR0A, &TCCR0B, &TIMSK0},
     {&TCCR1A, &TCCR1B, &TIMSK1},
   #if defined(TCCR2A) && defined(COM2A1)
@@ -199,7 +199,7 @@ const uint8_t* const PWM_other[][3] PROGMEM = {
 };
 
 
-const uint8_t* const PWM_OCR[][3] PROGMEM = {
+const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
   #ifdef TIMER0A
     {&OCR0A,&OCR0B,0},
@@ -255,12 +255,11 @@ static void err_is_counter() {
   SERIAL_PROTOCOLPGM("   non-standard PWM mode");
 }
 static void err_is_interrupt() {
-  SERIAL_PROTOCOLPGM("   compare interrupt enabled ");
+  SERIAL_PROTOCOLPGM("   compare interrupt enabled");
 }
 static void err_prob_interrupt() {
   SERIAL_PROTOCOLPGM("   overflow interrupt enabled");
 }
-static void can_be_used() { SERIAL_PROTOCOLPGM("   can be used as PWM   "); }
 
 void com_print(uint8_t N, uint8_t Z) {
   uint8_t *TCCRA = (uint8_t*) TCCR_A(N);
@@ -325,9 +324,6 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
 }
 
 static void pwm_details(uint8_t pin) {
-  char buffer[20];   // for the sprintf statements
-  uint8_t WGM;
-
   switch(digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
@@ -524,7 +520,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
 
       SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
-    //if (!pwm_status(pin)) SERIAL_ECHOCHAR(' ');    // add padding if it's not a PWM pin
+    //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
     if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
     SERIAL_EOL;
   }

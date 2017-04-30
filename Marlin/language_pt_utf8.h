@@ -112,7 +112,7 @@
 #define MSG_E5STEPS                         _UxGT("E5 passo/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
-#define MSG_VOLUMETRIC                      _UxGT("Filamento")
+#define MSG_FILAMENT                        _UxGT("Filamento")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E em mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Diam.")
 #define MSG_CONTRAST                        _UxGT("Contraste")

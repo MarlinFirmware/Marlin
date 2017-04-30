@@ -256,8 +256,8 @@
         : find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        const float circle_x = ubl.mesh_index_to_xpos[location.x_index],
-                    circle_y = ubl.mesh_index_to_ypos[location.y_index];
+        const float circle_x = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
+                    circle_y = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
 
         // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
         #ifdef DELTA
@@ -399,8 +399,8 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          const float mx = ubl.mesh_index_to_xpos[i],  // We found a circle that needs to be printed
-                      my = ubl.mesh_index_to_ypos[j];
+          const float mx = pgm_read_float(&(ubl.mesh_index_to_xpos[i])),  // We found a circle that needs to be printed
+                      my = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
 
           // Get the distance to this intersection
           float f = HYPOT(X - mx, Y - my);
@@ -444,11 +444,11 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = ubl.mesh_index_to_xpos[  i  ] + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
-              ex = ubl.mesh_index_to_xpos[i + 1] - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
+              sx = pgm_read_float(&(ubl.mesh_index_to_xpos[  i  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
+              ex = pgm_read_float(&(ubl.mesh_index_to_xpos[i + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
 
               sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
-              sy = ey = constrain(ubl.mesh_index_to_ypos[j], Y_MIN_POS + 1, Y_MAX_POS - 1);
+              sy = ey = constrain(pgm_read_float(&(ubl.mesh_index_to_ypos[j])), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
               if (ubl.g26_debug_flag) {
@@ -475,10 +475,10 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sy = ubl.mesh_index_to_ypos[  j  ] + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
-                ey = ubl.mesh_index_to_ypos[j + 1] - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
+                sy = pgm_read_float(&(ubl.mesh_index_to_ypos[  j  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
+                ey = pgm_read_float(&(ubl.mesh_index_to_ypos[j + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
 
-                sx = ex = constrain(ubl.mesh_index_to_xpos[i], X_MIN_POS + 1, X_MAX_POS - 1);
+                sx = ex = constrain(pgm_read_float(&(ubl.mesh_index_to_xpos[i])), X_MIN_POS + 1, X_MAX_POS - 1);
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 

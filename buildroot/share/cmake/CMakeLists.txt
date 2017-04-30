@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 2.8)
 #        cmake -G"Unix Makefiles" ..                                 #
 #        make                                                        #
 #====================================================================#
- 
+
 #====================================================================#
 # Download marlin-cmake scriptfiles if not already installed         #
 # and add the path to the module path                                #
@@ -26,13 +26,13 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
 
 	file(DOWNLOAD https://github.com/tohara/marlin-cmake/archive/${SCRIPT_BRANCH}.tar.gz
 				  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz SHOW_PROGRESS)
-				  
+
 	execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvf ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-				  
+
 	file(RENAME ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-${SCRIPT_BRANCH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
 	file(REMOVE ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz)
-    
-              
+
+
 endif()
 
 if(WIN32 AND NOT EXISTS ${CMAKE_BINARY_DIR}/make.exe)

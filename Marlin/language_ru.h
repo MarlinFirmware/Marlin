@@ -111,7 +111,7 @@
 #define MSG_E4STEPS                         _UxGT("E4 шаг/мм")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Механика")
-#define MSG_VOLUMETRIC                      _UxGT("Пруток")
+#define MSG_FILAMENT                        _UxGT("Пруток")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E в mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Диаметр прутка")
 #define MSG_CONTRAST                        _UxGT("Контраст LCD")

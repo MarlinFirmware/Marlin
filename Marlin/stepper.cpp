@@ -271,7 +271,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
  *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
  */
 void Stepper::wake_up() {
-  //  TCNT1 = 0;
+  // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
@@ -1076,23 +1076,22 @@ void Stepper::init() {
   #if HAS_E3_STEP
     E_AXIS_INIT(3);
   #endif
+  #if HAS_E4_STEP
+    E_AXIS_INIT(4);
+  #endif
 
   // waveform generation = 0100 = CTC
-  CBI(TCCR1B, WGM13);
-  SBI(TCCR1B, WGM12);
-  CBI(TCCR1A, WGM11);
-  CBI(TCCR1A, WGM10);
+  SET_WGM(1, CTC_OCRnA);
 
   // output mode = 00 (disconnected)
-  TCCR1A &= ~(3 << COM1A0);
-  TCCR1A &= ~(3 << COM1B0);
+  SET_COMA(1, NORMAL);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
   // sure to regenerate speed_lookuptable.h with
   // create_speed_lookuptable.py
-  TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
+  SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
 
   // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;
@@ -1461,21 +1460,33 @@ void Stepper::report_positions() {
   void Stepper::microstep_init() {
     SET_OUTPUT(X_MS1_PIN);
     SET_OUTPUT(X_MS2_PIN);
-    #if HAS_MICROSTEPS_Y
+    #if HAS_Y_MICROSTEPS
       SET_OUTPUT(Y_MS1_PIN);
       SET_OUTPUT(Y_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_Z
+    #if HAS_Z_MICROSTEPS
       SET_OUTPUT(Z_MS1_PIN);
       SET_OUTPUT(Z_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_E0
+    #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
     #endif
-    #if HAS_MICROSTEPS_E1
+    #if HAS_E1_MICROSTEPS
       SET_OUTPUT(E1_MS1_PIN);
       SET_OUTPUT(E1_MS2_PIN);
+    #endif
+    #if HAS_E2_MICROSTEPS
+      SET_OUTPUT(E2_MS1_PIN);
+      SET_OUTPUT(E2_MS2_PIN);
+    #endif
+    #if HAS_E3_MICROSTEPS
+      SET_OUTPUT(E3_MS1_PIN);
+      SET_OUTPUT(E3_MS2_PIN);
+    #endif
+    #if HAS_E4_MICROSTEPS
+      SET_OUTPUT(E4_MS1_PIN);
+      SET_OUTPUT(E4_MS2_PIN);
     #endif
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
@@ -1484,33 +1495,51 @@ void Stepper::report_positions() {
 
   void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
     if (ms1 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS1_PIN, ms1); break;
-      #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS1_PIN, ms1); break;
+      case 0: WRITE(X_MS1_PIN, ms1); break;
+      #if HAS_Y_MICROSTEPS
+        case 1: WRITE(Y_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS1_PIN, ms1); break;
+      #if HAS_Z_MICROSTEPS
+        case 2: WRITE(Z_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS1_PIN, ms1); break;
+      #if HAS_E0_MICROSTEPS
+        case 3: WRITE(E0_MS1_PIN, ms1); break;
       #endif
-      #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS1_PIN, ms1); break;
+      #if HAS_E1_MICROSTEPS
+        case 4: WRITE(E1_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E2_MICROSTEPS
+        case 5: WRITE(E2_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E3_MICROSTEPS
+        case 6: WRITE(E3_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E4_MICROSTEPS
+        case 7: WRITE(E4_MS1_PIN, ms1); break;
       #endif
     }
     if (ms2 >= 0) switch (driver) {
-      case 0: digitalWrite(X_MS2_PIN, ms2); break;
-      #if HAS_MICROSTEPS_Y
-        case 1: digitalWrite(Y_MS2_PIN, ms2); break;
+      case 0: WRITE(X_MS2_PIN, ms2); break;
+      #if HAS_Y_MICROSTEPS
+        case 1: WRITE(Y_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_Z
-        case 2: digitalWrite(Z_MS2_PIN, ms2); break;
+      #if HAS_Z_MICROSTEPS
+        case 2: WRITE(Z_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_E0
-        case 3: digitalWrite(E0_MS2_PIN, ms2); break;
+      #if HAS_E0_MICROSTEPS
+        case 3: WRITE(E0_MS2_PIN, ms2); break;
       #endif
-      #if HAS_MICROSTEPS_E1
-        case 4: digitalWrite(E1_MS2_PIN, ms2); break;
+      #if HAS_E1_MICROSTEPS
+        case 4: WRITE(E1_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E2_MICROSTEPS
+        case 5: WRITE(E2_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E3_MICROSTEPS
+        case 6: WRITE(E3_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E4_MICROSTEPS
+        case 7: WRITE(E4_MS2_PIN, ms2); break;
       #endif
     }
   }
@@ -1530,25 +1559,40 @@ void Stepper::report_positions() {
     SERIAL_PROTOCOLPGM("X: ");
     SERIAL_PROTOCOL(READ(X_MS1_PIN));
     SERIAL_PROTOCOLLN(READ(X_MS2_PIN));
-    #if HAS_MICROSTEPS_Y
+    #if HAS_Y_MICROSTEPS
       SERIAL_PROTOCOLPGM("Y: ");
       SERIAL_PROTOCOL(READ(Y_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(Y_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_Z
+    #if HAS_Z_MICROSTEPS
       SERIAL_PROTOCOLPGM("Z: ");
       SERIAL_PROTOCOL(READ(Z_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(Z_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_E0
+    #if HAS_E0_MICROSTEPS
       SERIAL_PROTOCOLPGM("E0: ");
       SERIAL_PROTOCOL(READ(E0_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E0_MS2_PIN));
     #endif
-    #if HAS_MICROSTEPS_E1
+    #if HAS_E1_MICROSTEPS
       SERIAL_PROTOCOLPGM("E1: ");
       SERIAL_PROTOCOL(READ(E1_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E1_MS2_PIN));
+    #endif
+    #if HAS_E2_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E2: ");
+      SERIAL_PROTOCOL(READ(E2_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E2_MS2_PIN));
+    #endif
+    #if HAS_E3_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E3: ");
+      SERIAL_PROTOCOL(READ(E3_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E3_MS2_PIN));
+    #endif
+    #if HAS_E4_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E4: ");
+      SERIAL_PROTOCOL(READ(E4_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E4_MS2_PIN));
     #endif
   }
 

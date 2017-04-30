@@ -168,6 +168,10 @@ class Planner {
       static float z_fade_height, inverse_z_fade_height;
     #endif
 
+    #if ENABLED(LIN_ADVANCE)
+      static float extruder_advance_k, advance_ed_ratio;
+    #endif
+
   private:
 
     /**
@@ -209,8 +213,6 @@ class Planner {
 
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
-      static float extruder_advance_k;
-      static float advance_ed_ratio;
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -264,12 +266,6 @@ class Planner {
       #define ARG_Y const float &ly
       #define ARG_Z const float &lz
 
-    #endif
-
-    #if ENABLED(LIN_ADVANCE)
-      static void set_extruder_advance_k(const float &k) { extruder_advance_k = k; };
-      static float get_extruder_advance_k() { return extruder_advance_k; };
-      static void set_advance_ed_ratio(const float &ratio) { advance_ed_ratio = ratio; };
     #endif
 
     /**
@@ -401,7 +397,7 @@ class Planner {
         // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
         bbru >>= 10;
         // limit to about a minute.
-        NOMORE(bbru, 0xfffful);
+        NOMORE(bbru, 0xFFFFul);
         return bbru;
       }
 
