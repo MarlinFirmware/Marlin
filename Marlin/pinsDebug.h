@@ -409,11 +409,17 @@ static void pwm_details(uint8_t pin) {
     // looking for port B7 - PWMs 0A and 1C
     if ( ('B' == digitalPinToPort(pin) + 64) && (0x80 == digitalPinToBitMask(pin))) {
       #ifndef TEENSYDUINO_IDE
-        SERIAL_PROTOCOLPGM("\n .                  TIMER1C is also tied to this pin             ");
-        timer_prefix(1,'C',4);
+        SERIAL_PROTOCOLPGM("\n .");
+        SERIAL_PROTOCOL_SP(18);
+        SERIAL_PROTOCOLPGM("TIMER1C is also tied to this pin");
+        SERIAL_PROTOCOL_SP(13);
+        timer_prefix(1, 'C', 4);
       #else
-        SERIAL_PROTOCOLPGM("\n .                  TIMER0A is also tied to this pin             ");
-        timer_prefix(0,'A',3);
+        SERIAL_PROTOCOLPGM("\n .");
+        SERIAL_PROTOCOL_SP(18);
+        SERIAL_PROTOCOLPGM("TIMER0A is also tied to this pin");
+        SERIAL_PROTOCOL_SP(13);
+        timer_prefix(0, 'A', 3);
       #endif
     }
   #endif
@@ -437,7 +443,7 @@ void print_port(int8_t pin) {   // print port number
     for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
     SERIAL_CHAR(x);
   #else
-    SERIAL_PROTOCOLPGM("          ");
+    SERIAL_PROTOCOL_SP(10);
   #endif
 }
 
@@ -460,7 +466,11 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
           sprintf(buffer, " (A%2d)  ", int(pin - analogInputToDigitalPin(0)));    // analog pin number
           SERIAL_ECHO(buffer);
         }
-        else SERIAL_ECHOPGM("        ");   // add padding if not an analog pin
+        else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+      }
+      else {
+        SERIAL_CHAR('.');
+        SERIAL_ECHO_SP(25);  // add padding if not the first instance found
       }
       else SERIAL_ECHOPGM(".                         ");  // add padding if not the first instance found
       name_mem_pointer = (char*) pgm_read_word(&pin_array[x][0]);
@@ -506,17 +516,19 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
       SERIAL_ECHO(buffer);
     }
     else
-      SERIAL_ECHOPGM("        ");   // add padding if not an analog pin
+      SERIAL_ECHO_SP(8);   // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
-    if (get_pinMode(pin))
-      SERIAL_PROTOCOLPAIR("            Output = ", digitalRead_mod(pin));
+    if (get_pinMode(pin)) {
+      SERIAL_PROTOCOL_SP(12);
+      SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+    }
     else {
       if (IS_ANALOG(pin)) {
         sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
         SERIAL_ECHO(buffer);
       }
       else
-        SERIAL_ECHOPGM("         ");   // add padding if not an analog pin
+        SERIAL_ECHO_SP(9);   // add padding if not an analog pin
 
       SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
