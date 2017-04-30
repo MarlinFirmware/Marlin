@@ -869,7 +869,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       switch(extruder) {
         case 0:
           enable_E0();
-          #if ENABLED(DUAL_X_CARRIAGE)
+          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
             if (extruder_duplication_enabled) {
               enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
