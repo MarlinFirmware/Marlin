@@ -5152,7 +5152,7 @@ inline void gcode_G28() {
         S2 += sq(z_at_pt[0]);
         N++;
         if (!pp_equals_1) // std dev from zero plane
-          for (uint8_t axis = 1; axis < 13; axis += (pp_equals_2 ? 4 : 2)) {
+          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; axis += (pp_equals_2 ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5324,7 +5324,7 @@ inline void gcode_G28() {
           if (zero_std_dev >= test_precision)
             serialprintPGM(save_message);
             SERIAL_EOL;
-       }
+        }
         else {                                                       // forced end
           if (verbose_level == 0) {
             SERIAL_PROTOCOLPGM("End DRY-RUN");
