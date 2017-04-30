@@ -250,10 +250,8 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    bool inf_normalized_flag, inf_m_flag; 
-
-    inf_normalized_flag = isinf(e_normalized_dist);
-    inf_m_flag = isinf(m);
+    const bool inf_normalized_flag = isinf(e_normalized_dist),
+               inf_m_flag = isinf(m);
 
     /**
      * This block handles vertical lines. These are lines that stay within the same
