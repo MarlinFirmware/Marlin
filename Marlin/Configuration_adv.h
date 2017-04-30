@@ -645,14 +645,30 @@
 // Below are the macros that are used to define the borders for the mesh area,
 // made available here for specialized needs, ie dual extruder setup.
 #if ENABLED(MESH_BED_LEVELING)
-  #define MESH_MIN_X (X_MIN_POS + MESH_INSET)
+  #if X_MIN_POS < 0
+    #define MESH_MIN_X (MESH_INSET)
+  #else
+    #define MESH_MIN_X (X_MIN_POS + (MESH_INSET))
+  #endif
   #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
-  #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
+  #if Y_MIN_POS < 0
+    #define MESH_MIN_Y (MESH_INSET)
+  #else
+    #define MESH_MIN_Y (Y_MIN_POS + (MESH_INSET))
+  #endif
   #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #define UBL_MESH_MIN_X (X_MIN_POS + UBL_MESH_INSET)
+  #if X_MIN_POS < 0
+    #define UBL_MESH_MIN_X (UBL_MESH_INSET)
+  #else
+    #define UBL_MESH_MIN_X (X_MIN_POS + (UBL_MESH_INSET))
+  #endif
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
-  #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
+  #if Y_MIN_POS < 0
+    #define UBL_MESH_MIN_Y (UBL_MESH_INSET)
+  #else
+    #define UBL_MESH_MIN_Y (Y_MIN_POS + (UBL_MESH_INSET))
+  #endif
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
 
   // If this is defined, the currently active mesh will be saved in the
