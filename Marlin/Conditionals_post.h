@@ -407,7 +407,7 @@
   #endif
 
   #define IS_Z2_OR_PROBE(P) (PIN_EXISTS(Z2_MIN_PIN)      && (P == Z2_MIN_PIN) \
-                          || PIN_EXISTS(Z2_MAX_PIN)      && (P == Z2_MAX_PIN) \ 
+                          || PIN_EXISTS(Z2_MAX_PIN)      && (P == Z2_MAX_PIN) \
                           || PIN_EXISTS(Z_MIN_PROBE_PIN) && (P == Z_MIN_PROBE_PIN))
 
   /**
