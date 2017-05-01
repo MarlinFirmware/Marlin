@@ -2080,7 +2080,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH_HEATERS_OFF)
 
       void set_heaters_for_bltouch(const bool deploy) {
-        static int8_t heaters_were_disabled = 0;
+        static bool heaters_were_disabled = false;
         static millis_t next_emi_protection;
         static float temps_at_entry[HOTENDS];
 
@@ -2111,6 +2111,7 @@ static void clean_up_after_endstop_or_probe_move() {
             thermalManager.setTargetBed(bed_temp_at_entry);
           #endif
         }
+        heaters_were_disabled = deploy;
       }
 
     #endif // BLTOUCH_HEATERS_OFF
@@ -12263,9 +12264,10 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_command(BLTOUCH_RESET);    // Just in case the BLTouch is in the error state, try to
-    set_bltouch_deployed(true);        // reset it. Also needs to deploy and stow to clear the
-    set_bltouch_deployed(false);       // error condition.
+    // Make sure any BLTouch error condition is cleared
+    bltouch_command(BLTOUCH_RESET);
+    set_bltouch_deployed(true);
+    set_bltouch_deployed(false);
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
