@@ -324,7 +324,7 @@
     }
 
     if (!code_seen('N') && axis_unhomed_error(true, true, true))  // Don't allow auto-leveling without homing first
-      gcode_G28();
+      home_all_axes();
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
 

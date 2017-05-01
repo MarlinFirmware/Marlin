@@ -131,8 +131,7 @@
   #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
-  void line_to_destination(float );
-  void gcode_G28();
+  void line_to_destination(float);
   void sync_plan_position_e();
   void un_retract_filament(float where[XYZE]);
   void retract_filament(float where[XYZE]);

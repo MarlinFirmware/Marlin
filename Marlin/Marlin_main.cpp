@@ -3928,6 +3928,8 @@ inline void gcode_G28() {
   #endif
 }
 
+void home_all_axes() { gcode_G28(); }
+
 #if HAS_PROBING_PROCEDURE
 
   void out_of_range_error(const char* p_edge) {

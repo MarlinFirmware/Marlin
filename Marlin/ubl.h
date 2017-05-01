@@ -61,8 +61,9 @@
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
   char *ftostr43sign(const float&, char);
 
+  void home_all_axes();
+
   void gcode_G26();
-  void gcode_G28();
   void gcode_G29();
 
   extern int ubl_cnt;
