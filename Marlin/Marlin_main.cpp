@@ -2080,7 +2080,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH_HEATERS_OFF)
 
       void set_heaters_for_bltouch(const bool deploy) {
-        static bool heaters_were_disabled = false;
+        static int8_t heaters_were_disabled = 0;
         static millis_t next_emi_protection;
         static float temps_at_entry[HOTENDS];
 
@@ -2105,6 +2105,7 @@ static void clean_up_after_endstop_or_probe_move() {
           #endif
         }
         else {
+          next_emi_protection = 0;
           HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
           #if HAS_TEMP_BED
             thermalManager.setTargetBed(bed_temp_at_entry);
@@ -2115,9 +2116,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif // BLTOUCH_HEATERS_OFF
 
     void set_bltouch_deployed(const bool deploy) {
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
-        set_heaters_for_bltouch(deploy);
-      #endif
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    //  try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
@@ -2131,6 +2129,9 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
+      #if ENABLED(BLTOUCH_HEATERS_OFF)
+        set_heaters_for_bltouch(deploy);
+      #endif
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2153,11 +2154,11 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
+    if (endstops.z_probe_enabled == deploy) return false;
+
     #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
       set_heaters_for_bltouch(deploy);
     #endif
-
-    if (endstops.z_probe_enabled == deploy) return false;
 
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
