@@ -2079,7 +2079,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
       void set_heaters_for_bltouch(const bool deploy) {
         static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection;
+        static millis_t next_emi_protection = 0;
         static float temps_at_entry[HOTENDS];
 
         #if HAS_TEMP_BED
@@ -2131,7 +2131,9 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(BLTOUCH_HEATERS_OFF)
         set_heaters_for_bltouch(deploy);
       #endif
+
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
@@ -2154,10 +2156,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
-
-    #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
-      set_heaters_for_bltouch(deploy);
-    #endif
 
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
