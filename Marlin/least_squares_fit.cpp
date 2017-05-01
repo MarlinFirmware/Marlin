@@ -41,7 +41,9 @@
 
 #include "least_squares_fit.h"
 
-void incremental_LSF_reset(struct linear_fit_data *lsf) { ZERO(lsf); }
+void incremental_LSF_reset(struct linear_fit_data *lsf) {
+  memset(lsf, 0, sizeof(linear_fit_data));
+}
 
 void incremental_LSF(struct linear_fit_data *lsf, float x, float y, float z) {
   lsf->xbar += x;
