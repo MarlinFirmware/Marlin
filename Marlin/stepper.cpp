@@ -1099,7 +1099,7 @@ void Stepper::init() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-    ZERO(e_steps);
+    for (uint8_t i = 0; i < COUNT(e_steps); i++) e_steps[i] = 0;
     #if ENABLED(LIN_ADVANCE)
       ZERO(current_adv_steps);
     #endif
