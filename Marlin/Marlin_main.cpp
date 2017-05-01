@@ -2424,7 +2424,12 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enable && mbl.has_mesh()) planner.unapply_leveling(current_position);
       }
 
-    #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+      ubl.state.active = enable;
+      //set_current_from_steppers_for_axis(Z_AXIS);
+
+    #elif HAS_ABL
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         const bool can_change = (!enable || (bilinear_grid_spacing[0] && bilinear_grid_spacing[1]));
@@ -2452,9 +2457,6 @@ static void clean_up_after_endstop_or_probe_move() {
         else
           planner.unapply_leveling(current_position);
       }
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.state.active = enable;
-      //set_current_from_steppers_for_axis(Z_AXIS);
     #endif
   }
 
