@@ -1570,14 +1570,11 @@
 //#define LEDSTRIP
 
 #if ENABLED(LEDSTRIP)
-
-      /* Strip specific items */
   #define LEDSTRIP_PIN         42      // Output pin for the strip.
   #define LEDSTRIP_NLED        45      // Number of LEDs in the strip.
   #define LEDSTRIP_NSEGMENT    3       // LEDS maybe divided in segments for ease of use.
   #define LEDSTRIP_TYPE        WS2812B // APA102, WS2811, WS2812, WS2812B, UCS1903, UCS2903, LPD8806, P9813
   #define LEDSTRIP_EXCHANGE_RU         // GRB LEDs if enabled, else RGB LEDs.
-
 #endif // LEDSTRIP
 
 /**
@@ -1595,7 +1592,7 @@
   #define PRINTER_EVENT_LEDS
   #define LED_reset_time 60      // Set time for LEDs to turn off. (secs)
   //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
-  //#define LIGHT_ON_POWERUP      // Light the LED(s) WHITE on startup.
+  //#define LIGHT_ON_POWERUP     // Light the LED(s) WHITE on startup.
 #endif
 
 /*********************************************************************\
