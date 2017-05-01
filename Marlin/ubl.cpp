@@ -52,7 +52,7 @@
 
   static void serial_echo_12x_spaces() {
     for (uint8_t i = GRID_MAX_POINTS_X - 1; --i;) {
-      SERIAL_ECHOPGM("            ");
+      SERIAL_ECHO_SP(12);
       safe_delay(10);
     }
   }
@@ -201,12 +201,12 @@
 
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      SERIAL_ECHOPGM("    ");
+      SERIAL_ECHO_SP(4);
       serial_echo_12x_spaces();
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
-      SERIAL_ECHOPGM("       ");
+      SERIAL_ECHO_SP(7);
       serial_echo_12x_spaces();
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
       SERIAL_EOL;

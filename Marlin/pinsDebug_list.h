@@ -20,12 +20,15 @@
  *
  */
 
- // Please update this list when adding new pins to Marlin.
- // The order doesn't matter.
- // Following this pattern is a must.
- // If the new pin name is over 28 characters long then pinsDebug.h will need to be modified.
+// Please update this list when adding new pins to Marlin.
+// The order doesn't matter.
+// Following this pattern is a must.
+// If the new pin name is over 28 characters long then pinsDebug.h will need to be modified.
 
-  // Pin list updated from 18 FEB 2017 RCBugfix branch   - max length of pin name is 24
+// Pin list updated from 18 FEB 2017 RCBugfix branch   - max length of pin name is 24
+
+#line 0 // set __LINE__ to a known value for both passes
+
 #if defined(__FD) && __FD >= 0
   REPORT_NAME_DIGITAL(__FD, __LINE__ )
 #endif
@@ -224,18 +227,6 @@
 #if PIN_EXISTS(E4_STEP)
   REPORT_NAME_DIGITAL(E4_STEP_PIN, __LINE__ )
 #endif
-#if defined(encrot0) && encrot0 >= 0
-  REPORT_NAME_DIGITAL(encrot0, __LINE__ )
-#endif
-#if defined(encrot1) && encrot1 >= 0
-  REPORT_NAME_DIGITAL(encrot1, __LINE__ )
-#endif
-#if defined(encrot2) && encrot2 >= 0
-  REPORT_NAME_DIGITAL(encrot2, __LINE__ )
-#endif
-#if defined(encrot3) && encrot3 >= 0
-  REPORT_NAME_DIGITAL(encrot3, __LINE__ )
-#endif
 #if defined(EXT_AUX_A0) && EXT_AUX_A0 >= 0 && EXT_AUX_A0 < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(EXT_AUX_A0, __LINE__ )
 #endif
@@ -317,9 +308,6 @@
 #if PIN_EXISTS(FILWIDTH) && FILWIDTH_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(FILWIDTH_PIN, __LINE__ )
 #endif
-#if defined(GEN7_VERSION) && GEN7_VERSION >= 0
-  REPORT_NAME_DIGITAL(GEN7_VERSION, __LINE__ )
-#endif
 #if PIN_EXISTS(HEATER_0)
   REPORT_NAME_DIGITAL(HEATER_0_PIN, __LINE__ )
 #endif
@@ -350,11 +338,11 @@
 #if PIN_EXISTS(HOME)
   REPORT_NAME_DIGITAL(HOME_PIN, __LINE__ )
 #endif
-#if defined(I2C_SCL) && I2C_SCL >= 0
-  REPORT_NAME_DIGITAL(I2C_SCL, __LINE__ )
+#if PIN_EXISTS(I2C_SCL)
+  REPORT_NAME_DIGITAL(I2C_SCL_PIN, __LINE__ )
 #endif
-#if defined(I2C_SDA) && I2C_SDA >= 0
-  REPORT_NAME_DIGITAL(I2C_SDA, __LINE__ )
+#if PIN_EXISTS(I2C_SDA)
+  REPORT_NAME_DIGITAL(I2C_SDA_PIN, __LINE__ )
 #endif
 #if PIN_EXISTS(KILL)
   REPORT_NAME_DIGITAL(KILL_PIN, __LINE__ )
@@ -421,9 +409,6 @@
 #endif
 #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
   REPORT_NAME_DIGITAL(MOTOR_CURRENT_PWM_Z_PIN, __LINE__ )
-#endif
-#if defined(NUM_TLCS) && NUM_TLCS >= 0
-  REPORT_NAME_DIGITAL(NUM_TLCS, __LINE__ )
 #endif
 #if PIN_EXISTS(ORIG_E0_AUTO_FAN)
   REPORT_NAME_DIGITAL(ORIG_E0_AUTO_FAN_PIN, __LINE__ )
@@ -545,14 +530,8 @@
 #if PIN_EXISTS(SS)
   REPORT_NAME_DIGITAL(SS_PIN, __LINE__ )
 #endif
-#if defined(STAT_LED_BLUE) && STAT_LED_BLUE >= 0
-  REPORT_NAME_DIGITAL(STAT_LED_BLUE, __LINE__ )
-#endif
 #if PIN_EXISTS(STAT_LED_BLUE)
   REPORT_NAME_DIGITAL(STAT_LED_BLUE_PIN, __LINE__ )
-#endif
-#if defined(STAT_LED_RED) && STAT_LED_RED >= 0
-  REPORT_NAME_DIGITAL(STAT_LED_RED, __LINE__ )
 #endif
 #if PIN_EXISTS(STAT_LED_RED)
   REPORT_NAME_DIGITAL(STAT_LED_RED_PIN, __LINE__ )
@@ -599,20 +578,11 @@
 #if PIN_EXISTS(THERMO_SCK)
   REPORT_NAME_DIGITAL(THERMO_SCK_PIN, __LINE__ )
 #endif
-#if defined(TLC_BLANK_BIT) && TLC_BLANK_BIT >= 0
-  REPORT_NAME_DIGITAL(TLC_BLANK_BIT, __LINE__ )
-#endif
 #if PIN_EXISTS(TLC_BLANK)
   REPORT_NAME_DIGITAL(TLC_BLANK_PIN, __LINE__ )
 #endif
-#if defined(TLC_CLOCK_BIT) && TLC_CLOCK_BIT >= 0
-  REPORT_NAME_DIGITAL(TLC_CLOCK_BIT, __LINE__ )
-#endif
 #if PIN_EXISTS(TLC_CLOCK)
   REPORT_NAME_DIGITAL(TLC_CLOCK_PIN, __LINE__ )
-#endif
-#if defined(TLC_DATA_BIT) && TLC_DATA_BIT >= 0
-  REPORT_NAME_DIGITAL(TLC_DATA_BIT, __LINE__ )
 #endif
 #if PIN_EXISTS(TLC_DATA)
   REPORT_NAME_DIGITAL(TLC_DATA_PIN, __LINE__ )

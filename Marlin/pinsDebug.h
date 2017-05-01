@@ -46,21 +46,18 @@ bool endstop_monitor_flag = false;
 
 // first pass - put the name strings into FLASH
 
-#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const unsigned char ENTRY_NAME[] PROGMEM = {PIN_NAME};
-#define _ADD_PIN(PIN_NAME, COUNTER)  _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER)  _ADD_PIN(#NAME, COUNTER)
-#define REPORT_NAME_ANALOG(NAME, COUNTER)  _ADD_PIN(#NAME, COUNTER)
-
-#line 0   // set __LINE__ to a known value for the first pass
+#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const unsigned char ENTRY_NAME[] PROGMEM = { PIN_NAME };
+#define _ADD_PIN(PIN_NAME, COUNTER) _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
+#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
+#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-
-#line 59   // set __LINE__ to the correct line number or else compiler error messages don't make sense
+#line 56
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
-  static const char RXD_NAME[] PROGMEM = {"RXD"};
-  static const char TXD_NAME[] PROGMEM = {"TXD"};
+  static const char RXD_NAME[] PROGMEM = { "RXD" };
+  static const char TXD_NAME[] PROGMEM = { "TXD" };
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -72,11 +69,10 @@ bool endstop_monitor_flag = false;
 #undef REPORT_NAME_DIGITAL
 #undef REPORT_NAME_ANALOG
 
-#define _ADD_PIN_2( ENTRY_NAME, NAME, IS_DIGITAL) {(const char*) ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL},
-#define _ADD_PIN( NAME, COUNTER, IS_DIGITAL)  _ADD_PIN_2( entry_NAME_##COUNTER, NAME, IS_DIGITAL)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER)  _ADD_PIN( NAME, COUNTER, (uint8_t)1)
-#define REPORT_NAME_ANALOG(NAME, COUNTER)  _ADD_PIN( analogInputToDigitalPin(NAME), COUNTER, 0)
-
+#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { (const char*)ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL },
+#define _ADD_PIN(NAME, COUNTER, IS_DIGITAL) _ADD_PIN_2(entry_NAME_##COUNTER, NAME, IS_DIGITAL)
+#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, (uint8_t)1)
+#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, 0)
 
 const char* const pin_array[][3] PROGMEM = {
 
@@ -92,35 +88,32 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      {RXD_NAME, "0", "1"},
-      {TXD_NAME, "1", "1"},
+      { RXD_NAME, "0", "1" },
+      { TXD_NAME, "1", "1" },
     #elif AVR_ATmega1284_FAMILY
-      {RXD_NAME, "8", "1"},
-      {TXD_NAME, "9", "1"},
+      { RXD_NAME, "8", "1" },
+      { TXD_NAME, "9", "1" },
     #endif
   #endif
 
-  #line 0   // set __LINE__ to the SAME known value for the second pass
   #include "pinsDebug_list.h"
+  #line 101
 
-};  // done populating the array
+};
 
-#line 109  // set __LINE__ to the correct line number or else compiler error messages don't make sense
-
-#define n_array (sizeof (pin_array) / sizeof (const char *))/3
+#define n_array (sizeof(pin_array) / sizeof(char*)) / 3
 
 #ifndef TIMER1B
   // working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
 #endif
 
-
 #define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", V); SERIAL_ECHO(buffer); }while(0)
-#define PWM_CASE(N,Z) \
-  case TIMER##N##Z: \
+#define PWM_CASE(N,Z)                                           \
+  case TIMER##N##Z:                                             \
     if (TCCR##N##A & (_BV(COM##N##Z##1) | _BV(COM##N##Z##0))) { \
-      PWM_PRINT(OCR##N##Z); \
-      return true; \
+      PWM_PRINT(OCR##N##Z);                                     \
+      return true;                                              \
     } else return false
 
 /**
@@ -130,71 +123,70 @@ const char* const pin_array[][3] PROGMEM = {
 static bool pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
 
-  switch(digitalPinToTimer(pin)) {
+  switch (digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
       #ifdef TIMER0A
-        PWM_CASE(0,A);
+        PWM_CASE(0, A);
       #endif
-      PWM_CASE(0,B);
+      PWM_CASE(0, B);
     #endif
 
     #if defined(TCCR1A) && defined(COM1A1)
-      PWM_CASE(1,A);
-      PWM_CASE(1,B);
+      PWM_CASE(1, A);
+      PWM_CASE(1, B);
      #if defined(COM1C1) && defined(TIMER1C)
-      PWM_CASE(1,C);
+      PWM_CASE(1, C);
      #endif
     #endif
 
     #if defined(TCCR2A) && defined(COM2A1)
-      PWM_CASE(2,A);
-      PWM_CASE(2,B);
+      PWM_CASE(2, A);
+      PWM_CASE(2, B);
     #endif
 
     #if defined(TCCR3A) && defined(COM3A1)
-      PWM_CASE(3,A);
-      PWM_CASE(3,B);
+      PWM_CASE(3, A);
+      PWM_CASE(3, B);
       #ifdef COM3C1
-        PWM_CASE(3,C);
+        PWM_CASE(3, C);
       #endif
     #endif
 
     #ifdef TCCR4A
-      PWM_CASE(4,A);
-      PWM_CASE(4,B);
-      PWM_CASE(4,C);
+      PWM_CASE(4, A);
+      PWM_CASE(4, B);
+      PWM_CASE(4, C);
     #endif
 
     #if defined(TCCR5A) && defined(COM5A1)
-      PWM_CASE(5,A);
-      PWM_CASE(5,B);
-      PWM_CASE(5,C);
+      PWM_CASE(5, A);
+      PWM_CASE(5, B);
+      PWM_CASE(5, C);
     #endif
 
     case NOT_ON_TIMER:
     default:
       return false;
   }
-  SERIAL_PROTOCOLPGM("  ");
+  SERIAL_PROTOCOL_SP(2);
 } // pwm_status
 
 
-
 const volatile uint8_t* const PWM_other[][3] PROGMEM = {
-    {&TCCR0A, &TCCR0B, &TIMSK0},
-    {&TCCR1A, &TCCR1B, &TIMSK1},
+    { &TCCR0A, &TCCR0B, &TIMSK0 },
+    { &TCCR1A, &TCCR1B, &TIMSK1 },
   #if defined(TCCR2A) && defined(COM2A1)
-    {&TCCR2A, &TCCR2B, &TIMSK2},
+    { &TCCR2A, &TCCR2B, &TIMSK2 },
   #endif
   #if defined(TCCR3A) && defined(COM3A1)
-    {&TCCR3A, &TCCR3B, &TIMSK3},
+    { &TCCR3A, &TCCR3B, &TIMSK3 },
   #endif
   #ifdef TCCR4A
-    {&TCCR4A, &TCCR4B, &TIMSK4},
+    { &TCCR4A, &TCCR4B, &TIMSK4 },
   #endif
   #if defined(TCCR5A) && defined(COM5A1)
-    {&TCCR5A, &TCCR5B, &TIMSK5},
+    { &TCCR5A, &TCCR5B, &TIMSK5 },
   #endif
 };
 
@@ -202,35 +194,35 @@ const volatile uint8_t* const PWM_other[][3] PROGMEM = {
 const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
   #ifdef TIMER0A
-    {&OCR0A,&OCR0B,0},
+    { &OCR0A, &OCR0B, 0 },
   #else
-    {0,&OCR0B,0},
+    { 0, &OCR0B, 0 },
   #endif
 
   #if defined(COM1C1) && defined(TIMER1C)
-   { (const uint8_t*) &OCR1A, (const uint8_t*) &OCR1B, (const uint8_t*) &OCR1C},
+   { (const uint8_t*)&OCR1A, (const uint8_t*)&OCR1B, (const uint8_t*)&OCR1C },
   #else
-   { (const uint8_t*) &OCR1A, (const uint8_t*) &OCR1B,0},
+   { (const uint8_t*)&OCR1A, (const uint8_t*)&OCR1B, 0 },
   #endif
 
   #if defined(TCCR2A) && defined(COM2A1)
-    {&OCR2A,&OCR2B,0},
+    { &OCR2A, &OCR2B, 0 },
   #endif
 
   #if defined(TCCR3A) && defined(COM3A1)
     #ifdef COM3C1
-      { (const uint8_t*) &OCR3A, (const uint8_t*) &OCR3B, (const uint8_t*) &OCR3C},
+      { (const uint8_t*)&OCR3A, (const uint8_t*)&OCR3B, (const uint8_t*)&OCR3C },
     #else
-      { (const uint8_t*) &OCR3A, (const uint8_t*) &OCR3B,0},
+      { (const uint8_t*)&OCR3A, (const uint8_t*)&OCR3B, 0 },
     #endif
   #endif
 
   #ifdef TCCR4A
-    { (const uint8_t*) &OCR4A, (const uint8_t*) &OCR4B, (const uint8_t*) &OCR4C},
+    { (const uint8_t*)&OCR4A, (const uint8_t*)&OCR4B, (const uint8_t*)&OCR4C },
   #endif
 
   #if defined(TCCR5A) && defined(COM5A1)
-    { (const uint8_t*) &OCR5A, (const uint8_t*) &OCR5B, (const uint8_t*) &OCR5C},
+    { (const uint8_t*)&OCR5A, (const uint8_t*)&OCR5B, (const uint8_t*)&OCR5C },
   #endif
 };
 
@@ -247,39 +239,30 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 #define WGM_3      4
 #define TOIE       0
 
-
 #define OCR_VAL(T, L)   pgm_read_word(&PWM_OCR[T][L])
 
-
-static void err_is_counter() {
-  SERIAL_PROTOCOLPGM("   non-standard PWM mode");
-}
-static void err_is_interrupt() {
-  SERIAL_PROTOCOLPGM("   compare interrupt enabled");
-}
-static void err_prob_interrupt() {
-  SERIAL_PROTOCOLPGM("   overflow interrupt enabled");
-}
+static void err_is_counter()     { SERIAL_PROTOCOLPGM("   non-standard PWM mode"); }
+static void err_is_interrupt()   { SERIAL_PROTOCOLPGM("   compare interrupt enabled"); }
+static void err_prob_interrupt() { SERIAL_PROTOCOLPGM("   overflow interrupt enabled"); }
 
 void com_print(uint8_t N, uint8_t Z) {
-  uint8_t *TCCRA = (uint8_t*) TCCR_A(N);
+  uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_PROTOCOLPGM("    COM");
   SERIAL_PROTOCOLCHAR(N + '0');
-  switch(Z) {
-    case 'A' :
+  switch (Z) {
+    case 'A':
       SERIAL_PROTOCOLPAIR("A: ", ((*TCCRA & (_BV(7) | _BV(6))) >> 6));
       break;
-    case 'B' :
+    case 'B':
       SERIAL_PROTOCOLPAIR("B: ", ((*TCCRA & (_BV(5) | _BV(4))) >> 4));
       break;
-    case 'C' :
+    case 'C':
       SERIAL_PROTOCOLPAIR("C: ", ((*TCCRA & (_BV(3) | _BV(2))) >> 2));
       break;
   }
 }
 
-
-void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - WGM bit layout
+void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
   char buffer[20];   // for the sprintf statements
   uint8_t *TCCRB = (uint8_t*)TCCR_B(T);
   uint8_t *TCCRA = (uint8_t*)TCCR_A(T);
@@ -289,14 +272,14 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
   SERIAL_PROTOCOLPGM("    TIMER");
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLCHAR(L);
-  SERIAL_PROTOCOLPGM("   ");
+  SERIAL_PROTOCOL_SP(3);
 
   if (N == 3) {
-    uint8_t *OCRVAL8 = (uint8_t*) OCR_VAL(T, L - 'A');
+    uint8_t *OCRVAL8 = (uint8_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL8);
   }
   else {
-    uint16_t *OCRVAL16 = (uint16_t*) OCR_VAL(T, L - 'A');
+    uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL16);
   }
   SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
@@ -311,92 +294,59 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  n - 
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR("B: ", *TCCRB);
 
-  uint8_t *TMSK = (uint8_t*) TIMSK(T);
+  uint8_t *TMSK = (uint8_t*)TIMSK(T);
   SERIAL_PROTOCOLPGM("    TIMSK");
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR(": ", *TMSK);
 
   uint8_t OCIE = L - 'A' + 1;
-  if (N == 3) {if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter();}
-  else        {if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13) err_is_counter();}
+  if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }
+  else        { if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13) err_is_counter(); }
   if (TEST(*TMSK, OCIE)) err_is_interrupt();
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
 static void pwm_details(uint8_t pin) {
-  switch(digitalPinToTimer(pin)) {
+  switch (digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
-
       #ifdef TIMER0A
-        case TIMER0A:
-          timer_prefix(0,'A',3);
-          break;
+        case TIMER0A: timer_prefix(0, 'A', 3); break;
       #endif
-      case TIMER0B:
-        timer_prefix(0,'B',3);
-        break;
+      case TIMER0B: timer_prefix(0, 'B', 3); break;
     #endif
 
     #if defined(TCCR1A) && defined(COM1A1)
-      case TIMER1A:
-        timer_prefix(1,'A',4);
-        break;
-      case TIMER1B:
-        timer_prefix(1,'B',4);
-        break;
+      case TIMER1A: timer_prefix(1, 'A', 4); break;
+      case TIMER1B: timer_prefix(1, 'B', 4); break;
       #if defined(COM1C1) && defined(TIMER1C)
-        case TIMER1C:
-          timer_prefix(1,'C',4);
-          break;
+        case TIMER1C: timer_prefix(1, 'C', 4); break;
       #endif
     #endif
 
     #if defined(TCCR2A) && defined(COM2A1)
-      case TIMER2A:
-        timer_prefix(2,'A',3);
-        break;
-      case TIMER2B:
-        timer_prefix(2,'B',3);
-        break;
+      case TIMER2A: timer_prefix(2, 'A', 3); break;
+      case TIMER2B: timer_prefix(2, 'B', 3); break;
     #endif
 
     #if defined(TCCR3A) && defined(COM3A1)
-      case TIMER3A:
-        timer_prefix(3,'A',4);
-        break;
-      case TIMER3B:
-        timer_prefix(3,'B',4);
-        break;
+      case TIMER3A: timer_prefix(3, 'A', 4); break;
+      case TIMER3B: timer_prefix(3, 'B', 4); break;
       #ifdef COM3C1
-        case TIMER3C:
-          timer_prefix(3,'C',4);
-          break;
+        case TIMER3C: timer_prefix(3, 'C', 4); break;
       #endif
     #endif
 
     #ifdef TCCR4A
-      case TIMER4A:
-        timer_prefix(4,'A',4);
-        break;
-      case TIMER4B:
-        timer_prefix(4,'B',4);
-        break;
-      case TIMER4C:
-        timer_prefix(4,'C',4);
-        break;
+      case TIMER4A: timer_prefix(4, 'A', 4); break;
+      case TIMER4B: timer_prefix(4, 'B', 4); break;
+      case TIMER4C: timer_prefix(4, 'C', 4); break;
     #endif
 
     #if defined(TCCR5A) && defined(COM5A1)
-      case TIMER5A:
-        timer_prefix(5,'A',4);
-        break;
-      case TIMER5B:
-        timer_prefix(5,'B',4);
-        break;
-      case TIMER5C:
-        timer_prefix(5,'C',4);
-        break;
+      case TIMER5A: timer_prefix(5, 'A', 4); break;
+      case TIMER5B: timer_prefix(5, 'B', 4); break;
+      case TIMER5C: timer_prefix(5, 'C', 4); break;
     #endif
 
     case NOT_ON_TIMER: break;
@@ -409,11 +359,17 @@ static void pwm_details(uint8_t pin) {
     // looking for port B7 - PWMs 0A and 1C
     if ( ('B' == digitalPinToPort(pin) + 64) && (0x80 == digitalPinToBitMask(pin))) {
       #ifndef TEENSYDUINO_IDE
-        SERIAL_PROTOCOLPGM("\n .                  TIMER1C is also tied to this pin             ");
-        timer_prefix(1,'C',4);
+        SERIAL_PROTOCOLPGM("\n .");
+        SERIAL_PROTOCOL_SP(18);
+        SERIAL_PROTOCOLPGM("TIMER1C is also tied to this pin");
+        SERIAL_PROTOCOL_SP(13);
+        timer_prefix(1, 'C', 4);
       #else
-        SERIAL_PROTOCOLPGM("\n .                  TIMER0A is also tied to this pin             ");
-        timer_prefix(0,'A',3);
+        SERIAL_PROTOCOLPGM("\n .");
+        SERIAL_PROTOCOL_SP(18);
+        SERIAL_PROTOCOLPGM("TIMER0A is also tied to this pin");
+        SERIAL_PROTOCOL_SP(13);
+        timer_prefix(0, 'A', 3);
       #endif
     }
   #endif
@@ -437,7 +393,7 @@ void print_port(int8_t pin) {   // print port number
     for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
     SERIAL_CHAR(x);
   #else
-    SERIAL_PROTOCOLPGM("          ");
+    SERIAL_PROTOCOL_SP(10);
   #endif
 }
 
@@ -460,10 +416,13 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
           sprintf(buffer, " (A%2d)  ", int(pin - analogInputToDigitalPin(0)));    // analog pin number
           SERIAL_ECHO(buffer);
         }
-        else SERIAL_ECHOPGM("        ");   // add padding if not an analog pin
+        else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
       }
-      else SERIAL_ECHOPGM(".                         ");  // add padding if not the first instance found
-      name_mem_pointer = (char*) pgm_read_word(&pin_array[x][0]);
+      else {
+        SERIAL_CHAR('.');
+        SERIAL_ECHO_SP(25);  // add padding if not the first instance found
+      }
+      name_mem_pointer = (char*)pgm_read_word(&pin_array[x][0]);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0) MYSERIAL.write(temp_char);
@@ -506,17 +465,19 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
       SERIAL_ECHO(buffer);
     }
     else
-      SERIAL_ECHOPGM("        ");   // add padding if not an analog pin
+      SERIAL_ECHO_SP(8);   // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
-    if (get_pinMode(pin))
-      SERIAL_PROTOCOLPAIR("            Output = ", digitalRead_mod(pin));
+    if (get_pinMode(pin)) {
+      SERIAL_PROTOCOL_SP(12);
+      SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+    }
     else {
       if (IS_ANALOG(pin)) {
         sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
         SERIAL_ECHO(buffer);
       }
       else
-        SERIAL_ECHOPGM("         ");   // add padding if not an analog pin
+        SERIAL_ECHO_SP(9);   // add padding if not an analog pin
 
       SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
