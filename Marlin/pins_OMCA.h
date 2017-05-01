@@ -111,8 +111,8 @@
 //
 #define SDSS               11
 
-#define I2C_SCL            16
-#define I2C_SDA            17
+#define I2C_SCL_PIN        16
+#define I2C_SDA_PIN        17
 
 // future proofing
 #define __FS  20
