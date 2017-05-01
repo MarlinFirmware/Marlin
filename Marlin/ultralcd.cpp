@@ -162,6 +162,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
     #include "mesh_bed_leveling.h"
+    extern void mesh_probing_done();
   #endif
 
   ////////////////////////////////////////////
@@ -1539,9 +1540,9 @@ void kill_screen(const char* lcd_msg) {
           // Enable leveling, if needed
           #if ENABLED(MESH_BED_LEVELING)
 
+            lcd_synchronize();
             mbl.set_has_mesh(true);
-            mbl.set_reactivate(true);
-            enqueue_and_echo_commands_P(PSTR("G28"));
+            mesh_probing_done();
 
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
