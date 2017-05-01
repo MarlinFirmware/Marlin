@@ -202,12 +202,12 @@
  */
 #if ENABLED(X_DUAL_STEPPER_DRIVERS) && ENABLED(DUAL_X_CARRIAGE)
   #error "DUAL_X_CARRIAGE is not compatible with X_DUAL_STEPPER_DRIVERS."
-#elif ENABLED(X_DUAL_STEPPER_DRIVERS) && (!HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR)
-  #error "X_DUAL_STEPPER_DRIVERS requires X2 pins (and an extra E plug)."
-#elif ENABLED(Y_DUAL_STEPPER_DRIVERS) && (!HAS_Y2_ENABLE || !HAS_Y2_STEP || !HAS_Y2_DIR)
-  #error "Y_DUAL_STEPPER_DRIVERS requires Y2 pins (and an extra E plug)."
-#elif ENABLED(Z_DUAL_STEPPER_DRIVERS) && (!HAS_Z2_ENABLE || !HAS_Z2_STEP || !HAS_Z2_DIR)
-  #error "Z_DUAL_STEPPER_DRIVERS requires Z2 pins (and an extra E plug)."
+#elif ENABLED(X_DUAL_STEPPER_DRIVERS) && (X2_ENABLE_PIN == 00 || X2_STEP_PIN == 00 || X2_DIR_PIN == 00)
+  #error "pin(s) NOT assigned for second X stepper - probably because all E sockets already used"
+#elif ENABLED(Y_DUAL_STEPPER_DRIVERS) && (Y2_ENABLE_PIN == 00 || Y2_STEP_PIN == 00 || Y2_DIR_PIN == 00)
+  #error "pin(s) NOT assigned for second Y stepper - probably because all E sockets already used"
+#elif ENABLED(Z_DUAL_STEPPER_DRIVERS) && (Z2_ENABLE_PIN == 00 || Z2_STEP_PIN == 00 || Z2_DIR_PIN == 00)
+  #error "pin(s) NOT assigned for second Z stepper - probably because all E sockets already used"
 #endif
 
 /**
