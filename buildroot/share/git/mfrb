@@ -8,11 +8,6 @@
 MFINFO=$(mfinfo) || exit
 IFS=' ' read -a INFO <<< "$MFINFO"
 
-if [[ ${INFO[4]} == "(no" ]]; then
-  echo "Branch is unavailable!"
-  exit 1
-fi
-
 case "$#" in
   0 ) ;;
   * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;

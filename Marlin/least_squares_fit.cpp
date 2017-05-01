@@ -21,12 +21,14 @@
  */
 
 /**
- * Least Squares Best Fit  By Roxy and Ed Williams
+ * Least Squares Best Fit by Roxy and Ed Williams
  *
  * This algorithm is high speed and has a very small code footprint.
  * Its results are identical to both the Iterative Least-Squares published
  * earlier by Roxy and the QR_SOLVE solution. If used in place of QR_SOLVE
- * it saves roughly 10K of program memory.
+ * it saves roughly 10K of program memory. It also does not require all of
+ * coordinates to be present during the calculations. Each point can be
+ * probed and then discarded.
  *
  */
 
@@ -34,85 +36,51 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)  // Currently only used by UBL, but is applicable to Grid Based (Linear) Bed Leveling
 
-#include "ubl.h"
-#include "Marlin.h"
 #include "macros.h"
 #include <math.h>
 
-double linear_fit_average(double m[], const int);
-//double linear_fit_average_squared(double m[], const int);
-//double linear_fit_average_mixed_terms(double m1[], double m2[], const int);
-double linear_fit_average_product(double matrix1[], double matrix2[], const int n);
-void   linear_fit_subtract_mean(double matrix[], double bar, const int n);
-double linear_fit_max_abs(double m[], const int);
+#include "least_squares_fit.h"
 
-linear_fit linear_fit_results;
-
-linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int n) {
-  double xbar, ybar, zbar,
-         x2bar, y2bar,
-         xybar, xzbar, yzbar,
-         D;
-
-  linear_fit_results.A = 0.0;
-  linear_fit_results.B = 0.0;
-  linear_fit_results.D = 0.0;
-
-  xbar = linear_fit_average(x, n);
-  ybar = linear_fit_average(y, n);
-  zbar = linear_fit_average(z, n);
-
-  linear_fit_subtract_mean(x, xbar, n);
-  linear_fit_subtract_mean(y, ybar, n);
-  linear_fit_subtract_mean(z, zbar, n);
-
-  x2bar = linear_fit_average_product(x, x, n);
-  y2bar = linear_fit_average_product(y, y, n);
-  xybar = linear_fit_average_product(x, y, n);
-  xzbar = linear_fit_average_product(x, z, n);
-  yzbar = linear_fit_average_product(y, z, n);
-
-  D = x2bar * y2bar - xybar * xybar;
-  for (int i = 0; i < n; i++) {
-    if (fabs(D) <= 1e-15 * (linear_fit_max_abs(x, n) + linear_fit_max_abs(y, n))) {
-      printf("error: x,y points are collinear at index:%d\n", i);
-      return NULL;
-    }
-  }
-
-  linear_fit_results.A = -(xzbar * y2bar - yzbar * xybar) / D;
-  linear_fit_results.B = -(yzbar * x2bar - xzbar * xybar) / D;
-  // linear_fit_results.D = -(zbar - linear_fit_results->A * xbar - linear_fit_results->B * ybar);
-  linear_fit_results.D = -(zbar + linear_fit_results.A * xbar + linear_fit_results.B * ybar);
-
-  return &linear_fit_results;
+void incremental_LSF_reset(struct linear_fit_data *lsf) {
+  memset(lsf, 0, sizeof(linear_fit_data));
 }
 
-double linear_fit_average(double *matrix, const int n) {
-  double sum = 0.0;
-  for (int i = 0; i < n; i++)
-    sum += matrix[i];
-  return sum / (double)n;
+void incremental_LSF(struct linear_fit_data *lsf, float x, float y, float z) {
+  lsf->xbar += x;
+  lsf->ybar += y;
+  lsf->zbar += z;
+  lsf->x2bar += sq(x);
+  lsf->y2bar += sq(y);
+  lsf->z2bar += sq(z);
+  lsf->xybar += sq(x);
+  lsf->xzbar += sq(x);
+  lsf->yzbar += sq(y);
+  lsf->max_absx = max(fabs(x), lsf->max_absx);
+  lsf->max_absy = max(fabs(y), lsf->max_absy);
+  lsf->n++;
 }
 
-double linear_fit_average_product(double *matrix1, double *matrix2, const int n) {
-  double sum = 0.0;
-  for (int i = 0; i < n; i++)
-    sum += matrix1[i] * matrix2[i];
-  return sum / (double)n;
+int finish_incremental_LSF(struct linear_fit_data *lsf) {
+  const float N = (float)lsf->n;
+
+  lsf->xbar /= N;
+  lsf->ybar /= N;
+  lsf->zbar /= N;
+  lsf->x2bar = lsf->x2bar / N - lsf->xbar * lsf->xbar;
+  lsf->y2bar = lsf->y2bar / N - lsf->ybar * lsf->ybar;
+  lsf->z2bar = lsf->z2bar / N - lsf->zbar * lsf->zbar;
+  lsf->xybar = lsf->xybar / N - lsf->xbar * lsf->ybar;
+  lsf->yzbar = lsf->yzbar / N - lsf->ybar * lsf->zbar;
+  lsf->xzbar = lsf->xzbar / N - lsf->xbar * lsf->zbar;
+
+  const float DD = lsf->x2bar * lsf->y2bar - sq(lsf->xybar);
+  if (fabs(DD) <= 1e-10 * (lsf->max_absx + lsf->max_absy))
+    return -1;
+
+  lsf->A = (lsf->yzbar * lsf->xybar - lsf->xzbar * lsf->y2bar) / DD;
+  lsf->B = (lsf->xzbar * lsf->xybar - lsf->yzbar * lsf->x2bar) / DD;
+  lsf->D = -(lsf->zbar + lsf->A * lsf->xbar + lsf->B * lsf->ybar);
+  return 0;
 }
 
-void linear_fit_subtract_mean(double *matrix, double bar, const int n) {
-  for (int i = 0; i < n; i++)
-    matrix[i] -= bar;
-}
-
-double linear_fit_max_abs(double *matrix, const int n) {
-  double max_abs = 0.0;
-  for (int i = 0; i < n; i++)
-    NOLESS(max_abs, fabs(matrix[i]));
-  return max_abs;
-}
-#endif
-
-
+#endif // AUTO_BED_LEVELING_UBL

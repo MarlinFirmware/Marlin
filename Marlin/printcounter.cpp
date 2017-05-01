@@ -188,7 +188,8 @@ bool PrintCounter::start() {
     }
     return true;
   }
-  else return false;
+
+  return false;
 }
 
 // @Override

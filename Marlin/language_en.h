@@ -300,14 +300,17 @@
 #ifndef MSG_MOTION
   #define MSG_MOTION                          _UxGT("Motion")
 #endif
-#ifndef MSG_VOLUMETRIC
-  #define MSG_VOLUMETRIC                      _UxGT("Filament")
+#ifndef MSG_FILAMENT
+  #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
   #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
+#endif
+#ifndef MSG_ADVANCE_K
+  #define MSG_ADVANCE_K                       _UxGT("Advance K")
 #endif
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
@@ -405,11 +408,20 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
 #endif
+#ifndef MSG_BLTOUCH
+  #define MSG_BLTOUCH                         _UxGT("BLTouch")
+#endif
 #ifndef MSG_BLTOUCH_SELFTEST
   #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #endif
 #ifndef MSG_BLTOUCH_RESET
   #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
+#endif
+#ifndef MSG_BLTOUCH_DEPLOY
+  #define MSG_BLTOUCH_DEPLOY                  _UxGT("Deploy BLTouch")
+#endif
+#ifndef MSG_BLTOUCH_STOW
+  #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
 #endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
