@@ -4253,7 +4253,13 @@ inline void gcode_G28() {
 
     ABL_VAR int verbose_level;
     ABL_VAR float xProbe, yProbe, measured_z;
-    ABL_VAR bool dryrun, abl_should_enable;
+    ABL_VAR bool abl_should_enable;
+
+    #if ENABLED(SUPPORT_DRYRUN)
+      ABL_VAR bool dryrun;
+    #else
+      const bool dryrun = false;
+    #endif
 
     #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
       ABL_VAR int abl_probe_index;
@@ -4384,7 +4390,9 @@ inline void gcode_G28() {
         return;
       }
 
-      dryrun = code_seen('D') && code_value_bool();
+      #if ENABLED(SUPPORT_DRYRUN)
+        dryrun = code_seen('D') && code_value_bool();
+      #endif
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 

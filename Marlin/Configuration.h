@@ -572,6 +572,12 @@
 //#define PROBE_MANUALLY
 
 /**
+ * Disable dry run code to make Z Probe with G29, no alter of any bed level data.
+ * Disable saves 202 bytes.
+ */
+#define SUPPORT_DRYRUN
+
+/**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
