@@ -161,6 +161,8 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Z sonde extè. lit")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Autotest BLTouch")
 #define MSG_BLTOUCH_RESET                   _UxGT("RaZ BLTouch")
+#define MSG_BLTOUCH_DEPLOY                  _UxGT("Déployer BLTouch")
+#define MSG_BLTOUCH_STOW                    _UxGT("Ranger BLTouch")
 #define MSG_HOME                            _UxGT("Origine")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("Premier")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Décalage Z")

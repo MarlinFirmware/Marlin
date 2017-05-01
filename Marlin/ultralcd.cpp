@@ -39,6 +39,10 @@
   #include "duration_t.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "endstops.h"
+#endif
+
 int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
