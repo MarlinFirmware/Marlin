@@ -61,7 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G33 - Delta '1-4-7-point' auto calibration : "G33 V<verbose> P<points> <A> <O> <T>" (Requires DELTA)
+ * G33 - Delta '1-4-7-point' auto calibration : "G33 P<points> <A> <O> <T> V<verbose>" (Requires DELTA)
  * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
@@ -5069,22 +5069,22 @@ inline void gcode_G28() {
      * G33 - Delta '1-4-7-point' auto calibration (Requires DELTA)
      * 
      * Usage:
-     *   G33 <Vn> <Pn> <A> <O> <T>
+     *   G33 <Pn> <X> <O> <A> <Vn> 
      *   
-     *     Vn = verbose level (n=0-2 default 1)
-     *          n=0 dry-run mode: setting + probe results / no calibration
-     *          n=1 settings 
-     *          n=2 setting + probe results 
-     *     Pn = n=-7 -> +7 : n*n probe points
+     *     Pn = n=1-7 : n*n Probe points
      *          calibrates height ('1 point'), endstops, and delta radius ('4 points') 
      *          and tower angles with n > 2 ('7+ points')
      *          n=1  probes center / sets height only
      *          n=2  probes center and towers / sets height, endstops and delta radius
-     *          n=3  probes all points: center, towers and opposite towers / sets all
-     *          n>3  probes all points multiple times and averages
-     *     A  = abort 1 point delta height calibration after 1 probe
-     *     O  = use oposite tower points instead of tower points with 4 point calibration
-     *     T  = do not calibrate tower angles with 7+ point calibration
+     *          n=3  probes all positions: center, towers and opposite towers / sets all
+     *          n>3  probes all positions at different locations and averages
+     *     A  = aborts delta height calibration after 1 probe (Pn=1)
+     *     O  = use oposite tower points instead of tower points (Pn=2)
+     *     T  = do not calibrate tower angle corrections (Pn>2)
+     *     Vn = Verbose level (n=0-2 default 1)
+     *          n=0 dry-run mode: setting + probe results / no calibration
+     *          n=1 settings 
+     *          n=2 setting + probe results 
      */
     inline void gcode_G33() {
 
@@ -5198,28 +5198,26 @@ inline void gcode_G28() {
           z_at_pt[0] /= (pp_equals_5 ? 7 : probe_points);
         }
         if (!pp_equals_1) {  // probe the radius
-          float start_circles = (pp_equals_7 ? -1.5 : pp_equals_6 || pp_equals_5 ? -1 : 0),
-                end_circles = -start_circles;
           bool zig_zag = true;
           for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; 
-               axis += (pp_equals_2 ? 4 : pp_equals_3 || pp_equals_5 ? 2 : 1)) {
-            for (float circles = start_circles ; circles <= end_circles; circles++) {
+                       axis += (pp_equals_2 ? 4 : pp_equals_3 ? 2 : 1)) {
+            float offset_circles = (pp_equals_7 ? (zig_zag ? 1.5 : 1.0) :
+                                    pp_equals_6 ? (zig_zag ? 1.0 : 0.5) : 
+                                    pp_equals_5 ? (zig_zag ? 0.5 : 0.0) : 0);
+            for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               setup_for_endstop_or_probe_move();
               z_at_pt[axis] += probe_pt(
-                cos(RADIANS(180 + 30 * axis)) * 
-                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, 
-                sin(RADIANS(180 + 30 * axis)) * 
-                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, true, 1);
+                cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
+                (1 + circles * 0.1 * (zig_zag ? 1 : -1)), 
+                sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
+                (1 + circles * 0.1 * (zig_zag ? 1 : -1)), true, 1);
               clean_up_after_endstop_or_probe_move();
             }
-            start_circles += (pp_greather_5 ? (zig_zag ? 0.5 : -0.5) : 0);
-            end_circles = -start_circles;
             zig_zag = !zig_zag;
-            z_at_pt[axis] /= (pp_equals_7 ? (zig_zag ? 4.0 : 3.0) :
-                              pp_equals_6 ? (zig_zag ? 3.0 : 2.0) : pp_equals_5 ? 3 : 1);
+            z_at_pt[axis] /= (2 * offset_circles + 1);
           }
         }
-        if (pp_greather_3 && !pp_equals_5) // average intermediates to tower and opposites
+        if (pp_greather_3) // average intermediates to tower and opposites
           for (uint8_t axis = 1; axis < 13; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
