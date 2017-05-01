@@ -2080,8 +2080,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH_HEATERS_OFF)
 
       void set_heaters_for_bltouch(const bool deploy) {
-        static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection;
+        static bool heaters_disabled = false;
+        static millis_t next_emi_protection = 0;
         static float temps_at_entry[HOTENDS];
 
         #if HAS_TEMP_BED
@@ -2089,12 +2089,12 @@ static void clean_up_after_endstop_or_probe_move() {
         #endif
 
         // If called out of order or far apart something is seriously wrong
-        if (deploy == heaters_were_disabled
-            || (next_emi_protection && ELAPSED(millis(), next_emi_protection)))
+        if ( (deploy == heaters_disabled) || (next_emi_protection && ELAPSED(millis(), next_emi_protection)) )
           kill(PSTR(MSG_KILLED));
 
         if (deploy) {
           next_emi_protection = millis() + 20 * 1000UL;
+
           HOTEND_LOOP() {
             temps_at_entry[e] = thermalManager.degTargetHotend(e);
             thermalManager.setTargetHotend(0, e);
@@ -2106,12 +2106,14 @@ static void clean_up_after_endstop_or_probe_move() {
         }
         else {
           next_emi_protection = 0;
+
           HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
           #if HAS_TEMP_BED
             thermalManager.setTargetBed(bed_temp_at_entry);
           #endif
         }
-        heaters_were_disabled = deploy;
+
+        heaters_disabled = deploy;
       }
 
     #endif // BLTOUCH_HEATERS_OFF
@@ -2130,10 +2132,13 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
+
       #if ENABLED(BLTOUCH_HEATERS_OFF)
         set_heaters_for_bltouch(deploy);
       #endif
+
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
@@ -2156,10 +2161,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
-
-    #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
-      set_heaters_for_bltouch(deploy);
-    #endif
 
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
