@@ -2079,7 +2079,7 @@ static void clean_up_after_endstop_or_probe_move() {
      */
     #if ENABLED(BLTOUCH_HEATERS_OFF)
 
-      bool set_heaters_for_bltouch(const bool deploy) {
+      void set_heaters_for_bltouch(const bool deploy) {
         static bool heaters_were_disabled = false;
         static millis_t next_emi_protection;
         static float temps_at_entry[HOTENDS];
