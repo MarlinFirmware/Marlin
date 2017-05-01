@@ -29,7 +29,6 @@
 #include "stepper.h"
 #include "configuration_store.h"
 #include "utility.h"
-#include "endstops.h"
 
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
@@ -38,6 +37,10 @@
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
   #include "duration_t.h"
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "endstops.h"
 #endif
 
 int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
