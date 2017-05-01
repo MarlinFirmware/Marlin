@@ -2403,7 +2403,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if PLANNER_LEVELING
+#if HAS_LEVELING
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2511,7 +2511,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
 
-#endif // PLANNER_LEVELING
+#endif // HAS_LEVELING
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
 
@@ -3747,7 +3747,7 @@ inline void gcode_G28() {
   #endif
 
   // Disable the leveling matrix before homing
-  #if PLANNER_LEVELING
+  #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       const bool bed_leveling_state_at_entry = ubl.state.active;
     #endif
@@ -4368,7 +4368,7 @@ void home_all_axes() { gcode_G28(); }
 
       #endif
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
 
         // Jettison bed leveling data
         if (code_seen('J')) {
@@ -5034,7 +5034,7 @@ void home_all_axes() { gcode_G28(); }
     if (!position_is_reachable(pos, true)) return;
 
     // Disable leveling so the planner won't mess with us
-    #if PLANNER_LEVELING
+    #if HAS_LEVELING
       set_bed_leveling_enabled(false);
     #endif
 
@@ -5091,7 +5091,7 @@ void home_all_axes() { gcode_G28(); }
 
       stepper.synchronize();
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
         set_bed_leveling_enabled(false);
       #endif
 
@@ -7294,7 +7294,7 @@ inline void gcode_M115() {
     #endif
 
     // MESH_REPORT (M420 V)
-    #if PLANNER_LEVELING
+    #if HAS_LEVELING
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
@@ -8336,7 +8336,7 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if PLANNER_LEVELING
+#if HAS_LEVELING
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
    *
@@ -9857,12 +9857,12 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
+      #if HAS_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
           break;
-      #endif // PLANNER_LEVELING
+      #endif // HAS_LEVELING
 
       #if HAS_BED_PROBE
 
@@ -10363,7 +10363,7 @@ void process_next_command() {
           break;
       #endif // FILAMENT_WIDTH_SENSOR
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
           break;
@@ -10917,7 +10917,7 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if PLANNER_LEVELING
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)

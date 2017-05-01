@@ -324,7 +324,7 @@ float code_value_temp_diff();
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
 #endif
 
-#if PLANNER_LEVELING
+#if HAS_LEVELING
   void reset_bed_level();
 #endif
 
