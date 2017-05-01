@@ -21,20 +21,16 @@
  */
 
 /************************************************
- * Rambo pin assignments MODIFIED FOR A4JP
+ * Rambo pin assignments MODIFIED FOR Scoovo X9H
  ************************************************/
 
 #ifndef __AVR_ATmega2560__
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME "AJ4P"
+#define BOARD_NAME "Scoovo X9H"
 
 #define LARGE_FLASH true
-
-/************************************************
- * Rambo pin assignments old
- ************************************************/
 
 //
 // Servos
@@ -60,8 +56,6 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN   30
 #endif
-
-#define SLED_PIN -1
 
 //
 // Steppers

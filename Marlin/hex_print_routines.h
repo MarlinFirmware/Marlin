@@ -20,52 +20,28 @@
  *
  */
 
-/**
- * Board 99 pin assignments
- */
+#ifndef HEX_PRINT_ROUTINES_H
+#define HEX_PRINT_ROUTINES_H
 
-#define BOARD_NAME          "99 Unknown"
+#include "MarlinConfig.h"
 
-//
-// Limit Switches
-//
-#define X_STOP_PIN         16
-#define Y_STOP_PIN         67
-#define Z_STOP_PIN         59
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER)
 
 //
-// Steppers
+// Utility functions to create and print hex strings as nybble, byte, and word.
 //
-#define X_STEP_PIN          2
-#define X_DIR_PIN           3
-#define X_ENABLE_PIN       -1
 
-#define Y_STEP_PIN          5
-#define Y_DIR_PIN           6
-#define Y_ENABLE_PIN       -1
+inline char hex_nybble(const uint8_t n) {
+  return (n & 0xF) + ((n & 0xF) < 10 ? '0' : 'A' - 10);
+}
+char* hex_byte(const uint8_t b);
+char* hex_word(const uint16_t w);
+char* hex_address(const void * const w);
 
-#define Z_STEP_PIN         62
-#define Z_DIR_PIN          63
-#define Z_ENABLE_PIN       -1
+void print_hex_nybble(const uint8_t n);
+void print_hex_byte(const uint8_t b);
+void print_hex_word(const uint16_t w);
+void print_hex_address(const void * const w);
 
-#define E0_STEP_PIN        65
-#define E0_DIR_PIN         66
-#define E0_ENABLE_PIN      -1
-
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN          6   // Analog Input
-#define TEMP_BED_PIN       10   // Analog Input
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN       13
-#define HEATER_BED_PIN      4
-
-//
-// Misc. Functions
-//
-#define SDSS               53
-#define PS_ON_PIN           9
+#endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER
+#endif // HEX_PRINT_ROUTINES_H

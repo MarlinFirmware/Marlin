@@ -126,7 +126,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
-#else //!WIRING
+#else // WIRING
 
   // Interrupt handlers for Wiring
   #if ENABLED(_useTimer1)
@@ -136,7 +136,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
-#endif //!WIRING
+#endif // WIRING
 
 
 static void initISR(timer16_Sequence_t timer) {
@@ -168,8 +168,8 @@ static void initISR(timer16_Sequence_t timer) {
         SBI(TIFR, OCF3A);     // clear any pending interrupts;
         SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
       #else
-        TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
-        TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
+        SBI(TIFR3, OCF3A);   // clear any pending interrupts;
+        SBI(TIMSK3, OCIE3A); // enable the output compare interrupt
       #endif
       #ifdef WIRING
         timerAttach(TIMER3OUTCOMPAREA_INT, Timer3Service);  // for Wiring platform only
@@ -183,7 +183,7 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR4B = _BV(CS41);     // set prescaler of 8
       TCNT4 = 0;              // clear the timer count
       TIFR4 = _BV(OCF4A);     // clear any pending interrupts;
-      TIMSK4 =  _BV(OCIE4A) ; // enable the output compare interrupt
+      TIMSK4 = _BV(OCIE4A);   // enable the output compare interrupt
     }
   #endif
 
@@ -193,7 +193,7 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR5B = _BV(CS51);     // set prescaler of 8
       TCNT5 = 0;              // clear the timer count
       TIFR5 = _BV(OCF5A);     // clear any pending interrupts;
-      TIMSK5 =  _BV(OCIE5A) ; // enable the output compare interrupt
+      TIMSK5 = _BV(OCIE5A);   // enable the output compare interrupt
     }
   #endif
 }
@@ -203,21 +203,21 @@ static void finISR(timer16_Sequence_t timer) {
   #ifdef WIRING
     if (timer == _timer1) {
       CBI(
-      #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-        TIMSK1
-      #else
-        TIMSK
-      #endif
+        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+          TIMSK1
+        #else
+          TIMSK
+        #endif
           , OCIE1A);    // disable timer 1 output compare interrupt
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
       CBI(
-      #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-        TIMSK3
-      #else
-        ETIMSK
-      #endif
+        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+          TIMSK3
+        #else
+          ETIMSK
+        #endif
           , OCIE3A);    // disable the timer3 output compare A interrupt
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
@@ -227,7 +227,7 @@ static void finISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static boolean isTimerActive(timer16_Sequence_t timer) {
+static bool isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
   for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
     if (SERVO(timer, channel).Pin.isActive)

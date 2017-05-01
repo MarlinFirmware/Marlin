@@ -61,8 +61,6 @@
   #define Z_MIN_PROBE_PIN  19
 #endif
 
-#define SLED_PIN           -1
-
 //
 // Steppers
 //
@@ -153,7 +151,7 @@
   #define LCD_PINS_D5      30
   #define LCD_PINS_D6      39
   #define LCD_PINS_D7      15
-  
+
   #define SHIFT_CLK        43
   #define SHIFT_LD         35
   #define SHIFT_OUT        34

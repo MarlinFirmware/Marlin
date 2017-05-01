@@ -105,8 +105,8 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      static unsigned char old_OCR0A;
-      static volatile unsigned char eISR_Rate;
+      static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      #define _NEXT_ISR(T) nextMainISR = T
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
         static int final_estep_rate;
@@ -119,6 +119,8 @@ class Stepper {
         static long advance_rate, advance, final_advance;
         static long old_advance;
       #endif
+    #else
+      #define _NEXT_ISR(T) OCR1A = T
     #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
@@ -177,6 +179,7 @@ class Stepper {
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static void advance_isr();
+      static void advance_isr_scheduler();
     #endif
 
     //
@@ -299,14 +302,14 @@ class Stepper {
       step_rate -= F_CPU / 500000; // Correct for minimal speed
       if (step_rate >= (8 * 256)) { // higher step rate
         unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-        unsigned char tmp_step_rate = (step_rate & 0x00ff);
+        unsigned char tmp_step_rate = (step_rate & 0x00FF);
         unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
         MultiU16X8toH16(timer, tmp_step_rate, gain);
         timer = (unsigned short)pgm_read_word_near(table_address) - timer;
       }
       else { // lower step rates
         unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-        table_address += ((step_rate) >> 1) & 0xfffc;
+        table_address += ((step_rate) >> 1) & 0xFFFC;
         timer = (unsigned short)pgm_read_word_near(table_address);
         timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
       }
@@ -318,8 +321,8 @@ class Stepper {
       return timer;
     }
 
-    // Initializes the trapezoid generator from the current block. Called whenever a new
-    // block begins.
+    // Initialize the trapezoid generator from the current block.
+    // Called whenever a new block begins.
     static FORCE_INLINE void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
@@ -357,8 +360,8 @@ class Stepper {
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
-      OCR1A = acceleration_time;
-      
+      _NEXT_ISR(acceleration_time);
+
       #if ENABLED(LIN_ADVANCE)
         if (current_block->use_advance_lead) {
           current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;

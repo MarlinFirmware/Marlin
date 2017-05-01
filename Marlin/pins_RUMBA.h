@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if E_STEPPERS > 3 || HOTENDS > 3
-  #error "RUMBA supports up to 3 hotends / E-steppers. Comment this line to keep going."
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define DEFAULT_MACHINE_NAME "Rumba"
@@ -100,7 +100,7 @@
 #endif
 
 #if TEMP_SENSOR_2 == -1
-  #define TEMP_2_PIN        7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can not be used when TEMP_SENSOR_BED is defined as thermocouple)
+  #define TEMP_2_PIN        7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_BED is defined as thermocouple)
 #else
   #define TEMP_2_PIN       13   // Analog Input (default connector for thermistor *T2* on rumba board is used)
 #endif
@@ -109,7 +109,7 @@
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can not be used when TEMP_SENSOR_2 is defined as thermocouple)
+  #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
 #else
   #define TEMP_BED_PIN     11   // Analog Input (default connector for thermistor *THB* on rumba board is used)
 #endif

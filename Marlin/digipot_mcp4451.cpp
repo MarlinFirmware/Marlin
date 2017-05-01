@@ -22,7 +22,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(DIGIPOT_I2C)
+#if ENABLED(DIGIPOT_I2C) && DISABLED(DIGIPOT_MCP4018)
 
 #include "Stream.h"
 #include "utility/twi.h"
@@ -60,8 +60,8 @@ void digipot_i2c_set_current(int channel, float current) {
   }
 
   // Initial setup
-  i2c_send(addr, 0x40, 0xff);
-  i2c_send(addr, 0xA0, 0xff);
+  i2c_send(addr, 0x40, 0xFF);
+  i2c_send(addr, 0xA0, 0xFF);
 
   // Set actual wiper value
   byte addresses[4] = { 0x00, 0x10, 0x60, 0x70 };

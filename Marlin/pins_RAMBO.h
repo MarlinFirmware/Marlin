@@ -63,10 +63,6 @@
   #define Z_MIN_PROBE_PIN  30
 #endif
 
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN         -1
-#endif
-
 //
 // Limit Switches
 //

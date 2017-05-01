@@ -21,99 +21,197 @@
  */
 
 /**
-  This code contributed by Triffid_Hunter and modified by Kliment
-  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-*/
+ * Contributed by Triffid_Hunter, modified by Kliment, extended by the Marlin team
+ * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ */
 
 #ifndef _FASTIO_ARDUINO_H
 #define _FASTIO_ARDUINO_H
 
 #include <avr/io.h>
 
-/**
-  utility functions
-*/
-
-#ifndef MASK
-  #define MASK(PIN)  (1 << PIN)
+#ifndef _BV
+  #define _BV(PIN) (1 << PIN)
 #endif
 
 /**
-  magic I/O routines
-  now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
-*/
+ * Magic I/O routines
+ *
+ * Now you can simply SET_OUTPUT(PIN); WRITE(PIN, HIGH); WRITE(PIN, LOW);
+ */
 
-/// Read a pin
-#define _READ(IO) ((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
-/// write to a pin
-// On some boards pins > 0x100 are used. These are not converted to atomic actions. An critical section is needed.
+#define _READ(IO) ((bool)(DIO ## IO ## _RPORT & _BV(DIO ## IO ## _PIN)))
 
-#define _WRITE_NC(IO, v)  do { if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }; } while (0)
+// On some boards pins > 0x100 are used. These are not converted to atomic actions. A critical section is needed.
+
+#define _WRITE_NC(IO, v)  do { if (v) {DIO ##  IO ## _WPORT |= _BV(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~_BV(DIO ## IO ## _PIN); }; } while (0)
 
 #define _WRITE_C(IO, v)   do { if (v) { \
                                          CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } \
+                                         {DIO ##  IO ## _WPORT |= _BV(DIO ## IO ## _PIN); } \
                                          CRITICAL_SECTION_END; \
                                        } \
                                        else { \
                                          CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); } \
+                                         {DIO ##  IO ## _WPORT &= ~_BV(DIO ## IO ## _PIN); } \
                                          CRITICAL_SECTION_END; \
                                        } \
                                      } \
                                      while (0)
 
-#define _WRITE(IO, v)  do {  if (&(DIO ##  IO ## _RPORT) >= (uint8_t *)0x100) {_WRITE_C(IO, v); } else {_WRITE_NC(IO, v); }; } while (0)
+#define _WRITE(IO, v) do { if (&(DIO ## IO ## _RPORT) >= (uint8_t *)0x100) {_WRITE_C(IO, v); } else {_WRITE_NC(IO, v); }; } while (0)
 
-/// toggle a pin
-#define _TOGGLE(IO)  do {DIO ##  IO ## _RPORT = MASK(DIO ## IO ## _PIN); } while (0)
+#define _TOGGLE(IO) do {DIO ## IO ## _RPORT ^= _BV(DIO ## IO ## _PIN); } while (0)
 
-/// set pin as input
-#define _SET_INPUT(IO) do {DIO ##  IO ## _DDR &= ~MASK(DIO ## IO ## _PIN); } while (0)
-/// set pin as output
-#define _SET_OUTPUT(IO) do {DIO ##  IO ## _DDR |=  MASK(DIO ## IO ## _PIN); } while (0)
+#define _SET_INPUT(IO) do {DIO ## IO ## _DDR &= ~_BV(DIO ## IO ## _PIN); } while (0)
+#define _SET_OUTPUT(IO) do {DIO ## IO ## _DDR |= _BV(DIO ## IO ## _PIN); } while (0)
 
-/// check if pin is an input
-#define _GET_INPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) == 0)
-/// check if pin is an output
-#define _GET_OUTPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) != 0)
+#define _GET_INPUT(IO) ((DIO ## IO ## _DDR & _BV(DIO ## IO ## _PIN)) == 0)
+#define _GET_OUTPUT(IO) ((DIO ## IO ## _DDR & _BV(DIO ## IO ## _PIN)) != 0)
+#define _GET_TIMER(IO) (DIO ## IO ## _PWM)
 
-/// check if pin is an timer
-#define _GET_TIMER(IO)  (DIO ## IO ## _PWM)
+#define READ(IO) _READ(IO)
+#define WRITE(IO,V) _WRITE(IO,V)
+#define TOGGLE(IO) _TOGGLE(IO)
 
-//  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-
-/// Read a pin wrapper
-#define READ(IO)  _READ(IO)
-/// Write to a pin wrapper
-#define WRITE(IO, v)  _WRITE(IO, v)
-
-/// toggle a pin wrapper
-#define TOGGLE(IO)  _TOGGLE(IO)
-
-/// set pin as input wrapper
-#define SET_INPUT(IO)  _SET_INPUT(IO)
-/// set pin as input with pullup wrapper
+#define SET_INPUT(IO) _SET_INPUT(IO)
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
-/// set pin as output wrapper
-#define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
+#define SET_OUTPUT(IO) _SET_OUTPUT(IO)
 
-/// check if pin is an input wrapper
-#define GET_INPUT(IO)  _GET_INPUT(IO)
-/// check if pin is an output wrapper
-#define GET_OUTPUT(IO)  _GET_OUTPUT(IO)
+#define GET_INPUT(IO) _GET_INPUT(IO)
+#define GET_OUTPUT(IO) _GET_OUTPUT(IO)
+#define GET_TIMER(IO) _GET_TIMER(IO)
 
-/// check if pin is an timer wrapper
-#define GET_TIMER(IO)  _GET_TIMER(IO)
-
-// Shorthand
-#define OUT_WRITE(IO, v) { SET_OUTPUT(IO); WRITE(IO, v); }
+#define OUT_WRITE(IO, v) do{ SET_OUTPUT(IO); WRITE(IO, v); }while(0)
 
 /**
-  ports and functions
+ * Timer and Interrupt Control
+ */
 
-  added as necessary or if I feel like it- not a comprehensive list!
-*/
+// Waveform Generation Modes
+typedef enum {
+  WGM_NORMAL,          //  0
+  WGM_PWM_PC_8,        //  1
+  WGM_PWM_PC_9,        //  2
+  WGM_PWM_PC_10,       //  3
+  WGM_CTC_OCRnA,       //  4  COM OCnx
+  WGM_FAST_PWM_8,      //  5
+  WGM_FAST_PWM_9,      //  6
+  WGM_FAST_PWM_10,     //  7
+  WGM_PWM_PC_FC_ICRn,  //  8
+  WGM_PWM_PC_FC_OCRnA, //  9  COM OCnA
+  WGM_PWM_PC_ICRn,     // 10
+  WGM_PWM_PC_OCRnA,    // 11  COM OCnA
+  WGM_CTC_ICRn,        // 12  COM OCnx
+  WGM_reserved,        // 13
+  WGM_FAST_PWM_ICRn,   // 14  COM OCnA
+  WGM_FAST_PWM_OCRnA   // 15  COM OCnA
+} WaveGenMode;
+
+// Compare Modes
+typedef enum {
+  COM_NORMAL,          //  0
+  COM_TOGGLE,          //  1  Non-PWM: OCnx ... Both PWM (WGM 9,11,14,15): OCnA only ... else NORMAL
+  COM_CLEAR_SET,       //  2  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
+  COM_SET_CLEAR        //  3  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
+} CompareMode;
+
+// Clock Sources
+typedef enum {
+  CS_NONE,             //  0
+  CS_PRESCALER_1,      //  1
+  CS_PRESCALER_8,      //  2
+  CS_PRESCALER_64,     //  3
+  CS_PRESCALER_256,    //  4
+  CS_PRESCALER_1024,   //  5
+  CS_EXT_FALLING,      //  6
+  CS_EXT_RISING        //  7
+} ClockSource;
+
+// Clock Sources (Timer 2 only)
+typedef enum {
+  CS2_NONE,            //  0
+  CS2_PRESCALER_1,     //  1
+  CS2_PRESCALER_8,     //  2
+  CS2_PRESCALER_32,    //  3
+  CS2_PRESCALER_64,    //  4
+  CS2_PRESCALER_128,   //  5
+  CS2_PRESCALER_256,   //  6
+  CS2_PRESCALER_1024   //  7
+} ClockSource2;
+
+// Get interrupt bits in an orderly way
+#define GET_WGM(T)   (((TCCR##T##A >> WGM##T##0) & 0x3) | ((TCCR##T##B >> WGM##T##2 << 2) & 0xC))
+#define GET_CS(T)    ((TCCR##T##B >> CS##T##0) & 0x7)
+#define GET_COM(T,Q) ((TCCR##T##Q >> COM##T##Q##0) & 0x3)
+#define GET_COMA(T)  GET_COM(T,A)
+#define GET_COMB(T)  GET_COM(T,B)
+#define GET_COMC(T)  GET_COM(T,C)
+#define GET_ICNC(T)  (!!(TCCR##T##B & _BV(ICNC##T)))
+#define GET_ICES(T)  (!!(TCCR##T##B & _BV(ICES##T)))
+#define GET_FOC(T,Q) (!!(TCCR##T##C & _BV(FOC##T##Q)))
+#define GET_FOCA(T)  GET_FOC(T,A)
+#define GET_FOCB(T)  GET_FOC(T,B)
+#define GET_FOCC(T)  GET_FOC(T,C)
+
+// Set Wave Generation Mode bits
+#define _SET_WGM(T,V) do{ \
+    TCCR##T##A = (TCCR##T##A & ~(0x3 << WGM##T##0)) | (( int(V)       & 0x3) << WGM##T##0); \
+    TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
+  }while(0)
+#define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
+
+// Set Clock Select bits
+#define _SET_CS(T,V) (TCCR##T##B = (TCCR##T##B & ~(0x7 << CS##T##0)) | ((int(V) & 0x7) << CS##T##0))
+#define _SET_CS0(V) _SET_CS(0,V)
+#define _SET_CS1(V) _SET_CS(1,V)
+#ifdef TCCR2
+  #define _SET_CS2(V) (TCCR2 = (TCCR2 & ~(0x7 << CS20)) | (int(V) << CS20))
+#else
+  #define _SET_CS2(V) _SET_CS(2,V)
+#endif
+#define _SET_CS3(V) _SET_CS(3,V)
+#define _SET_CS4(V) _SET_CS(4,V)
+#define _SET_CS5(V) _SET_CS(5,V)
+#define SET_CS0(V) _SET_CS0(CS_##V)
+#define SET_CS1(V) _SET_CS1(CS_##V)
+#ifdef TCCR2
+  #define SET_CS2(V) _SET_CS2(CS2_##V)
+#else
+  #define SET_CS2(V) _SET_CS2(CS_##V)
+#endif
+#define SET_CS3(V) _SET_CS3(CS_##V)
+#define SET_CS4(V) _SET_CS4(CS_##V)
+#define SET_CS5(V) _SET_CS5(CS_##V)
+#define SET_CS(T,V) SET_CS##T(V)
+
+// Set Compare Mode bits
+#define _SET_COM(T,Q,V) (TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM##T##Q##0)) | (int(V) << COM##T##Q##0))
+#define _SET_COMA(T,V) _SET_COM(T,A,V)
+#define _SET_COMB(T,V) _SET_COM(T,B,V)
+#define _SET_COMC(T,V) _SET_COM(T,C,V)
+#define _SET_COMS(T,V1,V2,V3) do{ _SET_COMA(T,V1); _SET_COMB(T,V2); _SET_COMC(T,V3); }while(0)
+#define SET_COM(T,Q,V) _SET_COM(T,Q,COM_##V)
+#define SET_COMA(T,V) SET_COM(T,A,V)
+#define SET_COMB(T,V) SET_COM(T,B,V)
+#define SET_COMC(T,V) SET_COM(T,C,V)
+#define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
+
+// Set Noise Canceler bit
+#define SET_ICNC(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICNC##T) : TCCR##T##B & ~_BV(ICNC##T))
+
+// Set Input Capture Edge Select bit
+#define SET_ICES(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICES##T) : TCCR##T##B & ~_BV(ICES##T))
+
+// Set Force Output Compare bit
+#define SET_FOC(T,Q,V) (TCCR##T##C = (V) ? TCCR##T##C | _BV(FOC##T##Q) : TCCR##T##C & ~_BV(FOC##T##Q))
+#define SET_FOCA(T,V) SET_FOC(T,A,V)
+#define SET_FOCB(T,V) SET_FOC(T,B,V)
+#define SET_FOCC(T,V) SET_FOC(T,C,V)
+
+/**
+ * Ports and Functions
+ */
 
 #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
   // UART
@@ -141,8 +239,8 @@
   #define DEBUG_LED   AIO5
 
   /**
-  pins
-  */
+   * Pins Info
+   */
 
   #define DIO0_PIN    PIND0
   #define DIO0_RPORT  PIND
@@ -446,7 +544,7 @@
   #define PD7_WPORT   PORTD
   #define PD7_DDR     DDRD
   #define PD7_PWM     NULL
-#endif  /*  _AVR_ATmega{168,328,328P}__ */
+#endif // __AVR_ATmega(168|328|328P)__
 
 #if defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
   // UART
@@ -477,9 +575,10 @@
   #define OC2B        DIO14
 
   #define DEBUG_LED   DIO0
+
   /**
-  pins
-  */
+   * Pins Info
+   */
 
   #define DIO0_PIN    PINB0
   #define DIO0_RPORT  PINB
@@ -721,8 +820,6 @@
   #define AIO7_DDR    DDRA
   #define AIO7_PWM    NULL
 
-
-
   #undef PA0
   #define PA0_PIN     PINA0
   #define PA0_RPORT   PINA
@@ -949,7 +1046,7 @@
   #define PD7_WPORT   PORTD
   #define PD7_DDR     DDRD
   #define PD7_PWM     OCR2A
-#endif  /*  _AVR_ATmega{644,644P,644PA}__ */
+#endif // __AVR_ATmega(644|644P|644PA)__
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   // UART
@@ -987,8 +1084,9 @@
   #define DEBUG_LED   DIO21
 
   /**
-  pins
-  */
+   * Pins Info
+   */
+
   #define DIO0_PIN    PINE0
   #define DIO0_RPORT  PINE
   #define DIO0_WPORT  PORTE
@@ -2031,8 +2129,7 @@
   #define PL7_WPORT   PORTL
   #define PL7_DDR     DDRL
   #define PL7_PWM     NULL
-
-#endif
+#endif // __AVR_ATmega(1280|2560)__
 
 #if defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
 
@@ -2040,8 +2137,8 @@
   #define DEBUG_LED   DIO31 /* led D5 red */
 
   /**
-  pins
-  */
+   * Pins Info
+   */
 
   //#define AT90USBxx_TEENSYPP_ASSIGNMENTS // Use Teensy++ 2.0 assignments
   #ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS // Use traditional Marlin pin assignments
@@ -3335,8 +3432,7 @@
     #define PF7_DDR     DDRF
 
   #endif // AT90USBxx_TEENSYPP_ASSIGNMENTS Teensyduino assignments
-#endif // __AVR_AT90usbxxx__
-
+#endif // __AVR_AT90USB(1287|1286|646|647)__
 
 #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
   // UART
@@ -3368,8 +3464,9 @@
   #define DEBUG_LED   DIO46
 
   /**
-  pins
-  */
+   * Pins Info
+   */
+
   #define DIO0_PIN    PINE0
   #define DIO0_RPORT  PINE
   #define DIO0_WPORT  PORTE
@@ -3693,9 +3790,6 @@
   #define DIO53_WPORT PORTF
   #define DIO53_DDR   DDRF
   #define DIO53_PWM   NULL
-
-
-
 
   #undef PA0
   #define PA0_PIN     PINA0
@@ -4027,12 +4121,10 @@
   #define PG5_WPORT   PORTG
   #define PG5_DDR     DDRG
   #define PG5_PWM     &OCR0B
-
-
-#endif
+#endif // __AVR_ATmega(1281|2561)__
 
 #ifndef DIO0_PIN
   #error "pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request"
 #endif
 
-#endif /* _FASTIO_ARDUINO_H */
+#endif // _FASTIO_ARDUINO_H

@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if E_STEPPERS > 2 || HOTENDS > 2
-  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "Mega Controller"
