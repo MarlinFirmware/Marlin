@@ -1195,7 +1195,7 @@
     SERIAL_EOL;
     safe_delay(50);
 
-    SERIAL_PROTOCOLLNPAIR("UBL object count: ", ubl_cnt);
+    SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_PROTOCOLLNPAIR("planner.z_fade_height : ", planner.z_fade_height);
