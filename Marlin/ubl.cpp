@@ -39,7 +39,7 @@
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
 
-  int ubl_cnt=0;
+  uint8_t ubl_cnt = 0;
 
   static void serial_echo_xy(const uint16_t x, const uint16_t y) {
     SERIAL_CHAR('(');
