@@ -330,15 +330,19 @@
   /**
    * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
    */
-  #if ENABLED(DISTINCT_E_FACTORS) && EXTRUDERS > 1
-    #define XYZE_N (XYZ + EXTRUDERS)
+  #if ENABLED(DISTINCT_E_FACTORS) && (E_STEPPERS > 1 || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)) 
+    #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
+      #define XYZE_N (XYZ + EXTRUDERS)
+    #else
+      #define XYZE_N (XYZ + E_STEPPERS)
+    #endif
     #define E_AXIS_N (E_AXIS + extruder)
   #else
     #undef DISTINCT_E_FACTORS
     #define XYZE_N XYZE
     #define E_AXIS_N E_AXIS
   #endif
-
+  
   /**
    * The BLTouch Probe emulates a servo probe
    * and uses "special" angles for its state.

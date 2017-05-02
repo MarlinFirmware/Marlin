@@ -157,11 +157,11 @@
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
   #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
-  #define HOTEND_OFFSET_Z {0.0, 0.0}
+  //#define HOTEND_OFFSET_Z {0.0, 0.0}
 #endif
 
-// A single extruder that uses one or two single stepper motor
-// Don't forget to set SSDE_SERVO_ANGLES 
+// A single extruder that uses one or two single stepper motors
+// Don't forget to set the angles and the number of the switching extruder servos
 //#define SINGLENOZZLE_SWITCHING_EXTRUDER
 #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_E1_E2_NR 0

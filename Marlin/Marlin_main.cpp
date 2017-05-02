@@ -6404,7 +6404,7 @@ inline void gcode_M77() { print_job_timer.stop(); }
  * M104: Set hot end temperature
  */
 #if ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
-  static int16_t singlenozzle_temp [4];
+  static int16_t singlenozzle_temp[4];
 #endif
 
 inline void gcode_M104() {
@@ -6412,9 +6412,9 @@ inline void gcode_M104() {
   if (DEBUGGING(DRYRUN)) return;
 
   #if ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
-    // save temperatur for different extruder material
+    // save temperature for different extruder material
     if (code_seen('S')) singlenozzle_temp[target_extruder] = code_value_temp_abs();
-    // if not active_extruder, don't change temperatur
+    // if not active_extruder, don't change temperature
     if (target_extruder != active_extruder) return;
   #endif
 
@@ -9288,17 +9288,17 @@ inline void gcode_M999() {
 
 #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) 
   inline void move_extruder_servo(uint8_t e) {
-  #if EXTRUDERS == 2
-    const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
-    MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E1_E2_NR, angles_e1_e2[e]);
-  #else
-    const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
-    const int angles_e3_e4[2] = SWITCHING_EXTRUDER_SERVO_E3_E4_ANGLES;
-    if (e < 2) 
+    #if EXTRUDERS == 2
+      const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
       MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E1_E2_NR, angles_e1_e2[e]);
-    else      
-      MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E3_E4_NR, angles_e3_e4[e - 2]);
-  #endif
+    #else
+      const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
+      const int angles_e3_e4[2] = SWITCHING_EXTRUDER_SERVO_E3_E4_ANGLES;
+      if (e < 2) 
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E1_E2_NR, angles_e1_e2[e]);
+      else      
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E3_E4_NR, angles_e3_e4[e - 2]);
+    #endif
   }
 #endif
 
