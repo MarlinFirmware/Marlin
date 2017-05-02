@@ -1545,84 +1545,54 @@
     SERIAL_ECHOLNPGM("Done Editing Mesh");
   }
 
-  //
-  // The routine provides the 'Smart Fill' capability.  It scans from the
-  // outward edges of the mesh towards the center.  If it finds an invalid
-  // location, it uses the next two points (assumming they are valid) to
-  // calculate a 'reasonable' value for the unprobed mesh point.
-  //
-  void smart_fill_mesh() {
-    float f, diff;
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {             // Bottom of the mesh looking up
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y-2; y++) {
-        if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x][y+1]))                        // we only deal with the first NAN next to a block of
-            continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x][y+2]))
-            continue;
-          if (ubl.z_values[x][y+1] < ubl.z_values[x][y+2])        // The bed is angled down near this edge. So to be safe, we
-            ubl.z_values[x][y] = ubl.z_values[x][y+1];            // use the closest value, which is probably a little too high
-          else {
-            diff = ubl.z_values[x][y+1] - ubl.z_values[x][y+2];   // The bed is angled up near this edge. So we will use the closest
-            ubl.z_values[x][y] = ubl.z_values[x][y+1] + diff;     // height and add in the difference between that and the next point
-          }
-          break;
-        }
+  /**
+   * 'Smart Fill': Scan from the outward edges of the mesh towards the center.
+   * If an invalid location is found, use the next two points (if valid) to
+   * calculate a 'reasonable' value for the unprobed mesh point.
+   */
+
+  bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
+    const int8_t x1 = x + xdir, x2 = x1 + xdir,
+                 y1 = y + ydir, y2 = y1 + ydir;
+    // A NAN next to a pair of real values?
+    if (isnan(ubl.z_values[x][y]) && !isnan(ubl.z_values[x1][y1]) && !isnan(ubl.z_values[x2][y2])) {
+      if (ubl.z_values[x1][y1] < ubl.z_values[x2][y2])                  // Angled downward?
+        ubl.z_values[x][y] = ubl.z_values[x1][y1];                      // Use nearest (maybe a little too high.)
+      else {
+        const float diff = ubl.z_values[x1][y1] - ubl.z_values[x2][y2]; // Angled upward
+        ubl.z_values[x][y] = ubl.z_values[x1][y1] + diff;               // Use closest plus difference
       }
+      return true;
     }
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {             // Top of the mesh looking down
-      for (uint8_t y=GRID_MAX_POINTS_Y-1; y>=1; y--) {
-        if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x][y-1]))                        // we only deal with the first NAN next to a block of
-            continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x][y-2]))
-            continue;
-          if (ubl.z_values[x][y-1] < ubl.z_values[x][y-2])        // The bed is angled down near this edge. So to be safe, we
-            ubl.z_values[x][y] = ubl.z_values[x][y-1];            // use the closest value, which is probably a little too high
-          else {
-            diff = ubl.z_values[x][y-1] - ubl.z_values[x][y-2];   // The bed is angled up near this edge. So we will use the closest
-            ubl.z_values[x][y] = ubl.z_values[x][y-1] + diff;     // height and add in the difference between that and the next point
-          }
-          break;
-        }
-      }
+    return false;
+  }
+
+  typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
+
+  void smart_fill_loop(const smart_fill_info &f) {
+    if (f.yfirst) {
+      const int8_t dir = f.ex > f.sx ? 1 : -1;
+      for (uint8_t y = f.sy; y != f.ey; ++y)
+        for (uint8_t x = f.sx; x != f.ex; x += dir)
+          if (smart_fill_one(x, y, dir, 0)) break;
     }
-    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X-2; x++) {         // Left side of the mesh looking right
-        if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x+1][y]))                        // we only deal with the first NAN next to a block of
-            continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x+2][y]))
-            continue;
-          if (ubl.z_values[x+1][y] < ubl.z_values[x+2][y])        // The bed is angled down near this edge. So to be safe, we
-            ubl.z_values[x][y] = ubl.z_values[x][y+1];            // use the closest value, which is probably a little too high
-          else {
-            diff = ubl.z_values[x+1][y] - ubl.z_values[x+2][y];   // The bed is angled up near this edge. So we will use the closest
-            ubl.z_values[x][y] = ubl.z_values[x+1][y] + diff;     // height and add in the difference between that and the next point
-          }
-          break;
-        }
-      }
-    }
-    for (uint8_t y=0; y < GRID_MAX_POINTS_Y; y++) {
-      for (uint8_t x=GRID_MAX_POINTS_X-1; x>=1; x--) {            // Right side of the mesh looking left
-        if (isnan(ubl.z_values[x][y])) {
-          if (isnan(ubl.z_values[x-1][y]))                        // we only deal with the first NAN next to a block of
-            continue;                                             // good numbers.  we want 2 good numbers to extrapolate off of.
-          if (isnan(ubl.z_values[x-2][y]))
-            continue;
-          if (ubl.z_values[x-1][y] < ubl.z_values[x-2][y])        // The bed is angled down near this edge. So to be safe, we
-            ubl.z_values[x][y] = ubl.z_values[x-1][y];            // use the closest value, which is probably a little too high
-          else {
-            diff = ubl.z_values[x-1][y] - ubl.z_values[x-2][y];   // The bed is angled up near this edge. So we will use the closest
-            ubl.z_values[x][y] = ubl.z_values[x-1][y] + diff;     // height and add in the difference between that and the next point
-          }
-          break;
-        }
-      }
+    else {
+      const int8_t dir = f.ey > f.sy ? 1 : -1;
+       for (uint8_t x = f.sx; x != f.ex; ++x)
+        for (uint8_t y = f.sy; y != f.ey; y += dir)
+          if (smart_fill_one(x, y, 0, dir)) break;
     }
   }
 
+  void smart_fill_mesh() {
+    const smart_fill_info info[] = {
+      { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false },  // Bottom of the mesh looking up
+      { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false },  // Top of the mesh looking down
+      { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  },  // Left side of the mesh looking right
+      { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  }   // Right side of the mesh looking left
+    };
+    for (uint8_t i = 0; i < COUNT(info); ++i) smart_fill_loop(info[i]);
+  }
 
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {
     constexpr int16_t x_min = max(MIN_PROBE_X, UBL_MESH_MIN_X),
