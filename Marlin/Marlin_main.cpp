@@ -3753,6 +3753,9 @@ inline void gcode_G28() {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       const bool bed_leveling_state_at_entry = ubl.state.active;
     #endif
+	#if ENABLED(MESH_BED_LEVELING)
+	  mbl.set_reactivate(mbl.active());
+	#endif
     set_bed_leveling_enabled(false);
   #endif
 
