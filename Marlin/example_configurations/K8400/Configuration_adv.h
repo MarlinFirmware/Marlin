@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -543,7 +543,7 @@
   //#define USE_SMALL_INFOFONT
 
   // Enable this option and reduce the value to optimize screen updates.
-  // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
+  // The normal delay is 10Âµs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
 #endif // DOGLCD
 
@@ -673,9 +673,9 @@
 // Moves (or segments) with fewer steps than this will be joined with the next move
 #define MIN_STEPS_PER_SEGMENT 6
 
-// The minimum pulse width (in µs) for stepping a stepper.
+// The minimum pulse width (in Âµs) for stepping a stepper.
 // Set this if you find stepping unreliable, or if using a very fast CPU.
-#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
+#define MINIMUM_STEPPER_PULSE 0 // (Âµs) The smallest stepper pulse allowed
 
 // @section temperature
 
@@ -784,6 +784,28 @@
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
   //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
 #endif
+
+/** 
+  //=========================================================================
+  //================ DHT11, DHT21 or DHT22 Sensor Readings ==================
+  //=========================================================================
+ * 
+ * This feature is for reading the ambient temperature and humidity near or
+ * around the printer.
+ *
+ *         *******************************************************
+ *         =========   This will need to be installed!  ==========
+ *         *******************************************************
+ *         DHT Temperature & Humidity Sensor library for Arduino.
+ *         http://www.github.com/markruys/arduino-DHT
+ *         *******************************************************
+ * */
+//#define DHT_ENABLE
+#if ENABLED(DHT_ENABLE)
+    #define DHT_TYPE 22     //DHT type 11, 21, or 22
+    #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 connector pin3 (outside row))
+
+#endif //DHT_ENABLE
 
 // @section tmc
 

@@ -300,6 +300,18 @@
 #endif
 
 /**
+ * DHT Sensor option
+ */
+#if ENABLED(DHT_ENABLE)
+  #if DISABLED(ULTIPANEL)
+    #error "DHT Sensor option requires an LCD controller."
+  #endif
+  #if DISABLED(LCD_INFO_MENU)
+    #error "DHT Sensor option requires LCD_INFO_MENU option enabled."
+  #endif
+#endif
+
+/**
  * Individual axis homing is useless for DELTAS
  */
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
