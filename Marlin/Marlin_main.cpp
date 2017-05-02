@@ -9268,7 +9268,7 @@ inline void gcode_M355() {
     SERIAL_ECHOPGM("Case lights ");
     case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
   #else
-    SERIAL_ERROR_START;
+    SERIAL_ECHO_START;
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
   #endif // HAS_CASE_LIGHT
 }
