@@ -1334,7 +1334,6 @@ void MarlinSettings::reset() {
         #endif
         ; i++) {
         SERIAL_ECHOPAIR("  M203 T", (int)i);
-        }
         SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS + i]));
       }
     #endif
