@@ -2069,7 +2069,7 @@ static void clean_up_after_endstop_or_probe_move() {
      */
     #if ENABLED(BLTOUCH_HEATERS_OFF)
 
-      bool set_heaters_for_bltouch(const bool deploy) {
+      void set_heaters_for_bltouch(const bool deploy) {
         static bool heaters_were_disabled = false;
         static millis_t next_emi_protection;
         static float temps_at_entry[HOTENDS];
@@ -2095,19 +2095,18 @@ static void clean_up_after_endstop_or_probe_move() {
           #endif
         }
         else {
+          next_emi_protection = 0;
           HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
           #if HAS_TEMP_BED
             thermalManager.setTargetBed(bed_temp_at_entry);
           #endif
         }
+        heaters_were_disabled = deploy;
       }
 
     #endif // BLTOUCH_HEATERS_OFF
 
     void set_bltouch_deployed(const bool deploy) {
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
-        set_heaters_for_bltouch(deploy);
-      #endif
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    //  try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
@@ -2121,6 +2120,9 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
+      #if ENABLED(BLTOUCH_HEATERS_OFF)
+        set_heaters_for_bltouch(deploy);
+      #endif
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2143,11 +2145,11 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
+    if (endstops.z_probe_enabled == deploy) return false;
+
     #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
       set_heaters_for_bltouch(deploy);
     #endif
-
-    if (endstops.z_probe_enabled == deploy) return false;
 
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
@@ -12306,8 +12308,6 @@ void setup() {
     ;
     update_case_light();
   #endif
-    update_case_light();
-  #endif
 
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
@@ -12374,9 +12374,10 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_command(BLTOUCH_RESET);    // Just in case the BLTouch is in the error state, try to
-    set_bltouch_deployed(true);        // reset it. Also needs to deploy and stow to clear the
-    set_bltouch_deployed(false);       // error condition.
+    // Make sure any BLTouch error condition is cleared
+    bltouch_command(BLTOUCH_RESET);
+    set_bltouch_deployed(true);
+    set_bltouch_deployed(false);
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
