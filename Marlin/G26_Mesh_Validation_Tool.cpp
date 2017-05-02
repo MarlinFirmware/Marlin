@@ -115,25 +115,29 @@
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
+  // External references
+
   extern float feedrate;
   extern Planner planner;
-  //#if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
-  //#endif
+  #endif
   extern float destination[XYZE];
-  extern void set_destination_to_current();
-  extern void set_current_to_destination();
-  extern float code_value_float();
-  extern bool code_value_bool();
-  extern bool code_has_value();
-  extern void lcd_init();
-  extern void lcd_setstatuspgm(const char* const message, const uint8_t level);
-  #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
+  void set_destination_to_current();
+  void set_current_to_destination();
+  float code_value_float();
+  bool code_value_bool();
+  bool code_has_value();
+  void lcd_init();
+  void lcd_setstatuspgm(const char* const message, const uint8_t level);
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
-  void line_to_destination(float );
-  void gcode_G28();
+  void line_to_destination(float);
   void sync_plan_position_e();
+  void chirp_at_user();
+
+  // Private functions
+
   void un_retract_filament(float where[XYZE]);
   void retract_filament(float where[XYZE]);
   void look_for_lines_to_connect();
@@ -142,17 +146,14 @@
   void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
   bool turn_on_heaters();
   bool prime_nozzle();
-  void chirp_at_user();
 
   static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], continue_with_closest = 0;
   float g26_e_axis_feedrate = 0.020,
         random_deviation = 0.0,
         layer_height = LAYER_HEIGHT;
 
-  bool g26_retracted = false; // We keep track of the state of the nozzle to know if it
-                              // is currently retracted or not.  This allows us to be
-                              // less careful because mis-matched retractions and un-retractions
-                              // won't leave us in a bad state.
+  static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
+                                     // retracts/recovers won't result in a bad state.
 
   float valid_trig_angle(float);
   mesh_index_pair find_closest_circle_to_print(const float&, const float&);
@@ -167,9 +168,9 @@
                hotend_temp = HOTEND_TEMP,
                ooze_amount = OOZE_AMOUNT;
 
-  int8_t prime_flag = 0;
+  static int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false;
+  static bool keep_heaters_on = false;
 
   /**
    * G26: Mesh Validation Pattern generation.

@@ -490,8 +490,6 @@ static uint8_t target_extruder;
   float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
 
-#define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
-
 #if HAS_ABL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
@@ -2405,7 +2403,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if PLANNER_LEVELING
+#if HAS_LEVELING
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2426,7 +2424,12 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enable && mbl.has_mesh()) planner.unapply_leveling(current_position);
       }
 
-    #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+      ubl.state.active = enable;
+      //set_current_from_steppers_for_axis(Z_AXIS);
+
+    #else
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         const bool can_change = (!enable || (bilinear_grid_spacing[0] && bilinear_grid_spacing[1]));
@@ -2454,9 +2457,6 @@ static void clean_up_after_endstop_or_probe_move() {
         else
           planner.unapply_leveling(current_position);
       }
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.state.active = enable;
-      //set_current_from_steppers_for_axis(Z_AXIS);
     #endif
   }
 
@@ -2513,7 +2513,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
 
-#endif // PLANNER_LEVELING
+#endif // HAS_LEVELING
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
 
@@ -3749,10 +3749,7 @@ inline void gcode_G28() {
   #endif
 
   // Disable the leveling matrix before homing
-  #if PLANNER_LEVELING
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool bed_leveling_state_at_entry = ubl.state.active;
-    #endif
+  #if HAS_LEVELING
     set_bed_leveling_enabled(false);
   #endif
 
@@ -3895,25 +3892,6 @@ inline void gcode_G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    set_bed_leveling_enabled(bed_leveling_state_at_entry);
-  #endif
-
-  // Enable mesh leveling again
-  #if ENABLED(MESH_BED_LEVELING)
-    if (mbl.reactivate()) {
-      set_bed_leveling_enabled(true);
-      if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
-        #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
-          set_destination_to_current();
-          line_to_destination(homing_feedrate_mm_s[Z_AXIS]);
-          stepper.synchronize();
-        #endif
-      }
-    }
-  #endif
-
   clean_up_after_endstop_or_probe_move();
 
   // Restore the active tool after homing
@@ -3927,6 +3905,8 @@ inline void gcode_G28() {
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
 }
+
+void home_all_axes() { gcode_G28(); }
 
 #if HAS_PROBING_PROCEDURE
 
@@ -3978,6 +3958,18 @@ inline void gcode_G28() {
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
       [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
+  }
+
+  void mesh_probing_done() {
+    mbl.set_has_mesh(true);
+    home_all_axes();
+    set_bed_leveling_enabled(true);
+    #if ENABLED(MESH_G28_REST_ORIGIN)
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
+      set_destination_to_current();
+      line_to_destination(homing_feedrate_mm_s[Z_AXIS]);
+      stepper.synchronize();
+    #endif
   }
 
   /**
@@ -4070,14 +4062,12 @@ inline void gcode_G28() {
           line_to_current_position();
           stepper.synchronize();
 
-          // After recording the last point, activate the mbl and home
-          SERIAL_PROTOCOLLNPGM("Mesh probing done.");
+          // After recording the last point, activate home and activate
           mbl_probe_index = -1;
-          mbl.set_has_mesh(true);
-          mbl.set_reactivate(true);
-          enqueue_and_echo_commands_P(PSTR("G28"));
+          SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           BUZZ(100, 659);
           BUZZ(100, 698);
+          mesh_probing_done();
         }
         break;
 
@@ -4368,7 +4358,7 @@ inline void gcode_G28() {
 
       #endif
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
 
         // Jettison bed leveling data
         if (code_seen('J')) {
@@ -5013,7 +5003,7 @@ inline void gcode_G28() {
       SYNC_PLAN_POSITION_KINEMATIC();
   }
 
-#endif // HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+#endif // HAS_ABL && !AUTO_BED_LEVELING_UBL
 
 #if HAS_BED_PROBE
 
@@ -5034,7 +5024,7 @@ inline void gcode_G28() {
     if (!position_is_reachable(pos, true)) return;
 
     // Disable leveling so the planner won't mess with us
-    #if PLANNER_LEVELING
+    #if HAS_LEVELING
       set_bed_leveling_enabled(false);
     #endif
 
@@ -5091,7 +5081,7 @@ inline void gcode_G28() {
 
       stepper.synchronize();
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
         set_bed_leveling_enabled(false);
       #endif
 
@@ -6198,10 +6188,6 @@ inline void gcode_M42() {
    * regenerated.
    */
   inline void gcode_M48() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-  bool bed_leveling_state_at_entry=0;
-    bed_leveling_state_at_entry = ubl.state.active;
-  #endif
 
     if (axis_unhomed_error(true, true, true)) return;
 
@@ -6220,8 +6206,8 @@ inline void gcode_M42() {
       return;
     }
 
-    float  X_current = current_position[X_AXIS],
-           Y_current = current_position[Y_AXIS];
+    float X_current = current_position[X_AXIS],
+          Y_current = current_position[Y_AXIS];
 
     bool stow_probe_after_each = code_seen('E');
 
@@ -6267,8 +6253,17 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
     // Disable bed level correction in M48 because we want the raw data when we probe
-    #if HAS_ABL
-      const bool abl_was_enabled = planner.abl_enabled;
+
+    #if HAS_LEVELING
+      const bool was_enabled =
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.state.active
+        #elif ENABLED(MESH_BED_LEVELING)
+          mbl.active()
+        #else
+          planner.abl_enabled
+        #endif
+      ;
       set_bed_leveling_enabled(false);
     #endif
 
@@ -6420,14 +6415,9 @@ inline void gcode_M42() {
 
     clean_up_after_endstop_or_probe_move();
 
-    // Re-enable bed level correction if it has been on
+    // Re-enable bed level correction if it had been on
     #if HAS_ABL
-      set_bed_leveling_enabled(abl_was_enabled);
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      set_bed_leveling_enabled(bed_leveling_state_at_entry);
-      ubl.state.active = bed_leveling_state_at_entry;
+      set_bed_leveling_enabled(was_enabled);
     #endif
 
     report_current_position();
@@ -7294,7 +7284,7 @@ inline void gcode_M115() {
     #endif
 
     // MESH_REPORT (M420 V)
-    #if PLANNER_LEVELING
+    #if HAS_LEVELING
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
@@ -8336,7 +8326,7 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if PLANNER_LEVELING
+#if HAS_LEVELING
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
    *
@@ -9857,12 +9847,12 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
+      #if HAS_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
           break;
-      #endif // PLANNER_LEVELING
+      #endif // HAS_LEVELING
 
       #if HAS_BED_PROBE
 
@@ -10363,7 +10353,7 @@ void process_next_command() {
           break;
       #endif // FILAMENT_WIDTH_SENSOR
 
-      #if PLANNER_LEVELING
+      #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
           break;
@@ -10917,7 +10907,7 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if PLANNER_LEVELING
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)

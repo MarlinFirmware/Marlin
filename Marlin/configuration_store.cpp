@@ -1071,7 +1071,7 @@ void MarlinSettings::reset() {
   #endif
 
   // Applies to all MBL and ABL
-  #if PLANNER_LEVELING
+  #if HAS_LEVELING
     reset_bed_level();
   #endif
 

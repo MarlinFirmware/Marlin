@@ -530,7 +530,7 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-#if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+#if PLANNER_LEVELING
   /**
    * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
@@ -634,7 +634,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-#endif // PLANNER_LEVELING && !AUTO_BED_LEVELING_UBL
+#endif // PLANNER_LEVELING
 
 /**
  * Planner::_buffer_line
@@ -1434,7 +1434,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
-  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if PLANNER_LEVELING
     float lpos[XYZ] = { position[X_AXIS], position[Y_AXIS], position[Z_AXIS] };
     apply_leveling(lpos);
   #else
