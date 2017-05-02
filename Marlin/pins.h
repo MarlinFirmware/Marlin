@@ -461,6 +461,9 @@
     #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
     #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
     #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
+    #if X2_ENABLE_PIN == 0
+      #error "No E stepper plug left for X2!"
+    #endif
   #endif
   #undef _X2_PINS
   #define _X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
@@ -475,6 +478,9 @@
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
     #define Y2_ENABLE_PIN _EPIN(Y2_E_INDEX, ENABLE)
+    #if Y2_ENABLE_PIN == 0
+      #error "No E stepper plug left for Y2!"
+    #endif
   #endif
   #undef _Y2_PINS
   #define _Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN,
@@ -489,6 +495,9 @@
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
     #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
+    #if Z2_ENABLE_PIN == 0
+      #error "No E stepper plug left for Z2!"
+    #endif
   #endif
   #undef _Z2_PINS
   #define _Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN,
