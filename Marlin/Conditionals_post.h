@@ -413,9 +413,17 @@
     #endif
   #endif
 
-  #define IS_Z2_OR_PROBE(P) (   (PIN_EXISTS(Z2_MIN)      && (P) == Z2_MIN_PIN)       \
-                             || (PIN_EXISTS(Z2_MAX)      && (P) == Z2_MAX_PIN)       \
-                             || (PIN_EXISTS(Z_MIN_PROBE) && (P) == Z_MIN_PROBE_PIN))
+  /**
+   *  Deciding which endstops are active at pre-processor time is "interesting"
+   *      all real pins defined in the pins_YOUR_BOARD.h file exist and have correct numbers assigned
+   *      If HAS_Z2_MIN is true then a) PIN_EXISTS(Z2_MIN) is true and b) Z2_MIN_PIN exists but has no value (fails if
+   *         comparing to zero and fails if comparing to the correct pin number)
+   *      If HAS_Z2_MAX is true then a) PIN_EXISTS(Z2_MAX) is true and b) Z2_MAX_PIN exists but has no value (fails if
+   *         comparing to zero and fails if comparing to the correct pin number)
+   */
+
+  #define IS_Z2_OR_PROBE(AXIS,MIN_MAX) (   (Z2_USE_ENDSTOP == _##AXIS##MIN_MAX##_) \
+                                        || (ENABLED(Z_MIN_PROBE_ENDSTOP) && Z_MIN_PROBE_PIN == AXIS##_##MIN_MAX##_PIN ) )
 
   /**
    * Set ENDSTOPPULLUPS for active endstop switches
@@ -505,12 +513,12 @@
   #define HAS_SOLENOID_4    (PIN_EXISTS(SOL4))
 
   // Endstops and bed probe
-  #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_Z2_OR_PROBE(X_MIN_PIN))
-  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_Z2_OR_PROBE(X_MAX_PIN))
-  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_Z2_OR_PROBE(Y_MIN_PIN))
-  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_Z2_OR_PROBE(Y_MAX_PIN))
-  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_Z2_OR_PROBE(Z_MIN_PIN))
-  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_Z2_OR_PROBE(Z_MAX_PIN))
+  #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_Z2_OR_PROBE(X,MIN))
+  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_Z2_OR_PROBE(X,MAX))
+  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_Z2_OR_PROBE(Y,MIN))
+  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_Z2_OR_PROBE(Y,MAX))
+  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_Z2_OR_PROBE(Z,MIN))
+  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_Z2_OR_PROBE(Z,MAX))
   #define HAS_Z2_MIN (PIN_EXISTS(Z2_MIN))
   #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
   #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
