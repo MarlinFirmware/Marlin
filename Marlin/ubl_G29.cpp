@@ -490,48 +490,12 @@
           //
           fine_tune_mesh(x_pos, y_pos, code_seen('O') || code_seen('M'));
           break;
-        case 5:
-          ubl.find_mean_mesh_height();
-          break;
-        case 6:
-          ubl.shift_mesh_height();
-          break;
 
-        case 10:
-          // [DEBUG] Pay no attention to this stuff. It can be removed soon.
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM("Checking G29 has control of LCD Panel:");
-          KEEPALIVE_STATE(PAUSED_FOR_USER);
-          ubl.has_control_of_lcd_panel = true;
-          while (!ubl_lcd_clicked()) {
-            safe_delay(250);
-            if (ubl.encoder_diff) {
-              SERIAL_ECHOLN((int)ubl.encoder_diff);
-              ubl.encoder_diff = 0;
-            }
-          }
-          SERIAL_ECHOLNPGM("G29 giving back control of LCD Panel.");
-          ubl.has_control_of_lcd_panel = false;
-          KEEPALIVE_STATE(IN_HANDLER);
-          break;
+        case 5: ubl.find_mean_mesh_height(); break;
 
-        case 11:
-          // [DEBUG] wait_for_user code. Pay no attention to this stuff. It can be removed soon.
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM("Checking G29 has control of LCD Panel:");
-          KEEPALIVE_STATE(PAUSED_FOR_USER);
-          wait_for_user = true;
-          while (wait_for_user) {
-            safe_delay(250);
-            if (ubl.encoder_diff) {
-              SERIAL_ECHOLN((int)ubl.encoder_diff);
-              ubl.encoder_diff = 0;
-            }
-          }
-          SERIAL_ECHOLNPGM("G29 giving back control of LCD Panel.");
-          KEEPALIVE_STATE(IN_HANDLER);
-          break;
+        case 6: ubl.shift_mesh_height(); break;
       }
+
     }
 
     if (code_seen('T')) {
