@@ -274,7 +274,7 @@
         if (y != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
 
-            //on_axis_distance = y - start[Y_AXIS];                               
+            //on_axis_distance = y - start[Y_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
 
             //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
@@ -283,7 +283,7 @@
             //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
             //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
 
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  
+            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
