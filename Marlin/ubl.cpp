@@ -50,9 +50,9 @@
     safe_delay(10);
   }
 
-  static void serial_echo_12x_spaces() {
+  static void serial_echo_mspaces(const uint8_t cnt) {
     for (uint8_t i = GRID_MAX_POINTS_X - 1; --i;) {
-      SERIAL_ECHO_SP(12);
+      SERIAL_ECHO_SP((uint8_t)cnt);
       safe_delay(10);
     }
   }
@@ -142,21 +142,18 @@
   }
 
   void unified_bed_leveling::display_map(const int map_type) {
-
     const bool map0 = map_type == 0;
+    const uint8_t spaces = 9;
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
-      SERIAL_ECHOPGM("    ");
-    }
-
-    if (map0) {
-      serial_echo_12x_spaces();
+      SERIAL_ECHO_SP(3);
+      serial_echo_mspaces(spaces);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
-      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      serial_echo_12x_spaces();
+      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
+      serial_echo_mspaces(spaces);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
@@ -202,12 +199,12 @@
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHO_SP(4);
-      serial_echo_12x_spaces();
+      serial_echo_mspaces(spaces);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
-      SERIAL_ECHO_SP(7);
-      serial_echo_12x_spaces();
+      SERIAL_ECHO_SP(5);
+      serial_echo_mspaces(spaces);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
       SERIAL_EOL;
     }
