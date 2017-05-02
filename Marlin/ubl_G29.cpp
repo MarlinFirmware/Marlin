@@ -512,7 +512,7 @@
       z2 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
       z3 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
 
-      do_blocking_move_to_xy((X_MAX_POS - (X_MIN_POS)) / 2.0, (Y_MAX_POS - (Y_MIN_POS)) / 2.0);
+      do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
       ubl.tilt_mesh_based_on_3pts(z1, z2, z3);
       ubl.restore_ubl_active_state_and_leave();
     }
@@ -751,8 +751,8 @@
     ubl.restore_ubl_active_state_and_leave();
 
     do_blocking_move_to_xy(
-      constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), X_MIN_POS, X_MAX_POS),
-      constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), Y_MIN_POS, Y_MAX_POS)
+      constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_X, UBL_MESH_MAX_X),
+      constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)
     );
   }
 
@@ -1056,12 +1056,12 @@
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
+    if (!WITHIN(RAW_X_POSITION(x_pos), UBL_MESH_MIN_X, UBL_MESH_MAX_X)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
+    if (!WITHIN(RAW_Y_POSITION(y_pos), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       err_flag = true;
     }
@@ -1432,7 +1432,7 @@
                   rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) { // In theory, we don't need this check.
+      if (!WITHIN(rawx, UBL_MESH_MIN_X, UBL_MESH_MAX_X) || !WITHIN(rawy, UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) { // In theory, we don't need this check.
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Attempt to edit off the bed."); // This really can't happen, but do the check for now
         ubl.has_control_of_lcd_panel = false;
