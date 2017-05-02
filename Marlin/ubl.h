@@ -40,29 +40,38 @@
     float distance; // When populated, the distance from the search location
   } mesh_index_pair;
 
+  // ubl.cpp
+
+  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
+  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+
+  // ubl_motion.cpp
+
+  void debug_current_and_destination(const char * const title);
+  void ubl_line_to_destination(const float&, uint8_t);
+
+  // ubl_G29.cpp
+
   enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
 
   void dump(char * const str, const float &f);
-  bool ubl_lcd_clicked();
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void debug_current_and_destination(const char * const title);
-  void ubl_line_to_destination(const float&, uint8_t);
   void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
   float measure_business_card_thickness(const float&);
   mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
   void shift_mesh_height();
+  void fine_tune_mesh(const float&, const float&, const bool);
   bool g29_parameter_parsing();
   void g29_what_command();
   void g29_eeprom_dump();
   void g29_compare_current_mesh_to_stored_mesh();
-  void fine_tune_mesh(const float&, const float&, const bool);
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+
+  // External references
+
   char *ftostr43sign(const float&, char);
-
+  bool ubl_lcd_clicked();
   void home_all_axes();
-
   void gcode_G26();
   void gcode_G29();
 
@@ -74,7 +83,6 @@
     extern char lcd_status_message[];
     void lcd_quick_feedback();
   #endif
-
 
   #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
   #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
