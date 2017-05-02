@@ -167,7 +167,7 @@
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
- * M355 - Turn the Case Light on/off and set its brightness. (Requires CASE_LIGHT_PIN)
+ * M355 - Sets Case Light brightness. (Requires CASE_LIGHT_PIN) * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
  * M400 - Finish all moves.
@@ -561,16 +561,6 @@ static uint8_t target_extruder;
       false
     #else
       true
-    #endif
-  ;
-#endif
-
-#if HAS_CASE_LIGHT
-  bool case_light_on =
-    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-      true
-    #else
-      false
     #endif
   ;
 #endif
@@ -5058,16 +5048,16 @@ void home_all_axes() { gcode_G28(); }
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     /**
      * G33 - Delta '1-4-7-point' auto calibration (Requires DELTA)
-     * 
+     *
      * Usage:
      *   G33 <Vn> <Pn> <A> <O> <T>
-     *   
+     *
      *     Vn = verbose level (n=0-2 default 1)
      *          n=0 dry-run mode: setting + probe results / no calibration
-     *          n=1 settings 
-     *          n=2 setting + probe results 
+     *          n=1 settings
+     *          n=2 setting + probe results
      *     Pn = n=-7 -> +7 : n*n probe points
-     *          calibrates height ('1 point'), endstops, and delta radius ('4 points') 
+     *          calibrates height ('1 point'), endstops, and delta radius ('4 points')
      *          and tower angles with n > 2 ('7+ points')
      *          n=1  probes center / sets height only
      *          n=2  probes center and towers / sets height, endstops and delta radius
@@ -5091,7 +5081,6 @@ void home_all_axes() { gcode_G28(); }
       probe_mode = (code_seen('A') && probe_mode == 1 ? -probe_mode : probe_mode);
       probe_mode = (code_seen('O') && probe_mode == 2 ? -probe_mode : probe_mode);
       probe_mode = (code_seen('T') && probe_mode > 2 ? -probe_mode : probe_mode);
-      
       int8_t verbose_level = (code_seen('V') ? code_value_byte() : 1);
 
       if (!WITHIN(verbose_level, 0, 2)) verbose_level = 1;
@@ -5109,7 +5098,7 @@ void home_all_axes() { gcode_G28(); }
             dr_old = delta_radius,
             zh_old = home_offset[Z_AXIS],
             alpha_old = delta_tower_angle_trim[A_AXIS],
-            beta_old = delta_tower_angle_trim[B_AXIS]; 
+            beta_old = delta_tower_angle_trim[B_AXIS];
       int8_t iterations = 0,
              probe_points = abs(probe_mode);
       const bool pp_equals_1 = (probe_points == 1),
@@ -5123,7 +5112,6 @@ void home_all_axes() { gcode_G28(); }
                  pp_greather_3 = (probe_points > 3),
                  pp_greather_4 = (probe_points > 4),
                  pp_greather_5 = (probe_points > 5);
- 
       // print settings
 
       SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
@@ -5179,7 +5167,7 @@ void home_all_axes() { gcode_G28(); }
           clean_up_after_endstop_or_probe_move();
         }
         if (pp_greather_2) { // probe extra centre points
-          for (int8_t axis = (pp_greather_4 ? 11 : 9); axis > 0; axis -= (pp_greather_4 ? 2 : 4)) {              
+          for (int8_t axis = (pp_greather_4 ? 11 : 9); axis > 0; axis -= (pp_greather_4 ? 2 : 4)) {
             setup_for_endstop_or_probe_move();
             z_at_pt[0] += probe_pt(
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
@@ -5192,14 +5180,14 @@ void home_all_axes() { gcode_G28(); }
           float start_circles = (pp_equals_7 ? -1.5 : pp_equals_6 || pp_equals_5 ? -1 : 0),
                 end_circles = -start_circles;
           bool zig_zag = true;
-          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; 
+          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13;
                axis += (pp_equals_2 ? 4 : pp_equals_3 || pp_equals_5 ? 2 : 1)) {
             for (float circles = start_circles ; circles <= end_circles; circles++) {
               setup_for_endstop_or_probe_move();
               z_at_pt[axis] += probe_pt(
-                cos(RADIANS(180 + 30 * axis)) * 
-                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, 
-                sin(RADIANS(180 + 30 * axis)) * 
+                cos(RADIANS(180 + 30 * axis)) *
+                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius,
+                sin(RADIANS(180 + 30 * axis)) *
                 (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, true, 1);
               clean_up_after_endstop_or_probe_move();
             }
@@ -5279,7 +5267,6 @@ void home_all_axes() { gcode_G28(); }
               e_delta[Y_AXIS] = Z1050(0) - Z0175(1) + Z0350(5) - Z0175(9) + Z0175(7) - Z0350(11) + Z0175(3);
               e_delta[Z_AXIS] = Z1050(0) - Z0175(1) - Z0175(5) + Z0350(9) + Z0175(7) + Z0175(11) - Z0350(3);
               r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
-              
               if (probe_mode > 0) {  // negative disables tower angles
                 t_alpha = + Z0444(1) - Z0888(5) + Z0444(9) + Z0444(7) - Z0888(11) + Z0444(3);
                 t_beta  = - Z0888(1) + Z0444(5) + Z0444(9) - Z0888(7) + Z0444(11) + Z0444(3);
@@ -7297,11 +7284,11 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:0");
     #endif
 
-    // TOGGLE_LIGHTS (M355)
+    // CASE LIGHTS (M355)
     #if HAS_CASE_LIGHT
-      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:1");
+      SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:1");
     #else
-      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:0");
+      SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
     #endif
 
     // EMERGENCY_PARSER (M108, M112, M410)
@@ -8487,7 +8474,6 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
-
 #endif
 
 #if HAS_M206_COMMAND
@@ -8602,7 +8588,7 @@ inline void gcode_M503() {
       #else
         UNUSED(no_babystep);
       #endif
- 
+
       #if ENABLED(DELTA) // correct the delta_height
         home_offset[Z_AXIS] -= diff;
       #endif
@@ -9234,29 +9220,146 @@ inline void gcode_M907() {
 
 #if HAS_CASE_LIGHT
 
-  uint8_t case_light_brightness = 255;
+  static bool useable_hardware_PWM(uint8_t pin) {
 
-  void update_case_light() {
-    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
-    analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
+    #if !defined(TIMER1B)  // working with Teensyduino extension so need to define the timers
+      #define TIMER0B 1
+      #define TIMER1A 7
+      #define TIMER1B 8
+      #define TIMER1C 9
+      #define TIMER2A 6
+      #define TIMER2B 2
+      #define TIMER3A 5
+      #define TIMER3B 4
+      #define TIMER3C 3
+    #endif
+
+
+  /**
+   *      Timer   Digital Normally    Used by         Optional
+   *      & Port   Pin    assigned    system          users
+   *      TIMER3B   2     X_MAX
+   *      TIMER3C   3     X_MIN
+   *      TIMER0B   4     HEATER_4    #temp & milli ISR
+   *      TIMER3A   5     HEATER_5                    *servo 0-11 ISR
+   *      TIMER4A   6     HEATER_6                    *servo 12-23 ISR
+   *      TIMER4B   7     LCD
+   *      TIMER4C   8     HOTBED
+   *      TIMER2B   9     HEATER_1
+   *      TIMER2A   10    HEATER_0
+   *      TIMER1A   11    HEATER_7    *stepper ISR     *E axis waveform generator
+   *      TIMER1B   12    PS_ON_PIN   *stepper ISR
+   *      TIMER0A   13    LED         LED PWM & #step adv ISR
+   *      TIMER1C   13                *stepper ISR
+   *      TIMER5C   44    LCD                         stepper motor current XY PWM
+   *      TIMER5B   45    LCD                         stepper motor current Z PWM
+   *      TIMER5A   46    Z_STEP                      stepper motor current E PWM or *servo 24-35 ISR
+   *
+   *   * - These hardware PWMs are not available.  The pin can still be used as a general purpose
+   *       digital I/O.
+   *
+   *   # - still can be used a hardware PWM even though it's also used by an ISR
+   */
+
+
+    switch (digitalPinToTimer(pin)) {
+
+      #if defined(TCCR0A) && defined(COM0A1)
+
+        #if defined (TIMER0A)
+          case TIMER0A:
+        #endif
+          case TIMER0B:
+      #endif
+
+      #if defined(TCCR2A) && defined(COM2A1)
+          case TIMER2A:
+          case TIMER2B:
+      #endif
+
+      #if defined(TCCR3A) && defined(COM3A1)
+        #if !HAS_SERVOS
+          case TIMER3A:
+        #endif
+          case TIMER3B:
+        #if defined(COM3C1)
+          case TIMER3C:
+        #endif
+      #endif
+
+      #ifdef TCCR4A
+        #if !(HAS_SERVOS && NUM_SERVOS > 12)
+          case TIMER4A:
+        #endif
+          case TIMER4B:
+          case TIMER4C:
+      #endif
+
+      #if defined(TCCR5A) && defined(COM5A1)
+        #if !((HAS_SERVOS && NUM_SERVOS > 24) || PIN_EXISTS(MOTOR_CURRENT_PWM_E))
+          case TIMER5A:
+        #endif
+        #if !PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          case TIMER5B:
+        #endif
+        #if !PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          case TIMER5C:
+        #endif
+      #endif
+            return true;
+
+          case NOT_ON_TIMER:
+          default:
+            return false;
+
+
+    }
   }
+
+
+  #define CASE_LIGHT_THRESHOLD 128
+  #ifndef INVERT_CASE_LIGHT
+    #define INVERT_CASE_LIGHT false
+  #endif
+  uint8_t case_light_brightness;
+
+
+void update_case_light() {
+
+
+
+
+    digitalWrite(CASE_LIGHT_PIN, (case_light_brightness >= CASE_LIGHT_THRESHOLD) != INVERT_CASE_LIGHT ? HIGH : LOW);
+    analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
+
+  }
+
 
 #endif // HAS_CASE_LIGHT
 
 /**
  * M355: Turn case lights on/off and set brightness
  *
- *   S<bool>  Turn case light on or off
- *   P<byte>  Set case light brightness (PWM pin required)
+ *   S<byte>  Set case light brightness (PWM pin required)
+ *   S 0-127 off (if not using a PWM pin)
+ *     128-255 on
+ *
+
+
  */
 inline void gcode_M355() {
   #if HAS_CASE_LIGHT
-    if (code_seen('P')) case_light_brightness = code_value_byte();
-    if (code_seen('S')) case_light_on = code_value_bool();
-    update_case_light();
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Case lights ");
-    case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
+    if (code_seen('S')) {
+      case_light_brightness = code_value_byte();
+      update_case_light();
+      if (!useable_hardware_PWM(CASE_LIGHT_PIN)) {
+
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM("Case lights ");
+        (case_light_brightness >= CASE_LIGHT_THRESHOLD) ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
+      }
+      else SERIAL_PROTOCOLLNPAIR("echo:Case lights ", case_light_brightness);
+    }
   #else
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
@@ -10478,7 +10581,7 @@ void process_next_command() {
 
       #endif // HAS_MICROSTEPS
 
-      case 355: // M355 Turn case lights on/off
+      case 355: // M355 set case light brightness
         gcode_M355();
         break;
 
@@ -12186,6 +12289,13 @@ void setup() {
   #endif
 
   #if HAS_CASE_LIGHT
+    case_light_brightness =
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        255
+      #else
+        0
+      #endif
+    ;
     update_case_light();
   #endif
 
