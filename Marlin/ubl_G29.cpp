@@ -51,6 +51,9 @@
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
   void smart_fill_mesh();
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    extern void handle_led_print_event(uint8_t code);
+  #endif
 
   bool ProbeStay = true;
 
@@ -380,6 +383,10 @@
     }
 
     if (code_seen('J')) {
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
+
       if (!WITHIN(grid_size, 2, 9)) {
         SERIAL_PROTOCOLLNPGM("ERROR - grid size must be between 2 and 9");
         return;
@@ -451,6 +458,9 @@
 
             if (fabs(card_thickness) > 1.5) {
               SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.\n");
+              #if ENABLED(PRINTER_EVENT_LEDS)
+                handle_led_print_event(ALL_OFF);
+              #endif
               return;
             }
           }
@@ -577,6 +587,9 @@
 
       if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(ALL_OFF);
+        #endif
         return;
       }
       ubl.load_mesh(storage_slot);
@@ -618,6 +631,10 @@
       ubl.state.eeprom_storage_slot = storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.\n");
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(ALL_OFF);
+      #endif
     }
 
     if (code_seen('O') || code_seen('M'))
@@ -683,6 +700,10 @@
     lcd_quick_feedback();
 
     ubl.has_control_of_lcd_panel = false;
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
   void unified_bed_leveling::find_mean_mesh_height() {
@@ -1025,12 +1046,17 @@
   }
 
   bool g29_parameter_parsing() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(AUTO_LEVELING);
+    #endif
+
     bool err_flag = false;
 
-      LCD_MESSAGEPGM("Doing G29 UBL!");
+    LCD_MESSAGEPGM("Doing G29 UBL!");
     ubl_constant = 0.0;
     repetition_cnt = 0;
-      lcd_quick_feedback();
+    lcd_quick_feedback();
 
     x_flag = code_seen('X') && code_has_value();
     x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
@@ -1402,6 +1428,11 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(MANUAL_LEVELING);
+    #endif
+
     if (!code_seen('R'))    // fine_tune_mesh() is special.  If no repetion count flag is specified
       repetition_cnt = 1;   // we know to do exactly one mesh location. Otherwise we use what the parser decided.
 
@@ -1499,6 +1530,10 @@
 
     LCD_MESSAGEPGM("Done Editing Mesh");
     SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
   //

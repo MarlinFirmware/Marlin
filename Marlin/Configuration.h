@@ -1478,12 +1478,47 @@
  */
 //#define RGB_LED
 //#define RGBW_LED
+
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
   #define RGB_LED_W_PIN -1
+  
 #endif
+
+/*  
+ *   LEDSTRIP Control
+ *   
+ *   Allows the use of an addressable ledstrip on output pin with M150 gcode.
+ *   M150:  Set Status LED Color - Use R-U-B for R-G-B
+ *          R for red value (from 0 to 255)
+ *          U for green value (from 0 to 255)
+ *          B for blue value (from 0 to 255)
+ *          S for segment 1 2 3...0 for all
+ *          P for power 1 is on 2 is half on NULL is off
+ *          
+ *          "M150 P1" - Turn on the entire ledstrip with saved color (by default linen white)
+ *          "M150 R130 U50 B80 S1" - Change the color of segment 1 and store this color value for this segment
+ *          "M150 S1 P2" - Turn on half of the leds in segment1 with saved color for this segment (seashell white by default)
+ *          "M150 R30 U70 B10" - Change the color of the entire ledstrip and save this color for future use
+ *
+ *          Syntax for use in the program: SendColorsOnLedstrip(red, green, blue, segment, power);
+ *
+ *           *****************************************************************
+ *           **NOTE: This feature requires FastLED library to be installed. **
+ *           **         https://github.com/FastLED/FastLED.git              **
+ *           *****************************************************************
+ */
+//#define LEDSTRIP
+
+#if ENABLED(LEDSTRIP)
+  #define LEDSTRIP_PIN         42      // Output pin for the strip.
+  #define LEDSTRIP_NLED        45      // Number of LEDs in the strip.
+  #define LEDSTRIP_NSEGMENT    3       // LEDS maybe divided in segments for ease of use.
+  #define LEDSTRIP_TYPE        WS2812B // APA102, WS2811, WS2812, WS2812B, UCS1903, UCS2903, LPD8806, P9813
+  #define LEDSTRIP_EXCHANGE_RU         // GRB LEDs if enabled, else RGB LEDs.
+#endif // LEDSTRIP
 
 /**
  * Printer Event LEDs
@@ -1496,8 +1531,11 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
+  #define LED_reset_time 60      // Set time for LEDs to turn off. (secs)
+  //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
+  //#define LIGHT_ON_POWERUP     // Light the LED(s) WHITE on startup.
 #endif
 
 /*********************************************************************\
@@ -1558,6 +1596,6 @@
 
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
-#endif
+#endif //FILAMENT_WIDTH_SENSOR
 
 #endif // CONFIGURATION_H

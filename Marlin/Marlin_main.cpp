@@ -262,6 +262,10 @@
   #include "Wire.h"
 #endif
 
+#if ENABLED(LEDSTRIP)
+  #include <FastLED.h>
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -961,35 +965,177 @@ void servo_init() {
 
 #if HAS_COLOR_LEDS
 
-  void set_led_color(
-    const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED)
-        , const uint8_t w=0
-      #endif
-  ) {
+  #if ENABLED(LEDSTRIP)
+    #define set_led_color(R, G, B, W, S, P) set_ledstrip_color(R, G, B, W, S, P)
+  
+    CRGB leds[LEDSTRIP_NLED];
+    CRGB colorSaved[LEDSTRIP_NSEGMENT+1];
+  
+    bool initialized = false;
+  
+    void set_ledstrip_color (const uint8_t red, const uint8_t grn, const uint8_t blu, const uint8_t whi, const uint8_t segment, const uint8_t power) {
+  
+       if (segment > LEDSTRIP_NSEGMENT || segment < 0)
+         return  LEDSTRIP_BADSEGMENT;
+  
+       if (!initialized){
+         #if ENABLED(LEDSTRIP_EXCHANGE_RU)
+           FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, GRB>(leds, LEDSTRIP_NLED);
+         #else
+           FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, RGB>(leds, LEDSTRIP_NLED);
+         #endif
+         FastLED.clear();
+         colorSaved[0]=CRGB::Linen;
+         for (int i = 1; i <= LEDSTRIP_NSEGMENT; i++)
+           colorSaved[i]=CRGB::Seashell;
 
-    #if ENABLED(BLINKM)
+         initialized = true;
+       }
 
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
+       // update saved color
+       if (red != colorSaved[segment].red)
+         colorSaved[segment].red = red;
+       if (grn != colorSaved[segment].green)
+         colorSaved[segment].green = grn;
+       if (blu != colorSaved[segment].blue)
+         colorSaved[segment].blue = blu;
 
-    #else
+       uint8_t updtend = (segment > 0) ? LEDSTRIP_NLED/LEDSTRIP_NSEGMENT : LEDSTRIP_NLED ;
+       uint8_t updshift = (segment > 0) ? (segment-1) : 0;
+       uint8_t j;
 
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
-      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
-      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
+       if (red + grn + blu <= 3){  // no color change use the saved color or black
+         switch(power) {
+           case LED_POWEROFF:
+             for(uint8_t i = 0; i < updtend; i++) 
+               leds[i + (updshift * updtend)] = CRGB::Black;
+             break;
+           case LED_POWERON:
+             for(uint8_t i = 0; i < updtend; i++) 
+               leds[i + (updshift * updtend)] = colorSaved[segment];
+             break;
+           case LED_POWERHALF:
+             for(uint8_t i = 0; i < updtend; i++) 
+               leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
+             break;
+           case LED_POWERNOCHG:
+             return LEDSTRIP_NOACTION;
+             break;
+         }
+       }
+       else {
+         for(uint8_t i = 0; i < updtend; i++) {
+           j = i + (updshift * updtend);
+           if (red >= 0)
+             leds[j].red = red;
+           if (grn >= 0)
+             leds[j].green = grn;
+           if (blu >= 0)
+             leds[j].blue = blu;
+         }
+       }
+       FastLED.show();
+       return LEDSTRIP_OK;
+    }
 
-      #if ENABLED(RGBW_LED)
-        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
-        analogWrite(RGB_LED_W_PIN, w);
-      #endif
+  #else // !LEDSTRIP
 
-    #endif
+    #define set_led_color(R, G, B, W, S, P) set_rgb_color(R, G, B, W, 0, 0)
+
+    void set_rgb_color(const uint8_t red, const uint8_t grn, const uint8_t blu, const uint8_t whi, const uint8_t segment, const uint8_t power) {
+    
+      #if ENABLED(BLINKM) 
+        // This variant uses i2c to send the RGB components to the device.
+        SendColors(r, g, b);
+      #else
+  
+        // This variant uses 3 separate pins for the RGB components.
+        // If the pins can do PWM then their intensity will be set.
+        digitalWrite(RGB_LED_R_PIN, red ? HIGH : LOW);
+        digitalWrite(RGB_LED_G_PIN, grn ? HIGH : LOW);
+        digitalWrite(RGB_LED_B_PIN, blu ? HIGH : LOW);
+        analogWrite(RGB_LED_R_PIN, red);
+        analogWrite(RGB_LED_G_PIN, grn);
+        analogWrite(RGB_LED_B_PIN, blu);
+  
+        #if ENABLED(RGBW_LED)
+          digitalWrite(RGB_LED_W_PIN, whi ? HIGH : LOW);
+          analogWrite(RGB_LED_W_PIN, whi);
+        #endif
+      #endif  //BLINKM
+    }
+
+#endif  // HAS_COLOR_LEDS
+
+  /**  Handle the various printer events
+   *  
+   *  0 - Green       - Timed or click to OFF.
+   *  1 - White       - Used for main printing as a case light.
+   *  2 - Yellow      - Used when homing.
+   *  3 - Purple      - Not currently used.
+   *  4 - Aqua        - Used for filament change.
+   *  5 - Aqua dimmed - Used for filment change hotend timed out.
+   *  6 - Aqua Half   - Used for filament change hotend heating.
+   *  7 - Red         - Not currently used.
+   *  9 - Off         - Used for after homing and leveling.
+   */
+
+  // Handle the various printer events
+  void handle_led_print_event(uint8_t code) {
+    uint16_t wait_for_user_timeout = 0;
+    switch(code) {
+      case 0:        // Print Complete
+        LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+        lcd_update();
+        set_led_color(0, 255, 0, 0, 0, 1);  // Turn LEDs Green
+
+        #if DISABLED(NO_PAUSE_OR_TIMEOUT)
+          wait_for_user = true;
+          do {
+            idle();
+            safe_delay(100);
+            wait_for_user_timeout ++;
+            if (wait_for_user_timeout >= (LED_reset_time * 10)) break;
+          } while (wait_for_user);
+          wait_for_user = false;
+          set_led_color(0, 0, 0, 0, 0, 0);  // Turn RGB LEDs off
+        #endif  // NO_PAUSE_OR_TIMEOUT
+
+        LCD_MESSAGEPGM(WELCOME_MSG);
+        idle();
+        break;
+      case 1:      // Turn RGB LEDs White
+        #if ENABLED(RGBW_STRIP)
+          set_led_color(0, 0, 0, 255, 0, 1);
+        #else
+          set_led_color(255, 255, 255, 0, 0, 1);
+        #endif
+        break;
+      case 2:      // Turn RGB LEDs Yellow
+        set_led_color(255, 255, 0, 0, 0, 1);
+        break;
+      case 3:      // Turn RGB LEDs Purple
+        set_led_color(255, 0, 255, 0, 0, 1);
+        break;
+      case 4:      // Turn RGB LEDs Aqua
+        set_led_color(0, 255, 255, 0, 0, 1);
+        break;
+      case 5:      // Turn RGB LEDs Aqua dimmed
+        set_led_color(0, 50, 50, 0, 0, 1);
+        break;
+      case 6:      // Turn RGB LEDs Aqua half
+        set_led_color(0, 127, 127, 0, 0, 1);
+        break;
+      case 7:      // Turn RGB LEDs Blacklight
+        set_led_color(167, 0, 255, 0, 0, 1);
+        break;
+      case 8:      // Turn RGB LEDs Blue
+        set_led_color(0, 0, 255, 0, 0, 1);
+        break;
+      case 9:      // Turn RGB LEDs off
+        set_led_color(0, 0, 0, 0, 0, 0);
+        break;
+    } // switch(code)
   }
 
 #endif // HAS_COLOR_LEDS
@@ -1180,7 +1326,7 @@ inline void get_serial_commands() {
           card.printingHasFinished();
           #if ENABLED(PRINTER_EVENT_LEDS)
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-            set_led_color(0, 255, 0); // Green
+              handle_led_print_event(PRINTING_DONE); // Green
             #if HAS_RESUME_CONTINUE
               KEEPALIVE_STATE(PAUSED_FOR_USER);
               wait_for_user = true;
@@ -1189,7 +1335,7 @@ inline void get_serial_commands() {
             #else
               safe_delay(1000);
             #endif
-            set_led_color(0, 0, 0);   // OFF
+            handle_led_print_event(ALL_OFF);
           #endif
           card.checkautostart(true);
         }
@@ -1855,6 +2001,11 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(ULTRA_LCD)
         lcd_status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(ALL_OFF);
+      #endif
+
       return true;
     }
     return false;
@@ -3740,6 +3891,10 @@ inline void gcode_G28() {
     }
   #endif
 
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    handle_led_print_event(HOMING);
+  #endif
+
   // Wait for planner moves to finish!
   stepper.synchronize();
 
@@ -3904,6 +4059,10 @@ inline void gcode_G28() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
+
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    handle_led_print_event(ALL_OFF);
+  #endif
 }
 
 void home_all_axes() { gcode_G28(); }
@@ -3994,6 +4153,10 @@ void home_all_axes() { gcode_G28(); }
    *
    */
   inline void gcode_G29() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(AUTO_LEVELING);
+    #endif
 
     static int mbl_probe_index = -1;
     #if HAS_SOFTWARE_ENDSTOPS
@@ -4122,6 +4285,10 @@ void home_all_axes() { gcode_G28(); }
     } // switch(state)
 
     report_current_position();
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
 #elif HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
@@ -4209,6 +4376,10 @@ void home_all_axes() { gcode_G28(); }
    *
    */
   inline void gcode_G29() {
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(AUTO_LEVELING);
+    #endif
 
     // G29 Q is also available if debugging
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -5001,6 +5172,10 @@ void home_all_axes() { gcode_G28(); }
 
     if (planner.abl_enabled)
       SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(ALL_OFF);
+    #endif
   }
 
 #endif // HAS_ABL && !AUTO_BED_LEVELING_UBL
@@ -6715,7 +6890,7 @@ inline void gcode_M109() {
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     const float start_temp = thermalManager.degHotend(target_extruder);
-    uint8_t old_blue = 0;
+    const uint8_t old_blue = 255;
   #endif
 
   do {
@@ -6753,10 +6928,10 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       // Gradually change LED strip from violet to red as nozzle heats up
-      if (!wants_to_cool) {
-        const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
-        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
-      }
+      uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+      if (blue == old_blue) handle_led_print_event(COLOR_FADE_HOTEND); //Purple to start
+      if (blue != old_blue) set_led_color(255, 0, blue, 0, 0, 1);      //Start transitioning to Red
+      safe_delay(75);
     #endif
 
     #if TEMP_RESIDENCY_TIME > 0
@@ -6789,12 +6964,9 @@ inline void gcode_M109() {
 
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGBW_LED)
-        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
-      #else
-        set_led_color(255, 255, 255); // Set LEDs All On
-      #endif
+      handle_led_print_event(PRINTING);
     #endif
   }
 
@@ -6848,7 +7020,7 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = thermalManager.degBed();
-      uint8_t old_red = 255;
+      const uint8_t old_red = 0;
     #endif
 
     do {
@@ -6886,11 +7058,10 @@ inline void gcode_M109() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         // Gradually change LED strip from blue to violet as bed heats up
-        if (!wants_to_cool) {
-          const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
-          if (red != old_red) set_led_color((old_red = red), 0, 255);
-        }
-      }
+        uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+        if (red == old_red) handle_led_print_event(COLOR_FADE_BED);   //Blue to start
+        if (red != old_red) set_led_color(red, 0, 255, 0, 0, 1);      //Start transitioning to Purple
+        safe_delay(70);
       #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
@@ -7166,6 +7337,9 @@ inline void gcode_M18_M84() {
         if (code_seen('E')) disable_e_steppers();
       #endif
     }
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(PRINTING_DONE);
+    #endif
   }
 }
 
@@ -7455,20 +7629,24 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
    *   M150 W          ; Turn LED white using a white LED
-   *
+   *   
+   *   For LEDSTRIP only:
+   *       use S for segment 1 2 3...0 for all
+   *       use P for power 1 is on 2 is half on 3 is off
    */
   inline void gcode_M150() {
+
     set_led_color(
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
-      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
-      #if ENABLED(RGBW_LED)
-        , code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
-      #endif
+      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('S') ? code_has_value() : 0,
+      code_seen('P') ? (byte)code_has_value() : LED_POWERNOCHG
     );
-  }
+  }  
 
-#endif // BLINKM || RGB_LED
+#endif // HAS_COLOR_LEDS
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -8683,6 +8861,10 @@ inline void gcode_M503() {
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(FILAMENTCHANGE);
+    #endif
+
     // Save current position of all axes
     float lastpos[XYZE];
     COPY(lastpos, current_position);
@@ -8773,6 +8955,10 @@ inline void gcode_M503() {
         nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
         HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(FILAMENTCHANGE_TIMEOUT);
+        #endif
       }
       idle(true);
     }
@@ -8780,6 +8966,10 @@ inline void gcode_M503() {
 
     if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(FILAMENTCHANGE_HEAT);
+    #endif
 
     // Show "wait for heating"
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
@@ -8813,6 +9003,10 @@ inline void gcode_M503() {
       idle(true);
     }
     KEEPALIVE_STATE(IN_HANDLER);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(FILAMENTCHANGE);
+    #endif
 
     // Show "load" message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
@@ -8852,6 +9046,10 @@ inline void gcode_M503() {
 
     // "Wait for print to resume"
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(PRINTING);
+    #endif
 
     // Set extruder to saved position
     destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
@@ -10158,7 +10356,7 @@ void process_next_command() {
           gcode_M150();
           break;
 
-      #endif // BLINKM
+      #endif // HAS_COLOR_LEDS
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
@@ -12267,6 +12465,19 @@ void setup() {
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
+  #endif
+
+  //Turn on White at Powerup
+  #if HAS_COLOR_LEDS  // Does not require PRINTER_EVENT_LEDS
+    #if ENABLED(LIGHT_ON_POWERUP)
+      #if ENABLED(RGBW_STRIP)
+        set_led_color(0, 0, 0, 255, 0, 0)    // Turn on White LED
+      #else
+        set_led_color(255, 255, 255, 0, 0, 0)  // Turn on RGBs to white
+      #endif
+    #else
+      set_led_color(0, 0, 0, 0, 0, 0);       // Turn off all LEDS
+    #endif
   #endif
 }
 
