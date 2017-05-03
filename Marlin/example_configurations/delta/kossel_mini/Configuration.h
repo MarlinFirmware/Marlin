@@ -448,7 +448,7 @@
 
   // set the radius for the calibration probe points - max 0.8 * DELTA_PRINTABLE_RADIUS if DELTA_AUTO_CALIBRATION enabled
   #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - 18) // mm
-  
+
   // G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   //#define DELTA_AUTO_CALIBRATION
   #if ENABLED(DELTA_AUTO_CALIBRATION)

@@ -154,7 +154,7 @@
        * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
        */
 
-      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - pgm_read_float(&(ubl.mesh_index_to_xpos[cell_dest_xi]))) * (1.0 / (MESH_X_DIST)),
+      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - pgm_read_float(&ubl.mesh_index_to_xpos[cell_dest_xi])) * (1.0 / (MESH_X_DIST)),
                   z1 = ubl.z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                       (ubl.z_values[cell_dest_xi + 1][cell_dest_yi    ] - ubl.z_values[cell_dest_xi][cell_dest_yi    ]),
                   z2 = ubl.z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
@@ -163,7 +163,7 @@
       // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
-      const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - pgm_read_float(&(ubl.mesh_index_to_ypos[cell_dest_yi]))) * (1.0 / (MESH_Y_DIST));
+      const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - pgm_read_float(&ubl.mesh_index_to_ypos[cell_dest_yi])) * (1.0 / (MESH_Y_DIST));
 
       float z0 = z1 + (z2 - z1) * yratio;
 
@@ -198,8 +198,8 @@
     const float dx = end[X_AXIS] - start[X_AXIS],
                 dy = end[Y_AXIS] - start[Y_AXIS];
 
-    const int left_flag = dx < 0.0 ? 1.0 : 0.0,
-              down_flag = dy < 0.0 ? 1.0 : 0.0;
+    const int left_flag = dx < 0.0 ? 1 : 0,
+              down_flag = dy < 0.0 ? 1 : 0;
 
     const float adx = left_flag ? -dx : dx,
                 ady = down_flag ? -dy : dy;
@@ -230,8 +230,8 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    const bool inf_normalized_flag=isinf(e_normalized_dist),
-               inf_m_flag=isinf(m);
+    const bool inf_normalized_flag = isinf(e_normalized_dist),
+               inf_m_flag = isinf(m);
     /**
      * This block handles vertical lines. These are lines that stay within the same
      * X Cell column. They do not need to be perfectly vertical. They just can
@@ -241,7 +241,7 @@
       current_yi += down_flag;  // Line is heading down, we just want to go to the bottom
       while (current_yi != cell_dest_yi + down_flag) {
         current_yi += dyi;
-        const float next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi])));
+        const float next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi]));
 
         /**
          * if the slope of the line is infinite, we won't do the calculations
@@ -263,7 +263,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi])));
+        const float y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi]));
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -274,7 +274,7 @@
         if (y != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
 
-            //on_axis_distance = y - start[Y_AXIS];                               
+            //on_axis_distance = y - start[Y_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
 
             //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
@@ -283,7 +283,7 @@
             //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
             //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
 
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  
+            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
@@ -321,7 +321,7 @@
                                 // edge of this cell for the first move.
       while (current_xi != cell_dest_xi + left_flag) {
         current_xi += dxi;
-        const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi]))),
+        const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi])),
                     y = m * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
 
         float z0 = ubl.z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi);
@@ -337,7 +337,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi])));
+        const float x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi]));
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -393,8 +393,8 @@
 
     while (xi_cnt > 0 || yi_cnt > 0) {
 
-      const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi + dxi]))),
-                  next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi + dyi]))),
+      const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi + dxi])),
+                  next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi + dyi])),
                   y = m * next_mesh_line_x + c,   // Calculate Y at the next X mesh line
                   x = (next_mesh_line_y - c) / m; // Calculate X at the next Y mesh line
                                                   // (No need to worry about m being zero.

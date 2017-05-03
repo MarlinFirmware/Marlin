@@ -4919,7 +4919,7 @@ void home_all_axes() { gcode_G28(); }
       // For LINEAR and 3POINT leveling correct the current position
 
       if (verbose_level > 0)
-        planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
+        planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
 
       if (!dryrun) {
         //
@@ -6965,7 +6965,7 @@ inline void gcode_M111() {
     for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_word(&(debug_strings[i])));
+        serialprintPGM((char*)pgm_read_word(&debug_strings[i]));
       }
     }
   }
@@ -8360,7 +8360,7 @@ void quickstop_stepper() {
     // V to print the matrix or mesh
     if (code_seen('V')) {
       #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        planner.bed_level_matrix.debug(PSTR("Bed Level Correction Matrix:"));
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         if (bilinear_grid_spacing[X_AXIS]) {
           print_bilinear_leveling_grid();
@@ -9545,16 +9545,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
-                tmp_offset_vec.debug("tmp_offset_vec");
-                act_offset_vec.debug("act_offset_vec");
-                offset_vec.debug("offset_vec (BEFORE)");
+                tmp_offset_vec.debug(PSTR("tmp_offset_vec"));
+                act_offset_vec.debug(PSTR("act_offset_vec"));
+                offset_vec.debug(PSTR("offset_vec (BEFORE)"));
               }
             #endif
 
             offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) offset_vec.debug("offset_vec (AFTER)");
+              if (DEBUGGING(LEVELING)) offset_vec.debug(PSTR("offset_vec (AFTER)"));
             #endif
 
             // Adjustments to the current position
