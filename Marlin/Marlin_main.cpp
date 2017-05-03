@@ -8970,7 +8970,7 @@ inline void gcode_M503() {
     SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_k);
     SERIAL_ECHOPGM(" E/D=");
     const float ratio = planner.advance_ed_ratio;
-    ratio ? SERIAL_ECHO(ratio) : SERIAL_ECHOPGM("Auto");
+    if (ratio) SERIAL_ECHO(ratio); else SERIAL_ECHOPGM("Auto");
     SERIAL_EOL;
   }
 #endif // LIN_ADVANCE
