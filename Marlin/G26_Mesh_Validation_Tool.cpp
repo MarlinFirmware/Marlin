@@ -115,25 +115,29 @@
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
+  // External references
+
   extern float feedrate;
   extern Planner planner;
-  //#if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
-  //#endif
+  #endif
   extern float destination[XYZE];
-  extern void set_destination_to_current();
-  extern void set_current_to_destination();
-  extern float code_value_float();
-  extern bool code_value_bool();
-  extern bool code_has_value();
-  extern void lcd_init();
-  extern void lcd_setstatuspgm(const char* const message, const uint8_t level);
-  #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
+  void set_destination_to_current();
+  void set_current_to_destination();
+  float code_value_float();
+  bool code_value_bool();
+  bool code_has_value();
+  void lcd_init();
+  void lcd_setstatuspgm(const char* const message, const uint8_t level);
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
-  void line_to_destination(float );
-  void gcode_G28();
+  void line_to_destination(float);
   void sync_plan_position_e();
+  void chirp_at_user();
+
+  // Private functions
+
   void un_retract_filament(float where[XYZE]);
   void retract_filament(float where[XYZE]);
   void look_for_lines_to_connect();
@@ -142,17 +146,14 @@
   void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
   bool turn_on_heaters();
   bool prime_nozzle();
-  void chirp_at_user();
 
   static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], continue_with_closest = 0;
   float g26_e_axis_feedrate = 0.020,
         random_deviation = 0.0,
         layer_height = LAYER_HEIGHT;
 
-  bool g26_retracted = false; // We keep track of the state of the nozzle to know if it
-                              // is currently retracted or not.  This allows us to be
-                              // less careful because mis-matched retractions and un-retractions
-                              // won't leave us in a bad state.
+  static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
+                                     // retracts/recovers won't result in a bad state.
 
   float valid_trig_angle(float);
   mesh_index_pair find_closest_circle_to_print(const float&, const float&);
@@ -167,9 +168,9 @@
                hotend_temp = HOTEND_TEMP,
                ooze_amount = OOZE_AMOUNT;
 
-  int8_t prime_flag = 0;
+  static int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false;
+  static bool keep_heaters_on = false;
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -178,6 +179,7 @@
    * nozzle in a problem area and doing a G29 P4 R command.
    */
   void gcode_G26() {
+    SERIAL_ECHOLNPGM("G26 command started.  Waiting for heater(s).");
     float tmp, start_angle, end_angle;
     int   i, xi, yi;
     mesh_index_pair location;
@@ -256,8 +258,8 @@
         : find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        const float circle_x = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
-                    circle_y = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
+        const float circle_x = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
+                    circle_y = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
         // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
         #ifdef DELTA
@@ -399,8 +401,8 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          const float mx = pgm_read_float(&(ubl.mesh_index_to_xpos[i])),  // We found a circle that needs to be printed
-                      my = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
+          const float mx = pgm_read_float(&ubl.mesh_index_to_xpos[i]),  // We found a circle that needs to be printed
+                      my = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // Get the distance to this intersection
           float f = HYPOT(X - mx, Y - my);
@@ -444,11 +446,11 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = pgm_read_float(&(ubl.mesh_index_to_xpos[  i  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
-              ex = pgm_read_float(&(ubl.mesh_index_to_xpos[i + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
+              sx = pgm_read_float(&ubl.mesh_index_to_xpos[  i  ]) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
+              ex = pgm_read_float(&ubl.mesh_index_to_xpos[i + 1]) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
 
               sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
-              sy = ey = constrain(pgm_read_float(&(ubl.mesh_index_to_ypos[j])), Y_MIN_POS + 1, Y_MAX_POS - 1);
+              sy = ey = constrain(pgm_read_float(&ubl.mesh_index_to_ypos[j]), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
               if (ubl.g26_debug_flag) {
@@ -475,10 +477,10 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sy = pgm_read_float(&(ubl.mesh_index_to_ypos[  j  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
-                ey = pgm_read_float(&(ubl.mesh_index_to_ypos[j + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
+                sy = pgm_read_float(&ubl.mesh_index_to_ypos[  j  ]) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
+                ey = pgm_read_float(&ubl.mesh_index_to_ypos[j + 1]) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
 
-                sx = ex = constrain(pgm_read_float(&(ubl.mesh_index_to_xpos[i])), X_MIN_POS + 1, X_MAX_POS - 1);
+                sx = ex = constrain(pgm_read_float(&ubl.mesh_index_to_xpos[i]), X_MIN_POS + 1, X_MAX_POS - 1);
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
@@ -765,6 +767,7 @@
    * wait for them to get up to temperature.
    */
   bool turn_on_heaters() {
+    millis_t next;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (bed_temp > 25) {
@@ -773,8 +776,13 @@
       #endif
           ubl.has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
+          next = millis() + 5000UL;
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
+            if (PENDING(millis(), next)) {
+              next = millis() + 5000UL;
+              print_heaterstates();
+            }
             idle();
           }
       #if ENABLED(ULTRA_LCD)
@@ -788,6 +796,10 @@
     thermalManager.setTargetHotend(hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
       if (ubl_lcd_clicked()) return exit_from_g26();
+      if (PENDING(millis(), next)) {
+        next = millis() + 5000UL;
+        print_heaterstates();
+      }
       idle();
     }
 

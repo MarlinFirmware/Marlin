@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V36"
+#define EEPROM_VERSION "V37"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V35 EEPROM Layout:
+ * V37 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM Checksum                            (uint16_t)
@@ -1071,7 +1071,7 @@ void MarlinSettings::reset() {
   #endif
 
   // Applies to all MBL and ABL
-  #if PLANNER_LEVELING
+  #if HAS_LEVELING
     reset_bed_level();
   #endif
 

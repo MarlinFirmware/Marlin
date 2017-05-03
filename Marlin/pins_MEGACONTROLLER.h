@@ -116,7 +116,9 @@
 #define FAN1_PIN           35
 #define FAN2_PIN           36
 
-#define CONTROLLERFAN_PIN  FAN2_PIN
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN FAN2_PIN
+#endif
 
 #define FAN_SOFT_PWM
 

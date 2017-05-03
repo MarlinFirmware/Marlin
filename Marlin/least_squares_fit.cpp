@@ -66,12 +66,12 @@ int finish_incremental_LSF(struct linear_fit_data *lsf) {
   lsf->xbar /= N;
   lsf->ybar /= N;
   lsf->zbar /= N;
-  lsf->x2bar = lsf->x2bar / N - lsf->xbar * lsf->xbar;
-  lsf->y2bar = lsf->y2bar / N - lsf->ybar * lsf->ybar;
-  lsf->z2bar = lsf->z2bar / N - lsf->zbar * lsf->zbar;
-  lsf->xybar = lsf->xybar / N - lsf->xbar * lsf->ybar;
-  lsf->yzbar = lsf->yzbar / N - lsf->ybar * lsf->zbar;
-  lsf->xzbar = lsf->xzbar / N - lsf->xbar * lsf->zbar;
+  lsf->x2bar = lsf->x2bar / N - sq(lsf->xbar);
+  lsf->y2bar = lsf->y2bar / N - sq(lsf->ybar);
+  lsf->z2bar = lsf->z2bar / N - sq(lsf->zbar);
+  lsf->xybar = lsf->xybar / N - sq(lsf->xbar);
+  lsf->yzbar = lsf->yzbar / N - sq(lsf->ybar);
+  lsf->xzbar = lsf->xzbar / N - sq(lsf->xbar);
 
   const float DD = lsf->x2bar * lsf->y2bar - sq(lsf->xybar);
   if (fabs(DD) <= 1e-10 * (lsf->max_absx + lsf->max_absy))
