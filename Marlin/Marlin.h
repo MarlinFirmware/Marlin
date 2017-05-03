@@ -361,7 +361,7 @@ int16_t code_value_temp_diff();
 #endif
 
 #if FAN_COUNT > 0
-  extern int fanSpeeds[FAN_COUNT];
+  extern int16_t fanSpeeds[FAN_COUNT];
 #endif
 
 #if ENABLED(BARICUDA)
