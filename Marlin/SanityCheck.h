@@ -174,6 +174,8 @@
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
 #elif ENABLED(Z_PROBE_SLED) && defined(SLED_PIN)
   #error "Replace SLED_PIN with SOL1_PIN (applies to both Z_PROBE_SLED and SOLENOID_PROBE)."
+#elif defined(CONTROLLERFAN_PIN)
+  #error "CONTROLLERFAN_PIN is now CONTROLLER_FAN_PIN, enabled with USE_CONTROLLER_FAN. Please update your Configuration_adv.h."
 #endif
 
 /**
@@ -765,19 +767,21 @@ static_assert(1 >= 0
   #endif
 #endif
 
-#if HAS_FAN0 && CONTROLLERFAN_PIN == FAN_PIN
-  #error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN."
+#if HAS_FAN0 && CONTROLLER_FAN_PIN == FAN_PIN
+  #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
 #endif
 
-#if HAS_CONTROLLERFAN
-  #if E0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set E0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif E1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set E1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif E2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif E3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+#if USE_CONTROLLER_FAN
+  #if !HAS_CONTROLLER_FAN
+    #error "USE_CONTROLLER_FAN requires a CONTROLLER_FAN_PIN. Define in Configuration_adv.h."
+  #elif E0_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
+    #error "You cannot set E0_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+  #elif E1_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
+    #error "You cannot set E1_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+  #elif E2_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
+    #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+  #elif E3_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
+    #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #endif
 #endif
 

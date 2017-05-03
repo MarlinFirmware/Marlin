@@ -11471,7 +11471,7 @@ void prepare_move_to_destination() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
-#if HAS_CONTROLLERFAN
+#if USE_CONTROLLER_FAN
 
   void controllerFan() {
     static millis_t lastMotorOn = 0, // Last time a motor was turned on
@@ -11504,12 +11504,12 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      WRITE(CONTROLLERFAN_PIN, speed);
-      analogWrite(CONTROLLERFAN_PIN, speed);
+      WRITE(CONTROLLER_FAN_PIN, speed);
+      analogWrite(CONTROLLER_FAN_PIN, speed);
     }
   }
 
-#endif // HAS_CONTROLLERFAN
+#endif // USE_CONTROLLER_FAN
 
 #if ENABLED(MORGAN_SCARA)
 
@@ -11925,7 +11925,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if HAS_CONTROLLERFAN
+  #if USE_CONTROLLER_FAN
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
@@ -12195,8 +12195,8 @@ void setup() {
     endstops.enable_z_probe(false);
   #endif
 
-  #if HAS_CONTROLLERFAN
-    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #if USE_CONTROLLER_FAN
+    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
   #endif
 
   #if HAS_STEPPER_RESET
