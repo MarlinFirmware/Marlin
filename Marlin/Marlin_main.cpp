@@ -2588,7 +2588,7 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Extrapolate a single point from its neighbors
    */
-  static void extrapolate_one_point(uint8_t x, uint8_t y, int8_t xdir, int8_t ydir) {
+  static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPGM("Extrapolate [");
@@ -2611,9 +2611,10 @@ static void clean_up_after_endstop_or_probe_move() {
     SERIAL_EOL;
 
     // Get X neighbors, Y neighbors, and XY neighbors
-    float a1 = z_values[x + xdir][y], a2 = z_values[x + xdir * 2][y],
-          b1 = z_values[x][y + ydir], b2 = z_values[x][y + ydir * 2],
-          c1 = z_values[x + xdir][y + ydir], c2 = z_values[x + xdir * 2][y + ydir * 2];
+    const uint8_t x1 = x + xdir, y1 = y + ydir, x2 = x1 + xdir, y2 = y1 + ydir;
+    float a1 = z_values[x1][y ], a2 = z_values[x2][y ],
+          b1 = z_values[x ][y1], b2 = z_values[x ][y2],
+          c1 = z_values[x1][y1], c2 = z_values[x2][y2];
 
     // Treat far unprobed points as zero, near as equal to far
     if (isnan(a2)) a2 = 0.0; if (isnan(a1)) a1 = a2;
@@ -2647,19 +2648,19 @@ static void clean_up_after_endstop_or_probe_move() {
    */
   static void extrapolate_unprobed_bed_level() {
     #ifdef HALF_IN_X
-      const uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
+      constexpr uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
     #else
-      const uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
-                    ctrx2 = GRID_MAX_POINTS_X / 2,       // right-of-center
-                    xlen = ctrx1;
+      constexpr uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
+                        ctrx2 = (GRID_MAX_POINTS_X) / 2,     // right-of-center
+                        xlen = ctrx1;
     #endif
 
     #ifdef HALF_IN_Y
-      const uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
+      constexpr uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
     #else
-      const uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
-                    ctry2 = GRID_MAX_POINTS_Y / 2,       // bottom-of-center
-                    ylen = ctry1;
+      constexpr uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
+                        ctry2 = (GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
+                        ylen = ctry1;
     #endif
 
     for (uint8_t xo = 0; xo <= xlen; xo++)
