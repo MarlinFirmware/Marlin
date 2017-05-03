@@ -120,6 +120,13 @@
   #endif
 
   /**
+   * If DELTA_HEIGHT isn't defined use the old setting
+   */
+  #if ENABLED(DELTA) && !defined(DELTA_HEIGHT)
+    #define DELTA_HEIGHT Z_HOME_POS
+  #endif
+
+  /**
    * Auto Bed Leveling and Z Probe Repeatability Test
    */
   #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
