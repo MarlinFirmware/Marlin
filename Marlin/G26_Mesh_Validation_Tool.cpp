@@ -769,24 +769,24 @@
   bool turn_on_heaters() {
     millis_t next;
     #if HAS_TEMP_BED
-      #if ENABLED(ULTRA_LCD)
-        if (bed_temp > 25) {
+      if (bed_temp > 25) {
+        #if ENABLED(ULTRA_LCD)
           lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
-      #endif
-          ubl.has_control_of_lcd_panel = true;
-          thermalManager.setTargetBed(bed_temp);
-          next = millis() + 5000UL;
-          while (abs(thermalManager.degBed() - bed_temp) > 3) {
-            if (ubl_lcd_clicked()) return exit_from_g26();
-            if (PENDING(millis(), next)) {
-              next = millis() + 5000UL;
-              print_heaterstates();
-            }
-            idle();
+        #endif
+        ubl.has_control_of_lcd_panel = true;
+        thermalManager.setTargetBed(bed_temp);
+        next = millis() + 5000UL;
+        while (abs(thermalManager.degBed() - bed_temp) > 3) {
+          if (ubl_lcd_clicked()) return exit_from_g26();
+          if (PENDING(millis(), next)) {
+            next = millis() + 5000UL;
+            print_heaterstates();
           }
-      #if ENABLED(ULTRA_LCD)
+          idle();
         }
+      }
+      #if ENABLED(ULTRA_LCD)
         lcd_setstatuspgm(PSTR("G26 Heating Nozzle."), 99);
         lcd_quick_feedback();
       #endif
