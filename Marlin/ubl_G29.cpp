@@ -1522,10 +1522,8 @@
     if (isnan(ubl.z_values[x][y]) && !isnan(ubl.z_values[x1][y1]) && !isnan(ubl.z_values[x2][y2])) {
       if (ubl.z_values[x1][y1] < ubl.z_values[x2][y2])                  // Angled downward?
         ubl.z_values[x][y] = ubl.z_values[x1][y1];                      // Use nearest (maybe a little too high.)
-      else {
-        const float diff = ubl.z_values[x1][y1] - ubl.z_values[x2][y2]; // Angled upward
-        ubl.z_values[x][y] = ubl.z_values[x1][y1] + diff;               // Use closest plus difference
-      }
+      else
+        ubl.z_values[x][y] = 2.0 * ubl.z_values[x1][y1] - ubl.z_values[x2][y2];   // Angled upward...
       return true;
     }
     return false;
