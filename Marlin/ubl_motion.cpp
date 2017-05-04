@@ -154,7 +154,7 @@
        * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
        */
 
-      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - pgm_read_float(&(ubl.mesh_index_to_xpos[cell_dest_xi]))) * (1.0 / (MESH_X_DIST)),
+      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - pgm_read_float(&ubl.mesh_index_to_xpos[cell_dest_xi])) * (1.0 / (MESH_X_DIST)),
                   z1 = ubl.z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                       (ubl.z_values[cell_dest_xi + 1][cell_dest_yi    ] - ubl.z_values[cell_dest_xi][cell_dest_yi    ]),
                   z2 = ubl.z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
@@ -163,29 +163,9 @@
       // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
-      const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - pgm_read_float(&(ubl.mesh_index_to_ypos[cell_dest_yi]))) * (1.0 / (MESH_Y_DIST));
+      const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - pgm_read_float(&ubl.mesh_index_to_ypos[cell_dest_yi])) * (1.0 / (MESH_Y_DIST));
 
       float z0 = z1 + (z2 - z1) * yratio;
-
-      /**
-       * Debug code to use non-optimized get_z_correction() and to do a sanity check
-       * that the correct value is being passed to planner.buffer_line()
-       */
-      /*
-        z_optimized = z0;
-        z0 = ubl.get_z_correction(end[X_AXIS], end[Y_AXIS]);
-        if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-        debug_current_and_destination(PSTR("FINAL_MOVE: z_correction()"));
-        if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
-        if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
-        SERIAL_ECHOPAIR("  end[X_AXIS]=", end[X_AXIS]);
-        SERIAL_ECHOPAIR("  end[Y_AXIS]=", end[Y_AXIS]);
-        SERIAL_ECHOPAIR("  z0=", z0);
-        SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-        SERIAL_ECHOPAIR("  err=",fabs(z_optimized - z0));
-        SERIAL_EOL;
-        }
-      */
 
       z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -252,7 +232,6 @@
 
     const bool inf_normalized_flag = isinf(e_normalized_dist),
                inf_m_flag = isinf(m);
-
     /**
      * This block handles vertical lines. These are lines that stay within the same
      * X Cell column. They do not need to be perfectly vertical. They just can
@@ -262,7 +241,7 @@
       current_yi += down_flag;  // Line is heading down, we just want to go to the bottom
       while (current_yi != cell_dest_yi + down_flag) {
         current_yi += dyi;
-        const float next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi])));
+        const float next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi]));
 
         /**
          * if the slope of the line is infinite, we won't do the calculations
@@ -272,26 +251,6 @@
         const float x = inf_m_flag ? start[X_AXIS] : (next_mesh_line_y - c) / m;
 
         float z0 = ubl.z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi);
-
-        /**
-         * Debug code to use non-optimized get_z_correction() and to do a sanity check
-         * that the correct value is being passed to planner.buffer_line()
-         */
-        /*
-          z_optimized = z0;
-          z0 = ubl.get_z_correction(x, next_mesh_line_y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination(PSTR("VERTICAL z_correction()"));
-          if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
-            if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
-          SERIAL_ECHOPAIR("  x=", x);
-          SERIAL_ECHOPAIR("  next_mesh_line_y=", next_mesh_line_y);
-          SERIAL_ECHOPAIR("  z0=", z0);
-          SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
-          SERIAL_ECHO("\n");
-          }
-        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -304,7 +263,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi])));
+        const float y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi]));
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -314,13 +273,22 @@
          */
         if (y != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
-            on_axis_distance = y - start[Y_AXIS];                               // we don't need to check if the extruder position
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a vertical move
+
+            //on_axis_distance = y - start[Y_AXIS];
+            on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
+
+            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
+            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
+
+            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
+            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
+
+            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = start[E_AXIS];
-            z_position = start[Z_AXIS];
+            e_position = end[E_AXIS];
+            z_position = end[Z_AXIS];
           }
 
           planner.buffer_line(x, y, z_position + z0 + ubl.state.z_offset, e_position, feed_rate, extruder);
@@ -353,30 +321,10 @@
                                 // edge of this cell for the first move.
       while (current_xi != cell_dest_xi + left_flag) {
         current_xi += dxi;
-        const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi]))),
-                    y = m * next_mesh_line_x + c;   // Calculate X at the next Y mesh line
+        const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi])),
+                    y = m * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
 
         float z0 = ubl.z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi);
-
-        /**
-         * Debug code to use non-optimized get_z_correction() and to do a sanity check
-         * that the correct value is being passed to planner.buffer_line()
-         */
-        /*
-          z_optimized = z0;
-          z0 = ubl.get_z_correction(next_mesh_line_x, y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination(PSTR("HORIZONTAL z_correction()"));
-          if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
-            if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
-          SERIAL_ECHOPAIR("  next_mesh_line_x=", next_mesh_line_x);
-          SERIAL_ECHOPAIR("  y=", y);
-          SERIAL_ECHOPAIR("  z0=", z0);
-          SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
-          SERIAL_ECHO("\n");
-          }
-        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -389,7 +337,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi])));
+        const float x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi]));
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -399,13 +347,19 @@
          */
         if (x != start[X_AXIS]) {
           if (!inf_normalized_flag) {
-            on_axis_distance = x - start[X_AXIS];                               // we don't need to check if the extruder position
+
+            //on_axis_distance = x - start[X_AXIS];
+            on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
+
+            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
+            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
+
             e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = start[E_AXIS];
-            z_position = start[Z_AXIS];
+            e_position = end[E_AXIS];
+            z_position = end[Z_AXIS];
           }
 
           planner.buffer_line(x, y, z_position + z0 + ubl.state.z_offset, e_position, feed_rate, extruder);
@@ -439,8 +393,8 @@
 
     while (xi_cnt > 0 || yi_cnt > 0) {
 
-      const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&(ubl.mesh_index_to_xpos[current_xi + dxi]))),
-                  next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&(ubl.mesh_index_to_ypos[current_yi + dyi]))),
+      const float next_mesh_line_x = LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[current_xi + dxi])),
+                  next_mesh_line_y = LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[current_yi + dyi])),
                   y = m * next_mesh_line_x + c,   // Calculate Y at the next X mesh line
                   x = (next_mesh_line_y - c) / m; // Calculate X at the next Y mesh line
                                                   // (No need to worry about m being zero.
@@ -452,27 +406,6 @@
         // Yes!  Crossing a Y Mesh Line next
         //
         float z0 = ubl.z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi);
-
-        /**
-         * Debug code to use non-optimized get_z_correction() and to do a sanity check
-         * that the correct value is being passed to planner.buffer_line()
-         */
-        /*
-          z_optimized = z0;
-          z0 = ubl.get_z_correction(x, next_mesh_line_y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-            debug_current_and_destination(PSTR("General_1: z_correction()"));
-            if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
-            if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  "); {
-              SERIAL_ECHOPAIR("  x=", x);
-            }
-            SERIAL_ECHOPAIR("  next_mesh_line_y=", next_mesh_line_y);
-            SERIAL_ECHOPAIR("  z0=", z0);
-            SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-            SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
-            SERIAL_ECHO("\n");
-          }
-        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -491,8 +424,8 @@
           z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
         }
         else {
-          e_position = start[E_AXIS];
-          z_position = start[Z_AXIS];
+          e_position = end[E_AXIS];
+          z_position = end[Z_AXIS];
         }
         planner.buffer_line(x, next_mesh_line_y, z_position + z0 + ubl.state.z_offset, e_position, feed_rate, extruder);
         current_yi += dyi;
@@ -503,26 +436,6 @@
         // Yes!  Crossing a X Mesh Line next
         //
         float z0 = ubl.z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag);
-
-        /**
-         * Debug code to use non-optimized get_z_correction() and to do a sanity check
-         * that the correct value is being passed to planner.buffer_line()
-         */
-        /*
-          z_optimized = z0;
-          z0 = ubl.get_z_correction(next_mesh_line_x, y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
-          debug_current_and_destination(PSTR("General_2: z_correction()"));
-          if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
-          if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
-          SERIAL_ECHOPAIR("  next_mesh_line_x=", next_mesh_line_x);
-          SERIAL_ECHOPAIR("  y=", y);
-          SERIAL_ECHOPAIR("  z0=", z0);
-          SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
-          SERIAL_ECHO("\n");
-          }
-        */
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
 
@@ -541,8 +454,8 @@
           z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
         }
         else {
-          e_position = start[E_AXIS];
-          z_position = start[Z_AXIS];
+          e_position = end[E_AXIS];
+          z_position = end[Z_AXIS];
         }
 
         planner.buffer_line(next_mesh_line_x, y, z_position + z0 + ubl.state.z_offset, e_position, feed_rate, extruder);

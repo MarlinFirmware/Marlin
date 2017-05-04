@@ -131,7 +131,7 @@ float Planner::previous_speed[NUM_AXIS],
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
-#endif // DISABLE_INACTIVE_EXTRUDER
+#endif
 
 #ifdef XY_FREQUENCY_LIMIT
   // Old direction bits. Used for speed calculations
@@ -387,10 +387,7 @@ void Planner::recalculate() {
 
     float t = autotemp_min + high * autotemp_factor;
     t = constrain(t, autotemp_min, autotemp_max);
-    if (oldt > t) {
-      t *= (1 - (AUTOTEMP_OLDWEIGHT));
-      t += (AUTOTEMP_OLDWEIGHT) * oldt;
-    }
+    if (t < oldt) t = t * (1 - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, 0);
   }
@@ -530,7 +527,7 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-#if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+#if PLANNER_LEVELING
   /**
    * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
@@ -634,7 +631,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-#endif // PLANNER_LEVELING && !AUTO_BED_LEVELING_UBL
+#endif // PLANNER_LEVELING
 
 /**
  * Planner::_buffer_line
@@ -863,27 +860,29 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
+      #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
+
       for (uint8_t i = 0; i < EXTRUDERS; i++)
         if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
       switch(extruder) {
         case 0:
           enable_E0();
+          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
           #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
             if (extruder_duplication_enabled) {
               enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
             }
           #endif
-          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
           #if EXTRUDERS > 1
-            if (g_uc_extruder_last_move[1] == 0) disable_E1();
+            DISABLE_IDLE_E(1);
             #if EXTRUDERS > 2
-              if (g_uc_extruder_last_move[2] == 0) disable_E2();
+              DISABLE_IDLE_E(2);
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
-                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                  DISABLE_IDLE_E(4);
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
@@ -893,13 +892,13 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           case 1:
             enable_E1();
             g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            if (g_uc_extruder_last_move[0] == 0) disable_E0();
+            DISABLE_IDLE_E(0);
             #if EXTRUDERS > 2
-              if (g_uc_extruder_last_move[2] == 0) disable_E2();
+              DISABLE_IDLE_E(2);
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
-                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                  DISABLE_IDLE_E(4);
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
@@ -908,12 +907,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
             case 2:
               enable_E2();
               g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-              if (g_uc_extruder_last_move[0] == 0) disable_E0();
-              if (g_uc_extruder_last_move[1] == 0) disable_E1();
+              DISABLE_IDLE_E(0);
+              DISABLE_IDLE_E(1);
               #if EXTRUDERS > 3
-                if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
-                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                  DISABLE_IDLE_E(4);
                 #endif
               #endif
             break;
@@ -921,21 +920,21 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
               case 3:
                 enable_E3();
                 g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-                if (g_uc_extruder_last_move[0] == 0) disable_E0();
-                if (g_uc_extruder_last_move[1] == 0) disable_E1();
-                if (g_uc_extruder_last_move[2] == 0) disable_E2();
+                DISABLE_IDLE_E(0);
+                DISABLE_IDLE_E(1);
+                DISABLE_IDLE_E(2);
                 #if EXTRUDERS > 4
-                  if (g_uc_extruder_last_move[4] == 0) disable_E4();
+                  DISABLE_IDLE_E(4);
                 #endif
               break;
               #if EXTRUDERS > 4
                 case 4:
                   enable_E4();
                   g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
-                  if (g_uc_extruder_last_move[0] == 0) disable_E0();
-                  if (g_uc_extruder_last_move[1] == 0) disable_E1();
-                  if (g_uc_extruder_last_move[2] == 0) disable_E2();
-                  if (g_uc_extruder_last_move[3] == 0) disable_E3();
+                  DISABLE_IDLE_E(0);
+                  DISABLE_IDLE_E(1);
+                  DISABLE_IDLE_E(2);
+                  DISABLE_IDLE_E(3);
                 break;
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
@@ -1432,7 +1431,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
-  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if PLANNER_LEVELING
     float lpos[XYZ] = { position[X_AXIS], position[Y_AXIS], position[Z_AXIS] };
     apply_leveling(lpos);
   #else

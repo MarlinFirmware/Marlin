@@ -157,11 +157,15 @@ void Endstops::report_state() {
       if (TEST(endstop_hit_bits, A ##_MIN) || TEST(endstop_hit_bits, A ##_MAX)) \
         _ENDSTOP_HIT_ECHO(A,C)
 
+    #define ENDSTOP_HIT_TEST_X() _ENDSTOP_HIT_TEST(X,'X')
+    #define ENDSTOP_HIT_TEST_Y() _ENDSTOP_HIT_TEST(Y,'Y')
+    #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
+
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-    _ENDSTOP_HIT_TEST(X, 'X');
-    _ENDSTOP_HIT_TEST(Y, 'Y');
-    _ENDSTOP_HIT_TEST(Z, 'Z');
+    ENDSTOP_HIT_TEST_X();
+    ENDSTOP_HIT_TEST_Y();
+    ENDSTOP_HIT_TEST_Z();
 
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       #define P_AXIS Z_AXIS

@@ -162,6 +162,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
     #include "mesh_bed_leveling.h"
+    extern void mesh_probing_done();
   #endif
 
   ////////////////////////////////////////////
@@ -701,8 +702,9 @@ void kill_screen(const char* lcd_msg) {
       clear_command_queue();
       quickstop_stepper();
       print_job_timer.stop();
-      #if ENABLED(AUTOTEMP)
-        thermalManager.autotempShutdown();
+      thermalManager.disable_all_heaters();
+      #if FAN_COUNT > 0
+        for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
       #endif
       wait_for_heatup = false;
       LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
@@ -1178,14 +1180,14 @@ void kill_screen(const char* lcd_msg) {
     }
   #endif
 
-  constexpr int heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
   /**
    *
    * "Prepare" submenu items
    *
    */
-  void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
+  void _lcd_preheat(const int endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
     if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
     #if TEMP_SENSOR_BED != 0
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
@@ -1539,9 +1541,9 @@ void kill_screen(const char* lcd_msg) {
           // Enable leveling, if needed
           #if ENABLED(MESH_BED_LEVELING)
 
+            lcd_synchronize();
             mbl.set_has_mesh(true);
-            mbl.set_reactivate(true);
-            enqueue_and_echo_commands_P(PSTR("G28"));
+            mesh_probing_done();
 
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -2879,15 +2881,15 @@ void kill_screen(const char* lcd_msg) {
     // Portions from STATIC_ITEM...
     #define HOTEND_STATUS_ITEM() do { \
       if (_menuLineNr == _thisItemNr) { \
-        if (lcdDrawUpdate) \
+        if (lcdDrawUpdate) { \
           lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
-        lcd_implementation_hotend_status(_lcdLineNr); \
+          lcd_implementation_hotend_status(_lcdLineNr); \
+        } \
         if (_skipStatic && encoderLine <= _thisItemNr) { \
           encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
           ++encoderLine; \
         } \
-        else \
-          lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING; \
+        lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING; \
       } \
       ++_thisItemNr; \
     } while(0)
