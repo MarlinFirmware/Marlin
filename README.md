@@ -44,8 +44,8 @@ Arduino IDE now has support for folder hierarchies, so Marlin 1.2 will have a [h
 ## Credits
 
 The current Marlin dev team consists of:
- - Roxanne Neufeld [@Roxy-3D] - English
  - Scott Lahteine [@thinkyhead] - English
+ - Roxanne Neufeld [@Roxy-3D] - English
  - Bob Kuhn [@Bob-the-Kuhn] - English
  - Andreas Hardtung [@AnHardt] - Deutsch, English
  - Nico Tonnhofer [@Wurstnase] - Deutsch, English
