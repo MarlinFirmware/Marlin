@@ -27,7 +27,6 @@
 #ifndef TEMPERATURE_H
 #define TEMPERATURE_H
 
-#include "planner.h"
 #include "thermistortables.h"
 
 #include "MarlinConfig.h"
@@ -417,16 +416,6 @@ class Temperature {
      * Update the temp manager when PID values change
      */
     static void updatePID();
-
-    #if ENABLED(AUTOTEMP)
-      static void autotempShutdown() {
-        if (planner.autotemp_enabled) {
-          planner.autotemp_enabled = false;
-          if (degTargetHotend(EXTRUDER_IDX) > planner.autotemp_min)
-            setTargetHotend(0, EXTRUDER_IDX);
-        }
-      }
-    #endif
 
     #if ENABLED(BABYSTEPPING)
 
