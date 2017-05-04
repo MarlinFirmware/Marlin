@@ -1,4 +1,4 @@
-==============================================================================================
+============================================================================
 
 __Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
 
@@ -9,7 +9,7 @@ See example_configurations for other Tarantula configurations:
 - Tarantula-02
   - Small bed, BLTouch, SD support, EEPROM enabled
 
-==============================================================================================
+============================================================================
 
 # Marlin 3D Printer Firmware
 
