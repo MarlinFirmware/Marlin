@@ -290,8 +290,18 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 // GCode support for external objects
 bool code_seen(char);
 int code_value_int();
-float code_value_temp_abs();
-float code_value_temp_diff();
+int16_t code_value_temp_abs();
+int16_t code_value_temp_diff();
+
+#if ENABLED(INCH_MODE_SUPPORT)
+  float code_value_linear_units();
+  float code_value_axis_units(const AxisEnum axis);
+  float code_value_per_axis_unit(const AxisEnum axis);
+#else
+  #define code_value_linear_units() code_value_float()
+  #define code_value_axis_units(A) code_value_float()
+  #define code_value_per_axis_unit(A) code_value_float()
+#endif
 
 #if IS_KINEMATIC
   extern float delta[ABC];
@@ -351,7 +361,7 @@ float code_value_temp_diff();
 #endif
 
 #if FAN_COUNT > 0
-  extern int fanSpeeds[FAN_COUNT];
+  extern int16_t fanSpeeds[FAN_COUNT];
 #endif
 
 #if ENABLED(BARICUDA)

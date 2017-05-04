@@ -241,7 +241,7 @@ void gcode_M100() {
   SERIAL_ECHOPAIR("\n__brkval : ", hex_address(__brkval));
   SERIAL_ECHOPAIR("\n__bss_end : ", hex_address(&__bss_end));
 
-  uint8_t *ptr = END_OF_HEAP(), *sp = top_of_stack();
+  char *ptr = END_OF_HEAP(), *sp = top_of_stack();
 
   SERIAL_ECHOPAIR("\nstart of free space : ", hex_address(ptr));
   SERIAL_ECHOLNPAIR("\nStack Pointer : ", hex_address(sp));
