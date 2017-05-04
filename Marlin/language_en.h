@@ -355,7 +355,7 @@
   #define MSG_DWELL                           _UxGT("Sleep...")
 #endif
 #ifndef MSG_USERWAIT
-  #define MSG_USERWAIT                        _UxGT("Wait for user...")
+  #define MSG_USERWAIT                        _UxGT("Click to resume...")
 #endif
 #ifndef MSG_RESUMING
   #define MSG_RESUMING                        _UxGT("Resuming print")
