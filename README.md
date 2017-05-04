@@ -12,6 +12,8 @@ Please test this firmware and inform us if it misbehaves in any way, volunteers 
 
 __Not for production use. Use with caution!__
 
+__Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
+
 This branch is used to accumulate patches to the latest 1.1.x release version. Periodically this branch will form the basis for the next minor 1.1.x release.
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.0.)
