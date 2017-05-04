@@ -5110,6 +5110,7 @@ void home_all_axes() { gcode_G28(); }
       #if HOTENDS > 1
         tool_change(0, 0, true);
       #endif
+      setup_for_endstop_or_probe_move
       endstops.enable(true);
       home_delta();
 
@@ -5177,17 +5178,13 @@ void home_all_axes() { gcode_G28(); }
         // Probe the points
 
         if (!do_all_positions && !do_circle_x3) { // probe the center
-          setup_for_endstop_or_probe_move();
           z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
-          clean_up_after_endstop_or_probe_move();
         }
         if (probe_center_plus_3) { // probe extra center points
           for (int8_t axis = probe_center_plus_6 ? 11 : 9; axis > 0; axis -= probe_center_plus_6 ? 2 : 4) {
-            setup_for_endstop_or_probe_move();
             z_at_pt[0] += probe_pt(
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
               sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
-            clean_up_after_endstop_or_probe_move();
           }
           z_at_pt[0] /= float(do_circle_x2 ? 7 : probe_points);
         }
@@ -5199,13 +5196,11 @@ void home_all_axes() { gcode_G28(); }
                                     do_circle_x3 ? (zig_zag ? 1.0 : 0.5) :
                                     do_circle_x2 ? (zig_zag ? 0.5 : 0.0) : 0);
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
-              setup_for_endstop_or_probe_move();
               z_at_pt[axis] += probe_pt(
                 cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
                 (1 + circles * 0.1 * (zig_zag ? 1 : -1)),
                 sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
                 (1 + circles * 0.1 * (zig_zag ? 1 : -1)), true, 1);
-              clean_up_after_endstop_or_probe_move();
             }
             zig_zag = !zig_zag;
             z_at_pt[axis] /= (2 * offset_circles + 1);
@@ -5416,6 +5411,8 @@ void home_all_axes() { gcode_G28(); }
 
       } while (zero_std_dev < test_precision && iterations < 31);
 
+      endstops.not_homing()
+      clean_up_after_endstop_or_probe_move();
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
       #endif
