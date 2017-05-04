@@ -771,7 +771,7 @@ static_assert(1 >= 0
   #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
 #endif
 
-#if USE_CONTROLLER_FAN
+#if ENABLED(USE_CONTROLLER_FAN)
   #if !HAS_CONTROLLER_FAN
     #error "USE_CONTROLLER_FAN requires a CONTROLLER_FAN_PIN. Define in Configuration_adv.h."
   #elif E0_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
