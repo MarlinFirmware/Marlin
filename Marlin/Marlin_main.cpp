@@ -5762,10 +5762,6 @@ inline void gcode_M31() {
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPAIR("Print time: ", buffer);
-
-  #if ENABLED(AUTOTEMP)
-    thermalManager.autotempShutdown();
-  #endif
 }
 
 #if ENABLED(SDSUPPORT)

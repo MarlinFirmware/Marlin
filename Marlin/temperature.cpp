@@ -25,9 +25,10 @@
  */
 
 #include "Marlin.h"
-#include "ultralcd.h"
 #include "temperature.h"
 #include "thermistortables.h"
+#include "ultralcd.h"
+#include "planner.h"
 #include "language.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
@@ -1288,6 +1289,11 @@ void Temperature::init() {
 #endif // THERMAL_PROTECTION_HOTENDS || THERMAL_PROTECTION_BED
 
 void Temperature::disable_all_heaters() {
+
+  #if ENABLED(AUTOTEMP)
+    planner.autotemp_enabled = false;
+  #endif
+
   HOTEND_LOOP() setTargetHotend(0, e);
   setTargetBed(0);
 
