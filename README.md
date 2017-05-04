@@ -16,8 +16,8 @@ __Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
 
 See example_configurations for other Tarantula configurations:
 
-Folder name			Configuration
-Tarantula-01		Small bed, BLTouch, NO SD support, EEPROM enabled
+- Tarantula-01
+  - Small bed, BLTouch, NO SD support, EEPROM enabled
 
 This branch is used to accumulate patches to the latest 1.1.x release version. Periodically this branch will form the basis for the next minor 1.1.x release.
 
