@@ -5105,10 +5105,9 @@ void home_all_axes() { gcode_G28(); }
 
       stepper.synchronize();
       #if HAS_LEVELING
-        reset_bed_level; //after calibration bed-level will no longer be valid
+        reset_bed_level(); //after calibration bed-level will no longer be valid
       #endif
       #if HOTENDS > 1
-        const uint8_t old_tool_index = active_extruder;
         tool_change(0, 0, true);
       #endif
       endstops.enable(true);
