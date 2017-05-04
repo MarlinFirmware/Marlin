@@ -10585,12 +10585,25 @@ void ok_to_send() {
     const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
                 y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
 
+    #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
+      // Keep using the last grid box
+      #define FAR_EDGE_OR_BOX 2
+    #else
+      // Just use the grid far edge
+      #define FAR_EDGE_OR_BOX 1
+    #endif
+
     if (last_x != x) {
       last_x = x;
       ratio_x = x * ABL_BG_FACTOR(X_AXIS);
-      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1);
+      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
       ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
-      NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
+
+      #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
+        // Beyond the grid maintain height at grid edges
+        NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
+      #endif
+
       gridx = gx;
       nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
     }
@@ -10600,9 +10613,14 @@ void ok_to_send() {
       if (last_y != y) {
         last_y = y;
         ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
-        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1);
+        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
         ratio_y -= gy;
-        NOLESS(ratio_y, 0);
+
+        #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
+          // Beyond the grid maintain height at grid edges
+          NOLESS(ratio_y, 0); // Never < 0.0. (> 1.0 is ok when nexty==gridy.)
+        #endif
+
         gridy = gy;
         nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
       }
