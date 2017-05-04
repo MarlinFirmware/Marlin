@@ -1182,10 +1182,7 @@ inline void get_serial_commands() {
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
             set_led_color(0, 255, 0); // Green
             #if HAS_RESUME_CONTINUE
-              KEEPALIVE_STATE(PAUSED_FOR_USER);
-              wait_for_user = true;
-              while (wait_for_user) idle();
-              KEEPALIVE_STATE(IN_HANDLER);
+              enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
             #else
               safe_delay(1000);
             #endif
