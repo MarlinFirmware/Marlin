@@ -1,3 +1,16 @@
+==============================================================================================
+
+__Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
+
+See example_configurations for other Tarantula configurations:
+
+- Tarantula-01
+  - Small bed, BLTouch, NO SD support, EEPROM enabled
+- Tarantula-02
+  - Small bed, BLTouch, SD support, EEPROM enabled
+
+==============================================================================================
+
 # Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
@@ -11,15 +24,6 @@ Please test this firmware and inform us if it misbehaves in any way, volunteers 
 ## Bugfix Branch
 
 __Not for production use. Use with caution!__
-
-__Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
-
-See example_configurations for other Tarantula configurations:
-
-- Tarantula-01
-  - Small bed, BLTouch, NO SD support, EEPROM enabled
-- Tarantula-02
-  - Small bed, BLTouch, SD support, EEPROM enabled
 
 This branch is used to accumulate patches to the latest 1.1.x release version. Periodically this branch will form the basis for the next minor 1.1.x release.
 
