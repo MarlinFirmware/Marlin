@@ -3062,6 +3062,8 @@ static void homeaxis(const AxisEnum axis) {
         // Pretend current position is higher. Z will lower on the next move
         current_position[Z_AXIS] += retract_zlift;
         SYNC_PLAN_POSITION_KINEMATIC();
+        // Lower Z
+        prepare_move_to_destination();
       }
 
       feedrate_mm_s = retract_recover_feedrate_mm_s;
@@ -3069,7 +3071,7 @@ static void homeaxis(const AxisEnum axis) {
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
 
-      // Lower Z and recover E
+      // Recover E
       prepare_move_to_destination();
     }
 
