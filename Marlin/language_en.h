@@ -546,6 +546,12 @@
 #ifndef MSG_LIGHTS_OFF
   #define MSG_LIGHTS_OFF                      _UxGT("Case light off")
 #endif
+#ifndef MSG_KILL_AT_EOF_ON
+  #define MSG_KILL_AT_EOF_ON                  _UxGT("Kill when done: ON")
+#endif
+#ifndef MSG_KILL_AT_EOF_OFF
+  #define MSG_KILL_AT_EOF_OFF                 _UxGT("Kill when done: OFF")
+#endif
 
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
