@@ -356,7 +356,7 @@ class Temperature {
       static void start_watching_bed();
     #endif
 
-    static void setTargetHotend(const int16_t &celsius, uint8_t e) {
+    static void setTargetHotend(const int16_t celsius, uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
@@ -372,7 +372,7 @@ class Temperature {
       #endif
     }
 
-    static void setTargetBed(const int16_t &celsius) {
+    static void setTargetBed(const int16_t celsius) {
       target_temperature_bed = celsius;
       #if WATCH_THE_BED
         start_watching_bed();
