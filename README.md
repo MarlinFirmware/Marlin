@@ -142,7 +142,7 @@ More features have been added by:
  - [@Tannoo]
  - [@teemuatlut]
  - [@bgort]
- - [@LVD-AC]
+ - Luc Van Daele [@LVD-AC] - Dutch, French, English, German
  - [@paulusjacobus]
  - ...and many others
 
