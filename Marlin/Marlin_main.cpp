@@ -5112,6 +5112,7 @@ void home_all_axes() { gcode_G28(); }
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       float test_precision,
             zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
+            zero_std_dev_old = zero_std_dev,
             e_old[XYZ] = {
               endstop_adj[A_AXIS],
               endstop_adj[B_AXIS],
@@ -5167,7 +5168,7 @@ void home_all_axes() { gcode_G28(); }
               S2 = 0.0;
         int16_t N = 0;
 
-        test_precision = zero_std_dev;
+        test_precision = (zero_std_dev_old != 999.0) ? (zero_std_dev + zero_std_dev_old)/2 : zero_std_dev;
         iterations++;
 
         // Probe the points
@@ -5214,6 +5215,7 @@ void home_all_axes() { gcode_G28(); }
             S2 += sq(z_at_pt[axis]);
             N++;
           }
+        zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         // Solve matrices
