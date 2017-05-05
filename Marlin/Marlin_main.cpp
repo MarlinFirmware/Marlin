@@ -5100,11 +5100,14 @@ void home_all_axes() { gcode_G28(); }
         reset_bed_level(); //after calibration bed-level will no longer be valid
       #endif
       #if HOTENDS > 1
+        const uint8_t old_tool_index = active_extruder;
         tool_change(0, 0, true);
       #endif
-      setup_for_endstop_or_probe_move;
+      setup_for_endstop_or_probe_move();
+
       endstops.enable(true);
       home_delta();
+      endstops.not_homing();
 
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       float test_precision,
@@ -5397,16 +5400,18 @@ void home_all_axes() { gcode_G28(); }
           }
         }
 
-        stepper.synchronize();
         endstops.enable(true);
         home_delta();
+        endstops.not_homing();
 
       } while (zero_std_dev < test_precision && iterations < 31);
 
-      endstops.not_homing();
-      clean_up_after_endstop_or_probe_move();
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
+      #endif
+      clean_up_after_endstop_or_probe_move();
+      #if HOTENDS > 1
+        tool_change(old_tool_index, 0, true);
       #endif
       #if ENABLED(Z_PROBE_SLED)
         RETRACT_PROBE();
