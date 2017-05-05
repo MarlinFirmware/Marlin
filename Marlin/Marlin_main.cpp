@@ -11479,7 +11479,7 @@ void prepare_move_to_destination() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
-#if USE_CONTROLLER_FAN
+#if ENABLED(USE_CONTROLLER_FAN)
 
   void controllerFan() {
     static millis_t lastMotorOn = 0, // Last time a motor was turned on
@@ -11933,7 +11933,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if USE_CONTROLLER_FAN
+  #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
@@ -12203,7 +12203,7 @@ void setup() {
     endstops.enable_z_probe(false);
   #endif
 
-  #if USE_CONTROLLER_FAN
+  #if ENABLED(USE_CONTROLLER_FAN)
     SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
   #endif
 
