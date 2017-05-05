@@ -126,6 +126,8 @@
   void set_destination_to_current();
   void set_current_to_destination();
   float code_value_float();
+  float code_value_linear_units();
+  float code_value_axis_units(const AxisEnum axis);
   bool code_value_bool();
   bool code_has_value();
   void lcd_init();
@@ -164,9 +166,10 @@
                filament_diameter = FILAMENT,
                prime_length = PRIME_LENGTH,
                x_pos, y_pos,
-               bed_temp = BED_TEMP,
-               hotend_temp = HOTEND_TEMP,
                ooze_amount = OOZE_AMOUNT;
+
+  static int16_t bed_temp = BED_TEMP,
+                 hotend_temp = HOTEND_TEMP;
 
   static int8_t prime_flag = 0;
 
@@ -379,9 +382,9 @@
 
     if (!keep_heaters_on) {
       #if HAS_TEMP_BED
-        thermalManager.setTargetBed(0.0);
+        thermalManager.setTargetBed(0);
       #endif
-      thermalManager.setTargetHotend(0.0, 0);
+      thermalManager.setTargetHotend(0, 0);
     }
   }
 
@@ -640,8 +643,8 @@
     keep_heaters_on       = false;
 
     if (code_seen('B')) {
-      bed_temp = code_value_float();
-      if (!WITHIN(bed_temp, 15.0, 140.0)) {
+      bed_temp = code_value_temp_abs();
+      if (!WITHIN(bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
         return UBL_ERR;
       }
@@ -650,7 +653,7 @@
     if (code_seen('C')) continue_with_closest++;
 
     if (code_seen('L')) {
-      layer_height = code_value_float();
+      layer_height = code_value_linear_units();
       if (!WITHIN(layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
         return UBL_ERR;
@@ -682,14 +685,14 @@
     if (code_seen('K')) keep_heaters_on++;
 
     if (code_seen('O') && code_has_value())
-      ooze_amount = code_value_float();
+      ooze_amount = code_value_linear_units();
 
     if (code_seen('P')) {
       if (!code_has_value())
         prime_flag = -1;
       else {
         prime_flag++;
-        prime_length = code_value_float();
+        prime_length = code_value_linear_units();
         if (!WITHIN(prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
           return UBL_ERR;
@@ -698,7 +701,7 @@
     }
 
     if (code_seen('F')) {
-      filament_diameter = code_value_float();
+      filament_diameter = code_value_linear_units();
       if (!WITHIN(filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
         return UBL_ERR;
@@ -711,8 +714,8 @@
     extrusion_multiplier *= filament_diameter * sq(nozzle) / sq(0.3); // Scale up by nozzle size
 
     if (code_seen('H')) {
-      hotend_temp = code_value_float();
-      if (!WITHIN(hotend_temp, 165.0, 280.0)) {
+      hotend_temp = code_value_temp_abs();
+      if (!WITHIN(hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
         return UBL_ERR;
       }
@@ -727,7 +730,7 @@
     y_pos = current_position[Y_AXIS];
 
     if (code_seen('X')) {
-      x_pos = code_value_float();
+      x_pos = code_value_axis_units(X_AXIS);
       if (!WITHIN(x_pos, X_MIN_POS, X_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified X coordinate not plausible.");
         return UBL_ERR;
@@ -736,7 +739,7 @@
     else
 
     if (code_seen('Y')) {
-      y_pos = code_value_float();
+      y_pos = code_value_axis_units(Y_AXIS);
       if (!WITHIN(y_pos, Y_MIN_POS, Y_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified Y coordinate not plausible.");
         return UBL_ERR;

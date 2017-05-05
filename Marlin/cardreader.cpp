@@ -552,7 +552,7 @@ void CardReader::checkautostart(bool force) {
 
   bool found = false;
   while (root.readDir(p, NULL) > 0) {
-    for (int8_t i = 0; i < (int8_t)strlen((char*)p.name); i++) p.name[i] = tolower(p.name[i]);
+    for (int8_t i = (int8_t)strlen((char*)p.name); i--;) p.name[i] = tolower(p.name[i]);
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
       openAndPrintFile(autoname);
       found = true;
