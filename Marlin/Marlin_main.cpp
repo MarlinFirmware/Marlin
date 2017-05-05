@@ -832,7 +832,7 @@ void clear_command_queue() {
  */
 inline void _commit_command(bool say_ok) {
   send_ok[cmd_queue_index_w] = say_ok;
-  cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
+  if (++cmd_queue_index_w >= BUFSIZE) cmd_queue_index_w = 0;
   commands_in_queue++;
 }
 
@@ -12330,7 +12330,7 @@ void loop() {
     // The queue may be reset by a command handler or by code invoked by idle() within a handler
     if (commands_in_queue) {
       --commands_in_queue;
-      cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+      if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
     }
   }
   endstops.report_state();
