@@ -5110,7 +5110,7 @@ void home_all_axes() { gcode_G28(); }
       #if HOTENDS > 1
         tool_change(0, 0, true);
       #endif
-      setup_for_endstop_or_probe_move
+      setup_for_endstop_or_probe_move;
       endstops.enable(true);
       home_delta();
 
@@ -5411,7 +5411,7 @@ void home_all_axes() { gcode_G28(); }
 
       } while (zero_std_dev < test_precision && iterations < 31);
 
-      endstops.not_homing()
+      endstops.not_homing();
       clean_up_after_endstop_or_probe_move();
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
