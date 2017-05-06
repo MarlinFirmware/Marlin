@@ -465,7 +465,12 @@
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
 //  #define DELTA_RADIUS 106.5
-  #define DELTA_RADIUS 105.0
+//  #define DELTA_RADIUS 105.0- ~2.3mm too high in centre
+  #define DELTA_RADIU 109.5 
+
+  //http://boim.com/DeltaUtil/CalDoc/Calibration.html
+  //if delta radius is too high it will create a dome, 1mm too large creates ~0.5mm dome
+  //if delta radius is too small it will create a bowl 1mm too small creates ~0.5mm of bowl
 
   
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
@@ -980,7 +985,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // For DELTA this is the top-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 244.5 // Distance between the nozzle to printbed after homing
+#define MANUAL_Z_HOME_POS 247.8 // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
