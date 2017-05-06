@@ -4,7 +4,7 @@
 
 * updated manually with parameters from genuine Vellemann Firmware "firmware_k8200_marlinv2" based on the recent development branch
 
-* VM8201 uses "DISPLAY_CHARSET_HD44870_JAPAN" and "ULTIMAKERCONTROLLER"
+* VM8201 uses "DISPLAY_CHARSET_HD44870 JAPANESE" and "ULTIMAKERCONTROLLER"
 * german (de) translation with umlaut is supported now - thanks to @AnHardt for the great hardware based umlaut support
 
 I [@CONSULitAS](https://github.com/CONSULitAS) tested the changes on my K8200 with 20x4-LCD and Arduino 1.6.12 for Mac (SD library added to IDE manually), 2016-11-18 - everything works well.
