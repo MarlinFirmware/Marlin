@@ -4360,7 +4360,7 @@ void home_all_axes() { gcode_G28(); }
 
       verbose_level = code_seen('V') && code_has_value() ? code_value_int() : 0;
       if (!WITHIN(verbose_level, 0, 4)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-4).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
         return;
       }
 
@@ -5081,7 +5081,7 @@ void home_all_axes() { gcode_G28(); }
 
       const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
       if (!WITHIN(verbose_level, 0, 2)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-2).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-2).");
         return;
       }
 
@@ -6183,7 +6183,7 @@ inline void gcode_M42() {
 
     const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (!WITHIN(verbose_level, 0, 4)) {
-      SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
+      SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
       return;
     }
 
