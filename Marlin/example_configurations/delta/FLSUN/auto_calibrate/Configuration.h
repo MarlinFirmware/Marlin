@@ -440,7 +440,7 @@
   #define DELTA_RADIUS 100.00 //mm // get this value from auto calibrate
 
   // height from z=0 to home position
-  #define DELTA_HEIGHT 295.00 // get this value from auto calibrate - use G33 P1 A at 1st time calibration
+  #define DELTA_HEIGHT 295.00 // get this value from auto calibrate - use G33 P1 at 1st time calibration
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 85.0
