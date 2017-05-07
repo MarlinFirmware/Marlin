@@ -645,6 +645,15 @@
   #endif
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
+
+  /**
+   * Heater & Fan Pausing
+   */
+  #if ENABLED(PROBING_FANS_OFF) && FAN_COUNT == 0
+    #undef PROBING_FANS_OFF
+  #endif
+  #define QUIET_PROBING (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF))
+
   /**
    * Servos and probes
    */

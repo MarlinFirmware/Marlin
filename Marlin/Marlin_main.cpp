@@ -441,6 +441,10 @@ float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(PROBING_FANS_OFF)
+    bool fans_paused = false;
+    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+  #endif
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -2041,6 +2045,35 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif
 
+#if ENABLED(PROBING_FANS_OFF)
+  void fans_pause(bool p) {
+    if (p && fans_paused) { // If called out of order something is wrong
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already paused!");
+      return;
+    }
+
+    if (!p && !fans_paused) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already unpaused!");
+      return;
+    }
+
+    if (p) {
+      for (uint8_t x = 0;x < FAN_COUNT;x++) {
+        paused_fanSpeeds[x] = fanSpeeds[x];
+        fanSpeeds[x] = 0;
+      }
+    }
+    else {
+      for (uint8_t x = 0;x < FAN_COUNT;x++)
+        fanSpeeds[x] = paused_fanSpeeds[x];
+    }
+
+    fans_paused = p;
+  }
+#endif
+
 #if HAS_BED_PROBE
 
   // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
@@ -2052,57 +2085,26 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   #endif
 
+  #if QUIET_PROBING
+    void probing_pause(bool pause) {
+      #if ENABLED(PROBING_HEATERS_OFF)
+        thermalManager.pause(pause);
+      #endif
+
+      #if ENABLED(PROBING_FANS_OFF)
+        fans_pause(pause);
+      #endif
+
+      if(pause) safe_delay(25);
+    }
+  #endif
+
   #if ENABLED(BLTOUCH)
 
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
       safe_delay(BLTOUCH_DELAY);
     }
-
-    /**
-     * BLTouch probes have a Hall effect sensor. The high currents switching
-     * on and off cause a magnetic field that can affect the repeatability of the
-     * sensor. So for BLTouch probes, heaters are turned off during the probe,
-     * then quickly turned back on after the point is sampled.
-     */
-    #if ENABLED(BLTOUCH_HEATERS_OFF)
-
-      void set_heaters_for_bltouch(const bool deploy) {
-        static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection = 0;
-        static int16_t temps_at_entry[HOTENDS];
-
-        #if HAS_TEMP_BED
-          static int16_t bed_temp_at_entry;
-        #endif
-
-        // If called out of order or far apart something is seriously wrong
-        if (deploy == heaters_were_disabled
-            || (next_emi_protection && ELAPSED(millis(), next_emi_protection)))
-          kill(PSTR(MSG_KILLED));
-
-        if (deploy) {
-          next_emi_protection = millis() + 20 * 1000UL;
-          HOTEND_LOOP() {
-            temps_at_entry[e] = thermalManager.degTargetHotend(e);
-            thermalManager.setTargetHotend(0, e);
-          }
-          #if HAS_TEMP_BED
-            bed_temp_at_entry = thermalManager.degTargetBed();
-            thermalManager.setTargetBed(0);
-          #endif
-        }
-        else {
-          next_emi_protection = 0;
-          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
-          #if HAS_TEMP_BED
-            thermalManager.setTargetBed(bed_temp_at_entry);
-          #endif
-        }
-        heaters_were_disabled = deploy;
-      }
-
-    #endif // BLTOUCH_HEATERS_OFF
 
     void set_bltouch_deployed(const bool deploy) {
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
@@ -2118,9 +2120,6 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
-        set_heaters_for_bltouch(deploy);
-      #endif
 
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
 
@@ -2249,8 +2248,16 @@ static void clean_up_after_endstop_or_probe_move() {
       set_bltouch_deployed(true);
     #endif
 
+    #if QUIET_PROBING
+      probing_pause(true);
+    #endif
+
     // Move down until probe triggered
     do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    #if QUIET_PROBING
+      probing_pause(false);
+    #endif
 
     // Retract BLTouch immediately after a probe
     #if ENABLED(BLTOUCH)
@@ -2809,6 +2816,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
     if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(true);
+  #endif
+
   // Tell the planner we're at Z=0
   current_position[axis] = 0;
 
@@ -2824,6 +2835,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
   #endif
 
   stepper.synchronize();
+
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(false);
+  #endif
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     if (deploy_bltouch) set_bltouch_deployed(false);
@@ -6474,6 +6489,7 @@ inline void gcode_M104() {
   if (code_seen('S')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6669,6 +6685,7 @@ inline void gcode_M109() {
   if (no_wait_for_cooling || code_seen('R')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6820,6 +6837,7 @@ inline void gcode_M109() {
     const bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
+
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
         if (code_value_temp_abs() > BED_MINTEMP)
           print_job_timer.start();
@@ -7113,10 +7131,11 @@ inline void gcode_M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
   #if FAN_COUNT > 0
-    #if FAN_COUNT > 1
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-    #else
-      fanSpeeds[0] = 0;
+    for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+
+    #if ENABLED(PROBING_FANS_OFF)
+      fans_paused = false;
+      ZERO(paused_fanSpeeds);
     #endif
   #endif
   safe_delay(1000); // Wait 1 second before switching off
@@ -12093,7 +12112,12 @@ void kill(const char* lcd_msg) {
  * After a stop the machine may be resumed with M999
  */
 void stop() {
-  thermalManager.disable_all_heaters();
+  thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
+  #if ENABLED(PROBING_FANS_OFF)
+    if (fans_paused) fans_pause(false); // put things back the way they were
+  #endif
+
   if (IsRunning()) {
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;
