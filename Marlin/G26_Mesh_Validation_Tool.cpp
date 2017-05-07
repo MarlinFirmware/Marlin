@@ -92,6 +92,7 @@
    *        un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
    *
    *   N #  Nozzle    Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
+   *        'n' can be used instead if your host program does not appreciate you using 'N'.
    *
    *   O #  Ooooze    How much your nozzle will Ooooze filament while getting in position to print.  This
    *        is over kill, but using this parameter will let you get the very first 'cicle' perfect
@@ -674,7 +675,7 @@
       }
     }
 
-    if (code_seen('N')) {
+    if (code_seen('N') || code_seen('n')) {
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
