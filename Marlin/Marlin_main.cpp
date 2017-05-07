@@ -5078,7 +5078,7 @@ void home_all_axes() { gcode_G28(); }
 
       const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
       if (!WITHIN(verbose_level, 0, 2)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-2).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-2).");
         return;
       }
 
