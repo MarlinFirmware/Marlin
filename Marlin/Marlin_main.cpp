@@ -3741,6 +3741,9 @@ inline void gcode_G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -3881,6 +3884,9 @@ inline void gcode_G28() {
   #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
