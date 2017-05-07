@@ -532,21 +532,51 @@
 #define DEFAULT_ZJERK                  1.0
 #define DEFAULT_EJERK                  4.0
 
+//===========================================================================
+//============================= Z Probe Options =============================
+//===========================================================================
+// @section probes
+
+//
+// See http://marlinfw.org/configuration/probes.html
+//
+
 
 /**
- * ===========================================================================
- * ============================= Z Probe Options =============================
- * ===========================================================================
- * @section probes
+ * Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
  *
+ * Enable this option for a probe connected to the Z Min endstop pin.
+ */
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+
+/**
+ * Z_MIN_PROBE_ENDSTOP
  *
+ * Enable this option for a probe connected to any pin except Z-Min.
+ * (By default Marlin assumes the Z-Max endstop pin.)
+ * To use a custom Z Probe pin, set Z_MIN_PROBE_PIN below.
+ *
+ *  - The simplest option is to use a free endstop connector.
+ *  - Use 5V for powered (usually inductive) sensors.
+ *
+ *  - RAMPS 1.3/1.4 boards may use the 5V, GND, and Aux4->D32 pin:
+ *    - For simple switches connect...
+ *      - normally-closed switches to GND and D32.
+ *      - normally-open switches to 5V and D32.
+ *
+ * WARNING: Setting the wrong pin may have unexpected and potentially
+ * disastrous consequences. Use with caution and do your homework.
+ *
+ */
+//#define Z_MIN_PROBE_ENDSTOP
+//#define Z_MIN_PROBE_PIN Z_MAX_PIN
+
+/**
  *   Probe Type
- *   Probes are sensors/switches that are activated / deactivated before/after use.
  *
  *   Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
  *   You must activate one of these to use Auto Bed Leveling below.
- *
- *   Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
  */
 
 /**

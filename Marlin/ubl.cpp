@@ -136,7 +136,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-    const uint8_t spaces = 9;
+    const uint8_t spaces = 11;
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -145,7 +145,7 @@
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
-      SERIAL_ECHO_SP(spaces * (GRID_MAX_POINTS_X - 2));
+      SERIAL_ECHO_SP(spaces * (GRID_MAX_POINTS_X - 2)-3);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
@@ -190,7 +190,7 @@
 
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      SERIAL_ECHO_SP(spaces * (GRID_MAX_POINTS_X - 2) + 4);
+      SERIAL_ECHO_SP(spaces * (GRID_MAX_POINTS_X - 2) + 1);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
