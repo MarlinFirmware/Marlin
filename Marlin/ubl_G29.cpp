@@ -1057,12 +1057,12 @@
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_X_POSITION(x_pos), UBL_MESH_MIN_X, UBL_MESH_MAX_X)) {
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_Y_POSITION(y_pos), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       err_flag = true;
     }
