@@ -1294,25 +1294,26 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-  int16_t code_value_temp_abs() {
+  float temp_abs(const float &c) {
     switch (input_temp_units) {
       case TEMPUNIT_F:
-        return (code_value_float() - 32) * 0.5555555556;
+        return (c - 32.0) * 0.5555555556;
       case TEMPUNIT_K:
-        return code_value_float() - 273.15;
+        return c - 273.15;
       case TEMPUNIT_C:
       default:
-        return code_value_int();
+        return c;
     }
   }
 
+  int16_t code_value_temp_abs() { return temp_abs(code_value_float()); }
+
   int16_t code_value_temp_diff() {
     switch (input_temp_units) {
-      case TEMPUNIT_C:
-      case TEMPUNIT_K:
-        return code_value_float();
       case TEMPUNIT_F:
         return code_value_float() * 0.5555555556;
+      case TEMPUNIT_C:
+      case TEMPUNIT_K:
       default:
         return code_value_float();
     }
@@ -4360,7 +4361,7 @@ void home_all_axes() { gcode_G28(); }
 
       verbose_level = code_seen('V') && code_has_value() ? code_value_int() : 0;
       if (!WITHIN(verbose_level, 0, 4)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-4).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
         return;
       }
 
@@ -5081,7 +5082,7 @@ void home_all_axes() { gcode_G28(); }
 
       const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
       if (!WITHIN(verbose_level, 0, 2)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-2).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-2).");
         return;
       }
 
@@ -6183,7 +6184,7 @@ inline void gcode_M42() {
 
     const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (!WITHIN(verbose_level, 0, 4)) {
-      SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
+      SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
       return;
     }
 
