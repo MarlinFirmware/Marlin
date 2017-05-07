@@ -30,8 +30,9 @@
   #include "planner.h"
   #include "math.h"
   #include "vector_3.h"
+  #include "configuration_store.h"
 
-  #define UBL_VERSION "1.00"
+  #define UBL_VERSION "1.01"
   #define UBL_OK false
   #define UBL_ERR true
 
@@ -92,7 +93,7 @@
   typedef struct {
     bool active = false;
     float z_offset = 0.0;
-    int8_t eeprom_storage_slot = -1;
+    int8_t storage_slot = -1;
   } ubl_state;
 
   class unified_bed_leveling {
@@ -117,10 +118,6 @@
       void display_map(const int);
       void reset();
       void invalidate();
-      void store_state();
-      void load_state();
-      void store_mesh(const int16_t);
-      void load_mesh(const int16_t);
       bool sanity_check();
 
       static ubl_state state;
@@ -152,9 +149,6 @@
                               };
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
-
-      static int16_t eeprom_start;    // Please do no change this to 8 bits in size
-                                      // It needs to hold values bigger than this.
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
@@ -350,8 +344,6 @@
   }; // class unified_bed_leveling
 
   extern unified_bed_leveling ubl;
-
-  #define UBL_LAST_EEPROM_INDEX E2END
 
 #endif // AUTO_BED_LEVELING_UBL
 #endif // UNIFIED_BED_LEVELING_H

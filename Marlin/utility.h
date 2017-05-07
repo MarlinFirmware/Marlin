@@ -25,6 +25,10 @@
 
 void safe_delay(millis_t ms);
 
+#if ENABLED(EEPROM_SETTINGS)
+  void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
+#endif
+
 #if ENABLED(ULTRA_LCD)
 
   // Convert unsigned int to string with 12 format

@@ -8341,15 +8341,22 @@ void quickstop_stepper() {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // L to load a mesh from the EEPROM
       if (code_seen('L')) {
-        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
-        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
-        if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.storage_slot;
+        const int16_t a = settings.calc_num_meshes();
+
+        if (!a) {
+          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
           return;
         }
 
-        ubl.load_mesh(storage_slot);
-        ubl.state.eeprom_storage_slot = storage_slot;
+        if (!WITHIN(storage_slot, 0, a - 1)) {
+          SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+          SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+          return;
+        }
+
+        settings.load_mesh(storage_slot);
+        ubl.state.storage_slot = storage_slot;
       }
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -8377,7 +8384,7 @@ void quickstop_stepper() {
       if (code_seen('L') || code_seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
       }
     #endif
 

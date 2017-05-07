@@ -314,7 +314,7 @@
 
   void __attribute__((optimize("O0"))) gcode_G29() {
 
-    if (ubl.eeprom_start < 0) {
+    if (!settings.calc_num_meshes()) {
       SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
       SERIAL_PROTOCOLLNPGM("with M502, M500, M501 in that order.\n");
       return;
@@ -419,9 +419,9 @@
     }
 
     if (code_seen('P')) {
-      if (WITHIN(phase_value, 0, 1) && ubl.state.eeprom_storage_slot == -1) {
-        ubl.state.eeprom_storage_slot = 0;
-        SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.\n");
+      if (WITHIN(phase_value, 0, 1) && ubl.state.storage_slot == -1) {
+        ubl.state.storage_slot = 0;
+        SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
       }
 
       switch (phase_value) {
@@ -430,7 +430,7 @@
           // Zero Mesh Data
           //
           ubl.reset();
-          SERIAL_PROTOCOLLNPGM("Mesh zeroed.\n");
+          SERIAL_PROTOCOLLNPGM("Mesh zeroed.");
           break;
 
         case 1:
@@ -439,7 +439,7 @@
           //
           if (!code_seen('C')) {
             ubl.invalidate();
-            SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.\n");
+            SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.");
           }
           if (g29_verbose_level > 1) {
             SERIAL_PROTOCOLPAIR("Probing Mesh Points Closest to (", x_pos);
@@ -455,7 +455,7 @@
           //
           // Manually Probe Mesh in areas that can't be reached by the probe
           //
-          SERIAL_PROTOCOLLNPGM("Manually probing unreachable mesh locations.\n");
+          SERIAL_PROTOCOLLNPGM("Manually probing unreachable mesh locations.");
           do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
           if (!x_flag && !y_flag) {
             /**
@@ -485,7 +485,7 @@
             card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
 
             if (fabs(card_thickness) > 1.5) {
-              SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.\n");
+              SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
               return;
             }
           }
@@ -561,17 +561,25 @@
     //
 
     if (code_seen('L')) {     // Load Current Mesh Data
-      storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
+      storage_slot = code_has_value() ? code_value_int() : ubl.state.storage_slot;
 
-      const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
+      int16_t a = settings.calc_num_meshes();
 
-      if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+      if (!a) {
+        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
         return;
       }
-      ubl.load_mesh(storage_slot);
-      ubl.state.eeprom_storage_slot = storage_slot;
-      SERIAL_PROTOCOLLNPGM("Done.\n");
+
+      if (!WITHIN(storage_slot, 0, a - 1)) {
+        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        return;
+      }
+
+      settings.load_mesh(storage_slot);
+      ubl.state.storage_slot = storage_slot;
+
+      SERIAL_PROTOCOLLNPGM("Done.");
     }
 
     //
@@ -579,7 +587,7 @@
     //
 
     if (code_seen('S')) {     // Store (or Save) Current Mesh Data
-      storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
+      storage_slot = code_has_value() ? code_value_int() : ubl.state.storage_slot;
 
       if (storage_slot == -1) {                     // Special case, we are going to 'Export' the mesh to the
         SERIAL_ECHOLNPGM("G29 I 999");              // host in a form it can be reconstructed on a different machine
@@ -597,17 +605,23 @@
         return;
       }
 
-      const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
+      int16_t a = settings.calc_num_meshes();
 
-      if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
-        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", j - 1);
+      if (!a) {
+        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
         goto LEAVE;
       }
-      ubl.store_mesh(storage_slot);
-      ubl.state.eeprom_storage_slot = storage_slot;
 
-      SERIAL_PROTOCOLLNPGM("Done.\n");
+      if (!WITHIN(storage_slot, 0, a - 1)) {
+        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        goto LEAVE;
+      }
+
+      settings.store_mesh(storage_slot);
+      ubl.state.storage_slot = storage_slot;
+
+      SERIAL_PROTOCOLLNPGM("Done.");
     }
 
     if (code_seen('T'))
@@ -1157,8 +1171,6 @@
    * good to have the extra information. Soon... we prune this to just a few items
    */
   void unified_bed_leveling::g29_what_command() {
-    const uint16_t k = E2END - ubl.eeprom_start;
-
     say_ubl_name();
     SERIAL_PROTOCOLPGM("System Version " UBL_VERSION " ");
     if (state.active)
@@ -1168,10 +1180,10 @@
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     safe_delay(50);
 
-    if (state.eeprom_storage_slot == -1)
+    if (state.storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
     else {
-      SERIAL_PROTOCOLPAIR("Mesh ", state.eeprom_storage_slot);
+      SERIAL_PROTOCOLPAIR("Mesh ", state.storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL;
@@ -1188,12 +1200,15 @@
     SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)eeprom_start));
-
+    SERIAL_ECHOLNPAIR("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X) "=", UBL_MESH_MIN_X);
+    SERIAL_ECHOLNPAIR("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y) "=", UBL_MESH_MIN_Y);
+    safe_delay(25);
+    SERIAL_ECHOLNPAIR("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X) "=", UBL_MESH_MAX_X);
+    SERIAL_ECHOLNPAIR("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y) "=", UBL_MESH_MAX_Y);
+    safe_delay(25);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
     safe_delay(25);
-
     SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
     SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
     safe_delay(25);
@@ -1214,38 +1229,34 @@
     }
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)eeprom_start));
-    SERIAL_PROTOCOLLNPAIR("end of EEPROM: ", hex_address((void*)E2END));
-    safe_delay(25);
+    #if HAS_KILL
+      SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
+      SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
+    #endif
+    SERIAL_EOL;
+    safe_delay(50);
 
-    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(state));
+    SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
+    SERIAL_EOL;
+    SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
+    SERIAL_EOL;
+    safe_delay(50);
+
+    SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
+    SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.get_end_of_meshes()));
+    safe_delay(50);
+
+    SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
     SERIAL_EOL;
     safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)k));
-    safe_delay(25);
+    SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
+    safe_delay(50);
 
-    SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(z_values));
+    SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
-    safe_delay(25);
-
-    SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
-    SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-    safe_delay(25);
-    SERIAL_EOL;
-
-    SERIAL_ECHOPGM("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X));
-    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_X );
-    SERIAL_ECHOPGM("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y));
-    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_Y );
-    safe_delay(25);
-
-    SERIAL_ECHOPGM("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X));
-    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_X);
-    SERIAL_ECHOPGM("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y));
-    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_Y);
     safe_delay(25);
 
     if (!sanity_check()) {
@@ -1284,27 +1295,31 @@
    * use cases for the users. So we can wait and see what to do with it.
    */
   void g29_compare_current_mesh_to_stored_mesh() {
-    float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    int16_t a = settings.calc_num_meshes();
+
+    if (!a) {
+      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+      return;
+    }
 
     if (!code_has_value()) {
-      SERIAL_PROTOCOLLNPGM("?Mesh # required.\n");
+      SERIAL_PROTOCOLLNPGM("?Storage slot # required.");
+      SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
       return;
     }
+
     storage_slot = code_value_int();
 
-    int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(tmp_z_values);
-
-    if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+    if (!WITHIN(storage_slot, 0, a - 1)) {
+      SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+      SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
       return;
     }
 
-    j = UBL_LAST_EEPROM_INDEX - (storage_slot + 1) * sizeof(tmp_z_values);
-    eeprom_read_block((void *)&tmp_z_values, (void *)j, sizeof(tmp_z_values));
+    float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    settings.load_mesh(storage_slot, &tmp_z_values);
 
-    SERIAL_ECHOPAIR("Subtracting Mesh ", storage_slot);
-    SERIAL_PROTOCOLLNPAIR(" loaded from EEPROM address ", hex_address((void*)j)); // Soon, we can remove the extra clutter of printing
-                                                                        // the address in the EEPROM where the Mesh is stored.
+    SERIAL_ECHOPAIR("Subtracting current mesh from mesh loaded from slot ", storage_slot);
 
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
