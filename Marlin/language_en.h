@@ -153,6 +153,191 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #ifndef MSG_UBL_UNHOMED
+    #define MSG_UBL_UNHOMED                   _UxGT("Home XYZ first")
+  #endif
+  #ifndef MSG_UBL_TOOLS
+    #define MSG_UBL_TOOLS                     _UxGT("UBL Tools")
+  #endif
+  #ifndef MSG_UBL_LEVEL_BED
+    #define MSG_UBL_LEVEL_BED                 _UxGT("Unified Bed Leveling")
+  #endif
+  #ifndef MSG_UBL_ACTIVATE_MESH
+    #define MSG_UBL_ACTIVATE_MESH             _UxGT("Activate UBL")
+  #endif
+  #ifndef MSG_UBL_DEACTIVATE_MESH
+    #define MSG_UBL_DEACTIVATE_MESH           _UxGT("Deactivate UBL")
+  #endif
+  #ifndef MSG_UBL_CUSTOM_BED_TEMP
+    #define MSG_UBL_CUSTOM_BED_TEMP           _UxGT("Bed Temp")
+  #endif
+  #ifndef MSG_UBL_SET_BED_TEMP
+    #define MSG_UBL_SET_BED_TEMP              _UxGT("Bed Temp")
+  #endif
+  #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
+    #define MSG_UBL_CUSTOM_HOTEND_TEMP        _UxGT("Hotend Temp")
+  #endif
+  #ifndef MSG_UBL_SET_HOTEND_TEMP
+    #define MSG_UBL_SET_HOTEND_TEMP           _UxGT("Hotend Temp")
+  #endif
+  #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
+    #define MSG_UBL_VALIDATE_CUSTOM_MESH      _UxGT("Validate Custom Mesh")
+  #endif
+  #ifndef MSG_UBL_EDIT_CUSTOM_MESH
+    #define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Edit Custom Mesh")
+  #endif
+  #ifndef MSG_UBL_BUILD_CUSTOM_MESH
+    #define MSG_UBL_BUILD_CUSTOM_MESH         _UxGT("Build Custom Mesh")
+  #endif
+  #ifndef MSG_UBL_BUILD_MESH_MENU
+    #define MSG_UBL_BUILD_MESH_MENU           _UxGT("Build Mesh")
+  #endif
+  #ifndef MSG_UBL_BUILD_PLA_MESH
+    #define MSG_UBL_BUILD_PLA_MESH            _UxGT("Build PLA Mesh")
+  #endif
+  #ifndef MSG_UBL_BUILD_ABS_MESH
+    #define MSG_UBL_BUILD_ABS_MESH            _UxGT("Build ABS Mesh")
+  #endif
+  #ifndef MSG_UBL_BUILD_COLD_MESH
+    #define MSG_UBL_BUILD_COLD_MESH           _UxGT("Build Cold Mesh")
+  #endif
+  #ifndef MSG_UBL_MESH_HEIGHT_ADJUST
+    #define MSG_UBL_MESH_HEIGHT_ADJUST        _UxGT("Adjust Mesh Height")
+  #endif
+  #ifndef MSG_UBL_MESH_HEIGHT_AMOUNT
+    #define MSG_UBL_MESH_HEIGHT_AMOUNT        _UxGT("Height Amount")
+  #endif
+  #ifndef MSG_UBL_VALIDATE_MESH_MENU
+    #define MSG_UBL_VALIDATE_MESH_MENU        _UxGT("Validate Mesh")
+  #endif
+  #ifndef MSG_UBL_VALIDATE_PLA_MESH
+    #define MSG_UBL_VALIDATE_PLA_MESH         _UxGT("PLA Mesh Validation")
+  #endif
+  #ifndef MSG_UBL_VALIDATE_ABS_MESH
+    #define MSG_UBL_VALIDATE_ABS_MESH         _UxGT("ABS Mesh Validation")
+  #endif
+  #ifndef MSG_UBL_CONTINUE_MESH
+    #define MSG_UBL_CONTINUE_MESH             _UxGT("Continue Bed Mesh")
+  #endif
+  #ifndef MSG_UBL_MESH_LEVELING
+    #define MSG_UBL_MESH_LEVELING             _UxGT("Mesh Leveling")
+  #endif
+  #ifndef MSG_UBL_3POINT_MESH_LEVELING
+    #define MSG_UBL_3POINT_MESH_LEVELING      _UxGT("3-Point Leveling")
+  #endif
+  #ifndef MSG_UBL_GRID_MESH_LEVELING
+    #define MSG_UBL_GRID_MESH_LEVELING        _UxGT("Grid Mesh Leveling")
+  #endif
+  #ifndef MSG_UBL_MESH_LEVEL
+    #define MSG_UBL_MESH_LEVEL                _UxGT("Level Mesh")
+  #endif
+  #ifndef MSG_UBL_SIDE_POINTS
+    #define MSG_UBL_SIDE_POINTS               _UxGT("Side Points")
+  #endif
+  #ifndef MSG_UBL_MAP_TYPE
+    #define MSG_UBL_MAP_TYPE                  _UxGT("Map Type")
+  #endif
+  #ifndef MSG_UBL_OUTPUT_MAP
+    #define MSG_UBL_OUTPUT_MAP                _UxGT("Output Mesh Map")
+  #endif
+  #ifndef MSG_UBL_OUTPUT_MAP_HOST
+    #define MSG_UBL_OUTPUT_MAP_HOST           _UxGT("Output for Host")
+  #endif
+  #ifndef MSG_UBL_OUTPUT_MAP_CSV
+    #define MSG_UBL_OUTPUT_MAP_CSV          _UxGT("Output for CSV")
+  #endif
+  #ifndef MSG_UBL_INFO_UBL
+    #define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
+  #endif
+  #ifndef MSG_UBL_EDIT_MESH_MENU
+    #define MSG_UBL_EDIT_MESH_MENU            _UxGT("Edit Mesh")
+  #endif
+  #ifndef MSG_UBL_FILLIN_AMOUNT
+    #define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
+  #endif
+  #ifndef MSG_UBL_MANUAL_FILLIN
+    #define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
+  #endif
+  #ifndef MSG_UBL_SMART_FILLIN
+    #define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")
+  #endif
+  #ifndef MSG_UBL_FILLIN_MESH
+    #define MSG_UBL_FILLIN_MESH               _UxGT("Fill-in Mesh")
+  #endif
+  #ifndef MSG_UBL_PLA_EDIT_MESH
+    #define MSG_UBL_PLA_EDIT_MESH             _UxGT("Edit PLA Bed Mesh")
+  #endif
+  #ifndef MSG_UBL_ABS_EDIT_MESH
+    #define MSG_UBL_ABS_EDIT_MESH             _UxGT("Edit ABS Bed Mesh")
+  #endif
+  #ifndef MSG_UBL_STORAGE_MESH_MENU
+    #define MSG_UBL_STORAGE_MESH_MENU         _UxGT("Mesh Storage")
+  #endif
+  #ifndef MSG_UBL_STORAGE_SLOT
+    #define MSG_UBL_STORAGE_SLOT              _UxGT("Memory Slot")
+  #endif
+  #ifndef MSG_UBL_LOAD_MESH
+    #define MSG_UBL_LOAD_MESH                 _UxGT("Load Bed Mesh")
+  #endif
+  #ifndef MSG_UBL_SAVE_MESH
+    #define MSG_UBL_SAVE_MESH                 _UxGT("Save Bed Mesh")
+  #endif
+  #ifndef MSG_INVALIDATE_ENTIRE_MESH
+    #define MSG_INVALIDATE_ENTIRE_MESH        _UxGT("Invalidate Mesh (all)")
+  #endif
+  #ifndef MSG_INVALIDATE_CLOSEST
+    #define MSG_INVALIDATE_CLOSEST            _UxGT("Invalidate Closest")
+  #endif
+  #ifndef MSG_UBL_FINE_TUNE_MESH_CLOSEST
+    #define MSG_UBL_FINE_TUNE_MESH_CLOSEST    _UxGT("Fine Tune Closest")
+  #endif
+  #ifndef MSG_UBL_FINE_TUNE_MESH_ALL
+    #define MSG_UBL_FINE_TUNE_MESH_ALL        _UxGT("Fine Tune Mesh (all)")
+  #endif
+#endif  // AUTO_BED_LEVELING_UBL
+#if HAS_COLOR_LEDS
+  #ifndef MSG_LCD_COLOR_NUMBER
+    #define MSG_LCD_COLOR_NUMBER              _UxGT("Color By Number")
+  #endif
+  #ifndef MSG_LCD_COLOR_RESET
+    #define MSG_LCD_COLOR_RESET               _UxGT("Reset Colors")
+  #endif
+  #ifndef MSG_LCD_COLOR
+    #define MSG_LCD_COLOR                     _UxGT("Color")
+  #endif
+  #ifndef MSG_LCD_RED
+    #define MSG_LCD_RED                       _UxGT("Red")
+  #endif
+  #ifndef MSG_LCD_GREEN
+    #define MSG_LCD_GREEN                     _UxGT("Green")
+  #endif
+  #ifndef MSG_LCD_BLUE
+    #define MSG_LCD_BLUE                      _UxGT("Blue")
+  #endif
+  #ifndef MSG_LCD_WHITE
+    #define MSG_LCD_WHITE                     _UxGT("White")
+  #endif
+  #ifndef MSG_LCD_AQUA
+    #define MSG_LCD_AQUA                      _UxGT("Aqua")
+  #endif
+  #ifndef MSG_LCD_YELLOW
+    #define MSG_LCD_YELLOW                    _UxGT("Yellow")
+  #endif
+  #ifndef MSG_LCD_PURPLE
+    #define MSG_LCD_PURPLE                    _UxGT("Purple")
+  #endif
+  #ifndef MSG_LCD_AMBER
+    #define MSG_LCD_AMBER                     _UxGT("Amber")
+  #endif
+  #ifndef MSG_LCD_BLACKLIGHT
+    #define MSG_LCD_BLACKLIGHT                _UxGT("Blacklight")
+  #endif
+  #ifndef MSG_LCD_WATERMELON
+    #define MSG_LCD_WATERMELON                _UxGT("Watermelon")
+  #endif
+#endif // HAS_COLOR_LEDS
 #ifndef MSG_MOVING
   #define MSG_MOVING                          _UxGT("Moving...")
 #endif
@@ -324,6 +509,9 @@
 #ifndef MSG_RESTORE_FAILSAFE
   #define MSG_RESTORE_FAILSAFE                _UxGT("Restore failsafe")
 #endif
+#ifndef MSG_INIT_EEPROM
+  #define MSG_INIT_EEPROM                     _UxGT("Initalize Memory")
+#endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
@@ -416,6 +604,12 @@
 #endif
 #ifndef MSG_BLTOUCH_RESET
   #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
+#endif
+#ifndef MSG_BLTOUCH_DEPLOY
+  #define MSG_BLTOUCH_DEPLOY                  _UxGT("Deploy BLTouch")
+#endif
+#ifndef MSG_BLTOUCH_STOW
+  #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
 #endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
@@ -584,7 +778,6 @@
 #ifndef MSG_INFO_PSU
   #define MSG_INFO_PSU                        _UxGT("Power Supply")
 #endif
-
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")
 #endif
