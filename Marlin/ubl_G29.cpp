@@ -55,12 +55,16 @@
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
   void smart_fill_mesh();
+  float measure_business_card_thickness(float &in_height);
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
 
   bool ProbeStay = true;
 
-  #define SIZE_OF_LITTLE_RAISE 0
+  #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
-  extern void lcd_quick_feedback();
+  extern void lcd_status_screen();
+  typedef void (*screenFunc_t)();
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
   /**
    *   G29: Unified Bed Leveling by Roxy
@@ -444,7 +448,7 @@
             y_pos = current_position[Y_AXIS];
           }
 
-          const float height = code_seen('H') && code_has_value() ? code_value_float() : Z_CLEARANCE_BETWEEN_PROBES;
+          float height = code_seen('H') && code_has_value() ? code_value_float() : Z_CLEARANCE_BETWEEN_PROBES;
 
           if (code_seen('B')) {
             card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
@@ -876,7 +880,7 @@
     SERIAL_PROTOCOLLNPGM(" and take a measurement.");
   }
 
-  float measure_business_card_thickness(const float &in_height) {
+  float measure_business_card_thickness(float &in_height) {
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
@@ -886,6 +890,8 @@
 
     stepper.synchronize();
     SERIAL_PROTOCOLPGM("Place shim under nozzle.");
+    LCD_MESSAGEPGM("Place shim & measure");
+    lcd_goto_screen(lcd_status_screen);
     say_and_take_a_measurement();
 
     const float z1 = use_encoder_wheel_to_measure_point();
@@ -893,29 +899,33 @@
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("Remove shim.");
+    LCD_MESSAGEPGM("Remove & measure");
+ 
     say_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
-    do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
+    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
 
     if (g29_verbose_level > 1) {
       SERIAL_PROTOCOLPGM("Business Card is: ");
       SERIAL_PROTOCOL_F(abs(z1 - z2), 6);
       SERIAL_PROTOCOLLNPGM("mm thick.");
     }
+    in_height = current_position[Z_AXIS]; // do manual probing at lower height
     ubl.has_control_of_lcd_panel = false;
 
     ubl.restore_ubl_active_state_and_leave();
     return abs(z1 - z2);
   }
 
-  void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
 
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
     do_blocking_move_to_z(z_clearance);
     do_blocking_move_to_xy(lx, ly);
 
+    lcd_goto_screen(lcd_status_screen);
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
@@ -943,6 +953,7 @@
         do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
       else
         do_blocking_move_to_z(z_clearance);
+      LCD_MESSAGEPGM("Moving to next");
 
       do_blocking_move_to_xy(xProbe, yProbe);
 
@@ -953,6 +964,8 @@
       ubl.has_control_of_lcd_panel = true;
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
+      if (code_seen('B')) {LCD_MESSAGEPGM("Place shim & measure");}
+      else {LCD_MESSAGEPGM("Measure");}
 
       while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
       delay(50);                                       // debounce
@@ -1024,6 +1037,7 @@
     repeat_flag = code_seen('R');
     if (repeat_flag) {
       repetition_cnt = code_has_value() ? code_value_int() : (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y);
+      repetition_cnt = min(repetition_cnt, (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y));
       if (repetition_cnt < 1) {
         SERIAL_PROTOCOLLNPGM("?(R)epetition count invalid (1+).\n");
         return UBL_ERR;
@@ -1056,7 +1070,6 @@
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
       err_flag = true;
     }
-
     if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
@@ -1422,8 +1435,7 @@
     do_blocking_move_to_xy(lx, ly);
     do {
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
-                                                                  // It doesn't matter if the probe can't reach this
-                                                                  // location. This is a manual edit of the Mesh Point.
+
       if (location.x_index < 0 && location.y_index < 0) continue; // abort if we can't find any more points.
 
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
@@ -1612,7 +1624,7 @@
       SERIAL_ECHOPGM("Could not complete LSF!");
       return;
     }
-
+    
     if (g29_verbose_level > 3) {
       SERIAL_ECHOPGM("LSF Results A=");
       SERIAL_PROTOCOL_F(lsf_results.A, 7);
