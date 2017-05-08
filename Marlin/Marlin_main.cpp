@@ -11136,7 +11136,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   feed_factor = inv_segment_length * _feedrate_mm_s;
@@ -11163,7 +11163,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
 
-      #if IS_SCARA
+      #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
@@ -11179,7 +11179,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
       inverse_kinematics(ltarget);
