@@ -1358,15 +1358,9 @@ void Temperature::disable_all_heaters() {
 
 #if ENABLED(PROBING_HEATERS_OFF)
   void Temperature::pause(bool p) {
-    if (p && paused) { // If called out of order something is wrong
+    if (p == paused) { // If called out of order something is wrong
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Heaters already paused!");
-      return;
-    }
-
-    if (!p && !paused) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Heaters already unpaused!");
+      serialprintPGM(paused ? PSTR("Heaters already paused!") : PSTR("Heaters already unpaused!"));
       return;
     }
 
@@ -1393,7 +1387,7 @@ void Temperature::disable_all_heaters() {
   bool Temperature::ispaused() {
     return paused;
   }
-#endif
+#endif // PROBING_HEATERS_OFF
 
 #if ENABLED(HEATER_0_USES_MAX6675)
 
