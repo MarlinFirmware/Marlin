@@ -1353,38 +1353,29 @@ void Temperature::disable_all_heaters() {
 }
 
 #if ENABLED(PROBING_HEATERS_OFF)
-  void Temperature::pause(bool p) {
-    if (p == paused) { // If called out of order something is wrong
-      SERIAL_ERROR_START;
-      SERIAL_ERRORPGM("Heaters already ");
-      if (!paused) SERIAL_ERRORPGM("un");
-      SERIAL_ERRORLNPGM("paused!");
-      return;
-    }
 
-    if (p) {
-      HOTEND_LOOP() {
-        paused_hotend_temp[e] = degTargetHotend(e);
-        setTargetHotend(0, e);
+  void Temperature::pause(const bool p) {
+    if (p != paused) {
+      paused = p;
+      if (p) {
+        HOTEND_LOOP() {
+          paused_hotend_temp[e] = degTargetHotend(e);
+          setTargetHotend(0, e);
+        }
+        #if HAS_TEMP_BED
+          paused_bed_temp = degTargetBed();
+          setTargetBed(0);
+        #endif
       }
-      #if HAS_TEMP_BED
-        paused_bed_temp = degTargetBed();
-        setTargetBed(0);
-      #endif
+      else {
+        HOTEND_LOOP() setTargetHotend(paused_hotend_temp[e], e);
+        #if HAS_TEMP_BED
+          setTargetBed(paused_bed_temp);
+        #endif
+      }
     }
-    else {
-      HOTEND_LOOP() setTargetHotend(paused_hotend_temp[e], e);
-      #if HAS_TEMP_BED
-        setTargetBed(paused_bed_temp);
-      #endif
-    }
-
-    paused = p;
   }
 
-  bool Temperature::ispaused() {
-    return paused;
-  }
 #endif // PROBING_HEATERS_OFF
 
 #if ENABLED(HEATER_0_USES_MAX6675)

@@ -1006,7 +1006,7 @@
     if (!ubl.state.active) SERIAL_PROTOCOLPGM("de");
     SERIAL_PROTOCOLLNPGM("activated.\n");
   }
- 
+
   bool g29_parameter_parsing() {
     bool err_flag = false;
 

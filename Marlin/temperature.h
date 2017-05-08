@@ -458,8 +458,7 @@ class Temperature {
     #endif // BABYSTEPPING
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static void pause(bool p);
-      static bool ispaused();
+      static void pause(const bool p);
     #endif
 
   private:

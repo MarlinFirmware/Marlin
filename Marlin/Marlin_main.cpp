@@ -2057,26 +2057,21 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif
 
 #if ENABLED(PROBING_FANS_OFF)
-  void fans_pause(bool p) {
-    if (p == fans_paused) { // If called out of order something is wrong
-      SERIAL_ERROR_START;
-      SERIAL_ERRORPGM("Fans already ");
-      if (!fans_paused) SERIAL_ERRORPGM("un");
-      SERIAL_ERRORLNPGM("paused!");
-      return;
+
+  void fans_pause(const bool p) {
+    if (p != fans_paused) {
+      fans_paused = p;
+      if (p)
+        for (uint8_t x = 0; x < FAN_COUNT; x++) {
+          paused_fanSpeeds[x] = fanSpeeds[x];
+          fanSpeeds[x] = 0;
+        }
+      else
+        for (uint8_t x = 0; x < FAN_COUNT; x++)
+          fanSpeeds[x] = paused_fanSpeeds[x];
     }
-
-    if (p)
-      for (uint8_t x = 0;x < FAN_COUNT;x++) {
-        paused_fanSpeeds[x] = fanSpeeds[x];
-        fanSpeeds[x] = 0;
-      }
-    else
-      for (uint8_t x = 0;x < FAN_COUNT;x++)
-        fanSpeeds[x] = paused_fanSpeeds[x];
-
-    fans_paused = p;
   }
+
 #endif // PROBING_FANS_OFF
 
 #if HAS_BED_PROBE
@@ -2091,18 +2086,16 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
 
   #if QUIET_PROBING
-    void probing_pause(bool pause) {
+    void probing_pause(const bool p) {
       #if ENABLED(PROBING_HEATERS_OFF)
-        thermalManager.pause(pause);
+        thermalManager.pause(p);
       #endif
-
       #if ENABLED(PROBING_FANS_OFF)
-        fans_pause(pause);
+        fans_pause(p);
       #endif
-
-      if(pause) safe_delay(25);
+      if (p) safe_delay(25);
     }
-  #endif
+  #endif // QUIET_PROBING
 
   #if ENABLED(BLTOUCH)
 
