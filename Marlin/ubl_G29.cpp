@@ -389,8 +389,8 @@
     }
 
     if (code_seen('P')) {
-      if (WITHIN(phase_value,0,1) && ubl.state.eeprom_storage_slot==-1) {
-        ubl.state.eeprom_storage_slot=0;
+      if (WITHIN(phase_value, 0, 1) && ubl.state.eeprom_storage_slot == -1) {
+        ubl.state.eeprom_storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.\n");
       }
 

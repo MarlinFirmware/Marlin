@@ -8,6 +8,10 @@
 MFINFO=$(mfinfo) || exit
 IFS=' ' read -a INFO <<< "$MFINFO"
 
+if [[ ${INFO[4]} == "(no" ]]; then
+  echo "Branch is unavailable!" ; exit 1
+fi
+
 case "$#" in
   0 ) ;;
   * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
@@ -15,5 +19,14 @@ esac
 
 git add * .travis.yml
 git commit -m "patch"
-mfrb
-git push -f
+
+if [[ ${INFO[3]} == ${INFO[4]} ]]; then
+  if [[ ${INFO[2]} == "MarlinDocumentation" ]]; then
+    git rebase -i HEAD~2
+  else
+    echo "Don't alter the PR target branch."; exit 1
+  fi
+else
+  mfrb
+  git push -f
+fi

@@ -1298,19 +1298,30 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-  float temp_abs(const float &c) {
+  float to_temp_units(const float &c) {
     switch (input_temp_units) {
       case TEMPUNIT_F:
-        return (c - 32.0) * 0.5555555556;
+        return c * 0.5555555556 + 32.0;
       case TEMPUNIT_K:
-        return c - 273.15;
+        return c + 273.15;
       case TEMPUNIT_C:
       default:
         return c;
     }
   }
 
-  int16_t code_value_temp_abs() { return temp_abs(code_value_float()); }
+  int16_t code_value_temp_abs() {
+    const float c = code_value_float();
+    switch (input_temp_units) {
+      case TEMPUNIT_F:
+        return (int16_t)((c - 32.0) * 0.5555555556);
+      case TEMPUNIT_K:
+        return (int16_t)(c - 273.15);
+      case TEMPUNIT_C:
+      default:
+        return (int16_t)(c);
+    }
+  }
 
   int16_t code_value_temp_diff() {
     switch (input_temp_units) {
