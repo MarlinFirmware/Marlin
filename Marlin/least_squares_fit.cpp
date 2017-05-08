@@ -52,9 +52,9 @@ void incremental_LSF(struct linear_fit_data *lsf, float x, float y, float z) {
   lsf->x2bar += sq(x);
   lsf->y2bar += sq(y);
   lsf->z2bar += sq(z);
-  lsf->xybar += x*y;
-  lsf->xzbar += x*z;
-  lsf->yzbar += y*z;
+  lsf->xybar += x * y;
+  lsf->xzbar += x * z;
+  lsf->yzbar += y * z;
   lsf->max_absx = max(fabs(x), lsf->max_absx);
   lsf->max_absy = max(fabs(y), lsf->max_absy);
   lsf->n++;
