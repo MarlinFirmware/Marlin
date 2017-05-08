@@ -113,37 +113,37 @@ Proposed patches should be submitted as a Pull Request against this branch ([bug
 ## Credits
 
 The current Marlin dev team consists of:
- - Roxanne Neufeld [@Roxy-3D] - English
- - Scott Lahteine [@thinkyhead] - English
- - Bob Kuhn [@Bob-the-Kuhn] - English
- - Andreas Hardtung [@AnHardt] - Deutsch, English
- - Nico Tonnhofer [@Wurstnase] - Deutsch, English
- - Jochen Groppe [@CONSULitAS] - Deutsch, English
- - João Brazio [@jbrazio] - Portuguese, English
- - Bo Hermannsen [@boelle] - Danish, English
- - Bob Cousins [@bobc] - English
- - [@maverikou]
- - Chris Palmer [@nophead]
- - [@paclema]
- - Erik van der Zalm [@ErikZalm]
- - David Braam [@daid]
- - Bernhard Kubicek [@bkubicek]
+ - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - English
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - English
+ - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - English
+ - Andreas Hardtung [[@AnHardt](https://github.com/AnHardt)] - Deutsch, English
+ - Nico Tonnhofer [[@Wurstnase](https://github.com/Wurstnase)] - Deutsch, English
+ - Jochen Groppe [[@CONSULitAS](https://github.com/CONSULitAS)] - Deutsch, English
+ - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portuguese, English
+ - Bo Hermannsen [[@boelle](https://github.com/boelle)] - Danish, English
+ - Bob Cousins [[@bobc](https://github.com/bobc)] - English
+ - [[@maverikou](https://github.com/maverikou)]
+ - Chris Palmer [[@nophead](https://github.com/nophead)]
+ - [[@paclema](https://github.com/paclema)]
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)]
+ - David Braam [[@daid](https://github.com/daid)]
+ - Bernhard Kubicek [[@bkubicek](https://github.com/bkubicek)]
 
 More features have been added by:
- - Alberto Cotronei [@MagoKimbra] - English, Italian
- - Thomas Moore [@tcm0116]
- - Ernesto Martinez [@emartinez167]
- - Petr Zahradnik [@clexpert]
- - Kai [@Kaibob2]
- - Edward Patel [@epatel]
- - F. Malpartida [@fmalpartida] - English, Spanish
- - [@esenapaj] - English, Japanese
- - [@benlye]
- - [@Tannoo]
- - [@teemuatlut]
- - [@bgort]
- - [@LVD-AC]
- - [@paulusjacobus]
+ - Alberto Cotronei [[@MagoKimbra](https://github.com/MagoKimbra)] - English, Italian
+ - Thomas Moore [[@tcm0116](https://github.com/tcm0116)]
+ - Ernesto Martinez [[@emartinez167](https://github.com/emartinez167)]
+ - Petr Zahradnik [[@clexpert](https://github.com/clexpert)]
+ - Kai [[@Kaibob2](https://github.com/Kaibob2)]
+ - Edward Patel [[@epatel](https://github.com/epatel)]
+ - F. Malpartida [[@fmalpartida](https://github.com/fmalpartida)] - English, Spanish
+ - [[@esenapaj](https://github.com/esenapaj)] - English, Japanese
+ - [[@benlye](https://github.com/benlye)]
+ - [[@Tannoo](https://github.com/Tannoo)]
+ - [[@teemuatlut](https://github.com/teemuatlut)]
+ - [[@bgort](https://github.com/bgort)]
+ - [[@LVD-AC](https://github.com/LVD-AC)]
+ - [[@paulusjacobus](https://github.com/paulusjacobus)]
  - ...and many others
 
 ## License
