@@ -24,6 +24,7 @@
 #define __UTILITY_H__
 
 void safe_delay(millis_t ms);
+void crc16(uint16_t *crc, void *dat, uint16_t cnt);
 
 #if ENABLED(ULTRA_LCD)
 
