@@ -1257,8 +1257,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START;
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
         extern TempUnit input_temp_units;
-        extern float temp_abs(const float &f);
-        #define TEMP_UNIT(N) temp_abs(N)
+        extern float to_temp_units(const float &f);
+        #define TEMP_UNIT(N) to_temp_units(N)
         SERIAL_ECHOPGM("  M149 ");
         SERIAL_CHAR(input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C');
         SERIAL_ECHOPGM(" ; Units in ");
