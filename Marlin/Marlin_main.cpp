@@ -2058,32 +2058,24 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if ENABLED(PROBING_FANS_OFF)
   void fans_pause(bool p) {
-    if (p && fans_paused) { // If called out of order something is wrong
+    if (p == fans_paused) { // If called out of order something is wrong
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Fans already paused!");
+      serialprintPGM(fans_paused ? PSTR("Fans already paused!") : PSTR("Fans already unpaused!"));
       return;
     }
 
-    if (!p && !fans_paused) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Fans already unpaused!");
-      return;
-    }
-
-    if (p) {
+    if (p)
       for (uint8_t x = 0;x < FAN_COUNT;x++) {
         paused_fanSpeeds[x] = fanSpeeds[x];
         fanSpeeds[x] = 0;
       }
-    }
-    else {
+    else
       for (uint8_t x = 0;x < FAN_COUNT;x++)
         fanSpeeds[x] = paused_fanSpeeds[x];
-    }
 
     fans_paused = p;
   }
-#endif
+#endif // PROBING_FANS_OFF
 
 #if HAS_BED_PROBE
 
