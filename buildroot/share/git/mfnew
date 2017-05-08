@@ -15,4 +15,5 @@ case "$#" in
   * ) echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1 ;;
 esac
 
-git checkout $TARG -b $BRANCH
+git fetch upstream
+git checkout upstream/$TARG -b $BRANCH
