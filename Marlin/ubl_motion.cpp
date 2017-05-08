@@ -225,7 +225,8 @@
     const float e_normalized_dist = e_position / on_axis_distance,
                 z_normalized_dist = z_position / on_axis_distance;
 
-    int current_xi = cell_start_xi, current_yi = cell_start_yi;
+    int current_xi = cell_start_xi, 
+        current_yi = cell_start_yi;
 
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
