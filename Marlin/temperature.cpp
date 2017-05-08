@@ -204,6 +204,14 @@ uint8_t Temperature::soft_pwm[HOTENDS];
   int Temperature::current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
 #endif
 
+#if ENABLED(PROBING_HEATERS_OFF)
+  bool Temperature::paused;
+  int16_t Temperature::paused_hotend_temps[HOTENDS];
+  #if HAS_TEMP_BED
+    int16_t Temperature::paused_bed_temp;
+  #endif
+#endif
+
 #if HAS_PID_HEATING
 
   void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
@@ -1194,6 +1202,14 @@ void Temperature::init() {
       #endif
     }
   #endif //BED_MAXTEMP
+
+  #if ENABLED(PROBING_HEATERS_OFF)
+    paused = false;
+    ZERO(paused_hotend_temps);
+    #if HAS_TEMP_BED
+      paused_bed_temp = 0;
+    #endif
+  #endif
 }
 
 #if WATCH_HOTENDS
@@ -1297,6 +1313,15 @@ void Temperature::disable_all_heaters() {
   HOTEND_LOOP() setTargetHotend(0, e);
   setTargetBed(0);
 
+  // Unpause and reset everything
+  #if ENABLED(PROBING_HEATERS_OFF)
+    paused = false;
+    ZERO(paused_hotend_temps);
+    #if HAS_TEMP_BED
+      paused_bed_temp = 0;
+    #endif
+  #endif
+
   // If all heaters go down then for sure our print job has stopped
   print_job_timer.stop();
 
@@ -1330,6 +1355,45 @@ void Temperature::disable_all_heaters() {
     #endif
   #endif
 }
+
+#if ENABLED(PROBING_HEATERS_OFF)
+  void Temperature::pause(bool p) {
+    if (p && paused) { // If called out of order something is wrong
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Heaters already paused!");
+      return;
+    }
+
+    if (!p && !paused) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Heaters already unpaused!");
+      return;
+    }
+
+    if (p) {
+      HOTEND_LOOP() {
+        paused_hotend_temps[e] = degTargetHotend(e);
+        setTargetHotend(0, e);
+      }
+      #if HAS_TEMP_BED
+        paused_bed_temp = degTargetBed();
+        setTargetBed(0);
+      #endif
+    }
+    else {
+      HOTEND_LOOP() setTargetHotend(paused_hotend_temps[e], e);
+      #if HAS_TEMP_BED
+        setTargetBed(paused_bed_temp);
+      #endif
+    }
+
+    paused = p;
+  }
+
+  bool Temperature::ispaused() {
+    return paused;
+  }
+#endif
 
 #if ENABLED(HEATER_0_USES_MAX6675)
 
