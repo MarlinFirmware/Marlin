@@ -132,3 +132,7 @@ Marlin/.vs/
 #cmake
 CMakeLists.txt
 Marlin/CMakeLists.txt
+CMakeListsPrivate.txt
+
+#CLion
+cmake-build-*
