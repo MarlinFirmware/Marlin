@@ -2060,7 +2060,9 @@ static void clean_up_after_endstop_or_probe_move() {
   void fans_pause(bool p) {
     if (p == fans_paused) { // If called out of order something is wrong
       SERIAL_ERROR_START;
-      serialprintPGM(fans_paused ? PSTR("Fans already paused!") : PSTR("Fans already unpaused!"));
+      SERIAL_ERRORPGM("Fans already ");
+      if (!fans_paused) SERIAL_ERRORPGM("un");
+      SERIAL_ERRORLNPGM("paused!");
       return;
     }
 

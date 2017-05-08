@@ -1356,7 +1356,9 @@ void Temperature::disable_all_heaters() {
   void Temperature::pause(bool p) {
     if (p == paused) { // If called out of order something is wrong
       SERIAL_ERROR_START;
-      serialprintPGM(paused ? PSTR("Heaters already paused!") : PSTR("Heaters already unpaused!"));
+      SERIAL_ERRORPGM("Heaters already ");
+      if (!paused) SERIAL_ERRORPGM("un");
+      SERIAL_ERRORLNPGM("paused!");
       return;
     }
 
