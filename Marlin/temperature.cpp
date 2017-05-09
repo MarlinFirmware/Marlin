@@ -601,7 +601,7 @@ float Temperature::get_pid_output(int e) {
       }
     #else
       pid_output = constrain(target_temperature[HOTEND_INDEX], 0, PID_MAX);
-    #endif //PID_OPENLOOP
+    #endif // PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
       SERIAL_ECHO_START;
@@ -615,7 +615,7 @@ float Temperature::get_pid_output(int e) {
         SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[HOTEND_INDEX]);
       #endif
       SERIAL_EOL;
-    #endif //PID_DEBUG
+    #endif // PID_DEBUG
 
   #else /* PID off */
     pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
@@ -662,11 +662,11 @@ float Temperature::get_pid_output(int e) {
       SERIAL_ECHO(iTerm_bed);
       SERIAL_ECHOPGM(" dTerm ");
       SERIAL_ECHOLN(dTerm_bed);
-    #endif //PID_BED_DEBUG
+    #endif // PID_BED_DEBUG
 
     return pid_output;
   }
-#endif //PIDTEMPBED
+#endif // PIDTEMPBED
 
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
@@ -818,7 +818,7 @@ void Temperature::manage_heater() {
         WRITE_HEATER_BED(LOW);
       }
     #endif
-  #endif //TEMP_SENSOR_BED != 0
+  #endif // TEMP_SENSOR_BED != 0
 }
 
 #define PGM_RD_W(x)   (short)pgm_read_word(&x)
@@ -1188,7 +1188,7 @@ void Temperature::init() {
         bed_minttemp_raw -= OVERSAMPLENR;
       #endif
     }
-  #endif //BED_MINTEMP
+  #endif // BED_MINTEMP
   #ifdef BED_MAXTEMP
     while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
       #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
@@ -1197,7 +1197,7 @@ void Temperature::init() {
         bed_maxttemp_raw += OVERSAMPLENR;
       #endif
     }
-  #endif //BED_MAXTEMP
+  #endif // BED_MAXTEMP
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
@@ -1454,7 +1454,7 @@ void Temperature::disable_all_heaters() {
     return (int)max6675_temp;
   }
 
-#endif //HEATER_0_USES_MAX6675
+#endif // HEATER_0_USES_MAX6675
 
 /**
  * Get raw temperatures
@@ -2045,18 +2045,17 @@ void Temperature::isr() {
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
-      int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
-
+      const int curTodo = babystepsTodo[axis]; // get rid of volatile for performance
       if (curTodo > 0) {
-        stepper.babystep((AxisEnum)axis,/*fwd*/true);
-        babystepsTodo[axis]--; //fewer to do next time
+        stepper.babystep((AxisEnum)axis, /*fwd*/true);
+        babystepsTodo[axis]--;
       }
       else if (curTodo < 0) {
-        stepper.babystep((AxisEnum)axis,/*fwd*/false);
-        babystepsTodo[axis]++; //fewer to do next time
+        stepper.babystep((AxisEnum)axis, /*fwd*/false);
+        babystepsTodo[axis]++;
       }
     }
-  #endif //BABYSTEPPING
+  #endif // BABYSTEPPING
 
   #if ENABLED(PINS_DEBUGGING)
     extern bool endstop_monitor_flag;

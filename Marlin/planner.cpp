@@ -392,7 +392,7 @@ void Planner::recalculate() {
     thermalManager.setTargetHotend(t, 0);
   }
 
-#endif //AUTOTEMP
+#endif // AUTOTEMP
 
 /**
  * Maintain fans, paste extruder pressure,
@@ -487,7 +487,7 @@ void Planner::check_axes_activity() {
         KICKSTART_FAN(2);
       #endif
 
-    #endif //FAN_KICKSTART_TIME
+    #endif // FAN_KICKSTART_TIME
 
     #if ENABLED(FAN_SOFT_PWM)
       #if HAS_FAN0

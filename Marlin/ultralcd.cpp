@@ -291,7 +291,7 @@ uint16_t max_display_update_time = 0;
         _MENU_ITEM_PART_2(type, ## __VA_ARGS__); \
       } while(0)
 
-  #else  // !ENCODER_RATE_MULTIPLIER
+  #else // !ENCODER_RATE_MULTIPLIER
     #define ENCODER_RATE_MULTIPLY(F) NOOP
   #endif // !ENCODER_RATE_MULTIPLIER
 
@@ -301,10 +301,10 @@ uint16_t max_display_update_time = 0;
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
-  #else //!ENCODER_RATE_MULTIPLIER
+  #else // !ENCODER_RATE_MULTIPLIER
     #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
-  #endif //!ENCODER_RATE_MULTIPLIER
+  #endif // !ENCODER_RATE_MULTIPLIER
 
   /**
    * START_SCREEN_OR_MENU generates init code for a screen or menu
@@ -568,10 +568,10 @@ void lcd_status_screen() {
           }
         #else
           expire_status_ms = 0;
-        #endif //SDSUPPORT
+        #endif // SDSUPPORT
       }
     #endif
-  #endif //LCD_PROGRESS_BAR
+  #endif // LCD_PROGRESS_BAR
 
   lcd_implementation_status_screen();
 
@@ -614,7 +614,7 @@ void lcd_status_screen() {
 
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
-  #endif //ULTIPANEL
+  #endif // ULTIPANEL
 }
 
 /**
@@ -848,7 +848,7 @@ void kill_screen(const char* lcd_msg) {
           MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
         #endif
       }
-    #endif //SDSUPPORT
+    #endif // SDSUPPORT
 
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
@@ -1061,7 +1061,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if HOTENDS == 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    #else //HOTENDS > 1
+    #else // HOTENDS > 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
       #if HOTENDS > 2
@@ -2191,7 +2191,7 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_command(cmd);
     }
 
-  #endif //PID_AUTOTUNE_MENU
+  #endif // PID_AUTOTUNE_MENU
 
   #if ENABLED(PIDTEMP)
 
@@ -2360,7 +2360,7 @@ void kill_screen(const char* lcd_msg) {
         PID_MENU_ITEMS("", 0);
       #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
 
-    #endif //PIDTEMP
+    #endif // PIDTEMP
 
     //
     // Preheat Material 1 conf
@@ -2724,7 +2724,7 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
 
-  #endif //SDSUPPORT
+  #endif // SDSUPPORT
 
   #if ENABLED(LCD_INFO_MENU)
 
@@ -3285,7 +3285,7 @@ void kill_screen(const char* lcd_msg) {
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     }
 
-  #endif //SDSUPPORT
+  #endif // SDSUPPORT
 
   void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr ^= true; lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
@@ -3483,7 +3483,7 @@ void lcd_update() {
       );
     }
 
-  #endif //SDSUPPORT && SD_DETECT_PIN
+  #endif // SDSUPPORT && SD_DETECT_PIN
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
@@ -3533,12 +3533,12 @@ void lcd_update() {
                   SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
                   SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
                   SERIAL_EOL;
-                #endif //ENCODER_RATE_MULTIPLIER_DEBUG
+                #endif // ENCODER_RATE_MULTIPLIER_DEBUG
               }
 
               lastEncoderMovementMillis = ms;
             } // encoderRateMultiplierEnabled
-          #endif //ENCODER_RATE_MULTIPLIER
+          #endif // ENCODER_RATE_MULTIPLIER
 
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
@@ -3829,7 +3829,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         #endif
       #else
         GET_BUTTON_STATES(buttons);
-      #endif //!NEWPANEL
+      #endif // !NEWPANEL
 
     } // next_button_update_ms
 

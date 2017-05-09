@@ -418,7 +418,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl_active);
       EEPROM_WRITE(dummy);
       EEPROM_WRITE(eeprom_slot);
-    #endif //AUTO_BED_LEVELING_UBL
+    #endif // AUTO_BED_LEVELING_UBL
 
     // 9 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -795,7 +795,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyb);
         EEPROM_READ(dummy);
         EEPROM_READ(dummyui8);
-      #endif //AUTO_BED_LEVELING_UBL
+      #endif // AUTO_BED_LEVELING_UBL
 
       #if ENABLED(DELTA)
         EEPROM_READ(endstop_adj);               // 3 floats
