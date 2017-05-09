@@ -2,7 +2,7 @@
 
 __Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
 
-See example_configurations for other Tarantula configurations:
+See example_configurations/Tevo Tarantula for other Tarantula configurations:
 
 - Tarantula-01
   - Small bed, BLTouch, NO SD support, EEPROM enabled
@@ -10,6 +10,8 @@ See example_configurations for other Tarantula configurations:
   - Small bed, BLTouch, SD support, EEPROM enabled
 - Tarantula-03
   - Small bed, NO bed autolevel, SD support, EEPROM enabled
+- Tarantula-04
+  - Large bed, NO bed autolevel, SD support, EEPROM enabled
 
 ============================================================================
 
