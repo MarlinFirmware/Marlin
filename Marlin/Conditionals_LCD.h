@@ -360,14 +360,13 @@
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
       #define Z_MIN_ENDSTOP_INVERTING false
-      #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-      #define Z_MIN_PROBE_ENDSTOP_INVERTING false
       #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN)
     #else
-      #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-      #define Z_MIN_PROBE_ENDSTOP_INVERTING false
       #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)
     #endif
+    
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #endif
 
   /**
