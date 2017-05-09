@@ -119,6 +119,7 @@ tags
 .pioenvs
 .piolib
 .piolibdeps
+lib/readme.txt
 
 #Visual Studio
 *.sln
