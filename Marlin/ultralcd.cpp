@@ -815,10 +815,6 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
 
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
-    #endif
-
     if (planner.movesplanned() || IS_SD_PRINTING) {
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
@@ -2150,6 +2146,10 @@ void kill_screen(const char* lcd_msg) {
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
+    #endif
+
+    #if ENABLED(BLTOUCH)
+      MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
