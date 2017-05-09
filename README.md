@@ -8,6 +8,8 @@ See example_configurations for other Tarantula configurations:
   - Small bed, BLTouch, NO SD support, EEPROM enabled
 - Tarantula-02
   - Small bed, BLTouch, SD support, EEPROM enabled
+- Tarantula-03
+  - Small bed, NO bed autolevel, SD support, EEPROM enabled
 
 ============================================================================
 
