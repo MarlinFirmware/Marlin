@@ -115,10 +115,8 @@ tags
 *.dSYM/
 *.su
 
-#PlatformIO files/dirs
-.pioenvs
-.piolib
-.piolibdeps
+# PlatformIO files/dirs
+.pio*
 lib/readme.txt
 
 #Visual Studio
