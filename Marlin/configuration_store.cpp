@@ -1239,13 +1239,37 @@ void MarlinSettings::reset() {
       extern float linear_unit_factor, volumetric_unit_factor;
       #define LINEAR_UNIT(N) ((N) / linear_unit_factor)
       #define VOLUMETRIC_UNIT(N) ((N) / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor))
-      serialprintPGM(linear_unit_factor == 1.0 ? PSTR("  G21 ; Units in mm\n") : PSTR("  G20 ; Units in inches\n"));
+      SERIAL_ECHOPGM("  G2");
+      SERIAL_CHAR(linear_unit_factor == 1.0 ? '1' : '0');
+      SERIAL_ECHOPGM(" ; Units in ");
+      serialprintPGM(linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
     #else
       #define LINEAR_UNIT(N) N
       #define VOLUMETRIC_UNIT(N) N
       SERIAL_ECHOLNPGM("  G21 ; Units in mm\n");
     #endif
     SERIAL_EOL;
+
+    #if ENABLED(ULTIPANEL)
+
+      // Temperature units - for Ultipanel temperature options
+
+      CONFIG_ECHO_START;
+      #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+        extern TempUnit input_temp_units;
+        extern float to_temp_units(const float &f);
+        #define TEMP_UNIT(N) to_temp_units(N)
+        SERIAL_ECHOPGM("  M149 ");
+        SERIAL_CHAR(input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C');
+        SERIAL_ECHOPGM(" ; Units in ");
+        serialprintPGM(input_temp_units == TEMPUNIT_K ? PSTR("Kelvin\n") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit\n") : PSTR("Celsius\n"));
+      #else
+        #define TEMP_UNIT(N) N
+        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius\n");
+      #endif
+      SERIAL_EOL;
+
+    #endif
 
     /**
      * Volumetric extrusion M200
@@ -1519,8 +1543,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < COUNT(lcd_preheat_hotend_temp); i++) {
         SERIAL_ECHOPAIR("  M145 S", (int)i);
-        SERIAL_ECHOPAIR(" H", lcd_preheat_hotend_temp[i]);
-        SERIAL_ECHOPAIR(" B", lcd_preheat_bed_temp[i]);
+        SERIAL_ECHOPAIR(" H", TEMP_UNIT(lcd_preheat_hotend_temp[i]));
+        SERIAL_ECHOPAIR(" B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
         SERIAL_ECHOLNPAIR(" F", lcd_preheat_fan_speed[i]);
       }
     #endif // ULTIPANEL
