@@ -32,7 +32,7 @@
                   nozzle_clean_length = fabs(nozzle_clean_start_point[X_AXIS] - nozzle_clean_end_point[X_AXIS]), //abs x size of wipe pad
                   nozzle_clean_height = fabs(nozzle_clean_start_point[Y_AXIS] - nozzle_clean_end_point[Y_AXIS]); //abs y size of wipe pad
   constexpr bool nozzle_clean_horizontal = nozzle_clean_length >= nozzle_clean_height; //whether to zig-zag horizontally or vertically
-#endif //NOZZLE_CLEAN_FEATURE
+#endif // NOZZLE_CLEAN_FEATURE
 
 /**
  * @brief Nozzle class

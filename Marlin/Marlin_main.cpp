@@ -788,7 +788,7 @@ extern "C" {
     return free_memory;
   }
 }
-#endif //!SDSUPPORT
+#endif // !SDSUPPORT
 
 #if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current(int channel, float current);
@@ -1841,7 +1841,7 @@ static void clean_up_after_endstop_or_probe_move() {
       do_blocking_move_to_z(z_dest);
   }
 
-#endif //HAS_BED_PROBE
+#endif // HAS_BED_PROBE
 
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
@@ -3208,7 +3208,7 @@ void unknown_command_error() {
     next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
   }
 
-#endif //HOST_KEEPALIVE_FEATURE
+#endif // HOST_KEEPALIVE_FEATURE
 
 bool position_is_reachable(const float target[XYZ]
   #if HAS_BED_PROBE
@@ -3421,7 +3421,7 @@ inline void gcode_G4() {
     );
   }
 
-#endif //FWRETRACT
+#endif // FWRETRACT
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   /**
@@ -7032,7 +7032,7 @@ inline void gcode_M111() {
     inline void gcode_M129() { baricuda_e_to_p_pressure = 0; }
   #endif
 
-#endif //BARICUDA
+#endif // BARICUDA
 
 /**
  * M140: Set bed temperature
@@ -9385,7 +9385,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
       mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
 
-  #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
     #if HOTENDS > 1
 
@@ -9677,7 +9677,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
-  #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
 
 /**
@@ -9968,7 +9968,7 @@ void process_next_command() {
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
-      #endif //SDSUPPORT
+      #endif // SDSUPPORT
 
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
