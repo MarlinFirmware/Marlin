@@ -3071,8 +3071,8 @@ static void homeaxis(const AxisEnum axis) {
     }
     else {
 
-      // If the height hasn't been altered, undo the Z hop
-      if (retract_zlift > 0.01 && hop_height == current_position[Z_AXIS]) {
+      // If the height hasn't been lowered, undo the Z hop
+      if (retract_zlift > 0.01 && hop_height <= current_position[Z_AXIS]) {
         // Pretend current position is higher. Z will lower on the next move
         current_position[Z_AXIS] += retract_zlift;
         SYNC_PLAN_POSITION_KINEMATIC();
