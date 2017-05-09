@@ -2045,15 +2045,14 @@ void Temperature::isr() {
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
-      int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
-
+      const int curTodo = babystepsTodo[axis]; // get rid of volatile for performance
       if (curTodo > 0) {
-        stepper.babystep((AxisEnum)axis,/*fwd*/true);
-        babystepsTodo[axis]--; //fewer to do next time
+        stepper.babystep((AxisEnum)axis, /*fwd*/true);
+        babystepsTodo[axis]--;
       }
       else if (curTodo < 0) {
-        stepper.babystep((AxisEnum)axis,/*fwd*/false);
-        babystepsTodo[axis]++; //fewer to do next time
+        stepper.babystep((AxisEnum)axis, /*fwd*/false);
+        babystepsTodo[axis]++;
       }
     }
   #endif // BABYSTEPPING
