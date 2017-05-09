@@ -441,6 +441,10 @@ float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(PROBING_FANS_OFF)
+    bool fans_paused = false;
+    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+  #endif
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -1294,19 +1298,30 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-  float temp_abs(const float &c) {
+  float to_temp_units(const float &c) {
     switch (input_temp_units) {
       case TEMPUNIT_F:
-        return (c - 32.0) * 0.5555555556;
+        return c * 0.5555555556 + 32.0;
       case TEMPUNIT_K:
-        return c - 273.15;
+        return c + 273.15;
       case TEMPUNIT_C:
       default:
         return c;
     }
   }
 
-  int16_t code_value_temp_abs() { return temp_abs(code_value_float()); }
+  int16_t code_value_temp_abs() {
+    const float c = code_value_float();
+    switch (input_temp_units) {
+      case TEMPUNIT_F:
+        return (int16_t)((c - 32.0) * 0.5555555556);
+      case TEMPUNIT_K:
+        return (int16_t)(c - 273.15);
+      case TEMPUNIT_C:
+      default:
+        return (int16_t)(c);
+    }
+  }
 
   int16_t code_value_temp_diff() {
     switch (input_temp_units) {
@@ -2041,6 +2056,24 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif
 
+#if ENABLED(PROBING_FANS_OFF)
+
+  void fans_pause(const bool p) {
+    if (p != fans_paused) {
+      fans_paused = p;
+      if (p)
+        for (uint8_t x = 0; x < FAN_COUNT; x++) {
+          paused_fanSpeeds[x] = fanSpeeds[x];
+          fanSpeeds[x] = 0;
+        }
+      else
+        for (uint8_t x = 0; x < FAN_COUNT; x++)
+          fanSpeeds[x] = paused_fanSpeeds[x];
+    }
+  }
+
+#endif // PROBING_FANS_OFF
+
 #if HAS_BED_PROBE
 
   // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
@@ -2052,57 +2085,24 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   #endif
 
+  #if QUIET_PROBING
+    void probing_pause(const bool p) {
+      #if ENABLED(PROBING_HEATERS_OFF)
+        thermalManager.pause(p);
+      #endif
+      #if ENABLED(PROBING_FANS_OFF)
+        fans_pause(p);
+      #endif
+      if (p) safe_delay(25);
+    }
+  #endif // QUIET_PROBING
+
   #if ENABLED(BLTOUCH)
 
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
       safe_delay(BLTOUCH_DELAY);
     }
-
-    /**
-     * BLTouch probes have a Hall effect sensor. The high currents switching
-     * on and off cause a magnetic field that can affect the repeatability of the
-     * sensor. So for BLTouch probes, heaters are turned off during the probe,
-     * then quickly turned back on after the point is sampled.
-     */
-    #if ENABLED(BLTOUCH_HEATERS_OFF)
-
-      void set_heaters_for_bltouch(const bool deploy) {
-        static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection = 0;
-        static int16_t temps_at_entry[HOTENDS];
-
-        #if HAS_TEMP_BED
-          static int16_t bed_temp_at_entry;
-        #endif
-
-        // If called out of order or far apart something is seriously wrong
-        if (deploy == heaters_were_disabled
-            || (next_emi_protection && ELAPSED(millis(), next_emi_protection)))
-          kill(PSTR(MSG_KILLED));
-
-        if (deploy) {
-          next_emi_protection = millis() + 20 * 1000UL;
-          HOTEND_LOOP() {
-            temps_at_entry[e] = thermalManager.degTargetHotend(e);
-            thermalManager.setTargetHotend(0, e);
-          }
-          #if HAS_TEMP_BED
-            bed_temp_at_entry = thermalManager.degTargetBed();
-            thermalManager.setTargetBed(0);
-          #endif
-        }
-        else {
-          next_emi_protection = 0;
-          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
-          #if HAS_TEMP_BED
-            thermalManager.setTargetBed(bed_temp_at_entry);
-          #endif
-        }
-        heaters_were_disabled = deploy;
-      }
-
-    #endif // BLTOUCH_HEATERS_OFF
 
     void set_bltouch_deployed(const bool deploy) {
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
@@ -2118,9 +2118,6 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
-        set_heaters_for_bltouch(deploy);
-      #endif
 
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
 
@@ -2249,8 +2246,16 @@ static void clean_up_after_endstop_or_probe_move() {
       set_bltouch_deployed(true);
     #endif
 
+    #if QUIET_PROBING
+      probing_pause(true);
+    #endif
+
     // Move down until probe triggered
     do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    #if QUIET_PROBING
+      probing_pause(false);
+    #endif
 
     // Retract BLTouch immediately after a probe
     #if ENABLED(BLTOUCH)
@@ -2809,6 +2814,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
     if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(true);
+  #endif
+
   // Tell the planner we're at Z=0
   current_position[axis] = 0;
 
@@ -2824,6 +2833,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
   #endif
 
   stepper.synchronize();
+
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(false);
+  #endif
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     if (deploy_bltouch) set_bltouch_deployed(false);
@@ -3741,6 +3754,9 @@ inline void gcode_G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -3881,6 +3897,9 @@ inline void gcode_G28() {
   #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
@@ -6474,6 +6493,7 @@ inline void gcode_M104() {
   if (code_seen('S')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6669,6 +6689,7 @@ inline void gcode_M109() {
   if (no_wait_for_cooling || code_seen('R')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6820,6 +6841,7 @@ inline void gcode_M109() {
     const bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
+
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
         if (code_value_temp_abs() > BED_MINTEMP)
           print_job_timer.start();
@@ -7113,10 +7135,11 @@ inline void gcode_M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
   #if FAN_COUNT > 0
-    #if FAN_COUNT > 1
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-    #else
-      fanSpeeds[0] = 0;
+    for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+
+    #if ENABLED(PROBING_FANS_OFF)
+      fans_paused = false;
+      ZERO(paused_fanSpeeds);
     #endif
   #endif
   safe_delay(1000); // Wait 1 second before switching off
@@ -11119,7 +11142,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   feed_factor = inv_segment_length * _feedrate_mm_s;
@@ -11146,7 +11169,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
 
-      #if IS_SCARA
+      #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
@@ -11162,7 +11185,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
       inverse_kinematics(ltarget);
@@ -11494,7 +11517,7 @@ void prepare_move_to_destination() {
     const millis_t ms = millis();
     if (ELAPSED(ms, nextMotorCheck)) {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
-      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
+      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_amount_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
           #if E_STEPPERS > 1
             || E1_ENABLE_READ == E_ENABLE_ON
@@ -12093,7 +12116,12 @@ void kill(const char* lcd_msg) {
  * After a stop the machine may be resumed with M999
  */
 void stop() {
-  thermalManager.disable_all_heaters();
+  thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
+  #if ENABLED(PROBING_FANS_OFF)
+    if (fans_paused) fans_pause(false); // put things back the way they were
+  #endif
+
   if (IsRunning()) {
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;

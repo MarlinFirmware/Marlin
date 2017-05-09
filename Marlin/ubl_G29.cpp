@@ -389,8 +389,8 @@
     }
 
     if (code_seen('P')) {
-      if (WITHIN(phase_value,0,1) && ubl.state.eeprom_storage_slot==-1) {
-        ubl.state.eeprom_storage_slot=0;
+      if (WITHIN(phase_value, 0, 1) && ubl.state.eeprom_storage_slot == -1) {
+        ubl.state.eeprom_storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.\n");
       }
 
@@ -1006,7 +1006,7 @@
     if (!ubl.state.active) SERIAL_PROTOCOLPGM("de");
     SERIAL_PROTOCOLLNPGM("activated.\n");
   }
- 
+
   bool g29_parameter_parsing() {
     bool err_flag = false;
 
@@ -1057,12 +1057,12 @@
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_X_POSITION(x_pos), UBL_MESH_MIN_X, UBL_MESH_MAX_X)) {
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_Y_POSITION(y_pos), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       err_flag = true;
     }
