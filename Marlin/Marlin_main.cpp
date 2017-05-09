@@ -2057,24 +2057,21 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif
 
 #if ENABLED(PROBING_FANS_OFF)
-  void fans_pause(bool p) {
-    if (p == fans_paused) { // If called out of order something is wrong
-      SERIAL_ERROR_START;
-      serialprintPGM(fans_paused ? PSTR("Fans already paused!") : PSTR("Fans already unpaused!"));
-      return;
+
+  void fans_pause(const bool p) {
+    if (p != fans_paused) {
+      fans_paused = p;
+      if (p)
+        for (uint8_t x = 0; x < FAN_COUNT; x++) {
+          paused_fanSpeeds[x] = fanSpeeds[x];
+          fanSpeeds[x] = 0;
+        }
+      else
+        for (uint8_t x = 0; x < FAN_COUNT; x++)
+          fanSpeeds[x] = paused_fanSpeeds[x];
     }
-
-    if (p)
-      for (uint8_t x = 0;x < FAN_COUNT;x++) {
-        paused_fanSpeeds[x] = fanSpeeds[x];
-        fanSpeeds[x] = 0;
-      }
-    else
-      for (uint8_t x = 0;x < FAN_COUNT;x++)
-        fanSpeeds[x] = paused_fanSpeeds[x];
-
-    fans_paused = p;
   }
+
 #endif // PROBING_FANS_OFF
 
 #if HAS_BED_PROBE
@@ -2089,18 +2086,16 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
 
   #if QUIET_PROBING
-    void probing_pause(bool pause) {
+    void probing_pause(const bool p) {
       #if ENABLED(PROBING_HEATERS_OFF)
-        thermalManager.pause(pause);
+        thermalManager.pause(p);
       #endif
-
       #if ENABLED(PROBING_FANS_OFF)
-        fans_pause(pause);
+        fans_pause(p);
       #endif
-
-      if(pause) safe_delay(25);
+      if (p) safe_delay(25);
     }
-  #endif
+  #endif // QUIET_PROBING
 
   #if ENABLED(BLTOUCH)
 
@@ -11141,7 +11136,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   feed_factor = inv_segment_length * _feedrate_mm_s;
@@ -11168,7 +11163,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
 
-      #if IS_SCARA
+      #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
@@ -11184,7 +11179,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
       inverse_kinematics(ltarget);
@@ -11516,7 +11511,7 @@ void prepare_move_to_destination() {
     const millis_t ms = millis();
     if (ELAPSED(ms, nextMotorCheck)) {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
-      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
+      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_amount_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
           #if E_STEPPERS > 1
             || E1_ENABLE_READ == E_ENABLE_ON

@@ -109,10 +109,12 @@ class Temperature {
       static float redundant_temperature;
     #endif
 
-    static uint8_t soft_pwm_bed;
+    static uint8_t soft_pwm_amount[HOTENDS],
+                   soft_pwm_amount_bed;
 
     #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t fanSpeedSoftPwm[FAN_COUNT];
+      static uint8_t soft_pwm_amount_fan[FAN_COUNT],
+                     soft_pwm_count_fan[FAN_COUNT];
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
@@ -249,19 +251,13 @@ class Temperature {
       static millis_t next_auto_fan_check_ms;
     #endif
 
-    static uint8_t soft_pwm[HOTENDS];
-
-    #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t soft_pwm_fan[FAN_COUNT];
-    #endif
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static bool paused;
-      static int16_t paused_hotend_temps[HOTENDS];
+      static int16_t paused_hotend_temp[HOTENDS];
 
       #if HAS_TEMP_BED
         static int16_t paused_bed_temp;
@@ -462,8 +458,7 @@ class Temperature {
     #endif // BABYSTEPPING
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static void pause(bool p);
-      static bool ispaused();
+      static void pause(const bool p);
     #endif
 
   private:
