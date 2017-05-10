@@ -98,7 +98,7 @@ uint16_t max_display_update_time = 0;
   typedef void (*screenFunc_t)();
 
   #if HAS_POWER_SWITCH
-    extern bool powersupply;
+    extern bool powersupply_on;
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2129,7 +2129,7 @@ void kill_screen(const char* lcd_msg) {
     // Switch power on/off
     //
     #if HAS_POWER_SWITCH
-      if (powersupply)
+      if (powersupply_on)
         MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
       else
         MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
