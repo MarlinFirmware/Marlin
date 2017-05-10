@@ -8473,17 +8473,26 @@ void quickstop_stepper() {
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
    *   M421 I<xindex> J<yindex> Z<linear>
+   *   or
+   *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
     int8_t px = 0, py = 0;
     float z = 0;
-    bool hasI, hasJ, hasZ;
+    bool hasI, hasJ, hasZ, hasQ;
     if ((hasI = code_seen('I'))) px = code_value_linear_units();
     if ((hasJ = code_seen('J'))) py = code_value_linear_units();
     if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
+    if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      return;
+    }
+
+    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
+      if (hasZ) { // doing an absolute mesh value
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.z_values[px][py] = z;
         #else
@@ -8492,18 +8501,23 @@ void quickstop_stepper() {
             bed_level_virt_interpolate();
           #endif
         #endif
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      } 
+      else { // doing an offset of a mesh value
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] += z;
+        #else
+          z_values[px][py] += z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
+        #endif
       }
     }
-    else {
+    else { // bad indexes were specified for the mesh point
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
   }
-
 #endif
 
 #if HAS_M206_COMMAND

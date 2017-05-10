@@ -520,8 +520,8 @@
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
     // good to have the extra information. Soon... we prune this to just a few items
     //
-    if (code_seen('W')) g29_what_command();
-
+    if (code_seen('W')) ubl.g29_what_command();
+ 
     //
     // When we are fully debugged, the EEPROM dump command will get deleted also. But
     // right now, it is good to have the extra information. Soon... we prune this.
@@ -1181,7 +1181,7 @@
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items
    */
-  void g29_what_command() {
+  void unified_bed_leveling::g29_what_command() {
     const uint16_t k = E2END - ubl.eeprom_start;
 
     say_ubl_name();
@@ -1205,82 +1205,73 @@
     SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLLNPAIR("planner.z_fade_height : ", planner.z_fade_height);
+      SERIAL_PROTOCOL("planner.z_fade_height : ");
+      SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
+      SERIAL_EOL;
     #endif
     SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
     SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLPGM("z_offset: ");
-    SERIAL_PROTOCOL_F(ubl.state.z_offset, 7);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)ubl.eeprom_start));
+
+    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
+    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
     safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)ubl.eeprom_start));
+    SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
+    SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
+    safe_delay(25);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[i])), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
-      safe_delay(50);
+      safe_delay(25);
     }
     SERIAL_EOL;
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[i])), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
-      safe_delay(50);
+      safe_delay(25);
     }
     SERIAL_EOL;
 
-    #if HAS_KILL
-      SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
-      SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
-    #endif
-    SERIAL_EOL;
-    safe_delay(50);
-
-    SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-    SERIAL_EOL;
-    SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-    SERIAL_EOL;
-    safe_delay(50);
     SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)ubl.eeprom_start));
+    SERIAL_PROTOCOLLNPAIR("end of EEPROM: ", hex_address((void*)E2END));
+    safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("end of EEPROM              : ", hex_address((void*)E2END));
-    safe_delay(50);
-
-    SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
+    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(ubl.z_values));
     SERIAL_EOL;
-    safe_delay(50);
+    safe_delay(25);
 
     SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)k));
-    safe_delay(50);
+    safe_delay(25);
 
     SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(ubl.z_values));
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
-    safe_delay(50);
-
-    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
+    safe_delay(25);
 
     SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
     SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_X         ", UBL_MESH_MAX_X);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_Y         ", UBL_MESH_MAX_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPGM("\nMESH_X_DIST        ");
-    SERIAL_PROTOCOL_F(MESH_X_DIST, 6);
-    SERIAL_PROTOCOLPGM("\nMESH_Y_DIST        ");
-    SERIAL_PROTOCOL_F(MESH_Y_DIST, 6);
+    safe_delay(25);
     SERIAL_EOL;
-    safe_delay(50);
+
+    SERIAL_ECHOPGM("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_X );
+    SERIAL_ECHOPGM("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_Y );
+    safe_delay(25);
+
+    SERIAL_ECHOPGM("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_X);
+    SERIAL_ECHOPGM("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_Y);
+    safe_delay(25);
 
     if (!ubl.sanity_check()) {
       say_ubl_name();
