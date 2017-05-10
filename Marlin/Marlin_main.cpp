@@ -7096,6 +7096,14 @@ inline void gcode_M140() {
    * M80: Turn on Power Supply
    */
   inline void gcode_M80() {
+    #if ENABLED(ULTIPANEL)
+      if (code_seen('S')){
+        // Report the current state of the power supply
+        if (powersupply) SERIAL_PROTOCOLLNPGM("PS:1");
+        else SERIAL_PROTOCOLLNPGM("PS:0");
+        return;
+      }
+    #endif
     OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); //GND
 
     /**
