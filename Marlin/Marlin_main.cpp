@@ -8485,6 +8485,7 @@ void quickstop_stepper() {
     if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
     if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
 
+    if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
       return;
