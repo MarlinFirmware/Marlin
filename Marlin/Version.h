@@ -35,7 +35,11 @@
   /**
    * Marlin release version identifier
    */
+<<<<<<< HEAD
   #define SHORT_BUILD_VERSION "bugfix-1.1.x"
+=======
+  #define SHORT_BUILD_VERSION "1.1.0-1"
+>>>>>>> MarlinFirmware/1.1.x
 
   /**
    * Verbose version identifier which should contain a reference to the location

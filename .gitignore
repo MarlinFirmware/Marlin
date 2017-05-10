@@ -119,6 +119,7 @@ tags
 .pioenvs
 .piolib
 .piolibdeps
+lib/readme.txt
 
 #Visual Studio
 *.sln
@@ -132,3 +133,7 @@ Marlin/.vs/
 #cmake
 CMakeLists.txt
 Marlin/CMakeLists.txt
+CMakeListsPrivate.txt
+
+#CLion
+cmake-build-*

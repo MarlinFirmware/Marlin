@@ -205,7 +205,7 @@
     #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 4
     #endif
-  #else //no panel but just LCD
+  #else // no panel but just LCD
     #if ENABLED(ULTRA_LCD)
       #ifndef LCD_WIDTH
         #define LCD_WIDTH 16
@@ -357,6 +357,10 @@
     #define BLTOUCH_RESET    160
     #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
 
+    // Always disable probe pin inverting for BLTouch
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
       #define Z_MIN_ENDSTOP_INVERTING false
@@ -388,4 +392,4 @@
   #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
   #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED))
 
-#endif //CONDITIONALS_LCD_H
+#endif // CONDITIONALS_LCD_H

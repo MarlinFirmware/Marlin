@@ -362,6 +362,10 @@ int16_t code_value_temp_diff();
 
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
+  #if ENABLED(PROBING_FANS_OFF)
+    extern bool fans_paused;
+    extern int16_t paused_fanSpeeds[FAN_COUNT];
+  #endif
 #endif
 
 #if ENABLED(BARICUDA)
@@ -425,4 +429,4 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
   bool axis_unhomed_error(const bool x, const bool y, const bool z);
 #endif
 
-#endif //MARLIN_H
+#endif // MARLIN_H

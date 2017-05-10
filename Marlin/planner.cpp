@@ -491,13 +491,13 @@ void Planner::check_axes_activity() {
 
     #if ENABLED(FAN_SOFT_PWM)
       #if HAS_FAN0
-        thermalManager.fanSpeedSoftPwm[0] = CALC_FAN_SPEED(0);
+        thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
       #endif
       #if HAS_FAN1
-        thermalManager.fanSpeedSoftPwm[1] = CALC_FAN_SPEED(1);
+        thermalManager.soft_pwm_amount_fan[1] = CALC_FAN_SPEED(1);
       #endif
       #if HAS_FAN2
-        thermalManager.fanSpeedSoftPwm[2] = CALC_FAN_SPEED(2);
+        thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
       #endif
     #else
       #if HAS_FAN0
