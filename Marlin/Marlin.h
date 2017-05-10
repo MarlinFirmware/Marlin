@@ -383,7 +383,7 @@ int16_t code_value_temp_diff();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  extern FilamentChangeMenuResponse filament_change_menu_response;
+  extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)

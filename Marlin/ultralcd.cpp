@@ -2909,11 +2909,11 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void lcd_advanced_pause_resume_print() {
-      filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
+      advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
     }
 
     void lcd_advanced_pause_extrude_more() {
-      filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE;
+      advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
     }
 
     void lcd_advanced_pause_option_menu() {
@@ -3120,7 +3120,7 @@ void kill_screen(const char* lcd_msg) {
           break;
         case ADVANCED_PAUSE_MESSAGE_OPTION:
           defer_return_to_status = true;
-          filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_WAIT_FOR;
+          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
           lcd_goto_screen(lcd_advanced_pause_option_menu);
           break;
         case ADVANCED_PAUSE_MESSAGE_RESUME:

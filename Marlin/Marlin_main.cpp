@@ -631,7 +631,7 @@ float cartes[XYZ] = { 0 };
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  FilamentChangeMenuResponse filament_change_menu_response;
+  AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -5872,13 +5872,13 @@ inline void gcode_M17() {
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         wait_for_user = false;
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-        while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_WAIT_FOR) idle(true);
+        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
         KEEPALIVE_STATE(IN_HANDLER);
 
         extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
 
         // Keep looping if "Extrude More" was selected
-      } while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE);
+      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
 
     #endif
 
