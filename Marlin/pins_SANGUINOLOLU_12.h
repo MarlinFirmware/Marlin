@@ -32,7 +32,9 @@
  *  STB_11
  */
 
-#define BOARD_NAME "Sanguinololu 1.2"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Sanguinololu 1.2"
+#endif
 
 #ifdef __AVR_ATmega1284P__
   #define LARGE_FLASH true

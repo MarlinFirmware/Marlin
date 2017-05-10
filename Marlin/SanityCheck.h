@@ -1127,3 +1127,10 @@ static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
+
+/**
+ * Make sure valid pin is used for ADC Key Pad.
+*/
+  #if ENABLED(ADC_KEYPAD) && !PIN_EXISTS(ADC_KEYPAD_PIN)
+    #error "ADC_KEYPAD to be a valid pin for ADC_KEYPAD_PIN. Please update your configuration."
+  #endif

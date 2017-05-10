@@ -53,6 +53,7 @@
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12   62   // Sanguinololu 1.2 and above
+#define BOARD_ANET_10           621  // Anet v1.0
 #define BOARD_MELZI             63   // Melzi
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
