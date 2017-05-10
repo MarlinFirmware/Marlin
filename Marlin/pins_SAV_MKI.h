@@ -131,7 +131,7 @@
   // For LCD SHIFT register LCD
   #define SR_DATA_PIN         EXT_AUX_SDA_D1
   #define SR_CLK_PIN          EXT_AUX_SCL_D0
-#endif  // SAV_3DLCD
+#endif // SAV_3DLCD
 
 #if ENABLED(SAV_3DLCD) || ENABLED(SAV_3DGLCD)
   #define BTN_EN1            EXT_AUX_A1_IO

@@ -114,4 +114,4 @@ class Stopwatch {
     #endif
 };
 
-#endif //STOPWATCH_H
+#endif // STOPWATCH_H

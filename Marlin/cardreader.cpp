@@ -54,7 +54,7 @@ CardReader::CardReader() {
   //power to SD reader
   #if SDPOWER > -1
     OUT_WRITE(SDPOWER, HIGH);
-  #endif //SDPOWER
+  #endif // SDPOWER
 
   next_autostart_ms = millis() + 5000;
 }
@@ -882,4 +882,4 @@ void CardReader::printingHasFinished() {
   }
 }
 
-#endif //SDSUPPORT
+#endif // SDSUPPORT
