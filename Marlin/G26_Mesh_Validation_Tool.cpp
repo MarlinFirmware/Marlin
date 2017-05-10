@@ -66,54 +66,58 @@
    *   the user can specify the X and Y position of interest with command parameters.  This allows the user to
    *   focus on a particular area of the Mesh where attention is needed.
    *
-   *   B #  Bed   Set the Bed Temperature.  If not specified, a default of 60 C. will be assumed.
+   *   B #  Bed         Set the Bed Temperature.  If not specified, a default of 60 C. will be assumed.
    *
-   *   C    Current   When searching for Mesh Intersection points to draw, use the current nozzle location
-   *        as the base for any distance comparison.
+   *   C    Current     When searching for Mesh Intersection points to draw, use the current nozzle location
+                        as the base for any distance comparison.
    *
-   *   D    Disable   Disable the Unified Bed Leveling System.  In the normal case the user is invoking this
-   *        command to see how well a Mesh as been adjusted to match a print surface.  In order to do
-   *        this the Unified Bed Leveling System is turned on by the G26 command.  The D parameter
-   *        alters the command's normal behaviour and disables the Unified Bed Leveling System even if
-   *        it is on.
+   *   D    Disable     Disable the Unified Bed Leveling System.  In the normal case the user is invoking this
+   *                    command to see how well a Mesh as been adjusted to match a print surface.  In order to do
+   *                    this the Unified Bed Leveling System is turned on by the G26 command.  The D parameter
+   *                    alters the command's normal behaviour and disables the Unified Bed Leveling System even if
+   *                    it is on.
    *
-   *   H #  Hotend    Set the Nozzle Temperature.  If not specified, a default of 205 C. will be assumed.
+   *   H #  Hotend      Set the Nozzle Temperature.  If not specified, a default of 205 C. will be assumed.
    *
-   *   F #  Filament  Used to specify the diameter of the filament being used.  If not specified
-   *        1.75mm filament is assumed.  If you are not getting acceptable results by using the
-   *        'correct' numbers, you can scale this number up or down a little bit to change the amount
-   *        of filament that is being extruded during the printing of the various lines on the bed.
+   *   F #  Filament    Used to specify the diameter of the filament being used.  If not specified
+   *                    1.75mm filament is assumed.  If you are not getting acceptable results by using the
+   *                    'correct' numbers, you can scale this number up or down a little bit to change the amount
+   *                    of filament that is being extruded during the printing of the various lines on the bed.
    *
-   *   K    Keep-On   Keep the heaters turned on at the end of the command.
+   *   K    Keep-On     Keep the heaters turned on at the end of the command.
    *
-   *   L #  Layer   Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
+   *   L #  Layer       Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
    *
    *   Q #  Multiplier  Retraction Multiplier.  Normally not needed.  Retraction defaults to 1.0mm and
-   *        un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
+   *                    un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
    *
-   *   N #  Nozzle    Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
-   *        'n' can be used instead if your host program does not appreciate you using 'N'.
+   *   M #  Random      Randomize the order that the circles are drawn on the bed.  The search for the closest
+   *                    undrawn cicle is still done.  But the distance to the location for each circle has a
+   *                    random number of the size specified added to it.  Specifying R50 will give an interesting
+   *                    deviation from the normal behaviour on a 10 x 10 Mesh.
+
+   *   N #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
+   *                    'n' can be used instead if your host program does not appreciate you using 'N'.
    *
-   *   O #  Ooooze    How much your nozzle will Ooooze filament while getting in position to print.  This
-   *        is over kill, but using this parameter will let you get the very first 'cicle' perfect
-   *        so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
-   *        Mesh calibrated.  If not specified, a filament length of .3mm is assumed.
+   *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print.  This
+   *                    is over kill, but using this parameter will let you get the very first 'cicle' perfect
+   *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
+   *                    Mesh calibrated.  If not specified, a filament length of .3mm is assumed.
    *
-   *   P #  Prime   Prime the nozzle with specified length of filament.  If this parameter is not
-   *        given, no prime action will take place.  If the parameter specifies an amount, that much
-   *        will be purged before continuing.  If no amount is specified the command will start
-   *        purging filament until the user provides an LCD Click and then it will continue with
-   *        printing the Mesh.  You can carefully remove the spent filament with a needle nose
-   *        pliers while holding the LCD Click wheel in a depressed state.
+   *   P #  Prime       Prime the nozzle with specified length of filament.  If this parameter is not
+   *                    given, no prime action will take place.  If the parameter specifies an amount, that much
+   *                    will be purged before continuing.  If no amount is specified the command will start
+   *                    purging filament until the user provides an LCD Click and then it will continue with
+   *                    printing the Mesh.  You can carefully remove the spent filament with a needle nose
+   *                    pliers while holding the LCD Click wheel in a depressed state.
    *
-   *   R #  Random    Randomize the order that the circles are drawn on the bed.  The search for the closest
-   *        undrawn cicle is still done.  But the distance to the location for each circle has a
-   *        random number of the size specified added to it.  Specifying R50 will give an interesting
-   *        deviation from the normal behaviour on a 10 x 10 Mesh.
+   *   R #  Repeat      Prints the number of patterns given as a parameter, starting at the current location.
+   *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
+   *                    This works the same way that the UBL G29 P4 R parameter works.
    *
-   *   X #  X coordinate  Specify the starting location of the drawing activity.
+   *   X #  X Coord.    Specify the starting location of the drawing activity.
    *
-   *   Y #  Y coordinate  Specify the starting location of the drawing activity.
+   *   Y #  Y Coord.    Specify the starting location of the drawing activity.
    */
 
   // External references
@@ -175,6 +179,8 @@
   static int8_t prime_flag = 0;
 
   static bool keep_heaters_on = false;
+
+  static int16_t g26_repeats;
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -359,7 +365,7 @@
 
       //debug_current_and_destination(PSTR("Done with current circle."));
 
-    } while (location.x_index >= 0 && location.y_index >= 0);
+    } while (location.x_index >= 0 && location.y_index >= 0 && g26_repeats--);
 
     LEAVE:
     lcd_reset_alert_level();
@@ -722,10 +728,20 @@
       }
     }
 
-    if (code_seen('R')) {
+    if (code_seen('M')) {
       randomSeed(millis());
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
+
+    if (code_seen('R')) {
+      g26_repeats = code_has_value() ? code_value_int() - 1 : 999;
+
+      if (g26_repeats <= 0) {
+        SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be greater than 0.");
+        return UBL_ERR;
+      }
+    }
+
 
     x_pos = current_position[X_AXIS];
     y_pos = current_position[Y_AXIS];
