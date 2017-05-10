@@ -264,7 +264,7 @@
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if DISABLED(ULTRA_LCD)
+  #if DISABLED(ULTRA_LCD) && DISABLED(I2C_ENCODERS_ENABLED) //I2C Encoders use baby stepping to correct for skips without needing an LCD
     #error "BABYSTEPPING requires an LCD controller."
   #elif ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
