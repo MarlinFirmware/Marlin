@@ -8491,7 +8491,7 @@ void quickstop_stepper() {
       return;
     }
 
-    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
+    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
       if (hasZ) { // doing an absolute mesh value
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.z_values[px][py] = z;
