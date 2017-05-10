@@ -231,8 +231,8 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    const bool inf_normalized_flag = isinf(e_normalized_dist),
-               inf_m_flag = isinf(m);
+    const bool inf_normalized_flag = (isinf(e_normalized_dist) != 0),
+               inf_m_flag = (isinf(m) != 0);
     /**
      * This block handles vertical lines. These are lines that stay within the same
      * X Cell column. They do not need to be perfectly vertical. They just can
@@ -403,9 +403,7 @@
                                                   //  as a vertical line move above.)
 
       if (left_flag == (x > next_mesh_line_x)) { // Check if we hit the Y line first
-        //
         // Yes!  Crossing a Y Mesh Line next
-        //
         float z0 = ubl.z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi);
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
@@ -433,9 +431,7 @@
         yi_cnt--;
       }
       else {
-        //
         // Yes!  Crossing a X Mesh Line next
-        //
         float z0 = ubl.z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag);
 
         z0 *= ubl.fade_scaling_factor_for_z(end[Z_AXIS]);
@@ -463,6 +459,8 @@
         current_xi += dxi;
         xi_cnt--;
       }
+
+      if (xi_cnt < 0 || yi_cnt < 0) break; // we've gone too far, so exit the loop and move on to FINAL_MOVE
     }
 
     if (ubl.g26_debug_flag)
