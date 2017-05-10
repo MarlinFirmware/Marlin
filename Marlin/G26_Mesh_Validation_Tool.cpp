@@ -605,13 +605,19 @@
       return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
     }
 
-    // Decide whether to retract.
+    // Decide whether to retract & bump
 
     if (dist_start > 2.0) {
       retract_filament(destination);
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  filament retracted.");
+
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Z bumping by 0.500 to minimize scraping.");
+      //todo:  parameterize the bump height with a define
+      move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+0.500, 0.0);  // Z bump to minimize scraping
+      move_to(sx, sy, sz+0.500, 0.0); // Get to the starting point with no extrusion while bumped
     }
-    move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
+
+    move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion / un-Z bump
 
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
