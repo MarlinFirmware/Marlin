@@ -99,7 +99,31 @@
 #elif defined(SERVO_DEACTIVATION_DELAY)
   #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
 #elif ENABLED(FILAMENTCHANGEENABLE)
-  #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
+  #error "FILAMENTCHANGEENABLE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_FEATURE)
+  #error "FILAMENT_CHANGE_FEATURE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_X_POS)
+  #error "FILAMENT_CHANGE_X_POS is now PAUSE_PARK_X_POS. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Y_POS)
+  #error "FILAMENT_CHANGE_Y_POS is now PAUSE_PARK_Y_POS. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Z_ADD)
+  #error "FILAMENT_CHANGE_Z_ADD is now PAUSE_PARK_Z_ADD. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_XY_FEEDRATE)
+  #error "FILAMENT_CHANGE_XY_FEEDRATE is now PAUSE_PARK_XY_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Z_FEEDRATE)
+  #error "FILAMENT_CHANGE_Z_FEEDRATE is now PAUSE_PARK_Z_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_RETRACT_FEEDRATE)
+  #error "FILAMENT_CHANGE_RETRACT_FEEDRATE is now PAUSE_PARK_RETRACT_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_RETRACT_LENGTH)
+  #error "FILAMENT_CHANGE_RETRACT_LENGTH is now PAUSE_PARK_RETRACT_LENGTH. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_EXTRUDE_FEEDRATE)
+  #error "FILAMENT_CHANGE_EXTRUDE_FEEDRATE is now ADVANCED_PAUSE_EXTRUDE_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_EXTRUDE_LENGTH)
+  #error "FILAMENT_CHANGE_EXTRUDE_LENGTH is now ADVANCED_PAUSE_EXTRUDE_LENGTH. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_NOZZLE_TIMEOUT)
+  #error "FILAMENT_CHANGE_NOZZLE_TIMEOUT is now PAUSE_PARK_NOZZLE_TIMEOUT. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
+  #error "FILAMENT_CHANGE_NO_STEPPER_TIMEOUT is now PAUSE_PARK_NO_STEPPER_TIMEOUT. Please update your configuration."
 #elif defined(PLA_PREHEAT_HOTEND_TEMP)
   #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
 #elif defined(PLA_PREHEAT_HPB_TEMP)
@@ -283,19 +307,19 @@
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
-  #elif DISABLED(FILAMENT_CHANGE_FEATURE)
-    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_CHANGE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
 #endif
 
 /**
- * Filament Change with Extruder Runout Prevention
+ * Advanced Pause
  */
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #if DISABLED(ULTIPANEL)
-    #error "FILAMENT_CHANGE_FEATURE currently requires an LCD controller."
+    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
   #elif ENABLED(PARK_HEAD_ON_PAUSE) && DISABLED(SDSUPPORT) && DISABLED(ULTIPANEL) && DISABLED(EMERGENCY_PARSER)
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #endif
@@ -534,6 +558,13 @@ static_assert(1 >= 0
   #elif Z_CLEARANCE_BETWEEN_PROBES < 0
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
   #endif
+
+   /**
+    * Advanced Pause is required in order to turn the heaters off during probing
+    */
+   #if (ENABLED(PROBING_HEATERS_OFF) && DISABLED(ADVANCED_PAUSE_FEATURE))
+     #error "PROBING_HEATERS_OFF requires ADVANCED_PAUSE_FEATURE"
+   #endif
 
 #else
 

@@ -48,7 +48,7 @@
 #endif
 
 void idle(
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
@@ -382,7 +382,7 @@ int16_t code_value_temp_diff();
   extern int meas_delay_cm;            // Delay distance
 #endif
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   extern FilamentChangeMenuResponse filament_change_menu_response;
 #endif
 
