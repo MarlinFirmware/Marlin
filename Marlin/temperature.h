@@ -259,6 +259,15 @@ class Temperature {
       static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
     #endif
 
+    #if ENABLED(PROBING_HEATERS_OFF)
+      static bool paused;
+      static int16_t paused_hotend_temps[HOTENDS];
+
+      #if HAS_TEMP_BED
+        static int16_t paused_bed_temp;
+      #endif
+    #endif
+
   public:
 
     /**
@@ -346,6 +355,7 @@ class Temperature {
       #endif
       return target_temperature[HOTEND_INDEX];
     }
+
     static int16_t degTargetBed() { return target_temperature_bed; }
 
     #if WATCH_HOTENDS
@@ -356,7 +366,7 @@ class Temperature {
       static void start_watching_bed();
     #endif
 
-    static void setTargetHotend(const int16_t &celsius, uint8_t e) {
+    static void setTargetHotend(const int16_t celsius, uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
@@ -372,7 +382,7 @@ class Temperature {
       #endif
     }
 
-    static void setTargetBed(const int16_t &celsius) {
+    static void setTargetBed(const int16_t celsius) {
       target_temperature_bed = celsius;
       #if WATCH_THE_BED
         start_watching_bed();
@@ -450,6 +460,11 @@ class Temperature {
       }
 
     #endif // BABYSTEPPING
+
+    #if ENABLED(PROBING_HEATERS_OFF)
+      static void pause(bool p);
+      static bool ispaused();
+    #endif
 
   private:
 

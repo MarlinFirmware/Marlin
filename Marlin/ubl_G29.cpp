@@ -311,16 +311,15 @@
   #define USE_PROBE_AS_REFERENCE 1
 
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
-  static int g29_verbose_level, phase_value = -1, repetition_cnt,
+  static int g29_verbose_level, phase_value, repetition_cnt,
              storage_slot = 0, map_type, grid_size;
   static bool repeat_flag, c_flag, x_flag, y_flag;
   static float x_pos, y_pos, measured_z, card_thickness = 0.0, ubl_constant = 0.0;
 
-    extern void lcd_setstatus(const char* message, const bool persist);
-    extern void lcd_setstatuspgm(const char* message, const uint8_t level);
+  extern void lcd_setstatus(const char* message, const bool persist);
+  extern void lcd_setstatuspgm(const char* message, const uint8_t level);
 
   void __attribute__((optimize("O0"))) gcode_G29() {
-
 
     if (ubl.eeprom_start < 0) {
       SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
@@ -384,21 +383,17 @@
     }
 
     if (code_seen('J')) {
-      if (!WITHIN(grid_size, 2, 9)) {
-        SERIAL_PROTOCOLLNPGM("ERROR - grid size must be between 2 and 9");
-        return;
-      }
       ubl.save_ubl_active_state_and_disable();
       ubl.tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M'));
       ubl.restore_ubl_active_state_and_leave();
     }
 
     if (code_seen('P')) {
-      phase_value = code_value_int();
-      if (!WITHIN(phase_value, 0, 7)) {
-        SERIAL_PROTOCOLLNPGM("Invalid Phase value. (0-4)\n");
-        return;
+      if (WITHIN(phase_value, 0, 1) && ubl.state.eeprom_storage_slot == -1) {
+        ubl.state.eeprom_storage_slot = 0;
+        SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.\n");
       }
+
       switch (phase_value) {
         case 0:
           //
@@ -420,7 +415,7 @@
             SERIAL_PROTOCOLPAIR("Probing Mesh Points Closest to (", x_pos);
             SERIAL_PROTOCOLCHAR(',');
             SERIAL_PROTOCOL(y_pos);
-            SERIAL_PROTOCOLLNPGM(")\n");
+            SERIAL_PROTOCOLLNPGM(").\n");
           }
           ubl.probe_entire_mesh(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                             code_seen('O') || code_seen('M'), code_seen('E'), code_seen('U'));
@@ -460,7 +455,7 @@
             }
           }
           manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
-          SERIAL_PROTOCOLLNPGM("G29 P2 finished");
+          SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
 
         } break;
 
@@ -757,8 +752,6 @@
   }
 
   void unified_bed_leveling::tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3) {
-    int i, j;
-
     matrix_3x3 rotation;
     vector_3 v1 = vector_3( (UBL_PROBE_PT_1_X - UBL_PROBE_PT_2_X),
                             (UBL_PROBE_PT_1_Y - UBL_PROBE_PT_2_Y),
@@ -892,14 +885,14 @@
       //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
 
     stepper.synchronize();
-    SERIAL_PROTOCOLPGM("Place shim under nozzle");
+    SERIAL_PROTOCOLPGM("Place shim under nozzle.");
     say_and_take_a_measurement();
 
     const float z1 = use_encoder_wheel_to_measure_point();
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
     stepper.synchronize();
 
-    SERIAL_PROTOCOLPGM("Remove shim");
+    SERIAL_PROTOCOLPGM("Remove shim.");
     say_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
@@ -1039,14 +1032,22 @@
 
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
-      SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-4)\n");
+      SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).\n");
       err_flag = true;
+    }
+
+    if (code_seen('P')) {
+      phase_value = code_value_int();
+      if (!WITHIN(phase_value, 0, 6)) {
+        SERIAL_PROTOCOLLNPGM("?(P)hase value invalid (0-6).\n");
+        err_flag = true;
+      }
     }
 
     if (code_seen('J')) {
       grid_size = code_has_value() ? code_value_int() : 3;
-      if (!WITHIN(grid_size, 2, 5)) {
-        SERIAL_PROTOCOLLNPGM("Invalid grid probe points specified.\n");
+      if (!WITHIN(grid_size, 2, 9)) {
+        SERIAL_PROTOCOLLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
     }
@@ -1056,12 +1057,12 @@
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_X_POSITION(x_pos), UBL_MESH_MIN_X, UBL_MESH_MAX_X)) {
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
     }
 
-    if (!WITHIN(RAW_Y_POSITION(y_pos), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       err_flag = true;
     }
@@ -1607,7 +1608,10 @@
       zig_zag ^= true;
     }
 
-    const int status = finish_incremental_LSF(&lsf_results);
+    if (finish_incremental_LSF(&lsf_results)) {
+      SERIAL_ECHOPGM("Could not complete LSF!");
+      return;
+    }
 
     if (g29_verbose_level > 3) {
       SERIAL_ECHOPGM("LSF Results A=");

@@ -441,6 +441,10 @@ float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(PROBING_FANS_OFF)
+    bool fans_paused = false;
+    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+  #endif
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -832,7 +836,7 @@ void clear_command_queue() {
  */
 inline void _commit_command(bool say_ok) {
   send_ok[cmd_queue_index_w] = say_ok;
-  cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
+  if (++cmd_queue_index_w >= BUFSIZE) cmd_queue_index_w = 0;
   commands_in_queue++;
 }
 
@@ -1294,25 +1298,37 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-  int16_t code_value_temp_abs() {
+  float to_temp_units(const float &c) {
     switch (input_temp_units) {
       case TEMPUNIT_F:
-        return (code_value_float() - 32) * 0.5555555556;
+        return c * 0.5555555556 + 32.0;
       case TEMPUNIT_K:
-        return code_value_float() - 273.15;
+        return c + 273.15;
       case TEMPUNIT_C:
       default:
-        return code_value_int();
+        return c;
+    }
+  }
+
+  int16_t code_value_temp_abs() {
+    const float c = code_value_float();
+    switch (input_temp_units) {
+      case TEMPUNIT_F:
+        return (int16_t)((c - 32.0) * 0.5555555556);
+      case TEMPUNIT_K:
+        return (int16_t)(c - 273.15);
+      case TEMPUNIT_C:
+      default:
+        return (int16_t)(c);
     }
   }
 
   int16_t code_value_temp_diff() {
     switch (input_temp_units) {
-      case TEMPUNIT_C:
-      case TEMPUNIT_K:
-        return code_value_float();
       case TEMPUNIT_F:
         return code_value_float() * 0.5555555556;
+      case TEMPUNIT_C:
+      case TEMPUNIT_K:
       default:
         return code_value_float();
     }
@@ -2040,6 +2056,35 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif
 
+#if ENABLED(PROBING_FANS_OFF)
+  void fans_pause(bool p) {
+    if (p && fans_paused) { // If called out of order something is wrong
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already paused!");
+      return;
+    }
+
+    if (!p && !fans_paused) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already unpaused!");
+      return;
+    }
+
+    if (p) {
+      for (uint8_t x = 0;x < FAN_COUNT;x++) {
+        paused_fanSpeeds[x] = fanSpeeds[x];
+        fanSpeeds[x] = 0;
+      }
+    }
+    else {
+      for (uint8_t x = 0;x < FAN_COUNT;x++)
+        fanSpeeds[x] = paused_fanSpeeds[x];
+    }
+
+    fans_paused = p;
+  }
+#endif
+
 #if HAS_BED_PROBE
 
   // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
@@ -2051,57 +2096,26 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   #endif
 
+  #if QUIET_PROBING
+    void probing_pause(bool pause) {
+      #if ENABLED(PROBING_HEATERS_OFF)
+        thermalManager.pause(pause);
+      #endif
+
+      #if ENABLED(PROBING_FANS_OFF)
+        fans_pause(pause);
+      #endif
+
+      if(pause) safe_delay(25);
+    }
+  #endif
+
   #if ENABLED(BLTOUCH)
 
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
       safe_delay(BLTOUCH_DELAY);
     }
-
-    /**
-     * BLTouch probes have a Hall effect sensor. The high currents switching
-     * on and off cause a magnetic field that can affect the repeatability of the
-     * sensor. So for BLTouch probes, heaters are turned off during the probe,
-     * then quickly turned back on after the point is sampled.
-     */
-    #if ENABLED(BLTOUCH_HEATERS_OFF)
-
-      void set_heaters_for_bltouch(const bool deploy) {
-        static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection = 0;
-        static int16_t temps_at_entry[HOTENDS];
-
-        #if HAS_TEMP_BED
-          static int16_t bed_temp_at_entry;
-        #endif
-
-        // If called out of order or far apart something is seriously wrong
-        if (deploy == heaters_were_disabled
-            || (next_emi_protection && ELAPSED(millis(), next_emi_protection)))
-          kill(PSTR(MSG_KILLED));
-
-        if (deploy) {
-          next_emi_protection = millis() + 20 * 1000UL;
-          HOTEND_LOOP() {
-            temps_at_entry[e] = thermalManager.degTargetHotend(e);
-            thermalManager.setTargetHotend(0, e);
-          }
-          #if HAS_TEMP_BED
-            bed_temp_at_entry = thermalManager.degTargetBed();
-            thermalManager.setTargetBed(0);
-          #endif
-        }
-        else {
-          next_emi_protection = 0;
-          HOTEND_LOOP() thermalManager.setTargetHotend(temps_at_entry[e], e);
-          #if HAS_TEMP_BED
-            thermalManager.setTargetBed(bed_temp_at_entry);
-          #endif
-        }
-        heaters_were_disabled = deploy;
-      }
-
-    #endif // BLTOUCH_HEATERS_OFF
 
     void set_bltouch_deployed(const bool deploy) {
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
@@ -2117,9 +2131,6 @@ static void clean_up_after_endstop_or_probe_move() {
           stop();                          // punt!
         }
       }
-      #if ENABLED(BLTOUCH_HEATERS_OFF)
-        set_heaters_for_bltouch(deploy);
-      #endif
 
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
 
@@ -2248,8 +2259,16 @@ static void clean_up_after_endstop_or_probe_move() {
       set_bltouch_deployed(true);
     #endif
 
+    #if QUIET_PROBING
+      probing_pause(true);
+    #endif
+
     // Move down until probe triggered
     do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    #if QUIET_PROBING
+      probing_pause(false);
+    #endif
 
     // Retract BLTouch immediately after a probe
     #if ENABLED(BLTOUCH)
@@ -2808,6 +2827,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
     if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(true);
+  #endif
+
   // Tell the planner we're at Z=0
   current_position[axis] = 0;
 
@@ -2823,6 +2846,10 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
   #endif
 
   stepper.synchronize();
+
+  #if QUIET_PROBING
+    if (axis == Z_AXIS) probing_pause(false);
+  #endif
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     if (deploy_bltouch) set_bltouch_deployed(false);
@@ -3740,6 +3767,9 @@ inline void gcode_G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -3880,6 +3910,9 @@ inline void gcode_G28() {
   #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
@@ -4360,7 +4393,7 @@ void home_all_axes() { gcode_G28(); }
 
       verbose_level = code_seen('V') && code_has_value() ? code_value_int() : 0;
       if (!WITHIN(verbose_level, 0, 4)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-4).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
         return;
       }
 
@@ -5081,7 +5114,7 @@ void home_all_axes() { gcode_G28(); }
 
       const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
       if (!WITHIN(verbose_level, 0, 2)) {
-        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-2).");
+        SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-2).");
         return;
       }
 
@@ -6183,7 +6216,7 @@ inline void gcode_M42() {
 
     const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (!WITHIN(verbose_level, 0, 4)) {
-      SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
+      SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
       return;
     }
 
@@ -6467,6 +6500,7 @@ inline void gcode_M104() {
   if (code_seen('S')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6498,9 +6532,9 @@ inline void gcode_M104() {
   void print_heaterstates() {
     #if HAS_TEMP_HOTEND
       SERIAL_PROTOCOLPGM(" T:");
-      SERIAL_PROTOCOL_F(thermalManager.degHotend(target_extruder), 1);
+      SERIAL_PROTOCOL(thermalManager.degHotend(target_extruder));
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder), 1);
+      SERIAL_PROTOCOL(thermalManager.degTargetHotend(target_extruder));
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.rawHotendTemp(target_extruder) / OVERSAMPLENR);
         SERIAL_PROTOCOLCHAR(')');
@@ -6508,9 +6542,9 @@ inline void gcode_M104() {
     #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B:");
-      SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
+      SERIAL_PROTOCOL(thermalManager.degBed());
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
+      SERIAL_PROTOCOL(thermalManager.degTargetBed());
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.rawBedTemp() / OVERSAMPLENR);
         SERIAL_PROTOCOLCHAR(')');
@@ -6520,9 +6554,9 @@ inline void gcode_M104() {
       HOTEND_LOOP() {
         SERIAL_PROTOCOLPAIR(" T", e);
         SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
+        SERIAL_PROTOCOL(thermalManager.degHotend(e));
         SERIAL_PROTOCOLPGM(" /");
-        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
+        SERIAL_PROTOCOL(thermalManager.degTargetHotend(e));
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           SERIAL_PROTOCOLPAIR(" (", thermalManager.rawHotendTemp(e) / OVERSAMPLENR);
           SERIAL_PROTOCOLCHAR(')');
@@ -6662,6 +6696,7 @@ inline void gcode_M109() {
   if (no_wait_for_cooling || code_seen('R')) {
     const int16_t temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
+
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
@@ -6813,6 +6848,7 @@ inline void gcode_M109() {
     const bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
+
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
         if (code_value_temp_abs() > BED_MINTEMP)
           print_job_timer.start();
@@ -7106,10 +7142,11 @@ inline void gcode_M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
   #if FAN_COUNT > 0
-    #if FAN_COUNT > 1
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-    #else
-      fanSpeeds[0] = 0;
+    for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+
+    #if ENABLED(PROBING_FANS_OFF)
+      fans_paused = false;
+      ZERO(paused_fanSpeeds);
     #endif
   #endif
   safe_delay(1000); // Wait 1 second before switching off
@@ -11479,7 +11516,7 @@ void prepare_move_to_destination() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
-#if USE_CONTROLLER_FAN
+#if ENABLED(USE_CONTROLLER_FAN)
 
   void controllerFan() {
     static millis_t lastMotorOn = 0, // Last time a motor was turned on
@@ -11933,7 +11970,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if USE_CONTROLLER_FAN
+  #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
@@ -12086,7 +12123,12 @@ void kill(const char* lcd_msg) {
  * After a stop the machine may be resumed with M999
  */
 void stop() {
-  thermalManager.disable_all_heaters();
+  thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
+  #if ENABLED(PROBING_FANS_OFF)
+    if (fans_paused) fans_pause(false); // put things back the way they were
+  #endif
+
   if (IsRunning()) {
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;
@@ -12203,7 +12245,7 @@ void setup() {
     endstops.enable_z_probe(false);
   #endif
 
-  #if USE_CONTROLLER_FAN
+  #if ENABLED(USE_CONTROLLER_FAN)
     SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
   #endif
 
@@ -12330,7 +12372,7 @@ void loop() {
     // The queue may be reset by a command handler or by code invoked by idle() within a handler
     if (commands_in_queue) {
       --commands_in_queue;
-      cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+      if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
     }
   }
   endstops.report_state();
