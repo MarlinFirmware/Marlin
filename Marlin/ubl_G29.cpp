@@ -311,9 +311,6 @@
    *   we now have the functionality and features of all three systems combined.
    */
 
-  #define USE_NOZZLE_AS_REFERENCE 0
-  #define USE_PROBE_AS_REFERENCE 1
-
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
   static int g29_verbose_level, phase_value, repetition_cnt,
              storage_slot = 0, map_type, grid_size;

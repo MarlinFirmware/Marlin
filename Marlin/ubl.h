@@ -35,6 +35,9 @@
   #define UBL_OK false
   #define UBL_ERR true
 
+  #define USE_NOZZLE_AS_REFERENCE 0
+  #define USE_PROBE_AS_REFERENCE 1
+
   typedef struct {
     int8_t x_index, y_index;
     float distance; // When populated, the distance from the search location
