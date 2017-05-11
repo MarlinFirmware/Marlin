@@ -401,7 +401,7 @@ float constexpr homing_feedrate_mm_s[] = {
   #endif
   MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
 };
-float feedrate_mm_s = MMM_TO_MMS(1500.0), saved_feedrate_mm_s;
+static float feedrate_mm_s = MMM_TO_MMS(1500.0), saved_feedrate_mm_s;
 int feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
@@ -1677,8 +1677,6 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
   #if ENABLED(DELTA)
 
-    if ( ! position_is_reachable_xy( x, y )) return;
-
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
     set_destination_to_current();          // sync destination at the start
@@ -1732,8 +1730,6 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
     }
 
   #elif IS_SCARA
-
-    if ( ! position_is_reachable_xy( x, y )) return;
 
     set_destination_to_current();
 
@@ -2368,8 +2364,6 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    if ( ! position_is_reachable_by_probe_xy( x, y )) return NAN;
-
     const float old_feedrate_mm_s = feedrate_mm_s;
 
     #if ENABLED(DELTA)
@@ -2438,13 +2432,8 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      #if ENABLED(UBL_DELTA)
-        if (( ubl.state.active ) && ( ! enable )) {   // leveling from on to off
-          planner.unapply_leveling(current_position);
-        }
-      #endif
-
       ubl.state.active = enable;
+      //set_current_from_steppers_for_axis(Z_AXIS);
 
     #else
 
@@ -3234,6 +3223,37 @@ void unknown_command_error() {
 
 #endif //HOST_KEEPALIVE_FEATURE
 
+bool position_is_reachable(const float target[XYZ]
+  #if HAS_BED_PROBE
+    , bool by_probe=false
+  #endif
+) {
+  float dx = RAW_X_POSITION(target[X_AXIS]),
+        dy = RAW_Y_POSITION(target[Y_AXIS]);
+
+  #if HAS_BED_PROBE
+    if (by_probe) {
+      dx -= X_PROBE_OFFSET_FROM_EXTRUDER;
+      dy -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+    }
+  #endif
+
+  #if IS_SCARA
+    #if MIDDLE_DEAD_ZONE_R > 0
+      const float R2 = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y);
+      return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
+    #else
+      return HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y) <= sq(L1 + L2);
+    #endif
+  #elif ENABLED(DELTA)
+    return HYPOT2(dx, dy) <= sq((float)(DELTA_PRINTABLE_RADIUS));
+  #else
+    const float dz = RAW_Z_POSITION(target[Z_AXIS]);
+    return WITHIN(dx, X_MIN_POS - 0.0001, X_MAX_POS + 0.0001)
+        && WITHIN(dy, Y_MIN_POS - 0.0001, Y_MAX_POS + 0.0001)
+        && WITHIN(dz, Z_MIN_POS - 0.0001, Z_MAX_POS + 0.0001);
+  #endif
+}
 
 /**************************************************
  ***************** GCode Handlers *****************
@@ -3669,12 +3689,18 @@ inline void gcode_G4() {
     destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
-    #if HOMING_Z_WITH_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
-    #endif
+    if (position_is_reachable(
+          destination
+          #if HOMING_Z_WITH_PROBE
+            , true
+          #endif
+        )
+    ) {
 
-    if ( position_is_reachable_xy( destination[X_AXIS], destination[Y_AXIS] )) {
+      #if HOMING_Z_WITH_PROBE
+        destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
+        destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      #endif
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
@@ -4599,7 +4625,8 @@ void home_all_axes() { gcode_G28(); }
             indexIntoAB[xCount][yCount] = abl_probe_index;
           #endif
 
-          if (position_is_reachable_xy( xProbe, yProbe )) break;
+          float pos[XYZ] = { xProbe, yProbe, 0 };
+          if (position_is_reachable(pos)) break;
           ++abl_probe_index;
         }
 
@@ -4710,7 +4737,8 @@ void home_all_axes() { gcode_G28(); }
 
             #if IS_KINEMATIC
               // Avoid probing outside the round or hexagonal area
-              if (!position_is_reachable_by_probe_xy( xProbe, yProbe )) continue;
+              const float pos[XYZ] = { xProbe, yProbe, 0 };
+              if (!position_is_reachable(pos, true)) continue;
             #endif
 
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
@@ -5013,9 +5041,10 @@ void home_all_axes() { gcode_G28(); }
    */
   inline void gcode_G30() {
     const float xpos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-                ypos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+                ypos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
+                pos[XYZ] = { xpos, ypos, LOGICAL_Z_POSITION(0) };
 
-    if (!position_is_reachable_by_probe_xy( xpos, ypos )) return;
+    if (!position_is_reachable(pos, true)) return;
 
     // Disable leveling so the planner won't mess with us
     #if HAS_LEVELING
@@ -6206,19 +6235,22 @@ inline void gcode_M42() {
     bool stow_probe_after_each = code_seen('E');
 
     float X_probe_location = code_seen('X') ? code_value_linear_units() : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
-    float Y_probe_location = code_seen('Y') ? code_value_linear_units() : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
-    
     #if DISABLED(DELTA)
       if (!WITHIN(X_probe_location, LOGICAL_X_POSITION(MIN_PROBE_X), LOGICAL_X_POSITION(MAX_PROBE_X))) {
         out_of_range_error(PSTR("X"));
         return;
       }
+    #endif
+
+    float Y_probe_location = code_seen('Y') ? code_value_linear_units() : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    #if DISABLED(DELTA)
       if (!WITHIN(Y_probe_location, LOGICAL_Y_POSITION(MIN_PROBE_Y), LOGICAL_Y_POSITION(MAX_PROBE_Y))) {
         out_of_range_error(PSTR("Y"));
         return;
       }
-    #else 
-      if (!position_is_reachable_by_probe_xy(X_probe_location, Y_probe_location)) {
+    #else
+      float pos[XYZ] = { X_probe_location, Y_probe_location, 0 };
+      if (!position_is_reachable(pos, true)) {
         SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
@@ -6316,7 +6348,7 @@ inline void gcode_M42() {
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while ( ! position_is_reachable_by_probe_xy( X_current, Y_current )) {
+            while (HYPOT(X_current, Y_current) > DELTA_PROBEABLE_RADIUS) {
               X_current *= 0.8;
               Y_current *= 0.8;
               if (verbose_level > 3) {
@@ -11057,7 +11089,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #endif // AUTO_BED_LEVELING_BILINEAR
 
-#if IS_KINEMATIC && DISABLED(UBL_DELTA)
+#if IS_KINEMATIC
 
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
@@ -11075,9 +11107,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
       return false;
     }
-
-    // Fail if attempting move outside printable radius
-    if ( ! position_is_reachable_xy( ltarget[X_AXIS], ltarget[Y_AXIS] )) return true;
 
     // Get the cartesian distances moved in XYZE
     float difference[XYZE];
@@ -11167,7 +11196,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
       inverse_kinematics(ltarget);
-      ADJUST_DELTA(ltarget);
+      ADJUST_DELTA(logical);
       const float adiff = abs(delta[A_AXIS] - oldA),
                   bdiff = abs(delta[B_AXIS] - oldB);
       planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
@@ -11200,7 +11229,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         else
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.state.active) {
-          ubl_line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);
+          ubl_line_to_destination(MMS_SCALED(feedrate_mm_s), active_extruder);
           return true;
         }
         else
@@ -11329,19 +11358,12 @@ void prepare_move_to_destination() {
   #endif
 
   #if IS_KINEMATIC
-    #if ENABLED(UBL_DELTA)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
-    #else
-      if (prepare_kinematic_move_to(destination)) return;
-    #endif
+    if (prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (prepare_move_to_destination_dualx()) return;  
-    #elif ENABLED(UBL_DELTA) // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
-    #else
-      if (prepare_move_to_destination_cartesian()) return;
+      if (prepare_move_to_destination_dualx()) return;
     #endif
+    if (prepare_move_to_destination_cartesian()) return;
   #endif
 
   set_current_to_destination();
@@ -12356,4 +12378,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-
