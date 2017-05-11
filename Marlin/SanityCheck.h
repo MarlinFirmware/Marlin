@@ -598,7 +598,7 @@ static_assert(1 >= 0
    */
   #if IS_KINEMATIC
     #if DISABLED(AUTO_BED_LEVELING_BILINEAR) && DISABLED(UBL_DELTA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL with UBL_DELTA support DELTA and SCARA bed leveling.
+      #error "Only AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL with UBL_DELTA support DELTA and SCARA bed leveling."
     #endif
   #endif
 
