@@ -62,8 +62,8 @@
  * If you get false positives for "Thermal Runaway" increase THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 60        // Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 10    // Degrees Celsius
+  #define THERMAL_PROTECTION_PERIOD 40        // Seconds
+  #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
   /**
    * Whenever an M104 or M109 increases the target temperature the firmware will wait for the
@@ -74,7 +74,7 @@
    * If you get false positives for "Heating failed" increase WATCH_TEMP_PERIOD and/or decrease WATCH_TEMP_INCREASE
    * WATCH_TEMP_INCREASE should not be below 2.
    */
-  #define WATCH_TEMP_PERIOD 30                // Seconds
+  #define WATCH_TEMP_PERIOD 20                // Seconds
   #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -82,8 +82,8 @@
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD 60    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
+  #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 
   /**
    * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
@@ -94,7 +94,7 @@
    * If you get too many "Heating failed" errors, increase WATCH_BED_TEMP_PERIOD and/or decrease
    * WATCH_BED_TEMP_INCREASE. (WATCH_BED_TEMP_INCREASE should not be below 2.)
    */
-  #define WATCH_BED_TEMP_PERIOD 120                // Seconds
+  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -159,7 +159,7 @@
 // Extruder runout prevention.
 // If the machine is idle and the temperature over MINTEMP
 // then extrude some filament every couple of SECONDS.
-//#define EXTRUDER_RUNOUT_PREVENT
+#define EXTRUDER_RUNOUT_PREVENT
 #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
   #define EXTRUDER_RUNOUT_MINTEMP 190
   #define EXTRUDER_RUNOUT_SECONDS 30
@@ -212,8 +212,8 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
-#define E1_AUTO_FAN_PIN -1
+//#define E0_AUTO_FAN_PIN -1
+//#define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
@@ -280,7 +280,7 @@
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
-    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine this value
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -331,14 +331,14 @@
 // @section homing
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
-#define X_HOME_BUMP_MM 7
-#define Y_HOME_BUMP_MM 7
-#define Z_HOME_BUMP_MM 3
-#define HOMING_BUMP_DIVISOR {3, 3, 5}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#define X_HOME_BUMP_MM 5
+#define Y_HOME_BUMP_MM 5
+#define Z_HOME_BUMP_MM 2
+#define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 #define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
-//#define HOME_Y_BEFORE_X
+#define HOME_Y_BEFORE_X
 
 // @section machine
 
@@ -356,7 +356,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 0
+#define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
@@ -369,7 +369,7 @@
 
 #if ENABLED(ULTIPANEL)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
-  #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
+  //#define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
 // @section extras
@@ -388,7 +388,7 @@
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
-#define MINIMUM_PLANNER_SPEED 0.05// (mm/sec)
+#define MINIMUM_PLANNER_SPEED 0.05 // (mm/sec)
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
@@ -414,7 +414,8 @@
  *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
-//#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+#define DIGIPOT_MOTOR_CURRENT {150, 170, 180, 190, 180} // Values 0-255 (bq ZUM Mega 3D (default): X = 150 [~1.17A]; Y = 170 [~1.33A]; Z = 180 [~1.41A]; E0 = 190 [~1.49A])
+
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 } // Default drive percent - X, Y, Z, E axis
 
 // Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
@@ -428,23 +429,20 @@
 //=============================Additional Features===========================
 //===========================================================================
 
-#define ENCODER_RATE_MULTIPLIER         // If defined, certain menu edit operations automatically multiply the steps when the encoder is moved quickly
-#define ENCODER_10X_STEPS_PER_SEC 75    // If the encoder steps per sec exceeds this value, multiply steps moved x10 to quickly advance the value
-#define ENCODER_100X_STEPS_PER_SEC 160  // If the encoder steps per sec exceeds this value, multiply steps moved x100 to really quickly advance the value
+//#define ENCODER_RATE_MULTIPLIER         // If defined, certain menu edit operations automatically multiply the steps when the encoder is moved quickly
+//#define ENCODER_10X_STEPS_PER_SEC 75    // If the encoder steps per sec exceeds this value, multiply steps moved x10 to quickly advance the value
+//#define ENCODER_100X_STEPS_PER_SEC 160  // If the encoder steps per sec exceeds this value, multiply steps moved x100 to really quickly advance the value
 
 //#define CHDK 4        //Pin for triggering CHDK to take a picture see how to use it here http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
-#define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
+//#define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
 
 // @section lcd
 
 // Include a page of printer information in the LCD Main Menu
-//#define LCD_INFO_MENU
+#define LCD_INFO_MENU
 
 // On the Info Screen, display XY with one decimal place when possible
-//#define LCD_DECIMAL_SMALL_XY
-
-// The timeout (in ms) to return to the status screen from sub-menus
-//#define LCD_TIMEOUT_TO_STATUS 15000
+#define LCD_DECIMAL_SMALL_XY
 
 #if ENABLED(SDSUPPORT)
 
@@ -456,7 +454,7 @@
   #define SD_DETECT_INVERTED
 
   #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
-  #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
+  #define SD_FINISHED_RELEASECOMMAND "M104 S0\nM84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
   #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
   // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
@@ -516,7 +514,7 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  //#define LONG_FILENAME_HOST_SUPPORT
+  #define LONG_FILENAME_HOST_SUPPORT
 
   // This option allows you to abort SD printing when any endstop is triggered.
   // This feature must be enabled with "M540 S1" or from the LCD menu.
@@ -525,32 +523,15 @@
 
 #endif // SDSUPPORT
 
-/**
- * Additional options for Graphical Displays
- *
- * Use the optimizations here to improve printing performance,
- * which can be adversely affected by graphical display drawing,
- * especially when doing several short moves, and when printing
- * on DELTA and SCARA machines.
- *
- * Some of these options may result in the display lagging behind
- * controller events, as there is a trade-off between reliable
- * printing performance versus fast display updates.
- */
+// Some additional options are available for graphical displays:
 #if ENABLED(DOGLCD)
-  // Enable to save many cycles by drawing a hollow frame on the Info Screen
-  #define XYZ_HOLLOW_FRAME
-
-  // Enable to save many cycles by drawing a hollow frame on Menu Screens
-  #define MENU_HOLLOW_FRAME
-
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-  //#define USE_BIG_EDIT_FONT
+  #define USE_BIG_EDIT_FONT
 
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-  //#define USE_SMALL_INFOFONT
+  #define USE_SMALL_INFOFONT
 
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
@@ -613,10 +594,10 @@
  * K=0 means advance disabled.
  * See Marlin documentation for calibration instructions.
  */
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_K 0
+  #define LIN_ADVANCE_K 75
 
   /**
    * Some Slicers produce Gcode with randomly jumping extrusion widths occasionally.
@@ -661,10 +642,6 @@
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
-
-  // If this is defined, the currently active mesh will be saved in the
-  // current slot on M500.
-  #define UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 // @section extras
@@ -705,9 +682,9 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+  #define BLOCK_BUFFER_SIZE 64 // maximize block buffer
 #endif
 
 // @section serial
@@ -723,7 +700,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
@@ -768,27 +745,27 @@
  * Requires an LCD display.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#define FILAMENT_CHANGE_FEATURE
+//#define FILAMENT_CHANGE_FEATURE
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
   #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
-  #define FILAMENT_CHANGE_Y_POS 240             // Y position of hotend
+  #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
   #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
-  #define FILAMENT_CHANGE_XY_FEEDRATE 225     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
   #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-  #define FILAMENT_CHANGE_RETRACT_LENGTH 10   // Initial retract in mm
+  #define FILAMENT_CHANGE_RETRACT_LENGTH 2    // Initial retract in mm
                                               // It is a short retract used immediately after print interrupt before move to filament exchange position
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 60  // Unload filament feedrate in mm/s - filament unloading can be fast
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH 600   // Unload filament length from hotend in mm
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
                                               // Longer length for bowden printers to unload filament from whole bowden tube,
                                               // shorter length for printers without bowden to unload filament from extruder only,
                                               // 0 to disable unloading for manual unloading
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 30    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-  #define FILAMENT_CHANGE_LOAD_LENGTH 500     // Load filament length over hotend in mm
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
                                               // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                               // Short or zero length for printers without bowden where loading is not used
-  #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 10 // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define FILAMENT_CHANGE_EXTRUDE_LENGTH 10   // Extrude filament length in mm after filament is loaded over the hotend,
+  #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is loaded over the hotend,
                                               // 0 to disable for manual extrusion
                                               // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                               // or until outcoming filament color is not clear for filament color change
@@ -935,8 +912,8 @@
   //#define E3_CURRENT      1000
   //#define E3_MICROSTEPS     16
 
-  //#define E4_CURRENT      1000
-  //#define E4_MICROSTEPS     16
+  //#define E3_CURRENT      1000
+  //#define E3_MICROSTEPS     16
 
   /**
    * Use Trinamic's ultra quiet stepping mode.

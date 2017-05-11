@@ -559,8 +559,8 @@ static uint8_t target_extruder;
 
 #endif // FWRETRACT
 
-#if ENABLED(ULTIPANEL) && HAS_POWER_SWITCH
-  bool powersupply =
+#if HAS_POWER_SWITCH
+  bool powersupply_on =
     #if ENABLED(PS_DEFAULT_OFF)
       false
     #else
@@ -7093,10 +7093,18 @@ inline void gcode_M140() {
 #if HAS_POWER_SWITCH
 
   /**
-   * M80: Turn on Power Supply
+   * M80   : Turn on the Power Supply
+   * M80 S : Report the current state and exit
    */
   inline void gcode_M80() {
-    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); //GND
+
+    // S: Report the current power supply state and exit
+    if (code_seen('S')) {
+      serialprintPGM(powersupply_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      return;
+    }
+
+    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -7112,8 +7120,9 @@ inline void gcode_M140() {
       tmc2130_init(); // Settings only stick when the driver has power
     #endif
 
+    powersupply_on = true;
+
     #if ENABLED(ULTIPANEL)
-      powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
   }
@@ -7128,25 +7137,26 @@ inline void gcode_M140() {
 inline void gcode_M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
+
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-
     #if ENABLED(PROBING_FANS_OFF)
       fans_paused = false;
       ZERO(paused_fanSpeeds);
     #endif
   #endif
+
   safe_delay(1000); // Wait 1 second before switching off
+
   #if HAS_SUICIDE
     stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    powersupply_on = false;
   #endif
+
   #if ENABLED(ULTIPANEL)
-    #if HAS_POWER_SWITCH
-      powersupply = false;
-    #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
 }
@@ -8473,17 +8483,26 @@ void quickstop_stepper() {
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
    *   M421 I<xindex> J<yindex> Z<linear>
+   *   or
+   *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
     int8_t px = 0, py = 0;
     float z = 0;
-    bool hasI, hasJ, hasZ;
+    bool hasI, hasJ, hasZ, hasQ;
     if ((hasI = code_seen('I'))) px = code_value_linear_units();
     if ((hasJ = code_seen('J'))) py = code_value_linear_units();
     if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
+    if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      return;
+    }
+
+    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
+      if (hasZ) { // doing an absolute mesh value
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.z_values[px][py] = z;
         #else
@@ -8492,18 +8511,23 @@ void quickstop_stepper() {
             bed_level_virt_interpolate();
           #endif
         #endif
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      } 
+      else { // doing an offset of a mesh value
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] += z;
+        #else
+          z_values[px][py] += z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
+        #endif
       }
     }
-    else {
+    else { // bad indexes were specified for the mesh point
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
   }
-
 #endif
 
 #if HAS_M206_COMMAND
@@ -10119,7 +10143,7 @@ void process_next_command() {
         gcode_M81();
         break;
 
-      case 82: // M83: Set E axis normal mode (same as other axes)
+      case 82: // M82: Set E axis normal mode (same as other axes)
         gcode_M82();
         break;
       case 83: // M83: Set E axis relative mode
