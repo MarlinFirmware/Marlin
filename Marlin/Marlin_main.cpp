@@ -3674,7 +3674,7 @@ inline void gcode_G4() {
       destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
-    if ( position_is_reachable_xy( destination[X_AXIS], destination[Y_AXIS] ) {
+    if ( position_is_reachable_xy( destination[X_AXIS], destination[Y_AXIS] )) {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
