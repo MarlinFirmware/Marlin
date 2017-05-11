@@ -209,7 +209,7 @@
    *                    Mesh Validation Pattern phase.   Please note that you are populating your mesh with unverified
    *                    numbers.  You should use some scrutiny and caution.
    *
-   *   P4    Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assume the existance of
+   *   P4    Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assume the existence of
    *                    an LCD Panel. It is possible to fine tune the mesh without the use of an LCD Panel.
    *                    (More work and details on doing this later!)
    *                    The System will search for the closest Mesh Point to the nozzle. It will move the

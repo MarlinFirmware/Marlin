@@ -100,7 +100,7 @@
    *                    'n' can be used instead if your host program does not appreciate you using 'N'.
    *
    *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print.  This
-   *                    is over kill, but using this parameter will let you get the very first 'cicle' perfect
+   *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
    *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
    *                    Mesh calibrated.  If not specified, a filament length of .3mm is assumed.
    *
