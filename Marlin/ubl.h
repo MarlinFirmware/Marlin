@@ -49,7 +49,8 @@
   // ubl_motion.cpp
 
   void debug_current_and_destination(const char * const title);
-  void ubl_line_to_destination(const float&, uint8_t);
+  void ubl_line_to_destination_cartesian(const float&, uint8_t);
+  bool ubl_prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate );
 
   // ubl_G29.cpp
 
@@ -160,7 +161,8 @@
       unified_bed_leveling();
 
       FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
-        int8_t get_cell_index_x(const float &x) {
+
+      int8_t get_cell_index_x(const float &x) {
         const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
         return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
       }                                                     // position. But with this defined this way, it is possible
@@ -324,10 +326,8 @@
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-
-        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+        inline float fade_scaling_factor_for_z(const float &lz) {
           if (planner.z_fade_height == 0.0) return 1.0;
-
           static float fade_scaling_factor = 1.0;
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
@@ -339,7 +339,10 @@
           }
           return fade_scaling_factor;
         }
-
+      #else
+        inline float fade_scaling_factor_for_z(const float &lz) {
+          return 1.0;
+        }
       #endif
 
   }; // class unified_bed_leveling
