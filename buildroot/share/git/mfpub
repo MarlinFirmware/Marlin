@@ -30,26 +30,25 @@ if [[ $BRANCH == "gh-pages" ]]; then
   exit
 fi
 
-if [[ $BRANCH != "master" ]]; then
-  echo "Stashing any changes to files..."
-  echo "Don't forget to update and push 'master'!"
-  # GOJF Card
-  git stash
-fi
+echo "Stashing any changes to files..."
+echo "Don't forget to update and push 'master'!"
+# GOJF Card
+git stash
 
 COMMIT=$( git log --format="%H" -n 1 )
 
 # Clean out changes and other junk in the branch
-git reset --hard
 git clean -d -f
 
 # Push 'master' to the fork and make a proper PR...
 if [[ $BRANCH == "master" ]]; then
 
   # Allow working directly with the main fork
+  echo
   echo -n "Pushing to origin/master... "
   git push -f origin
 
+  echo
   echo -n "Pushing to upstream/master... "
   git push -f upstream
 
@@ -58,6 +57,7 @@ else
   if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then
     firstpush
   else
+    echo
     echo -n "Pushing to origin/$BRANCH... "
     git push -f origin
   fi
@@ -79,6 +79,7 @@ fi
 # mv ./_plugins/jekyll-press.rb-disabled ./_plugins/jekyll-press.rb
 # bundle install
 
+echo
 echo "Generating MarlinDocumentation..."
 
 # build the site statically and proof it
