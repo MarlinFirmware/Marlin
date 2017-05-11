@@ -143,7 +143,7 @@
   #define SWITCHING_EXTRUDER_SERVO_NR 0
   #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
   //#define HOTEND_OFFSET_Z {0.0, 0.0}
-  #define SWITCHING_EXTRUDER_MULTI_STEPPERS             //use this defination for disabling single stepper rotation
+  //#define SWITCHING_EXTRUDER_MULTI_STEPPERS             //Use for disabling single stepper rotation
 #endif
 
 /**
