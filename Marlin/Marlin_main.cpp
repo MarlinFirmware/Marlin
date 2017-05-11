@@ -559,8 +559,8 @@ static uint8_t target_extruder;
 
 #endif // FWRETRACT
 
-#if ENABLED(ULTIPANEL) && HAS_POWER_SWITCH
-  bool powersupply =
+#if HAS_POWER_SWITCH
+  bool powersupply_on =
     #if ENABLED(PS_DEFAULT_OFF)
       false
     #else
@@ -788,7 +788,7 @@ extern "C" {
     return free_memory;
   }
 }
-#endif //!SDSUPPORT
+#endif // !SDSUPPORT
 
 #if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current(int channel, float current);
@@ -1841,7 +1841,7 @@ static void clean_up_after_endstop_or_probe_move() {
       do_blocking_move_to_z(z_dest);
   }
 
-#endif //HAS_BED_PROBE
+#endif // HAS_BED_PROBE
 
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
@@ -2057,33 +2057,22 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif
 
 #if ENABLED(PROBING_FANS_OFF)
-  void fans_pause(bool p) {
-    if (p && fans_paused) { // If called out of order something is wrong
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Fans already paused!");
-      return;
-    }
 
-    if (!p && !fans_paused) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Fans already unpaused!");
-      return;
+  void fans_pause(const bool p) {
+    if (p != fans_paused) {
+      fans_paused = p;
+      if (p)
+        for (uint8_t x = 0; x < FAN_COUNT; x++) {
+          paused_fanSpeeds[x] = fanSpeeds[x];
+          fanSpeeds[x] = 0;
+        }
+      else
+        for (uint8_t x = 0; x < FAN_COUNT; x++)
+          fanSpeeds[x] = paused_fanSpeeds[x];
     }
-
-    if (p) {
-      for (uint8_t x = 0;x < FAN_COUNT;x++) {
-        paused_fanSpeeds[x] = fanSpeeds[x];
-        fanSpeeds[x] = 0;
-      }
-    }
-    else {
-      for (uint8_t x = 0;x < FAN_COUNT;x++)
-        fanSpeeds[x] = paused_fanSpeeds[x];
-    }
-
-    fans_paused = p;
   }
-#endif
+
+#endif // PROBING_FANS_OFF
 
 #if HAS_BED_PROBE
 
@@ -2097,18 +2086,16 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
 
   #if QUIET_PROBING
-    void probing_pause(bool pause) {
+    void probing_pause(const bool p) {
       #if ENABLED(PROBING_HEATERS_OFF)
-        thermalManager.pause(pause);
+        thermalManager.pause(p);
       #endif
-
       #if ENABLED(PROBING_FANS_OFF)
-        fans_pause(pause);
+        fans_pause(p);
       #endif
-
-      if(pause) safe_delay(25);
+      if (p) safe_delay(25);
     }
-  #endif
+  #endif // QUIET_PROBING
 
   #if ENABLED(BLTOUCH)
 
@@ -3221,7 +3208,7 @@ void unknown_command_error() {
     next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
   }
 
-#endif //HOST_KEEPALIVE_FEATURE
+#endif // HOST_KEEPALIVE_FEATURE
 
 bool position_is_reachable(const float target[XYZ]
   #if HAS_BED_PROBE
@@ -3434,7 +3421,7 @@ inline void gcode_G4() {
     );
   }
 
-#endif //FWRETRACT
+#endif // FWRETRACT
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   /**
@@ -7045,7 +7032,7 @@ inline void gcode_M111() {
     inline void gcode_M129() { baricuda_e_to_p_pressure = 0; }
   #endif
 
-#endif //BARICUDA
+#endif // BARICUDA
 
 /**
  * M140: Set bed temperature
@@ -7106,10 +7093,18 @@ inline void gcode_M140() {
 #if HAS_POWER_SWITCH
 
   /**
-   * M80: Turn on Power Supply
+   * M80   : Turn on the Power Supply
+   * M80 S : Report the current state and exit
    */
   inline void gcode_M80() {
-    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); //GND
+
+    // S: Report the current power supply state and exit
+    if (code_seen('S')) {
+      serialprintPGM(powersupply_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      return;
+    }
+
+    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -7125,8 +7120,9 @@ inline void gcode_M140() {
       tmc2130_init(); // Settings only stick when the driver has power
     #endif
 
+    powersupply_on = true;
+
     #if ENABLED(ULTIPANEL)
-      powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
   }
@@ -7141,25 +7137,26 @@ inline void gcode_M140() {
 inline void gcode_M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
+
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-
     #if ENABLED(PROBING_FANS_OFF)
       fans_paused = false;
       ZERO(paused_fanSpeeds);
     #endif
   #endif
+
   safe_delay(1000); // Wait 1 second before switching off
+
   #if HAS_SUICIDE
     stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    powersupply_on = false;
   #endif
+
   #if ENABLED(ULTIPANEL)
-    #if HAS_POWER_SWITCH
-      powersupply = false;
-    #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
 }
@@ -8486,17 +8483,26 @@ void quickstop_stepper() {
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
    *   M421 I<xindex> J<yindex> Z<linear>
+   *   or
+   *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
     int8_t px = 0, py = 0;
     float z = 0;
-    bool hasI, hasJ, hasZ;
+    bool hasI, hasJ, hasZ, hasQ;
     if ((hasI = code_seen('I'))) px = code_value_linear_units();
     if ((hasJ = code_seen('J'))) py = code_value_linear_units();
     if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
 
-    if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_X - 1)) {
+    if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      return;
+    }
+
+    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
+      if (hasZ) { // doing an absolute mesh value
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.z_values[px][py] = z;
         #else
@@ -8505,18 +8511,23 @@ void quickstop_stepper() {
             bed_level_virt_interpolate();
           #endif
         #endif
-      }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      } 
+      else { // doing an offset of a mesh value
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.z_values[px][py] += z;
+        #else
+          z_values[px][py] += z;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
+        #endif
       }
     }
-    else {
+    else { // bad indexes were specified for the mesh point
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
   }
-
 #endif
 
 #if HAS_M206_COMMAND
@@ -9398,7 +9409,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
       mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
 
-  #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
     #if HOTENDS > 1
 
@@ -9690,7 +9701,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
-  #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
 
 /**
@@ -9744,7 +9755,7 @@ void process_next_command() {
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_WATCHER)
       SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine("   Command Queue:", &command_queue[0][0], &command_queue[BUFSIZE][MAX_CMD_SIZE]);
+      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
     #endif
   }
 
@@ -9981,7 +9992,7 @@ void process_next_command() {
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
-      #endif //SDSUPPORT
+      #endif // SDSUPPORT
 
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
@@ -10132,7 +10143,7 @@ void process_next_command() {
         gcode_M81();
         break;
 
-      case 82: // M83: Set E axis normal mode (same as other axes)
+      case 82: // M82: Set E axis normal mode (same as other axes)
         gcode_M82();
         break;
       case 83: // M83: Set E axis relative mode
@@ -11149,7 +11160,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   feed_factor = inv_segment_length * _feedrate_mm_s;
@@ -11176,7 +11187,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
 
-      #if IS_SCARA
+      #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
@@ -11192,7 +11203,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
 
-    #if IS_SCARA
+    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
       inverse_kinematics(ltarget);
@@ -11524,7 +11535,7 @@ void prepare_move_to_destination() {
     const millis_t ms = millis();
     if (ELAPSED(ms, nextMotorCheck)) {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
-      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
+      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_amount_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
           #if E_STEPPERS > 1
             || E1_ENABLE_READ == E_ENABLE_ON

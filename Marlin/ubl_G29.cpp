@@ -55,12 +55,16 @@
   extern float probe_pt(float x, float y, bool, int);
   extern bool set_probe_deployed(bool);
   void smart_fill_mesh();
+  float measure_business_card_thickness(float &in_height);
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
 
   bool ProbeStay = true;
 
-  #define SIZE_OF_LITTLE_RAISE 0
+  #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
-  extern void lcd_quick_feedback();
+  extern void lcd_status_screen();
+  typedef void (*screenFunc_t)();
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
   /**
    *   G29: Unified Bed Leveling by Roxy
@@ -444,7 +448,7 @@
             y_pos = current_position[Y_AXIS];
           }
 
-          const float height = code_seen('H') && code_has_value() ? code_value_float() : Z_CLEARANCE_BETWEEN_PROBES;
+          float height = code_seen('H') && code_has_value() ? code_value_float() : Z_CLEARANCE_BETWEEN_PROBES;
 
           if (code_seen('B')) {
             card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
@@ -516,8 +520,8 @@
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
     // good to have the extra information. Soon... we prune this to just a few items
     //
-    if (code_seen('W')) g29_what_command();
-
+    if (code_seen('W')) ubl.g29_what_command();
+ 
     //
     // When we are fully debugged, the EEPROM dump command will get deleted also. But
     // right now, it is good to have the extra information. Soon... we prune this.
@@ -876,7 +880,7 @@
     SERIAL_PROTOCOLLNPGM(" and take a measurement.");
   }
 
-  float measure_business_card_thickness(const float &in_height) {
+  float measure_business_card_thickness(float &in_height) {
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
@@ -886,6 +890,8 @@
 
     stepper.synchronize();
     SERIAL_PROTOCOLPGM("Place shim under nozzle.");
+    LCD_MESSAGEPGM("Place shim & measure");
+    lcd_goto_screen(lcd_status_screen);
     say_and_take_a_measurement();
 
     const float z1 = use_encoder_wheel_to_measure_point();
@@ -893,29 +899,33 @@
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("Remove shim.");
+    LCD_MESSAGEPGM("Remove & measure");
+
     say_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
-    do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
+    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
 
     if (g29_verbose_level > 1) {
       SERIAL_PROTOCOLPGM("Business Card is: ");
       SERIAL_PROTOCOL_F(abs(z1 - z2), 6);
       SERIAL_PROTOCOLLNPGM("mm thick.");
     }
+    in_height = current_position[Z_AXIS]; // do manual probing at lower height
     ubl.has_control_of_lcd_panel = false;
 
     ubl.restore_ubl_active_state_and_leave();
     return abs(z1 - z2);
   }
 
-  void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
 
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
     do_blocking_move_to_z(z_clearance);
     do_blocking_move_to_xy(lx, ly);
 
+    lcd_goto_screen(lcd_status_screen);
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
@@ -943,6 +953,7 @@
         do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
       else
         do_blocking_move_to_z(z_clearance);
+      LCD_MESSAGEPGM("Moving to next");
 
       do_blocking_move_to_xy(xProbe, yProbe);
 
@@ -953,6 +964,8 @@
       ubl.has_control_of_lcd_panel = true;
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
+      if (code_seen('B')) {LCD_MESSAGEPGM("Place shim & measure");}
+      else {LCD_MESSAGEPGM("Measure");}
 
       while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
       delay(50);                                       // debounce
@@ -1006,7 +1019,7 @@
     if (!ubl.state.active) SERIAL_PROTOCOLPGM("de");
     SERIAL_PROTOCOLLNPGM("activated.\n");
   }
- 
+
   bool g29_parameter_parsing() {
     bool err_flag = false;
 
@@ -1024,6 +1037,7 @@
     repeat_flag = code_seen('R');
     if (repeat_flag) {
       repetition_cnt = code_has_value() ? code_value_int() : (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y);
+      repetition_cnt = min(repetition_cnt, (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y));
       if (repetition_cnt < 1) {
         SERIAL_PROTOCOLLNPGM("?(R)epetition count invalid (1+).\n");
         return UBL_ERR;
@@ -1168,7 +1182,7 @@
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items
    */
-  void g29_what_command() {
+  void unified_bed_leveling::g29_what_command() {
     const uint16_t k = E2END - ubl.eeprom_start;
 
     say_ubl_name();
@@ -1192,82 +1206,73 @@
     SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLLNPAIR("planner.z_fade_height : ", planner.z_fade_height);
+      SERIAL_PROTOCOL("planner.z_fade_height : ");
+      SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
+      SERIAL_EOL;
     #endif
     SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
     SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLPGM("z_offset: ");
-    SERIAL_PROTOCOL_F(ubl.state.z_offset, 7);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)ubl.eeprom_start));
+
+    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
+    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
     safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)ubl.eeprom_start));
+    SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
+    SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
+    safe_delay(25);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[i])), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
-      safe_delay(50);
+      safe_delay(25);
     }
     SERIAL_EOL;
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[i])), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
-      safe_delay(50);
+      safe_delay(25);
     }
     SERIAL_EOL;
 
-    #if HAS_KILL
-      SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
-      SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
-    #endif
-    SERIAL_EOL;
-    safe_delay(50);
-
-    SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-    SERIAL_EOL;
-    SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-    SERIAL_EOL;
-    safe_delay(50);
     SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)ubl.eeprom_start));
+    SERIAL_PROTOCOLLNPAIR("end of EEPROM: ", hex_address((void*)E2END));
+    safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("end of EEPROM              : ", hex_address((void*)E2END));
-    safe_delay(50);
-
-    SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
+    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(ubl.z_values));
     SERIAL_EOL;
-    safe_delay(50);
+    safe_delay(25);
 
     SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)k));
-    safe_delay(50);
+    safe_delay(25);
 
     SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(ubl.z_values));
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
-    safe_delay(50);
-
-    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
+    safe_delay(25);
 
     SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
     SERIAL_PROTOCOLPAIR("\nGRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_X         ", UBL_MESH_MAX_X);
-    SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_Y         ", UBL_MESH_MAX_Y);
-    safe_delay(50);
-    SERIAL_PROTOCOLPGM("\nMESH_X_DIST        ");
-    SERIAL_PROTOCOL_F(MESH_X_DIST, 6);
-    SERIAL_PROTOCOLPGM("\nMESH_Y_DIST        ");
-    SERIAL_PROTOCOL_F(MESH_Y_DIST, 6);
+    safe_delay(25);
     SERIAL_EOL;
-    safe_delay(50);
+
+    SERIAL_ECHOPGM("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_X );
+    SERIAL_ECHOPGM("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_Y );
+    safe_delay(25);
+
+    SERIAL_ECHOPGM("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_X);
+    SERIAL_ECHOPGM("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y));
+    SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_Y);
+    safe_delay(25);
 
     if (!ubl.sanity_check()) {
       say_ubl_name();
@@ -1422,8 +1427,7 @@
     do_blocking_move_to_xy(lx, ly);
     do {
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
-                                                                  // It doesn't matter if the probe can't reach this
-                                                                  // location. This is a manual edit of the Mesh Point.
+
       if (location.x_index < 0 && location.y_index < 0) continue; // abort if we can't find any more points.
 
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
@@ -1612,7 +1616,7 @@
       SERIAL_ECHOPGM("Could not complete LSF!");
       return;
     }
-
+    
     if (g29_verbose_level > 3) {
       SERIAL_ECHOPGM("LSF Results A=");
       SERIAL_PROTOCOL_F(lsf_results.A, 7);
