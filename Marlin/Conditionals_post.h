@@ -779,7 +779,7 @@
     #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
   #endif
 
-  #if IS_KINEMATIC
+  #if ENABLED(DELTA)
     // These will be further constrained in code, but UBL_PROBE_PT values
     // cannot be compile-time verified within the radius.
     #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)

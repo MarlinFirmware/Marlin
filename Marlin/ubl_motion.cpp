@@ -26,11 +26,13 @@
   #include "Marlin.h"
   #include "ubl.h"
   #include "planner.h"
+  #include "stepper.h"
   #include <avr/io.h>
   #include <math.h>
 
   extern float destination[XYZE];
   extern void set_current_to_destination();
+  extern float delta_segments_per_second;
 
   static void debug_echo_axis(const AxisEnum axis) {
     if (current_position[axis] == destination[axis])

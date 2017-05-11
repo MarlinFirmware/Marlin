@@ -431,9 +431,16 @@ static_assert(1 >= 0
  * Unified Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #if IS_KINEMATIC && DISABLED(UBL_DELTA)
-    #error "AUTO_BED_LEVELING_UBL also requires UBL_DELTA for delta printers."
-  #elif DISABLED(NEWPANEL)
+  #if IS_KINEMATIC 
+    #if ENABLED(DELTA)
+      #if DISABLED(UBL_DELTA)
+        #error "AUTO_BED_LEVELING_UBL also requires UBL_DELTA for DELTA printers."
+      #endif
+    #else // SCARA
+      #error "AUTO_BED_LEVELING_UBL not supported for SCARA printers."
+    #endif
+  #endif
+  #if DISABLED(NEWPANEL)
     #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
   #endif
 #elif ENABLED(UBL_DELTA)
