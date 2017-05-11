@@ -8477,7 +8477,7 @@ void quickstop_stepper() {
     }
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -8490,8 +8490,8 @@ void quickstop_stepper() {
     int8_t px = 0, py = 0;
     float z = 0;
     bool hasI, hasJ, hasZ, hasQ;
-    if ((hasI = code_seen('I'))) px = code_value_linear_units();
-    if ((hasJ = code_seen('J'))) py = code_value_linear_units();
+    if ((hasI = code_seen('I'))) px = code_value_int();
+    if ((hasJ = code_seen('J'))) py = code_value_int();
     if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
     if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
 
@@ -8503,25 +8503,63 @@ void quickstop_stepper() {
 
     if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
       if (hasZ) { // doing an absolute mesh value
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.z_values[px][py] = z;
-        #else
-          z_values[px][py] = z;
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
+        z_values[px][py] = z;
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_interpolate();
         #endif
       } 
       else { // doing an offset of a mesh value
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.z_values[px][py] += z;
-        #else
-          z_values[px][py] += z;
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
+        z_values[px][py] += z;
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_interpolate();
         #endif
       }
+    }
+    else { // bad indexes were specified for the mesh point
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+    }
+  }
+
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+  /**
+   * M421: Set a single Mesh Bed Leveling Z coordinate
+   *
+   *   M421 I<xindex> J<yindex> Z<linear>
+   *   or
+   *   M421 I<xindex> J<yindex> Q<offset>
+   */
+
+  //todo:  change multiple points simultaneously?
+
+  inline void gcode_M421() {
+    int8_t px = 0, py = 0;
+    float z = 0;
+    bool hasI, hasJ, hasZ, hasQ, hasC;
+    if ((hasI = code_seen('I'))) px = code_value_int();
+    if ((hasJ = code_seen('J'))) py = code_value_int();
+    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
+    hasC = code_seen('C');
+
+    if ( (!(hasI && hasJ) && !hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+      return;
+    }
+
+    if (hasC) { // get closest position
+      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+      px = location.x_index;
+      py = location.y_index;
+    }
+
+    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
+      if (hasZ) // doing an absolute mesh value
+        ubl.z_values[px][py] = z;
+      else // doing an offset of a mesh value
+        ubl.z_values[px][py] += z;
     }
     else { // bad indexes were specified for the mesh point
       SERIAL_ERROR_START;

@@ -740,12 +740,14 @@
     }
 
     if (code_seen('R')) {
-      g26_repeats = code_has_value() ? code_value_int() - 1 : 999;
+      g26_repeats = code_has_value() ? code_value_int() : 999;
 
       if (g26_repeats <= 0) {
         SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be greater than 0.");
         return UBL_ERR;
       }
+
+      g26_repeats--;
     }
 
 
