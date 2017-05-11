@@ -123,8 +123,6 @@
       void load_mesh(const int16_t);
       bool sanity_check();
 
-      float fade_scaling_factor_for_z(const float &lz);
-
       static ubl_state state;
 
       static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -328,10 +326,8 @@
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-
         inline float fade_scaling_factor_for_z(const float &lz) {
           if (planner.z_fade_height == 0.0) return 1.0;
-
           static float fade_scaling_factor = 1.0;
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
@@ -343,7 +339,10 @@
           }
           return fade_scaling_factor;
         }
-
+      #else
+        inline float fade_scaling_factor_for_z(const float &lz) {
+          return 1.0;
+        }
       #endif
 
   }; // class unified_bed_leveling
