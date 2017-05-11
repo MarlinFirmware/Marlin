@@ -780,11 +780,12 @@
   #endif
 
   #if IS_KINEMATIC
-    // Check for this in the code instead (preprocessor can't do floating point arithmetic)
-    #define MIN_PROBE_X (-10000)
-    #define MAX_PROBE_X ( 10000)
-    #define MIN_PROBE_Y (-10000)
-    #define MAX_PROBE_Y ( 10000)
+    // These will be further constrained in code, but UBL_PROBE_PT values
+    // cannot be compile-time verified within the radius.
+    #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X ( DELTA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y ( DELTA_PRINTABLE_RADIUS)
   #else
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))

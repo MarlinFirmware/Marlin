@@ -627,18 +627,23 @@ static_assert(1 >= 0
       #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
     #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
       #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
-    #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+    #endif
+    #if IS_CARTESIAN
+      #if !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
+        #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+      #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+      #endif
     #endif
   #else // AUTO_BED_LEVELING_3POINT
     #if !WITHIN(ABL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
