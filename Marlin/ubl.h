@@ -35,6 +35,9 @@
   #define UBL_OK false
   #define UBL_ERR true
 
+  #define USE_NOZZLE_AS_REFERENCE 0
+  #define USE_PROBE_AS_REFERENCE 1
+
   typedef struct {
     int8_t x_index, y_index;
     float distance; // When populated, the distance from the search location
@@ -64,7 +67,6 @@
   void shift_mesh_height();
   void fine_tune_mesh(const float&, const float&, const bool);
   bool g29_parameter_parsing();
-  void g29_what_command();
   void g29_eeprom_dump();
   void g29_compare_current_mesh_to_stored_mesh();
 
