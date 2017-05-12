@@ -278,8 +278,7 @@
 
         // If this mesh location is outside the printable_radius, skip it.
 
-        if ( ! position_is_reachable_raw_xy( circle_x, circle_y ))
-          continue;
+        if (!position_is_reachable_raw_xy(circle_x, circle_y)) continue;
 
         xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
         yi = location.y_index;
@@ -329,9 +328,7 @@
                 ye = circle_y + sin_table[tmp_div_30 + 1];
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
-            if (( ! position_is_reachable_raw_xy( x , y  )) ||
-                ( ! position_is_reachable_raw_xy( xe, ye )))
-              continue;
+            if (!position_is_reachable_raw_xy(x, y) || !position_is_reachable_raw_xy(xe, ye)) continue;
           #else                                              // not, we need to skip
             x  = constrain(x, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
             y  = constrain(y, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -459,8 +456,7 @@
               sy = ey = constrain(pgm_read_float(&ubl.mesh_index_to_ypos[j]), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
-              if (( position_is_reachable_raw_xy( sx, sy )) &&
-                  ( position_is_reachable_raw_xy( ex, ey ))) {
+              if (position_is_reachable_raw_xy(sx, sy) && position_is_reachable_raw_xy(ex, ey)) {
 
                 if (ubl.g26_debug_flag) {
                   SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
@@ -494,8 +490,7 @@
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-                if (( position_is_reachable_raw_xy( sx, sy )) &&
-                    ( position_is_reachable_raw_xy( ex, ey ))) {
+                if (position_is_reachable_raw_xy(sx, sy) && position_is_reachable_raw_xy(ex, ey)) {
 
                   if (ubl.g26_debug_flag) {
                     SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);

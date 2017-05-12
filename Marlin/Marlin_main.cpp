@@ -2427,9 +2427,12 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      #if ENABLED(UBL_DELTA)
-        if (( ubl.state.active ) && ( ! enable )) {   // leveling from on to off
-          planner.unapply_leveling(current_position);
+      #if PLANNER_LEVELING
+        if (ubl.state.active != enable) {
+          if (!enable)   // leveling from on to off
+            planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+          else
+            planner.unapply_leveling(current_position);
         }
       #endif
 
@@ -11104,7 +11107,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #endif // AUTO_BED_LEVELING_BILINEAR
 
-#if IS_KINEMATIC && DISABLED(UBL_DELTA)
+#if IS_KINEMATIC && !UBL_DELTA
 
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
@@ -11124,7 +11127,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     }
 
     // Fail if attempting move outside printable radius
-    if ( ! position_is_reachable_xy( ltarget[X_AXIS], ltarget[Y_AXIS] )) return true;
+    if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS])) return true;
 
     // Get the cartesian distances moved in XYZE
     float difference[XYZE];
@@ -11225,7 +11228,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return false;
   }
 
-#else // !IS_KINEMATIC
+#else // !IS_KINEMATIC || UBL_DELTA
 
   /**
    * Prepare a linear move in a Cartesian setup.
@@ -11263,7 +11266,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return false;
   }
 
-#endif // !IS_KINEMATIC
+#endif // !IS_KINEMATIC || UBL_DELTA
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -11375,21 +11378,21 @@ void prepare_move_to_destination() {
 
   #endif
 
-  #if IS_KINEMATIC
-    #if ENABLED(UBL_DELTA)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
+  if (
+    #if IS_KINEMATIC
+      #if UBL_DELTA
+        ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+      #else
+        prepare_kinematic_move_to(destination)
+      #endif
+    #elif ENABLED(DUAL_X_CARRIAGE)
+      prepare_move_to_destination_dualx()
+    #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
+      ubl_prepare_linear_move_to(destination, feedrate_mm_s)
     #else
-      if (prepare_kinematic_move_to(destination)) return;
+      prepare_move_to_destination_cartesian()
     #endif
-  #else
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (prepare_move_to_destination_dualx()) return;
-    #elif ENABLED(UBL_DELTA) // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
-    #else
-      if (prepare_move_to_destination_cartesian()) return;
-    #endif
-  #endif
+  ) return;
 
   set_current_to_destination();
 }
