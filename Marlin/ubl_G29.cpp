@@ -328,7 +328,8 @@
       return;
     }
 
-    if (!code_seen('N') && axis_unhomed_error(true, true, true))  // Don't allow auto-leveling without homing first
+    // Don't allow auto-leveling without homing first
+    if (!code_seen('N') && axis_unhomed_error(true, true, true)) // Warning! Use of 'N' flouts established standards.
       home_all_axes();
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
@@ -385,7 +386,7 @@
 
     if (code_seen('J')) {
       ubl.save_ubl_active_state_and_disable();
-      ubl.tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M'));
+      ubl.tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
       ubl.restore_ubl_active_state_and_leave();
     }
 
@@ -419,7 +420,7 @@
             SERIAL_PROTOCOLLNPGM(").\n");
           }
           ubl.probe_entire_mesh(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            code_seen('O') || code_seen('M'), code_seen('E'), code_seen('U'));
+                            code_seen('O') || code_seen('M'), code_seen('E'), code_seen('U')); // Warning! Use of 'M' flouts established standards.
           break;
 
         case 2: {
@@ -468,7 +469,7 @@
             return;
           }
 
-          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
+          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
         } break;
 
@@ -504,7 +505,7 @@
           //
           // Fine Tune (i.e., Edit) the Mesh
           //
-          fine_tune_mesh(x_pos, y_pos, code_seen('O') || code_seen('M'));
+          fine_tune_mesh(x_pos, y_pos, code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
           break;
 
         case 5: ubl.find_mean_mesh_height(); break;
@@ -549,7 +550,7 @@
     // When we are fully debugged, the EEPROM dump command will get deleted also. But
     // right now, it is good to have the extra information. Soon... we prune this.
     //
-    if (code_seen('j')) g29_eeprom_dump();   // EEPROM Dump
+    if (code_seen('j')) g29_eeprom_dump(); // Warning! Use of lowercase flouts established standards.
 
     //
     // When we are fully debugged, this may go away. But there are some valid
@@ -613,7 +614,7 @@
       SERIAL_PROTOCOLLNPGM("Done.\n");
     }
 
-    if (code_seen('O') || code_seen('M'))
+    if (code_seen('O') || code_seen('M')) // Warning! Use of 'M' flouts established standards.
       ubl.display_map(code_has_value() ? code_value_int() : 0);
 
     if (code_seen('Z')) {
@@ -1128,8 +1129,8 @@
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
-
-    if (code_seen('M')) {     // Check if a map type was specified
+    // Check if a map type was specified
+    if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
       map_type = code_has_value() ? code_value_int() : 0;
       if (!WITHIN(map_type, 0, 1)) {
         SERIAL_PROTOCOLLNPGM("Invalid map type.\n");

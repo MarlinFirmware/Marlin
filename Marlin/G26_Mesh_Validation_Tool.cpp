@@ -686,7 +686,7 @@
       }
     }
 
-    if (code_seen('N') || code_seen('n')) {
+    if (code_seen('N') || code_seen('n')) { // Warning! Use of 'N' / lowercase flouts established standards.
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
@@ -728,7 +728,7 @@
       }
     }
 
-    if (code_seen('M')) {
+    if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
       randomSeed(millis());
       // This setting will persist for the next G26
       random_deviation = code_has_value() ? code_value_float() : 50.0;
