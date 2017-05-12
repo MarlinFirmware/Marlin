@@ -115,10 +115,15 @@ tags
 *.dSYM/
 *.su
 
+<<<<<<< HEAD
 #PlatformIO files/dirs
 .pioenvs
 .piolib
 .piolibdeps
+=======
+# PlatformIO files/dirs
+.pio*
+>>>>>>> MarlinFirmware/bugfix-1.1.x
 lib/readme.txt
 
 #Visual Studio

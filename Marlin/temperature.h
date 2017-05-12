@@ -258,10 +258,14 @@ class Temperature {
     #if ENABLED(PROBING_HEATERS_OFF)
       static bool paused;
 <<<<<<< HEAD
+<<<<<<< HEAD
       static int16_t paused_hotend_temp[HOTENDS];
 =======
       static int16_t paused_hotend_temps[HOTENDS];
 >>>>>>> MarlinFirmware/1.1.x
+=======
+      static int16_t paused_hotend_temp[HOTENDS];
+>>>>>>> MarlinFirmware/bugfix-1.1.x
 
       #if HAS_TEMP_BED
         static int16_t paused_bed_temp;
@@ -463,11 +467,15 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
 <<<<<<< HEAD
+<<<<<<< HEAD
       static void pause(const bool p);
 =======
       static void pause(bool p);
       static bool ispaused();
 >>>>>>> MarlinFirmware/1.1.x
+=======
+      static void pause(const bool p);
+>>>>>>> MarlinFirmware/bugfix-1.1.x
     #endif
 
   private:

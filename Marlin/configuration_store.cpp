@@ -342,7 +342,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       static_assert(
-        sizeof(mbl.z_values) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(mbl.z_values[0][0]),
+        sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
         "MBL Z array is the wrong size."
       );
       const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
@@ -386,7 +386,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Compile time test that sizeof(z_values) is as expected
       static_assert(
-        sizeof(z_values) == (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y) * sizeof(z_values[0][0]),
+        sizeof(z_values) == GRID_MAX_POINTS * sizeof(z_values[0][0]),
         "Bilinear Z array is the wrong size."
       );
       const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
@@ -1459,33 +1459,8 @@ void MarlinSettings::reset() {
       SERIAL_EOL;
 
       if (!forReplay) {
-        SERIAL_ECHOPGM("\nUBL is ");
-        ubl.state.active ? SERIAL_CHAR('A') : SERIAL_ECHOPGM("Ina");
-        SERIAL_ECHOLNPAIR("ctive\n\nActive Mesh Slot: ", ubl.state.eeprom_storage_slot);
+        ubl.g29_what_command();        
 
-        SERIAL_ECHOPGM("z_offset: ");
-        SERIAL_ECHO_F(ubl.state.z_offset, 6);
-        SERIAL_EOL;
-
-        SERIAL_ECHOPAIR("EEPROM can hold ", (int)((UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values)));
-        SERIAL_ECHOLNPGM(" meshes.\n");
-
-        SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
-        SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-
-        SERIAL_ECHOPGM("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X));
-        SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_X );
-        SERIAL_ECHOPGM("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y));
-        SERIAL_ECHOLNPAIR("=", UBL_MESH_MIN_Y );
-
-        SERIAL_ECHOPGM("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X));
-        SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_X);
-        SERIAL_ECHOPGM("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y));
-        SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_Y);
-
-        SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
-        SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
-        SERIAL_EOL;
       }
 
     #elif HAS_ABL
