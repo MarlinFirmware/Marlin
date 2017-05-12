@@ -56,6 +56,8 @@
  * G12 - Clean tool
  * G20 - Set input units to inches
  * G21 - Set input units to millimeters
+ * G26 - Mesh Validation Pattern (Requires UBL_G26_MESH_EDITING)
+ * G27 - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
@@ -105,6 +107,7 @@
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
  * M92  - Set planner.axis_steps_per_mm for one or more axes.
+ * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
  * M106 - Fan on.
@@ -210,7 +213,6 @@
  * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
  *
  * ************ Custom codes - This can change to suit future G-code regulations
- * M100 - Watch Free Memory (For Debugging). (Requires M100_FREE_MEMORY_WATCHER)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
  * M999 - Restart after being stopped by error
  *
