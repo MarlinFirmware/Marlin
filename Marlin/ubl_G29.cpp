@@ -56,7 +56,7 @@
   extern bool set_probe_deployed(bool);
   void smart_fill_mesh();
   float measure_business_card_thickness(float &in_height);
-  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
+  void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
 
   bool ProbeStay = true;
 
@@ -482,7 +482,7 @@
            */
           if (c_flag) {
 
-            if ( repetition_cnt >= ( GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y )) {
+            if (repetition_cnt >= GRID_MAX_POINTS) {
               for ( uint8_t x = 0; x < GRID_MAX_POINTS_X; x++ ) {
                 for ( uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++ ) {
                   ubl.z_values[x][y] = ubl_constant;
@@ -735,7 +735,7 @@
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
     DEPLOY_PROBE();
 
-    uint16_t max_iterations = ( GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y );
+    uint16_t max_iterations = GRID_MAX_POINTS;
 
     do {
       if (ubl_lcd_clicked()) {
@@ -941,7 +941,7 @@
     return thickness;
   }
 
-  void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
 
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
@@ -956,14 +956,11 @@
       if (location.x_index < 0 && location.y_index < 0) continue;
 
       const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
-                  rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
-
-      const float xProbe = LOGICAL_X_POSITION(rawx),
+                  rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]),
+                  xProbe = LOGICAL_X_POSITION(rawx),
                   yProbe = LOGICAL_Y_POSITION(rawy);
 
-      if ( ! position_is_reachable_raw_xy( rawx, rawy )) {    // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
-        break;
-      }
+      if (!position_is_reachable_raw_xy(rawx, rawy)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -1129,6 +1126,7 @@
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
+
     // Check if a map type was specified
     if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
       map_type = code_has_value() ? code_value_int() : 0;
