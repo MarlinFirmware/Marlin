@@ -229,6 +229,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     int current_xi = cell_start_xi,
 =======
     int current_xi = cell_start_xi, 
@@ -236,6 +237,9 @@
 =======
     int current_xi = cell_start_xi,
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+    int current_xi = cell_start_xi, 
+>>>>>>> MarlinFirmware/1.1.x
         current_yi = cell_start_yi;
 
     const float m = dy / dx,

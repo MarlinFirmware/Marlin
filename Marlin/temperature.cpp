@@ -204,6 +204,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
   bool Temperature::paused;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   int16_t Temperature::paused_hotend_temp[HOTENDS];
 =======
   int16_t Temperature::paused_hotend_temps[HOTENDS];
@@ -211,6 +212,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 =======
   int16_t Temperature::paused_hotend_temp[HOTENDS];
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+  int16_t Temperature::paused_hotend_temps[HOTENDS];
+>>>>>>> MarlinFirmware/1.1.x
   #if HAS_TEMP_BED
     int16_t Temperature::paused_bed_temp;
   #endif
@@ -1211,6 +1215,7 @@ void Temperature::init() {
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
     ZERO(paused_hotend_temp);
 =======
     ZERO(paused_hotend_temps);
@@ -1222,6 +1227,9 @@ void Temperature::init() {
     paused = false;
     ZERO(paused_hotend_temp);
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+    ZERO(paused_hotend_temps);
+>>>>>>> MarlinFirmware/1.1.x
     #if HAS_TEMP_BED
       paused_bed_temp = 0;
     #endif
@@ -1334,6 +1342,7 @@ void Temperature::disable_all_heaters() {
     paused = false;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     ZERO(paused_hotend_temp);
 =======
     ZERO(paused_hotend_temps);
@@ -1341,6 +1350,9 @@ void Temperature::disable_all_heaters() {
 =======
     ZERO(paused_hotend_temp);
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+    ZERO(paused_hotend_temps);
+>>>>>>> MarlinFirmware/1.1.x
     #if HAS_TEMP_BED
       paused_bed_temp = 0;
     #endif
@@ -1383,6 +1395,7 @@ void Temperature::disable_all_heaters() {
 #if ENABLED(PROBING_HEATERS_OFF)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> MarlinFirmware/bugfix-1.1.x
 
@@ -1411,6 +1424,8 @@ void Temperature::disable_all_heaters() {
 #endif // PROBING_HEATERS_OFF
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> MarlinFirmware/1.1.x
   void Temperature::pause(bool p) {
     if (p && paused) { // If called out of order something is wrong
       SERIAL_ERROR_START;
@@ -1448,9 +1463,12 @@ void Temperature::disable_all_heaters() {
     return paused;
   }
 #endif
+<<<<<<< HEAD
 >>>>>>> MarlinFirmware/1.1.x
 =======
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+>>>>>>> MarlinFirmware/1.1.x
 
 #if ENABLED(HEATER_0_USES_MAX6675)
 

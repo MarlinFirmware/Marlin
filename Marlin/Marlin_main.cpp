@@ -2063,6 +2063,7 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif
 
 #if ENABLED(PROBING_FANS_OFF)
+<<<<<<< HEAD
 
   void fans_pause(const bool p) {
     if (p != fans_paused) {
@@ -2079,6 +2080,35 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
 #endif // PROBING_FANS_OFF
+=======
+  void fans_pause(bool p) {
+    if (p && fans_paused) { // If called out of order something is wrong
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already paused!");
+      return;
+    }
+
+    if (!p && !fans_paused) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Fans already unpaused!");
+      return;
+    }
+
+    if (p) {
+      for (uint8_t x = 0;x < FAN_COUNT;x++) {
+        paused_fanSpeeds[x] = fanSpeeds[x];
+        fanSpeeds[x] = 0;
+      }
+    }
+    else {
+      for (uint8_t x = 0;x < FAN_COUNT;x++)
+        fanSpeeds[x] = paused_fanSpeeds[x];
+    }
+
+    fans_paused = p;
+  }
+#endif
+>>>>>>> MarlinFirmware/1.1.x
 
 #if HAS_BED_PROBE
 
@@ -2092,6 +2122,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
 
   #if QUIET_PROBING
+<<<<<<< HEAD
     void probing_pause(const bool p) {
       #if ENABLED(PROBING_HEATERS_OFF)
         thermalManager.pause(p);
@@ -2102,6 +2133,20 @@ static void clean_up_after_endstop_or_probe_move() {
       if (p) safe_delay(25);
     }
   #endif // QUIET_PROBING
+=======
+    void probing_pause(bool pause) {
+      #if ENABLED(PROBING_HEATERS_OFF)
+        thermalManager.pause(pause);
+      #endif
+
+      #if ENABLED(PROBING_FANS_OFF)
+        fans_pause(pause);
+      #endif
+
+      if(pause) safe_delay(25);
+    }
+  #endif
+>>>>>>> MarlinFirmware/1.1.x
 
   #if ENABLED(BLTOUCH)
 
@@ -3735,10 +3780,14 @@ inline void gcode_G28() {
   #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 <<<<<<< HEAD
+<<<<<<< HEAD
       const bool bed_leveling_state_at_entry = ubl.state.active;
 =======
       const bool ubl_state_at_entry = ubl.state.active;
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+>>>>>>> MarlinFirmware/1.1.x
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -3884,10 +3933,13 @@ inline void gcode_G28() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
+<<<<<<< HEAD
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     set_bed_leveling_enabled(ubl_state_at_entry);
   #endif
+=======
+>>>>>>> MarlinFirmware/1.1.x
 
   clean_up_after_endstop_or_probe_move();
 
@@ -7119,9 +7171,13 @@ inline void gcode_M81() {
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+
+>>>>>>> MarlinFirmware/1.1.x
     #if ENABLED(PROBING_FANS_OFF)
       fans_paused = false;
       ZERO(paused_fanSpeeds);

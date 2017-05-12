@@ -1,7 +1,11 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="../../raw/1.1.x/buildroot/share/pixmaps/logo/marlin-250.png" />
 
+<<<<<<< HEAD
 ## Marlin 1.1.0
+=======
+## Marlin 1.1
+>>>>>>> MarlinFirmware/1.1.x
 
 Marlin 1.1 represents an evolutionary leap over Marlin 1.0.2. It is the result of over two years of effort by several volunteers around the world who have paid meticulous and sometimes obsessive attention to every detail. For this release we focused on code quality, performance, stability, and overall user experience. Several new features have also been added, many of which require no extra hardware.
 
@@ -9,7 +13,11 @@ For complete Marlin documentation click over to the [Marlin Homepage <marlinfw.o
 
 ## Stable Release Branch
 
+<<<<<<< HEAD
 This Release branch contains the latest tagged version of Marlin (currently 1.1.0-1 – May 2017).
+=======
+This Release branch contains the latest tagged version of Marlin (currently 1.1.1 – May 2017).
+>>>>>>> MarlinFirmware/1.1.x
 
 Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/Marlin/tree/1.0.2-2) (December 2016) and [1.0.1](https://github.com/MarlinFirmware/Marlin/tree/1.0.1) (December 2014). Any version of Marlin prior to 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
 
@@ -33,6 +41,7 @@ Arduino IDE now has support for folder hierarchies, so Marlin 1.2 will have a [h
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
+<<<<<<< HEAD
 
 ## Marlin Resources
 
@@ -144,10 +153,18 @@ Proposed patches should be submitted as a Pull Request against this branch ([bug
 
 ### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 =======
+=======
+
+## Marlin Resources
+
+>>>>>>> MarlinFirmware/1.1.x
 - [Marlin Home Page](http://marlinfw.org/) - The Marlin Documentation Project. Join us!
 - [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin) - An overview of Marlin and its role in RepRap.
 - [Marlin Firmware Forum](http://forums.reprap.org/list.php?415) - Find help with configuration, get up and running.
 - [@MarlinFirmware](https://twitter.com/MarlinFirmware) on Twitter - Follow for news, release alerts, and tips & tricks. (Maintained by [@thinkyhead](https://github.com/thinkyhead).)
+<<<<<<< HEAD
+>>>>>>> MarlinFirmware/1.1.x
+=======
 >>>>>>> MarlinFirmware/1.1.x
 
 ## Credits

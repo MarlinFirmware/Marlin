@@ -94,6 +94,7 @@
 <<<<<<< HEAD
    *   N #  Nozzle    Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
    *        'n' can be used instead if your host program does not appreciate you using 'N'.
+<<<<<<< HEAD
 =======
    *   M #  Random      Randomize the order that the circles are drawn on the bed.  The search for the closest
    *                    undrawn cicle is still done.  But the distance to the location for each circle has a
@@ -103,6 +104,8 @@
    *   N #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
    *                    'n' can be used instead if your host program does not appreciate you using 'N'.
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+>>>>>>> MarlinFirmware/1.1.x
    *
    *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print.  This
    *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
@@ -692,10 +695,14 @@
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (code_seen('N') || code_seen('n')) {
 =======
     if (code_seen('N') || code_seen('n')) { // Warning! Use of 'N' / lowercase flouts established standards.
 >>>>>>> MarlinFirmware/bugfix-1.1.x
+=======
+    if (code_seen('N') || code_seen('n')) {
+>>>>>>> MarlinFirmware/1.1.x
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
