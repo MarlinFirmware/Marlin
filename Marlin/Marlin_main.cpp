@@ -4031,7 +4031,7 @@ void home_all_axes() { gcode_G28(); }
           #endif
         }
         // If there's another point to sample, move there with optional lift.
-        if (mbl_probe_index < (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)) {
+        if (mbl_probe_index < GRID_MAX_POINTS) {
           mbl.zigzag(mbl_probe_index, px, py);
           _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
@@ -4250,8 +4250,6 @@ void home_all_axes() { gcode_G28(); }
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
-      #define ABL_GRID_MAX (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
-
       #if ABL_PLANAR
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
@@ -4265,7 +4263,7 @@ void home_all_axes() { gcode_G28(); }
         #if ABL_PLANAR
           ABL_VAR int abl2;
         #else // 3-point
-          int constexpr abl2 = ABL_GRID_MAX;
+          int constexpr abl2 = GRID_MAX_POINTS;
         #endif
       #endif
 
@@ -4277,8 +4275,8 @@ void home_all_axes() { gcode_G28(); }
 
         ABL_VAR int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
-        ABL_VAR float eqnAMatrix[ABL_GRID_MAX * 3], // "A" matrix of the linear system of equations
-                     eqnBVector[ABL_GRID_MAX],     // "B" vector of Z points
+        ABL_VAR float eqnAMatrix[GRID_MAX_POINTS * 3], // "A" matrix of the linear system of equations
+                     eqnBVector[GRID_MAX_POINTS],     // "B" vector of Z points
                      mean;
       #endif
 

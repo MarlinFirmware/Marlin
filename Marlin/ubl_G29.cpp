@@ -1048,8 +1048,8 @@
 
     repeat_flag = code_seen('R');
     if (repeat_flag) {
-      repetition_cnt = code_has_value() ? code_value_int() : (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y);
-      repetition_cnt = min(repetition_cnt, (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y));
+      repetition_cnt = code_has_value() ? code_value_int() : GRID_MAX_POINTS;
+      NOMORE(repetition_cnt, GRID_MAX_POINTS);
       if (repetition_cnt < 1) {
         SERIAL_PROTOCOLLNPGM("?(R)epetition count invalid (1+).\n");
         return UBL_ERR;

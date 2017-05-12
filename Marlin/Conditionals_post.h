@@ -836,4 +836,7 @@
     #endif
   #endif
 
+  // Shorthand
+  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
+
 #endif // CONDITIONALS_POST_H
