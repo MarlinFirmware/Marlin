@@ -3731,7 +3731,7 @@ inline void gcode_G28() {
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool bed_leveling_state_at_entry = ubl.state.active;
+      const bool ubl_state_at_entry = ubl.state.active;
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -3874,8 +3874,9 @@ inline void gcode_G28() {
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    set_bed_leveling_enabled(bed_leveling_state_at_entry);
+    set_bed_leveling_enabled(ubl_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
@@ -11119,7 +11120,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   inline bool prepare_kinematic_move_to(float ltarget[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
-    float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
+    const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
 
     // If the move is only in Z/E don't split up the move
     if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
@@ -11144,7 +11145,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    float seconds = cartesian_mm / _feedrate_mm_s;
+    const float seconds = cartesian_mm / _feedrate_mm_s;
 
     // The number of segments-per-second times the duration
     // gives the number of segments
@@ -11434,7 +11435,7 @@ void prepare_move_to_destination() {
     if (angular_travel == 0 && current_position[X_AXIS] == logical[X_AXIS] && current_position[Y_AXIS] == logical[Y_AXIS])
       angular_travel += RADIANS(360);
 
-    float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
+    const float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
     if (mm_of_travel < 0.001) return;
 
     uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
