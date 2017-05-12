@@ -41,7 +41,7 @@
 
   uint8_t ubl_cnt = 0;
 
-  static void serial_echo_xy(const uint16_t x, const uint16_t y) {
+  static void serial_echo_xy(const int16_t x, const int16_t y) {
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
     SERIAL_CHAR(',');

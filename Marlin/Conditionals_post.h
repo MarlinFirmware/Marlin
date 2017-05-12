@@ -730,11 +730,13 @@
   /**
    * Set granular options based on the specific type of leveling
    */
+
+  #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(DELTA))
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
   #define HAS_ABL    (ABL_PLANAR || ABL_GRID || ENABLED(AUTO_BED_LEVELING_UBL))
   #define HAS_LEVELING          (HAS_ABL || ENABLED(MESH_BED_LEVELING))
-  #define PLANNER_LEVELING      (ABL_PLANAR || ABL_GRID || ENABLED(MESH_BED_LEVELING))
+  #define PLANNER_LEVELING      (ABL_PLANAR || ABL_GRID || ENABLED(MESH_BED_LEVELING) || UBL_DELTA)
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
   #if HAS_PROBING_PROCEDURE
     #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))
@@ -779,12 +781,13 @@
     #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
   #endif
 
-  #if IS_KINEMATIC
-    // Check for this in the code instead
-    #define MIN_PROBE_X X_MIN_POS
-    #define MAX_PROBE_X X_MAX_POS
-    #define MIN_PROBE_Y Y_MIN_POS
-    #define MAX_PROBE_Y Y_MAX_POS
+  #if ENABLED(DELTA)
+    // These will be further constrained in code, but UBL_PROBE_PT values
+    // cannot be compile-time verified within the radius.
+    #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X ( DELTA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y ( DELTA_PRINTABLE_RADIUS)
   #else
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -813,5 +816,23 @@
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
+
+  /**
+   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
+   */
+  #if UBL_DELTA
+    #ifndef DELTA_SEGMENT_MIN_LENGTH
+      #if IS_SCARA
+        #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+      #elif ENABLED(DELTA)
+        #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+      #else // CARTESIAN
+        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #endif
+    #endif
+  #endif
+
+  // Shorthand
+  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
 #endif // CONDITIONALS_POST_H

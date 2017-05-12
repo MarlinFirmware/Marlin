@@ -248,10 +248,9 @@
 #if ENABLED(DELTA)
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
-  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    #error "DELTA is incompatible with ENABLE_LEVELING_FADE_HEIGHT. Please disable it."
-  #endif
-  #if ABL_GRID
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_DELTA
+    #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+  #elif ABL_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
     #elif GRID_MAX_POINTS_X < 3
@@ -430,8 +429,8 @@ static_assert(1 >= 0
  * Unified Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #if ENABLED(DELTA)
-    #error "AUTO_BED_LEVELING_UBL does not yet support DELTA printers."
+  #if IS_SCARA
+    #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
   #elif DISABLED(NEWPANEL)
     #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
   #endif
@@ -593,12 +592,8 @@ static_assert(1 >= 0
   /**
    * Delta and SCARA have limited bed leveling options
    */
-  #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    #if ENABLED(DELTA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling."
-    #elif ENABLED(SCARA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for SCARA bed leveling."
-    #endif
+  #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "Only AUTO_BED_LEVELING_BILINEAR currently supports SCARA bed leveling."
   #endif
 
   /**
@@ -626,18 +621,23 @@ static_assert(1 >= 0
       #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
     #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
       #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
-    #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+    #endif
+    #if IS_CARTESIAN
+      #if !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
+        #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+      #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+      #endif
     #endif
   #else // AUTO_BED_LEVELING_3POINT
     #if !WITHIN(ABL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
