@@ -227,19 +227,7 @@
     const float e_normalized_dist = e_position / on_axis_distance,
                 z_normalized_dist = z_position / on_axis_distance;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     int current_xi = cell_start_xi,
-=======
-    int current_xi = cell_start_xi, 
->>>>>>> MarlinFirmware/1.1.x
-=======
-    int current_xi = cell_start_xi,
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    int current_xi = cell_start_xi, 
->>>>>>> MarlinFirmware/1.1.x
         current_yi = cell_start_yi;
 
     const float m = dy / dx,

@@ -202,19 +202,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
 #if ENABLED(PROBING_HEATERS_OFF)
   bool Temperature::paused;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   int16_t Temperature::paused_hotend_temp[HOTENDS];
-=======
-  int16_t Temperature::paused_hotend_temps[HOTENDS];
->>>>>>> MarlinFirmware/1.1.x
-=======
-  int16_t Temperature::paused_hotend_temp[HOTENDS];
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-  int16_t Temperature::paused_hotend_temps[HOTENDS];
->>>>>>> MarlinFirmware/1.1.x
   #if HAS_TEMP_BED
     int16_t Temperature::paused_bed_temp;
   #endif
@@ -1209,27 +1197,11 @@ void Temperature::init() {
         bed_maxttemp_raw += OVERSAMPLENR;
       #endif
     }
-<<<<<<< HEAD
-  #endif //BED_MAXTEMP
-
-  #if ENABLED(PROBING_HEATERS_OFF)
-    paused = false;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ZERO(paused_hotend_temp);
-=======
-    ZERO(paused_hotend_temps);
->>>>>>> MarlinFirmware/1.1.x
-=======
   #endif // BED_MAXTEMP
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
     ZERO(paused_hotend_temp);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    ZERO(paused_hotend_temps);
->>>>>>> MarlinFirmware/1.1.x
     #if HAS_TEMP_BED
       paused_bed_temp = 0;
     #endif
@@ -1340,19 +1312,7 @@ void Temperature::disable_all_heaters() {
   // Unpause and reset everything
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     ZERO(paused_hotend_temp);
-=======
-    ZERO(paused_hotend_temps);
->>>>>>> MarlinFirmware/1.1.x
-=======
-    ZERO(paused_hotend_temp);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    ZERO(paused_hotend_temps);
->>>>>>> MarlinFirmware/1.1.x
     #if HAS_TEMP_BED
       paused_bed_temp = 0;
     #endif
@@ -1393,11 +1353,6 @@ void Temperature::disable_all_heaters() {
 }
 
 #if ENABLED(PROBING_HEATERS_OFF)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> MarlinFirmware/bugfix-1.1.x
 
   void Temperature::pause(const bool p) {
     if (p != paused) {
@@ -1422,53 +1377,6 @@ void Temperature::disable_all_heaters() {
   }
 
 #endif // PROBING_HEATERS_OFF
-<<<<<<< HEAD
-=======
-=======
->>>>>>> MarlinFirmware/1.1.x
-  void Temperature::pause(bool p) {
-    if (p && paused) { // If called out of order something is wrong
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Heaters already paused!");
-      return;
-    }
-
-    if (!p && !paused) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Heaters already unpaused!");
-      return;
-    }
-
-    if (p) {
-      HOTEND_LOOP() {
-        paused_hotend_temps[e] = degTargetHotend(e);
-        setTargetHotend(0, e);
-      }
-      #if HAS_TEMP_BED
-        paused_bed_temp = degTargetBed();
-        setTargetBed(0);
-      #endif
-    }
-    else {
-      HOTEND_LOOP() setTargetHotend(paused_hotend_temps[e], e);
-      #if HAS_TEMP_BED
-        setTargetBed(paused_bed_temp);
-      #endif
-    }
-
-    paused = p;
-  }
-
-  bool Temperature::ispaused() {
-    return paused;
-  }
-#endif
-<<<<<<< HEAD
->>>>>>> MarlinFirmware/1.1.x
-=======
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
->>>>>>> MarlinFirmware/1.1.x
 
 #if ENABLED(HEATER_0_USES_MAX6675)
 

@@ -429,9 +429,6 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
   bool axis_unhomed_error(const bool x, const bool y, const bool z);
 #endif
 
-<<<<<<< HEAD
-#endif // MARLIN_H
-=======
 /**
  * position_is_reachable family of functions
  */
@@ -498,4 +495,3 @@ inline bool position_is_reachable_xy( float target_x, float target_y ) {
 }
 
 #endif //MARLIN_H
->>>>>>> MarlinFirmware/bugfix-1.1.x

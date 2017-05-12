@@ -649,11 +649,7 @@
   /**
    * Heater & Fan Pausing
    */
-<<<<<<< HEAD
   #if FAN_COUNT == 0
-=======
-  #if ENABLED(PROBING_FANS_OFF) && FAN_COUNT == 0
->>>>>>> MarlinFirmware/1.1.x
     #undef PROBING_FANS_OFF
   #endif
   #define QUIET_PROBING (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF))

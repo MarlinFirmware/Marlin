@@ -461,12 +461,6 @@
               return;
             }
           }
-<<<<<<< HEAD
-          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
-          SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
-<<<<<<< HEAD
-=======
->>>>>>> MarlinFirmware/bugfix-1.1.x
 
           if (code_seen('H') && code_has_value()) height = code_value_float();
           
@@ -474,8 +468,6 @@
             SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
             return;
           }
-=======
->>>>>>> MarlinFirmware/1.1.x
 
           manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
@@ -914,34 +906,18 @@
     do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
       //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
     stepper.synchronize();
-<<<<<<< HEAD
-<<<<<<< HEAD
-    SERIAL_PROTOCOLPGM("Place shim under nozzle.");
-=======
 
     SERIAL_PROTOCOLPGM("Place shim under nozzle");
     LCD_MESSAGEPGM("Place shim & measure");
     lcd_goto_screen(lcd_status_screen);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    SERIAL_PROTOCOLPGM("Place shim under nozzle.");
->>>>>>> MarlinFirmware/1.1.x
     say_and_take_a_measurement();
 
     const float z1 = use_encoder_wheel_to_measure_point();
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
     stepper.synchronize();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    SERIAL_PROTOCOLPGM("Remove shim.");
-=======
     SERIAL_PROTOCOLPGM("Remove shim");
     LCD_MESSAGEPGM("Remove & measure bed");
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    SERIAL_PROTOCOLPGM("Remove shim.");
->>>>>>> MarlinFirmware/1.1.x
     say_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
@@ -1107,13 +1083,6 @@
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
       err_flag = true;
     }
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-=======
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
->>>>>>> MarlinFirmware/1.1.x
     if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       err_flag = true;
@@ -1665,14 +1634,7 @@
       SERIAL_ECHOPGM("Could not complete LSF!");
       return;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> MarlinFirmware/1.1.x
-
-=======
     
->>>>>>> MarlinFirmware/bugfix-1.1.x
     if (g29_verbose_level > 3) {
       SERIAL_ECHOPGM("LSF Results A=");
       SERIAL_PROTOCOL_F(lsf_results.A, 7);

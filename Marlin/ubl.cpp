@@ -136,15 +136,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    constexpr uint8_t spaces = 11 * (GRID_MAX_POINTS_X - 2);
-=======
     constexpr uint8_t spaces = 9 * (GRID_MAX_POINTS_X - 2);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-    constexpr uint8_t spaces = 11 * (GRID_MAX_POINTS_X - 2);
->>>>>>> MarlinFirmware/1.1.x
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -153,15 +145,7 @@
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
-<<<<<<< HEAD
-<<<<<<< HEAD
-      SERIAL_ECHO_SP(spaces - 3);
-=======
       SERIAL_ECHO_SP(spaces);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-      SERIAL_ECHO_SP(spaces - 3);
->>>>>>> MarlinFirmware/1.1.x
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
@@ -206,15 +190,7 @@
 
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-<<<<<<< HEAD
-<<<<<<< HEAD
-      SERIAL_ECHO_SP(spaces + 1);
-=======
       SERIAL_ECHO_SP(spaces + 4);
->>>>>>> MarlinFirmware/bugfix-1.1.x
-=======
-      SERIAL_ECHO_SP(spaces + 1);
->>>>>>> MarlinFirmware/1.1.x
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
