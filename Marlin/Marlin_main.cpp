@@ -5179,7 +5179,8 @@ void home_all_axes() { gcode_G28(); }
       #endif
 
       int8_t iterations = 0;
-      bool first_probe = true;
+      home_offset[Z_AXIS] -= probe_pt(0.0, 0.0 , true, 1); // 1st probe to set height
+      do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
 
       do {
 
@@ -5196,20 +5197,12 @@ void home_all_axes() { gcode_G28(); }
 
         if (!do_all_positions && !do_circle_x3) { // probe the center
           z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
-          if (first_probe) { // use 1st probe result to set height for next probes
-            home_offset[Z_AXIS] -= z_at_pt[0];
-            first_probe = false;
-          }
         }
         if (probe_center_plus_3) { // probe extra center points
           for (int8_t axis = probe_center_plus_6 ? 11 : 9; axis > 0; axis -= probe_center_plus_6 ? 2 : 4) {
             z_at_pt[0] += probe_pt(
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
               sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
-            if (first_probe) { // use 1st probe result to set height for next probes
-              home_offset[Z_AXIS] -= z_at_pt[0];
-              first_probe = false;
-            }
           }
           z_at_pt[0] /= float(do_circle_x2 ? 7 : probe_points);
         }
@@ -5246,6 +5239,7 @@ void home_all_axes() { gcode_G28(); }
           }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+        
         if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
 
         // Solve matrices
