@@ -122,7 +122,7 @@
 
   // External references
 
-  extern float feedrate;
+  extern float feedrate_mm_s; // must set before calling prepare_move_to_destination
   extern Planner planner;
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
@@ -130,6 +130,7 @@
   extern float destination[XYZE];
   void set_destination_to_current();
   void set_current_to_destination();
+  void prepare_move_to_destination();
   float code_value_float();
   float code_value_linear_units();
   float code_value_axis_units(const AxisEnum axis);
@@ -137,9 +138,6 @@
   bool code_has_value();
   void lcd_init();
   void lcd_setstatuspgm(const char* const message, const uint8_t level);
-  bool prepare_move_to_destination_cartesian();
-  void line_to_destination();
-  void line_to_destination(float);
   void sync_plan_position_e();
   void chirp_at_user();
 
@@ -181,6 +179,13 @@
   static bool keep_heaters_on = false;
 
   static int16_t g26_repeats;
+
+  void G26_line_to_destination(const float &feed_rate) {
+    const float save_feedrate = feedrate_mm_s;
+    feedrate_mm_s = feed_rate;      // use specified feed rate
+    prepare_move_to_destination();  // will ultimately call ubl_line_to_destination_cartesian or ubl_prepare_linear_move_to for UBL_DELTA
+    feedrate_mm_s = save_feedrate;  // restore global feed rate
+  }
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -271,21 +276,10 @@
         const float circle_x = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                     circle_y = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-        // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
-        #ifdef DELTA
-          if (HYPOT2(circle_x, circle_y) > sq(DELTA_PRINTABLE_RADIUS)) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Attempt to print outside of DELTA_PRINTABLE_RADIUS.");
-            goto LEAVE;
-          }
-        #endif
+        // If this mesh location is outside the printable_radius, skip it.
 
-        // TODO: Change this to use `position_is_reachable`
-        if (!WITHIN(circle_x, X_MIN_POS, X_MAX_POS) || !WITHIN(circle_y, Y_MIN_POS, Y_MAX_POS)) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Attempt to print off the bed.");
-          goto LEAVE;
-        }
+        if ( ! position_is_reachable_raw_xy( circle_x, circle_y ))
+          continue;
 
         xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
         yi = location.y_index;
@@ -333,9 +327,11 @@
                 y = circle_y + sin_table[tmp_div_30],
                 xe = circle_x + cos_table[tmp_div_30 + 1],
                 ye = circle_y + sin_table[tmp_div_30 + 1];
-          #ifdef DELTA
-            if (HYPOT2(x, y) > sq(DELTA_PRINTABLE_RADIUS))   // Check to make sure this part of
-              continue;                                      // the 'circle' is on the bed.  If
+          #if IS_KINEMATIC
+            // Check to make sure this segment is entirely on the bed, skip if not.
+            if (( ! position_is_reachable_raw_xy( x , y  )) ||
+                ( ! position_is_reachable_raw_xy( xe, ye )))
+              continue;
           #else                                              // not, we need to skip
             x  = constrain(x, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
             y  = constrain(y, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -463,18 +459,22 @@
               sy = ey = constrain(pgm_read_float(&ubl.mesh_index_to_ypos[j]), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
-              if (ubl.g26_debug_flag) {
-                SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
-                SERIAL_ECHOPAIR(", sy=", sy);
-                SERIAL_ECHOPAIR(") -> (ex=", ex);
-                SERIAL_ECHOPAIR(", ey=", ey);
-                SERIAL_CHAR(')');
-                SERIAL_EOL;
-                //debug_current_and_destination(PSTR("Connecting horizontal line."));
-              }
+              if (( position_is_reachable_raw_xy( sx, sy )) &&
+                  ( position_is_reachable_raw_xy( ex, ey ))) {
 
-              print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
-              bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
+                if (ubl.g26_debug_flag) {
+                  SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
+                  SERIAL_ECHOPAIR(", sy=", sy);
+                  SERIAL_ECHOPAIR(") -> (ex=", ex);
+                  SERIAL_ECHOPAIR(", ey=", ey);
+                  SERIAL_CHAR(')');
+                  SERIAL_EOL;
+                  //debug_current_and_destination(PSTR("Connecting horizontal line."));
+                }
+  
+                print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
+              }
+              bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
             }
           }
 
@@ -494,17 +494,21 @@
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-                if (ubl.g26_debug_flag) {
-                  SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
-                  SERIAL_ECHOPAIR(", sy=", sy);
-                  SERIAL_ECHOPAIR(") -> (ex=", ex);
-                  SERIAL_ECHOPAIR(", ey=", ey);
-                  SERIAL_CHAR(')');
-                  SERIAL_EOL;
-                  debug_current_and_destination(PSTR("Connecting vertical line."));
+                if (( position_is_reachable_raw_xy( sx, sy )) &&
+                    ( position_is_reachable_raw_xy( ex, ey ))) {
+
+                  if (ubl.g26_debug_flag) {
+                    SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
+                    SERIAL_ECHOPAIR(", sy=", sy);
+                    SERIAL_ECHOPAIR(") -> (ex=", ex);
+                    SERIAL_ECHOPAIR(", ey=", ey);
+                    SERIAL_CHAR(')');
+                    SERIAL_EOL;
+                    debug_current_and_destination(PSTR("Connecting vertical line."));
+                  }
+                  print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
                 }
-                print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
-                bit_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
+                bit_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if skipped
               }
             }
           }
@@ -532,7 +536,7 @@
       destination[Z_AXIS] = z;                          // We know the last_z==z or we wouldn't be in this block of code.
       destination[E_AXIS] = current_position[E_AXIS];
 
-      ubl_line_to_destination(feed_value, 0);
+      G26_line_to_destination(feed_value);
 
       stepper.synchronize();
       set_destination_to_current();
@@ -552,7 +556,7 @@
 
     //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() doing last move"));
 
-    ubl_line_to_destination(feed_value, 0);
+    G26_line_to_destination(feed_value);
 
     //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() after last move"));
 
@@ -755,20 +759,16 @@
     y_pos = current_position[Y_AXIS];
 
     if (code_seen('X')) {
-      x_pos = code_value_axis_units(X_AXIS);
-      if (!WITHIN(x_pos, X_MIN_POS, X_MAX_POS)) {
-        SERIAL_PROTOCOLLNPGM("?Specified X coordinate not plausible.");
-        return UBL_ERR;
-      }
+      x_pos = code_value_float();
     }
-    else
 
     if (code_seen('Y')) {
-      y_pos = code_value_axis_units(Y_AXIS);
-      if (!WITHIN(y_pos, Y_MIN_POS, Y_MAX_POS)) {
-        SERIAL_PROTOCOLLNPGM("?Specified Y coordinate not plausible.");
-        return UBL_ERR;
-      }
+      y_pos = code_value_float();
+    }
+
+    if ( ! position_is_reachable_xy( x_pos, y_pos )) {
+      SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
+      return UBL_ERR;
     }
 
     /**
@@ -864,7 +864,7 @@
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) return UBL_ERR;
         #endif
-        ubl_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0);
+        G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
 
         stepper.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
@@ -893,7 +893,7 @@
       #endif
       set_destination_to_current();
       destination[E_AXIS] += prime_length;
-      ubl_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0);
+      G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
       stepper.synchronize();
       set_destination_to_current();
       retract_filament(destination);

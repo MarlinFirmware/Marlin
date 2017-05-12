@@ -436,8 +436,13 @@
              * It may make sense to have Delta printers default to the center of the bed.
              * Until that is decided, this can be forced with the X and Y parameters.
              */
-            x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? UBL_MESH_MAX_X : UBL_MESH_MIN_X;
-            y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? UBL_MESH_MAX_Y : UBL_MESH_MIN_Y;
+            #if IS_KINEMATIC
+              x_pos = X_HOME_POS;
+              y_pos = Y_HOME_POS;
+            #else // cartesian
+              x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_MAX_POS : X_MIN_POS;
+              y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_MAX_POS : Y_MIN_POS;
+            #endif
           }
 
           if (code_seen('C')) {
@@ -457,6 +462,11 @@
           }
 
           if (code_seen('H') && code_has_value()) height = code_value_float();
+          
+          if ( !position_is_reachable_xy( x_pos, y_pos )) {
+            SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
+            return;
+          }
 
           manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
@@ -470,17 +480,25 @@
            *   - Allow 'G29 P3' to choose a 'reasonable' constant.
            */
           if (c_flag) {
-            while (repetition_cnt--) {
-              const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, x_pos, y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
-              if (location.x_index < 0) break; // No more invalid Mesh Points to populate
-                ubl.z_values[location.x_index][location.y_index] = ubl_constant;
-            }
-            break;
-          }
-          else
-            smart_fill_mesh(); // Do a 'Smart' fill using nearby known values
 
-        } break;
+            if ( repetition_cnt >= ( GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y )) {
+              for ( uint8_t x = 0; x < GRID_MAX_POINTS_X; x++ ) {
+                for ( uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++ ) {
+                  ubl.z_values[x][y] = ubl_constant;
+                }
+              }
+            } else {
+              while (repetition_cnt--) {  // this only populates reachable mesh points near 
+                const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, x_pos, y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
+                if (location.x_index < 0) break; // No more reachable invalid Mesh Points to populate
+                ubl.z_values[location.x_index][location.y_index] = ubl_constant;
+              }
+            }
+          } else {
+            smart_fill_mesh(); // Do a 'Smart' fill using nearby known values
+          }
+          break;
+        }
 
         case 4:
           //
@@ -501,6 +519,12 @@
       float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
             z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
             z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+
+      if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
+          goto LEAVE;
+      }
 
       //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
       //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
@@ -710,6 +734,8 @@
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
     DEPLOY_PROBE();
 
+    uint16_t max_iterations = ( GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y );
+
     do {
       if (ubl_lcd_clicked()) {
         SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
@@ -723,27 +749,19 @@
       }
 
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, do_furthest);
-      if (location.x_index >= 0 && location.y_index >= 0) {
+
+      if (location.x_index >= 0) {    // mesh point found and is reachable by probe
 
         const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                     rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-        // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-        if (!WITHIN(rawx, MIN_PROBE_X, MAX_PROBE_X) || !WITHIN(rawy, MIN_PROBE_Y, MAX_PROBE_Y)) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
-          ubl.has_control_of_lcd_panel = false;
-          goto LEAVE;
-        }
         const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level);
         ubl.z_values[location.x_index][location.y_index] = measured_z;
       }
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);
 
-    } while (location.x_index >= 0 && location.y_index >= 0);
-
-    LEAVE:
+    } while ((location.x_index >= 0) && (--max_iterations));
 
     STOW_PROBE();
     ubl.restore_ubl_active_state_and_leave();
@@ -939,16 +957,12 @@
       const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                   rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-      // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (!WITHIN(rawx, UBL_MESH_MIN_X, UBL_MESH_MAX_X) || !WITHIN(rawy, UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
-        ubl.has_control_of_lcd_panel = false;
-        goto LEAVE;
-      }
-
       const float xProbe = LOGICAL_X_POSITION(rawx),
                   yProbe = LOGICAL_Y_POSITION(rawy);
+
+      if ( ! position_is_reachable_raw_xy( rawx, rawy )) {    // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
+        break;
+      }
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -1361,13 +1375,17 @@
                       rawy = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // If using the probe as the reference there are some unreachable locations.
+          // Also for round beds, there are grid points outside the bed that nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if (probe_as_reference == USE_PROBE_AS_REFERENCE &&
-            (!WITHIN(rawx, MIN_PROBE_X, MAX_PROBE_X) || !WITHIN(rawy, MIN_PROBE_Y, MAX_PROBE_Y))
-          ) continue;
+          bool reachable = probe_as_reference ?
+                             position_is_reachable_by_probe_raw_xy( rawx, rawy ) :
+                             position_is_reachable_raw_xy( rawx, rawy );
 
-          // Unreachable. Check if it's the closest location to the nozzle.
+          if ( ! reachable )
+            continue;
+
+          // Reachable. Check if it's the closest location to the nozzle.
           // Add in a weighting factor that considers the current location of the nozzle.
 
           const float mx = LOGICAL_X_POSITION(rawx), // Check if we can probe this mesh location
@@ -1415,7 +1433,13 @@
     uint16_t not_done[16];
     int32_t round_off;
 
+    if ( ! position_is_reachable_xy( lx, ly )) {
+      SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
+      return;
+    }
+
     ubl.save_ubl_active_state_and_disable();
+
     memset(not_done, 0xFF, sizeof(not_done));
 
     LCD_MESSAGEPGM("Fine Tuning Mesh");
@@ -1425,7 +1449,7 @@
     do {
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
 
-      if (location.x_index < 0 && location.y_index < 0) continue; // abort if we can't find any more points.
+      if (location.x_index < 0 ) break; // stop when we can't find any more reachable points.
 
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
                                                                 // different location the next time through the loop
@@ -1433,12 +1457,8 @@
       const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                   rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-      // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (!WITHIN(rawx, UBL_MESH_MIN_X, UBL_MESH_MAX_X) || !WITHIN(rawy, UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)) { // In theory, we don't need this check.
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Attempt to edit off the bed."); // This really can't happen, but do the check for now
-        ubl.has_control_of_lcd_panel = false;
-        goto FINE_TUNE_EXIT;
+      if ( ! position_is_reachable_raw_xy( rawx, rawy )) { // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+        break;
       }
 
       float new_z = ubl.z_values[location.x_index][location.y_index];
@@ -1494,7 +1514,7 @@
 
       lcd_implementation_clear();
 
-    } while (location.x_index >= 0 && location.y_index >= 0 && (--repetition_cnt>0));
+    } while (( location.x_index >= 0 ) && (--repetition_cnt>0));
 
     FINE_TUNE_EXIT:
 

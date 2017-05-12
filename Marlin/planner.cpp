@@ -63,6 +63,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include "ubl.h"
 
 #include "Marlin.h"
 
@@ -533,6 +534,17 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_DELTA)  // probably should also be enabled for UBL without UBL_DELTA
+      if (!ubl.state.active) return;
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
+        if ((planner.z_fade_height) && (planner.z_fade_height <= RAW_Z_POSITION(lz))) return;
+        lz += ubl.state.z_offset + ( ubl.get_z_correction(lx,ly) * ubl.fade_scaling_factor_for_z(lz));
+      #else // no fade
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly);
+      #endif // FADE
+    #endif // UBL
+
     #if HAS_ABL
       if (!abl_enabled) return;
     #endif
@@ -585,6 +597,39 @@ void Planner::check_axes_activity() {
   }
 
   void Planner::unapply_leveling(float logical[XYZ]) {
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_DELTA)
+
+      if ( ubl.state.active ) {
+
+        float z_leveled = RAW_Z_POSITION(logical[Z_AXIS]);
+        float z_ublmesh = ubl.get_z_correction(logical[X_AXIS],logical[Y_AXIS]);
+        float z_unlevel = z_leveled - ubl.state.z_offset - z_ublmesh;
+
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+          // for L=leveled, U=unleveled, M=mesh, O=offset, H=fade_height,
+          // Given L==U+O+M(1-U/H) (faded mesh correction formula for U<H)
+          //  then U==L-O-M(1-U/H)
+          //    so U==L-O-M+MU/H
+          //    so U-MU/H==L-O-M
+          //    so U(1-M/H)==L-O-M
+          //    so U==(L-O-M)/(1-M/H) for U<H
+
+          if ( planner.z_fade_height ) {
+            float z_unfaded = z_unlevel / ( 1.0 - ( z_ublmesh * planner.inverse_z_fade_height ));
+            if ( z_unfaded < planner.z_fade_height )  // don't know until after compute
+              z_unlevel = z_unfaded;
+          }
+
+        #endif // ENABLE_LEVELING_FADE_HEIGHT
+
+        logical[Z_AXIS] = z_unlevel;
+      }
+
+      return; // don't fall thru to HAS_ABL or other ENABLE_LEVELING_FADE_HEIGHT logic
+
+    #endif
 
     #if HAS_ABL
       if (!abl_enabled) return;

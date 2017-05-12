@@ -52,7 +52,8 @@
   // ubl_motion.cpp
 
   void debug_current_and_destination(const char * const title);
-  void ubl_line_to_destination(const float&, uint8_t);
+  void ubl_line_to_destination_cartesian(const float&, uint8_t);
+  bool ubl_prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate );
 
   // ubl_G29.cpp
 
@@ -329,10 +330,8 @@
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-
-        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+        inline float fade_scaling_factor_for_z(const float &lz) {
           if (planner.z_fade_height == 0.0) return 1.0;
-
           static float fade_scaling_factor = 1.0;
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
@@ -344,7 +343,10 @@
           }
           return fade_scaling_factor;
         }
-
+      #else
+        inline float fade_scaling_factor_for_z(const float &lz) {
+          return 1.0;
+        }
       #endif
 
   }; // class unified_bed_leveling
