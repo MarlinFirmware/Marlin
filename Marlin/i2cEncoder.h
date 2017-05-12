@@ -73,8 +73,6 @@
 #define ERROR_COUNTER_TRIGGER_THRESHOLD     3.00
 #define ERROR_COUNTER_DEBOUNCE_MS           2000
 
-//Use a rolling average to identify persistant errors that indicate skips vs vibration and noise
-#define ERROR_ROLLING_AVERAGE
 #if ENABLED(ERROR_ROLLING_AVERAGE)
   #define ERROR_ARRAY_SIZE 32
 #endif
