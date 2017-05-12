@@ -7623,7 +7623,6 @@ inline void gcode_M205() {
     if (code_seen('H')) {
       home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
       current_position[Z_AXIS] += code_value_linear_units() - DELTA_HEIGHT - home_offset[Z_AXIS];
-      home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
       update_software_endstops(Z_AXIS);
     }
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
