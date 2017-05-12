@@ -99,12 +99,12 @@ void gcode_M860();
 void gcode_M861();
 void gcode_M862();
 void gcode_M863();
-//void gcode_M864();
-//void gcode_M865();
+void gcode_M864();
+void gcode_M865();
 void gcode_M866();
 void gcode_M867();
 void gcode_M868();
-//void gcode_M869();
+void gcode_M869();
 
 class I2cEncoder {
     private:
@@ -117,7 +117,7 @@ class I2cEncoder {
         int encoderTicksPerUnit     = DEFAULT_ENCODER_TICKS_PER_MM;
         int stepperTicks            = DEFAULT_STEPPER_TICKS_REVOLUTION;
 
-//        float axisOffset = 0;
+        float axisOffset = 0;
         long axisOffsetTicks = 0;
         long zeroOffset = 0;
         bool homed = false;
@@ -144,13 +144,13 @@ class I2cEncoder {
         void init(AxisEnum axis, byte address);
         void update();
         void set_homed();
-//        double get_axis_error_mm(bool report);
+        double get_axis_error_mm(bool report);
         long get_axis_error_steps(bool report);
         double get_position_mm();
         double mm_from_count(long count);
         long get_position();
         long get_raw_count();
-//        void set_led_param(byte, byte, byte);
+        void set_led_param(byte, byte, byte);
         void set_zeroed();
         bool passes_test(bool report,bool &moduleDetected);
         bool passes_test(bool report);
@@ -210,13 +210,13 @@ class EncoderManager {
         void homed(AxisEnum axis);
         void report_position(AxisEnum axis, bool units, bool noOffset);
         void report_status(AxisEnum axis);
-//        void report_error(AxisEnum axis);
+        void report_error(AxisEnum axis);
         void test_axis(AxisEnum axis);
         void test_axis();
         void calibrate_steps_mm(AxisEnum axis, int iterations);
         void calibrate_steps_mm(int iterations);
-//        void change_module_address(int oldAddress, int newAddress);
-//        void check_module_firmware(int address);
+        void change_module_address(int oldAddress, int newAddress);
+        void check_module_firmware(int address);
         void report_error_count(AxisEnum axis);
         void report_error_count();
         void reset_error_count(AxisEnum axis);
