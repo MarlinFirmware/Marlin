@@ -445,7 +445,7 @@
             y_pos = current_position[Y_AXIS];
           }
 
-          float height = code_seen('H') && code_has_value() ? code_value_float() : Z_CLEARANCE_BETWEEN_PROBES;
+          float height = Z_CLEARANCE_BETWEEN_PROBES;
 
           if (code_seen('B')) {
             card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
@@ -455,9 +455,11 @@
               return;
             }
           }
+
+          if (code_seen('H') && code_has_value()) height = code_value_float();
+
           manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M'));
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
-
         } break;
 
         case 3: {
@@ -884,9 +886,9 @@
     do_blocking_move_to_z(in_height);
     do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
       //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
-
     stepper.synchronize();
-    SERIAL_PROTOCOLPGM("Place shim under nozzle.");
+
+    SERIAL_PROTOCOLPGM("Place shim under nozzle");
     LCD_MESSAGEPGM("Place shim & measure");
     lcd_goto_screen(lcd_status_screen);
     say_and_take_a_measurement();
@@ -895,35 +897,39 @@
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
     stepper.synchronize();
 
-    SERIAL_PROTOCOLPGM("Remove shim.");
-    LCD_MESSAGEPGM("Remove & measure");
- 
+    SERIAL_PROTOCOLPGM("Remove shim");
+    LCD_MESSAGEPGM("Remove & measure bed");
     say_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
+
     do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
 
+    const float thickness = abs(z1 - z2);
+
     if (g29_verbose_level > 1) {
-      SERIAL_PROTOCOLPGM("Business Card is: ");
-      SERIAL_PROTOCOL_F(abs(z1 - z2), 6);
+      SERIAL_PROTOCOLPGM("Business Card is ");
+      SERIAL_PROTOCOL_F(thickness, 4);
       SERIAL_PROTOCOLLNPGM("mm thick.");
     }
+
     in_height = current_position[Z_AXIS]; // do manual probing at lower height
+
     ubl.has_control_of_lcd_panel = false;
 
     ubl.restore_ubl_active_state_and_leave();
-    return abs(z1 - z2);
+
+    return thickness;
   }
 
   void manually_probe_remaining_mesh(const float &lx, const float &ly, float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
 
     ubl.has_control_of_lcd_panel = true;
     ubl.save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
-    do_blocking_move_to_z(z_clearance);
+    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     do_blocking_move_to_xy(lx, ly);
 
     lcd_goto_screen(lcd_status_screen);
-    float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_NOZZLE_AS_REFERENCE, NULL, false);
@@ -942,25 +948,20 @@
       }
 
       const float xProbe = LOGICAL_X_POSITION(rawx),
-                  yProbe = LOGICAL_Y_POSITION(rawy),
-                  dx = xProbe - last_x,
-                  dy = yProbe - last_y;
+                  yProbe = LOGICAL_Y_POSITION(rawy);
 
-      if (HYPOT(dx, dy) < BIG_RAISE_NOT_NEEDED)
-        do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
-      else
-        do_blocking_move_to_z(z_clearance);
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+
       LCD_MESSAGEPGM("Moving to next");
 
       do_blocking_move_to_xy(xProbe, yProbe);
-
-      last_x = xProbe;
-      last_y = yProbe;
+      do_blocking_move_to_z(z_clearance);
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       ubl.has_control_of_lcd_panel = true;
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
+
       if (code_seen('B')) {LCD_MESSAGEPGM("Place shim & measure");}
       else {LCD_MESSAGEPGM("Measure");}
 
