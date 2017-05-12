@@ -278,7 +278,7 @@
   #include "twibus.h"
 #endif
 
-#if ENABLED(I2C_ENCODERS_ENABLED)
+#if ENABLED(I2C_POSITION_ENCODERS)
   #include "i2cEncoder.h"
 #endif
 
@@ -673,7 +673,7 @@ static bool send_ok[BUFSIZE];
   #define host_keepalive() NOOP
 #endif
 
-#if ENABLED(I2C_ENCODERS_ENABLED)
+#if ENABLED(I2C_POSITION_ENCODERS)
   EncoderManager i2cEncoderManager = EncoderManager();
   uint8_t blockBufferIndexRef = 0;
   millis_t lastUpdateMillis; 
@@ -1601,7 +1601,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     }
   #endif
   
-  #if ENABLED(I2C_ENCODERS_ENABLED)
+  #if ENABLED(I2C_POSITION_ENCODERS)
     i2cEncoderManager.homed(axis);
   #endif
 }
@@ -5549,7 +5549,7 @@ inline void gcode_G92() {
           #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
-            #if ENABLED(I2C_ENCODERS_ENABLED)
+            #if ENABLED(I2C_POSITION_ENCODERS)
               i2cEncoderManager.encoderArray[i2cEncoderManager.get_encoder_index_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
             #endif
           #endif
@@ -9329,7 +9329,7 @@ inline void gcode_M355() {
 
 #endif // MIXING_EXTRUDER
 
-#if ENABLED(I2C_ENCODERS_ENABLED)
+#if ENABLED(I2C_POSITION_ENCODERS)
 
   //Reads and reports the current position of a given encoder module
   inline void gcode_M860() {
@@ -9372,7 +9372,7 @@ inline void gcode_M355() {
     if(!reported) {
       LOOP_XYZ(i) {
         SERIAL_ECHO(axis_codes[i]);
-        SERIAL_ECHO(": ");
+        SERIAL_ECHOPGM(": ");
         i2cEncoderManager.report_status(AxisEnum(i));
       }
     }
@@ -9421,7 +9421,7 @@ inline void gcode_M355() {
     }
 
   }
-/*
+
   //Changes a module from one I2C address to another
   // assumes module is currently at default address,
   // specify different current address by OXXX (i.e. O032)
@@ -9468,17 +9468,17 @@ inline void gcode_M355() {
 
     if(addressSelected) { 
       if(newAddress > 0 && newAddress <= 255 && oldAddress > 0 && oldAddress <= 255) {
-        SERIAL_ECHO("Changing module at address ");
+        SERIAL_ECHOPGM("Changing module at address ");
         SERIAL_ECHO(oldAddress);
-        SERIAL_ECHO(" to new address ");
+        SERIAL_ECHOPGM(" to new address ");
         SERIAL_ECHOLN(newAddress);
         i2cEncoderManager.change_module_address(oldAddress, newAddress);
       }
     } else {
-      SERIAL_ECHOLN("Please specify a new address!");
+      SERIAL_ECHOLNPGM("Please specify a new address!");
     }
   }
-/*
+
   //checks the firmware version of an encoder module at a given address
   inline void gcode_M865() {
     AxisEnum selectedAxis;
@@ -9517,10 +9517,10 @@ inline void gcode_M355() {
     if(addressSelected) { 
         i2cEncoderManager.check_module_firmware(selectedAddress);
     } else {
-      SERIAL_ECHOLN("Please specify an address to check!");
+      SERIAL_ECHOLNPGM("Please specify an address to check!");
     }
   }
-*/
+
   //reports current error count (see encoder config section) for a given encoder
   // 'R' flag will reset the error count instead
   inline void gcode_M866() {
@@ -9617,7 +9617,7 @@ inline void gcode_M355() {
   }
 
 
-/*  //Error
+  //Error
   inline void gcode_M869() {
     bool units;
     AxisEnum selectedAxis;
@@ -9637,9 +9637,9 @@ inline void gcode_M355() {
 
     i2cEncoderManager.report_error(selectedAxis);
   }
-*/
 
-#endif //I2C_ENCODERS_ENABLED
+
+#endif //I2C_POSITION_ENCODERS
 
 /**
  * M999: Restart after being stopped
@@ -10803,7 +10803,7 @@ void process_next_command() {
         gcode_M355();
         break;
 
-      #if ENABLED(I2C_ENCODERS_ENABLED)
+      #if ENABLED(I2C_POSITION_ENCODERS)
 
         case 860: // M860 Report encoder module position
           gcode_M860();
@@ -10820,15 +10820,15 @@ void process_next_command() {
         case 863: // M863 Calibrate steps/mm
           gcode_M863();
           break;
-/*
+
         case 864: // M864 Change module address
           gcode_M864();
           break;
-/*
+
         case 865: // M865 Check module firmware version
           gcode_M865();
           break;
-*/
+
         case 866: // M866 Report axis error count
           gcode_M866();
           break;
@@ -10840,12 +10840,12 @@ void process_next_command() {
         case 868: // M868 Set error correction threshold
           gcode_M868();
           break;
-/*
+
         case 869: // M869 Report axis error
           gcode_M869();
           break;
-*/
-      #endif // I2C_ENCODERS_ENABLED
+
+      #endif // I2C_POSITION_ENCODERS
                             
       case 999: // M999: Restart after being Stopped
         gcode_M999();
@@ -12122,7 +12122,7 @@ void disable_all_steppers() {
       const bool has_days = (elapsed.value > 60*60*24L);
       (void)elapsed.toDigital(timestamp, has_days);
       SERIAL_ECHO(timestamp);
-      SERIAL_ECHO(": ");
+      SERIAL_ECHOPGM(": ");
       SERIAL_ECHO(axisID);
       SERIAL_ECHOLNPGM(" driver overtemperature warning!");
     }
@@ -12418,7 +12418,7 @@ void idle(
     buzzer.tick();
   #endif
             
-  #if ENABLED(I2C_ENCODERS_ENABLED)
+  #if ENABLED(I2C_POSITION_ENCODERS)
     if (planner.blocks_queued() && ((blockBufferIndexRef != planner.block_buffer_head) || ((lastUpdateMillis + 100) < millis()))) {
       blockBufferIndexRef = planner.block_buffer_head;
       i2cEncoderManager.update();
@@ -12651,7 +12651,7 @@ void setup() {
     set_bltouch_deployed(false);
   #endif
 
-  #if ENABLED(I2C_ENCODERS_ENABLED)
+  #if ENABLED(I2C_POSITION_ENCODERS)
     i2cEncoderManager.init();
   #endif
 
