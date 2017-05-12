@@ -254,6 +254,8 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima boton para")
+#define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("Calentar la boquilla")
 #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Calentando boquilla")
+#define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Espere por favor")
 
 #endif // LANGUAGE_ES_H
