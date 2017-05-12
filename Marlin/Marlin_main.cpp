@@ -6873,7 +6873,6 @@ inline void gcode_M109() {
           const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
           if (red != old_red) set_led_color((old_red = red), 0, 255);
         }
-      }
       #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
