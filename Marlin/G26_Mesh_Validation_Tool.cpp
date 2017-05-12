@@ -100,7 +100,7 @@
    *                    'n' can be used instead if your host program does not appreciate you using 'N'.
    *
    *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print.  This
-   *                    is over kill, but using this parameter will let you get the very first 'cicle' perfect
+   *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
    *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
    *                    Mesh calibrated.  If not specified, a filament length of .3mm is assumed.
    *
@@ -152,7 +152,7 @@
   bool turn_on_heaters();
   bool prime_nozzle();
 
-  static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], continue_with_closest = 0;
+  static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16];
   float g26_e_axis_feedrate = 0.020,
         random_deviation = 0.0,
         layer_height = LAYER_HEIGHT;
@@ -176,7 +176,7 @@
 
   static int8_t prime_flag = 0;
 
-  static bool keep_heaters_on = false;
+  static bool continue_with_closest, keep_heaters_on;
 
   static int16_t g26_repeats;
 
@@ -278,8 +278,7 @@
 
         // If this mesh location is outside the printable_radius, skip it.
 
-        if ( ! position_is_reachable_raw_xy( circle_x, circle_y ))
-          continue;
+        if (!position_is_reachable_raw_xy(circle_x, circle_y)) continue;
 
         xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
         yi = location.y_index;
@@ -329,9 +328,7 @@
                 ye = circle_y + sin_table[tmp_div_30 + 1];
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
-            if (( ! position_is_reachable_raw_xy( x , y  )) ||
-                ( ! position_is_reachable_raw_xy( xe, ye )))
-              continue;
+            if (!position_is_reachable_raw_xy(x, y) || !position_is_reachable_raw_xy(xe, ye)) continue;
           #else                                              // not, we need to skip
             x  = constrain(x, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
             y  = constrain(y, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -361,7 +358,7 @@
 
       //debug_current_and_destination(PSTR("Done with current circle."));
 
-    } while (location.x_index >= 0 && location.y_index >= 0 && g26_repeats--);
+    } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
     lcd_reset_alert_level();
@@ -459,8 +456,7 @@
               sy = ey = constrain(pgm_read_float(&ubl.mesh_index_to_ypos[j]), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
-              if (( position_is_reachable_raw_xy( sx, sy )) &&
-                  ( position_is_reachable_raw_xy( ex, ey ))) {
+              if (position_is_reachable_raw_xy(sx, sy) && position_is_reachable_raw_xy(ex, ey)) {
 
                 if (ubl.g26_debug_flag) {
                   SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
@@ -494,8 +490,7 @@
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-                if (( position_is_reachable_raw_xy( sx, sy )) &&
-                    ( position_is_reachable_raw_xy( ex, ey ))) {
+                if (position_is_reachable_raw_xy(sx, sy) && position_is_reachable_raw_xy(ex, ey)) {
 
                   if (ubl.g26_debug_flag) {
                     SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
@@ -623,8 +618,8 @@
 
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Z bumping by 0.500 to minimize scraping.");
       //todo:  parameterize the bump height with a define
-      move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+0.500, 0.0);  // Z bump to minimize scraping
-      move_to(sx, sy, sz+0.500, 0.0); // Get to the starting point with no extrusion while bumped
+      move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
+      move_to(sx, sy, sz + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
     }
 
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion / un-Z bump
@@ -655,9 +650,11 @@
     prime_length          = PRIME_LENGTH;
     bed_temp              = BED_TEMP;
     hotend_temp           = HOTEND_TEMP;
-    ooze_amount           = OOZE_AMOUNT;
     prime_flag            = 0;
-    keep_heaters_on       = false;
+
+    ooze_amount           = code_seen('O') && code_has_value() ? code_value_linear_units() : OOZE_AMOUNT;
+    keep_heaters_on       = code_seen('K') && code_value_bool();
+    continue_with_closest = code_seen('C') && code_value_bool();
 
     if (code_seen('B')) {
       bed_temp = code_value_temp_abs();
@@ -666,8 +663,6 @@
         return UBL_ERR;
       }
     }
-
-    if (code_seen('C')) continue_with_closest++;
 
     if (code_seen('L')) {
       layer_height = code_value_linear_units();
@@ -691,18 +686,13 @@
       }
     }
 
-    if (code_seen('N') || code_seen('n')) {
+    if (code_seen('N') || code_seen('n')) { // Warning! Use of 'N' / lowercase flouts established standards.
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
         return UBL_ERR;
       }
     }
-
-    if (code_seen('K')) keep_heaters_on++;
-
-    if (code_seen('O') && code_has_value())
-      ooze_amount = code_value_linear_units();
 
     if (code_seen('P')) {
       if (!code_has_value())
@@ -738,35 +728,21 @@
       }
     }
 
-    if (code_seen('M')) {
+    if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
       randomSeed(millis());
+      // This setting will persist for the next G26
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
 
-    if (code_seen('R')) {
-      g26_repeats = code_has_value() ? code_value_int() : 999;
-
-      if (g26_repeats <= 0) {
-        SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be greater than 0.");
-        return UBL_ERR;
-      }
-
-      g26_repeats--;
+    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : 999) : 1;
+    if (g26_repeats < 1) {
+      SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
+      return UBL_ERR;
     }
 
-
-    x_pos = current_position[X_AXIS];
-    y_pos = current_position[Y_AXIS];
-
-    if (code_seen('X')) {
-      x_pos = code_value_float();
-    }
-
-    if (code_seen('Y')) {
-      y_pos = code_value_float();
-    }
-
-    if ( ! position_is_reachable_xy( x_pos, y_pos )) {
+    x_pos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS];
+    y_pos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS];
+    if (!position_is_reachable_xy(x_pos, y_pos)) {
       SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
       return UBL_ERR;
     }

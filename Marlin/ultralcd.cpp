@@ -1430,17 +1430,13 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     // LCD probed points are from defaults
-    constexpr uint8_t total_probe_points =
-      #if ABL_GRID
-        (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
-      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-        int(3)
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
-      #elif ENABLED(MESH_BED_LEVELING)
-        (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
+    constexpr uint8_t total_probe_points = (
+      #if ENABLED(AUTO_BED_LEVELING_3POINT)
+        3
+      #elif ABL_GRID || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
+        GRID_MAX_POINTS
       #endif
-    ;
+    );
 
     #if ENABLED(MESH_BED_LEVELING)
 

@@ -56,6 +56,8 @@
  * G12 - Clean tool
  * G20 - Set input units to inches
  * G21 - Set input units to millimeters
+ * G26 - Mesh Validation Pattern (Requires UBL_G26_MESH_EDITING)
+ * G27 - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
@@ -97,14 +99,15 @@
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
  * M78  - Show statistical information about the print jobs. (Requires PRINTCOUNTER)
- * M80  - Turn on Power Supply. (Requires POWER_SUPPLY)
- * M81  - Turn off Power Supply. (Requires POWER_SUPPLY)
+ * M80  - Turn on Power Supply. (Requires POWER_SUPPLY > 0)
+ * M81  - Turn off Power Supply. (Requires POWER_SUPPLY > 0)
  * M82  - Set E codes absolute (default).
  * M83  - Set E codes relative while in Absolute (G90) mode.
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
  * M92  - Set planner.axis_steps_per_mm for one or more axes.
+ * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
  * M106 - Fan on.
@@ -210,7 +213,6 @@
  * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
  *
  * ************ Custom codes - This can change to suit future G-code regulations
- * M100 - Watch Free Memory (For Debugging). (Requires M100_FREE_MEMORY_WATCHER)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
  * M999 - Restart after being stopped by error
  *
@@ -2425,9 +2427,12 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      #if ENABLED(UBL_DELTA)
-        if (( ubl.state.active ) && ( ! enable )) {   // leveling from on to off
-          planner.unapply_leveling(current_position);
+      #if PLANNER_LEVELING
+        if (ubl.state.active != enable) {
+          if (!enable)   // leveling from on to off
+            planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+          else
+            planner.unapply_leveling(current_position);
         }
       #endif
 
@@ -3729,7 +3734,7 @@ inline void gcode_G28() {
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool bed_leveling_state_at_entry = ubl.state.active;
+      const bool ubl_state_at_entry = ubl.state.active;
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -3872,8 +3877,9 @@ inline void gcode_G28() {
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    set_bed_leveling_enabled(bed_leveling_state_at_entry);
+    set_bed_leveling_enabled(ubl_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
@@ -4028,7 +4034,7 @@ void home_all_axes() { gcode_G28(); }
           #endif
         }
         // If there's another point to sample, move there with optional lift.
-        if (mbl_probe_index < (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)) {
+        if (mbl_probe_index < GRID_MAX_POINTS) {
           mbl.zigzag(mbl_probe_index, px, py);
           _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
@@ -4247,8 +4253,6 @@ void home_all_axes() { gcode_G28(); }
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
-      #define ABL_GRID_MAX (GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y)
-
       #if ABL_PLANAR
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
@@ -4262,7 +4266,7 @@ void home_all_axes() { gcode_G28(); }
         #if ABL_PLANAR
           ABL_VAR int abl2;
         #else // 3-point
-          int constexpr abl2 = ABL_GRID_MAX;
+          int constexpr abl2 = GRID_MAX_POINTS;
         #endif
       #endif
 
@@ -4274,8 +4278,8 @@ void home_all_axes() { gcode_G28(); }
 
         ABL_VAR int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
-        ABL_VAR float eqnAMatrix[ABL_GRID_MAX * 3], // "A" matrix of the linear system of equations
-                     eqnBVector[ABL_GRID_MAX],     // "B" vector of Z points
+        ABL_VAR float eqnAMatrix[GRID_MAX_POINTS * 3], // "A" matrix of the linear system of equations
+                     eqnBVector[GRID_MAX_POINTS],     // "B" vector of Z points
                      mean;
       #endif
 
@@ -7619,7 +7623,6 @@ inline void gcode_M205() {
     if (code_seen('H')) {
       home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
       current_position[Z_AXIS] += code_value_linear_units() - DELTA_HEIGHT - home_offset[Z_AXIS];
-      home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
       update_software_endstops(Z_AXIS);
     }
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
@@ -8413,17 +8416,15 @@ void quickstop_stepper() {
    * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
    */
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value_linear_units());
-    if ((hasY = code_seen('Y'))) py = mbl.probe_index_y(code_value_linear_units());
-    if ((hasI = code_seen('I'))) px = code_value_linear_units();
-    if ((hasJ = code_seen('J'))) py = code_value_linear_units();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+
+    const bool hasX = code_seen('X'), hasI = !hasX && code_seen('I');
+    const int8_t px = hasX || hasI ? mbl.probe_index_x(code_value_linear_units()) : 0;
+    const bool hasY = code_seen('Y'), hasJ = !hasY && code_seen('J');
+    const int8_t py = hasY || hasJ ? mbl.probe_index_y(code_value_linear_units()) : 0;
+    const bool hasZ = code_seen('Z');
+    const float z = hasZ ? code_value_linear_units() : 0;
 
     if (hasX && hasY && hasZ) {
-
       if (px >= 0 && py >= 0)
         mbl.set_z(px, py, z);
       else {
@@ -8450,18 +8451,18 @@ void quickstop_stepper() {
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
+   * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
-   *   or
    *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ, hasQ;
-    if ((hasI = code_seen('I'))) px = code_value_int();
-    if ((hasJ = code_seen('J'))) py = code_value_int();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
-    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
+
+    const bool hasI = code_seen('I');
+    const int8_t px = hasI ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t py = hasJ ? code_value_int() : 0;
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
+    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
 
     if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
       SERIAL_ERROR_START;
@@ -8494,33 +8495,31 @@ void quickstop_stepper() {
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
+   * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
-   *   or
    *   M421 I<xindex> J<yindex> Q<offset>
+   *   M421 C Z<linear>
+   *   M421 C Q<offset>
    */
 
-  //todo:  change multiple points simultaneously?
-
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ, hasQ, hasC;
-    if ((hasI = code_seen('I'))) px = code_value_int();
-    if ((hasJ = code_seen('J'))) py = code_value_int();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
-    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
-    hasC = code_seen('C');
 
-    if ( (!(hasI && hasJ) && !hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+    // Get the closest position for 'C', if needed
+    const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+
+    const bool hasC = code_seen('C'), hasI = code_seen('I');
+    const int8_t px = hasC ? location.x_index : hasI ? code_value_int() : 0;
+
+    const bool hasJ = code_seen('J');
+    const int8_t py = hasC ? location.y_index : hasJ ? code_value_int() : 0;
+
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
+    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
+
+    if ( ((hasI && hasJ) == hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
       return;
-    }
-
-    if (hasC) { // get closest position
-      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
-      px = location.x_index;
-      py = location.y_index;
     }
 
     if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
@@ -8534,7 +8533,8 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
   }
-#endif
+
+#endif // AUTO_BED_LEVELING_UBL
 
 #if HAS_M206_COMMAND
 
@@ -11106,7 +11106,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #endif // AUTO_BED_LEVELING_BILINEAR
 
-#if IS_KINEMATIC && DISABLED(UBL_DELTA)
+#if IS_KINEMATIC && !UBL_DELTA
 
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
@@ -11117,7 +11117,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   inline bool prepare_kinematic_move_to(float ltarget[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
-    float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
+    const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
 
     // If the move is only in Z/E don't split up the move
     if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
@@ -11126,7 +11126,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     }
 
     // Fail if attempting move outside printable radius
-    if ( ! position_is_reachable_xy( ltarget[X_AXIS], ltarget[Y_AXIS] )) return true;
+    if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS])) return true;
 
     // Get the cartesian distances moved in XYZE
     float difference[XYZE];
@@ -11142,7 +11142,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    float seconds = cartesian_mm / _feedrate_mm_s;
+    const float seconds = cartesian_mm / _feedrate_mm_s;
 
     // The number of segments-per-second times the duration
     // gives the number of segments
@@ -11227,7 +11227,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return false;
   }
 
-#else // !IS_KINEMATIC
+#else // !IS_KINEMATIC || UBL_DELTA
 
   /**
    * Prepare a linear move in a Cartesian setup.
@@ -11265,7 +11265,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return false;
   }
 
-#endif // !IS_KINEMATIC
+#endif // !IS_KINEMATIC || UBL_DELTA
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -11377,21 +11377,21 @@ void prepare_move_to_destination() {
 
   #endif
 
-  #if IS_KINEMATIC
-    #if ENABLED(UBL_DELTA)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
+  if (
+    #if IS_KINEMATIC
+      #if UBL_DELTA
+        ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+      #else
+        prepare_kinematic_move_to(destination)
+      #endif
+    #elif ENABLED(DUAL_X_CARRIAGE)
+      prepare_move_to_destination_dualx()
+    #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
+      ubl_prepare_linear_move_to(destination, feedrate_mm_s)
     #else
-      if (prepare_kinematic_move_to(destination)) return;
+      prepare_move_to_destination_cartesian()
     #endif
-  #else
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (prepare_move_to_destination_dualx()) return;
-    #elif ENABLED(UBL_DELTA) // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      if (ubl_prepare_linear_move_to(destination,feedrate_mm_s)) return;
-    #else
-      if (prepare_move_to_destination_cartesian()) return;
-    #endif
-  #endif
+  ) return;
 
   set_current_to_destination();
 }
@@ -11432,7 +11432,7 @@ void prepare_move_to_destination() {
     if (angular_travel == 0 && current_position[X_AXIS] == logical[X_AXIS] && current_position[Y_AXIS] == logical[Y_AXIS])
       angular_travel += RADIANS(360);
 
-    float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
+    const float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
     if (mm_of_travel < 0.001) return;
 
     uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));

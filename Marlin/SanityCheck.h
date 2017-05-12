@@ -248,11 +248,9 @@
 #if ENABLED(DELTA)
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
-  #endif
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(UBL_DELTA)
-    #error "ENABLE_LEVELING_FADE_HEIGHT for DELTA requires UBL_DELTA and AUTO_BED_LEVELING_UBL."
-  #endif
-  #if ABL_GRID
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_DELTA
+    #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+  #elif ABL_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
     #elif GRID_MAX_POINTS_X < 3
@@ -431,20 +429,11 @@ static_assert(1 >= 0
  * Unified Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #if IS_KINEMATIC
-    #if ENABLED(DELTA)
-      #if DISABLED(UBL_DELTA)
-        #error "AUTO_BED_LEVELING_UBL requires UBL_DELTA for DELTA printers."
-      #endif
-    #else // SCARA
-      #error "AUTO_BED_LEVELING_UBL not supported for SCARA printers."
-    #endif
-  #endif
-  #if DISABLED(NEWPANEL)
+  #if IS_SCARA
+    #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
+  #elif DISABLED(NEWPANEL)
     #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
   #endif
-#elif ENABLED(UBL_DELTA)
-  #error "UBL_DELTA requires AUTO_BED_LEVELING_UBL."
 #endif
 
 /**
@@ -603,10 +592,8 @@ static_assert(1 >= 0
   /**
    * Delta and SCARA have limited bed leveling options
    */
-  #if IS_KINEMATIC
-    #if DISABLED(AUTO_BED_LEVELING_BILINEAR) && DISABLED(UBL_DELTA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL with UBL_DELTA support DELTA and SCARA bed leveling."
-    #endif
+  #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "Only AUTO_BED_LEVELING_BILINEAR currently supports SCARA bed leveling."
   #endif
 
   /**
