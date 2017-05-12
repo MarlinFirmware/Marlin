@@ -27,7 +27,7 @@
 
 #include <Wire.h>
 
-#if defined(I2C_ENCODERS_ENABLED)
+#if ENABLED(I2C_POSITION_ENCODERS)
 
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
@@ -35,9 +35,9 @@ void I2cEncoder::init(AxisEnum axis, byte address) {
   set_axis(axis);
   set_address(address);
   initialised = true;
-  SERIAL_ECHO("Encoder on ");
+  SERIAL_ECHOPGM("Encoder on ");
   SERIAL_ECHO(axis_codes[get_axis()]);
-  SERIAL_ECHO(" axis, address = ");
+  SERIAL_ECHOPGM(" axis, address = ");
   SERIAL_ECHOLN((int) address);
   position = get_position();
 }
@@ -92,89 +92,71 @@ void I2cEncoder::update() {
             long error = get_axis_error_steps(false);
           #endif
           
-          //SERIAL_ECHO("Axis err*r steps: ");
+          //SERIAL_ECHOPGM("Axis err*r steps: ");
           //SERIAL_ECHOLN(error);
 
           #if defined(AXIS_ERROR_THRESHOLD_ABORT)
             if(abs(error) > AXIS_ERROR_THRESHOLD_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
               //kill("Significant Error");
-              SERIAL_ECHO("Axis error greater than set threshold, aborting!");
+              SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
               SERIAL_ECHOLN(error);
               delay(5000);
             }
           #endif
 
-//          switch(get_error_correct_method()) {
-//            case ECM_MICROSTEP: 
-                #if ENABLED(ERROR_ROLLING_AVERAGE) 
-                  if(errArrayIndex == 0) {
-                    // in order to correct for "error" but avoid correcting for noise and non skips
-                    // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-                    if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] && diffSum < 10*(ERROR_ARRAY_SIZE-1) && abs(error) < 2000) { //Check for persistent error (skip)
-                      SERIAL_ECHO(axis_codes[get_axis()]);//Verbose JDK
-                      SERIAL_ECHO(" diffSum: ");
-                      SERIAL_ECHO(diffSum/(ERROR_ARRAY_SIZE-1));
-                      SERIAL_ECHO(" err detected: ");    //Verbose JDK                
-                      SERIAL_ECHO(error / planner.axis_steps_per_mm[encoderAxis]);
-                      SERIAL_ECHOLN("mm");
-                      SERIAL_ECHOLN("Correcting");
-                      thermalManager.babystepsTodo[encoderAxis] = -lround(error);
-                    }
-                  }
-                #else
-                  if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
-                    //SERIAL_ECHOLN(error);
-                    //SERIAL_ECHOLN(position);
-                    //thermalManager.babystepsTodo[encoderAxis] -= STEPRATE * sgn(error);
-                    thermalManager.babystepsTodo[encoderAxis] = -lround(error/2);
-                  }
-                #endif
-/*              break;
-            case ECM_PLANNER:
-              if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
-                double axisPosition[NUM_AXIS];
-
-                for(int i = 0; i < NUM_AXIS; i++) {
-                  axisPosition[i] = stepper.get_axis_position_mm((AxisEnum)i);
-                }
-
-                axisPosition[get_axis()] = mm_from_count(position);
-                planner.set_position_mm(axisPosition[X_AXIS],axisPosition[Y_AXIS],axisPosition[Z_AXIS],axisPosition[E_AXIS]);
-                current_position[get_axis()] = mm_from_count(position);
+          #if ENABLED(ERROR_ROLLING_AVERAGE) 
+            if(errArrayIndex == 0) {
+              // in order to correct for "error" but avoid correcting for noise and non skips
+              // it must be > threshold and have a difference average of < 10 and be < 2000 steps
+              if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] && diffSum < 10*(ERROR_ARRAY_SIZE-1) && abs(error) < 2000) { //Check for persistent error (skip)
+                SERIAL_ECHO(axis_codes[get_axis()]);
+                SERIAL_ECHOPGM(" diffSum: ");
+                SERIAL_ECHO(diffSum/(ERROR_ARRAY_SIZE-1));
+                SERIAL_ECHOPGM(" err detected: ");  
+                SERIAL_ECHO(error / planner.axis_steps_per_mm[encoderAxis]);
+                SERIAL_ECHOLNPGM("mm");
+                SERIAL_ECHOLNPGM("Correcting");
+                thermalManager.babystepsTodo[encoderAxis] = -lround(error);
               }
-              break;
-            case ECM_STALLDETECT:
-
-              //if position unchanged from last several readings
-              //and stepper position should have changed
-              //sound the alert
-              break;
-
-          }
-*/
+            }
+          #else
+            if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+              //SERIAL_ECHOLN(error);
+              //SERIAL_ECHOLN(position);
+              //thermalManager.babystepsTodo[encoderAxis] -= STEPRATE * sgn(error);
+              thermalManager.babystepsTodo[encoderAxis] = -lround(error/2);
+            }
+          #endif
 
           if(abs(error) > (ERROR_COUNTER_TRIGGER_THRESHOLD * planner.axis_steps_per_mm[encoderAxis]) && millis() - lastErrorCountTime > ERROR_COUNTER_DEBOUNCE_MS) {
-/*            SERIAL_ECHO("Large error on ");
+            SERIAL_ECHOPGM("Large error on ");
             SERIAL_ECHO(axis_codes[get_axis()]);
-            SERIAL_ECHO(" axis. error: ");
+            SERIAL_ECHOPGM(" axis. error: ");
             SERIAL_ECHO((int)error);
-            SERIAL_ECHO("; diffSum: ");
+            SERIAL_ECHOPGM("; diffSum: ");
             SERIAL_ECHOLN(diffSum);
- */           errorCount++;
+            errorCount++;
             lastErrorCountTime = millis();
           }
         }
 
         lastPositionTime = positionTime;
-      }/* else {
+      }/* else { //commented out because it introduces error and can cause bad print quality. See NOTE.
+      
+//      NOTE: This code is intended to manage situations where the encoder has reported bad magnetic strength. 
+//      This indicates that the magnetic strip was too far away from the sensor to reliably track position. When this 
+//      happens, this code resets the offset based on where the printer thinks it is. This has been shown to introduce 
+//      errors in actual position which result in drifting prints and poor print quality. Perhaps a better method would 
+//      be to disable correction on the axis with a problem, report it to the user via the status leds on the encoder
+//      module and prompt the user to re-home the axis at which point the encoder would be re-enabled
 
         //if the magnetic strength has been good for a certain time, start trusting the module again
         if(millis() - lastErrorTime > STABLE_TIME_UNTIL_TRUSTED) {
           trusted = true;
 
-          SERIAL_ECHO("Untrusted encoder module on ");
+          SERIAL_ECHOPGM("Untrusted encoder module on ");
           SERIAL_ECHO(axis_codes[encoderAxis]);
-          SERIAL_ECHOLN(" axis has been fault-free for set duration, reinstating error correction.");
+          SERIAL_ECHOLNPGM(" axis has been fault-free for set duration, reinstating error correction.");
 
           //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
           //idea of where it the axis is to re-initialise
@@ -185,31 +167,31 @@ void I2cEncoder::update() {
           zeroOffset -= (positionInTicks - get_position());
 
           #if defined(ENCODER_DEBUG_ECHOS)
-            SERIAL_ECHO("Current position is ");
+            SERIAL_ECHOPGM("Current position is ");
             SERIAL_ECHOLN(position);
 
-            SERIAL_ECHO("Position in encoder ticks is ");
+            SERIAL_ECHOPGM("Position in encoder ticks is ");
             SERIAL_ECHOLN(positionInTicks);
 
-            SERIAL_ECHO("New zero-offset of ");
+            SERIAL_ECHOPGM("New zero-offset of ");
             SERIAL_ECHOLN(zeroOffset);
 
-            SERIAL_ECHO("New position reads as ");
+            SERIAL_ECHOPGM("New position reads as ");
             SERIAL_ECHO(get_position());
-            SERIAL_ECHO("(");
+            SERIAL_ECHOPGM("(");
             SERIAL_ECHO(mm_from_count(get_position()));
-            SERIAL_ECHOLN(")");
+            SERIAL_ECHOLNPGM(")");
           #endif
         }
       }*/  
     } else {
       lastErrorTime = millis();
 /*
-      if(trusted) {
+      if(trusted) { //commented out as part of the above NOTE
         trusted = false;
-        SERIAL_ECHO("Fault detected on ");
+        SERIAL_ECHOPGM("Fault detected on ");
         SERIAL_ECHO(axis_codes[encoderAxis]);
-        SERIAL_ECHOLN(" axis encoder. Disengaging error correction until module is trusted again.");
+        SERIAL_ECHOLNPGM(" axis encoder. Disengaging error correction until module is trusted again.");
       }*/
     }
   }
@@ -225,9 +207,9 @@ void I2cEncoder::set_homed() {
     this->trusted = true;
     #if defined(ENCODER_DEBUG_ECHOS)
       SERIAL_ECHO(axis_codes[encoderAxis]);
-      SERIAL_ECHO(" axis encoder homed, offset of ");
+      SERIAL_ECHOPGM(" axis encoder homed, offset of ");
       SERIAL_ECHO(zeroOffset);
-      SERIAL_ECHOLN(" ticks.");
+      SERIAL_ECHOLNPGM(" ticks.");
     #endif  
     }
 }
@@ -242,30 +224,30 @@ bool I2cEncoder::passes_test(bool report, bool &moduleDetected) {
 
   if(magStrength == I2C_MAG_SIG_BAD) {
     if(report) {
-      SERIAL_ECHO("Warning, ");
+      SERIAL_ECHOPGM("Warning, ");
       SERIAL_ECHO(axis_codes[encoderAxis]);
-      SERIAL_ECHOLN(" axis magnetic strip not detected!");
+      SERIAL_ECHOLNPGM(" axis magnetic strip not detected!");
     }
     moduleDetected = true;
     return false; 
   } else if (magStrength == I2C_MAG_SIG_GOOD || magStrength == I2C_MAG_SIG_MID) { 
     if(report) {
       SERIAL_ECHO(axis_codes[encoderAxis]);
-      SERIAL_ECHOLN(" axis encoder passes test.");
+      SERIAL_ECHOLNPGM(" axis encoder passes test.");
     }
     moduleDetected = true;
     return true; 
   } else {
     if(report) {
-      SERIAL_ECHO("Warning, ");
+      SERIAL_ECHOPGM("Warning, ");
       SERIAL_ECHO(axis_codes[encoderAxis]);
-      SERIAL_ECHOLN(" axis encoder not detected!");
+      SERIAL_ECHOLNPGM(" axis encoder not detected!");
     }
     moduleDetected = false;
     return true;
   }
 }
-/*
+
 double I2cEncoder::get_axis_error_mm(bool report) {
   double target, actual, error;
 
@@ -279,19 +261,19 @@ double I2cEncoder::get_axis_error_mm(bool report) {
 
   if(report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Target: ");
+    SERIAL_ECHOPGM(" Target: ");
     SERIAL_ECHOLN(target);
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Actual: ");
+    SERIAL_ECHOPGM(" Actual: ");
     SERIAL_ECHOLN(actual);
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Error : ");
+    SERIAL_ECHOPGM(" Error : ");
     SERIAL_ECHOLN(error);
   }
 
   return error;
 }
-*/
+
 long I2cEncoder::get_axis_error_steps(bool report) {
   long encoderTicks = position;
   long stepperTicks = stepper.position(encoderAxis);
@@ -323,16 +305,16 @@ long I2cEncoder::get_axis_error_steps(bool report) {
 
   if(report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Target: ");
+    SERIAL_ECHOPGM(" Target: ");
     SERIAL_ECHOLN(target);
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Actual: ");
+    SERIAL_ECHOPGM(" Actual: ");
     SERIAL_ECHOLN(encoderCountInStepperTicksScaled);
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHO(" Error : ");
+    SERIAL_ECHOPGM(" Error : ");
     SERIAL_ECHOLN(error);
     if(suppressOutput) {
-      SERIAL_ECHOLN("Discontinuity detected, suppressing error.");
+      SERIAL_ECHOLNPGM("Discontinuity detected, suppressing error.");
     }
   }
 
@@ -390,7 +372,7 @@ long I2cEncoder::get_raw_count() {
 }
 
 byte I2cEncoder::get_magnetic_strength() {
-    /*
+    /* //Prevous method before magnetic strength was packed into the position words
     //Set module to report magnetic strength
     Wire.beginTransmission((int)i2cAddress);
     Wire.write(I2C_SET_REPORT_MODE);
@@ -483,7 +465,7 @@ void I2cEncoder::calibrate_steps_mm(int iterations) {
   int feedrate;
 
   if(get_encoder_type() != ENC_TYPE_LINEAR) {
-    SERIAL_ECHOLN("Steps per mm calibration is only available using linear encoders.");
+    SERIAL_ECHOLNPGM("Steps per mm calibration is only available using linear encoders.");
   } else {
 
     if(get_axis() == X_AXIS || get_axis() == Y_AXIS || get_axis() == Z_AXIS) {
@@ -530,22 +512,22 @@ void I2cEncoder::calibrate_steps_mm(int iterations) {
 
         travelledDistance = mm_from_count(abs(stopCount - startCount));
 
-        SERIAL_ECHO("Attempted to travel: ");
+        SERIAL_ECHOPGM("Attempted to travel: ");
         SERIAL_ECHO(travelDistance);
-        SERIAL_ECHOLN("mm.");
+        SERIAL_ECHOLNPGM("mm.");
 
-        SERIAL_ECHO("Actually travelled:  ");
+        SERIAL_ECHOPGM("Actually travelled:  ");
         SERIAL_ECHO(travelledDistance);
-        SERIAL_ECHOLN("mm.");
+        SERIAL_ECHOLNPGM("mm.");
 
         //Calculate new axis steps per unit
         oldStepsMm = planner.axis_steps_per_mm[get_axis()];
         newStepsMm = (oldStepsMm * travelDistance) / travelledDistance;
 
-        SERIAL_ECHO("Old steps per mm: ");
+        SERIAL_ECHOPGM("Old steps per mm: ");
         SERIAL_ECHOLN(oldStepsMm);
 
-        SERIAL_ECHO("New steps per mm: ");
+        SERIAL_ECHOPGM("New steps per mm: ");
         SERIAL_ECHOLN(newStepsMm);
         
         //Save new value
@@ -563,15 +545,15 @@ void I2cEncoder::calibrate_steps_mm(int iterations) {
 
       if(iterations > 1) {
         total = total / (float) iterations;
-        SERIAL_ECHO("Average steps per mm: ");
+        SERIAL_ECHOPGM("Average steps per mm: ");
         SERIAL_ECHOLN(total);
       }
 
       errorCorrect = true;
 
-      SERIAL_ECHOLN("Calculated steps per mm has been set. Please save to EEPROM (M500) if you wish to keep these values.");
+      SERIAL_ECHOLNPGM("Calculated steps per mm has been set. Please save to EEPROM (M500) if you wish to keep these values.");
     } else {
-      SERIAL_ECHOLN("Automatic steps / mm calibration not supported for this axis.");
+      SERIAL_ECHOLNPGM("Automatic steps / mm calibration not supported for this axis.");
     }
   }
 }
@@ -582,10 +564,7 @@ void I2cEncoder::set_zeroed() {
   Wire.endTransmission();
   #if ENABLED(ERROR_ROLLING_AVERAGE)
     ZERO(errorArray);
-//    for (int i = 0; i < ERROR_ARRAY_SIZE; i++) {
-//      SERIAL_ECHO(errorArray[i]);
-//    }
-//    SERIAL_ECHOLN(" homed");
+//    SERIAL_ECHOLNPGM(" homed");
   #endif
 }
 
@@ -685,18 +664,18 @@ int I2cEncoder::get_stepper_ticks() {
 void I2cEncoder::set_stepper_ticks(int ticks) {
   stepperTicks = ticks;
 }
-/*
+
 float I2cEncoder::get_axis_offset() {
   return axisOffset;
 }
-*/
+
 void I2cEncoder::set_current_position(float newPositionMm) {
   set_axis_offset(get_position_mm() - newPositionMm + get_axis_offset());
 }
 
 void I2cEncoder::set_axis_offset(float newOffset) {
-//  axisOffset = newOffset;
-  axisOffsetTicks = newOffset/*axisOffset*/ * get_encoder_ticks_mm();
+  axisOffset = newOffset;
+  axisOffsetTicks = axisOffset * get_encoder_ticks_mm();
 }
 
 
@@ -705,7 +684,6 @@ EncoderManager::EncoderManager() {
 }
 
 void EncoderManager::init() {
-//  byte index = 0;
 
   //there's probably a better way to do all this, maybe something using a macro...?
   
@@ -733,7 +711,6 @@ void EncoderManager::init() {
     //#if (I2C_ENCODER_1_AXIS == E_AXIS)
     //  encoderArray[index].set_homed();
     //#endif
-//    index++;
   #endif  
 
   #if defined(I2C_ENCODER_2_ADDR) && defined(I2C_ENCODER_2_AXIS)
@@ -760,7 +737,6 @@ void EncoderManager::init() {
 //    #if (I2C_ENCODER_2_AXIS == E_AXIS)
 //      encoderArray[I2C_ENCODER_2_AXIS].set_homed();
 //    #endif
-//    index++;
   #endif  
 
   #if defined(I2C_ENCODER_3_ADDR) && defined(I2C_ENCODER_3_AXIS)
@@ -787,7 +763,6 @@ void EncoderManager::init() {
 //    #if (I2C_ENCODER_3_AXIS == E_AXIS)
 //      encoderArray[I2C_ENCODER_3_AXIS].set_homed();
 //    #endif
-//    index++;
   #endif  
 
   #if defined(I2C_ENCODER_4_ADDR) && defined(I2C_ENCODER_4_AXIS)
@@ -814,34 +789,32 @@ void EncoderManager::init() {
 //    #if (I2C_ENCODER_4_AXIS == E_AXIS)
 //      encoderArray[I2C_ENCODER_4_AXIS].set_homed();
 //    #endif
-//    index++;
   #endif  
 /*
   #if defined(I2C_ENCODER_5_ADDR) && defined(I2C_ENCODER_5_AXIS)
-    encoderArray[index].init(I2C_ENCODER_5_AXIS,I2C_ENCODER_5_ADDR);
-    encoderArray[index].set_active(encoderArray[index].passes_test(true));
+    encoderArray[I2C_ENCODER_5_AXIS].init(I2C_ENCODER_5_AXIS,I2C_ENCODER_5_ADDR);
+    encoderArray[I2C_ENCODER_5_AXIS].set_active(encoderArray[index].passes_test(true));
     #if defined(I2C_ENCODER_5_INVERT)
-      encoderArray[index].set_inverted(true);
+      encoderArray[I2C_ENCODER_5_AXIS].set_inverted(true);
     #endif
     #if defined (I2C_ENCODER_5_ERROR_CORRECT_METHOD)
-      encoderArray[index].set_error_correct_method(I2C_ENCODER_5_ERROR_CORRECT_METHOD);
+      encoderArray[I2C_ENCODER_5_AXIS].set_error_correct_method(I2C_ENCODER_5_ERROR_CORRECT_METHOD);
     #endif
     #if defined (I2C_ENCODER_5_ERROR_CORRECT_THRESHOLD)
-      encoderArray[index].set_error_correct_threshold(I2C_ENCODER_5_ERROR_CORRECT_THRESHOLD);
+      encoderArray[I2C_ENCODER_5_AXIS].set_error_correct_threshold(I2C_ENCODER_5_ERROR_CORRECT_THRESHOLD);
     #endif
     #if defined (I2C_ENCODER_5_TICKS_PER_UNIT)
-      encoderArray[index].set_encoder_ticks_unit(I2C_ENCODER_5_TICKS_PER_UNIT);
+      encoderArray[I2C_ENCODER_5_AXIS].set_encoder_ticks_unit(I2C_ENCODER_5_TICKS_PER_UNIT);
     #endif
     #if defined (I2C_ENCODER_5_ENCODER_TYPE)
-      encoderArray[index].set_encoder_type(I2C_ENCODER_5_ENCODER_TYPE);
+      encoderArray[I2C_ENCODER_5_AXIS].set_encoder_type(I2C_ENCODER_5_ENCODER_TYPE);
     #endif
     #if defined (I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION)
-      encoderArray[index].set_stepper_ticks(I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION);
+      encoderArray[I2C_ENCODER_5_AXIS].set_stepper_ticks(I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION);
     #endif
     #if (I2C_ENCODER_5_AXIS == E_AXIS)
-      encoderArray[index].set_homed();
+      encoderArray[I2C_ENCODER_5_AXIS].set_homed();
     #endif
-    index++;
   #endif   
 */
 }
@@ -875,12 +848,12 @@ void EncoderManager::report_position(AxisEnum axis, bool units, bool noOffset) {
         if(noOffset) {
           long raw_count = encoderArray[i].get_raw_count();
           SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
-          SERIAL_ECHO(" ");  
+          SERIAL_ECHOPGM(" ");  
           for (byte i = 31; i > 0; i--){
             SERIAL_ECHO((bool)(0x00000001 & (raw_count >> i)));
           }
           SERIAL_ECHO((bool)(0x00000001 & (raw_count)));
-          SERIAL_ECHO(" ");
+          SERIAL_ECHOPGM(" ");
           SERIAL_ECHOLN(raw_count);
         } else {
           SERIAL_ECHOLN(encoderArray[i].get_position());
@@ -890,7 +863,7 @@ void EncoderManager::report_position(AxisEnum axis, bool units, bool noOffset) {
     } 
   }
 }
-/*
+
 void EncoderManager::report_error(AxisEnum axis) {
   for(byte i = 0; i < NUM_AXIS; i++) {
     if(encoderArray[i].get_axis() == axis && encoderArray[i].get_active()) {
@@ -899,7 +872,7 @@ void EncoderManager::report_error(AxisEnum axis) {
     } 
   }
 }
-*/
+
 
 void EncoderManager::report_status(AxisEnum axis) {
   bool responded = false;
@@ -910,12 +883,12 @@ void EncoderManager::report_status(AxisEnum axis) {
       responded = true;
       break;
     //} else {
-      //SERIAL_ECHO("Encoder not operational");
+      //SERIAL_ECHOPGM("Encoder not operational");
     }
   }
 
   if (!responded) {
-    SERIAL_ECHOLN("No encoder configured for given axis!");
+    SERIAL_ECHOLNPGM("No encoder configured for given axis!");
     responded = true;
   }
 }
@@ -948,7 +921,7 @@ void EncoderManager::calibrate_steps_mm(AxisEnum axis, int iterations) {
     }
 
     if (!responded) {
-      SERIAL_ECHOLN("No encoder configured for given axis!");
+      SERIAL_ECHOLNPGM("No encoder configured for given axis!");
       responded = true;
     }
   }
@@ -963,7 +936,7 @@ void EncoderManager::calibrate_steps_mm(int iterations) {
     }
   }
 }
-/*
+
 void EncoderManager::change_module_address(int oldAddress, int newAddress) {
   byte error;
 
@@ -972,7 +945,7 @@ void EncoderManager::change_module_address(int oldAddress, int newAddress) {
   error = Wire.endTransmission();
 
   if(error == 0) {
-    SERIAL_ECHOLN("Warning! There is already a device with that address on the I2C bus!");
+    SERIAL_ECHOLNPGM("Warning! There is already a device with that address on the I2C bus!");
   } else {
 
     //now check that we can find the module on the old address
@@ -981,9 +954,9 @@ void EncoderManager::change_module_address(int oldAddress, int newAddress) {
 
     if(error == 0) {
 
-      SERIAL_ECHO("Module found at ");
+      SERIAL_ECHOPGM("Module found at ");
       SERIAL_ECHO(oldAddress);
-      SERIAL_ECHOLN(", changing address...");
+      SERIAL_ECHOLNPGM(", changing address...");
 
       //change the modules address
       Wire.beginTransmission(oldAddress);
@@ -991,7 +964,7 @@ void EncoderManager::change_module_address(int oldAddress, int newAddress) {
       Wire.write(newAddress);
       Wire.endTransmission();
 
-      SERIAL_ECHOLN("Address changed, waiting for confirmation...");
+      SERIAL_ECHOLNPGM("Address changed, waiting for confirmation...");
 
       //Wait for the module to reset (can probably be improved by polling address with a timeout)
       long startWaiting = millis();
@@ -1005,7 +978,7 @@ void EncoderManager::change_module_address(int oldAddress, int newAddress) {
       error = Wire.endTransmission();
 
       if(error == 0) {
-        SERIAL_ECHOLN("Confirmed! Address change successful.");
+        SERIAL_ECHOLNPGM("Confirmed! Address change successful.");
 
         //now, if this module is supposed to be used, find which encoder instance it corresponds to and enable it
         // (it will likely have failed initialisation on power-up, before the address change)
@@ -1013,23 +986,23 @@ void EncoderManager::change_module_address(int oldAddress, int newAddress) {
           if(encoderArray[i].get_address() == newAddress) {
             if(encoderArray[i].get_active() == false) {
               SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
-              SERIAL_ECHOLN(" axis encoder was not detected on printer startup. Trying again now address is correct...");
+              SERIAL_ECHOLNPGM(" axis encoder was not detected on printer startup. Trying again now address is correct...");
               encoderArray[i].set_active(encoderArray[i].passes_test(true));
             }
             break;
           }
         }
       } else {
-        SERIAL_ECHOLN("Failed. Please check encoder module.");
+        SERIAL_ECHOLNPGM("Failed. Please check encoder module.");
       }
 
     } else {
-      SERIAL_ECHOLN("No module detected!");
+      SERIAL_ECHOLNPGM("No module detected!");
     }
   }
 }
-*/
-/*
+
+
 void EncoderManager::check_module_firmware(int address) {
 
   //first check there is a module
@@ -1037,10 +1010,10 @@ void EncoderManager::check_module_firmware(int address) {
   int error = Wire.endTransmission();
 
   if(error != 0) {
-    SERIAL_ECHOLN("Warning! No module detected at given address!");
+    SERIAL_ECHOLNPGM("Warning! No module detected at given address!");
   } else {
 
-    SERIAL_ECHO("Requesting version info from module at address ");
+    SERIAL_ECHOPGM("Requesting version info from module at address ");
     SERIAL_ECHOLN(address);
 
     Wire.beginTransmission(address);
@@ -1074,16 +1047,16 @@ void EncoderManager::check_module_firmware(int address) {
 
   }
 }
-*/
+
 void EncoderManager::report_error_count(AxisEnum axis) {
 
   for(byte i = 0; i < NUM_AXIS; i++) {
     if(encoderArray[i].get_axis() == axis) {
-      SERIAL_ECHO("Error count on ");
+      SERIAL_ECHOPGM("Error count on ");
       SERIAL_ECHO(axis_codes[axis]);
-      SERIAL_ECHO(" axis is ");
+      SERIAL_ECHOPGM(" axis is ");
       SERIAL_ECHO(encoderArray[i].get_error_count());
-      SERIAL_ECHOLN(" events.");
+      SERIAL_ECHOLNPGM(" events.");
       break;
     }
   }
@@ -1100,9 +1073,9 @@ void EncoderManager::reset_error_count(AxisEnum axis) {
   for(byte i = 0; i < NUM_AXIS; i++) {
     if(encoderArray[i].get_axis() == axis) {
       encoderArray[i].set_error_count(0);
-      SERIAL_ECHO("Error count on ");
+      SERIAL_ECHOPGM("Error count on ");
       SERIAL_ECHO(axis_codes[axis]);
-      SERIAL_ECHOLN(" axis has been reset.");
+      SERIAL_ECHOLNPGM(" axis has been reset.");
       break;
     }
   }
@@ -1119,13 +1092,13 @@ void EncoderManager::enable_error_correction(AxisEnum axis, bool enable) {
   for(byte i = 0; i < NUM_AXIS; i++) {
     if(encoderArray[i].get_axis() == axis) {
       encoderArray[i].set_error_correct_enabled(enable);
-      SERIAL_ECHO("Error correction on ");
+      SERIAL_ECHOPGM("Error correction on ");
       SERIAL_ECHO(axis_codes[axis]);
-      SERIAL_ECHO(" axis is ");
+      SERIAL_ECHOPGM(" axis is ");
       if(encoderArray[i].get_error_correct_enabled()) {
-        SERIAL_ECHOLN("enabled.");
+        SERIAL_ECHOLNPGM("enabled.");
       } else {
-        SERIAL_ECHOLN("disabled.");
+        SERIAL_ECHOLNPGM("disabled.");
       }
       break;
     }
@@ -1151,11 +1124,11 @@ void EncoderManager::get_error_correct_threshold(AxisEnum axis) {
   }
 
   if(threshold != -999) {
-    SERIAL_ECHO("Error correct threshold on ");
+    SERIAL_ECHOPGM("Error correct threshold on ");
     SERIAL_ECHO(axis_codes[axis]);
-    SERIAL_ECHO(" axis is ");
+    SERIAL_ECHOPGM(" axis is ");
     SERIAL_ECHO(threshold);
-    SERIAL_ECHOLN("mm.");
+    SERIAL_ECHOLNPGM("mm.");
   }
 }
 
