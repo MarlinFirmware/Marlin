@@ -1,7 +1,7 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="../../raw/1.1.x/buildroot/share/pixmaps/logo/marlin-250.png" />
 
-## Marlin 1.1.0
+## Marlin 1.1
 
 Marlin 1.1 represents an evolutionary leap over Marlin 1.0.2. It is the result of over two years of effort by several volunteers around the world who have paid meticulous and sometimes obsessive attention to every detail. For this release we focused on code quality, performance, stability, and overall user experience. Several new features have also been added, many of which require no extra hardware.
 
@@ -9,7 +9,7 @@ For complete Marlin documentation click over to the [Marlin Homepage <marlinfw.o
 
 ## Stable Release Branch
 
-This Release branch contains the latest tagged version of Marlin (currently 1.1.0-1 – May 2017).
+This Release branch contains the latest tagged version of Marlin (currently 1.1.1 – May 2017).
 
 Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/Marlin/tree/1.0.2-2) (December 2016) and [1.0.1](https://github.com/MarlinFirmware/Marlin/tree/1.0.1) (December 2014). Any version of Marlin prior to 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
 
