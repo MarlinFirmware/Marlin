@@ -1216,9 +1216,18 @@
   #define DEFAULT_AXIS_ERROR_THRESHOLD      0.1             //number of mm in error above which the printer will attempt to correct the error, errors smaller than this are ignored to avoid measurement noise / latency (filter)
   #define STABLE_TIME_UNTIL_TRUSTED         10000           //after an encoder fault, there must be no further fault for this period (ms) before the encoder is trusted again
   //#define AXIS_ERROR_THRESHOLD_ABORT      100.0           //number of mm error in any given axis after which the printer will abort. Comment out to disable abort behaviour.
+  
+
+  //Position is checked every time a new command is executed from the buffer but during long moves, 
+  //this setting determines the minimum update time between checks. A value of 100 works well with 
+  //error rolling average when attempting to correct only for skips and not for vibration.
+  #define MIN_UPDATE_TIME_MS                100             //minimum time in miliseconds between encoder checks
 
   //error correction relies on babystepping. We must make sure it is active.
   #define BABYSTEPPING 
+  
+  //Use a rolling average to identify persistant errors that indicate skips vs vibration and noise
+  #define ERROR_ROLLING_AVERAGE
 
 #endif
 
