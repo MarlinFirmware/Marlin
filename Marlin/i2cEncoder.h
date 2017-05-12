@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(I2C_ENCODERS_ENABLED)
+#if ENABLED(I2C_POSITION_ENCODERS)
 
 #ifndef I2CENC_H
 #define I2CENC_H
@@ -249,6 +249,6 @@ static inline int8_t sgn(double val) {
 }
 
 #endif //I2CENC_H
-#endif //I2C_ENCODERS_ENABLED
+#endif //I2C_POSITION_ENCODERS
 
 
