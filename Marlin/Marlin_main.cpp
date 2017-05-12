@@ -8414,17 +8414,15 @@ void quickstop_stepper() {
    * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
    */
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value_linear_units());
-    if ((hasY = code_seen('Y'))) py = mbl.probe_index_y(code_value_linear_units());
-    if ((hasI = code_seen('I'))) px = code_value_linear_units();
-    if ((hasJ = code_seen('J'))) py = code_value_linear_units();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
+
+    const bool hasX = code_seen('X'), hasI = !hasX && code_seen('I');
+    const int8_t px = hasX || hasI ? mbl.probe_index_x(code_value_linear_units()) : 0;
+    const bool hasY = code_seen('Y'), hasJ = !hasY && code_seen('J');
+    const int8_t py = hasY || hasJ ? mbl.probe_index_y(code_value_linear_units()) : 0;
+    const bool hasZ = code_seen('Z');
+    const float z = hasZ ? code_value_linear_units() : 0;
 
     if (hasX && hasY && hasZ) {
-
       if (px >= 0 && py >= 0)
         mbl.set_z(px, py, z);
       else {
@@ -8451,18 +8449,18 @@ void quickstop_stepper() {
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
+   * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
-   *   or
    *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ, hasQ;
-    if ((hasI = code_seen('I'))) px = code_value_int();
-    if ((hasJ = code_seen('J'))) py = code_value_int();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
-    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
+
+    const bool hasI = code_seen('I');
+    const int8_t px = hasI ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t py = hasJ ? code_value_int() : 0;
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
+    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
 
     if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
       SERIAL_ERROR_START;
@@ -8495,33 +8493,31 @@ void quickstop_stepper() {
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    *
+   * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
-   *   or
    *   M421 I<xindex> J<yindex> Q<offset>
+   *   M421 C Z<linear>
+   *   M421 C Q<offset>
    */
 
-  //todo:  change multiple points simultaneously?
-
   inline void gcode_M421() {
-    int8_t px = 0, py = 0;
-    float z = 0;
-    bool hasI, hasJ, hasZ, hasQ, hasC;
-    if ((hasI = code_seen('I'))) px = code_value_int();
-    if ((hasJ = code_seen('J'))) py = code_value_int();
-    if ((hasZ = code_seen('Z'))) z = code_value_linear_units();
-    if ((hasQ = code_seen('Q'))) z = code_value_linear_units();
-    hasC = code_seen('C');
 
-    if ( (!(hasI && hasJ) && !hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+    // Get the closest position for 'C', if needed
+    const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+
+    const bool hasC = code_seen('C'), hasI = code_seen('I');
+    const int8_t px = hasC ? location.x_index : hasI ? code_value_int() : 0;
+
+    const bool hasJ = code_seen('J');
+    const int8_t py = hasC ? location.y_index : hasJ ? code_value_int() : 0;
+
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
+    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
+
+    if ( ((hasI && hasJ) == hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
       return;
-    }
-
-    if (hasC) { // get closest position
-      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
-      px = location.x_index;
-      py = location.y_index;
     }
 
     if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
@@ -8535,7 +8531,8 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
   }
-#endif
+
+#endif // AUTO_BED_LEVELING_UBL
 
 #if HAS_M206_COMMAND
 
