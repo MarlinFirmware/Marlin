@@ -734,7 +734,7 @@
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
 
-    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : 999) : 1;
+    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : GRID_MAX_POINTS+1) : GRID_MAX_POINTS+1;
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
       return UBL_ERR;
