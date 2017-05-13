@@ -137,13 +137,20 @@
 //#define SINGLENOZZLE
 
 // A dual extruder that uses a single stepper motor
-// Don't forget to set SSDE_SERVO_ANGLES and HOTEND_OFFSET_X/Y/Z
+// Don't forget to set SSDE_SERVO_ANGLES 
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
   #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
-  //#define HOTEND_OFFSET_Z {0.0, 0.0}
-  //#define SWITCHING_EXTRUDER_MULTI_STEPPERS             //Use for disable single stepper reverse
+#endif
+
+// A dual nozzle x-carriege that uses a servo motor for switching nozzles
+// Don't forget to set SSDE_SERVO_ANGLES and HOTEND_OFFSET_X/Y/Z
+#define SWITCHING_NOZZLE             
+#if ENABLED(SWITCHING_NOZZLE)
+  #define SWITCHING_NOZZLE_SERVO_NR 0
+  #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 } // Angles for E0, E1 
+  #define HOTEND_OFFSET_Z {0.0, 0.0}               
 #endif
 
 /**
