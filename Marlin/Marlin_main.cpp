@@ -9715,6 +9715,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       UNUSED(fr_mm_s);
       UNUSED(no_move);
 
+      #if ENABLED(SWITCHING_EXTRUDER)
+        stepper.synchronize();
+        move_extruder_servo(active_extruder);
+      #endif
+            
     #endif // HOTENDS <= 1
 
     SERIAL_ECHO_START;
