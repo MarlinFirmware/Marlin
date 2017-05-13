@@ -11235,32 +11235,36 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Returns true if the caller didn't update current_position.
    */
   inline bool prepare_move_to_destination_cartesian() {
-    // Do not use feedrate_percentage for E or Z only moves
-    if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
-      line_to_destination();
-    }
-    else {
-      #if ENABLED(MESH_BED_LEVELING)
-        if (mbl.active()) {
-          mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return true;
-        }
-        else
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        if (ubl.state.active) {
-          ubl_line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);
-          return true;
-        }
-        else
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (planner.abl_enabled) {
-          bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return true;
-        }
-        else
-      #endif
-          line_to_destination(MMS_SCALED(feedrate_mm_s));
-    }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const float fr_scaled = MMS_SCALED(feedrate_mm_s);
+      if (ubl.state.active) {
+        ubl_line_to_destination_cartesian(fr_scaled, active_extruder);
+        return true;
+      }
+      else
+        line_to_destination(fr_scaled);
+    #else
+      // Do not use feedrate_percentage for E or Z only moves
+      if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS])
+        line_to_destination();
+      else {
+        const float fr_scaled = MMS_SCALED(feedrate_mm_s);
+        #if ENABLED(MESH_BED_LEVELING)
+          if (mbl.active()) {
+            mesh_line_to_destination(fr_scaled);
+            return true;
+          }
+          else
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          if (planner.abl_enabled) {
+            bilinear_line_to_destination(fr_scaled);
+            return true;
+          }
+          else
+        #endif
+            line_to_destination(fr_scaled);
+      }
+    #endif
     return false;
   }
 
