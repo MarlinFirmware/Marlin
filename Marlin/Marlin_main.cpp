@@ -7610,13 +7610,14 @@ inline void gcode_M205() {
   /**
    * M665: Set delta configurations
    *
-   *    H = diagonal rod // AC-version
+   *    H = delta height
    *    L = diagonal rod
    *    R = delta radius
    *    S = segments per second
-   *    A = Alpha (Tower 1) diagonal rod trim
-   *    B = Beta (Tower 2) diagonal rod trim
-   *    C = Gamma (Tower 3) diagonal rod trim
+   *    B = delta calibration radius
+   *    X = Alpha (Tower 1) angle trim
+   *    Y = Beta (Tower 2) angle trim
+   *    Z = Rotate A and B by this angle
    */
   inline void gcode_M665() {
     if (code_seen('H')) {
@@ -7628,11 +7629,11 @@ inline void gcode_M205() {
     if (code_seen('R')) delta_radius = code_value_linear_units();
     if (code_seen('S')) delta_segments_per_second = code_value_float();
     if (code_seen('B')) delta_calibration_radius = code_value_float();
-    if (code_seen('X')) delta_tower_angle_trim[A_AXIS] = code_value_linear_units();
-    if (code_seen('Y')) delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
+    if (code_seen('X')) delta_tower_angle_trim[A_AXIS] = code_value_float();
+    if (code_seen('Y')) delta_tower_angle_trim[B_AXIS] = code_value_float();
     if (code_seen('Z')) { // rotate all 3 axis for Z = 0
-      delta_tower_angle_trim[A_AXIS] -= code_value_linear_units();
-      delta_tower_angle_trim[B_AXIS] -= code_value_linear_units();
+      delta_tower_angle_trim[A_AXIS] -= code_value_float();
+      delta_tower_angle_trim[B_AXIS] -= code_value_float();
     }
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
@@ -11235,32 +11236,36 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Returns true if the caller didn't update current_position.
    */
   inline bool prepare_move_to_destination_cartesian() {
-    // Do not use feedrate_percentage for E or Z only moves
-    if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
-      line_to_destination();
-    }
-    else {
-      #if ENABLED(MESH_BED_LEVELING)
-        if (mbl.active()) {
-          mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return true;
-        }
-        else
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        if (ubl.state.active) {
-          ubl_line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);
-          return true;
-        }
-        else
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (planner.abl_enabled) {
-          bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return true;
-        }
-        else
-      #endif
-          line_to_destination(MMS_SCALED(feedrate_mm_s));
-    }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const float fr_scaled = MMS_SCALED(feedrate_mm_s);
+      if (ubl.state.active) {
+        ubl_line_to_destination_cartesian(fr_scaled, active_extruder);
+        return true;
+      }
+      else
+        line_to_destination(fr_scaled);
+    #else
+      // Do not use feedrate_percentage for E or Z only moves
+      if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS])
+        line_to_destination();
+      else {
+        const float fr_scaled = MMS_SCALED(feedrate_mm_s);
+        #if ENABLED(MESH_BED_LEVELING)
+          if (mbl.active()) {
+            mesh_line_to_destination(fr_scaled);
+            return true;
+          }
+          else
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          if (planner.abl_enabled) {
+            bilinear_line_to_destination(fr_scaled);
+            return true;
+          }
+          else
+        #endif
+            line_to_destination(fr_scaled);
+      }
+    #endif
     return false;
   }
 
