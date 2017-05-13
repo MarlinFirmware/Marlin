@@ -7760,7 +7760,7 @@ inline void gcode_M211() {
    *   T<tool>
    *   X<xoffset>
    *   Y<yoffset>
-   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_EXTRUDER
+   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
    */
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218) || target_extruder == 0) return;
@@ -7768,7 +7768,7 @@ inline void gcode_M211() {
     if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_linear_units();
     if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_linear_units();
 
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
       if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_linear_units();
     #endif
 
@@ -7779,7 +7779,7 @@ inline void gcode_M211() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
@@ -9393,6 +9393,14 @@ inline void gcode_M999() {
   }
 #endif
 
+#if ENABLED(SWITCHING_NOZZLE)
+  inline void move_nozzle_servo(uint8_t e) {
+    const int angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
+    safe_delay(500);
+  }
+#endif
+
 inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHO_START;
   SERIAL_CHAR('T');
@@ -9541,6 +9549,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           #if ENABLED(SWITCHING_EXTRUDER)
+            stepper.synchronize();
+
+            move_extruder_servo(active_extruder);
+          #endif
+
+          #if ENABLED(SWITCHING_NOZZLE)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
@@ -9550,9 +9564,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             stepper.synchronize();
 
-            move_extruder_servo(active_extruder);
+            move_nozzle_servo(active_extruder);
           #endif
-
+                  
           /**
            * Set current_position to the position of the new nozzle.
            * Offsets are based on linear distance, so we need to get
@@ -9673,7 +9687,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           prepare_move_to_destination();
         }
 
-        #if ENABLED(SWITCHING_EXTRUDER)
+        #if ENABLED(SWITCHING_NOZZLE)
           // Move back down, if needed. (Including when the new tool is higher.)
           if (z_raise != z_diff) {
             destination[Z_AXIS] += z_diff;
