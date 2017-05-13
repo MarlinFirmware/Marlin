@@ -69,7 +69,7 @@
    *   B #  Bed         Set the Bed Temperature.  If not specified, a default of 60 C. will be assumed.
    *
    *   C    Current     When searching for Mesh Intersection points to draw, use the current nozzle location
-                        as the base for any distance comparison.
+   *                    as the base for any distance comparison.
    *
    *   D    Disable     Disable the Unified Bed Leveling System.  In the normal case the user is invoking this
    *                    command to see how well a Mesh as been adjusted to match a print surface.  In order to do
@@ -748,10 +748,7 @@
     }
 
     /**
-     * We save the question of what to do with the Unified Bed Leveling System's Activation until the very
-     * end.  The reason is, if one of the parameters specified up above is incorrect, we don't want to
-     * alter the system's status.  We wait until we know everything is correct before altering the state
-     * of the system.
+     * Wait until all parameters are verified before altering the state!
      */
     ubl.state.active = !code_seen('D');
 
