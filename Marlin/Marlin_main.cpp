@@ -5094,10 +5094,11 @@ void home_all_axes() { gcode_G28(); }
         for (uint8_t axis = 1; axis < 13; axis += 1) {
           float circles = (_7p_quadruple_circle ? 1.5 :
                           _7p_tripple_circle ? 1.0 :
-                          _7p_double_circle ? 0.5 : 0),
-                pos[XYZ] = {cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius * (1 + circles * 0.1),
-                           sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius * (1 + circles * 0.1), 0.0 };
-          if (!position_is_reachable(pos, true)) {
+                          _7p_double_circle ? 0.5 : 0);
+          if (!position_is_reachable_by_probe_xy(cos(RADIANS(180 + 30 * axis)) * 
+                                                 delta_calibration_radius * (1 + circles * 0.1),
+                                                 sin(RADIANS(180 + 30 * axis)) * 
+                                                 delta_calibration_radius * (1 + circles * 0.1))) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
