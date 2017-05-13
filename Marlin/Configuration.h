@@ -146,7 +146,7 @@
 
 // A dual nozzle x-carriege that uses a servo motor for switching nozzles
 // Don't forget to set SSDE_SERVO_ANGLES and HOTEND_OFFSET_X/Y/Z
-#define SWITCHING_NOZZLE             
+//#define SWITCHING_NOZZLE             
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
   #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 } // Angles for E0, E1 
