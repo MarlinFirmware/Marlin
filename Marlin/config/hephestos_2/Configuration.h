@@ -136,7 +136,11 @@
 #define BED_AUTOLEVEL_TEMP 50
 
 // Heated bed control update frequency
-#define BED_UPDATES_PER_SEC 10
+// Value is in CPU cycles. Calculation as follows:
+//   (F_CPU / (1024.0 * 0x7F * 10))
+// 0x7F = 50% duty cycle of temperature control loop
+// 10 = updates of bed per second, adjust as necessary
+#define BED_UPDATE_FREQUENCY 12
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of

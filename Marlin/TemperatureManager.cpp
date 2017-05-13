@@ -482,8 +482,7 @@ ISR(TIMER2_OVF_vect)
 	if(HeatedbedManager::single::instance().getMode() != eeprom::HEATEDBED_OFF)
 	{
 		bed_control_counter++;
-		uint16_t bed_update_freq = F_CPU / (1024.0 * OCR2A * BED_UPDATES_PER_SEC);
-		if(bed_control_counter == bed_update_freq)
+		if(bed_control_counter == BED_UPDATE_FREQUENCY)
 		{
 			temp::TemperatureManager::single::instance().heatBed();
 			bed_control_counter = 0;			
