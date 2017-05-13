@@ -76,6 +76,9 @@ namespace temp
 		if(HeatedbedManager::single::instance().detected())
 		{
 			SET_OUTPUT(HEATER_BED_PIN);
+
+			// we start with the bed OFF!
+			digitalWrite(HEATER_BED_PIN, HIGH);
 		}
 	#endif
 #endif // DOGLCD
