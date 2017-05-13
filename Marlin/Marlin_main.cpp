@@ -11235,11 +11235,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Returns true if the caller didn't update current_position.
    */
   inline bool prepare_move_to_destination_cartesian() {
-    // Do not use feedrate_percentage for E or Z only moves
-    if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
-      line_to_destination();
-    }
-    else {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
           mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
@@ -11260,7 +11255,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         else
       #endif
           line_to_destination(MMS_SCALED(feedrate_mm_s));
-    }
+
     return false;
   }
 
