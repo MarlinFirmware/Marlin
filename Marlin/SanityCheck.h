@@ -331,9 +331,9 @@
 /**
  * Only one type of extruder allowed
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
+#if (ENABLED(SWITCHING_EXTRUDER) &&  ENABLED(MIXING_EXTRUDER)) \
   || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+    #error "Please define only one type of extruder: SINGLENOZZLE/SWITCHING_EXTRUDER or MIXING_EXTRUDER."
 #endif
 
 /**
