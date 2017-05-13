@@ -415,7 +415,7 @@
 /**
  * Extruder indirection for the single E axis
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && !ENABLED(SWITCHING_EXTRUDER_MULTI_STEPPERS)) 
+#if ENABLED(SWITCHING_EXTRUDER) 
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
   #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
   #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
