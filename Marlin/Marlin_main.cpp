@@ -9550,7 +9550,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           #if ENABLED(SWITCHING_EXTRUDER)
             stepper.synchronize();
-
             move_extruder_servo(active_extruder);
           #endif
 
@@ -9566,7 +9565,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             move_nozzle_servo(active_extruder);
           #endif
-                  
+
           /**
            * Set current_position to the position of the new nozzle.
            * Offsets are based on linear distance, so we need to get
