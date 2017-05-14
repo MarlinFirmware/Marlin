@@ -150,7 +150,7 @@
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
   #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
-  #define HOTEND_OFFSET_Z {0.0, 0.0}
+  //#define HOTEND_OFFSET_Z {0.0, 0.0}
 #endif
 
 /**
