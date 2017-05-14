@@ -315,7 +315,7 @@
     #define E_STEPPERS   EXTRUDERS
     #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
-  #endif 
+  #endif
 
   /**
    * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
