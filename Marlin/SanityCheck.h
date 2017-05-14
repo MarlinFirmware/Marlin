@@ -329,14 +329,6 @@
 #endif
 
 /**
- * Only one type of extruder allowed
- */
-#if (ENABLED(SWITCHING_EXTRUDER) &&  ENABLED(MIXING_EXTRUDER)) \
-  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE/SWITCHING_EXTRUDER or MIXING_EXTRUDER."
-#endif
-
-/**
  * Single Stepper Dual Extruder with switching servo
  */
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -361,6 +353,11 @@
   #endif
   #if ENABLED(FILAMENT_SENSOR)
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #endif
+  #if ENABLED(SWITCHING_EXTRUDER)
+    #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
+  #if ENABLED(SINGLENOZZLE)
+    #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #endif
 #endif
 
