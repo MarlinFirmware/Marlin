@@ -329,7 +329,7 @@
     }
 
     // Don't allow auto-leveling without homing first
-    if (!code_seen('N') && axis_unhomed_error(true, true, true)) // Warning! Use of 'N' flouts established standards.
+    if (!(code_seen('N') && code_value_bool()) && axis_unhomed_error()) // Warning! Use of 'N' flouts established standards.
       home_all_axes();
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,

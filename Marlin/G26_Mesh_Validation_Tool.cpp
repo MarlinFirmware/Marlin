@@ -201,7 +201,7 @@
 
     // Don't allow Mesh Validation without homing first,
     // or if the parameter parsing did not go OK, abort
-    if (axis_unhomed_error(true, true, true) || parse_G26_parameters()) return;
+    if (axis_unhomed_error() || parse_G26_parameters()) return;
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);

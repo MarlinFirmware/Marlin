@@ -1851,10 +1851,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
-  bool axis_unhomed_error(const bool x, const bool y, const bool z) {
-    const bool xx = x && !axis_homed[X_AXIS],
-               yy = y && !axis_homed[Y_AXIS],
-               zz = z && !axis_homed[Z_AXIS];
+  bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
+    const bool xx = x && !axis_known_position[X_AXIS],
+               yy = y && !axis_known_position[Y_AXIS],
+               zz = z && !axis_known_position[Z_AXIS];
     if (xx || yy || zz) {
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOME " ");
@@ -2169,15 +2169,13 @@ static void clean_up_after_endstop_or_probe_move() {
           return true;
         }
       }
-    #elif ENABLED(Z_PROBE_SLED)
-      if (axis_unhomed_error(true, false, false)) {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
-        stop();
-        return true;
-      }
-    #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      if (axis_unhomed_error(true, true,  true )) {
+    #elif ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+      #if ENABLED(Z_PROBE_SLED)
+        #define _AUE_ARGS true, false, false
+      #else
+        #define _AUE_ARGS
+      #endif
+      if (axis_unhomed_error(_AUE_ARGS)) {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
         stop();
@@ -3414,7 +3412,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G12() {
     // Don't allow nozzle cleaning without homing first
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unhomed_error()) return;
 
     const uint8_t pattern = code_seen('P') ? code_value_ushort() : 0,
                   strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES,
@@ -3443,7 +3441,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G27() {
     // Don't allow nozzle parking without homing first
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unhomed_error()) return;
     Nozzle::park(code_seen('P') ? code_value_ushort() : 0);
   }
 #endif // NOZZLE_PARK_FEATURE
@@ -4222,7 +4220,7 @@ void home_all_axes() { gcode_G28(); }
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unhomed_error()) return;
 
     // Define local vars 'static' for manual probing, 'auto' otherwise
     #if ENABLED(PROBE_MANUALLY)
@@ -6174,7 +6172,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unhomed_error()) return;
 
     const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (!WITHIN(verbose_level, 0, 4)) {
@@ -9427,7 +9425,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
       if (tmp_extruder != active_extruder) {
-        if (!no_move && axis_unhomed_error(true, true, true)) {
+        if (!no_move && axis_unhomed_error()) {
           SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
         }
