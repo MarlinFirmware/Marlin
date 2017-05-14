@@ -144,7 +144,7 @@
   #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
 #endif
 
-// A dual nozzle x-carriege that uses a servo motor for switching nozzles
+// A dual nozzle x-carriage that uses a servomotor for switching nozzles
 // Don't forget to set SSDE_SERVO_ANGLES and HOTEND_OFFSET_X/Y/Z
 //#define SWITCHING_NOZZLE             
 #if ENABLED(SWITCHING_NOZZLE)
