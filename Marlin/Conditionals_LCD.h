@@ -291,20 +291,18 @@
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
    *
    */
-  #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one termistor, no XY offset
+  #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
     #define HOTENDS      1
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
   #else                                                         // Two hotends
-    #define HOTENDS      EXTRUDERS   
-    #if ENABLED(SWITCHING_NOZZLE)     
-      #ifndef HOTEND_OFFSET_Z
-        #define HOTEND_OFFSET_Z { 0 }
-      #endif  
-    #endif 
+    #define HOTENDS      EXTRUDERS
+    #if ENABLED(SWITCHING_NOZZLE) && !defined(HOTEND_OFFSET_Z)
+      #define HOTEND_OFFSET_Z { 0 }
+    #endif
   #endif
-   
+
   #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // unified E axis
     #if ENABLED(MIXING_EXTRUDER)
       #define E_STEPPERS   MIXING_STEPPERS
@@ -316,7 +314,7 @@
   #else
     #define E_STEPPERS   EXTRUDERS
     #define E_MANUAL     EXTRUDERS
-    #define TOOL_E_INDEX current_block->active_extruder    
+    #define TOOL_E_INDEX current_block->active_extruder
   #endif 
 
   /**
