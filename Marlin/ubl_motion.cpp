@@ -55,12 +55,8 @@
                 dy = current_position[Y_AXIS] - destination[Y_AXIS],
                 xy_dist = HYPOT(dx, dy);
 
-    if (xy_dist == 0.0) {
-      return;
-      //SERIAL_ECHOPGM("   FPMM=");
-      //const float fpmm = de / xy_dist;
-      //SERIAL_PROTOCOL_F(fpmm, 6);
-    }
+    if (xy_dist == 0.0) 
+	    return;
     else {
       SERIAL_ECHOPGM("   fpmm=");
       const float fpmm = de / xy_dist;
@@ -276,16 +272,7 @@
          */
         if (y != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
-
-            //on_axis_distance = y - start[Y_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
             e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
@@ -350,13 +337,7 @@
          */
         if (x != start[X_AXIS]) {
           if (!inf_normalized_flag) {
-
-            //on_axis_distance = x - start[X_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
             e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
@@ -613,20 +594,14 @@
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
-        // float x0 = (UBL_MESH_MIN_X) + ((MESH_X_DIST) * cell_xi );         // lower left cell corner
-        // float y0 = (UBL_MESH_MIN_Y) + ((MESH_Y_DIST) * cell_yi );         // lower left cell corner
-        // float x1 = x0 + MESH_X_DIST;                                      // upper right cell corner
-        // float y1 = y0 + MESH_Y_DIST;                                      // upper right cell corner
-
         const float x0 = pgm_read_float(&(ubl.mesh_index_to_xpos[cell_xi  ])),  // 64 byte table lookup avoids mul+add
                     y0 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi  ])),  // 64 byte table lookup avoids mul+add
                     x1 = pgm_read_float(&(ubl.mesh_index_to_xpos[cell_xi+1])),  // 64 byte table lookup avoids mul+add
-                    y1 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi+1])),  // 64 byte table lookup avoids mul+add
+                    y1 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi+1]));  // 64 byte table lookup avoids mul+add
 
-                    cx = rx - x0,   // cell-relative x
-                    cy = ry - y0;   // cell-relative y
-
-        float z_x0y0 = ubl.z_values[cell_xi  ][cell_yi  ],  // z at lower left corner
+        float cx = rx - x0,   // cell-relative x
+              cy = ry - y0;   // cell-relative y
+              z_x0y0 = ubl.z_values[cell_xi  ][cell_yi  ],  // z at lower left corner
               z_x1y0 = ubl.z_values[cell_xi+1][cell_yi  ],  // z at upper left corner
               z_x0y1 = ubl.z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
               z_x1y1 = ubl.z_values[cell_xi+1][cell_yi+1];  // z at upper right corner
