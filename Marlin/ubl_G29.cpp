@@ -383,6 +383,7 @@
         ubl.save_ubl_active_state_and_disable();
         ubl.tilt_mesh_based_on_probed_grid(code_seen('O')); 
         ubl.restore_ubl_active_state_and_leave();
+      } else { // grid_size==0 which means a 3-Point leveling has been requested
         float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
               z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
               z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
