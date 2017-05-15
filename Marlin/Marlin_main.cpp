@@ -5761,7 +5761,7 @@ inline void gcode_M31() {
   /**
    * M32: Select file and start SD Print
    */
-  inline void gcode_M32() {
+  inline void gcode_M32() {  // Why is M32 allowed to flout the sacred GCode standard?
     if (card.sdprinting)
       stepper.synchronize();
 
