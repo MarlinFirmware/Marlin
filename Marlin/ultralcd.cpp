@@ -1945,7 +1945,7 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL System submenu
-     * 
+     *
      *  Prepare
      * - Unified Bed Leveling
      *   - Activate UBL
