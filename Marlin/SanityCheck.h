@@ -329,6 +329,19 @@
 #endif
 
 /**
+ * A dual nozzle x-carriage with switching servo
+ */
+#if ENABLED(SWITCHING_NOZZLE)
+  #if ENABLED(SINGLENOZZLE)
+    #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+  #elif EXTRUDERS < 2
+    #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #endif
+#endif
+
+/**
  * Single Stepper Dual Extruder with switching servo
  */
 #if ENABLED(SWITCHING_EXTRUDER)
