@@ -317,10 +317,10 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-  // TEVO Tarantula Custom PID Settings - Hotend
-  #define  DEFAULT_Kp 4.53
-  #define  DEFAULT_Ki 0.37
-  #define  DEFAULT_Kd 123.63
+  // Custom PID settings for my hotend
+  #define  DEFAULT_Kp 15.37
+  #define  DEFAULT_Ki 0.85
+  #define  DEFAULT_Kd 69.58
 
 #endif // PIDTEMP
 
