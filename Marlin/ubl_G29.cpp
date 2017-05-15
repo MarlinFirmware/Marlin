@@ -116,8 +116,7 @@
    *                    invalidate.
    *
    *   J #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
-   *
-   *   j  EEPROM Dump   This function probably goes away after debug is complete.
+   *                    Not specifying a grid size will invoke the 3-Point leveling function.
    *
    *   K #   Kompare    Kompare current Mesh with stored Mesh # replacing current Mesh with the result. This
    *                    command literally performs a diff between two Meshes.
@@ -264,8 +263,6 @@
    *                    at a later date. The GCode output can be saved and later replayed by the host software
    *                    to reconstruct the current mesh on another machine.
    *
-   *   T     3-Point    Perform a 3 Point Bed Leveling on the current Mesh
-   *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
    *                    Only used for G29 P1 O U   It will speed up the probing of the edge of the bed.  This
    *                    is useful when the entire bed does not need to be probed because it will be adjusted.
@@ -275,12 +272,6 @@
    *   X #   *      *   X Location for this line of commands
    *
    *   Y #   *      *   Y Location for this line of commands
-   *
-   *   Z     Zero   *   Probes to set the Z Height of the nozzle. The entire Mesh can be raised or lowered
-   *                    by just doing a G29 Z
-   *
-   *   Z #   Zero   *   The entire Mesh can be raised or lowered to conform with the specified difference.
-   *                    zprobe_zoffset is added to the calculation.
    *
    *
    *   Release Notes:
@@ -388,9 +379,32 @@
     }
 
     if (code_seen('J')) {
-      ubl.save_ubl_active_state_and_disable();
-      ubl.tilt_mesh_based_on_probed_grid(code_seen('O')); 
-      ubl.restore_ubl_active_state_and_leave();
+      if (grid_size!=0) {  // if not 0 it is a normal n x n grid being probed
+        ubl.save_ubl_active_state_and_disable();
+        ubl.tilt_mesh_based_on_probed_grid(code_seen('O')); 
+        ubl.restore_ubl_active_state_and_leave();
+        float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
+              z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
+              z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+
+        if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
+          goto LEAVE;
+        }
+
+      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
+      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
+
+        ubl.save_ubl_active_state_and_disable();
+        z1 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
+        z2 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
+        z3 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
+
+        do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
+        ubl.tilt_mesh_based_on_3pts(z1, z2, z3);
+        ubl.restore_ubl_active_state_and_leave();
+      }
     }
 
     if (code_seen('P')) {
@@ -518,31 +532,6 @@
 
     }
 
-    if (code_seen('T')) {
-
-      float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
-            z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
-            z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
-
-      if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
-          goto LEAVE;
-      }
-
-      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
-      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
-
-      ubl.save_ubl_active_state_and_disable();
-      z1 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
-      z2 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
-      z3 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
-
-      do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
-      ubl.tilt_mesh_based_on_3pts(z1, z2, z3);
-      ubl.restore_ubl_active_state_and_leave();
-    }
-
     //
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
     // good to have the extra information. Soon... we prune this to just a few items
@@ -614,6 +603,9 @@
     if (code_seen('O'))
       ubl.display_map(code_has_value() ? code_value_int() : 0);
 
+    /*
+     * This code may not be needed...   Prepare for its removal...
+     *
     if (code_seen('Z')) {
       if (code_has_value())
         ubl.state.z_offset = code_value_float();   // do the simple case. Just lock in the specified value
@@ -666,6 +658,7 @@
         ubl.restore_ubl_active_state_and_leave();
       }
     }
+    */
 
     LEAVE:
 
@@ -1066,8 +1059,8 @@
     }
 
     if (code_seen('J')) {
-      grid_size = code_has_value() ? code_value_int() : 3;
-      if (!WITHIN(grid_size, 2, 9)) {
+      grid_size = code_has_value() ? code_value_int() : 0;
+      if (grid_size!=0 && !WITHIN(grid_size, 2, 9)) {
         SERIAL_PROTOCOLLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
