@@ -1024,23 +1024,29 @@ void Temperature::init() {
   #endif
 
   #if HAS_FAN0
-    SET_OUTPUT(FAN_PIN);
     #if ENABLED(FAST_PWM_FAN)
+      pinMode(FAN_PIN, OUTPUT);
       setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #else
+      SET_OUTPUT(FAN_PIN);
     #endif
   #endif
 
   #if HAS_FAN1
-    SET_OUTPUT(FAN1_PIN);
     #if ENABLED(FAST_PWM_FAN)
+      pinMode(FAN1_PIN, OUTPUT);
       setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #else
+      SET_OUTPUT(FAN1_PIN);
     #endif
   #endif
 
   #if HAS_FAN2
-    SET_OUTPUT(FAN2_PIN);
     #if ENABLED(FAST_PWM_FAN)
+      pinMode(FAN2_PIN, OUTPUT);
       setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #else
+      SET_OUTPUT(FAN2_PIN);
     #endif
   #endif
 
@@ -1093,9 +1099,11 @@ void Temperature::init() {
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E0_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
+        pinMode(E0_AUTO_FAN_PIN, OUTPUT);
         setPwmFrequency(E0_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #else
+        SET_OUTPUT(E0_AUTO_FAN_PIN);  
       #endif
     #else
       SET_OUTPUT(E0_AUTO_FAN_PIN);
@@ -1103,9 +1111,11 @@ void Temperature::init() {
   #endif
   #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
     #if E1_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E1_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
+        pinMode(E1_AUTO_FAN_PIN, OUTPUT);
         setPwmFrequency(E1_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #else
+        SET_OUTPUT(E1_AUTO_FAN_PIN);      
       #endif
     #else
       SET_OUTPUT(E1_AUTO_FAN_PIN);
@@ -1113,9 +1123,11 @@ void Temperature::init() {
   #endif
   #if HAS_AUTO_FAN_2 && !AUTO_2_IS_0 && !AUTO_2_IS_1
     #if E2_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E2_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
+        pinMode(E2_AUTO_FAN_PIN, OUTPUT);
         setPwmFrequency(E2_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #else
+        SET_OUTPUT(E2_AUTO_FAN_PIN);      
       #endif
     #else
       SET_OUTPUT(E2_AUTO_FAN_PIN);
@@ -1123,9 +1135,11 @@ void Temperature::init() {
   #endif
   #if HAS_AUTO_FAN_3 && !AUTO_3_IS_0 && !AUTO_3_IS_1 && !AUTO_3_IS_2
     #if E3_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E3_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
+        pinMode(E3_AUTO_FAN_PIN, OUTPUT);
         setPwmFrequency(E3_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #else
+        SET_OUTPUT(E3_AUTO_FAN_PIN);      
       #endif
     #else
       SET_OUTPUT(E3_AUTO_FAN_PIN);
@@ -1133,9 +1147,11 @@ void Temperature::init() {
   #endif
   #if HAS_AUTO_FAN_4 && !AUTO_4_IS_0 && !AUTO_4_IS_1 && !AUTO_4_IS_2 && !AUTO_4_IS_3
     #if E4_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E4_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
+        pinMode(E4_AUTO_FAN_PIN, OUTPUT);
         setPwmFrequency(E4_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #else
+        SET_OUTPUT(E4_AUTO_FAN_PIN);
       #endif
     #else
       SET_OUTPUT(E4_AUTO_FAN_PIN);
