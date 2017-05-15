@@ -55,8 +55,8 @@
                 dy = current_position[Y_AXIS] - destination[Y_AXIS],
                 xy_dist = HYPOT(dx, dy);
 
-    if (xy_dist == 0.0) 
-	    return;
+    if (xy_dist == 0.0)
+      return;
     else {
       SERIAL_ECHOPGM("   fpmm=");
       const float fpmm = de / xy_dist;
@@ -461,7 +461,7 @@
       static float scara_feed_factor, scara_oldA, scara_oldB;
     #endif
 
-    // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic, 
+    // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call _buffer_line directly here.  Per-segmented leveling performed first.
 
     static inline void ubl_buffer_line_segment(const float ltarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
@@ -530,7 +530,7 @@
                     difference[X_AXIS] * inv_segments,
                     difference[Y_AXIS] * inv_segments,
                     difference[Z_AXIS] * inv_segments,
-                    difference[E_AXIS] * inv_segments 
+                    difference[E_AXIS] * inv_segments
                   };
 
       // Note that E segment distance could vary slightly as z mesh height
@@ -610,7 +610,7 @@
               z_x0y1 = ubl.z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
               z_x1y1 = ubl.z_values[cell_xi+1][cell_yi+1];  // z at upper right corner
 
-        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating ubl.state.active (G29 A) 
+        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating ubl.state.active (G29 A)
         if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
         if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
         if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
@@ -664,7 +664,7 @@
           if (!WITHIN(cx, 0, MESH_X_DIST) || !WITHIN(cy, 0, MESH_Y_DIST)) {  // done within this cell, break to next
             rx = RAW_X_POSITION(seg_dest[X_AXIS]);
             ry = RAW_Y_POSITION(seg_dest[Y_AXIS]);
-            break;  
+            break;
           }
 
           // Next segment still within same mesh cell, adjust the per-segment

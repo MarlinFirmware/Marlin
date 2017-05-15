@@ -74,18 +74,17 @@
    *   A     Activate   Activate the Unified Bed Leveling system.
    *
    *   B #   Business   Use the 'Business Card' mode of the Manual Probe subsystem. This is invoked as
-   *                    G29 P2 B   The mode of G29 P2 allows you to use a bussiness card or recipe card
+   *                    G29 P2 B. The mode of G29 P2 allows you to use a business card or recipe card
    *                    as a shim that the nozzle will pinch as it is lowered. The idea is that you
    *                    can easily feel the nozzle getting to the same height by the amount of resistance
    *                    the business card exhibits to movement. You should try to achieve the same amount
    *                    of resistance on each probed point to facilitate accurate and repeatable measurements.
-   *                    You should be very careful not to drive the nozzle into the bussiness card with a
+   *                    You should be very careful not to drive the nozzle into the business card with a
    *                    lot of force as it is very possible to cause damage to your printer if your are
-   *                    careless. If you use the B option with G29 P2 B you can leave the number parameter off
-   *                    on its first use to enable measurement of the business card thickness. Subsequent usage
-   *                    of the B parameter can have the number previously measured supplied to the command.
-   *                    Incidently, you are much better off using something like a Spark Gap feeler gauge than
-   *                    something that compresses like a Business Card.
+   *                    careless. If you use the B option with G29 P2 B you can omit the numeric value
+   *                    on first use to measure the business card's thickness. Subsequent usage of 'B'
+   *                    will apply the previously-measured thickness as the default.
+   *                    Note: A non-compressible Spark Gap feeler gauge is recommended over a Business Card.
    *
    *   C     Continue   Continue, Constant, Current Location. This is not a primary command. C is used to
    *                    further refine the behaviour of several other commands. Issuing a G29 P1 C will
@@ -98,7 +97,7 @@
    *
    *   E     Stow_probe Stow the probe after each sampled point.
    *
-   *   F #   Fade   *   Fade the amount of Mesh Based Compensation over a specified height. At the
+   *   F #   Fade       Fade the amount of Mesh Based Compensation over a specified height. At the
    *                    specified height, no correction is applied and natural printer kenimatics take over. If no
    *                    number is specified for the command, 10mm is assumed to be reasonable.
    *
@@ -115,15 +114,15 @@
    *                    the bed and use this feature to select the center of the area (or cell) you want to
    *                    invalidate.
    *
-   *   J #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
+   *   J #   Grid       Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
    *                    Not specifying a grid size will invoke the 3-Point leveling function.
    *
    *   K #   Kompare    Kompare current Mesh with stored Mesh # replacing current Mesh with the result. This
    *                    command literally performs a diff between two Meshes.
    *
-   *   L     Load   *   Load Mesh from the previously activated location in the EEPROM.
+   *   L     Load       Load Mesh from the previously activated location in the EEPROM.
    *
-   *   L #   Load   *   Load Mesh from the specified location in the EEPROM. Set this location as activated
+   *   L #   Load       Load Mesh from the specified location in the EEPROM. Set this location as activated
    *                    for subsequent Load and Store operations.
    *
    *   The P or Phase commands are used for the bulk of the work to setup a Mesh. In general, your Mesh will
@@ -143,12 +142,11 @@
    *                    probing needed locations. This allows you to invalidate portions of the Mesh but still
    *                    use the automatic probing capabilities of the Unified Bed Leveling System. An X and Y
    *                    parameter can be given to prioritize where the command should be trying to measure points.
-   *                    If the X and Y parameters are not specified the current probe position is used. Phase 1
-   *                    allows you to specify the M (Map) parameter so you can watch the generation of the Mesh.
-   *                    Phase 1 also watches for the LCD Panel's Encoder Switch being held in a depressed state.
-   *                    It will suspend generation of the Mesh if it sees the user request that. (This check is
-   *                    only done between probe points. You will need to press and hold the switch until the
-   *                    Phase 1 command can detect it.)
+   *                    If the X and Y parameters are not specified the current probe position is used.
+   *                    P1 accepts a 'T' (Topology) parameter so you can observe mesh generation.
+   *                    P1 also watches for the LCD Panel Encoder Switch to be held down, and will suspend
+   *                    generation of the Mesh in that case. (Note: This check is only done between probe points,
+   *                    so you must press and hold the switch until the Phase 1 command detects it.)
    *
    *   P2    Phase 2    Probe areas of the Mesh that can't be automatically handled. Phase 2 respects an H
    *                    parameter to control the height between Mesh points. The default height for movement
@@ -171,7 +169,7 @@
    *                    be done based on the current location of the nozzle.
    *
    *                    A B parameter is also available for this command and described up above. It places the
-   *                    manual probe subsystem into Business Card mode where the thickness of a business care is
+   *                    manual probe subsystem into Business Card mode where the thickness of a business card is
    *                    measured and then used to accurately set the nozzle height in all manual probing for the
    *                    duration of the command. (S for Shim mode would be a better parameter name, but S is needed
    *                    for Save or Store of the Mesh to EEPROM)  A Business card can be used, but you will have
@@ -237,7 +235,7 @@
    *                    you should have the Mesh adjusted for a Mean Height of 0.00 and the Z-Probe measuring
    *                    0.000 at the Z Home location.
    *
-   *   Q     Test   *   Load specified Test Pattern to assist in checking correct operation of system. This
+   *   Q     Test       Load specified Test Pattern to assist in checking correct operation of system. This
    *                    command is not anticipated to be of much value to the typical user. It is intended
    *                    for developers to help them verify correct operation of the Unified Bed Leveling System.
    *
@@ -262,14 +260,16 @@
    *                    is suitable to paste into a spreadsheet for a 3D graph of the mesh.
    *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
-   *                    Only used for G29 P1 O U   It will speed up the probing of the edge of the bed.  This
-   *                    is useful when the entire bed does not need to be probed because it will be adjusted.
+   *                    Only used for G29 P1 O U. This speeds up the probing of the edge of the bed. Useful
+   *                    when the entire bed doesn't need to be probed because it will be adjusted.
    *
-   *   W     What?      Display valuable data the Unified Bed Leveling System knows.
+   *   V #   Verbosity  Set the verbosity level (0-4) for extra details. (Default 0)
    *
-   *   X #   *      *   X Location for this line of commands
+   *   W     What?      Display valuable Unified Bed Leveling System data.
    *
-   *   Y #   *      *   Y Location for this line of commands
+   *   X #              X Location for this command
+   *
+   *   Y #              Y Location for this command
    *
    *
    *   Release Notes:
@@ -318,7 +318,7 @@
     }
 
     // Don't allow auto-leveling without homing first
-    if (axis_unhomed_error()) 
+    if (axis_unhomed_error())
       home_all_axes();
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
@@ -377,7 +377,7 @@
     }
 
     if (code_seen('J')) {
-      if (grid_size!=0) {  // if not 0 it is a normal n x n grid being probed
+      if (grid_size) {  // if not 0 it is a normal n x n grid being probed
         ubl.save_ubl_active_state_and_disable();
         ubl.tilt_mesh_based_on_probed_grid(code_seen('T'));
         ubl.restore_ubl_active_state_and_leave();
@@ -479,7 +479,7 @@
           }
 
           if (code_seen('H') && code_has_value()) height = code_value_float();
-          
+
           if ( !position_is_reachable_xy( x_pos, y_pos )) {
             SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
             return;
@@ -497,15 +497,15 @@
            *   - Allow 'G29 P3' to choose a 'reasonable' constant.
            */
           if (c_flag) {
-
             if (repetition_cnt >= GRID_MAX_POINTS) {
-              for ( uint8_t x = 0; x < GRID_MAX_POINTS_X; x++ ) {
-                for ( uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++ ) {
+              for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+                for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
                   ubl.z_values[x][y] = ubl_constant;
                 }
               }
-            } else {
-              while (repetition_cnt--) {  // this only populates reachable mesh points near 
+            }
+            else {
+              while (repetition_cnt--) {  // this only populates reachable mesh points near
                 const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, x_pos, y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
                 if (location.x_index < 0) break; // No more reachable invalid Mesh Points to populate
                 ubl.z_values[location.x_index][location.y_index] = ubl_constant;
@@ -536,7 +536,7 @@
     // good to have the extra information. Soon... we prune this to just a few items
     //
     if (code_seen('W')) ubl.g29_what_command();
- 
+
     //
     // When we are fully debugged, this may go away. But there are some valid
     // use cases for the users. So we can wait and see what to do with it.
@@ -1578,7 +1578,7 @@
       SERIAL_ECHOPGM("Could not complete LSF!");
       return;
     }
-    
+
     if (g29_verbose_level > 3) {
       SERIAL_ECHOPGM("LSF Results A=");
       SERIAL_PROTOCOL_F(lsf_results.A, 7);

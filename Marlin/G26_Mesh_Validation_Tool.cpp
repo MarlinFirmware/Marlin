@@ -466,7 +466,7 @@
                   SERIAL_EOL;
                   //debug_current_and_destination(PSTR("Connecting horizontal line."));
                 }
-  
+
                 print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
               }
               bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
@@ -685,7 +685,7 @@
       }
     }
 
-    if (code_seen('S')) { 
+    if (code_seen('S')) {
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
@@ -727,7 +727,7 @@
       }
     }
 
-    if (code_seen('U')) { 
+    if (code_seen('U')) {
       randomSeed(millis());
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
