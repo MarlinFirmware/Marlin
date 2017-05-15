@@ -61,8 +61,7 @@
 
   void dump(char * const str, const float &f);
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
-  float measure_business_card_thickness(const float&);
+  float measure_business_card_thickness(float&);
   mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
   void shift_mesh_height();
   void fine_tune_mesh(const float&, const float&, const bool);
@@ -108,7 +107,6 @@
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
       void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
-      void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
       void g29_what_command();

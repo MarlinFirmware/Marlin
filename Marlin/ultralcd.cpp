@@ -1674,13 +1674,13 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_level_bed();
 
-    int UBL_STORAGE_SLOT = 0;
-    int CUSTOM_BED_TEMP = 50;
-    int CUSTOM_HOTEND_TEMP = 190;
-    int SIDE_POINTS = 3;
-    int UBL_FILLIN_AMOUNT = 5;
-    int UBL_HEIGHT_AMOUNT;
-    int map_type;
+    int UBL_STORAGE_SLOT = 0,
+        CUSTOM_BED_TEMP = 50,
+        CUSTOM_HOTEND_TEMP = 190,
+        SIDE_POINTS = 3,
+        UBL_FILLIN_AMOUNT = 5,
+        UBL_HEIGHT_AMOUNT,
+        map_type;
 
     char UBL_LCD_GCODE [30];
 
@@ -1858,7 +1858,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Build Mesh submenu
      */
     void _lcd_ubl_build_mesh() {
-      int GRID_NUM_POINTS = GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y ;
+      int GRID_NUM_POINTS = GRID_MAX_POINTS;
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
       #if (WATCH_THE_BED)

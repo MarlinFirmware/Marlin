@@ -69,7 +69,7 @@
    *   B #  Bed         Set the Bed Temperature.  If not specified, a default of 60 C. will be assumed.
    *
    *   C    Current     When searching for Mesh Intersection points to draw, use the current nozzle location
-                        as the base for any distance comparison.
+   *                    as the base for any distance comparison.
    *
    *   D    Disable     Disable the Unified Bed Leveling System.  In the normal case the user is invoking this
    *                    command to see how well a Mesh as been adjusted to match a print surface.  In order to do
@@ -201,7 +201,7 @@
 
     // Don't allow Mesh Validation without homing first,
     // or if the parameter parsing did not go OK, abort
-    if (axis_unhomed_error(true, true, true) || parse_G26_parameters()) return;
+    if (axis_unhomed_error() || parse_G26_parameters()) return;
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
@@ -734,7 +734,7 @@
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
 
-    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : 999) : 1;
+    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : GRID_MAX_POINTS+1) : GRID_MAX_POINTS+1;
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
       return UBL_ERR;
@@ -748,10 +748,7 @@
     }
 
     /**
-     * We save the question of what to do with the Unified Bed Leveling System's Activation until the very
-     * end.  The reason is, if one of the parameters specified up above is incorrect, we don't want to
-     * alter the system's status.  We wait until we know everything is correct before altering the state
-     * of the system.
+     * Wait until all parameters are verified before altering the state!
      */
     ubl.state.active = !code_seen('D');
 
