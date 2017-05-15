@@ -538,7 +538,9 @@
           //
           // Fine Tune (i.e., Edit) the Mesh
           //
+
           fine_tune_mesh(x_pos, y_pos, code_seen('T'));
+
           break;
 
         case 5: ubl.find_mean_mesh_height(); break;
