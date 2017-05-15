@@ -393,19 +393,24 @@
         ubl.save_ubl_active_state_and_disable();
         ubl.tilt_mesh_based_on_probed_grid(code_seen('T'));
         ubl.restore_ubl_active_state_and_leave();
-      } else { // grid_size==0 which means a 3-Point leveling has been requested
-        float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
-              z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
-              z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+      }
+      else { // grid_size == 0 : A 3-Point leveling has been requested
+        float z3, z2, z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level);
+        if (!isnan(z1)) {
+          z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level);
+          if (!isnan(z2))
+            z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+        }
 
-        if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
+        if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
           goto LEAVE;
         }
 
-      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
-      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
+        // Adjust z1, z2, z3 by the Mesh Height at these points. Just because they're non-zero
+        // doesn't mean the Mesh is tilted! (Compensate each probe point by what the Mesh says
+        // its height is.)
 
         ubl.save_ubl_active_state_and_disable();
         z1 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
@@ -706,7 +711,7 @@
     const float mean = sum / n;
 
     //
-    // Now do the sumation of the squares of difference from mean
+    // Sum the squares of difference from mean
     //
     float sum_of_diff_squared = 0.0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -769,12 +774,13 @@
         const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                     rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-        const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level);
+        const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level); // TODO: Needs error handling
         ubl.z_values[location.x_index][location.y_index] = measured_z;
       }
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);
-    } while ((location.x_index >= 0) && (--max_iterations));
+
+    } while (location.x_index >= 0 && --max_iterations);
 
     STOW_PROBE();
     ubl.restore_ubl_active_state_and_leave();
@@ -1548,7 +1554,7 @@
       const float x = float(x_min) + ix * dx;
       for (int8_t iy = 0; iy < grid_size; iy++) {
         const float y = float(y_min) + dy * (zig_zag ? grid_size - 1 - iy : iy);
-        float measured_z = probe_pt(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), code_seen('E'), g29_verbose_level);
+        float measured_z = probe_pt(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), code_seen('E'), g29_verbose_level); // TODO: Needs error handling
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_CHAR('(');

@@ -4743,12 +4743,12 @@ void home_all_axes() { gcode_G28(true); }
           // Retain the last probe position
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
-          measured_z = points[i].z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
-        }
-
-        if (isnan(measured_z)) {
-          planner.abl_enabled = abl_should_enable;
-          return;
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          if (isnan(measured_z)) {
+            planner.abl_enabled = abl_should_enable;
+            return;
+          }
+          points[i].z = measured_z;
         }
 
         if (!dryrun) {
@@ -5021,9 +5021,11 @@ void home_all_axes() { gcode_G28(true); }
 
     const float measured_z = probe_pt(xpos, ypos, !code_seen('S') || code_value_bool(), 1);
 
-    SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
-    SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
-    SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
+    if (!isnan(measured_z)) {
+      SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
+      SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
+      SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
+    }
 
     clean_up_after_endstop_or_probe_move();
 
@@ -5170,13 +5172,13 @@ void home_all_axes() { gcode_G28(true); }
 
         if (!do_all_positions && !do_circle_x3) { // probe the center
           setup_for_endstop_or_probe_move();
-          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
+          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);   // TODO: Needs error handling
           clean_up_after_endstop_or_probe_move();
         }
         if (probe_center_plus_3) { // probe extra center points
           for (int8_t axis = probe_center_plus_6 ? 11 : 9; axis > 0; axis -= probe_center_plus_6 ? 2 : 4) {
             setup_for_endstop_or_probe_move();
-            z_at_pt[0] += probe_pt(
+            z_at_pt[0] += probe_pt(                     // TODO: Needs error handling
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
               sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
             clean_up_after_endstop_or_probe_move();
@@ -5192,7 +5194,7 @@ void home_all_axes() { gcode_G28(true); }
                                     do_circle_x2 ? (zig_zag ? 0.5 : 0.0) : 0);
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               setup_for_endstop_or_probe_move();
-              z_at_pt[axis] += probe_pt(
+              z_at_pt[axis] += probe_pt(                // TODO: Needs error handling
                 cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
                 (1 + circles * 0.1 * (zig_zag ? 1 : -1)),
                 sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
@@ -6372,7 +6374,8 @@ inline void gcode_M42() {
     setup_for_endstop_or_probe_move();
 
     // Move to the first point, deploy, and probe
-    probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+    const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+    if (isnan(t)) return;
 
     randomSeed(millis());
 
