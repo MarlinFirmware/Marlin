@@ -116,8 +116,7 @@
    *                    invalidate.
    *
    *   J #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
-   *
-   *   j  EEPROM Dump   This function probably goes away after debug is complete.
+   *                    Not specifying a grid size will invoke the 3-Point leveling function.
    *
    *   K #   Kompare    Kompare current Mesh with stored Mesh # replacing current Mesh with the result. This
    *                    command literally performs a diff between two Meshes.
@@ -264,8 +263,6 @@
    *                    at a later date. The GCode output can be saved and later replayed by the host software
    *                    to reconstruct the current mesh on another machine.
    *
-   *   T     3-Point    Perform a 3 Point Bed Leveling on the current Mesh
-   *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
    *                    Only used for G29 P1 O U   It will speed up the probing of the edge of the bed.  This
    *                    is useful when the entire bed does not need to be probed because it will be adjusted.
@@ -275,12 +272,6 @@
    *   X #   *      *   X Location for this line of commands
    *
    *   Y #   *      *   Y Location for this line of commands
-   *
-   *   Z     Zero   *   Probes to set the Z Height of the nozzle. The entire Mesh can be raised or lowered
-   *                    by just doing a G29 Z
-   *
-   *   Z #   Zero   *   The entire Mesh can be raised or lowered to conform with the specified difference.
-   *                    zprobe_zoffset is added to the calculation.
    *
    *
    *   Release Notes:
@@ -329,7 +320,7 @@
     }
 
     // Don't allow auto-leveling without homing first
-    if (!(code_seen('N') && code_value_bool()) && axis_unhomed_error()) // Warning! Use of 'N' flouts established standards.
+    if (axis_unhomed_error()) 
       home_all_axes();
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
@@ -353,13 +344,16 @@
     }
 
     if (code_seen('Q')) {
-      const int test_pattern = code_has_value() ? code_value_int() : -1;
-      if (!WITHIN(test_pattern, 0, 2)) {
+      const int test_pattern = code_has_value() ? code_value_int() : -99;
+      if (!WITHIN(test_pattern, -1, 2)) {
         SERIAL_PROTOCOLLNPGM("Invalid test_pattern value. (0-2)\n");
         return;
       }
       SERIAL_PROTOCOLLNPGM("Loading test_pattern values.\n");
       switch (test_pattern) {
+        case -1:
+          g29_eeprom_dump();
+          break;
         case 0:
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {   // Create a bowl shape - similar to
             for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) { // a poorly calibrated Delta.
@@ -385,9 +379,33 @@
     }
 
     if (code_seen('J')) {
-      ubl.save_ubl_active_state_and_disable();
-      ubl.tilt_mesh_based_on_probed_grid(code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
-      ubl.restore_ubl_active_state_and_leave();
+      if (grid_size!=0) {  // if not 0 it is a normal n x n grid being probed
+        ubl.save_ubl_active_state_and_disable();
+        ubl.tilt_mesh_based_on_probed_grid(code_seen('O')); 
+        ubl.restore_ubl_active_state_and_leave();
+      } else { // grid_size==0 which means a 3-Point leveling has been requested
+        float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
+              z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
+              z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+
+        if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
+          goto LEAVE;
+        }
+
+      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
+      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
+
+        ubl.save_ubl_active_state_and_disable();
+        z1 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
+        z2 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
+        z3 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
+
+        do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
+        ubl.tilt_mesh_based_on_3pts(z1, z2, z3);
+        ubl.restore_ubl_active_state_and_leave();
+      }
     }
 
     if (code_seen('P')) {
@@ -420,7 +438,7 @@
             SERIAL_PROTOCOLLNPGM(").\n");
           }
           ubl.probe_entire_mesh(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            code_seen('O') || code_seen('M'), code_seen('E'), code_seen('U')); // Warning! Use of 'M' flouts established standards.
+                            code_seen('O'), code_seen('E'), code_seen('U')); 
           break;
 
         case 2: {
@@ -469,7 +487,7 @@
             return;
           }
 
-          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
+          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O'));
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
         } break;
 
@@ -505,7 +523,7 @@
           //
           // Fine Tune (i.e., Edit) the Mesh
           //
-          fine_tune_mesh(x_pos, y_pos, code_seen('O') || code_seen('M')); // Warning! Use of 'M' flouts established standards.
+          fine_tune_mesh(x_pos, y_pos, code_seen('O')); 
           break;
 
         case 5: ubl.find_mean_mesh_height(); break;
@@ -515,43 +533,12 @@
 
     }
 
-    if (code_seen('T')) {
-
-      float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
-            z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level),
-            z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
-
-      if ( isnan(z1) || isnan(z2) || isnan(z3)) {   // probe_pt will return NAN if unreachable
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
-          goto LEAVE;
-      }
-
-      //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
-      //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
-
-      ubl.save_ubl_active_state_and_disable();
-      z1 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
-      z2 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
-      z3 -= ubl.get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
-
-      do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
-      ubl.tilt_mesh_based_on_3pts(z1, z2, z3);
-      ubl.restore_ubl_active_state_and_leave();
-    }
-
     //
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
     // good to have the extra information. Soon... we prune this to just a few items
     //
     if (code_seen('W')) ubl.g29_what_command();
  
-    //
-    // When we are fully debugged, the EEPROM dump command will get deleted also. But
-    // right now, it is good to have the extra information. Soon... we prune this.
-    //
-    if (code_seen('j')) g29_eeprom_dump(); // Warning! Use of lowercase flouts established standards.
-
     //
     // When we are fully debugged, this may go away. But there are some valid
     // use cases for the users. So we can wait and see what to do with it.
@@ -614,9 +601,12 @@
       SERIAL_PROTOCOLLNPGM("Done.\n");
     }
 
-    if (code_seen('O') || code_seen('M')) // Warning! Use of 'M' flouts established standards.
+    if (code_seen('O'))
       ubl.display_map(code_has_value() ? code_value_int() : 0);
 
+    /*
+     * This code may not be needed...   Prepare for its removal...
+     *
     if (code_seen('Z')) {
       if (code_has_value())
         ubl.state.z_offset = code_value_float();   // do the simple case. Just lock in the specified value
@@ -669,6 +659,7 @@
         ubl.restore_ubl_active_state_and_leave();
       }
     }
+    */
 
     LEAVE:
 
@@ -1069,8 +1060,8 @@
     }
 
     if (code_seen('J')) {
-      grid_size = code_has_value() ? code_value_int() : 3;
-      if (!WITHIN(grid_size, 2, 9)) {
+      grid_size = code_has_value() ? code_value_int() : 0;
+      if (grid_size!=0 && !WITHIN(grid_size, 2, 9)) {
         SERIAL_PROTOCOLLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
@@ -1126,42 +1117,8 @@
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
-
-    // Check if a map type was specified
-    if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
-      map_type = code_has_value() ? code_value_int() : 0;
-      if (!WITHIN(map_type, 0, 1)) {
-        SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
-        return UBL_ERR;
-      }
-    }
-
     return UBL_OK;
   }
-
-  /**
-   * This function goes away after G29 debug is complete. But for right now, it is a handy
-   * routine to dump binary data structures.
-   */
-  /*
-  void dump(char * const str, const float &f) {
-    char *ptr;
-
-    SERIAL_PROTOCOL(str);
-    SERIAL_PROTOCOL_F(f, 8);
-    SERIAL_PROTOCOLPGM("  ");
-    ptr = (char*)&f;
-    for (uint8_t i = 0; i < 4; i++)
-      SERIAL_PROTOCOLPAIR("  ", hex_byte(*ptr++));
-    SERIAL_PROTOCOLPAIR("  isnan()=", isnan(f));
-    SERIAL_PROTOCOLPAIR("  isinf()=", isinf(f));
-
-    if (f == -INFINITY)
-      SERIAL_PROTOCOLPGM("  Minus Infinity detected.");
-
-    SERIAL_EOL;
-  }
-  //*/
 
   static int ubl_state_at_invocation = 0,
              ubl_state_recursion_chk = 0;
