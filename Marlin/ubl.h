@@ -110,7 +110,7 @@
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
       void g29_what_command();
-      void g29_eeprom_dump() ;
+      void g29_eeprom_dump();
       void g29_compare_current_mesh_to_stored_mesh();
       void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map);
       void smart_fill_mesh();

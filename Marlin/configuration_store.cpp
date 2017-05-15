@@ -1458,10 +1458,7 @@ void MarlinSettings::reset() {
       #endif
       SERIAL_EOL;
 
-      if (!forReplay) {
-        ubl.g29_what_command();        
-
-      }
+      if (!forReplay) ubl.g29_what_command();
 
     #elif HAS_ABL
 
