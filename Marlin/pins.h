@@ -219,8 +219,8 @@
 #ifndef FAN2_PIN
   #define FAN2_PIN -1
 #endif
-#ifndef CONTROLLERFAN_PIN
-  #define CONTROLLERFAN_PIN  -1
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN  -1
 #endif
 
 #ifndef HEATER_0_PIN
@@ -461,6 +461,9 @@
     #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
     #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
     #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
+    #if X2_ENABLE_PIN == 0
+      #error "No E stepper plug left for X2!"
+    #endif
   #endif
   #undef _X2_PINS
   #define _X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
@@ -475,6 +478,9 @@
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
     #define Y2_ENABLE_PIN _EPIN(Y2_E_INDEX, ENABLE)
+    #if Y2_ENABLE_PIN == 0
+      #error "No E stepper plug left for Y2!"
+    #endif
   #endif
   #undef _Y2_PINS
   #define _Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN,
@@ -489,6 +495,9 @@
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
     #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
+    #if Z2_ENABLE_PIN == 0
+      #error "No E stepper plug left for Z2!"
+    #endif
   #endif
   #undef _Z2_PINS
   #define _Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN,
@@ -498,7 +507,7 @@
     X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, \
     Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, \
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MIN_PROBE_PIN, \
-    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLERFAN_PIN, \
+    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
     _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS BED_PINS \
     _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS \
     _X2_PINS _Y2_PINS _Z2_PINS \

@@ -63,7 +63,7 @@ vector_3 vector_3::get_normal() {
   return normalized;
 }
 
-float vector_3::get_length() { return sqrt((x * x) + (y * y) + (z * z)); }
+float vector_3::get_length() { return sqrt(sq(x) + sq(y) + sq(z)); }
 
 void vector_3::normalize() {
   const float inv_length = 1.0 / get_length();
@@ -81,8 +81,8 @@ void vector_3::apply_rotation(matrix_3x3 matrix) {
   z = resultZ;
 }
 
-void vector_3::debug(const char title[]) {
-  SERIAL_PROTOCOL(title);
+void vector_3::debug(const char * const title) {
+  serialprintPGM(title);
   SERIAL_PROTOCOLPGM(" x: ");
   SERIAL_PROTOCOL_F(x, 6);
   SERIAL_PROTOCOLPGM(" y: ");
@@ -101,14 +101,14 @@ void apply_rotation_xyz(matrix_3x3 matrix, float &x, float &y, float &z) {
 }
 
 matrix_3x3 matrix_3x3::create_from_rows(vector_3 row_0, vector_3 row_1, vector_3 row_2) {
-  //row_0.debug("row_0");
-  //row_1.debug("row_1");
-  //row_2.debug("row_2");
+  //row_0.debug(PSTR("row_0"));
+  //row_1.debug(PSTR("row_1"));
+  //row_2.debug(PSTR("row_2"));
   matrix_3x3 new_matrix;
   new_matrix.matrix[0] = row_0.x; new_matrix.matrix[1] = row_0.y; new_matrix.matrix[2] = row_0.z;
   new_matrix.matrix[3] = row_1.x; new_matrix.matrix[4] = row_1.y; new_matrix.matrix[5] = row_1.z;
   new_matrix.matrix[6] = row_2.x; new_matrix.matrix[7] = row_2.y; new_matrix.matrix[8] = row_2.z;
-  //new_matrix.debug("new_matrix");
+  //new_matrix.debug(PSTR("new_matrix"));
   return new_matrix;
 }
 
@@ -123,14 +123,14 @@ matrix_3x3 matrix_3x3::create_look_at(vector_3 target) {
   vector_3 x_row = vector_3(1, 0, -target.x / target.z).get_normal();
   vector_3 y_row = vector_3::cross(z_row, x_row).get_normal();
 
-  // x_row.debug("x_row");
-  // y_row.debug("y_row");
-  // z_row.debug("z_row");
+  // x_row.debug(PSTR("x_row"));
+  // y_row.debug(PSTR("y_row"));
+  // z_row.debug(PSTR("z_row"));
 
   // create the matrix already correctly transposed
   matrix_3x3 rot = matrix_3x3::create_from_rows(x_row, y_row, z_row);
 
-  // rot.debug("rot");
+  // rot.debug(PSTR("rot"));
   return rot;
 }
 
@@ -142,8 +142,8 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original) {
   return new_matrix;
 }
 
-void matrix_3x3::debug(const char title[]) {
-  SERIAL_PROTOCOLLN(title);
+void matrix_3x3::debug(const char * const title) {
+  serialprintPGM(title);
   uint8_t count = 0;
   for (uint8_t i = 0; i < 3; i++) {
     for (uint8_t j = 0; j < 3; j++) {

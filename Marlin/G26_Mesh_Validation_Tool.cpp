@@ -126,6 +126,8 @@
   void set_destination_to_current();
   void set_current_to_destination();
   float code_value_float();
+  float code_value_linear_units();
+  float code_value_axis_units(const AxisEnum axis);
   bool code_value_bool();
   bool code_has_value();
   void lcd_init();
@@ -164,9 +166,10 @@
                filament_diameter = FILAMENT,
                prime_length = PRIME_LENGTH,
                x_pos, y_pos,
-               bed_temp = BED_TEMP,
-               hotend_temp = HOTEND_TEMP,
                ooze_amount = OOZE_AMOUNT;
+
+  static int16_t bed_temp = BED_TEMP,
+                 hotend_temp = HOTEND_TEMP;
 
   static int8_t prime_flag = 0;
 
@@ -179,6 +182,7 @@
    * nozzle in a problem area and doing a G29 P4 R command.
    */
   void gcode_G26() {
+    SERIAL_ECHOLNPGM("G26 command started.  Waiting for heater(s).");
     float tmp, start_angle, end_angle;
     int   i, xi, yi;
     mesh_index_pair location;
@@ -257,8 +261,8 @@
         : find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        const float circle_x = pgm_read_float(&(ubl.mesh_index_to_xpos[location.x_index])),
-                    circle_y = pgm_read_float(&(ubl.mesh_index_to_ypos[location.y_index]));
+        const float circle_x = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
+                    circle_y = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
         // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
         #ifdef DELTA
@@ -378,9 +382,9 @@
 
     if (!keep_heaters_on) {
       #if HAS_TEMP_BED
-        thermalManager.setTargetBed(0.0);
+        thermalManager.setTargetBed(0);
       #endif
-      thermalManager.setTargetHotend(0.0, 0);
+      thermalManager.setTargetHotend(0, 0);
     }
   }
 
@@ -400,8 +404,8 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          const float mx = pgm_read_float(&(ubl.mesh_index_to_xpos[i])),  // We found a circle that needs to be printed
-                      my = pgm_read_float(&(ubl.mesh_index_to_ypos[j]));
+          const float mx = pgm_read_float(&ubl.mesh_index_to_xpos[i]),  // We found a circle that needs to be printed
+                      my = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // Get the distance to this intersection
           float f = HYPOT(X - mx, Y - my);
@@ -445,11 +449,11 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = pgm_read_float(&(ubl.mesh_index_to_xpos[  i  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
-              ex = pgm_read_float(&(ubl.mesh_index_to_xpos[i + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
+              sx = pgm_read_float(&ubl.mesh_index_to_xpos[  i  ]) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
+              ex = pgm_read_float(&ubl.mesh_index_to_xpos[i + 1]) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
 
               sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
-              sy = ey = constrain(pgm_read_float(&(ubl.mesh_index_to_ypos[j])), Y_MIN_POS + 1, Y_MAX_POS - 1);
+              sy = ey = constrain(pgm_read_float(&ubl.mesh_index_to_ypos[j]), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
               if (ubl.g26_debug_flag) {
@@ -476,10 +480,10 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sy = pgm_read_float(&(ubl.mesh_index_to_ypos[  j  ])) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
-                ey = pgm_read_float(&(ubl.mesh_index_to_ypos[j + 1])) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
+                sy = pgm_read_float(&ubl.mesh_index_to_ypos[  j  ]) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
+                ey = pgm_read_float(&ubl.mesh_index_to_ypos[j + 1]) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
 
-                sx = ex = constrain(pgm_read_float(&(ubl.mesh_index_to_xpos[i])), X_MIN_POS + 1, X_MAX_POS - 1);
+                sx = ex = constrain(pgm_read_float(&ubl.mesh_index_to_xpos[i]), X_MIN_POS + 1, X_MAX_POS - 1);
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
@@ -639,8 +643,8 @@
     keep_heaters_on       = false;
 
     if (code_seen('B')) {
-      bed_temp = code_value_float();
-      if (!WITHIN(bed_temp, 15.0, 140.0)) {
+      bed_temp = code_value_temp_abs();
+      if (!WITHIN(bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
         return UBL_ERR;
       }
@@ -649,7 +653,7 @@
     if (code_seen('C')) continue_with_closest++;
 
     if (code_seen('L')) {
-      layer_height = code_value_float();
+      layer_height = code_value_linear_units();
       if (!WITHIN(layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
         return UBL_ERR;
@@ -681,14 +685,14 @@
     if (code_seen('K')) keep_heaters_on++;
 
     if (code_seen('O') && code_has_value())
-      ooze_amount = code_value_float();
+      ooze_amount = code_value_linear_units();
 
     if (code_seen('P')) {
       if (!code_has_value())
         prime_flag = -1;
       else {
         prime_flag++;
-        prime_length = code_value_float();
+        prime_length = code_value_linear_units();
         if (!WITHIN(prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
           return UBL_ERR;
@@ -697,7 +701,7 @@
     }
 
     if (code_seen('F')) {
-      filament_diameter = code_value_float();
+      filament_diameter = code_value_linear_units();
       if (!WITHIN(filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
         return UBL_ERR;
@@ -710,8 +714,8 @@
     extrusion_multiplier *= filament_diameter * sq(nozzle) / sq(0.3); // Scale up by nozzle size
 
     if (code_seen('H')) {
-      hotend_temp = code_value_float();
-      if (!WITHIN(hotend_temp, 165.0, 280.0)) {
+      hotend_temp = code_value_temp_abs();
+      if (!WITHIN(hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
         return UBL_ERR;
       }
@@ -726,7 +730,7 @@
     y_pos = current_position[Y_AXIS];
 
     if (code_seen('X')) {
-      x_pos = code_value_float();
+      x_pos = code_value_axis_units(X_AXIS);
       if (!WITHIN(x_pos, X_MIN_POS, X_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified X coordinate not plausible.");
         return UBL_ERR;
@@ -735,7 +739,7 @@
     else
 
     if (code_seen('Y')) {
-      y_pos = code_value_float();
+      y_pos = code_value_axis_units(Y_AXIS);
       if (!WITHIN(y_pos, Y_MIN_POS, Y_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified Y coordinate not plausible.");
         return UBL_ERR;
@@ -766,6 +770,7 @@
    * wait for them to get up to temperature.
    */
   bool turn_on_heaters() {
+    millis_t next;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (bed_temp > 25) {
@@ -774,8 +779,13 @@
       #endif
           ubl.has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
+          next = millis() + 5000UL;
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
+            if (PENDING(millis(), next)) {
+              next = millis() + 5000UL;
+              print_heaterstates();
+            }
             idle();
           }
       #if ENABLED(ULTRA_LCD)
@@ -789,6 +799,10 @@
     thermalManager.setTargetHotend(hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
       if (ubl_lcd_clicked()) return exit_from_g26();
+      if (PENDING(millis(), next)) {
+        next = millis() + 5000UL;
+        print_heaterstates();
+      }
       idle();
     }
 

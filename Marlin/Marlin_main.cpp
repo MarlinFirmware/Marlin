@@ -61,7 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G33 - Delta '1-4-7-point' auto calibration : "G33 V<verbose> P<points> <A> <O> <T>" (Requires DELTA)
+ * G33 - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
  * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
@@ -440,7 +440,7 @@ float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
       soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
 #if FAN_COUNT > 0
-  int fanSpeeds[FAN_COUNT] = { 0 };
+  int16_t fanSpeeds[FAN_COUNT] = { 0 };
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -1182,10 +1182,7 @@ inline void get_serial_commands() {
             LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
             set_led_color(0, 255, 0); // Green
             #if HAS_RESUME_CONTINUE
-              KEEPALIVE_STATE(PAUSED_FOR_USER);
-              wait_for_user = true;
-              while (wait_for_user) idle();
-              KEEPALIVE_STATE(IN_HANDLER);
+              enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
             #else
               safe_delay(1000);
             #endif
@@ -1292,32 +1289,24 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
   inline float code_value_linear_units() { return code_value_float() * linear_unit_factor; }
   inline float code_value_axis_units(const AxisEnum axis) { return code_value_float() * axis_unit_factor(axis); }
   inline float code_value_per_axis_unit(const AxisEnum axis) { return code_value_float() / axis_unit_factor(axis); }
-
-#else
-
-  #define code_value_linear_units() code_value_float()
-  #define code_value_axis_units(A) code_value_float()
-  #define code_value_per_axis_unit(A) code_value_float()
-
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-  float code_value_temp_abs() {
+  int16_t code_value_temp_abs() {
     switch (input_temp_units) {
-      case TEMPUNIT_C:
-        return code_value_float();
       case TEMPUNIT_F:
         return (code_value_float() - 32) * 0.5555555556;
       case TEMPUNIT_K:
         return code_value_float() - 273.15;
+      case TEMPUNIT_C:
       default:
-        return code_value_float();
+        return code_value_int();
     }
   }
 
-  float code_value_temp_diff() {
+  int16_t code_value_temp_diff() {
     switch (input_temp_units) {
       case TEMPUNIT_C:
       case TEMPUNIT_K:
@@ -1329,8 +1318,8 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
     }
   }
 #else
-  float code_value_temp_abs() { return code_value_float(); }
-  float code_value_temp_diff() { return code_value_float(); }
+  int16_t code_value_temp_abs() { return code_value_int(); }
+  int16_t code_value_temp_diff() { return code_value_int(); }
 #endif
 
 FORCE_INLINE millis_t code_value_millis() { return code_value_ulong(); }
@@ -1391,7 +1380,7 @@ bool get_target_extruder_from_command(int code) {
   static float raised_parked_position[XYZE];         // used in mode 1
   static millis_t delayed_move_time = 0;             // used in mode 1
   static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
-  static float duplicate_extruder_temp_offset = 0;   // used in mode 2
+  static int16_t duplicate_extruder_temp_offset = 0; // used in mode 2
 
 #endif // DUAL_X_CARRIAGE
 
@@ -2079,11 +2068,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
       void set_heaters_for_bltouch(const bool deploy) {
         static bool heaters_were_disabled = false;
-        static millis_t next_emi_protection;
-        static float temps_at_entry[HOTENDS];
+        static millis_t next_emi_protection = 0;
+        static int16_t temps_at_entry[HOTENDS];
 
         #if HAS_TEMP_BED
-          static float bed_temp_at_entry;
+          static int16_t bed_temp_at_entry;
         #endif
 
         // If called out of order or far apart something is seriously wrong
@@ -2131,7 +2120,9 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(BLTOUCH_HEATERS_OFF)
         set_heaters_for_bltouch(deploy);
       #endif
+
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
@@ -2154,10 +2145,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     if (endstops.z_probe_enabled == deploy) return false;
-
-    #if ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HEATERS_OFF)
-      set_heaters_for_bltouch(deploy);
-    #endif
 
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
@@ -2590,7 +2577,7 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Extrapolate a single point from its neighbors
    */
-  static void extrapolate_one_point(uint8_t x, uint8_t y, int8_t xdir, int8_t ydir) {
+  static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPGM("Extrapolate [");
@@ -2613,9 +2600,10 @@ static void clean_up_after_endstop_or_probe_move() {
     SERIAL_EOL;
 
     // Get X neighbors, Y neighbors, and XY neighbors
-    float a1 = z_values[x + xdir][y], a2 = z_values[x + xdir * 2][y],
-          b1 = z_values[x][y + ydir], b2 = z_values[x][y + ydir * 2],
-          c1 = z_values[x + xdir][y + ydir], c2 = z_values[x + xdir * 2][y + ydir * 2];
+    const uint8_t x1 = x + xdir, y1 = y + ydir, x2 = x1 + xdir, y2 = y1 + ydir;
+    float a1 = z_values[x1][y ], a2 = z_values[x2][y ],
+          b1 = z_values[x ][y1], b2 = z_values[x ][y2],
+          c1 = z_values[x1][y1], c2 = z_values[x2][y2];
 
     // Treat far unprobed points as zero, near as equal to far
     if (isnan(a2)) a2 = 0.0; if (isnan(a1)) a1 = a2;
@@ -2649,19 +2637,19 @@ static void clean_up_after_endstop_or_probe_move() {
    */
   static void extrapolate_unprobed_bed_level() {
     #ifdef HALF_IN_X
-      const uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
+      constexpr uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
     #else
-      const uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
-                    ctrx2 = GRID_MAX_POINTS_X / 2,       // right-of-center
-                    xlen = ctrx1;
+      constexpr uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
+                        ctrx2 = (GRID_MAX_POINTS_X) / 2,     // right-of-center
+                        xlen = ctrx1;
     #endif
 
     #ifdef HALF_IN_Y
-      const uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
+      constexpr uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
     #else
-      const uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
-                    ctry2 = GRID_MAX_POINTS_Y / 2,       // bottom-of-center
-                    ylen = ctry1;
+      constexpr uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
+                        ctry2 = (GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
+                        ylen = ctry1;
     #endif
 
     for (uint8_t xo = 0; xo <= xlen; xo++)
@@ -3074,6 +3062,8 @@ static void homeaxis(const AxisEnum axis) {
         // Pretend current position is higher. Z will lower on the next move
         current_position[Z_AXIS] += retract_zlift;
         SYNC_PLAN_POSITION_KINEMATIC();
+        // Lower Z
+        prepare_move_to_destination();
       }
 
       feedrate_mm_s = retract_recover_feedrate_mm_s;
@@ -3081,7 +3071,7 @@ static void homeaxis(const AxisEnum axis) {
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
 
-      // Lower Z and recover E
+      // Recover E
       prepare_move_to_destination();
     }
 
@@ -3904,7 +3894,7 @@ inline void gcode_G28() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
-}
+} // G28
 
 void home_all_axes() { gcode_G28(); }
 
@@ -4921,7 +4911,7 @@ void home_all_axes() { gcode_G28(); }
       // For LINEAR and 3POINT leveling correct the current position
 
       if (verbose_level > 0)
-        planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
+        planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
 
       if (!dryrun) {
         //
@@ -5057,46 +5047,64 @@ void home_all_axes() { gcode_G28(); }
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     /**
-     * G33 - Delta '1-4-7-point' auto calibration (Requires DELTA)
-     * 
-     * Usage:
-     *   G33 <Vn> <Pn> <A> <O> <T>
-     *   
-     *     Vn = verbose level (n=0-2 default 1)
-     *          n=0 dry-run mode: setting + probe results / no calibration
-     *          n=1 settings 
-     *          n=2 setting + probe results 
-     *     Pn = n=-7 -> +7 : n*n probe points
-     *          calibrates height ('1 point'), endstops, and delta radius ('4 points') 
-     *          and tower angles with n > 2 ('7+ points')
-     *          n=1  probes center / sets height only
-     *          n=2  probes center and towers / sets height, endstops and delta radius
-     *          n=3  probes all points: center, towers and opposite towers / sets all
-     *          n>3  probes all points multiple times and averages
-     *     A  = abort 1 point delta height calibration after 1 probe
-     *     O  = use oposite tower points instead of tower points with 4 point calibration
-     *     T  = do not calibrate tower angles with 7+ point calibration
+     * G33 - Delta '1-4-7-point' Auto-Calibration
+     *       Calibrate height, endstops, delta radius, and tower angles.
+     *
+     * Parameters:
+     *
+     *   P  Number of probe points:
+     *
+     *      P1     Probe center and set height only.
+     *      P2     Probe center and towers. Set height, endstops, and delta radius.
+     *      P3     Probe all positions: center, towers and opposite towers. Set all.
+     *      P4-P7  Probe all positions at different locations and average them.
+     *
+     *   A  Abort delta height calibration after 1 probe (only P1)
+     *
+     *   O  Use opposite tower points instead of tower points (only P2)
+     *
+     *   T  Don't calibrate tower angle corrections (P3-P7)
+     *
+     *   V  Verbose level:
+     *
+     *      V0  Dry-run mode. Report settings and probe results. No calibration.
+     *      V1  Report settings
+     *      V2  Report settings and probe results
      */
     inline void gcode_G33() {
 
-      stepper.synchronize();
+      const int8_t probe_points = code_seen('P') ? code_value_int() : DELTA_CALIBRATION_DEFAULT_POINTS;
+      if (!WITHIN(probe_points, 1, 7)) {
+        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1 to 7).");
+        return;
+      }
+
+      const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
+      if (!WITHIN(verbose_level, 0, 2)) {
+        SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-2).");
+        return;
+      }
+
+      const bool do_height_only       = probe_points == 1,
+                 do_center_and_towers = probe_points == 2,
+                 do_all_positions     = probe_points == 3,
+                 do_circle_x2         = probe_points == 5,
+                 do_circle_x3         = probe_points == 6,
+                 do_circle_x4         = probe_points == 7,
+                 probe_center_plus_3  = probe_points >= 3,
+                 point_averaging      = probe_points >= 4,
+                 probe_center_plus_6  = probe_points >= 5;
+
+      const char negating_parameter = do_height_only ? 'A' : do_center_and_towers ? 'O' : 'T';
+      int8_t probe_mode = code_seen(negating_parameter) && code_value_bool() ? -probe_points : probe_points;
+
+      SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
       #if HAS_LEVELING
         set_bed_leveling_enabled(false);
       #endif
 
-      int8_t pp = (code_seen('P') ? code_value_int() : DELTA_CALIBRATION_DEFAULT_POINTS),
-             probe_mode = (WITHIN(pp, 1, 7) ? pp : DELTA_CALIBRATION_DEFAULT_POINTS);
-
-      probe_mode = (code_seen('A') && probe_mode == 1 ? -probe_mode : probe_mode);
-      probe_mode = (code_seen('O') && probe_mode == 2 ? -probe_mode : probe_mode);
-      probe_mode = (code_seen('T') && probe_mode > 2 ? -probe_mode : probe_mode);
-      
-      int8_t verbose_level = (code_seen('V') ? code_value_byte() : 1);
-
-      if (!WITHIN(verbose_level, 0, 2)) verbose_level = 1;
-
-      gcode_G28();
+      home_all_axes();
 
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       float test_precision,
@@ -5109,31 +5117,17 @@ void home_all_axes() { gcode_G28(); }
             dr_old = delta_radius,
             zh_old = home_offset[Z_AXIS],
             alpha_old = delta_tower_angle_trim[A_AXIS],
-            beta_old = delta_tower_angle_trim[B_AXIS]; 
-      int8_t iterations = 0,
-             probe_points = abs(probe_mode);
-      const bool pp_equals_1 = (probe_points == 1),
-                 pp_equals_2 = (probe_points == 2),
-                 pp_equals_3 = (probe_points == 3),
-                 pp_equals_4 = (probe_points == 4),
-                 pp_equals_5 = (probe_points == 5),
-                 pp_equals_6 = (probe_points == 6),
-                 pp_equals_7 = (probe_points == 7),
-                 pp_greather_2 = (probe_points > 2),
-                 pp_greather_3 = (probe_points > 3),
-                 pp_greather_4 = (probe_points > 4),
-                 pp_greather_5 = (probe_points > 5);
- 
+            beta_old = delta_tower_angle_trim[B_AXIS];
+
       // print settings
 
-      SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
       SERIAL_EOL;
       LCD_MESSAGEPGM("Checking... AC");
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
-      if (!pp_equals_1) {
+      if (!do_height_only) {
         SERIAL_PROTOCOLPGM("    Ex:");
         if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
         SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
@@ -5161,6 +5155,8 @@ void home_all_axes() { gcode_G28(); }
         DEPLOY_PROBE();
       #endif
 
+      int8_t iterations = 0;
+
       do {
 
         float z_at_pt[13] = { 0 },
@@ -5171,54 +5167,52 @@ void home_all_axes() { gcode_G28(); }
         test_precision = zero_std_dev;
         iterations++;
 
-        // probe the points
+        // Probe the points
 
-        if (!pp_equals_3 && !pp_equals_6) { // probe the centre
+        if (!do_all_positions && !do_circle_x3) { // probe the center
           setup_for_endstop_or_probe_move();
           z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
           clean_up_after_endstop_or_probe_move();
         }
-        if (pp_greather_2) { // probe extra centre points
-          for (int8_t axis = (pp_greather_4 ? 11 : 9); axis > 0; axis -= (pp_greather_4 ? 2 : 4)) {              
+        if (probe_center_plus_3) { // probe extra center points
+          for (int8_t axis = probe_center_plus_6 ? 11 : 9; axis > 0; axis -= probe_center_plus_6 ? 2 : 4) {
             setup_for_endstop_or_probe_move();
             z_at_pt[0] += probe_pt(
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
               sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
             clean_up_after_endstop_or_probe_move();
           }
-          z_at_pt[0] /= (pp_equals_5 ? 7 : probe_points);
+          z_at_pt[0] /= float(do_circle_x2 ? 7 : probe_points);
         }
-        if (!pp_equals_1) {  // probe the radius
-          float start_circles = (pp_equals_7 ? -1.5 : pp_equals_6 || pp_equals_5 ? -1 : 0),
-                end_circles = -start_circles;
+        if (!do_height_only) {  // probe the radius
           bool zig_zag = true;
-          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; 
-               axis += (pp_equals_2 ? 4 : pp_equals_3 || pp_equals_5 ? 2 : 1)) {
-            for (float circles = start_circles ; circles <= end_circles; circles++) {
+          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13;
+                       axis += (do_center_and_towers ? 4 : do_all_positions ? 2 : 1)) {
+            float offset_circles = (do_circle_x4 ? (zig_zag ? 1.5 : 1.0) :
+                                    do_circle_x3 ? (zig_zag ? 1.0 : 0.5) :
+                                    do_circle_x2 ? (zig_zag ? 0.5 : 0.0) : 0);
+            for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               setup_for_endstop_or_probe_move();
               z_at_pt[axis] += probe_pt(
-                cos(RADIANS(180 + 30 * axis)) * 
-                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, 
-                sin(RADIANS(180 + 30 * axis)) * 
-                (1 + circles * 0.1 * (zig_zag ? 1 : -1)) * delta_calibration_radius, true, 1);
+                cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
+                (1 + circles * 0.1 * (zig_zag ? 1 : -1)),
+                sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
+                (1 + circles * 0.1 * (zig_zag ? 1 : -1)), true, 1);
               clean_up_after_endstop_or_probe_move();
             }
-            start_circles += (pp_greather_5 ? (zig_zag ? 0.5 : -0.5) : 0);
-            end_circles = -start_circles;
             zig_zag = !zig_zag;
-            z_at_pt[axis] /= (pp_equals_7 ? (zig_zag ? 4.0 : 3.0) :
-                              pp_equals_6 ? (zig_zag ? 3.0 : 2.0) : pp_equals_5 ? 3 : 1);
+            z_at_pt[axis] /= (2 * offset_circles + 1);
           }
         }
-        if (pp_greather_3 && !pp_equals_5) // average intermediates to tower and opposites
-          for (uint8_t axis = 1; axis < 13; axis += 2)
+        if (point_averaging) // average intermediates to tower and opposites
+          for (uint8_t axis = 1; axis <= 11; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
         S1 += z_at_pt[0];
         S2 += sq(z_at_pt[0]);
         N++;
-        if (!pp_equals_1) // std dev from zero plane
-          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; axis += (pp_equals_2 ? 4 : 2)) {
+        if (!do_height_only) // std dev from zero plane
+          for (uint8_t axis = (probe_mode == -2 ? 3 : 1); axis < 13; axis += (do_center_and_towers ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5279,7 +5273,7 @@ void home_all_axes() { gcode_G28(); }
               e_delta[Y_AXIS] = Z1050(0) - Z0175(1) + Z0350(5) - Z0175(9) + Z0175(7) - Z0350(11) + Z0175(3);
               e_delta[Z_AXIS] = Z1050(0) - Z0175(1) - Z0175(5) + Z0350(9) + Z0175(7) + Z0175(11) - Z0350(3);
               r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
-              
+
               if (probe_mode > 0) {  // negative disables tower angles
                 t_alpha = + Z0444(1) - Z0888(5) + Z0444(9) + Z0444(7) - Z0888(11) + Z0444(3);
                 t_beta  = - Z0888(1) + Z0444(5) + Z0444(9) - Z0888(7) + Z0444(11) + Z0444(3);
@@ -5315,7 +5309,7 @@ void home_all_axes() { gcode_G28(); }
           SERIAL_PROTOCOLPGM(".      c:");
           if (z_at_pt[0] > 0) SERIAL_CHAR('+');
           SERIAL_PROTOCOL_F(z_at_pt[0], 2);
-          if (probe_mode == 2 || pp_greather_2) {
+          if (probe_mode == 2 || probe_center_plus_3) {
             SERIAL_PROTOCOLPGM("     x:");
             if (z_at_pt[1] >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(z_at_pt[1], 2);
@@ -5327,8 +5321,8 @@ void home_all_axes() { gcode_G28(); }
             SERIAL_PROTOCOL_F(z_at_pt[9], 2);
           }
           if (probe_mode != -2) SERIAL_EOL;
-          if (probe_mode == -2 || pp_greather_2) {
-            if (pp_greather_2) {
+          if (probe_mode == -2 || probe_center_plus_3) {
+            if (probe_center_plus_3) {
               SERIAL_CHAR('.');
               SERIAL_PROTOCOL_SP(13);
             }
@@ -5364,7 +5358,7 @@ void home_all_axes() { gcode_G28(); }
             lcd_setstatus(mess);
           }
           SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
-          if (!pp_equals_1) {
+          if (!do_height_only) {
             SERIAL_PROTOCOLPGM("    Ex:");
             if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
@@ -5411,7 +5405,7 @@ void home_all_axes() { gcode_G28(); }
 
         stepper.synchronize();
 
-        gcode_G28();
+        home_all_axes();
 
       } while (zero_std_dev < test_precision && iterations < 31);
 
@@ -5767,10 +5761,6 @@ inline void gcode_M31() {
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPAIR("Print time: ", buffer);
-
-  #if ENABLED(AUTOTEMP)
-    thermalManager.autotempShutdown();
-  #endif
 }
 
 #if ENABLED(SDSUPPORT)
@@ -6416,7 +6406,7 @@ inline void gcode_M42() {
     clean_up_after_endstop_or_probe_move();
 
     // Re-enable bed level correction if it had been on
-    #if HAS_ABL
+    #if HAS_LEVELING
       set_bed_leveling_enabled(was_enabled);
     #endif
 
@@ -6475,10 +6465,11 @@ inline void gcode_M104() {
   #endif
 
   if (code_seen('S')) {
-    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
+    const int16_t temp = code_value_temp_abs();
+    thermalManager.setTargetHotend(temp, target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -6488,7 +6479,7 @@ inline void gcode_M104() {
        * standby mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
@@ -6507,21 +6498,21 @@ inline void gcode_M104() {
   void print_heaterstates() {
     #if HAS_TEMP_HOTEND
       SERIAL_PROTOCOLPGM(" T:");
-      SERIAL_PROTOCOL_F(thermalManager.degHotend(target_extruder), 1);
+      SERIAL_PROTOCOL(thermalManager.degHotend(target_extruder));
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder), 1);
+      SERIAL_PROTOCOL(thermalManager.degTargetHotend(target_extruder));
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[target_extruder] / OVERSAMPLENR);
+        SERIAL_PROTOCOLPAIR(" (", thermalManager.rawHotendTemp(target_extruder) / OVERSAMPLENR);
         SERIAL_PROTOCOLCHAR(')');
       #endif
     #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B:");
-      SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
+      SERIAL_PROTOCOL(thermalManager.degBed());
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
+      SERIAL_PROTOCOL(thermalManager.degTargetBed());
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_bed_raw / OVERSAMPLENR);
+        SERIAL_PROTOCOLPAIR(" (", thermalManager.rawBedTemp() / OVERSAMPLENR);
         SERIAL_PROTOCOLCHAR(')');
       #endif
     #endif
@@ -6529,11 +6520,11 @@ inline void gcode_M104() {
       HOTEND_LOOP() {
         SERIAL_PROTOCOLPAIR(" T", e);
         SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
+        SERIAL_PROTOCOL(thermalManager.degHotend(e));
         SERIAL_PROTOCOLPGM(" /");
-        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
+        SERIAL_PROTOCOL(thermalManager.degTargetHotend(e));
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[e] / OVERSAMPLENR);
+          SERIAL_PROTOCOLPAIR(" (", thermalManager.rawHotendTemp(e) / OVERSAMPLENR);
           SERIAL_PROTOCOLCHAR(')');
         #endif
       }
@@ -6669,10 +6660,11 @@ inline void gcode_M109() {
 
   const bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
-    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
+    const int16_t temp = code_value_temp_abs();
+    thermalManager.setTargetHotend(temp, target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -6963,7 +6955,7 @@ inline void gcode_M111() {
     for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_word(&(debug_strings[i])));
+        serialprintPGM((char*)pgm_read_word(&debug_strings[i]));
       }
     }
   }
@@ -7200,7 +7192,7 @@ inline void gcode_M92() {
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        const float value = code_value_per_axis_unit(E_AXIS + TARGET_EXTRUDER);
+        const float value = code_value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20.0) {
           float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
           planner.max_jerk[E_AXIS] *= factor;
@@ -7210,7 +7202,7 @@ inline void gcode_M92() {
         planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] = value;
       }
       else {
-        planner.axis_steps_per_mm[i] = code_value_per_axis_unit(i);
+        planner.axis_steps_per_mm[i] = code_value_per_axis_unit((AxisEnum)i);
       }
     }
   }
@@ -8104,11 +8096,11 @@ inline void gcode_M226() {
  */
 inline void gcode_M303() {
   #if HAS_PID_HEATING
-    int e = code_seen('E') ? code_value_int() : 0;
-    int c = code_seen('C') ? code_value_int() : 5;
-    bool u = code_seen('U') && code_value_bool();
+    const int e = code_seen('E') ? code_value_int() : 0,
+              c = code_seen('C') ? code_value_int() : 5;
+    const bool u = code_seen('U') && code_value_bool();
 
-    float temp = code_seen('S') ? code_value_temp_abs() : (e < 0 ? 70.0 : 150.0);
+    int16_t temp = code_seen('S') ? code_value_temp_abs() : (e < 0 ? 70 : 150);
 
     if (WITHIN(e, 0, HOTENDS - 1))
       target_extruder = e;
@@ -8358,7 +8350,7 @@ void quickstop_stepper() {
     // V to print the matrix or mesh
     if (code_seen('V')) {
       #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        planner.bed_level_matrix.debug(PSTR("Bed Level Correction Matrix:"));
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         if (bilinear_grid_spacing[X_AXIS]) {
           print_bilinear_leveling_grid();
@@ -8602,7 +8594,7 @@ inline void gcode_M503() {
       #else
         UNUSED(no_babystep);
       #endif
- 
+
       #if ENABLED(DELTA) // correct the delta_height
         home_offset[Z_AXIS] -= diff;
       #endif
@@ -8745,7 +8737,6 @@ inline void gcode_M503() {
 
     const millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000UL;
     bool nozzle_timed_out = false;
-    float temps[4];
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
@@ -8756,6 +8747,7 @@ inline void gcode_M503() {
 
     idle();
 
+    int16_t temps[HOTENDS];
     HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -8968,7 +8960,7 @@ inline void gcode_M503() {
     SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_k);
     SERIAL_ECHOPGM(" E/D=");
     const float ratio = planner.advance_ed_ratio;
-    ratio ? SERIAL_ECHO(ratio) : SERIAL_ECHOPGM("Auto");
+    if (ratio) SERIAL_ECHO(ratio); else SERIAL_ECHOPGM("Auto");
     SERIAL_EOL;
   }
 #endif // LIN_ADVANCE
@@ -9543,16 +9535,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
-                tmp_offset_vec.debug("tmp_offset_vec");
-                act_offset_vec.debug("act_offset_vec");
-                offset_vec.debug("offset_vec (BEFORE)");
+                tmp_offset_vec.debug(PSTR("tmp_offset_vec"));
+                act_offset_vec.debug(PSTR("act_offset_vec"));
+                offset_vec.debug(PSTR("offset_vec (BEFORE)"));
               }
             #endif
 
             offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) offset_vec.debug("offset_vec (AFTER)");
+              if (DEBUGGING(LEVELING)) offset_vec.debug(PSTR("offset_vec (AFTER)"));
             #endif
 
             // Adjustments to the current position
@@ -9874,7 +9866,7 @@ void process_next_command() {
 
         #if ENABLED(DELTA_AUTO_CALIBRATION)
 
-          case 33: // G33: Delta Auto Calibrate
+          case 33: // G33: Delta Auto-Calibration
             gcode_G33();
             break;
 
@@ -10595,12 +10587,25 @@ void ok_to_send() {
     const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
                 y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
 
+    #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
+      // Keep using the last grid box
+      #define FAR_EDGE_OR_BOX 2
+    #else
+      // Just use the grid far edge
+      #define FAR_EDGE_OR_BOX 1
+    #endif
+
     if (last_x != x) {
       last_x = x;
       ratio_x = x * ABL_BG_FACTOR(X_AXIS);
-      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1);
+      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
       ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
-      NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
+
+      #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
+        // Beyond the grid maintain height at grid edges
+        NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
+      #endif
+
       gridx = gx;
       nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
     }
@@ -10610,9 +10615,14 @@ void ok_to_send() {
       if (last_y != y) {
         last_y = y;
         ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
-        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1);
+        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
         ratio_y -= gy;
-        NOLESS(ratio_y, 0);
+
+        #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
+          // Beyond the grid maintain height at grid edges
+          NOLESS(ratio_y, 0); // Never < 0.0. (> 1.0 is ok when nexty==gridy.)
+        #endif
+
         gridy = gy;
         nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
       }
@@ -11469,7 +11479,7 @@ void prepare_move_to_destination() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
-#if HAS_CONTROLLERFAN
+#if USE_CONTROLLER_FAN
 
   void controllerFan() {
     static millis_t lastMotorOn = 0, // Last time a motor was turned on
@@ -11502,12 +11512,12 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      WRITE(CONTROLLERFAN_PIN, speed);
-      analogWrite(CONTROLLERFAN_PIN, speed);
+      WRITE(CONTROLLER_FAN_PIN, speed);
+      analogWrite(CONTROLLER_FAN_PIN, speed);
     }
   }
 
-#endif // HAS_CONTROLLERFAN
+#endif // USE_CONTROLLER_FAN
 
 #if ENABLED(MORGAN_SCARA)
 
@@ -11923,7 +11933,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if HAS_CONTROLLERFAN
+  #if USE_CONTROLLER_FAN
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
@@ -12193,8 +12203,8 @@ void setup() {
     endstops.enable_z_probe(false);
   #endif
 
-  #if HAS_CONTROLLERFAN
-    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #if USE_CONTROLLER_FAN
+    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
   #endif
 
   #if HAS_STEPPER_RESET

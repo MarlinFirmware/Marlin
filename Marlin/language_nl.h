@@ -124,7 +124,7 @@
 #define MSG_MOTION                          _UxGT("Beweging")
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_ADVANCE_K                       _UxGT("Advance K") //accepted english dutch
-#define MSG_FILAMENT_ENABLED                _UxGT("E in mm3")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #define MSG_STORE_EEPROM                    _UxGT("Geheugen opslaan")

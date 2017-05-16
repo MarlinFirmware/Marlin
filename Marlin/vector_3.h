@@ -42,6 +42,7 @@
 #define VECTOR_3_H
 
 #if HAS_ABL
+
 class matrix_3x3;
 
 struct vector_3 {
@@ -58,7 +59,7 @@ struct vector_3 {
   float get_length();
   vector_3 get_normal();
 
-  void debug(const char title[]);
+  void debug(const char * const title);
 
   void apply_rotation(matrix_3x3 matrix);
 };
@@ -72,11 +73,11 @@ struct matrix_3x3 {
 
   void set_to_identity();
 
-  void debug(const char title[]);
+  void debug(const char * const title);
 };
 
 
 void apply_rotation_xyz(matrix_3x3 rotationMatrix, float& x, float& y, float& z);
-#endif // HAS_ABL
 
+#endif // HAS_ABL
 #endif // VECTOR_3_H
