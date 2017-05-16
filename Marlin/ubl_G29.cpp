@@ -730,7 +730,7 @@
    * Probe all invalidated locations of the mesh that can be reached by the probe.
    * This attempts to fill in locations closest to the nozzle's start location first.
    */
-  void unified_bed_leveling::probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
+  void unified_bed_leveling::probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
     mesh_index_pair location;
 
     ubl.has_control_of_lcd_panel = true;
@@ -751,10 +751,9 @@
         return;
       }
 
-      location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, do_furthest);
+      location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
 
       if (location.x_index >= 0) {    // mesh point found and is reachable by probe
-
         const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                     rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
@@ -763,7 +762,6 @@
       }
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);
-
     } while ((location.x_index >= 0) && (--max_iterations));
 
     STOW_PROBE();
@@ -1343,7 +1341,15 @@
           // Also for round beds, there are grid points outside the bed that nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if ((probe_as_reference && position_is_reachable_by_probe_raw_xy(mx, my)) || position_is_reachable_raw_xy(mx, my))
+//        if ((probe_as_reference && position_is_reachable_by_probe_raw_xy(mx, my)) || position_is_reachable_raw_xy(mx, my))
+//          continue;
+//
+//        THE ABOVE CODE IS NOT A REPLACEMENT FOR THE CODE BELOW!!!!!!!
+//
+          bool reachable = probe_as_reference ?
+                             position_is_reachable_by_probe_raw_xy( mx, my ) :
+                             position_is_reachable_raw_xy( mx, my );
+          if ( ! reachable )
             continue;
 
           // Reachable. Check if it's the closest location to the nozzle.
