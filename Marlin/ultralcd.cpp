@@ -1425,10 +1425,6 @@ void kill_screen(const char* lcd_msg) {
 
     static uint8_t manual_probe_index;
 
-    #if ENABLED(PROBE_MANUALLY)
-      extern bool g29_in_progress;
-    #endif
-
     // LCD probed points are from defaults
     constexpr uint8_t total_probe_points = (
       #if ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -1644,6 +1640,10 @@ void kill_screen(const char* lcd_msg) {
   #endif // LCD_BED_LEVELING
 
   #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
+
+    #if ENABLED(PROBE_MANUALLY)
+      extern bool g29_in_progress;
+    #endif
 
     /**
      * Step 2: Continue Bed Leveling...
