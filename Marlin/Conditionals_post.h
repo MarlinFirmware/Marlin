@@ -818,7 +818,7 @@
   #endif
 
   /**
-   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
+   * DELTA_SEGMENT_MIN_LENGTH and DELTA_PROBEABLE_RADIUS for UBL_DELTA
    */
   #if UBL_DELTA
     #ifndef DELTA_SEGMENT_MIN_LENGTH
@@ -830,8 +830,11 @@
         #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
       #endif
     #endif
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+    #endif
   #endif
-
+    
   // Shorthand
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
