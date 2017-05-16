@@ -161,6 +161,8 @@ class Planner {
 
     #if HAS_ABL
       static bool abl_enabled;            // Flag that bed leveling is enabled
+    #endif
+    #if ABL_PLANAR
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
