@@ -41,6 +41,16 @@
 
   uint8_t ubl_cnt = 0;
 
+  void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
+
+  void unified_bed_leveling::report_state() {
+    echo_name();
+    SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
+    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    SERIAL_PROTOCOLLNPGM("active.");
+    safe_delay(50);
+  }
+
   static void serial_echo_xy(const int16_t x, const int16_t y) {
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);

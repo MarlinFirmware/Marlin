@@ -103,6 +103,8 @@
 
     public:
 
+      void echo_name();
+      void report_state();
       void find_mean_mesh_height();
       void shift_mesh_height();
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);

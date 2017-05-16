@@ -425,7 +425,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl.state.z_offset);
       EEPROM_WRITE(ubl.state.storage_slot);
     #else
-      const bool ubl_active = 0;
+      const bool ubl_active = false;
       dummy = 0.0f;
       const int8_t storage_slot = -1;
       EEPROM_WRITE(ubl_active);
@@ -991,18 +991,20 @@ void MarlinSettings::postprocess() {
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        meshes_begin = (eeprom_index + 32) & 0xFFF8;   // Pad the end of configuration data so it
-                                                          // can float up or down a little bit without
-                                                          // disrupting the mesh data
-        SERIAL_ECHOPGM(" UBL ");
-        if (!ubl.state.active) SERIAL_ECHO("not ");
-        SERIAL_ECHOLNPGM("active!");
+        meshes_begin = (eeprom_index + 32) & 0xFFF8;  // Pad the end of configuration data so it
+                                                      // can float up or down a little bit without
+                                                      // disrupting the mesh data
+        ubl.report_state();
 
         if (!ubl.sanity_check()) {
-          SERIAL_ECHOLNPGM("\nUnified Bed Leveling system initialized.\n");
+          SERIAL_EOL;
+          ubl.echo_name();
+          SERIAL_ECHOLNPGM(" initialized.\n");
         }
         else {
-          SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling system.\n");
+          SERIAL_PROTOCOLPGM("?Can't enable ");
+          ubl.echo_name();
+          SERIAL_PROTOCOLLNPGM(".");
           ubl.reset();
         }
 
@@ -1028,6 +1030,12 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+    void ubl_invalid_slot(const int s) {
+      SERIAL_PROTOCOLLNPGM("?Invalid slot.");
+      SERIAL_PROTOCOL(s);
+      SERIAL_PROTOCOLLNPGM(" mesh slots available.");
+    }
+
     int MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
 
@@ -1041,12 +1049,10 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         const int a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
-          SERIAL_PROTOCOLLNPGM("?Invalid slot.");
-          SERIAL_PROTOCOL(a);
-          SERIAL_PROTOCOLLNPGM(" mesh slots available.");
-          SERIAL_PROTOCOLLNPAIR("E2END      : ", E2END);
-          SERIAL_PROTOCOLLNPAIR("meshes_end : ", (int)meshes_end);
-          SERIAL_PROTOCOLLNPAIR("slot       : ", slot);
+          ubl_invalid_slot(a);
+          SERIAL_PROTOCOLPAIR("E2END=", E2END);
+          SERIAL_PROTOCOLPAIR(" meshes_end=", (int)meshes_end);
+          SERIAL_PROTOCOLLNPAIR(" slot=", slot);
           SERIAL_EOL;
           return;
         }
@@ -1074,9 +1080,7 @@ void MarlinSettings::postprocess() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!WITHIN(slot, 0, a - 1)) {
-          SERIAL_PROTOCOLLNPGM("?Invalid Slot.");
-          SERIAL_PROTOCOL(a);
-          SERIAL_PROTOCOLLNPGM(" mesh slots available.");
+          ubl_invalid_slot(a);
           return;
         }
 
@@ -1538,7 +1542,8 @@ void MarlinSettings::reset() {
 
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Unified Bed Leveling:");
+        ubl.echo_name();
+        SERIAL_ECHOLNPGM(":");
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M420 S", ubl.state.active ? 1 : 0);
@@ -1548,9 +1553,10 @@ void MarlinSettings::reset() {
       SERIAL_EOL;
 
       if (!forReplay) {
-        SERIAL_ECHOPGM("\nUBL is ");
-        ubl.state.active ? SERIAL_CHAR('A') : SERIAL_ECHOPGM("Ina");
-        SERIAL_ECHOLNPAIR("ctive\n\nActive Mesh Slot: ", ubl.state.storage_slot);
+        SERIAL_EOL;
+        ubl.report_state();
+
+        SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.state.storage_slot);
 
         SERIAL_ECHOPGM("z_offset: ");
         SERIAL_ECHO_F(ubl.state.z_offset, 6);

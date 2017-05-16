@@ -906,7 +906,7 @@
     return current_position[Z_AXIS];
   }
 
-  static void say_and_take_a_measurement() {
+  static void echo_and_take_a_measurement() {
     SERIAL_PROTOCOLLNPGM(" and take a measurement.");
   }
 
@@ -922,15 +922,15 @@
     SERIAL_PROTOCOLPGM("Place shim under nozzle");
     LCD_MESSAGEPGM("Place shim & measure");
     lcd_goto_screen(lcd_status_screen);
-    say_and_take_a_measurement();
+    echo_and_take_a_measurement();
 
     const float z1 = use_encoder_wheel_to_measure_point();
     do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("Remove shim");
-    LCD_MESSAGEPGM("Remove & measure bed");
-    say_and_take_a_measurement();
+    LCD_MESSAGEPGM("Remove & measure bed"); // TODO: Make translatable string
+    echo_and_take_a_measurement();
 
     const float z2 = use_encoder_wheel_to_measure_point();
 
@@ -1031,17 +1031,6 @@
     do_blocking_move_to_xy(lx, ly);
   }
 
-  static void say_ubl_name() {
-    SERIAL_PROTOCOLPGM("Unified Bed Leveling ");
-  }
-
-  static void report_ubl_state() {
-    say_ubl_name();
-    SERIAL_PROTOCOLPGM("System ");
-    if (!ubl.state.active) SERIAL_PROTOCOLPGM("de");
-    SERIAL_PROTOCOLLNPGM("activated.\n");
-  }
-
   bool g29_parameter_parsing() {
     bool err_flag = false;
 
@@ -1110,12 +1099,12 @@
         SERIAL_PROTOCOLLNPGM("?Can't activate and deactivate at the same time.\n");
         return UBL_ERR;
       }
-      ubl.state.active = 1;
-      report_ubl_state();
+      ubl.state.active = true;
+      ubl.report_state();
     }
     else if (code_seen('D')) {
-      ubl.state.active = 0;
-      report_ubl_state();
+      ubl.state.active = false;
+      ubl.report_state();
     }
 
     // Set global 'C' flag and its value
@@ -1171,14 +1160,7 @@
    * good to have the extra information. Soon... we prune this to just a few items
    */
   void unified_bed_leveling::g29_what_command() {
-    say_ubl_name();
-    SERIAL_PROTOCOLPGM("System Version " UBL_VERSION " ");
-    if (state.active)
-      SERIAL_PROTOCOLCHAR('A');
-    else
-      SERIAL_PROTOCOLPGM("Ina");
-    SERIAL_PROTOCOLLNPGM("ctive.\n");
-    safe_delay(50);
+    report_state();
 
     if (state.storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
@@ -1260,8 +1242,8 @@
     safe_delay(25);
 
     if (!sanity_check()) {
-      say_ubl_name();
-      SERIAL_PROTOCOLLNPGM("sanity checks passed.");
+      echo_name();
+      SERIAL_PROTOCOLLNPGM(" sanity checks passed.");
     }
   }
 
@@ -1319,7 +1301,8 @@
     float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
     settings.load_mesh(storage_slot, &tmp_z_values);
 
-    SERIAL_ECHOPAIR("Subtracting current mesh from mesh loaded from slot ", storage_slot);
+    SERIAL_PROTOCOLPAIR("Subtracting mesh in slot ", storage_slot);
+    SERIAL_PROTOCOLLNPGM(" from current mesh.");
 
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
