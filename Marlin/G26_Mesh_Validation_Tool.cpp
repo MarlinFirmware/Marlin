@@ -88,17 +88,6 @@
    *
    *   L #  Layer       Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
    *
-   *   Q #  Multiplier  Retraction Multiplier.  Normally not needed.  Retraction defaults to 1.0mm and
-   *                    un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
-   *
-   *   M #  Random      Randomize the order that the circles are drawn on the bed.  The search for the closest
-   *                    undrawn cicle is still done.  But the distance to the location for each circle has a
-   *                    random number of the size specified added to it.  Specifying R50 will give an interesting
-   *                    deviation from the normal behaviour on a 10 x 10 Mesh.
-
-   *   N #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
-   *                    'n' can be used instead if your host program does not appreciate you using 'N'.
-   *
    *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print.  This
    *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
    *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
@@ -111,9 +100,19 @@
    *                    printing the Mesh.  You can carefully remove the spent filament with a needle nose
    *                    pliers while holding the LCD Click wheel in a depressed state.
    *
+   *   Q #  Multiplier  Retraction Multiplier.  Normally not needed.  Retraction defaults to 1.0mm and
+   *                    un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
+   *
    *   R #  Repeat      Prints the number of patterns given as a parameter, starting at the current location.
    *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
    *                    This works the same way that the UBL G29 P4 R parameter works.
+   *
+   *   S #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
+   *
+   *   U #  Random      Randomize the order that the circles are drawn on the bed.  The search for the closest
+   *                    undrawn cicle is still done.  But the distance to the location for each circle has a
+   *                    random number of the size specified added to it.  Specifying S50 will give an interesting
+   *                    deviation from the normal behaviour on a 10 x 10 Mesh.
    *
    *   X #  X Coord.    Specify the starting location of the drawing activity.
    *
@@ -467,7 +466,7 @@
                   SERIAL_EOL;
                   //debug_current_and_destination(PSTR("Connecting horizontal line."));
                 }
-  
+
                 print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
               }
               bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
@@ -686,7 +685,7 @@
       }
     }
 
-    if (code_seen('N') || code_seen('n')) { // Warning! Use of 'N' / lowercase flouts established standards.
+    if (code_seen('S')) {
       nozzle = code_value_float();
       if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
@@ -728,9 +727,8 @@
       }
     }
 
-    if (code_seen('M')) { // Warning! Use of 'M' flouts established standards.
+    if (code_seen('U')) {
       randomSeed(millis());
-      // This setting will persist for the next G26
       random_deviation = code_has_value() ? code_value_float() : 50.0;
     }
 
