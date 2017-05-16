@@ -1152,17 +1152,17 @@
 
     say_ubl_name();
     SERIAL_PROTOCOLPGM("System Version " UBL_VERSION " ");
-    if (ubl.state.active)
+    if (state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
       SERIAL_PROTOCOLPGM("Ina");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     safe_delay(50);
 
-    if (ubl.state.eeprom_storage_slot == -1)
+    if (state.eeprom_storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
     else {
-      SERIAL_PROTOCOLPAIR("Mesh ", ubl.state.eeprom_storage_slot);
+      SERIAL_PROTOCOLPAIR("Mesh ", state.eeprom_storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL;
@@ -1179,7 +1179,7 @@
     SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)ubl.eeprom_start));
+    SERIAL_PROTOCOLLNPAIR("ubl.eeprom_start=", hex_address((void*)eeprom_start));
 
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
@@ -1191,7 +1191,7 @@
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&ubl.mesh_index_to_xpos[i])), 3);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(pgm_read_float(&mesh_index_to_xpos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
@@ -1199,26 +1199,26 @@
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&ubl.mesh_index_to_ypos[i])), 3);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(pgm_read_float(&mesh_index_to_ypos[i])), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
     SERIAL_EOL;
 
-    SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)ubl.eeprom_start));
+    SERIAL_PROTOCOLLNPAIR("Free EEPROM space starts at: ", hex_address((void*)eeprom_start));
     SERIAL_PROTOCOLLNPAIR("end of EEPROM: ", hex_address((void*)E2END));
     safe_delay(25);
 
-    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(ubl.state));
+    SERIAL_PROTOCOLPAIR("sizeof(ubl.state) : ", (int)sizeof(state));
     SERIAL_EOL;
-    SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(ubl.z_values));
+    SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
     SERIAL_EOL;
     safe_delay(25);
 
     SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)k));
     safe_delay(25);
 
-    SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(ubl.z_values));
+    SERIAL_PROTOCOLPAIR("EEPROM can hold ", k / sizeof(z_values));
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
     safe_delay(25);
 
@@ -1239,7 +1239,7 @@
     SERIAL_ECHOLNPAIR("=", UBL_MESH_MAX_Y);
     safe_delay(25);
 
-    if (!ubl.sanity_check()) {
+    if (!sanity_check()) {
       say_ubl_name();
       SERIAL_PROTOCOLLNPGM("sanity checks passed.");
     }
@@ -1554,11 +1554,11 @@
             SERIAL_ECHOPGM(")   measured: ");
             SERIAL_PROTOCOL_F(measured_z, 7);
             SERIAL_ECHOPGM("   correction: ");
-            SERIAL_PROTOCOL_F(ubl.get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)), 7);
+            SERIAL_PROTOCOL_F(get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)), 7);
           }
         #endif
 
-        measured_z -= ubl.get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)) /* + zprobe_zoffset */ ;
+        measured_z -= get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)) /* + zprobe_zoffset */ ;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -1605,9 +1605,9 @@
 
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
-        float x_tmp = pgm_read_float(&ubl.mesh_index_to_xpos[i]),
-              y_tmp = pgm_read_float(&ubl.mesh_index_to_ypos[j]),
-              z_tmp = ubl.z_values[i][j];
+        float x_tmp = pgm_read_float(&mesh_index_to_xpos[i]),
+              y_tmp = pgm_read_float(&mesh_index_to_ypos[j]),
+              z_tmp = z_values[i][j];
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -1637,7 +1637,7 @@
           }
         #endif
 
-        ubl.z_values[i][j] += z_tmp - lsf_results.D;
+        z_values[i][j] += z_tmp - lsf_results.D;
       }
     }
 
