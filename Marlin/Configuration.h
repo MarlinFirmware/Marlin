@@ -921,6 +921,10 @@
 //#define MANUAL_Y_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 0
 
+// If enabled, the global workspace offset will not include the Z home offset.
+// This is useful if you want to set a home position using M206 without adjusting the soft limits and the probing system
+//#define HOME_OFFSET_INDEPENDENT_OF_WORKSPACE_OFFSET
+
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
 // With this feature enabled:

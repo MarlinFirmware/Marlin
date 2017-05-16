@@ -1403,6 +1403,24 @@ bool get_target_extruder_from_command(int code) {
 #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
 
   /**
+   * This function recomputes the axis offset for a particular axis.
+   */
+  void update_workspace_offset(const AxisEnum axis) {
+    const float offs = 0.0
+      #if HAS_HOME_OFFSET && DISABLED(HOME_OFFSET_INDEPENDENT_OF_WORKSPACE_OFFSET)
+        + home_offset[axis]
+      #endif
+      #if HAS_POSITION_SHIFT
+        + position_shift[axis]
+      #endif
+    ;
+  
+    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+      workspace_offset[axis] = offs;
+    #endif
+  }
+
+  /**
    * Software endstops can be used to monitor the open end of
    * an axis that has a hardware endstop on the other end. Or
    * they can prevent axes from moving past endstops and grinding.
@@ -1412,19 +1430,6 @@ bool get_target_extruder_from_command(int code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = 0.0
-      #if HAS_HOME_OFFSET
-        + home_offset[axis]
-      #endif
-      #if HAS_POSITION_SHIFT
-        + position_shift[axis]
-      #endif
-    ;
-
-    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-      workspace_offset[axis] = offs;
-    #endif
-
     #if ENABLED(DUAL_X_CARRIAGE)
       if (axis == X_AXIS) {
 
@@ -1433,24 +1438,24 @@ bool get_target_extruder_from_command(int code) {
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-          soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-          soft_endstop_max[X_AXIS] = dual_max_x + offs;
+          soft_endstop_min[X_AXIS] = X2_MIN_POS + workspace_offset[axis];
+          soft_endstop_max[X_AXIS] = dual_max_x + workspace_offset[axis];
         }
         else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + workspace_offset[axis];
+          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + workspace_offset[axis];
         }
         else {
           // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-          soft_endstop_min[axis] = base_min_pos(axis) + offs;
-          soft_endstop_max[axis] = base_max_pos(axis) + offs;
+          soft_endstop_min[axis] = base_min_pos(axis) + workspace_offset[axis];
+          soft_endstop_max[axis] = base_max_pos(axis) + workspace_offset[axis];
         }
       }
     #else
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      soft_endstop_min[axis] = base_min_pos(axis) + workspace_offset[axis];
+      soft_endstop_max[axis] = base_max_pos(axis) + workspace_offset[axis];
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1487,6 +1492,7 @@ bool get_target_extruder_from_command(int code) {
   static void set_home_offset(const AxisEnum axis, const float v) {
     current_position[axis] += v - home_offset[axis];
     home_offset[axis] = v;
+    update_workspace_offset(axis);
     update_software_endstops(axis);
   }
 #endif // HAS_M206_COMMAND
@@ -1522,6 +1528,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
+    update_workspace_offset(axis);
     update_software_endstops(axis);
   #endif
 
@@ -1567,7 +1574,11 @@ static void set_axis_is_at_home(AxisEnum axis) {
     else
   #endif
   {
-    current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis);
+    current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis)
+    #if ENABLED(HOME_OFFSET_INDEPENDENT_OF_WORKSPACE_OFFSET)
+      + home_offset[axis]
+    #endif
+    ;
   }
 
   /**
@@ -5567,6 +5578,7 @@ inline void gcode_G92() {
           didXYZ = true;
           #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
+            update_workspace_offset((AxisEnum)i);
             update_software_endstops((AxisEnum)i);
           #endif
         }
@@ -7655,6 +7667,7 @@ inline void gcode_M205() {
       home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
       current_position[Z_AXIS] += code_value_linear_units() - DELTA_HEIGHT - home_offset[Z_AXIS];
       home_offset[Z_AXIS] = code_value_linear_units() - DELTA_HEIGHT;
+      update_workspace_offset(Z_AXIS);
       update_software_endstops(Z_AXIS);
     }
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
@@ -9633,6 +9646,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               #if HAS_POSITION_SHIFT
                 position_shift[i] += xydiff[i];
               #endif
+              update_workspace_offset((AxisEnum)i);
               update_software_endstops((AxisEnum)i);
             }
           #endif
