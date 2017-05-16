@@ -1308,12 +1308,10 @@
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
 
-    const float current_x = current_position[X_AXIS],
-                current_y = current_position[Y_AXIS];
-
     // Get our reference position. Either the nozzle or probe location.
-    const float px = lx - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = ly - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
+    const float px = RAW_X_POSITION(lx) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
+                py = RAW_Y_POSITION(ly) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0),
+                raw_x = RAW_CURRENT_POSITION(X), raw_y = RAW_CURRENT_POSITION(Y);
 
     float closest = far_flag ? -99999.99 : 99999.99;
 
@@ -1327,27 +1325,20 @@
 
           // We only get here if we found a Mesh Point of the specified type
 
-          const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[i]), // Check if we can probe this mesh location
-                      rawy = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
+          const float mx = pgm_read_float(&ubl.mesh_index_to_xpos[i]), // Check if we can probe this mesh location
+                      my = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // If using the probe as the reference there are some unreachable locations.
           // Also for round beds, there are grid points outside the bed that nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          bool reachable = probe_as_reference ?
-                             position_is_reachable_by_probe_raw_xy( rawx, rawy ) :
-                             position_is_reachable_raw_xy( rawx, rawy );
-
-          if ( ! reachable )
+          if ((probe_as_reference && position_is_reachable_by_probe_raw_xy(mx, my)) || position_is_reachable_raw_xy(mx, my))
             continue;
 
           // Reachable. Check if it's the closest location to the nozzle.
           // Add in a weighting factor that considers the current location of the nozzle.
 
-          const float mx = LOGICAL_X_POSITION(rawx), // Check if we can probe this mesh location
-                      my = LOGICAL_Y_POSITION(rawy);
-
-          float distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.1;
+          float distance = HYPOT(px - mx, py - my) + HYPOT(raw_x - mx, raw_y - my) * 0.1;
 
           /**
            * If doing the far_flag action, we want to be as far as possible
