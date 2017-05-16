@@ -107,10 +107,10 @@
    *
    *   I #   Invalidate Invalidate specified number of Mesh Points. The nozzle location is used unless
    *                    the X and Y parameter are used. If no number is specified, only the closest Mesh
-   *                    point to the location is invalidated. The M parameter is available as well to produce
+   *                    point to the location is invalidated. The 'T' parameter is also available to produce
    *                    a map after the operation. This command is useful to invalidate a portion of the
    *                    Mesh so it can be adjusted using other tools in the Unified Bed Leveling System. When
-   *                    attempting to invalidate an isolated bad point in the mesh, the M option will indicate
+   *                    attempting to invalidate an isolated bad point in the mesh, the 'T' option will indicate
    *                    where the nozzle is positioned in the Mesh with (#). You can move the nozzle around on
    *                    the bed and use this feature to select the center of the area (or cell) you want to
    *                    invalidate.
@@ -125,14 +125,6 @@
    *
    *   L #   Load   *   Load Mesh from the specified location in the EEPROM. Set this location as activated
    *                    for subsequent Load and Store operations.
-   *
-   *   O     Map   *    Display the Mesh Map Topology.
-   *                    The parameter can be specified alone (ie. G29 O) or in combination with many of the
-   *                    other commands. The Mesh Map option works with all of the Phase
-   *                    commands (ie. G29 P4 R 5 X 50 Y100 C -.1 O)  The Map parameter can also of a Map Type
-   *                    specified.  A map type of 0 is the default is user readable.   A map type of 1 can
-   *                    be specified and is suitable to Cut & Paste into Excel to allow graphing of the user's
-   *                    mesh.
    *
    *   The P or Phase commands are used for the bulk of the work to setup a Mesh. In general, your Mesh will
    *   start off being initialized with a G29 P0 or a G29 P1. Further refinement of the Mesh happens with
@@ -173,7 +165,7 @@
    *                    area you are manually probing. Note that the command tries to start you in a corner
    *                    of the bed where movement will be predictable. You can force the location to be used in
    *                    the distance calculations by using the X and Y parameters. You may find it is helpful to
-   *                    print out a Mesh Map (G29 O) to understand where the mesh is invalidated and where
+   *                    print out a Mesh Map (G29 T) to understand where the mesh is invalidated and where
    *                    the nozzle will need to move in order to complete the command. The C parameter is
    *                    available on the Phase 2 command also and indicates the search for points to measure should
    *                    be done based on the current location of the nozzle.
@@ -189,7 +181,7 @@
    *                    to get it to grasp the shim with the same force as when you measured the thickness of the
    *                    shim at the start of the command.
    *
-   *                    Phase 2 allows the O (Map) parameter to be specified. This helps the user see the progression
+   *                    Phase 2 allows the T (Map) parameter to be specified. This helps the user see the progression
    *                    of the Mesh being built.
    *
    *   P3    Phase 3    Fill the unpopulated regions of the Mesh with a fixed value. There are two different paths the
@@ -262,6 +254,12 @@
    *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into the system
    *                    at a later date. The GCode output can be saved and later replayed by the host software
    *                    to reconstruct the current mesh on another machine.
+   *
+   *   T     Topology   Display the Mesh Map Topology.
+   *                    'T' can be used alone (e.g., G29 T) or in combination with some of the other commands.
+   *                    This option works with all Phase commands (e.g., G29 P4 R 5 X 50 Y100 C -.1 O)
+   *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1 can
+   *                    is suitable to paste into a spreadsheet for a 3D graph of the mesh.
    *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
    *                    Only used for G29 P1 O U   It will speed up the probing of the edge of the bed.  This
@@ -381,7 +379,7 @@
     if (code_seen('J')) {
       if (grid_size!=0) {  // if not 0 it is a normal n x n grid being probed
         ubl.save_ubl_active_state_and_disable();
-        ubl.tilt_mesh_based_on_probed_grid(code_seen('O')); 
+        ubl.tilt_mesh_based_on_probed_grid(code_seen('T'));
         ubl.restore_ubl_active_state_and_leave();
       } else { // grid_size==0 which means a 3-Point leveling has been requested
         float z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level),
@@ -438,7 +436,7 @@
             SERIAL_PROTOCOLLNPGM(").\n");
           }
           ubl.probe_entire_mesh(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            code_seen('O'), code_seen('E'), code_seen('U')); 
+                            code_seen('T'), code_seen('E'), code_seen('U'));
           break;
 
         case 2: {
@@ -487,7 +485,7 @@
             return;
           }
 
-          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('O'));
+          manually_probe_remaining_mesh(x_pos, y_pos, height, card_thickness, code_seen('T'));
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
         } break;
 
@@ -523,7 +521,7 @@
           //
           // Fine Tune (i.e., Edit) the Mesh
           //
-          fine_tune_mesh(x_pos, y_pos, code_seen('O')); 
+          fine_tune_mesh(x_pos, y_pos, code_seen('T'));
           break;
 
         case 5: ubl.find_mean_mesh_height(); break;
@@ -601,7 +599,7 @@
       SERIAL_PROTOCOLLNPGM("Done.\n");
     }
 
-    if (code_seen('O'))
+    if (code_seen('T'))
       ubl.display_map(code_has_value() ? code_value_int() : 0);
 
     /*
@@ -1112,7 +1110,7 @@
       }
     #endif
 
-    map_type = code_seen('O') && code_has_value() ? code_value_int() : 0;
+    map_type = code_seen('T') && code_has_value() ? code_value_int() : 0;
     if (!WITHIN(map_type, 0, 1)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
