@@ -326,7 +326,7 @@
     #ifndef HOTEND_OFFSET_Y
       #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
     #endif
-    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER))
+    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE))
       #define HOTEND_OFFSET_Z { 0 }
     #endif
   #endif

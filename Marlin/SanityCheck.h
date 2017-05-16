@@ -329,11 +329,16 @@
 #endif
 
 /**
- * Only one type of extruder allowed
+ * A dual nozzle x-carriage with switching servo
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
-  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+#if ENABLED(SWITCHING_NOZZLE)
+  #if ENABLED(SINGLENOZZLE)
+    #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+  #elif EXTRUDERS < 2
+    #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #endif
 #endif
 
 /**
@@ -361,6 +366,12 @@
   #endif
   #if ENABLED(FILAMENT_SENSOR)
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #endif
+  #if ENABLED(SWITCHING_EXTRUDER)
+    #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
+  #endif
+  #if ENABLED(SINGLENOZZLE)
+    #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #endif
 #endif
 
