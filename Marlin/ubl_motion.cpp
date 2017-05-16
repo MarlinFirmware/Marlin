@@ -506,13 +506,13 @@
                     ltarget[E_AXIS] - current_position[E_AXIS]
                   };
 
-      const float cartesian_xy_mm = HYPOT(difference[X_AXIS], difference[Y_AXIS]);        // total horizontal xy distance
+      const float cartesian_xy_mm = HYPOT(difference[X_AXIS], difference[Y_AXIS]);         // total horizontal xy distance
 
       #if IS_KINEMATIC
-        const float seconds = cartesian_xy_mm / feedrate;                                 // seconds to move xy distance at requested rate
-        uint16_t segments = lroundf(delta_segments_per_second * seconds),                // preferred number of segments for distance @ feedrate
+        const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
+        uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
                  seglimit = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
-        NOMORE(segments, seglimit);                                                     // limit to minimum segment length (fewer segments)
+        NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
       #else
         uint16_t segments = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
       #endif
@@ -570,6 +570,10 @@
 
       // Otherwise perform per-segment leveling
 
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        const float fade_scaling_factor = ubl.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+      #endif
+
       float seg_dest[XYZE];  // per-segment destination, initialize to first segment
       LOOP_XYZE(i) seg_dest[i] = current_position[i] + segment_distance[i];
 
@@ -614,13 +618,14 @@
         const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0 / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
                     z_xmy1 = (z_x1y1 - z_x0y1) * (1.0 / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
 
-              float z_cxy0 = z_x0y0 + z_xmy0 * cx;          // z height along y0 at cx
+              float z_cxy0 = z_x0y0 + z_xmy0 * cx;            // z height along y0 at cx
 
-        const float z_cxy1 = z_x0y1 + z_xmy1 * cx,          // z height along y1 at cx
-                    z_cxyd = z_cxy1 - z_cxy0;               // z height difference along cx from y0 to y1
+        const float z_cxy1 = z_x0y1 + z_xmy1 * cx,            // z height along y1 at cx
+                    z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
-              float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST)),  // z slope per y along cx from y0 to y1
-                    z_cxcy = z_cxy0 + z_cxym * cy;          // z height along cx at cy
+              float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1
+        
+        //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
         // As subsequent segments step through this cell, the z_cxy0 intercept will change
         // and the z_cxym slope will change, both as a function of cx within the cell, and
@@ -631,9 +636,15 @@
 
         do {  // for all segments within this mesh cell
 
-          z_cxcy += ubl.state.z_offset;
+          float z_cxcy = z_cxy0 + z_cxym * cy;      // interpolated mesh z height along cx at cy
 
-          if (--segments == 0) {          // this is last segment, use ltarget for exact
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
+          #endif
+        
+          z_cxcy += ubl.state.z_offset;             // add fixed mesh offset from G29 Z
+
+          if (--segments == 0) {                    // if this is last segment, use ltarget for exact
             COPY(seg_dest, ltarget);
             seg_dest[Z_AXIS] += z_cxcy;
             ubl_buffer_line_segment(seg_dest, feedrate, active_extruder);
@@ -657,11 +668,10 @@
           }
 
           // Next segment still within same mesh cell, adjust the per-segment
-          // slope and intercept and compute next z height.
+          // slope and intercept to compute next z height.
 
-          z_cxy0 += z_sxy0;                 // adjust z_cxy0 by per-segment z_sxy0
-          z_cxym += z_sxym;                 // adjust z_cxym by per-segment z_sxym
-          z_cxcy  = z_cxy0 + z_cxym * cy;   // recompute z_cxcy from adjusted slope and intercept
+          z_cxy0 += z_sxy0;   // adjust z_cxy0 by per-segment z_sxy0
+          z_cxym += z_sxym;   // adjust z_cxym by per-segment z_sxym
 
         } while (true);   // per-segment loop exits by break after last segment within cell, or by return on final segment
       } while (true);   // per-cell loop
