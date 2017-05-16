@@ -9548,11 +9548,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
         #else // !DUAL_X_CARRIAGE
 
-          #if ENABLED(SWITCHING_EXTRUDER)
-            stepper.synchronize();
-            move_extruder_servo(active_extruder);
-          #endif
-
           #if ENABLED(SWITCHING_NOZZLE)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
@@ -9564,6 +9559,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             stepper.synchronize();
 
             move_nozzle_servo(active_extruder);
+          #endif
+
+          #if ENABLED(SWITCHING_EXTRUDER)
+            #if !(ENABLED(SWITCHING_NOZZLE) && (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR))
+              stepper.synchronize();
+              move_extruder_servo(active_extruder);
+            #endif
           #endif
 
           /**
