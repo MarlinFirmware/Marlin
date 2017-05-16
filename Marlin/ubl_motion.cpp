@@ -600,7 +600,7 @@
                     y1 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi+1]));  // 64 byte table lookup avoids mul+add
 
         float cx = rx - x0,   // cell-relative x
-              cy = ry - y0;   // cell-relative y
+              cy = ry - y0,   // cell-relative y
               z_x0y0 = ubl.z_values[cell_xi  ][cell_yi  ],  // z at lower left corner
               z_x1y0 = ubl.z_values[cell_xi+1][cell_yi  ],  // z at upper left corner
               z_x0y1 = ubl.z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
