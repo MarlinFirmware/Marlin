@@ -457,6 +457,14 @@
 
   #if UBL_DELTA
 
+    // macro to inline copy exactly 4 floats, don't rely on sizeof operator
+    #define COPY_XYZE( target, source ) { \
+                target[X_AXIS] = source[X_AXIS]; \
+                target[Y_AXIS] = source[Y_AXIS]; \
+                target[Z_AXIS] = source[Z_AXIS]; \
+                target[E_AXIS] = source[E_AXIS]; \
+            }
+
     #if IS_SCARA // scale the feed rate from mm/s to degrees/s
       static float scara_feed_factor, scara_oldA, scara_oldB;
     #endif
@@ -550,8 +558,8 @@
 
         const float z_offset = ubl.state.active ? ubl.state.z_offset : 0.0;
 
-        float seg_dest[XYZE];              // per-segment destination,
-        COPY(seg_dest, current_position);  // starting from current position
+        float seg_dest[XYZE];                   // per-segment destination,
+        COPY_XYZE(seg_dest, current_position);  // starting from current position
 
         while (--segments) {
           LOOP_XYZE(i) seg_dest[i] += segment_distance[i];
@@ -562,7 +570,7 @@
         }
 
         // Since repeated adding segment_distance accumulates small errors, final move to exact destination.
-        COPY(seg_dest, ltarget);
+        COPY_XYZE(seg_dest, ltarget);
         seg_dest[Z_AXIS] += z_offset;
         ubl_buffer_line_segment(seg_dest, feedrate, active_extruder);
         return false; // moved but did not set_current_to_destination();
@@ -645,7 +653,7 @@
           z_cxcy += ubl.state.z_offset;             // add fixed mesh offset from G29 Z
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
-            COPY(seg_dest, ltarget);
+            COPY_XYZE(seg_dest, ltarget);
             seg_dest[Z_AXIS] += z_cxcy;
             ubl_buffer_line_segment(seg_dest, feedrate, active_extruder);
             return false;   // did not set_current_to_destination()
