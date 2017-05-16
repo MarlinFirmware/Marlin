@@ -135,9 +135,12 @@
    *                    a subsequent G or T leveling operation for backward compatibility.
    *
    *   P1    Phase 1    Invalidate entire Mesh and continue with automatic generation of the Mesh data using
-   *                    the Z-Probe. Depending upon the values of DELTA_PROBEABLE_RADIUS and
-   *                    DELTA_PRINTABLE_RADIUS some area of the bed will not have Mesh Data automatically
-   *                    generated. This will be handled in Phase 2. If the Phase 1 command is given the
+   *                    the Z-Probe. Usually the probe can not reach all areas that the nozzle can reach.
+   *                    In Cartesian printers, mesh points within the X_OFFSET_FROM_EXTRUDER and Y_OFFSET_FROM_EXTRUDER
+   *                    area can not be automatically probed.  For Delta printers the area in which DELTA_PROBEABLE_RADIUS
+   *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
+   *
+   *                    These points will be handled in Phase 2 and Phase 3. If the Phase 1 command is given the
    *                    C (Continue) parameter it does not invalidate the Mesh prior to automatically
    *                    probing needed locations. This allows you to invalidate portions of the Mesh but still
    *                    use the automatic probing capabilities of the Unified Bed Leveling System. An X and Y
@@ -254,13 +257,13 @@
    *                    to reconstruct the current mesh on another machine.
    *
    *   T     Topology   Display the Mesh Map Topology.
-   *                    'T' can be used alone (e.g., G29 T) or in combination with some of the other commands.
-   *                    This option works with all Phase commands (e.g., G29 P4 R 5 X 50 Y100 C -.1 O)
+   *                    'T' can be used alone (e.g., G29 T) or in combination with most of the other commands.
+   *                    This option works with all Phase commands (e.g., G29 P4 R 5 T X 50 Y100 C -.1 O)
    *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1 can
    *                    is suitable to paste into a spreadsheet for a 3D graph of the mesh.
    *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
-   *                    Only used for G29 P1 O U. This speeds up the probing of the edge of the bed. Useful
+   *                    Only used for G29 P1 T U. This speeds up the probing of the edge of the bed. Useful
    *                    when the entire bed doesn't need to be probed because it will be adjusted.
    *
    *   V #   Verbosity  Set the verbosity level (0-4) for extra details. (Default 0)
@@ -317,11 +320,19 @@
       return;
     }
 
-    // Don't allow auto-leveling without homing first
+    // Check for commands that require the printer to be homed.
     if (axis_unhomed_error()) {
-      if (code_seen('P') && !code_seen('P6') || code_seen('J')) {
+      if (code_seen('J')) 
         home_all_axes();
-      }
+      else
+        if (code_seen('P')) {
+          int p_val;
+	  if (code_has_value()) {
+            p_val = code_value_int();
+	    if ( p_val==1 || p_val==2 || p_val==4 )
+              home_all_axes();
+	  }
+        }
     }
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
