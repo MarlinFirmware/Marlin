@@ -135,9 +135,12 @@
    *                    a subsequent G or T leveling operation for backward compatibility.
    *
    *   P1    Phase 1    Invalidate entire Mesh and continue with automatic generation of the Mesh data using
-   *                    the Z-Probe. Depending upon the values of DELTA_PROBEABLE_RADIUS and
-   *                    DELTA_PRINTABLE_RADIUS some area of the bed will not have Mesh Data automatically
-   *                    generated. This will be handled in Phase 2. If the Phase 1 command is given the
+   *                    the Z-Probe. Usually the probe can not reach all areas that the nozzle can reach.
+   *                    In Cartesian printers, mesh points within the X_OFFSET_FROM_EXTRUDER and Y_OFFSET_FROM_EXTRUDER
+   *                    area can not be automatically probed.  For Delta printers the area in which DELTA_PROBEABLE_RADIUS
+   *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
+   *
+   *                    These points will be handled in Phase 2 and Phase 3. If the Phase 1 command is given the
    *                    C (Continue) parameter it does not invalidate the Mesh prior to automatically
    *                    probing needed locations. This allows you to invalidate portions of the Mesh but still
    *                    use the automatic probing capabilities of the Unified Bed Leveling System. An X and Y
