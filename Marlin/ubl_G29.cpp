@@ -322,17 +322,15 @@
 
     // Check for commands that require the printer to be homed.
     if (axis_unhomed_error()) {
-      if (code_seen('J')) 
+      if (code_seen('J'))
         home_all_axes();
-      else
-        if (code_seen('P')) {
-          int p_val;
-	  if (code_has_value()) {
-            p_val = code_value_int();
-	    if ( p_val==1 || p_val==2 || p_val==4 )
-              home_all_axes();
-	  }
+      else if (code_seen('P')) {
+        if (code_has_value()) {
+          const int p_val = code_value_int();
+          if (p_val == 1 || p_val == 2 || p_val == 4)
+            home_all_axes();
         }
+      }
     }
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
@@ -1341,15 +1339,7 @@
           // Also for round beds, there are grid points outside the bed that nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-//        if ((probe_as_reference && position_is_reachable_by_probe_raw_xy(mx, my)) || position_is_reachable_raw_xy(mx, my))
-//          continue;
-//
-//        THE ABOVE CODE IS NOT A REPLACEMENT FOR THE CODE BELOW!!!!!!!
-//
-          bool reachable = probe_as_reference ?
-                             position_is_reachable_by_probe_raw_xy( mx, my ) :
-                             position_is_reachable_raw_xy( mx, my );
-          if ( ! reachable )
+          if ( ! (probe_as_reference ? position_is_reachable_by_probe_raw_xy(mx, my) : position_is_reachable_raw_xy(mx, my)) )
             continue;
 
           // Reachable. Check if it's the closest location to the nozzle.
