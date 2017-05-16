@@ -318,8 +318,11 @@
     }
 
     // Don't allow auto-leveling without homing first
-    if (axis_unhomed_error())
-      home_all_axes();
+    if (axis_unhomed_error()) {
+      if (code_seen('P') && !code_seen('P6') || code_seen('J')) {
+        home_all_axes();
+      }
+    }
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
 
@@ -528,7 +531,6 @@
 
         case 6: ubl.shift_mesh_height(); break;
       }
-
     }
 
     //

@@ -1719,12 +1719,12 @@ void kill_screen(const char* lcd_msg) {
       if (UBL_HEIGHT_AMOUNT < 0) {
         // Convert to positive for the `sprintf_P` string.
         UBL_HEIGHT_AMOUNT = (UBL_HEIGHT_AMOUNT - (UBL_HEIGHT_AMOUNT * 2)); // Convert to positive
-        sprintf_P(UBL_LCD_GCODE, PSTR("G29 N Z-.%i"), UBL_HEIGHT_AMOUNT);
+        sprintf_P(UBL_LCD_GCODE, PSTR("G29 P6-.%i"), UBL_HEIGHT_AMOUNT);
         // Convert back to negative to preserve the user setting.
         UBL_HEIGHT_AMOUNT = (UBL_HEIGHT_AMOUNT - (UBL_HEIGHT_AMOUNT * 2)); // Convert back to negative
       }
       else {
-        sprintf_P(UBL_LCD_GCODE, PSTR("G29 N Z.%i"), UBL_HEIGHT_AMOUNT);
+        sprintf_P(UBL_LCD_GCODE, PSTR("G29 P6.%i"), UBL_HEIGHT_AMOUNT);
       }
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
@@ -1748,8 +1748,8 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
       MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R O"));
-      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 O"));
+      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R T"));
+      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
       MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_height_adjust_menu);
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
@@ -1813,7 +1813,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_mesh_leveling() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 T"));
+      MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 J0"));
       MENU_ITEM(submenu, MSG_UBL_GRID_MESH_LEVELING, _lcd_ubl_grid_level);
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
@@ -1823,7 +1823,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Fill-in Amount Mesh Command
      */
     void _lcd_ubl_fillin_amount_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i N"), UBL_FILLIN_AMOUNT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i"), UBL_FILLIN_AMOUNT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1831,7 +1831,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Smart Fill-in Command
      */
     void _lcd_ubl_smart_fillin_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 N O%i"), map_type);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 T%i"), map_type);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1844,7 +1844,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(int3, MSG_UBL_FILLIN_AMOUNT, &UBL_FILLIN_AMOUNT, 0, 9);
       MENU_ITEM(function, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_amount_cmd);
       MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
-      MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B O"));
+      MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
     }
@@ -1886,7 +1886,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N L%i"), UBL_STORAGE_SLOT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), UBL_STORAGE_SLOT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1894,7 +1894,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N S%i"), UBL_STORAGE_SLOT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), UBL_STORAGE_SLOT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1914,7 +1914,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Output map Command
      */
     void _lcd_ubl_output_map_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N O%i"), map_type);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 T%i"), map_type);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2002,12 +2002,12 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
-      MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A N"));
-      MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D N"));
+      MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
+      MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
       MENU_ITEM(submenu, MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);
-      MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W N"));
+      MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W"));
       END_MENU();
     }
   #endif
@@ -2497,10 +2497,10 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500\nM501"));
     #endif
-
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
-     END_MENU();
+    END_MENU();
   }
 
   /**
