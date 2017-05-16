@@ -5056,6 +5056,8 @@ void home_all_axes() { gcode_G28(); }
      *
      *   T   Don't calibrate tower angle corrections
      *   
+     *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
+     *   
      *   Vn  Verbose level:
      *
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
@@ -5073,6 +5075,12 @@ void home_all_axes() { gcode_G28(); }
       const int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
       if (!WITHIN(verbose_level, 0, 2)) {
         SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-2).");
+        return;
+      }
+
+      const float calibration_precision = code_seen('C') ? code_value_float() : 0.0;
+      if (calibration_precision < 0) {
+        SERIAL_PROTOCOLLNPGM("?(C)alibration precision is implausible (>0).");
         return;
       }
 
@@ -5238,7 +5246,7 @@ void home_all_axes() { gcode_G28(); }
 
         // Solve matrices
 
-        if (zero_std_dev < test_precision) {
+        if (zero_std_dev < test_precision && zero_std_dev > calibration_precision) {
           COPY(e_old, endstop_adj);
           dr_old = delta_radius;
           zh_old = home_offset[Z_AXIS];
@@ -5310,7 +5318,7 @@ void home_all_axes() { gcode_G28(); }
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
-        else {   // step one back
+        else if(zero_std_dev >= test_precision) {   // step one back
           COPY(endstop_adj, e_old);
           delta_radius = dr_old;
           home_offset[Z_AXIS] = zh_old;
@@ -5356,10 +5364,15 @@ void home_all_axes() { gcode_G28(); }
           }
         }
         if (test_precision != 0.0) {                                 // !forced end
-          if (zero_std_dev >= test_precision) {                      // end iterations
+          if (zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
             SERIAL_PROTOCOL_SP(36);
-            SERIAL_PROTOCOLPGM("rolling back.");
+            if (zero_std_dev >= test_precision)
+              SERIAL_PROTOCOLPGM("rolling back.");
+            else {
+              SERIAL_PROTOCOLPGM("std dev:");
+              SERIAL_PROTOCOL_F(zero_std_dev, 3);
+            }            
             SERIAL_EOL;
             LCD_MESSAGEPGM("Calibration OK");
           }
@@ -5398,7 +5411,7 @@ void home_all_axes() { gcode_G28(); }
             SERIAL_PROTOCOLPGM("  Tz:+0.00");
             SERIAL_EOL;
           }
-          if (zero_std_dev >= test_precision)
+          if (zero_std_dev >= test_precision || zero_std_dev <= calibration_precision)
             serialprintPGM(save_message);
             SERIAL_EOL;
         }
@@ -5424,7 +5437,8 @@ void home_all_axes() { gcode_G28(); }
         home_delta();
         endstops.not_homing();
 
-      } while (zero_std_dev < test_precision && iterations < 31);
+      } 
+      while (zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31);
 
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
