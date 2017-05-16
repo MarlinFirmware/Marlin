@@ -1271,7 +1271,7 @@
 //
 // ULTIPANEL as seen on Thingiverse.
 //
-#define ULTIPANEL
+//#define ULTIPANEL
 
 //
 // Cartesio UI

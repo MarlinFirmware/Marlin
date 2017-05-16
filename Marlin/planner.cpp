@@ -539,7 +539,7 @@ void Planner::check_axes_activity() {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
         if ((planner.z_fade_height) && (planner.z_fade_height <= RAW_Z_POSITION(lz))) return;
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly) * ubl.fade_scaling_factor_for_z(lz);
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
       #else // no fade
         lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly);
       #endif // FADE
@@ -617,7 +617,7 @@ void Planner::check_axes_activity() {
           //    so U==(L-O-M)/(1-M/H) for U<H
 
           if (planner.z_fade_height) {
-            float z_unfaded = z_unlevel / (1.0 - z_ublmesh * planner.inverse_z_fade_height);
+            const float z_unfaded = z_unlevel / (1.0 - z_ublmesh * planner.inverse_z_fade_height);
             if (z_unfaded < planner.z_fade_height)  // don't know until after compute
               z_unlevel = z_unfaded;
           }
