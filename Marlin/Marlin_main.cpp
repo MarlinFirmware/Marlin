@@ -889,6 +889,10 @@ void setup_homepin(void) {
   #endif
 }
 
+#if HAS_SUICIDE
+  bool kill_at_eof = false;
+#endif
+
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, HIGH);
