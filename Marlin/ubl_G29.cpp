@@ -307,7 +307,7 @@
   static int g29_verbose_level, phase_value, repetition_cnt,
              storage_slot = 0, map_type, grid_size;
   static bool repeat_flag, c_flag, x_flag, y_flag;
-  static float x_pos, y_pos, measured_z, card_thickness = 0.0, ubl_constant = 0.0;
+  static float x_pos, y_pos, card_thickness = 0.0, ubl_constant = 0.0;
 
   extern void lcd_setstatus(const char* message, const bool persist);
   extern void lcd_setstatuspgm(const char* message, const uint8_t level);
@@ -1026,7 +1026,6 @@
 
     if (do_ubl_mesh_map) ubl.display_map(map_type);
 
-    LEAVE:
     ubl.restore_ubl_active_state_and_leave();
     KEEPALIVE_STATE(IN_HANDLER);
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);

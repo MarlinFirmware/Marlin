@@ -625,18 +625,18 @@ void MarlinSettings::postprocess() {
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
-      const uint16_t tcrc = working_crc;
+      const uint16_t final_crc = working_crc;
 
       // Write the EEPROM header
       eeprom_index = EEPROM_OFFSET;
 
       EEPROM_WRITE(version);
-      EEPROM_WRITE(tcrc);
+      EEPROM_WRITE(final_crc);
 
       // Report storage size
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
-      SERIAL_ECHOPAIR(" bytes; crc ", tcrc);
+      SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
       SERIAL_ECHOLNPGM(")");
     }
 
@@ -1066,7 +1066,7 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
-        SERIAL_PROTOCOLPAIR("Mesh saved in slot ", slot);
+        SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
 
       #else
 
@@ -1093,7 +1093,7 @@ void MarlinSettings::postprocess() {
 
         // Compare crc with crc from MAT, or read from end
 
-        SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", slot);
+        SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
 
       #else
 

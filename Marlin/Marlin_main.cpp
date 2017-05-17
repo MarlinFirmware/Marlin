@@ -1856,9 +1856,15 @@ static void clean_up_after_endstop_or_probe_move() {
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
+#if ENABLED(HOME_AFTER_DEACTIVATE)
     const bool xx = x && !axis_known_position[X_AXIS],
                yy = y && !axis_known_position[Y_AXIS],
                zz = z && !axis_known_position[Z_AXIS];
+#else
+    const bool xx = x && !axis_homed[X_AXIS],
+               yy = y && !axis_homed[Y_AXIS],
+               zz = z && !axis_homed[Z_AXIS];
+#endif
     if (xx || yy || zz) {
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOME " ");
@@ -8550,12 +8556,12 @@ void quickstop_stepper() {
    */
   inline void gcode_M421() {
     const bool hasX = code_seen('X'), hasI = code_seen('I');
-    const int8_t ix = hasI ? code_value_byte() : hasX ? mbl.probe_index_x(RAW_X_POSITION(code_value_linear_units())) : -1;
+    const int8_t ix = hasI ? code_value_int() : hasX ? mbl.probe_index_x(RAW_X_POSITION(code_value_linear_units())) : -1;
     const bool hasY = code_seen('Y'), hasJ = code_seen('J');
-    const int8_t iy = hasJ ? code_value_byte() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(code_value_linear_units())) : -1;
-    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
+    const int8_t iy = hasJ ? code_value_int() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(code_value_linear_units())) : -1;
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
 
-    if (int(hasI && hasJ) + int(hasX && hasY) != 1 || hasZ == hasQ) {
+    if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
@@ -8578,12 +8584,12 @@ void quickstop_stepper() {
    */
   inline void gcode_M421() {
     const bool hasI = code_seen('I');
-    const int8_t ix = hasI ? code_value_byte() : -1;
+    const int8_t ix = hasI ? code_value_int() : -1;
     const bool hasJ = code_seen('J');
-    const int8_t iy = hasJ ? code_value_byte() : -1;
-    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
+    const int8_t iy = hasJ ? code_value_int() : -1;
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
 
-    if (!hasI || !hasJ || hasZ == hasQ) {
+    if (!hasI || !hasJ || !(hasZ || hasQ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
@@ -8611,14 +8617,20 @@ void quickstop_stepper() {
    *   M421 C Q<offset>
    */
   inline void gcode_M421() {
-    const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
-    const bool hasC = code_seen('C'), hasI = code_seen('I');
-    const int8_t ix = hasI ? code_value_byte() : hasC ? location.x_index : -1;
+    const bool hasC = code_seen('C');
+    const bool hasI = code_seen('I');
+    int8_t ix = hasI ? code_value_int() : -1;
     const bool hasJ = code_seen('J');
-    const int8_t iy = hasJ ? code_value_byte() : hasC ? location.y_index : -1;
-    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
+    int8_t iy = hasJ ? code_value_int() : -1;
+    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
 
-    if (int(hasC) + int(hasI && hasJ) != 1 || hasZ == hasQ) {
+    if (hasC) {
+      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+      ix = location.x_index;
+      iy = location.y_index;
+    }
+
+    if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
