@@ -5120,7 +5120,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
       SERIAL_EOL;
-      LCD_MESSAGEPGM("Checking... AC");
+      LCD_MESSAGEPGM("Checking... AC"); // TODO: Make translatable string
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (!do_height_only) {
@@ -5340,7 +5340,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOL_SP(36);
             SERIAL_PROTOCOLPGM("rolling back.");
             SERIAL_EOL;
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
           else {                                                     // !end iterations
             char mess[15] = "No convergence";
@@ -5391,7 +5391,7 @@ void home_all_axes() { gcode_G28(true); }
           }
           else {
             SERIAL_PROTOCOLLNPGM("Calibration OK");
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
             SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
             SERIAL_EOL;
             serialprintPGM(save_message);

@@ -668,7 +668,7 @@
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            LCD_MESSAGEPGM("Z-Offset Stopped");
+            LCD_MESSAGEPGM("Z-Offset Stopped"); // TODO: Make translatable string
             ubl.restore_ubl_active_state_and_leave();
             goto LEAVE;
           }
@@ -920,7 +920,7 @@
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("Place shim under nozzle");
-    LCD_MESSAGEPGM("Place shim & measure");
+    LCD_MESSAGEPGM("Place shim & measure"); // TODO: Make translatable string
     lcd_goto_screen(lcd_status_screen);
     echo_and_take_a_measurement();
 
@@ -976,7 +976,7 @@
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
-      LCD_MESSAGEPGM("Moving to next");
+      LCD_MESSAGEPGM("Moving to next"); // TODO: Make translatable string
 
       do_blocking_move_to_xy(xProbe, yProbe);
       do_blocking_move_to_z(z_clearance);
@@ -986,8 +986,10 @@
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);  // show user where we're probing
 
-      if (code_seen('B')) {LCD_MESSAGEPGM("Place shim & measure");}
-      else {LCD_MESSAGEPGM("Measure");}
+      if (code_seen('B'))
+        LCD_MESSAGEPGM("Place shim & measure"); // TODO: Make translatable string
+      else
+        LCD_MESSAGEPGM("Measure"); // TODO: Make translatable string
 
       while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
       delay(50);                                       // debounce
@@ -1034,7 +1036,7 @@
   bool g29_parameter_parsing() {
     bool err_flag = false;
 
-    LCD_MESSAGEPGM("Doing G29 UBL!");
+    LCD_MESSAGEPGM("Doing G29 UBL!"); // TODO: Make translatable string
     lcd_quick_feedback();
 
     ubl_constant = 0.0;
@@ -1137,7 +1139,7 @@
     ubl_state_recursion_chk++;
     if (ubl_state_recursion_chk != 1) {
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-      LCD_MESSAGEPGM("save_UBL_active() error");
+      LCD_MESSAGEPGM("save_UBL_active() error"); // TODO: Make translatable string
       lcd_quick_feedback();
       return;
     }
@@ -1148,7 +1150,7 @@
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-      LCD_MESSAGEPGM("restore_UBL_active() error");
+      LCD_MESSAGEPGM("restore_UBL_active() error"); // TODO: Make translatable string
       lcd_quick_feedback();
       return;
     }
@@ -1394,7 +1396,7 @@
 
     memset(not_done, 0xFF, sizeof(not_done));
 
-    LCD_MESSAGEPGM("Fine Tuning Mesh");
+    LCD_MESSAGEPGM("Fine Tuning Mesh"); // TODO: Make translatable string
 
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
@@ -1452,7 +1454,7 @@
           lcd_return_to_status();
           //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          LCD_MESSAGEPGM("Mesh Editing Stopped");
+          LCD_MESSAGEPGM("Mesh Editing Stopped"); // TODO: Make translatable string
 
           while (ubl_lcd_clicked()) idle();
 
@@ -1479,7 +1481,7 @@
 
     do_blocking_move_to_xy(lx, ly);
 
-    LCD_MESSAGEPGM("Done Editing Mesh");
+    LCD_MESSAGEPGM("Done Editing Mesh"); // TODO: Make translatable string
     SERIAL_ECHOLNPGM("Done Editing Mesh");
   }
 
