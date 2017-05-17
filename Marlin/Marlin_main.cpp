@@ -11901,12 +11901,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       
       #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
         switch (active_extruder) {
-          case 0,1:
+          case 0: case 1:
             oldstatus = E0_ENABLE_READ;
             enable_e0();
             break;
           #if EXTRUDERS > 2
-            case 2,3:
+          case 2: case 3:
               oldstatus = E1_ENABLE_READ;
               enable_e1();
               break;
