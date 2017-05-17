@@ -1858,7 +1858,6 @@ void kill_screen(const char* lcd_msg) {
      * UBL Build Mesh submenu
      */
     void _lcd_ubl_build_mesh() {
-      int GRID_NUM_POINTS = GRID_MAX_POINTS;
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
       #if (WATCH_THE_BED)
