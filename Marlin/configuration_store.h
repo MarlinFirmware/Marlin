@@ -67,8 +67,8 @@ class MarlinSettings {
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
         static int meshes_begin;
-        const static int mat_end = E2END;            // Mesh allocation table; this may not end up being necessary
-        const static int meshes_end = mat_end - 128; // 128 is a placeholder for the size of the MAT
+        const static int meshes_end = E2END - 128; // 128 is a placeholder for the size of the MAT; the MAT will always
+                                                   // live at the very end of the eeprom
 
       #endif
 

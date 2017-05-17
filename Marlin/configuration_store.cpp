@@ -625,15 +625,18 @@ void MarlinSettings::postprocess() {
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
+      const uint16_t tcrc = working_crc;
+
       // Write the EEPROM header
       eeprom_index = EEPROM_OFFSET;
+
       EEPROM_WRITE(version);
-      EEPROM_WRITE(working_crc);
+      EEPROM_WRITE(tcrc);
 
       // Report storage size
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
-      SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
+      SERIAL_ECHOPAIR(" bytes; crc ", tcrc);
       SERIAL_ECHOLNPGM(")");
     }
 
@@ -982,11 +985,11 @@ void MarlinSettings::postprocess() {
       }
       else {
         SERIAL_ERROR_START;
-        SERIAL_ERRORPGM("EEPROM checksum mismatch - (stored CRC)");
+        SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
         SERIAL_ERROR(stored_crc);
         SERIAL_ERRORPGM(" != ");
         SERIAL_ERROR(working_crc);
-        SERIAL_ERRORLNPGM(" (calculated CRC)!");
+        SERIAL_ERRORLNPGM(" (calculated)!");
         reset();
       }
 
@@ -1027,7 +1030,6 @@ void MarlinSettings::postprocess() {
     return !eeprom_error;
   }
 
-
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     void ubl_invalid_slot(const int s) {
@@ -1051,7 +1053,7 @@ void MarlinSettings::postprocess() {
         if (!WITHIN(slot, 0, a - 1)) {
           ubl_invalid_slot(a);
           SERIAL_PROTOCOLPAIR("E2END=", E2END);
-          SERIAL_PROTOCOLPAIR(" meshes_end=", (int)meshes_end);
+          SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
           SERIAL_PROTOCOLLNPAIR(" slot=", slot);
           SERIAL_EOL;
           return;
