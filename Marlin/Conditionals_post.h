@@ -326,7 +326,7 @@
     #ifndef HOTEND_OFFSET_Y
       #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
     #endif
-    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER))
+    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE))
       #define HOTEND_OFFSET_Z { 0 }
     #endif
   #endif
@@ -579,7 +579,7 @@
   #define HAS_SUICIDE (PIN_EXISTS(SUICIDE))
   #define HAS_PHOTOGRAPH (PIN_EXISTS(PHOTOGRAPH))
   #define HAS_BUZZER (PIN_EXISTS(BEEPER) || ENABLED(LCD_USE_I2C_BUZZER))
-  #define HAS_CASE_LIGHT (PIN_EXISTS(CASE_LIGHT))
+  #define HAS_CASE_LIGHT (PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE))
 
   // Digital control
   #define HAS_MICROSTEPS (HAS_X_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Z_MICROSTEPS || HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS)
@@ -818,7 +818,7 @@
   #endif
 
   /**
-   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
+   * DELTA_SEGMENT_MIN_LENGTH and DELTA_PROBEABLE_RADIUS for UBL_DELTA
    */
   #if UBL_DELTA
     #ifndef DELTA_SEGMENT_MIN_LENGTH
@@ -829,6 +829,9 @@
       #else // CARTESIAN
         #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
       #endif
+    #endif
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
     #endif
   #endif
 
