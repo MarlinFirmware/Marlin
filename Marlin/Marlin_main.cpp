@@ -5099,7 +5099,7 @@ void home_all_axes() { gcode_G28(); }
                  _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
 
       if (!_1p_calibration) {  // test if the outer radius is reachable
-        for (uint8_t axis = 1; axis < 13; axis += 1) {
+        for (uint8_t axis = 1; axis < 13; ++axis) {
           float circles = (_7p_quadruple_circle ? 1.5 :
                           _7p_tripple_circle ? 1.0 :
                           _7p_double_circle ? 0.5 : 0);
