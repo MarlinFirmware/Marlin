@@ -127,6 +127,7 @@
 //
 #define SDSS               53
 #define LED_PIN            13
+#define CASE_LIGHT_PIN      2
 
 //
 // LCD / Controller
@@ -152,3 +153,10 @@
 
   #define SD_DETECT_PIN    49
 #endif // MINIPANEL
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  7  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN           8

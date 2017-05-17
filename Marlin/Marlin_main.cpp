@@ -73,6 +73,9 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   - Same as M0
+ * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
+ * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
+ * M5   - Turn laser/spindle off
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -5611,6 +5614,121 @@ inline void gcode_G92() {
 
 #endif // HAS_RESUME_CONTINUE
 
+#if ENABLED(SPINDLE_LASER_ENABLE)
+  /**
+   * M3: Spindle Clockwise
+   * M4: Spindle Counter-clockwise
+   *
+   *  S0 turns off spindle.
+   *
+   *  If no speed PWM output is defined then M3/M4 just turns it on.
+   *
+   *  At least 12.8KHz (50Hz * 256) is needed for spindle PWM.
+   *  Hardware PWM is required. ISRs are too slow.
+   *
+   * NOTE: WGM for timers 3, 4, and 5 must be either Mode 1 or Mode 5.
+   *       No other settings give a PWM signal that goes from 0 to 5 volts.
+   *
+   *       The system automatically sets WGM to Mode 1, so no special
+   *       initialization is needed.
+   *
+   *       WGM bits for timer 2 are automatically set by the system to
+   *       Mode 1. This produces an acceptable 0 to 5 volt signal.
+   *       No special initialization is needed.
+   *
+   * NOTE: A minimum PWM frequency of 50 Hz is needed. All prescaler
+   *       factors for timers 2, 3, 4, and 5 are acceptable.
+   *
+   *  SPINDLE_LASER_ENABLE_PIN needs an external pullup or it may power on
+   *  the spindle/laser during power-up or when connecting to the host
+   *  (usually goes through a reset which sets all I/O pins to tri-state)
+   *
+   *  PWM duty cycle goes from 0 (off) to 255 (always on).
+   */
+
+  // Wait for spindle to come up to speed
+  inline void delay_for_power_up() {
+    refresh_cmd_timeout();
+    while (PENDING(millis(), SPINDLE_LASER_POWERUP_DELAY + previous_cmd_ms)) idle();
+  }
+
+  // Wait for spindle to stop turning
+  inline void delay_for_power_down() {
+    refresh_cmd_timeout();
+    while (PENDING(millis(), SPINDLE_LASER_POWERDOWN_DELAY + previous_cmd_ms + 1)) idle();
+  }
+
+  /**
+   * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
+   *
+   * it accepts inputs of 0-255
+   */
+
+  inline void ocr_val_mode() {
+    uint8_t spindle_laser_power = code_value_byte();
+    WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
+    if (SPINDLE_LASER_PWM_INVERT) spindle_laser_power = 255 - spindle_laser_power;
+    analogWrite(SPINDLE_LASER_PWM_PIN, spindle_laser_power);
+  }
+
+  inline void gcode_M3_M4(bool is_M3) {
+
+    stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+    #if SPINDLE_DIR_CHANGE
+      const bool rotation_dir = (is_M3 && !SPINDLE_INVERT_DIR || !is_M3 && SPINDLE_INVERT_DIR) ? HIGH : LOW;
+      if (SPINDLE_STOP_ON_DIR_CHANGE \
+         && READ(SPINDLE_LASER_ENABLE_PIN) == SPINDLE_LASER_ENABLE_INVERT \
+         && READ(SPINDLE_DIR_PIN) != rotation_dir
+      ) {
+        WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // turn spindle off
+        delay_for_power_down();
+      }
+      digitalWrite(SPINDLE_DIR_PIN, rotation_dir);
+    #endif
+
+    /**
+     * Our final value for ocr_val is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
+     * Went to uint16_t because some of the uint8_t calculations would sometimes give 1000 0000 rather than 1111 1111.
+     * Then needed to AND the uint16_t result with 0x00FF to make sure we only wrote the byte of interest.
+     */
+    #if ENABLED(SPINDLE_LASER_PWM)
+      if (code_seen('O')) ocr_val_mode();
+      else {
+        const float spindle_laser_power = code_seen('S') ? code_value_float() : 0;
+        if (spindle_laser_power == 0) {
+          WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                                    // turn spindle off (active low)
+          delay_for_power_down();
+        }
+        else {
+          int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
+          NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
+          if (spindle_laser_power <= SPEED_POWER_MIN)
+            ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // minimum setting
+          if (spindle_laser_power >= SPEED_POWER_MAX)
+            ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // limit to max RPM
+          if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
+          WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
+          analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte
+          delay_for_power_up();
+        }
+      }
+    #else
+      WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low) if spindle speed option not enabled
+      delay_for_power_up();
+    #endif
+  }
+
+ /**
+  * M5 turn off spindle
+  */
+  inline void gcode_M5() {
+    stepper.synchronize();
+    WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
+    delay_for_power_down();
+  }
+
+#endif // SPINDLE_LASER_ENABLE
+
 /**
  * M17: Enable power on all stepper motors
  */
@@ -5626,6 +5744,7 @@ inline void gcode_M17() {
 #endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
+
   float resume_position[XYZE];
   bool move_away_flag = false;
 
@@ -9946,6 +10065,17 @@ void process_next_command() {
           break;
       #endif // ULTIPANEL
 
+      #if ENABLED(SPINDLE_LASER_ENABLE)
+        case 3:
+          gcode_M3_M4(true);   // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
+          break;               // synchronizes with movement commands
+        case 4:
+          gcode_M3_M4(false);  // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
+          break;               // synchronizes with movement commands
+        case 5:
+          gcode_M5();     // M5 - turn spindle/laser off
+          break;          // synchronizes with movement commands
+      #endif
       case 17: // M17: Enable all stepper motors
         gcode_M17();
         break;
@@ -12260,6 +12390,17 @@ void setup() {
 
   #if HAS_CASE_LIGHT
     update_case_light();
+  #endif
+
+  #if ENABLED(SPINDLE_LASER_ENABLE)
+    OUT_WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
+    #if SPINDLE_DIR_CHANGE
+      OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
+    #endif
+    #if ENABLED(SPINDLE_LASER_PWM)
+      SET_OUTPUT(SPINDLE_LASER_PWM_PIN);
+      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
+    #endif
   #endif
 
   #if HAS_BED_PROBE

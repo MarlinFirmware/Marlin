@@ -41,6 +41,17 @@
  *
  */
 
+/**
+ * Rev B  2 JAN 2017
+ *
+ *  Added pin definitions for:
+ *    M3, M4 & M5 spindle control commands
+ *    case light
+ *
+ *  Corrected pin assignment for MOSFET_B_PIN pin. Changed it from 9 to 11.  The port
+ *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
+ */
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
@@ -140,7 +151,7 @@
 // With no heated bed, an additional 24V fan is possible.
 //
 #define MOSFET_A_PIN     6 // H3
-#define MOSFET_B_PIN    11 // B5
+#define MOSFET_B_PIN    11 // B5 - Rev A of this file had this pin assigned to 9
 #define MOSFET_C_PIN    45 // L4
 #define MOSFET_D_PIN    44 // L5
 
@@ -193,11 +204,11 @@
 #define LED_PIN             13 // B7
 #define CUTOFF_RESET_PIN    16 // H1
 #define CUTOFF_TEST_PIN     17 // H0
+#define CASE_LIGHT_PIN      44 // L5   MUST BE HARDWARE PWM
 
 //
 // LCD / Controller
 //
-
 #ifdef REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
   #define LCD_PINS_RS           33 // C4, LCD-STROBE
@@ -246,7 +257,6 @@
 
 #endif
 
-
 //
 // SD Card
 //
@@ -255,7 +265,20 @@
 
 #define MAX_PIN             THERMO_SCK_PIN
 
-//check if all pins are defined in mega/pins_arduino.h
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_ENABLE_PIN 66  // K4   Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     8  // H5   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN          67  // K5
+
+
+
+
+
+
+
+// Check if all pins are defined in mega/pins_arduino.h
 #include <Arduino.h>
 static_assert(NUM_DIGITAL_PINS > MAX_PIN, "add missing pins to [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h based on fastio.h"
                                           "to digital_pin_to_port_PGM, digital_pin_to_bit_mask_PGM, digital_pin_to_timer_PGM, NUM_DIGITAL_PINS, see below");
