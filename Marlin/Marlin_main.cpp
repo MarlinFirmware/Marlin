@@ -3943,7 +3943,7 @@ void home_all_axes() { gcode_G28(true); }
 #if ENABLED(MESH_BED_LEVELING)
 
   // Save 130 bytes with non-duplication of PSTR
-  void say_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
+  void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
   void mbl_mesh_report() {
     SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
@@ -4074,7 +4074,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         else {
-          SERIAL_CHAR('X'); say_not_entered();
+          SERIAL_CHAR('X'); echo_not_entered();
           return;
         }
 
@@ -4086,7 +4086,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         else {
-          SERIAL_CHAR('Y'); say_not_entered();
+          SERIAL_CHAR('Y'); echo_not_entered();
           return;
         }
 
@@ -4094,7 +4094,7 @@ void home_all_axes() { gcode_G28(true); }
           mbl.z_values[px][py] = code_value_linear_units();
         }
         else {
-          SERIAL_CHAR('Z'); say_not_entered();
+          SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
         break;
@@ -4104,7 +4104,7 @@ void home_all_axes() { gcode_G28(true); }
           mbl.z_offset = code_value_linear_units();
         }
         else {
-          SERIAL_CHAR('Z'); say_not_entered();
+          SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
         break;
@@ -5123,7 +5123,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
       SERIAL_EOL;
-      LCD_MESSAGEPGM("Checking... AC");
+      LCD_MESSAGEPGM("Checking... AC"); // TODO: Make translatable string
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (!do_height_only) {
@@ -5343,7 +5343,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOL_SP(36);
             SERIAL_PROTOCOLPGM("rolling back.");
             SERIAL_EOL;
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
           else {                                                     // !end iterations
             char mess[15] = "No convergence";
@@ -5394,7 +5394,7 @@ void home_all_axes() { gcode_G28(true); }
           }
           else {
             SERIAL_PROTOCOLLNPGM("Calibration OK");
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
             SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
             SERIAL_EOL;
             serialprintPGM(save_message);
@@ -8460,15 +8460,22 @@ void quickstop_stepper() {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // L to load a mesh from the EEPROM
       if (code_seen('L')) {
-        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
-        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
-        if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.storage_slot;
+        const int16_t a = settings.calc_num_meshes();
+
+        if (!a) {
+          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
           return;
         }
 
-        ubl.load_mesh(storage_slot);
-        ubl.state.eeprom_storage_slot = storage_slot;
+        if (!WITHIN(storage_slot, 0, a - 1)) {
+          SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+          SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+          return;
+        }
+
+        settings.load_mesh(storage_slot);
+        ubl.state.storage_slot = storage_slot;
       }
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -8496,7 +8503,7 @@ void quickstop_stepper() {
       if (code_seen('L') || code_seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
       }
     #endif
 

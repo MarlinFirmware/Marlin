@@ -41,6 +41,16 @@
 
   uint8_t ubl_cnt = 0;
 
+  void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
+
+  void unified_bed_leveling::report_state() {
+    echo_name();
+    SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
+    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    SERIAL_PROTOCOLLNPGM("active.");
+    safe_delay(50);
+  }
+
   static void serial_echo_xy(const int16_t x, const int16_t y) {
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
@@ -63,9 +73,6 @@
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
 
-  int16_t unified_bed_leveling::eeprom_start = -1;  // Please stop changing this to 8 bits in size
-                                                    // It needs to hold values bigger than this.
-
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
@@ -73,53 +80,10 @@
     reset();
   }
 
-  void unified_bed_leveling::load_mesh(const int16_t slot) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-
-    if (slot == -1) {
-      SERIAL_PROTOCOLLNPGM("?No mesh saved in EEPROM. Zeroing mesh in memory.\n");
-      reset();
-      return;
-    }
-
-    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
-      return;
-    }
-
-    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
-    eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
-
-    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", slot);
-    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
-  }
-
-  void unified_bed_leveling::store_mesh(const int16_t slot) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-
-    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
-      SERIAL_PROTOCOL(slot);
-      SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
-      SERIAL_PROTOCOLLNPAIR("E2END     : ", E2END);
-      SERIAL_PROTOCOLLNPAIR("k         : ", (int)UBL_LAST_EEPROM_INDEX);
-      SERIAL_PROTOCOLLNPAIR("j         : ", j);
-      SERIAL_PROTOCOLLNPAIR("m         : ", slot);
-      SERIAL_EOL;
-      return;
-    }
-
-    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
-    eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
-
-    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", slot);
-    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
-  }
-
   void unified_bed_leveling::reset() {
     state.active = false;
     state.z_offset = 0;
-    state.eeprom_storage_slot = -1;
+    state.storage_slot = -1;
 
     ZERO(z_values);
 
@@ -203,9 +167,9 @@
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
-    const int j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-    if (j < 1) {
-      SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
+    const int a = settings.calc_num_meshes();
+    if (a < 1) {
+      SERIAL_PROTOCOLLNPGM("?Insufficient EEPROM storage for a mesh of this size.");
       error_flag++;
     }
 
