@@ -35,6 +35,9 @@
   #define UBL_OK false
   #define UBL_ERR true
 
+  #define USE_NOZZLE_AS_REFERENCE 0
+  #define USE_PROBE_AS_REFERENCE 1
+
   typedef struct {
     int8_t x_index, y_index;
     float distance; // When populated, the distance from the search location
@@ -49,7 +52,8 @@
   // ubl_motion.cpp
 
   void debug_current_and_destination(const char * const title);
-  void ubl_line_to_destination(const float&, uint8_t);
+  void ubl_line_to_destination_cartesian(const float&, uint8_t);
+  bool ubl_prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate );
 
   // ubl_G29.cpp
 
@@ -57,8 +61,7 @@
 
   void dump(char * const str, const float &f);
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
-  float measure_business_card_thickness(const float&);
+  float measure_business_card_thickness(float&);
   mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
   void shift_mesh_height();
   void fine_tune_mesh(const float&, const float&, const bool);
@@ -104,7 +107,6 @@
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
       void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
-      void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
       void g29_what_command();
@@ -326,10 +328,8 @@
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-
-        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+        inline float fade_scaling_factor_for_z(const float &lz) {
           if (planner.z_fade_height == 0.0) return 1.0;
-
           static float fade_scaling_factor = 1.0;
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
@@ -341,7 +341,10 @@
           }
           return fade_scaling_factor;
         }
-
+      #else
+        inline float fade_scaling_factor_for_z(const float &lz) {
+          return 1.0;
+        }
       #endif
 
   }; // class unified_bed_leveling

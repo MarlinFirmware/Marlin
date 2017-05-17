@@ -1173,6 +1173,6 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this at 1.0; otherwise, adjust
  * accordingly for your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.0
+#define PROPORTIONAL_FONT_RATIO 1.5
 
 #endif // CONFIGURATION_ADV_H
