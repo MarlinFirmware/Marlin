@@ -147,6 +147,18 @@
   //#define HOTEND_OFFSET_Z {0.0, 0.0}
 #endif
 
+// A single extruder that uses one or two single stepper motors
+// Don't forget to set the angles and the number of the switching extruder servos
+//#define SINGLENOZZLE_SWITCHING_EXTRUDER
+#if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+  #define SWITCHING_EXTRUDER_SERVO_E1_E2_NR 0
+  #define SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES { 0, 90 } // Angles for E1, E2
+  #if EXTRUDERS > 2 
+    #define SWITCHING_EXTRUDER_SERVO_E3_E4_NR 1
+    #define SWITCHING_EXTRUDER_SERVO_E3_E4_ANGLES { 0, 90 } // Angles for E3, E4
+  #endif
+#endif
+
 /**
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.

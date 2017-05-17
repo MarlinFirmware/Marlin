@@ -458,7 +458,13 @@ void Temperature::updatePID() {
 }
 
 int Temperature::getHeaterPower(int heater) {
-  return heater < 0 ? soft_pwm_bed : soft_pwm[heater];
+  return heater < 0 ? soft_pwm_bed : soft_pwm[
+    #if HOTENDS == 1
+      0
+    #else
+      heater
+    #endif
+  ];
 }
 
 #if HAS_AUTO_FAN

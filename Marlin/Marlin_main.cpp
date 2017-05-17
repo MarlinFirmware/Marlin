@@ -6575,11 +6575,18 @@ inline void gcode_M77() { print_job_timer.stop(); }
 /**
  * M104: Set hot end temperature
  */
+#if ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+  static int16_t singlenozzle_temp[4];
+#endif
+
 inline void gcode_M104() {
   if (get_target_extruder_from_command(104)) return;
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ENABLED(SINGLENOZZLE)
+  #if ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    // save temperature for different extruder material
+    if (code_seen('S')) singlenozzle_temp[target_extruder] = code_value_temp_abs();
+    // if not active_extruder, don't change temperature
     if (target_extruder != active_extruder) return;
   #endif
 
@@ -6773,7 +6780,10 @@ inline void gcode_M109() {
   if (get_target_extruder_from_command(109)) return;
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ENABLED(SINGLENOZZLE)
+  #if ENABLED(SINGLENOZZLE) || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    // save temperatur for different extruder material
+    if (code_seen('S')) singlenozzle_temp[target_extruder] = code_value_temp_abs();
+    // if not active_extruder, don't change temperatur
     if (target_extruder != active_extruder) return;
   #endif
 
@@ -9459,6 +9469,22 @@ inline void gcode_M999() {
   }
 #endif
 
+#if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) 
+  inline void move_extruder_servo(uint8_t e) {
+    #if EXTRUDERS == 2
+      const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
+      MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E1_E2_NR, angles_e1_e2[e]);
+    #else
+      const int angles_e1_e2[2] = SWITCHING_EXTRUDER_SERVO_E1_E2_ANGLES;
+      const int angles_e3_e4[2] = SWITCHING_EXTRUDER_SERVO_E3_E4_ANGLES;
+      if (e < 2) 
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E1_E2_NR, angles_e1_e2[e]);
+      else      
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_E3_E4_NR, angles_e3_e4[e - 2]);
+    #endif
+  }
+#endif
+
 inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHO_START;
   SERIAL_CHAR('T');
@@ -9760,7 +9786,22 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = old_feedrate_mm_s;
 
     #else // HOTENDS <= 1
-
+      
+      #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+    
+        if (tmp_extruder >= EXTRUDERS)
+          return invalid_extruder_error(tmp_extruder);
+        
+        // Wait all moves are finished!
+        stepper.synchronize(); 
+        
+        move_extruder_servo(tmp_extruder);
+        
+        // Set saved temperatur for different extruder material
+        thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder],0);
+      
+      #endif // SINGLENOZZLE_SWITCHING_EXTRUDER
+      
       // Set the new active extruder
       active_extruder = tmp_extruder;
 
@@ -12071,10 +12112,24 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
       && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
       bool oldstatus;
-      #if ENABLED(SWITCHING_EXTRUDER)
+      
+      #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+        switch (active_extruder) {
+          case 0,1:
+            oldstatus = E0_ENABLE_READ;
+            enable_e0();
+            break;
+          #if EXTRUDERS > 2
+            case 2,3:
+              oldstatus = E1_ENABLE_READ;
+              enable_e1();
+              break;
+          #endif
+        }
+      #elif ENABLED(SWITCHING_EXTRUDER) // !SINGLENOZZLE_SWITCHING_EXTRUDER
         oldstatus = E0_ENABLE_READ;
         enable_E0();
-      #else // !SWITCHING_EXTRUDER
+      #else // !SINGLENOZZLE_SWITCHING_EXTRUDER || !SWITCHING_EXTRUDER
         switch (active_extruder) {
           case 0: oldstatus = E0_ENABLE_READ; enable_E0(); break;
           #if E_STEPPERS > 1
@@ -12090,7 +12145,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
-      #endif // !SWITCHING_EXTRUDER
+      #endif // !SINGLENOZZLE_SWITCHING_EXTRUDER || !SWITCHING_EXTRUDER
 
       previous_cmd_ms = ms; // refresh_cmd_timeout()
 
@@ -12100,9 +12155,21 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
       stepper.synchronize();
-      #if ENABLED(SWITCHING_EXTRUDER)
+
+      #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)
+        switch (active_extruder) {
+          case 0,1:
+            E0_ENABLE_WRITE(oldstatus);
+            break;
+          #if EXTRUDERS > 2
+            case 2,3:
+              E1_ENABLE_WRITE(oldstatus);
+              break;
+          #endif
+        }
+      #elif ENABLED(SWITCHING_EXTRUDER) // !SINGLENOZZLE_SWITCHING_EXTRUDER
         E0_ENABLE_WRITE(oldstatus);
-      #else
+      #else  // !SINGLENOZZLE_SWITCHING_EXTRUDER || !SWITCHING_EXTRUDER
         switch (active_extruder) {
           case 0: E0_ENABLE_WRITE(oldstatus); break;
           #if E_STEPPERS > 1
@@ -12118,7 +12185,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
-      #endif // !SWITCHING_EXTRUDER
+      #endif // !SINGLENOZZLE_SWITCHING_EXTRUDER || !SWITCHING_EXTRUDER
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 

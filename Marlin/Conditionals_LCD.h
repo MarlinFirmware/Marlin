@@ -299,6 +299,14 @@
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
+  #elif ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER)      // One hotend, max. 2 E stepper, unified E axis
+    #define HOTENDS      1
+    #define E_STEPPERS   EXTRUDERS / 2
+    #define E_MANUAL     EXTRUDERS
+    #define TOOL_E_INDEX current_block->active_extruder
+    #undef TEMP_SENSOR_1_AS_REDUNDANT
+    #undef HOTEND_OFFSET_X
+    #undef HOTEND_OFFSET_Y
   #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
     #define HOTENDS      EXTRUDERS
     #define E_STEPPERS   1
@@ -322,15 +330,19 @@
   /**
    * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
    */
-  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-    #define XYZE_N (XYZ + E_STEPPERS)
+  #if ENABLED(DISTINCT_E_FACTORS) && (E_STEPPERS > 1 || ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)) 
+    #if ENABLED(SINGLENOZZLE_SWITCHING_EXTRUDER) || ENABLED(SWITCHING_EXTRUDER)
+      #define XYZE_N (XYZ + EXTRUDERS)
+    #else
+      #define XYZE_N (XYZ + E_STEPPERS)
+    #endif
     #define E_AXIS_N (E_AXIS + extruder)
   #else
     #undef DISTINCT_E_FACTORS
     #define XYZE_N XYZE
     #define E_AXIS_N E_AXIS
   #endif
-
+  
   /**
    * The BLTouch Probe emulates a servo probe
    * and uses "special" angles for its state.
