@@ -51,6 +51,7 @@
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
  * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
+ * G7  - Coordinated move between UBL mesh points (I & J)
  * G10 - Retract filament according to settings of M207
  * G11 - Retract recover filament according to settings of M208
  * G12 - Clean tool
@@ -3405,8 +3406,18 @@ inline void gcode_G7(
   #endif
 ) {
   if (IsRunning()) {
-    destination[X_AXIS] = code_seen('I') ? pgm_read_float(&ubl.mesh_index_to_xpos[code_has_value() ? code_value_int() : 0]) : current_position[X_AXIS];
-    destination[Y_AXIS] = code_seen('J') ? pgm_read_float(&ubl.mesh_index_to_ypos[code_has_value() ? code_value_int() : 0]) : current_position[Y_AXIS];
+    const bool hasI = code_seen('I');
+    const int8_t ix = code_has_value() ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t iy = code_has_value() ? code_value_int() : 0;
+
+    if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
+      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      return;
+    }
+
+    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
     destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
     destination[E_AXIS] = current_position[E_AXIS];
 
