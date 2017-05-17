@@ -30,8 +30,9 @@
   #include "planner.h"
   #include "math.h"
   #include "vector_3.h"
+  #include "configuration_store.h"
 
-  #define UBL_VERSION "1.00"
+  #define UBL_VERSION "1.01"
   #define UBL_OK false
   #define UBL_ERR true
 
@@ -92,7 +93,7 @@
   typedef struct {
     bool active = false;
     float z_offset = 0.0;
-    int8_t eeprom_storage_slot = -1;
+    int8_t storage_slot = -1;
   } ubl_state;
 
   class unified_bed_leveling {
@@ -102,6 +103,8 @@
 
     public:
 
+      void echo_name();
+      void report_state();
       void find_mean_mesh_height();
       void shift_mesh_height();
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
@@ -110,17 +113,13 @@
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
       void g29_what_command();
-      void g29_eeprom_dump() ;
+      void g29_eeprom_dump();
       void g29_compare_current_mesh_to_stored_mesh();
       void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map);
       void smart_fill_mesh();
       void display_map(const int);
       void reset();
       void invalidate();
-      void store_state();
-      void load_state();
-      void store_mesh(const int16_t);
-      void load_mesh(const int16_t);
       bool sanity_check();
 
       static ubl_state state;
@@ -152,9 +151,6 @@
                               };
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
-
-      static int16_t eeprom_start;    // Please do no change this to 8 bits in size
-                                      // It needs to hold values bigger than this.
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
@@ -350,8 +346,6 @@
   }; // class unified_bed_leveling
 
   extern unified_bed_leveling ubl;
-
-  #define UBL_LAST_EEPROM_INDEX E2END
 
 #endif // AUTO_BED_LEVELING_UBL
 #endif // UNIFIED_BED_LEVELING_H

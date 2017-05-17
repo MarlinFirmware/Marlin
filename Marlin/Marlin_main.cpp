@@ -73,6 +73,9 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   - Same as M0
+ * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
+ * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
+ * M5   - Turn laser/spindle off
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -170,6 +173,8 @@
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
+ * M350 - Set microstepping mode. (Requires digital microstepping pins.)
+ * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  * M355 - Turn the Case Light on/off and set its brightness. (Requires CASE_LIGHT_PIN)
  * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
@@ -194,6 +199,7 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M900 - Get and/or Set advance K factor and WH/D ratio. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
@@ -203,8 +209,6 @@
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
- * M350 - Set microstepping mode. (Requires digital microstepping pins.)
- * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  *
  * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
  * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
@@ -3712,7 +3716,7 @@ inline void gcode_G4() {
  *  Z   Home to the Z endstop
  *
  */
-inline void gcode_G28() {
+inline void gcode_G28(const bool always_home_all) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -3759,14 +3763,16 @@ inline void gcode_G28() {
 
   #else // NOT DELTA
 
-    const bool homeX = code_seen('X'), homeY = code_seen('Y'), homeZ = code_seen('Z'),
-               home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+    const bool homeX = always_home_all || code_seen('X'),
+               homeY = always_home_all || code_seen('Y'),
+               homeZ = always_home_all || code_seen('Z'),
+               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
     set_destination_to_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
-      if (home_all_axis || homeZ) {
+      if (home_all || homeZ) {
         HOMEAXIS(Z);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> HOMEAXIS(Z)", current_position);
@@ -3775,7 +3781,7 @@ inline void gcode_G28() {
 
     #else
 
-      if (home_all_axis || homeX || homeY) {
+      if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
         destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
@@ -3793,14 +3799,14 @@ inline void gcode_G28() {
 
     #if ENABLED(QUICK_HOME)
 
-      if (home_all_axis || (homeX && homeY)) quick_home_xy();
+      if (home_all || (homeX && homeY)) quick_home_xy();
 
     #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
 
       // Home Y
-      if (home_all_axis || homeY) {
+      if (home_all || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -3810,7 +3816,7 @@ inline void gcode_G28() {
     #endif
 
     // Home X
-    if (home_all_axis || homeX) {
+    if (home_all || homeX) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -3843,7 +3849,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (home_all_axis || homeY) {
+      if (home_all || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -3853,16 +3859,16 @@ inline void gcode_G28() {
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
-      if (home_all_axis || homeZ) {
+      if (home_all || homeZ) {
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
           HOMEAXIS(Z);
         #endif
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all || homeZ) > final", current_position);
         #endif
-      } // home_all_axis || homeZ
+      } // home_all || homeZ
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
@@ -3897,7 +3903,7 @@ inline void gcode_G28() {
   #endif
 } // G28
 
-void home_all_axes() { gcode_G28(); }
+void home_all_axes() { gcode_G28(true); }
 
 #if HAS_PROBING_PROCEDURE
 
@@ -3940,7 +3946,7 @@ void home_all_axes() { gcode_G28(); }
 #if ENABLED(MESH_BED_LEVELING)
 
   // Save 130 bytes with non-duplication of PSTR
-  void say_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
+  void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
   void mbl_mesh_report() {
     SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
@@ -4071,7 +4077,7 @@ void home_all_axes() { gcode_G28(); }
           }
         }
         else {
-          SERIAL_CHAR('X'); say_not_entered();
+          SERIAL_CHAR('X'); echo_not_entered();
           return;
         }
 
@@ -4083,7 +4089,7 @@ void home_all_axes() { gcode_G28(); }
           }
         }
         else {
-          SERIAL_CHAR('Y'); say_not_entered();
+          SERIAL_CHAR('Y'); echo_not_entered();
           return;
         }
 
@@ -4091,7 +4097,7 @@ void home_all_axes() { gcode_G28(); }
           mbl.z_values[px][py] = code_value_linear_units();
         }
         else {
-          SERIAL_CHAR('Z'); say_not_entered();
+          SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
         break;
@@ -4101,7 +4107,7 @@ void home_all_axes() { gcode_G28(); }
           mbl.z_offset = code_value_linear_units();
         }
         else {
-          SERIAL_CHAR('Z'); say_not_entered();
+          SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
         break;
@@ -5120,7 +5126,7 @@ void home_all_axes() { gcode_G28(); }
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
       SERIAL_EOL;
-      LCD_MESSAGEPGM("Checking... AC");
+      LCD_MESSAGEPGM("Checking... AC"); // TODO: Make translatable string
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (!do_height_only) {
@@ -5340,7 +5346,7 @@ void home_all_axes() { gcode_G28(); }
             SERIAL_PROTOCOL_SP(36);
             SERIAL_PROTOCOLPGM("rolling back.");
             SERIAL_EOL;
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
           else {                                                     // !end iterations
             char mess[15] = "No convergence";
@@ -5391,7 +5397,7 @@ void home_all_axes() { gcode_G28(); }
           }
           else {
             SERIAL_PROTOCOLLNPGM("Calibration OK");
-            LCD_MESSAGEPGM("Calibration OK");
+            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
             SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
             SERIAL_EOL;
             serialprintPGM(save_message);
@@ -5611,6 +5617,121 @@ inline void gcode_G92() {
 
 #endif // HAS_RESUME_CONTINUE
 
+#if ENABLED(SPINDLE_LASER_ENABLE)
+  /**
+   * M3: Spindle Clockwise
+   * M4: Spindle Counter-clockwise
+   *
+   *  S0 turns off spindle.
+   *
+   *  If no speed PWM output is defined then M3/M4 just turns it on.
+   *
+   *  At least 12.8KHz (50Hz * 256) is needed for spindle PWM.
+   *  Hardware PWM is required. ISRs are too slow.
+   *
+   * NOTE: WGM for timers 3, 4, and 5 must be either Mode 1 or Mode 5.
+   *       No other settings give a PWM signal that goes from 0 to 5 volts.
+   *
+   *       The system automatically sets WGM to Mode 1, so no special
+   *       initialization is needed.
+   *
+   *       WGM bits for timer 2 are automatically set by the system to
+   *       Mode 1. This produces an acceptable 0 to 5 volt signal.
+   *       No special initialization is needed.
+   *
+   * NOTE: A minimum PWM frequency of 50 Hz is needed. All prescaler
+   *       factors for timers 2, 3, 4, and 5 are acceptable.
+   *
+   *  SPINDLE_LASER_ENABLE_PIN needs an external pullup or it may power on
+   *  the spindle/laser during power-up or when connecting to the host
+   *  (usually goes through a reset which sets all I/O pins to tri-state)
+   *
+   *  PWM duty cycle goes from 0 (off) to 255 (always on).
+   */
+
+  // Wait for spindle to come up to speed
+  inline void delay_for_power_up() {
+    refresh_cmd_timeout();
+    while (PENDING(millis(), SPINDLE_LASER_POWERUP_DELAY + previous_cmd_ms)) idle();
+  }
+
+  // Wait for spindle to stop turning
+  inline void delay_for_power_down() {
+    refresh_cmd_timeout();
+    while (PENDING(millis(), SPINDLE_LASER_POWERDOWN_DELAY + previous_cmd_ms + 1)) idle();
+  }
+
+  /**
+   * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
+   *
+   * it accepts inputs of 0-255
+   */
+
+  inline void ocr_val_mode() {
+    uint8_t spindle_laser_power = code_value_byte();
+    WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
+    if (SPINDLE_LASER_PWM_INVERT) spindle_laser_power = 255 - spindle_laser_power;
+    analogWrite(SPINDLE_LASER_PWM_PIN, spindle_laser_power);
+  }
+
+  inline void gcode_M3_M4(bool is_M3) {
+
+    stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+    #if SPINDLE_DIR_CHANGE
+      const bool rotation_dir = (is_M3 && !SPINDLE_INVERT_DIR || !is_M3 && SPINDLE_INVERT_DIR) ? HIGH : LOW;
+      if (SPINDLE_STOP_ON_DIR_CHANGE \
+         && READ(SPINDLE_LASER_ENABLE_PIN) == SPINDLE_LASER_ENABLE_INVERT \
+         && READ(SPINDLE_DIR_PIN) != rotation_dir
+      ) {
+        WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // turn spindle off
+        delay_for_power_down();
+      }
+      digitalWrite(SPINDLE_DIR_PIN, rotation_dir);
+    #endif
+
+    /**
+     * Our final value for ocr_val is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
+     * Went to uint16_t because some of the uint8_t calculations would sometimes give 1000 0000 rather than 1111 1111.
+     * Then needed to AND the uint16_t result with 0x00FF to make sure we only wrote the byte of interest.
+     */
+    #if ENABLED(SPINDLE_LASER_PWM)
+      if (code_seen('O')) ocr_val_mode();
+      else {
+        const float spindle_laser_power = code_seen('S') ? code_value_float() : 0;
+        if (spindle_laser_power == 0) {
+          WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                                    // turn spindle off (active low)
+          delay_for_power_down();
+        }
+        else {
+          int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
+          NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
+          if (spindle_laser_power <= SPEED_POWER_MIN)
+            ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // minimum setting
+          if (spindle_laser_power >= SPEED_POWER_MAX)
+            ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // limit to max RPM
+          if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
+          WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
+          analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte
+          delay_for_power_up();
+        }
+      }
+    #else
+      WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low) if spindle speed option not enabled
+      delay_for_power_up();
+    #endif
+  }
+
+ /**
+  * M5 turn off spindle
+  */
+  inline void gcode_M5() {
+    stepper.synchronize();
+    WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
+    delay_for_power_down();
+  }
+
+#endif // SPINDLE_LASER_ENABLE
+
 /**
  * M17: Enable power on all stepper motors
  */
@@ -5626,6 +5747,7 @@ inline void gcode_M17() {
 #endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
+
   float resume_position[XYZE];
   bool move_away_flag = false;
 
@@ -5764,7 +5886,7 @@ inline void gcode_M31() {
   /**
    * M32: Select file and start SD Print
    */
-  inline void gcode_M32() {
+  inline void gcode_M32() {  // Why is M32 allowed to flout the sacred GCode standard?
     if (card.sdprinting)
       stepper.synchronize();
 
@@ -7144,7 +7266,7 @@ inline void gcode_M82() { axis_relative_modes[E_AXIS] = false; }
 inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
 
 /**
- * M18, M84: Disable all stepper motors
+ * M18, M84: Disable stepper motors
  */
 inline void gcode_M18_M84() {
   if (code_seen('S')) {
@@ -7762,7 +7884,7 @@ inline void gcode_M211() {
    *   T<tool>
    *   X<xoffset>
    *   Y<yoffset>
-   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_EXTRUDER
+   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
    */
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218) || target_extruder == 0) return;
@@ -7770,7 +7892,7 @@ inline void gcode_M211() {
     if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_linear_units();
     if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_linear_units();
 
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
       if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_linear_units();
     #endif
 
@@ -7781,7 +7903,7 @@ inline void gcode_M211() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
@@ -8169,7 +8291,7 @@ inline void gcode_M303() {
   }
 
   /**
-   * M364: SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+   * M364: SCARA calibration: Move to cal-position PsiC (90 deg to Theta calibration position)
    */
   inline bool gcode_M364() {
     SERIAL_ECHOLNPGM(" Cal: Theta-Psi 90");
@@ -8341,15 +8463,22 @@ void quickstop_stepper() {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // L to load a mesh from the EEPROM
       if (code_seen('L')) {
-        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
-        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
-        if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
-          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.storage_slot;
+        const int16_t a = settings.calc_num_meshes();
+
+        if (!a) {
+          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
           return;
         }
 
-        ubl.load_mesh(storage_slot);
-        ubl.state.eeprom_storage_slot = storage_slot;
+        if (!WITHIN(storage_slot, 0, a - 1)) {
+          SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+          SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+          return;
+        }
+
+        settings.load_mesh(storage_slot);
+        ubl.state.storage_slot = storage_slot;
       }
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -8377,7 +8506,7 @@ void quickstop_stepper() {
       if (code_seen('L') || code_seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
       }
     #endif
 
@@ -8412,39 +8541,33 @@ void quickstop_stepper() {
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
+
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
-   * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
+   *
+   * Usage:
+   *   M421 X<linear> Y<linear> Z<linear>
+   *   M421 X<linear> Y<linear> Q<offset>
+   *   M421 I<xindex> J<yindex> Z<linear>
+   *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
+    const bool hasX = code_seen('X'), hasI = code_seen('I');
+    const int8_t ix = hasI ? code_value_byte() : hasX ? mbl.probe_index_x(RAW_X_POSITION(code_value_linear_units())) : -1;
+    const bool hasY = code_seen('Y'), hasJ = code_seen('J');
+    const int8_t iy = hasJ ? code_value_byte() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(code_value_linear_units())) : -1;
+    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
 
-    const bool hasX = code_seen('X'), hasI = !hasX && code_seen('I');
-    const int8_t px = hasX || hasI ? mbl.probe_index_x(code_value_linear_units()) : 0;
-    const bool hasY = code_seen('Y'), hasJ = !hasY && code_seen('J');
-    const int8_t py = hasY || hasJ ? mbl.probe_index_y(code_value_linear_units()) : 0;
-    const bool hasZ = code_seen('Z');
-    const float z = hasZ ? code_value_linear_units() : 0;
-
-    if (hasX && hasY && hasZ) {
-      if (px >= 0 && py >= 0)
-        mbl.set_z(px, py, z);
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-      }
-    }
-    else if (hasI && hasJ && hasZ) {
-      if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1))
-        mbl.set_z(px, py, z);
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-      }
-    }
-    else {
+    if (int(hasI && hasJ) + int(hasX && hasY) != 1 || hasZ == hasQ) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
+    else if (ix < 0 || iy < 0) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+    }
+    else
+      mbl.set_z(ix, iy, code_value_linear_units() + (hasQ ? mbl.z_values[ix][iy] : 0));
   }
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -8457,37 +8580,25 @@ void quickstop_stepper() {
    *   M421 I<xindex> J<yindex> Q<offset>
    */
   inline void gcode_M421() {
-
     const bool hasI = code_seen('I');
-    const int8_t px = hasI ? code_value_int() : 0;
+    const int8_t ix = hasI ? code_value_byte() : -1;
     const bool hasJ = code_seen('J');
-    const int8_t py = hasJ ? code_value_int() : 0;
-    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
-    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
+    const int8_t iy = hasJ ? code_value_byte() : -1;
+    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
 
-    if (!hasI || !hasJ || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+    if (!hasI || !hasJ || hasZ == hasQ) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-      return;
     }
-
-    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-      if (hasZ) { // doing an absolute mesh value
-        z_values[px][py] = z;
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
-        #endif
-      } 
-      else { // doing an offset of a mesh value
-        z_values[px][py] += z;
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
-        #endif
-      }
-    }
-    else { // bad indexes were specified for the mesh point
+    else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+    }
+    else {
+      z_values[ix][iy] = code_value_linear_units() + (hasQ ? z_values[ix][iy] : 0);
+      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+        bed_level_virt_interpolate();
+      #endif
     }
   }
 
@@ -8502,37 +8613,24 @@ void quickstop_stepper() {
    *   M421 C Z<linear>
    *   M421 C Q<offset>
    */
-
   inline void gcode_M421() {
-
-    // Get the closest position for 'C', if needed
     const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
-
     const bool hasC = code_seen('C'), hasI = code_seen('I');
-    const int8_t px = hasC ? location.x_index : hasI ? code_value_int() : 0;
-
+    const int8_t ix = hasI ? code_value_byte() : hasC ? location.x_index : -1;
     const bool hasJ = code_seen('J');
-    const int8_t py = hasC ? location.y_index : hasJ ? code_value_int() : 0;
+    const int8_t iy = hasJ ? code_value_byte() : hasC ? location.y_index : -1;
+    const bool hasZ = code_seen('Z'), hasQ = code_seen('Q');
 
-    const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
-    const float z = hasZ || hasQ ? code_value_linear_units() : 0;
-
-    if ( ((hasI && hasJ) == hasC) || (hasQ && hasZ) || (!hasQ && !hasZ)) {
+    if (int(hasC) + int(hasI && hasJ) != 1 || hasZ == hasQ) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-      return;
     }
-
-    if (WITHIN(px, 0, GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-      if (hasZ) // doing an absolute mesh value
-        ubl.z_values[px][py] = z;
-      else // doing an offset of a mesh value
-        ubl.z_values[px][py] += z;
-    }
-    else { // bad indexes were specified for the mesh point
+    else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
+    else
+      ubl.z_values[ix][iy] = code_value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
   }
 
 #endif // AUTO_BED_LEVELING_UBL
@@ -9395,6 +9493,14 @@ inline void gcode_M999() {
   }
 #endif
 
+#if ENABLED(SWITCHING_NOZZLE)
+  inline void move_nozzle_servo(uint8_t e) {
+    const int angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
+    safe_delay(500);
+  }
+#endif
+
 inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHO_START;
   SERIAL_CHAR('T');
@@ -9542,7 +9648,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
         #else // !DUAL_X_CARRIAGE
 
-          #if ENABLED(SWITCHING_EXTRUDER)
+          #if ENABLED(SWITCHING_NOZZLE)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
@@ -9552,7 +9658,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             stepper.synchronize();
 
-            move_extruder_servo(active_extruder);
+            move_nozzle_servo(active_extruder);
+          #endif
+
+          #if ENABLED(SWITCHING_EXTRUDER)
+            #if !(ENABLED(SWITCHING_NOZZLE) && (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR))
+              stepper.synchronize();
+              move_extruder_servo(active_extruder);
+            #endif
           #endif
 
           /**
@@ -9675,7 +9788,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           prepare_move_to_destination();
         }
 
-        #if ENABLED(SWITCHING_EXTRUDER)
+        #if ENABLED(SWITCHING_NOZZLE)
           // Move back down, if needed. (Including when the new tool is higher.)
           if (z_raise != z_diff) {
             destination[Z_AXIS] += z_diff;
@@ -9702,6 +9815,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       UNUSED(fr_mm_s);
       UNUSED(no_move);
+
+      #if ENABLED(SWITCHING_EXTRUDER)
+        stepper.synchronize();
+        move_extruder_servo(active_extruder);
+      #endif
 
     #endif // HOTENDS <= 1
 
@@ -9891,7 +10009,7 @@ void process_next_command() {
       #endif // NOZZLE_PARK_FEATURE
 
       case 28: // G28: Home all axes, one at a time
-        gcode_G28();
+        gcode_G28(false);
         break;
 
       #if HAS_LEVELING
@@ -9957,6 +10075,17 @@ void process_next_command() {
           break;
       #endif // ULTIPANEL
 
+      #if ENABLED(SPINDLE_LASER_ENABLE)
+        case 3:
+          gcode_M3_M4(true);   // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
+          break;               // synchronizes with movement commands
+        case 4:
+          gcode_M3_M4(false);  // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
+          break;               // synchronizes with movement commands
+        case 5:
+          gcode_M5();     // M5 - turn spindle/laser off
+          break;          // synchronizes with movement commands
+      #endif
       case 17: // M17: Enable all stepper motors
         gcode_M17();
         break;
@@ -12271,6 +12400,17 @@ void setup() {
 
   #if HAS_CASE_LIGHT
     update_case_light();
+  #endif
+
+  #if ENABLED(SPINDLE_LASER_ENABLE)
+    OUT_WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
+    #if SPINDLE_DIR_CHANGE
+      OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
+    #endif
+    #if ENABLED(SPINDLE_LASER_PWM)
+      SET_OUTPUT(SPINDLE_LASER_PWM_PIN);
+      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
+    #endif
   #endif
 
   #if HAS_BED_PROBE

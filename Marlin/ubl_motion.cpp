@@ -55,12 +55,8 @@
                 dy = current_position[Y_AXIS] - destination[Y_AXIS],
                 xy_dist = HYPOT(dx, dy);
 
-    if (xy_dist == 0.0) {
+    if (xy_dist == 0.0)
       return;
-      //SERIAL_ECHOPGM("   FPMM=");
-      //const float fpmm = de / xy_dist;
-      //SERIAL_PROTOCOL_F(fpmm, 6);
-    }
     else {
       SERIAL_ECHOPGM("   fpmm=");
       const float fpmm = de / xy_dist;
@@ -276,16 +272,7 @@
          */
         if (y != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
-
-            //on_axis_distance = y - start[Y_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
             e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
@@ -350,13 +337,7 @@
          */
         if (x != start[X_AXIS]) {
           if (!inf_normalized_flag) {
-
-            //on_axis_distance = x - start[X_AXIS];
             on_axis_distance = use_x_dist ? x - start[X_AXIS] : y - start[Y_AXIS];
-
-            //on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : y - start[Y_AXIS];
-            //on_axis_distance = use_x_dist ? x - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-
             e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
@@ -476,11 +457,19 @@
 
   #if UBL_DELTA
 
+    // macro to inline copy exactly 4 floats, don't rely on sizeof operator
+    #define COPY_XYZE( target, source ) { \
+                target[X_AXIS] = source[X_AXIS]; \
+                target[Y_AXIS] = source[Y_AXIS]; \
+                target[Z_AXIS] = source[Z_AXIS]; \
+                target[E_AXIS] = source[E_AXIS]; \
+            }
+
     #if IS_SCARA // scale the feed rate from mm/s to degrees/s
       static float scara_feed_factor, scara_oldA, scara_oldB;
     #endif
 
-    // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic, 
+    // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call _buffer_line directly here.  Per-segmented leveling performed first.
 
     static inline void ubl_buffer_line_segment(const float ltarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
@@ -525,13 +514,13 @@
                     ltarget[E_AXIS] - current_position[E_AXIS]
                   };
 
-      const float cartesian_xy_mm = HYPOT(difference[X_AXIS], difference[Y_AXIS]);        // total horizontal xy distance
+      const float cartesian_xy_mm = HYPOT(difference[X_AXIS], difference[Y_AXIS]);         // total horizontal xy distance
 
       #if IS_KINEMATIC
-        const float seconds = cartesian_xy_mm / feedrate;                                 // seconds to move xy distance at requested rate
-        uint16_t segments = lroundf(delta_segments_per_second * seconds),                // preferred number of segments for distance @ feedrate
+        const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
+        uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
                  seglimit = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
-        NOMORE(segments, seglimit);                                                     // limit to minimum segment length (fewer segments)
+        NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
       #else
         uint16_t segments = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
       #endif
@@ -549,7 +538,7 @@
                     difference[X_AXIS] * inv_segments,
                     difference[Y_AXIS] * inv_segments,
                     difference[Z_AXIS] * inv_segments,
-                    difference[E_AXIS] * inv_segments 
+                    difference[E_AXIS] * inv_segments
                   };
 
       // Note that E segment distance could vary slightly as z mesh height
@@ -569,8 +558,8 @@
 
         const float z_offset = ubl.state.active ? ubl.state.z_offset : 0.0;
 
-        float seg_dest[XYZE];              // per-segment destination,
-        COPY(seg_dest, current_position);  // starting from current position
+        float seg_dest[XYZE];                   // per-segment destination,
+        COPY_XYZE(seg_dest, current_position);  // starting from current position
 
         while (--segments) {
           LOOP_XYZE(i) seg_dest[i] += segment_distance[i];
@@ -581,13 +570,17 @@
         }
 
         // Since repeated adding segment_distance accumulates small errors, final move to exact destination.
-        COPY(seg_dest, ltarget);
+        COPY_XYZE(seg_dest, ltarget);
         seg_dest[Z_AXIS] += z_offset;
         ubl_buffer_line_segment(seg_dest, feedrate, active_extruder);
         return false; // moved but did not set_current_to_destination();
       }
 
       // Otherwise perform per-segment leveling
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        const float fade_scaling_factor = ubl.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+      #endif
 
       float seg_dest[XYZE];  // per-segment destination, initialize to first segment
       LOOP_XYZE(i) seg_dest[i] = current_position[i] + segment_distance[i];
@@ -613,25 +606,19 @@
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
-        // float x0 = (UBL_MESH_MIN_X) + ((MESH_X_DIST) * cell_xi );         // lower left cell corner
-        // float y0 = (UBL_MESH_MIN_Y) + ((MESH_Y_DIST) * cell_yi );         // lower left cell corner
-        // float x1 = x0 + MESH_X_DIST;                                      // upper right cell corner
-        // float y1 = y0 + MESH_Y_DIST;                                      // upper right cell corner
-
         const float x0 = pgm_read_float(&(ubl.mesh_index_to_xpos[cell_xi  ])),  // 64 byte table lookup avoids mul+add
                     y0 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi  ])),  // 64 byte table lookup avoids mul+add
                     x1 = pgm_read_float(&(ubl.mesh_index_to_xpos[cell_xi+1])),  // 64 byte table lookup avoids mul+add
-                    y1 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi+1])),  // 64 byte table lookup avoids mul+add
+                    y1 = pgm_read_float(&(ubl.mesh_index_to_ypos[cell_yi+1]));  // 64 byte table lookup avoids mul+add
 
-                    cx = rx - x0,   // cell-relative x
-                    cy = ry - y0;   // cell-relative y
-
-        float z_x0y0 = ubl.z_values[cell_xi  ][cell_yi  ],  // z at lower left corner
+        float cx = rx - x0,   // cell-relative x
+              cy = ry - y0,   // cell-relative y
+              z_x0y0 = ubl.z_values[cell_xi  ][cell_yi  ],  // z at lower left corner
               z_x1y0 = ubl.z_values[cell_xi+1][cell_yi  ],  // z at upper left corner
               z_x0y1 = ubl.z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
               z_x1y1 = ubl.z_values[cell_xi+1][cell_yi+1];  // z at upper right corner
 
-        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating ubl.state.active (G29 A) 
+        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating ubl.state.active (G29 A)
         if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
         if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
         if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
@@ -639,13 +626,14 @@
         const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0 / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
                     z_xmy1 = (z_x1y1 - z_x0y1) * (1.0 / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
 
-              float z_cxy0 = z_x0y0 + z_xmy0 * cx;          // z height along y0 at cx
+              float z_cxy0 = z_x0y0 + z_xmy0 * cx;            // z height along y0 at cx
 
-        const float z_cxy1 = z_x0y1 + z_xmy1 * cx,          // z height along y1 at cx
-                    z_cxyd = z_cxy1 - z_cxy0;               // z height difference along cx from y0 to y1
+        const float z_cxy1 = z_x0y1 + z_xmy1 * cx,            // z height along y1 at cx
+                    z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
-              float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST)),  // z slope per y along cx from y0 to y1
-                    z_cxcy = z_cxy0 + z_cxym * cy;          // z height along cx at cy
+              float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1
+
+        //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
         // As subsequent segments step through this cell, the z_cxy0 intercept will change
         // and the z_cxym slope will change, both as a function of cx within the cell, and
@@ -656,10 +644,16 @@
 
         do {  // for all segments within this mesh cell
 
-          z_cxcy += ubl.state.z_offset;
+          float z_cxcy = z_cxy0 + z_cxym * cy;      // interpolated mesh z height along cx at cy
 
-          if (--segments == 0) {          // this is last segment, use ltarget for exact
-            COPY(seg_dest, ltarget);
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
+          #endif
+
+          z_cxcy += ubl.state.z_offset;             // add fixed mesh offset from G29 Z
+
+          if (--segments == 0) {                    // if this is last segment, use ltarget for exact
+            COPY_XYZE(seg_dest, ltarget);
             seg_dest[Z_AXIS] += z_cxcy;
             ubl_buffer_line_segment(seg_dest, feedrate, active_extruder);
             return false;   // did not set_current_to_destination()
@@ -678,15 +672,14 @@
           if (!WITHIN(cx, 0, MESH_X_DIST) || !WITHIN(cy, 0, MESH_Y_DIST)) {  // done within this cell, break to next
             rx = RAW_X_POSITION(seg_dest[X_AXIS]);
             ry = RAW_Y_POSITION(seg_dest[Y_AXIS]);
-            break;  
+            break;
           }
 
           // Next segment still within same mesh cell, adjust the per-segment
-          // slope and intercept and compute next z height.
+          // slope and intercept to compute next z height.
 
-          z_cxy0 += z_sxy0;                 // adjust z_cxy0 by per-segment z_sxy0
-          z_cxym += z_sxym;                 // adjust z_cxym by per-segment z_sxym
-          z_cxcy  = z_cxy0 + z_cxym * cy;   // recompute z_cxcy from adjusted slope and intercept
+          z_cxy0 += z_sxy0;   // adjust z_cxy0 by per-segment z_sxy0
+          z_cxym += z_sxym;   // adjust z_cxym by per-segment z_sxym
 
         } while (true);   // per-segment loop exits by break after last segment within cell, or by return on final segment
       } while (true);   // per-cell loop

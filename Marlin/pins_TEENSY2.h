@@ -124,6 +124,7 @@
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
+#define CASE_LIGHT_PIN      1 // MUST BE HARDWARE PWM
 
 //
 // LCD / Controller
@@ -139,3 +140,10 @@
   #define BTN_EN2            39
   #define BTN_ENC            40
 #endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_ENABLE_PIN  5 // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     0 // MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN           7

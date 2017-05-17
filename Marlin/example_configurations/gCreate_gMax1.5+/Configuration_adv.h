@@ -1132,6 +1132,55 @@
 //#define EXPERIMENTAL_I2CBUS
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
+// @section extras
+
+/**
+ * Spindle & Laser control
+ *
+ * Add the M3, M4, and M5 commands to turn the spindle/laser on and off, and
+ * to set spindle speed, spindle direction, and laser power.
+ *
+ * SuperPid is a router/spindle speed controller used in the CNC milling community.
+ * Marlin can be used to turn the spindle on and off. It can also be used to set
+ * the spindle speed from 5,000 to 30,000 RPM.
+ *
+ * You'll need to select a pin for the ON/OFF function and optionally choose a 0-5V
+ * hardware PWM pin for the speed control and a pin for the rotation direction.
+ *
+ * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
+ */
+//#define SPINDLE_LASER_ENABLE
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
+  #define SPINDLE_LASER_PWM             true   // set to true if your controller supports setting the speed/power
+  #define SPINDLE_LASER_PWM_INVERT      true   // set to "true" if the speed/power goes up when you want it to go slower
+  #define SPINDLE_LASER_POWERUP_DELAY   5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // delay in milliseconds to allow the spindle to stop
+  #define SPINDLE_DIR_CHANGE            true   // set to true if your spindle controller supports changing spindle direction
+  #define SPINDLE_INVERT_DIR            false
+  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
+
+  /**
+   *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
+   *
+   *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
+   *    where PWM duty cycle varies from 0 to 255
+   *
+   *  set the following for your controller (ALL MUST BE SET)
+   */
+
+  #define SPEED_POWER_SLOPE    118.4
+  #define SPEED_POWER_INTERCEPT  0
+  #define SPEED_POWER_MIN     5000
+  #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+
+  //#define SPEED_POWER_SLOPE      0.3922
+  //#define SPEED_POWER_INTERCEPT  0
+  //#define SPEED_POWER_MIN       10
+  //#define SPEED_POWER_MAX      100      // 0-100%
+#endif
+
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
