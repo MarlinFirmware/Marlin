@@ -3713,7 +3713,7 @@ inline void gcode_G4() {
  *  Z   Home to the Z endstop
  *
  */
-inline void gcode_G28() {
+inline void gcode_G28(const bool always_home_all) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -3760,14 +3760,16 @@ inline void gcode_G28() {
 
   #else // NOT DELTA
 
-    const bool homeX = code_seen('X'), homeY = code_seen('Y'), homeZ = code_seen('Z'),
-               home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+    const bool homeX = always_home_all || code_seen('X'),
+               homeY = always_home_all || code_seen('Y'),
+               homeZ = always_home_all || code_seen('Z'),
+               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
     set_destination_to_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
-      if (home_all_axis || homeZ) {
+      if (home_all || homeZ) {
         HOMEAXIS(Z);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> HOMEAXIS(Z)", current_position);
@@ -3776,7 +3778,7 @@ inline void gcode_G28() {
 
     #else
 
-      if (home_all_axis || homeX || homeY) {
+      if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
         destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
@@ -3794,14 +3796,14 @@ inline void gcode_G28() {
 
     #if ENABLED(QUICK_HOME)
 
-      if (home_all_axis || (homeX && homeY)) quick_home_xy();
+      if (home_all || (homeX && homeY)) quick_home_xy();
 
     #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
 
       // Home Y
-      if (home_all_axis || homeY) {
+      if (home_all || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -3811,7 +3813,7 @@ inline void gcode_G28() {
     #endif
 
     // Home X
-    if (home_all_axis || homeX) {
+    if (home_all || homeX) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -3844,7 +3846,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (home_all_axis || homeY) {
+      if (home_all || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -3854,16 +3856,16 @@ inline void gcode_G28() {
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
-      if (home_all_axis || homeZ) {
+      if (home_all || homeZ) {
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
           HOMEAXIS(Z);
         #endif
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all || homeZ) > final", current_position);
         #endif
-      } // home_all_axis || homeZ
+      } // home_all || homeZ
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
@@ -3895,7 +3897,7 @@ inline void gcode_G28() {
   #endif
 } // G28
 
-void home_all_axes() { gcode_G28(); }
+void home_all_axes() { gcode_G28(true); }
 
 #if HAS_PROBING_PROCEDURE
 
@@ -9858,7 +9860,7 @@ void process_next_command() {
       #endif // NOZZLE_PARK_FEATURE
 
       case 28: // G28: Home all axes, one at a time
-        gcode_G28();
+        gcode_G28(false);
         break;
 
       #if HAS_LEVELING

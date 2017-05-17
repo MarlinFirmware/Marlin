@@ -632,7 +632,7 @@
                     z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
               float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1
-        
+
         //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
         // As subsequent segments step through this cell, the z_cxy0 intercept will change
@@ -649,7 +649,7 @@
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
             z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
           #endif
-        
+
           z_cxcy += ubl.state.z_offset;             // add fixed mesh offset from G29 Z
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
