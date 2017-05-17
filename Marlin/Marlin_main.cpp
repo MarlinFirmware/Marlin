@@ -9484,8 +9484,14 @@ inline void gcode_M999() {
 
 #if ENABLED(SWITCHING_EXTRUDER)
   inline void move_extruder_servo(uint8_t e) {
-    const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-    MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+    #if (EXTRUDERS == 2)
+      const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+    #else
+      const int angles[4] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      if (e < 2) MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+      else MOVE_SERVO(SWITCHING_EXTRUDER_E23_SERVO_NR, angles[e]);
+    #endif 
     safe_delay(500);
   }
 #endif
@@ -9502,6 +9508,7 @@ inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHO_START;
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
+  SERIAL_CHAR(' ');
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
@@ -9806,6 +9813,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = old_feedrate_mm_s;
 
     #else // HOTENDS <= 1
+
+      if (tmp_extruder >= EXTRUDERS)
+        return invalid_extruder_error(tmp_extruder);
 
       // Set the new active extruder
       active_extruder = tmp_extruder;

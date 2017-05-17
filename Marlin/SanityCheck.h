@@ -347,8 +347,8 @@
 #if ENABLED(SWITCHING_EXTRUDER)
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "SWITCHING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
-  #elif EXTRUDERS != 2
-    #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif (EXTRUDERS != 2) && (EXTRUDERS != 4)
+    #error "SWITCHING_EXTRUDER requires exactly 2 or 4 EXTRUDERS."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
   #endif
@@ -897,7 +897,13 @@ static_assert(1 >= 0
 /**
  * Test Extruder Pins
  */
-#if EXTRUDERS > 4
+#if ENABLED (SWITCHING_EXTRUDER)
+  #if EXTRUDERS > 2
+    #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+    #endif
+  #endif
+#elif EXTRUDERS > 4
   #if !PIN_EXISTS(E4_STEP) || !PIN_EXISTS(E4_DIR) || !PIN_EXISTS(E4_ENABLE)
     #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
   #endif
