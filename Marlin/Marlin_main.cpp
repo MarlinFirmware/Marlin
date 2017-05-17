@@ -3395,6 +3395,34 @@ inline void gcode_G4() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) //todo:  enable for other leveling systems?
+/**
+ * G7: Move X & Y axes to mesh coordinates
+ */
+inline void gcode_G7(
+  #if IS_SCARA
+    bool fast_move=false
+  #endif
+) {
+  if (IsRunning()) {
+    destination[X_AXIS] = code_seen('I') ? pgm_read_float(&ubl.mesh_index_to_xpos[code_has_value() ? code_value_int() : 0]) : current_position[X_AXIS];
+    destination[Y_AXIS] = code_seen('J') ? pgm_read_float(&ubl.mesh_index_to_ypos[code_has_value() ? code_value_int() : 0]) : current_position[Y_AXIS];
+    destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
+    destination[E_AXIS] = current_position[E_AXIS];
+
+    if (code_seen('F') && code_value_linear_units() > 0.0)
+      feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
+
+    #if IS_SCARA
+      fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
+    #else
+      prepare_move_to_destination();
+    #endif
+  }
+}
+#endif
+
+
 #if ENABLED(FWRETRACT)
 
   /**
@@ -9981,6 +10009,16 @@ void process_next_command() {
           gcode_G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 7:
+          #if IS_SCARA
+            gcode_G7(codenum == 0);
+          #else
+            gcode_G7();
+            #endif
+          break;
+      #endif
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
