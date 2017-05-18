@@ -153,15 +153,14 @@ void M100_dump_routine(const char * const title, const char *start, const char *
  *  Return the number of free bytes in the memory pool,
  *  with other vital statistics defining the pool.
  */
-void free_memory_pool_report(char * const ptr, const uint16_t size) {
-  int16_t max_cnt = -1;
-  uint16_t block_cnt = 0;
+void free_memory_pool_report(char * const ptr, const int16_t size) {
+  int16_t max_cnt = -1, block_cnt = 0;
   char *max_addr = NULL;
   // Find the longest block of test bytes in the buffer
-  for (uint16_t i = 0; i < size; i++) {
+  for (int16_t i = 0; i < size; i++) {
     char *addr = ptr + i;
     if (*addr == TEST_BYTE) {
-      const uint16_t j = count_test_bytes(addr);
+      const int16_t j = count_test_bytes(addr);
       if (j > 8) {
         SERIAL_ECHOPAIR("Found ", j);
         SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
@@ -225,8 +224,8 @@ void init_free_memory(char *ptr, int16_t size) {
   SERIAL_ECHO(size);
   SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
 
-  for (uint16_t i = 0; i < size; i++) {
-    if ((char)ptr[i] != TEST_BYTE) {
+  for (int16_t i = 0; i < size; i++) {
+    if (ptr[i] != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
       SERIAL_EOL;
