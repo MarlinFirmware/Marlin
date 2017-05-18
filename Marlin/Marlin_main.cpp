@@ -51,6 +51,7 @@
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
  * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
+ * G7  - Coordinated move between UBL mesh points (I & J)
  * G10 - Retract filament according to settings of M207
  * G11 - Retract recover filament according to settings of M208
  * G12 - Clean tool
@@ -3394,6 +3395,44 @@ inline void gcode_G4() {
   }
 
 #endif // BEZIER_CURVE_SUPPORT
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) //todo:  enable for other leveling systems?
+/**
+ * G7: Move X & Y axes to mesh coordinates
+ */
+inline void gcode_G7(
+  #if IS_SCARA
+    bool fast_move=false
+  #endif
+) {
+  if (IsRunning()) {
+    const bool hasI = code_seen('I');
+    const int8_t ix = code_has_value() ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t iy = code_has_value() ? code_value_int() : 0;
+
+    if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
+      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      return;
+    }
+
+    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
+    destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
+    destination[E_AXIS] = current_position[E_AXIS];
+
+    if (code_seen('F') && code_value_linear_units() > 0.0)
+      feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
+
+    #if IS_SCARA
+      fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
+    #else
+      prepare_move_to_destination();
+    #endif
+  }
+}
+#endif
+
 
 #if ENABLED(FWRETRACT)
 
@@ -9981,6 +10020,16 @@ void process_next_command() {
           gcode_G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 7:
+          #if IS_SCARA
+            gcode_G7(codenum == 0);
+          #else
+            gcode_G7();
+            #endif
+          break;
+      #endif
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
