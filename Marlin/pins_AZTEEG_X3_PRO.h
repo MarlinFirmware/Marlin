@@ -144,9 +144,11 @@
 //
 // Misc. Functions
 //
-#undef DOGLCD_A0            // steal pin 44 for the case light
-#define DOGLCD_A0      57
 #if ENABLED(OK_TO_CHANGE_CASE_LIGHT)
+  #undef DOGLCD_A0            // steal pin 44 for the case light; if you have a Viki2 and have connected it
+  #define DOGLCD_A0      57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
+                              // as the wiring diagram uses pin 44 for DOGLCD_A0
+
   #undef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN 44    // must have a hardware PWM
 #endif
