@@ -1132,6 +1132,55 @@
 //#define EXPERIMENTAL_I2CBUS
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
+// @section extras
+
+/**
+ * Spindle & Laser control
+ *
+ * Add the M3, M4, and M5 commands to turn the spindle/laser on and off, and
+ * to set spindle speed, spindle direction, and laser power.
+ *
+ * SuperPid is a router/spindle speed controller used in the CNC milling community.
+ * Marlin can be used to turn the spindle on and off. It can also be used to set
+ * the spindle speed from 5,000 to 30,000 RPM.
+ *
+ * You'll need to select a pin for the ON/OFF function and optionally choose a 0-5V
+ * hardware PWM pin for the speed control and a pin for the rotation direction.
+ *
+ * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
+ */
+//#define SPINDLE_LASER_ENABLE
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
+  #define SPINDLE_LASER_PWM             true   // set to true if your controller supports setting the speed/power
+  #define SPINDLE_LASER_PWM_INVERT      true   // set to "true" if the speed/power goes up when you want it to go slower
+  #define SPINDLE_LASER_POWERUP_DELAY   5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // delay in milliseconds to allow the spindle to stop
+  #define SPINDLE_DIR_CHANGE            true   // set to true if your spindle controller supports changing spindle direction
+  #define SPINDLE_INVERT_DIR            false
+  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
+
+  /**
+   *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
+   *
+   *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
+   *    where PWM duty cycle varies from 0 to 255
+   *
+   *  set the following for your controller (ALL MUST BE SET)
+   */
+
+  #define SPEED_POWER_SLOPE    118.4
+  #define SPEED_POWER_INTERCEPT  0
+  #define SPEED_POWER_MIN     5000
+  #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+
+  //#define SPEED_POWER_SLOPE      0.3922
+  //#define SPEED_POWER_INTERCEPT  0
+  //#define SPEED_POWER_MIN       10
+  //#define SPEED_POWER_MAX      100      // 0-100%
+#endif
+
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
@@ -1165,6 +1214,16 @@
  */
 //#define NO_WORKSPACE_OFFSETS
 
+/**
+ * This affects the way Marlin outputs blacks of spaces via serial connection by multiplying the number
+ * of spaces to be output by the ratio set below.  This allows for better alignment of output for commands
+ * like G29 O, which renders a mesh/grid.
+ *
+ * For clients that use a fixed-width font (like OctoPrint), leave this at 1.0; otherwise, adjust
+ * accordingly for your client and font.
+ */
+#define PROPORTIONAL_FONT_RATIO 1.0
+
 //===========================================================================
 //============================ I2C Encoder Settings =========================
 //===========================================================================
@@ -1179,10 +1238,7 @@
  */
 
 //#define I2C_POSITION_ENCODERS
-
-#if ENABLED(I2C_POSITION_ENCODERS)
-
-  // Enable and configure encoders
+#if ENABLED(I2C_POSITION_ENCODERS)  // Enable and configure encoders
   
   #define I2C_ENCODER_1_ADDR I2C_ENCODER_PRESET_ADDR_X        // I2C address of the given encoder
   #define I2C_ENCODER_1_AXIS X_AXIS                           // Axis the encoder module corresponds to
@@ -1217,7 +1273,6 @@
   #define STABLE_TIME_UNTIL_TRUSTED         10000           //after an encoder fault, there must be no further fault for this period (ms) before the encoder is trusted again
   //#define AXIS_ERROR_THRESHOLD_ABORT      100.0           //number of mm error in any given axis after which the printer will abort. Comment out to disable abort behaviour.
   
-
   //Position is checked every time a new command is executed from the buffer but during long moves, 
   //this setting determines the minimum update time between checks. A value of 100 works well with 
   //error rolling average when attempting to correct only for skips and not for vibration.
@@ -1228,7 +1283,6 @@
   
   //Use a rolling average to identify persistant errors that indicate skips vs vibration and noise
   #define ERROR_ROLLING_AVERAGE
-
 #endif
 
 #endif // CONFIGURATION_ADV_H

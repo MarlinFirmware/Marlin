@@ -568,4 +568,4 @@
   #define SS_PIN   AVR_SS_PIN
 #endif
 
-#endif //__PINS_H
+#endif // __PINS_H

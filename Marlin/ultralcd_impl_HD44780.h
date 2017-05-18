@@ -101,7 +101,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define LCD_CLICKED ((buttons & B_MI) || (buttons & B_ST))
   #endif
 
-#endif //ULTIPANEL
+#endif // ULTIPANEL
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -675,7 +675,7 @@ static void lcd_implementation_status_screen() {
         LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
       #endif
 
-    #endif  // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
   #endif // LCD_WIDTH >= 20
 
@@ -777,7 +777,7 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
+    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
       return lcd_draw_progress_bar(card.percentDone());
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)

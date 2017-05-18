@@ -183,4 +183,4 @@
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
 #define FIXFLOAT(f) (f + 0.00001)
 
-#endif //__MACROS_H
+#endif // __MACROS_H

@@ -148,7 +148,7 @@
     #define LCD_CLICKED false
   #endif
 
-#else //no LCD
+#else // no LCD
   inline void lcd_update() {}
   inline void lcd_init() {}
   inline bool lcd_hasstatus() { return false; }
