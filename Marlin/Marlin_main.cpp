@@ -2814,7 +2814,7 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
     if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
-  #if HAS_BED_PROBE && QUIET_PROBING
+  #if QUIET_PROBING
     if (axis == Z_AXIS) probing_pause(true);
   #endif
 
@@ -2834,7 +2834,7 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
 
   stepper.synchronize();
 
-  #if HAS_BED_PROBEQUIET_PROBING
+  #if QUIET_PROBING
     if (axis == Z_AXIS) probing_pause(false);
   #endif
 
