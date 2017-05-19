@@ -27,7 +27,6 @@ git checkout $BRANCH
 
 if [[ $BRANCH == "gh-pages" ]]; then
   echo "Can't build from 'gh-pages.' Only the Jekyll branches (based on 'master')."
-<<<<<<< HEAD
   exit
 fi
 
@@ -35,22 +34,6 @@ echo "Stashing any changes to files..."
 echo "Don't forget to update and push 'master'!"
 # GOJF Card
 git stash
-=======
-  bundle exec jekyll serve --watch
-  exit
-fi
-
-if [[ $BRANCH != "master" ]]; then
-  echo "Don't forget to update and push 'master'!"
-  # GOJF Card
-  git stash
-fi
-
-# Check out the named branch (or stay in current)
-git checkout $BRANCH
-
-echo "Generating MarlinDocumentation..."
->>>>>>> MarlinFirmware/1.1.x
 
 COMMIT=$( git log --format="%H" -n 1 )
 
@@ -60,7 +43,6 @@ git clean -d -f
 # Push 'master' to the fork and make a proper PR...
 if [[ $BRANCH == "master" ]]; then
 
-<<<<<<< HEAD
   # Allow working directly with the main fork
   echo
   echo -n "Pushing to origin/master... "
@@ -82,30 +64,13 @@ else
 
   TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
   URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
-=======
-  if [[ $FORK == "MarlinFirmware" ]]; then
 
-    # Allow working directly with the main fork
-    git push -f upstream
->>>>>>> MarlinFirmware/1.1.x
-
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
   else
-
-    if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
-
-    git push -f origin
-
-    TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
-    URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
-
-    if [ -z "$TOOL" ]; then
-      echo "Can't find a tool to open the URL:"
-      echo $URL
-    else
-      echo "Opening a New PR Form..."
-      "$TOOL" "$URL"
-    fi
-
+    echo "Opening a New PR Form..."
+    "$TOOL" "$URL"
   fi
 
 fi
@@ -114,12 +79,9 @@ fi
 # mv ./_plugins/jekyll-press.rb-disabled ./_plugins/jekyll-press.rb
 # bundle install
 
-<<<<<<< HEAD
 echo
 echo "Generating MarlinDocumentation..."
 
-=======
->>>>>>> MarlinFirmware/1.1.x
 # build the site statically and proof it
 bundle exec jekyll build --profile --trace --no-watch
 bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --check-favicon --check-html --url-swap ".*marlinfw.org/:/"
