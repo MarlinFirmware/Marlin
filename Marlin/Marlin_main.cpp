@@ -51,6 +51,7 @@
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
  * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
+ * G7  - Coordinated move between UBL mesh points (I & J)
  * G10 - Retract filament according to settings of M207
  * G11 - Retract recover filament according to settings of M208
  * G12 - Clean tool
@@ -3395,6 +3396,44 @@ inline void gcode_G4() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) //todo:  enable for other leveling systems?
+/**
+ * G7: Move X & Y axes to mesh coordinates
+ */
+inline void gcode_G7(
+  #if IS_SCARA
+    bool fast_move=false
+  #endif
+) {
+  if (IsRunning()) {
+    const bool hasI = code_seen('I');
+    const int8_t ix = code_has_value() ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t iy = code_has_value() ? code_value_int() : 0;
+
+    if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
+      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      return;
+    }
+
+    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
+    destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
+    destination[E_AXIS] = current_position[E_AXIS];
+
+    if (code_seen('F') && code_value_linear_units() > 0.0)
+      feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
+
+    #if IS_SCARA
+      fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
+    #else
+      prepare_move_to_destination();
+    #endif
+  }
+}
+#endif
+
+
 #if ENABLED(FWRETRACT)
 
   /**
@@ -4749,12 +4788,12 @@ void home_all_axes() { gcode_G28(true); }
           // Retain the last probe position
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
-          measured_z = points[i].z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
-        }
-
-        if (isnan(measured_z)) {
-          planner.abl_enabled = abl_should_enable;
-          return;
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          if (isnan(measured_z)) {
+            planner.abl_enabled = abl_should_enable;
+            return;
+          }
+          points[i].z = measured_z;
         }
 
         if (!dryrun) {
@@ -5027,9 +5066,11 @@ void home_all_axes() { gcode_G28(true); }
 
     const float measured_z = probe_pt(xpos, ypos, !code_seen('S') || code_value_bool(), 1);
 
-    SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
-    SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
-    SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
+    if (!isnan(measured_z)) {
+      SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
+      SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
+      SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
+    }
 
     clean_up_after_endstop_or_probe_move();
 
@@ -5176,13 +5217,13 @@ void home_all_axes() { gcode_G28(true); }
 
         if (!do_all_positions && !do_circle_x3) { // probe the center
           setup_for_endstop_or_probe_move();
-          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
+          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);   // TODO: Needs error handling
           clean_up_after_endstop_or_probe_move();
         }
         if (probe_center_plus_3) { // probe extra center points
           for (int8_t axis = probe_center_plus_6 ? 11 : 9; axis > 0; axis -= probe_center_plus_6 ? 2 : 4) {
             setup_for_endstop_or_probe_move();
-            z_at_pt[0] += probe_pt(
+            z_at_pt[0] += probe_pt(                     // TODO: Needs error handling
               cos(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius),
               sin(RADIANS(180 + 30 * axis)) * (0.1 * delta_calibration_radius), true, 1);
             clean_up_after_endstop_or_probe_move();
@@ -5198,7 +5239,7 @@ void home_all_axes() { gcode_G28(true); }
                                     do_circle_x2 ? (zig_zag ? 0.5 : 0.0) : 0);
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               setup_for_endstop_or_probe_move();
-              z_at_pt[axis] += probe_pt(
+              z_at_pt[axis] += probe_pt(                // TODO: Needs error handling
                 cos(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
                 (1 + circles * 0.1 * (zig_zag ? 1 : -1)),
                 sin(RADIANS(180 + 30 * axis)) * delta_calibration_radius *
@@ -6619,7 +6660,8 @@ inline void gcode_M42() {
     setup_for_endstop_or_probe_move();
 
     // Move to the first point, deploy, and probe
-    probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+    const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+    if (isnan(t)) return;
 
     randomSeed(millis());
 
@@ -10016,6 +10058,16 @@ void process_next_command() {
           gcode_G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 7:
+          #if IS_SCARA
+            gcode_G7(codenum == 0);
+          #else
+            gcode_G7();
+            #endif
+          break;
+      #endif
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
