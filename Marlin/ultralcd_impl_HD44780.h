@@ -795,7 +795,9 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
-  lcd_print(lcd_status_message);
+  char status_message[LCD_WIDTH + 1];
+  strlcpy(status_message, lcd_status_message, sizeof(status_message));
+  lcd_print(status_message);
 }
 
 #if ENABLED(ULTIPANEL)
