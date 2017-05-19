@@ -463,16 +463,16 @@ static_assert(1 >= 0
   #if ENABLED(BLTOUCH)
     + 1
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    + 1
+  #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     + 1
   #endif
   #if ENABLED(Z_PROBE_SLED)
     + 1
   #endif
-  #if ENABLED(SOLENOID_PROBE)
-    + 1
-  #endif
-  , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 );
 
 
@@ -547,9 +547,13 @@ static_assert(1 >= 0
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL
-    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+    #else
+      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #endif
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
 #endif
