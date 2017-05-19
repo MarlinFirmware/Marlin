@@ -452,20 +452,38 @@
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 218.5 // mm
 
+
+
+  //JOEL adjusts diagonal rod length
+  #define DELTA_X_ADJUSTMENT_JOEL 60
+  #define DELTA_Y_ADJUSTMENT_JOEL 60
+  #define DELTA_Z_ADJUSTMENT_JOEL 60
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 (DELTA_DIAGONAL_ROD * (DELTA_X_ADJUSTMENT_JOEL/60))-DELTA_DIAGONAL_ROD // front left tower
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 (DELTA_DIAGONAL_ROD * (DELTA_Y_ADJUSTMENT_JOEL/60))-DELTA_DIAGONAL_ROD // front right tower
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 (DELTA_DIAGONAL_ROD * (DELTA_Z_ADJUSTMENT_JOEL/60))-DELTA_DIAGONAL_ROD // back middle tower
+
+   //JOEL adjusts tower angle, +6.015 to remove 1 degree from 60, -6 to add 1 degree to 60
+   //eg DELTA_RADIUS_TRIM_TOWER_1  6.015 equate to 59 degrees
+  #define DELTA_RADIUS_TRIM_TOWER_1  0.0   // front left tower
+  #define DELTA_RADIUS_TRIM_TOWER_2  0.0   // front right tower                                
+  #define DELTA_RADIUS_TRIM_TOWER_3  0.0   // back middle tower                                 
+                                   
+
+
   // Horizontal offset from middle of printer to smooth rod center.
-//  #define DELTA_SMOOTH_ROD_OFFSET 162.0 // mm
-  #define DELTA_SMOOTH_ROD_OFFSET 165.0 // mm
+  #define DELTA_SMOOTH_ROD_OFFSET 162.0 // mm
 
   // Horizontal offset of the universal joints on the end effector.
-  #define DELTA_EFFECTOR_OFFSET 21.0 // mm
+  #define DELTA_EFFECTOR_OFFSET 25.0 // mm
 
   // Horizontal offset of the universal joints on the carriages.
-  #define DELTA_CARRIAGE_OFFSET 31.0 // mm
+  #define DELTA_CARRIAGE_OFFSET 30.0 // mm
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
-//  #define DELTA_RADIUS 106.5
-  #define DELTA_RADIUS 105.0
+  
+  // CUURENT RADIUS IS 107
+
 
   
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
@@ -980,7 +998,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // For DELTA this is the top-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 244.5 // Distance between the nozzle to printbed after homing
+#define MANUAL_Z_HOME_POS 245.53//253.53 // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
