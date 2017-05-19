@@ -351,6 +351,9 @@ int16_t code_value_temp_diff();
   void refresh_zprobe_zoffset(const bool no_babystep=false);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
+#else
+  #define DEPLOY_PROBE()
+  #define STOW_PROBE()
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

@@ -640,10 +640,10 @@
         ubl.state.z_offset = code_value_float();   // do the simple case. Just lock in the specified value
       else {
         ubl.save_ubl_active_state_and_disable();
-        //measured_z = probe_pt(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
+        //float measured_z = probe_pt(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
 
         ubl.has_control_of_lcd_panel = true;     // Grab the LCD Hardware
-        measured_z = 1.5;
+        float measured_z = 1.5;
         do_blocking_move_to_z(measured_z);  // Get close to the bed, but leave some space so we don't damage anything
                                             // The user is not going to be locking in a new Z-Offset very often so
                                             // it won't be that painful to spin the Encoder Wheel for 1.5mm
@@ -1185,9 +1185,12 @@
       SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
       SERIAL_EOL;
     #endif
-    SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
-    SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-    SERIAL_EOL;
+
+    #if HAS_BED_PROBE
+      SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
+      SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
+      SERIAL_EOL;
+    #endif
 
     SERIAL_ECHOLNPAIR("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X) "=", UBL_MESH_MIN_X);
     SERIAL_ECHOLNPAIR("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y) "=", UBL_MESH_MIN_Y);
