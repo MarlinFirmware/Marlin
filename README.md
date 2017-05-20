@@ -62,7 +62,7 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
   - Improve thermal management, add `WATCH_BED_TEMP_PERIOD`
   - Better handling of toolchange, multiple tools
   - Add support for two X steppers `X_DUAL_STEPPER_DRIVERS`
-  - Add support for `SINGLENOZZLE`, `MIXING_EXTRUDER`, and `SWITCHING_EXTRUDER`
+  - Add support for `SINGLENOZZLE`, `MIXING_EXTRUDER`, `SWITCHING_NOZZLE`, and `SWITCHING_EXTRUDER`
   - Simplified probe configuration, allow usage without bed leveling
   - And much more… See the [1.1.0-RC7 Change Log](https://github.com/MarlinFirmware/Marlin/releases/tag/1.1.0-RC7) for the complete list of changes.
 

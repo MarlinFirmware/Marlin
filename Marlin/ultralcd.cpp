@@ -1289,7 +1289,7 @@ void kill_screen(const char* lcd_msg) {
     void lcd_preheat_m2_bedonly() { _lcd_preheat(0, 0, lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
   #endif
 
-  #if TEMP_SENSOR_0 != 0 && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0)
+  #if TEMP_SENSOR_0 != 0 && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0)
 
     void lcd_preheat_m1_menu() {
       START_MENU();
@@ -1395,7 +1395,7 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
 
-  #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_BED)
+  #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
@@ -1424,10 +1424,6 @@ void kill_screen(const char* lcd_msg) {
      */
 
     static uint8_t manual_probe_index;
-
-    #if ENABLED(PROBE_MANUALLY)
-      extern bool g29_in_progress;
-    #endif
 
     // LCD probed points are from defaults
     constexpr uint8_t total_probe_points = (
@@ -1645,6 +1641,10 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(LCD_BED_LEVELING) || HAS_ABL
 
+    #if ENABLED(PROBE_MANUALLY)
+      extern bool g29_in_progress;
+    #endif
+
     /**
      * Step 2: Continue Bed Leveling...
      */
@@ -1674,13 +1674,13 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_level_bed();
 
-    int UBL_STORAGE_SLOT = 0;
-    int CUSTOM_BED_TEMP = 50;
-    int CUSTOM_HOTEND_TEMP = 190;
-    int SIDE_POINTS = 3;
-    int UBL_FILLIN_AMOUNT = 5;
-    int UBL_HEIGHT_AMOUNT;
-    int map_type;
+    int UBL_STORAGE_SLOT = 0,
+        CUSTOM_BED_TEMP = 50,
+        CUSTOM_HOTEND_TEMP = 190,
+        SIDE_POINTS = 3,
+        UBL_FILLIN_AMOUNT = 5,
+        UBL_HEIGHT_AMOUNT,
+        map_type;
 
     char UBL_LCD_GCODE [30];
 
@@ -1719,12 +1719,12 @@ void kill_screen(const char* lcd_msg) {
       if (UBL_HEIGHT_AMOUNT < 0) {
         // Convert to positive for the `sprintf_P` string.
         UBL_HEIGHT_AMOUNT = (UBL_HEIGHT_AMOUNT - (UBL_HEIGHT_AMOUNT * 2)); // Convert to positive
-        sprintf_P(UBL_LCD_GCODE, PSTR("G29 N Z-.%i"), UBL_HEIGHT_AMOUNT);
+        sprintf_P(UBL_LCD_GCODE, PSTR("G29 P6-.%i"), UBL_HEIGHT_AMOUNT);
         // Convert back to negative to preserve the user setting.
         UBL_HEIGHT_AMOUNT = (UBL_HEIGHT_AMOUNT - (UBL_HEIGHT_AMOUNT * 2)); // Convert back to negative
       }
       else {
-        sprintf_P(UBL_LCD_GCODE, PSTR("G29 N Z.%i"), UBL_HEIGHT_AMOUNT);
+        sprintf_P(UBL_LCD_GCODE, PSTR("G29 P6.%i"), UBL_HEIGHT_AMOUNT);
       }
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
@@ -1748,8 +1748,8 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
       MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R O"));
-      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 O"));
+      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R T"));
+      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
       MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_height_adjust_menu);
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
@@ -1813,7 +1813,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_mesh_leveling() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 T"));
+      MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 J0"));
       MENU_ITEM(submenu, MSG_UBL_GRID_MESH_LEVELING, _lcd_ubl_grid_level);
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
@@ -1823,7 +1823,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Fill-in Amount Mesh Command
      */
     void _lcd_ubl_fillin_amount_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i N"), UBL_FILLIN_AMOUNT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i"), UBL_FILLIN_AMOUNT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1831,7 +1831,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Smart Fill-in Command
      */
     void _lcd_ubl_smart_fillin_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 N O%i"), map_type);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 T%i"), map_type);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1844,7 +1844,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(int3, MSG_UBL_FILLIN_AMOUNT, &UBL_FILLIN_AMOUNT, 0, 9);
       MENU_ITEM(function, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_amount_cmd);
       MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
-      MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B O"));
+      MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
       MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
       END_MENU();
     }
@@ -1858,7 +1858,6 @@ void kill_screen(const char* lcd_msg) {
      * UBL Build Mesh submenu
      */
     void _lcd_ubl_build_mesh() {
-      int GRID_NUM_POINTS = GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y ;
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
       #if (WATCH_THE_BED)
@@ -1886,7 +1885,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N L%i"), UBL_STORAGE_SLOT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), UBL_STORAGE_SLOT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1894,7 +1893,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N S%i"), UBL_STORAGE_SLOT);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), UBL_STORAGE_SLOT);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1914,7 +1913,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Output map Command
      */
     void _lcd_ubl_output_map_cmd() {
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 N O%i"), map_type);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 T%i"), map_type);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -1945,7 +1944,7 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL System submenu
-     * 
+     *
      *  Prepare
      * - Unified Bed Leveling
      *   - Activate UBL
@@ -2002,12 +2001,12 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
-      MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A N"));
-      MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D N"));
+      MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
+      MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
       MENU_ITEM(submenu, MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);
-      MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W N"));
+      MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W"));
       END_MENU();
     }
   #endif
@@ -2076,18 +2075,14 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
 
     //
-    // Preheat PLA
-    // Preheat ABS
+    // Change filament
     //
-    #if TEMP_SENSOR_0 != 0
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      if (!thermalManager.tooColdToExtrude(active_extruder))
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+    #endif
 
-      //
-      // Change filament
-      //
-      #if ENABLED(FILAMENT_CHANGE_FEATURE)
-        if (!thermalManager.tooColdToExtrude(active_extruder))
-          MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
-      #endif
+    #if TEMP_SENSOR_0 != 0
 
       //
       // Cooldown
@@ -2102,7 +2097,7 @@ void kill_screen(const char* lcd_msg) {
       //
       // Preheat for Material 1 and 2
       //
-      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0
+      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
         MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
         MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
       #else
@@ -2505,10 +2500,10 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500")); // TODO: Add "Are You Sure?" step
     #endif
-
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
-     END_MENU();
+    END_MENU();
   }
 
   /**
@@ -3152,6 +3147,15 @@ void kill_screen(const char* lcd_msg) {
         STATIC_ITEM("T3: " THERMISTOR_NAME, false, true);
         STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_3_MINTEMP), false);
         STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_3_MAXTEMP), false);
+      #endif
+
+      #if TEMP_SENSOR_4 != 0
+        #undef THERMISTOR_ID
+        #define THERMISTOR_ID TEMP_SENSOR_4
+        #include "thermistornames.h"
+        STATIC_ITEM("T4: " THERMISTOR_NAME, false, true);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_4_MINTEMP), false);
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_4_MAXTEMP), false);
       #endif
 
       #if TEMP_SENSOR_BED != 0

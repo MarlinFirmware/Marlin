@@ -30,8 +30,9 @@
   #include "planner.h"
   #include "math.h"
   #include "vector_3.h"
+  #include "configuration_store.h"
 
-  #define UBL_VERSION "1.00"
+  #define UBL_VERSION "1.01"
   #define UBL_OK false
   #define UBL_ERR true
 
@@ -61,8 +62,7 @@
 
   void dump(char * const str, const float &f);
   void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
-  void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
-  float measure_business_card_thickness(const float&);
+  float measure_business_card_thickness(float&);
   mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
   void shift_mesh_height();
   void fine_tune_mesh(const float&, const float&, const bool);
@@ -93,7 +93,7 @@
   typedef struct {
     bool active = false;
     float z_offset = 0.0;
-    int8_t eeprom_storage_slot = -1;
+    int8_t storage_slot = -1;
   } ubl_state;
 
   class unified_bed_leveling {
@@ -103,26 +103,23 @@
 
     public:
 
+      void echo_name();
+      void report_state();
       void find_mean_mesh_height();
       void shift_mesh_height();
       void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
       void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
-      void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map);
       void save_ubl_active_state_and_disable();
       void restore_ubl_active_state_and_leave();
       void g29_what_command();
-      void g29_eeprom_dump() ;
+      void g29_eeprom_dump();
       void g29_compare_current_mesh_to_stored_mesh();
       void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map);
       void smart_fill_mesh();
       void display_map(const int);
       void reset();
       void invalidate();
-      void store_state();
-      void load_state();
-      void store_mesh(const int16_t);
-      void load_mesh(const int16_t);
       bool sanity_check();
 
       static ubl_state state;
@@ -154,9 +151,6 @@
                               };
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
-
-      static int16_t eeprom_start;    // Please do no change this to 8 bits in size
-                                      // It needs to hold values bigger than this.
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
@@ -352,8 +346,6 @@
   }; // class unified_bed_leveling
 
   extern unified_bed_leveling ubl;
-
-  #define UBL_LAST_EEPROM_INDEX E2END
 
 #endif // AUTO_BED_LEVELING_UBL
 #endif // UNIFIED_BED_LEVELING_H

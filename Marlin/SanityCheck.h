@@ -329,11 +329,16 @@
 #endif
 
 /**
- * Only one type of extruder allowed
+ * A dual nozzle x-carriage with switching servo
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
-  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+#if ENABLED(SWITCHING_NOZZLE)
+  #if ENABLED(SINGLENOZZLE)
+    #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+  #elif EXTRUDERS < 2
+    #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #endif
 #endif
 
 /**
@@ -355,12 +360,14 @@
 #if ENABLED(MIXING_EXTRUDER)
   #if EXTRUDERS > 1
     #error "MIXING_EXTRUDER currently only supports one extruder."
-  #endif
-  #if MIXING_STEPPERS < 2
+  #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
-  #endif
-  #if ENABLED(FILAMENT_SENSOR)
+  #elif ENABLED(FILAMENT_SENSOR)
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #endif
 #endif
 
@@ -456,16 +463,16 @@ static_assert(1 >= 0
   #if ENABLED(BLTOUCH)
     + 1
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    + 1
+  #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     + 1
   #endif
   #if ENABLED(Z_PROBE_SLED)
     + 1
   #endif
-  #if ENABLED(SOLENOID_PROBE)
-    + 1
-  #endif
-  , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 );
 
 
@@ -540,9 +547,13 @@ static_assert(1 >= 0
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL
-    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+    #else
+      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #endif
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
 #endif
@@ -1127,3 +1138,64 @@ static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
+
+/**
+ * Sanity checks for Spindle / Laser
+ */
+#if ENABLED(SPINDLE_LASER_ENABLE)
+  #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
+  #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
+    #error "SPINDLE_DIR_PIN not defined."
+  #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
+    #if !(WITHIN(SPINDLE_LASER_PWM_PIN, 2, 13) || WITHIN(SPINDLE_LASER_PWM_PIN, 44, 46))
+      #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
+    #elif SPINDLE_LASER_POWERUP_DELAY < 1
+      #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
+    #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
+      #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
+    #elif !defined(SPINDLE_LASER_PWM_INVERT)
+      #error "SPINDLE_LASER_PWM_INVERT missing."
+    #elif !defined(SPEED_POWER_SLOPE) || !defined(SPEED_POWER_INTERCEPT) || !defined(SPEED_POWER_MIN) || !defined(SPEED_POWER_MAX)
+      #error "SPINDLE_LASER_PWM equation constant(s) missing."
+    #elif SPINDLE_LASER_PWM_PIN == 4 || WITHIN(SPINDLE_LASER_PWM_PIN, 11, 13)
+      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by a system interrupt."
+    #elif PIN_EXISTS(X_MAX) && X_MAX_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin is in use by X_MAX endstop."
+    #elif PIN_EXISTS(X_MIN) && X_MIN_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin is in use by X_MIN endstop."
+    #elif PIN_EXISTS(Z_STEP) && Z_STEP_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin in use by Z_STEP."
+    #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
+      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
+    #elif PIN_EXISTS(CASE_LIGHT) && SPINDLE_LASER_PWM_PIN == CASE_LIGHT_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CASE_LIGHT_PIN."
+    #elif PIN_EXISTS(E0_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E0_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E0_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E1_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E1_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E1_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E2_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E2_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E2_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E3_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E3_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E3_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E4_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E4_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E4_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN_PIN."
+    #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN1_PIN."
+    #elif PIN_EXISTS(FAN2) && SPINDLE_LASER_PWM_PIN == FAN2_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN2_PIN."
+    #elif PIN_EXISTS(CONTROLLERFAN) && SPINDLE_LASER_PWM_PIN == CONTROLLERFAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CONTROLLERFAN_PIN."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_XY) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_XY_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_XY."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_Z) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_Z_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_Z."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_E) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_E_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_E."
+    #elif PIN_EXISTS(CASE_LIGHT) && SPINDLE_LASER_PWM_PIN == CASE_LIGHT_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CASE_LIGHT."
+    #endif
+  #endif
+#endif // SPINDLE_LASER_ENABLE
