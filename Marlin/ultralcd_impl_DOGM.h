@@ -347,7 +347,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     const bool isBed = false;
   #endif
 
-  if (PAGE_UNDER(7))
+  if (PAGE_UNDER(7)) {
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
@@ -359,7 +359,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
       if (blink || !is_idle)
     #endif
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7);
+    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
 
   if (PAGE_CONTAINS(21, 28))
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
