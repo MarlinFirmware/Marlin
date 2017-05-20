@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware
+﻿# Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
@@ -142,7 +142,7 @@ More features have been added by:
  - [[@Tannoo](https://github.com/Tannoo)]
  - [[@teemuatlut](https://github.com/teemuatlut)]
  - [[@bgort](https://github.com/bgort)]
- - [[@LVD-AC](https://github.com/LVD-AC)]
+ - Luc Van Daele[[@LVD-AC](https://github.com/LVD-AC)] - Dutch, French, English
  - [[@paulusjacobus](https://github.com/paulusjacobus)]
  - ...and many others
 
