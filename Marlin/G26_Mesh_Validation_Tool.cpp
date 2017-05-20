@@ -34,6 +34,7 @@
   #include "stepper.h"
   #include "temperature.h"
   #include "ultralcd.h"
+  #include "gcode.h"
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
@@ -130,11 +131,7 @@
   void set_destination_to_current();
   void set_current_to_destination();
   void prepare_move_to_destination();
-  float code_value_float();
-  float code_value_linear_units();
-  float code_value_axis_units(const AxisEnum axis);
-  bool code_value_bool();
-  bool code_has_value();
+  void lcd_setstatuspgm(const char* const message, const uint8_t level);
   void sync_plan_position_e();
   void chirp_at_user();
 
@@ -625,29 +622,29 @@
     g26_hotend_temp           = HOTEND_TEMP;
     g26_prime_flag            = 0;
 
-    g26_ooze_amount           = code_seen('O') && code_has_value() ? code_value_linear_units() : OOZE_AMOUNT;
-    g26_keep_heaters_on       = code_seen('K') && code_value_bool();
-    g26_continue_with_closest = code_seen('C') && code_value_bool();
+    g26_ooze_amount           = parser.seen('O') && parser.has_value() ? parser.value_linear_units() : OOZE_AMOUNT;
+    g26_keep_heaters_on       = parser.seen('K') && parser.value_bool();
+    g26_continue_with_closest = parser.seen('C') && parser.value_bool();
 
-    if (code_seen('B')) {
-      g26_bed_temp = code_value_temp_abs();
+    if (parser.seen('B')) {
+      g26_bed_temp = parser.value_celsius();
       if (!WITHIN(g26_bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('L')) {
-      g26_layer_height = code_value_linear_units();
+    if (parser.seen('L')) {
+      g26_layer_height = parser.value_linear_units();
       if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('Q')) {
-      if (code_has_value()) {
-        g26_retraction_multiplier = code_value_float();
+    if (parser.seen('Q')) {
+      if (parser.has_value()) {
+        g26_retraction_multiplier = parser.value_float();
         if (!WITHIN(g26_retraction_multiplier, 0.05, 15.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified Retraction Multiplier not plausible.");
           return UBL_ERR;
@@ -659,20 +656,20 @@
       }
     }
 
-    if (code_seen('S')) {
-      g26_nozzle = code_value_float();
+    if (parser.seen('S')) {
+      g26_nozzle = parser.value_float();
       if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('P')) {
-      if (!code_has_value())
+    if (parser.seen('P')) {
+      if (!parser.has_value())
         g26_prime_flag = -1;
       else {
         g26_prime_flag++;
-        g26_prime_length = code_value_linear_units();
+        g26_prime_length = parser.value_linear_units();
         if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
           return UBL_ERR;
@@ -680,8 +677,8 @@
       }
     }
 
-    if (code_seen('F')) {
-      g26_filament_diameter = code_value_linear_units();
+    if (parser.seen('F')) {
+      g26_filament_diameter = parser.value_linear_units();
       if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
         return UBL_ERR;
@@ -693,27 +690,28 @@
 
     g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
-    if (code_seen('H')) {
-      g26_hotend_temp = code_value_temp_abs();
+    if (parser.seen('H')) {
+      g26_hotend_temp = parser.value_celsius();
       if (!WITHIN(g26_hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('U')) {
+    if (parser.seen('U')) {
       randomSeed(millis());
-      random_deviation = code_has_value() ? code_value_float() : 50.0;
+      // This setting will persist for the next G26
+      random_deviation = parser.has_value() ? parser.value_float() : 50.0;
     }
 
-    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : GRID_MAX_POINTS+1) : GRID_MAX_POINTS+1;
+    g26_repeats = parser.seen('R') ? (parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1) : GRID_MAX_POINTS + 1;
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
       return UBL_ERR;
     }
 
-    g26_x_pos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS];
-    g26_y_pos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS];
+    g26_x_pos = parser.seen('X') ? parser.value_linear_units() : current_position[X_AXIS];
+    g26_y_pos = parser.seen('Y') ? parser.value_linear_units() : current_position[Y_AXIS];
     if (!position_is_reachable_xy(g26_x_pos, g26_y_pos)) {
       SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
       return UBL_ERR;
@@ -722,7 +720,7 @@
     /**
      * Wait until all parameters are verified before altering the state!
      */
-    state.active = !code_seen('D');
+    state.active = !parser.seen('D');
 
     return UBL_OK;
   }
