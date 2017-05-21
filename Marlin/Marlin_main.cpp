@@ -1684,7 +1684,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
   #if ENABLED(DELTA)
 
-    if ( ! position_is_reachable_xy( x, y )) return;
+    if (!position_is_reachable_xy(x, y)) return;
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
@@ -1740,7 +1740,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
   #elif IS_SCARA
 
-    if ( ! position_is_reachable_xy( x, y )) return;
+    if (!position_is_reachable_xy(x, y)) return;
 
     set_destination_to_current();
 
@@ -2366,7 +2366,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    if ( ! position_is_reachable_by_probe_xy( x, y )) return NAN;
+    if (!position_is_reachable_by_probe_xy(x, y)) return NAN;
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -3713,7 +3713,7 @@ inline void gcode_G7(
       destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
-    if ( position_is_reachable_xy( destination[X_AXIS], destination[Y_AXIS] )) {
+    if (position_is_reachable_xy(destination[X_AXIS], destination[Y_AXIS])) {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
@@ -4639,7 +4639,8 @@ void home_all_axes() { gcode_G28(true); }
             indexIntoAB[xCount][yCount] = abl_probe_index;
           #endif
 
-          if (position_is_reachable_xy( xProbe, yProbe )) break;
+          // Keep looping till a reachable point is found
+          if (position_is_reachable_xy(xProbe, yProbe)) break;
           ++abl_probe_index;
         }
 
@@ -4750,7 +4751,7 @@ void home_all_axes() { gcode_G28(true); }
 
             #if IS_KINEMATIC
               // Avoid probing outside the round or hexagonal area
-              if (!position_is_reachable_by_probe_xy( xProbe, yProbe )) continue;
+              if (!position_is_reachable_by_probe_xy(xProbe, yProbe)) continue;
             #endif
 
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
@@ -5055,7 +5056,7 @@ void home_all_axes() { gcode_G28(true); }
     const float xpos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
                 ypos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
 
-    if (!position_is_reachable_by_probe_xy( xpos, ypos )) return;
+    if (!position_is_reachable_by_probe_xy(xpos, ypos)) return;
 
     // Disable leveling so the planner won't mess with us
     #if HAS_LEVELING
@@ -6513,7 +6514,7 @@ inline void gcode_M42() {
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while ( ! position_is_reachable_by_probe_xy( X_current, Y_current )) {
+            while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
               X_current *= 0.8;
               Y_current *= 0.8;
               if (verbose_level > 3) {

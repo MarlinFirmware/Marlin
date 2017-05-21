@@ -135,9 +135,9 @@
    *                    a subsequent G or T leveling operation for backward compatibility.
    *
    *   P1    Phase 1    Invalidate entire Mesh and continue with automatic generation of the Mesh data using
-   *                    the Z-Probe. Usually the probe can not reach all areas that the nozzle can reach.
-   *                    In Cartesian printers, mesh points within the X_OFFSET_FROM_EXTRUDER and Y_OFFSET_FROM_EXTRUDER
-   *                    area can not be automatically probed.  For Delta printers the area in which DELTA_PROBEABLE_RADIUS
+   *                    the Z-Probe. Usually the probe can't reach all areas that the nozzle can reach. On
+   *                    Cartesian printers, points within the X_PROBE_OFFSET_FROM_EXTRUDER and Y_PROBE_OFFSET_FROM_EXTRUDER
+   *                    area cannot be automatically probed. For Delta printers the area in which DELTA_PROBEABLE_RADIUS
    *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
    *
    *                    These points will be handled in Phase 2 and Phase 3. If the Phase 1 command is given the
@@ -186,20 +186,20 @@
    *                    of the Mesh being built.
    *
    *   P3    Phase 3    Fill the unpopulated regions of the Mesh with a fixed value. There are two different paths the
-   *                    user can go down.  If the user specifies the value using the C parameter, the closest invalid
-   *                    mesh points to the nozzle will be filled.   The user can specify a repeat count using the R
+   *                    user can go down. If the user specifies the value using the C parameter, the closest invalid
+   *                    mesh points to the nozzle will be filled. The user can specify a repeat count using the R
    *                    parameter with the C version of the command.
    *
-   *                    A second version of the fill command is available if no C constant is specified.  Not
-   *                    specifying a C constant will invoke the 'Smart Fill' algorithm.  The G29 P3 command will search
-   *                    from the edges of the mesh inward looking for invalid mesh points.  It will look at the next
-   *                    several mesh points to determine if the print bed is sloped up or down.  If the bed is sloped
+   *                    A second version of the fill command is available if no C constant is specified. Not
+   *                    specifying a C constant will invoke the 'Smart Fill' algorithm. The G29 P3 command will search
+   *                    from the edges of the mesh inward looking for invalid mesh points. It will look at the next
+   *                    several mesh points to determine if the print bed is sloped up or down. If the bed is sloped
    *                    upward from the invalid mesh point, it will be replaced with the value of the nearest mesh point.
    *                    If the bed is sloped downward from the invalid mesh point, it will be replaced with a value that
-   *                    puts all three points in a line.   The second version of the G29 P3 command is a quick, easy and
+   *                    puts all three points in a line. The second version of the G29 P3 command is a quick, easy and
    *                    usually safe way to populate the unprobed regions of your mesh so you can continue to the G26
-   *                    Mesh Validation Pattern phase.   Please note that you are populating your mesh with unverified
-   *                    numbers.  You should use some scrutiny and caution.
+   *                    Mesh Validation Pattern phase. Please note that you are populating your mesh with unverified
+   *                    numbers. You should use some scrutiny and caution.
    *
    *   P4    Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assume the existence of
    *                    an LCD Panel. It is possible to fine tune the mesh without the use of an LCD Panel.
@@ -242,7 +242,7 @@
    *                    command is not anticipated to be of much value to the typical user. It is intended
    *                    for developers to help them verify correct operation of the Unified Bed Leveling System.
    *
-   *   R #   Repeat     Repeat this command the specified number of times.  If no number is specified the
+   *   R #   Repeat     Repeat this command the specified number of times. If no number is specified the
    *                    command will be repeated GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y times.
    *
    *   S     Store      Store the current Mesh in the Activated area of the EEPROM. It will also store the
@@ -497,7 +497,7 @@
 
           if (code_seen('H') && code_has_value()) height = code_value_float();
 
-          if ( !position_is_reachable_xy( x_pos, y_pos )) {
+          if (!position_is_reachable_xy(x_pos, y_pos)) {
             SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
             return;
           }
@@ -635,7 +635,7 @@
       ubl.display_map(code_has_value() ? code_value_int() : 0);
 
     /*
-     * This code may not be needed...   Prepare for its removal...
+     * This code may not be needed...  Prepare for its removal...
      *
     if (code_seen('Z')) {
       if (code_has_value())
@@ -660,9 +660,9 @@
           do_blocking_move_to_z(measured_z);
         } while (!ubl_lcd_clicked());
 
-        ubl.has_control_of_lcd_panel = true;   // There is a race condition for the Encoder Wheel getting clicked.
+        ubl.has_control_of_lcd_panel = true;   // There is a race condition for the encoder click.
                                                // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                               // or here. So, until we are done looking for a long Encoder Wheel Press,
+                                               // or here. So, until we are done looking for a long encoder press,
                                                // we need to take control of the panel
 
         KEEPALIVE_STATE(IN_HANDLER);
@@ -1346,10 +1346,10 @@
                       my = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // If using the probe as the reference there are some unreachable locations.
-          // Also for round beds, there are grid points outside the bed that nozzle can't reach.
+          // Also for round beds, there are grid points outside the bed the nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if ( ! (probe_as_reference ? position_is_reachable_by_probe_raw_xy(mx, my) : position_is_reachable_raw_xy(mx, my)) )
+          if (probe_as_reference ? !position_is_reachable_by_probe_raw_xy(mx, my) : !position_is_reachable_raw_xy(mx, my))
             continue;
 
           // Reachable. Check if it's the closest location to the nozzle.
@@ -1390,14 +1390,14 @@
   }
 
   void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
-    if (!code_seen('R'))    // fine_tune_mesh() is special.  If no repetion count flag is specified
-      repetition_cnt = 1;   // we know to do exactly one mesh location. Otherwise we use what the parser decided.
+    if (!code_seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
+      repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;
 
-    if ( ! position_is_reachable_xy( lx, ly )) {
+    if (!position_is_reachable_xy(lx, ly)) {
       SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
       return;
     }
@@ -1413,7 +1413,7 @@
     do {
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
 
-      if (location.x_index < 0 ) break; // stop when we can't find any more reachable points.
+      if (location.x_index < 0) break; // stop when we can't find any more reachable points.
 
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
                                                                 // different location the next time through the loop
@@ -1421,9 +1421,8 @@
       const float rawx = pgm_read_float(&ubl.mesh_index_to_xpos[location.x_index]),
                   rawy = pgm_read_float(&ubl.mesh_index_to_ypos[location.y_index]);
 
-      if ( ! position_is_reachable_raw_xy( rawx, rawy )) { // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+      if (!position_is_reachable_raw_xy(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
         break;
-      }
 
       float new_z = ubl.z_values[location.x_index][location.y_index];
 
@@ -1432,8 +1431,7 @@
         do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
         do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
-        round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
-        new_z = float(round_off) / 1000.0;
+        new_z = floor(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         ubl.has_control_of_lcd_panel = true;
@@ -1451,9 +1449,9 @@
 
         lcd_return_to_status();
 
-        // There is a race condition for the Encoder Wheel getting clicked.
-        // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-        // or here.
+        // The technique used here generates a race condition for the encoder click.
+        // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
+        // Let's work on specifying a proper API for the LCD ASAP, OK?
         ubl.has_control_of_lcd_panel = true;
       }
 
@@ -1478,7 +1476,7 @@
 
       lcd_implementation_clear();
 
-    } while (( location.x_index >= 0 ) && (--repetition_cnt>0));
+    } while (location.x_index >= 0 && --repetition_cnt > 0);
 
     FINE_TUNE_EXIT:
 
