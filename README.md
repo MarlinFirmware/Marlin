@@ -69,7 +69,7 @@ More features have been added by:
  - [[@Tannoo](https://github.com/Tannoo)]
  - [[@teemuatlut](https://github.com/teemuatlut)]
  - [[@bgort](https://github.com/bgort)]
- - [[@LVD-AC](https://github.com/LVD-AC)]
+ - Luc Van Daele[[@LVD-AC](https://github.com/LVD-AC)] - Dutch, French, English
  - [[@paulusjacobus](https://github.com/paulusjacobus)]
  - ...and many others
 
