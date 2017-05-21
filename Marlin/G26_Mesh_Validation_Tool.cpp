@@ -26,7 +26,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
 
   #include "ubl.h"
   #include "Marlin.h"
@@ -873,4 +873,4 @@
     return UBL_OK;
   }
 
-#endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_EDITING
+#endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION

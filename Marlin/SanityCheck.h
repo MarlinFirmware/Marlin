@@ -157,7 +157,9 @@
 #elif defined(UBL_MESH_NUM_X_POINTS) || defined(UBL_MESH_NUM_Y_POINTS)
   #error "UBL_MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(UBL_MESH_EDIT_ENABLED)
-  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_EDITING. Please update your configuration."
+  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+#elif defined(UBL_MESH_EDITING)
+  #error "UBL_MESH_EDITING is now UBL_G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
