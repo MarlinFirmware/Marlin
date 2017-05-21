@@ -327,13 +327,13 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    static int16_t degHotend(uint8_t e) {
+    static float degHotend(uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
       return current_temperature[HOTEND_INDEX];
     }
-    static int16_t degBed() { return current_temperature_bed; }
+    static float degBed() { return current_temperature_bed; }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       static int16_t rawHotendTemp(uint8_t e) {
