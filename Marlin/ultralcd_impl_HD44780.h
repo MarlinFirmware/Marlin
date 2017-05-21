@@ -386,10 +386,10 @@ void lcd_printPGM(const char *str) {
 }
 
 void lcd_print(const char* const str) {
-  for (uint8_t i = 0; char c = str[i]; ++i) charset_mapper(c);
+  for (uint8_t i = 0; const char c = str[i]; ++i) charset_mapper(c);
 }
 
-void lcd_print(char c) { charset_mapper(c); }
+void lcd_print(const char c) { charset_mapper(c); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -796,7 +796,9 @@ static void lcd_implementation_status_screen() {
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
   const char *str = lcd_status_message;
-  for (uint8_t i = 0; char c = str[i] && i < LCD_WIDTH; ++i) lcd_print(c);
+  uint8_t i = LCD_WIDTH;
+  char c;
+  while (i-- && (c = *str++)) lcd_print(c);
 }
 
 #if ENABLED(ULTIPANEL)
