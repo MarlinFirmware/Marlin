@@ -5137,7 +5137,6 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       const bool towers_set = !code_seen('T'),
-      
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
@@ -5151,14 +5150,12 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
 
       if (!_1p_calibration) {  // test if the outer radius is reachable
+        const float circles = (_7p_quadruple_circle ? 1.5 :
+                               _7p_triple_circle    ? 1.0 :
+                               _7p_double_circle    ? 0.5 : 0),
+                    radius = (1 + circles * 0.1) * delta_calibration_radius;
         for (uint8_t axis = 1; axis < 13; ++axis) {
-          float circles = (_7p_quadruple_circle ? 1.5 :
-                          _7p_triple_circle ? 1.0 :
-                          _7p_double_circle ? 0.5 : 0);
-          if (!position_is_reachable_by_probe_xy(cos(RADIANS(180 + 30 * axis)) * 
-                                                 delta_calibration_radius * (1 + circles * 0.1),
-                                                 sin(RADIANS(180 + 30 * axis)) * 
-                                                 delta_calibration_radius * (1 + circles * 0.1))) {
+          if (!position_is_reachable_by_probe_xy(cos(RADIANS(180 + 30 * axis)) * radius, sin(RADIANS(180 + 30 * axis)) * radius)) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
