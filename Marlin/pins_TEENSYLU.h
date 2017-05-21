@@ -68,7 +68,7 @@
  *
  *  NOTE - the "Marlin_AT90USB" pin maps make PWM0A available rather than the usual PWM1C.
  *         These PWMs share the same physical pin. Marlin uses TIMER1 to generate
- *         interrupts and sets it up such that PWM1A, PWM1B & PWM1C can not be used.
+ *         interrupts and sets it up such that PWM1A, PWM1B & PWM1C can't be used.
  */
 
  /**
