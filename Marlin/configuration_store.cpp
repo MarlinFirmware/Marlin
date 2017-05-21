@@ -123,7 +123,7 @@
  *  490  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  502  M250 C    lcd_contrast                     (int)
+ *  502  M250 C    lcd_contrast                     (uint16_t)
  *
  * FWRETRACT:                                       29 bytes
  *  504  M209 S    autoretract_enabled              (bool)
@@ -502,7 +502,7 @@ void MarlinSettings::postprocess() {
     #endif
 
     #if !HAS_LCD_CONTRAST
-      const int lcd_contrast = 32;
+      const uint16_t lcd_contrast = 32;
     #endif
     EEPROM_WRITE(lcd_contrast);
 
@@ -883,7 +883,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if !HAS_LCD_CONTRAST
-        int lcd_contrast;
+        uint16_t lcd_contrast;
       #endif
       EEPROM_READ(lcd_contrast);
 
