@@ -6684,7 +6684,8 @@ inline void gcode_M104() {
       }
     #endif
 
-    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder))
+      lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
   }
 
   #if ENABLED(AUTOTEMP)
@@ -8290,7 +8291,7 @@ inline void gcode_M226() {
       // Report current state
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("Cold extrudes are ", (thermalManager.allow_cold_extrude ? "en" : "dis"));
-      SERIAL_ECHOPAIR("abled (min temp ", int(thermalManager.extrude_min_temp + 0.5));
+      SERIAL_ECHOPAIR("abled (min temp ", thermalManager.extrude_min_temp);
       SERIAL_ECHOLNPGM("C)");
     }
   }
@@ -11909,9 +11910,8 @@ void prepare_move_to_destination() {
       #if HAS_TEMP_BED
         max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
       #endif
-      HOTEND_LOOP() {
+      HOTEND_LOOP()
         max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
-      }
       bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;
