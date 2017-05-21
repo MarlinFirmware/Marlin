@@ -795,7 +795,8 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
-  lcd_print(lcd_status_message);
+  const char *str = lcd_status_message;
+  for (uint8_t i = 0; char c = str[i] && i < LCD_WIDTH; ++i) lcd_print(c);
 }
 
 #if ENABLED(ULTIPANEL)
