@@ -357,10 +357,10 @@
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
-#define DISABLE_INACTIVE_X true
-#define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
-#define DISABLE_INACTIVE_E true
+#define DISABLE_INACTIVE_X false
+#define DISABLE_INACTIVE_Y false
+#define DISABLE_INACTIVE_Z false  // set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_E false
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0

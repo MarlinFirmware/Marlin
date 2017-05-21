@@ -475,7 +475,7 @@ static int serial_count = 0;
 // Inactivity shutdown
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
-static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
+millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 // Print Job Timer
 #if ENABLED(PRINTCOUNTER)
