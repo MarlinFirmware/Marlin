@@ -158,18 +158,18 @@ class Temperature {
     #endif
 
     #if WATCH_HOTENDS
-      static int watch_target_temp[HOTENDS];
+      static uint16_t watch_target_temp[HOTENDS];
       static millis_t watch_heater_next_ms[HOTENDS];
     #endif
 
     #if WATCH_THE_BED
-      static int watch_target_bed_temp;
+      static uint16_t watch_target_bed_temp;
       static millis_t watch_bed_next_ms;
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
-      static float extrude_min_temp;
+      static uint16_t extrude_min_temp;
       static bool tooColdToExtrude(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
@@ -183,7 +183,7 @@ class Temperature {
   private:
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static int redundant_temperature_raw;
+      static uint16_t redundant_temperature_raw;
       static float redundant_temperature;
     #endif
 
