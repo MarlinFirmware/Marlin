@@ -301,6 +301,7 @@
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
 
           // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+          // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
           // should be redone and compressed.
           if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
             #if ENABLED(ULTRA_LCD)
@@ -436,6 +437,7 @@
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
         // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+        // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
         // should be redone and compressed.
         if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
           #if ENABLED(ULTRA_LCD)
