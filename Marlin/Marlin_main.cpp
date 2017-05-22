@@ -10676,7 +10676,7 @@ void process_next_command() {
           break;
       #endif // FILAMENT_CHANGE_FEATURE
 
-      #if ENABLED(DUAL_X_CARRIAGE)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
         case 605: // M605: Set Dual X Carriage movement mode
           gcode_M605();
           break;
