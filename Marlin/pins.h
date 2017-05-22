@@ -317,9 +317,13 @@
 #define _E4_PINS
 
 #if ENABLED(SWITCHING_EXTRUDER)
-  #if EXTRUDERS == 4
+  #if EXTRUDERS > 2
     #undef _E1_PINS
     #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
+    #if EXTRUDERS > 4
+      #undef _E2_PINS
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+    #endif
   #endif
 #elif EXTRUDERS > 1
   #undef _E1_PINS
