@@ -2509,9 +2509,12 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
-      MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+    #endif
+    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+    #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500")); // TODO: Add "Are You Sure?" step
     #endif
+
     END_MENU();
   }
 

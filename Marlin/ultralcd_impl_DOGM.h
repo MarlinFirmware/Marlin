@@ -634,7 +634,10 @@ static void lcd_implementation_status_screen() {
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
-        lcd_print(lcd_status_message);
+        const char *str = lcd_status_message;
+        uint8_t i = LCD_WIDTH;
+        char c;
+        while (i-- && (c = *str++)) lcd_print(c);
       }
       else {
         lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
@@ -646,7 +649,10 @@ static void lcd_implementation_status_screen() {
         u8g.print('%');
       }
     #else
-      lcd_print(lcd_status_message);
+      const char *str = lcd_status_message;
+      uint8_t i = LCD_WIDTH;
+      char c;
+      while (i-- && (c = *str++)) lcd_print(c);
     #endif
   }
 }
