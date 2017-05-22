@@ -9492,10 +9492,10 @@ inline void gcode_M999() {
       if (e < EXTRUDERS - 1)
     #endif
     {
-      #if EXTRUDERS < 4
-        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
-      #else
+      #if EXTRUDERS > 3
         MOVE_SERVO(e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR, angles[e]);
+      #else
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
       #endif
       safe_delay(500);
     }
