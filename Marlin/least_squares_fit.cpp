@@ -41,27 +41,12 @@
 
 #include "least_squares_fit.h"
 
-void incremental_LSF_reset(struct linear_fit_data *lsf) {
-  memset(lsf, 0, sizeof(linear_fit_data));
-}
-
-void incremental_LSF(struct linear_fit_data *lsf, float x, float y, float z) {
-  lsf->xbar += x;
-  lsf->ybar += y;
-  lsf->zbar += z;
-  lsf->x2bar += sq(x);
-  lsf->y2bar += sq(y);
-  lsf->z2bar += sq(z);
-  lsf->xybar += x * y;
-  lsf->xzbar += x * z;
-  lsf->yzbar += y * z;
-  lsf->max_absx = max(fabs(x), lsf->max_absx);
-  lsf->max_absy = max(fabs(y), lsf->max_absy);
-  lsf->n++;
-}
-
 int finish_incremental_LSF(struct linear_fit_data *lsf) {
-  const float N = (float)lsf->n;
+
+  const float N = lsf->N;
+
+  if (N == 0.0)
+    return 1;
 
   lsf->xbar /= N;
   lsf->ybar /= N;

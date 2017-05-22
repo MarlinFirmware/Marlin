@@ -30,6 +30,12 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
+#define _O0 __attribute__((optimize("O0")))
+#define _Os __attribute__((optimize("Os")))
+#define _O1 __attribute__((optimize("O1")))
+#define _O2 __attribute__((optimize("O2")))
+#define _O3 __attribute__((optimize("O3")))
+
 // Bracket code that shouldn't be interrupted
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
