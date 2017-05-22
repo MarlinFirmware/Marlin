@@ -195,7 +195,7 @@
 
 #include "utf_mapper.h"
 
-int lcd_contrast;
+uint16_t lcd_contrast;
 static char currentfont = 0;
 
 // The current graphical page being rendered

@@ -150,8 +150,8 @@
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_c2 = false;
     uint8_t d = c;
-    if ( d >= 0x80u ) { // UTF-8 handling
-      if ( (d >= 0xC0u) && (!seen_c2) ) {
+    if (d >= 0x80u) { // UTF-8 handling
+      if (d >= 0xC0u && !seen_c2) {
         utf_hi_char = d - 0xC2u;
         seen_c2 = true;
         return 0;
@@ -185,10 +185,10 @@
                 seen_c4 = false,
                 seen_c5 = false;
     uint8_t d = c;
-    if ( d >= 0x80u ) { // UTF-8 handling
-           if ( d == 0xC4u ) {seen_c4 = true; return 0;}
-      else if ( d == 0xC5u ) {seen_c5 = true; return 0;}
-      else if ( (d >= 0xC0u) && (!seen_c2) ) {
+    if (d >= 0x80u) { // UTF-8 handling
+           if (d == 0xC4u) { seen_c4 = true; return 0; }
+      else if (d == 0xC5u) { seen_c5 = true; return 0; }
+      else if (d >= 0xC0u && !seen_c2) {
         utf_hi_char = d - 0xC2u;
         seen_c2 = true;
         return 0;
@@ -236,8 +236,8 @@
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_ce = false;
     uint8_t d = c;
-    if ( d >= 0x80 ) { // UTF-8 handling
-      if ( (d >= 0xC0) && (!seen_ce) ) {
+    if (d >= 0x80) { // UTF-8 handling
+      if (d >= 0xC0 && !seen_ce) {
         utf_hi_char = d - 0xCE;
         seen_ce = true;
         return 0;
@@ -424,10 +424,10 @@
                 seen_c4 = false,
                 seen_c5 = false;
     uint8_t d = c;
-    if ( d >= 0x80u ) { // UTF-8 handling
-           if ( d == 0xC4u ) {seen_c4 = true; return 0;}
-      else if ( d == 0xC5u ) {seen_c5 = true; return 0;}
-      else if ( d == 0xC3u ) {seen_c3 = true; return 0;}
+    if (d >= 0x80u) { // UTF-8 handling
+           if (d == 0xC4u) { seen_c4 = true; return 0; }
+      else if (d == 0xC5u) { seen_c5 = true; return 0; }
+      else if (d == 0xC3u) { seen_c3 = true; return 0; }
       else if (seen_c4) {
         switch(d) {
           case 0x84u ... 0x87u: d -= 4; break;  //Ą - ć

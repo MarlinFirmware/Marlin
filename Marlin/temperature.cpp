@@ -103,24 +103,24 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #endif
 
 #if WATCH_HOTENDS
-  int Temperature::watch_target_temp[HOTENDS] = { 0 };
+  uint16_t Temperature::watch_target_temp[HOTENDS] = { 0 };
   millis_t Temperature::watch_heater_next_ms[HOTENDS] = { 0 };
 #endif
 
 #if WATCH_THE_BED
-  int Temperature::watch_target_bed_temp = 0;
+  uint16_t Temperature::watch_target_bed_temp = 0;
   millis_t Temperature::watch_bed_next_ms = 0;
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
-  float Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
+  uint16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
 // private:
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  int Temperature::redundant_temperature_raw = 0;
+  uint16_t Temperature::redundant_temperature_raw = 0;
   float Temperature::redundant_temperature = 0.0;
 #endif
 
@@ -695,66 +695,47 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
-    if (current_temperature[0] > min(HEATER_0_MAXTEMP, MAX6675_TMAX - 1)) max_temp_error(0);
-    if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + 0.01)) min_temp_error(0);
+    if (current_temperature[0] > min(HEATER_0_MAXTEMP, MAX6675_TMAX - 1.0)) max_temp_error(0);
+    if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + .01)) min_temp_error(0);
   #endif
 
   #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
     millis_t ms = millis();
   #endif
 
-  // Loop through all hotends
   HOTEND_LOOP() {
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+      // Check for thermal runaway
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
     #endif
 
-    float pid_output = get_pid_output(e);
+    soft_pwm_amount[e] = (current_temperature[e] > minttemp[e] || is_preheating(e)) && current_temperature[e] < maxttemp[e] ? (int)get_pid_output(e) >> 1 : 0;
 
-    // Check if temperature is within the correct range
-    soft_pwm_amount[e] = (current_temperature[e] > minttemp[e] || is_preheating(e)) && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
-
-    // Check if the temperature is failing to increase
     #if WATCH_HOTENDS
-
-      // Is it time to check this extruder's heater?
-      if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) {
-        // Has it failed to increase enough?
-        if (degHotend(e) < watch_target_temp[e]) {
-          // Stop!
+      // Make sure temperature is increasing
+      if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) { // Time to check this extruder?
+        if (degHotend(e) < watch_target_temp[e])                             // Failed to increase enough?
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
-        }
-        else {
-          // Start again if the target is still far off
+        else                                                                 // Start again if the target is still far off
           start_watching_heater(e);
-        }
       }
+    #endif
 
-    #endif // THERMAL_PROTECTION_HOTENDS
-
-    // Check if the temperature is failing to increase
     #if WATCH_THE_BED
-
-      // Is it time to check the bed?
-      if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {
-        // Has it failed to increase enough?
-        if (degBed() < watch_target_bed_temp) {
-          // Stop!
+      // Make sure temperature is increasing
+      if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {        // Time to check the bed?
+        if (degBed() < watch_target_bed_temp)                           // Failed to increase enough?
           _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
-        }
-        else {
-          // Start again if the target is still far off
+        else                                                            // Start again if the target is still far off
           start_watching_bed();
-        }
       }
-
-    #endif // THERMAL_PROTECTION_HOTENDS
+    #endif
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
+      // Make sure measured temperatures are close together
+      if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF)
         _temp_error(0, PSTR(MSG_REDUNDANCY), PSTR(MSG_ERR_REDUNDANT_TEMP));
-      }
     #endif
 
   } // HOTEND_LOOP
@@ -792,9 +773,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      float pid_output = get_pid_output_bed();
-
-      soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)pid_output >> 1 : 0;
+      soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
 
     #elif ENABLED(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct band
