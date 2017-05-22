@@ -27,6 +27,6 @@ if [[ ${INFO[3]} == ${INFO[4]} ]]; then
     echo "Don't alter the PR target branch."; exit 1
   fi
 else
-  mfrb
+  git rebase -i HEAD~2
   git push -f
 fi

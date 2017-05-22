@@ -143,7 +143,11 @@
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
   #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1[, E2, E3]
-  #if (EXTRUDERS == 4)
+<<<<<<< HEAD
+  #if EXTRUDERS >= 3
+=======
+  #if EXTRUDERS > 3
+>>>>>>> origin/patch-3
     #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
   #endif
 #endif

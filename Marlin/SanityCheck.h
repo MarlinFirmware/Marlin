@@ -329,12 +329,14 @@
 #endif
 
 /**
- * A dual nozzle x-carriage with switching servo
+ * A Dual Nozzle carriage with switching servo
  */
 #if ENABLED(SWITCHING_NOZZLE)
-  #if ENABLED(SINGLENOZZLE)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
+  #elif ENABLED(SINGLENOZZLE)
     #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif EXTRUDERS < 2
+  #elif EXTRUDERS != 2
     #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
@@ -344,14 +346,8 @@
 /**
  * Single Stepper Dual Extruder with switching servo
  */
-#if ENABLED(SWITCHING_EXTRUDER)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "SWITCHING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
-  #elif (EXTRUDERS != 2) && (EXTRUDERS != 4)
-    #error "SWITCHING_EXTRUDER requires exactly 2 or 4 EXTRUDERS."
-  #elif NUM_SERVOS < 1
-    #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
-  #endif
+#if ENABLED(SWITCHING_EXTRUDER) && NUM_SERVOS < 1
+  #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
 #endif
 
 /**
@@ -895,27 +891,21 @@ static_assert(1 >= 0
 #endif
 
 /**
- * Test Extruder Pins
+ * Test Extruder Stepper Pins
  */
-#if ENABLED (SWITCHING_EXTRUDER)
-  #if EXTRUDERS > 2
-    #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-    #endif
-  #endif
-#elif EXTRUDERS > 4
+#if E_STEPPERS > 4
   #if !PIN_EXISTS(E4_STEP) || !PIN_EXISTS(E4_DIR) || !PIN_EXISTS(E4_ENABLE)
     #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
   #endif
-#elif EXTRUDERS > 3
+#elif E_STEPPERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
     #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif
-#elif EXTRUDERS > 2
+#elif E_STEPPERS > 2
   #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
     #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
   #endif
-#elif EXTRUDERS > 1
+#elif E_STEPPERS > 1
   #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
     #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
   #endif
