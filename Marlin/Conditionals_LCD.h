@@ -308,13 +308,19 @@
       #define E_STEPPERS  MIXING_STEPPERS
     #else
 <<<<<<< HEAD
+<<<<<<< HEAD
       #define E_STEPPERS  (EXTRUDERS + 1) / 2
 =======
+=======
+>>>>>>> origin/patch-3
       #if EXTRUDERS & 1
         #define E_STEPPERS  (EXTRUDERS + 1) / 2
       #else
         #define E_STEPPERS  EXTRUDERS / 2
       #endif
+<<<<<<< HEAD
+>>>>>>> origin/patch-3
+=======
 >>>>>>> origin/patch-3
     #endif
     #define E_MANUAL      1
