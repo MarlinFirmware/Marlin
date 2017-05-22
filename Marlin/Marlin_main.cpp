@@ -9492,7 +9492,7 @@ inline void gcode_M999() {
       if (e < E_STEPPERS - 1)
     #endif
     {
-      #if E_STEPPERS < 4
+      #if E_STEPPERS < 2
         MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
       #else
         MOVE_SERVO(e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR, angles[e]);
@@ -9535,10 +9535,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
-    #if HOTENDS > 1
+    if (tmp_extruder >= EXTRUDERS)
+      return invalid_extruder_error(tmp_extruder);
 
-      if (tmp_extruder >= EXTRUDERS)
-        return invalid_extruder_error(tmp_extruder);
+    #if HOTENDS > 1
 
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
 
@@ -9815,9 +9815,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       UNUSED(fr_mm_s);
       UNUSED(no_move);
-
-      if (tmp_extruder >= EXTRUDERS)
-        return invalid_extruder_error(tmp_extruder);
 
       // Set the new active extruder
       active_extruder = tmp_extruder;
