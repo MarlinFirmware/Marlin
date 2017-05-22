@@ -86,7 +86,9 @@
     state.active = false;
     state.z_offset = 0;
     state.storage_slot = -1;
-    planner.z_fade_height = 10.0;
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      planner.z_fade_height = 10.0;
+    #endif
     ZERO(z_values);
     last_specified_z = -999.9;
   }
