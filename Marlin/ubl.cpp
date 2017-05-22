@@ -78,7 +78,7 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.
+    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
