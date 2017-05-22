@@ -3416,8 +3416,8 @@ inline void gcode_G7(
       return;
     }
 
-    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
-    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
+    destination[X_AXIS] = hasI ? ubl.mesh_index_to_xpos(ix) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? ubl.mesh_index_to_ypos(iy) : current_position[Y_AXIS];
     destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
     destination[E_AXIS] = current_position[E_AXIS];
 
@@ -8704,7 +8704,7 @@ void quickstop_stepper() {
     const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
 
     if (hasC) {
-      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+      const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
       ix = location.x_index;
       iy = location.y_index;
     }
@@ -11467,7 +11467,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       const float fr_scaled = MMS_SCALED(feedrate_mm_s);
       if (ubl.state.active) {
-        ubl_line_to_destination_cartesian(fr_scaled, active_extruder);
+        ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
         return true;
       }
       else
@@ -11612,14 +11612,14 @@ void prepare_move_to_destination() {
   if (
     #if IS_KINEMATIC
       #if UBL_DELTA
-        ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+        ubl.prepare_linear_move_to(destination, feedrate_mm_s)
       #else
         prepare_kinematic_move_to(destination)
       #endif
     #elif ENABLED(DUAL_X_CARRIAGE)
       prepare_move_to_destination_dualx()
     #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+      ubl.prepare_linear_move_to(destination, feedrate_mm_s)
     #else
       prepare_move_to_destination_cartesian()
     #endif

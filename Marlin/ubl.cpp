@@ -69,8 +69,8 @@
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
-  constexpr float unified_bed_leveling::mesh_index_to_xpos[16],
-                  unified_bed_leveling::mesh_index_to_ypos[16];
+  constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
+                  unified_bed_leveling::_mesh_index_to_ypos[16];
 
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
@@ -117,8 +117,8 @@
       SERIAL_EOL;
     }
 
-    const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
+                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {

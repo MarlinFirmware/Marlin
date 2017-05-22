@@ -58,7 +58,7 @@
 #endif
 
 #ifndef _BV
-  #define _BV(PIN) (1 << PIN)
+  #define _BV(PIN) (1UL << PIN)
 #endif
 
 /**
