@@ -45,30 +45,30 @@
  *
  * "G" Codes
  *
- * G0  -> G1
- * G1  - Coordinated Movement X Y Z E
- * G2  - CW ARC
- * G3  - CCW ARC
- * G4  - Dwell S<seconds> or P<milliseconds>
- * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
- * G7  - Coordinated move between UBL mesh points (I & J)
- * G10 - Retract filament according to settings of M207
- * G11 - Retract recover filament according to settings of M208
- * G12 - Clean tool
- * G20 - Set input units to inches
- * G21 - Set input units to millimeters
- * G26 - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
- * G27 - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
- * G28 - Home one or more axes
- * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
- * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
- * G31 - Dock sled (Z_PROBE_SLED only)
- * G32 - Undock sled (Z_PROBE_SLED only)
- * G33 - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
- * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
- * G90 - Use Absolute Coordinates
- * G91 - Use Relative Coordinates
- * G92 - Set current position to coordinates given
+ * G0   -> G1
+ * G1   - Coordinated Movement X Y Z E
+ * G2   - CW ARC
+ * G3   - CCW ARC
+ * G4   - Dwell S<seconds> or P<milliseconds>
+ * G5   - Cubic B-spline with XYZE destination and IJPQ offsets
+ * G10  - Retract filament according to settings of M207
+ * G11  - Retract recover filament according to settings of M208
+ * G12  - Clean tool
+ * G20  - Set input units to inches
+ * G21  - Set input units to millimeters
+ * G26  - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
+ * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
+ * G28  - Home one or more axes
+ * G29  - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
+ * G30  - Single Z probe, probes bed at X Y location (defaults to current XY location)
+ * G31  - Dock sled (Z_PROBE_SLED only)
+ * G32  - Undock sled (Z_PROBE_SLED only)
+ * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
+ * G38  - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
+ * G90  - Use Absolute Coordinates
+ * G91  - Use Relative Coordinates
+ * G92  - Set current position to coordinates given
+ * G421 - Coordinated move between UBL mesh points (I & J)
  *
  * "M" Codes
  *
@@ -3396,44 +3396,6 @@ inline void gcode_G4() {
 
 #endif // BEZIER_CURVE_SUPPORT
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) //todo:  enable for other leveling systems?
-/**
- * G7: Move X & Y axes to mesh coordinates
- */
-inline void gcode_G7(
-  #if IS_SCARA
-    bool fast_move=false
-  #endif
-) {
-  if (IsRunning()) {
-    const bool hasI = code_seen('I');
-    const int8_t ix = code_has_value() ? code_value_int() : 0;
-    const bool hasJ = code_seen('J');
-    const int8_t iy = code_has_value() ? code_value_int() : 0;
-
-    if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
-      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
-      return;
-    }
-
-    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
-    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
-    destination[E_AXIS] = current_position[E_AXIS];
-
-    if (code_seen('F') && code_value_linear_units() > 0.0)
-      feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
-
-    #if IS_SCARA
-      fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
-    #else
-      prepare_move_to_destination();
-    #endif
-  }
-}
-#endif
-
-
 #if ENABLED(FWRETRACT)
 
   /**
@@ -5629,6 +5591,43 @@ inline void gcode_G92() {
 
   report_current_position();
 }
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) //todo:  enable for other leveling systems?
+/**
+ * G421: Move X & Y axes to mesh coordinates (I & J)
+ */
+inline void gcode_G421(
+  #if IS_SCARA
+    bool fast_move=false
+  #endif
+) {
+  if (IsRunning()) {
+    const bool hasI = code_seen('I');
+    const int8_t ix = code_has_value() ? code_value_int() : 0;
+    const bool hasJ = code_seen('J');
+    const int8_t iy = code_has_value() ? code_value_int() : 0;
+
+    if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
+      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      return;
+    }
+
+    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
+    destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
+    destination[E_AXIS] = current_position[E_AXIS];
+
+    if (code_seen('F') && code_value_linear_units() > 0.0)
+      feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
+
+    #if IS_SCARA
+      fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
+    #else
+      prepare_move_to_destination();
+    #endif
+  }
+}
+#endif
 
 #if HAS_RESUME_CONTINUE
 
@@ -10061,16 +10060,6 @@ void process_next_command() {
           break;
       #endif // BEZIER_CURVE_SUPPORT
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        case 7:
-          #if IS_SCARA
-            gcode_G7(codenum == 0);
-          #else
-            gcode_G7();
-            #endif
-          break;
-      #endif
-
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
         case 11: // G11: retract_recover
@@ -10162,6 +10151,17 @@ void process_next_command() {
       case 92: // G92
         gcode_G92();
         break;
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 421:
+          #if IS_SCARA
+            gcode_G421(codenum == 0);
+          #else
+            gcode_G421();
+          #endif
+          break;
+      #endif
+
     }
     break;
 
