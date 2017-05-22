@@ -187,6 +187,30 @@
   }
 
   /**
+   * Detect ubl_lcd_clicked, debounce it, and return true for cancel
+   */
+  bool user_canceled() {
+    if (!ubl_lcd_clicked()) return false;
+    safe_delay(10);                       // Wait for click to settle
+
+    #if ENABLED(ULTRA_LCD)
+      lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
+      lcd_quick_feedback();
+    #endif
+    lcd_reset_alert_level();
+
+    while (!ubl_lcd_clicked()) idle();    // Wait for button release
+
+    // If the button is suddenly pressed again,
+    // ask the user to resolve the issue
+    lcd_setstatuspgm(PSTR("Release button"), 99); // will never appear...
+    while (ubl_lcd_clicked()) idle();             // unless this loop happens
+    lcd_setstatuspgm(PSTR(""));
+
+    return true;
+  }
+
+  /**
    * G26: Mesh Validation Pattern generation.
    *
    * Used to interactively edit UBL's Mesh by placing the
@@ -300,25 +324,7 @@
 
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
 
-          // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
-          // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
-          // should be redone and compressed.
-          if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
-            #if ENABLED(ULTRA_LCD)
-              lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
-              lcd_quick_feedback();
-            #endif
-            while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
-              idle();                            // Encoder Wheel if that is why we are leaving
-              lcd_reset_alert_level();
-              lcd_setstatuspgm(PSTR(""));
-            }
-            while (ubl_lcd_clicked()) {          // Wait until the user is done pressing the
-              idle();                            // Encoder Wheel if that is why we are leaving
-              lcd_setstatuspgm(PSTR("Unpress Wheel"), 99);
-            }
-            goto LEAVE;
-          }
+          if (user_canceled()) goto LEAVE;              // Check if the user wants to stop the Mesh Validation
 
           int tmp_div_30 = tmp / 30.0;
           if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
@@ -436,28 +442,10 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
-        // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
-        // should be redone and compressed.
-        if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
-          #if ENABLED(ULTRA_LCD)
-            lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
-            lcd_quick_feedback();
-          #endif
-          while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
-            idle();                            // Encoder Wheel if that is why we are leaving
-            lcd_reset_alert_level();
-            lcd_setstatuspgm(PSTR(""));
-          }
-          while (ubl_lcd_clicked()) {          // Wait until the user is done pressing the
-            idle();                            // Encoder Wheel if that is why we are leaving
-            lcd_setstatuspgm(PSTR("Unpress Wheel"), 99);
-          }
-          return true;
-        }
+        if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
 
         if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
-                                         // This is already a half circle because we are at the edge of the bed.
+                                     // This is already a half circle because we are at the edge of the bed.
 
           if (is_bit_set(circle_flags, i, j) && is_bit_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
             if (!is_bit_set(horizontal_mesh_line_flags, i, j)) {
