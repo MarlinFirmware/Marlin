@@ -313,7 +313,7 @@
   extern void lcd_setstatus(const char* message, const bool persist);
   extern void lcd_setstatuspgm(const char* message, const uint8_t level);
 
-  void _O1 gcode_G29() {
+  void _O0 gcode_G29() {
 
     if (!settings.calc_num_meshes()) {
       SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
