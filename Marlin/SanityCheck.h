@@ -160,6 +160,8 @@
   #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(UBL_MESH_EDITING)
   #error "UBL_MESH_EDITING is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+#elif defined(BLTOUCH_HEATERS_OFF)
+  #error "BLTOUCH_HEATERS_OFF is now PROBING_HEATERS_OFF. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)

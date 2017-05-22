@@ -84,9 +84,8 @@
     state.active = false;
     state.z_offset = 0;
     state.storage_slot = -1;
-
+    planner.z_fade_height = 10.0;
     ZERO(z_values);
-
     last_specified_z = -999.9;
   }
 
@@ -100,7 +99,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-    constexpr uint8_t spaces = 9 * (GRID_MAX_POINTS_X - 2);
+    constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -126,7 +125,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely

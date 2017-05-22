@@ -958,11 +958,13 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void _lcd_mesh_edit() {
+      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
     }
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
+      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
       return mesh_edit_value;
     }
