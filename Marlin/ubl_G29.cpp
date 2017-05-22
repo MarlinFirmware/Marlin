@@ -36,8 +36,7 @@
 
   #define UBL_G29_P31
 
-  extern float destination[XYZE];
-  extern float current_position[XYZE];
+  extern float destination[XYZE], current_position[XYZE];
 
   void lcd_return_to_status();
   bool lcd_clicked();
@@ -63,6 +62,7 @@
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
+
   extern void lcd_status_screen();
   typedef void (*screenFunc_t)();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
@@ -936,9 +936,7 @@
     return current_position[Z_AXIS];
   }
 
-  static void echo_and_take_a_measurement() {
-    SERIAL_PROTOCOLLNPGM(" and take a measurement.");
-  }
+  static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
   float measure_business_card_thickness(float &in_height) {
     ubl.has_control_of_lcd_panel = true;
@@ -1392,8 +1390,8 @@
             for (uint8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
               for (uint8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
                 if (i != k && j != l && !isnan(ubl.z_values[k][l])) {
-//                distance += pow((float) abs(i - k) * (MESH_X_DIST), 2) + pow((float) abs(j - l) * (MESH_Y_DIST), 2);  // working here
-                  distance += HYPOT((MESH_X_DIST),(MESH_Y_DIST)) / log(HYPOT((i - k) * (MESH_X_DIST)+.001, (j - l) * (MESH_Y_DIST))+.001);
+                  //distance += pow((float) abs(i - k) * (MESH_X_DIST), 2) + pow((float) abs(j - l) * (MESH_Y_DIST), 2);  // working here
+                  distance += HYPOT(MESH_X_DIST, MESH_Y_DIST) / log(HYPOT((i - k) * (MESH_X_DIST) + .001, (j - l) * (MESH_Y_DIST)) + .001);
                 }
               }
             }
@@ -1474,7 +1472,7 @@
       do {
         new_z = lcd_mesh_edit();
         #ifdef UBL_MESH_EDIT_MOVES_Z
-          do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES+new_z);  // Move the nozzle as the point is edited
+          do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + new_z);  // Move the nozzle as the point is edited
         #endif
         idle();
       } while (!ubl_lcd_clicked());

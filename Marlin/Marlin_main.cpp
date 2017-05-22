@@ -5107,9 +5107,9 @@ void home_all_axes() { gcode_G28(true); }
      *      P4-P7  Probe all positions at different locations and average them.
      *
      *   T   Don't calibrate tower angle corrections
-     *   
+     *
      *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
-     *   
+     *
      *   Vn  Verbose level:
      *
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
@@ -5229,7 +5229,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       int8_t iterations = 0;
-      
+
       home_offset[Z_AXIS] -= probe_pt(0.0, 0.0 , true, 1); // 1st probe to set height
       do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -5239,7 +5239,7 @@ void home_all_axes() { gcode_G28(true); }
         int16_t N = 0;
 
         test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
-        
+
         iterations++;
 
         // Probe the points
@@ -5286,7 +5286,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
-        
+
         if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
 
         // Solve matrices
@@ -5416,7 +5416,7 @@ void home_all_axes() { gcode_G28(true); }
             else {
               SERIAL_PROTOCOLPGM("std dev:");
               SERIAL_PROTOCOL_F(zero_std_dev, 3);
-            }            
+            }
             SERIAL_EOL;
             LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
@@ -5481,7 +5481,7 @@ void home_all_axes() { gcode_G28(true); }
         home_delta();
         endstops.not_homing();
 
-      } 
+      }
       while (zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31);
 
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
