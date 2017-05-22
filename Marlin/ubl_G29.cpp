@@ -51,10 +51,10 @@
   extern uint8_t code_value_byte();
   extern bool code_value_bool();
   extern bool code_has_value();
-  extern float probe_pt(float x, float y, bool, int);
+  extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
   void smart_fill_mesh();
-  void smart_fill_wlsf(float);
+  void smart_fill_wlsf(const float &);
   float measure_business_card_thickness(float &in_height);
   void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
 
@@ -531,7 +531,7 @@
             }
           } else {
             const float cvf = code_value_float();
-            switch( (int)truncf( cvf * 10.0 ) - 30 ) {   // 3.1 -> 1
+            switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
@@ -541,9 +541,9 @@
                   // P3.12 100X distance weighting
                   // P3.13 1000X distance weighting, approaches simple average of nearest points
 
-                  const float weight_power  = (cvf - 3.10) * 100.0;  // 3.12345 -> 2.345
-                  const float weight_factor = weight_power ? pow( 10.0, weight_power ) : 0;
-                  smart_fill_wlsf( weight_factor );
+                  const float weight_power  = (cvf - 3.10) * 100.0,  // 3.12345 -> 2.345
+                              weight_factor = weight_power ? pow(10.0, weight_power) : 0;
+                  smart_fill_wlsf(weight_factor);
                 }
                 break;
               #endif
