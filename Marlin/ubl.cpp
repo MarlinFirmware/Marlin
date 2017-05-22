@@ -29,6 +29,8 @@
   #include "hex_print_routines.h"
   #include "temperature.h"
 
+  extern Planner planner;
+
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
