@@ -57,7 +57,7 @@
 
 #include "HAL.h"
 
-#if HAS_SERVOS
+#if HAS_SERVOS && !IS_32BIT_TEENSY
 
 //#include <Arduino.h>
 

@@ -67,6 +67,8 @@
 
 #define HAL_TIMER_TYPE unsigned short
 
+#define HAL_SERVO_LIB Servo
+
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
@@ -116,6 +118,7 @@ int freeMemory(void);
 #define HAL_STEP_TIMER_ISR 	ISR(TIMER1_COMPA_vect)
 #define HAL_TEMP_TIMER_ISR  ISR(TIMER0_COMPB_vect)
 
+#define HAL_ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // ADC
 #ifdef DIDR2

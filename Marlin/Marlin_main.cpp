@@ -628,7 +628,7 @@ float cartes[XYZ] = { 0 };
 static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
-  Servo servo[NUM_SERVOS];
+  HAL_SERVO_LIB servo[NUM_SERVOS];
   #define MOVE_SERVO(I, P) servo[I].move(P)
   #if HAS_Z_SERVO_ENDSTOP
     #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
@@ -11056,6 +11056,7 @@ void setup() {
   #endif
 
   MYSERIAL.begin(BAUDRATE);
+  while(!MYSERIAL);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
 

@@ -298,8 +298,6 @@ HAL_STEP_TIMER_ISR {
   #endif
 }
 
-#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
-
 void Stepper::isr() {
 
   static uint32_t step_remaining = 0;
@@ -313,7 +311,9 @@ void Stepper::isr() {
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
     DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
-    sei();
+    #if !defined(CPU_32_BIT)
+      sei();
+    #endif
   #endif
 
   #define _SPLIT(L) (ocr_val = (HAL_TIMER_TYPE)L)
@@ -347,7 +347,7 @@ void Stepper::isr() {
         NOLESS(OCR1A, TCNT1 + 16);
       #endif
 
-      _ENABLE_ISRs(); // re-enable ISRs
+      HAL_ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   # endif
@@ -360,7 +360,7 @@ void Stepper::isr() {
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
     _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000); // Run at max speed - 10 KHz
-    _ENABLE_ISRs(); // re-enable ISRs
+    HAL_ENABLE_ISRs(); // re-enable ISRs
     return;
   }
 
@@ -394,7 +394,7 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
           _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-          _ENABLE_ISRs(); // re-enable ISRs
+          HAL_ENABLE_ISRs(); // re-enable ISRs
           return;
         }
       #endif
@@ -405,7 +405,7 @@ void Stepper::isr() {
     }
     else {
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-      _ENABLE_ISRs(); // re-enable ISRs
+      HAL_ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   }
@@ -760,7 +760,7 @@ void Stepper::isr() {
     planner.discard_current_block();
   }
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
-    _ENABLE_ISRs(); // re-enable ISRs
+    HAL_ENABLE_ISRs(); // re-enable ISRs
   #endif
 }
 
@@ -869,7 +869,7 @@ void Stepper::isr() {
     NOLESS(OCR1A, TCNT1 + 16);
 
     // Restore original ISR settings
-    _ENABLE_ISRs();
+    HAL_ENABLE_ISRs();
   }
 
 #endif // ADVANCE or LIN_ADVANCE

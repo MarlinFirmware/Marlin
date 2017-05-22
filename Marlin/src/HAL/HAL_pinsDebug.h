@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,37 +20,16 @@
  *
  */
 
+#ifndef HAL_PINSDEBUG_H
 
-#ifndef HAL_ENDSTOP_INTERRUPTS_H_
-#define HAL_ENDSTOP_INTERRUPTS_H_
-
-volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be tested in detail.
-                            // Must be reset to 0 by the test function when finished.
-
-// This is what is really done inside the interrupts.
-FORCE_INLINE void endstop_ISR_worker( void ) {
-  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
-}
-
-// One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstop_ISR_worker(); }
-
-#if defined(ARDUINO_ARCH_AVR)
-
-  #include "HAL_AVR/endstop_interrupts.h"
-
+#ifdef ARDUINO_ARCH_AVR
+  #include "HAL_AVR/HAL_pinsDebug_AVR.h"
 #elif defined(ARDUINO_ARCH_SAM)
-
-  #include "HAL_DUE/endstop_interrupts.h"
-
+  #include "HAL_DUE/HAL_pinsDebug_Due.h"
 #elif IS_32BIT_TEENSY
-
-  #include "HAL_TEENSY35_36/endstop_interrupts.h"
-
+  #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
 #else
-
   #error Unsupported Platform!
-
 #endif
 
-#endif /* HAL_ENDSTOP_INTERRUPTS_H_ */
+#endif

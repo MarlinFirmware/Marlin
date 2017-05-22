@@ -20,10 +20,9 @@
  *
  */
 
+#include "Marlin.h"
 #include "printcounter.h"
 #include "duration_t.h"
-
-#include "Marlin.h"
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();

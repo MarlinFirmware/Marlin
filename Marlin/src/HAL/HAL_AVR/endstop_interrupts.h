@@ -38,7 +38,7 @@
 #ifndef _ENDSTOP_INTERRUPTS_H_
 #define _ENDSTOP_INTERRUPTS_H_
 
-#include "macros.h"
+#include "../../../macros.h"
 
 /**
  * Patch for pins_arduino.h (...\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h)
