@@ -29,6 +29,8 @@
   #include "hex_print_routines.h"
   #include "temperature.h"
 
+  extern Planner planner;
+
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
@@ -76,7 +78,7 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.
+    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
@@ -84,9 +86,10 @@
     state.active = false;
     state.z_offset = 0;
     state.storage_slot = -1;
-
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      planner.z_fade_height = 10.0;
+    #endif
     ZERO(z_values);
-
     last_specified_z = -999.9;
   }
 
@@ -100,7 +103,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-    constexpr uint8_t spaces = 9 * (GRID_MAX_POINTS_X - 2);
+    constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -126,7 +129,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely

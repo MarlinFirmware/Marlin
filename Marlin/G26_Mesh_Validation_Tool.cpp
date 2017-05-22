@@ -144,7 +144,7 @@
 
   void un_retract_filament(float where[XYZE]);
   void retract_filament(float where[XYZE]);
-  void look_for_lines_to_connect();
+  bool look_for_lines_to_connect();
   bool parse_G26_parameters();
   void move_to(const float&, const float&, const float&, const float&) ;
   void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
@@ -249,24 +249,6 @@
     }
 
     do {
-
-      if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
-        #if ENABLED(ULTRA_LCD)
-          lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
-          lcd_quick_feedback();
-        #endif
-        while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
-          idle();                            // Encoder Wheel if that is why we are leaving
-          lcd_reset_alert_level();
-          lcd_setstatuspgm(PSTR(""));
-        }
-        while (ubl_lcd_clicked()) {          // Wait until the user is done pressing the
-          idle();                            // Encoder Wheel if that is why we are leaving
-          lcd_setstatuspgm(PSTR("Unpress Wheel"), 99);
-        }
-        goto LEAVE;
-      }
-
       location = continue_with_closest
         ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
         : find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
@@ -317,6 +299,27 @@
         }
 
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
+
+          // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+          // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
+          // should be redone and compressed.
+          if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
+            #if ENABLED(ULTRA_LCD)
+              lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
+              lcd_quick_feedback();
+            #endif
+            while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+              idle();                            // Encoder Wheel if that is why we are leaving
+              lcd_reset_alert_level();
+              lcd_setstatuspgm(PSTR(""));
+            }
+            while (ubl_lcd_clicked()) {          // Wait until the user is done pressing the
+              idle();                            // Encoder Wheel if that is why we are leaving
+              lcd_setstatuspgm(PSTR("Unpress Wheel"), 99);
+            }
+            goto LEAVE;
+          }
+
           int tmp_div_30 = tmp / 30.0;
           if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
           if (tmp_div_30 > 11) tmp_div_30 -= 360 / 30;
@@ -349,14 +352,9 @@
           print_line_from_here_to_there(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), layer_height, LOGICAL_X_POSITION(xe), LOGICAL_Y_POSITION(ye), layer_height);
 
         }
-
-        //debug_current_and_destination(PSTR("Looking for lines to connect."));
-        look_for_lines_to_connect();
-        //debug_current_and_destination(PSTR("Done with line connect."));
+        if (look_for_lines_to_connect())
+          goto LEAVE;
       }
-
-      //debug_current_and_destination(PSTR("Done with current circle."));
-
     } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
@@ -432,11 +430,31 @@
     return return_val;
   }
 
-  void look_for_lines_to_connect() {
+  bool look_for_lines_to_connect() {
     float sx, sy, ex, ey;
 
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
+
+        // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+        // a Press and Hold is repeated in a lot of places (including ubl_G29.cpp).   This
+        // should be redone and compressed.
+        if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
+          #if ENABLED(ULTRA_LCD)
+            lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
+            lcd_quick_feedback();
+          #endif
+          while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+            idle();                            // Encoder Wheel if that is why we are leaving
+            lcd_reset_alert_level();
+            lcd_setstatuspgm(PSTR(""));
+          }
+          while (ubl_lcd_clicked()) {          // Wait until the user is done pressing the
+            idle();                            // Encoder Wheel if that is why we are leaving
+            lcd_setstatuspgm(PSTR("Unpress Wheel"), 99);
+          }
+          return true;
+        }
 
         if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
                                          // This is already a half circle because we are at the edge of the bed.
@@ -509,6 +527,7 @@
         }
       }
     }
+    return false;
   }
 
   void move_to(const float &x, const float &y, const float &z, const float &e_delta) {
@@ -517,11 +536,7 @@
 
     bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
-    //if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
-
     if (z != last_z) {
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  changing Z to ", (int)z);
-
       last_z = z;
       feed_value = planner.max_feedrate_mm_s[Z_AXIS]/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
 
@@ -534,8 +549,6 @@
 
       stepper.synchronize();
       set_destination_to_current();
-
-      //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() done with Z move"));
     }
 
     // Check if X or Y is involved in the movement.
@@ -548,11 +561,7 @@
     destination[Y_AXIS] = y;
     destination[E_AXIS] += e_delta;
 
-    //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() doing last move"));
-
     G26_line_to_destination(feed_value);
-
-    //if (ubl.g26_debug_flag) debug_current_and_destination(PSTR(" in move_to() after last move"));
 
     stepper.synchronize();
     set_destination_to_current();
@@ -562,9 +571,7 @@
   void retract_filament(float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
       move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], -1.0 * retraction_multiplier);
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
     }
   }
 
@@ -572,7 +579,6 @@
     if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], 1.2 * retraction_multiplier);
       g26_retracted = false;
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
   }
 
@@ -605,7 +611,6 @@
     // If the end point of the line is closer to the nozzle, flip the direction,
     // moving from the end to the start. On very small lines the optimization isn't worth it.
     if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < abs(line_length)) {
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
       return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
     }
 
@@ -613,9 +618,6 @@
 
     if (dist_start > 2.0) {
       retract_filament(destination);
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  filament retracted.");
-
-      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Z bumping by 0.500 to minimize scraping.");
       //todo:  parameterize the bump height with a define
       move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
       move_to(sx, sy, sz + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
@@ -626,11 +628,6 @@
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
     un_retract_filament(destination);
-
-    //if (ubl.g26_debug_flag) {
-    //  SERIAL_ECHOLNPGM("  doing printing move.");
-    //  debug_current_and_destination(PSTR("doing final move_to() inside print_line_from_here_to_there()"));
-    //}
     move_to(ex, ey, ez, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
   }
 
@@ -754,7 +751,6 @@
   }
 
   bool exit_from_g26() {
-    //strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
     lcd_reset_alert_level();
     lcd_setstatuspgm(PSTR("Leaving G26"));
     while (ubl_lcd_clicked()) idle();

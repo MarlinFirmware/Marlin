@@ -1009,6 +1009,9 @@
         }
       }
 
+      // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+      // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
+      // should be redone and compressed.
       const millis_t nxt = millis() + 1500L;
       while (ubl_lcd_clicked()) {     // debounce and watch for abort
         idle();
@@ -1327,10 +1330,9 @@
 
     // Get our reference position. Either the nozzle or probe location.
     const float px = RAW_X_POSITION(lx) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = RAW_Y_POSITION(ly) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                raw_x = RAW_CURRENT_POSITION(X), raw_y = RAW_CURRENT_POSITION(Y);
+                py = RAW_Y_POSITION(ly) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
-    float closest = far_flag ? -99999.99 : 99999.99;
+    float best_so_far = far_flag ? -99999.99 : 99999.99;
 
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
@@ -1339,10 +1341,10 @@
           || (type == REAL && !isnan(ubl.z_values[i][j]))
           || (type == SET_IN_BITMAP && is_bit_set(bits, i, j))
         ) {
-
           // We only get here if we found a Mesh Point of the specified type
 
-          const float mx = pgm_read_float(&ubl.mesh_index_to_xpos[i]), // Check if we can probe this mesh location
+          float raw_x = RAW_CURRENT_POSITION(X), raw_y = RAW_CURRENT_POSITION(Y);
+          const float mx = pgm_read_float(&ubl.mesh_index_to_xpos[i]),
                       my = pgm_read_float(&ubl.mesh_index_to_ypos[j]);
 
           // If using the probe as the reference there are some unreachable locations.
@@ -1352,10 +1354,10 @@
           if (probe_as_reference ? !position_is_reachable_by_probe_raw_xy(mx, my) : !position_is_reachable_raw_xy(mx, my))
             continue;
 
-          // Reachable. Check if it's the closest location to the nozzle.
+          // Reachable. Check if it's the best_so_far location to the nozzle.
           // Add in a weighting factor that considers the current location of the nozzle.
 
-          float distance = HYPOT(px - mx, py - my) + HYPOT(raw_x - mx, raw_y - my) * 0.1;
+          float distance = HYPOT(px - mx, py - my);
 
           /**
            * If doing the far_flag action, we want to be as far as possible
@@ -1367,20 +1369,24 @@
           if (far_flag) {
             for (uint8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
               for (uint8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
-                if (!isnan(ubl.z_values[k][l])) {
-                  distance += sq(i - k) * (MESH_X_DIST) * .05
-                            + sq(j - l) * (MESH_Y_DIST) * .05;
+                if (i != k && j != l && !isnan(ubl.z_values[k][l])) {
+//                distance += pow((float) abs(i - k) * (MESH_X_DIST), 2) + pow((float) abs(j - l) * (MESH_Y_DIST), 2);  // working here
+                  distance += HYPOT((MESH_X_DIST),(MESH_Y_DIST)) / log(HYPOT((i - k) * (MESH_X_DIST)+.001, (j - l) * (MESH_Y_DIST))+.001);
                 }
               }
             }
           }
+          else
+          // factor in the distance from the current location for the normal case
+          // so the nozzle isn't running all over the bed.
+            distance += HYPOT(raw_x - mx, raw_y - my) * 0.1;
 
           // if far_flag, look for farthest point
-          if (far_flag == (distance > closest) && distance != closest) {
-            closest = distance;       // We found a closer/farther location with
+          if (far_flag == (distance > best_so_far) && distance != best_so_far) {
+            best_so_far = distance;   // We found a closer/farther location with
             out_mesh.x_index = i;     // the specified type of mesh value.
             out_mesh.y_index = j;
-            out_mesh.distance = closest;
+            out_mesh.distance = best_so_far;
           }
         }
       } // for j
@@ -1408,7 +1414,7 @@
 
     LCD_MESSAGEPGM("Fine Tuning Mesh"); // TODO: Make translatable string
 
-    do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     do_blocking_move_to_xy(lx, ly);
     do {
       location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
@@ -1426,42 +1432,48 @@
 
       float new_z = ubl.z_values[location.x_index][location.y_index];
 
-      if (!isnan(new_z)) {  //can't fine tune a point that hasn't been probed
+      if (isnan(new_z)) // if the mesh point is invalid, set it to 0.0 so it can be edited
+        new_z = 0.0;
 
-        do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
-        do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);    // Move the nozzle to where we are going to edit
+      do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
-        new_z = floor(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
+      new_z = floor(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        ubl.has_control_of_lcd_panel = true;
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      ubl.has_control_of_lcd_panel = true;
 
-        if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
+      if (do_ubl_mesh_map) ubl.display_map(map_type);  // show the user which point is being adjusted
 
-        lcd_implementation_clear();
+      lcd_implementation_clear();
 
-        lcd_mesh_edit_setup(new_z);
+      lcd_mesh_edit_setup(new_z);
 
-        do {
-          new_z = lcd_mesh_edit();
-          idle();
-        } while (!ubl_lcd_clicked());
+      do {
+        new_z = lcd_mesh_edit();
+        #ifdef UBL_MESH_EDIT_MOVES_Z
+          do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES+new_z);  // Move the nozzle as the point is edited
+        #endif
+        idle();
+      } while (!ubl_lcd_clicked());
 
-        lcd_return_to_status();
+      lcd_return_to_status();
 
-        // The technique used here generates a race condition for the encoder click.
-        // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
-        // Let's work on specifying a proper API for the LCD ASAP, OK?
-        ubl.has_control_of_lcd_panel = true;
-      }
+      // The technique used here generates a race condition for the encoder click.
+      // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
+      // Let's work on specifying a proper API for the LCD ASAP, OK?
+      ubl.has_control_of_lcd_panel = true;
 
+      // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+      // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
+      // should be redone and compressed.
       const millis_t nxt = millis() + 1500UL;
       while (ubl_lcd_clicked()) { // debounce and watch for abort
         idle();
         if (ELAPSED(millis(), nxt)) {
           lcd_return_to_status();
           //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
-          do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+          do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
           LCD_MESSAGEPGM("Mesh Editing Stopped"); // TODO: Make translatable string
 
           while (ubl_lcd_clicked()) idle();
@@ -1485,7 +1497,7 @@
 
     if (do_ubl_mesh_map) ubl.display_map(map_type);
     ubl.restore_ubl_active_state_and_leave();
-    do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
     do_blocking_move_to_xy(lx, ly);
 
