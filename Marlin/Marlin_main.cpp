@@ -9488,11 +9488,11 @@ inline void gcode_M999() {
     constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
     static_assert(COUNT(angles) / 2 >= E_STEPPERS, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 2 angles per servo.");
 
-    #if E_STEPPERS & 1
-      if (e < E_STEPPERS - 1)
+    #if EXTRUDERS & 1
+      if (e < EXTRUDERS - 1)
     #endif
     {
-      #if E_STEPPERS < 2
+      #if EXTRUDERS < 4
         MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
       #else
         MOVE_SERVO(e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR, angles[e]);
