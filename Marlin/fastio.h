@@ -21,24 +21,24 @@
  */
 
 /**
- * Contributed by Triffid_Hunter, modified by Kliment, extended by the Marlin team
- * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ * Fast I/O Routines
+ * Use direct port manipulation to save scads of processor time.
+ * Contributed by Triffid_Hunter. Modified by Kliment and the Marlin team.
  */
 
-#ifndef _FASTIO_ARDUINO_H
+#ifndef _FASTIO_ARDUINO_H 
 #define _FASTIO_ARDUINO_H
 
 #include <avr/io.h>
-
-/**
- * Include Ports and Functions
- */
 
 /**
  * Enable this option to use Teensy++ 2.0 assignments for AT90USB processors.
  */
 //#define AT90USBxx_TEENSYPP_ASSIGNMENTS
 
+/**
+ * Include Ports and Functions
+ */
 #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
   #include "fastio_168.h"
 #elif defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
@@ -58,13 +58,15 @@
 #endif
 
 #ifndef _BV
-  #define _BV(PIN) (1 << PIN)
+  #define _BV(PIN) (1UL << PIN)
 #endif
 
 /**
  * Magic I/O routines
  *
  * Now you can simply SET_OUTPUT(PIN); WRITE(PIN, HIGH); WRITE(PIN, LOW);
+ *
+ * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
 #define _READ(IO) ((bool)(DIO ## IO ## _RPORT & _BV(DIO ## IO ## _PIN)))

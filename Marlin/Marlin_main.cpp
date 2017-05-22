@@ -2355,7 +2355,7 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float x, const float y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
+  float probe_pt(const float &x, const float &y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -3416,8 +3416,8 @@ inline void gcode_G7(
       return;
     }
 
-    destination[X_AXIS] = hasI ? pgm_read_float(&ubl.mesh_index_to_xpos[ix]) : current_position[X_AXIS];
-    destination[Y_AXIS] = hasJ ? pgm_read_float(&ubl.mesh_index_to_ypos[iy]) : current_position[Y_AXIS];
+    destination[X_AXIS] = hasI ? ubl.mesh_index_to_xpos(ix) : current_position[X_AXIS];
+    destination[Y_AXIS] = hasJ ? ubl.mesh_index_to_ypos(iy) : current_position[Y_AXIS];
     destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
     destination[E_AXIS] = current_position[E_AXIS];
 
@@ -5107,9 +5107,9 @@ void home_all_axes() { gcode_G28(true); }
      *      P4-P7  Probe all positions at different locations and average them.
      *
      *   T   Don't calibrate tower angle corrections
-     *   
+     *
      *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
-     *   
+     *
      *   Vn  Verbose level:
      *
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
@@ -5229,7 +5229,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       int8_t iterations = 0;
-      
+
       home_offset[Z_AXIS] -= probe_pt(0.0, 0.0 , true, 1); // 1st probe to set height
       do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -5239,7 +5239,7 @@ void home_all_axes() { gcode_G28(true); }
         int16_t N = 0;
 
         test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
-        
+
         iterations++;
 
         // Probe the points
@@ -5286,7 +5286,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
-        
+
         if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
 
         // Solve matrices
@@ -5416,7 +5416,7 @@ void home_all_axes() { gcode_G28(true); }
             else {
               SERIAL_PROTOCOLPGM("std dev:");
               SERIAL_PROTOCOL_F(zero_std_dev, 3);
-            }            
+            }
             SERIAL_EOL;
             LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
@@ -5481,7 +5481,7 @@ void home_all_axes() { gcode_G28(true); }
         home_delta();
         endstops.not_homing();
 
-      } 
+      }
       while (zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31);
 
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -8704,7 +8704,7 @@ void quickstop_stepper() {
     const bool hasZ = code_seen('Z'), hasQ = !hasZ && code_seen('Q');
 
     if (hasC) {
-      const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+      const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
       ix = location.x_index;
       iy = location.y_index;
     }
@@ -11467,7 +11467,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       const float fr_scaled = MMS_SCALED(feedrate_mm_s);
       if (ubl.state.active) {
-        ubl_line_to_destination_cartesian(fr_scaled, active_extruder);
+        ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
         return true;
       }
       else
@@ -11612,14 +11612,14 @@ void prepare_move_to_destination() {
   if (
     #if IS_KINEMATIC
       #if UBL_DELTA
-        ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+        ubl.prepare_linear_move_to(destination, feedrate_mm_s)
       #else
         prepare_kinematic_move_to(destination)
       #endif
     #elif ENABLED(DUAL_X_CARRIAGE)
       prepare_move_to_destination_dualx()
     #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      ubl_prepare_linear_move_to(destination, feedrate_mm_s)
+      ubl.prepare_linear_move_to(destination, feedrate_mm_s)
     #else
       prepare_move_to_destination_cartesian()
     #endif

@@ -1480,7 +1480,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_level_bed_get_z() {
       ENCODER_DIRECTION_NORMAL();
 
-      // Encoder wheel adjusts the Z position
+      // Encoder knob or keypad buttons adjust the Z position
       if (encoderPosition) {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
@@ -4202,9 +4202,9 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       }
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.has_control_of_lcd_panel) {
-          ubl.encoder_diff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
+          ubl.encoder_diff = encoderDiff;   // Make the encoder's rotation available to G29's Mesh Editor
           encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder
-                                            // wheel has not turned.
+                                            // knob has not turned.
         }
       #endif
       lastEncoderBits = enc;

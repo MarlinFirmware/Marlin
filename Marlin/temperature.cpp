@@ -935,7 +935,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #ifndef MAX6675_DO_PIN
     #define MAX6675_DO_PIN MISO_PIN
   #endif
-  Spi<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+  SPI<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
 /**
