@@ -288,8 +288,7 @@ class Temperature {
     /**
      * Call periodically to manage heaters
      */
-    //static void manage_heater(); // changed to address compiler error
-    static void manage_heater()  __attribute__((__optimize__("O2")));
+    static void manage_heater() _O2; // Added _O2 to work around a compiler error
 
     /**
      * Preheating hotends
