@@ -470,7 +470,7 @@ uint16_t max_display_update_time = 0;
         // For LCD_PROGRESS_BAR re-initialize custom characters
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
       screen_changed = true;
       #if ENABLED(DOGLCD)
         drawing_screen = false;
@@ -716,7 +716,7 @@ void kill_screen(const char* lcd_msg) {
 
     void toggle_case_light() {
       case_light_on ^= true;
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
       update_case_light();
     }
 
@@ -879,7 +879,7 @@ void kill_screen(const char* lcd_msg) {
       if (encoderPosition) {
         const int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
         encoderPosition = 0;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
         thermalManager.babystep_axis(axis, babystep_increment);
         babysteps_done += babystep_increment;
       }
@@ -912,7 +912,7 @@ void kill_screen(const char* lcd_msg) {
 
             zprobe_zoffset = new_zoffset;
             refresh_zprobe_zoffset(true);
-            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+            lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
           }
         }
         if (lcdDrawUpdate)
@@ -943,7 +943,7 @@ void kill_screen(const char* lcd_msg) {
         mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005 / 2.0;
         mesh_edit_value = mesh_edit_accumulator;
         encoderPosition = 0;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
 
         const int32_t rounded = (int32_t)(mesh_edit_value * 1000.0);
         mesh_edit_value = float(rounded - (rounded % 5L)) / 1000.0;
@@ -957,14 +957,8 @@ void kill_screen(const char* lcd_msg) {
       defer_return_to_status = true;
     }
 
-    void _lcd_mesh_edit() {
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
-    }
-
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
       return mesh_edit_value;
     }
@@ -2278,7 +2272,7 @@ void kill_screen(const char* lcd_msg) {
       manual_move_to_current(axis);
 
       encoderPosition = 0;
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
   }
@@ -2300,7 +2294,7 @@ void kill_screen(const char* lcd_msg) {
           , eindex
         #endif
       );
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
     }
     if (lcdDrawUpdate) {
       PGM_P pos_label;
