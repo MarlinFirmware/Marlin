@@ -174,6 +174,10 @@
   #include "pins_MKS_13.h"
 #elif MB(SAINSMART_2IN1)
   #include "pins_SAINSMART_2IN1.h"
+#elif MB(GT2560_REV_A)
+  #include "pins_GT2560_REV_A.h"
+#elif MB(GT2560_REV_A_PLUS)
+  #include "pins_GT2560_REV_A_PLUS.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
