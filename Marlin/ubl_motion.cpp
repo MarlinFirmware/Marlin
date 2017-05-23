@@ -606,10 +606,10 @@
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
-        const float x0 = pgm_read_float(&(mesh_index_to_xpos[cell_xi  ])),  // 64 byte table lookup avoids mul+add
-                    y0 = pgm_read_float(&(mesh_index_to_ypos[cell_yi  ])),  // 64 byte table lookup avoids mul+add
-                    x1 = pgm_read_float(&(mesh_index_to_xpos[cell_xi+1])),  // 64 byte table lookup avoids mul+add
-                    y1 = pgm_read_float(&(mesh_index_to_ypos[cell_yi+1]));  // 64 byte table lookup avoids mul+add
+        const float x0 = mesh_index_to_xpos(cell_xi),     // 64 byte table lookup avoids mul+add
+                    y0 = mesh_index_to_ypos(cell_yi),     // 64 byte table lookup avoids mul+add
+                    x1 = mesh_index_to_xpos(cell_xi + 1), // 64 byte table lookup avoids mul+add
+                    y1 = mesh_index_to_ypos(cell_yi + 1); // 64 byte table lookup avoids mul+add
 
         float cx = rx - x0,   // cell-relative x
               cy = ry - y0,   // cell-relative y
