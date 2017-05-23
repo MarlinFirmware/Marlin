@@ -5551,16 +5551,12 @@ void home_all_axes() { gcode_G28(true); }
 
 #endif // G38_PROBE_TARGET
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
 
   /**
    * G42: Move X & Y axes to mesh coordinates (I & J)
    */
-  inline void gcode_G42(
-    #if IS_SCARA
-      bool fast_move=false
-    #endif
-  ) {
+  inline void gcode_G42() {
     if (IsRunning()) {
       const bool hasI = code_seen('I');
       const int8_t ix = code_has_value() ? code_value_int() : 0;
@@ -5572,16 +5568,31 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      destination[X_AXIS] = hasI ? ubl.mesh_index_to_xpos(ix) : current_position[X_AXIS];
-      destination[Y_AXIS] = hasJ ? ubl.mesh_index_to_ypos(iy) : current_position[Y_AXIS];
-      destination[Z_AXIS] = current_position[Z_AXIS]; //todo: perhaps add Z-move support?
-      destination[E_AXIS] = current_position[E_AXIS];
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        #define _GET_MESH_X(I) bilinear_start[X_AXIS] + I * bilinear_grid_spacing[X_AXIS]
+        #define _GET_MESH_Y(J) bilinear_start[Y_AXIS] + J * bilinear_grid_spacing[Y_AXIS]
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
+        #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
+      #elif ENABLED(MESH_BED_LEVELING)
+        #define _GET_MESH_X(I) mbl.index_to_xpos[I]
+        #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
+      #endif
+
+      set_destination_to_current();
+      if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
+      if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
+      if (code_seen('P') && code_value_bool()) {
+        if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
+        if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      }
 
       if (code_seen('F') && code_value_linear_units() > 0.0)
         feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
 
+      // SCARA kinematic has "safe" XY raw moves
       #if IS_SCARA
-        fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
+        prepare_uninterpolated_move_to_destination();
       #else
         prepare_move_to_destination();
       #endif
@@ -6399,8 +6410,8 @@ inline void gcode_M42() {
 
     bool stow_probe_after_each = code_seen('E');
 
-    float X_probe_location = code_seen('X') ? code_value_linear_units() : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
-    float Y_probe_location = code_seen('Y') ? code_value_linear_units() : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    const float X_probe_location = code_seen('X') ? code_value_linear_units() : X_current + X_PROBE_OFFSET_FROM_EXTRUDER,
+                Y_probe_location = code_seen('Y') ? code_value_linear_units() : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
 
     #if DISABLED(DELTA)
       if (!WITHIN(X_probe_location, LOGICAL_X_POSITION(MIN_PROBE_X), LOGICAL_X_POSITION(MAX_PROBE_X))) {
@@ -10153,13 +10164,9 @@ void process_next_command() {
         gcode_G92();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
         case 42:
-          #if IS_SCARA
-            gcode_G42(codenum == 0);
-          #else
-            gcode_G42();
-          #endif
+          gcode_G42();
           break;
       #endif
 
