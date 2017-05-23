@@ -24,6 +24,9 @@
 #define MACROS_H
 
 #define NUM_AXIS 4
+#define XYZE 4
+#define ABC  3
+#define XYZ  3
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -32,6 +35,50 @@
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
+
+// Clock speed factors
+#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
+#define INT0_PRESCALER 8
+
+// Highly granular delays for step pulses, etc.
+#define DELAY_0_NOP NOOP
+#define DELAY_1_NOP __asm__("nop\n\t")
+#define DELAY_2_NOP DELAY_1_NOP; DELAY_1_NOP
+#define DELAY_3_NOP DELAY_1_NOP; DELAY_2_NOP
+#define DELAY_4_NOP DELAY_1_NOP; DELAY_3_NOP
+#define DELAY_5_NOP DELAY_1_NOP; DELAY_4_NOP
+
+#define DELAY_NOPS(X) \
+  switch (X) { \
+    case 20: DELAY_1_NOP; case 19: DELAY_1_NOP; \
+    case 18: DELAY_1_NOP; case 17: DELAY_1_NOP; \
+    case 16: DELAY_1_NOP; case 15: DELAY_1_NOP; \
+    case 14: DELAY_1_NOP; case 13: DELAY_1_NOP; \
+    case 12: DELAY_1_NOP; case 11: DELAY_1_NOP; \
+    case 10: DELAY_1_NOP; case 9:  DELAY_1_NOP; \
+    case 8:  DELAY_1_NOP; case 7:  DELAY_1_NOP; \
+    case 6:  DELAY_1_NOP; case 5:  DELAY_1_NOP; \
+    case 4:  DELAY_1_NOP; case 3:  DELAY_1_NOP; \
+    case 2:  DELAY_1_NOP; case 1:  DELAY_1_NOP; \
+  }
+
+#define DELAY_10_NOP DELAY_5_NOP;  DELAY_5_NOP
+#define DELAY_20_NOP DELAY_10_NOP; DELAY_10_NOP
+
+#if CYCLES_PER_MICROSECOND == 16
+  #define DELAY_1US DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP
+#else
+  #define DELAY_1US DELAY_20_NOP
+#endif
+#define DELAY_2US  DELAY_1US; DELAY_1US
+#define DELAY_3US  DELAY_1US; DELAY_2US
+#define DELAY_4US  DELAY_1US; DELAY_3US
+#define DELAY_5US  DELAY_1US; DELAY_4US
+#define DELAY_6US  DELAY_1US; DELAY_5US
+#define DELAY_7US  DELAY_1US; DELAY_6US
+#define DELAY_8US  DELAY_1US; DELAY_7US
+#define DELAY_9US  DELAY_1US; DELAY_8US
+#define DELAY_10US DELAY_1US; DELAY_9US
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -52,7 +99,8 @@
 #endif
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
-#define HYPOT(x,y) sqrt(sq(x)+sq(y))
+#define HYPOT2(x,y) (sq(x)+sq(y))
+#define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -68,20 +116,23 @@
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
-#define NUMERIC(a) ((a) >= '0' && '9' >= (a))
+#define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
+#define NUMERIC(a) WITHIN(a, '0', '9')
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
+#define ZERO(a) memset(a,0,sizeof(a))
+#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
-#define ARRAY_6(v1, v2, v3, v4, v5, v6, args...) { v1, v2, v3, v4, v5, v6 }
-#define ARRAY_5(v1, v2, v3, v4, v5, args...)     { v1, v2, v3, v4, v5 }
-#define ARRAY_4(v1, v2, v3, v4, args...)         { v1, v2, v3, v4 }
-#define ARRAY_3(v1, v2, v3, args...)             { v1, v2, v3 }
-#define ARRAY_2(v1, v2, args...)                 { v1, v2 }
-#define ARRAY_1(v1, args...)                     { v1 }
+#define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
+#define ARRAY_5(v1, v2, v3, v4, v5, ...)     { v1, v2, v3, v4, v5 }
+#define ARRAY_4(v1, v2, v3, v4, ...)         { v1, v2, v3, v4 }
+#define ARRAY_3(v1, v2, v3, ...)             { v1, v2, v3 }
+#define ARRAY_2(v1, v2, ...)                 { v1, v2 }
+#define ARRAY_1(v1, ...)                     { v1 }
 
-#define _ARRAY_N(N, args...) ARRAY_ ##N(args)
-#define ARRAY_N(N, args...) _ARRAY_N(N, args)
+#define _ARRAY_N(N, ...) ARRAY_ ##N(__VA_ARGS__)
+#define ARRAY_N(N, ...) _ARRAY_N(N, __VA_ARGS__)
 
 // Macros for adding
 #define INC_0 1
@@ -117,5 +168,19 @@
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
+
+#define MIN3(a, b, c)       min(min(a, b), c)
+#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       max(max(a, b), c)
+#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
+
+#define UNEAR_ZERO(x) ((x) < 0.000001)
+#define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
+#define NEAR(x,y) NEAR_ZERO((x)-(y))
+
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
+#define FIXFLOAT(f) (f + 0.00001)
 
 #endif //__MACROS_H

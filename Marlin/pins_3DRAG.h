@@ -36,26 +36,47 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
+//
+// Heaters / Fans
+//
 #define RAMPS_D8_PIN 9
 #define RAMPS_D9_PIN 8
 #define MOSFET_D_PIN 12
 
 #include "pins_RAMPS.h"
 
-#define HEATER_2_PIN       6
-
-#undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN       63
-
+//
+// Limit Switches
+//
 #undef Z_MAX_PIN
 #define Z_MAX_PIN          -1
 
-#undef SDSS
-#define SDSS               25//53
+//
+// Steppers
+//
+#undef Z_ENABLE_PIN
+#define Z_ENABLE_PIN       63
 
+//
+// Heaters / Fans
+//
+#define HEATER_2_PIN        6
+
+//
+// Misc. Functions
+//
+#undef SDSS
+#define SDSS               25
+
+#undef SD_DETECT_PIN
+#define SD_DETECT_PIN      53
+
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   #undef BEEPER_PIN
-  #define BEEPER_PIN -1
+  #define BEEPER_PIN       -1
 
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
@@ -63,23 +84,23 @@
   #undef LCD_PINS_D5
   #undef LCD_PINS_D6
   #undef LCD_PINS_D7
-  #define LCD_PINS_RS 27
-  #define LCD_PINS_ENABLE 29
-  #define LCD_PINS_D4 37
-  #define LCD_PINS_D5 35
-  #define LCD_PINS_D6 33
-  #define LCD_PINS_D7 31
+  #define LCD_PINS_RS      27
+  #define LCD_PINS_ENABLE  29
+  #define LCD_PINS_D4      37
+  #define LCD_PINS_D5      35
+  #define LCD_PINS_D6      33
+  #define LCD_PINS_D7      31
 
   // Buttons
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
-  #define BTN_EN1 16
-  #define BTN_EN2 17
-  #define BTN_ENC 23
+  #define BTN_EN1          16
+  #define BTN_EN2          17
+  #define BTN_ENC          23
 
 #else
 
-  #define BEEPER_PIN 33
+  #define BEEPER_PIN       33
 
 #endif // ULTRA_LCD && NEWPANEL

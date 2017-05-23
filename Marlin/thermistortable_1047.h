@@ -20,34 +20,14 @@
  *
  */
 
-/**
- * Board 99 pin assignments
- */
-#define BOARD_NAME          "99 Unknown"
- 
-#define X_STEP_PIN          2
-#define X_DIR_PIN           3
-#define X_ENABLE_PIN        -1
-#define X_STOP_PIN          16
-
-#define Y_STEP_PIN          5
-#define Y_DIR_PIN           6
-#define Y_ENABLE_PIN       -1
-#define Y_STOP_PIN          67
-
-#define Z_STEP_PIN          62
-#define Z_DIR_PIN           63
-#define Z_ENABLE_PIN       -1
-#define Z_STOP_PIN          59
-
-#define E0_STEP_PIN         65
-#define E0_DIR_PIN          66
-#define E0_ENABLE_PIN      -1
-
-#define SDSS               53
-#define PS_ON_PIN           9
-
-#define HEATER_0_PIN        13
-#define TEMP_0_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define HEATER_BED_PIN      4
-#define TEMP_BED_PIN       10
+// Pt1000 with 4k7 pullup
+const short temptable_1047[][2] PROGMEM = {
+  // only a few values are needed as the curve is very flat
+  PtLine(  0, 1000, 4700)
+  PtLine( 50, 1000, 4700)
+  PtLine(100, 1000, 4700)
+  PtLine(150, 1000, 4700)
+  PtLine(200, 1000, 4700)
+  PtLine(250, 1000, 4700)
+  PtLine(300, 1000, 4700)
+};

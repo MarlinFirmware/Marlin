@@ -37,16 +37,32 @@
 
 #include "pins_3DRAG.h"
 
-#undef  X_MAX_PIN
-#define X_MAX_PIN     -1
-#undef  Y_MAX_PIN
-#define Y_MAX_PIN     -1
+//
+// Limit Switches
+//
+#define X_STOP_PIN  3
+#define Y_STOP_PIN 14
 
+#undef X_MIN_PIN
+#undef X_MAX_PIN
+#undef Y_MIN_PIN
+#undef Y_MAX_PIN
+
+//
+// Steppers
+//
 #undef E1_STEP_PIN
 #define E1_STEP_PIN   32
 
-#undef PS_ON_PIN
-#undef KILL_PIN
-
+//
+// Heaters / Fans
+//
 #undef HEATER_1_PIN
 #define HEATER_1_PIN  11
+
+//
+// Misc. Functions
+//
+#undef PS_ON_PIN
+#undef KILL_PIN
+#undef SD_DETECT_PIN

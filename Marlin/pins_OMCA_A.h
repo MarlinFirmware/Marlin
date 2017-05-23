@@ -56,20 +56,27 @@
 
 #define BOARD_NAME         "Alpha OMCA"
 
+//
+// Limit Switches
+//
+#define X_STOP_PIN          0
+#define Y_STOP_PIN          1
+#define Z_STOP_PIN          2
+
+//
+// Steppers
+//
 #define X_STEP_PIN         21
 #define X_DIR_PIN          20
 #define X_ENABLE_PIN       24
-#define X_STOP_PIN          0
 
 #define Y_STEP_PIN         23
 #define Y_DIR_PIN          22
 #define Y_ENABLE_PIN       24
-#define Y_STOP_PIN          1
 
 #define Z_STEP_PIN         26
 #define Z_DIR_PIN          25
 #define Z_ENABLE_PIN       24
-#define Z_STOP_PIN          2
 
 #define E0_STEP_PIN        28
 #define E0_DIR_PIN         27
@@ -83,10 +90,21 @@
 #define E2_DIR_PIN         -1 // 16
 #define E2_ENABLE_PIN      24
 
-#define SDSS               11
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          0   // Analog Input (D27)
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN        4
+
 #define FAN_PIN             3
 
-#define HEATER_0_PIN        4
-#define TEMP_0_PIN          0 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+//
+// Misc. Functions
+//
+#define SDSS               11
 
 /*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */

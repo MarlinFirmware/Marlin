@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# mfdoc
+#
+# Start Jekyll in watch mode to work on Marlin Documentation and preview locally
+#
+
+MFINFO=$(mfinfo "$@") || exit
+IFS=' ' read -a INFO <<< "$MFINFO"
+ORG=${INFO[0]}
+REPO=${INFO[2]}
+BRANCH=${INFO[4]}
+
+if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
+  echo "Wrong repository."
+  exit
+fi
+
+if [[ $BRANCH != "master" ]]; then
+  echo "Stashing changes and changing to master."
+  git stash
+  git checkout master
+fi
+
+opensite() {
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  URL="http://127.0.0.1:4000/"
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening preview site in the browser..."
+    "$TOOL" "$URL"
+  fi
+}
+
+echo "Previewing MarlinDocumentation..."
+
+# wait to open the url for about 8s
+( sleep 45; opensite ) &
+
+bundle exec jekyll serve --watch --incremental
+
+if [[ $BRANCH != "master" ]]; then
+  echo "Restoring branch '$BRANCH'"
+  git checkout $BRANCH
+  git stash pop
+fi

@@ -25,8 +25,9 @@ if [[ $ORG != MarlinFirmware ]]; then
 fi
 
 case "$REPO" in
-  Marlin    ) TARG=RCBugFix ;;
-  MarlinDev ) TARG=dev ;;
+  Marlin              ) TARG=bugfix-1.1.x ;;
+  MarlinDev           ) TARG=dev ;;
+  MarlinDocumentation ) TARG=master ;;
 esac
 
 FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
@@ -36,5 +37,9 @@ case "$#" in
   1 ) BRANCH=$1 ;;
   * ) echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1 ;;
 esac
+
+if [[ $BRANCH == "(no" ]]; then
+  echo "Git is busy with merge, rebase, etc." 1>&2 ; exit 1
+fi
 
 echo "$ORG $FORK $REPO $TARG $BRANCH"

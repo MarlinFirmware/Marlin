@@ -34,35 +34,37 @@
 
 #define IS_MELZI (MB(MELZI) || MB(MELZI_MAKR3D))
 
+//
+// Limit Switches
+//
+#define X_STOP_PIN         18
+#define Y_STOP_PIN         19
+#define Z_STOP_PIN         20
+
+//
+// Steppers
+//
 #define X_STEP_PIN         15
 #define X_DIR_PIN          21
-#define X_STOP_PIN         18
 
 #define Y_STEP_PIN         22
 #define Y_DIR_PIN          23
-#define Y_STOP_PIN         19
 
 #define Z_STEP_PIN          3
 #define Z_DIR_PIN           2
-#define Z_STOP_PIN         20
 
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
 
-#if MB(AZTEEG_X1) || MB(STB_11) || IS_MELZI
-  #define FAN_PIN           4 // Works for Panelolu2 too
-#endif
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          7   // Analog Input (pin 33 extruder)
+#define TEMP_BED_PIN        6   // Analog Input (pin 34 bed)
 
-#if IS_MELZI
-  #define LED_PIN          27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
-#elif MB(STB_11)
-  #define LCD_PIN_BL       17 // LCD backlight LED
-#endif
-
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN         -1
-#endif
-
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN       13 // (extruder)
 
 #if ENABLED(SANGUINOLOLU_V_1_2)
@@ -79,7 +81,7 @@
 
 #else
 
-  #define HEATER_BED_PIN   14  // (bed)
+  #define HEATER_BED_PIN   14 // (bed)
   #define X_ENABLE_PIN     -1
   #define Y_ENABLE_PIN     -1
   #define Z_ENABLE_PIN     -1
@@ -87,35 +89,44 @@
 
 #endif
 
-#define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
-#define TEMP_BED_PIN        6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
-#define SDSS               31
+#if MB(AZTEEG_X1) || MB(STB_11) || IS_MELZI
+  #define FAN_PIN           4 // Works for Panelolu2 too
+#endif
 
+//
+// Misc. Functions
+//
 /**
  * On some broken versions of the Sanguino libraries the pin definitions are wrong,
  * which then needs SDSS as pin 24. But you should upgrade your Sanguino libraries! See #368.
  */
 //#define SDSS               24
+#define SDSS               31
 
+#if IS_MELZI
+  #define LED_PIN          27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
+#elif MB(STB_11)
+  #define LCD_BACKLIGHT_PIN 17 // LCD backlight LED
+#endif
+
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
-  // No buzzer installed
-  #define BEEPER_PIN -1
-
-  // LCD Pins
   #if ENABLED(DOGLCD)
 
-    #if ENABLED(U8GLIB_ST7920) //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+    #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
       #if IS_MELZI // Melzi board
-        #define LCD_PINS_RS     30 //CS chip select /SS chip slave select
-        #define LCD_PINS_ENABLE 29 //SID (MOSI)
-        #define LCD_PINS_D4     17 //SCK (CLK) clock
+        #define LCD_PINS_RS     30 // CS chip select /SS chip slave select
+        #define LCD_PINS_ENABLE 29 // SID (MOSI)
+        #define LCD_PINS_D4     17 // SCK (CLK) clock
         // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
         // with M42 instead of BEEPER_PIN.
         #define BEEPER_PIN      27
-      #else         // Sanguinololu 1.3
+      #else        // Sanguinololu 1.3
         #define LCD_PINS_RS      4
         #define LCD_PINS_ENABLE 17
         #define LCD_PINS_D4     30
@@ -127,8 +138,19 @@
     #else // DOGM SPI LCD Support
 
       #define DOGLCD_A0         30
-      #define DOGLCD_CS         29
       #define LCD_CONTRAST       1
+
+      #if ENABLED(MAKRPANEL)
+
+        #define BEEPER_PIN      29
+        #define DOGLCD_CS       17
+        #define LCD_BACKLIGHT_PIN 28 // PA3
+
+      #else // !MAKRPANEL
+
+        #define DOGLCD_CS       29
+
+      #endif
 
     #endif
 
@@ -138,7 +160,7 @@
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
 
-  #else // !DOGLCD - Standard Hitachi LCD controller
+  #else // !DOGLCD
 
     #define LCD_PINS_RS          4
     #define LCD_PINS_ENABLE     17
@@ -149,9 +171,9 @@
 
   #endif // !DOGLCD
 
-  //The encoder and click button
   #define BTN_EN1               11
   #define BTN_EN2               10
+
   #if ENABLED(LCD_I2C_PANELOLU2)
     #if IS_MELZI
       #define BTN_ENC           29
@@ -159,33 +181,14 @@
     #else
       #define BTN_ENC           30
     #endif
-  #else
+  #elif ENABLED(OLED_PANEL_TINYBOY2)
+    #define BTN_ENC             28
+    #define LCD_SDSS            -1
+  #else  // !Panelolu2, !TinyBoy2
     #define BTN_ENC             16
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
-  #endif //Panelolu2
+  #endif // !Panelolu2, !TinyBoy2
 
   #define SD_DETECT_PIN         -1
 
-#elif ENABLED(MAKRPANEL)
-
-  #define BEEPER_PIN            29
-
-  // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0             30
-  #define DOGLCD_CS             17
-  #define LCD_PIN_BL            28 // backlight LED on PA3
-  // GLCD features
-  #define LCD_CONTRAST           1
-  // Uncomment screen orientation
-  #define LCD_SCREEN_ROT_0
-  //#define LCD_SCREEN_ROT_90
-  //#define LCD_SCREEN_ROT_180
-  //#define LCD_SCREEN_ROT_270
-  //The encoder and click button
-  #define BTN_EN1               11
-  #define BTN_EN2               10
-  #define BTN_ENC               16
-
-  #define SD_DETECT_PIN         -1
-
-#endif // MAKRPANEL
+#endif // ULTRA_LCD && NEWPANEL

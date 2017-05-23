@@ -30,6 +30,8 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
+  extern int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
   int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
   void lcd_update();
@@ -37,11 +39,12 @@
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
-  bool lcd_detected(void);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
+  bool lcd_detected(void);
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
@@ -62,48 +65,39 @@
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
   #define LCD_UPDATE_INTERVAL 100
-  #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
-    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-    void lcd_buttons_update();
-    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-    bool lcd_clicked();
-    void lcd_ignore_click(bool b=true);
 
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-      void lcd_filament_change_show_message(FilamentChangeMessage message);
-    #endif // FILAMENT_CHANGE_FEATURE
-
-  #else
-    FORCE_INLINE void lcd_buttons_update() {}
-  #endif
-
-  extern int preheatHotendTemp1;
-  extern int preheatBedTemp1;
-  extern int preheatFanSpeed1;
-  extern int preheatHotendTemp2;
-  extern int preheatBedTemp2;
-  extern int preheatFanSpeed2;
-
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
-    extern millis_t previous_lcd_status_ms;
-  #endif
-
-  bool lcd_blink();
-
-  #if ENABLED(ULTIPANEL)
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
     #if BUTTON_EXISTS(ENC)
       #define BLEN_C 2
-      #define EN_C (_BV(BLEN_C))
     #endif
     #define EN_A (_BV(BLEN_A))
     #define EN_B (_BV(BLEN_B))
     #define EN_C (_BV(BLEN_C))
+
+    extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
+    void lcd_buttons_update();
+    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    void lcd_completion_feedback(const bool good=true);
+
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      void lcd_filament_change_show_message(const FilamentChangeMessage message);
+    #endif // FILAMENT_CHANGE_FEATURE
+
+  #else
+
+    inline void lcd_buttons_update() {}
+
   #endif
+
+  #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+    extern millis_t previous_lcd_status_ms;
+  #endif
+
+  bool lcd_blink();
 
   #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
 
@@ -150,38 +144,31 @@
     #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
     #define LCD_CLICKED (buttons & EN_C)
+  #else
+    #define LCD_CLICKED false
   #endif
 
 #else //no LCD
-  FORCE_INLINE void lcd_update() {}
-  FORCE_INLINE void lcd_init() {}
-  FORCE_INLINE bool lcd_hasstatus() { return false; }
-  FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {UNUSED(message); UNUSED(persist);}
-  FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {UNUSED(message); UNUSED(level);}
-  FORCE_INLINE void lcd_buttons_update() {}
-  FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE bool lcd_detected(void) { return true; }
+  inline void lcd_update() {}
+  inline void lcd_init() {}
+  inline bool lcd_hasstatus() { return false; }
+  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
+  inline void lcd_setstatuspgm(const char* const message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
+  inline void lcd_buttons_update() {}
+  inline void lcd_reset_alert_level() {}
+  inline bool lcd_detected() { return true; }
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP
 
-#endif //ULTRA_LCD
+#endif // ULTRA_LCD
 
-char* itostr2(const uint8_t& x);
-char* itostr3sign(const int& x);
-char* itostr3(const int& x);
-char* itostr3left(const int& x);
-char* itostr4sign(const int& x);
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void lcd_mesh_edit_setup(float initial);
+  float lcd_mesh_edit();
+  void lcd_z_offset_edit_setup(float);
+  float lcd_z_offset_edit();
+#endif
 
-char* ftostr3(const float& x);
-char* ftostr4sign(const float& x);
-char* ftostr41sign(const float& x);
-char* ftostr32(const float& x);
-char* ftostr43sign(const float& x, char plus=' ');
-char* ftostr12ns(const float& x);
-char* ftostr5rj(const float& x);
-char* ftostr51sign(const float& x);
-char* ftostr52sign(const float& x);
-char* ftostr52sp(const float& x); // remove zero-padding from ftostr32
-
-#endif //ULTRALCD_H
+#endif // ULTRALCD_H

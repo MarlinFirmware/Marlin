@@ -22,227 +22,314 @@
 
 /**
  * M100 Free Memory Watcher
- * 
+ *
  * This code watches the free memory block between the bottom of the heap and the top of the stack.
  * This memory block is initialized and watched via the M100 command.
- * 
- * M100 I Initializes the free memory block and prints vitals statistics about the area
- * M100 F Identifies how much of the free memory block remains free and unused.  It also
- *    detects and reports any corruption within the free memory block that may have
- *    happened due to errant firmware.
- * M100 D Does a hex display of the free memory block along with a flag for any errant
- *    data that does not match the expected value.
- * M100 C x Corrupts x locations within the free memory block.   This is useful to check the
- *    correctness of the M100 F and M100 D commands.
- * 
- * Initial version by Roxy-3DPrintBoard
+ *
+ * M100 I   Initializes the free memory block and prints vitals statistics about the area
+ *
+ * M100 F   Identifies how much of the free memory block remains free and unused. It also
+ *          detects and reports any corruption within the free memory block that may have
+ *          happened due to errant firmware.
+ *
+ * M100 D   Does a hex display of the free memory block along with a flag for any errant
+ *          data that does not match the expected value.
+ *
+ * M100 C x Corrupts x locations within the free memory block. This is useful to check the
+ *          correctness of the M100 F and M100 D commands.
+ *
+ * Also, there are two support functions that can be called from a developer's C code.
+ *
+ *    uint16_t check_for_free_memory_corruption(const char * const ptr);
+ *    void M100_dump_routine(const char * const title, const char *start, const char *end);
+ *
+ * Initial version by Roxy-3D
  */
-#define M100_FREE_MEMORY_DUMPER     // Comment out to remove Dump sub-command
-#define M100_FREE_MEMORY_CORRUPTOR    // Comment out to remove Corrupt sub-command
+#define M100_FREE_MEMORY_DUMPER     // Enable for the `M110 D` Dump sub-command
+#define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
-#include "Marlin.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
+
+#define TEST_BYTE ((char) 0xE5)
+
+extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
+
 extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;
 
+#include "Marlin.h"
+#include "hex_print_routines.h"
+
 //
-// Utility functions used by M100 to get its work done.
+// Utility functions
 //
 
-char* top_of_stack();
-void prt_hex_nibble(unsigned int);
-void prt_hex_byte(unsigned int);
-void prt_hex_word(unsigned int);
-int how_many_E5s_are_here(char*);
+#define END_OF_HEAP() (__brkval ? __brkval : &__bss_end)
+int check_for_free_memory_corruption(const char * const title);
 
-void gcode_M100() {
-  static bool m100_not_initialized = true;
-  char* sp, *ptr;
-  int i, j, n;
-  //
-  // M100 D dumps the free memory block from __brkval to the stack pointer.
-  // malloc() eats memory from the start of the block and the stack grows
-  // up from the bottom of the block.    Solid 0xE5's indicate nothing has
-  // used that memory yet.   There should not be anything but 0xE5's within
-  // the block of 0xE5's.  If there is, that would indicate memory corruption
-  // probably caused by bad pointers.  Any unexpected values will be flagged in
-  // the right hand column to help spotting them.
-  //
-  #if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
-    if (code_seen('D')) {
-      ptr = __brkval ? __brkval : &__bss_end;
-      //
-      // We want to start and end the dump on a nice 16 byte boundry even though
-      // the values we are using are not 16 byte aligned.
-      //
-      SERIAL_ECHOPGM("\nbss_end : ");
-      prt_hex_word((unsigned int) ptr);
-      ptr = (char*)((unsigned long) ptr & 0xfff0);
-      sp = top_of_stack();
-      SERIAL_ECHOPGM("\nStack Pointer : ");
-      prt_hex_word((unsigned int) sp);
-      SERIAL_EOL;
-      sp = (char*)((unsigned long) sp | 0x000f);
-      n = sp - ptr;
-      //
-      // This is the main loop of the Dump command.
-      //
-      while (ptr < sp) {
-        prt_hex_word((unsigned int) ptr); // Print the address
-        SERIAL_CHAR(':');
-        for (i = 0; i < 16; i++) {      // and 16 data bytes
-          prt_hex_byte(*(ptr + i));
-          SERIAL_CHAR(' ');
-        }
-        SERIAL_CHAR('|');         // now show where non 0xE5's are
-        for (i = 0; i < 16; i++) {
-          if (*(ptr + i) == (char)0xe5)
-            SERIAL_CHAR(' ');
-          else
-            SERIAL_CHAR('?');
-        }
-        SERIAL_EOL;
-        ptr += 16;
-      }
-      return;
-    }
-  #endif
-  //
-  // M100 F   requests the code to return the number of free bytes in the memory pool along with
-  // other vital statistics that define the memory pool.
-  //
-  if (code_seen('F')) {
-    #if 0
-      int max_addr = (int)  __brkval ? __brkval : &__bss_end;
-      int max_cnt = 0;
-    #endif
-    int block_cnt = 0;
-    ptr =  __brkval ? __brkval : &__bss_end;
-    sp = top_of_stack();
-    n = sp - ptr;
-    // Scan through the range looking for the biggest block of 0xE5's we can find
-    for (i = 0; i < n; i++) {
-      if (*(ptr + i) == (char)0xe5) {
-        j = how_many_E5s_are_here(ptr + i);
-        if (j > 8) {
-          SERIAL_ECHOPAIR("Found ", j);
-          SERIAL_ECHOPGM(" bytes free at 0x");
-          prt_hex_word((int) ptr + i);
-          SERIAL_EOL;
-          i += j;
-          block_cnt++;
-        }
-        #if 0
-          if (j > max_cnt) {      // We don't do anything with this information yet
-            max_cnt  = j;     // but we do know where the biggest free memory block is.
-            max_addr = (int) ptr + i;
-          }
-        #endif
-      }
-    }
-    if (block_cnt > 1)
-      SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
-    return;
-  }
-  //
-  // M100 C x  Corrupts x locations in the free memory pool and reports the locations of the corruption.
-  // This is useful to check the correctness of the M100 D and the M100 F commands.
-  //
-  #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
-    if (code_seen('C')) {
-      int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
-      SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-      ptr = __brkval ? __brkval : &__bss_end;
-      SERIAL_ECHOPAIR("\nbss_end : ", ptr);
-      ptr += 8;
-      sp = top_of_stack();
-      SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
-      SERIAL_ECHOLNPGM("\n");
-      n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
-      // has altered the stack.
-      j = n / (x + 1);
-      for (i = 1; i <= x; i++) {
-        *(ptr + (i * j)) = i;
-        SERIAL_ECHOPGM("\nCorrupting address: 0x");
-        prt_hex_word((unsigned int)(ptr + (i * j)));
-      }
-      SERIAL_ECHOLNPGM("\n");
-      return;
-    }
-  #endif
-  //
-  // M100 I    Initializes the free memory pool so it can be watched and prints vital
-  // statistics that define the free memory pool.
-  //
-  if (m100_not_initialized || code_seen('I')) {            // If no sub-command is specified, the first time
-    SERIAL_ECHOLNPGM("Initializing free memory block.\n"); // this happens, it will Initialize.
-    ptr = __brkval ? __brkval : &__bss_end;                // Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\nbss_end : ", ptr);                  // state of the initialized free memory pool.
-    ptr += 8;
-    sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
-    SERIAL_ECHOLNPGM("\n");
-    n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
-    // has altered the stack.
-    SERIAL_ECHO(n);
-    SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
-    for (i = 0; i < n; i++)
-      *(ptr + i) = (char)0xe5;
-    for (i = 0; i < n; i++) {
-      if (*(ptr + i) != (char)0xe5) {
-        SERIAL_ECHOPAIR("? address : ", ptr + i);
-        SERIAL_ECHOPAIR("=", *(ptr + i));
-        SERIAL_ECHOLNPGM("\n");
-      }
-    }
-    m100_not_initialized = false;
-    return;
-  }
-  return;
-}
-
-// top_of_stack() returns the location of a variable on its stack frame.  The value returned is above
-// the stack once the function returns to the caller.
-
+// Location of a variable on its stack frame. Returns a value above
+// the stack (once the function returns to the caller).
 char* top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
 
-//
-// 3 support routines to print hex numbers.  We can print a nibble, byte and word
-//
+// Count the number of test bytes at the specified location.
+int16_t count_test_bytes(const uint8_t * const ptr) {
+  for (uint16_t i = 0; i < 32000; i++)
+    if (((char) ptr[i]) != TEST_BYTE)
+      return i - 1;
 
-void prt_hex_nibble(unsigned int n) {
-  if (n <= 9)
-    SERIAL_ECHO(n);
-  else
-    SERIAL_ECHO((char)('A' + n - 10));
-}
-
-void prt_hex_byte(unsigned int b) {
-  prt_hex_nibble((b & 0xf0) >> 4);
-  prt_hex_nibble(b & 0x0f);
-}
-
-void prt_hex_word(unsigned int w) {
-  prt_hex_byte((w & 0xff00) >> 8);
-  prt_hex_byte(w & 0x0ff);
-}
-
-// how_many_E5s_are_here() is a utility function to easily find out how many 0xE5's are
-// at the specified location.  Having this logic as a function simplifies the search code.
-//
-int how_many_E5s_are_here(char* p) {
-  int n;
-  for (n = 0; n < 32000; n++) {
-    if (*(p + n) != (char)0xe5)
-      return n - 1;
-  }
   return -1;
 }
 
-#endif
+//
+// M100 sub-commands
+//
+
+#if ENABLED(M100_FREE_MEMORY_DUMPER)
+  /**
+   * M100 D
+   *  Dump the free memory block from __brkval to the stack pointer.
+   *  malloc() eats memory from the start of the block and the stack grows
+   *  up from the bottom of the block. Solid test bytes indicate nothing has
+   *  used that memory yet. There should not be anything but test bytes within
+   *  the block. If so, it may indicate memory corruption due to a bad pointer.
+   *  Unexpected bytes are flagged in the right column.
+   */
+  void dump_free_memory(const uint8_t *ptr, const uint8_t *sp) {
+    //
+    // Start and end the dump on a nice 16 byte boundary
+    // (even though the values are not 16-byte aligned).
+    //
+    ptr = (uint8_t *)((uint16_t)ptr & 0xFFF0); // Align to 16-byte boundary
+    sp  = (uint8_t *)((uint16_t)sp  | 0x000F); // Align sp to the 15th byte (at or above sp)
+
+    // Dump command main loop
+    while (ptr < sp) {
+      print_hex_word((uint16_t)ptr);      // Print the address
+      SERIAL_CHAR(':');
+      for (uint8_t i = 0; i < 16; i++) {  // and 16 data bytes
+        if (i == 8) SERIAL_CHAR('-');
+        print_hex_byte(ptr[i]);
+        SERIAL_CHAR(' ');
+      }
+      safe_delay(25);
+      SERIAL_CHAR('|');                   // Point out non test bytes
+      for (uint8_t i = 0; i < 16; i++) {
+        char ccc = (char)ptr[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
+        if (&ptr[i] >= command_queue && &ptr[i] < &command_queue[BUFSIZE][MAX_CMD_SIZE]) { // Print out ASCII in the command buffer area
+          if (!WITHIN(ccc, ' ', 0x7E)) ccc = ' ';
+        }
+        else { // If not in the command buffer area, flag bytes that don't match the test byte
+          ccc = (ccc == TEST_BYTE) ? ' ' : '?';
+        }
+        SERIAL_CHAR(ccc);
+      }
+      SERIAL_EOL;
+      ptr += 16;
+      safe_delay(25);
+      idle();
+    }
+  }
+
+void M100_dump_routine(const char * const title, const char *start, const char *end) {
+  SERIAL_ECHOLN(title);
+  //
+  // Round the start and end locations to produce full lines of output
+  //
+  start = (char*)((uint16_t) start & 0xFFF0);
+  end   = (char*)((uint16_t) end   | 0x000F);
+  dump_free_memory(start, end);
+}
+
+#endif // M100_FREE_MEMORY_DUMPER
+
+/**
+ * M100 F
+ *  Return the number of free bytes in the memory pool,
+ *  with other vital statistics defining the pool.
+ */
+void free_memory_pool_report(const char * const ptr, const uint16_t size) {
+  int16_t max_cnt = -1;
+  uint16_t block_cnt = 0;
+  char *max_addr = NULL;
+  // Find the longest block of test bytes in the buffer
+  for (uint16_t i = 0; i < size; i++) {
+    char * const addr = ptr + i;
+    if (*addr == TEST_BYTE) {
+      const uint16_t j = count_test_bytes(addr);
+      if (j > 8) {
+        SERIAL_ECHOPAIR("Found ", j);
+        SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
+        if (j > max_cnt) {
+          max_cnt  = j;
+          max_addr = addr;
+        }
+        i += j;
+        block_cnt++;
+      }
+    }
+  }
+  if (block_cnt > 1) {
+    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+    SERIAL_ECHOPAIR("\nLargest free block is ", max_cnt);
+    SERIAL_ECHOLNPAIR(" bytes at ", hex_address(max_addr));
+  }
+  SERIAL_ECHOLNPAIR("check_for_free_memory_corruption() = ", check_for_free_memory_corruption("M100 F "));
+}
+
+#if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
+  /**
+   * M100 C<num>
+   *  Corrupt <num> locations in the free memory pool and report the corrupt addresses.
+   *  This is useful to check the correctness of the M100 D and the M100 F commands.
+   */
+  void corrupt_free_memory(char *ptr, const uint16_t size) {
+    if (code_seen('C')) {
+      ptr += 8;
+      const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
+                     j = near_top / (size + 1);
+
+      SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
+      for (uint16_t i = 1; i <= size; i++) {
+        char * const addr = ptr + i * j;
+        *addr = i;
+        SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
+      }
+      SERIAL_EOL;
+    }
+  }
+#endif // M100_FREE_MEMORY_CORRUPTOR
+
+/**
+ * M100 I
+ *  Init memory for the M100 tests. (Automatically applied on the first M100.)
+ */
+void init_free_memory(uint8_t *ptr, int16_t size) {
+  SERIAL_ECHOLNPGM("Initializing free memory block.\n\n");
+
+  size -= 250;    // -250 to avoid interrupt activity that's altered the stack.
+  if (size < 0) {
+    SERIAL_ECHOLNPGM("Unable to initialize.\n");
+    return;
+  }
+
+  ptr += 8;       // move a few bytes away from the heap just because we don't want
+                  // to be altering memory that close to it.
+  memset(ptr, TEST_BYTE, size);
+
+  SERIAL_ECHO(size);
+  SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
+
+  for (uint16_t i = 0; i < size; i++) {
+    if ((char)ptr[i] != TEST_BYTE) {
+      SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
+      SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
+      SERIAL_EOL;
+    }
+  }
+}
+
+/**
+ * M100: Free Memory Check
+ */
+void gcode_M100() {
+  SERIAL_ECHOPAIR("\n__brkval : ", hex_address(__brkval));
+  SERIAL_ECHOPAIR("\n__bss_end : ", hex_address(&__bss_end));
+
+  char *ptr = END_OF_HEAP(), *sp = top_of_stack();
+
+  SERIAL_ECHOPAIR("\nstart of free space : ", hex_address(ptr));
+  SERIAL_ECHOLNPAIR("\nStack Pointer : ", hex_address(sp));
+
+  // Always init on the first invocation of M100
+  static bool m100_not_initialized = true;
+  if (m100_not_initialized || code_seen('I')) {
+    m100_not_initialized = false;
+    init_free_memory(ptr, sp - ptr);
+  }
+
+  #if ENABLED(M100_FREE_MEMORY_DUMPER)
+    if (code_seen('D'))
+      return dump_free_memory(ptr, sp);
+  #endif
+
+  if (code_seen('F'))
+    return free_memory_pool_report(ptr, sp - ptr);
+
+  #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
+
+    if (code_seen('C'))
+      return corrupt_free_memory(ptr, code_value_int());
+
+  #endif
+}
+
+int check_for_free_memory_corruption(const char * const title) {
+  SERIAL_ECHO(title);
+
+  char *ptr = END_OF_HEAP(), *sp = top_of_stack();
+  int n = sp - ptr;
+
+  SERIAL_ECHOPAIR("\nfmc() n=", n);
+  SERIAL_ECHOPAIR("\n&__brkval: ", hex_address(&__brkval));
+  SERIAL_ECHOPAIR("=",             hex_address(__brkval));
+  SERIAL_ECHOPAIR("\n__bss_end: ", hex_address(&__bss_end));
+  SERIAL_ECHOPAIR(" sp=",          hex_address(sp));
+
+  if (sp < ptr)  {
+    SERIAL_ECHOPGM(" sp < Heap ");
+    // SET_INPUT_PULLUP(63);           // if the developer has a switch wired up to their controller board
+    // safe_delay(5);                  // this code can be enabled to pause the display as soon as the
+    // while ( READ(63))               // malfunction is detected.   It is currently defaulting to a switch
+    //   idle();                       // being on pin-63 which is unassigend and available on most controller
+    // safe_delay(20);                 // boards.
+    // while ( !READ(63))
+    //   idle();
+    safe_delay(20);
+    #ifdef M100_FREE_MEMORY_DUMPER
+      M100_dump_routine("   Memory corruption detected with sp<Heap\n", (char*)0x1B80, 0x21FF);
+    #endif
+  }
+
+  // Scan through the range looking for the biggest block of 0xE5's we can find
+  int block_cnt = 0;
+  for (int i = 0; i < n; i++) {
+    if (ptr[i] == TEST_BYTE) {
+      int16_t j = count_test_bytes(ptr + i);
+      if (j > 8) {
+        // SERIAL_ECHOPAIR("Found ", j);
+        // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(ptr + i));
+        i += j;
+        block_cnt++;
+        SERIAL_ECHOPAIR(" (", block_cnt);
+        SERIAL_ECHOPAIR(") found=", j);
+        SERIAL_ECHOPGM("   ");
+      }
+    }
+  }
+  SERIAL_ECHOPAIR("  block_found=", block_cnt);
+
+  if (block_cnt != 1 || __brkval != 0x0000)
+    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+
+  if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
+    block_cnt = -1;         // error to the calling code!
+
+  SERIAL_ECHOPGM(" return=");
+  if (block_cnt == 1) {
+    SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
+    SERIAL_EOL;             // area and it is appropriate to say 'no corruption'.
+    return 0;
+  }
+  SERIAL_ECHOLNPGM("true");
+  return block_cnt;
+}
+
+#endif // M100_FREE_MEMORY_WATCHER
+
 

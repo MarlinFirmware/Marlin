@@ -25,20 +25,38 @@
 
 #include "MarlinConfig.h"
 
-void Config_ResetDefault();
+class MarlinSettings {
+  public:
+    MarlinSettings() { }
 
-#if DISABLED(DISABLE_M503)
-  void Config_PrintSettings(bool forReplay=false);
-#else
-  FORCE_INLINE void Config_PrintSettings(bool forReplay=false) {}
-#endif
+    static void reset();
+    static bool save();
 
-#if ENABLED(EEPROM_SETTINGS)
-  void Config_StoreSettings();
-  void Config_RetrieveSettings();
-#else
-  FORCE_INLINE void Config_StoreSettings() {}
-  FORCE_INLINE void Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); }
-#endif
+    #if ENABLED(EEPROM_SETTINGS)
+      static bool load();
+    #else
+      FORCE_INLINE
+      static bool load() { reset(); report(); return true; }
+    #endif
 
-#endif //CONFIGURATION_STORE_H
+    #if DISABLED(DISABLE_M503)
+      static void report(bool forReplay=false);
+    #else
+      FORCE_INLINE
+      static void report(bool forReplay=false) { }
+    #endif
+
+  private:
+    static void postprocess();
+
+    #if ENABLED(EEPROM_SETTINGS)
+      static uint16_t eeprom_checksum;
+      static bool eeprom_read_error, eeprom_write_error;
+      static void write_data(int &pos, const uint8_t* value, uint16_t size);
+      static void read_data(int &pos, uint8_t* value, uint16_t size);
+    #endif
+};
+
+extern MarlinSettings settings;
+
+#endif // CONFIGURATION_STORE_H

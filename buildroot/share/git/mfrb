@@ -8,14 +8,13 @@
 MFINFO=$(mfinfo) || exit
 IFS=' ' read -a INFO <<< "$MFINFO"
 
-if [[ ${INFO[4]} == "(no" ]]; then
-  echo "Branch is unavailable!"
-  exit 1
-fi
-
 case "$#" in
   0 ) ;;
   * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
 esac
 
-git rebase -i ${INFO[3]}
+# If the branch isn't currently the PR target
+if [[ ${INFO[3]} != ${INFO[4]} ]]; then
+  git fetch upstream
+  git rebase upstream/${INFO[3]} && git rebase -i upstream/${INFO[3]}
+fi

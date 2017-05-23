@@ -51,8 +51,6 @@
 //#define MAPPER_E382E383    // For Katakana
 //#define MAPPER_NON         // For direct ascii codes. Fall back mapper - if no other is defined.
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 
 // Select the better font for full graphic displays.
 //#define DISPLAY_CHARSET_ISO10646_1
@@ -150,7 +148,7 @@
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
-  #define MSG_VOLUMETRIC                      STRG_OKTAL_5
+  #define MSG_FILAMENT                        STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 
@@ -185,7 +183,7 @@
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
-  #define MSG_VOLUMETRIC                      STRG_OKTAL_5
+  #define MSG_FILAMENT                        STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 
@@ -220,7 +218,7 @@
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
-  #define MSG_VOLUMETRIC                      STRG_OKTAL_5
+  #define MSG_FILAMENT                        STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 

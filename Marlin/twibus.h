@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -33,6 +33,8 @@
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
+#define TWIBUS_BUFFER_SIZE 32
+
 /**
  * TWIBUS class
  *
@@ -41,25 +43,17 @@ typedef void (*twiRequestFunc_t)();
  * an experimental feature and it's inner workings as well as public facing
  * interface are prune to change in the future.
  *
- * The two main consumers of this class are M155 and M156, where M155 allows
+ * The two main consumers of this class are M260 and M261, where M260 allows
  * Marlin to send a I2C packet to a device (please be aware that no repeated
  * starts are possible), this can be done in caching method by calling multiple
- * times M155 B<byte-1 value in base 10> or a one liner M155, have a look at
- * the gcode_M155() function for more information. M156 allows Marlin to
+ * times M260 B<byte-1 value in base 10> or a one liner M260, have a look at
+ * the gcode_M260() function for more information. M261 allows Marlin to
  * request data from a device, the received data is then relayed into the serial
  * line for host interpretation.
  *
  */
 class TWIBus {
   private:
-    /**
-     * @brief Timeout value in milliseconds
-     * @details Maximum amount of time (ms) to wait for a reply.
-     *          Useful if something goes wrong on the bus and the
-     *          SDA/SCL lines are held up by another device.
-     */
-    const int timeout = 5;
-
     /**
      * @brief Number of bytes on buffer
      * @description Number of bytes in the buffer waiting to be flushed to the bus
@@ -70,7 +64,7 @@ class TWIBus {
      * @brief Internal buffer
      * @details A fixed buffer. TWI commands can be no longer than this.
      */
-    char buffer[32];
+    char buffer[TWIBUS_BUFFER_SIZE];
 
 
   public:
@@ -135,6 +129,14 @@ class TWIBus {
     void address(const uint8_t adr);
 
     /**
+     * @brief Prefix for echo to serial
+     * @details Echo a label, length, address, and "data:"
+     *
+     * @param bytes the number of bytes to request
+     */
+    static void echoprefix(uint8_t bytes, const char prefix[], uint8_t adr);
+
+    /**
      * @brief Echo data on the bus to serial
      * @details Echo some number of bytes from the bus
      *          to serial in a parser-friendly format.
@@ -144,14 +146,48 @@ class TWIBus {
     static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
 
     /**
-     * @brief Request data from the slave device
-     * @details Request a number of bytes from a slave device.
-     *          This implementation simply sends the data to serial
-     *          in a parser-friendly format.
+     * @brief Echo data in the buffer to serial
+     * @details Echo the entire buffer to serial
+     *          to serial in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
      */
-    void reqbytes(const uint8_t bytes);
+    void echobuffer(const char prefix[], uint8_t adr);
+
+    /**
+     * @brief Request data from the slave device and wait.
+     * @details Request a number of bytes from a slave device.
+     *          Wait for the data to arrive, and return true
+     *          on success.
+     *
+     * @param bytes the number of bytes to request
+     * @return status of the request: true=success, false=fail
+     */
+    bool request(const uint8_t bytes);
+
+    /**
+     * @brief Capture data from the bus into the buffer.
+     * @details Capture data after a request has succeeded.
+     *
+     * @param bytes the number of bytes to request
+     * @return the number of bytes captured to the buffer
+     */
+    uint8_t capture(char *dst, const uint8_t bytes);
+
+    /**
+     * @brief Flush the i2c bus.
+     * @details Get all bytes on the bus and throw them away.
+     */
+    static void flush();
+
+    /**
+     * @brief Request data from the slave device, echo to serial.
+     * @details Request a number of bytes from a slave device and output
+     *          the returned data to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void relay(const uint8_t bytes);
 
     #if I2C_SLAVE_ADDRESS > 0
 
@@ -181,6 +217,7 @@ class TWIBus {
       /**
        * @brief Send a reply to the bus
        * @details Send the buffer and clear it.
+       *          If a string is passed, write it into the buffer first.
        */
       void reply(char str[]=NULL);
       inline void reply(const char str[]) { this->reply((char*)str); }

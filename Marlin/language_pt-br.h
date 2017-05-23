@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PT_BR_H
 #define LANGUAGE_PT_BR_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
@@ -89,7 +87,8 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Acc"
-#define MSG_VXY_JERK                        "jogo VXY"
+#define MSG_VX_JERK                         "jogo VX"
+#define MSG_VY_JERK                         "jogo VY"
 #define MSG_VZ_JERK                         "jogo VZ"
 #define MSG_VE_JERK                         "jogo VE"
 #define MSG_VMAX                            " Vmax "
@@ -102,14 +101,19 @@
 #define MSG_YSTEPS                          "Passo Y/mm"
 #define MSG_ZSTEPS                          "Passo Z/mm"
 #define MSG_ESTEPS                          "E/mm"
+#define MSG_E1STEPS                         "E1/mm"
+#define MSG_E2STEPS                         "E2/mm"
+#define MSG_E3STEPS                         "E3/mm"
+#define MSG_E4STEPS                         "E4/mm"
+#define MSG_E5STEPS                         "E5/mm"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
-#define MSG_VOLUMETRIC                      "Filamento"
+#define MSG_FILAMENT                        "Filamento"
 #define MSG_VOLUMETRIC_ENABLED              "Extr. em mm3"
 #define MSG_FILAMENT_DIAM                   "Diametro Fil."
 #define MSG_CONTRAST                        "Contraste"
-#define MSG_STORE_EPROM                     "Salvar"
-#define MSG_LOAD_EPROM                      "Ler"
+#define MSG_STORE_EEPROM                    "Salvar"
+#define MSG_LOAD_EEPROM                     "Ler"
 #define MSG_RESTORE_FAILSAFE                "Rest. de emerg."
 #define MSG_REFRESH                         LCD_STR_REFRESH " Restaurar"
 #define MSG_WATCH                           "Monitorar"
@@ -131,8 +135,8 @@
 #define MSG_CONTROL_RETRACT_SWAP            "Retrair Troca mm"
 #define MSG_CONTROL_RETRACTF                "Retrair  V"
 #define MSG_CONTROL_RETRACT_ZLIFT           "Levantar mm"
-#define MSG_CONTROL_RETRACT_RECOVER         "Des Retrair +mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Des RetTroca +mm"
+#define MSG_CONTROL_RETRACT_RECOVER         "Des Retrair mm"
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Des RetTroca mm"
 #define MSG_CONTROL_RETRACT_RECOVERF        "Des Retrair  V"
 #define MSG_AUTORETRACT                     "Retracao Autom."
 #define MSG_FILAMENTCHANGE                  "Trocar Filamento"

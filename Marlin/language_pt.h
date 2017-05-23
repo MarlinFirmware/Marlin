@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PT_H
 #define LANGUAGE_PT_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
@@ -93,7 +91,8 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Acc"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            " Vmax "
@@ -106,14 +105,19 @@
 #define MSG_YSTEPS                          "Y passo/mm"
 #define MSG_ZSTEPS                          "Z passo/mm"
 #define MSG_ESTEPS                          "E passo/mm"
+#define MSG_E1STEPS                         "E1 passo/mm"
+#define MSG_E2STEPS                         "E2 passo/mm"
+#define MSG_E3STEPS                         "E3 passo/mm"
+#define MSG_E4STEPS                         "E4 passo/mm"
+#define MSG_E5STEPS                         "E5 passo/mm"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
-#define MSG_VOLUMETRIC                      "Filamento"
+#define MSG_FILAMENT                        "Filamento"
 #define MSG_VOLUMETRIC_ENABLED              "E em mm3"
 #define MSG_FILAMENT_DIAM                   "Fil. Diam."
 #define MSG_CONTRAST                        "Contraste"
-#define MSG_STORE_EPROM                     "Guardar na memoria"
-#define MSG_LOAD_EPROM                      "Carregar da memoria"
+#define MSG_STORE_EEPROM                    "Guardar na memoria"
+#define MSG_LOAD_EEPROM                     "Carregar da memoria"
 #define MSG_RESTORE_FAILSAFE                "Rest. de emergen."
 #define MSG_REFRESH                         LCD_STR_REFRESH " Recarregar"
 #define MSG_WATCH                           "Monitorizar"
@@ -135,8 +139,8 @@
 #define MSG_CONTROL_RETRACT_SWAP            "Troca Retrair mm"
 #define MSG_CONTROL_RETRACTF                " Retrair  V"
 #define MSG_CONTROL_RETRACT_ZLIFT           " Levantar mm"
-#define MSG_CONTROL_RETRACT_RECOVER         " DesRet +mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Troca DesRet +mm"
+#define MSG_CONTROL_RETRACT_RECOVER         " DesRet mm"
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Troca DesRet mm"
 #define MSG_CONTROL_RETRACT_RECOVERF        " DesRet  V"
 #define MSG_AUTORETRACT                     " AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Trocar filamento"

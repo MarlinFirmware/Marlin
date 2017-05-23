@@ -86,10 +86,17 @@ class Endstops {
   private:
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static void test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2);
+      static void test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2);
     #endif
 };
 
 extern Endstops endstops;
+
+#if HAS_BED_PROBE
+  #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
+#else
+  #define ENDSTOPS_ENABLED  endstops.enabled
+#endif
+
 
 #endif // ENDSTOPS_H

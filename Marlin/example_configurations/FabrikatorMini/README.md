@@ -1,15 +1,35 @@
 # Configuration for Fabrikator Mini
 This example configuration is for a Turnigy Fabrikator Mini 1.5
 
-It is prepared to work with the following modifications
+It does work fine with stock printers without any modifications 
+and should work with the following modifications:
+
 * RepRapDiscount Full Graphic Smart Controller
 * tinyFab Heated Bed MK2 (http://tinyfab.xyz)
 
-It should work fine with stock printers without any modifications, too.
 
-# Instructions
-Copy the contents of this folder to the "Marlin" folder, overwriting any existing
-files in there. If you are not asked to overwrite any files, you have the wrong folder.
+# Instructions 
+
+## Configuration
+
+From this directory
+
+    cp Configuration.h ../..
+    cp Configuration_adv.h ../..
+
+## Compile Firmware
+
+  - Start the Arduino IDE.
+  - Select Tools -> Board -> Arduino Mega 2560
+  - Select the correct serial port in Tools -> Serial Port (usually /dev/ttyUSB0)
+  - Open Marlin.pde or .ino
+  - Click the Verify/Compile button
+
+## Flash Firmware
+
+  - Click the Upload button. If all goes well the firmware is uploading
+
+# Notes
 
 ## Hotend fan not starting
 These configs will only start the hotend fan if a hotend temperature of 50°C has been 
