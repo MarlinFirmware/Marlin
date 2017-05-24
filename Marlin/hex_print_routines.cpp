@@ -20,7 +20,9 @@
  *
  */
 #include "Marlin.h"
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER)
+#include "gcode.h"
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
 
 #include "hex_print_routines.h"
 
@@ -50,4 +52,4 @@ void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
 void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
 void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
-#endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER
+#endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER || DEBUG_GCODE_PARSER

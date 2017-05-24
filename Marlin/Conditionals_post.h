@@ -838,4 +838,7 @@
   // Shorthand
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
+  // Add commands that need sub-codes to this list
+  #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET)
+
 #endif // CONDITIONALS_POST_H

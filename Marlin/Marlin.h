@@ -287,22 +287,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
-// GCode support for external objects
-bool code_seen(char);
-int code_value_int();
-int16_t code_value_temp_abs();
-int16_t code_value_temp_diff();
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  float code_value_linear_units();
-  float code_value_axis_units(const AxisEnum axis);
-  float code_value_per_axis_unit(const AxisEnum axis);
-#else
-  #define code_value_linear_units() code_value_float()
-  #define code_value_axis_units(A) code_value_float()
-  #define code_value_per_axis_unit(A) code_value_float()
-#endif
-
 #if IS_KINEMATIC
   extern float delta[ABC];
   void inverse_kinematics(const float logical[XYZ]);
@@ -490,4 +474,4 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
   return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
 }
 
-#endif //MARLIN_H
+#endif // MARLIN_H

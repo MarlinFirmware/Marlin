@@ -30,6 +30,7 @@
   #include "configuration_store.h"
   #include "ultralcd.h"
   #include "stepper.h"
+  #include "gcode.h"
 
   #include <math.h>
   #include "least_squares_fit.h"
@@ -47,10 +48,6 @@
   float lcd_z_offset_edit();
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float code_value_float();
-  extern uint8_t code_value_byte();
-  extern bool code_value_bool();
-  extern bool code_has_value();
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
 
@@ -322,26 +319,20 @@
       return;
     }
 
-    // Check for commands that require the printer to be homed.
+    // Check for commands that require the printer to be homed
     if (axis_unhomed_error()) {
-      if (code_seen('J'))
+      const int8_t p_val = parser.seen('P') && parser.has_value() ? parser.value_int() : -1;
+      if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
         home_all_axes();
-      else if (code_seen('P')) {
-        if (code_has_value()) {
-          const int p_val = code_value_int();
-          if (p_val == 1 || p_val == 2 || p_val == 4)
-            home_all_axes();
-        }
-      }
     }
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
 
-    // Invalidate Mesh Points. This command is a little bit asymetrical because
+    // Invalidate Mesh Points. This command is a little bit asymmetrical because
     // it directly specifies the repetition count and does not use the 'R' parameter.
-    if (code_seen('I')) {
+    if (parser.seen('I')) {
       uint8_t cnt = 0;
-      g29_repetition_cnt = code_has_value() ? code_value_int() : 1;
+      g29_repetition_cnt = parser.has_value() ? parser.value_int() : 1;
       while (g29_repetition_cnt--) {
         if (cnt > 20) { cnt = 0; idle(); }
         const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
@@ -355,10 +346,10 @@
       SERIAL_PROTOCOLLNPGM("Locations invalidated.\n");
     }
 
-    if (code_seen('Q')) {
-      const int test_pattern = code_has_value() ? code_value_int() : -99;
+    if (parser.seen('Q')) {
+      const int test_pattern = parser.has_value() ? parser.value_int() : -99;
       if (!WITHIN(test_pattern, -1, 2)) {
-        SERIAL_PROTOCOLLNPGM("Invalid test_pattern value. (0-2)\n");
+        SERIAL_PROTOCOLLNPGM("Invalid test_pattern value. (-1 to 2)\n");
         return;
       }
       SERIAL_PROTOCOLLNPGM("Loading test_pattern values.\n");
@@ -385,15 +376,15 @@
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
           for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
             for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
-              z_values[x][y] += code_seen('C') ? g29_constant : 9.99;
+              z_values[x][y] += parser.seen('C') ? g29_constant : 9.99;
           break;
       }
     }
 
-    if (code_seen('J')) {
+    if (parser.seen('J')) {
       if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
         save_ubl_active_state_and_disable();
-        tilt_mesh_based_on_probed_grid(code_seen('T'));
+        tilt_mesh_based_on_probed_grid(parser.seen('T'));
         restore_ubl_active_state_and_leave();
       }
       else { // grid_size == 0 : A 3-Point leveling has been requested
@@ -425,7 +416,7 @@
       }
     }
 
-    if (code_seen('P')) {
+    if (parser.seen('P')) {
       if (WITHIN(g29_phase_value, 0, 1) && state.storage_slot == -1) {
         state.storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
@@ -444,7 +435,7 @@
           //
           // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
           //
-          if (!code_seen('C')) {
+          if (!parser.seen('C')) {
             invalidate();
             SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.");
           }
@@ -455,7 +446,7 @@
             SERIAL_PROTOCOLLNPGM(").\n");
           }
           probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            code_seen('T'), code_seen('E'), code_seen('U'));
+                            parser.seen('T'), parser.seen('E'), parser.seen('U'));
           break;
 
         case 2: {
@@ -481,30 +472,29 @@
             #endif
           }
 
-          if (code_seen('C')) {
+          if (parser.seen('C')) {
             g29_x_pos = current_position[X_AXIS];
             g29_y_pos = current_position[Y_AXIS];
           }
 
           float height = Z_CLEARANCE_BETWEEN_PROBES;
 
-          if (code_seen('B')) {
-            g29_card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
-
+          if (parser.seen('B')) {
+            g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(height);
             if (fabs(g29_card_thickness) > 1.5) {
               SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
               return;
             }
           }
 
-          if (code_seen('H') && code_has_value()) height = code_value_float();
+          if (parser.seen('H') && parser.has_value()) height = parser.value_float();
 
           if (!position_is_reachable_xy(g29_x_pos, g29_y_pos)) {
-            SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
+            SERIAL_PROTOCOLLNPGM("XY outside printable radius.");
             return;
           }
 
-          manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, code_seen('T'));
+          manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
           SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
         } break;
 
@@ -531,7 +521,7 @@
               }
             }
           } else {
-            const float cvf = code_value_float();
+            const float cvf = parser.value_float();
             switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
@@ -561,9 +551,7 @@
           //
           // Fine Tune (i.e., Edit) the Mesh
           //
-
-          fine_tune_mesh(g29_x_pos, g29_y_pos, code_seen('T'));
-
+          fine_tune_mesh(g29_x_pos, g29_y_pos, parser.seen('T'));
           break;
 
         case 5: find_mean_mesh_height(); break;
@@ -576,22 +564,22 @@
     // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
     // good to have the extra information. Soon... we prune this to just a few items
     //
-    if (code_seen('W')) g29_what_command();
+    if (parser.seen('W')) g29_what_command();
 
     //
     // When we are fully debugged, this may go away. But there are some valid
     // use cases for the users. So we can wait and see what to do with it.
     //
 
-    if (code_seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
+    if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
       g29_compare_current_mesh_to_stored_mesh();
 
     //
     // Load a Mesh from the EEPROM
     //
 
-    if (code_seen('L')) {     // Load Current Mesh Data
-      g29_storage_slot = code_has_value() ? code_value_int() : state.storage_slot;
+    if (parser.seen('L')) {     // Load Current Mesh Data
+      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
 
       int16_t a = settings.calc_num_meshes();
 
@@ -616,8 +604,8 @@
     // Store a Mesh in the EEPROM
     //
 
-    if (code_seen('S')) {     // Store (or Save) Current Mesh Data
-      g29_storage_slot = code_has_value() ? code_value_int() : state.storage_slot;
+    if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
+      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
 
       if (g29_storage_slot == -1) {                     // Special case, we are going to 'Export' the mesh to the
         SERIAL_ECHOLNPGM("G29 I 999");              // host in a form it can be reconstructed on a different machine
@@ -654,15 +642,17 @@
       SERIAL_PROTOCOLLNPGM("Done.");
     }
 
-    if (code_seen('T'))
-      display_map(code_has_value() ? code_value_int() : 0);
+    if (parser.seen('T'))
+      display_map(parser.has_value() ? parser.value_int() : 0);
 
-    /*
+    /**
      * This code may not be needed...  Prepare for its removal...
      *
-    if (code_seen('Z')) {
-      if (code_has_value())
-        state.z_offset = code_value_float();   // do the simple case. Just lock in the specified value
+     */
+    #if 0
+    if (parser.seen('Z')) {
+      if (parser.has_value())
+        state.z_offset = parser.value_float();   // do the simple case. Just lock in the specified value
       else {
         save_ubl_active_state_and_disable();
         //float measured_z = probe_pt(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
@@ -712,7 +702,7 @@
         restore_ubl_active_state_and_leave();
       }
     }
-    */
+    #endif
 
     LEAVE:
 
@@ -1015,10 +1005,7 @@
 
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
-      if (code_seen('B'))
-        LCD_MESSAGEPGM("Place shim & measure"); // TODO: Make translatable string
-      else
-        LCD_MESSAGEPGM("Measure"); // TODO: Make translatable string
+      serialprintPGM(parser.seen('B') ? PSTR("Place shim & measure") : PSTR("Measure")); // TODO: Make translatable strings
 
       while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
       delay(50);                                       // debounce
@@ -1073,13 +1060,13 @@
     g29_constant = 0.0;
     g29_repetition_cnt = 0;
 
-    g29_x_flag = code_seen('X') && code_has_value();
-    g29_x_pos = g29_x_flag ? code_value_float() : current_position[X_AXIS];
-    g29_y_flag = code_seen('Y') && code_has_value();
-    g29_y_pos = g29_y_flag ? code_value_float() : current_position[Y_AXIS];
+    g29_x_flag = parser.seen('X') && parser.has_value();
+    g29_x_pos = g29_x_flag ? parser.value_float() : current_position[X_AXIS];
+    g29_y_flag = parser.seen('Y') && parser.has_value();
+    g29_y_pos = g29_y_flag ? parser.value_float() : current_position[Y_AXIS];
 
-    if (code_seen('R')) {
-      g29_repetition_cnt = code_has_value() ? code_value_int() : GRID_MAX_POINTS;
+    if (parser.seen('R')) {
+      g29_repetition_cnt = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS;
       NOMORE(g29_repetition_cnt, GRID_MAX_POINTS);
       if (g29_repetition_cnt < 1) {
         SERIAL_PROTOCOLLNPGM("?(R)epetition count invalid (1+).\n");
@@ -1087,22 +1074,22 @@
       }
     }
 
-    g29_verbose_level = code_seen('V') ? code_value_int() : 0;
+    g29_verbose_level = parser.seen('V') ? parser.value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).\n");
       err_flag = true;
     }
 
-    if (code_seen('P')) {
-      g29_phase_value = code_value_int();
+    if (parser.seen('P')) {
+      g29_phase_value = parser.value_int();
       if (!WITHIN(g29_phase_value, 0, 6)) {
         SERIAL_PROTOCOLLNPGM("?(P)hase value invalid (0-6).\n");
         err_flag = true;
       }
     }
 
-    if (code_seen('J')) {
-      g29_grid_size = code_has_value() ? code_value_int() : 0;
+    if (parser.seen('J')) {
+      g29_grid_size = parser.has_value() ? parser.value_int() : 0;
       if (g29_grid_size && !WITHIN(g29_grid_size, 2, 9)) {
         SERIAL_PROTOCOLLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
@@ -1125,27 +1112,32 @@
 
     if (err_flag) return UBL_ERR;
 
-    // Activate or deactivate UBL
-    if (code_seen('A')) {
-      if (code_seen('D')) {
+    /**
+     * Activate or deactivate UBL
+     * Note: UBL's G29 restores the state set here when done.
+     *       Leveling is being enabled here with old data, possibly
+     *       none. Error handling should disable for safety...
+     */
+    if (parser.seen('A')) {
+      if (parser.seen('D')) {
         SERIAL_PROTOCOLLNPGM("?Can't activate and deactivate at the same time.\n");
         return UBL_ERR;
       }
       state.active = true;
       report_state();
     }
-    else if (code_seen('D')) {
+    else if (parser.seen('D')) {
       state.active = false;
       report_state();
     }
 
     // Set global 'C' flag and its value
-    if ((g29_c_flag = code_seen('C')))
-      g29_constant = code_value_float();
+    if ((g29_c_flag = parser.seen('C')))
+      g29_constant = parser.value_float();
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (code_seen('F') && code_has_value()) {
-        const float fh = code_value_float();
+      if (parser.seen('F') && parser.has_value()) {
+        const float fh = parser.value_float();
         if (!WITHIN(fh, 0.0, 100.0)) {
           SERIAL_PROTOCOLLNPGM("?(F)ade height for Bed Level Correction not plausible.\n");
           return UBL_ERR;
@@ -1154,7 +1146,7 @@
       }
     #endif
 
-    g29_map_type = code_seen('T') && code_has_value() ? code_value_int() : 0;
+    g29_map_type = parser.seen('T') && parser.has_value() ? parser.value_int() : 0;
     if (!WITHIN(g29_map_type, 0, 1)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
@@ -1319,13 +1311,13 @@
       return;
     }
 
-    if (!code_has_value()) {
+    if (!parser.has_value()) {
       SERIAL_PROTOCOLLNPGM("?Storage slot # required.");
       SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
       return;
     }
 
-    g29_storage_slot = code_value_int();
+    g29_storage_slot = parser.value_int();
 
     if (!WITHIN(g29_storage_slot, 0, a - 1)) {
       SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
@@ -1416,7 +1408,7 @@
   }
 
   void unified_bed_leveling::fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
-    if (!code_seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
+    if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
       g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
     mesh_index_pair location;
@@ -1587,7 +1579,7 @@
       const float x = float(x_min) + ix * dx;
       for (int8_t iy = 0; iy < g29_grid_size; iy++) {
         const float y = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
-        float measured_z = probe_pt(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), code_seen('E'), g29_verbose_level); // TODO: Needs error handling
+        float measured_z = probe_pt(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_CHAR('(');
