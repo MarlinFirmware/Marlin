@@ -7678,6 +7678,10 @@ inline void gcode_M205() {
 
   /**
    * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
+   *
+   * *** @thinkyhead: I recommend deprecating M206 for SCARA in favor of M665.
+   * ***              M206 for SCARA will remain enabled in 1.1.x for compatibility.
+   * ***              In the next 1.2 release, it will simply be disabled by default.
    */
   inline void gcode_M206() {
     LOOP_XYZ(i)
@@ -7755,6 +7759,44 @@ inline void gcode_M205() {
     const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
     home_offset[Z_AXIS] -= z_temp;
     LOOP_XYZ(i) endstop_adj[i] -= z_temp;
+  }
+
+#elif IS_SCARA
+
+  /**
+   * M665: Set SCARA settings
+   *
+   * Parameters:
+   *
+   *   S[segments-per-second] - Segments-per-second
+   *   P[theta-psi-offset]    - Theta-Psi offset, added to the shoulder (A/X) angle
+   *   T[theta-offset]        - Theta     offset, added to the elbow    (B/Y) angle
+   *
+   *   A, P, and X are all aliases for the shoulder angle
+   *   B, T, and Y are all aliases for the elbow angle
+   */
+  inline void gcode_M665() {
+    if (parser.seen('S')) delta_segments_per_second = parser.value_float();
+
+    const bool hasA = parser.seen('A'), hasP = parser.seen('P'), hasX = parser.seen('X');
+    const uint8_t sumAPX = hasA + hasP + hasX;
+    if (sumAPX == 1)
+      home_offset[A_AXIS] = parser.value_float();
+    else if (sumAPX > 1) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Only one of A, P, or X is allowed.");
+      return;
+    }
+
+    const bool hasB = parser.seen('B'), hasT = parser.seen('T'), hasY = parser.seen('Y');
+    const uint8_t sumBTY = hasB + hasT + hasY;
+    if (sumBTY == 1)
+      home_offset[B_AXIS] = parser.value_float();
+    else if (sumBTY > 1) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Only one of B, T, or Y is allowed.");
+      return;
+    }
   }
 
 #elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
