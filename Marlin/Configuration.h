@@ -327,7 +327,7 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-  // Custom PID settings for my hotend
+  // Custom PID settings for my hotend(Run M303 E0 S200 C8 to get yours)
   #define  DEFAULT_Kp 15.37
   #define  DEFAULT_Ki 0.85
   #define  DEFAULT_Kd 69.58
