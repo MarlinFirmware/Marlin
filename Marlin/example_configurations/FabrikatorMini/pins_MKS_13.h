@@ -29,20 +29,25 @@
  *  MKS v1.4  (Extruder, Extruder, Fan, Bed)
  */
 
-#if HOTENDS > 2
-  #error "MKS 1.3/1.4 supports up to 2 hotends. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS 1.3/1.4 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "MKS > v1.3"
 
+#define FAN_PIN -1
+
+//
+// Heaters / Fans
+//
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
-// Override FAN_PIN to use EXTRUDER_0_AUTO_FAN_PIN
-#define FAN_PIN -1
-
+//
+// LCD / Controller
+//
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...
@@ -123,9 +128,9 @@
   #define BEEPER_PIN      25
 
   // yellow               RED-LED
-  #define STAT_LED_RED    16
+  #define STAT_LED_RED_PIN 16
 
   // white                BLUE-LED
-  #define STAT_LED_BLUE   17
+  #define STAT_LED_BLUE_PIN 17
 
 #endif
