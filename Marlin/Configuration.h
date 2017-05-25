@@ -74,9 +74,9 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(CH, 20170520)" // Who made the changes.  //CH
+#define STRING_CONFIG_H_AUTHOR "(CH, 20170525)" // Who made the changes.  //CH
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 "CH-1.1-20170520" // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE1 "CH-1.1-20170525" // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 "CH-Version"         // will be shown during bootup in line 2
 
 //
