@@ -381,12 +381,18 @@ static void lcd_implementation_init(
 void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-void lcd_printPGM(const char *str) {
-  for (; char c = pgm_read_byte(str); ++str) charset_mapper(c);
+void lcd_printPGM(const char* str, const int maxLength = LCD_WIDTH) {
+  char c;
+  for (uint8_t len = 0; len < maxLength && (c = pgm_read_byte(str)); ++str) {
+    if (charset_mapper(c)) ++len;
+  }
 }
 
-void lcd_print(const char* const str) {
-  for (uint8_t i = 0; const char c = str[i]; ++i) charset_mapper(c);
+void lcd_print(const char* const str, const int maxLength = LCD_WIDTH) {
+  char c;
+  for (uint8_t i = 0, len = 0; len < maxLength && (c = str[i]); ++i) {
+    if (charset_mapper(c)) ++len;
+  }
 }
 
 void lcd_print(const char c) { charset_mapper(c); }
@@ -795,10 +801,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
-  const char *str = lcd_status_message;
-  uint8_t i = LCD_WIDTH;
-  char c;
-  while (i-- && (c = *str++)) lcd_print(c);
+  lcd_print(lcd_status_message);
 }
 
 #if ENABLED(ULTIPANEL)
