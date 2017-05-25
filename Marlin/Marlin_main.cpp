@@ -3800,6 +3800,10 @@ void home_all_axes() { gcode_G28(true); }
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
+  #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    extern bool lcd_wait_for_move;
+  #endif
+
   inline void _manual_goto_xy(const float &x, const float &y) {
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -3822,6 +3826,10 @@ void home_all_axes() { gcode_G28(true); }
 
     feedrate_mm_s = old_feedrate_mm_s;
     stepper.synchronize();
+
+    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+      lcd_wait_for_move = false;
+    #endif
   }
 
 #endif
@@ -4414,16 +4422,20 @@ void home_all_axes() { gcode_G28(true); }
         #endif
         planner.abl_enabled = abl_should_enable;
         g29_in_progress = false;
+        #if ENABLED(LCD_BED_LEVELING)
+          lcd_wait_for_move = false;
+        #endif
       }
 
       // Query G29 status
       if (verbose_level || seenQ) {
-        if (!g29_in_progress)
-          SERIAL_PROTOCOLLNPGM("Manual G29 idle");
-        else {
-          SERIAL_PROTOCOLPAIR("Manual G29 point ", abl_probe_index + 1);
+        SERIAL_PROTOCOLPGM("Manual G29 ");
+        if (g29_in_progress) {
+          SERIAL_PROTOCOLPAIR("point ", abl_probe_index + 1);
           SERIAL_PROTOCOLLNPAIR(" of ", abl2);
         }
+        else
+          SERIAL_PROTOCOLLNPGM("idle");
       }
 
       if (seenA || seenQ) return;
@@ -4679,6 +4691,10 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
+    #endif
+
+    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+      lcd_wait_for_move = false;
     #endif
 
     // Calculate leveling, print reports, correct the position
