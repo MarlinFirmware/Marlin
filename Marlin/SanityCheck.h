@@ -385,9 +385,10 @@
 /**
  * Servo deactivation depends on servo endstops
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
-  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
-#endif
+//deaktiviert CH - muss trotzdem erlaubt sein. 
+//#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
+//  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+//#endif
 
 /**
  * Required LCD language
