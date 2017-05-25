@@ -4190,7 +4190,7 @@ void home_all_axes() { gcode_G28(true); }
     if (!g29_in_progress) {
 
       #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
-        abl_probe_index = 0;
+        abl_probe_index = -1;
       #endif
 
       abl_should_enable = planner.abl_enabled;
@@ -4397,8 +4397,17 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(PROBE_MANUALLY)
 
+      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q');
+
+      // For manual probing, get the next index to probe now.
+      // On the first probe this will be incremented to 0.
+      if (!seenA && !seenQ) {
+        ++abl_probe_index;
+        g29_in_progress = true;
+      }
+
       // Abort current G29 procedure, go back to ABLStart
-      if (parser.seen('A') && g29_in_progress) {
+      if (seenA && g29_in_progress) {
         SERIAL_PROTOCOLLNPGM("Manual G29 aborted");
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
@@ -4408,7 +4417,7 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       // Query G29 status
-      if (parser.seen('Q')) {
+      if (verbose_level || seenQ) {
         if (!g29_in_progress)
           SERIAL_PROTOCOLLNPGM("Manual G29 idle");
         else {
@@ -4417,10 +4426,7 @@ void home_all_axes() { gcode_G28(true); }
         }
       }
 
-      if (parser.seen('A') || parser.seen('Q')) return;
-
-      // Fall through to probe the first point
-      g29_in_progress = true;
+      if (seenA || seenQ) return;
 
       if (abl_probe_index == 0) {
         // For the initial G29 save software endstop state
@@ -4458,20 +4464,20 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ABL_GRID
 
-        // Find a next point to probe
-        // On the first G29 this will be the first probe point
+        // Skip any unreachable points
         while (abl_probe_index < abl2) {
 
           // Set xCount, yCount based on abl_probe_index, with zig-zag
           PR_OUTER_VAR = abl_probe_index / PR_INNER_END;
           PR_INNER_VAR = abl_probe_index - (PR_OUTER_VAR * PR_INNER_END);
 
-          bool zig = (PR_OUTER_VAR & 1) != ((PR_OUTER_END) & 1);
+          // Probe in reverse order for every other row/column
+          bool zig = (PR_OUTER_VAR & 1); // != ((PR_OUTER_END) & 1);
 
           if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
-          const float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                      yBase = front_probe_bed_position + yGridSpacing * yCount;
+          const float xBase = xCount * xGridSpacing + left_probe_bed_position,
+                      yBase = yCount * yGridSpacing + front_probe_bed_position;
 
           xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
           yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
@@ -4488,7 +4494,6 @@ void home_all_axes() { gcode_G28(true); }
         // Is there a next point to move to?
         if (abl_probe_index < abl2) {
           _manual_goto_xy(xProbe, yProbe); // Can be used here too!
-          ++abl_probe_index;
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -4497,10 +4502,9 @@ void home_all_axes() { gcode_G28(true); }
           return;
         }
         else {
-          // Then leveling is done!
-          // G29 finishing code goes here
 
-          // After recording the last point, activate abl
+          // Leveling done! Fall through to G29 finishing code below
+
           SERIAL_PROTOCOLLNPGM("Grid probing done.");
           g29_in_progress = false;
 
@@ -4514,9 +4518,8 @@ void home_all_axes() { gcode_G28(true); }
 
         // Probe at 3 arbitrary points
         if (abl_probe_index < 3) {
-          xProbe = LOGICAL_X_POSITION(points[i].x);
-          yProbe = LOGICAL_Y_POSITION(points[i].y);
-          ++abl_probe_index;
+          xProbe = LOGICAL_X_POSITION(points[abl_probe_index].x);
+          yProbe = LOGICAL_Y_POSITION(points[abl_probe_index].y);
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -4587,7 +4590,7 @@ void home_all_axes() { gcode_G28(true); }
             yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-              indexIntoAB[xCount][yCount] = ++abl_probe_index;
+              indexIntoAB[xCount][yCount] = ++abl_probe_index; // 0...
             #endif
 
             #if IS_KINEMATIC
@@ -4665,7 +4668,10 @@ void home_all_axes() { gcode_G28(true); }
     // G29 Finishing Code
     //
     // Unless this is a dry run, auto bed leveling will
-    // definitely be enabled after this point
+    // definitely be enabled after this point.
+    //
+    // If code above wants to continue leveling, it should
+    // return or loop before this point.
     //
 
     // Restore state after probing
