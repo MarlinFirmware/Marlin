@@ -461,7 +461,7 @@
   #define DELTA_CALIBRATION_MENU
 
   // set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS*0.869 if DELTA_AUTO_CALIBRATION enabled
-  #define DELTA_CALIBRATION_RADIUS ((DELTA_PRINTABLE_RADIUS) * 0.869) // mm
+  #define DELTA_CALIBRATION_RADIUS ((DELTA_PRINTABLE_RADIUS) * 0.869 - sqrt(sq(X_PROBE_OFFSET_FROM_EXTRUDER) + sq(Y_PROBE_OFFSET_FROM_EXTRUDER))) // mm
 
   // G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   #define DELTA_AUTO_CALIBRATION
