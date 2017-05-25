@@ -4,6 +4,6 @@ It will be updated only based on my configuration, but with stock Tarantula part
 
 My current setup currently consists of: 
 
-Original sized bed
-Original hotend
+Original sized bed,
+Original hotend,
 Inductive sensor for Z axis (LJ12A3-4-Z/BY PNP NO)
