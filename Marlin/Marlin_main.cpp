@@ -12451,9 +12451,15 @@ void setup() {
     // Initialize mixing to 100% color 1
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
       mixing_factor[i] = (i == 0) ? 1.0 : 0.0;
-    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
+    // Initialize virtual tools to 100% color 1 for tool 1, 100% color 2 for tool 2,
+    // etc... for first MIXING_STEPPERS virtual tools
+    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+        mixing_virtual_tool_mix[t][i] = (t == i) ? 1.0 : 0.0;
+    // Initialize remaining virtual tools to 100% color 1
+    for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+        mixing_virtual_tool_mix[t][i] = (i == 0) ? 1.0 : 0.0;
   #endif
 
   #if ENABLED(BLTOUCH)
