@@ -470,7 +470,7 @@ uint16_t max_display_update_time = 0;
         // For LCD_PROGRESS_BAR re-initialize custom characters
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
-      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       screen_changed = true;
       #if ENABLED(DOGLCD)
         drawing_screen = false;
