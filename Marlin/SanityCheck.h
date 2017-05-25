@@ -372,6 +372,8 @@
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(LIN_ADVANCE)
+    #error "MIXING_EXTRUDER is incompatible with LIN_ADVANCE."
   #endif
 #endif
 
