@@ -202,8 +202,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrusores")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baudios")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
-#define MSG_LIGHTS_ON                       _UxGT("Luz cabina ON")
-#define MSG_LIGHTS_OFF                      _UxGT("Luz cabina OFF")
+#define MSG_CASE_LIGHT                      _UxGT("Luz cabina")
+
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              _UxGT("Conteo de impresion")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completadas")
@@ -217,6 +217,7 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Mas larga")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Extrusion")
 #endif
+
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temperatura minima")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Temperatura maxima")
 #define MSG_INFO_PSU                        _UxGT("Fuente de poder")

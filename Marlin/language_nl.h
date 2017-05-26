@@ -202,8 +202,7 @@
 #define MSG_INFO_MENU                       _UxGT("Over Printer")
 #define MSG_INFO_PRINTER_MENU               _UxGT("Printer Info")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocol")
-#define MSG_LIGHTS_ON                       _UxGT("Case licht aan")
-#define MSG_LIGHTS_OFF                      _UxGT("Case licht uit")
+#define MSG_CASE_LIGHT                      _UxGT("Case licht")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Printed Aantal")

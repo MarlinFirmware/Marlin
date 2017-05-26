@@ -202,8 +202,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Estrusoreak")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baudioak")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokoloa")
-#define MSG_LIGHTS_ON                       _UxGT("Kabina Argia ON")
-#define MSG_LIGHTS_OFF                      _UxGT("Kabina Argia OFF")
+#define MSG_CASE_LIGHT                      _UxGT("Kabina Argia")
+
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              _UxGT("Inprim. Zenbaketa")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Burututa")

@@ -209,8 +209,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Estrusori")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocollo")
-#define MSG_LIGHTS_ON                       _UxGT("Luci Case on")
-#define MSG_LIGHTS_OFF                      _UxGT("Luci Case off")
+#define MSG_CASE_LIGHT                      _UxGT("Luci Case")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Contat. stampa")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completati")

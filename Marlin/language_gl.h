@@ -192,8 +192,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrusores")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baudios")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
-#define MSG_LIGHTS_ON                       _UxGT("Acender a luz")
-#define MSG_LIGHTS_OFF                      _UxGT("Apagar a luz")
+#define MSG_CASE_LIGHT                      _UxGT("Luz")
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Total traballos")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Total completos")

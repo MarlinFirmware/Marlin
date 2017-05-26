@@ -205,8 +205,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extruder")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokoll")
-#define MSG_LIGHTS_ON                       _UxGT("Gehäuse Licht an")
-#define MSG_LIGHTS_OFF                      _UxGT("Gehäuse Licht aus")
+#define MSG_CASE_LIGHT                      _UxGT("Licht")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Gesamte Drucke")
@@ -221,6 +220,7 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Längster")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Extrud.")
 #endif
+
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #define MSG_INFO_PSU                        _UxGT("Stromversorgung")

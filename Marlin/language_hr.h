@@ -191,8 +191,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extruderi")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
-#define MSG_LIGHTS_ON                       _UxGT("Upali osvjetljenje")
-#define MSG_LIGHTS_OFF                      _UxGT("Ugasi osvjetljenje")
+#define MSG_CASE_LIGHT                      _UxGT("Osvjetljenje")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Broj printova")
