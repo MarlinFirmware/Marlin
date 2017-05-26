@@ -1,3 +1,12 @@
+#  BQ Marlin v2.5.1
+---
+### Improvements:
+* Updated heated bed configuration on printer start. (H2)
+
+### Bugfixes:
+* Fixed hotend thermistor configuration. (H2)
+* Fixed interruption affecting serial printing. (H2)
+
 #  BQ Marlin v2.5.0
 ---
 ### Improvements:
