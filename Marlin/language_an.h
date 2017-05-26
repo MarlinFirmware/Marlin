@@ -214,8 +214,8 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Fuerza d'o driver")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escri. DAC EEPROM")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("Cambear filamento")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("Opcion de cambio:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mas")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resumir imp.")
 

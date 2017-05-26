@@ -202,9 +202,14 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
 #if ENABLED(PROBING_HEATERS_OFF)
   bool Temperature::paused;
-  int16_t Temperature::paused_hotend_temp[HOTENDS];
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  millis_t Temperature::heater_idle_timeout_ms[HOTENDS] = { 0 };
+  bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
   #if HAS_TEMP_BED
-    int16_t Temperature::paused_bed_temp;
+    millis_t Temperature::bed_idle_timeout_ms = 0;
+    bool Temperature::bed_idle_timeout_exceeded = false;
   #endif
 #endif
 
@@ -554,11 +559,22 @@ float Temperature::get_pid_output(int e) {
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
+          pid_output = 0;
+          pid_reset[HOTEND_INDEX] = true;
+        }
+        else
+      #endif
       if (pid_error[HOTEND_INDEX] > PID_FUNCTIONAL_RANGE) {
         pid_output = BANG_MAX;
         pid_reset[HOTEND_INDEX] = true;
       }
-      else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0) {
+      else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          || heater_idle_timeout_exceeded[HOTEND_INDEX]
+        #endif
+        ) {
         pid_output = 0;
         pid_reset[HOTEND_INDEX] = true;
       }
@@ -618,6 +634,11 @@ float Temperature::get_pid_output(int e) {
     #endif // PID_DEBUG
 
   #else /* PID off */
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (heater_idle_timeout_exceeded[HOTEND_INDEX])
+        pid_output = 0;
+      else
+    #endif
     pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
   #endif
 
@@ -699,11 +720,16 @@ void Temperature::manage_heater() {
     if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + .01)) min_temp_error(0);
   #endif
 
-  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
+  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || ENABLED(ADVANCED_PAUSE_FEATURE)
     millis_t ms = millis();
   #endif
 
   HOTEND_LOOP() {
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (!heater_idle_timeout_exceeded[e] && heater_idle_timeout_ms[e] && ELAPSED(ms, heater_idle_timeout_ms[e]))
+        heater_idle_timeout_exceeded[e] = true;
+    #endif
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       // Check for thermal runaway
@@ -719,16 +745,6 @@ void Temperature::manage_heater() {
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
         else                                                                 // Start again if the target is still far off
           start_watching_heater(e);
-      }
-    #endif
-
-    #if WATCH_THE_BED
-      // Make sure temperature is increasing
-      if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {        // Time to check the bed?
-        if (degBed() < watch_target_bed_temp)                           // Failed to increase enough?
-          _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
-        else                                                            // Start again if the target is still far off
-          start_watching_bed();
       }
     #endif
 
@@ -761,43 +777,71 @@ void Temperature::manage_heater() {
     }
   #endif // FILAMENT_WIDTH_SENSOR
 
+  #if WATCH_THE_BED
+    // Make sure temperature is increasing
+    if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {        // Time to check the bed?
+      if (degBed() < watch_target_bed_temp)                           // Failed to increase enough?
+        _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+      else                                                            // Start again if the target is still far off
+        start_watching_bed();
+    }
+  #endif // WATCH_THE_BED
+
   #if DISABLED(PIDTEMPBED)
     if (PENDING(ms, next_bed_check_ms)) return;
     next_bed_check_ms = ms + BED_CHECK_INTERVAL;
   #endif
 
-  #if TEMP_SENSOR_BED != 0
+  #if HAS_TEMP_BED
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (!bed_idle_timeout_exceeded && bed_idle_timeout_ms && ELAPSED(ms, bed_idle_timeout_ms))
+        bed_idle_timeout_exceeded = true;
+    #endif
 
     #if HAS_THERMALLY_PROTECTED_BED
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
     #endif
 
-    #if ENABLED(PIDTEMPBED)
-      soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (bed_idle_timeout_exceeded)
+      {
+        soft_pwm_amount_bed = 0;
 
-    #elif ENABLED(BED_LIMIT_SWITCHING)
-      // Check if temperature is within the correct band
-      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-        if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
-          soft_pwm_amount_bed = 0;
-        else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
-          soft_pwm_amount_bed = MAX_BED_POWER >> 1;
+        #if DISABLED(PIDTEMPBED)
+          WRITE_HEATER_BED(LOW);
+        #endif
       }
-      else {
-        soft_pwm_amount_bed = 0;
-        WRITE_HEATER_BED(LOW);
-      }
-    #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-      // Check if temperature is within the correct range
-      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-        soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
-      }
-      else {
-        soft_pwm_amount_bed = 0;
-        WRITE_HEATER_BED(LOW);
-      }
+      else
     #endif
-  #endif // TEMP_SENSOR_BED != 0
+    {
+      #if ENABLED(PIDTEMPBED)
+        soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+
+      #elif ENABLED(BED_LIMIT_SWITCHING)
+        // Check if temperature is within the correct band
+        if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
+          if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
+            soft_pwm_amount_bed = 0;
+          else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
+            soft_pwm_amount_bed = MAX_BED_POWER >> 1;
+        }
+        else {
+          soft_pwm_amount_bed = 0;
+          WRITE_HEATER_BED(LOW);
+        }
+      #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+        // Check if temperature is within the correct range
+        if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
+          soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
+        }
+        else {
+          soft_pwm_amount_bed = 0;
+          WRITE_HEATER_BED(LOW);
+        }
+      #endif
+    }
+  #endif // HAS_TEMP_BED
 }
 
 #define PGM_RD_W(x)   (short)pgm_read_word(&x)
@@ -1180,10 +1224,6 @@ void Temperature::init() {
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
-    ZERO(paused_hotend_temp);
-    #if HAS_TEMP_BED
-      paused_bed_temp = 0;
-    #endif
   #endif
 }
 
@@ -1246,11 +1286,29 @@ void Temperature::init() {
         SERIAL_ECHOPAIR(" ;  Timer:", *timer);
         SERIAL_ECHOPAIR(" ;  Temperature:", current);
         SERIAL_ECHOPAIR(" ;  Target Temp:", target);
+        if (heater_id >= 0)
+          SERIAL_ECHOPAIR(" ;  Idle Timeout:", heater_idle_timeout_exceeded[heater_id]);
+        else
+          SERIAL_ECHOPAIR(" ;  Idle Timeout:", bed_idle_timeout_exceeded);
         SERIAL_EOL;
     */
 
     int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      // If the heater idle timeout expires, restart
+      if (heater_id >= 0 && heater_idle_timeout_exceeded[heater_id]) {
+        *state = TRInactive;
+        tr_target_temperature[heater_index] = 0;
+      }
+      #if HAS_TEMP_BED
+        else if (heater_id < 0 && bed_idle_timeout_exceeded) {
+          *state = TRInactive;
+          tr_target_temperature[heater_index] = 0;
+        }
+      #endif
+      else
+    #endif
     // If the target temperature changes, restart
     if (tr_target_temperature[heater_index] != target) {
       tr_target_temperature[heater_index] = target;
@@ -1290,11 +1348,7 @@ void Temperature::disable_all_heaters() {
 
   // Unpause and reset everything
   #if ENABLED(PROBING_HEATERS_OFF)
-    paused = false;
-    ZERO(paused_hotend_temp);
-    #if HAS_TEMP_BED
-      paused_bed_temp = 0;
-    #endif
+    pause(false);
   #endif
 
   // If all heaters go down then for sure our print job has stopped
@@ -1337,19 +1391,15 @@ void Temperature::disable_all_heaters() {
     if (p != paused) {
       paused = p;
       if (p) {
-        HOTEND_LOOP() {
-          paused_hotend_temp[e] = degTargetHotend(e);
-          setTargetHotend(0, e);
-        }
+        HOTEND_LOOP() start_heater_idle_timer(e, 0); // timeout immediately
         #if HAS_TEMP_BED
-          paused_bed_temp = degTargetBed();
-          setTargetBed(0);
+          start_bed_idle_timer(0); // timeout immediately
         #endif
       }
       else {
-        HOTEND_LOOP() setTargetHotend(paused_hotend_temp[e], e);
+        HOTEND_LOOP() reset_heater_idle_timer(e);
         #if HAS_TEMP_BED
-          setTargetBed(paused_bed_temp);
+          reset_bed_idle_timer();
         #endif
       }
     }

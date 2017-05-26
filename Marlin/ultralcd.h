@@ -83,9 +83,9 @@
     void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-      void lcd_filament_change_show_message(const FilamentChangeMessage message);
-    #endif // FILAMENT_CHANGE_FEATURE
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
+    #endif // ADVANCED_PAUSE_FEATURE
 
   #else
 
