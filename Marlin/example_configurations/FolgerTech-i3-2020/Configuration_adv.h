@@ -1233,4 +1233,9 @@
  */
 #define PROPORTIONAL_FONT_RATIO 1.5
 
+/**
+ * Spend 28 bytes of SRAM to optimize the GCode parser
+ */
+#define FASTER_GCODE_PARSER
+
 #endif // CONFIGURATION_ADV_H

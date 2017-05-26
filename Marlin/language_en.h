@@ -170,17 +170,17 @@
   #ifndef MSG_UBL_DEACTIVATE_MESH
     #define MSG_UBL_DEACTIVATE_MESH           _UxGT("Deactivate UBL")
   #endif
-  #ifndef MSG_UBL_CUSTOM_BED_TEMP
-    #define MSG_UBL_CUSTOM_BED_TEMP           _UxGT("Bed Temp")
-  #endif
   #ifndef MSG_UBL_SET_BED_TEMP
     #define MSG_UBL_SET_BED_TEMP              _UxGT("Bed Temp")
   #endif
-  #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
-    #define MSG_UBL_CUSTOM_HOTEND_TEMP        _UxGT("Hotend Temp")
+  #ifndef MSG_UBL_CUSTOM_BED_TEMP
+    #define MSG_UBL_CUSTOM_BED_TEMP           MSG_UBL_SET_BED_TEMP
   #endif
   #ifndef MSG_UBL_SET_HOTEND_TEMP
     #define MSG_UBL_SET_HOTEND_TEMP           _UxGT("Hotend Temp")
+  #endif
+  #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
+    #define MSG_UBL_CUSTOM_HOTEND_TEMP        MSG_UBL_SET_HOTEND_TEMP
   #endif
   #ifndef MSG_UBL_EDIT_CUSTOM_MESH
     #define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Edit Custom Mesh")

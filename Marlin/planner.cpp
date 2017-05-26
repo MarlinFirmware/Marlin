@@ -64,6 +64,7 @@
 #include "ultralcd.h"
 #include "language.h"
 #include "ubl.h"
+#include "gcode.h"
 
 #include "Marlin.h"
 
@@ -1549,10 +1550,10 @@ void Planner::refresh_positioning() {
 #if ENABLED(AUTOTEMP)
 
   void Planner::autotemp_M104_M109() {
-    autotemp_enabled = code_seen('F');
-    if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
-    if (code_seen('S')) autotemp_min = code_value_temp_abs();
-    if (code_seen('B')) autotemp_max = code_value_temp_abs();
+    autotemp_enabled = parser.seen('F');
+    if (autotemp_enabled) autotemp_factor = parser.value_celsius_diff();
+    if (parser.seen('S')) autotemp_min = parser.value_celsius();
+    if (parser.seen('B')) autotemp_max = parser.value_celsius();
   }
 
 #endif
