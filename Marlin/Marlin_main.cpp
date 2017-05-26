@@ -5794,6 +5794,9 @@ inline void gcode_M17() {
 
   static float resume_position[XYZE];
   static bool move_away_flag = false;
+  #if ENABLED(SDSUPPORT)
+    static bool sd_print_paused = false;
+  #endif
 
   static void filament_change_beep(const int max_beep_count, const bool init=false) {
     static millis_t next_buzz = 0;
@@ -5823,18 +5826,15 @@ inline void gcode_M17() {
 
     const bool job_running = print_job_timer.isRunning();
 
-    // there are blocks after this one, or sd printing
-    move_away_flag = job_running || planner.blocks_queued()
-      #if ENABLED(SDSUPPORT)
-        || card.sdprinting
-      #endif
-    ;
-
-    if (!move_away_flag) return false; // nothing to pause
+    // Indicate that the printer is paused
+    move_away_flag = true;
 
     // Pause the print job and timer
     #if ENABLED(SDSUPPORT)
-      card.pauseSDPrint();
+      if (card.sdprinting) {
+        card.pauseSDPrint();
+        sd_print_paused = true;
+      }
     #endif
     print_job_timer.pause();
 
@@ -6058,7 +6058,10 @@ inline void gcode_M17() {
     #endif
 
     #if ENABLED(SDSUPPORT)
-      card.startFileprint();
+      if (sd_print_paused) {
+        card.startFileprint();
+        sd_print_paused = false;
+      }
     #endif
 
     move_away_flag = false;
