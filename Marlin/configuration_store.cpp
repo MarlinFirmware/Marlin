@@ -1344,9 +1344,8 @@ void MarlinSettings::reset() {
     #else
       #define LINEAR_UNIT(N) N
       #define VOLUMETRIC_UNIT(N) N
-      SERIAL_ECHOLNPGM("  G21 ; Units in mm\n");
+      SERIAL_ECHOLNPGM("  G21    ; Units in mm");
     #endif
-    SERIAL_EOL;
 
     #if ENABLED(ULTIPANEL)
 
@@ -1361,11 +1360,12 @@ void MarlinSettings::reset() {
         serialprintPGM(parser.temp_units_name());
       #else
         #define TEMP_UNIT(N) N
-        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius\n");
+        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
       #endif
-      SERIAL_EOL;
 
     #endif
+
+    SERIAL_EOL;
 
     /**
      * Volumetric extrusion M200
