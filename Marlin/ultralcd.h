@@ -55,8 +55,8 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    extern int lcd_contrast;
-    void set_lcd_contrast(int value);
+    extern uint16_t lcd_contrast;
+    void set_lcd_contrast(uint16_t value);
   #elif ENABLED(SHOW_BOOTSCREEN)
     void bootscreen();
   #endif
@@ -83,9 +83,9 @@
     void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-      void lcd_filament_change_show_message(const FilamentChangeMessage message);
-    #endif // FILAMENT_CHANGE_FEATURE
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
+    #endif // ADVANCED_PAUSE_FEATURE
 
   #else
 

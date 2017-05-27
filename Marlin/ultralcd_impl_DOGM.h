@@ -195,7 +195,7 @@
 
 #include "utf_mapper.h"
 
-int lcd_contrast;
+uint16_t lcd_contrast;
 static char currentfont = 0;
 
 // The current graphical page being rendered
@@ -340,15 +340,26 @@ FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uin
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
 
-FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater) {
+FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, const bool blink) {
   #if HAS_TEMP_BED
     bool isBed = heater < 0;
   #else
     const bool isBed = false;
   #endif
 
-  if (PAGE_UNDER(7))
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7);
+  if (PAGE_UNDER(7)) {
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
+      #if HAS_TEMP_BED
+        thermalManager.is_bed_idle()
+      #else
+        false
+      #endif
+      );
+
+      if (blink || !is_idle)
+    #endif
+    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
 
   if (PAGE_CONTAINS(21, 28))
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
@@ -415,11 +426,11 @@ static void lcd_implementation_status_screen() {
 
   if (PAGE_UNDER(28)) {
     // Extruders
-    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e);
+    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e, blink);
 
     // Heated bed
     #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(81, -1);
+      _draw_heater_status(81, -1, blink);
     #endif
 
     #if HAS_FAN0
@@ -634,7 +645,10 @@ static void lcd_implementation_status_screen() {
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
-        lcd_print(lcd_status_message);
+        const char *str = lcd_status_message;
+        uint8_t i = LCD_WIDTH;
+        char c;
+        while (i-- && (c = *str++)) lcd_print(c);
       }
       else {
         lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
@@ -646,7 +660,10 @@ static void lcd_implementation_status_screen() {
         u8g.print('%');
       }
     #else
-      lcd_print(lcd_status_message);
+      const char *str = lcd_status_message;
+      uint8_t i = LCD_WIDTH;
+      char c;
+      while (i-- && (c = *str++)) lcd_print(c);
     #endif
   }
 }
@@ -656,7 +673,7 @@ static void lcd_implementation_status_screen() {
   uint8_t row_y1, row_y2;
   uint8_t constexpr row_height = DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION);
 
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     static void lcd_implementation_hotend_status(const uint8_t row) {
       row_y1 = row * row_height + 1;
@@ -673,7 +690,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
     }
 
-  #endif // FILAMENT_CHANGE_FEATURE
+  #endif // ADVANCED_PAUSE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected
   static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {

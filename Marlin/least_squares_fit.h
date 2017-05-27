@@ -41,16 +41,49 @@
 #include <math.h>
 
 struct linear_fit_data {
-  int n;
   float xbar, ybar, zbar,
         x2bar, y2bar, z2bar,
         xybar, xzbar, yzbar,
         max_absx, max_absy,
-        A, B, D;
+        A, B, D, N;
 };
 
-void incremental_LSF_reset(struct linear_fit_data *);
-void incremental_LSF(struct linear_fit_data *, float x, float y, float z);
+void inline incremental_LSF_reset(struct linear_fit_data *lsf) {
+  memset(lsf, 0, sizeof(linear_fit_data));
+}
+
+void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
+  // weight each accumulator by factor w, including the "number" of samples
+  // (analagous to calling inc_LSF twice with same values to weight it by 2X)
+  lsf->xbar  += w * x;
+  lsf->ybar  += w * y;
+  lsf->zbar  += w * z;
+  lsf->x2bar += w * x * x;  // don't use sq(x) -- let compiler re-use w*x four times
+  lsf->y2bar += w * y * y;
+  lsf->z2bar += w * z * z;
+  lsf->xybar += w * x * y;
+  lsf->xzbar += w * x * z;
+  lsf->yzbar += w * y * z;
+  lsf->N     += w;
+  lsf->max_absx = max(fabs(w * x), lsf->max_absx);
+  lsf->max_absy = max(fabs(w * y), lsf->max_absy);
+}
+
+void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
+  lsf->xbar += x;
+  lsf->ybar += y;
+  lsf->zbar += z;
+  lsf->x2bar += sq(x);
+  lsf->y2bar += sq(y);
+  lsf->z2bar += sq(z);
+  lsf->xybar += x * y;
+  lsf->xzbar += x * z;
+  lsf->yzbar += y * z;
+  lsf->max_absx = max(fabs(x), lsf->max_absx);
+  lsf->max_absy = max(fabs(y), lsf->max_absy);
+  lsf->N += 1.0;
+}
+
 int finish_incremental_LSF(struct linear_fit_data *);
 
 #endif

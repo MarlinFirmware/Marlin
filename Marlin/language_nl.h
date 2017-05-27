@@ -224,8 +224,8 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Motorstroom")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")  //accepted English term in Dutch
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC Opslaan")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("WISSEL FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("WISSEL OPTIES:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeer meer")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Hervat print")
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")

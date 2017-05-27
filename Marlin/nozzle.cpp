@@ -12,9 +12,9 @@
   * @param strokes number of strokes to execute
   */
 void Nozzle::stroke(
-  __attribute__((unused)) point_t const &start,
-  __attribute__((unused)) point_t const &end,
-  __attribute__((unused)) uint8_t const &strokes
+  _UNUSED point_t const &start,
+  _UNUSED point_t const &end,
+  _UNUSED uint8_t const &strokes
 ) {
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
@@ -56,10 +56,10 @@ void Nozzle::stroke(
   * @param objects number of objects to create
   */
 void Nozzle::zigzag(
-  __attribute__((unused)) point_t const &start,
-  __attribute__((unused)) point_t const &end,
-  __attribute__((unused)) uint8_t const &strokes,
-  __attribute__((unused)) uint8_t const &objects
+  _UNUSED point_t const &start,
+  _UNUSED point_t const &end,
+  _UNUSED uint8_t const &strokes,
+  _UNUSED uint8_t const &objects
 ) {
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
     const float A = nozzle_clean_horizontal ? nozzle_clean_height : nozzle_clean_length, // [twice the] Amplitude
@@ -114,10 +114,10 @@ void Nozzle::zigzag(
   * @param radius radius of circle
   */
 void Nozzle::circle(
-  __attribute__((unused)) point_t const &start,
-  __attribute__((unused)) point_t const &middle,
-  __attribute__((unused)) uint8_t const &strokes,
-  __attribute__((unused)) float const &radius
+  _UNUSED point_t const &start,
+  _UNUSED point_t const &middle,
+  _UNUSED uint8_t const &strokes,
+  _UNUSED float const &radius
 ) {
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
     if (strokes == 0) return;
@@ -177,10 +177,10 @@ void Nozzle::circle(
   * @param argument depends on the cleaning pattern
   */
 void Nozzle::clean(
-  __attribute__((unused)) uint8_t const &pattern,
-  __attribute__((unused)) uint8_t const &strokes,
-  __attribute__((unused)) float const &radius,
-  __attribute__((unused)) uint8_t const &objects
+  _UNUSED uint8_t const &pattern,
+  _UNUSED uint8_t const &strokes,
+  _UNUSED float const &radius,
+  _UNUSED uint8_t const &objects
 ) {
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
     #if ENABLED(DELTA)
@@ -209,7 +209,7 @@ void Nozzle::clean(
 }
 
 void Nozzle::park(
-  __attribute__((unused)) uint8_t const &z_action
+  _UNUSED uint8_t const &z_action
 ) {
   #if ENABLED(NOZZLE_PARK_FEATURE)
     float const z = current_position[Z_AXIS];
