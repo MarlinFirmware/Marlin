@@ -133,7 +133,7 @@ public:
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static bool seen(const char c) {
-      char *p = strchr(command_args, c);
+      const char *p = strchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : NULL;
       return b;
