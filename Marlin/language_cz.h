@@ -225,8 +225,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Ulozit do EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("VYMENA FILAMENTU")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CO DAL?")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Jeste vytlacit")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. teplota je ")

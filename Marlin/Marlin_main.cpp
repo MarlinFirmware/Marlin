@@ -195,7 +195,7 @@
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
- * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires FILAMENT_CHANGE_FEATURE)
+ * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s> A<rod A trim mm> B<rod B trim mm> C<rod C trim mm> I<tower A trim angle> J<tower B trim angle> K<tower C trim angle>" (Requires DELTA)
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -627,8 +627,8 @@ float cartes[XYZ] = { 0 };
   static bool filament_ran_out = false;
 #endif
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-  FilamentChangeMenuResponse filament_change_menu_response;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -3800,6 +3800,10 @@ void home_all_axes() { gcode_G28(true); }
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
+  #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    extern bool lcd_wait_for_move;
+  #endif
+
   inline void _manual_goto_xy(const float &x, const float &y) {
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -3822,6 +3826,10 @@ void home_all_axes() { gcode_G28(true); }
 
     feedrate_mm_s = old_feedrate_mm_s;
     stepper.synchronize();
+
+    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+      lcd_wait_for_move = false;
+    #endif
   }
 
 #endif
@@ -4190,7 +4198,7 @@ void home_all_axes() { gcode_G28(true); }
     if (!g29_in_progress) {
 
       #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
-        abl_probe_index = 0;
+        abl_probe_index = -1;
       #endif
 
       abl_should_enable = planner.abl_enabled;
@@ -4397,30 +4405,40 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(PROBE_MANUALLY)
 
+      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q');
+
+      // For manual probing, get the next index to probe now.
+      // On the first probe this will be incremented to 0.
+      if (!seenA && !seenQ) {
+        ++abl_probe_index;
+        g29_in_progress = true;
+      }
+
       // Abort current G29 procedure, go back to ABLStart
-      if (parser.seen('A') && g29_in_progress) {
+      if (seenA && g29_in_progress) {
         SERIAL_PROTOCOLLNPGM("Manual G29 aborted");
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
         #endif
         planner.abl_enabled = abl_should_enable;
         g29_in_progress = false;
+        #if ENABLED(LCD_BED_LEVELING)
+          lcd_wait_for_move = false;
+        #endif
       }
 
       // Query G29 status
-      if (parser.seen('Q')) {
-        if (!g29_in_progress)
-          SERIAL_PROTOCOLLNPGM("Manual G29 idle");
-        else {
-          SERIAL_PROTOCOLPAIR("Manual G29 point ", abl_probe_index + 1);
+      if (verbose_level || seenQ) {
+        SERIAL_PROTOCOLPGM("Manual G29 ");
+        if (g29_in_progress) {
+          SERIAL_PROTOCOLPAIR("point ", abl_probe_index + 1);
           SERIAL_PROTOCOLLNPAIR(" of ", abl2);
         }
+        else
+          SERIAL_PROTOCOLLNPGM("idle");
       }
 
-      if (parser.seen('A') || parser.seen('Q')) return;
-
-      // Fall through to probe the first point
-      g29_in_progress = true;
+      if (seenA || seenQ) return;
 
       if (abl_probe_index == 0) {
         // For the initial G29 save software endstop state
@@ -4458,20 +4476,20 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ABL_GRID
 
-        // Find a next point to probe
-        // On the first G29 this will be the first probe point
+        // Skip any unreachable points
         while (abl_probe_index < abl2) {
 
           // Set xCount, yCount based on abl_probe_index, with zig-zag
           PR_OUTER_VAR = abl_probe_index / PR_INNER_END;
           PR_INNER_VAR = abl_probe_index - (PR_OUTER_VAR * PR_INNER_END);
 
-          bool zig = (PR_OUTER_VAR & 1) != ((PR_OUTER_END) & 1);
+          // Probe in reverse order for every other row/column
+          bool zig = (PR_OUTER_VAR & 1); // != ((PR_OUTER_END) & 1);
 
           if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
-          const float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                      yBase = front_probe_bed_position + yGridSpacing * yCount;
+          const float xBase = xCount * xGridSpacing + left_probe_bed_position,
+                      yBase = yCount * yGridSpacing + front_probe_bed_position;
 
           xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
           yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
@@ -4488,7 +4506,6 @@ void home_all_axes() { gcode_G28(true); }
         // Is there a next point to move to?
         if (abl_probe_index < abl2) {
           _manual_goto_xy(xProbe, yProbe); // Can be used here too!
-          ++abl_probe_index;
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -4497,10 +4514,9 @@ void home_all_axes() { gcode_G28(true); }
           return;
         }
         else {
-          // Then leveling is done!
-          // G29 finishing code goes here
 
-          // After recording the last point, activate abl
+          // Leveling done! Fall through to G29 finishing code below
+
           SERIAL_PROTOCOLLNPGM("Grid probing done.");
           g29_in_progress = false;
 
@@ -4514,9 +4530,8 @@ void home_all_axes() { gcode_G28(true); }
 
         // Probe at 3 arbitrary points
         if (abl_probe_index < 3) {
-          xProbe = LOGICAL_X_POSITION(points[i].x);
-          yProbe = LOGICAL_Y_POSITION(points[i].y);
-          ++abl_probe_index;
+          xProbe = LOGICAL_X_POSITION(points[abl_probe_index].x);
+          yProbe = LOGICAL_Y_POSITION(points[abl_probe_index].y);
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -4587,7 +4602,7 @@ void home_all_axes() { gcode_G28(true); }
             yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-              indexIntoAB[xCount][yCount] = ++abl_probe_index;
+              indexIntoAB[xCount][yCount] = ++abl_probe_index; // 0...
             #endif
 
             #if IS_KINEMATIC
@@ -4665,7 +4680,10 @@ void home_all_axes() { gcode_G28(true); }
     // G29 Finishing Code
     //
     // Unless this is a dry run, auto bed leveling will
-    // definitely be enabled after this point
+    // definitely be enabled after this point.
+    //
+    // If code above wants to continue leveling, it should
+    // return or loop before this point.
     //
 
     // Restore state after probing
@@ -4673,6 +4691,10 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
+    #endif
+
+    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+      lcd_wait_for_move = false;
     #endif
 
     // Calculate leveling, print reports, correct the position
@@ -5716,14 +5738,244 @@ inline void gcode_M17() {
   #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
 #endif
 
-#if ENABLED(PARK_HEAD_ON_PAUSE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-  float resume_position[XYZE];
-  bool move_away_flag = false;
+  static float resume_position[XYZE];
+  static bool move_away_flag = false;
+  #if ENABLED(SDSUPPORT)
+    static bool sd_print_paused = false;
+  #endif
 
-  inline void move_back_on_resume() {
+  static void filament_change_beep(const int max_beep_count, const bool init=false) {
+    static millis_t next_buzz = 0;
+    static uint16_t runout_beep = 0;
+
+    if (init) next_buzz = runout_beep = 0;
+
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_buzz)) {
+      if (max_beep_count < 0 || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
+        next_buzz = ms + ((max_beep_count < 0 || runout_beep < max_beep_count) ? 2500 : 400);
+        BUZZ(300, 2000);
+        runout_beep++;
+      }
+    }
+  }
+
+  static bool pause_print(const float& retract, const float& z_lift, const float& x_pos, const float& y_pos,
+                          const float& unload_length = 0 , int max_beep_count = 0, bool show_lcd = false) {
+    if (move_away_flag) return false; // already paused
+
+    if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder) && unload_length > 0) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
+      return false;
+    }
+
+    const bool job_running = print_job_timer.isRunning();
+
+    // Indicate that the printer is paused
+    move_away_flag = true;
+
+    // Pause the print job and timer
+    #if ENABLED(SDSUPPORT)
+      if (card.sdprinting) {
+        card.pauseSDPrint();
+        sd_print_paused = true;
+      }
+    #endif
+    print_job_timer.pause();
+
+    // Show initial message and wait for synchronize steppers
+    if (show_lcd) {
+      #if ENABLED(ULTIPANEL)
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
+      #endif
+    }
+    stepper.synchronize();
+
+    // Save current position
+    COPY(resume_position, current_position);
+    set_destination_to_current();
+
+    // Initial retract before move to filament change position
+    destination[E_AXIS] += retract;
+
+    RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+
+    // Lift Z axis
+    if (z_lift > 0) {
+      destination[Z_AXIS] += z_lift;
+      NOMORE(destination[Z_AXIS], Z_MAX_POS);
+      RUNPLAN(PAUSE_PARK_Z_FEEDRATE);
+    }
+
+    // Move XY axes to filament exchange position
+    destination[X_AXIS] = x_pos;
+    destination[Y_AXIS] = y_pos;
+
+    clamp_to_software_endstops(destination);
+    RUNPLAN(PAUSE_PARK_XY_FEEDRATE);
+    stepper.synchronize();
+
+    if (unload_length != 0) {
+      if (show_lcd) {
+        #if ENABLED(ULTIPANEL)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD);
+          idle();
+        #endif
+      }
+
+      // Unload filament
+      destination[E_AXIS] += unload_length;
+      RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+      stepper.synchronize();
+
+      if (show_lcd) {
+        #if ENABLED(ULTIPANEL)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+        #endif
+      }
+
+      #if HAS_BUZZER
+        filament_change_beep(max_beep_count, true);
+      #endif
+
+      idle();
+    }
+
+    // Disable extruders steppers for manual filament changing
+    disable_e_steppers();
+    safe_delay(100);
+
+    // Start the heater idle timers
+    const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
+
+    HOTEND_LOOP()
+      thermalManager.start_heater_idle_timer(e, nozzle_timeout);
+
+    return true;
+  }
+
+  static void wait_for_filament_reload(int max_beep_count = 0) {
+    bool nozzle_timed_out = false;
+
+    // Wait for filament insert by user and press button
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;    // LCD click or M108 will clear this
+    while (wait_for_user) {
+      #if HAS_BUZZER
+        filament_change_beep(max_beep_count);
+      #endif
+
+      if (!nozzle_timed_out)
+        HOTEND_LOOP()
+          nozzle_timed_out |= thermalManager.is_heater_idle(e);
+
+      #if ENABLED(ULTIPANEL)
+        if (nozzle_timed_out)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+      #endif
+
+      idle(true);
+    }
+    KEEPALIVE_STATE(IN_HANDLER);
+  }
+
+  static void resume_print(const float& load_length = 0, const float& initial_extrude_length = 0, int max_beep_count = 0) {
+    bool nozzle_timed_out = false;
+
     if (!move_away_flag) return;
-    move_away_flag = false;
+
+    // Re-enable the heaters if they timed out
+    HOTEND_LOOP() {
+      nozzle_timed_out |= thermalManager.is_heater_idle(e);
+      thermalManager.reset_heater_idle_timer(e);
+    }
+
+    #if ENABLED(ULTIPANEL)
+      // Show "wait for heating"
+      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+    #endif
+
+    wait_for_heatup = true;
+    while (wait_for_heatup) {
+      idle();
+      wait_for_heatup = false;
+      HOTEND_LOOP() {
+        if (abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+          wait_for_heatup = true;
+          break;
+        }
+      }
+    }
+
+    #if HAS_BUZZER
+      filament_change_beep(max_beep_count, true);
+    #endif
+
+    if (load_length != 0) {
+      #if ENABLED(ULTIPANEL)
+        // Show "insert filament"
+        if (nozzle_timed_out)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+      #endif
+
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = true;    // LCD click or M108 will clear this
+      while (wait_for_user && nozzle_timed_out) {
+        #if HAS_BUZZER
+          filament_change_beep(max_beep_count);
+        #endif
+        idle(true);
+      }
+      KEEPALIVE_STATE(IN_HANDLER);
+
+      #if ENABLED(ULTIPANEL)
+        // Show "load" message
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD);
+      #endif
+
+      // Load filament
+      destination[E_AXIS] += load_length;
+
+      RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
+      stepper.synchronize();
+    }
+
+    #if ENABLED(ULTIPANEL) && defined(ADVANCED_PAUSE_EXTRUDE_LENGTH) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
+
+      float extrude_length = initial_extrude_length;
+
+      do {
+        if (extrude_length > 0) {
+          // "Wait for filament extrude"
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
+
+          // Extrude filament to get into hotend
+          destination[E_AXIS] += extrude_length;
+          RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+          stepper.synchronize();
+        }
+
+        // Show "Extrude More" / "Resume" menu and wait for reply
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = false;
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+        KEEPALIVE_STATE(IN_HANDLER);
+
+        extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+
+        // Keep looping if "Extrude More" was selected
+      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+
+    #endif
+
+    #if ENABLED(ULTIPANEL)
+      // "Wait for print to resume"
+      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
+    #endif
 
     // Set extruder to saved position
     destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
@@ -5731,24 +5983,38 @@ inline void gcode_M17() {
 
     #if IS_KINEMATIC
       // Move XYZ to starting position
-      planner.buffer_line_kinematic(lastpos, FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
+      planner.buffer_line_kinematic(lastpos, PAUSE_PARK_XY_FEEDRATE, active_extruder);
     #else
       // Move XY to starting position, then Z
       destination[X_AXIS] = resume_position[X_AXIS];
       destination[Y_AXIS] = resume_position[Y_AXIS];
-      RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
+      RUNPLAN(PAUSE_PARK_XY_FEEDRATE);
       destination[Z_AXIS] = resume_position[Z_AXIS];
-      RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
+      RUNPLAN(PAUSE_PARK_Z_FEEDRATE);
     #endif
     stepper.synchronize();
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
     #endif
-    set_current_to_destination();
-  }
 
-#endif // PARK_HEAD_ON_PAUSE
+    set_current_to_destination();
+
+    #if ENABLED(ULTIPANEL)
+      // Show status screen
+      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    #endif
+
+    #if ENABLED(SDSUPPORT)
+      if (sd_print_paused) {
+        card.startFileprint();
+        sd_print_paused = false;
+      }
+    #endif
+
+    move_away_flag = false;
+  }
+#endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(SDSUPPORT)
 
@@ -5781,7 +6047,7 @@ inline void gcode_M17() {
    */
   inline void gcode_M24() {
     #if ENABLED(PARK_HEAD_ON_PAUSE)
-      move_back_on_resume();
+      resume_print();
     #endif
 
     card.startFileprint();
@@ -7440,89 +7706,55 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *    Z = override Z raise
    */
   inline void gcode_M125() {
-    if (move_away_flag) return; // already paused
-
-    const bool job_running = print_job_timer.isRunning();
-
-    // there are blocks after this one, or sd printing
-    move_away_flag = job_running || planner.blocks_queued()
-      #if ENABLED(SDSUPPORT)
-        || card.sdprinting
-      #endif
-    ;
-
-    if (!move_away_flag) return; // nothing to pause
-
-    // M125 can be used to pause a print too
-    #if ENABLED(SDSUPPORT)
-      card.pauseSDPrint();
-    #endif
-    print_job_timer.pause();
-
-    // Save current position
-    COPY(resume_position, current_position);
-
-    set_destination_to_current();
 
     // Initial retract before move to filament change position
-    destination[E_AXIS] += parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
-      #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
-        - (FILAMENT_CHANGE_RETRACT_LENGTH)
+    const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+      #if defined(PAUSE_PARK_RETRACT_LENGTH) && PAUSE_PARK_RETRACT_LENGTH > 0
+        - (PAUSE_PARK_RETRACT_LENGTH)
       #endif
     ;
-    RUNPLAN(FILAMENT_CHANGE_RETRACT_FEEDRATE);
 
     // Lift Z axis
     const float z_lift = parser.seen('Z') ? parser.value_linear_units() :
-      #if defined(FILAMENT_CHANGE_Z_ADD) && FILAMENT_CHANGE_Z_ADD > 0
-        FILAMENT_CHANGE_Z_ADD
+      #if defined(PAUSE_PARK_Z_ADD) && PAUSE_PARK_Z_ADD > 0
+        PAUSE_PARK_Z_ADD
       #else
         0
       #endif
     ;
-    if (z_lift > 0) {
-      destination[Z_AXIS] += z_lift;
-      NOMORE(destination[Z_AXIS], Z_MAX_POS);
-      RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
-    }
 
     // Move XY axes to filament change position or given position
-    destination[X_AXIS] = parser.seen('X') ? parser.value_linear_units() : 0
-      #ifdef FILAMENT_CHANGE_X_POS
-        + FILAMENT_CHANGE_X_POS
+    const float x_pos = parser.seen('X') ? parser.value_linear_units() : 0
+      #ifdef PAUSE_PARK_X_POS
+        + PAUSE_PARK_X_POS
       #endif
     ;
-    destination[Y_AXIS] = parser.seen('Y') ? parser.value_linear_units() : 0
-      #ifdef FILAMENT_CHANGE_Y_POS
-        + FILAMENT_CHANGE_Y_POS
+    const float y_pos = parser.seen('Y') ? parser.value_linear_units() : 0
+      #ifdef PAUSE_PARK_Y_POS
+        + PAUSE_PARK_Y_POS
       #endif
     ;
 
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       if (active_extruder > 0) {
-        if (!parser.seen('X')) destination[X_AXIS] += hotend_offset[X_AXIS][active_extruder];
-        if (!parser.seen('Y')) destination[Y_AXIS] += hotend_offset[Y_AXIS][active_extruder];
+        if (!parser.seen('X')) x_pos += hotend_offset[X_AXIS][active_extruder];
+        if (!parser.seen('Y')) y_pos += hotend_offset[Y_AXIS][active_extruder];
       }
     #endif
 
-    clamp_to_software_endstops(destination);
-    RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
-    set_current_to_destination();
-    stepper.synchronize();
-    disable_e_steppers();
+    const bool job_running = print_job_timer.isRunning();
 
-    #if DISABLED(SDSUPPORT)
-      // Wait for lcd click or M108
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
-      while (wait_for_user) idle();
-      KEEPALIVE_STATE(IN_HANDLER);
+    if (pause_print(retract, z_lift, x_pos, y_pos)) {
+      #if DISABLED(SDSUPPORT)
+        // Wait for lcd click or M108
+        wait_for_filament_reload();
 
-      // Return to print position and continue
-      move_back_on_resume();
-      if (job_running) print_job_timer.start();
-      move_away_flag = false;
-    #endif
+        // Return to print position and continue
+        resume_print();
+
+        if (job_running) print_job_timer.start();
+      #endif
+    }
   }
 
 #endif // PARK_HEAD_ON_PAUSE
@@ -8790,25 +9022,7 @@ inline void gcode_M503() {
 
 #endif // HAS_BED_PROBE
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-
-  void filament_change_beep(const bool init=false) {
-    static millis_t next_buzz = 0;
-    static uint16_t runout_beep = 0;
-
-    if (init) next_buzz = runout_beep = 0;
-
-    const millis_t ms = millis();
-    if (ELAPSED(ms, next_buzz)) {
-      if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5) { // Only beep as long as we're supposed to
-        next_buzz = ms + (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ? 2500 : 400);
-        BUZZ(300, 2000);
-        runout_beep++;
-      }
-    }
-  }
-
-  static bool busy_doing_M600 = false;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   /**
    * M600: Pause for filament change
@@ -8817,231 +9031,77 @@ inline void gcode_M503() {
    *  Z[distance] - Move the Z axis by this distance
    *  X[position] - Move to this X position, with Y
    *  Y[position] - Move to this Y position, with X
-   *  L[distance] - Retract distance for removal (manual reload)
+   *  U[distance] - Retract distance for removal (negative value) (manual reload)
+   *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
+   *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
    *
    *  Default values are used for omitted arguments.
    *
    */
   inline void gcode_M600() {
 
-    if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
-      return;
-    }
-
-    busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
-
-    // Pause the print job timer
-    const bool job_running = print_job_timer.isRunning();
-
-    print_job_timer.pause();
-
-    // Show initial message and wait for synchronize steppers
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-    stepper.synchronize();
-
-    // Save current position of all axes
-    float lastpos[XYZE];
-    COPY(lastpos, current_position);
-    set_destination_to_current();
-
     // Initial retract before move to filament change position
-    destination[E_AXIS] += parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
-      #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
-        - (FILAMENT_CHANGE_RETRACT_LENGTH)
+    const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
+      #if defined(PAUSE_PARK_RETRACT_LENGTH) && PAUSE_PARK_RETRACT_LENGTH > 0
+        - (PAUSE_PARK_RETRACT_LENGTH)
       #endif
     ;
 
-    RUNPLAN(FILAMENT_CHANGE_RETRACT_FEEDRATE);
-
     // Lift Z axis
-    float z_lift = parser.seen('Z') ? parser.value_linear_units() :
-      #if defined(FILAMENT_CHANGE_Z_ADD) && FILAMENT_CHANGE_Z_ADD > 0
-        FILAMENT_CHANGE_Z_ADD
+    const float z_lift = parser.seen('Z') ? parser.value_linear_units() :
+      #if defined(PAUSE_PARK_Z_ADD) && PAUSE_PARK_Z_ADD > 0
+        PAUSE_PARK_Z_ADD
       #else
         0
       #endif
     ;
 
-    if (z_lift > 0) {
-      destination[Z_AXIS] += z_lift;
-      NOMORE(destination[Z_AXIS], Z_MAX_POS);
-      RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
-    }
-
     // Move XY axes to filament exchange position
-    if (parser.seen('X')) destination[X_AXIS] = parser.value_linear_units();
-    #ifdef FILAMENT_CHANGE_X_POS
-      else destination[X_AXIS] = FILAMENT_CHANGE_X_POS;
-    #endif
-
-    if (parser.seen('Y')) destination[Y_AXIS] = parser.value_linear_units();
-    #ifdef FILAMENT_CHANGE_Y_POS
-      else destination[Y_AXIS] = FILAMENT_CHANGE_Y_POS;
-    #endif
-
-    RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
-
-    stepper.synchronize();
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_UNLOAD);
-    idle();
+    const float x_pos = parser.seen('X') ? parser.value_linear_units() : 0
+      #ifdef PAUSE_PARK_X_POS
+        + PAUSE_PARK_X_POS
+      #endif
+    ;
+    const float y_pos = parser.seen('Y') ? parser.value_linear_units() : 0
+      #ifdef PAUSE_PARK_Y_POS
+        + PAUSE_PARK_Y_POS
+      #endif
+    ;
 
     // Unload filament
-    destination[E_AXIS] += parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
-      #if FILAMENT_CHANGE_UNLOAD_LENGTH > 0
+    const float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
+      #if defined(FILAMENT_CHANGE_UNLOAD_LENGTH) && FILAMENT_CHANGE_UNLOAD_LENGTH > 0
         - (FILAMENT_CHANGE_UNLOAD_LENGTH)
       #endif
     ;
 
-    RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
-
-    // Synchronize steppers and then disable extruders steppers for manual filament changing
-    stepper.synchronize();
-    disable_e_steppers();
-    safe_delay(100);
-
-    const millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000UL;
-    bool nozzle_timed_out = false;
-
-    // Wait for filament insert by user and press button
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
-
-    #if HAS_BUZZER
-      filament_change_beep(true);
-    #endif
-
-    idle();
-
-    int16_t temps[HOTENDS];
-    HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
-
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
-    while (wait_for_user) {
-
-      if (nozzle_timed_out)
-        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-
-      #if HAS_BUZZER
-        filament_change_beep();
-      #endif
-
-      if (!nozzle_timed_out && ELAPSED(millis(), nozzle_timeout)) {
-        nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
-        HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
-        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-      }
-      idle(true);
-    }
-    KEEPALIVE_STATE(IN_HANDLER);
-
-    if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
-      HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
-
-    // Show "wait for heating"
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
-
-    wait_for_heatup = true;
-    while (wait_for_heatup) {
-      idle();
-      wait_for_heatup = false;
-      HOTEND_LOOP() {
-        if (abs(thermalManager.degHotend(e) - temps[e]) > 3) {
-          wait_for_heatup = true;
-          break;
-        }
-      }
-    }
-
-    // Show "insert filament"
-    if (nozzle_timed_out)
-      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
-
-    #if HAS_BUZZER
-      filament_change_beep(true);
-    #endif
-
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
-    while (wait_for_user && nozzle_timed_out) {
-      #if HAS_BUZZER
-        filament_change_beep();
-      #endif
-      idle(true);
-    }
-    KEEPALIVE_STATE(IN_HANDLER);
-
-    // Show "load" message
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
-
     // Load filament
-    destination[E_AXIS] += parser.seen('L') ? -parser.value_axis_units(E_AXIS) : 0
-      #if FILAMENT_CHANGE_LOAD_LENGTH > 0
+    const float load_length = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+      #ifdef FILAMENT_CHANGE_LOAD_LENGTH
         + FILAMENT_CHANGE_LOAD_LENGTH
       #endif
     ;
 
-    RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
-    stepper.synchronize();
+    const int beep_count = parser.seen('B') ? parser.value_int() :
+      #ifdef FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
+        FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
+      #else
+        -1
+      #endif
+    ;
 
-    #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
+    const bool job_running = print_job_timer.isRunning();
 
-      do {
-        // "Wait for filament extrude"
-        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
-
-        // Extrude filament to get into hotend
-        destination[E_AXIS] += FILAMENT_CHANGE_EXTRUDE_LENGTH;
-        RUNPLAN(FILAMENT_CHANGE_EXTRUDE_FEEDRATE);
-        stepper.synchronize();
-
-        // Show "Extrude More" / "Resume" menu and wait for reply
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = false;
-        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_OPTION);
-        while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_WAIT_FOR) idle(true);
-        KEEPALIVE_STATE(IN_HANDLER);
-
-        // Keep looping if "Extrude More" was selected
-      } while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE);
-
-    #endif
-
-    // "Wait for print to resume"
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
-
-    // Set extruder to saved position
-    destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
-    planner.set_e_position_mm(current_position[E_AXIS]);
-
-    #if IS_KINEMATIC
-      // Move XYZ to starting position
-      planner.buffer_line_kinematic(lastpos, FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
-    #else
-      // Move XY to starting position, then Z
-      destination[X_AXIS] = lastpos[X_AXIS];
-      destination[Y_AXIS] = lastpos[Y_AXIS];
-      RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
-      destination[Z_AXIS] = lastpos[Z_AXIS];
-      RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
-    #endif
-    stepper.synchronize();
-
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      filament_ran_out = false;
-    #endif
-
-    // Show status screen
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+    if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+      wait_for_filament_reload(beep_count);
+      resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+    }
 
     // Resume the print job timer if it was running
     if (job_running) print_job_timer.start();
-
-    busy_doing_M600 = false;  // Allow Stepper Motors to be turned off during inactivity
   }
 
-#endif // FILAMENT_CHANGE_FEATURE
+#endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -10547,11 +10607,11 @@ void process_next_command() {
           break;
       #endif // HAS_BED_PROBE
 
-      #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
           gcode_M600();
           break;
-      #endif // FILAMENT_CHANGE_FEATURE
+      #endif // ADVANCED_PAUSE_FEATURE
 
       #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
         case 605: // M605: Set Dual X Carriage movement mode
@@ -12042,13 +12102,13 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   }
 
   // Prevent steppers timing-out in the middle of M600
-  #if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
-    #define M600_TEST !busy_doing_M600
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+    #define MOVE_AWAY_TEST !move_away_flag
   #else
-    #define M600_TEST true
+    #define MOVE_AWAY_TEST true
   #endif
 
-  if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
+  if (MOVE_AWAY_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
       disable_X();
@@ -12194,7 +12254,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
  * Standard idle routine keeps the machine alive
  */
 void idle(
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
@@ -12207,7 +12267,7 @@ void idle(
   #endif
 
   manage_inactivity(
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
     #endif
   );

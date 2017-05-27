@@ -573,6 +573,41 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
   }
 }
 
+FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, const bool blink) {
+  const bool isBed = heater < 0;
+
+  const float t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater));
+  const float t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
+
+  if (prefix >= 0) lcd.print(prefix);
+
+  lcd.print(itostr3(t1 + 0.5));
+  lcd.print('/');
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
+    #if HAS_TEMP_BED
+      thermalManager.is_bed_idle()
+    #else
+      false
+    #endif
+    );
+
+    if (!blink && is_idle) {
+      lcd.print(' ');
+      if (t2 >= 10) lcd.print(' ');
+      if (t2 >= 100) lcd.print(' ');
+    }
+    else
+  #endif
+  lcd.print(itostr3left(t2 + 0.5));
+
+  if (prefix >= 0) {
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+    if (t2 < 10) lcd.print(' ');
+  }
+}
+
 #if ENABLED(LCD_PROGRESS_BAR)
 
   inline void lcd_draw_progress_bar(const uint8_t percent) {
@@ -616,17 +651,7 @@ Possible status screens:
        |01234567890123456789|
 */
 static void lcd_implementation_status_screen() {
-
-  #define LCD_TEMP_ONLY(T1,T2) \
-    lcd.print(itostr3(T1 + 0.5)); \
-    lcd.print('/'); \
-    lcd.print(itostr3left(T2 + 0.5))
-
-  #define LCD_TEMP(T1,T2,PREFIX) \
-    lcd.print(PREFIX); \
-    LCD_TEMP_ONLY(T1,T2); \
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
-    if (T2 < 10) lcd.print(' ')
+  bool blink = lcd_blink();
 
   //
   // Line 1
@@ -639,7 +664,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP_ONLY(thermalManager.degHotend(0), thermalManager.degTargetHotend(0));
+    _draw_heater_status(0, -1, blink);
 
     //
     // Hotend 1 or Bed Temperature
@@ -649,10 +674,10 @@ static void lcd_implementation_status_screen() {
       lcd.setCursor(8, 0);
       #if HOTENDS > 1
         lcd.print(LCD_STR_THERMOMETER[0]);
-        LCD_TEMP_ONLY(thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
+        _draw_heater_status(1, -1, blink);
       #else
         lcd.print(LCD_STR_BEDTEMP[0]);
-        LCD_TEMP_ONLY(thermalManager.degBed(), thermalManager.degTargetBed());
+        _draw_heater_status(-1, -1, blink);
       #endif
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
@@ -662,7 +687,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP(thermalManager.degHotend(0), thermalManager.degTargetHotend(0), LCD_STR_THERMOMETER[0]);
+    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
 
     //
     // Hotend 1 or Bed Temperature
@@ -670,9 +695,9 @@ static void lcd_implementation_status_screen() {
     #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
       lcd.setCursor(10, 0);
       #if HOTENDS > 1
-        LCD_TEMP(thermalManager.degHotend(1), thermalManager.degTargetHotend(1), LCD_STR_THERMOMETER[0]);
+        _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
       #else
-        LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
+        _draw_heater_status(-1, LCD_STR_BEDTEMP[0], blink);
       #endif
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
@@ -684,8 +709,6 @@ static void lcd_implementation_status_screen() {
   //
 
   #if LCD_HEIGHT > 2
-
-    bool blink = lcd_blink();
 
     #if LCD_WIDTH < 20
 
@@ -708,7 +731,7 @@ static void lcd_implementation_status_screen() {
         // If we both have a 2nd extruder and a heated bed,
         // show the heated bed temp on the left,
         // since the first line is filled with extruder temps
-        LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
+      _draw_heater_status(-1, LCD_STR_BEDTEMP[0], blink);
 
       #else
         // Before homing the axis letters are blinking 'X' <-> '?'.
@@ -803,7 +826,7 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(ULTIPANEL)
 
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
@@ -815,7 +838,7 @@ static void lcd_implementation_status_screen() {
       }
     }
 
-  #endif // FILAMENT_CHANGE_FEATURE
+  #endif // ADVANCED_PAUSE_FEATURE
 
   static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);

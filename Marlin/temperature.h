@@ -257,10 +257,14 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static bool paused;
-      static int16_t paused_hotend_temp[HOTENDS];
+    #endif
 
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static millis_t heater_idle_timeout_ms[HOTENDS];
+      static bool heater_idle_timeout_exceeded[HOTENDS];
       #if HAS_TEMP_BED
-        static int16_t paused_bed_temp;
+        static millis_t bed_idle_timeout_ms;
+        static bool bed_idle_timeout_exceeded;
       #endif
     #endif
 
@@ -458,6 +462,54 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause(const bool p);
+      static bool is_paused() { return paused; }
+    #endif
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static void start_heater_idle_timer(uint8_t e, millis_t timeout_ms) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        heater_idle_timeout_ms[HOTEND_INDEX] = millis() + timeout_ms;
+        heater_idle_timeout_exceeded[HOTEND_INDEX] = false;
+      }
+
+      static void reset_heater_idle_timer(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        heater_idle_timeout_ms[HOTEND_INDEX] = 0;
+        heater_idle_timeout_exceeded[HOTEND_INDEX] = false;
+        #if WATCH_HOTENDS
+          start_watching_heater(HOTEND_INDEX);
+        #endif
+      }
+
+      static bool is_heater_idle(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return heater_idle_timeout_exceeded[HOTEND_INDEX];
+      }
+
+      #if HAS_TEMP_BED
+        static void start_bed_idle_timer(millis_t timeout_ms) {
+          bed_idle_timeout_ms = millis() + timeout_ms;
+          bed_idle_timeout_exceeded = false;
+        }
+
+        static void reset_bed_idle_timer() {
+          bed_idle_timeout_ms = 0;
+          bed_idle_timeout_exceeded = false;
+          #if WATCH_THE_BED
+            start_watching_bed();
+          #endif
+        }
+
+        static bool is_bed_idle() {
+          return bed_idle_timeout_exceeded;
+        }
+      #endif
     #endif
 
   private:
