@@ -1228,4 +1228,37 @@
  */
 #define FASTER_GCODE_PARSER
 
+// Enable this to show User defined command scripts
+//#define CUSTOM_USER_MENUS
+
+// User Options
+#if ENABLED(CUSTOM_USER_MENUS)
+  #define USER_SCRIPT_EXECUTED "\nM117 User Script Executed"
+
+  #define USER_DESC_1 "Home & UBL Info"
+  #ifdef USER_DESC_1
+    #define USER_GCODE_1 "G28\nG29 W"
+  #endif
+
+  #define USER_DESC_2 "Heat Bed & Nozzle PLA"
+  #ifdef USER_DESC_2
+    #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+  #endif
+
+  #define USER_DESC_3 "Heat Bed & Nozzle ABS"
+  #ifdef USER_DESC_3
+    #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+  #endif
+
+  #define USER_DESC_4 "Heat Bed/Home/Level"
+  #ifdef USER_DESC_4
+    #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
+  #endif
+
+  #define USER_DESC_5 "Home & Info"
+  #ifdef USER_DESC_2
+    #define USER_GCODE_5 "G28\nM503"
+  #endif
+#endif
+
 #endif // CONFIGURATION_ADV_H
