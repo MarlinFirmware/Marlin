@@ -156,6 +156,9 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+#ifndef MSG_USER_MENU
+  #define MSG_USER_MENU                       _UxGT("Custom Commands")
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #ifndef MSG_UBL_UNHOMED
