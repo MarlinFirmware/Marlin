@@ -115,7 +115,6 @@
 #define EXT_AUX_A4                 4 // Analog
 #define EXT_AUX_A4_IO             44 // Digital IO, 42 (teensy), 44 (marlin)
 
-
 //
 // LCD / Controller
 //
@@ -131,13 +130,26 @@
   // For LCD SHIFT register LCD
   #define SR_DATA_PIN         EXT_AUX_SDA_D1
   #define SR_CLK_PIN          EXT_AUX_SCL_D0
-#endif  // SAV_3DLCD
+#endif // SAV_3DLCD
 
 #if ENABLED(SAV_3DLCD) || ENABLED(SAV_3DGLCD)
+
   #define BTN_EN1            EXT_AUX_A1_IO
   #define BTN_EN2            EXT_AUX_A0_IO
   #define BTN_ENC            EXT_AUX_PWM_D24
 
   #define KILL_PIN           EXT_AUX_A2_IO
   #define HOME_PIN           EXT_AUX_A4_IO
-#endif // SAV_3DLCD || SAV_3DGLCD
+
+#else // Try to use the expansion header for spindle control
+
+  //
+  // M3/M4/M5 - Spindle/Laser Control
+  //
+  #define SPINDLE_LASER_PWM_PIN    24  // 12 AT90USB… pin #
+  #define SPINDLE_LASER_ENABLE_PIN 39  // Pin should have a pullup!   41 AT90USB… pin #
+  #define SPINDLE_DIR_PIN          40  // 42 AT90USB… pin #
+
+  #define CASE_LIGHT_PIN            0  // 24 AT90USB… pin #
+
+#endif

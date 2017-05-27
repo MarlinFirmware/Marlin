@@ -375,17 +375,17 @@ script:
   - use_example_configs Hephestos_2
   - build_marlin
   #
-  # Delta Config (generic)
+  # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
   - restore_configs
   - use_example_configs delta/generic
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
   - build_marlin
   #
-  # Delta Config (generic) + ABL + ALLEN_KEY
+  # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
   #
   - use_example_configs delta/generic
   - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_BILINEAR Z_PROBE_ALLEN_KEY
+  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2
   - build_marlin
   #
   # Delta Config (FLSUN AC because it's complex)

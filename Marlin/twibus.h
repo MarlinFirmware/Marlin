@@ -239,4 +239,4 @@ class TWIBus {
     #endif
 };
 
-#endif //TWIBUS_H
+#endif // TWIBUS_H

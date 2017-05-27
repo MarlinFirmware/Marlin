@@ -199,8 +199,8 @@
 #define MSG_INFO_MAX_TEMP                   _UxGT("最高溫度")  //"Max Temp"
 #define MSG_INFO_PSU                        _UxGT("電源供應")  //"Power Supply"
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("修改絲料")  //"CHANGE FILAMENT"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("修改選項:")  //"CHANGE OPTIONS:"
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("擠出更多")  //"Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("恢複列印")  //"Resume print"
 

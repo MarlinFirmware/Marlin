@@ -30,7 +30,15 @@
 
 #define BOARD_NAME "Azteeg X3 Pro"
 
+#if !PIN_EXISTS(CASE_LIGHT)         // doesn't already exist so OK to change the definition coming
+  #define OK_TO_CHANGE_CASE_LIGHT   // in from from the include file
+#endif
+
 #include "pins_RAMPS.h"
+
+#ifndef __AVR_ATmega2560__
+  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
+#endif
 
 //
 // Servos
@@ -126,7 +134,39 @@
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49 // For easy adapter board
+  #undef BEEPER_PIN
+  #define  BEEPER_PIN  12     // 33 isn't physically available to the LCD display
 #else
   #define STAT_LED_RED_PIN 32
   #define STAT_LED_BLUE_PIN 35
 #endif
+
+//
+// Misc. Functions
+//
+#if ENABLED(OK_TO_CHANGE_CASE_LIGHT)
+  #undef DOGLCD_A0            // steal pin 44 for the case light; if you have a Viki2 and have connected it
+  #define DOGLCD_A0      57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
+                              // as the wiring diagram uses pin 44 for DOGLCD_A0
+
+  #undef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN 44    // must have a hardware PWM
+#endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3 board
+#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_DIR_PIN
+
+#if ENABLED(SPINDLE_LASER_ENABLE)   // use EXP2 header
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #undef BTN_EN2
+    #define BTN_EN2             31  // need 7 for the spindle speed PWM
+  #endif
+  #define SPINDLE_LASER_PWM_PIN     7  // must have a hardware PWM
+  #define SPINDLE_LASER_ENABLE_PIN 20  // Pin should have a pullup!
+  #define SPINDLE_DIR_PIN          21
+#endif
+

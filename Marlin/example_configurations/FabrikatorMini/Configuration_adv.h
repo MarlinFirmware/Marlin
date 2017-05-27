@@ -798,4 +798,19 @@
 
 //#define EXPERIMENTAL_I2CBUS
 
+/**
+ * This affects the way Marlin outputs blacks of spaces via serial connection by multiplying the number
+ * of spaces to be output by the ratio set below.  This allows for better alignment of output for commands
+ * like G29 O, which renders a mesh/grid.
+ *
+ * For clients that use a fixed-width font (like OctoPrint), leave this at 1.0; otherwise, adjust
+ * accordingly for your client and font.
+ */
+#define PROPORTIONAL_FONT_RATIO 1.0
+
+/**
+ * Spend 28 bytes of SRAM to optimize the GCode parser
+ */
+#define FASTER_GCODE_PARSER
+
 #endif // CONFIGURATION_ADV_H

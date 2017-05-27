@@ -221,8 +221,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escribe DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("Cambiar Filamento")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("Opciones de cambio:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mas")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resumir imp.")
 
@@ -254,6 +254,8 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima boton para")
+#define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("Calentar la boquilla")
 #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Calentando boquilla")
+#define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Espere por favor")
 
 #endif // LANGUAGE_ES_H

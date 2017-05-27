@@ -61,6 +61,7 @@ extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;
 
 #include "Marlin.h"
+#include "gcode.h"
 #include "hex_print_routines.h"
 
 //
@@ -78,7 +79,7 @@ char* top_of_stack() {
 }
 
 // Count the number of test bytes at the specified location.
-int16_t count_test_bytes(const uint8_t * const ptr) {
+int16_t count_test_bytes(const char * const ptr) {
   for (uint16_t i = 0; i < 32000; i++)
     if (((char) ptr[i]) != TEST_BYTE)
       return i - 1;
@@ -100,13 +101,13 @@ int16_t count_test_bytes(const uint8_t * const ptr) {
    *  the block. If so, it may indicate memory corruption due to a bad pointer.
    *  Unexpected bytes are flagged in the right column.
    */
-  void dump_free_memory(const uint8_t *ptr, const uint8_t *sp) {
+  void dump_free_memory(const char *ptr, const char *sp) {
     //
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
     //
-    ptr = (uint8_t *)((uint16_t)ptr & 0xFFF0); // Align to 16-byte boundary
-    sp  = (uint8_t *)((uint16_t)sp  | 0x000F); // Align sp to the 15th byte (at or above sp)
+    ptr = (char *)((uint16_t)ptr & 0xFFF0); // Align to 16-byte boundary
+    sp  = (char *)((uint16_t)sp  | 0x000F); // Align sp to the 15th byte (at or above sp)
 
     // Dump command main loop
     while (ptr < sp) {
@@ -121,7 +122,7 @@ int16_t count_test_bytes(const uint8_t * const ptr) {
       SERIAL_CHAR('|');                   // Point out non test bytes
       for (uint8_t i = 0; i < 16; i++) {
         char ccc = (char)ptr[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
-        if (&ptr[i] >= command_queue && &ptr[i] < &command_queue[BUFSIZE][MAX_CMD_SIZE]) { // Print out ASCII in the command buffer area
+        if (&ptr[i] >= (const char*)command_queue && &ptr[i] < (const char*)(command_queue + sizeof(command_queue))) { // Print out ASCII in the command buffer area
           if (!WITHIN(ccc, ' ', 0x7E)) ccc = ' ';
         }
         else { // If not in the command buffer area, flag bytes that don't match the test byte
@@ -153,15 +154,14 @@ void M100_dump_routine(const char * const title, const char *start, const char *
  *  Return the number of free bytes in the memory pool,
  *  with other vital statistics defining the pool.
  */
-void free_memory_pool_report(const char * const ptr, const uint16_t size) {
-  int16_t max_cnt = -1;
-  uint16_t block_cnt = 0;
+void free_memory_pool_report(char * const ptr, const int16_t size) {
+  int16_t max_cnt = -1, block_cnt = 0;
   char *max_addr = NULL;
   // Find the longest block of test bytes in the buffer
-  for (uint16_t i = 0; i < size; i++) {
-    char * const addr = ptr + i;
+  for (int16_t i = 0; i < size; i++) {
+    char *addr = ptr + i;
     if (*addr == TEST_BYTE) {
-      const uint16_t j = count_test_bytes(addr);
+      const int16_t j = count_test_bytes(addr);
       if (j > 8) {
         SERIAL_ECHOPAIR("Found ", j);
         SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
@@ -189,7 +189,7 @@ void free_memory_pool_report(const char * const ptr, const uint16_t size) {
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
   void corrupt_free_memory(char *ptr, const uint16_t size) {
-    if (code_seen('C')) {
+    if (parser.seen('C')) {
       ptr += 8;
       const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
                      j = near_top / (size + 1);
@@ -209,7 +209,7 @@ void free_memory_pool_report(const char * const ptr, const uint16_t size) {
  * M100 I
  *  Init memory for the M100 tests. (Automatically applied on the first M100.)
  */
-void init_free_memory(uint8_t *ptr, int16_t size) {
+void init_free_memory(char *ptr, int16_t size) {
   SERIAL_ECHOLNPGM("Initializing free memory block.\n\n");
 
   size -= 250;    // -250 to avoid interrupt activity that's altered the stack.
@@ -225,8 +225,8 @@ void init_free_memory(uint8_t *ptr, int16_t size) {
   SERIAL_ECHO(size);
   SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
 
-  for (uint16_t i = 0; i < size; i++) {
-    if ((char)ptr[i] != TEST_BYTE) {
+  for (int16_t i = 0; i < size; i++) {
+    if (ptr[i] != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
       SERIAL_EOL;
@@ -248,23 +248,23 @@ void gcode_M100() {
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;
-  if (m100_not_initialized || code_seen('I')) {
+  if (m100_not_initialized || parser.seen('I')) {
     m100_not_initialized = false;
     init_free_memory(ptr, sp - ptr);
   }
 
   #if ENABLED(M100_FREE_MEMORY_DUMPER)
-    if (code_seen('D'))
+    if (parser.seen('D'))
       return dump_free_memory(ptr, sp);
   #endif
 
-  if (code_seen('F'))
+  if (parser.seen('F'))
     return free_memory_pool_report(ptr, sp - ptr);
 
   #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
 
-    if (code_seen('C'))
-      return corrupt_free_memory(ptr, code_value_int());
+    if (parser.seen('C'))
+      return corrupt_free_memory(ptr, parser.value_int());
 
   #endif
 }
@@ -292,7 +292,7 @@ int check_for_free_memory_corruption(const char * const title) {
     //   idle();
     safe_delay(20);
     #ifdef M100_FREE_MEMORY_DUMPER
-      M100_dump_routine("   Memory corruption detected with sp<Heap\n", (char*)0x1B80, 0x21FF);
+      M100_dump_routine("   Memory corruption detected with sp<Heap\n", (char*)0x1B80, (char*)0x21FF);
     #endif
   }
 

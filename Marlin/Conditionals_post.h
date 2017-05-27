@@ -326,7 +326,7 @@
     #ifndef HOTEND_OFFSET_Y
       #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
     #endif
-    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER))
+    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE))
       #define HOTEND_OFFSET_Z { 0 }
     #endif
   #endif
@@ -579,7 +579,7 @@
   #define HAS_SUICIDE (PIN_EXISTS(SUICIDE))
   #define HAS_PHOTOGRAPH (PIN_EXISTS(PHOTOGRAPH))
   #define HAS_BUZZER (PIN_EXISTS(BEEPER) || ENABLED(LCD_USE_I2C_BUZZER))
-  #define HAS_CASE_LIGHT (PIN_EXISTS(CASE_LIGHT))
+  #define HAS_CASE_LIGHT (PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE))
 
   // Digital control
   #define HAS_MICROSTEPS (HAS_X_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Z_MICROSTEPS || HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS)
@@ -649,10 +649,10 @@
   /**
    * Heater & Fan Pausing
    */
-  #if ENABLED(PROBING_FANS_OFF) && FAN_COUNT == 0
+  #if FAN_COUNT == 0
     #undef PROBING_FANS_OFF
   #endif
-  #define QUIET_PROBING (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF))
+  #define QUIET_PROBING (HAS_BED_PROBE && (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF)))
 
   /**
    * Servos and probes
@@ -730,11 +730,13 @@
   /**
    * Set granular options based on the specific type of leveling
    */
+
+  #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)))
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
   #define HAS_ABL    (ABL_PLANAR || ABL_GRID || ENABLED(AUTO_BED_LEVELING_UBL))
   #define HAS_LEVELING          (HAS_ABL || ENABLED(MESH_BED_LEVELING))
-  #define PLANNER_LEVELING      (ABL_PLANAR || ABL_GRID || ENABLED(MESH_BED_LEVELING))
+  #define PLANNER_LEVELING      (ABL_PLANAR || ABL_GRID || ENABLED(MESH_BED_LEVELING) || UBL_DELTA)
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
   #if HAS_PROBING_PROCEDURE
     #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))
@@ -779,12 +781,19 @@
     #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
   #endif
 
-  #if IS_KINEMATIC
-    // Check for this in the code instead
-    #define MIN_PROBE_X X_MIN_POS
-    #define MAX_PROBE_X X_MAX_POS
-    #define MIN_PROBE_Y Y_MIN_POS
-    #define MAX_PROBE_Y Y_MAX_POS
+  #if ENABLED(DELTA)
+    // These will be further constrained in code, but UBL_PROBE_PT values
+    // cannot be compile-time verified within the radius.
+    #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X ( DELTA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (-DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y ( DELTA_PRINTABLE_RADIUS)
+  #elif IS_SCARA
+    #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
+    #define MIN_PROBE_X (-SCARA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X ( SCARA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (-SCARA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y ( SCARA_PRINTABLE_RADIUS)
   #else
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -813,5 +822,29 @@
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
+
+  /**
+   * DELTA_SEGMENT_MIN_LENGTH and DELTA_PROBEABLE_RADIUS for UBL_DELTA
+   */
+  #if UBL_DELTA
+    #ifndef DELTA_SEGMENT_MIN_LENGTH
+      #if IS_SCARA
+        #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+      #elif ENABLED(DELTA)
+        #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+      #else // CARTESIAN
+        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #endif
+    #endif
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+    #endif
+  #endif
+
+  // Shorthand
+  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
+
+  // Add commands that need sub-codes to this list
+  #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET)
 
 #endif // CONDITIONALS_POST_H

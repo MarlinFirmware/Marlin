@@ -29,6 +29,8 @@
   #include "hex_print_routines.h"
   #include "temperature.h"
 
+  extern Planner planner;
+
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
@@ -41,7 +43,17 @@
 
   uint8_t ubl_cnt = 0;
 
-  static void serial_echo_xy(const uint16_t x, const uint16_t y) {
+  void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
+
+  void unified_bed_leveling::report_state() {
+    echo_name();
+    SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
+    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    SERIAL_PROTOCOLLNPGM("active.");
+    safe_delay(50);
+  }
+
+  static void serial_echo_xy(const int16_t x, const int16_t y) {
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
     SERIAL_CHAR(',');
@@ -57,72 +69,27 @@
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
-  constexpr float unified_bed_leveling::mesh_index_to_xpos[16],
-                  unified_bed_leveling::mesh_index_to_ypos[16];
+  constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
+                  unified_bed_leveling::_mesh_index_to_ypos[16];
 
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
 
-  int16_t unified_bed_leveling::eeprom_start = -1;  // Please stop changing this to 8 bits in size
-                                                    // It needs to hold values bigger than this.
-
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.
+    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
-  }
-
-  void unified_bed_leveling::load_mesh(const int16_t slot) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-
-    if (slot == -1) {
-      SERIAL_PROTOCOLLNPGM("?No mesh saved in EEPROM. Zeroing mesh in memory.\n");
-      reset();
-      return;
-    }
-
-    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
-      return;
-    }
-
-    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
-    eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
-
-    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", slot);
-    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
-  }
-
-  void unified_bed_leveling::store_mesh(const int16_t slot) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-
-    if (!WITHIN(slot, 0, j - 1) || eeprom_start <= 0) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
-      SERIAL_PROTOCOL(slot);
-      SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
-      SERIAL_PROTOCOLLNPAIR("E2END     : ", E2END);
-      SERIAL_PROTOCOLLNPAIR("k         : ", (int)UBL_LAST_EEPROM_INDEX);
-      SERIAL_PROTOCOLLNPAIR("j         : ", j);
-      SERIAL_PROTOCOLLNPAIR("m         : ", slot);
-      SERIAL_EOL;
-      return;
-    }
-
-    j = UBL_LAST_EEPROM_INDEX - (slot + 1) * sizeof(z_values);
-    eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
-
-    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", slot);
-    SERIAL_PROTOCOLLNPAIR(" at offset ", hex_address((void*)j));
   }
 
   void unified_bed_leveling::reset() {
     state.active = false;
     state.z_offset = 0;
-    state.eeprom_storage_slot = -1;
-
+    state.storage_slot = -1;
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      planner.z_fade_height = 10.0;
+    #endif
     ZERO(z_values);
-
     last_specified_z = -999.9;
   }
 
@@ -136,7 +103,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-    constexpr uint8_t spaces = 11 * (GRID_MAX_POINTS_X - 2);
+    constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -145,13 +112,13 @@
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL;
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
-      SERIAL_ECHO_SP(spaces - 3);
+      SERIAL_ECHO_SP(spaces);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL;
     }
 
-    const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
+                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
@@ -162,7 +129,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely
@@ -190,7 +157,7 @@
 
     if (map0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      SERIAL_ECHO_SP(spaces + 1);
+      SERIAL_ECHO_SP(spaces + 4);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
       serial_echo_xy(0, 0);
@@ -203,9 +170,9 @@
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
-    const int j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
-    if (j < 1) {
-      SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
+    const int a = settings.calc_num_meshes();
+    if (a < 1) {
+      SERIAL_PROTOCOLLNPGM("?Insufficient EEPROM storage for a mesh of this size.");
       error_flag++;
     }
 
