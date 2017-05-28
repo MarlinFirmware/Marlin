@@ -407,10 +407,10 @@
 #endif
 
 /**
- * Servo deactivation depends on servo endstops or switching nozzle
+ * Servo deactivation depends on servo endstops
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR)
-  #error "Z_ENDSTOP_SERVO_NR or switching nozzle is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
+  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**

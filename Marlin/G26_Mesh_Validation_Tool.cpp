@@ -132,7 +132,7 @@
   void set_current_to_destination();
   void prepare_move_to_destination();
   void lcd_setstatuspgm(const char* const message, const uint8_t level);
-  void sync_plan_position_e() {};
+  void sync_plan_position_e();
   void chirp_at_user();
 
   // Private functions
