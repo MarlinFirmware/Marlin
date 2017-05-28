@@ -585,8 +585,8 @@
       float seg_dest[XYZE];  // per-segment destination, initialize to first segment
       LOOP_XYZE(i) seg_dest[i] = current_position[i] + segment_distance[i];
 
-      const float& dx_seg = segment_distance[X_AXIS];  // alias for clarity
-      const float& dy_seg = segment_distance[Y_AXIS];
+      const float &dx_seg = segment_distance[X_AXIS];  // alias for clarity
+      const float &dy_seg = segment_distance[Y_AXIS];
 
       float rx = RAW_X_POSITION(seg_dest[X_AXIS]),  // assume raw vs logical coordinates shifted but not scaled.
             ry = RAW_Y_POSITION(seg_dest[Y_AXIS]);

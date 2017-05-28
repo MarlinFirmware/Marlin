@@ -1510,7 +1510,7 @@ void Planner::sync_from_steppers() {
 /**
  * Setters for planner position (also setting stepper position).
  */
-void Planner::set_position_mm(const AxisEnum axis, const float& v) {
+void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if ENABLED(DISTINCT_E_FACTORS)
     const uint8_t axis_index = axis + (axis == E_AXIS ? active_extruder : 0);
     last_extruder = active_extruder;

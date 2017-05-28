@@ -92,6 +92,10 @@ enum ADCSensorState {
 
 #define ACTUAL_ADC_SAMPLES max(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
 
+#if !HAS_HEATER_BED
+  constexpr int16_t target_temperature_bed = 0;
+#endif
+
 class Temperature {
 
   public:
@@ -100,8 +104,11 @@ class Temperature {
                  current_temperature_bed;
     static int16_t current_temperature_raw[HOTENDS],
                    target_temperature[HOTENDS],
-                   current_temperature_bed_raw,
-                   target_temperature_bed;
+                   current_temperature_bed_raw;
+
+    #if HAS_HEATER_BED
+      static int16_t target_temperature_bed;
+    #endif
 
     static volatile bool in_temp_isr;
 
@@ -382,9 +389,17 @@ class Temperature {
     }
 
     static void setTargetBed(const int16_t celsius) {
-      target_temperature_bed = celsius;
-      #if WATCH_THE_BED
-        start_watching_bed();
+      #if HAS_HEATER_BED
+        target_temperature_bed =
+          #ifdef BED_MAXTEMP
+            min(celsius, BED_MAXTEMP)
+          #else
+            celsius
+          #endif
+        ;
+        #if WATCH_THE_BED
+          start_watching_bed();
+        #endif
       #endif
     }
 

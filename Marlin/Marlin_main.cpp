@@ -5746,9 +5746,9 @@ inline void gcode_M17() {
     static bool sd_print_paused = false;
   #endif
 
-  static void filament_change_beep(const int max_beep_count, const bool init=false) {
+  static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
     static millis_t next_buzz = 0;
-    static uint16_t runout_beep = 0;
+    static int8_t runout_beep = 0;
 
     if (init) next_buzz = runout_beep = 0;
 
@@ -5762,8 +5762,9 @@ inline void gcode_M17() {
     }
   }
 
-  static bool pause_print(const float& retract, const float& z_lift, const float& x_pos, const float& y_pos,
-                          const float& unload_length = 0 , int max_beep_count = 0, bool show_lcd = false) {
+  static bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
+                          const float &unload_length = 0 , int8_t max_beep_count = 0, bool show_lcd = false
+  ) {
     if (move_away_flag) return false; // already paused
 
     if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder) && unload_length > 0) {
@@ -5771,8 +5772,6 @@ inline void gcode_M17() {
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
       return false;
     }
-
-    const bool job_running = print_job_timer.isRunning();
 
     // Indicate that the printer is paused
     move_away_flag = true;
@@ -5857,7 +5856,7 @@ inline void gcode_M17() {
     return true;
   }
 
-  static void wait_for_filament_reload(int max_beep_count = 0) {
+  static void wait_for_filament_reload(int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
     // Wait for filament insert by user and press button
@@ -5882,7 +5881,7 @@ inline void gcode_M17() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  static void resume_print(const float& load_length = 0, const float& initial_extrude_length = 0, int max_beep_count = 0) {
+  static void resume_print(const float &load_length = 0, const float &initial_extrude_length = 0, int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
     if (!move_away_flag) return;
