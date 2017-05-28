@@ -5881,7 +5881,7 @@ inline void gcode_M17() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  static void resume_print(const float& load_length = 0, const float& initial_extrude_length = 0, int8_t max_beep_count = 0) {
+  static void resume_print(const float &load_length = 0, const float &initial_extrude_length = 0, int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
     if (!move_away_flag) return;
