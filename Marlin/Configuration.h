@@ -74,9 +74,9 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(CH, 20170525)" // Who made the changes.  //CH
+#define STRING_CONFIG_H_AUTHOR "(CH, 20170528)" // Who made the changes.  //CH
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 "CH-1.1-20170525" // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE1 "CH-1.1-20170528" // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 "CH-Version"         // will be shown during bootup in line 2
 
 //
@@ -926,13 +926,13 @@
   #define UBL_MESH_INSET 1          // Mesh inset margin on print area
   #define GRID_MAX_POINTS_X 7      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-  #define UBL_PROBE_PT_1_X 45 //39       // These set the probe locations for when UBL does a 3-Point leveling
-  #define UBL_PROBE_PT_1_Y 180      // of the mesh.
-  #define UBL_PROBE_PT_2_X 45 // war 39
-  #define UBL_PROBE_PT_2_Y 55 // war 20
-  #define UBL_PROBE_PT_3_X 180 // war 180
-  #define UBL_PROBE_PT_3_Y 55 // war 20
-  #define UBL_G26_MESH_EDITING    // Enable G26 mesh editing  //CH
+  #define UBL_PROBE_PT_1_X 46 //39       // These set the probe locations for when UBL does a 3-Point leveling
+  #define UBL_PROBE_PT_1_Y 52      // of the mesh.
+  #define UBL_PROBE_PT_2_X 235 // war 39
+  #define UBL_PROBE_PT_2_Y 52 // war 20
+  #define UBL_PROBE_PT_3_X 145 // war 180
+  #define UBL_PROBE_PT_3_Y 242 // war 20
+  #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
 
 #elif ENABLED(MESH_BED_LEVELING)
