@@ -48,7 +48,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Επιπεδοποίηση επ. Εκτύπωσης περιμενει") //SHORTEN
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Επόμενο σημείο")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Ολοκλήρωση επιπεδοποίησης!") //SHORTEN
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Ακύρωση")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ορισμός βασικών μετατοπίσεων") //SHORTEN
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Εφαρμόστηκαν οι μετατοπίσεις") //SHORTEN
 #define MSG_SET_ORIGIN                      _UxGT("Ορισμός προέλευσης")
@@ -68,6 +67,7 @@
 #define MSG_EXTRUDE                         _UxGT("Εξώθηση")
 #define MSG_RETRACT                         _UxGT("Ανάσυρση")
 #define MSG_MOVE_AXIS                       _UxGT("Μετακίνηση άξονα")
+#define MSG_BED_LEVELING                    _UxGT("Επιπεδοποίηση Επ. Εκτύπωσης") //SHORTEN
 #define MSG_LEVEL_BED                       _UxGT("Επιπεδοποίηση Επ. Εκτύπωσης") //SHORTEN
 #define MSG_MOVE_X                          _UxGT("Μετακίνηση X")
 #define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")

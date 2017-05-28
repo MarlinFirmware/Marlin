@@ -46,7 +46,6 @@
 #define MSG_LEVEL_BED_WAITING               "Click para iniciar"
 #define MSG_LEVEL_BED_NEXT_POINT            "Proximo ponto"
 #define MSG_LEVEL_BED_DONE                  "Pronto !"
-#define MSG_LEVEL_BED_CANCEL                "Cancelar"
 #define MSG_SET_HOME_OFFSETS                "Definir desvio"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Definir origem"

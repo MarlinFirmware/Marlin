@@ -43,7 +43,6 @@
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click to Begin")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Cancel")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Set home offsets")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets applied")
 #define MSG_SET_ORIGIN                      _UxGT("Aseta origo")

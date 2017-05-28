@@ -84,8 +84,8 @@
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
 #endif
-#ifndef MSG_LEVEL_BED_CANCEL
-  #define MSG_LEVEL_BED_CANCEL                _UxGT("Cancel")
+#ifndef MSG_Z_FADE_HEIGHT
+  #define MSG_Z_FADE_HEIGHT                   _UxGT("Fade Height")
 #endif
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                _UxGT("Set home offsets")
@@ -149,6 +149,9 @@
 #endif
 #ifndef MSG_MOVE_AXIS
   #define MSG_MOVE_AXIS                       _UxGT("Move axis")
+#endif
+#ifndef MSG_BED_LEVELING
+  #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")

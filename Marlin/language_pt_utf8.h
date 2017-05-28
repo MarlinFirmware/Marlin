@@ -46,7 +46,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click para iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo ponto")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Pronto !")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Cancelar")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Definir desvio")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets aplicados")
 #define MSG_SET_ORIGIN                      _UxGT("Definir origem")

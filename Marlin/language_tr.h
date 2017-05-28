@@ -55,7 +55,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Başlatmak için tıkla")                               // Başlatmak için tıkla
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sıradaki Nokta")                                     // Sıradaki Nokta
 #define MSG_LEVEL_BED_DONE                  _UxGT("Seviyeleme Tamam!")                                  // Seviyeleme Tamam!
-#define MSG_LEVEL_BED_CANCEL                _UxGT("İptal")                                              // İptal
 #define MSG_SET_HOME_OFFSETS                _UxGT("Offset Ayarla")                                      // Offset Ayarla
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offset Tamam")                                       // Offset Tamam
 #define MSG_SET_ORIGIN                      _UxGT("Sıfır Belirle")                                      // Sıfır Belirle
@@ -77,6 +76,7 @@
 #define MSG_EXTRUDE                         _UxGT("Extrude")                                            // Extrude
 #define MSG_RETRACT                         _UxGT("Geri Çek")                                           // Geri Çek
 #define MSG_MOVE_AXIS                       _UxGT("Eksen Yönet")                                        // Eksenleri Yönet
+#define MSG_BED_LEVELING                    _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_LEVEL_BED                       _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_MOVING                          _UxGT("Konumlanıyor...")                                    // Konumlanıyor...
 #define MSG_FREE_XY                         _UxGT("Durdur XY")                                          // Durdur XY
