@@ -67,8 +67,11 @@ float Temperature::current_temperature[HOTENDS] = { 0.0 },
       Temperature::current_temperature_bed = 0.0;
 int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
         Temperature::target_temperature[HOTENDS] = { 0 },
-        Temperature::current_temperature_bed_raw = 0,
-        Temperature::target_temperature_bed = 0;
+        Temperature::current_temperature_bed_raw = 0;
+
+#if HAS_HEATER_BED
+  int16_t Temperature::target_temperature_bed = 0;
+#endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   float Temperature::redundant_temperature = 0.0;
