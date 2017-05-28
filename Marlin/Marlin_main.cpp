@@ -6354,9 +6354,8 @@ inline void gcode_M42() {
       #endif
 
       SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
-      pinMode(PROBE_TEST_PIN, INPUT_PULLUP);
-      bool deploy_state;
-      bool stow_state;
+      SET_INPUT_PULLUP(PROBE_TEST_PIN);
+      bool deploy_state, stow_state;
       for (uint8_t i = 0; i < 4; i++) {
         servo[probe_index].move(z_servo_angle[0]); //deploy
         safe_delay(500);
