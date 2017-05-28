@@ -53,7 +53,6 @@
 #define MSG_LEVEL_BED_WAITING               "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xb2\xbc"                         // "ﾚﾍﾞﾘﾝｸﾞｶｲｼ" ("Click to Begin")
 #define MSG_LEVEL_BED_NEXT_POINT            "\xc2\xb7\xde\xc9\xbf\xb8\xc3\xb2\xc3\xdd\xcd"                     // "ﾂｷﾞﾉｿｸﾃｲﾃﾝﾍ" ("Next Point")
 #define MSG_LEVEL_BED_DONE                  "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xdd\xd8\xae\xb3"                 // "ﾚﾍﾞﾘﾝｸﾞｶﾝﾘｮｳ" ("Leveling Done!")
-#define MSG_LEVEL_BED_CANCEL                "\xc4\xd8\xd4\xd2"                                                 // "ﾄﾘﾔﾒ" ("Cancel")
 #define MSG_SET_HOME_OFFSETS                "\xb7\xbc\xde\xad\xdd\xb5\xcc\xbe\xaf\xc4\xbe\xaf\xc3\xb2"         // "ｷｼﾞｭﾝｵﾌｾｯﾄｾｯﾃｲ" ("Set home offsets")
 #define MSG_HOME_OFFSETS_APPLIED            "\xb5\xcc\xbe\xaf\xc4\xb6\xde\xc3\xb7\xd6\xb3\xbb\xda\xcf\xbc\xc0" // "ｵﾌｾｯﾄｶﾞﾃｷﾖｳｻﾚﾏｼﾀ" ("Offsets applied")
 #define MSG_SET_ORIGIN                      "\xb7\xbc\xde\xad\xdd\xbe\xaf\xc4"                                 // "ｷｼﾞｭﾝｾｯﾄ" ("Set origin")
@@ -73,6 +72,7 @@
 #define MSG_EXTRUDE                         "\xb5\xbc\xc0\xde\xbc"                                             // "ｵｼﾀﾞｼ" ("Extrude")
 #define MSG_RETRACT                         "\xcb\xb7\xba\xd0\xbe\xaf\xc3\xb2"                                 // "ﾋｷｺﾐｾｯﾃｲ" ("Retract")
 #define MSG_MOVE_AXIS                       "\xbc\xde\xb8\xb2\xc4\xde\xb3"                                     // "ｼﾞｸｲﾄﾞｳ" ("Move axis")
+#define MSG_BED_LEVELING                    "\xcd\xde\xaf\xc4\xde\xda\xcd\xde\xd8\xdd\xb8\xde"                 // "ﾍﾞｯﾄﾞﾚﾍﾞﾘﾝｸﾞ" ("Bed Leveling")
 #define MSG_LEVEL_BED                       "\xcd\xde\xaf\xc4\xde\xda\xcd\xde\xd8\xdd\xb8\xde"                 // "ﾍﾞｯﾄﾞﾚﾍﾞﾘﾝｸﾞ" ("Level bed")
 #define MSG_MOVING                          "\xb2\xc4\xde\xb3\xc1\xad\xb3"                                     // "ｲﾄﾞｳﾁｭｳ" ("Moving...")
 #define MSG_FREE_XY                         "XY\xbc\xde\xb8\x20\xb6\xb2\xce\xb3"                               // "XYｼﾞｸ ｶｲﾎｳ" ("Free XY")
@@ -129,6 +129,7 @@
 #define MSG_A_RETRACT                       "\xcb\xb7\xba\xd0\xb6\xbf\xb8\xc4\xde"                             // "ﾋｷｺﾐｶｿｸﾄﾞ" ("A-retract")
 #define MSG_A_TRAVEL                        "\xb2\xc4\xde\xb3\xb6\xbf\xb8\xc4\xde"                             // "ｲﾄﾞｳｶｿｸﾄﾞ" ("A-travel")
 #if LCD_WIDTH >= 20
+  #define MSG_STEPS_PER_MM                    "Steps/mm"
   #define MSG_XSTEPS                          "Xsteps/mm"
   #define MSG_YSTEPS                          "Ysteps/mm"
   #define MSG_ZSTEPS                          "Zsteps/mm"
@@ -139,6 +140,7 @@
   #define MSG_E4STEPS                         "E4steps/mm"
   #define MSG_E5STEPS                         "E5steps/mm"
 #else
+  #define MSG_STEPS_PER_MM                    "Steps"
   #define MSG_XSTEPS                          "Xsteps"
   #define MSG_YSTEPS                          "Ysteps"
   #define MSG_ZSTEPS                          "Zsteps"

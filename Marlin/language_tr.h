@@ -55,7 +55,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Başlatmak için tıkla")                               // Başlatmak için tıkla
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sıradaki Nokta")                                     // Sıradaki Nokta
 #define MSG_LEVEL_BED_DONE                  _UxGT("Seviyeleme Tamam!")                                  // Seviyeleme Tamam!
-#define MSG_LEVEL_BED_CANCEL                _UxGT("İptal")                                              // İptal
 #define MSG_SET_HOME_OFFSETS                _UxGT("Offset Ayarla")                                      // Offset Ayarla
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offset Tamam")                                       // Offset Tamam
 #define MSG_SET_ORIGIN                      _UxGT("Sıfır Belirle")                                      // Sıfır Belirle
@@ -77,6 +76,7 @@
 #define MSG_EXTRUDE                         _UxGT("Extrude")                                            // Extrude
 #define MSG_RETRACT                         _UxGT("Geri Çek")                                           // Geri Çek
 #define MSG_MOVE_AXIS                       _UxGT("Eksen Yönet")                                        // Eksenleri Yönet
+#define MSG_BED_LEVELING                    _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_LEVEL_BED                       _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_MOVING                          _UxGT("Konumlanıyor...")                                    // Konumlanıyor...
 #define MSG_FREE_XY                         _UxGT("Durdur XY")                                          // Durdur XY
@@ -106,6 +106,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")                                              // PID-C
 #define MSG_SELECT                          _UxGT("Seç")                                                // Seç
 #define MSG_ACC                             _UxGT("İvme")                                               // İvme
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("Vx-Jerk")                                            // Vx-Jerk
 #define MSG_VY_JERK                         _UxGT("Vy-Jerk")                                            // Vy-Jerk
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")                                            // Vz-Jerk
@@ -116,6 +117,7 @@
 #define MSG_AMAX                            _UxGT("Amax ")                                              // Amax
 #define MSG_A_RETRACT                       _UxGT("A-retract")                                          // A-retract
 #define MSG_A_TRAVEL                        _UxGT("A-travel")                                           // A-travel
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")                                           // Xsteps/mm
 #define MSG_XSTEPS                          _UxGT("Xsteps/mm")                                          // Xsteps/mm
 #define MSG_YSTEPS                          _UxGT("Ysteps/mm")                                          // Ysteps/mm
 #define MSG_ZSTEPS                          _UxGT("Zsteps/mm")                                          // Zsteps/mm

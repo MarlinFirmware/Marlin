@@ -310,7 +310,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   float bilinear_z_offset(const float logical[XYZ]);
-  void set_bed_leveling_enabled(bool enable=true);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -319,6 +318,9 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if HAS_LEVELING
+  bool leveling_is_valid();
+  bool leveling_is_active();
+  void set_bed_leveling_enabled(const bool enable=true);
   void reset_bed_level();
 #endif
 
