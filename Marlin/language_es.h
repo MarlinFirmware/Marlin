@@ -161,7 +161,7 @@
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Prueba")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reiniciar BLTouch")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("first")
+#define MSG_FIRST                           _UxGT("inic.")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Desfase Z")
 #define MSG_BABYSTEP_X                      _UxGT("Micropaso X")
 #define MSG_BABYSTEP_Y                      _UxGT("Micropaso Y")
@@ -169,7 +169,7 @@
 #define MSG_ENDSTOP_ABORT                   _UxGT("Cancelado - Endstop")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Error: al calentar")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Error: temperatura")
-#define MSG_THERMAL_RUNAWAY                 _UxGT("Error de temperatura")
+#define MSG_THERMAL_RUNAWAY                 _UxGT("Error: temperatura")
 #define MSG_ERR_MAXTEMP                     _UxGT("Error: Temp Maxima")
 #define MSG_ERR_MINTEMP                     _UxGT("Error: Temp Minima")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Error: Temp Max Plat")
@@ -221,8 +221,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escribe DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("IMPR. PAUSADA")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("OPC. REINICIO:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mas")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resumir imp.")
 
