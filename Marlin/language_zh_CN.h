@@ -92,6 +92,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
 #define MSG_SELECT                          _UxGT("选择")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
+#define MSG_JERK                            _UxGT("抖动速率")  // "Jerk"
 #define MSG_VX_JERK                         _UxGT("X轴抖动速率")  //"Vx-jerk"
 #define MSG_VY_JERK                         _UxGT("Y轴抖动速率")  //"Vy-jerk"
 #define MSG_VZ_JERK                         _UxGT("Z轴抖动速率")  //"Vz-jerk"
@@ -102,6 +103,7 @@
 #define MSG_AMAX                            _UxGT("最大打印加速度")  //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
 #define MSG_A_RETRACT                       _UxGT("收进加速度")  //"A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
 #define MSG_A_TRAVEL                        _UxGT("非打印移动加速度")  //"A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+#define MSG_STEPS_PER_MM                    _UxGT("轴步数/mm")  //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
 #define MSG_XSTEPS                          _UxGT("X轴步数/mm")  //"Xsteps/mm" axis_steps_per_mm, axis steps-per-unit G92
 #define MSG_YSTEPS                          _UxGT("Y轴步数/mm")  //"Ysteps/mm"
 #define MSG_ZSTEPS                          _UxGT("Z轴步数/mm")  //"Zsteps/mm"

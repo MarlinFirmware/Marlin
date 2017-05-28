@@ -102,6 +102,7 @@
 #define MSG_PID_C                           _UxGT("PID C")
 #define MSG_SELECT                          _UxGT("Auswählen")
 #define MSG_ACC                             _UxGT("A")
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("V X Jerk")
 #define MSG_VY_JERK                         _UxGT("V Y Jerk")
 #define MSG_VZ_JERK                         _UxGT("V Z Jerk")
@@ -112,6 +113,7 @@
 #define MSG_AMAX                            _UxGT("A max ") // space by purpose
 #define MSG_A_RETRACT                       _UxGT("A Retract")
 #define MSG_A_TRAVEL                        _UxGT("A Leerfahrt")
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
 #define MSG_XSTEPS                          _UxGT("X Steps/mm")
 #define MSG_YSTEPS                          _UxGT("Y Steps/mm")
 #define MSG_ZSTEPS                          _UxGT("Z Steps/mm")

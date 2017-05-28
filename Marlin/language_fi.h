@@ -87,6 +87,7 @@
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Kiihtyv")
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("Vx-jerk")
 #define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
@@ -94,8 +95,10 @@
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
 #define MSG_VTRAV_MIN                       _UxGT("VLiike min")
+#define MSG_ACCELERATION                    MSG_ACC
 #define MSG_AMAX                            _UxGT("Amax ")
 #define MSG_A_RETRACT                       _UxGT("A-peruuta")
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
 #define MSG_XSTEPS                          _UxGT("Xsteps/mm")
 #define MSG_YSTEPS                          _UxGT("Ysteps/mm")
 #define MSG_ZSTEPS                          _UxGT("Zsteps/mm")

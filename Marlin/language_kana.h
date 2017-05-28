@@ -129,6 +129,7 @@
 #define MSG_A_RETRACT                       "\xcb\xb7\xba\xd0\xb6\xbf\xb8\xc4\xde"                             // "ﾋｷｺﾐｶｿｸﾄﾞ" ("A-retract")
 #define MSG_A_TRAVEL                        "\xb2\xc4\xde\xb3\xb6\xbf\xb8\xc4\xde"                             // "ｲﾄﾞｳｶｿｸﾄﾞ" ("A-travel")
 #if LCD_WIDTH >= 20
+  #define MSG_STEPS_PER_MM                    "Steps/mm"
   #define MSG_XSTEPS                          "Xsteps/mm"
   #define MSG_YSTEPS                          "Ysteps/mm"
   #define MSG_ZSTEPS                          "Zsteps/mm"
@@ -139,6 +140,7 @@
   #define MSG_E4STEPS                         "E4steps/mm"
   #define MSG_E5STEPS                         "E5steps/mm"
 #else
+  #define MSG_STEPS_PER_MM                    "Steps"
   #define MSG_XSTEPS                          "Xsteps"
   #define MSG_YSTEPS                          "Ysteps"
   #define MSG_ZSTEPS                          "Zsteps"

@@ -104,6 +104,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("センタク")                     // "Select"
 #define MSG_ACC                             _UxGT("カソクド mm/s2")               // "Accel"
+#define MSG_JERK                            _UxGT("ヤクド mm/s")                  // "Jerk"
 #define MSG_VX_JERK                         _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
 #define MSG_VY_JERK                         _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
 #define MSG_VZ_JERK                         _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
@@ -111,18 +112,10 @@
 #define MSG_VMAX                            _UxGT("サイダイオクリソクド ")            // "Vmax "
 #define MSG_VMIN                            _UxGT("サイショウオクリソクド")           // "Vmin"
 #define MSG_VTRAV_MIN                       _UxGT("サイショウイドウソクド")           // "VTrav min"
+#define MSG_ACCELERATION                    MSG_ACC
 #define MSG_AMAX                            _UxGT("サイダイカソクド ")              // "Amax "
 #define MSG_A_RETRACT                       _UxGT("ヒキコミカソクド")               // "A-retract"
 #define MSG_A_TRAVEL                        _UxGT("イドウカソクド")                // "A-travel"
-#define MSG_XSTEPS                          _UxGT("Xsteps/mm")
-#define MSG_YSTEPS                          _UxGT("Ysteps/mm")
-#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
-#define MSG_ESTEPS                          _UxGT("Esteps/mm")
-#define MSG_E1STEPS                         _UxGT("E1steps/mm")
-#define MSG_E2STEPS                         _UxGT("E2steps/mm")
-#define MSG_E3STEPS                         _UxGT("E3steps/mm")
-#define MSG_E4STEPS                         _UxGT("E4steps/mm")
-#define MSG_E5STEPS                         _UxGT("E5steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("オンド")                      // "Temperature"
 #define MSG_MOTION                          _UxGT("ウゴキセッテイ")                // "Motion"
 #define MSG_FILAMENT                        _UxGT("フィラメント")                   // "Filament"

@@ -376,6 +376,9 @@
 #ifndef MSG_ACC
   #define MSG_ACC                             _UxGT("Accel")
 #endif
+#ifndef MSG_JERK
+  #define MSG_JERK                            _UxGT("Jerk")
+#endif
 #ifndef MSG_VX_JERK
   #define MSG_VX_JERK                         _UxGT("Vx-jerk")
 #endif
@@ -388,6 +391,9 @@
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #endif
+#ifndef MSG_FEEDRATE
+  #define MSG_FEEDRATE                        _UxGT("Feedrate")
+#endif
 #ifndef MSG_VMAX
   #define MSG_VMAX                            _UxGT("Vmax ")
 #endif
@@ -397,6 +403,9 @@
 #ifndef MSG_VTRAV_MIN
   #define MSG_VTRAV_MIN                       _UxGT("VTrav min")
 #endif
+#ifndef MSG_ACCELERATION
+  #define MSG_ACCELERATION                    _UxGT("Acceleration")
+#endif
 #ifndef MSG_AMAX
   #define MSG_AMAX                            _UxGT("Amax ")
 #endif
@@ -405,6 +414,9 @@
 #endif
 #ifndef MSG_A_TRAVEL
   #define MSG_A_TRAVEL                        _UxGT("A-travel")
+#endif
+#ifndef MSG_STEPS_PER_MM
+  #define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
 #endif
 #ifndef MSG_XSTEPS
   #define MSG_XSTEPS                          _UxGT("Xsteps/mm")

@@ -2746,6 +2746,13 @@ void kill_screen(const char* lcd_msg) {
    */
   void lcd_control_temperature_preheat_material2_settings_menu() { _lcd_control_temperature_preheat_settings_menu(1); }
 
+
+  /**
+   *
+   * "Control" > "Motion" submenu
+   *
+   */
+
   void _reset_acceleration_rates() { planner.reset_acceleration_rates(); }
   #if ENABLED(DISTINCT_E_FACTORS)
     void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) _reset_acceleration_rates(); }
@@ -2783,40 +2790,16 @@ void kill_screen(const char* lcd_msg) {
     #endif // E_STEPPERS > 2
   #endif
 
-  /**
-   *
-   * "Control" > "Motion" submenu
-   *
-   */
   #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
-  void lcd_control_motion_menu() {
+  // M203 / M205 Feedrates
+  void lcd_control_motion_feedrate_menu() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    #elif HAS_BED_PROBE
-      MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, lcd_refresh_zprobe_zoffset);
-    #endif
-    // Manual bed leveling, Bed Z:
-    #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-      MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
-    #endif
-    MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
-    MENU_ITEM_EDIT(float3, MSG_VX_JERK, &planner.max_jerk[X_AXIS], 1, 990);
-    MENU_ITEM_EDIT(float3, MSG_VY_JERK, &planner.max_jerk[Y_AXIS], 1, 990);
-    #if ENABLED(DELTA)
-      MENU_ITEM_EDIT(float3, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 1, 990);
-    #else
-      MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 0.1, 990);
-    #endif
-    MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+    MENU_BACK(MSG_MOTION);
 
-    //
-    // M203 Settings
-    //
+    // M203 Max Feedrate
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_X, &planner.max_feedrate_mm_s[X_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &planner.max_feedrate_mm_s[Y_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Z, &planner.max_feedrate_mm_s[Z_AXIS], 1, 999);
@@ -2838,12 +2821,30 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
     #endif
 
+    // M205 S Min Feedrate
     MENU_ITEM_EDIT(float3, MSG_VMIN, &planner.min_feedrate_mm_s, 0, 999);
+
+    // M205 T Min Travel Feedrate
     MENU_ITEM_EDIT(float3, MSG_VTRAV_MIN, &planner.min_travel_feedrate_mm_s, 0, 999);
 
-    //
-    // M201 Settings
-    //
+    END_MENU();
+  }
+
+  // M201 / M204 Accelerations
+  void lcd_control_motion_acceleration_menu() {
+    START_MENU();
+    MENU_BACK(MSG_MOTION);
+
+    // M204 P Acceleration
+    MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
+
+    // M204 R Retract Acceleration
+    MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.retract_acceleration, 100, 99000);
+
+    // M204 T Travel Acceleration
+    MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.travel_acceleration, 100, 99000);
+
+    // M201 settings
     MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &planner.max_acceleration_mm_per_s2[X_AXIS], 100, 99000, _reset_acceleration_rates);
     MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &planner.max_acceleration_mm_per_s2[Y_AXIS], 100, 99000, _reset_acceleration_rates);
     MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &planner.max_acceleration_mm_per_s2[Z_AXIS], 10, 99000, _reset_acceleration_rates);
@@ -2865,12 +2866,31 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
     #endif
 
-    MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.retract_acceleration, 100, 99000);
-    MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.travel_acceleration, 100, 99000);
+    END_MENU();
+  }
 
-    //
-    // M92 Settings
-    //
+  // M205 Jerk
+  void lcd_control_motion_jerk_menu() {
+    START_MENU();
+    MENU_BACK(MSG_MOTION);
+
+    MENU_ITEM_EDIT(float3, MSG_VX_JERK, &planner.max_jerk[X_AXIS], 1, 990);
+    MENU_ITEM_EDIT(float3, MSG_VY_JERK, &planner.max_jerk[Y_AXIS], 1, 990);
+    #if ENABLED(DELTA)
+      MENU_ITEM_EDIT(float3, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 1, 990);
+    #else
+      MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 0.1, 990);
+    #endif
+    MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+
+    END_MENU();
+  }
+
+  // M92 Steps-per-mm
+  void lcd_control_motion_steps_per_mm_menu() {
+    START_MENU();
+    MENU_BACK(MSG_MOTION);
+
     MENU_ITEM_EDIT_CALLBACK(float62, MSG_XSTEPS, &planner.axis_steps_per_mm[X_AXIS], 5, 9999, _planner_refresh_positioning);
     MENU_ITEM_EDIT_CALLBACK(float62, MSG_YSTEPS, &planner.axis_steps_per_mm[Y_AXIS], 5, 9999, _planner_refresh_positioning);
     MENU_ITEM_EDIT_CALLBACK(float62, MSG_ZSTEPS, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999, _planner_refresh_positioning);
@@ -2892,9 +2912,40 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
+    END_MENU();
+  }
+
+  void lcd_control_motion_menu() {
+    START_MENU();
+    MENU_BACK(MSG_CONTROL);
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    #elif HAS_BED_PROBE
+      MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, lcd_refresh_zprobe_zoffset);
+    #endif
+
+    // Manual bed leveling, Bed Z:
+    #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+      MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+    #endif
+
+    // M203 / M205 Feedrate items
+    MENU_ITEM(submenu, MSG_FEEDRATE, lcd_control_motion_feedrate_menu);
+
+    // M201 Acceleration items
+    MENU_ITEM(submenu, MSG_ACCELERATION, lcd_control_motion_acceleration_menu);
+
+    // M205 Max Jerk
+    MENU_ITEM(submenu, MSG_JERK, lcd_control_motion_jerk_menu);
+
+    // M92 Steps Per mm
+    MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
+
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
     #endif
+
     END_MENU();
   }
 

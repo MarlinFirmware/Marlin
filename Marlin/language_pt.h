@@ -91,6 +91,7 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Acc"
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         "Vx-jerk"
 #define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
@@ -101,6 +102,7 @@
 #define MSG_AMAX                            "Amax "
 #define MSG_A_RETRACT                       "A-retraccao"
 #define MSG_A_TRAVEL                        "A-movimento"
+#define MSG_STEPS_PER_MM                    "Passo/mm"
 #define MSG_XSTEPS                          "X passo/mm"
 #define MSG_YSTEPS                          "Y passo/mm"
 #define MSG_ZSTEPS                          "Z passo/mm"
