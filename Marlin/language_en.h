@@ -700,11 +700,8 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   _UxGT("Protocol")
 #endif
-#ifndef MSG_LIGHTS_ON
-  #define MSG_LIGHTS_ON                       _UxGT("Case light on")
-#endif
-#ifndef MSG_LIGHTS_OFF
-  #define MSG_LIGHTS_OFF                      _UxGT("Case light off")
+#ifndef MSG_CASE_LIGHT
+  #define MSG_CASE_LIGHT                      _UxGT("Case light")
 #endif
 
 #if LCD_WIDTH >= 20

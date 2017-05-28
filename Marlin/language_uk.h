@@ -180,8 +180,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Екструдери")
 #define MSG_INFO_BAUDRATE                   _UxGT("біт/с")
 #define MSG_INFO_PROTOCOL                   _UxGT("Протокол")
-#define MSG_LIGHTS_ON                       _UxGT("Підсвітка увік.")
-#define MSG_LIGHTS_OFF                      _UxGT("Підсвітка вимк.")
+#define MSG_CASE_LIGHT                      _UxGT("Підсвітка")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("К-сть друків")

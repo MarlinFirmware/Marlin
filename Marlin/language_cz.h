@@ -205,8 +205,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrudery")
 #define MSG_INFO_BAUDRATE                   _UxGT("Rychlost")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
-#define MSG_LIGHTS_ON                       _UxGT("Osvetleni Zap")
-#define MSG_LIGHTS_OFF                      _UxGT("Osvetleni Vyp")
+#define MSG_CASE_LIGHT                      _UxGT("Osvetleni")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Pocet tisku")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Dokonceno")
@@ -220,6 +220,7 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Nejdelsi")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Vytlaceno")
 #endif
+
 #define MSG_INFO_MIN_TEMP                   _UxGT("Teplota min")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Teplota max")
 #define MSG_INFO_PSU                        _UxGT("Nap. zdroj")

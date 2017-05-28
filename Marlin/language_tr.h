@@ -206,8 +206,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Ekstruderler")                                       // Ekstruderler
 #define MSG_INFO_BAUDRATE                   _UxGT("İletişim Hızı")                                      // İletişim Hızı
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")                                           // Protokol
-#define MSG_LIGHTS_ON                       _UxGT("Aydınlatmayı Aç")                                    // Aydınlatmayı Aç
-#define MSG_LIGHTS_OFF                      _UxGT("Aydınlatmayı Kapa")                                  // Aydınlaymayı Kapa
+#define MSG_CASE_LIGHT                      _UxGT("Aydınlatmayı")                                       // Aydınlatmayı Aç
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Baskı Sayısı")                                       // Baskı Sayısı

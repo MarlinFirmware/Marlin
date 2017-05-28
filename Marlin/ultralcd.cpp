@@ -708,19 +708,6 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // SDSUPPORT
 
-  #if ENABLED(MENU_ITEM_CASE_LIGHT)
-
-    extern bool case_light_on;
-    extern void update_case_light();
-
-    void toggle_case_light() {
-      case_light_on ^= true;
-      lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
-      update_case_light();
-    }
-
-  #endif // MENU_ITEM_CASE_LIGHT
-
   #if ENABLED(BLTOUCH)
 
     /**
@@ -790,6 +777,11 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
+  #if ENABLED(MENU_ITEM_CASE_LIGHT)
+    extern bool case_light_on;
+    extern void update_case_light();
+  #endif
+
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
@@ -805,10 +797,7 @@ void kill_screen(const char* lcd_msg) {
     // Switch case light on/off
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (case_light_on)
-        MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
-      else
-        MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, case_light_on, update_case_light);
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
