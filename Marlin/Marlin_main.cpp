@@ -1743,15 +1743,15 @@ static void clean_up_after_endstop_or_probe_move() {
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
-#if ENABLED(HOME_AFTER_DEACTIVATE)
-    const bool xx = x && !axis_known_position[X_AXIS],
-               yy = y && !axis_known_position[Y_AXIS],
-               zz = z && !axis_known_position[Z_AXIS];
-#else
-    const bool xx = x && !axis_homed[X_AXIS],
-               yy = y && !axis_homed[Y_AXIS],
-               zz = z && !axis_homed[Z_AXIS];
-#endif
+    #if ENABLED(HOME_AFTER_DEACTIVATE)
+      const bool xx = x && !axis_known_position[X_AXIS],
+                 yy = y && !axis_known_position[Y_AXIS],
+                 zz = z && !axis_known_position[Z_AXIS];
+    #else
+      const bool xx = x && !axis_homed[X_AXIS],
+                 yy = y && !axis_homed[Y_AXIS],
+                 zz = z && !axis_homed[Z_AXIS];
+    #endif
     if (xx || yy || zz) {
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOME " ");
@@ -2467,7 +2467,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
     for (uint8_t y = 0; y < sy; y++) {
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_PROTOCOLLNPGM(" [");           // open sub-array
+        SERIAL_PROTOCOLPGM(" [");           // open sub-array
       #else
         if (y < 10) SERIAL_PROTOCOLCHAR(' ');
         SERIAL_PROTOCOL((int)y);
@@ -2501,7 +2501,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_EOL;
     }
     #ifdef SCAD_MESH_OUTPUT
-      SERIAL_PROTOCOLPGM("\n];");                     // close 2D array
+      SERIAL_PROTOCOLPGM("];");                       // close 2D array
     #endif
     SERIAL_EOL;
   }
@@ -3798,6 +3798,8 @@ inline void gcode_G28(const bool always_home_all) {
     tool_change(old_tool_index, 0, true);
   #endif
 
+  lcd_refresh();
+
   report_current_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3839,7 +3841,7 @@ void home_all_axes() { gcode_G28(true); }
 
     #if MANUAL_PROBE_HEIGHT > 0
       feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + 0.2; // just slightly over the bed
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS); // just slightly over the bed
       line_to_current_position();
     #endif
 
@@ -4132,8 +4134,14 @@ void home_all_axes() { gcode_G28(true); }
       #endif
     #endif
 
+    #if ENABLED(PROBE_MANUALLY)
+      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q'), no_action = seenA || seenQ;
+    #endif
+
     #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
       const bool faux = parser.seen('C') && parser.value_bool();
+    #elif ENABLED(PROBE_MANUALLY)
+      const bool faux = no_action;
     #else
       bool constexpr faux = false;
     #endif
@@ -4231,19 +4239,19 @@ void home_all_axes() { gcode_G28(true); }
             return;
           }
 
-          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : 99999;
-          if (!WITHIN(z, -10, 10)) {
+          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : NAN;
+          if (!isnan(z) || !WITHIN(z, -10, 10)) {
             SERIAL_ERROR_START;
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
           }
 
-          const float x = parser.seen('X') && parser.has_value() ? parser.value_float() : 99999,
-                      y = parser.seen('Y') && parser.has_value() ? parser.value_float() : 99999;
+          const float x = parser.seen('X') && parser.has_value() ? parser.value_float() : NAN,
+                      y = parser.seen('Y') && parser.has_value() ? parser.value_float() : NAN;
           int8_t i = parser.seen('I') && parser.has_value() ? parser.value_byte() : -1,
                  j = parser.seen('J') && parser.has_value() ? parser.value_byte() : -1;
 
-          if (x < 99998 && y < 99998) {
+          if (!isnan(x) && !isnan(y)) {
             // Get nearest i / j from x / y
             i = (x - LOGICAL_X_POSITION(bilinear_start[X_AXIS]) + 0.5 * xGridSpacing) / xGridSpacing;
             j = (y - LOGICAL_Y_POSITION(bilinear_start[Y_AXIS]) + 0.5 * yGridSpacing) / yGridSpacing;
@@ -4279,7 +4287,11 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      dryrun = parser.seen('D') && parser.value_bool();
+      dryrun = (parser.seen('D') && parser.value_bool())
+        #if ENABLED(PROBE_MANUALLY)
+          || no_action
+        #endif
+      ;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -4424,16 +4436,14 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(PROBE_MANUALLY)
 
-      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q');
-
       // For manual probing, get the next index to probe now.
       // On the first probe this will be incremented to 0.
-      if (!seenA && !seenQ) {
+      if (!no_action) {
         ++abl_probe_index;
         g29_in_progress = true;
       }
 
-      // Abort current G29 procedure, go back to ABLStart
+      // Abort current G29 procedure, go back to idle state
       if (seenA && g29_in_progress) {
         SERIAL_PROTOCOLLNPGM("Manual G29 aborted");
         #if HAS_SOFTWARE_ENDSTOPS
@@ -4450,14 +4460,14 @@ void home_all_axes() { gcode_G28(true); }
       if (verbose_level || seenQ) {
         SERIAL_PROTOCOLPGM("Manual G29 ");
         if (g29_in_progress) {
-          SERIAL_PROTOCOLPAIR("point ", abl_probe_index + 1);
+          SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl2));
           SERIAL_PROTOCOLLNPAIR(" of ", abl2);
         }
         else
           SERIAL_PROTOCOLLNPGM("idle");
       }
 
-      if (seenA || seenQ) return;
+      if (no_action) return;
 
       if (abl_probe_index == 0) {
         // For the initial G29 save software endstop state
@@ -4481,6 +4491,14 @@ void home_all_axes() { gcode_G28(true); }
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
           z_values[xCount][yCount] = measured_z + zoffset;
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_PROTOCOLPAIR("Save X", xCount);
+              SERIAL_PROTOCOLPAIR(" Y", yCount);
+              SERIAL_PROTOCOLLNPAIR(" Z", measured_z + zoffset);
+            }
+          #endif
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 

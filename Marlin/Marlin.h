@@ -217,8 +217,8 @@ extern bool volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[XYZ]; // axis[n].is_known
-extern bool axis_homed[XYZ]; // axis[n].is_homed
+extern bool axis_known_position[XYZ];
+extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE

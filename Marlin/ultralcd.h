@@ -38,13 +38,16 @@
   void lcd_init();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
-  void lcd_setstatuspgm(const char* message, const uint8_t level=0);
+  void lcd_setstatusPGM(const char* message, const int8_t level=0);
   void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
   bool lcd_detected(void);
+
+  extern uint8_t lcdDrawUpdate;
+  inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
@@ -61,7 +64,7 @@
     void bootscreen();
   #endif
 
-  #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
+  #define LCD_MESSAGEPGM(x) lcd_setstatusPGM(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
   #define LCD_UPDATE_INTERVAL 100
@@ -153,11 +156,12 @@
   inline void lcd_init() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
-  inline void lcd_setstatuspgm(const char* const message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
   inline bool lcd_detected() { return true; }
+  inline void lcd_refresh() {}
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP
