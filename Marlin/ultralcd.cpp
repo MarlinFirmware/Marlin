@@ -1504,7 +1504,8 @@ void kill_screen(const char* lcd_msg) {
 
           #endif
 
-          lcd_return_to_status();
+          lcd_goto_previous_menu(); // Return to the last clicked item ("Level Bed")
+
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
           lcd_completion_feedback();
         }
@@ -1627,8 +1628,8 @@ void kill_screen(const char* lcd_msg) {
     /**
      * Step 1: Bed Level entry-point
      *  - Cancel
-     *  - Level Bed >
      *  - Leveling On/Off (if there is leveling data)
+     *  - Level Bed >
      *  - Fade Height (Req: ENABLE_LEVELING_FADE_HEIGHT)
      *  - Mesh Z Offset (Req: MESH_BED_LEVELING)
      *  - Z Probe Offset (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
@@ -1638,8 +1639,8 @@ void kill_screen(const char* lcd_msg) {
     void lcd_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
-      MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
-      if (leveling_is_valid()) {      // Leveling data exists? Show more options.
+
+      if (leveling_is_valid()) {
         _level_state = leveling_is_active();
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
       }
@@ -1659,6 +1660,8 @@ void kill_screen(const char* lcd_msg) {
       #elif HAS_BED_PROBE
         MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, lcd_refresh_zprobe_zoffset);
       #endif
+
+      MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
 
       #if ENABLED(EEPROM_SETTINGS)
         MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
