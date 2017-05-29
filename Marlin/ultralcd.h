@@ -46,6 +46,9 @@
   void kill_screen(const char* lcd_msg);
   bool lcd_detected(void);
 
+  extern uint8_t lcdDrawUpdate;
+  inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
+
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
   #endif
@@ -158,6 +161,7 @@
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
   inline bool lcd_detected() { return true; }
+  inline void lcd_refresh() {}
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP

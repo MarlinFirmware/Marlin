@@ -3798,6 +3798,8 @@ inline void gcode_G28(const bool always_home_all) {
     tool_change(old_tool_index, 0, true);
   #endif
 
+  lcd_refresh();
+
   report_current_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
