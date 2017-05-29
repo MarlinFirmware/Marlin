@@ -2870,8 +2870,8 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
-  // M203 / M205 Feedrates
-  void lcd_control_motion_feedrate_menu() {
+  // M203 / M205 Velocity options
+  void lcd_control_motion_velocity_menu() {
     START_MENU();
     MENU_BACK(MSG_MOTION);
 
@@ -3001,18 +3001,19 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, lcd_refresh_zprobe_zoffset);
     #endif
 
-    // M203 / M205 Feedrate items
-    MENU_ITEM(submenu, MSG_FEEDRATE, lcd_control_motion_feedrate_menu);
+    // M203 / M205 - Feedrate items
+    MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
 
-    // M201 Acceleration items
+    // M201 - Acceleration items
     MENU_ITEM(submenu, MSG_ACCELERATION, lcd_control_motion_acceleration_menu);
 
-    // M205 Max Jerk
+    // M205 - Max Jerk
     MENU_ITEM(submenu, MSG_JERK, lcd_control_motion_jerk_menu);
 
-    // M92 Steps Per mm
+    // M92 - Steps Per mm
     MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
 
+    // M540 S - Abort on endstop hit when SD printing
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
     #endif

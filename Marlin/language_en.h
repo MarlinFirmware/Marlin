@@ -394,8 +394,8 @@
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #endif
-#ifndef MSG_FEEDRATE
-  #define MSG_FEEDRATE                        _UxGT("Feedrate")
+#ifndef MSG_VELOCITY
+  #define MSG_VELOCITY                        _UxGT("Velocity")
 #endif
 #ifndef MSG_VMAX
   #define MSG_VMAX                            _UxGT("Vmax ")
