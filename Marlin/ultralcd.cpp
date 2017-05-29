@@ -481,19 +481,26 @@ uint16_t max_display_update_time = 0;
   /**
    * Show "Moving..." till moves are done, then revert to previous display.
    */
-  inline void lcd_synchronize(const char * const msg=NULL) {
+  static const char moving[] PROGMEM = MSG_MOVING;
+  static const char *sync_message = moving;
+
+  void _lcd_synchronize() {
     static bool no_reentry = false;
-    const static char moving[] PROGMEM = MSG_MOVING;
-    lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, msg ? msg : moving);
+    if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
     if (no_reentry) return;
 
     // Make this the current handler till all moves are done
     no_reentry = true;
     screenFunc_t old_screen = currentScreen;
-    lcd_goto_screen(lcd_synchronize);
+    lcd_goto_screen(_lcd_synchronize);
     stepper.synchronize();
     no_reentry = false;
     lcd_goto_screen(old_screen);
+  }
+
+  void lcd_synchronize(const char * const msg=NULL) {
+    sync_message = msg ? msg : moving;
+    _lcd_synchronize();
   }
 
   void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
