@@ -484,6 +484,11 @@ uint16_t max_display_update_time = 0;
   static const char moving[] PROGMEM = MSG_MOVING;
   static const char *sync_message = moving;
 
+  //
+  // Display the synchronize screen until moves are
+  // finished, and don't return to the caller until
+  // done. ** This blocks the command queue! **
+  //
   void _lcd_synchronize() {
     static bool no_reentry = false;
     if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
@@ -498,6 +503,8 @@ uint16_t max_display_update_time = 0;
     lcd_goto_screen(old_screen);
   }
 
+  // Display the synchronize screen with a custom message
+  // ** This blocks the command queue! **
   void lcd_synchronize(const char * const msg=NULL) {
     sync_message = msg ? msg : moving;
     _lcd_synchronize();
@@ -1427,6 +1434,26 @@ void kill_screen(const char* lcd_msg) {
       #endif
     );
 
+    //
+    // Raise Z to the "manual probe height"
+    // Don't return until done.
+    // ** This blocks the command queue! **
+    //
+    void _lcd_after_probing() {
+      #if MANUAL_PROBE_HEIGHT > 0
+        current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+        line_to_current(Z_AXIS);
+      #endif
+      // Display "Done" screen and wait for moves to complete
+      #if MANUAL_PROBE_HEIGHT > 0 || ENABLED(MESH_BED_LEVELING)
+        lcd_synchronize(PSTR(MSG_LEVEL_BED_DONE));
+      #endif
+      lcd_goto_previous_menu();
+      lcd_completion_feedback();
+      defer_return_to_status = false;
+      //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
+    }
+
     #if ENABLED(MESH_BED_LEVELING)
 
       // Utility to go to the next mesh point
@@ -1445,12 +1472,22 @@ void kill_screen(const char* lcd_msg) {
         lcd_synchronize();
       }
 
-    #endif // MESH_BED_LEVELING
+    #elif ENABLED(PROBE_MANUALLY)
 
-    void _lcd_level_bed_done() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_DONE));
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-    }
+      bool lcd_wait_for_move;
+
+      //
+      // Bed leveling is done. Wait for G29 to complete.
+      // A flag is used so that this can release control
+      // and allow the command queue to be processed.
+      //
+      void _lcd_level_bed_done() {
+        if (!lcd_wait_for_move) _lcd_after_probing();
+        if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_DONE));
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      }
+
+    #endif
 
     void _lcd_level_goto_next_point();
 
@@ -1462,60 +1499,55 @@ void kill_screen(const char* lcd_msg) {
 
       if (lcd_clicked) {
 
-        // Use a hook to set the probe point z
+        //
+        // Save the current Z position
+        //
+
         #if ENABLED(MESH_BED_LEVELING)
 
+          //
           // MBL records the position but doesn't move to the next one
+          //
+
           mbl.set_zigzag_z(manual_probe_index, current_position[Z_AXIS]);
-
-        #elif ENABLED(PROBE_MANUALLY)
-
-          // The last G29 will record but not move
-          if (manual_probe_index == total_probe_points - 1)
-            enqueue_and_echo_commands_P(PSTR("G29 V1"));
 
         #endif
 
         // If done...
         if (++manual_probe_index >= total_probe_points) {
 
-          // Say "Done!"
-          lcd_goto_screen(_lcd_level_bed_done);
+          #if ENABLED(PROBE_MANUALLY)
 
-          // Raise Z to the "manual probe height"
-          #if MANUAL_PROBE_HEIGHT > 0
-            current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
-            line_to_current(Z_AXIS);
-          #endif
+            //
+            // The last G29 will record and enable but not move.
+            // Since G29 is deferred, 
+            //
+            lcd_wait_for_move = true;
+            enqueue_and_echo_commands_P(PSTR("G29 V1"));
+            lcd_goto_screen(_lcd_level_bed_done);
 
-          #if MANUAL_PROBE_HEIGHT > 0 || ENABLED(MESH_BED_LEVELING)
-            lcd_synchronize(PSTR(MSG_LEVEL_BED_DONE));
-          #endif
+          #elif ENABLED(MESH_BED_LEVELING)
 
-          // Enable leveling, if needed
-          #if ENABLED(MESH_BED_LEVELING)
+            _lcd_after_probing();
 
             mbl.set_has_mesh(true);
             mesh_probing_done();
 
-          #elif ENABLED(PROBE_MANUALLY)
-
-            // ABL will be enabled due to "G29".
-
           #endif
 
-          lcd_goto_previous_menu(); // Return to the last clicked item ("Level Bed")
-
-          //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
-          lcd_completion_feedback();
         }
-        else
+        else {
+          // MESH_BED_LEVELING: Z already stored, just move
+          //    PROBE_MANUALLY: Send G29 to record Z, then move
           _lcd_level_goto_next_point();
+        }
 
         return;
       }
 
+      //
       // Encoder knob or keypad buttons adjust the Z position
+      //
       if (encoderPosition) {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
@@ -1526,8 +1558,9 @@ void kill_screen(const char* lcd_msg) {
         encoderPosition = 0;
       }
 
-      // Update on first display, then only on updates to Z position
-      // Show message above on clicks instead
+      //
+      // Draw on first display, then only on Z change
+      //
       if (lcdDrawUpdate) {
         const float v = current_position[Z_AXIS];
         lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001 : 0.0001), '+'));
@@ -1537,10 +1570,6 @@ void kill_screen(const char* lcd_msg) {
     /**
      * Step 6: Display "Next point: 1 / 9" while waiting for move to finish
      */
-
-    #if ENABLED(PROBE_MANUALLY)
-      bool lcd_wait_for_move;
-    #endif
 
     void _lcd_level_bed_moving() {
       if (lcdDrawUpdate) {
@@ -1578,7 +1607,7 @@ void kill_screen(const char* lcd_msg) {
 
       #elif ENABLED(PROBE_MANUALLY)
 
-        // G29 will signal when it's done
+        // G29 Records Z, moves, and signals when it pauses
         lcd_wait_for_move = true;
         enqueue_and_echo_commands_P(PSTR("G29 V1"));
 
@@ -1628,13 +1657,14 @@ void kill_screen(const char* lcd_msg) {
     /**
      * Step 1: Bed Level entry-point
      *  - Cancel
-     *  - Leveling On/Off (if there is leveling data)
+     *  - Auto Home       (if homing needed)
+     *  - Leveling On/Off (if data exists, and homed)
      *  - Level Bed >
-     *  - Fade Height (Req: ENABLE_LEVELING_FADE_HEIGHT)
-     *  - Mesh Z Offset (Req: MESH_BED_LEVELING)
-     *  - Z Probe Offset (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
-     *  - Load Settings (Req: EEPROM_SETTINGS)
-     *  - Save Settings (Req: EEPROM_SETTINGS)
+     *  - Fade Height     (Req: ENABLE_LEVELING_FADE_HEIGHT)
+     *  - Mesh Z Offset   (Req: MESH_BED_LEVELING)
+     *  - Z Probe Offset  (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
+     *  - Load Settings   (Req: EEPROM_SETTINGS)
+     *  - Save Settings   (Req: EEPROM_SETTINGS)
      */
     void lcd_bed_leveling() {
       START_MENU();

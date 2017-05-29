@@ -4460,7 +4460,7 @@ void home_all_axes() { gcode_G28(true); }
       if (verbose_level || seenQ) {
         SERIAL_PROTOCOLPGM("Manual G29 ");
         if (g29_in_progress) {
-          SERIAL_PROTOCOLPAIR("point ", abl_probe_index + 1);
+          SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl2));
           SERIAL_PROTOCOLLNPAIR(" of ", abl2);
         }
         else
