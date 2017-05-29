@@ -1743,15 +1743,15 @@ static void clean_up_after_endstop_or_probe_move() {
 #if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
-#if ENABLED(HOME_AFTER_DEACTIVATE)
-    const bool xx = x && !axis_known_position[X_AXIS],
-               yy = y && !axis_known_position[Y_AXIS],
-               zz = z && !axis_known_position[Z_AXIS];
-#else
-    const bool xx = x && !axis_homed[X_AXIS],
-               yy = y && !axis_homed[Y_AXIS],
-               zz = z && !axis_homed[Z_AXIS];
-#endif
+    #if ENABLED(HOME_AFTER_DEACTIVATE)
+      const bool xx = x && !axis_known_position[X_AXIS],
+                 yy = y && !axis_known_position[Y_AXIS],
+                 zz = z && !axis_known_position[Z_AXIS];
+    #else
+      const bool xx = x && !axis_homed[X_AXIS],
+                 yy = y && !axis_homed[Y_AXIS],
+                 zz = z && !axis_homed[Z_AXIS];
+    #endif
     if (xx || yy || zz) {
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOME " ");
