@@ -4233,19 +4233,19 @@ void home_all_axes() { gcode_G28(true); }
             return;
           }
 
-          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : 99999;
-          if (!WITHIN(z, -10, 10)) {
+          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : NAN;
+          if (!isnan(z) || !WITHIN(z, -10, 10)) {
             SERIAL_ERROR_START;
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
           }
 
-          const float x = parser.seen('X') && parser.has_value() ? parser.value_float() : 99999,
-                      y = parser.seen('Y') && parser.has_value() ? parser.value_float() : 99999;
+          const float x = parser.seen('X') && parser.has_value() ? parser.value_float() : NAN,
+                      y = parser.seen('Y') && parser.has_value() ? parser.value_float() : NAN;
           int8_t i = parser.seen('I') && parser.has_value() ? parser.value_byte() : -1,
                  j = parser.seen('J') && parser.has_value() ? parser.value_byte() : -1;
 
-          if (x < 99998 && y < 99998) {
+          if (!isnan(x) && !isnan(y)) {
             // Get nearest i / j from x / y
             i = (x - LOGICAL_X_POSITION(bilinear_start[X_AXIS]) + 0.5 * xGridSpacing) / xGridSpacing;
             j = (y - LOGICAL_Y_POSITION(bilinear_start[Y_AXIS]) + 0.5 * yGridSpacing) / yGridSpacing;
