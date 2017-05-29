@@ -131,7 +131,7 @@
   void set_destination_to_current();
   void set_current_to_destination();
   void prepare_move_to_destination();
-  void lcd_setstatuspgm(const char* const message, const uint8_t level);
+  void lcd_setstatusPGM(const char* const message, const int8_t level);
   void sync_plan_position_e();
   void chirp_at_user();
 
@@ -181,18 +181,17 @@
     safe_delay(10);                       // Wait for click to settle
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
+      lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
       lcd_quick_feedback();
     #endif
-    lcd_reset_alert_level();
 
     while (!ubl_lcd_clicked()) idle();    // Wait for button release
 
     // If the button is suddenly pressed again,
     // ask the user to resolve the issue
-    lcd_setstatuspgm(PSTR("Release button"), 99); // will never appear...
+    lcd_setstatusPGM(PSTR("Release button"), 99); // will never appear...
     while (ubl_lcd_clicked()) idle();             // unless this loop happens
-    lcd_setstatuspgm(PSTR(""));
+    lcd_setstatusPGM(PSTR(""), -1);
 
     return true;
   }
@@ -351,8 +350,7 @@
     } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
-    lcd_reset_alert_level();
-    lcd_setstatuspgm(PSTR("Leaving G26"));
+    lcd_setstatusPGM(PSTR("Leaving G26"), -1);
 
     retract_filament(destination);
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
@@ -726,8 +724,7 @@
   }
 
   bool unified_bed_leveling::exit_from_g26() {
-    lcd_reset_alert_level();
-    lcd_setstatuspgm(PSTR("Leaving G26"));
+    lcd_setstatusPGM(PSTR("Leaving G26"), -1);
     while (ubl_lcd_clicked()) idle();
     return UBL_ERR;
   }
@@ -741,7 +738,7 @@
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
-          lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
+          lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
       #endif
           has_control_of_lcd_panel = true;
@@ -757,7 +754,7 @@
           }
       #if ENABLED(ULTRA_LCD)
         }
-        lcd_setstatuspgm(PSTR("G26 Heating Nozzle."), 99);
+        lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
         lcd_quick_feedback();
       #endif
     #endif
@@ -774,8 +771,7 @@
     }
 
     #if ENABLED(ULTRA_LCD)
-      lcd_reset_alert_level();
-      lcd_setstatuspgm(PSTR(""));
+      lcd_setstatusPGM(PSTR(""), -1);
       lcd_quick_feedback();
     #endif
 
@@ -792,7 +788,7 @@
 
       has_control_of_lcd_panel = true;
 
-      lcd_setstatuspgm(PSTR("User-Controlled Prime"), 99);
+      lcd_setstatusPGM(PSTR("User-Controlled Prime"), 99);
       chirp_at_user();
 
       set_destination_to_current();
@@ -819,9 +815,9 @@
       while (ubl_lcd_clicked()) idle();           // Debounce Encoder Wheel
 
       #if ENABLED(ULTRA_LCD)
-        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatuspgm() without having it continue;
+        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
                                                             // So...  We cheat to get a message up.
-        lcd_setstatuspgm(PSTR("Done Priming"), 99);
+        lcd_setstatusPGM(PSTR("Done Priming"), 99);
         lcd_quick_feedback();
       #endif
 
@@ -830,7 +826,7 @@
     }
     else {
       #if ENABLED(ULTRA_LCD)
-        lcd_setstatuspgm(PSTR("Fixed Length Prime."), 99);
+        lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
         lcd_quick_feedback();
       #endif
       set_destination_to_current();

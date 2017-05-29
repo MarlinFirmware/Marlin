@@ -58,7 +58,7 @@
   typedef void (*screenFunc_t)();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
   extern void lcd_setstatus(const char* message, const bool persist);
-  extern void lcd_setstatuspgm(const char* message, const uint8_t level);
+  extern void lcd_setstatusPGM(const char* message, const int8_t level);
 
   int    unified_bed_leveling::g29_verbose_level,
          unified_bed_leveling::g29_phase_value,

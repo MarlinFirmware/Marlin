@@ -680,7 +680,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
-      lcd_setstatuspgm(PSTR(MSG_PRINT_PAUSED), true);
+      lcd_setstatusPGM(PSTR(MSG_PRINT_PAUSED), -1);
     }
 
     void lcd_sdcard_resume() {
@@ -690,7 +690,7 @@ void kill_screen(const char* lcd_msg) {
         card.startFileprint();
         print_job_timer.start();
       #endif
-      lcd_setstatuspgm(PSTR(""), true);
+      lcd_setstatusPGM(PSTR(""), -1);
     }
 
     void lcd_sdcard_stop() {
@@ -703,7 +703,7 @@ void kill_screen(const char* lcd_msg) {
         for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
       #endif
       wait_for_heatup = false;
-      LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
+      lcd_setstatusPGM(PSTR(MSG_PRINT_PAUSED), -1);
     }
 
   #endif // SDSUPPORT
@@ -4095,7 +4095,8 @@ void lcd_setstatus(const char * const message, const bool persist) {
   lcd_finishstatus(persist);
 }
 
-void lcd_setstatuspgm(const char * const message, const uint8_t level) {
+void lcd_setstatusPGM(const char * const message, int8_t level) {
+  if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
   strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
@@ -4113,7 +4114,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
 }
 
 void lcd_setalertstatuspgm(const char * const message) {
-  lcd_setstatuspgm(message, 1);
+  lcd_setstatusPGM(message, 1);
   #if ENABLED(ULTIPANEL)
     lcd_return_to_status();
   #endif
