@@ -229,22 +229,7 @@ class EncoderManager {
 
 };
 
-static inline int8_t sgn(int val) {
- if (val < 0) return -1;
- if (val==0) return 0;
- return 1;
-}
-
-static inline int8_t sgn(long val) {
- if (val < 0) return -1;
- if (val==0) return 0;
- return 1;
-}
-
-static inline int8_t sgn(double val) {
-    if (val < 0) return -1;
-    return 1;
-}
+#define SIGN(a) ((a>0) - (a<0))
 
 #endif //I2CENC_H
 #endif //I2C_POSITION_ENCODERS
