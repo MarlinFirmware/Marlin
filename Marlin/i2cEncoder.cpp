@@ -123,7 +123,6 @@ void I2cEncoder::update() {
             if(abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
               //SERIAL_ECHOLN(error);
               //SERIAL_ECHOLN(position);
-              //thermalManager.babystepsTodo[encoderAxis] -= STEPRATE * sgn(error);
               thermalManager.babystepsTodo[encoderAxis] = -lround(error/2);
             }
           #endif
