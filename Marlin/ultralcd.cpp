@@ -1636,11 +1636,13 @@ void kill_screen(const char* lcd_msg) {
      *  - Load Settings (Req: EEPROM_SETTINGS)
      *  - Save Settings (Req: EEPROM_SETTINGS)
      */
-    void lcd_level_bed() {
+    void lcd_bed_leveling() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
 
-      if (leveling_is_valid()) {
+      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+        MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+      else if (leveling_is_valid()) {
         _level_state = leveling_is_active();
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
       }
@@ -1650,7 +1652,9 @@ void kill_screen(const char* lcd_msg) {
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &planner.z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
 
-      // Manual bed leveling, Bed Z:
+      //
+      // MBL Z Offset
+      //
       #if ENABLED(MESH_BED_LEVELING)
         MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
       #endif
@@ -2073,7 +2077,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-      MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_level_bed);
+      MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
     #endif
 
     #if HAS_M206_COMMAND
