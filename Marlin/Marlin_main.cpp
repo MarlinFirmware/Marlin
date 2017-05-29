@@ -4134,8 +4134,14 @@ void home_all_axes() { gcode_G28(true); }
       #endif
     #endif
 
+    #if ENABLED(PROBE_MANUALLY)
+      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q'), no_action = seenA || seenQ;
+    #endif
+
     #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
       const bool faux = parser.seen('C') && parser.value_bool();
+    #elif ENABLED(PROBE_MANUALLY)
+      const bool faux = no_action;
     #else
       bool constexpr faux = false;
     #endif
@@ -4281,7 +4287,11 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      dryrun = parser.seen('D') && parser.value_bool();
+      dryrun = (parser.seen('D') && parser.value_bool())
+        #if ENABLED(PROBE_MANUALLY)
+          || no_action
+        #endif
+      ;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -4426,16 +4436,14 @@ void home_all_axes() { gcode_G28(true); }
 
     #if ENABLED(PROBE_MANUALLY)
 
-      const bool seenA = parser.seen('A'), seenQ = parser.seen('Q');
-
       // For manual probing, get the next index to probe now.
       // On the first probe this will be incremented to 0.
-      if (!seenA && !seenQ) {
+      if (!no_action) {
         ++abl_probe_index;
         g29_in_progress = true;
       }
 
-      // Abort current G29 procedure, go back to ABLStart
+      // Abort current G29 procedure, go back to idle state
       if (seenA && g29_in_progress) {
         SERIAL_PROTOCOLLNPGM("Manual G29 aborted");
         #if HAS_SOFTWARE_ENDSTOPS
@@ -4459,7 +4467,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOLLNPGM("idle");
       }
 
-      if (seenA || seenQ) return;
+      if (no_action) return;
 
       if (abl_probe_index == 0) {
         // For the initial G29 save software endstop state
@@ -4483,6 +4491,14 @@ void home_all_axes() { gcode_G28(true); }
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
           z_values[xCount][yCount] = measured_z + zoffset;
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_PROTOCOLPAIR("Save X", xCount);
+              SERIAL_PROTOCOLPAIR(" Y", yCount);
+              SERIAL_PROTOCOLLNPAIR(" Z", measured_z + zoffset);
+            }
+          #endif
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
