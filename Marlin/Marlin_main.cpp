@@ -2467,7 +2467,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
     for (uint8_t y = 0; y < sy; y++) {
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_PROTOCOLLNPGM(" [");           // open sub-array
+        SERIAL_PROTOCOLPGM(" [");           // open sub-array
       #else
         if (y < 10) SERIAL_PROTOCOLCHAR(' ');
         SERIAL_PROTOCOL((int)y);
@@ -2501,7 +2501,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_EOL;
     }
     #ifdef SCAD_MESH_OUTPUT
-      SERIAL_PROTOCOLPGM("\n];");                     // close 2D array
+      SERIAL_PROTOCOLPGM("];");                       // close 2D array
     #endif
     SERIAL_EOL;
   }
