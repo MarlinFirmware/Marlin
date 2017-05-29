@@ -1432,7 +1432,7 @@ void kill_screen(const char* lcd_msg) {
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
         planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
         #if MANUAL_PROBE_HEIGHT > 0
-          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + 0.2;
+          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
           line_to_current(Z_AXIS);
         #endif
         lcd_synchronize();
