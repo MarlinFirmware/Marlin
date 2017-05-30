@@ -89,7 +89,7 @@
 //
 #define HEATER_0_PIN       15 // Extruder
 #define HEATER_1_PIN       44
-#define HEATER_2_PIN       47
+#define HEATER_2_PIN       45
 #define HEATER_BED_PIN     14
 
 

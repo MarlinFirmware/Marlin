@@ -428,6 +428,10 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
   char buffer[30];   // for the sprintf statements
   bool found = false,
        multi_name_pin = false;
+  #ifdef AVR_AT90USB1286_FAMILY
+    if (!pin) SERIAL_PROTOCOLLNPGM("The first number is the FAST_IO pin number.  The one in parenthesis is the equivalent Teensy/Arduino pin number");
+  #endif
+
   for (uint8_t x = 0; x < n_array; x++)  {    // scan entire array and report all instances of this pin
     if (pgm_read_byte(&pin_array[x][1]) == pin) {
       if (found) multi_name_pin = true;
@@ -459,23 +463,45 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
         if (pin_is_protected(pin) && !ignore)
           SERIAL_ECHOPGM("protected ");
         else {
-          if (!(pgm_read_byte(&pin_array[x][2]))) {
-            sprintf(buffer, "Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-            SERIAL_ECHO(buffer);
-          }
-          else {
-            if (!get_pinMode(pin)) {
-              //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
-                                             // because this could interfere with inductive/capacitive
-                                             // sensors (high impedance voltage divider) and with PT100 amplifier
-              SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+          #ifdef AVR_AT90USB1286_FAMILY //Teensy IDEs don't know about these pins so must use FASTIO
+            if (pin == 46 || pin == 47) {
+              if (pin == 46) {
+                if (GET_OUTPUT(46)) {
+                  SERIAL_PROTOCOLPGM("Output = ");}
+                  else
+                  SERIAL_PROTOCOLPGM("Input  = ");
+                SERIAL_PROTOCOL(READ(46));
+              }
+              else {
+                if (GET_OUTPUT(47)) {
+                  SERIAL_PROTOCOLPGM("Output = ");}
+                else
+                  SERIAL_PROTOCOLPGM("Input  = ");
+                SERIAL_PROTOCOL(READ(47));
+              }
             }
-            else if (pwm_status(pin)) {
-              // do nothing
+            else
+          #endif
+          {
+            if (!(pgm_read_byte(&pin_array[x][2]))) {
+              sprintf(buffer, "Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
+              SERIAL_ECHO(buffer);
             }
-            else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+            else {
+
+              if (!get_pinMode(pin)) {
+                //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
+                                               // because this could interfere with inductive/capacitive
+                                               // sensors (high impedance voltage divider) and with PT100 amplifier
+                SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+              }
+              else if (pwm_status(pin)) {
+                // do nothing
+              }
+              else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+            }
+            if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
           }
-          if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
         }
       }
       SERIAL_EOL;
@@ -492,25 +518,47 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
     }
     else
       SERIAL_ECHO_SP(8);   // add padding if not an analog pin
-    SERIAL_ECHOPGM("<unused/unknown>");
-    if (extended) {
-      if (get_pinMode(pin)) {
-        SERIAL_PROTOCOL_SP(12);
-        SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
-      }
-      else {
-        if (IS_ANALOG(pin)) {
-          sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-          SERIAL_ECHO(buffer);
-        }
-        else
-          SERIAL_ECHO_SP(9);   // add padding if not an analog pin
+      SERIAL_ECHOPGM("<unused/unknown>");
+      if (extended) {
+        #ifdef AVR_AT90USB1286_FAMILY  //Teensy IDEs don't know about these pins so must use FASTIO
+          if (pin == 46 || pin == 47) {
+            SERIAL_PROTOCOL_SP(12);
+            if (pin == 46) {
+              if (GET_OUTPUT(46)) {
+                SERIAL_PROTOCOLPGM("Output = ");}
+                else
+                SERIAL_PROTOCOLPGM("Input  = ");
+              SERIAL_PROTOCOL(READ(46));
+            }
+            else {
+              if (GET_OUTPUT(47)) {
+                SERIAL_PROTOCOLPGM("Output = ");}
+              else
+                SERIAL_PROTOCOLPGM("Input  = ");
+              SERIAL_PROTOCOL(READ(47));
+            }
+          }
+          else
+        #endif
+        {
+          if (get_pinMode(pin)) {
+            SERIAL_PROTOCOL_SP(12);
+            SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+          }
+          else {
+            if (IS_ANALOG(pin)) {
+              sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
+              SERIAL_ECHO(buffer);
+            }
+            else
+              SERIAL_ECHO_SP(9);   // add padding if not an analog pin
 
-        SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
+            SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
+          }
+          //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
+          if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
+        }
       }
-      //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-      if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
-    }
     SERIAL_EOL;
   }
 }

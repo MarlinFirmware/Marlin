@@ -30,7 +30,7 @@
 
   #undef NUM_DIGITAL_PINS
   #define  NUM_DIGITAL_PINS 48  //Teensy says 46 but FASTIO is 48
-  
+
   // "digitalPinToPort" function just returns the pin number so need to create our own.
   // Can't use the name "digitalPinToPort" for our own because it interferes with the
   // FAST_PWM_FAN function if we do
@@ -102,121 +102,5 @@
                                                // disable the PWMs so we can use it as is
 
   // portModeRegister(pin) is OK
-
-  /**
-   * The Teensyduino type IDEs use two different pin maps.  FAST_IO standard is used for all
-   * READ() & WRITE() functions while the Teensy (Arduino) pin map is used for all the
-   * digitalRead() & digitalWrite() functions.  Because 80% of the pin numbers in the
-   * pins_YOUR_BOARD.h files are FASTIO it is less confusing to use the FAST_IO numbers as the
-   * index to find & display pin names.  The M43 routines must use the Teensy pin numbers
-   * to fetch the data for each pin so a translation index is needed.
-   */
-  const uint8_t PROGMEM FAST_IO_Teensy_PGM[] = {
-  // Teensy (Arduino)      FASTIO
-    28,                   //  0
-    29,                   //  1
-    30,                   //  2
-    31,                   //  3
-    32,                   //  4
-    33,                   //  5
-    34,                   //  6
-    35,                   //  7
-    20,                   //  8
-    21,                   //  9
-    22,                   //  10
-    23,                   //  11
-    24,                   //  12
-    25,                   //  13
-    26,                   //  14
-    27,                   //  15
-    10,                   //  16
-    11,                   //  17
-    12,                   //  18
-    13,                   //  19
-    14,                   //  20
-    15,                   //  21
-    16,                   //  22
-    17,                   //  23
-    0,                    //  24
-    1,                    //  25
-    2,                    //  26
-    3,                    //  27
-    4,                    //  28
-    5,                    //  29
-    6,                    //  30
-    7,                    //  31
-    8,                    //  32
-    9,                    //  33
-    46,                   //  34    not in usual Teensy pin map
-    47,                   //  35    not in usual Teensy pin map
-    36,                   //  36
-    37,                   //  37
-    18,                   //  38
-    19,                   //  39
-    38,                   //  40
-    39,                   //  41
-    40,                   //  42
-    41,                   //  43
-    42,                   //  44
-    43,                   //  45
-    44,                   //  46
-    45                    //  47
-  };
-
-  #define FAST_to_Teensy(pin)  ((uint8_t) pgm_read_byte(FAST_IO_Teensy_PGM + (pin)))
-
-  const uint8_t PROGMEM Teensy_to_FAST_PGM[] = {
-  // FASTIO          Teensy (Arduino)
-    24,                   //  0
-    25,                   //  1
-    26,                   //  2
-    27,                   //  3
-    28,                   //  4
-    29,                   //  5
-    30,                   //  6
-    31,                   //  7
-    32,                   //  8
-    33,                   //  9
-    16,                   //  10
-    17,                   //  11
-    18,                   //  12
-    19,                   //  13
-    20,                   //  14
-    21,                   //  15
-    22,                   //  16
-    23,                   //  17
-    38,                   //  18
-    39,                   //  19
-     8,                   //  20
-     9,                   //  21
-    10,                   //  22
-    11,                   //  23
-    12,                   //  24
-    13,                   //  25
-    14,                   //  26
-    15,                   //  27
-     0,                   //  28
-     1,                   //  29
-     2,                   //  30
-     3,                   //  31
-     4,                   //  32
-     5,                   //  33
-     6,                   //  34
-     7,                   //  35
-    36,                   //  36
-    37,                   //  37
-    40,                   //  38
-    41,                   //  39
-    42,                   //  40
-    43,                   //  41
-    44,                   //  42
-    45,                   //  43
-    46,                   //  44
-    47,                   //  45
-    34,                   //  46     not in usual Teensy pin map
-    35                    //  47     not in usual Teensy pin map
-  };
-
-  #define Teensy_to_FAST(pin)  ((uint8_t) pgm_read_byte(Teensy_to_FAST_PGM + (pin)))
 
 #endif

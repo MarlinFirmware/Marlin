@@ -27,8 +27,24 @@
  *   Teensy   28 29 30 31 32 33 34 35 20 21 22 23 24 25 26 27 10 11 12 13 14 15 16 17 00 01 02 03 04 05 06 07 08 09(46*47)36 37 18 19 38 39 40 41 42 43 44 45
  *   Port     A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7 E0 E1 E2 E3 E4 E5 E6 E7 F0 F1 F2 F3 F4 F5 F6 F7
  * > Marlin   00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
- *            The pins 46 and 47 are not supported by Teensyduino, but are supported below.
+ *            The Teensy pins 46 and 47 are not supported by Teensyduino, but are supported below.
  */
+
+/**
+ * The FASTIO macros hide the FASTIO pin map from the users and the developers. All
+ * they need to be concerned with is using the Teensy pin map.
+ *
+ * This is accomplised by automatically translating the Teensy pin numbers to FASTIO
+ * numbers within the FASTIO macros when AT90USB boards are being used.
+ *
+ * The only exceptions to this are ports E2 & E3. Since Teensy pins 46 & 47 are not
+ * supported by the Teensy type IDEs the digitalRead and digitalWrite commands will
+ * not work for these pins.  They can only be used with the FASTIO commands.  That's
+ * OK since 46 is not used by any AT90USB board and pin 47 is only used as an endstop
+ * input.
+ */
+
+
 
 #ifndef _FASTIO_AT90USB
 #define _FASTIO_AT90USB
