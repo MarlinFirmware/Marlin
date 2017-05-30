@@ -3814,7 +3814,7 @@ int lcd_strlen(const char* s) {
     #if ENABLED(MAPPER_NON)
       j++;
     #else
-      if ((s[i] & 0xC0u) != 0x80u) j++;
+      if (PRINTABLE(s[i])) j++;
     #endif
     i++;
   }
@@ -3827,7 +3827,7 @@ int lcd_strlen_P(const char* s) {
     #if ENABLED(MAPPER_NON)
       j++;
     #else
-      if ((pgm_read_byte(s) & 0xC0u) != 0x80u) j++;
+      if (PRINTABLE(pgm_read_byte(s))) j++;
     #endif
     s++;
   }
@@ -4096,7 +4096,7 @@ void lcd_update() {
       #if ENABLED(MAPPER_NON)
         j++;
       #else
-        if ((s[i] & 0xC0u) != 0x80u) j++;
+        if (PRINTABLE(s[i])) j++;
       #endif
       i++;
     }
