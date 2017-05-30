@@ -871,7 +871,7 @@ void kill_screen(const char* lcd_msg) {
     // Switch case light on/off
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, case_light_on, update_case_light);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, &case_light_on, update_case_light);
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
