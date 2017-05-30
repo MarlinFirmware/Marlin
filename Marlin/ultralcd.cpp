@@ -1766,7 +1766,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
       MENU_ITEM_EDIT(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9);
       MENU_ITEM(function, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_adjust_height_cmd);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1780,7 +1780,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R T"));
       MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
       MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_height_adjust_menu);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1814,7 +1814,7 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_ABS_MESH, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
       #endif
       MENU_ITEM(function, MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1846,7 +1846,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_UBL_TOOLS);
       MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 J0"));
       MENU_ITEM(submenu, MSG_UBL_GRID_MESH_LEVELING, _lcd_ubl_grid_level);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1878,7 +1878,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(function, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_amount_cmd);
       MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
       MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1930,7 +1930,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_UBL_CONTINUE_MESH, PSTR("G29 P1 C"));
       MENU_ITEM(function, MSG_UBL_INVALIDATE_ALL, _lcd_ubl_invalidate);
       MENU_ITEM(gcode, MSG_UBL_INVALIDATE_CLOSEST, PSTR("G29 I"));
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
