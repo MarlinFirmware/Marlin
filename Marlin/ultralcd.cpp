@@ -236,23 +236,23 @@ uint16_t max_display_update_time = 0;
    *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
    *
    */
-  #define _MENU_ITEM_PART_1(TYPE, LABEL, ...) \
+  #define _MENU_ITEM_PART_1(TYPE, ...) \
     if (_menuLineNr == _thisItemNr) { \
-      if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
       if (lcd_clicked && encoderLine == _thisItemNr) {
 
-  #define _MENU_ITEM_PART_2(TYPE, ...) \
+  #define _MENU_ITEM_PART_2(TYPE, LABEL, ...) \
         menu_action_ ## TYPE(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
     } \
     ++_thisItemNr
 
   #define MENU_ITEM(TYPE, LABEL, ...) do { \
       _skipStatic = false; \
-      _MENU_ITEM_PART_1(TYPE, LABEL, ## __VA_ARGS__); \
-      _MENU_ITEM_PART_2(TYPE, ## __VA_ARGS__); \
+      _MENU_ITEM_PART_1(TYPE, ## __VA_ARGS__); \
+      _MENU_ITEM_PART_2(TYPE, LABEL, ## __VA_ARGS__); \
     } while(0)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
@@ -281,10 +281,10 @@ uint16_t max_display_update_time = 0;
      * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
      */
     #define MENU_MULTIPLIER_ITEM(type, label, ...) do { \
-        _MENU_ITEM_PART_1(type, label, ## __VA_ARGS__); \
+        _MENU_ITEM_PART_1(type, ## __VA_ARGS__); \
         encoderRateMultiplierEnabled = true; \
         lastEncoderMovementMillis = 0; \
-        _MENU_ITEM_PART_2(type, ## __VA_ARGS__); \
+        _MENU_ITEM_PART_2(type, label, ## __VA_ARGS__); \
       } while(0)
 
   #else // !ENCODER_RATE_MULTIPLIER
@@ -581,8 +581,6 @@ void lcd_status_screen() {
     #endif
   #endif // LCD_PROGRESS_BAR
 
-  lcd_implementation_status_screen();
-
   #if ENABLED(ULTIPANEL)
 
     if (lcd_clicked) {
@@ -595,6 +593,7 @@ void lcd_status_screen() {
         #endif
       );
       lcd_goto_screen(lcd_main_menu);
+      return;
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -623,6 +622,8 @@ void lcd_status_screen() {
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
   #endif // ULTIPANEL
+
+  lcd_implementation_status_screen();
 }
 
 /**
