@@ -236,23 +236,23 @@ uint16_t max_display_update_time = 0;
    *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
    *
    */
-  #define _MENU_ITEM_PART_1(TYPE, LABEL, ...) \
+  #define _MENU_ITEM_PART_1(TYPE, ...) \
     if (_menuLineNr == _thisItemNr) { \
-      if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
       if (lcd_clicked && encoderLine == _thisItemNr) {
 
-  #define _MENU_ITEM_PART_2(TYPE, ...) \
+  #define _MENU_ITEM_PART_2(TYPE, LABEL, ...) \
         menu_action_ ## TYPE(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
     } \
     ++_thisItemNr
 
   #define MENU_ITEM(TYPE, LABEL, ...) do { \
       _skipStatic = false; \
-      _MENU_ITEM_PART_1(TYPE, LABEL, ## __VA_ARGS__); \
-      _MENU_ITEM_PART_2(TYPE, ## __VA_ARGS__); \
+      _MENU_ITEM_PART_1(TYPE, ## __VA_ARGS__); \
+      _MENU_ITEM_PART_2(TYPE, LABEL, ## __VA_ARGS__); \
     } while(0)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
@@ -281,10 +281,10 @@ uint16_t max_display_update_time = 0;
      * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
      */
     #define MENU_MULTIPLIER_ITEM(type, label, ...) do { \
-        _MENU_ITEM_PART_1(type, label, ## __VA_ARGS__); \
+        _MENU_ITEM_PART_1(type, ## __VA_ARGS__); \
         encoderRateMultiplierEnabled = true; \
         lastEncoderMovementMillis = 0; \
-        _MENU_ITEM_PART_2(type, ## __VA_ARGS__); \
+        _MENU_ITEM_PART_2(type, label, ## __VA_ARGS__); \
       } while(0)
 
   #else // !ENCODER_RATE_MULTIPLIER
@@ -581,8 +581,6 @@ void lcd_status_screen() {
     #endif
   #endif // LCD_PROGRESS_BAR
 
-  lcd_implementation_status_screen();
-
   #if ENABLED(ULTIPANEL)
 
     if (lcd_clicked) {
@@ -595,6 +593,7 @@ void lcd_status_screen() {
         #endif
       );
       lcd_goto_screen(lcd_main_menu);
+      return;
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -623,7 +622,11 @@ void lcd_status_screen() {
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
   #endif // ULTIPANEL
+
+  lcd_implementation_status_screen();
 }
+
+void lcd_reset_status() { lcd_setstatusPGM(PSTR(""), -1); }
 
 /**
  *
@@ -632,7 +635,7 @@ void lcd_status_screen() {
  */
 void kill_screen(const char* lcd_msg) {
   lcd_init();
-  lcd_setalertstatuspgm(lcd_msg);
+  lcd_setalertstatusPGM(lcd_msg);
   #if ENABLED(DOGLCD)
     u8g.firstPage();
     do {
@@ -704,7 +707,7 @@ void kill_screen(const char* lcd_msg) {
         card.startFileprint();
         print_job_timer.start();
       #endif
-      lcd_setstatusPGM(PSTR(""), -1);
+      lcd_reset_status();
     }
 
     void lcd_sdcard_stop() {
@@ -717,7 +720,8 @@ void kill_screen(const char* lcd_msg) {
         for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
       #endif
       wait_for_heatup = false;
-      lcd_setstatusPGM(PSTR(MSG_PRINT_PAUSED), -1);
+      lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
+      lcd_return_to_status();
     }
 
   #endif // SDSUPPORT
@@ -1764,7 +1768,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
       MENU_ITEM_EDIT(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9);
       MENU_ITEM(function, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_adjust_height_cmd);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1778,7 +1782,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R T"));
       MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
       MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_height_adjust_menu);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1812,7 +1816,7 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_ABS_MESH, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
       #endif
       MENU_ITEM(function, MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1844,7 +1848,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_UBL_TOOLS);
       MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 J0"));
       MENU_ITEM(submenu, MSG_UBL_GRID_MESH_LEVELING, _lcd_ubl_grid_level);
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1876,7 +1880,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(function, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_amount_cmd);
       MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
       MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -1928,7 +1932,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_UBL_CONTINUE_MESH, PSTR("G29 P1 C"));
       MENU_ITEM(function, MSG_UBL_INVALIDATE_ALL, _lcd_ubl_invalidate);
       MENU_ITEM(gcode, MSG_UBL_INVALIDATE_CLOSEST, PSTR("G29 I"));
-      MENU_ITEM(submenu, MSG_WATCH, lcd_status_screen);
+      MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
 
@@ -4158,7 +4162,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   lcd_finishstatus(level > 0);
 }
 
-void lcd_setalertstatuspgm(const char * const message) {
+void lcd_setalertstatusPGM(const char * const message) {
   lcd_setstatusPGM(message, 1);
   #if ENABLED(ULTIPANEL)
     lcd_return_to_status();
