@@ -829,8 +829,8 @@ static void lcd_implementation_status_screen() {
     const uint8_t slen = lcd_strlen(lcd_status_message);
     if (slen > LCD_WIDTH) {
       // Skip any non-printing bytes
-      while (!PRINTABLE(lcd_status_message[status_scroll_pos])) ++status_scroll_pos;
-      if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      while (!PRINTABLE(lcd_status_message[status_scroll_pos++])) { /* nada */ }
+      if (status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
     }
   #else
     lcd_print_utf(lcd_status_message);
