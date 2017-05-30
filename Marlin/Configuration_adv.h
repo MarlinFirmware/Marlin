@@ -1221,12 +1221,11 @@
 //#define NO_WORKSPACE_OFFSETS
 
 /**
- * This affects the way Marlin outputs blacks of spaces via serial connection by multiplying the number
- * of spaces to be output by the ratio set below.  This allows for better alignment of output for commands
- * like G29 O, which renders a mesh/grid.
+ * Set the number of proportional font spaces required to fill up a typical character space.
+ * This can help to better align the output of commands like `G29 O` Mesh Output.
  *
- * For clients that use a fixed-width font (like OctoPrint), leave this at 1.0; otherwise, adjust
- * accordingly for your client and font.
+ * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
+ * Otherwise, adjust according to your client and font.
  */
 #define PROPORTIONAL_FONT_RATIO 1.0
 
