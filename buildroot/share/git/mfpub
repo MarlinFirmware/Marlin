@@ -22,54 +22,55 @@ if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
   exit
 fi
 
-if [[ $BRANCH == "gh-pages" ]]; then
-  echo "Can't build from 'gh-pages.' Only the Jekyll branches (based on 'master')."
-  bundle exec jekyll serve --watch
-  exit
-fi
-
-if [[ $BRANCH != "master" ]]; then
-  echo "Don't forget to update and push 'master'!"
-  # GOJF Card
-  git stash
-fi
-
 # Check out the named branch (or stay in current)
 git checkout $BRANCH
 
-echo "Generating MarlinDocumentation..."
+if [[ $BRANCH == "gh-pages" ]]; then
+  echo "Can't build from 'gh-pages.' Only the Jekyll branches (based on 'master')."
+  exit
+fi
+
+echo "Stashing any changes to files..."
+echo "Don't forget to update and push 'master'!"
+# GOJF Card
+git stash
 
 COMMIT=$( git log --format="%H" -n 1 )
 
 # Clean out changes and other junk in the branch
-git reset --hard
 git clean -d -f
 
 # Push 'master' to the fork and make a proper PR...
 if [[ $BRANCH == "master" ]]; then
 
-  if [[ $FORK == "MarlinFirmware" ]]; then
+  # Allow working directly with the main fork
+  echo
+  echo -n "Pushing to origin/master... "
+  git push -f origin
 
-    # Allow working directly with the main fork
-    git push -f upstream
+  echo
+  echo -n "Pushing to upstream/master... "
+  git push -f upstream
 
+else
+
+  if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then
+    firstpush
   else
-
-    if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
-
+    echo
+    echo -n "Pushing to origin/$BRANCH... "
     git push -f origin
+  fi
 
-    TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
-    URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
 
-    if [ -z "$TOOL" ]; then
-      echo "Can't find a tool to open the URL:"
-      echo $URL
-    else
-      echo "Opening a New PR Form..."
-      "$TOOL" "$URL"
-    fi
-
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening a New PR Form..."
+    "$TOOL" "$URL"
   fi
 
 fi
@@ -77,6 +78,9 @@ fi
 # Uncomment to compress the final html files
 # mv ./_plugins/jekyll-press.rb-disabled ./_plugins/jekyll-press.rb
 # bundle install
+
+echo
+echo "Generating MarlinDocumentation..."
 
 # build the site statically and proof it
 bundle exec jekyll build --profile --trace --no-watch
@@ -90,7 +94,7 @@ rsync -av _site/ ${TMPFOLDER}/
 git reset --hard
 git clean -d -f
 
-# Sync built-site with gh-pages
+# Copy built-site into the gh-pages branch
 git checkout gh-pages
 rsync -av ${TMPFOLDER}/ ./
 
@@ -104,3 +108,7 @@ rm -rf ${TMPFOLDER}
 
 # Go back to the branch we started from
 git checkout $BRANCH
+
+if [[ $BRANCH != "master" ]]; then
+  git stash pop
+fi

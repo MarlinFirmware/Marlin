@@ -54,7 +54,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutim spustte")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Dalsi bod")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Mereni hotovo!")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Storno")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Nastavit ofsety")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Ofsety nastaveny")
 #define MSG_SET_ORIGIN                      _UxGT("Nastavit pocatek")
@@ -76,6 +75,7 @@
 #define MSG_EXTRUDE                         _UxGT("Vytlacit (extr.)")
 #define MSG_RETRACT                         _UxGT("Zatlacit (retr.)")
 #define MSG_MOVE_AXIS                       _UxGT("Posunout osy")
+#define MSG_BED_LEVELING                    _UxGT("Vyrovnat podlozku")
 #define MSG_LEVEL_BED                       _UxGT("Vyrovnat podlozku")
 #define MSG_MOVING                          _UxGT("Posunování...")
 #define MSG_FREE_XY                         _UxGT("Uvolnit XY")
@@ -105,6 +105,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Vybrat")
 #define MSG_ACC                             _UxGT("Zrychl")
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("Vx-jerk")
 #define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
@@ -115,6 +116,7 @@
 #define MSG_AMAX                            _UxGT("Amax ")
 #define MSG_A_RETRACT                       _UxGT("A-retrakt")
 #define MSG_A_TRAVEL                        _UxGT("A-prejezd")
+#define MSG_STEPS_PER_MM                    _UxGT("Kroku/mm")
 #define MSG_XSTEPS                          _UxGT("Xkroku/mm")
 #define MSG_YSTEPS                          _UxGT("Ykroku/mm")
 #define MSG_ZSTEPS                          _UxGT("Zkroku/mm")
@@ -203,8 +205,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrudery")
 #define MSG_INFO_BAUDRATE                   _UxGT("Rychlost")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
-#define MSG_LIGHTS_ON                       _UxGT("Osvetleni Zap")
-#define MSG_LIGHTS_OFF                      _UxGT("Osvetleni Vyp")
+#define MSG_CASE_LIGHT                      _UxGT("Osvetleni")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Pocet tisku")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Dokonceno")
@@ -218,6 +220,7 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Nejdelsi")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Vytlaceno")
 #endif
+
 #define MSG_INFO_MIN_TEMP                   _UxGT("Teplota min")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Teplota max")
 #define MSG_INFO_PSU                        _UxGT("Nap. zdroj")
@@ -225,8 +228,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Ulozit do EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("VYMENA FILAMENTU")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CO DAL?")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Jeste vytlacit")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. teplota je ")

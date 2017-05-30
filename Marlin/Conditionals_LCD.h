@@ -205,7 +205,7 @@
     #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 4
     #endif
-  #else //no panel but just LCD
+  #else // no panel but just LCD
     #if ENABLED(ULTRA_LCD)
       #ifndef LCD_WIDTH
         #define LCD_WIDTH 16
@@ -291,36 +291,34 @@
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
    *
    */
-  #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
-    #define HOTENDS      1
-    #define E_STEPPERS   EXTRUDERS
-    #define E_MANUAL     EXTRUDERS
-    #define TOOL_E_INDEX current_block->active_extruder
+  #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
+    #define HOTENDS       1
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
-  #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
-    #define HOTENDS      EXTRUDERS
-    #define E_STEPPERS   1
-    #define E_MANUAL     1
-    #define TOOL_E_INDEX 0
-    #ifndef HOTEND_OFFSET_Z
+  #else                                                         // Two hotends
+    #define HOTENDS       EXTRUDERS
+    #if ENABLED(SWITCHING_NOZZLE) && !defined(HOTEND_OFFSET_Z)
       #define HOTEND_OFFSET_Z { 0 }
     #endif
-  #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
-    #define HOTENDS      1
-    #define E_STEPPERS   MIXING_STEPPERS
-    #define E_MANUAL     1
-    #define TOOL_E_INDEX 0
-  #else                                 // One stepper, E axis, and hotend per tool
-    #define HOTENDS      EXTRUDERS
-    #define E_STEPPERS   EXTRUDERS
-    #define E_MANUAL     EXTRUDERS
-    #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // Unified E axis
+    #if ENABLED(MIXING_EXTRUDER)
+      #define E_STEPPERS  MIXING_STEPPERS
+    #else
+      #define E_STEPPERS  1                                     // One E stepper
+    #endif
+    #define E_MANUAL      1
+    #define TOOL_E_INDEX  0
+  #else
+    #define E_STEPPERS    EXTRUDERS
+    #define E_MANUAL      EXTRUDERS
+    #define TOOL_E_INDEX  current_block->active_extruder
   #endif
 
   /**
-   * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
+   * DISTINCT_E_FACTORS affects how some E factors are accessed
    */
   #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
     #define XYZE_N (XYZ + E_STEPPERS)
@@ -357,6 +355,10 @@
     #define BLTOUCH_RESET    160
     #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
 
+    // Always disable probe pin inverting for BLTouch
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
       #define Z_MIN_ENDSTOP_INVERTING false
@@ -370,6 +372,13 @@
    * Set a flag for a servo probe
    */
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+
+  /**
+   * UBL has its own manual probing, so this just causes trouble.
+   */
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #undef PROBE_MANUALLY
+  #endif
 
   /**
    * Set a flag for any enabled probe
@@ -388,4 +397,4 @@
   #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
   #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED))
 
-#endif //CONDITIONALS_LCD_H
+#endif // CONDITIONALS_LCD_H

@@ -54,3 +54,10 @@
   #define SD_DETECT_PIN 6
 
 #endif // NEWPANEL && ULTRA_LCD
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#undef SPINDLE_LASER_PWM_PIN     // Definitions in pins_RAMPS.h are not valid with this board
+#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_DIR_PIN

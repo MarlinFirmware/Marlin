@@ -52,6 +52,7 @@ tags
 *.lo
 *.o
 *.obj
+*.ino.cpp
 
 # Precompiled Headers
 *.gch
@@ -115,10 +116,9 @@ tags
 *.dSYM/
 *.su
 
-#PlatformIO files/dirs
-.pioenvs
-.piolib
-.piolibdeps
+# PlatformIO files/dirs
+.pio*
+lib/readme.txt
 
 #Visual Studio
 *.sln
@@ -132,3 +132,7 @@ Marlin/.vs/
 #cmake
 CMakeLists.txt
 Marlin/CMakeLists.txt
+CMakeListsPrivate.txt
+
+#CLion
+cmake-build-*

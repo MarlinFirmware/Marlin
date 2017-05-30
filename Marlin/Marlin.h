@@ -48,7 +48,7 @@
 #endif
 
 void idle(
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
@@ -217,8 +217,8 @@ extern bool volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[XYZ]; // axis[n].is_known
-extern bool axis_homed[XYZ]; // axis[n].is_homed
+extern bool axis_known_position[XYZ];
+extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
@@ -287,22 +287,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
-// GCode support for external objects
-bool code_seen(char);
-int code_value_int();
-int16_t code_value_temp_abs();
-int16_t code_value_temp_diff();
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  float code_value_linear_units();
-  float code_value_axis_units(const AxisEnum axis);
-  float code_value_per_axis_unit(const AxisEnum axis);
-#else
-  #define code_value_linear_units() code_value_float()
-  #define code_value_axis_units(A) code_value_float()
-  #define code_value_per_axis_unit(A) code_value_float()
-#endif
-
 #if IS_KINEMATIC
   extern float delta[ABC];
   void inverse_kinematics(const float logical[XYZ]);
@@ -326,7 +310,6 @@ int16_t code_value_temp_diff();
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   float bilinear_z_offset(const float logical[XYZ]);
-  void set_bed_leveling_enabled(bool enable=true);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -335,6 +318,9 @@ int16_t code_value_temp_diff();
 #endif
 
 #if HAS_LEVELING
+  bool leveling_is_valid();
+  bool leveling_is_active();
+  void set_bed_leveling_enabled(const bool enable=true);
   void reset_bed_level();
 #endif
 
@@ -351,6 +337,9 @@ int16_t code_value_temp_diff();
   void refresh_zprobe_zoffset(const bool no_babystep=false);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
+#else
+  #define DEPLOY_PROBE()
+  #define STOW_PROBE()
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -382,8 +371,8 @@ int16_t code_value_temp_diff();
   extern int meas_delay_cm;            // Delay distance
 #endif
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-  extern FilamentChangeMenuResponse filament_change_menu_response;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -426,7 +415,65 @@ void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  bool axis_unhomed_error(const bool x, const bool y, const bool z);
+  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 #endif
 
-#endif //MARLIN_H
+/**
+ * position_is_reachable family of functions
+ */
+
+#if IS_KINEMATIC // (DELTA or SCARA)
+
+  #if IS_SCARA
+    extern const float L1, L2;
+  #endif
+
+  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+    #if ENABLED(DELTA)
+      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+    #elif IS_SCARA
+      #if MIDDLE_DEAD_ZONE_R > 0
+        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+        return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
+      #else
+        return HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y) <= sq(L1 + L2);
+      #endif
+    #else // CARTESIAN
+      // To be migrated from MakerArm branch in future
+    #endif
+  }
+
+  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+
+    // Both the nozzle and the probe must be able to reach the point.
+    // This won't work on SCARA since the probe offset rotates with the arm.
+
+    return position_is_reachable_raw_xy(rx, ry)
+        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+  }
+
+#else // CARTESIAN
+
+  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+      // Add 0.001 margin to deal with float imprecision
+      return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
+          && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
+  }
+
+  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+      // Add 0.001 margin to deal with float imprecision
+      return WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
+          && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
+  }
+
+#endif // CARTESIAN
+
+FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly) {
+  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+}
+
+FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
+  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+}
+
+#endif // MARLIN_H

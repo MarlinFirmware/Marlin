@@ -99,7 +99,31 @@
 #elif defined(SERVO_DEACTIVATION_DELAY)
   #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
 #elif ENABLED(FILAMENTCHANGEENABLE)
-  #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
+  #error "FILAMENTCHANGEENABLE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_FEATURE)
+  #error "FILAMENT_CHANGE_FEATURE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_X_POS)
+  #error "FILAMENT_CHANGE_X_POS is now PAUSE_PARK_X_POS. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Y_POS)
+  #error "FILAMENT_CHANGE_Y_POS is now PAUSE_PARK_Y_POS. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Z_ADD)
+  #error "FILAMENT_CHANGE_Z_ADD is now PAUSE_PARK_Z_ADD. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_XY_FEEDRATE)
+  #error "FILAMENT_CHANGE_XY_FEEDRATE is now PAUSE_PARK_XY_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_Z_FEEDRATE)
+  #error "FILAMENT_CHANGE_Z_FEEDRATE is now PAUSE_PARK_Z_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_RETRACT_FEEDRATE)
+  #error "FILAMENT_CHANGE_RETRACT_FEEDRATE is now PAUSE_PARK_RETRACT_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_RETRACT_LENGTH)
+  #error "FILAMENT_CHANGE_RETRACT_LENGTH is now PAUSE_PARK_RETRACT_LENGTH. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_EXTRUDE_FEEDRATE)
+  #error "FILAMENT_CHANGE_EXTRUDE_FEEDRATE is now ADVANCED_PAUSE_EXTRUDE_FEEDRATE. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_EXTRUDE_LENGTH)
+  #error "FILAMENT_CHANGE_EXTRUDE_LENGTH is now ADVANCED_PAUSE_EXTRUDE_LENGTH. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_NOZZLE_TIMEOUT)
+  #error "FILAMENT_CHANGE_NOZZLE_TIMEOUT is now PAUSE_PARK_NOZZLE_TIMEOUT. Please update your configuration."
+#elif ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
+  #error "FILAMENT_CHANGE_NO_STEPPER_TIMEOUT is now PAUSE_PARK_NO_STEPPER_TIMEOUT. Please update your configuration."
 #elif defined(PLA_PREHEAT_HOTEND_TEMP)
   #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
 #elif defined(PLA_PREHEAT_HPB_TEMP)
@@ -157,7 +181,11 @@
 #elif defined(UBL_MESH_NUM_X_POINTS) || defined(UBL_MESH_NUM_Y_POINTS)
   #error "UBL_MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(UBL_MESH_EDIT_ENABLED)
-  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_EDITING. Please update your configuration."
+  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+#elif defined(UBL_MESH_EDITING)
+  #error "UBL_MESH_EDITING is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+#elif defined(BLTOUCH_HEATERS_OFF)
+  #error "BLTOUCH_HEATERS_OFF is now PROBING_HEATERS_OFF. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -248,10 +276,9 @@
 #if ENABLED(DELTA)
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
-  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    #error "DELTA is incompatible with ENABLE_LEVELING_FADE_HEIGHT. Please disable it."
-  #endif
-  #if ABL_GRID
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_DELTA
+    #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+  #elif ABL_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
     #elif GRID_MAX_POINTS_X < 3
@@ -283,19 +310,19 @@
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
-  #elif DISABLED(FILAMENT_CHANGE_FEATURE)
-    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_CHANGE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
 #endif
 
 /**
- * Filament Change with Extruder Runout Prevention
+ * Advanced Pause
  */
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #if DISABLED(ULTIPANEL)
-    #error "FILAMENT_CHANGE_FEATURE currently requires an LCD controller."
+    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
   #elif ENABLED(PARK_HEAD_ON_PAUSE) && DISABLED(SDSUPPORT) && DISABLED(ULTIPANEL) && DISABLED(EMERGENCY_PARSER)
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #endif
@@ -330,11 +357,16 @@
 #endif
 
 /**
- * Only one type of extruder allowed
+ * A dual nozzle x-carriage with switching servo
  */
-#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
-  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
-    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+#if ENABLED(SWITCHING_NOZZLE)
+  #if ENABLED(SINGLENOZZLE)
+    #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+  #elif EXTRUDERS < 2
+    #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #endif
 #endif
 
 /**
@@ -356,12 +388,16 @@
 #if ENABLED(MIXING_EXTRUDER)
   #if EXTRUDERS > 1
     #error "MIXING_EXTRUDER currently only supports one extruder."
-  #endif
-  #if MIXING_STEPPERS < 2
+  #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
-  #endif
-  #if ENABLED(FILAMENT_SENSOR)
+  #elif ENABLED(FILAMENT_SENSOR)
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(LIN_ADVANCE)
+    #error "MIXING_EXTRUDER is incompatible with LIN_ADVANCE."
   #endif
 #endif
 
@@ -373,10 +409,10 @@
 #endif
 
 /**
- * Servo deactivation depends on servo endstops
+ * Servo deactivation depends on servo endstops or switching nozzle
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
-  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR)
+  #error "Z_ENDSTOP_SERVO_NR or switching nozzle is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
@@ -430,8 +466,8 @@ static_assert(1 >= 0
  * Unified Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #if ENABLED(DELTA)
-    #error "AUTO_BED_LEVELING_UBL does not yet support DELTA printers."
+  #if IS_SCARA
+    #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
   #elif DISABLED(NEWPANEL)
     #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
   #endif
@@ -457,16 +493,16 @@ static_assert(1 >= 0
   #if ENABLED(BLTOUCH)
     + 1
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    + 1
+  #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     + 1
   #endif
   #if ENABLED(Z_PROBE_SLED)
     + 1
   #endif
-  #if ENABLED(SOLENOID_PROBE)
-    + 1
-  #endif
-  , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 );
 
 
@@ -535,15 +571,26 @@ static_assert(1 >= 0
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
   #endif
 
+   /**
+    * Advanced Pause is required in order to turn the heaters off during probing
+    */
+   #if (ENABLED(PROBING_HEATERS_OFF) && DISABLED(ADVANCED_PAUSE_FEATURE))
+     #error "PROBING_HEATERS_OFF requires ADVANCED_PAUSE_FEATURE"
+   #endif
+
 #else
 
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL
-    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+    #else
+      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #endif
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
 #endif
@@ -593,12 +640,8 @@ static_assert(1 >= 0
   /**
    * Delta and SCARA have limited bed leveling options
    */
-  #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    #if ENABLED(DELTA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling."
-    #elif ENABLED(SCARA)
-      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for SCARA bed leveling."
-    #endif
+  #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "Only AUTO_BED_LEVELING_BILINEAR currently supports SCARA bed leveling."
   #endif
 
   /**
@@ -626,18 +669,23 @@ static_assert(1 >= 0
       #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
     #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
       #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
-    #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
-      #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
-    #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+    #endif
+    #if IS_CARTESIAN
+      #if !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
+        #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+      #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
+        #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
+      #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
+        #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
+      #endif
     #endif
   #else // AUTO_BED_LEVELING_3POINT
     #if !WITHIN(ABL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
@@ -1127,3 +1175,64 @@ static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
+
+/**
+ * Sanity checks for Spindle / Laser
+ */
+#if ENABLED(SPINDLE_LASER_ENABLE)
+  #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
+  #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
+    #error "SPINDLE_DIR_PIN not defined."
+  #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
+    #if !(WITHIN(SPINDLE_LASER_PWM_PIN, 2, 13) || WITHIN(SPINDLE_LASER_PWM_PIN, 44, 46))
+      #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
+    #elif SPINDLE_LASER_POWERUP_DELAY < 1
+      #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
+    #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
+      #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
+    #elif !defined(SPINDLE_LASER_PWM_INVERT)
+      #error "SPINDLE_LASER_PWM_INVERT missing."
+    #elif !defined(SPEED_POWER_SLOPE) || !defined(SPEED_POWER_INTERCEPT) || !defined(SPEED_POWER_MIN) || !defined(SPEED_POWER_MAX)
+      #error "SPINDLE_LASER_PWM equation constant(s) missing."
+    #elif SPINDLE_LASER_PWM_PIN == 4 || WITHIN(SPINDLE_LASER_PWM_PIN, 11, 13)
+      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by a system interrupt."
+    #elif PIN_EXISTS(X_MAX) && X_MAX_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin is in use by X_MAX endstop."
+    #elif PIN_EXISTS(X_MIN) && X_MIN_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin is in use by X_MIN endstop."
+    #elif PIN_EXISTS(Z_STEP) && Z_STEP_PIN == SPINDLE_LASER_PWM_PIN
+      #error "SPINDLE_LASER_PWM pin in use by Z_STEP."
+    #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
+      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
+    #elif PIN_EXISTS(CASE_LIGHT) && SPINDLE_LASER_PWM_PIN == CASE_LIGHT_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CASE_LIGHT_PIN."
+    #elif PIN_EXISTS(E0_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E0_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E0_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E1_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E1_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E1_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E2_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E2_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E2_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E3_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E3_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E3_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E4_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E4_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E4_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN_PIN."
+    #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN1_PIN."
+    #elif PIN_EXISTS(FAN2) && SPINDLE_LASER_PWM_PIN == FAN2_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used FAN2_PIN."
+    #elif PIN_EXISTS(CONTROLLERFAN) && SPINDLE_LASER_PWM_PIN == CONTROLLERFAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CONTROLLERFAN_PIN."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_XY) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_XY_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_XY."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_Z) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_Z_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_Z."
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_E) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_E_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_E."
+    #elif PIN_EXISTS(CASE_LIGHT) && SPINDLE_LASER_PWM_PIN == CASE_LIGHT_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by CASE_LIGHT."
+    #endif
+  #endif
+#endif // SPINDLE_LASER_ENABLE

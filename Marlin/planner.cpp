@@ -63,6 +63,8 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include "ubl.h"
+#include "gcode.h"
 
 #include "Marlin.h"
 
@@ -392,7 +394,7 @@ void Planner::recalculate() {
     thermalManager.setTargetHotend(t, 0);
   }
 
-#endif //AUTOTEMP
+#endif // AUTOTEMP
 
 /**
  * Maintain fans, paste extruder pressure,
@@ -487,17 +489,17 @@ void Planner::check_axes_activity() {
         KICKSTART_FAN(2);
       #endif
 
-    #endif //FAN_KICKSTART_TIME
+    #endif // FAN_KICKSTART_TIME
 
     #if ENABLED(FAN_SOFT_PWM)
       #if HAS_FAN0
-        thermalManager.fanSpeedSoftPwm[0] = CALC_FAN_SPEED(0);
+        thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
       #endif
       #if HAS_FAN1
-        thermalManager.fanSpeedSoftPwm[1] = CALC_FAN_SPEED(1);
+        thermalManager.soft_pwm_amount_fan[1] = CALC_FAN_SPEED(1);
       #endif
       #if HAS_FAN2
-        thermalManager.fanSpeedSoftPwm[2] = CALC_FAN_SPEED(2);
+        thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
       #endif
     #else
       #if HAS_FAN0
@@ -532,6 +534,17 @@ void Planner::check_axes_activity() {
    * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA  // probably should also be enabled for UBL without UBL_DELTA
+      if (!ubl.state.active) return;
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
+        if ((planner.z_fade_height) && (planner.z_fade_height <= RAW_Z_POSITION(lz))) return;
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
+      #else // no fade
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly);
+      #endif // FADE
+    #endif // UBL
 
     #if HAS_ABL
       if (!abl_enabled) return;
@@ -585,6 +598,39 @@ void Planner::check_axes_activity() {
   }
 
   void Planner::unapply_leveling(float logical[XYZ]) {
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA
+
+      if (ubl.state.active) {
+
+        const float z_leveled = RAW_Z_POSITION(logical[Z_AXIS]),
+                    z_ublmesh = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]);
+              float z_unlevel = z_leveled - ubl.state.z_offset - z_ublmesh;
+
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+          // for L=leveled, U=unleveled, M=mesh, O=offset, H=fade_height,
+          // Given L==U+O+M(1-U/H) (faded mesh correction formula for U<H)
+          //  then U==L-O-M(1-U/H)
+          //    so U==L-O-M+MU/H
+          //    so U-MU/H==L-O-M
+          //    so U(1-M/H)==L-O-M
+          //    so U==(L-O-M)/(1-M/H) for U<H
+
+          if (planner.z_fade_height) {
+            const float z_unfaded = z_unlevel / (1.0 - z_ublmesh * planner.inverse_z_fade_height);
+            if (z_unfaded < planner.z_fade_height)  // don't know until after compute
+              z_unlevel = z_unfaded;
+          }
+
+        #endif // ENABLE_LEVELING_FADE_HEIGHT
+
+        logical[Z_AXIS] = z_unlevel;
+      }
+
+      return; // don't fall thru to HAS_ABL or other ENABLE_LEVELING_FADE_HEIGHT logic
+
+    #endif
 
     #if HAS_ABL
       if (!abl_enabled) return;
@@ -1464,7 +1510,7 @@ void Planner::sync_from_steppers() {
 /**
  * Setters for planner position (also setting stepper position).
  */
-void Planner::set_position_mm(const AxisEnum axis, const float& v) {
+void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if ENABLED(DISTINCT_E_FACTORS)
     const uint8_t axis_index = axis + (axis == E_AXIS ? active_extruder : 0);
     last_extruder = active_extruder;
@@ -1504,10 +1550,10 @@ void Planner::refresh_positioning() {
 #if ENABLED(AUTOTEMP)
 
   void Planner::autotemp_M104_M109() {
-    autotemp_enabled = code_seen('F');
-    if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
-    if (code_seen('S')) autotemp_min = code_value_temp_abs();
-    if (code_seen('B')) autotemp_max = code_value_temp_abs();
+    autotemp_enabled = parser.seen('F');
+    if (autotemp_enabled) autotemp_factor = parser.value_celsius_diff();
+    if (parser.seen('S')) autotemp_min = parser.value_celsius();
+    if (parser.seen('B')) autotemp_max = parser.value_celsius();
   }
 
 #endif

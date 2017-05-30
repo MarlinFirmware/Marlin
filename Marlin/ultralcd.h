@@ -38,13 +38,16 @@
   void lcd_init();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
-  void lcd_setstatuspgm(const char* message, const uint8_t level=0);
+  void lcd_setstatusPGM(const char* message, const int8_t level=0);
+  void lcd_setalertstatusPGM(const char* message);
   void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
-  void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
   bool lcd_detected(void);
+
+  extern uint8_t lcdDrawUpdate;
+  inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
@@ -55,14 +58,11 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    extern int lcd_contrast;
-    void set_lcd_contrast(int value);
+    extern uint16_t lcd_contrast;
+    void set_lcd_contrast(uint16_t value);
   #elif ENABLED(SHOW_BOOTSCREEN)
     void bootscreen();
   #endif
-
-  #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
-  #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
   #define LCD_UPDATE_INTERVAL 100
 
@@ -83,9 +83,9 @@
     void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-      void lcd_filament_change_show_message(const FilamentChangeMessage message);
-    #endif // FILAMENT_CHANGE_FEATURE
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
+    #endif // ADVANCED_PAUSE_FEATURE
 
   #else
 
@@ -148,21 +148,26 @@
     #define LCD_CLICKED false
   #endif
 
-#else //no LCD
+#else // no LCD
+
   inline void lcd_update() {}
   inline void lcd_init() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
-  inline void lcd_setstatuspgm(const char* const message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
   inline bool lcd_detected() { return true; }
-
-  #define LCD_MESSAGEPGM(x) NOOP
-  #define LCD_ALERTMESSAGEPGM(x) NOOP
+  inline void lcd_refresh() {}
 
 #endif // ULTRA_LCD
+
+#define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
+#define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
+
+void lcd_reset_status();
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void lcd_mesh_edit_setup(float initial);

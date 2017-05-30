@@ -16,12 +16,6 @@ if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
   exit
 fi
 
-if [[ $BRANCH != "master" ]]; then
-  echo "Stashing changes and changing to master."
-  git stash
-  git checkout master
-fi
-
 opensite() {
   TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
   URL="http://127.0.0.1:4000/"
@@ -40,9 +34,3 @@ echo "Previewing MarlinDocumentation..."
 ( sleep 45; opensite ) &
 
 bundle exec jekyll serve --watch --incremental
-
-if [[ $BRANCH != "master" ]]; then
-  echo "Restoring branch '$BRANCH'"
-  git checkout $BRANCH
-  git stash pop
-fi
