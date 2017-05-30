@@ -27,12 +27,14 @@
  * See http://reprap.org/wiki/Printrboard for more info
  */
 
+/**
+ *  Rev B    29MAY 2017
+ *
+ *  Converted all pins to Teensyduino system
+ */
+
 #ifndef __AVR_AT90USB1286__
   #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
-#endif
-
-#if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
-  #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
 #define BOARD_NAME         "Printrboard Rev F"
@@ -41,28 +43,28 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN         35
-#define Y_STOP_PIN         12
+#define X_STOP_PIN         47
+#define Y_STOP_PIN         24
 #define Z_STOP_PIN         36
 
 //
 // Steppers
 //
-#define X_STEP_PIN          0
-#define X_DIR_PIN           1
-#define X_ENABLE_PIN       39
+#define X_STEP_PIN         28
+#define X_DIR_PIN          29
+#define X_ENABLE_PIN       19
 
-#define Y_STEP_PIN          2
-#define Y_DIR_PIN           3
-#define Y_ENABLE_PIN       38
+#define Y_STEP_PIN         30
+#define Y_DIR_PIN          31
+#define Y_ENABLE_PIN       18
 
-#define Z_STEP_PIN          4
-#define Z_DIR_PIN           5
-#define Z_ENABLE_PIN       23
+#define Z_STEP_PIN         32
+#define Z_DIR_PIN          33
+#define Z_ENABLE_PIN       17
 
-#define E0_STEP_PIN         6
-#define E0_DIR_PIN          7
-#define E0_ENABLE_PIN      19
+#define E0_STEP_PIN        34
+#define E0_DIR_PIN         35
+#define E0_ENABLE_PIN      13
 
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
@@ -85,23 +87,22 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       21 // Extruder
-#define HEATER_1_PIN       46
+#define HEATER_0_PIN       15 // Extruder
+#define HEATER_1_PIN       44
 #define HEATER_2_PIN       47
-#define HEATER_BED_PIN     20
+#define HEATER_BED_PIN     14
 
-// If soft or fast PWM is off then use Teensyduino pin numbering, Marlin
-// fastio pin numbering otherwise
-#if ENABLED(FAN_SOFT_PWM) || ENABLED(FAST_PWM_FAN)
-  #define FAN_PIN          22
-#else
+
+#if ENABLED(FAST_PWM_FAN)
   #define FAN_PIN          16
+#else
+  #define FAN_PIN          22
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               20 // Teensylu pin mapping
+#define SDSS               20 
 #define FILWIDTH_PIN        2 // Analog Input
 
 //
@@ -110,16 +111,16 @@
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN -1
 
-  #define LCD_PINS_RS 9
-  #define LCD_PINS_ENABLE 8
-  #define LCD_PINS_D4 7
-  #define LCD_PINS_D5 6
-  #define LCD_PINS_D6 5
-  #define LCD_PINS_D7 4
+  #define LCD_PINS_RS 21
+  #define LCD_PINS_ENABLE 20
+  #define LCD_PINS_D4 35
+  #define LCD_PINS_D5 34
+  #define LCD_PINS_D6 33
+  #define LCD_PINS_D7 32
 
-  #define BTN_EN1   16
-  #define BTN_EN2   17
-  #define BTN_ENC   18 // the click
+  #define BTN_EN1   10
+  #define BTN_EN2   11
+  #define BTN_ENC   12 // the click
 
   #define SD_DETECT_PIN -1
 
@@ -131,19 +132,18 @@
 #endif
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 32 // FastIO
-  #define DOGLCD_A0  42 // Non-FastIO
-  #define DOGLCD_CS  43 // Non-FastIO
+  #define BEEPER_PIN  8
+  #define DOGLCD_A0  40
+  #define DOGLCD_CS  41
   #define LCD_SCREEN_ROT_180
 
-  // (FastIO Pins)
-  #define BTN_EN1 26
-  #define BTN_EN2 27
-  #define BTN_ENC 47
+  #define BTN_EN1 2
+  #define BTN_EN2 3
+  #define BTN_ENC 45
 
-  #define SDSS 45
-  #define SD_DETECT_PIN -1 // FastIO (Manual says 72)
+  #define SDSS 43
+  #define SD_DETECT_PIN -1
 
-  #define STAT_LED_RED_PIN  12 // Non-FastIO
-  #define STAT_LED_BLUE_PIN 10 // Non-FastIO
+  #define STAT_LED_RED_PIN  24
+  #define STAT_LED_BLUE_PIN  0
 #endif

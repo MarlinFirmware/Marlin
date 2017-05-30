@@ -20,17 +20,12 @@
  *
  */
 
-
 bool endstop_monitor_flag = false;
 
-#define NAME_FORMAT "%-28s"   // one place to specify the format of all the sources of names
+#define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
                                // "-" left justify, "28" minimum width of name, pad with blanks
 
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
-
-#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
-#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
-#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
@@ -52,7 +47,7 @@ bool endstop_monitor_flag = false;
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 56
+#line 51
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
@@ -88,24 +83,31 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      { RXD_NAME, "0", "1" },
-      { TXD_NAME, "1", "1" },
+      { RXD_NAME, 0, 1 },
+      { TXD_NAME, 1, 1 },
     #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME, "8", "1" },
-      { TXD_NAME, "9", "1" },
+      { RXD_NAME, 8, 1 },
+      { TXD_NAME, 9, 1 },
     #endif
   #endif
 
   #include "pinsDebug_list.h"
-  #line 101
+  #line 96
 
 };
 
 #define n_array (sizeof(pin_array) / sizeof(char*)) / 3
 
-#ifndef TIMER1B
+#if AVR_AT90USB1286_FAMILY
   // working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
+//can't use the "digitalPinToPort" function from the Teensyduino type IDEs
+// portModeRegister takes a different arguement
+ #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
+ #define get_pinMode(pin) (*portModeRegister(pin) & digitalPinToBitMask(pin))
+#else
+ #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
+ bool get_pinMode(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask(pin); }
 #endif
 
 #define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", V); SERIAL_ECHO(buffer); }while(0)
@@ -127,7 +129,9 @@ static bool pwm_status(uint8_t pin) {
 
     #if defined(TCCR0A) && defined(COM0A1)
       #ifdef TIMER0A
-        PWM_CASE(0, A);
+        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+          PWM_CASE(0, A);
+        #endif
       #endif
       PWM_CASE(0, B);
     #endif
@@ -311,7 +315,9 @@ static void pwm_details(uint8_t pin) {
 
     #if defined(TCCR0A) && defined(COM0A1)
       #ifdef TIMER0A
-        case TIMER0A: timer_prefix(0, 'A', 3); break;
+        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+          case TIMER0A: timer_prefix(0, 'A', 3); break;
+        #endif
       #endif
       case TIMER0B: timer_prefix(0, 'B', 3); break;
     #endif
@@ -357,40 +363,58 @@ static void pwm_details(uint8_t pin) {
   // on pins that have two PWMs, print info on second PWM
   #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
     // looking for port B7 - PWMs 0A and 1C
-    if (digitalPinToPort(pin) == 2 && digitalPinToBitMask(pin) == 0x80) {
-      #ifndef TEENSYDUINO_IDE
+    if ( ('B' == digitalPinToPort_DEBUG(pin) + 64) && (0x80 == digitalPinToBitMask(pin))) {
+      #if !AVR_AT90USB1286_FAMILY
         SERIAL_PROTOCOLPGM("\n .");
         SERIAL_PROTOCOL_SP(18);
         SERIAL_PROTOCOLPGM("TIMER1C is also tied to this pin");
-        SERIAL_PROTOCOL_SP(13);
+        SERIAL_PROTOCOL_SP(14);
         timer_prefix(1, 'C', 4);
       #else
         SERIAL_PROTOCOLPGM("\n .");
         SERIAL_PROTOCOL_SP(18);
         SERIAL_PROTOCOLPGM("TIMER0A is also tied to this pin");
-        SERIAL_PROTOCOL_SP(13);
+        SERIAL_PROTOCOL_SP(14);
         timer_prefix(0, 'A', 3);
       #endif
     }
   #endif
 } // pwm_details
 
-bool get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin); }
-
 #ifndef digitalRead_mod             // use Teensyduino's version of digitalRead - it doesn't disable the PWMs
   int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
-    uint8_t port = digitalPinToPort(pin);
+    uint8_t port = digitalPinToPort_DEBUG(pin);
     return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask(pin)) ? HIGH : LOW;
   }
 #endif
 
 void print_port(int8_t pin) {   // print port number
-  #ifdef digitalPinToPort
+  #ifdef digitalPinToPort_DEBUG
+    uint8_t x;
     SERIAL_PROTOCOLPGM("  Port: ");
-    uint8_t x = digitalPinToPort(pin) + 64;
+    #if AVR_AT90USB1286_FAMILY
+      if ((pin == 46 || pin ==47)) {
+        x = 'E';}
+      else
+        x = digitalPinToPort_DEBUG(pin) + 64;
+    #else
+      x = digitalPinToPort_DEBUG(pin) + 64;
+    #endif
     SERIAL_CHAR(x);
+
+    #if AVR_AT90USB1286_FAMILY
+      if (pin == 46) {
+        x = '2';}
+      else if (pin == 47) {
+        x = '3';}
+      else {
+        uint8_t temp = digitalPinToBitMask(pin);
+        for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      }
+    #else
     uint8_t temp = digitalPinToBitMask(pin);
-    for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+    #endif
     SERIAL_CHAR(x);
   #else
     SERIAL_PROTOCOL_SP(10);
@@ -398,7 +422,7 @@ void print_port(int8_t pin) {   // print port number
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = true) {
+inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false) {
   uint8_t temp_char;
   char *name_mem_pointer;
   char buffer[30];   // for the sprintf statements
@@ -420,7 +444,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
       }
       else {
         SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(25);  // add padding if not the first instance found
+        SERIAL_ECHO_SP(26);  // add padding if not the first instance found
       }
       name_mem_pointer = (char*)pgm_read_word(&pin_array[x][0]);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
@@ -431,26 +455,28 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
           break;
         }
       }
-      if (pin_is_protected(pin) && !ignore)
-        SERIAL_ECHOPGM("protected ");
-      else {
-        if (!(pgm_read_byte(&pin_array[x][2]))) {
-          sprintf(buffer, "Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-          SERIAL_ECHO(buffer);
-        }
+      if (extended) {
+        if (pin_is_protected(pin) && !ignore)
+          SERIAL_ECHOPGM("protected ");
         else {
-          if (!get_pinMode(pin)) {
-            //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
-                                           // because this could interfere with inductive/capacitive
-                                           // sensors (high impedance voltage divider) and with PT100 amplifier
-            SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+          if (!(pgm_read_byte(&pin_array[x][2]))) {
+            sprintf(buffer, "Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
+            SERIAL_ECHO(buffer);
           }
-          else if (pwm_status(pin)) {
-            // do nothing
+          else {
+            if (!get_pinMode(pin)) {
+              //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
+                                             // because this could interfere with inductive/capacitive
+                                             // sensors (high impedance voltage divider) and with PT100 amplifier
+              SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+            }
+            else if (pwm_status(pin)) {
+              // do nothing
+            }
+            else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
           }
-          else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
+          if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
         }
-        if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
       }
       SERIAL_EOL;
     }  // end of IF
@@ -467,26 +493,28 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
     else
       SERIAL_ECHO_SP(8);   // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
-    if (get_pinMode(pin)) {
-      SERIAL_PROTOCOL_SP(12);
-      SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
-    }
-    else {
-      if (IS_ANALOG(pin)) {
-        sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-        SERIAL_ECHO(buffer);
+    if (extended) {
+      if (get_pinMode(pin)) {
+        SERIAL_PROTOCOL_SP(12);
+        SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
       }
-      else
-        SERIAL_ECHO_SP(9);   // add padding if not an analog pin
+      else {
+        if (IS_ANALOG(pin)) {
+          sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
+          SERIAL_ECHO(buffer);
+        }
+        else
+          SERIAL_ECHO_SP(9);   // add padding if not an analog pin
 
-      SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
+        SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
+      }
+      //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
+      if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
     }
-    //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-    if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
     SERIAL_EOL;
   }
 }
 
-inline void report_pin_state(int8_t pin) {
-  report_pin_state_extended(pin, false, false);
+inline void report_pin_state(int8_t pin, bool ignore) {
+  report_pin_state_extended(pin, ignore, false);
 }

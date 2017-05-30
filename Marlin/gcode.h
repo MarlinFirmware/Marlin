@@ -135,7 +135,7 @@ public:
     static bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : NULL;
+      if (b) value_ptr = (char*) (DECIMAL_SIGNED(p[1]) ? &p[1] : NULL);
       return b;
     }
 
