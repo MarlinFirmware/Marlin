@@ -40,8 +40,6 @@
   extern float destination[XYZE], current_position[XYZE];
 
   void lcd_return_to_status();
-  bool lcd_clicked();
-  void lcd_implementation_clear();
   void lcd_mesh_edit_setup(float initial);
   float lcd_mesh_edit();
   void lcd_z_offset_edit_setup(float);
@@ -53,12 +51,6 @@
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
-
-  extern void lcd_status_screen();
-  typedef void (*screenFunc_t)();
-  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
-  extern void lcd_setstatus(const char* message, const bool persist);
-  extern void lcd_setstatusPGM(const char* message, const int8_t level);
 
   int    unified_bed_leveling::g29_verbose_level,
          unified_bed_leveling::g29_phase_value,
@@ -662,7 +654,7 @@
         do_blocking_move_to_z(measured_z);  // Get close to the bed, but leave some space so we don't damage anything
                                             // The user is not going to be locking in a new Z-Offset very often so
                                             // it won't be that painful to spin the Encoder Wheel for 1.5mm
-        lcd_implementation_clear();
+        lcd_refresh();
         lcd_z_offset_edit_setup(measured_z);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -698,7 +690,7 @@
 
         state.z_offset = measured_z;
 
-        lcd_implementation_clear();
+        lcd_refresh();
         restore_ubl_active_state_and_leave();
       }
     }
@@ -940,7 +932,7 @@
 
     SERIAL_PROTOCOLPGM("Place shim under nozzle");
     LCD_MESSAGEPGM("Place shim & measure"); // TODO: Make translatable string
-    lcd_goto_screen(lcd_status_screen);
+    lcd_return_to_status();
     echo_and_take_a_measurement();
 
     const float z1 = measure_point_with_encoder();
@@ -979,7 +971,7 @@
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     do_blocking_move_to_xy(lx, ly);
 
-    lcd_goto_screen(lcd_status_screen);
+    lcd_return_to_status();
     mesh_index_pair location;
     do {
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_NOZZLE_AS_REFERENCE, NULL, false);
@@ -1456,7 +1448,7 @@
 
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show the user which point is being adjusted
 
-      lcd_implementation_clear();
+      lcd_refresh();
 
       lcd_mesh_edit_setup(new_z);
 
@@ -1497,7 +1489,7 @@
 
       z_values[location.x_index][location.y_index] = new_z;
 
-      lcd_implementation_clear();
+      lcd_refresh();
 
     } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
 

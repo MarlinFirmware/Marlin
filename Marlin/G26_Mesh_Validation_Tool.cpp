@@ -191,7 +191,7 @@
     // ask the user to resolve the issue
     lcd_setstatusPGM(PSTR("Release button"), 99); // will never appear...
     while (ubl_lcd_clicked()) idle();             // unless this loop happens
-    lcd_setstatusPGM(PSTR(""), -1);
+    lcd_reset_status();
 
     return true;
   }
@@ -771,7 +771,7 @@
     }
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatusPGM(PSTR(""), -1);
+      lcd_reset_status();
       lcd_quick_feedback();
     #endif
 

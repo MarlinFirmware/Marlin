@@ -626,6 +626,8 @@ void lcd_status_screen() {
   lcd_implementation_status_screen();
 }
 
+void lcd_reset_status() { lcd_setstatusPGM(PSTR(""), -1); }
+
 /**
  *
  * draw the kill screen
@@ -633,7 +635,7 @@ void lcd_status_screen() {
  */
 void kill_screen(const char* lcd_msg) {
   lcd_init();
-  lcd_setalertstatuspgm(lcd_msg);
+  lcd_setalertstatusPGM(lcd_msg);
   #if ENABLED(DOGLCD)
     u8g.firstPage();
     do {
@@ -705,7 +707,7 @@ void kill_screen(const char* lcd_msg) {
         card.startFileprint();
         print_job_timer.start();
       #endif
-      lcd_setstatusPGM(PSTR(""), -1);
+      lcd_reset_status();
     }
 
     void lcd_sdcard_stop() {
@@ -4160,7 +4162,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   lcd_finishstatus(level > 0);
 }
 
-void lcd_setalertstatuspgm(const char * const message) {
+void lcd_setalertstatusPGM(const char * const message) {
   lcd_setstatusPGM(message, 1);
   #if ENABLED(ULTIPANEL)
     lcd_return_to_status();
