@@ -62,7 +62,7 @@
 
 #define E0_STEP_PIN         6
 #define E0_DIR_PIN          7
-#define E0_ENABLE_PIN      19
+#define E0_ENABLE_PIN      35
 
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT

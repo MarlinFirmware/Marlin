@@ -41,10 +41,10 @@
 //
 // Auto fans
 //
-#define ORIG_E0_AUTO_FAN_PIN 11
-#define ORIG_E1_AUTO_FAN_PIN  6
-#define ORIG_E2_AUTO_FAN_PIN  6
-#define ORIG_E3_AUTO_FAN_PIN  6
+#define E0_AUTO_FAN_PIN 11
+#define E1_AUTO_FAN_PIN  6
+#define E2_AUTO_FAN_PIN  6
+#define E3_AUTO_FAN_PIN  6
 
 //
 // Misc. Functions

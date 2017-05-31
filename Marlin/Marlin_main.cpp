@@ -290,6 +290,10 @@
   #include "endstop_interrupts.h"
 #endif
 
+#if !defined(TIMER1B) // working with Teensyduino type IDE extension
+  #include "Teensyduino.h"
+#endif
+
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
   void M100_dump_routine(const char * const title, const char *start, const char *end);
@@ -978,15 +982,15 @@ void servo_init() {
 
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
-      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
-      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
-      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
+      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
 
       #if ENABLED(RGBW_LED)
-        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
+        digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
         analogWrite(RGB_LED_W_PIN, w);
       #endif
 
@@ -4552,6 +4556,7 @@ void home_all_axes() { gcode_G28(true); }
         }
         else {
 
+
           // Leveling done! Fall through to G29 finishing code below
 
           SERIAL_PROTOCOLLNPGM("Grid probing done.");
@@ -5716,7 +5721,7 @@ inline void gcode_G92() {
         WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // turn spindle off
         delay_for_power_down();
       }
-      digitalWrite(SPINDLE_DIR_PIN, rotation_dir);
+      WRITE(SPINDLE_DIR_PIN, rotation_dir);
     #endif
 
     /**
@@ -6277,19 +6282,18 @@ inline void gcode_M42() {
   #include "pinsDebug.h"
 
   inline void toggle_pins() {
-    const bool I_flag = parser.seen('I') && parser.value_bool();
-    const int repeat = parser.seen('R') ? parser.value_int() : 1,
-              start = parser.seen('S') ? parser.value_int() : 0,
-              end = parser.seen('E') ? parser.value_int() : NUM_DIGITAL_PINS - 1,
-              wait = parser.seen('W') ? parser.value_int() : 500;
-
+    const bool I_flag = parser.seen('I') &&  parser.has_value() ? parser.value_bool() :0;
+    const int repeat = parser.seen('R') && parser.has_value() ? parser.value_int() : 1,
+              start = parser.seen('S') && parser.has_value() ? parser.value_int(): 0,
+              end = parser.seen('E') && parser.has_value() ? parser.value_int() : NUM_DIGITAL_PINS - 1,
+              wait = parser.seen('W') && parser.has_value() ? parser.value_int() : 500;
     for (uint8_t pin = start; pin <= end; pin++) {
       if (!I_flag && pin_is_protected(pin)) {
-        SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
-        SERIAL_ECHOLNPGM(" untouched.");
+        report_pin_state_extended(pin, I_flag, true, true, "Untouched ");
+        SERIAL_CHAR('\n');
       }
       else {
-        SERIAL_ECHOPAIR("Pulsing Pin: ", pin);
+        report_pin_state_extended(pin, I_flag, true, true, "Pulsing   ");
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
           digitalWrite(pin, 0);
@@ -6319,7 +6323,7 @@ inline void gcode_M42() {
 
     #else
 
-      const uint8_t probe_index = parser.seen('P') ? parser.value_byte() : Z_ENDSTOP_SERVO_NR;
+      const uint8_t probe_index = parser.seen('P') && parser.has_value() ? parser.value_byte() : Z_ENDSTOP_SERVO_NR;
 
       SERIAL_PROTOCOLLNPGM("Servo probe test");
       SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
@@ -6368,10 +6372,10 @@ inline void gcode_M42() {
       for (uint8_t i = 0; i < 4; i++) {
         servo[probe_index].move(z_servo_angle[0]); //deploy
         safe_delay(500);
-        deploy_state = digitalRead(PROBE_TEST_PIN);
+        deploy_state = READ(PROBE_TEST_PIN);
         servo[probe_index].move(z_servo_angle[1]); //stow
         safe_delay(500);
-        stow_state = digitalRead(PROBE_TEST_PIN);
+        stow_state = READ(PROBE_TEST_PIN);
       }
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
@@ -6406,9 +6410,9 @@ inline void gcode_M42() {
           if (0 == j % (500 * 1)) // keep cmd_timeout happy
             refresh_cmd_timeout();
 
-          if (deploy_state != digitalRead(PROBE_TEST_PIN)) { // probe triggered
+          if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
 
-            for (probe_counter = 1; probe_counter < 50 && deploy_state != digitalRead(PROBE_TEST_PIN); ++probe_counter)
+            for (probe_counter = 1; probe_counter < 50 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter)
               safe_delay(2);
 
             if (probe_counter == 50)
@@ -6436,12 +6440,12 @@ inline void gcode_M42() {
    * M43: Pin debug - report pin state, watch pins, toggle pins and servo probe test/report
    *
    *  M43         - report name and state of pin(s)
-   *                  P<pin>  Pin to read or watch. If omitted, reads all pins.
-   *                  I       Flag to ignore Marlin's pin protection.
+   *                  P<pin>  - Pin for report. If omitted, reports all pins.
+   *                  I<bool> - Flag to ignore Marlin's pin protection.
    *
    *  M43 W       - Watch pins -reporting changes- until reset, click, or M108.
-   *                  P<pin>  Pin to read or watch. If omitted, read/watch all pins.
-   *                  I       Flag to ignore Marlin's pin protection.
+   *                  P<pin>  - Pin to read or watch. If omitted, read/watch all pins.
+   *                  I<bool> - Flag to ignore Marlin's pin protection.
    *
    *  M43 E<bool> - Enable / disable background endstop monitoring
    *                  - Machine continues to operate
@@ -6452,7 +6456,7 @@ inline void gcode_M42() {
    *  M43 T       - Toggle pin(s) and report which pin is being toggled
    *                  S<pin>  - Start Pin number.   If not given, will default to 0
    *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
-   *                  I       - Flag to ignore Marlin's pin protection.   Use with caution!!!!
+   *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
    *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
    *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
    *
@@ -6468,7 +6472,7 @@ inline void gcode_M42() {
 
     // Enable or disable endstop monitoring
     if (parser.seen('E')) {
-      endstop_monitor_flag = parser.value_bool();
+      endstop_monitor_flag = parser.has_value() ? parser.value_bool() : 0;
       SERIAL_PROTOCOLPGM("endstop monitor ");
       SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
       SERIAL_PROTOCOLLNPGM("abled");
@@ -6481,15 +6485,15 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    const uint8_t first_pin = parser.seen('P') ? parser.value_byte() : 0,
-                  last_pin = parser.seen('P') ? first_pin : NUM_DIGITAL_PINS - 1;
+    const uint8_t first_pin = parser.seen('P') &&  parser.has_value() ? parser.value_byte() : 0,
+                  last_pin = parser.seen('P') &&  parser.has_value() ? first_pin : NUM_DIGITAL_PINS - 1;
 
     if (first_pin > last_pin) return;
 
-    const bool ignore_protection = parser.seen('I') && parser.value_bool();
+    const bool ignore_protection = parser.seen('I') &&  parser.has_value() ? parser.value_bool() : 0;
 
     // Watch until click, M108, or reset
-    if (parser.seen('W') && parser.value_bool()) {
+    if (parser.seen('W') && parser.has_value() ? parser.value_bool(): 0) {
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
@@ -6500,6 +6504,7 @@ inline void gcode_M42() {
             pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
           else
         //*/
+            delay(1);  //wait for pin to get to final state
             pin_state[pin - first_pin] = digitalRead(pin);
       }
 
@@ -6510,7 +6515,7 @@ inline void gcode_M42() {
 
       for (;;) {
         for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-          if (pin_is_protected(pin)) continue;
+          if (pin_is_protected(pin) && !ignore_protection) continue;
           const byte val =
             /*
               IS_ANALOG(pin)
@@ -6519,7 +6524,7 @@ inline void gcode_M42() {
             //*/
               digitalRead(pin);
           if (val != pin_state[pin - first_pin]) {
-            report_pin_state(pin);
+            report_pin_state_extended(pin, ignore_protection, false, true);
             pin_state[pin - first_pin] = val;
           }
         }
@@ -6531,14 +6536,13 @@ inline void gcode_M42() {
           }
         #endif
 
-        safe_delay(500);
+        safe_delay(200);
       }
       return;
     }
-
     // Report current state of selected pin(s)
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
-      report_pin_state_extended(pin, ignore_protection);
+      report_pin_state_extended(pin, ignore_protection, true, true);
   }
 
 #endif // PINS_DEBUGGING
@@ -7735,6 +7739,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *    Z = override Z raise
    */
   inline void gcode_M125() {
+
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
@@ -9476,7 +9481,7 @@ inline void gcode_M907() {
   uint8_t case_light_brightness = 255;
 
   void update_case_light() {
-    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
+    digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
     analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
 
@@ -9977,6 +9982,7 @@ void process_next_command() {
       M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
     #endif
   }
+
 
   KEEPALIVE_STATE(IN_HANDLER);
 
@@ -11771,7 +11777,7 @@ void prepare_move_to_destination() {
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
-      WRITE(CONTROLLER_FAN_PIN, speed);
+      digitalWrite(CONTROLLER_FAN_PIN, speed);
       analogWrite(CONTROLLER_FAN_PIN, speed);
     }
   }
@@ -12468,7 +12474,6 @@ void setup() {
       OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
     #endif
     #if ENABLED(SPINDLE_LASER_PWM)
-      SET_OUTPUT(SPINDLE_LASER_PWM_PIN);
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
     #endif
   #endif
@@ -12478,7 +12483,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
+    pinMode(CONTROLLER_FAN_PIN, OUTPUT); //Set pin used for driver cooling fan
   #endif
 
   #if HAS_STEPPER_RESET
@@ -12508,11 +12513,11 @@ void setup() {
   #endif
 
   #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-    SET_OUTPUT(RGB_LED_R_PIN);
-    SET_OUTPUT(RGB_LED_G_PIN);
-    SET_OUTPUT(RGB_LED_B_PIN);
+    pinMode(RGB_LED_R_PIN, OUTPUT);
+    pinMode(RGB_LED_G_PIN, OUTPUT);
+    pinMode(RGB_LED_B_PIN, OUTPUT);
     #if ENABLED(RGBW_LED)
-      SET_OUTPUT(RGB_LED_W_PIN);
+      pinMode(RGB_LED_W_PIN, OUTPUT);
     #endif
   #endif
 

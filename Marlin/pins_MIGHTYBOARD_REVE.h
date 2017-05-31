@@ -195,8 +195,8 @@
 //
 // Extruder Auto Fan Pins
 //
-#define ORIG_E0_AUTO_FAN_PIN   7 // H4
-#define ORIG_E1_AUTO_FAN_PIN  12 // B6
+#define E0_AUTO_FAN_PIN   7 // H4
+#define E1_AUTO_FAN_PIN  12 // B6
 
 //
 // Misc. Functions

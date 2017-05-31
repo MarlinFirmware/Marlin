@@ -1413,15 +1413,15 @@ void Stepper::report_positions() {
       }
     #elif HAS_MOTOR_CURRENT_PWM
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+        pinMode(MOTOR_CURRENT_PWM_XY_PIN, OUTPUT);
         digipot_current(0, motor_current_setting[0]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+        pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
         digipot_current(1, motor_current_setting[1]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+        pinMode(MOTOR_CURRENT_PWM_E_PIN, OUTPUT);
         digipot_current(2, motor_current_setting[2]);
       #endif
       //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
