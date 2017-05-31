@@ -44,7 +44,7 @@
 #if HOTENDS == 1
   #define HOTEND_INDEX  0
   #define EXTRUDER_IDX  0
-#else
+#elif HOTENDS > 1
   #define HOTEND_INDEX  e
   #define EXTRUDER_IDX  active_extruder
 #endif
