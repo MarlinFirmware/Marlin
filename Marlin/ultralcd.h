@@ -59,7 +59,7 @@
 
   #if ENABLED(DOGLCD)
     extern uint16_t lcd_contrast;
-    void set_lcd_contrast(uint16_t value);
+    void set_lcd_contrast(const uint16_t value);
   #elif ENABLED(SHOW_BOOTSCREEN)
     void bootscreen();
   #endif

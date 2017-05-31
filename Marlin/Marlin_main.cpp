@@ -176,7 +176,7 @@
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
- * M355 - Turn the Case Light on/off and set its brightness. (Requires CASE_LIGHT_PIN)
+ * M355 - Set Case Light on/off and set brightness. (Requires CASE_LIGHT_PIN)
  * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
  * M400 - Finish all moves.
@@ -566,16 +566,6 @@ static uint8_t target_extruder;
   ;
 #endif
 
-#if HAS_CASE_LIGHT
-  bool case_light_on =
-    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-      true
-    #else
-      false
-    #endif
-  ;
-#endif
-
 #if ENABLED(DELTA)
 
   float delta[ABC],
@@ -720,7 +710,8 @@ static void report_current_position();
     SERIAL_ECHOPAIR(", ", z);
     SERIAL_CHAR(')');
 
-    suffix ? serialprintPGM(suffix) : SERIAL_EOL;
+    if (suffix) {serialprintPGM(suffix);}  //won't compile for Teensy with the previous construction
+    else SERIAL_EOL;
   }
 
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
@@ -5263,7 +5254,7 @@ void home_all_axes() { gcode_G28(true); }
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
-        else if(zero_std_dev >= test_precision) {   // step one back
+        else if (zero_std_dev >= test_precision) {   // step one back
           COPY(endstop_adj, e_old);
           delta_radius = dr_old;
           home_offset[Z_AXIS] = zh_old;
@@ -7678,11 +7669,18 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:0");
     #endif
 
-    // TOGGLE_LIGHTS (M355)
+    // CASE LIGHTS (M355)
     #if HAS_CASE_LIGHT
       SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:1");
+      bool USEABLE_HARDWARE_PWM(uint8_t pin);
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:1");
+      }
+      else
+        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:0");
+      SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
     #endif
 
     // EMERGENCY_PARSER (M108, M112, M410)
@@ -9472,30 +9470,54 @@ inline void gcode_M907() {
 #endif // HAS_MICROSTEPS
 
 #if HAS_CASE_LIGHT
-
-  uint8_t case_light_brightness = 255;
+  #ifndef INVERT_CASE_LIGHT
+    #define INVERT_CASE_LIGHT false
+  #endif
+  int case_light_brightness;  // LCD routine wants INT
+  bool case_light_on;
 
   void update_case_light() {
-    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
-    analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
+    pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
+    uint8_t case_light_bright = (uint8_t)case_light_brightness;
+    if (case_light_on) {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
+      }
+      else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH );
+    }
+    else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
   }
-
 #endif // HAS_CASE_LIGHT
 
 /**
- * M355: Turn case lights on/off and set brightness
+ * M355: Turn case light on/off and set brightness
  *
- *   S<bool>  Turn case light on or off
- *   P<byte>  Set case light brightness (PWM pin required)
+ *   P<byte>  Set case light brightness (PWM pin required - ignored otherwise)
+ *
+ *   S<bool>  Set case light on/off
+ *
+ *   When S turns on the light on a PWM pin then the current brightness level is used/restored
+ *
+ *   M355 P200 S0 turns off the light & sets the brightness level
+ *   M355 S1 turns on the light with a brightness of 200 (assuming a PWM pin)
  */
 inline void gcode_M355() {
   #if HAS_CASE_LIGHT
-    if (parser.seen('P')) case_light_brightness = parser.value_byte();
-    if (parser.seen('S')) case_light_on = parser.value_bool();
-    update_case_light();
+    uint8_t args = 0;
+    if (parser.seen('P')) ++args, case_light_brightness = parser.value_byte();
+    if (parser.seen('S')) ++args, case_light_on = parser.value_bool(); 
+    if (args) update_case_light();
+
+    // always report case light status
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Case lights ");
-    case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
+    if (!case_light_on) {
+      SERIAL_ECHOLN("Case light: off");
+    }
+    else {
+      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLN("Case light: on");
+      else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
+    }
+
   #else
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
@@ -10710,7 +10732,7 @@ void process_next_command() {
 
       #endif // HAS_MICROSTEPS
 
-      case 355: // M355 Turn case lights on/off
+      case 355: // M355 set case light brightness
         gcode_M355();
         break;
 
@@ -12459,6 +12481,8 @@ void setup() {
   #endif
 
   #if HAS_CASE_LIGHT
+    case_light_on = CASE_LIGHT_DEFAULT_ON;
+    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
     update_case_light();
   #endif
 

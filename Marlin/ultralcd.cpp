@@ -60,6 +60,7 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
 
 uint8_t lcd_status_message_level;
 char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
+
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
   uint8_t status_scroll_pos = 0;
 #endif
@@ -726,6 +727,24 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // SDSUPPORT
 
+  #if ENABLED(MENU_ITEM_CASE_LIGHT)
+
+    extern int case_light_brightness;
+    extern bool case_light_on;
+    extern void update_case_light();
+
+    void case_light_menu() {
+      START_MENU();
+      //
+      // ^ Main
+      //
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+      END_MENU();
+    }
+  #endif // MENU_ITEM_CASE_LIGHT
+
   #if ENABLED(BLTOUCH)
 
     /**
@@ -847,11 +866,6 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    extern bool case_light_on;
-    extern void update_case_light();
-  #endif
-
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
@@ -868,10 +882,14 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     //
-    // Switch case light on/off
+    // Set Case light on/off/brightness
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, &case_light_on, update_case_light);
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
+      }
+      else
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
@@ -1847,7 +1865,7 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_ubl_validate_custom_mesh() {
       char UBL_LCD_GCODE[24];
-      const int temp = 
+      const int temp =
         #if WATCH_THE_BED
           custom_bed_temp
         #else
@@ -2598,7 +2616,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
 
     #if HAS_LCD_CONTRAST
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, (int) &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);

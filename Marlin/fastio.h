@@ -26,10 +26,11 @@
  * Contributed by Triffid_Hunter. Modified by Kliment and the Marlin team.
  */
 
-#ifndef _FASTIO_ARDUINO_H 
+#ifndef _FASTIO_ARDUINO_H
 #define _FASTIO_ARDUINO_H
 
 #include <avr/io.h>
+#include "macros.h"
 
 /**
  * Enable this option to use Teensy++ 2.0 assignments for AT90USB processors.
@@ -237,5 +238,94 @@ typedef enum {
 #define SET_FOCA(T,V) SET_FOC(T,A,V)
 #define SET_FOCB(T,V) SET_FOC(T,B,V)
 #define SET_FOCC(T,V) SET_FOC(T,C,V)
+
+
+/**
+ * PWM availability macros
+ */
+#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
+#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
+#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
+#define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
+#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
+
+//find out which harware PWMs are already in use
+#if PIN_EXISTS(CONTROLLER_FAN)
+  #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+#else
+  #define PWM_CHK_FAN_B(p) (p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+#endif
+
+#if PIN_EXISTS(FAN) || PIN_EXISTS(FAN1) || PIN_EXISTS(FAN2)
+  #if PIN_EXISTS(FAN2)
+    #define PWM_CHK_FAN_A(p) (p == FAN_PIN || p == FAN1_PIN || p == FAN2_PIN)
+  #elif PIN_EXISTS(FAN1)
+    #define PWM_CHK_FAN_A(p) (p == FAN_PIN || p == FAN1_PIN)
+  #else
+    #define PWM_CHK_FAN_A(p) p == FAN_PIN
+  #endif
+#else
+  #define PWM_CHK_FAN_A(p) false
+#endif
+
+#if HAS_MOTOR_CURRENT_PWM
+  #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #define PWM_CHK_MOTOR_CURRENT(p) (p == MOTOR_CURRENT_PWM_E || p == MOTOR_CURRENT_PWM_Z || p == MOTOR_CURRENT_PWM_XY)
+  #elif PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+    #define PWM_CHK_MOTOR_CURRENT(p) (p == MOTOR_CURRENT_PWM_E || p == MOTOR_CURRENT_PWM_Z)
+  #else
+    #define PWM_CHK_MOTOR_CURRENT(p) (p == MOTOR_CURRENT_PWM_E)
+  #endif
+#else
+  #define PWM_CHK_MOTOR_CURRENT(p) false
+#endif
+
+#if defined(NUM_SERVOS)
+  #if AVR_ATmega2560_FAMILY
+    #define PWM_CHK_SERVO(p) ( p == 5 || NUM_SERVOS > 12 && p == 6 || NUM_SERVOS > 24 && p == 46)  //PWMS 3A, 4A & 5A
+  #elif AVR_ATmega2561_FAMILY
+    #define PWM_CHK_SERVO(p)   p ==  5  //PWM3A
+  #elif AVR_ATmega1284_FAMILY
+    #define PWM_CHK_SERVO(p)   false
+  #elif AVR_AT90USB1286_FAMILY
+    #define PWM_CHK_SERVO(p)   p ==  16 //PWM3A
+  #elif AVR_ATmega328_FAMILY
+    #define PWM_CHK_SERVO(p)   false
+  #endif
+#else
+  #define PWM_CHK_SERVO(p) false
+#endif
+
+#if ENABLED(BARICUDA)
+  #if HAS_HEATER_1 && HAS_HEATER_2
+    #define PWM_CHK_HEATER(p) (p == HEATER_1_PIN || p == HEATER_2_PIN)
+  #elif HAS_HEATER_1
+    #define PWM_CHK_HEATER(p) (p == HEATER_1_PIN)
+  #endif
+#else
+    #define PWM_CHK_HEATER(p) false
+#endif
+
+#define PWM_CHK(p) (PWM_CHK_HEATER(p) || PWM_CHK_SERVO(p)  || PWM_CHK_MOTOR_CURRENT(p)\
+                     || PWM_CHK_FAN_A(p) || PWM_CHK_FAN_B(p))
+
+// define which hardware PWMs are available for the current CPU
+// all timer 1 PWMS deleted from this list because they are never available
+#if AVR_ATmega2560_FAMILY
+  #define PWM_PINS(p)  ((p >= 2 && p <= 10 ) || p ==  13 || p ==  44 || p ==  45 || p ==  46 )
+#elif AVR_ATmega2561_FAMILY
+  #define PWM_PINS(p)  ((p >= 2 && p <= 6 ) || p ==  9)
+#elif AVR_ATmega1284_FAMILY
+  #define PWM_PINS(p)  (p == 3 || p ==  4 || p ==  14 || p ==  15)
+#elif AVR_AT90USB1286_FAMILY
+  #define PWM_PINS(p)  (p == 0 || p ==  1 || p ==  14 || p ==  15 || p ==  16 || p ==  24)
+#elif AVR_ATmega328_FAMILY
+  #define PWM_PINS(p)  (p == 3 || p ==  5 || p ==  6 || p ==  11)
+#else
+  #error "unknown CPU"
+#endif
+
+// finally - the macro that tells us if a pin is an available hardware PWM
+#define USEABLE_HARDWARE_PWM(p) (PWM_PINS(p) && !PWM_CHK(p))
 
 #endif // _FASTIO_ARDUINO_H
