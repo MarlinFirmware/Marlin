@@ -1106,6 +1106,22 @@
 #endif
 
 /**
+ * Enable this section if you have MCP4725 12-bit I2C DAC
+ * You need to import the library into the Arduino IDE for this.
+ * (https://github.com/adafruit/Adafruit_MCP4725)
+ */
+
+//#define DAC_MCP4725
+
+/**
+ * Enable this section if you have MCP4922 12-bit I2C DAC
+ * You need to import the library into the Arduino IDE for this.
+ * (https://github.com/exscape/electronics/tree/master/Arduino/Libraries/DAC_MCP49xx)
+ */
+
+#define DAC_MCP4922
+
+/**
  * TWI/I2C BUS
  *
  * This feature is an EXPERIMENTAL feature so it shall not be used on production
