@@ -840,7 +840,7 @@
       #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
     #endif
   #endif
-
+    
   // Shorthand
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
