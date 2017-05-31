@@ -50,6 +50,10 @@ install:
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
+  # Install: MCP4725 12-bit I2C DAC Driver library
+  - git clone https://github.com/adafruit/Adafruit_MCP4725.git
+  - sudo mv Adafruit_MCP4725 /usr/local/share/arduino/libraries/Adafruit_MCP4725
+  #
 before_script:
   #
   # Change current working directory to the build dir
