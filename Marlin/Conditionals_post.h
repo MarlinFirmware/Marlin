@@ -794,6 +794,11 @@
     #define MAX_PROBE_X ( SCARA_PRINTABLE_RADIUS)
     #define MIN_PROBE_Y (-SCARA_PRINTABLE_RADIUS)
     #define MAX_PROBE_Y ( SCARA_PRINTABLE_RADIUS)
+  #elif ENABLED(GALVO_XY)
+    #define MIN_PROBE_X (-(GALVOXY_X_WIDTH/2))
+    #define MAX_PROBE_X (GALVOXY_X_WIDTH/2)
+    #define MIN_PROBE_Y (-(GALVOXY_Y_WIDTH/2))
+    #define MAX_PROBE_Y (GALVOXY_Y_WIDTH/2)
   #else
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
