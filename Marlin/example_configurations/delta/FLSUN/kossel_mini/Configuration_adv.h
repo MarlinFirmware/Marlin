@@ -1218,12 +1218,11 @@
 //#define NO_WORKSPACE_OFFSETS
 
 /**
- * This affects the way Marlin outputs blacks of spaces via serial connection by multiplying the number
- * of spaces to be output by the ratio set below.  This allows for better alignment of output for commands
- * like G29 O, which renders a mesh/grid.
+ * Set the number of proportional font spaces required to fill up a typical character space.
+ * This can help to better align the output of commands like `G29 O` Mesh Output.
  *
- * For clients that use a fixed-width font (like OctoPrint), leave this at 1.0; otherwise, adjust
- * accordingly for your client and font.
+ * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
+ * Otherwise, adjust according to your client and font.
  */
 #define PROPORTIONAL_FONT_RATIO 1.0
 
@@ -1231,5 +1230,28 @@
  * Spend 28 bytes of SRAM to optimize the GCode parser
  */
 #define FASTER_GCODE_PARSER
+
+/**
+ * User-defined menu items that execute custom GCode
+ */
+//#define CUSTOM_USER_MENUS
+#if ENABLED(CUSTOM_USER_MENUS)
+  #define USER_SCRIPT_DONE "M117 User Script Done"
+
+  #define USER_DESC_1 "Home & UBL Info"
+  #define USER_GCODE_1 "G28\nG29 W"
+
+  #define USER_DESC_2 "Preheat for PLA"
+  #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+
+  #define USER_DESC_3 "Preheat for ABS"
+  #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+
+  #define USER_DESC_4 "Heat Bed/Home/Level"
+  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
+
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
+#endif
 
 #endif // CONFIGURATION_ADV_H

@@ -396,6 +396,8 @@
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(LIN_ADVANCE)
+    #error "MIXING_EXTRUDER is incompatible with LIN_ADVANCE."
   #endif
 #endif
 
@@ -407,10 +409,10 @@
 #endif
 
 /**
- * Servo deactivation depends on servo endstops
+ * Servo deactivation depends on servo endstops or switching nozzle
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
-  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR)
+  #error "Z_ENDSTOP_SERVO_NR or switching nozzle is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**

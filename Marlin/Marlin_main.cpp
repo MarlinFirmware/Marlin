@@ -6020,7 +6020,7 @@ inline void gcode_M17() {
 
     #if IS_KINEMATIC
       // Move XYZ to starting position
-      planner.buffer_line_kinematic(lastpos, PAUSE_PARK_XY_FEEDRATE, active_extruder);
+      planner.buffer_line_kinematic(resume_position, PAUSE_PARK_XY_FEEDRATE, active_extruder);
     #else
       // Move XY to starting position, then Z
       destination[X_AXIS] = resume_position[X_AXIS];
