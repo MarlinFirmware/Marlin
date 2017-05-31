@@ -75,8 +75,3 @@
   #include <Wire.h>
   #include <Adafruit_MCP4725.h>
 #endif
-
-#if ENABLED(DAC_MCP4922)
-  #include <SPI.h>
-  #include <DAC_MCP49xx.h>
-#endif
