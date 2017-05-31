@@ -242,9 +242,9 @@
     #define MAX6675_TMAX 1024
   #elif TEMP_SENSOR_0 == -1
     #define HEATER_0_USES_AD595
-  #elif TEMP_SENSOR_0 == 0
-    #undef HEATER_0_MINTEMP
-    #undef HEATER_0_MAXTEMP
+//  #elif TEMP_SENSOR_0 == 0
+//    #undef HEATER_0_MINTEMP
+//    #undef HEATER_0_MAXTEMP
   #elif TEMP_SENSOR_0 > 0
     #define THERMISTORHEATER_0 TEMP_SENSOR_0
     #define HEATER_0_USES_THERMISTOR
