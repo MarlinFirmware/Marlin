@@ -27,8 +27,24 @@
  *   Teensy   28 29 30 31 32 33 34 35 20 21 22 23 24 25 26 27 10 11 12 13 14 15 16 17 00 01 02 03 04 05 06 07 08 09(46*47)36 37 18 19 38 39 40 41 42 43 44 45
  *   Port     A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7 E0 E1 E2 E3 E4 E5 E6 E7 F0 F1 F2 F3 F4 F5 F6 F7
  * > Marlin   00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
- *            The pins 46 and 47 are not supported by Teensyduino, but are supported below.
+ *            The Teensy pins 46 and 47 are not supported by Teensyduino, but are supported below.
  */
+
+/**
+ * The FASTIO macros hide the FASTIO pin map from the users and the developers. All
+ * they need to be concerned with is using the Teensy pin map.
+ *
+ * This is accomplised by automatically translating the Teensy pin numbers to FASTIO
+ * numbers within the FASTIO macros when AT90USB boards are being used.
+ *
+ * The only exceptions to this are ports E2 & E3. Since Teensy pins 46 & 47 are not
+ * supported by the Teensy type IDEs the digitalRead and digitalWrite commands will
+ * not work for these pins.  They can only be used with the FASTIO commands.  That's
+ * OK since 46 is not used by any AT90USB board and pin 47 is only used as an endstop
+ * input.
+ */
+
+
 
 #ifndef _FASTIO_AT90USB
 #define _FASTIO_AT90USB
@@ -677,5 +693,85 @@
 #define PF7_WPORT   PORTF
 #define PF7_PWM     NULL
 #define PF7_DDR     DDRF
+
+/**
+ *  some of the pin mapping functions of the Teensduino extension to the Arduino IDE
+ *  do not function the same as the other Arduino extensions
+ */
+
+//digitalPinToTimer(pin) function works like Arduino but Timers are not defined
+#define TIMER0B 1
+#define TIMER1A 7
+#define TIMER1B 8
+#define TIMER1C 9
+#define TIMER2A 6
+#define TIMER2B 2
+#define TIMER3A 5
+#define TIMER3B 4
+#define TIMER3C 3
+
+// macros to translate Teensy (Arduino) pin numbers to FAST_IO pin numbers at pre-processor time
+      // Teensy (Arduino)  FASTIO
+#define TEENSY_TO_FAST_0   24
+#define TEENSY_TO_FAST_1   25
+#define TEENSY_TO_FAST_2   26
+#define TEENSY_TO_FAST_3   27
+#define TEENSY_TO_FAST_4   28
+#define TEENSY_TO_FAST_5   29
+#define TEENSY_TO_FAST_6   30
+#define TEENSY_TO_FAST_7   31
+#define TEENSY_TO_FAST_8   32
+#define TEENSY_TO_FAST_9   33
+#define TEENSY_TO_FAST_00  24
+#define TEENSY_TO_FAST_01  25
+#define TEENSY_TO_FAST_02  26
+#define TEENSY_TO_FAST_03  27
+#define TEENSY_TO_FAST_04  28
+#define TEENSY_TO_FAST_05  29
+#define TEENSY_TO_FAST_06  30
+#define TEENSY_TO_FAST_07  31
+#define TEENSY_TO_FAST_08  32
+#define TEENSY_TO_FAST_09  33
+#define TEENSY_TO_FAST_10  16
+#define TEENSY_TO_FAST_11  17
+#define TEENSY_TO_FAST_12  18
+#define TEENSY_TO_FAST_13  19
+#define TEENSY_TO_FAST_14  20
+#define TEENSY_TO_FAST_15  21
+#define TEENSY_TO_FAST_16  22
+#define TEENSY_TO_FAST_17  23
+#define TEENSY_TO_FAST_18  38
+#define TEENSY_TO_FAST_19  39
+#define TEENSY_TO_FAST_20  8
+#define TEENSY_TO_FAST_21  9
+#define TEENSY_TO_FAST_22  10
+#define TEENSY_TO_FAST_23  11
+#define TEENSY_TO_FAST_24  12
+#define TEENSY_TO_FAST_25  13
+#define TEENSY_TO_FAST_26  14
+#define TEENSY_TO_FAST_27  15
+#define TEENSY_TO_FAST_28  0
+#define TEENSY_TO_FAST_29  1
+#define TEENSY_TO_FAST_30  2
+#define TEENSY_TO_FAST_31  3
+#define TEENSY_TO_FAST_32  4
+#define TEENSY_TO_FAST_33  5
+#define TEENSY_TO_FAST_34  6
+#define TEENSY_TO_FAST_35  7
+#define TEENSY_TO_FAST_36  36
+#define TEENSY_TO_FAST_37  37
+#define TEENSY_TO_FAST_38  40
+#define TEENSY_TO_FAST_39  41
+#define TEENSY_TO_FAST_40  42
+#define TEENSY_TO_FAST_41  43
+#define TEENSY_TO_FAST_42  44
+#define TEENSY_TO_FAST_43  45
+#define TEENSY_TO_FAST_44  46
+#define TEENSY_TO_FAST_45  47
+#define TEENSY_TO_FAST_46  34
+#define TEENSY_TO_FAST_47  35
+
+#define _TEENSY_TO_FAST(a, ...) a ## __VA_ARGS__
+#define TEENSY_TO_FAST(c) _TEENSY_TO_FAST(TEENSY_TO_FAST_, c)
 
 #endif // _FASTIO_AT90USB

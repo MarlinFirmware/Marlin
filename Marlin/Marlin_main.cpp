@@ -6495,6 +6495,7 @@ inline void gcode_M42() {
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
         if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
+        delay(1);
         /*
           if (IS_ANALOG(pin))
             pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
@@ -6510,7 +6511,7 @@ inline void gcode_M42() {
 
       for (;;) {
         for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-          if (pin_is_protected(pin)) continue;
+          if (pin_is_protected(pin) && !ignore_protection) continue;
           const byte val =
             /*
               IS_ANALOG(pin)
@@ -6519,7 +6520,7 @@ inline void gcode_M42() {
             //*/
               digitalRead(pin);
           if (val != pin_state[pin - first_pin]) {
-            report_pin_state(pin);
+            report_pin_state(pin, ignore_protection);
             pin_state[pin - first_pin] = val;
           }
         }
@@ -6531,14 +6532,15 @@ inline void gcode_M42() {
           }
         #endif
 
-        safe_delay(500);
+        safe_delay(200);
       }
       return;
     }
 
     // Report current state of selected pin(s)
+    SERIAL_PROTOCOLLNPAIR("NUM_DIGITAL_PINS: ", NUM_DIGITAL_PINS);
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
-      report_pin_state_extended(pin, ignore_protection);
+      report_pin_state_extended(pin, ignore_protection, true);
   }
 
 #endif // PINS_DEBUGGING
@@ -11909,7 +11911,9 @@ void prepare_move_to_destination() {
     switch (digitalPinToTimer(pin)) {
       #ifdef TCCR0A
         case TIMER0A:
-        case TIMER0B:
+        #if !AVR_AT90USB1286_FAMILY
+          case TIMER0B:
+        #endif
           //_SET_CS(0, val);
           break;
       #endif
