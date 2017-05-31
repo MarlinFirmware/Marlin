@@ -704,7 +704,9 @@ static void lcd_implementation_status_screen() {
       lcd_print(' ');
       lcd_print(itostr3(thermalManager.degHotend(active_extruder)));
       lcd_print('/');
-      lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+
+      if (lcd_blink() || !thermalManager.is_heater_idle(active_extruder))
+        lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
     }
 
   #endif // ADVANCED_PAUSE_FEATURE

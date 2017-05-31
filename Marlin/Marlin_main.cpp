@@ -5931,7 +5931,8 @@ inline void gcode_M17() {
       idle();
       wait_for_heatup = false;
       HOTEND_LOOP() {
-        if (abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+        const int16_t target_temp = thermalManager.degTargetHotend(e);
+        if (target_temp && abs(thermalManager.degHotend(e) - target_temp) > 3) {
           wait_for_heatup = true;
           break;
         }

@@ -844,10 +844,7 @@ static void lcd_implementation_status_screen() {
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
         lcd.setCursor(LCD_WIDTH - 9, row);
-        lcd.print(LCD_STR_THERMOMETER[0]);
-        lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
-        lcd.print('/');
-        lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+        _draw_heater_status(active_extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
 
