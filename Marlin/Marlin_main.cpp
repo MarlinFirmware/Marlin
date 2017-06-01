@@ -5065,9 +5065,7 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_EOL;
       }
 
-      #if ENABLED(Z_PROBE_SLED)
-        DEPLOY_PROBE();
-      #endif
+      DEPLOY_PROBE();
 
       int8_t iterations = 0;
 
@@ -5332,9 +5330,7 @@ void home_all_axes() { gcode_G28(true); }
       #if HOTENDS > 1
         tool_change(old_tool_index, 0, true);
       #endif
-      #if ENABLED(Z_PROBE_SLED)
-        RETRACT_PROBE();
-      #endif
+      STOW_PROBE();
     }
 
   #endif // DELTA_AUTO_CALIBRATION
