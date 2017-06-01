@@ -387,13 +387,13 @@ void lcd_printPGM(const char* str) { for (; char c = pgm_read_byte(str); ++str) 
 
 void lcd_print_utf(const char * const str, const uint8_t maxLength=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
+  for (uint8_t i = 0, n = maxLength - 1; n && (c = str[i]); ++i)
     n -= charset_mapper(c);
 }
 
 void lcd_printPGM_utf(const char* str, const uint8_t maxLength=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
+  for (uint8_t i = 0, n = maxLength - 1; n && (c = str[i]); ++i)
     n -= charset_mapper(c);
 }
 
