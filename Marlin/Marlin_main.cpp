@@ -4996,7 +4996,7 @@ void home_all_axes() { gcode_G28(true); }
                                _7p_double_circle    ? 0.5 : 0),
                     radius = (1 + circles * 0.1) * delta_calibration_radius;
         for (uint8_t axis = 1; axis < 13; ++axis) {
-          if (!position_is_reachable_by_probe_xy(cos(RADIANS(180 + 30 * axis)) * radius, sin(RADIANS(180 + 30 * axis)) * radius)) {
+          if (!position_is_reachable_xy(cos(RADIANS(180 + 30 * axis)) * radius, sin(RADIANS(180 + 30 * axis)) * radius)) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
@@ -5086,12 +5086,12 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
-          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
+          z_at_pt[0] += probe_pt(0.0  + (X_PROBE_OFFSET_FROM_EXTRUDER), 0.0  + (Y_PROBE_OFFSET_FROM_EXTRUDER), true, 1);
         }
         if (_7p_calibration) { // probe extra center points
           for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
             const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
-            z_at_pt[0] += probe_pt(cos(a) * r, sin(a) * r, true, 1); // TODO: Needs error handling
+            z_at_pt[0] += probe_pt(cos(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), sin(a) * r  + (Y_PROBE_OFFSET_FROM_EXTRUDER), true, 1); // TODO: Needs error handling
           }
           z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
         }
@@ -5106,7 +5106,7 @@ void home_all_axes() { gcode_G28(true); }
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               const float a = RADIANS(180 + 30 * axis),
                           r = delta_calibration_radius * (1 + circles * (zig_zag ? 0.1 : -0.1));
-              z_at_pt[axis] += probe_pt(cos(a) * r, sin(a) * r, true, 1); // TODO: Needs error handling
+              z_at_pt[axis] += probe_pt(cos(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), sin(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), true, 1); // TODO: Needs error handling
             }
             zig_zag = !zig_zag;
             z_at_pt[axis] /= (2 * offset_circles + 1);
