@@ -3885,11 +3885,7 @@ void lcd_init() {
 int lcd_strlen(const char* s) {
   int i = 0, j = 0;
   while (s[i]) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(s[i])) j++;
-    #endif
+    if (PRINTABLE(s[i])) j++;
     i++;
   }
   return j;
@@ -3898,11 +3894,7 @@ int lcd_strlen(const char* s) {
 int lcd_strlen_P(const char* s) {
   int j = 0;
   while (pgm_read_byte(s)) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(pgm_read_byte(s))) j++;
-    #endif
+    if (PRINTABLE(pgm_read_byte(s))) j++;
     s++;
   }
   return j;
@@ -4167,11 +4159,7 @@ void lcd_update() {
   void set_utf_strlen(char* s, uint8_t n) {
     uint8_t i = 0, j = 0;
     while (s[i] && (j < n)) {
-      #if ENABLED(MAPPER_NON)
-        j++;
-      #else
-        if (PRINTABLE(s[i])) j++;
-      #endif
+      if (PRINTABLE(s[i])) j++;
       i++;
     }
     while (j++ < n) s[i++] = ' ';
