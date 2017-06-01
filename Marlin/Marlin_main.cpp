@@ -5106,7 +5106,7 @@ void home_all_axes() { gcode_G28(true); }
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               const float a = RADIANS(180 + 30 * axis),
                           r = delta_calibration_radius * (1 + circles * (zig_zag ? 0.1 : -0.1));
-              z_at_pt[axis] += probe_pt(cos(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), sin(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), true, 1); // TODO: Needs error handling
+              z_at_pt[axis] += probe_pt(cos(a) * r  + (X_PROBE_OFFSET_FROM_EXTRUDER), sin(a) * r  + (Y_PROBE_OFFSET_FROM_EXTRUDER), true, 1); // TODO: Needs error handling
             }
             zig_zag = !zig_zag;
             z_at_pt[axis] /= (2 * offset_circles + 1);
