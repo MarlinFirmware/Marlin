@@ -847,4 +847,9 @@
   // Add commands that need sub-codes to this list
   #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET)
 
+  // MESH_BED_LEVELING overrides PROBE_MANUALLY
+  #if ENABLED(MESH_BED_LEVELING)
+    #undef PROBE_MANUALLY
+  #endif
+
 #endif // CONDITIONALS_POST_H

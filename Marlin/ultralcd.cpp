@@ -3885,11 +3885,7 @@ void lcd_init() {
 int lcd_strlen(const char* s) {
   int i = 0, j = 0;
   while (s[i]) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(s[i])) j++;
-    #endif
+    if (PRINTABLE(s[i])) j++;
     i++;
   }
   return j;
@@ -3898,11 +3894,7 @@ int lcd_strlen(const char* s) {
 int lcd_strlen_P(const char* s) {
   int j = 0;
   while (pgm_read_byte(s)) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(pgm_read_byte(s))) j++;
-    #endif
+    if (PRINTABLE(pgm_read_byte(s))) j++;
     s++;
   }
   return j;
@@ -4162,28 +4154,28 @@ void lcd_update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
-#if DISABLED(STATUS_MESSAGE_SCROLLING)
-
-  void set_utf_strlen(char* s, uint8_t n) {
-    uint8_t i = 0, j = 0;
-    while (s[i] && (j < n)) {
-      #if ENABLED(MAPPER_NON)
-        j++;
-      #else
-        if (PRINTABLE(s[i])) j++;
-      #endif
-      i++;
-    }
-    while (j++ < n) s[i++] = ' ';
-    s[i] = '\0';
+void pad_message_string() {
+  uint8_t i = 0, j = 0;
+  char c;
+  while ((c = lcd_status_message[i]) && j < LCD_WIDTH) {
+    if (PRINTABLE(c)) j++;
+    i++;
   }
-
-#endif // !STATUS_MESSAGE_SCROLLING
+  if (true
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      && j < LCD_WIDTH
+    #endif
+  ) {
+    // pad with spaces to fill up the line
+    while (j++ < LCD_WIDTH) lcd_status_message[i++] = ' ';
+    // chop off at the edge
+    lcd_status_message[i] = '\0';
+  }
+}
 
 void lcd_finishstatus(bool persist=false) {
-  #if DISABLED(STATUS_MESSAGE_SCROLLING)
-    set_utf_strlen(lcd_status_message, LCD_WIDTH);
-  #endif
+
+  pad_message_string();
 
   #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
     UNUSED(persist);

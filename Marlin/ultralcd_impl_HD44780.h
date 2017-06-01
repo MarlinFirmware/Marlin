@@ -382,19 +382,17 @@ void lcd_implementation_clear() { lcd.clear(); }
 
 void lcd_print(const char c) { charset_mapper(c); }
 
-void lcd_print(const char * const str) { for (uint8_t i = 0; char c = str[i]; ++i) lcd.print(c); }
-void lcd_printPGM(const char* str) { for (; char c = pgm_read_byte(str); ++str) lcd.print(c); }
+void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
+void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
 
-void lcd_print_utf(const char * const str, const uint8_t maxLength=LCD_WIDTH) {
+void lcd_print_utf(const char *str, uint8_t n=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
-    n -= charset_mapper(c);
+  while (n && (c = *str)) n -= charset_mapper(c), ++str;
 }
 
-void lcd_printPGM_utf(const char* str, const uint8_t maxLength=LCD_WIDTH) {
+void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
-    n -= charset_mapper(c);
+  while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
