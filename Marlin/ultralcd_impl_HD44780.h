@@ -1076,4 +1076,12 @@ static void lcd_implementation_status_screen() {
 
 #endif // LCD_HAS_STATUS_INDICATORS
 
+#ifdef AUTO_BED_LEVELING_UBL
+
+    void _lcd_ubl_output_char_lcd() {
+      lcd_return_to_status();
+    }
+
+#endif // AUTO_BED_LEVELING_UBL
+
 #endif // ULTRALCD_IMPL_HD44780_H

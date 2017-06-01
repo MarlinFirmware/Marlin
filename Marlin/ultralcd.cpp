@@ -26,6 +26,7 @@
 #include "language.h"
 #include "cardreader.h"
 #include "temperature.h"
+#include "planner.h"
 #include "stepper.h"
 #include "configuration_store.h"
 #include "utility.h"
@@ -41,6 +42,11 @@
 
 #if ENABLED(BLTOUCH)
   #include "endstops.h"
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
+  bool ubl_lcd_map_control = false;
 #endif
 
 int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
@@ -100,10 +106,6 @@ uint16_t max_display_update_time = 0;
 
   #if HAS_POWER_SWITCH
     extern bool powersupply_on;
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #include "ubl.h"
   #endif
 
   ////////////////////////////////////////////
@@ -1044,7 +1046,8 @@ void kill_screen(const char* lcd_msg) {
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
-      _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+     _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
       return mesh_edit_value;
     }
 
@@ -1795,8 +1798,10 @@ void kill_screen(const char* lcd_msg) {
                custom_hotend_temp = 190,
                side_points = 3,
                ubl_fillin_amount = 5,
-               ubl_height_amount,
-               map_type;
+               ubl_height_amount = 1,
+               n_edit_pts = 1,
+               x_plot = 0,
+               y_plot = 0;
 
     /**
      * UBL Build Custom Mesh Command
@@ -1856,8 +1861,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_edit_mesh() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R T"));
+      MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
       MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
       MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_height_adjust_menu);
       MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
@@ -1944,7 +1948,7 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_ubl_smart_fillin_cmd() {
       char UBL_LCD_GCODE[12];
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 T%i"), map_type);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 T0"));
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2045,12 +2049,222 @@ void kill_screen(const char* lcd_msg) {
     }
 
     /**
-     * UBL Output map Command
+     * UBL LCD "radar" map homing
      */
-    void _lcd_ubl_output_map_cmd() {
-      char UBL_LCD_GCODE[10];
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 T%i"), map_type);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+    void _lcd_ubl_output_map_lcd();
+
+    void _lcd_ubl_map_homing() {
+      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+    }
+
+    /**
+     * UBL LCD "radar" map point editing
+     */
+    void _lcd_ubl_map_lcd_edit_cmd() {
+      char ubl_lcd_gcode [50], str[10], str2[10];
+
+      ubl_lcd_map_control = true; // Used for returning to the map screen
+
+      dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
+      dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
+      snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
+      enqueue_and_echo_command(ubl_lcd_gcode);
+    }
+
+  #ifdef DOGLCD
+
+    /**
+     * UBL LCD "radar" map data
+     */
+  #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
+  #define MAP_UPPER_LEFT_CORNER_Y 8  // it is easier to play with things having them here
+  #define MAP_MAX_PIXELS_X        53
+  #define MAP_MAX_PIXELS_Y        49
+
+    void _lcd_ubl_plot_drawing_prep() {
+      uint8_t i, j,
+              x_offset, y_offset,
+              x_map_pixels, y_map_pixels,
+              pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt,
+              inverted_y;
+
+      /*********************************************************/
+      /************ Scale the box pixels appropriately *********/
+      /*********************************************************/
+      x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / GRID_MAX_POINTS_X) * GRID_MAX_POINTS_X;
+      y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / GRID_MAX_POINTS_Y) * GRID_MAX_POINTS_Y;
+
+      pixels_per_X_mesh_pnt = x_map_pixels / GRID_MAX_POINTS_X;
+      pixels_per_Y_mesh_pnt = y_map_pixels / GRID_MAX_POINTS_Y;
+
+      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X-x_map_pixels-2)/2;
+      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y-y_map_pixels-2)/2;
+
+      /*********************************************************/
+      /************ Clear the Mesh Map Box**********************/
+      /*********************************************************/
+
+      u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+      u8g.drawBox(x_offset-2, y_offset-2, x_map_pixels+4, y_map_pixels+4);
+
+      u8g.setColorIndex(0);  // Now actually clear the mesh map box
+      u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
+
+      /*********************************************************/
+      /************ Display Mesh Point Locations ***************/
+      /*********************************************************/
+
+      u8g.setColorIndex(1);
+      for (i = 0; i < GRID_MAX_POINTS_X; i++) {
+        for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
+          u8g.drawBox(x_offset+i*pixels_per_X_mesh_pnt+pixels_per_X_mesh_pnt/2,  
+                      y_offset+j*pixels_per_Y_mesh_pnt+pixels_per_Y_mesh_pnt/2, 1, 1);
+        }
+      }
+
+      /*********************************************************/
+      /************ Fill in the Specified Mesh Point ***********/
+      /*********************************************************/
+
+      inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to 
+                                                      // invert the Y to get it to plot in the right location.
+      u8g.drawBox(x_offset+x_plot*pixels_per_X_mesh_pnt, y_offset+inverted_y*pixels_per_Y_mesh_pnt, 
+                    pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt);
+
+      /*********************************************************/
+      /************** Put Relevent Text on Display *************/
+      /*********************************************************/
+
+      // Show X and Y positions at top of screen
+      u8g.setColorIndex(1);
+      u8g.setPrintPos(5, 7);
+      lcd_print("X:");
+      lcd_print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+      u8g.setPrintPos(74, 7);
+      lcd_print("Y:");
+      lcd_print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+      // Print plot position
+      u8g.setPrintPos(5, 64);
+      lcd_print("(");
+      u8g.print(x_plot);
+      lcd_print(",");
+      u8g.print(y_plot);
+      lcd_print(")");
+
+      // Show the location value
+      u8g.setPrintPos(74, 64);
+      lcd_print("Z:");
+      if (!isnan(ubl.z_values[x_plot][y_plot])) {
+        lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      }
+      else {
+        lcd_print(" -----");
+      }
+    }
+
+  #endif // DOGLCD
+
+    /**
+     * UBL LCD Map Movement
+     */
+    void ubl_map_move_to_xy() {
+      current_position[X_AXIS] = LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]));
+      current_position[Y_AXIS] = LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]));
+      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
+    }
+
+    /**
+     * UBL LCD "radar" map
+     */
+    void set_current_from_steppers_for_axis(const AxisEnum axis);
+    void sync_plan_position();
+
+    void _lcd_ubl_output_map_lcd() {
+      static int step_scaler=0;
+      int32_t signed_enc_pos;
+
+      defer_return_to_status = true;
+
+      if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
+
+        if (lcd_clicked) { return _lcd_ubl_map_lcd_edit_cmd(); }
+        ENCODER_DIRECTION_NORMAL();
+
+        if (encoderPosition != 0) {
+          signed_enc_pos = (int32_t)encoderPosition;
+          step_scaler += signed_enc_pos;
+          x_plot = (x_plot + step_scaler / ENCODER_STEPS_PER_MENU_ITEM);
+
+          if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
+            step_scaler = 0;
+          refresh_cmd_timeout();
+
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        }
+
+        encoderPosition = 0;
+
+        // Encoder to the right (++)
+        if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
+        if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
+
+        // Encoder to the left (--)
+        if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+        if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+
+        // Prevent underrun/overrun of plot numbers
+        x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
+        y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+
+        // Determine number of points to edit
+        #if IS_KINEMATIC
+          n_edit_pts = 9; //TODO: Delta accessible edit points
+        #else
+          if (x_plot < 1 || x_plot >= GRID_MAX_POINTS_X - 1)
+            if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 4; // Corners
+            else n_edit_pts = 6;
+          else if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 6; // Edges
+          else n_edit_pts = 9; // Field
+        #endif
+
+        if (lcdDrawUpdate) {
+          #if ENABLED(DOGLCD)
+            _lcd_ubl_plot_drawing_prep();
+          #else
+            _lcd_ubl_output_char_lcd();
+          #endif
+
+          ubl_map_move_to_xy(); // Move to current location
+
+          if (planner.movesplanned()>1) { // if the nozzle is moving, cancel the move.  There is a new location
+            #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
+            #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
+            DISABLE_STEPPER_DRIVER_INTERRUPT();
+            while (planner.blocks_queued()) planner.discard_current_block();
+            stepper.current_block = NULL;
+            planner.clear_block_buffer_runtime();
+            ENABLE_STEPPER_DRIVER_INTERRUPT();
+            set_current_from_steppers_for_axis(ALL_AXES);
+            sync_plan_position();
+            ubl_map_move_to_xy(); // Move to new location
+          }
+        }
+        safe_delay(10);
+      }
+      else lcd_goto_screen(_lcd_ubl_map_homing);
+    }
+
+    /**
+     * UBL Homing before LCD map
+     */
+    void _lcd_ubl_output_map_lcd_cmd() {
+      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      lcd_goto_screen(_lcd_ubl_map_homing);     
     }
 
     /**
@@ -2059,9 +2273,10 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_output_map() {
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM_EDIT(int3, MSG_UBL_MAP_TYPE, &map_type, 0, 1);
-      if (map_type == 0) MENU_ITEM(function, MSG_UBL_OUTPUT_MAP_HOST, _lcd_ubl_output_map_cmd);
-      if (map_type == 1) MENU_ITEM(function, MSG_UBL_OUTPUT_MAP_CSV, _lcd_ubl_output_map_cmd);
+      MENU_ITEM(gcode, MSG_UBL_OUTPUT_MAP_HOST, PSTR("G29 T0"));
+      MENU_ITEM(gcode, MSG_UBL_OUTPUT_MAP_CSV, PSTR("G29 T1"));
+      MENU_ITEM(gcode, MSG_UBL_OUTPUT_MAP_BACKUP, PSTR("G29 S-1"));
+      MENU_ITEM(function, MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map_lcd_cmd);
       END_MENU();
     }
 
@@ -2091,8 +2306,10 @@ void kill_screen(const char* lcd_msg) {
      *       Load Bed Mesh
      *       Save Bed Mesh
      *   - Output Map
-     *       Map Type:
-     *       Output Bed Mesh Host / Output Bed Mesh CSV
+     *       Topography to Host
+     *       CSV for Spreadsheet
+     *       Mesh Output Backup
+     *       Output to LCD Grid
      *   - UBL Tools
      *     - Build Mesh
      *         Build PLA Mesh
@@ -4035,7 +4252,7 @@ void lcd_update() {
               int32_t encoderMovementSteps = abs(encoderDiff) / ENCODER_PULSES_PER_STEP;
 
               if (lastEncoderMovementMillis != 0) {
-                // Note that the rate is always calculated between to passes through the
+                // Note that the rate is always calculated between two passes through the
                 // loop and that the abs of the encoderDiff value is tracked.
                 float encoderStepRate = (float)(encoderMovementSteps) / ((float)(ms - lastEncoderMovementMillis)) * 1000.0;
 

@@ -157,7 +157,7 @@
       static void invalidate();
       static void set_all_mesh_points_to_value(float);
       static bool sanity_check();
-
+      
       static void G29() _O0;                          // O0 for no optimization
       static void smart_fill_wlsf(const float &) _O2; // O2 gives smaller code than Os on A2560
 
