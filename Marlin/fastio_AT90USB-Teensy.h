@@ -679,5 +679,4 @@
 #define PF7_PWM     NULL
 #define PF7_DDR     DDRF
 
-#endif // AT90USBxx_TEENSYPP_ASSIGNMENTS Teensyduino assignments
 #endif // _FASTIO_AT90USB

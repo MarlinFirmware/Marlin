@@ -51,7 +51,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klick für Start")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nächste Koordinate")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Fertig")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Abbruch")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Setze Homeversatz")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Homeversatz aktiv")
 #define MSG_SET_ORIGIN                      _UxGT("Setze Nullpunkt") //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
@@ -73,6 +72,7 @@
 #define MSG_EXTRUDE                         _UxGT("Extrudieren")
 #define MSG_RETRACT                         _UxGT("Retract")
 #define MSG_MOVE_AXIS                       _UxGT("Bewegen")
+#define MSG_BED_LEVELING                    _UxGT("Bett nivellieren")
 #define MSG_LEVEL_BED                       _UxGT("Bett nivellieren")
 #define MSG_MOVING                          _UxGT("In Bewegung...")
 #define MSG_FREE_XY                         _UxGT("Abstand XY")
@@ -102,6 +102,7 @@
 #define MSG_PID_C                           _UxGT("PID C")
 #define MSG_SELECT                          _UxGT("Auswählen")
 #define MSG_ACC                             _UxGT("A")
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("V X Jerk")
 #define MSG_VY_JERK                         _UxGT("V Y Jerk")
 #define MSG_VZ_JERK                         _UxGT("V Z Jerk")
@@ -112,6 +113,7 @@
 #define MSG_AMAX                            _UxGT("A max ") // space by purpose
 #define MSG_A_RETRACT                       _UxGT("A Retract")
 #define MSG_A_TRAVEL                        _UxGT("A Leerfahrt")
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
 #define MSG_XSTEPS                          _UxGT("X Steps/mm")
 #define MSG_YSTEPS                          _UxGT("Y Steps/mm")
 #define MSG_ZSTEPS                          _UxGT("Z Steps/mm")
@@ -203,8 +205,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extruder")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokoll")
-#define MSG_LIGHTS_ON                       _UxGT("Gehäuse Licht an")
-#define MSG_LIGHTS_OFF                      _UxGT("Gehäuse Licht aus")
+#define MSG_CASE_LIGHT                      _UxGT("Licht")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Gesamte Drucke")
@@ -219,6 +220,7 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Längster")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Extrud.")
 #endif
+
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #define MSG_INFO_PSU                        _UxGT("Stromversorgung")
@@ -227,8 +229,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ÄNDERE FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ÄNDERE OPTIONEN:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude mehr")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Drucke weiter")
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Temperatur ist ")
