@@ -4956,6 +4956,8 @@ void home_all_axes() { gcode_G28(true); }
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
      *      V1  Report settings
      *      V2  Report settings and probe results
+     *
+     *   E   Engage the probe for each point
      */
     inline void gcode_G33() {
 
