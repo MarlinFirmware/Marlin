@@ -1541,7 +1541,7 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
 
     #if UBL_DELTA
       // ubl segmented line will do z-only moves in single segment
-      ubl.prepare_linear_move_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
+      ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
     #else
       if ( current_position[X_AXIS] == destination[X_AXIS]
         && current_position[Y_AXIS] == destination[Y_AXIS]
@@ -3684,6 +3684,7 @@ inline void gcode_G28(const bool always_home_all) {
   #if ENABLED(DELTA)
 
     home_delta();
+    UNUSED(always_home_all);
 
   #else // NOT DELTA
 
@@ -11748,14 +11749,14 @@ void prepare_move_to_destination() {
   if (
     #if IS_KINEMATIC
       #if UBL_DELTA
-        ubl.prepare_linear_move_to(destination, feedrate_mm_s)
+        ubl.prepare_segmented_line_to(destination, feedrate_mm_s)
       #else
         prepare_kinematic_move_to(destination)
       #endif
     #elif ENABLED(DUAL_X_CARRIAGE)
       prepare_move_to_destination_dualx()
     #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      ubl.prepare_linear_move_to(destination, feedrate_mm_s)
+      ubl.prepare_segmented_line_to(destination, feedrate_mm_s)
     #else
       prepare_move_to_destination_cartesian()
     #endif
