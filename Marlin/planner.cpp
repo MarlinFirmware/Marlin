@@ -550,7 +550,7 @@ void Planner::check_axes_activity() {
       if (!abl_enabled) return;
     #endif
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_UBL)
       static float z_fade_factor = 1.0, last_raw_lz = -999.0;
       if (z_fade_height) {
         const float raw_lz = RAW_Z_POSITION(lz);
