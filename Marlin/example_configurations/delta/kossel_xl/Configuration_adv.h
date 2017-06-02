@@ -220,9 +220,9 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
-// M355 Case Light command 
-//   Set case light brightness/on/off
-
+/**
+ * M355 Case Light on-off / brightness
+ */
 //#define CASE_LIGHT_ENABLE 
 #if ENABLED(CASE_LIGHT_ENABLE) 
   #define CASE_LIGHT_PIN 4          // can be defined here or in the pins_XXX.h file for your board 
