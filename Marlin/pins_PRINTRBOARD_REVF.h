@@ -102,7 +102,10 @@
 // Misc. Functions
 //
 #define SDSS               20 // Teensylu pin mapping
-#define FILWIDTH_PIN        2 // Analog Input
+
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN      2   // Analog Input
+#endif
 
 //
 // LCD / Controller
