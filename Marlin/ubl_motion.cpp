@@ -601,10 +601,10 @@
         scara_oldB = stepper.get_axis_position_degrees(B_AXIS);
       #endif
 
-      const float dx_seg = tot_dx * inv_segments,
-                  dy_seg = tot_dy * inv_segments,
-                  dz_seg = tot_dz * inv_segments,
-                  de_seg = tot_de * inv_segments;
+      const float seg_dx = tot_dx * inv_segments,
+                  seg_dy = tot_dy * inv_segments,
+                  seg_dz = tot_dz * inv_segments,
+                  seg_de = tot_de * inv_segments;
 
       // Note that E segment distance could vary slightly as z mesh height
       // changes for each segment, but small enough to ignore.
@@ -631,10 +631,10 @@
         do {
 
           if (--segments) {     // not the last segment
-            seg_rx += dx_seg;
-            seg_ry += dy_seg;
-            seg_rz += dz_seg;
-            seg_le += de_seg;
+            seg_rx += seg_dx;
+            seg_ry += seg_dy;
+            seg_rz += seg_dz;
+            seg_le += seg_de;
           } else {              // last segment, use exact destination
             seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
             seg_ry = RAW_Y_POSITION(ltarget[Y_AXIS]);
@@ -656,10 +656,10 @@
       #endif
 
       // increment to first segment destination
-      seg_rx += dx_seg;
-      seg_ry += dy_seg;
-      seg_rz += dz_seg;
-      seg_le += de_seg;
+      seg_rx += seg_dx;
+      seg_ry += seg_dy;
+      seg_rz += seg_dz;
+      seg_le += seg_de;
 
       for(;;) {  // for each mesh cell encountered during the move
 
@@ -708,8 +708,8 @@
         // and the z_cxym slope will change, both as a function of cx within the cell, and
         // each change by a constant for fixed segment lengths.
 
-        const float z_sxy0 = z_xmy0 * dx_seg,                                     // per-segment adjustment to z_cxy0
-                    z_sxym = (z_xmy1 - z_xmy0) * (1.0 / (MESH_Y_DIST)) * dx_seg;  // per-segment adjustment to z_cxym
+        const float z_sxy0 = z_xmy0 * seg_dx,                                     // per-segment adjustment to z_cxy0
+                    z_sxym = (z_xmy1 - z_xmy0) * (1.0 / (MESH_Y_DIST)) * seg_dx;  // per-segment adjustment to z_cxym
 
         for(;;) {  // for all segments within this mesh cell
 
@@ -719,7 +719,7 @@
             z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
           #endif
 
-          z_cxcy += state.z_offset;             // add fixed mesh offset from G29 Z
+          z_cxcy += state.z_offset;                 // add fixed mesh offset from G29 Z
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
             seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
@@ -733,13 +733,13 @@
           if (segments == 0 )                       // done with last segment
             return false;                           // did not set_current_to_destination()
 
-          seg_rx += dx_seg;
-          seg_ry += dy_seg;
-          seg_rz += dz_seg;
-          seg_le += de_seg;
+          seg_rx += seg_dx;
+          seg_ry += seg_dy;
+          seg_rz += seg_dz;
+          seg_le += seg_de;
 
-          cx += dx_seg;
-          cy += dy_seg;
+          cx += seg_dx;
+          cy += seg_dy;
 
           if (!WITHIN(cx, 0, MESH_X_DIST) || !WITHIN(cy, 0, MESH_Y_DIST)) {  // done within this cell, break to next
             break;
