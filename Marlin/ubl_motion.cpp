@@ -499,7 +499,7 @@
     /**
      * Prepare a linear move for DELTA/SCARA/CARTESIAN with UBL and FADE semantics.
      * This calls planner._buffer_line multiple times for small incremental moves.
-     * Returns true if the caller did NOT update current_position, otherwise false.
+     * Returns true if did NOT move, false if moved.
      */
 
     static bool unified_bed_leveling::prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate) {

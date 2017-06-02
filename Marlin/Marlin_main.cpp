@@ -699,7 +699,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 #endif
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
-static void report_current_position();
+void report_current_position();
+void report_current_position_detail();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
@@ -1536,14 +1537,21 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    if ( current_position[X_AXIS] == destination[X_AXIS]
-      && current_position[Y_AXIS] == destination[Y_AXIS]
-      && current_position[Z_AXIS] == destination[Z_AXIS]
-      && current_position[E_AXIS] == destination[E_AXIS]
-    ) return;
-
     refresh_cmd_timeout();
-    planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+
+    #if UBL_DELTA
+      // ubl segmented line will do z-only moves in single segment
+      ubl.prepare_linear_move_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
+    #else
+      if ( current_position[X_AXIS] == destination[X_AXIS]
+        && current_position[Y_AXIS] == destination[Y_AXIS]
+        && current_position[Z_AXIS] == destination[Z_AXIS]
+        && current_position[E_AXIS] == destination[E_AXIS]
+      ) return;
+
+      planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+    #endif
+    
     set_current_to_destination();
   }
 #endif // IS_KINEMATIC
@@ -2345,17 +2353,20 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enabling) planner.unapply_leveling(current_position);
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-
         #if PLANNER_LEVELING
-
-          if (!enable)   // leveling from on to off
+          if (ubl.state.active) {                       // leveling from on to off
+            // change unleveled current_position to physical current_position without moving steppers.
             planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-          else
-            planner.unapply_leveling(current_position);
-
+            ubl.state.active = false;                   // disable only AFTER calling apply_leveling
+          }
+          else {                                        // leveling from off to on
+            ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
+            // change physical current_position to unleveled current_position without moving steppers.
+            planner.unapply_leveling(current_position); 
+          }
+        #else
+          ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
         #endif
-
-        ubl.state.active = enable;
 
       #else // ABL
 
@@ -2384,17 +2395,34 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
     void set_z_fade_height(const float zfh) {
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
 
-      if (leveling_is_active())
-        set_current_from_steppers_for_axis(
-          #if ABL_PLANAR
-            ALL_AXES
-          #else
-            Z_AXIS
-          #endif
-        );
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+        const bool level_active = leveling_is_active();
+        if (level_active) {
+          set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
+        }
+        planner.z_fade_height = zfh;
+        planner.inverse_z_fade_height = RECIPROCAL(zfh);
+        if (level_active) {
+          set_bed_leveling_enabled(true);  // turn back on after changing fade height
+        }
+
+      #else
+
+        planner.z_fade_height = zfh;
+        planner.inverse_z_fade_height = RECIPROCAL(zfh);
+
+        if (leveling_is_active()) {
+          set_current_from_steppers_for_axis(
+            #if ABL_PLANAR
+              ALL_AXES
+            #else
+              Z_AXIS
+            #endif
+          );
+        }
+      #endif
     }
 
   #endif // LEVELING_FADE_HEIGHT
@@ -5007,6 +5035,9 @@ void home_all_axes() { gcode_G28(true); }
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
      *      V1  Report settings
      *      V2  Report settings and probe results
+     *      
+     *   E1  Stow probe between each point (default)
+     *   E0  Don't stow probe between points
      */
     inline void gcode_G33() {
 
@@ -5137,7 +5168,7 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
-          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
+          z_at_pt[0] += probe_pt(0.0, 0.0, true, 1);
         }
         if (_7p_calibration) { // probe extra center points
           for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
@@ -7592,7 +7623,8 @@ inline void gcode_M92() {
 /**
  * Output the current position to serial
  */
-static void report_current_position() {
+void report_current_position() {
+
   SERIAL_PROTOCOLPGM("X:");
   SERIAL_PROTOCOL(current_position[X_AXIS]);
   SERIAL_PROTOCOLPGM(" Y:");
@@ -7609,12 +7641,122 @@ static void report_current_position() {
     SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
     SERIAL_EOL;
   #endif
+
 }
+
+#ifdef M114_DETAIL
+
+  static const char axis_char[XYZE] = {'X','Y','Z','E'};
+
+  void report_xyze(const float pos[XYZE], uint8_t n = 4, uint8_t precision = 3) {
+    char str[12];
+    for(uint8_t i=0; i<n; i++) {
+      SERIAL_CHAR(' ');
+      SERIAL_CHAR(axis_char[i]);
+      SERIAL_CHAR(':');
+      SERIAL_PROTOCOL(dtostrf(pos[i],8,precision,str));
+    }
+    SERIAL_EOL;
+  }
+
+  inline void report_xyz(const float pos[XYZ]) {
+    report_xyze(pos,3);
+  }
+
+  void report_current_position_detail() {
+
+    stepper.synchronize();
+
+    SERIAL_EOL;
+    SERIAL_PROTOCOLPGM("Logical:");
+    report_xyze(current_position);
+
+    SERIAL_PROTOCOLPGM("Raw:    ");
+    const float raw[XYZ] = {
+      RAW_X_POSITION(current_position[X_AXIS]),
+      RAW_Y_POSITION(current_position[Y_AXIS]),
+      RAW_Z_POSITION(current_position[Z_AXIS])
+    };
+    report_xyz(raw);
+
+    SERIAL_PROTOCOLPGM("Leveled:");
+    float leveled[XYZ] = {
+      current_position[X_AXIS],
+      current_position[Y_AXIS],
+      current_position[Z_AXIS]
+    };
+    planner.apply_leveling(leveled);
+    report_xyz(leveled);
+
+    SERIAL_PROTOCOLPGM("UnLevel:");
+    float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
+    planner.unapply_leveling(unleveled);
+    report_xyz(unleveled);
+
+    #if IS_KINEMATIC
+      #if IS_SCARA
+        SERIAL_PROTOCOLPGM("ScaraK: ");
+      #else
+        SERIAL_PROTOCOLPGM("DeltaK: ");
+      #endif
+      inverse_kinematics(leveled);  // writes delta[]
+      report_xyz(delta);
+    #endif
+
+    SERIAL_PROTOCOLPGM("Stepper:");
+    const float step_count[XYZE] = {
+      (float)stepper.position(X_AXIS),
+      (float)stepper.position(Y_AXIS),
+      (float)stepper.position(Z_AXIS),
+      (float)stepper.position(E_AXIS)
+    };
+    report_xyze(step_count,4,0);
+
+    #if IS_SCARA
+      const float deg[XYZ] = {
+        stepper.get_axis_position_degrees(A_AXIS),
+        stepper.get_axis_position_degrees(B_AXIS)
+      };
+      SERIAL_PROTOCOLPGM("Degrees:");
+      report_xyze(deg,2);
+    #endif
+
+    SERIAL_PROTOCOLPGM("FromStp:");
+    get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
+    const float from_steppers[XYZE] = {
+      cartes[X_AXIS],
+      cartes[Y_AXIS],
+      cartes[Z_AXIS],
+      stepper.get_axis_position_mm(E_AXIS)
+    };
+    report_xyze(from_steppers);
+
+    const float diff[XYZE] = {
+      from_steppers[X_AXIS] - leveled[X_AXIS],
+      from_steppers[Y_AXIS] - leveled[Y_AXIS],
+      from_steppers[Z_AXIS] - leveled[Z_AXIS],
+      from_steppers[E_AXIS] - current_position[E_AXIS]
+    };
+    SERIAL_PROTOCOLPGM("Differ: ");
+    report_xyze(diff);
+  }
+#endif // M114_DETAIL
 
 /**
  * M114: Output current position to serial port
  */
-inline void gcode_M114() { stepper.synchronize(); report_current_position(); }
+inline void gcode_M114() {
+
+  #ifdef M114_DETAIL
+    if ( parser.seen('D') ) {
+      report_current_position_detail();
+      return;
+    }
+  #endif
+
+  stepper.synchronize();
+  report_current_position();
+  }
 
 /**
  * M115: Capabilities string
@@ -10804,6 +10946,15 @@ void ok_to_send() {
   /**
    * Constrain the given coordinates to the software endstops.
    */
+
+  // NOTE: This makes no sense for delta beds other than Z-axis.
+  //       For delta the X/Y would need to be clamped at
+  //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
+  //       now enforces is_position_reachable for X/Y regardless
+  //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
+  //       redundant here.  Probably should #ifdef out the X/Y
+  //       axis clamps here for delta and just leave the Z clamp.
+
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
     #if ENABLED(MIN_SOFTWARE_ENDSTOPS)

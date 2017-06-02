@@ -154,6 +154,7 @@
       static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
       static void reset();
       static void invalidate();
+      static void set_all_mesh_points_to_value(float);
       static bool sanity_check();
 
       static void G29() _O0;                          // O0 for no optimization
