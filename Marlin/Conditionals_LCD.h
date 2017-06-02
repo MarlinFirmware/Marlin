@@ -307,6 +307,11 @@
 
   #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
+  // MK2 Multiplexer forces SINGLENOZZLE to be enabled
+  #if ENABLED(MK2_MULTIPLEXER)
+    #define SINGLENOZZLE
+  #endif
+
   /**
    * Extruders have some combination of stepper motors and hotends
    * so we separate these concepts into the defines:
@@ -314,6 +319,7 @@
    *  EXTRUDERS    - Number of Selectable Tools
    *  HOTENDS      - Number of hotends, whether connected or separate
    *  E_STEPPERS   - Number of actual E stepper motors
+   *  E_MANUAL     - Number of E steppers for LCD move options
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
    *
    */

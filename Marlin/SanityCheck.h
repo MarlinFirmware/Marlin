@@ -352,8 +352,19 @@
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
+#elif ENABLED(MK2_MULTIPLEXER)
+  #error "MK2_MULTIPLEXER requires 2 or more EXTRUDERS."
 #elif ENABLED(SINGLENOZZLE)
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+#endif
+
+/**
+ * Sanity checking for the Průša MK2 Multiplexer
+ */
+#ifdef SNMM
+  #error "SNMM is now MK2_MULTIPLEXER. Please update your configuration."
+#elif ENABLED(MK2_MULTIPLEXER) && DISABLED(ADVANCED_PAUSE_FEATURE)
+  #error "ADVANCED_PAUSE_FEATURE is required with MK2_MULTIPLEXER."
 #endif
 
 /**
