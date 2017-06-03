@@ -1444,11 +1444,12 @@ void Stepper::report_positions() {
 
   void Stepper::digipot_init() {
     #if HAS_DIGIPOTSS
+      static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
       SPI.begin();
       SET_OUTPUT(DIGIPOTSS_PIN);
       for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
         //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-        digipot_current(i, motor_current_setting[i]);
+        digipot_current(i, digipot_motor_current[i]);
       }
     #elif HAS_MOTOR_CURRENT_PWM
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
