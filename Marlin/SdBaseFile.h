@@ -402,7 +402,7 @@ class SdBaseFile {
    * \param[in] dateTime The user's call back function.
    */
   static void dateTimeCallback(
-    void (*dateTime)(uint16_t& date, uint16_t& time)) {  // NOLINT
+    void (*dateTime)(uint16_t &date, uint16_t &time)) {  // NOLINT
     oldDateTime_ = dateTime;
     dateTime_ = dateTime ? oldToNew : 0;
   }
@@ -477,7 +477,7 @@ class SdBaseFile {
   //------------------------------------------------------------------------------
   // rest are private
  private:
-  static void (*oldDateTime_)(uint16_t& date, uint16_t& time);  // NOLINT
+  static void (*oldDateTime_)(uint16_t &date, uint16_t &time);  // NOLINT
   static void oldToNew(uint16_t* date, uint16_t* time) {
     uint16_t d;
     uint16_t t;

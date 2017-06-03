@@ -47,7 +47,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klikni za početak")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sljedeća točka")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Niveliranje gotovo!")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Otkaži")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Postavi home offsete")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets postavljeni")
 #define MSG_SET_ORIGIN                      _UxGT("Postavi ishodište")
@@ -67,6 +66,7 @@
 #define MSG_EXTRUDE                         _UxGT("Extrude")
 #define MSG_RETRACT                         _UxGT("Retract")
 #define MSG_MOVE_AXIS                       _UxGT("Miči os")
+#define MSG_BED_LEVELING                    _UxGT("Niveliraj bed")
 #define MSG_LEVEL_BED                       _UxGT("Niveliraj bed")
 #define MSG_MOVE_X                          _UxGT("Miči X")
 #define MSG_MOVE_Y                          _UxGT("Miči Y")
@@ -94,6 +94,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Odaberi")
 #define MSG_ACC                             _UxGT("Accel")
+#define MSG_JERK                            _UxGT("Jerk")
 #define MSG_VX_JERK                         _UxGT("Vx-jerk")
 #define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
@@ -104,6 +105,7 @@
 #define MSG_AMAX                            _UxGT("Amax ")
 #define MSG_A_RETRACT                       _UxGT("A-retract")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
 #define MSG_XSTEPS                          _UxGT("Xsteps/mm")
 #define MSG_YSTEPS                          _UxGT("Ysteps/mm")
 #define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
@@ -189,8 +191,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extruderi")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
-#define MSG_LIGHTS_ON                       _UxGT("Upali osvjetljenje")
-#define MSG_LIGHTS_OFF                      _UxGT("Ugasi osvjetljenje")
+#define MSG_CASE_LIGHT                      _UxGT("Osvjetljenje")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Broj printova")
@@ -213,8 +214,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("CHANGE FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CHANGE OPTIONS:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudiraj više")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Nastavi print")
 

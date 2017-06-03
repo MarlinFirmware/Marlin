@@ -48,7 +48,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Почати")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Слідуюча Точка")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Завершено!")
-#define MSG_LEVEL_BED_CANCEL                _UxGT("Відміна")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Зберегти паркув.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Зміщення застос.")
 #define MSG_SET_ORIGIN                      _UxGT("Встанов. початок")
@@ -68,6 +67,7 @@
 #define MSG_EXTRUDE                         _UxGT("Екструзія")
 #define MSG_RETRACT                         _UxGT("Втягування")
 #define MSG_MOVE_AXIS                       _UxGT("Рух по осям")
+#define MSG_BED_LEVELING                    _UxGT("Нівелювання столу")
 #define MSG_LEVEL_BED                       _UxGT("Нівелювання столу")
 #define MSG_MOVE_X                          _UxGT("Рух по X")
 #define MSG_MOVE_Y                          _UxGT("Рух по Y")
@@ -95,6 +95,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Вибрати")
 #define MSG_ACC                             _UxGT("Приск.")
+#define MSG_JERK                            _UxGT("Ривок")
 #define MSG_VX_JERK                         _UxGT("Vx-ривок")
 #define MSG_VY_JERK                         _UxGT("Vy-ривок")
 #define MSG_VZ_JERK                         _UxGT("Vz-ривок")
@@ -105,6 +106,7 @@
 #define MSG_AMAX                            _UxGT("Aмакс ")
 #define MSG_A_RETRACT                       _UxGT("A-втягув.")
 #define MSG_A_TRAVEL                        _UxGT("A-руху")
+#define MSG_STEPS_PER_MM                    _UxGT("Кроків/мм")
 #define MSG_XSTEPS                          _UxGT("Xкроків/мм")
 #define MSG_YSTEPS                          _UxGT("Yкроків/мм")
 #define MSG_ZSTEPS                          _UxGT("Zкроків/мм")
@@ -178,8 +180,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Екструдери")
 #define MSG_INFO_BAUDRATE                   _UxGT("біт/с")
 #define MSG_INFO_PROTOCOL                   _UxGT("Протокол")
-#define MSG_LIGHTS_ON                       _UxGT("Підсвітка увік.")
-#define MSG_LIGHTS_OFF                      _UxGT("Підсвітка вимк.")
+#define MSG_CASE_LIGHT                      _UxGT("Підсвітка")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("К-сть друків")
@@ -203,8 +204,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("% мотору")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Запис ЦАП на ПЗП")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ЗАМІНА ВОЛОКНА")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("НАЛАШТ. ЗАМІНИ:")
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Екструдувати")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Відновити друк")
 
