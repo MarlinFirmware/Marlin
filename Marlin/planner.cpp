@@ -535,7 +535,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA  // probably should also be enabled for UBL without UBL_DELTA
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
       if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
@@ -599,7 +599,7 @@ void Planner::check_axes_activity() {
 
   void Planner::unapply_leveling(float logical[XYZ]) {
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
 
       if (ubl.state.active) {
 
@@ -630,7 +630,7 @@ void Planner::check_axes_activity() {
         logical[Z_AXIS] = z_logical;
       }
 
-      return; // don't fall thru to HAS_ABL or other ENABLE_LEVELING_FADE_HEIGHT logic
+      return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
 
     #endif
 
