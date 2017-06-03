@@ -72,6 +72,10 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
   bool Stepper::performing_homing = false;
 #endif
 
+#if HAS_MOTOR_CURRENT_PWM
+  unsigned long Stepper::motor_current_setting[3] = PWM_MOTOR_CURRENT;
+#endif
+
 // private:
 
 unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
@@ -1440,12 +1444,11 @@ void Stepper::report_positions() {
 
   void Stepper::digipot_init() {
     #if HAS_DIGIPOTSS
-      static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
       SPI.begin();
       SET_OUTPUT(DIGIPOTSS_PIN);
       for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
         //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-        digipot_current(i, digipot_motor_current[i]);
+        digipot_current(i, motor_current_setting[i]);
       }
     #elif HAS_MOTOR_CURRENT_PWM
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
@@ -1470,6 +1473,9 @@ void Stepper::report_positions() {
       const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
       digitalPotWrite(digipot_ch[driver], current);
     #elif HAS_MOTOR_CURRENT_PWM
+      if((driver >= 0)&& (driver<3))
+        motor_current_setting[driver] = current; // update motor_current_setting
+	  
       #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
       switch (driver) {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
