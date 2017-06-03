@@ -1598,7 +1598,6 @@ void kill_screen(const char* lcd_msg) {
 
             //
             // The last G29 will record and enable but not move.
-            // Since G29 is deferred, 
             //
             lcd_wait_for_move = true;
             enqueue_and_echo_commands_P(PSTR("G29 V1"));
@@ -2592,16 +2591,9 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  /**
-   *
-   * Callback for LCD contrast
-   *
-   */
   #if HAS_LCD_CONTRAST
-
     void lcd_callback_set_contrast() { set_lcd_contrast(lcd_contrast); }
-
-  #endif // HAS_LCD_CONTRAST
+  #endif
 
   static void lcd_factory_settings() {
     settings.reset();
@@ -2616,7 +2608,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
 
     #if HAS_LCD_CONTRAST
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, (int) &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, (int*)&lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);

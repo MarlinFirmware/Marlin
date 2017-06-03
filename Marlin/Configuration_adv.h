@@ -223,16 +223,16 @@
 /**
  * M355 Case Light on-off / brightness
  */
-//#define CASE_LIGHT_ENABLE 
-#if ENABLED(CASE_LIGHT_ENABLE) 
-  #define CASE_LIGHT_PIN 4          // can be defined here or in the pins_XXX.h file for your board 
-                                    //  pins_XXX.h file overrides this one 
-  #define INVERT_CASE_LIGHT false             // set to true if case light is ON when pin is at 0 
+//#define CASE_LIGHT_ENABLE
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #define CASE_LIGHT_PIN 4          // can be defined here or in the pins_XXX.h file for your board
+                                    //  pins_XXX.h file overrides this one
+  #define INVERT_CASE_LIGHT false             // set to true if case light is ON when pin is at 0
   #define CASE_LIGHT_DEFAULT_ON true          // set default power up state to on or off
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // set power up brightness 0-255 ( only used if on PWM
                                               // and if CASE_LIGHT_DEFAULT is set to on
-  //#define MENU_ITEM_CASE_LIGHT              // Uncomment to have a Case Light entry in main menu 
-#endif 
+  //#define MENU_ITEM_CASE_LIGHT              // Uncomment to have a Case Light entry in main menu
+#endif
 
 //===========================================================================
 //============================ Mechanical Settings ==========================
@@ -1029,7 +1029,7 @@
    */
   #define  TMC2130_ADV() {  }
 
-#endif // ENABLED(HAVE_TMC2130)
+#endif // HAVE_TMC2130
 
 // @section L6470
 
