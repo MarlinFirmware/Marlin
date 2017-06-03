@@ -110,8 +110,6 @@ class Temperature {
       static int16_t target_temperature_bed;
     #endif
 
-    static volatile bool in_temp_isr;
-
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static float redundant_temperature;
     #endif
