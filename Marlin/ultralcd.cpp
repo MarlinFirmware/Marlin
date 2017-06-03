@@ -149,6 +149,11 @@ uint16_t max_display_update_time = 0;
     void lcd_dac_write_eeprom();
   #endif
 
+  #if HAS_MOTOR_CURRENT_PWM
+    void update_motor_power();
+    void lcd_pwm_menu();
+  #endif
+
   #if ENABLED(FWRETRACT)
     void lcd_control_retract_menu();
   #endif
@@ -1245,6 +1250,23 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
       MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
+      END_MENU();
+    }
+  #endif
+
+  #if HAS_MOTOR_CURRENT_PWM
+    void update_motor_power() {
+	  stepper.digipot_current(0, stepper.motor_current_setting[0]);
+      stepper.digipot_current(1, stepper.motor_current_setting[1]);
+      stepper.digipot_current(2, stepper.motor_current_setting[2]);
+    }    
+    
+    void lcd_pwm_menu() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
+      MENU_ITEM_EDIT_CALLBACK(long5, MSG_X MSG_Y, &stepper.motor_current_setting[0], 100, 2000, update_motor_power);
+      MENU_ITEM_EDIT_CALLBACK(long5, MSG_Z, &stepper.motor_current_setting[1], 100, 2000, update_motor_power);
+      MENU_ITEM_EDIT_CALLBACK(long5, MSG_E, &stepper.motor_current_setting[2], 100, 2000, update_motor_power);
       END_MENU();
     }
   #endif
@@ -2623,6 +2645,9 @@ void kill_screen(const char* lcd_msg) {
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
+    #endif
+    #if HAS_MOTOR_CURRENT_PWM
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_pwm_menu);
     #endif
 
     #if ENABLED(BLTOUCH)
