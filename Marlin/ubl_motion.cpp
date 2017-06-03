@@ -547,7 +547,7 @@
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
-    static bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate) {
+    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate) {
 
       if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate

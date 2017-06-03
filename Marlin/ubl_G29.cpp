@@ -1716,6 +1716,8 @@
         SERIAL_EOL;
       }
     #endif
+
+    if (do_ubl_mesh_map) display_map(g29_map_type);
   }
 
   #if ENABLED(UBL_G29_P31)
