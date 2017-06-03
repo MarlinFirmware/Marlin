@@ -154,6 +154,7 @@
       static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
       static void reset();
       static void invalidate();
+      static void set_all_mesh_points_to_value(float);
       static bool sanity_check();
 
       static void G29() _O0;                          // O0 for no optimization
@@ -385,7 +386,7 @@
       FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_xpos[i]); }
       FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_ypos[i]); }
 
-      static bool prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate);
+      static bool prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate);
       static void line_to_destination_cartesian(const float &fr, uint8_t e);
 
   }; // class unified_bed_leveling
