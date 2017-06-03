@@ -271,10 +271,19 @@
 #endif
 
 /**
+ * I2C Position Encoders
+ */
+#if ENABLED(I2C_POSITION_ENCODERS)
+  #if DISABLED(BABYSTEPPING)
+    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING."
+  #endif
+#endif
+
+/**
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if DISABLED(ULTRA_LCD)
+  #if DISABLED(ULTRA_LCD) && DISABLED(I2C_POSITION_ENCODERS)
     #error "BABYSTEPPING requires an LCD controller."
   #elif ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
