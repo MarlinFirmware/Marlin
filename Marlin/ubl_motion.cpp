@@ -488,33 +488,9 @@
     #endif
 
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
-    // so we call _buffer_line directly here.  Per-segmented leveling performed first.
+    // so we call _buffer_line directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void ubl_buffer_segment_logical(const float ltarget[XYZE], const float &fr_mm_s) {
-
-      #if IS_KINEMATIC
-
-        inverse_kinematics(ltarget); // this writes delta[ABC] from ltarget[XYZ] but does not modify ltarget
-        float feedrate = fr_mm_s;
-
-        #if IS_SCARA // scale the feed rate from mm/s to degrees/s
-          float adiff = abs(delta[A_AXIS] - scara_oldA),
-                bdiff = abs(delta[B_AXIS] - scara_oldB);
-          scara_oldA = delta[A_AXIS];
-          scara_oldB = delta[B_AXIS];
-          feedrate = max(adiff, bdiff) * scara_feed_factor;
-        #endif
-
-        planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], feedrate, active_extruder);
-
-      #else // cartesian
-
-        planner._buffer_line(ltarget[X_AXIS], ltarget[Y_AXIS], ltarget[Z_AXIS], ltarget[E_AXIS], fr_mm_s, active_extruder);
-
-      #endif
-    }
-
-    inline void ubl_buffer_segment_raw( float rx, float ry, float rz, float le, float fr ) {
+    inline void _O2 ubl_buffer_segment_raw( float rx, float ry, float rz, float le, float fr ) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
@@ -571,7 +547,7 @@
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
-    static bool unified_bed_leveling::prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate) {
+    static bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate) {
 
       if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate

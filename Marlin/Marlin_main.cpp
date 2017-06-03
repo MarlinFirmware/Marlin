@@ -5036,9 +5036,6 @@ void home_all_axes() { gcode_G28(true); }
      *      V0  Dry-run mode. Report settings and probe results. No calibration.
      *      V1  Report settings
      *      V2  Report settings and probe results
-     *      
-     *   E1  Stow probe between each point (default)
-     *   E0  Don't stow probe between points
      */
     inline void gcode_G33() {
 
@@ -5169,7 +5166,7 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
-          z_at_pt[0] += probe_pt(0.0, 0.0, true, 1);
+          z_at_pt[0] += probe_pt(0.0, 0.0 , true, 1);
         }
         if (_7p_calibration) { // probe extra center points
           for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
@@ -7625,7 +7622,6 @@ inline void gcode_M92() {
  * Output the current position to serial
  */
 void report_current_position() {
-
   SERIAL_PROTOCOLPGM("X:");
   SERIAL_PROTOCOL(current_position[X_AXIS]);
   SERIAL_PROTOCOLPGM(" Y:");
@@ -7642,7 +7638,6 @@ void report_current_position() {
     SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
     SERIAL_EOL;
   #endif
-
 }
 
 #ifdef M114_DETAIL
