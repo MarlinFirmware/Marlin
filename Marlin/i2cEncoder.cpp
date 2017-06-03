@@ -33,7 +33,7 @@
 
   const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
-  void I2cEncoder::init(AxisEnum axis, byte address) {
+  void I2cEncoder::init(AxisEnum axis, uint8_t address) {
     set_axis(axis);
     set_address(address);
     initialised = true;
@@ -345,12 +345,12 @@
 
     Wire.requestFrom((int)i2cAddress,3);
 
-    byte index = 0;
+    uint8_t index = 0;
 
     encoderCount.val = 0x00;
 
     while (Wire.available()) {
-      byte a = Wire.read();
+      uint8_t a = Wire.read();
       encoderCount.bval[index] = a;
       index++;
     }
@@ -372,7 +372,7 @@
 
   }
 
-  byte I2cEncoder::get_magnetic_strength() {
+  uint8_t I2cEncoder::get_magnetic_strength() {
       /* //Prevous method before magnetic strength was packed into the position words
       //Set module to report magnetic strength
       Wire.beginTransmission((int)i2cAddress);
@@ -383,7 +383,7 @@
       //Read value
       Wire.requestFrom((int)i2cAddress,1);
 
-      byte reading = 99;
+      uint8_t reading = 99;
 
       reading = Wire.read();
 
@@ -569,19 +569,12 @@
     #endif
   }
 
-  AxisEnum I2cEncoder::get_axis() {
-    return encoderAxis;
-  }
 
-  void I2cEncoder::set_axis(AxisEnum axis) {
-    encoderAxis = axis;
-  }
-
-  byte I2cEncoder::get_address() {
+  uint8_t I2cEncoder::get_address() {
     return i2cAddress;
   }
 
-  void I2cEncoder::set_address(byte address) {
+  void I2cEncoder::set_address(uint8_t address) {
     i2cAddress = address;
   }
 
@@ -617,11 +610,11 @@
     errorCorrect = enabled;
   }
 
-  byte I2cEncoder::get_error_correct_method() {
+  uint8_t I2cEncoder::get_error_correct_method() {
     return errorCorrectMethod;
   }
 
-  void I2cEncoder::set_error_correct_method(byte method) {
+  void I2cEncoder::set_error_correct_method(uint8_t method) {
     errorCorrectMethod = method;
   }
 
@@ -650,11 +643,11 @@
     encoderTicksPerUnit = ticks;
   }
 
-  byte I2cEncoder::get_encoder_type() {
+  uint8_t I2cEncoder::get_encoder_type() {
     return encoderType;
   }
 
-  void I2cEncoder::set_encoder_type(byte type) {
+  void I2cEncoder::set_encoder_type(uint8_t type) {
     encoderType = type;
   }
 
@@ -823,13 +816,13 @@
   void EncoderManager::update() {
 
     //consider only updating one endoder per call / tick if encoders become too time intensive
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       encoderArray[i].update();
     }
   }
 
   void EncoderManager::homed(AxisEnum axis) {
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].set_homed();
       }
@@ -837,7 +830,7 @@
   }
 
   void EncoderManager::report_position(AxisEnum axis, bool units, bool noOffset) {
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis && encoderArray[i].get_active()) {
         if(units) {
           if(noOffset) {
@@ -850,7 +843,7 @@
             long raw_count = encoderArray[i].get_raw_count();
             SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
             SERIAL_ECHOPGM(" ");
-            for (byte i = 31; i > 0; i--){
+            for (uint8_t i = 31; i > 0; i--){
               SERIAL_ECHO((bool)(0x00000001 & (raw_count >> i)));
             }
             SERIAL_ECHO((bool)(0x00000001 & (raw_count)));
@@ -866,7 +859,7 @@
   }
 
   void EncoderManager::report_error(AxisEnum axis) {
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis && encoderArray[i].get_active()) {
         encoderArray[i].get_axis_error_steps(true);
         break;
@@ -878,7 +871,7 @@
   void EncoderManager::report_status(AxisEnum axis) {
     bool responded = false;
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].passes_test(true);
         responded = true;
@@ -888,25 +881,20 @@
       }
     }
 
-    if (!responded) {
-      SERIAL_ECHOLNPGM("No encoder configured for given axis!");
-      responded = true;
-    }
+    if (!responded) SERIAL_ECHOLNPGM("No encoder configured for given axis!");
   }
 
   void EncoderManager::test_axis(AxisEnum axis) {
-    bool responded = false;
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].test_axis();
-        responded = true;
         break;
       }
     }
   }
 
   void EncoderManager::test_axis() {
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       test_axis((AxisEnum)i);
     }
   }
@@ -914,7 +902,7 @@
   void EncoderManager::calibrate_steps_mm(AxisEnum axis, int iterations) {
     bool responded = false;
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].calibrate_steps_mm(iterations);
         responded = true;
@@ -929,17 +917,13 @@
   }
 
   void EncoderManager::calibrate_steps_mm(int iterations) {
-    bool responded = false;
-
-    for(byte i = 0; i < NUM_AXIS; i++) {
-      if(encoderArray[i].get_active()) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++)
+      if(encoderArray[i].get_active())
         encoderArray[i].calibrate_steps_mm(iterations);
-      }
-    }
   }
 
   void EncoderManager::change_module_address(int oldAddress, int newAddress) {
-    byte error;
+    uint8_t error;
 
     //first check 'new' address is not in use
     Wire.beginTransmission(newAddress);
@@ -983,7 +967,7 @@
 
           //now, if this module is supposed to be used, find which encoder instance it corresponds to and enable it
           // (it will likely have failed initialisation on power-up, before the address change)
-          for(byte i = 0; i < NUM_AXIS; i++) {
+          for(uint8_t i = 0; i < NUM_AXIS; i++) {
             if(encoderArray[i].get_address() == newAddress) {
               if(encoderArray[i].get_active() == false) {
                 SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
@@ -1026,7 +1010,7 @@
       //Read value
       Wire.requestFrom((int)address,32);
 
-      byte temp[32] = {0};
+      uint8_t temp[32] = {0};
       int tempIndex = 0;
 
       while(Wire.available() > 0) {
@@ -1051,7 +1035,7 @@
 
   void EncoderManager::report_error_count(AxisEnum axis) {
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         SERIAL_ECHOPGM("Error count on ");
         SERIAL_ECHO(axis_codes[axis]);
@@ -1071,7 +1055,7 @@
 
   void EncoderManager::reset_error_count(AxisEnum axis) {
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].set_error_count(0);
         SERIAL_ECHOPGM("Error count on ");
@@ -1090,7 +1074,7 @@
 
   void EncoderManager::enable_error_correction(AxisEnum axis, bool enable) {
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].set_error_correct_enabled(enable);
         SERIAL_ECHOPGM("Error correction on ");
@@ -1107,7 +1091,7 @@
   }
 
   void EncoderManager::set_error_correct_threshold(AxisEnum axis, float newThreshold) {
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         encoderArray[i].set_error_correct_threshold(newThreshold);
       }
@@ -1117,7 +1101,7 @@
   void EncoderManager::get_error_correct_threshold(AxisEnum axis) {
     float threshold = -999;
 
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         threshold = encoderArray[i].get_error_correct_threshold();
         break;
@@ -1135,7 +1119,7 @@
 
   int EncoderManager::get_encoder_index_from_axis(AxisEnum axis) {
     int index = -1;
-    for(byte i = 0; i < NUM_AXIS; i++) {
+    for(uint8_t i = 0; i < NUM_AXIS; i++) {
       if(encoderArray[i].get_axis() == axis) {
         index = i;
         break;

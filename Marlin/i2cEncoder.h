@@ -20,213 +20,213 @@
  *
  */
 
-#ifndef I2CENC_H
-#define I2CENC_H
+#ifndef I2CPOSENC_H
+#define I2CPOSENC_H
 
-#include "enum.h"
-#include "macros.h"
-#include "types.h"
+#include "MarlinConfig.h"
 
-//=========== Advanced / Less-Common Encoder Configuration Settings ==========
+#if ENABLED(I2C_POSITION_ENCODERS)
 
-//if enabled adjusts the error correction threshold proportional to the current speed of the axis
-//allows for very small error margin at low speeds without stuttering due to reading latency at high speeds
-#define ERROR_THRESHOLD_PROPORTIONAL_SPEED
-#define STEPRATE 1
+  #include "enum.h"
+  #include "macros.h"
+  #include "types.h"
 
-//enable encoder-related debug serial echos
-#define ENCODER_DEBUG_ECHOS
+  //=========== Advanced / Less-Common Encoder Configuration Settings ==========
 
-//time we wait for an encoder module to reboot after changing address.
-#define REBOOT_TIME 5000
+  //if enabled adjusts the error correction threshold proportional to the current speed of the axis
+  //allows for very small error margin at low speeds without stuttering due to reading latency at high speeds
+  #define ERROR_THRESHOLD_PROPORTIONAL_SPEED
+  #define STEPRATE 1
 
-//I2C defines / enums etc
-#define I2C_MAG_SIG_GOOD 0
-#define I2C_MAG_SIG_MID 1
-#define I2C_MAG_SIG_BAD 2
+  //enable encoder-related debug serial echos
+  #define ENCODER_DEBUG_ECHOS
 
-#define I2C_REQ_REPORT        0
-#define I2C_RESET_COUNT       1
-#define I2C_SET_ADDR          2
-#define I2C_SET_REPORT_MODE   3
-#define I2C_CLEAR_EEPROM      4
+  //time we wait for an encoder module to reboot after changing address.
+  #define REBOOT_TIME 5000
 
-#define I2C_ENC_LED_PAR_MODE  10
-#define I2C_ENC_LED_PAR_BRT   11
-#define I2C_ENC_LED_PAR_RATE  14
+  //I2C defines / enums etc
+  #define I2C_MAG_SIG_GOOD 0
+  #define I2C_MAG_SIG_MID 1
+  #define I2C_MAG_SIG_BAD 2
 
-#define I2C_ENC_REPORT_MODE_DISTANCE 0
-#define I2C_ENC_REPORT_MODE_STRENGTH 1
-#define I2C_ENC_REPORT_MODE_VERSION  2
+  #define I2C_REQ_REPORT        0
+  #define I2C_RESET_COUNT       1
+  #define I2C_SET_ADDR          2
+  #define I2C_SET_REPORT_MODE   3
+  #define I2C_CLEAR_EEPROM      4
 
-//default I2C addresses
-#define I2C_ENCODER_PRESET_ADDR_X 30
-#define I2C_ENCODER_PRESET_ADDR_Y 31
-#define I2C_ENCODER_PRESET_ADDR_Z 32
-#define I2C_ENCODER_PRESET_ADDR_E 33
+  #define I2C_ENC_LED_PAR_MODE  10
+  #define I2C_ENC_LED_PAR_BRT   11
+  #define I2C_ENC_LED_PAR_RATE  14
 
-#define I2C_ENCODER_DEF_AXIS X_AXIS
-#define I2C_ENCODER_DEF_ADDR I2C_ENCODER_PRESET_ADDR_X
+  #define I2C_ENC_REPORT_MODE_DISTANCE 0
+  #define I2C_ENC_REPORT_MODE_STRENGTH 1
+  #define I2C_ENC_REPORT_MODE_VERSION  2
 
-//Error event counter. Tracks how many times there is an error surpassing a certain threshold
-#define ERROR_COUNTER_TRIGGER_THRESHOLD     3.00
-#define ERROR_COUNTER_DEBOUNCE_MS           2000
+  //default I2C addresses
+  #define I2C_ENCODER_PRESET_ADDR_X 30
+  #define I2C_ENCODER_PRESET_ADDR_Y 31
+  #define I2C_ENCODER_PRESET_ADDR_Z 32
+  #define I2C_ENCODER_PRESET_ADDR_E 33
 
-#if ENABLED(ERROR_ROLLING_AVERAGE)
-  #define ERROR_ARRAY_SIZE 32
-#endif
+  #define I2C_ENCODER_DEF_AXIS X_AXIS
+  #define I2C_ENCODER_DEF_ADDR I2C_ENCODER_PRESET_ADDR_X
 
-//Error Correction Methods
-#define ECM_NONE            0
-#define ECM_MICROSTEP       1
-#define ECM_PLANNER         2
-#define ECM_STALLDETECT     3
+  //Error event counter. Tracks how many times there is an error surpassing a certain threshold
+  #define ERROR_COUNTER_TRIGGER_THRESHOLD     3.00
+  #define ERROR_COUNTER_DEBOUNCE_MS           2000
 
-#define ENC_TYPE_ROTARY  0
-#define ENC_TYPE_LINEAR  1
+  #if ENABLED(ERROR_ROLLING_AVERAGE)
+    #define ERROR_ARRAY_SIZE 32
+  #endif
 
-typedef union{
-  volatile long val = 0;
-  byte bval[4];
-} i2cLong;
+  //Error Correction Methods
+  #define ECM_NONE            0
+  #define ECM_MICROSTEP       1
+  #define ECM_PLANNER         2
+  #define ECM_STALLDETECT     3
 
-void gcode_M860();
-void gcode_M861();
-void gcode_M862();
-void gcode_M863();
-void gcode_M864();
-void gcode_M865();
-void gcode_M866();
-void gcode_M867();
-void gcode_M868();
-void gcode_M869();
+  #define ENC_TYPE_ROTARY  0
+  #define ENC_TYPE_LINEAR  1
 
-class I2cEncoder {
-    private:
+  typedef union{
+    volatile long val = 0;
+    uint8_t bval[4];
+  } i2cLong;
 
-        byte i2cAddress             = I2C_ENCODER_DEF_ADDR;
-        AxisEnum encoderAxis        = I2C_ENCODER_DEF_AXIS;
-        float errorCorrectThreshold = DEFAULT_AXIS_ERROR_THRESHOLD;
-        byte errorCorrectMethod     = DEFAULT_ERROR_CORRECT_METHOD;
-        byte encoderType            = DEFAULT_ENCODER_TYPE;
-        int encoderTicksPerUnit     = DEFAULT_ENCODER_TICKS_PER_MM;
-        int stepperTicks            = DEFAULT_STEPPER_TICKS_REVOLUTION;
+  void gcode_M860();
+  void gcode_M861();
+  void gcode_M862();
+  void gcode_M863();
+  void gcode_M864();
+  void gcode_M865();
+  void gcode_M866();
+  void gcode_M867();
+  void gcode_M868();
+  void gcode_M869();
 
-        float axisOffset = 0;
-        long axisOffsetTicks = 0;
-        long zeroOffset = 0;
-        bool homed = false;
-        bool trusted = false;
-        bool initialised = false;
-        bool active = false;
-        long position;
-//        double positionMm; //calculate
-        unsigned long lastErrorTime;
-        bool invertDirection = false; 
-        long lastPosition = 0;
-        unsigned long lastPositionTime = 0;
-        bool errorCorrect = true;   
-        int errorCount = 0;
-        unsigned long lastErrorCountTime = 0;
-        int errorPrev = 0;
-        byte magneticStrength = I2C_MAG_SIG_BAD;
-        #if ENABLED(ERROR_ROLLING_AVERAGE)
-          int errorArray[ERROR_ARRAY_SIZE] = {0};
-          uint8_t errArrayIndex = 0;
-        #endif
-        
-    public:
-        void init(AxisEnum axis, byte address);
-        void update();
-        void set_homed();
-        double get_axis_error_mm(bool report);
-        long get_axis_error_steps(bool report);
-        double get_position_mm();
-        double mm_from_count(long count);
-        long get_position();
-        long get_raw_count();
-        void set_led_param(byte, byte, byte);
-        void set_zeroed();
-        bool passes_test(bool report,bool &moduleDetected);
-        bool passes_test(bool report);
-        byte get_magnetic_strength();
-        bool test_axis();
-        void calibrate_steps_mm(int iterations);
+  class I2cEncoder {
+  private:
+    uint8_t i2cAddress              = I2C_ENCODER_DEF_ADDR;
+    AxisEnum encoderAxis            = I2C_ENCODER_DEF_AXIS;
+    float errorCorrectThreshold     = DEFAULT_AXIS_ERROR_THRESHOLD;
+    uint8_t errorCorrectMethod      = DEFAULT_ERROR_CORRECT_METHOD;
+    uint8_t encoderType             = DEFAULT_ENCODER_TYPE;
+    int encoderTicksPerUnit         = DEFAULT_ENCODER_TICKS_PER_MM;
+    int stepperTicks                = DEFAULT_STEPPER_TICKS_REVOLUTION;
 
-        void set_current_position(float newPositionMm) ;
+    float axisOffset = 0;
+    long axisOffsetTicks = 0;
+    long zeroOffset = 0;
+    bool homed = false;
+    bool trusted = false;
+    bool initialised = false;
+    bool active = false;
+    long position;
+    //double positionMm; //calculate
+    unsigned long lastErrorTime;
+    bool invertDirection = false;
+    long lastPosition = 0;
+    unsigned long lastPositionTime = 0;
+    bool errorCorrect = true;
+    int errorCount = 0;
+    unsigned long lastErrorCountTime = 0;
+    int errorPrev = 0;
+    uint8_t magneticStrength = I2C_MAG_SIG_BAD;
 
-        int get_error_count();
-        void set_error_count(int newCount);
-        
-        void set_address(byte address);
-        byte get_address();
+    #if ENABLED(ERROR_ROLLING_AVERAGE)
+      int errorArray[ERROR_ARRAY_SIZE] = {0};
+      uint8_t errArrayIndex = 0;
+    #endif
 
-        void set_active(bool);
-        bool get_active();
+  public:
+    void update();
+    void set_homed();
+    void init(AxisEnum axis, byte address);
+    double get_axis_error_mm(bool report);
+    long get_axis_error_steps(bool report);
+    double get_position_mm();
+    double mm_from_count(long count);
+    long get_position();
+    long get_raw_count();
+    void set_zeroed();
+    bool passes_test(bool report,bool &moduleDetected);
+    bool passes_test(bool report);
+    uint8_t get_magnetic_strength();
+    bool test_axis();
+    void calibrate_steps_mm(int iterations);
 
-        void set_inverted(bool);
-        bool get_inverted();
+    void set_current_position(float newPositionMm);
 
-        AxisEnum get_axis();
-        void set_axis(AxisEnum axis);
+    int get_error_count();
+    void set_error_count(int newCount);
 
-        bool get_error_correct_enabled();
-        void set_error_correct_enabled(bool enabled);
+    void set_address(byte address);
+    uint8_t get_address();
 
-        byte get_error_correct_method();
-        void set_error_correct_method(byte method);
+    void set_active(bool);
+    bool get_active();
 
-        float get_error_correct_threshold();
-        void set_error_correct_threshold(float newThreshold);
+    void set_inverted(bool);
+    bool get_inverted();
 
-        int get_encoder_ticks_mm();
+    FORCE_INLINE AxisEnum get_axis() { return encoderAxis; }
+    FORCE_INLINE void set_axis(AxisEnum axis) { encoderAxis = axis; }
 
-        int get_encoder_ticks_unit();
-        void set_encoder_ticks_unit(int ticks);
+    bool get_error_correct_enabled();
+    void set_error_correct_enabled(bool enabled);
 
-        byte get_encoder_type();
-        void set_encoder_type(byte type);
+    uint8_t get_error_correct_method();
+    void set_error_correct_method(byte method);
 
-        int get_stepper_ticks();
-        void set_stepper_ticks(int ticks);
+    float get_error_correct_threshold();
+    void set_error_correct_threshold(float newThreshold);
 
-        float get_axis_offset();
-        void set_axis_offset(float newOffset);
-};
+    int get_encoder_ticks_mm();
 
-class EncoderManager {
-    private:
-        
+    int get_encoder_ticks_unit();
+    void set_encoder_ticks_unit(int ticks);
 
-    public:
-        EncoderManager();
-        void init();
-        void update();
-        void homed(AxisEnum axis);
-        void report_position(AxisEnum axis, bool units, bool noOffset);
-        void report_status(AxisEnum axis);
-        void report_error(AxisEnum axis);
-        void test_axis(AxisEnum axis);
-        void test_axis();
-        void calibrate_steps_mm(AxisEnum axis, int iterations);
-        void calibrate_steps_mm(int iterations);
-        void change_module_address(int oldAddress, int newAddress);
-        void check_module_firmware(int address);
-        void report_error_count(AxisEnum axis);
-        void report_error_count();
-        void reset_error_count(AxisEnum axis);
-        void reset_error_count();
-        void enable_error_correction(AxisEnum axis, bool enabled);
-        void set_error_correct_threshold(AxisEnum axis, float newThreshold);
-        void get_error_correct_threshold(AxisEnum axis);
+    uint8_t get_encoder_type();
+    void set_encoder_type(byte type);
 
-        int get_encoder_index_from_axis(AxisEnum axis);
+    int get_stepper_ticks();
+    void set_stepper_ticks(int ticks);
 
-        I2cEncoder encoderArray[NUM_AXIS];
-};
+    float get_axis_offset();
+    void set_axis_offset(float newOffset);
+  };
 
-#define SIGN(a) ((a>0) - (a<0))
 
-#endif //I2CENC_H
+  class EncoderManager {
+  public:
+    EncoderManager();
+    void init();
+    void update();
+    void homed(AxisEnum axis);
+    void report_position(AxisEnum axis, bool units, bool noOffset);
+    void report_status(AxisEnum axis);
+    void report_error(AxisEnum axis);
+    void test_axis(AxisEnum axis);
+    void test_axis();
+    void calibrate_steps_mm(AxisEnum axis, int iterations);
+    void calibrate_steps_mm(int iterations);
+    void change_module_address(int oldAddress, int newAddress);
+    void check_module_firmware(int address);
+    void report_error_count(AxisEnum axis);
+    void report_error_count();
+    void reset_error_count(AxisEnum axis);
+    void reset_error_count();
+    void enable_error_correction(AxisEnum axis, bool enabled);
+    void set_error_correct_threshold(AxisEnum axis, float newThreshold);
+    void get_error_correct_threshold(AxisEnum axis);
+
+    int get_encoder_index_from_axis(AxisEnum axis);
+
+    I2cEncoder encoderArray[NUM_AXIS];
+  };
+#endif //I2C_POSITION_ENCODERS
+
+#endif //I2CPOSENC_H
 
 
