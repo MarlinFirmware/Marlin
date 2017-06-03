@@ -128,6 +128,16 @@ public:
       return b;
     }
 
+    static volatile bool seen_any() {
+      return codebits[3] || codebits[2] || codebits[1] || codebits[0];
+    }
+
+    static volatile bool seen_any_axis() {
+      return TEST(codebits[23 >> 3], 23 & 0x7) || //X
+             TEST(codebits[24 >> 3], 24 & 0x7) || //Y
+             TEST(codebits[25 >> 3], 25 & 0x7) || //Z
+             TEST(codebits[4 >> 3], 4 & 0x7); //E
+    }
   #else
 
     // Code is found in the string. If not found, value_ptr is unchanged.
@@ -139,6 +149,17 @@ public:
       return b;
     }
 
+    static volatile bool seen_any() {
+      return strlen(command_args)!=0; // todo: is this right?
+    }
+
+    static volatile bool seen_any_axis() {
+      return !!strchr(command_args, 'X') || //X
+             !!strchr(command_args, 'Y') || //Y
+             !!strchr(command_args, 'Z') || //Z
+             !!strchr(command_args, 'E'); //E
+    }
+
   #endif // FASTER_GCODE_PARSER
 
   // Populate all fields by parsing a single line of GCode
@@ -147,6 +168,9 @@ public:
 
   // Code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
+
+  // Seen and has value
+  FORCE_INLINE static bool seen_val(const char c) { return seen(c) && has_value(); }
 
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {

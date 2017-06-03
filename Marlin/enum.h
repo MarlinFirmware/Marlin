@@ -34,23 +34,29 @@
  *    between X_AXIS and X Head movement, like CoreXY bots
  */
 enum AxisEnum {
-  NO_AXIS = -1,
-  X_AXIS  = 0,
-  A_AXIS  = 0,
-  Y_AXIS  = 1,
-  B_AXIS  = 1,
-  Z_AXIS  = 2,
-  C_AXIS  = 2,
-  E_AXIS  = 3,
-  X_HEAD  = 4,
-  Y_HEAD  = 5,
-  Z_HEAD  = 6,
-  ALL_AXES = 100
+  NO_AXIS   = -1,
+  X_AXIS    = 0,
+  A_AXIS    = 0,
+  Y_AXIS    = 1,
+  B_AXIS    = 1,
+  Z_AXIS    = 2,
+  C_AXIS    = 2,
+  E_AXIS    = 3,
+  X_HEAD    = 4,
+  Y_HEAD    = 5,
+  Z_HEAD    = 6,
+  ALL_AXES  = 100
 };
 
-#define LOOP_XYZ(VAR)  for (uint8_t VAR=X_AXIS; VAR<=Z_AXIS; VAR++)
-#define LOOP_XYZE(VAR) for (uint8_t VAR=X_AXIS; VAR<=E_AXIS; VAR++)
-#define LOOP_XYZE_N(VAR) for (uint8_t VAR=X_AXIS; VAR<XYZE_N; VAR++)
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=S; VAR<=N; VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=S; VAR<N; VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
+#define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
+#define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
+#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
 
 typedef enum {
   LINEARUNIT_MM,
