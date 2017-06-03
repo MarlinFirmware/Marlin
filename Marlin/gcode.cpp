@@ -220,8 +220,10 @@ void GCodeParser::parse(char *p) {
       #endif
     }
 
-    while (*p && *p != ' ') p++;                // Skip over the parameter
-    while (*p == ' ') p++;                      // Skip over all spaces
+    if (!WITHIN(*p, 'A', 'Z')) {
+      while (*p && NUMERIC(*p)) p++;              // Skip over the parameter
+      while (*p == ' ') p++;                      // Skip over all spaces
+    }
   }
 }
 
