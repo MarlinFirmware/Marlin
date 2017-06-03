@@ -91,6 +91,13 @@ class Stepper {
       static bool performing_homing;
     #endif
 
+    #if HAS_MOTOR_CURRENT_PWM
+      #ifndef PWM_MOTOR_CURRENT
+        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+      #endif
+      static uint32_t motor_current_setting[3];
+    #endif
+
   private:
 
     static uint8_t last_direction_bits;        // The next stepping-bits to be output
@@ -131,13 +138,6 @@ class Stepper {
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
-
-    #if HAS_MOTOR_CURRENT_PWM
-      #ifndef PWM_MOTOR_CURRENT
-        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
-      #endif
-      static constexpr int motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    #endif
 
     //
     // Positions of stepper motors, in step units
@@ -279,6 +279,10 @@ class Stepper {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
 
+    #if HAS_MOTOR_CURRENT_PWM
+      static void refresh_motor_power();
+    #endif
+
   private:
 
     static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
@@ -380,7 +384,9 @@ class Stepper {
       // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
-    static void digipot_init();
+    #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+      static void digipot_init();
+    #endif
 
     #if HAS_MICROSTEPS
       static void microstep_init();
