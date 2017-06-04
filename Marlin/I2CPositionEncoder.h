@@ -142,21 +142,28 @@
     #endif
 
   public:
-    void update(void);
-    void set_homed(void);
     void init(AxisEnum axis, byte address, bool invert);
-    double get_axis_error_mm(bool report);
-    long get_axis_error_steps(bool report);
-    double get_position_mm(void);
+    void reset();
+
+    void update();
+
+    void set_homed();
+
+    long get_raw_count();
     double mm_from_count(long count);
-    long get_position(void);
-    long get_raw_count(void);
-    void zero(void);
+    FORCE_INLINE double get_position_mm() { return mm_from_count(get_position()); }
+    FORCE_INLINE long get_position() { return get_raw_count() - zeroOffset - axisOffsetTicks; }
+
+    long get_axis_error_steps(bool report);
+    double get_axis_error_mm(bool report);
+
+    void calibrate_steps_mm(int iter);
+
     bool passes_test(bool report,bool &moduleDetected);
     bool passes_test(bool report);
-    uint8_t get_magnetic_strength(void);
     bool test_axis(void);
-    void calibrate_steps_mm(int iter);
+
+    FORCE_INLINE uint8_t get_magnetic_strength(void) { return magneticStrength; }
 
     FORCE_INLINE int get_error_count(void) { return errorCount; }
     FORCE_INLINE void set_error_count(int newCount) { errorCount = newCount; }
@@ -336,6 +343,17 @@
       int index = -1;
       LOOP_PE(i)
         if(encoders[i].get_axis() == axis) {
+          index = i;
+          break;
+        }
+
+      return index;
+    }
+
+    int get_encoder_index_from_address(uint8_t addr) {
+      int index = -1;
+      LOOP_PE(i)
+        if(encoders[i].get_address() == addr) {
           index = i;
           break;
         }

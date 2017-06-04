@@ -200,6 +200,16 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M860 - Report the position of position encoder modules.
+ * M861 - Report the status of position encoder modules.
+ * M862 - Perform an axis continuity test for position encoder modules.
+ * M863 - Perform steps-per-mm calibration for position encoder modules.
+ * M864 - Change position encoder module I2C address.
+ * M865 - Check position encoder module firmware version.
+ * M866 - Report or reset position encoder module error count.
+ * M867 - Toggle error correction for position encoder modules.
+ * M868 - Report or set position encoder module error correction threshold.
+ * M869 - Report position encoder module error.
  * M900 - Get and/or Set advance K factor and WH/D ratio. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
@@ -287,7 +297,7 @@
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "I2CEncoder.h"
+  #include "I2CPositionEncoder.h"
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -9764,24 +9774,29 @@ inline void gcode_M355() {
 
 #if ENABLED(I2C_POSITION_ENCODERS)
 
-  //Reads and reports the current position of a given encoder module
+/**
+ * M860:  Report the position(s) of position encoder module(s).
+ *
+ *   O    Include homed zero-offset in returned position
+ *   U    Units in mm or raw step count
+ *
+ */
   inline void gcode_M860() {
     bool any = parser.seen_any_axis();
     bool hasU = parser.seen('U'), hasO = parser.seen('O');
 
-    // U - units (mm) or raw step count
-    // O - include homed zero-offset in returned count
-
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.report_position(AxisEnum(i), hasU, hasO);
   }
 
-  //Checks and reports the status of a given encoder module
+/**
+ * M861:  Report the status of position encoder modules.
+ */
   inline void gcode_M861() {
     bool any = parser.seen_any_axis();
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i])) {
         SERIAL_ECHO(axis_codes[i]);
         SERIAL_ECHOPGM(": ");
@@ -9789,35 +9804,54 @@ inline void gcode_M355() {
       }
   }
 
-  //Performs an axis continuity test for a given encoder module / axis
+/**
+ * M862:  Perform an axis continuity test for position encoder
+ *        modules.
+ */
   inline void gcode_M862() {
     bool any = parser.seen_any_axis();
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.test_axis(AxisEnum(i));
   }
 
-  //Performs an automatic steps per mm calibration for a given encoder module / axis
+/**
+ * M863:  Perform steps-per-mm calibration for
+ *        position encoder modules.
+ *
+ *   I    Number of iterations
+ *
+ */
   inline void gcode_M863() {
     bool any = parser.seen_any_axis();
     int iterations = parser.seen_val('I') ? constrain(parser.value_int(), 1 , 10) : 1;
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.calibrate_steps_mm(AxisEnum(i), iterations);
   }
 
-  // Changes a module from one I2C address to another
-  // assumes module is currently at default address,
-  // specify different current address by OXXX (i.e. O032)
-  // either specify X/Y/Z/E to select new address, or AXXX (i.e. A031)
+
+/**
+ * M864:  Change position encoder module I2C address.
+ *
+ *   A<addr>  Module new I2C address.  3 digits.
+ *   O<addr>  Module current I2C address.  If not present,
+ *            assumes default address (030).
+ *
+ *   If A not specified:
+ *    X       Use I2CPE_PRESET_ADDR_X (030).
+ *    Y       Use I2CPE_PRESET_ADDR_Y (031).
+ *    Z       Use I2CPE_PRESET_ADDR_Z (032).
+ *    E       Use I2CPE_PRESET_ADDR_E (033).
+ */
   inline void gcode_M864() { //todo: clean me up
     AxisEnum selectedAxis;
     int newAddress, oldAddress;
     bool addressSelected = false;
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (parser.seen(axis_codes[i])) {
         selectedAxis = AxisEnum(i);
         addressSelected = true;
@@ -9864,13 +9898,23 @@ inline void gcode_M355() {
     }
   }
 
-  //checks the firmware version of an encoder module at a given address
+/**
+ * M865:  Check position encoder module firmware version.
+ *
+ *   A<addr>  Module I2C address.  3 digits.
+ *
+ *   If A not specified:
+ *    X       Check X axis encoder, if present.
+ *    Y       Check Y axis encoder, if present.
+ *    Z       Check Z axis encoder, if present.
+ *    E       Check E axis encoder, if present.
+ */
   inline void gcode_M865() { //todo: clean me up
     AxisEnum selectedAxis;
     int selectedAddress;
     bool addressSelected = false;
 
-    LOOP_PE(i) {
+    LOOP_XYZE(i) {
       if (parser.seen(axis_codes[i])) {
         selectedAxis = AxisEnum(i);
         addressSelected = true;
@@ -9906,22 +9950,43 @@ inline void gcode_M355() {
     }
   }
 
-  // reports current error count (see encoder config section) for a given encoder
-  // 'R' flag will reset the error count instead
+/**
+ * M866:  Report or reset position encoder module error
+ *        count.
+ *
+ *   A<addr>  Module I2C address.  3 digits.
+ *   R        Reset error counter.
+ *
+ *   If A not specified:
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
+ */
   inline void gcode_M866() {
     bool any = parser.seen_any_axis();
-    bool r = parser.seen('R');
+    bool hasR = parser.seen('R');
 
-    LOOP_PE(i) {
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i])) {
-        if(r) i2cEncoderManager.reset_error_count(AxisEnum(i));
+        if(hasR) i2cEncoderManager.reset_error_count(AxisEnum(i));
         else i2cEncoderManager.report_error_count(AxisEnum(i));
       }
-    }
   }
 
-  //Toggles error correction for a given axis on or off
-
+/**
+ * M867:  Toggle error correction for position encoder modules.
+ *
+ *   A<addr>  Module I2C address.  3 digits.
+ *   D        Disable error correction.
+ *   O        Enable error correction.
+ *
+ *   If A not specified:
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
+ */
   inline void gcode_M867() { //todo: finish cleaning me up
     bool any = parser.seen_any_axis();
     bool toggle = true, enable = false;
@@ -9929,7 +9994,7 @@ inline void gcode_M355() {
     if(parser.seen('O')) { enable = true; toggle = false; }
     else if (parser.seen('D')) { enable = false; toggle = false; }
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i])) {
         if (toggle) {
           i2cEncoderManager.enable_ec(AxisEnum(i),
@@ -9942,11 +10007,24 @@ inline void gcode_M355() {
 
   }
 
+/**
+ * M868:  Report or set position encoder module error correction
+ *        threshold.
+ *
+ *   A<addr>  Module I2C address.  3 digits.
+ *   T        New error correction threshold.
+ *
+ *   If A not specified:
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
+ */
   inline void gcode_M868() {
     bool any = parser.seen_any_axis();
     float newThreshold = parser.seen_val('T') ? parser.value_float() : -9999;
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i])) {
         if (newThreshold != -9999)
           i2cEncoderManager.set_ec_threshold(AxisEnum(i), newThreshold);
@@ -9955,11 +10033,21 @@ inline void gcode_M355() {
   }
 
 
-  //Error
+/**
+ * M869:  Report position encoder module error.
+ *
+ *   A<addr>  Module I2C address.  3 digits.
+ *
+ *   If A not specified:
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
+ */
   inline void gcode_M869() {
     bool any = parser.seen_any();
 
-    LOOP_PE(i)
+    LOOP_XYZE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.report_error(AxisEnum(i));
   }

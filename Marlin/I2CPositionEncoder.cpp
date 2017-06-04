@@ -20,6 +20,11 @@
  *
  */
 
+//todo:  add support for multiple encoders on a single axis
+//todo:    add z axis auto-leveling
+//todo:  consolidate some of the related M codes?
+//todo:  add endstop-replacement mode?
+
 #include "MarlinConfig.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -27,7 +32,7 @@
   #include "Marlin.h"
   #include "temperature.h"
   #include "stepper.h"
-  #include "I2CEncoder.h"
+  #include "I2CPositionEncoder.h"
 
   #include <Wire.h>
 
@@ -202,7 +207,7 @@
   void I2CEncoder::set_homed() {
     if(active) {
       //reset module's offset to zero (so current position is homed / zero)
-      zero();
+      reset();
       delay(10);
       this->zeroOffset = get_raw_count();
       this->homed = true;
@@ -325,10 +330,6 @@
     return (suppressOutput ? 0 : error);
   }
 
-  double I2CEncoder::get_position_mm() {
-    return mm_from_count(get_position());
-  }
-
   double I2CEncoder::mm_from_count(long count) {
     if(get_encoder_type() == I2CPE_ENC_TYPE_LINEAR) {
       return (double) count / get_encoder_ticks_unit();
@@ -337,10 +338,6 @@
     }
 
     return -1;
-  }
-
-  long I2CEncoder::get_position() {
-    return get_raw_count() - zeroOffset - axisOffsetTicks;
   }
 
   long I2CEncoder::get_raw_count() {
@@ -363,32 +360,6 @@
 
     return (invertDirection ? -1 * encoderCount.val : encoderCount.val);
   }
-
-  uint8_t I2CEncoder::get_magnetic_strength() {
-      /* //Prevous method before magnetic strength was packed into the position words
-      //Set module to report magnetic strength
-      Wire.beginTransmission((int)i2cAddress);
-      Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_STRENGTH);
-      Wire.endTransmission();
-
-      //Read value
-      Wire.requestFrom((int)i2cAddress,1);
-
-      uint8_t reading = 99;
-
-      reading = Wire.read();
-
-      //Set module back to normal (distance) mode
-      Wire.beginTransmission((int)i2cAddress);
-      Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_DISTANCE);
-      Wire.endTransmission();
-
-      return reading;
-      */
-      return magneticStrength;
-    }
 
   bool I2CEncoder::test_axis() {
     //only works on XYZ cartesian machines for the time being
@@ -539,7 +510,7 @@
     }
   }
 
-  void I2CEncoder::zero() {
+  void I2CEncoder::reset() {
     Wire.beginTransmission(i2cAddress);
     Wire.write(I2CPE_RESET_COUNT);
     Wire.endTransmission();
@@ -743,7 +714,7 @@
             if(encoders[i].get_address() == newaddr) {
               if(encoders[i].get_active() == false) {
                 SERIAL_ECHO(axis_codes[encoders[i].get_axis()]);
-                SERIAL_ECHOLNPGM(" axis encoder was not detected on printer startup. Trying again now address is correct...");
+                SERIAL_ECHOLNPGM(" axis encoder was not detected on printer startup. Trying again.");
                 encoders[i].set_active(encoders[i].passes_test(true));
               }
               break;
