@@ -5921,6 +5921,25 @@ inline void gcode_M17() {
     return true;
   }
 
+  static void ensure_safe_temperature() {
+    bool did_show = false;
+    wait_for_heatup = true;
+    while (wait_for_heatup) {
+      idle();
+      wait_for_heatup = false;
+      HOTEND_LOOP() {
+        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+          wait_for_heatup = true;
+          if (!did_show) { // Show "wait for heating"
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+            did_show = true;
+          }
+          break;
+        }
+      }
+    }
+  }
+
   static void wait_for_filament_reload(int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
@@ -5937,8 +5956,7 @@ inline void gcode_M17() {
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
       #if ENABLED(ULTIPANEL)
-        if (nozzle_timed_out)
-          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+        if (nozzle_timed_out) ensure_safe_temperature();
       #endif
 
       idle(true);
@@ -9203,6 +9221,8 @@ inline void gcode_M503() {
    *
    */
   inline void gcode_M600() {
+
+    ensure_safe_temperature();
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
