@@ -655,7 +655,7 @@ Possible status screens:
        |01234567890123456789|
 */
 static void lcd_implementation_status_screen() {
-  bool blink = lcd_blink();
+  const bool blink = lcd_blink();
 
   //
   // Line 1
@@ -825,12 +825,16 @@ static void lcd_implementation_status_screen() {
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    static bool last_blink = false;
     lcd_print_utf(lcd_status_message + status_scroll_pos);
     const uint8_t slen = lcd_strlen(lcd_status_message);
     if (slen > LCD_WIDTH) {
-      // Skip any non-printing bytes
-      while (!PRINTABLE(lcd_status_message[status_scroll_pos++])) { /* nada */ }
-      if (status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      if (last_blink != blink) {
+        last_blink = blink;
+        // Skip any non-printing bytes
+        while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
+        if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      }
     }
   #else
     lcd_print_utf(lcd_status_message);
