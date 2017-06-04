@@ -1551,7 +1551,7 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
 
       planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     #endif
-    
+
     set_current_to_destination();
   }
 #endif // IS_KINEMATIC
@@ -2362,7 +2362,7 @@ static void clean_up_after_endstop_or_probe_move() {
           else {                                        // leveling from off to on
             ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
             // change physical current_position to unleveled current_position without moving steppers.
-            planner.unapply_leveling(current_position); 
+            planner.unapply_leveling(current_position);
           }
         #else
           ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
@@ -2376,8 +2376,12 @@ static void clean_up_after_endstop_or_probe_move() {
           (void)bilinear_z_offset(reset);
         #endif
 
+        // Enable or disable leveling compensation in the planner
         planner.abl_enabled = enable;
+
         if (!enable)
+          // When disabling just get the current position from the steppers.
+          // This will yield the smallest error when first converted back to steps.
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -2386,9 +2390,11 @@ static void clean_up_after_endstop_or_probe_move() {
             #endif
           );
         else
+          // When enabling, remove compensation from the current position,
+          // so compensation will give the right stepper counts.
           planner.unapply_leveling(current_position);
 
-      #endif
+      #endif // ABL
     }
   }
 
@@ -2396,24 +2402,23 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_z_fade_height(const float zfh) {
 
+      const bool level_active = leveling_is_active();
+
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-        const bool level_active = leveling_is_active();
-        if (level_active) {
+        if (level_active)
           set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-        }
         planner.z_fade_height = zfh;
         planner.inverse_z_fade_height = RECIPROCAL(zfh);
-        if (level_active) {
+        if (level_active)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
-        }
 
       #else
 
         planner.z_fade_height = zfh;
         planner.inverse_z_fade_height = RECIPROCAL(zfh);
 
-        if (leveling_is_active()) {
+        if (level_active) {
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -9643,7 +9648,7 @@ inline void gcode_M355() {
   #if HAS_CASE_LIGHT
     uint8_t args = 0;
     if (parser.seen('P')) ++args, case_light_brightness = parser.value_byte();
-    if (parser.seen('S')) ++args, case_light_on = parser.value_bool(); 
+    if (parser.seen('S')) ++args, case_light_on = parser.value_bool();
     if (args) update_case_light();
 
     // always report case light status

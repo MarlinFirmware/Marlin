@@ -318,7 +318,7 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  
+
   // Malyan M150 example
   #define  DEFAULT_Kp 29
   #define  DEFAULT_Ki 2
