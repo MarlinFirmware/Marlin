@@ -70,7 +70,7 @@
           //only do error correction if setup and enabled
           if(get_error_correct_method() != I2CPE_ECM_NONE && get_error_correct_enabled()) {
 
-            #if defined(I2CPE_ERROR_THRESHOLD_PROPORTIONAL_SPEED)
+            #if defined(I2CPE_EC_THRESH_PROPORTIONAL)
               unsigned long distance = abs(position - lastPosition);
               unsigned long deltaTime = positionTime - lastPositionTime;
               unsigned long speed = distance / deltaTime;
@@ -98,8 +98,8 @@
             //SERIAL_ECHOPGM("Axis err*r steps: ");
             //SERIAL_ECHOLN(error);
 
-            #if defined(AXIS_ERROR_THRESHOLD_ABORT)
-              if(abs(error) > AXIS_ERROR_THRESHOLD_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
+            #if defined(I2CPE_ERR_THRESH_ABORT)
+              if(abs(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
                 //kill("Significant Error");
                 SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
                 SERIAL_ECHOLN(error);
@@ -130,7 +130,7 @@
               }
             #endif
 
-            if(abs(error) > (I2CPE_ERR_CNT_TRIGGER_THRESHOLD * planner.axis_steps_per_mm[encoderAxis]) && millis() - lastErrorCountTime > I2CPE_ERR_CNT_DEBOUNCE_MS) {
+            if(abs(error) > (I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) && millis() - lastErrorCountTime > I2CPE_ERR_CNT_DEBOUNCE_MS) {
               SERIAL_ECHOPGM("Large error on ");
               SERIAL_ECHO(axis_codes[encoderAxis]);
               SERIAL_ECHOPGM(" axis. error: ");
@@ -153,7 +153,7 @@
   //      module and prompt the user to re-home the axis at which point the encoder would be re-enabled
 
           //if the magnetic strength has been good for a certain time, start trusting the module again
-          if(millis() - lastErrorTime > STABLE_TIME_UNTIL_TRUSTED) {
+          if(millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
             trusted = true;
 
             SERIAL_ECHOPGM("Untrusted encoder module on ");
@@ -202,7 +202,7 @@
   void I2CEncoder::set_homed() {
     if(active) {
       //reset module's offset to zero (so current position is homed / zero)
-      set_zeroed();
+      zero();
       delay(10);
       this->zeroOffset = get_raw_count();
       this->homed = true;
@@ -369,7 +369,7 @@
       //Set module to report magnetic strength
       Wire.beginTransmission((int)i2cAddress);
       Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_MODE_STRENGTH);
+      Wire.write(I2CPE_REPORT_STRENGTH);
       Wire.endTransmission();
 
       //Read value
@@ -382,7 +382,7 @@
       //Set module back to normal (distance) mode
       Wire.beginTransmission((int)i2cAddress);
       Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_MODE_DISTANCE);
+      Wire.write(I2CPE_REPORT_DISTANCE);
       Wire.endTransmission();
 
       return reading;
@@ -406,7 +406,7 @@
 
     errorCorrect = false;
 
-    LOOP_NA(i) {
+    LOOP_PE(i) {
       startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
       endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
     }
@@ -422,7 +422,7 @@
     //if the module isn't currently trusted, wait until it is (or until it should be if things are working)
     if(!trusted) {
       long startWaitingTime = millis();
-      while(!trusted && millis() - startWaitingTime < STABLE_TIME_UNTIL_TRUSTED)
+      while(!trusted && millis() - startWaitingTime < I2CPE_TIME_TRUSTED)
         safe_delay(500);
     }
 
@@ -461,7 +461,7 @@
         endDistance = soft_endstop_max[encoderAxis] - 20;
         travelDistance = endDistance - startDistance;
 
-        LOOP_NA(i) {
+        LOOP_PE(i) {
           startCoord[i] = stepper.get_axis_position_mm((AxisEnum) i);
           endCoord[i] = stepper.get_axis_position_mm((AxisEnum) i);
         }
@@ -539,7 +539,7 @@
     }
   }
 
-  void I2CEncoder::set_zeroed() {
+  void I2CEncoder::zero() {
     Wire.beginTransmission(i2cAddress);
     Wire.write(I2CPE_RESET_COUNT);
     Wire.endTransmission();
@@ -549,215 +549,135 @@
     #endif
   }
 
-  int I2CEncoder::get_error_count() {
-    return errorCount;
-  }
-
-  void I2CEncoder::set_error_count(int newCount) {
-    errorCount = newCount;
-  }
-
-  bool I2CEncoder::get_error_correct_enabled() {
-    return errorCorrect;
-  }
-
-  void I2CEncoder::set_error_correct_enabled(bool enabled) {
-    errorCorrect = enabled;
-  }
-
-  uint8_t I2CEncoder::get_error_correct_method() {
-    return errorCorrectMethod;
-  }
-
-  void I2CEncoder::set_error_correct_method(uint8_t method) {
-    errorCorrectMethod = method;
-  }
-
-  float I2CEncoder::get_error_correct_threshold() {
-    return errorCorrectThreshold;
-  }
-
-  void I2CEncoder::set_error_correct_threshold(float newThreshold) {
-    errorCorrectThreshold = newThreshold;
-  }
-
-  int I2CEncoder::get_encoder_ticks_mm() {
-    switch(get_encoder_type()) {
-      default:
-      case I2CPE_ENC_TYPE_LINEAR: return get_encoder_ticks_unit();
-      case I2CPE_ENC_TYPE_ROTARY: return (int)((get_encoder_ticks_unit() / get_stepper_ticks()) * planner.axis_steps_per_mm[encoderAxis]);
-    }
-  }
-
-  int I2CEncoder::get_encoder_ticks_unit() {
-    return encoderTicksPerUnit;
-  }
-
-  void I2CEncoder::set_encoder_ticks_unit(int ticks) {
-    encoderTicksPerUnit = ticks;
-  }
-
-  uint8_t I2CEncoder::get_encoder_type() {
-    return encoderType;
-  }
-
-  void I2CEncoder::set_encoder_type(uint8_t type) {
-    encoderType = type;
-  }
-
-  int I2CEncoder::get_stepper_ticks() {
-    return stepperTicks;
-  }
-
-  void I2CEncoder::set_stepper_ticks(int ticks) {
-    stepperTicks = ticks;
-  }
-
-  float I2CEncoder::get_axis_offset() {
-    return axisOffset;
-  }
-
-  void I2CEncoder::set_current_position(float newPositionMm) {
-    set_axis_offset(get_position_mm() - newPositionMm + get_axis_offset());
-  }
-
-  void I2CEncoder::set_axis_offset(float newOffset) {
-    axisOffset = newOffset;
-    axisOffsetTicks = axisOffset * get_encoder_ticks_mm();
-  }
-
-
   void EncoderManager::init() {
 
-    //there's probably a better way to do all this, maybe something using a macro...?
-
-    #if defined(I2C_ENCODER_1_ADDR) && defined(I2C_ENCODER_1_AXIS)
-      encoderArray[I2C_ENCODER_1_AXIS].init(I2C_ENCODER_1_AXIS, I2C_ENCODER_1_ADDR, I2C_ENCODER_1_INVERT);
-      encoderArray[I2C_ENCODER_1_AXIS].set_active(encoderArray[I2C_ENCODER_1_AXIS].passes_test(true));
+    #if I2CPE_ENCODER_CNT > 0
+      encoders[I2CPE_ENC_1_AXIS].init(I2CPE_ENC_1_AXIS, I2CPE_ENC_1_ADDR, I2CPE_ENC_1_INVERT);
+      encoders[I2CPE_ENC_1_AXIS].set_active(encoders[I2CPE_ENC_1_AXIS].passes_test(true));
       #if defined (I2C_ENCODER_1_EC_METHOD)
-        encoderArray[I2C_ENCODER_1_AXIS].set_error_correct_method(I2C_ENCODER_1_EC_METHOD);
+        encoders[I2CPE_ENC_1_AXIS].set_error_correct_method(I2C_ENCODER_1_EC_METHOD);
       #endif
-      #if defined (I2C_ENCODER_1_EC_THRESHOLD)
-        encoderArray[I2C_ENCODER_1_AXIS].set_error_correct_threshold(I2C_ENCODER_1_EC_THRESHOLD);
+      #if defined (I2CPE_ENC_1_EC_THRESH)
+        encoders[I2CPE_ENC_1_AXIS].set_error_correct_threshold(I2CPE_ENC_1_EC_THRESH);
       #endif
-      #if defined (I2C_ENCODER_1_TICKS_PER_UNIT)
-        encoderArray[I2C_ENCODER_1_AXIS].set_encoder_ticks_unit(I2C_ENCODER_1_TICKS_PER_UNIT);
+      #if defined (I2CPE_ENC_1_TICKS_UNIT)
+        encoders[I2CPE_ENC_1_AXIS].set_encoder_ticks_unit(I2CPE_ENC_1_TICKS_UNIT);
       #endif
-      #if defined (I2C_ENCODER_1_ENCODER_TYPE)
-        encoderArray[I2C_ENCODER_1_AXIS].set_encoder_type(I2C_ENCODER_1_ENCODER_TYPE);
+      #if defined (I2CPE_ENC_1_TYPE)
+        encoders[I2CPE_ENC_1_AXIS].set_encoder_type(I2CPE_ENC_1_TYPE);
       #endif
-      #if defined (I2C_ENCODER_1_STEPPER_TICKS_REVOLUTION)
-        encoderArray[I2C_ENCODER_1_AXIS].set_stepper_ticks(I2C_ENCODER_1_STEPPER_TICKS_REVOLUTION);
+      #if defined (I2CPE_ENC_1_TICKS_REV)
+        encoders[I2CPE_ENC_1_AXIS].set_stepper_ticks(I2CPE_ENC_1_TICKS_REV);
       #endif
-      //#if (I2C_ENCODER_1_AXIS == E_AXIS)
-      //  encoderArray[index].set_homed();
+      //#if (I2CPE_ENC_1_AXIS == E_AXIS)
+      //  encoders[index].set_homed();
       //#endif
     #endif
 
-    #if defined(I2C_ENCODER_2_ADDR) && defined(I2C_ENCODER_2_AXIS)
-      encoderArray[I2C_ENCODER_2_AXIS].init(I2C_ENCODER_2_AXIS,I2C_ENCODER_2_ADDR,I2C_ENCODER_2_INVERT);
+    #if I2CPE_ENCODER_CNT > 1
+      encoders[I2CPE_ENC_2_AXIS].init(I2CPE_ENC_2_AXIS,I2CPE_ENC_2_ADDR,I2CPE_ENC_2_INVERT);
 
-      encoderArray[I2C_ENCODER_2_AXIS].set_active(encoderArray[I2C_ENCODER_2_AXIS].passes_test(true));
+      encoders[I2CPE_ENC_2_AXIS].set_active(encoders[I2CPE_ENC_2_AXIS].passes_test(true));
       #if defined (I2C_ENCODER_2_EC_METHOD)
-        encoderArray[I2C_ENCODER_2_AXIS].set_error_correct_method(I2C_ENCODER_2_EC_METHOD);
+        encoders[I2CPE_ENC_2_AXIS].set_error_correct_method(I2C_ENCODER_2_EC_METHOD);
       #endif
-      #if defined (I2C_ENCODER_2_EC_THRESHOLD)
-        encoderArray[I2C_ENCODER_2_AXIS].set_error_correct_threshold(I2C_ENCODER_2_EC_THRESHOLD);
+      #if defined (I2CPE_ENC_2_EC_THRESH)
+        encoders[I2CPE_ENC_2_AXIS].set_error_correct_threshold(I2CPE_ENC_2_EC_THRESH);
       #endif
-      #if defined (I2C_ENCODER_2_TICKS_PER_UNIT)
-        encoderArray[I2C_ENCODER_2_AXIS].set_encoder_ticks_unit(I2C_ENCODER_2_TICKS_PER_UNIT);
+      #if defined (I2CPE_ENC_2_TICKS_UNIT)
+        encoders[I2CPE_ENC_2_AXIS].set_encoder_ticks_unit(I2CPE_ENC_2_TICKS_UNIT);
       #endif
-      #if defined (I2C_ENCODER_2_ENCODER_TYPE)
-        encoderArray[I2C_ENCODER_2_AXIS].set_encoder_type(I2C_ENCODER_2_ENCODER_TYPE);
+      #if defined (I2CPE_ENC_2_TYPE)
+        encoders[I2CPE_ENC_2_AXIS].set_encoder_type(I2CPE_ENC_2_TYPE);
       #endif
-      #if defined (I2C_ENCODER_2_STEPPER_TICKS_REVOLUTION)
-        encoderArray[I2C_ENCODER_2_AXIS].set_stepper_ticks(I2C_ENCODER_2_STEPPER_TICKS_REVOLUTION);
+      #if defined (I2CPE_ENC_2_TICKS_REV)
+        encoders[I2CPE_ENC_2_AXIS].set_stepper_ticks(I2CPE_ENC_2_TICKS_REV);
       #endif
-  //    #if (I2C_ENCODER_2_AXIS == E_AXIS)
-  //      encoderArray[I2C_ENCODER_2_AXIS].set_homed();
+  //    #if (I2CPE_ENC_2_AXIS == E_AXIS)
+  //      encoders[I2CPE_ENC_2_AXIS].set_homed();
   //    #endif
     #endif
 
-    #if defined(I2C_ENCODER_3_ADDR) && defined(I2C_ENCODER_3_AXIS)
-      encoderArray[I2C_ENCODER_3_AXIS].init(I2C_ENCODER_3_AXIS,I2C_ENCODER_3_ADDR, I2C_ENCODER_3_INVERT);
-      encoderArray[I2C_ENCODER_3_AXIS].set_active(encoderArray[I2C_ENCODER_3_AXIS].passes_test(true));
+    #if I2CPE_ENCODER_CNT > 2
+      encoders[I2C_ENCODER_3_AXIS].init(I2C_ENCODER_3_AXIS,I2C_ENCODER_3_ADDR, I2C_ENCODER_3_INVERT);
+      encoders[I2C_ENCODER_3_AXIS].set_active(encoders[I2C_ENCODER_3_AXIS].passes_test(true));
       #if defined (I2C_ENCODER_3_EC_METHOD)
-        encoderArray[I2C_ENCODER_3_AXIS].set_error_correct_method(I2C_ENCODER_3_EC_METHOD);
+        encoders[I2C_ENCODER_3_AXIS].set_error_correct_method(I2C_ENCODER_3_EC_METHOD);
       #endif
       #if defined (I2C_ENCODER_3_EC_THRESHOLD)
-        encoderArray[I2C_ENCODER_3_AXIS].set_error_correct_threshold(I2C_ENCODER_3_EC_THRESHOLD);
+        encoders[I2C_ENCODER_3_AXIS].set_error_correct_threshold(I2C_ENCODER_3_EC_THRESHOLD);
       #endif
       #if defined (I2C_ENCODER_3_TICKS_PER_UNIT)
-        encoderArray[I2C_ENCODER_3_AXIS].set_encoder_ticks_unit(I2C_ENCODER_3_TICKS_PER_UNIT);
+        encoders[I2C_ENCODER_3_AXIS].set_encoder_ticks_unit(I2C_ENCODER_3_TICKS_PER_UNIT);
       #endif
       #if defined (I2C_ENCODER_3_ENCODER_TYPE)
-        encoderArray[I2C_ENCODER_3_AXIS].set_encoder_type(I2C_ENCODER_3_ENCODER_TYPE);
+        encoders[I2C_ENCODER_3_AXIS].set_encoder_type(I2C_ENCODER_3_ENCODER_TYPE);
       #endif
       #if defined (I2C_ENCODER_3_STEPPER_TICKS_REVOLUTION)
-        encoderArray[I2C_ENCODER_3_AXIS].set_stepper_ticks(I2C_ENCODER_3_STEPPER_TICKS_REVOLUTION);
+        encoders[I2C_ENCODER_3_AXIS].set_stepper_ticks(I2C_ENCODER_3_STEPPER_TICKS_REVOLUTION);
       #endif
   //    #if (I2C_ENCODER_3_AXIS == E_AXIS)
-  //      encoderArray[I2C_ENCODER_3_AXIS].set_homed();
+  //      encoders[I2C_ENCODER_3_AXIS].set_homed();
   //    #endif
     #endif
 
-    #if defined(I2C_ENCODER_4_ADDR) && defined(I2C_ENCODER_4_AXIS)
-      encoderArray[I2C_ENCODER_4_AXIS].init(I2C_ENCODER_4_AXIS,I2C_ENCODER_4_ADDR,I2C_ENCODER_4_INVERT);
-      encoderArray[I2C_ENCODER_4_AXIS].set_active(encoderArray[I2C_ENCODER_4_AXIS].passes_test(true));
+    #if I2CPE_ENCODER_CNT > 3
+      encoders[I2C_ENCODER_4_AXIS].init(I2C_ENCODER_4_AXIS,I2C_ENCODER_4_ADDR,I2C_ENCODER_4_INVERT);
+      encoders[I2C_ENCODER_4_AXIS].set_active(encoders[I2C_ENCODER_4_AXIS].passes_test(true));
       #if defined (I2C_ENCODER_4_EC_METHOD)
-        encoderArray[I2C_ENCODER_4_AXIS].set_error_correct_method(I2C_ENCODER_4_EC_METHOD);
+        encoders[I2C_ENCODER_4_AXIS].set_error_correct_method(I2C_ENCODER_4_EC_METHOD);
       #endif
       #if defined (I2C_ENCODER_4_EC_THRESHOLD)
-        encoderArray[I2C_ENCODER_4_AXIS].set_error_correct_threshold(I2C_ENCODER_4_EC_THRESHOLD);
+        encoders[I2C_ENCODER_4_AXIS].set_error_correct_threshold(I2C_ENCODER_4_EC_THRESHOLD);
       #endif
       #if defined (I2C_ENCODER_4_TICKS_PER_UNIT)
-        encoderArray[I2C_ENCODER_4_AXIS].set_encoder_ticks_unit(I2C_ENCODER_4_TICKS_PER_UNIT);
+        encoders[I2C_ENCODER_4_AXIS].set_encoder_ticks_unit(I2C_ENCODER_4_TICKS_PER_UNIT);
       #endif
       #if defined (I2C_ENCODER_4_ENCODER_TYPE)
-        encoderArray[I2C_ENCODER_4_AXIS].set_encoder_type(I2C_ENCODER_4_ENCODER_TYPE);
+        encoders[I2C_ENCODER_4_AXIS].set_encoder_type(I2C_ENCODER_4_ENCODER_TYPE);
       #endif
       #if defined (I2C_ENCODER_4_STEPPER_TICKS_REVOLUTION)
-        encoderArray[I2C_ENCODER_4_AXIS].set_stepper_ticks(I2C_ENCODER_4_STEPPER_TICKS_REVOLUTION);
+        encoders[I2C_ENCODER_4_AXIS].set_stepper_ticks(I2C_ENCODER_4_STEPPER_TICKS_REVOLUTION);
       #endif
   //    #if (I2C_ENCODER_4_AXIS == E_AXIS)
-  //      encoderArray[I2C_ENCODER_4_AXIS].set_homed();
+  //      encoders[I2C_ENCODER_4_AXIS].set_homed();
   //    #endif
     #endif
-  /*
-    #if defined(I2C_ENCODER_5_ADDR) && defined(I2C_ENCODER_5_AXIS)
-      encoderArray[I2C_ENCODER_5_AXIS].init(I2C_ENCODER_5_AXIS,I2C_ENCODER_5_ADDR,I2C_ENCODER_5_INVERT);
-      encoderArray[I2C_ENCODER_5_AXIS].set_active(encoderArray[index].passes_test(true));
+
+    #if I2CPE_ENCODER_CNT > 4
+      encoders[I2C_ENCODER_5_AXIS].init(I2C_ENCODER_5_AXIS,I2C_ENCODER_5_ADDR,I2C_ENCODER_5_INVERT);
+      encoders[I2C_ENCODER_5_AXIS].set_active(encoders[index].passes_test(true));
       #if defined (I2C_ENCODER_5_EC_METHOD)
-        encoderArray[I2C_ENCODER_5_AXIS].set_error_correct_method(I2C_ENCODER_5_EC_METHOD);
+        encoders[I2C_ENCODER_5_AXIS].set_error_correct_method(I2C_ENCODER_5_EC_METHOD);
       #endif
       #if defined (I2C_ENCODER_5_EC_THRESHOLD)
-        encoderArray[I2C_ENCODER_5_AXIS].set_error_correct_threshold(I2C_ENCODER_5_EC_THRESHOLD);
+        encoders[I2C_ENCODER_5_AXIS].set_error_correct_threshold(I2C_ENCODER_5_EC_THRESHOLD);
       #endif
       #if defined (I2C_ENCODER_5_TICKS_PER_UNIT)
-        encoderArray[I2C_ENCODER_5_AXIS].set_encoder_ticks_unit(I2C_ENCODER_5_TICKS_PER_UNIT);
+        encoders[I2C_ENCODER_5_AXIS].set_encoder_ticks_unit(I2C_ENCODER_5_TICKS_PER_UNIT);
       #endif
       #if defined (I2C_ENCODER_5_ENCODER_TYPE)
-        encoderArray[I2C_ENCODER_5_AXIS].set_encoder_type(I2C_ENCODER_5_ENCODER_TYPE);
+        encoders[I2C_ENCODER_5_AXIS].set_encoder_type(I2C_ENCODER_5_ENCODER_TYPE);
       #endif
       #if defined (I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION)
-        encoderArray[I2C_ENCODER_5_AXIS].set_stepper_ticks(I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION);
+        encoders[I2C_ENCODER_5_AXIS].set_stepper_ticks(I2C_ENCODER_5_STEPPER_TICKS_REVOLUTION);
       #endif
       #if (I2C_ENCODER_5_AXIS == E_AXIS)
-        encoderArray[I2C_ENCODER_5_AXIS].set_homed();
+        encoders[I2C_ENCODER_5_AXIS].set_homed();
       #endif
     #endif
-  */
+
   }
 
   void EncoderManager::report_position(AxisEnum axis, bool units, bool noOffset) {
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis && encoderArray[i].get_active()) {
+    LOOP_PE(i) {
+      if(encoders[i].get_axis() == axis && encoders[i].get_active()) {
         if(units)
-          SERIAL_ECHOLN(noOffset ? encoderArray[i].mm_from_count(encoderArray[i].get_raw_count()) : encoderArray[i].get_position_mm());
+          SERIAL_ECHOLN(noOffset ? encoders[i].mm_from_count(encoders[i].get_raw_count()) : encoders[i].get_position_mm());
         else {
           if(noOffset) {
-            long raw_count = encoderArray[i].get_raw_count();
-            SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
+            long raw_count = encoders[i].get_raw_count();
+            SERIAL_ECHO(axis_codes[encoders[i].get_axis()]);
             SERIAL_ECHOPGM(" ");
 
             for (uint8_t j = 31; j > 0; j--)
@@ -767,29 +687,11 @@
             SERIAL_ECHOPGM(" ");
             SERIAL_ECHOLN(raw_count);
           } else
-            SERIAL_ECHOLN(encoderArray[i].get_position());
+            SERIAL_ECHOLN(encoders[i].get_position());
         }
         break;
       }
     }
-  }
-
-
-
-  void EncoderManager::report_status(AxisEnum axis) {
-    bool responded = false;
-
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        encoderArray[i].passes_test(true);
-        responded = true;
-        break;
-      //} else {
-        //SERIAL_ECHOPGM("Encoder not operational");
-      }
-    }
-
-    if (!responded) SERIAL_ECHOLNPGM("No encoder configured for given axis!");
   }
 
   void EncoderManager::change_module_address(int oldaddr, int newaddr) {
@@ -837,12 +739,12 @@
 
           // now, if this module is supposed to be used, find which encoder instance it corresponds to and enable it
           // (it will likely have failed initialisation on power-up, before the address change)
-          LOOP_NA(i) {
-            if(encoderArray[i].get_address() == newaddr) {
-              if(encoderArray[i].get_active() == false) {
-                SERIAL_ECHO(axis_codes[encoderArray[i].get_axis()]);
+          LOOP_PE(i) {
+            if(encoders[i].get_address() == newaddr) {
+              if(encoders[i].get_active() == false) {
+                SERIAL_ECHO(axis_codes[encoders[i].get_axis()]);
                 SERIAL_ECHOLNPGM(" axis encoder was not detected on printer startup. Trying again now address is correct...");
-                encoderArray[i].set_active(encoderArray[i].passes_test(true));
+                encoders[i].set_active(encoders[i].passes_test(true));
               }
               break;
             }
@@ -874,7 +776,7 @@
       Wire.beginTransmission(address);
 
       Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_MODE_VERSION);
+      Wire.write(I2CPE_REPORT_VERSION);
       Wire.endTransmission();
 
       //Read value
@@ -897,99 +799,10 @@
       //Set module back to normal (distance) mode
       Wire.beginTransmission((int)address);
       Wire.write(I2CPE_SET_REPORT_MODE);
-      Wire.write(I2CPE_REPORT_MODE_DISTANCE);
+      Wire.write(I2CPE_REPORT_DISTANCE);
       Wire.endTransmission();
 
     }
-  }
-
-  void EncoderManager::report_error_count(AxisEnum axis) {
-
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        SERIAL_ECHOPGM("Error count on ");
-        SERIAL_ECHO(axis_codes[axis]);
-        SERIAL_ECHOPGM(" axis is ");
-        SERIAL_ECHO(encoderArray[i].get_error_count());
-        SERIAL_ECHOLNPGM(" events.");
-        break;
-      }
-    }
-  }
-
-  void EncoderManager::report_error_count() {
-    LOOP_NA(i)
-      report_error_count((AxisEnum)i);
-  }
-
-  void EncoderManager::reset_error_count(AxisEnum axis) {
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        encoderArray[i].set_error_count(0);
-        SERIAL_ECHOPGM("Error count on ");
-        SERIAL_ECHO(axis_codes[axis]);
-        SERIAL_ECHOLNPGM(" axis has been reset.");
-        break;
-      }
-    }
-  }
-
-  void EncoderManager::reset_error_count() {
-    LOOP_NA(i)
-      reset_error_count((AxisEnum)i);
-  }
-
-  void EncoderManager::enable_error_correction(AxisEnum axis, bool enable) {
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        encoderArray[i].set_error_correct_enabled(enable);
-        SERIAL_ECHOPGM("Error correction on ");
-        SERIAL_ECHO(axis_codes[axis]);
-        SERIAL_ECHOPGM(" axis is ");
-        if(encoderArray[i].get_error_correct_enabled()) {
-          SERIAL_ECHOLNPGM("enabled.");
-        } else {
-          SERIAL_ECHOLNPGM("disabled.");
-        }
-        break;
-      }
-    }
-  }
-
-  void EncoderManager::set_error_correct_threshold(AxisEnum axis, float newThreshold) {
-    LOOP_NA(i)
-      if(encoderArray[i].get_axis() == axis)
-        encoderArray[i].set_error_correct_threshold(newThreshold);
-  }
-
-  void EncoderManager::get_error_correct_threshold(AxisEnum axis) {
-    float threshold = -999;
-
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        threshold = encoderArray[i].get_error_correct_threshold();
-        break;
-      }
-    }
-
-    if(threshold != -999) {
-      SERIAL_ECHOPGM("Error correct threshold on ");
-      SERIAL_ECHO(axis_codes[axis]);
-      SERIAL_ECHOPGM(" axis is ");
-      SERIAL_ECHO(threshold);
-      SERIAL_ECHOLNPGM("mm.");
-    }
-  }
-
-  int EncoderManager::get_encoder_index_from_axis(AxisEnum axis) {
-    int index = -1;
-    LOOP_NA(i) {
-      if(encoderArray[i].get_axis() == axis) {
-        index = i;
-        break;
-      }
-    }
-    return index;
   }
 
 #endif

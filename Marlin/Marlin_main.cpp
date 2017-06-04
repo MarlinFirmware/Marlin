@@ -5625,7 +5625,7 @@ inline void gcode_G92() {
             update_software_endstops((AxisEnum)i);
 
             #if ENABLED(I2C_POSITION_ENCODERS)
-              i2cEncoderManager.encoderArray[i2cEncoderManager.get_encoder_index_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
+              i2cEncoderManager.encoders[i2cEncoderManager.get_encoder_index_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
             #endif
 
           #endif
@@ -9772,7 +9772,7 @@ inline void gcode_M355() {
     // U - units (mm) or raw step count
     // O - include homed zero-offset in returned count
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.report_position(AxisEnum(i), hasU, hasO);
   }
@@ -9781,7 +9781,7 @@ inline void gcode_M355() {
   inline void gcode_M861() {
     bool any = parser.seen_any_axis();
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i])) {
         SERIAL_ECHO(axis_codes[i]);
         SERIAL_ECHOPGM(": ");
@@ -9793,7 +9793,7 @@ inline void gcode_M355() {
   inline void gcode_M862() {
     bool any = parser.seen_any_axis();
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.test_axis(AxisEnum(i));
   }
@@ -9801,9 +9801,9 @@ inline void gcode_M355() {
   //Performs an automatic steps per mm calibration for a given encoder module / axis
   inline void gcode_M863() {
     bool any = parser.seen_any_axis();
-    int iterations = any && parser.seen_val('I') ? constrain(parser.value_int(), 1 , 10) : 1;
+    int iterations = parser.seen_val('I') ? constrain(parser.value_int(), 1 , 10) : 1;
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.calibrate_steps_mm(AxisEnum(i), iterations);
   }
@@ -9817,7 +9817,7 @@ inline void gcode_M355() {
     int newAddress, oldAddress;
     bool addressSelected = false;
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (parser.seen(axis_codes[i])) {
         selectedAxis = AxisEnum(i);
         addressSelected = true;
@@ -9870,7 +9870,7 @@ inline void gcode_M355() {
     int selectedAddress;
     bool addressSelected = false;
 
-    for(int i = 0; i < NUM_AXIS; i++) {
+    LOOP_PE(i) {
       if (parser.seen(axis_codes[i])) {
         selectedAxis = AxisEnum(i);
         addressSelected = true;
@@ -9912,7 +9912,7 @@ inline void gcode_M355() {
     bool any = parser.seen_any_axis();
     bool r = parser.seen('R');
 
-    LOOP_NA(i) {
+    LOOP_PE(i) {
       if (!any || parser.seen(axis_codes[i])) {
         if(r) i2cEncoderManager.reset_error_count(AxisEnum(i));
         else i2cEncoderManager.report_error_count(AxisEnum(i));
@@ -9929,14 +9929,14 @@ inline void gcode_M355() {
     if(parser.seen('O')) { enable = true; toggle = false; }
     else if (parser.seen('D')) { enable = false; toggle = false; }
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i])) {
         if (toggle) {
-          i2cEncoderManager.enable_error_correction(AxisEnum(i),
-                                                    !i2cEncoderManager.encoderArray[i2cEncoderManager.get_encoder_index_from_axis(
-                                                      AxisEnum(i))].get_error_correct_enabled());
+          i2cEncoderManager.enable_ec(AxisEnum(i),
+                                      !i2cEncoderManager.encoders[i2cEncoderManager.get_encoder_index_from_axis(
+                                        AxisEnum(i))].get_error_correct_enabled());
         } else {
-          i2cEncoderManager.enable_error_correction(AxisEnum(i), enable);
+          i2cEncoderManager.enable_ec(AxisEnum(i), enable);
         }
       }
 
@@ -9946,11 +9946,11 @@ inline void gcode_M355() {
     bool any = parser.seen_any_axis();
     float newThreshold = parser.seen_val('T') ? parser.value_float() : -9999;
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i])) {
         if (newThreshold != -9999)
-          i2cEncoderManager.set_error_correct_threshold(AxisEnum(i), newThreshold);
-        else i2cEncoderManager.get_error_correct_threshold(AxisEnum(i));
+          i2cEncoderManager.set_ec_threshold(AxisEnum(i), newThreshold);
+        else i2cEncoderManager.get_ec_threshold(AxisEnum(i));
       }
   }
 
@@ -9959,7 +9959,7 @@ inline void gcode_M355() {
   inline void gcode_M869() {
     bool any = parser.seen_any();
 
-    LOOP_NA(i)
+    LOOP_PE(i)
       if (!any || parser.seen(axis_codes[i]))
         i2cEncoderManager.report_error(AxisEnum(i));
   }
@@ -12764,7 +12764,7 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    if (planner.blocks_queued() && ((blockBufferIndexRef != planner.block_buffer_head) || ((lastUpdateMillis + MIN_UPDATE_TIME_MS) < millis()))) {
+    if (planner.blocks_queued() && ((blockBufferIndexRef != planner.block_buffer_head) || ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis()))) {
       blockBufferIndexRef = planner.block_buffer_head;
       i2cEncoderManager.update();
       lastUpdateMillis = millis();
