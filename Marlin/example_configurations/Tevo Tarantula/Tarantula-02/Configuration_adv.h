@@ -225,11 +225,13 @@
  */
 //#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
-  #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  #define CASE_LIGHT_PIN 4          // can be defined here or in the pins_XXX.h file for your board
+                                    //  pins_XXX.h file overrides this one
+  #define INVERT_CASE_LIGHT false             // set to true if case light is ON when pin is at 0
+  #define CASE_LIGHT_DEFAULT_ON true          // set default power up state to on or off
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // set power up brightness 0-255 ( only used if on PWM
+                                              // and if CASE_LIGHT_DEFAULT is set to on
+  //#define MENU_ITEM_CASE_LIGHT              // Uncomment to have a Case Light entry in main menu
 #endif
 
 //===========================================================================
@@ -778,29 +780,15 @@
  * Requires an LCD display.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-<<<<<<< HEAD:Marlin/example_configurations/Tevo Tarantula/Tarantula-02/Configuration_adv.h
-#define FILAMENT_CHANGE_FEATURE
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-  #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
-  #define FILAMENT_CHANGE_Y_POS 240             // Y position of hotend
-  #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
-  #define FILAMENT_CHANGE_XY_FEEDRATE 225     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
-  #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-  #define FILAMENT_CHANGE_RETRACT_LENGTH 10   // Initial retract in mm
-=======
-
 #define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #define PAUSE_PARK_X_POS 75                 // X position of hotend
-  #define PAUSE_PARK_Y_POS 75                 // Y position of hotend
+  #define PAUSE_PARK_X_POS 3                  // X position of hotend
+  #define PAUSE_PARK_Y_POS 240                // Y position of hotend
   #define PAUSE_PARK_Z_ADD 10                 // Z addition of hotend (lift)
-  #define PAUSE_PARK_XY_FEEDRATE 100          // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define PAUSE_PARK_XY_FEEDRATE 225          // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define PAUSE_PARK_Z_FEEDRATE 5             // Z axis feedrate in mm/s (not used for delta printers)
   #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
-  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
- 
->>>>>>> MarlinFirmware/bugfix-1.1.x:Marlin/example_configurations/gCreate_gMax1.5+/Configuration_adv.h
+  #define PAUSE_PARK_RETRACT_LENGTH 10        // Initial retract in mm
                                               // It is a short retract used immediately after print interrupt before move to filament exchange position
   #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 60  // Unload filament feedrate in mm/s - filament unloading can be fast
   #define FILAMENT_CHANGE_UNLOAD_LENGTH 600   // Unload filament length from hotend in mm
@@ -811,13 +799,8 @@
   #define FILAMENT_CHANGE_LOAD_LENGTH 500     // Load filament length over hotend in mm
                                               // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                               // Short or zero length for printers without bowden where loading is not used
-<<<<<<< HEAD:Marlin/example_configurations/Tevo Tarantula/Tarantula-02/Configuration_adv.h
-  #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 10 // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define FILAMENT_CHANGE_EXTRUDE_LENGTH 10   // Extrude filament length in mm after filament is loaded over the hotend,
-=======
-  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude filament length in mm after filament is loaded over the hotend,
->>>>>>> MarlinFirmware/bugfix-1.1.x:Marlin/example_configurations/gCreate_gMax1.5+/Configuration_adv.h
+  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 10  // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 10    // Extrude filament length in mm after filament is loaded over the hotend,
                                               // 0 to disable for manual extrusion
                                               // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                               // or until outcoming filament color is not clear for filament color change
@@ -1250,7 +1233,7 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
  * Otherwise, adjust according to your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.5
+#define PROPORTIONAL_FONT_RATIO 1.0
 
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser
@@ -1276,8 +1259,8 @@
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  //#define USER_DESC_5 "Home & Info"
-  //#define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 #endif // CONFIGURATION_ADV_H

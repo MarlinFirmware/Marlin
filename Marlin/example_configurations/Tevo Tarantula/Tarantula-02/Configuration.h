@@ -900,24 +900,14 @@
   #define UBL_MESH_INSET 5          // Mesh inset margin on print area
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-<<<<<<< HEAD:Marlin/example_configurations/Tevo Tarantula/Tarantula-02/Configuration.h
   #define UBL_PROBE_PT_1_X 5        // These set the probe locations for when UBL does a 3-Point leveling
   #define UBL_PROBE_PT_1_Y 5        // of the mesh.
   #define UBL_PROBE_PT_2_X 5
   #define UBL_PROBE_PT_2_Y 195
   #define UBL_PROBE_PT_3_X 100
   #define UBL_PROBE_PT_3_Y 195
-  //#define UBL_G26_MESH_EDITING    // Enable G26 mesh editing
-=======
-  #define UBL_PROBE_PT_1_X 39       // These set the probe locations for when UBL does a 3-Point leveling
-  #define UBL_PROBE_PT_1_Y 180      // of the mesh.
-  #define UBL_PROBE_PT_2_X 39
-  #define UBL_PROBE_PT_2_Y 20
-  #define UBL_PROBE_PT_3_X 180
-  #define UBL_PROBE_PT_3_Y 20
   #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
->>>>>>> MarlinFirmware/bugfix-1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
 
 #elif ENABLED(MESH_BED_LEVELING)
 
