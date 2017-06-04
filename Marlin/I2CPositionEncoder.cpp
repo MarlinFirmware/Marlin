@@ -111,12 +111,9 @@
               // it must be > threshold and have a difference average of < 10 and be < 2000 steps
               if (abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] && diffSum < 10*(I2CPE_ERR_ARRAY_SIZE-1) && abs(error) < 2000) { //Check for persistent error (skip)
                 SERIAL_ECHO(axis_codes[encoderAxis]);
-                SERIAL_ECHOPGM(" diffSum: ");
-                SERIAL_ECHO(diffSum/(I2CPE_ERR_ARRAY_SIZE-1));
-                SERIAL_ECHOPGM(" err detected: ");
-                SERIAL_ECHO(error / planner.axis_steps_per_mm[encoderAxis]);
-                SERIAL_ECHOLNPGM("mm");
-                SERIAL_ECHOLNPGM("Correcting");
+                SERIAL_ECHOPAIR(" diffSum: ", diffSum/(I2CPE_ERR_ARRAY_SIZE-1));
+                SERIAL_ECHOPAIR(" - err detected: ", error / planner.axis_steps_per_mm[encoderAxis]);
+                SERIAL_ECHOLNPGM("mm; correcting!");
                 thermalManager.babystepsTodo[encoderAxis] = -lround(error);
               }
             }
@@ -129,12 +126,9 @@
           #endif
 
           if (abs(error) > (I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) && millis() - lastErrorCountTime > I2CPE_ERR_CNT_DEBOUNCE_MS) {
-            SERIAL_ECHOPGM("Large error on ");
-            SERIAL_ECHO(axis_codes[encoderAxis]);
-            SERIAL_ECHOPGM(" axis. error: ");
-            SERIAL_ECHO((int)error);
-            SERIAL_ECHOPGM("; diffSum: ");
-            SERIAL_ECHOLN(diffSum);
+            SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
+            SERIAL_ECHOPAIR(" axis. error: ", (int)error);
+            SERIAL_ECHOLNPAIR("; diffSum: ", diffSum);
             errorCount++;
             lastErrorCountTime = millis();
           }
@@ -373,7 +367,6 @@
     return trusted;
   }
 
-
   void I2CPositionEncoder::calibrate_steps_mm(int iter) {
     float oldStepsMm, newStepsMm, startDistance, endDistance, travelDistance, travelledDistance, total = 0;
     long startCount, stopCount;
@@ -459,8 +452,7 @@
 
     if (iter > 1) {
       total /= (float)iter;
-      SERIAL_ECHOPGM("Average steps per mm: ");
-      SERIAL_ECHOLN(total);
+      SERIAL_ECHOLNPAIR("Average steps per mm: ", total);
     }
 
     errorCorrect = true;
@@ -474,7 +466,6 @@
     Wire.endTransmission();
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
       ZERO(errorArray);
-  //    SERIAL_ECHOLNPGM(" homed");
     #endif
   }
 
@@ -614,8 +605,7 @@
           SERIAL_ECHO((bool)(0x00000001 & (raw_count >> j)));
 
         SERIAL_ECHO((bool)(0x00000001 & (raw_count)));
-        SERIAL_ECHOPGM(" ");
-        SERIAL_ECHOLN(raw_count);
+        SERIAL_ECHOLNPAIR(" ", raw_count);
       } else
         SERIAL_ECHOLN(encoders[idx].get_position());
     }
@@ -884,7 +874,7 @@
         return;
       }
     } else if (!I2CPE_anyaxis) {
-      SERIAL_PROTOCOLLNPGM("?You must specify N or XYZE.");
+      SERIAL_PROTOCOLLNPGM("?You must specify N or [XYZE].");
       return;
     } else {
       if (parser.seen('X')) newAddress = I2CPE_PRESET_ADDR_X;
@@ -1022,7 +1012,6 @@
       else get_ec_threshold((uint8_t)I2CPE_idx, encoders[I2CPE_idx].get_axis());
     }
   }
-
 
   /**
    * M869:  Report position encoder module error.

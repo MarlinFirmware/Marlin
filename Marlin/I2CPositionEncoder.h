@@ -71,7 +71,7 @@
   #define I2CPE_DEF_AXIS                X_AXIS
   #define I2CPE_DEF_ADDR                I2CPE_PRESET_ADDR_X
 
-  // Error event counter. Tracks how many times there is an error surpassing a certain threshold
+  // Error event counter; tracks how many times there is an error exceeding a certain threshold
   #define I2CPE_ERR_CNT_THRESH          3.00
   #define I2CPE_ERR_CNT_DEBOUNCE_MS     2000
 
@@ -107,8 +107,6 @@
   private:
     AxisEnum        encoderAxis             = I2CPE_DEF_AXIS;
 
-    float           errorCorrectThreshold   = I2CPE_DEF_EC_THRESH;
-
     uint8_t         i2cAddress              = I2CPE_DEF_ADDR,
                     errorCorrectMethod      = I2CPE_DEF_EC_METHOD,
                     encoderType             = I2CPE_DEF_TYPE,
@@ -117,25 +115,27 @@
     int             encoderTicksPerUnit     = I2CPE_DEF_ENC_TICKS_UNIT,
                     stepperTicks            = I2CPE_DEF_TICKS_REV;
 
-    bool            homed = false,
-                    trusted = false,
-                    initialised = false,
-                    active = false,
-                    invertDirection = false,
-                    errorCorrect = true;
+    float           errorCorrectThreshold   = I2CPE_DEF_EC_THRESH;
 
-    int             errorCount = 0,
-                    errorPrev = 0;
+    bool            homed                   = false,
+                    trusted                 = false,
+                    initialised             = false,
+                    active                  = false,
+                    invertDirection         = false,
+                    errorCorrect            = true;
 
-    float           axisOffset = 0;
+    int             errorCount              = 0,
+                    errorPrev               = 0;
 
-    long            axisOffsetTicks = 0,
-                    zeroOffset = 0,
-                    lastPosition = 0,
+    float           axisOffset              = 0;
+
+    long            axisOffsetTicks         = 0,
+                    zeroOffset              = 0,
+                    lastPosition            = 0,
                     position;
 
-    unsigned long   lastPositionTime = 0,
-                    lastErrorCountTime = 0,
+    unsigned long   lastPositionTime        = 0,
+                    lastErrorCountTime      = 0,
                     lastErrorTime;
 
     //double        positionMm; //calculate
@@ -226,11 +226,12 @@
   };
 
   class I2CPositionEncodersMgr {
-  public:
+  private:
     bool I2CPE_anyaxis;
     uint8_t I2CPE_addr;
     int8_t I2CPE_idx;
 
+  public:
     void init(void);
 
     // consider only updating one endoder per call / tick if encoders become too time intensive
