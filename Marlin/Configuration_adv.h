@@ -1265,10 +1265,13 @@
 //============================ I2C Encoder Settings =========================
 //===========================================================================
 /**
- *  I2C encoders developed by Chris Barr at Aus3D
+ *  I2C position encoders for closed loop control.
+ *  Developed by Chris Barr at Aus3D.
+ *
  *  Wiki: http://wiki.aus3d.com.au/Magnetic_Encoder
  *  Github: https://github.com/Aus3D/MagneticEncoder
- *  Store: http://aus3d.com.au/magnetic-encoder-module
+ *
+ *  Supplier: http://aus3d.com.au/magnetic-encoder-module
  *  Alternative Supplier: http://reliabuild3d.com/
  *
  *  Reilabuild encoders have been modified to improve reliability.
@@ -1283,19 +1286,18 @@
   #define I2CPE_ENC_1_ADDR          I2CPE_PRESET_ADDR_X     // I2C address of the given encoder
   #define I2CPE_ENC_1_AXIS          X_AXIS                  // Axis the encoder module corresponds to
   #define I2CPE_ENC_1_INVERT        false                   // Invert the direction of axis travel
-  #define I2CPE_ENC_1_EC_THRESH     0.50                    // Set the threshold below which errors will be ignored
+  #define I2CPE_ENC_1_EC_THRESH     0.10                    // Set the threshold below which errors will be ignored
   #define I2CPE_ENC_1_TYPE          I2CPE_ENC_TYPE_LINEAR   // Type of encoder
   #define I2CPE_ENC_1_TICKS_UNIT    2048                    // 1024 for magnetic strips with 2mm poles; 2048 for
                                                             // 1mm poles. For linear encoders this is ticks / mm,
                                                             // for rotary encoders this is ticks / revolution
-
   //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders, number of stepper
                                                             // ticks per revolution
 
   #define I2CPE_ENC_2_ADDR          I2CPE_PRESET_ADDR_Y     // Same as above, but for encoder 2.
   #define I2CPE_ENC_2_AXIS          Y_AXIS
   #define I2CPE_ENC_2_INVERT        false
-  #define I2CPE_ENC_2_EC_THRESH     0.50
+  #define I2CPE_ENC_2_EC_THRESH     0.10
   #define I2CPE_ENC_2_TYPE          I2CPE_ENC_TYPE_LINEAR
   #define I2CPE_ENC_2_TICKS_UNIT    2048
   //#define I2CPE_ENC_2_TICKS_REV   (16 * 200)
@@ -1306,8 +1308,8 @@
   // enabled but do not have settings specified
 
   #define I2CPE_DEF_ENC_TICKS_UNIT  2048
-  #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_ROTARY   // type of encoder
-  #define I2CPE_DEF_TICKS_REV       (16 * 200)              // number of stepper steps per full revolution (motor
+  #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_ROTARY   // Type of encoder
+  #define I2CPE_DEF_TICKS_REV       (16 * 200)              // Number of stepper steps per full revolution (motor
                                                             // steps per rev * microstepping)
   #define I2CPE_DEF_EC_THRESH       0.1                     // number of mm in error above which the printer will
                                                             // attempt to correct the error, errors smaller than

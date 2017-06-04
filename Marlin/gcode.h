@@ -132,7 +132,7 @@ public:
       return codebits[3] || codebits[2] || codebits[1] || codebits[0];
     }
 
-    static volatile bool seen_any_axis() {
+    static volatile bool seen_axis() {
       return TEST(codebits[23 >> 3], 23 & 0x7) || //X
              TEST(codebits[24 >> 3], 24 & 0x7) || //Y
              TEST(codebits[25 >> 3], 25 & 0x7) || //Z
@@ -150,10 +150,10 @@ public:
     }
 
     static volatile bool seen_any() {
-      return strlen(command_args)!=0; // todo: is this right?
+      return *command_args == '\0';
     }
 
-    static volatile bool seen_any_axis() {
+    static volatile bool seen_axis() {
       return !!strchr(command_args, 'X') || //X
              !!strchr(command_args, 'Y') || //Y
              !!strchr(command_args, 'Z') || //Z
@@ -170,7 +170,7 @@ public:
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
 
   // Seen and has value
-  FORCE_INLINE static bool seen_val(const char c) { return seen(c) && has_value(); }
+  FORCE_INLINE static bool seenval(const char c) { return seen(c) && has_value(); }
 
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {
