@@ -535,7 +535,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA  // probably should also be enabled for UBL without UBL_DELTA
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
       if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
@@ -550,7 +550,7 @@ void Planner::check_axes_activity() {
       if (!abl_enabled) return;
     #endif
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_UBL)
       static float z_fade_factor = 1.0, last_raw_lz = -999.0;
       if (z_fade_height) {
         const float raw_lz = RAW_Z_POSITION(lz);
@@ -599,36 +599,38 @@ void Planner::check_axes_activity() {
 
   void Planner::unapply_leveling(float logical[XYZ]) {
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && UBL_DELTA
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
 
       if (ubl.state.active) {
 
-        const float z_leveled = RAW_Z_POSITION(logical[Z_AXIS]),
-                    z_ublmesh = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]);
-              float z_unlevel = z_leveled - ubl.state.z_offset - z_ublmesh;
+        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]);
+        const float z_ublmesh  = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]);
+        const float z_virtual  = z_physical - ubl.state.z_offset - z_ublmesh;
+              float z_logical  = LOGICAL_Z_POSITION(z_virtual);
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-          // for L=leveled, U=unleveled, M=mesh, O=offset, H=fade_height,
-          // Given L==U+O+M(1-U/H) (faded mesh correction formula for U<H)
-          //  then U==L-O-M(1-U/H)
-          //    so U==L-O-M+MU/H
-          //    so U-MU/H==L-O-M
-          //    so U(1-M/H)==L-O-M
-          //    so U==(L-O-M)/(1-M/H) for U<H
+          // for P=physical_z, L=logical_z, M=mesh_z, O=z_offset, H=fade_height,
+          // Given P=L+O+M(1-L/H) (faded mesh correction formula for L<H)
+          //  then L=P-O-M(1-L/H)
+          //    so L=P-O-M+ML/H
+          //    so L-ML/H=P-O-M
+          //    so L(1-M/H)=P-O-M
+          //    so L=(P-O-M)/(1-M/H) for L<H
 
           if (planner.z_fade_height) {
-            const float z_unfaded = z_unlevel / (1.0 - z_ublmesh * planner.inverse_z_fade_height);
-            if (z_unfaded < planner.z_fade_height)  // don't know until after compute
-              z_unlevel = z_unfaded;
+            if (z_logical < planner.z_fade_height )
+              z_logical = z_logical / (1.0 - (z_ublmesh * planner.inverse_z_fade_height));
+            if (z_logical >= planner.z_fade_height)
+              z_logical = LOGICAL_Z_POSITION(z_physical - ubl.state.z_offset);
           }
 
         #endif // ENABLE_LEVELING_FADE_HEIGHT
 
-        logical[Z_AXIS] = z_unlevel;
+        logical[Z_AXIS] = z_logical;
       }
 
-      return; // don't fall thru to HAS_ABL or other ENABLE_LEVELING_FADE_HEIGHT logic
+      return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
 
     #endif
 

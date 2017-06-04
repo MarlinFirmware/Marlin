@@ -382,19 +382,17 @@ void lcd_implementation_clear() { lcd.clear(); }
 
 void lcd_print(const char c) { charset_mapper(c); }
 
-void lcd_print(const char * const str) { for (uint8_t i = 0; char c = str[i]; ++i) lcd.print(c); }
-void lcd_printPGM(const char* str) { for (; char c = pgm_read_byte(str); ++str) lcd.print(c); }
+void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
+void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
 
-void lcd_print_utf(const char * const str, const uint8_t maxLength=LCD_WIDTH) {
+void lcd_print_utf(const char *str, uint8_t n=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
-    n -= charset_mapper(c);
+  while (n && (c = *str)) n -= charset_mapper(c), ++str;
 }
 
-void lcd_printPGM_utf(const char* str, const uint8_t maxLength=LCD_WIDTH) {
+void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   char c;
-  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
-    n -= charset_mapper(c);
+  while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -831,8 +829,8 @@ static void lcd_implementation_status_screen() {
     const uint8_t slen = lcd_strlen(lcd_status_message);
     if (slen > LCD_WIDTH) {
       // Skip any non-printing bytes
-      while (!PRINTABLE(lcd_status_message[status_scroll_pos])) ++status_scroll_pos;
-      if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      while (!PRINTABLE(lcd_status_message[status_scroll_pos++])) { /* nada */ }
+      if (status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
     }
   #else
     lcd_print_utf(lcd_status_message);
@@ -846,10 +844,7 @@ static void lcd_implementation_status_screen() {
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
         lcd.setCursor(LCD_WIDTH - 9, row);
-        lcd.print(LCD_STR_THERMOMETER[0]);
-        lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
-        lcd.print('/');
-        lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+        _draw_heater_status(active_extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
 

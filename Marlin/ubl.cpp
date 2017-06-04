@@ -83,7 +83,7 @@
   }
 
   void unified_bed_leveling::reset() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
     state.storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -94,11 +94,17 @@
   }
 
   void unified_bed_leveling::invalidate() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
-    for (int x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (int y = 0; y < GRID_MAX_POINTS_Y; y++)
-        z_values[x][y] = NAN;
+    set_all_mesh_points_to_value(NAN);
+  }
+
+  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+        z_values[x][y] = value;
+      }
+    }
   }
 
   void unified_bed_leveling::display_map(const int map_type) {

@@ -184,6 +184,7 @@ void GCodeParser::parse(char *p) {
 
     if (PARAM_TEST) {
 
+      while (*p == ' ') p++;                    // skip spaces vetween parameters & values
       const bool has_num = DECIMAL_SIGNED(*p);  // The parameter has a number [-+0-9.]
 
       #if ENABLED(DEBUG_GCODE_PARSER)
@@ -220,8 +221,10 @@ void GCodeParser::parse(char *p) {
       #endif
     }
 
-    while (*p && *p != ' ') p++;                // Skip over the parameter
-    while (*p == ' ') p++;                      // Skip over all spaces
+    if (!WITHIN(*p, 'A', 'Z')) {
+      while (*p && NUMERIC(*p)) p++;              // Skip over the value section of a parameter
+      while (*p == ' ') p++;                      // Skip over all spaces
+    }
   }
 }
 

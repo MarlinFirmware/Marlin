@@ -220,12 +220,16 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
-// Define a pin to turn case light on/off
-//#define CASE_LIGHT_PIN 4
-#if PIN_EXISTS(CASE_LIGHT)
-  #define INVERT_CASE_LIGHT false   // Set to true if HIGH is the OFF state (active low)
-  //#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
-  //#define MENU_ITEM_CASE_LIGHT    // Uncomment to have a Case Light On / Off entry in main menu
+/**
+ * M355 Case Light on-off / brightness
+ */
+//#define CASE_LIGHT_ENABLE
+#if ENABLED(CASE_LIGHT_ENABLE)
+  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
+  #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
+  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
 #endif
 
 //===========================================================================
@@ -1021,7 +1025,7 @@
    */
   #define  TMC2130_ADV() {  }
 
-#endif // ENABLED(HAVE_TMC2130)
+#endif // HAVE_TMC2130
 
 // @section L6470
 

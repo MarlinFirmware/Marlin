@@ -176,7 +176,7 @@
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
- * M355 - Turn the Case Light on/off and set its brightness. (Requires CASE_LIGHT_PIN)
+ * M355 - Set Case Light on/off and set brightness. (Requires CASE_LIGHT_PIN)
  * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
  * M400 - Finish all moves.
@@ -566,16 +566,6 @@ static uint8_t target_extruder;
   ;
 #endif
 
-#if HAS_CASE_LIGHT
-  bool case_light_on =
-    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-      true
-    #else
-      false
-    #endif
-  ;
-#endif
-
 #if ENABLED(DELTA)
 
   float delta[ABC],
@@ -709,7 +699,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 #endif
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
-static void report_current_position();
+void report_current_position();
+void report_current_position_detail();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
@@ -720,7 +711,8 @@ static void report_current_position();
     SERIAL_ECHOPAIR(", ", z);
     SERIAL_CHAR(')');
 
-    suffix ? serialprintPGM(suffix) : SERIAL_EOL;
+    if (suffix) {serialprintPGM(suffix);}  //won't compile for Teensy with the previous construction
+    else SERIAL_EOL;
   }
 
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
@@ -1545,14 +1537,21 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    if ( current_position[X_AXIS] == destination[X_AXIS]
-      && current_position[Y_AXIS] == destination[Y_AXIS]
-      && current_position[Z_AXIS] == destination[Z_AXIS]
-      && current_position[E_AXIS] == destination[E_AXIS]
-    ) return;
-
     refresh_cmd_timeout();
-    planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+
+    #if UBL_DELTA
+      // ubl segmented line will do z-only moves in single segment
+      ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
+    #else
+      if ( current_position[X_AXIS] == destination[X_AXIS]
+        && current_position[Y_AXIS] == destination[Y_AXIS]
+        && current_position[Z_AXIS] == destination[Z_AXIS]
+        && current_position[E_AXIS] == destination[E_AXIS]
+      ) return;
+
+      planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+    #endif
+
     set_current_to_destination();
   }
 #endif // IS_KINEMATIC
@@ -2354,17 +2353,20 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enabling) planner.unapply_leveling(current_position);
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-
         #if PLANNER_LEVELING
-
-          if (!enable)   // leveling from on to off
+          if (ubl.state.active) {                       // leveling from on to off
+            // change unleveled current_position to physical current_position without moving steppers.
             planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-          else
+            ubl.state.active = false;                   // disable only AFTER calling apply_leveling
+          }
+          else {                                        // leveling from off to on
+            ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
+            // change physical current_position to unleveled current_position without moving steppers.
             planner.unapply_leveling(current_position);
-
+          }
+        #else
+          ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
         #endif
-
-        ubl.state.active = enable;
 
       #else // ABL
 
@@ -2374,8 +2376,12 @@ static void clean_up_after_endstop_or_probe_move() {
           (void)bilinear_z_offset(reset);
         #endif
 
+        // Enable or disable leveling compensation in the planner
         planner.abl_enabled = enable;
+
         if (!enable)
+          // When disabling just get the current position from the steppers.
+          // This will yield the smallest error when first converted back to steps.
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -2384,26 +2390,44 @@ static void clean_up_after_endstop_or_probe_move() {
             #endif
           );
         else
+          // When enabling, remove compensation from the current position,
+          // so compensation will give the right stepper counts.
           planner.unapply_leveling(current_position);
 
-      #endif
+      #endif // ABL
     }
   }
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
     void set_z_fade_height(const float zfh) {
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
 
-      if (leveling_is_active())
-        set_current_from_steppers_for_axis(
-          #if ABL_PLANAR
-            ALL_AXES
-          #else
-            Z_AXIS
-          #endif
-        );
+      const bool level_active = leveling_is_active();
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+        if (level_active)
+          set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
+        planner.z_fade_height = zfh;
+        planner.inverse_z_fade_height = RECIPROCAL(zfh);
+        if (level_active)
+          set_bed_leveling_enabled(true);  // turn back on after changing fade height
+
+      #else
+
+        planner.z_fade_height = zfh;
+        planner.inverse_z_fade_height = RECIPROCAL(zfh);
+
+        if (level_active) {
+          set_current_from_steppers_for_axis(
+            #if ABL_PLANAR
+              ALL_AXES
+            #else
+              Z_AXIS
+            #endif
+          );
+        }
+      #endif
     }
 
   #endif // LEVELING_FADE_HEIGHT
@@ -3665,6 +3689,7 @@ inline void gcode_G28(const bool always_home_all) {
   #if ENABLED(DELTA)
 
     home_delta();
+    UNUSED(always_home_all);
 
   #else // NOT DELTA
 
@@ -4178,19 +4203,19 @@ void home_all_axes() { gcode_G28(true); }
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
-      #if ABL_PLANAR
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
         ABL_VAR bool do_topography_map;
-      #else // 3-point
+      #else // Bilinear
         uint8_t constexpr abl_grid_points_x = GRID_MAX_POINTS_X,
                           abl_grid_points_y = GRID_MAX_POINTS_Y;
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(PROBE_MANUALLY)
-        #if ABL_PLANAR
+        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           ABL_VAR int abl2;
-        #else // 3-point
+        #else // Bilinear
           int constexpr abl2 = GRID_MAX_POINTS;
         #endif
       #endif
@@ -4209,6 +4234,8 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+
+      int constexpr abl2 = 3;
 
       // Probe at 3 arbitrary points
       ABL_VAR vector_3 points[3] = {
@@ -4502,7 +4529,7 @@ void home_all_axes() { gcode_G28(true); }
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
-          points[i].z = measured_z;
+          points[abl_probe_index].z = measured_z;
 
         #endif
       }
@@ -5263,7 +5290,7 @@ void home_all_axes() { gcode_G28(true); }
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
-        else if(zero_std_dev >= test_precision) {   // step one back
+        else if (zero_std_dev >= test_precision) {   // step one back
           COPY(endstop_adj, e_old);
           delta_radius = dr_old;
           home_offset[Z_AXIS] = zh_old;
@@ -5940,7 +5967,8 @@ inline void gcode_M17() {
       idle();
       wait_for_heatup = false;
       HOTEND_LOOP() {
-        if (abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+        const int16_t target_temp = thermalManager.degTargetHotend(e);
+        if (target_temp && abs(thermalManager.degHotend(e) - target_temp) > 3) {
           wait_for_heatup = true;
           break;
         }
@@ -6362,9 +6390,8 @@ inline void gcode_M42() {
       #endif
 
       SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
-      pinMode(PROBE_TEST_PIN, INPUT_PULLUP);
-      bool deploy_state;
-      bool stow_state;
+      SET_INPUT_PULLUP(PROBE_TEST_PIN);
+      bool deploy_state, stow_state;
       for (uint8_t i = 0; i < 4; i++) {
         servo[probe_index].move(z_servo_angle[0]); //deploy
         safe_delay(500);
@@ -7601,7 +7628,7 @@ inline void gcode_M92() {
 /**
  * Output the current position to serial
  */
-static void report_current_position() {
+void report_current_position() {
   SERIAL_PROTOCOLPGM("X:");
   SERIAL_PROTOCOL(current_position[X_AXIS]);
   SERIAL_PROTOCOLPGM(" Y:");
@@ -7620,10 +7647,119 @@ static void report_current_position() {
   #endif
 }
 
+#ifdef M114_DETAIL
+
+  static const char axis_char[XYZE] = {'X','Y','Z','E'};
+
+  void report_xyze(const float pos[XYZE], uint8_t n = 4, uint8_t precision = 3) {
+    char str[12];
+    for(uint8_t i=0; i<n; i++) {
+      SERIAL_CHAR(' ');
+      SERIAL_CHAR(axis_char[i]);
+      SERIAL_CHAR(':');
+      SERIAL_PROTOCOL(dtostrf(pos[i],8,precision,str));
+    }
+    SERIAL_EOL;
+  }
+
+  inline void report_xyz(const float pos[XYZ]) {
+    report_xyze(pos,3);
+  }
+
+  void report_current_position_detail() {
+
+    stepper.synchronize();
+
+    SERIAL_EOL;
+    SERIAL_PROTOCOLPGM("Logical:");
+    report_xyze(current_position);
+
+    SERIAL_PROTOCOLPGM("Raw:    ");
+    const float raw[XYZ] = {
+      RAW_X_POSITION(current_position[X_AXIS]),
+      RAW_Y_POSITION(current_position[Y_AXIS]),
+      RAW_Z_POSITION(current_position[Z_AXIS])
+    };
+    report_xyz(raw);
+
+    SERIAL_PROTOCOLPGM("Leveled:");
+    float leveled[XYZ] = {
+      current_position[X_AXIS],
+      current_position[Y_AXIS],
+      current_position[Z_AXIS]
+    };
+    planner.apply_leveling(leveled);
+    report_xyz(leveled);
+
+    SERIAL_PROTOCOLPGM("UnLevel:");
+    float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
+    planner.unapply_leveling(unleveled);
+    report_xyz(unleveled);
+
+    #if IS_KINEMATIC
+      #if IS_SCARA
+        SERIAL_PROTOCOLPGM("ScaraK: ");
+      #else
+        SERIAL_PROTOCOLPGM("DeltaK: ");
+      #endif
+      inverse_kinematics(leveled);  // writes delta[]
+      report_xyz(delta);
+    #endif
+
+    SERIAL_PROTOCOLPGM("Stepper:");
+    const float step_count[XYZE] = {
+      (float)stepper.position(X_AXIS),
+      (float)stepper.position(Y_AXIS),
+      (float)stepper.position(Z_AXIS),
+      (float)stepper.position(E_AXIS)
+    };
+    report_xyze(step_count,4,0);
+
+    #if IS_SCARA
+      const float deg[XYZ] = {
+        stepper.get_axis_position_degrees(A_AXIS),
+        stepper.get_axis_position_degrees(B_AXIS)
+      };
+      SERIAL_PROTOCOLPGM("Degrees:");
+      report_xyze(deg,2);
+    #endif
+
+    SERIAL_PROTOCOLPGM("FromStp:");
+    get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
+    const float from_steppers[XYZE] = {
+      cartes[X_AXIS],
+      cartes[Y_AXIS],
+      cartes[Z_AXIS],
+      stepper.get_axis_position_mm(E_AXIS)
+    };
+    report_xyze(from_steppers);
+
+    const float diff[XYZE] = {
+      from_steppers[X_AXIS] - leveled[X_AXIS],
+      from_steppers[Y_AXIS] - leveled[Y_AXIS],
+      from_steppers[Z_AXIS] - leveled[Z_AXIS],
+      from_steppers[E_AXIS] - current_position[E_AXIS]
+    };
+    SERIAL_PROTOCOLPGM("Differ: ");
+    report_xyze(diff);
+  }
+#endif // M114_DETAIL
+
 /**
  * M114: Output current position to serial port
  */
-inline void gcode_M114() { stepper.synchronize(); report_current_position(); }
+inline void gcode_M114() {
+
+  #ifdef M114_DETAIL
+    if ( parser.seen('D') ) {
+      report_current_position_detail();
+      return;
+    }
+  #endif
+
+  stepper.synchronize();
+  report_current_position();
+  }
 
 /**
  * M115: Capabilities string
@@ -7678,11 +7814,18 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:0");
     #endif
 
-    // TOGGLE_LIGHTS (M355)
+    // CASE LIGHTS (M355)
     #if HAS_CASE_LIGHT
       SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:1");
+      bool USEABLE_HARDWARE_PWM(uint8_t pin);
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:1");
+      }
+      else
+        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:0");
+      SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
     #endif
 
     // EMERGENCY_PARSER (M108, M112, M410)
@@ -9472,30 +9615,54 @@ inline void gcode_M907() {
 #endif // HAS_MICROSTEPS
 
 #if HAS_CASE_LIGHT
-
-  uint8_t case_light_brightness = 255;
+  #ifndef INVERT_CASE_LIGHT
+    #define INVERT_CASE_LIGHT false
+  #endif
+  int case_light_brightness;  // LCD routine wants INT
+  bool case_light_on;
 
   void update_case_light() {
-    WRITE(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
-    analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
+    pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
+    uint8_t case_light_bright = (uint8_t)case_light_brightness;
+    if (case_light_on) {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
+      }
+      else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH );
+    }
+    else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
   }
-
 #endif // HAS_CASE_LIGHT
 
 /**
- * M355: Turn case lights on/off and set brightness
+ * M355: Turn case light on/off and set brightness
  *
- *   S<bool>  Turn case light on or off
- *   P<byte>  Set case light brightness (PWM pin required)
+ *   P<byte>  Set case light brightness (PWM pin required - ignored otherwise)
+ *
+ *   S<bool>  Set case light on/off
+ *
+ *   When S turns on the light on a PWM pin then the current brightness level is used/restored
+ *
+ *   M355 P200 S0 turns off the light & sets the brightness level
+ *   M355 S1 turns on the light with a brightness of 200 (assuming a PWM pin)
  */
 inline void gcode_M355() {
   #if HAS_CASE_LIGHT
-    if (parser.seen('P')) case_light_brightness = parser.value_byte();
-    if (parser.seen('S')) case_light_on = parser.value_bool();
-    update_case_light();
+    uint8_t args = 0;
+    if (parser.seen('P')) ++args, case_light_brightness = parser.value_byte();
+    if (parser.seen('S')) ++args, case_light_on = parser.value_bool();
+    if (args) update_case_light();
+
+    // always report case light status
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Case lights ");
-    case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
+    if (!case_light_on) {
+      SERIAL_ECHOLN("Case light: off");
+    }
+    else {
+      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLN("Case light: on");
+      else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
+    }
+
   #else
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
@@ -10710,7 +10877,7 @@ void process_next_command() {
 
       #endif // HAS_MICROSTEPS
 
-      case 355: // M355 Turn case lights on/off
+      case 355: // M355 set case light brightness
         gcode_M355();
         break;
 
@@ -10782,6 +10949,15 @@ void ok_to_send() {
   /**
    * Constrain the given coordinates to the software endstops.
    */
+
+  // NOTE: This makes no sense for delta beds other than Z-axis.
+  //       For delta the X/Y would need to be clamped at
+  //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
+  //       now enforces is_position_reachable for X/Y regardless
+  //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
+  //       redundant here.  Probably should #ifdef out the X/Y
+  //       axis clamps here for delta and just leave the Z clamp.
+
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
     #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
@@ -11575,14 +11751,14 @@ void prepare_move_to_destination() {
   if (
     #if IS_KINEMATIC
       #if UBL_DELTA
-        ubl.prepare_linear_move_to(destination, feedrate_mm_s)
+        ubl.prepare_segmented_line_to(destination, feedrate_mm_s)
       #else
         prepare_kinematic_move_to(destination)
       #endif
     #elif ENABLED(DUAL_X_CARRIAGE)
       prepare_move_to_destination_dualx()
     #elif UBL_DELTA // will work for CARTESIAN too (smaller segments follow mesh more closely)
-      ubl.prepare_linear_move_to(destination, feedrate_mm_s)
+      ubl.prepare_segmented_line_to(destination, feedrate_mm_s)
     #else
       prepare_move_to_destination_cartesian()
     #endif
@@ -11827,7 +12003,7 @@ void prepare_move_to_destination() {
     else
       C2 = (HYPOT2(sx, sy) - (L1_2 + L2_2)) / (2.0 * L1 * L2);
 
-    S2 = sqrt(sq(C2) - 1);
+    S2 = sqrt(1 - sq(C2));
 
     // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
     SK1 = L1 + L2 * C2;
@@ -12459,6 +12635,8 @@ void setup() {
   #endif
 
   #if HAS_CASE_LIGHT
+    case_light_on = CASE_LIGHT_DEFAULT_ON;
+    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
     update_case_light();
   #endif
 
@@ -12551,6 +12729,14 @@ void setup() {
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
+  #endif
+  
+  #if ENABLED(SWITCHING_EXTRUDER)
+    move_extruder_servo(0);  // Initialize extruder servo
+  #endif
+
+  #if ENABLED(SWITCHING_NOZZLE)
+    move_nozzle_servo(0);  // Initialize nozzle servo
   #endif
 }
 

@@ -127,7 +127,6 @@
 #define DECIMAL(a) (NUMERIC(a) || a == '.')
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
-#define PRINTABLE(C) (((C) & 0xC0u) != 0x80u)
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
 #define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))

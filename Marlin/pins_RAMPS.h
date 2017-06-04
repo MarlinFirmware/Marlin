@@ -196,16 +196,16 @@
 #define SDSS               53
 #define LED_PIN            13
 
-// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-#define FILWIDTH_PIN        5   // Analog Input
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN      5   // Analog Input on AUX2
+#endif
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #define FIL_RUNOUT_PIN      4
 
 #define PS_ON_PIN          12
 
-#if !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
-  #undef CASE_LIGHT_PIN
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
     #define CASE_LIGHT_PIN   6      // MUST BE HARDWARE PWM
   #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \

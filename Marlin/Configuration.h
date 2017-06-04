@@ -312,6 +312,7 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+
   // Ultimaker
   #define  DEFAULT_Kp 22.2
   #define  DEFAULT_Ki 1.08
@@ -1154,7 +1155,7 @@
  *  - Click the controller to view the LCD menu
  *  - The LCD will display Japanese, Western, or Cyrillic text
  *
- * See https: *github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ * See https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  * :['JAPANESE', 'WESTERN', 'CYRILLIC']
  */

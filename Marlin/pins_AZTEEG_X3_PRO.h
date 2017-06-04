@@ -28,11 +28,12 @@
   #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Azteeg X3 Pro"
-
-#if !PIN_EXISTS(CASE_LIGHT)         // doesn't already exist so OK to change the definition coming
-  #define OK_TO_CHANGE_CASE_LIGHT   // in from from the include file
+#if ENABLED(CASE_LIGHT_ENABLE)  && !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN 44     // must define it here or else RAMPS will define it
 #endif
+
+
+#define BOARD_NAME "Azteeg X3 Pro"
 
 #include "pins_RAMPS.h"
 
@@ -144,19 +145,16 @@
 //
 // Misc. Functions
 //
-#if ENABLED(OK_TO_CHANGE_CASE_LIGHT)
+#if ENABLED(CASE_LIGHT_ENABLE)  && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
   #undef DOGLCD_A0            // steal pin 44 for the case light; if you have a Viki2 and have connected it
   #define DOGLCD_A0      57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
-                              // as the wiring diagram uses pin 44 for DOGLCD_A0
-
-  #undef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN 44    // must have a hardware PWM
+                                // as the wiring diagram uses pin 44 for DOGLCD_A0
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3 board
+#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3pro board
 #undef SPINDLE_LASER_ENABLE_PIN
 #undef SPINDLE_DIR_PIN
 

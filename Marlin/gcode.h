@@ -120,7 +120,7 @@ public:
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static volatile bool seen(const char c) {
       const uint8_t ind = c - 'A';
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST(codebits[ind >> 3], ind & 0x7);
@@ -132,10 +132,10 @@ public:
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static volatile bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : NULL;
+      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
 
@@ -227,7 +227,7 @@ public:
         return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
       }
       FORCE_INLINE static char* temp_units_name() {
-        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius")
+        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
       }
       inline static float to_temp_units(const float &f) {
         switch (input_temp_units) {

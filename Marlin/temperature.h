@@ -112,10 +112,6 @@ class Temperature {
 
     static volatile bool in_temp_isr;
 
-    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static float redundant_temperature;
-    #endif
-
     static uint8_t soft_pwm_amount[HOTENDS],
                    soft_pwm_amount_bed;
 
