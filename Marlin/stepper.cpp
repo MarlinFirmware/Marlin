@@ -1353,7 +1353,6 @@ void Stepper::report_positions() {
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
     cli();
-    uint8_t old_dir;
 
     switch (axis) {
 
