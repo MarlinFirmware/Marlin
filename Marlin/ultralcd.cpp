@@ -1094,6 +1094,7 @@ void kill_screen(const char* lcd_msg) {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
     void lcd_enqueue_filament_change() {
       if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
         lcd_save_previous_screen();
@@ -1103,7 +1104,8 @@ void kill_screen(const char* lcd_msg) {
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600 B0"));
     }
-  #endif
+
+  #endif // ADVANCED_PAUSE_FEATURE
 
   /**
    *
