@@ -108,7 +108,7 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
-#define SIGN(a) ((a>0) - (a<0))
+#define SIGN(a) ((a>0)-(a<0))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
