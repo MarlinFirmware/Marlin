@@ -55,7 +55,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("レベリングカイシ")                // "Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ツギノソクテイテンヘ")             // "Next Point"
 #define MSG_LEVEL_BED_DONE                  _UxGT("レベリングカンリョウ")              // "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                _UxGT("トリヤメ")                      // "Cancel"
 #define MSG_SET_HOME_OFFSETS                _UxGT("キジュンオフセットセッテイ")         // "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("オフセットガテキヨウサレマシタ")       // "Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("キジュンセット")                 // "Set origin"
@@ -75,6 +74,7 @@
 #define MSG_EXTRUDE                         _UxGT("オシダシ")                     // "Extrude"
 #define MSG_RETRACT                         _UxGT("ヒキコミセッテイ")                // "Retract"
 #define MSG_MOVE_AXIS                       _UxGT("ジクイドウ")                    // "Move axis"
+#define MSG_BED_LEVELING                    _UxGT("ベッドレベリング")                // "Bed leveling"
 #define MSG_LEVEL_BED                       _UxGT("ベッドレベリング")                // "Level bed"
 #define MSG_MOVING                          _UxGT("イドウチュウ")                   // "Moving..."
 #define MSG_FREE_XY                         _UxGT("XYジク カイホウ")                // "Free XY"
@@ -104,6 +104,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("センタク")                     // "Select"
 #define MSG_ACC                             _UxGT("カソクド mm/s2")               // "Accel"
+#define MSG_JERK                            _UxGT("ヤクド mm/s")                  // "Jerk"
 #define MSG_VX_JERK                         _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
 #define MSG_VY_JERK                         _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
 #define MSG_VZ_JERK                         _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
@@ -111,18 +112,10 @@
 #define MSG_VMAX                            _UxGT("サイダイオクリソクド ")            // "Vmax "
 #define MSG_VMIN                            _UxGT("サイショウオクリソクド")           // "Vmin"
 #define MSG_VTRAV_MIN                       _UxGT("サイショウイドウソクド")           // "VTrav min"
+#define MSG_ACCELERATION                    MSG_ACC
 #define MSG_AMAX                            _UxGT("サイダイカソクド ")              // "Amax "
 #define MSG_A_RETRACT                       _UxGT("ヒキコミカソクド")               // "A-retract"
 #define MSG_A_TRAVEL                        _UxGT("イドウカソクド")                // "A-travel"
-#define MSG_XSTEPS                          _UxGT("Xsteps/mm")
-#define MSG_YSTEPS                          _UxGT("Ysteps/mm")
-#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
-#define MSG_ESTEPS                          _UxGT("Esteps/mm")
-#define MSG_E1STEPS                         _UxGT("E1steps/mm")
-#define MSG_E2STEPS                         _UxGT("E2steps/mm")
-#define MSG_E3STEPS                         _UxGT("E3steps/mm")
-#define MSG_E4STEPS                         _UxGT("E4steps/mm")
-#define MSG_E5STEPS                         _UxGT("E5steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("オンド")                      // "Temperature"
 #define MSG_MOTION                          _UxGT("ウゴキセッテイ")                // "Motion"
 #define MSG_FILAMENT                        _UxGT("フィラメント")                   // "Filament"
@@ -199,8 +192,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("エクストルーダースウ")             // "Extruders"
 #define MSG_INFO_BAUDRATE                   _UxGT("ボーレート")                    // "Baud"
 #define MSG_INFO_PROTOCOL                   _UxGT("プロトコル")                    // "Protocol"
-#define MSG_LIGHTS_ON                       _UxGT("キョウタイナイショウメイ オン")       // "Case light on"
-#define MSG_LIGHTS_OFF                      _UxGT("キョウタイナイショウメイ オフ")       // "Case light off"
+#define MSG_CASE_LIGHT                      _UxGT("キョウタイナイショウメイ")       // "Case light"
 #define MSG_INFO_PRINT_COUNT                _UxGT("プリントスウ ")                  // "Print Count"
 #define MSG_INFO_COMPLETED_PRINTS           _UxGT("カンリョウスウ")                  // "Completed"
 #define MSG_INFO_PRINT_TIME                 _UxGT("プリントジカンルイケイ")            // "Total print time"
@@ -212,8 +204,8 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("モータークドウリョク")              // "Drive Strength"
 #define MSG_DAC_PERCENT                     _UxGT("DACシュツリョク %")               // "Driver %"
 #define MSG_DAC_EEPROM_WRITE                MSG_STORE_EPROM                     // "DAC EEPROM Write"
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("フィラメントコウカン")              // "CHANGE FILAMENT"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ドウサヲセンタクシテクダサイ")        // "CHANGE OPTIONS:"
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("サラニオシダス")                 // "Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("コウカンヲカイシシマス")            // "Wait for start"
