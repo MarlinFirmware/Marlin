@@ -30,6 +30,7 @@
   #include "configuration_store.h"
   #include "ultralcd.h"
   #include "stepper.h"
+  #include "planner.h"
   #include "gcode.h"
 
   #include <math.h>
@@ -48,6 +49,7 @@
   extern long babysteps_done;
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
+  extern void set_bed_leveling_enabled(bool);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -325,15 +327,23 @@
     if (parser.seen('I')) {
       uint8_t cnt = 0;
       g29_repetition_cnt = parser.has_value() ? parser.value_int() : 1;
-      while (g29_repetition_cnt--) {
-        if (cnt > 20) { cnt = 0; idle(); }
-        const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
-        if (location.x_index < 0) {
-          SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
-          break;            // No more invalid Mesh Points to populate
+      if (g29_repetition_cnt >= GRID_MAX_POINTS) {
+        set_all_mesh_points_to_value(NAN);
+      } else {
+        while (g29_repetition_cnt--) {
+          if (cnt > 20) { cnt = 0; idle(); }
+          const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
+          if (location.x_index < 0) {
+            // No more REACHABLE mesh points to invalidate, so we ASSUME the user
+            // meant to invalidate the ENTIRE mesh, which cannot be done with
+            // find_closest_mesh_point loop which only returns REACHABLE points.
+            set_all_mesh_points_to_value(NAN);
+            SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
+            break;            // No more invalid Mesh Points to populate
+          }
+          z_values[location.x_index][location.y_index] = NAN;
+          cnt++;
         }
-        z_values[location.x_index][location.y_index] = NAN;
-        cnt++;
       }
       SERIAL_PROTOCOLLNPGM("Locations invalidated.\n");
     }
@@ -497,18 +507,26 @@
            *   - Specify a constant with the 'C' parameter.
            *   - Allow 'G29 P3' to choose a 'reasonable' constant.
            */
+
           if (g29_c_flag) {
             if (g29_repetition_cnt >= GRID_MAX_POINTS) {
-              for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-                for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-                  z_values[x][y] = g29_constant;
-                }
-              }
+              set_all_mesh_points_to_value(g29_constant);
             }
             else {
               while (g29_repetition_cnt--) {  // this only populates reachable mesh points near
                 const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
-                if (location.x_index < 0) break; // No more reachable invalid Mesh Points to populate
+                if (location.x_index < 0) {
+                  // No more REACHABLE INVALID mesh points to populate, so we ASSUME
+                  // user meant to populate ALL INVALID mesh points to value
+                  for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+                    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+                      if ( isnan(z_values[x][y])) {
+                        z_values[x][y] = g29_constant;
+                      }
+                    }
+                  }
+                  break; // No more invalid Mesh Points to populate
+                }
                 z_values[location.x_index][location.y_index] = g29_constant;
               }
             }
@@ -999,12 +1017,15 @@
 
       serialprintPGM(parser.seen('B') ? PSTR("Place shim & measure") : PSTR("Measure")); // TODO: Make translatable strings
 
+      const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
+      //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
+
       while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
       delay(50);                                       // debounce
       while (!ubl_lcd_clicked()) {                     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
         if (encoder_diff) {
-          do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) / 100.0);
+          do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * z_step);
           encoder_diff = 0;
         }
       }
@@ -1115,11 +1136,11 @@
         SERIAL_PROTOCOLLNPGM("?Can't activate and deactivate at the same time.\n");
         return UBL_ERR;
       }
-      state.active = true;
+      set_bed_leveling_enabled(true);
       report_state();
     }
     else if (parser.seen('D')) {
-      state.active = false;
+      set_bed_leveling_enabled(false);
       report_state();
     }
 
@@ -1158,7 +1179,7 @@
       return;
     }
     ubl_state_at_invocation = state.active;
-    state.active = 0;
+    set_bed_leveling_enabled(false);
   }
 
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
@@ -1168,7 +1189,7 @@
       lcd_quick_feedback();
       return;
     }
-    state.active = ubl_state_at_invocation;
+    set_bed_leveling_enabled(ubl_state_at_invocation);
   }
 
   /**
@@ -1695,6 +1716,8 @@
         SERIAL_EOL;
       }
     #endif
+
+    if (do_ubl_mesh_map) display_map(g29_map_type);
   }
 
   #if ENABLED(UBL_G29_P31)

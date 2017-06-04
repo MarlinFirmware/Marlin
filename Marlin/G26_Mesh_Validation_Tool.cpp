@@ -718,7 +718,7 @@
     /**
      * Wait until all parameters are verified before altering the state!
      */
-    state.active = !parser.seen('D');
+    set_bed_leveling_enabled(!parser.seen('D'));
 
     return UBL_OK;
   }
@@ -734,7 +734,7 @@
    * wait for them to get up to temperature.
    */
   bool unified_bed_leveling::turn_on_heaters() {
-    millis_t next;
+    millis_t next = millis() + 5000UL;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
@@ -743,7 +743,6 @@
       #endif
           has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(g26_bed_temp);
-          next = millis() + 5000UL;
           while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
             if (PENDING(millis(), next)) {
