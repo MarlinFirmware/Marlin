@@ -406,12 +406,17 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 inline void lcd_implementation_status_message() {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    static bool last_blink = false;
     lcd_print_utf(lcd_status_message + status_scroll_pos);
     const uint8_t slen = lcd_strlen(lcd_status_message);
     if (slen > LCD_WIDTH) {
-      // Skip any non-printing bytes
-      while (!PRINTABLE(lcd_status_message[status_scroll_pos++])) { /* nada */ }
-      if (status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      const bool new_blink = lcd_blink();
+      if (last_blink != new_blink) {
+        last_blink = new_blink;
+        // Skip any non-printing bytes
+        while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
+        if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      }
     }
   #else
     lcd_print_utf(lcd_status_message);
@@ -422,7 +427,7 @@ inline void lcd_implementation_status_message() {
 
 static void lcd_implementation_status_screen() {
 
-  bool blink = lcd_blink();
+  const bool blink = lcd_blink();
 
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
