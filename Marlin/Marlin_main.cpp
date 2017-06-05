@@ -5956,7 +5956,8 @@ inline void gcode_M17() {
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
       #if ENABLED(ULTIPANEL)
-        if (nozzle_timed_out) ensure_safe_temperature();
+        if (nozzle_timed_out)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
       #endif
 
       idle(true);
@@ -5977,21 +5978,8 @@ inline void gcode_M17() {
 
     #if ENABLED(ULTIPANEL)
       // Show "wait for heating"
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+      if (nozzle_timed_out) ensure_safe_temperature();
     #endif
-
-    wait_for_heatup = true;
-    while (wait_for_heatup) {
-      idle();
-      wait_for_heatup = false;
-      HOTEND_LOOP() {
-        const int16_t target_temp = thermalManager.degTargetHotend(e);
-        if (target_temp && abs(thermalManager.degHotend(e) - target_temp) > 3) {
-          wait_for_heatup = true;
-          break;
-        }
-      }
-    }
 
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
