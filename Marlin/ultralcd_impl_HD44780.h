@@ -195,11 +195,11 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 
 static void createChar_P(char c, PROGMEM byte *ptr) {
-  byte temp[8];  
+  byte temp[8];
   int8_t i;
 
   for(i=0; i<8; i++)  {
-    temp[i] = pgm_read_byte(&ptr[i]);  
+    temp[i] = pgm_read_byte(&ptr[i]);
   }
   lcd.createChar(c, temp);
 }
@@ -213,7 +213,7 @@ const static PROGMEM byte bedTemp[8] = {
     B11111,
     B00000,
     B00000
-}; 
+};
 
 const static PROGMEM byte degree[8] = {
     B01100,
@@ -246,7 +246,7 @@ const static PROGMEM byte uplevel[8] = {
     B00000,
     B00000,
     B00000
-}; 
+};
 
 const static PROGMEM byte feedrate[8] = {
     B11100,
@@ -268,9 +268,9 @@ const static PROGMEM byte clock[8] = {
     B01110,
     B00000,
     B00000
-}; 
+};
 
-  #if ENABLED(SDSUPPORT)
+#if ENABLED(SDSUPPORT)
   const static PROGMEM byte refresh[8] = {
       B00000,
       B00110,
@@ -280,7 +280,7 @@ const static PROGMEM byte clock[8] = {
       B10011,
       B01100,
       B00000,
-  }; 
+  };
   const static PROGMEM byte folder[8] = {
       B00000,
       B11100,
@@ -292,7 +292,7 @@ const static PROGMEM byte clock[8] = {
       B00000
   };
 
-    #if ENABLED(LCD_PROGRESS_BAR)
+  #if ENABLED(LCD_PROGRESS_BAR)
     const static PROGMEM byte progress[3][8] = { {
         B00000,
         B10000,
@@ -345,19 +345,19 @@ static void lcd_set_custom_characters(
           for (int i = 3; i--;) createChar_P(LCD_STR_PROGRESS[i], progress[i]);
         }
         else { // Custom characters for submenus
-          createChar_P(LCD_UPLEVEL_CHAR, uplevel );
+          createChar_P(LCD_UPLEVEL_CHAR, uplevel);
           createChar_P(LCD_REFRESH_CHAR, refresh);
           createChar_P(LCD_STR_FOLDER[0], folder);
         }
       }
     #else
-      createChar_P(LCD_UPLEVEL_CHAR, uplevel );
+      createChar_P(LCD_UPLEVEL_CHAR, uplevel);
       createChar_P(LCD_REFRESH_CHAR, refresh);
       createChar_P(LCD_STR_FOLDER[0], folder);
     #endif
 
   #else
-    createChar_P(LCD_UPLEVEL_CHAR, uplevel );
+    createChar_P(LCD_UPLEVEL_CHAR, uplevel);
   #endif
 }
 
