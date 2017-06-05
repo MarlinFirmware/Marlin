@@ -586,7 +586,7 @@ void Stepper::isr() {
     /**
      * If a minimum pulse time was specified get the timer 0 value.
      *
-     * TCNT0 has an 8x prescaler, so it increments every 8 cycles. 
+     * TCNT0 has an 8x prescaler, so it increments every 8 cycles.
      * That's every 0.5µs on 16MHz and every 0.4µs on 20MHz.
      * 20 counts of TCNT0 -by itself- is a good pulse delay.
      * 10µs = 160 or 200 cycles.
@@ -1353,7 +1353,6 @@ void Stepper::report_positions() {
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
     cli();
-    uint8_t old_dir;
 
     switch (axis) {
 

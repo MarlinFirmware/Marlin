@@ -73,10 +73,6 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
   int16_t Temperature::target_temperature_bed = 0;
 #endif
 
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  float Temperature::redundant_temperature = 0.0;
-#endif
-
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
     float Temperature::Kp[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kp),

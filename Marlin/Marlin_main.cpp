@@ -1551,7 +1551,7 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
 
       planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     #endif
-    
+
     set_current_to_destination();
   }
 #endif // IS_KINEMATIC
@@ -2362,7 +2362,7 @@ static void clean_up_after_endstop_or_probe_move() {
           else {                                        // leveling from off to on
             ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
             // change physical current_position to unleveled current_position without moving steppers.
-            planner.unapply_leveling(current_position); 
+            planner.unapply_leveling(current_position);
           }
         #else
           ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
@@ -2376,8 +2376,12 @@ static void clean_up_after_endstop_or_probe_move() {
           (void)bilinear_z_offset(reset);
         #endif
 
+        // Enable or disable leveling compensation in the planner
         planner.abl_enabled = enable;
+
         if (!enable)
+          // When disabling just get the current position from the steppers.
+          // This will yield the smallest error when first converted back to steps.
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -2386,9 +2390,11 @@ static void clean_up_after_endstop_or_probe_move() {
             #endif
           );
         else
+          // When enabling, remove compensation from the current position,
+          // so compensation will give the right stepper counts.
           planner.unapply_leveling(current_position);
 
-      #endif
+      #endif // ABL
     }
   }
 
@@ -2396,24 +2402,23 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_z_fade_height(const float zfh) {
 
+      const bool level_active = leveling_is_active();
+
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-        const bool level_active = leveling_is_active();
-        if (level_active) {
+        if (level_active)
           set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-        }
         planner.z_fade_height = zfh;
         planner.inverse_z_fade_height = RECIPROCAL(zfh);
-        if (level_active) {
+        if (level_active)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
-        }
 
       #else
 
         planner.z_fade_height = zfh;
         planner.inverse_z_fade_height = RECIPROCAL(zfh);
 
-        if (leveling_is_active()) {
+        if (level_active) {
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -4198,19 +4203,19 @@ void home_all_axes() { gcode_G28(true); }
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
       ABL_VAR float xGridSpacing, yGridSpacing;
 
-      #if ABL_PLANAR
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
         ABL_VAR bool do_topography_map;
-      #else // 3-point
+      #else // Bilinear
         uint8_t constexpr abl_grid_points_x = GRID_MAX_POINTS_X,
                           abl_grid_points_y = GRID_MAX_POINTS_Y;
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(PROBE_MANUALLY)
-        #if ABL_PLANAR
+        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           ABL_VAR int abl2;
-        #else // 3-point
+        #else // Bilinear
           int constexpr abl2 = GRID_MAX_POINTS;
         #endif
       #endif
@@ -4229,6 +4234,8 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+
+      int constexpr abl2 = 3;
 
       // Probe at 3 arbitrary points
       ABL_VAR vector_3 points[3] = {
@@ -4522,7 +4529,7 @@ void home_all_axes() { gcode_G28(true); }
 
         #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
-          points[i].z = measured_z;
+          points[abl_probe_index].z = measured_z;
 
         #endif
       }
@@ -5914,6 +5921,25 @@ inline void gcode_M17() {
     return true;
   }
 
+  static void ensure_safe_temperature() {
+    bool did_show = false;
+    wait_for_heatup = true;
+    while (wait_for_heatup) {
+      idle();
+      wait_for_heatup = false;
+      HOTEND_LOOP() {
+        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+          wait_for_heatup = true;
+          if (!did_show) { // Show "wait for heating"
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+            did_show = true;
+          }
+          break;
+        }
+      }
+    }
+  }
+
   static void wait_for_filament_reload(int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
@@ -5930,8 +5956,7 @@ inline void gcode_M17() {
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
       #if ENABLED(ULTIPANEL)
-        if (nozzle_timed_out)
-          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+        if (nozzle_timed_out) ensure_safe_temperature();
       #endif
 
       idle(true);
@@ -9197,6 +9222,8 @@ inline void gcode_M503() {
    */
   inline void gcode_M600() {
 
+    ensure_safe_temperature();
+
     // Initial retract before move to filament change position
     const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
       #if defined(PAUSE_PARK_RETRACT_LENGTH) && PAUSE_PARK_RETRACT_LENGTH > 0
@@ -9643,7 +9670,7 @@ inline void gcode_M355() {
   #if HAS_CASE_LIGHT
     uint8_t args = 0;
     if (parser.seen('P')) ++args, case_light_brightness = parser.value_byte();
-    if (parser.seen('S')) ++args, case_light_on = parser.value_bool(); 
+    if (parser.seen('S')) ++args, case_light_on = parser.value_bool();
     if (args) update_case_light();
 
     // always report case light status
@@ -11996,7 +12023,7 @@ void prepare_move_to_destination() {
     else
       C2 = (HYPOT2(sx, sy) - (L1_2 + L2_2)) / (2.0 * L1 * L2);
 
-    S2 = sqrt(sq(C2) - 1);
+    S2 = sqrt(1 - sq(C2));
 
     // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
     SK1 = L1 + L2 * C2;
@@ -12722,6 +12749,14 @@ void setup() {
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
+  #endif
+  
+  #if ENABLED(SWITCHING_EXTRUDER)
+    move_extruder_servo(0);  // Initialize extruder servo
+  #endif
+
+  #if ENABLED(SWITCHING_NOZZLE)
+    move_nozzle_servo(0);  // Initialize nozzle servo
   #endif
 }
 
