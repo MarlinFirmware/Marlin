@@ -193,18 +193,19 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   static void lcd_implementation_update_indicators();
 #endif
 
-
-static void createChar_P(char c, PROGMEM byte *ptr) {
+static void createChar_P(const char c, const byte * const ptr) {
   byte temp[8];
-  int8_t i;
-
-  for(i=0; i<8; i++)  {
+  for (uint8_t i = 0; i < 8; i++)
     temp[i] = pgm_read_byte(&ptr[i]);
-  }
   lcd.createChar(c, temp);
 }
 
-const static PROGMEM byte bedTemp[8] = {
+static void lcd_set_custom_characters(
+  #if ENABLED(LCD_PROGRESS_BAR)
+    const bool info_screen_charset = true
+  #endif
+) {
+  const static PROGMEM byte bedTemp[8] = {
     B00000,
     B11111,
     B10101,
@@ -213,9 +214,9 @@ const static PROGMEM byte bedTemp[8] = {
     B11111,
     B00000,
     B00000
-};
+  };
 
-const static PROGMEM byte degree[8] = {
+  const static PROGMEM byte degree[8] = {
     B01100,
     B10010,
     B10010,
@@ -226,7 +227,7 @@ const static PROGMEM byte degree[8] = {
     B00000
   };
 
-const static PROGMEM byte thermometer[8] = {
+  const static PROGMEM byte thermometer[8] = {
     B00100,
     B01010,
     B01010,
@@ -237,7 +238,7 @@ const static PROGMEM byte thermometer[8] = {
     B01110
   };
 
-const static PROGMEM byte uplevel[8] = {
+  const static PROGMEM byte uplevel[8] = {
     B00100,
     B01110,
     B11111,
@@ -246,9 +247,9 @@ const static PROGMEM byte uplevel[8] = {
     B00000,
     B00000,
     B00000
-};
+  };
 
-const static PROGMEM byte feedrate[8] = {
+  const static PROGMEM byte feedrate[8] = {
     B11100,
     B10000,
     B11000,
@@ -257,9 +258,9 @@ const static PROGMEM byte feedrate[8] = {
     B00110,
     B00101,
     B00000
-};
+  };
 
-const static PROGMEM byte clock[8] = {
+  const static PROGMEM byte clock[8] = {
     B00000,
     B01110,
     B10011,
@@ -268,10 +269,10 @@ const static PROGMEM byte clock[8] = {
     B01110,
     B00000,
     B00000
-};
+  };
 
-#if ENABLED(SDSUPPORT)
-  const static PROGMEM byte refresh[8] = {
+  #if ENABLED(SDSUPPORT)
+    const static PROGMEM byte refresh[8] = {
       B00000,
       B00110,
       B11001,
@@ -280,8 +281,8 @@ const static PROGMEM byte clock[8] = {
       B10011,
       B01100,
       B00000,
-  };
-  const static PROGMEM byte folder[8] = {
+    };
+    const static PROGMEM byte folder[8] = {
       B00000,
       B11100,
       B11111,
@@ -290,10 +291,10 @@ const static PROGMEM byte clock[8] = {
       B11111,
       B00000,
       B00000
-  };
+    };
 
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const static PROGMEM byte progress[3][8] = { {
+    #if ENABLED(LCD_PROGRESS_BAR)
+      const static PROGMEM byte progress[3][8] = { {
         B00000,
         B10000,
         B10000,
@@ -321,14 +322,8 @@ const static PROGMEM byte clock[8] = {
         B10101,
         B00000
       } };
+    #endif
   #endif
-#endif
-
-static void lcd_set_custom_characters(
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
-  #endif
-) {
 
   createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
   createChar_P(LCD_DEGREE_CHAR, degree);
@@ -638,10 +633,12 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
 #if ENABLED(LCD_PROGRESS_BAR)
 
   inline void lcd_draw_progress_bar(const uint8_t percent) {
-    int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
-      cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+    const int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
+              cel = tix / 3,
+              rem = tix % 3;
+    uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
-    msg[i] = '\0';
+    msg[LCD_WIDTH] = '\0';
     while (i--) {
       if (i == cel - 1)
         b = LCD_STR_PROGRESS[2];

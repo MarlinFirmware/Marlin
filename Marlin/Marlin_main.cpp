@@ -458,7 +458,7 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
-const char axis_codes[XYZE] = {'X', 'Y', 'Z', 'E'};
+const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 
 // Number of characters read in the current line of serial input
 static int serial_count = 0;
@@ -1394,7 +1394,7 @@ bool get_target_extruder_from_command(int code) {
  *
  * Callers must sync the planner position after calling this!
  */
-static void set_axis_is_at_home(AxisEnum axis) {
+static void set_axis_is_at_home(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis_codes[axis]);
@@ -1496,7 +1496,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 /**
  * Some planner shorthand inline functions
  */
-inline float get_homing_bump_feedrate(AxisEnum axis) {
+inline float get_homing_bump_feedrate(const AxisEnum axis) {
   int constexpr homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
   int hbd = homing_bump_divisor[axis];
   if (hbd < 1) {
@@ -1507,20 +1507,19 @@ inline float get_homing_bump_feedrate(AxisEnum axis) {
   return homing_feedrate_mm_s[axis] / hbd;
 }
 
-//
-// line_to_current_position
-// Move the planner to the current position from wherever it last moved
-// (or from wherever it has been told it is located).
-//
+/**
+ * Move the planner to the current position from wherever it last moved
+ * (or from wherever it has been told it is located).
+ */
 inline void line_to_current_position() {
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
 }
 
-//
-// line_to_destination
-// Move the planner, not necessarily synced with current_position
-//
-inline void line_to_destination(float fr_mm_s) {
+/**
+ * Move the planner to the position stored in the destination array, which is
+ * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
+ */
+inline void line_to_destination(const float fr_mm_s) {
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
@@ -2751,7 +2750,7 @@ static void clean_up_after_endstop_or_probe_move() {
 /**
  * Home an individual linear axis
  */
-static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.0) {
+static void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm_s=0.0) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -4907,7 +4906,7 @@ void home_all_axes() { gcode_G28(true); }
         if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
           && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
-          float simple_z = current_position[Z_AXIS] - measured_z;
+          const float simple_z = current_position[Z_AXIS] - measured_z;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Z from Probe:", simple_z);
@@ -7667,45 +7666,32 @@ void report_current_position() {
 
 #ifdef M114_DETAIL
 
-  static const char axis_char[XYZE] = {'X','Y','Z','E'};
-
-  void report_xyze(const float pos[XYZE], uint8_t n = 4, uint8_t precision = 3) {
+  void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
-    for(uint8_t i=0; i<n; i++) {
+    for (uint8_t i = 0; i < n; i++) {
       SERIAL_CHAR(' ');
-      SERIAL_CHAR(axis_char[i]);
+      SERIAL_CHAR(axis_codes[i]);
       SERIAL_CHAR(':');
-      SERIAL_PROTOCOL(dtostrf(pos[i],8,precision,str));
+      SERIAL_PROTOCOL(dtostrf(pos[i], 8, precision, str));
     }
     SERIAL_EOL;
   }
 
-  inline void report_xyz(const float pos[XYZ]) {
-    report_xyze(pos,3);
-  }
+  inline void report_xyz(const float pos[XYZ]) { report_xyze(pos, 3); }
 
   void report_current_position_detail() {
 
     stepper.synchronize();
 
-    SERIAL_EOL;
-    SERIAL_PROTOCOLPGM("Logical:");
+    SERIAL_PROTOCOLPGM("\nLogical:");
     report_xyze(current_position);
 
     SERIAL_PROTOCOLPGM("Raw:    ");
-    const float raw[XYZ] = {
-      RAW_X_POSITION(current_position[X_AXIS]),
-      RAW_Y_POSITION(current_position[Y_AXIS]),
-      RAW_Z_POSITION(current_position[Z_AXIS])
-    };
+    const float raw[XYZ] = { RAW_X_POSITION(current_position[X_AXIS]), RAW_Y_POSITION(current_position[Y_AXIS]), RAW_Z_POSITION(current_position[Z_AXIS]) };
     report_xyz(raw);
 
     SERIAL_PROTOCOLPGM("Leveled:");
-    float leveled[XYZ] = {
-      current_position[X_AXIS],
-      current_position[Y_AXIS],
-      current_position[Z_AXIS]
-    };
+    float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
     planner.apply_leveling(leveled);
     report_xyz(leveled);
 
@@ -7725,13 +7711,8 @@ void report_current_position() {
     #endif
 
     SERIAL_PROTOCOLPGM("Stepper:");
-    const float step_count[XYZE] = {
-      (float)stepper.position(X_AXIS),
-      (float)stepper.position(Y_AXIS),
-      (float)stepper.position(Z_AXIS),
-      (float)stepper.position(E_AXIS)
-    };
-    report_xyze(step_count,4,0);
+    const float step_count[XYZE] = { stepper.position(X_AXIS), stepper.position(Y_AXIS), stepper.position(Z_AXIS), stepper.position(E_AXIS) };
+    report_xyze(step_count, 4, 0);
 
     #if IS_SCARA
       const float deg[XYZ] = {
@@ -7739,17 +7720,12 @@ void report_current_position() {
         stepper.get_axis_position_degrees(B_AXIS)
       };
       SERIAL_PROTOCOLPGM("Degrees:");
-      report_xyze(deg,2);
+      report_xyze(deg, 2);
     #endif
 
     SERIAL_PROTOCOLPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
-    const float from_steppers[XYZE] = {
-      cartes[X_AXIS],
-      cartes[Y_AXIS],
-      cartes[Z_AXIS],
-      stepper.get_axis_position_mm(E_AXIS)
-    };
+    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], stepper.get_axis_position_mm(E_AXIS) };
     report_xyze(from_steppers);
 
     const float diff[XYZE] = {
@@ -7764,12 +7740,12 @@ void report_current_position() {
 #endif // M114_DETAIL
 
 /**
- * M114: Output current position to serial port
+ * M114: Report current position to host
  */
 inline void gcode_M114() {
 
   #ifdef M114_DETAIL
-    if ( parser.seen('D') ) {
+    if (parser.seen('D')) {
       report_current_position_detail();
       return;
     }
@@ -7777,7 +7753,7 @@ inline void gcode_M114() {
 
   stepper.synchronize();
   report_current_position();
-  }
+}
 
 /**
  * M115: Capabilities string
@@ -7859,9 +7835,7 @@ inline void gcode_M115() {
 /**
  * M117: Set LCD Status Message
  */
-inline void gcode_M117() {
-  lcd_setstatus(parser.string_arg);
-}
+inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
 
 /**
  * M119: Output endstop states to serial output
@@ -12749,7 +12723,7 @@ void setup() {
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
   #endif
-  
+
   #if ENABLED(SWITCHING_EXTRUDER)
     move_extruder_servo(0);  // Initialize extruder servo
   #endif

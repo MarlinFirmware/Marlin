@@ -457,10 +457,10 @@ void MarlinSettings::postprocess() {
     #endif
 
     #if DISABLED(ULTIPANEL)
-      const int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
-                lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
-    #endif // !ULTIPANEL
+      constexpr int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                    lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
+                    lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+    #endif
 
     EEPROM_WRITE(lcd_preheat_hotend_temp);
     EEPROM_WRITE(lcd_preheat_bed_temp);
