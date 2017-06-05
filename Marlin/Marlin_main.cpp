@@ -5832,10 +5832,17 @@ inline void gcode_M17() {
   ) {
     if (move_away_flag) return false; // already paused
 
-    if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder) && unload_length > 0) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
-      return false;
+    if (!DEBUGGING(DRYRUN) && unload_length > 0) {
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (!thermalManager.allow_cold_extrude && 
+            thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
+          return false;
+        }
+      #endif
+
+      ensure_safe_temperature(); // wait for extruder to heat up before unloading
     }
 
     // Indicate that the printer is paused
@@ -5922,18 +5929,18 @@ inline void gcode_M17() {
   }
 
   static void ensure_safe_temperature() {
-    bool did_show = false;
-    wait_for_heatup = true;
-    while (wait_for_heatup) {
+    bool heaters_heating = true;
+
+    wait_for_heatup = true;    // M108 will clear this
+    while (wait_for_heatup && heaters_heating) {
       idle();
-      wait_for_heatup = false;
+      heaters_heating = false;
       HOTEND_LOOP() {
         if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
-          wait_for_heatup = true;
-          if (!did_show) { // Show "wait for heating"
+          heaters_heating = true;
+          #if ENABLED(ULTIPANEL)
             lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
-            did_show = true;
-          }
+          #endif
           break;
         }
       }
@@ -5956,7 +5963,8 @@ inline void gcode_M17() {
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
       #if ENABLED(ULTIPANEL)
-        if (nozzle_timed_out) ensure_safe_temperature();
+        if (nozzle_timed_out)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
       #endif
 
       idle(true);
@@ -5975,23 +5983,7 @@ inline void gcode_M17() {
       thermalManager.reset_heater_idle_timer(e);
     }
 
-    #if ENABLED(ULTIPANEL)
-      // Show "wait for heating"
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
-    #endif
-
-    wait_for_heatup = true;
-    while (wait_for_heatup) {
-      idle();
-      wait_for_heatup = false;
-      HOTEND_LOOP() {
-        const int16_t target_temp = thermalManager.degTargetHotend(e);
-        if (target_temp && abs(thermalManager.degHotend(e) - target_temp) > 3) {
-          wait_for_heatup = true;
-          break;
-        }
-      }
-    }
+    if (nozzle_timed_out) ensure_safe_temperature();
 
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
@@ -9221,8 +9213,6 @@ inline void gcode_M503() {
    *
    */
   inline void gcode_M600() {
-
-    ensure_safe_temperature();
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
