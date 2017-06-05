@@ -440,7 +440,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   }
 
   void bootscreen() {
-    byte top_left[8] = {
+    const static PROGMEM byte corner[4][8] = { {
       B00000,
       B00000,
       B00000,
@@ -449,8 +449,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00010,
       B00100,
       B00100
-    };
-    byte top_right[8] = {
+    }, {
       B00000,
       B00000,
       B00000,
@@ -459,8 +458,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B01100,
       B00100,
       B00100
-    };
-    byte botom_left[8] = {
+    }, {
       B00100,
       B00010,
       B00001,
@@ -469,8 +467,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00000,
       B00000,
       B00000
-    };
-    byte botom_right[8] = {
+    }, {
       B00100,
       B01000,
       B10000,
@@ -479,11 +476,9 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00000,
       B00000,
       B00000
-    };
-    lcd.createChar(0, top_left);
-    lcd.createChar(1, top_right);
-    lcd.createChar(2, botom_left);
-    lcd.createChar(3, botom_right);
+    } };
+    for (uint8_t i = 0; i < 4; i++)
+      createChar_P(i, corner[i]);
 
     lcd.clear();
 
