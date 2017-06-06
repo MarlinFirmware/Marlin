@@ -1256,7 +1256,7 @@ void kill_screen(const char* lcd_msg) {
 
   #if HAS_MOTOR_CURRENT_PWM
     void update_motor_power() {
-	  stepper.digipot_current(0, stepper.motor_current_setting[0]);
+      stepper.digipot_current(0, stepper.motor_current_setting[0]);
       stepper.digipot_current(1, stepper.motor_current_setting[1]);
       stepper.digipot_current(2, stepper.motor_current_setting[2]);
     }    

@@ -634,9 +634,9 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 3; q--;)
         EEPROM_WRITE(stepper.motor_current_setting[q]);
     #else
-      const unsigned long dummy_motor_current_setting[3] = {0, 0, 0};
+			dummy = 0.0f; 
       for (uint8_t q = 3; q--;)
-        EEPROM_WRITE(dummy_motor_current_setting[q]);
+        EEPROM_WRITE(dummy);
     #endif
 
     if (!eeprom_error) {

@@ -1474,7 +1474,7 @@ void Stepper::report_positions() {
       const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
       digitalPotWrite(digipot_ch[driver], current);
     #elif HAS_MOTOR_CURRENT_PWM
-      if((driver >= 0)&& (driver<3))
+      if (WITHIN(driver, 0, 2))
         motor_current_setting[driver] = current; // update motor_current_setting
 	  
       #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
