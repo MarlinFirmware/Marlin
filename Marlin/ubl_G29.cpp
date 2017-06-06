@@ -459,8 +459,8 @@
                             parser.seen('T'), parser.seen('E'), parser.seen('U'));
           break;
 
-        #if ENABLED(NEWPANEL)
-          case 2: {
+        case 2: {
+          #if ENABLED(NEWPANEL)
             //
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
@@ -507,8 +507,11 @@
 
             manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
-          } break;
-        #endif
+          #else
+            SERIAL_PROTOCOLLNPGM("?P2 is only available when an LCD is present.");
+            return;
+          #endif
+        } break;
 
         case 3: {
           /**
@@ -567,14 +570,14 @@
           break;
         }
 
-        #if ENABLED(NEWPANEL)
-          case 4:
-            //
-            // Fine Tune (i.e., Edit) the Mesh
-            //
+        case 4: // Fine Tune (i.e., Edit) the Mesh
+          #if ENABLED(NEWPANEL)
             fine_tune_mesh(g29_x_pos, g29_y_pos, parser.seen('T'));
-            break;
-        #endif
+          #else
+            SERIAL_PROTOCOLLNPGM("?P4 is only available when an LCD is present.");
+            return;
+          #endif
+          break;
 
         case 5: find_mean_mesh_height(); break;
 
