@@ -1499,8 +1499,8 @@ static void set_axis_is_at_home(const AxisEnum axis) {
  * Some planner shorthand inline functions
  */
 inline float get_homing_bump_feedrate(const AxisEnum axis) {
-  int constexpr homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
-  int hbd = homing_bump_divisor[axis];
+  const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
+  uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
     hbd = 10;
     SERIAL_ECHO_START;
