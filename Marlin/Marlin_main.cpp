@@ -8870,88 +8870,88 @@ inline void gcode_M400() { stepper.synchronize(); }
 #endif // FILAMENT_WIDTH_SENSOR
 
 #if ENABLED(REPORT_M408_JSON)
-/**
- * M408: Report JSON-style response to serial
- */
-inline void gcode_M408() {
-  // I=idle, P=printing from SD card, S=stopped (i.e. needs a reset), C=running config file (i.e starting up), A=paused, D=pausing, R=resuming from a pause, B=busy (e.g. running a macro),
-  SERIAL_PROTOCOLPGM("{\"status\": \"");
-  if (!planner.blocks_queued())
-    SERIAL_PROTOCOLCHAR('I'); // IDLING
-  else
-  if (IS_SD_PRINTING || print_job_timer.isRunning())
-    SERIAL_PROTOCOLCHAR('P'); // SD PRINTING
-  else
-  if (print_job_timer.isPaused())
-    SERIAL_PROTOCOLCHAR('A'); // PAUSED
-  else
-    SERIAL_PROTOCOLCHAR('B'); // SOMETHING ELSE
-  SERIAL_PROTOCOLPGM("\",\"heaters\": [");
-  #if HAS_TEMP_BED
-    SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
-  #else
-    SERIAL_PROTOCOL(-1);
-  #endif
-  #if HAS_TEMP_HOTEND
-    HOTEND_LOOP() {
-      SERIAL_PROTOCOLCHAR(',');
-      SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
+  /**
+   * M408: Report JSON-style response to serial
+   */
+  inline void gcode_M408() {
+    // I=idle, P=printing from SD card, S=stopped (i.e. needs a reset), C=running config file (i.e starting up), A=paused, D=pausing, R=resuming from a pause, B=busy (e.g. running a macro),
+    SERIAL_PROTOCOLPGM("{\"status\": \"");
+    if (!planner.blocks_queued())
+      SERIAL_PROTOCOLCHAR('I'); // IDLING
+    else
+    if (IS_SD_PRINTING || print_job_timer.isRunning())
+      SERIAL_PROTOCOLCHAR('P'); // SD PRINTING
+    else
+    if (print_job_timer.isPaused())
+      SERIAL_PROTOCOLCHAR('A'); // PAUSED
+    else
+      SERIAL_PROTOCOLCHAR('B'); // SOMETHING ELSE
+    SERIAL_PROTOCOLPGM("\",\"heaters\": [");
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
+    #else
+      SERIAL_PROTOCOL(-1);
+    #endif
+    #if HAS_TEMP_HOTEND
+      HOTEND_LOOP() {
+        SERIAL_PROTOCOLCHAR(',');
+        SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
+      }
+    #endif
+    SERIAL_PROTOCOLPGM("],\"active\": [");
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
+    #else
+      SERIAL_PROTOCOL(-1);
+    #endif
+    #if HAS_TEMP_HOTEND
+      HOTEND_LOOP() {
+        SERIAL_PROTOCOLCHAR(',');
+        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
+      }
+    #endif
+    //skipped standbay & hstat
+    SERIAL_PROTOCOLPGM("],\"pos\": [");
+    LOOP_XYZ(i) {
+      if ( i!=X_AXIS )
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(current_position[i], 2);
     }
-  #endif
-  SERIAL_PROTOCOLPGM("],\"active\": [");
-  #if HAS_TEMP_BED
-    SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
-  #else
-    SERIAL_PROTOCOL(-1);
-  #endif
-  #if HAS_TEMP_HOTEND
-    HOTEND_LOOP() {
-      SERIAL_PROTOCOLCHAR(',');
-      SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
+    SERIAL_PROTOCOLPGM("],\"extr\": [");
+    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      if (!i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(current_position[E_AXIS + i], 1);
     }
-  #endif
-  //skipped standbay & hstat
-  SERIAL_PROTOCOLPGM("],\"pos\": [");
-  LOOP_XYZ(i) {
-    if ( i!=X_AXIS )
-      SERIAL_PROTOCOLCHAR(',');
-    SERIAL_PROTOCOL_F(current_position[i], 2);
+    SERIAL_PROTOCOLPGM("],\"sfactor\": ");
+    SERIAL_PROTOCOL_F(feedrate_percentage, 2);
+    SERIAL_PROTOCOLPGM(",\"efactor\": [");
+    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      if (!i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(flow_percentage[ i ], 2 );
+    }
+    SERIAL_PROTOCOLPGM("],\"tool\": ");
+    SERIAL_PROTOCOL(active_extruder);
+    SERIAL_PROTOCOLPGM(",\"fanPercent\": [");
+    for (uint8_t i = 0; i < FAN_COUNT; i++) {
+      if (!i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(fanSpeeds[i] / 2.5, 1);
+    }
+    //skipped fanRPM
+    SERIAL_PROTOCOLPGM("],\"homed\": [");
+    LOOP_XYZ(i) {
+      SERIAL_PROTOCOLCHAR(axis_homed[i]?'1':'0');
+    }
+    #if ENABLED(SDSUPPORT)
+      SERIAL_PROTOCOLPGM("],\"fraction_printed\": ");
+      SERIAL_PROTOCOL_F(card.percentDone() * 0.01, 3);
+    #else
+      SERIAL_PROTOCOLPGM("]");
+    #endif
+    SERIAL_PROTOCOLLNPGM("}");
   }
-  SERIAL_PROTOCOLPGM("],\"extr\": [");
-  for (uint8_t i = 0; i < E_STEPPERS; i++) {
-    if (!i)
-      SERIAL_PROTOCOLCHAR(',');
-    SERIAL_PROTOCOL_F(current_position[E_AXIS + i], 1);
-  }
-  SERIAL_PROTOCOLPGM("],\"sfactor\": ");
-  SERIAL_PROTOCOL_F(feedrate_percentage, 2);
-  SERIAL_PROTOCOLPGM(",\"efactor\": [");
-  for (uint8_t i = 0; i < E_STEPPERS; i++) {
-    if (!i)
-      SERIAL_PROTOCOLCHAR(',');
-    SERIAL_PROTOCOL_F(flow_percentage[ i ], 2 );
-  }
-  SERIAL_PROTOCOLPGM("],\"tool\": ");
-  SERIAL_PROTOCOL(active_extruder);
-  SERIAL_PROTOCOLPGM(",\"fanPercent\": [");
-  for (uint8_t i = 0; i < FAN_COUNT; i++) {
-    if (!i)
-      SERIAL_PROTOCOLCHAR(',');
-    SERIAL_PROTOCOL_F(fanSpeeds[i] / 2.5, 1);
-  }
-  //skipped fanRPM
-  SERIAL_PROTOCOLPGM("],\"homed\": [");
-  LOOP_XYZ(i) {
-    SERIAL_PROTOCOLCHAR(axis_homed[i]?'1':'0');
-  }
-  #if ENABLED(SDSUPPORT)
-    SERIAL_PROTOCOLPGM("],\"fraction_printed\": ");
-    SERIAL_PROTOCOL_F(card.percentDone() * 0.01, 3);
-  #else
-    SERIAL_PROTOCOLPGM("]");
-  #endif
-  SERIAL_PROTOCOLLNPGM("}");
-}
 #endif // REPORT_M408_JSON
 
 void quickstop_stepper() {
