@@ -179,6 +179,9 @@
   #ifndef MSG_UBL_DEACTIVATE_MESH
     #define MSG_UBL_DEACTIVATE_MESH           _UxGT("Deactivate UBL")
   #endif
+  #ifndef MSG_UBL_STEP_BY_STEP_MENU
+    #define MSG_UBL_STEP_BY_STEP_MENU         _UxGT("Step-By-Step UBL")
+  #endif
   #ifndef MSG_UBL_SET_BED_TEMP
     #define MSG_UBL_SET_BED_TEMP              _UxGT("Bed Temp")
   #endif
