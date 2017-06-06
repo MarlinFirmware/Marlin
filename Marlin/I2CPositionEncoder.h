@@ -110,7 +110,7 @@
     uint8_t         i2cAddress              = I2CPE_DEF_ADDR,
                     errorCorrectMethod      = I2CPE_DEF_EC_METHOD,
                     encoderType             = I2CPE_DEF_TYPE,
-                    magneticStrength        = I2CPE_MAG_SIG_BAD;
+                    H                       = I2CPE_MAG_SIG_BAD;    // Magnetic field strength
 
     int             encoderTicksPerUnit     = I2CPE_DEF_ENC_TICKS_UNIT,
                     stepperTicks            = I2CPE_DEF_TICKS_REV;
@@ -170,11 +170,9 @@
 
     void calibrate_steps_mm(int iter);
 
-    bool passes_test(bool report,bool &moduleDetected);
     bool passes_test(bool report);
-    bool test_axis(void);
 
-    FORCE_INLINE uint8_t get_magnetic_strength(void) { return magneticStrength; }
+    bool test_axis(void);
 
     FORCE_INLINE int get_error_count(void) { return errorCount; }
     FORCE_INLINE void set_error_count(int newCount) { errorCount = newCount; }
@@ -205,11 +203,11 @@
       return 0;
     }
 
-    FORCE_INLINE int get_encoder_ticks_unit() { return encoderTicksPerUnit; }
-    FORCE_INLINE void set_encoder_ticks_unit(int ticks) { encoderTicksPerUnit = ticks; }
+    FORCE_INLINE int get_ticks_unit() { return encoderTicksPerUnit; }
+    FORCE_INLINE void set_ticks_unit(int ticks) { encoderTicksPerUnit = ticks; }
 
-    FORCE_INLINE uint8_t get_encoder_type() { return encoderType; }
-    FORCE_INLINE void set_encoder_type(byte type) { encoderType = type; }
+    FORCE_INLINE uint8_t get_type() { return encoderType; }
+    FORCE_INLINE void set_type(byte type) { encoderType = type; }
 
     FORCE_INLINE int get_stepper_ticks() { return stepperTicks; }
     FORCE_INLINE void set_stepper_ticks(int ticks) { stepperTicks = ticks; }
@@ -221,7 +219,7 @@
     }
 
     FORCE_INLINE void set_current_position(float newPositionMm) {
-      set_axis_offset(get_position_mm() - newPositionMm + get_axis_offset());
+      set_axis_offset(get_position_mm() - newPositionMm + axisOffset);
     }
   };
 

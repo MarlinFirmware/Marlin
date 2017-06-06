@@ -12570,7 +12570,9 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    if (planner.blocks_queued() && ((blockBufferIndexRef != planner.block_buffer_head) || ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis()))) {
+    if (planner.blocks_queued() &&
+        ( (blockBufferIndexRef != planner.block_buffer_head) ||
+          ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis())) ) {
       blockBufferIndexRef = planner.block_buffer_head;
       I2CPEM.update();
       lastUpdateMillis = millis();
