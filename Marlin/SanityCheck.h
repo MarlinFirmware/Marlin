@@ -1166,6 +1166,16 @@ static_assert(1 >= 0
 #endif
 
 /**
+ * Digipot requirement
+ */
+#if ENABLED(DIGIPOT_MCP4018)
+  #if !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
+    || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1)
+      #error "DIGIPOT_MCP4018 requires DIGIPOTS_I2C_SDA_* pins to be defined."
+  #endif
+#endif
+
+/**
  * Require 4 or more elements in per-axis initializers
  */
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
