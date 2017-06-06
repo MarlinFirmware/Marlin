@@ -334,6 +334,9 @@
 #ifndef MSG_UBL_Z_OFFSET_STOPPED
   #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Offset Stopped")
 #endif
+#ifndef MSG_UBL_STEP_BY_STEP_MENU
+  #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
+#endif
 
 #ifndef MSG_MOVING
   #define MSG_MOVING                          _UxGT("Moving...")
