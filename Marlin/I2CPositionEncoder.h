@@ -155,7 +155,7 @@
 
     long get_raw_count();
 
-    double mm_from_count(long count) {
+    FORCE_INLINE double mm_from_count(long count) {
       if (encoderType == I2CPE_ENC_TYPE_LINEAR) return count / encoderTicksPerUnit;
       else if (encoderType == I2CPE_ENC_TYPE_ROTARY)
         return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
@@ -308,25 +308,17 @@
     }
 
     int8_t idx_from_axis(AxisEnum axis) {
-      int8_t idx = -1;
       LOOP_PE(i)
-        if (encoders[i].get_axis() == axis) {
-          idx = i;
-          break;
-        }
+        if (encoders[i].get_axis() == axis) return i;
 
-      return idx;
+      return -1;
     }
 
     int8_t idx_from_addr(uint8_t addr) {
-      int8_t idx = -1;
       LOOP_PE(i)
-        if (encoders[i].get_address() == addr) {
-          idx = i;
-          break;
-        }
+        if (encoders[i].get_address() == addr) return i;
 
-      return idx;
+      return -1;
     }
 
     int8_t parse();

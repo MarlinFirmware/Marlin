@@ -338,7 +338,7 @@
 
     errorCorrect = false;
 
-    LOOP_PE(i) {
+    LOOP_NA(i) {
       startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
       endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
     }
@@ -348,7 +348,8 @@
 
     stepper.synchronize();
 
-    planner.buffer_line(startCoord[X_AXIS],startCoord[Y_AXIS],startCoord[Z_AXIS], stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
+    planner.buffer_line(startCoord[X_AXIS],startCoord[Y_AXIS],startCoord[Z_AXIS],
+                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
     stepper.synchronize();
 
     // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
@@ -368,13 +369,14 @@
   }
 
   void I2CPositionEncoder::calibrate_steps_mm(int iter) {
-    float oldStepsMm, newStepsMm, startDistance, endDistance, travelDistance, travelledDistance, total = 0;
-    long startCount, stopCount;
+    float oldStepsMm, newStepsMm, startDistance, endDistance,
+          travelDistance, travelledDistance, total = 0;
 
-    float startCoord[NUM_AXIS] = {0};
-    float endCoord[NUM_AXIS] = {0};
+    float startCoord[NUM_AXIS] = {0}, endCoord[NUM_AXIS] = {0};
 
     double feedrate;
+
+    long startCount, stopCount;
 
     if (get_encoder_type() != I2CPE_ENC_TYPE_LINEAR) {
       SERIAL_ECHOLNPGM("Steps per mm calibration is only available using linear encoders.");
@@ -394,7 +396,7 @@
     endDistance = soft_endstop_max[encoderAxis] - 20;
     travelDistance = endDistance - startDistance;
 
-    LOOP_PE(i) {
+    LOOP_NA(i) {
       startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
       endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
     }
