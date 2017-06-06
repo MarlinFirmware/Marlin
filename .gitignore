@@ -136,3 +136,7 @@ CMakeListsPrivate.txt
 
 #CLion
 cmake-build-*
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
