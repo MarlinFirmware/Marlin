@@ -1123,7 +1123,7 @@
  * Report JSON-style response
  * http://reprap.org/wiki/G-code#M408:_Report_JSON-style_response
  */
-#define REPORT_M408_JSON
+//#define REPORT_M408_JSON
 
 //=============================================================================
 //============================= LCD and SD support ============================

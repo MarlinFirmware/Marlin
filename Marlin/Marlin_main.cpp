@@ -12843,7 +12843,7 @@ void setup() {
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
   #endif
-
+  
   #if ENABLED(SWITCHING_EXTRUDER)
     move_extruder_servo(0);  // Initialize extruder servo
   #endif
@@ -12909,3 +12909,4 @@ void loop() {
   endstops.report_state();
   idle();
 }
+

@@ -258,6 +258,12 @@ script:
   - opt_enable PRINTCOUNTER
   - build_marlin
   #
+  # Test REPORT_M408_JSON
+  #
+  - restore_configs
+  - opt_enable REPORT_M408_JSON
+  - build_marlin
+  #
   # Test NOZZLE_PARK_FEATURE
   #
   - restore_configs
