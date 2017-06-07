@@ -109,6 +109,11 @@
    *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
    *                    This works the same way that the UBL G29 P4 R parameter works.
    *
+   *                    NOTE:  If you do not have an LCD, you -must- specify R.  This is to ensure that you are
+   *                    aware that there's some risk associated with printing without the ability to abort in
+   *                    cases where mesh point Z value may be inaccurate.  As above, if you do not include a
+   *                    parameter, every point will be printed.
+   *
    *   S #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
    *
    *   U #  Random      Randomize the order that the circles are drawn on the bed.  The search for the closest
@@ -716,7 +721,14 @@
       random_deviation = parser.has_value() ? parser.value_float() : 50.0;
     }
 
-    g26_repeats = parser.seen('R') ? (parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1) : GRID_MAX_POINTS + 1;
+    #if ENABLED(NEWPANEL)
+      g26_repeats = parser.seen('R') && parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    #else
+      if (!parser.seen('R')) {
+        SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
+        return UBL_ERR;
+      } else g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    #endif
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
       return UBL_ERR;
