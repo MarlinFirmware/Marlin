@@ -32,13 +32,13 @@
 
 #if ENABLED(ULTRA_LCD)
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
-    #include <Wire.h>
+    #include "I2C.h"
     #include <LiquidCrystal_I2C.h>
   #elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
-    #include <Wire.h>
+    #include "I2C.h"
     #include <LiquidTWI2.h>
   #elif ENABLED(LCM1602)
-    #include <Wire.h>
+    #include "I2C.h"
     #include <LCD.h>
     #include <LiquidCrystal_I2C.h>
   #elif ENABLED(DOGLCD)
@@ -53,7 +53,7 @@
 #endif
 
 #if ENABLED(DIGIPOT_I2C)
-  #include <Wire.h>
+  #include "I2C.h"
 #endif
 
 #if ENABLED(HAVE_TMCDRIVER)

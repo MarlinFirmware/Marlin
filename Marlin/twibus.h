@@ -25,7 +25,7 @@
 
 #include "macros.h"
 
-#include <Wire.h>
+#include "I2C.h"
 
 // Print debug messages with M111 S2 (Uses 236 bytes of PROGMEM)
 //#define DEBUG_TWIBUS

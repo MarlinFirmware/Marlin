@@ -267,7 +267,7 @@
 
 #if ENABLED(BLINKM)
   #include "blinkm.h"
-  #include "Wire.h"
+  #include "I2C.h"
 #endif
 
 #if HAS_SERVOS

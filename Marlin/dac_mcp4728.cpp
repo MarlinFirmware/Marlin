@@ -41,12 +41,12 @@ uint16_t mcp4728_values[XYZE];
  * Begin I2C, get current values (input register and eeprom) of mcp4728
  */
 void mcp4728_init() {
-  Wire.begin();
-  Wire.requestFrom(int(DAC_DEV_ADDRESS), 24);
-  while (Wire.available()) {
-    char deviceID = Wire.read(),
-         hiByte = Wire.read(),
-         loByte = Wire.read();
+  I2c.begin();
+  I2c.read(int(DAC_DEV_ADDRESS), 24);
+  while (I2c.available()) {
+    char deviceID = I2c.receive(),
+         hiByte = I2c.receive(),
+         loByte = I2c.receive();
 
     if (!(deviceID & 0x08))
       mcp4728_values[(deviceID & 0x30) >> 4] = word((hiByte & 0x0F), loByte);
@@ -68,30 +68,25 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
  * This will also write current Vref, PowerDown, Gain settings to EEPROM
  */
 uint8_t mcp4728_eepromWrite() {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(SEQWRITE);
-  LOOP_XYZE(i) {
-    Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[i]));
-    Wire.write(lowByte(mcp4728_values[i]));
+  uint8_t ary[8];
+  for (int i = 0; i < 8; i = i + 2){
+    ary[i] = (DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[i/2]));
+    ary[i+1] = lowByte(mcp4728_values[i/2]);
   }
-  return Wire.endTransmission();
+  return I2c.write(DAC_DEV_ADDRESS,SEQWRITE,ary,8);
 }
 
 /**
  * Write Voltage reference setting to all input regiters
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(VREFWRITE | (value ? 0x0F : 0x00));
-  return Wire.endTransmission();
+  return I2c.write(DAC_DEV_ADDRESS, VREFWRITE | (value ? 0x0F : 0x00));
 }
 /**
  * Write Gain setting to all input regiters
  */
 uint8_t mcp4728_setGain_all(uint8_t value) {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(GAINWRITE | (value ? 0x0F : 0x00));
-  return Wire.endTransmission();
+  return I2c.write(DAC_DEV_ADDRESS, GAINWRITE | (value ? 0x0F : 0x00));
 }
 
 /**
@@ -131,21 +126,21 @@ void mcp4728_setDrvPct(uint16_t pct[XYZE]) {
  * No EEPROM update
  */
 uint8_t mcp4728_fastWrite() {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
-  LOOP_XYZE(i) {
-    Wire.write(highByte(mcp4728_values[i]));
-    Wire.write(lowByte(mcp4728_values[i]));
+  uint8_t ary[8];
+  for(int i = 0; i<8; i = i+2){
+    ary[i] = (highByte(mcp4728_values[i/2]));
+    ary[i+1] = (lowByte(mcp4728_values[i/2]));
   }
-  return Wire.endTransmission();
+  uint8_t ary7[7];
+  for(int i=1; i<7; i++){ary7[i-1] = ary[i];} //take off end bytes to send as array
+  return I2c.write((uint8_t)DAC_DEV_ADDRESS, (uint8_t)ary[0], *ary7);
 }
 
 /**
  * Common function for simple general commands
  */
 uint8_t mcp4728_simpleCommand(byte simpleCommand) {
-  Wire.beginTransmission(GENERALCALL);
-  Wire.write(simpleCommand);
-  return Wire.endTransmission();
+  return I2c.write(GENERALCALL, simpleCommand);
 }
 
 #endif // DAC_STEPPER_CURRENT

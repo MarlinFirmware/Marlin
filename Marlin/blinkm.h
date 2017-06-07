@@ -26,6 +26,6 @@
  */
 
 #include "Arduino.h"
-#include "Wire.h"
+#include "I2C.h"
 
 void SendColors(byte red, byte grn, byte blu);
