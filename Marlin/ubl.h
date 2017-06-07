@@ -138,10 +138,11 @@
         static bool look_for_lines_to_connect();
         static bool turn_on_heaters();
         static bool prime_nozzle();
-        static void retract_filament(float where[XYZE]);
-        static void recover_filament(float where[XYZE]);
+        static void retract_filament(const float where[XYZE]);
+        static void recover_filament(const float where[XYZE]);
         static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
         static void move_to(const float&, const float&, const float&, const float&);
+        inline static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
       #endif
 
     public:

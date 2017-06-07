@@ -1561,16 +1561,16 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s /*=0.0*/) {
+void do_blocking_move_to(const float &lx, const float &ly, const float &lz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, x, y, z);
+    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, lx, ly, lz);
   #endif
 
   #if ENABLED(DELTA)
 
-    if (!position_is_reachable_xy(x, y)) return;
+    if (!position_is_reachable_xy(lx, ly)) return;
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
@@ -1582,10 +1582,10 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
     // when in the danger zone
     if (current_position[Z_AXIS] > delta_clip_start_height) {
-      if (z > delta_clip_start_height) {   // staying in the danger zone
-        destination[X_AXIS] = x;           // move directly (uninterpolated)
-        destination[Y_AXIS] = y;
-        destination[Z_AXIS] = z;
+      if (lz > delta_clip_start_height) {   // staying in the danger zone
+        destination[X_AXIS] = lx;           // move directly (uninterpolated)
+        destination[Y_AXIS] = ly;
+        destination[Z_AXIS] = lz;
         prepare_uninterpolated_move_to_destination(); // set_current_to_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
@@ -1601,23 +1601,23 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
       }
     }
 
-    if (z > current_position[Z_AXIS]) {    // raising?
-      destination[Z_AXIS] = z;
+    if (lz > current_position[Z_AXIS]) {    // raising?
+      destination[Z_AXIS] = lz;
       prepare_uninterpolated_move_to_destination();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
     }
 
-    destination[X_AXIS] = x;
-    destination[Y_AXIS] = y;
+    destination[X_AXIS] = lx;
+    destination[Y_AXIS] = ly;
     prepare_move_to_destination();         // set_current_to_destination
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
     #endif
 
-    if (z < current_position[Z_AXIS]) {    // lowering?
-      destination[Z_AXIS] = z;
+    if (lz < current_position[Z_AXIS]) {    // lowering?
+      destination[Z_AXIS] = lz;
       prepare_uninterpolated_move_to_destination();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
@@ -1626,44 +1626,44 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
   #elif IS_SCARA
 
-    if (!position_is_reachable_xy(x, y)) return;
+    if (!position_is_reachable_xy(lx, ly)) return;
 
     set_destination_to_current();
 
     // If Z needs to raise, do it before moving XY
-    if (destination[Z_AXIS] < z) {
-      destination[Z_AXIS] = z;
+    if (destination[Z_AXIS] < lz) {
+      destination[Z_AXIS] = lz;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
     }
 
-    destination[X_AXIS] = x;
-    destination[Y_AXIS] = y;
+    destination[X_AXIS] = lx;
+    destination[Y_AXIS] = ly;
     prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
 
     // If Z needs to lower, do it after moving XY
-    if (destination[Z_AXIS] > z) {
-      destination[Z_AXIS] = z;
+    if (destination[Z_AXIS] > lz) {
+      destination[Z_AXIS] = lz;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
     }
 
   #else
 
     // If Z needs to raise, do it before moving XY
-    if (current_position[Z_AXIS] < z) {
+    if (current_position[Z_AXIS] < lz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = z;
+      current_position[Z_AXIS] = lz;
       line_to_current_position();
     }
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
-    current_position[X_AXIS] = x;
-    current_position[Y_AXIS] = y;
+    current_position[X_AXIS] = lx;
+    current_position[Y_AXIS] = ly;
     line_to_current_position();
 
     // If Z needs to lower, do it after moving XY
-    if (current_position[Z_AXIS] > z) {
+    if (current_position[Z_AXIS] > lz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = z;
+      current_position[Z_AXIS] = lz;
       line_to_current_position();
     }
 
@@ -1677,14 +1677,14 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
   #endif
 }
-void do_blocking_move_to_x(const float &x, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
+void do_blocking_move_to_x(const float &lx, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(lx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
-void do_blocking_move_to_z(const float &z, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_s);
+void do_blocking_move_to_z(const float &lz, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], lz, fr_mm_s);
 }
-void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_s);
+void do_blocking_move_to_xy(const float &lx, const float &ly, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(lx, ly, current_position[Z_AXIS], fr_mm_s);
 }
 
 //
@@ -1719,7 +1719,7 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Raise Z to a minimum height to make room for a probe to move
    */
-  inline void do_probe_raise(float z_raise) {
+  inline void do_probe_raise(const float z_raise) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
@@ -1801,6 +1801,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
+  FORCE_INLINE void do_blocking_move_to(const float logical[XYZ], const float &fr_mm_s) {
+    do_blocking_move_to(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], fr_mm_s);
+  }
+
   void run_deploy_moves_script() {
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_X
@@ -1815,7 +1819,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
+      const float deploy_1[] = { Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z };
+      do_blocking_move_to(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_X
@@ -1830,7 +1835,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
+      const float deploy_2[] = { Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z };
+      do_blocking_move_to(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
@@ -1845,7 +1851,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
+      const float deploy_3[] = { Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z };
+      do_blocking_move_to(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_X
@@ -1860,7 +1867,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
+      const float deploy_4[] = { Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z };
+      do_blocking_move_to(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_X
@@ -1875,7 +1883,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
+      const float deploy_5[] = { Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z };
+      do_blocking_move_to(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
     #endif
   }
 
@@ -1893,7 +1902,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
+      const float stow_1[] = { Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z };
+      do_blocking_move_to(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_2_X) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_X
@@ -1908,7 +1918,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
+      const float stow_2[] = { Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z };
+      do_blocking_move_to(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_3_X) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_X
@@ -1923,7 +1934,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
+      const float stow_3[] = { Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z };
+      do_blocking_move_to(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_4_X) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_X
@@ -1938,7 +1950,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
+      const float stow_4[] = { Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z };
+      do_blocking_move_to(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_5_X) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_X
@@ -1953,7 +1966,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
+      const float stow_5[] = { Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z };
+      do_blocking_move_to(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
     #endif
   }
 
