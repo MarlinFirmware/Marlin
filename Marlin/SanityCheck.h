@@ -468,8 +468,6 @@ static_assert(1 >= 0
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #if IS_SCARA
     #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
-  #elif DISABLED(NEWPANEL)
-    #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
   #endif
 #endif
 
