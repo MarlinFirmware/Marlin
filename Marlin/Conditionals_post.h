@@ -242,9 +242,9 @@
     #define MAX6675_TMAX 1024
   #elif TEMP_SENSOR_0 == -1
     #define HEATER_0_USES_AD595
-  #elif TEMP_SENSOR_0 == 0
-    #undef HEATER_0_MINTEMP
-    #undef HEATER_0_MAXTEMP
+//  #elif TEMP_SENSOR_0 == 0
+//    #undef HEATER_0_MINTEMP
+//    #undef HEATER_0_MAXTEMP
   #elif TEMP_SENSOR_0 > 0
     #define THERMISTORHEATER_0 TEMP_SENSOR_0
     #define HEATER_0_USES_THERMISTOR
@@ -794,6 +794,11 @@
     #define MAX_PROBE_X ( SCARA_PRINTABLE_RADIUS)
     #define MIN_PROBE_Y (-SCARA_PRINTABLE_RADIUS)
     #define MAX_PROBE_Y ( SCARA_PRINTABLE_RADIUS)
+  #elif ENABLED(GALVO_XY)
+    #define MIN_PROBE_X (-(GALVOXY_X_WIDTH/2))
+    #define MAX_PROBE_X (GALVOXY_X_WIDTH/2)
+    #define MIN_PROBE_Y (-(GALVOXY_Y_WIDTH/2))
+    #define MAX_PROBE_Y (GALVOXY_Y_WIDTH/2)
   #else
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))

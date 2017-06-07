@@ -70,3 +70,8 @@
   #include <SPI.h>
   #include <L6470.h>
 #endif
+
+#if ENABLED(DAC_MCP4725)
+  #include <Wire.h>
+  #include <Adafruit_MCP4725.h>
+#endif
