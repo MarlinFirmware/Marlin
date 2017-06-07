@@ -688,6 +688,21 @@
 #ifndef MSG_INFO_PRINTER_MENU
   #define MSG_INFO_PRINTER_MENU               _UxGT("Printer Info")
 #endif
+#ifndef MSG_3POINT_LEVELING
+  #define MSG_3POINT_LEVELING                 _UxGT("3-Point Leveling")
+#endif
+#ifndef MSG_LINEAR_LEVELING
+  #define MSG_LINEAR_LEVELING                 _UxGT("Linear Leveling")
+#endif
+#ifndef MSG_BILINEAR_LEVELING
+  #define MSG_BILINEAR_LEVELING               _UxGT("Bilinear Leveling")
+#endif
+#ifndef MSG_UBL_LEVELING
+  #define MSG_UBL_LEVELING                    _UxGT("Unified Bed Leveling")
+#endif
+#ifndef MSG_MESH_LEVELING
+  #define MSG_MESH_LEVELING                   _UxGT("Mesh Leveling")
+#endif
 #ifndef MSG_INFO_STATS_MENU
   #define MSG_INFO_STATS_MENU                 _UxGT("Printer Stats")
 #endif
