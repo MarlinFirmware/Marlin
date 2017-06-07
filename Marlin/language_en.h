@@ -170,6 +170,9 @@
   #ifndef MSG_UBL_LEVEL_BED
     #define MSG_UBL_LEVEL_BED                 _UxGT("Unified Bed Leveling")
   #endif
+  #ifndef MSG_UBL_MANUAL_MESH
+    #define MSG_UBL_MANUAL_MESH               _UxGT("Manually Build Mesh")
+  #endif
   #ifndef MSG_UBL_ACTIVATE_MESH
     #define MSG_UBL_ACTIVATE_MESH             _UxGT("Activate UBL")
   #endif
