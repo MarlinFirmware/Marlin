@@ -8866,25 +8866,43 @@ void quickstop_stepper() {
   inline void gcode_M420() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
+
       // L to load a mesh from the EEPROM
       if (parser.seen('L')) {
-        const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.state.storage_slot;
-        const int16_t a = settings.calc_num_meshes();
 
-        if (!a) {
+        #if ENABLED(EEPROM_SETTINGS)
+          const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.state.storage_slot;
+          const int16_t a = settings.calc_num_meshes();
+
+          if (!a) {
+            SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+            return;
+          }
+
+          if (!WITHIN(storage_slot, 0, a - 1)) {
+            SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+            SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+            return;
+          }
+
+          settings.load_mesh(storage_slot);
+          ubl.state.storage_slot = storage_slot;
+
+        #else
+
           SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
           return;
-        }
 
-        if (!WITHIN(storage_slot, 0, a - 1)) {
-          SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-          SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
-          return;
-        }
-
-        settings.load_mesh(storage_slot);
-        ubl.state.storage_slot = storage_slot;
+        #endif
       }
+
+      // L to load a mesh from the EEPROM
+      if (parser.seen('L') || parser.seen('V')) {
+        ubl.display_map(0);  // Currently only supports one map type
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
+      }
+
     #endif // AUTO_BED_LEVELING_UBL
 
     // V to print the matrix or mesh
@@ -8905,15 +8923,6 @@ void quickstop_stepper() {
         }
       #endif
     }
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      // L to load a mesh from the EEPROM
-      if (parser.seen('L') || parser.seen('V')) {
-        ubl.display_map(0);  // Currently only supports one map type
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
-      }
-    #endif
 
     bool to_enable = false;
     if (parser.seen('S')) {
