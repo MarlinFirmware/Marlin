@@ -1731,7 +1731,10 @@ void kill_screen(const char* lcd_msg) {
 
     static bool _level_state;
     void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(_level_state); }
-    void _lcd_set_z_fade_height() { set_z_fade_height(planner.z_fade_height); }
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      void _lcd_set_z_fade_height() { set_z_fade_height(planner.z_fade_height); }
+    #endif
 
     /**
      * Step 1: Bed Level entry-point

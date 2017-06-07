@@ -1192,7 +1192,7 @@ void MarlinSettings::reset() {
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
 
-    float z_endstop_adj =
+    z_endstop_adj =
       #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
         Z_DUAL_ENDSTOPS_ADJUSTMENT
       #else

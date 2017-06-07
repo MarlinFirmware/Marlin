@@ -7918,19 +7918,18 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       #ifdef PAUSE_PARK_X_POS
         + PAUSE_PARK_X_POS
       #endif
+      #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+        + (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0)
+      #endif
     ;
     const float y_pos = parser.seen('Y') ? parser.value_linear_units() : 0
       #ifdef PAUSE_PARK_Y_POS
         + PAUSE_PARK_Y_POS
       #endif
+      #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+        + (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0)
+      #endif
     ;
-
-    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
-      if (active_extruder > 0) {
-        if (!parser.seen('X')) x_pos += hotend_offset[X_AXIS][active_extruder];
-        if (!parser.seen('Y')) y_pos += hotend_offset[Y_AXIS][active_extruder];
-      }
-    #endif
 
     const bool job_running = print_job_timer.isRunning();
 
