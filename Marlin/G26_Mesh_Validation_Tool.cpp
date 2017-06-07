@@ -252,8 +252,8 @@
     // Move nozzle to the specified height for the first layer
     set_destination_to_current();
     destination[Z_AXIS] = g26_layer_height;
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], g26_ooze_amount);
+    move_to(destination, 0.0);
+    move_to(destination, g26_ooze_amount);
 
     has_control_of_lcd_panel = true;
     //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
@@ -368,14 +368,14 @@
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
     //debug_current_and_destination(PSTR("ready to do Z-Raise."));
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Raise the nozzle
+    move_to(destination, 0); // Raise the nozzle
     //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
     destination[X_AXIS] = g26_x_pos;                                               // Move back to the starting position
     destination[Y_AXIS] = g26_y_pos;
     //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                        // Keep the nozzle where it is
 
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
+    move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
     has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
@@ -554,16 +554,16 @@
 
   }
 
-  void unified_bed_leveling::retract_filament(float where[XYZE]) {
+  void unified_bed_leveling::retract_filament(const float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], -1.0 * g26_retraction_multiplier);
+      move_to(where, -1.0 * g26_retraction_multiplier);
     }
   }
 
-  void unified_bed_leveling::recover_filament(float where[XYZE]) {
+  void unified_bed_leveling::recover_filament(const float where[XYZE]) {
     if (g26_retracted) { // Only un-retract if we are retracted.
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], 1.2 * g26_retraction_multiplier);
+      move_to(where, 1.2 * g26_retraction_multiplier);
       g26_retracted = false;
     }
   }

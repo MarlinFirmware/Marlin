@@ -67,19 +67,17 @@
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
-    if (de == 0.0) return;
+    if (de == 0.0) return; // Printing moves only
 
-    const float dx = current_position[X_AXIS] - destination[X_AXIS],
-                dy = current_position[Y_AXIS] - destination[Y_AXIS],
+    const float dx = destination[X_AXIS] - current_position[X_AXIS],
+                dy = destination[Y_AXIS] - current_position[Y_AXIS],
                 xy_dist = HYPOT(dx, dy);
 
-    if (xy_dist == 0.0)
-      return;
-    else {
-      SERIAL_ECHOPGM("   fpmm=");
-      const float fpmm = de / xy_dist;
-      SERIAL_ECHO_F(fpmm, 6);
-    }
+    if (xy_dist == 0.0) return;
+
+    SERIAL_ECHOPGM("   fpmm=");
+    const float fpmm = de / xy_dist;
+    SERIAL_ECHO_F(fpmm, 6);
 
     SERIAL_ECHOPGM("    current=( ");
     SERIAL_ECHO_F(current_position[X_AXIS], 6);

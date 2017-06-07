@@ -1593,24 +1593,33 @@
   typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
   void unified_bed_leveling::smart_fill_mesh() {
-    const smart_fill_info info[] = {
-      { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false },  // Bottom of the mesh looking up
-      { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false },  // Top of the mesh looking down
-      { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  },  // Left side of the mesh looking right
-      { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  }   // Right side of the mesh looking left
-    };
+    static const smart_fill_info
+      info0 PROGMEM = { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false },  // Bottom of the mesh looking up
+      info1 PROGMEM = { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false },  // Top of the mesh looking down
+      info2 PROGMEM = { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  },  // Left side of the mesh looking right
+      info3 PROGMEM = { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  };  // Right side of the mesh looking left
+    static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
+
+    // static const smart_fill_info info[] PROGMEM = {
+    //   { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false } PROGMEM,  // Bottom of the mesh looking up
+    //   { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false } PROGMEM,  // Top of the mesh looking down
+    //   { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM,  // Left side of the mesh looking right
+    //   { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM   // Right side of the mesh looking left
+    // };
     for (uint8_t i = 0; i < COUNT(info); ++i) {
-      const smart_fill_info &f = info[i];
-      if (f.yfirst) {
-        const int8_t dir = f.ex > f.sx ? 1 : -1;
-        for (uint8_t y = f.sy; y != f.ey; ++y)
-          for (uint8_t x = f.sx; x != f.ex; x += dir)
+      const smart_fill_info *f = (smart_fill_info*)pgm_read_word(&info[i]);
+      const int8_t sx = pgm_read_word(&f->sx), sy = pgm_read_word(&f->sy),
+                   ex = pgm_read_word(&f->ex), ey = pgm_read_word(&f->ey);
+      if (pgm_read_byte(&f->yfirst)) {
+        const int8_t dir = ex > sx ? 1 : -1;
+        for (uint8_t y = sy; y != ey; ++y)
+          for (uint8_t x = sx; x != ex; x += dir)
             if (smart_fill_one(x, y, dir, 0)) break;
       }
       else {
-        const int8_t dir = f.ey > f.sy ? 1 : -1;
-         for (uint8_t x = f.sx; x != f.ex; ++x)
-          for (uint8_t y = f.sy; y != f.ey; y += dir)
+        const int8_t dir = ey > sy ? 1 : -1;
+         for (uint8_t x = sx; x != ex; ++x)
+          for (uint8_t y = sy; y != ey; y += dir)
             if (smart_fill_one(x, y, 0, dir)) break;
       }
     }
