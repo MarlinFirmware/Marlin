@@ -8900,48 +8900,50 @@ inline void gcode_M400() { stepper.synchronize(); }
     #endif
     SERIAL_PROTOCOLPGM("],\"active\": [");
     #if HAS_TEMP_BED
-      SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
+      SERIAL_PROTOCOL(thermalManager.degTargetBed());
     #else
       SERIAL_PROTOCOL(-1);
     #endif
     #if HAS_TEMP_HOTEND
       HOTEND_LOOP() {
         SERIAL_PROTOCOLCHAR(',');
-        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
+        SERIAL_PROTOCOL(thermalManager.degTargetHotend(e));
       }
     #endif
     //skipped standbay & hstat
     SERIAL_PROTOCOLPGM("],\"pos\": [");
     LOOP_XYZ(i) {
-      if ( i!=X_AXIS )
+      if ( i != X_AXIS )
         SERIAL_PROTOCOLCHAR(',');
       SERIAL_PROTOCOL_F(current_position[i], 2);
     }
     SERIAL_PROTOCOLPGM("],\"extr\": [");
     for (uint8_t i = 0; i < E_STEPPERS; i++) {
-      if (!i)
+      if (i)
         SERIAL_PROTOCOLCHAR(',');
       SERIAL_PROTOCOL_F(current_position[E_AXIS + i], 1);
     }
     SERIAL_PROTOCOLPGM("],\"sfactor\": ");
-    SERIAL_PROTOCOL_F(feedrate_percentage, 2);
+    SERIAL_PROTOCOL(feedrate_percentage);
     SERIAL_PROTOCOLPGM(",\"efactor\": [");
     for (uint8_t i = 0; i < E_STEPPERS; i++) {
-      if (!i)
+      if (i)
         SERIAL_PROTOCOLCHAR(',');
-      SERIAL_PROTOCOL_F(flow_percentage[ i ], 2 );
+      SERIAL_PROTOCOL(flow_percentage[ i ]);
     }
     SERIAL_PROTOCOLPGM("],\"tool\": ");
-    SERIAL_PROTOCOL(active_extruder);
+    SERIAL_PROTOCOL((int)active_extruder);
     SERIAL_PROTOCOLPGM(",\"fanPercent\": [");
     for (uint8_t i = 0; i < FAN_COUNT; i++) {
-      if (!i)
+      if (i)
         SERIAL_PROTOCOLCHAR(',');
       SERIAL_PROTOCOL_F(fanSpeeds[i] / 2.5, 1);
     }
     //skipped fanRPM
     SERIAL_PROTOCOLPGM("],\"homed\": [");
     LOOP_XYZ(i) {
+      if ( i != X_AXIS )
+        SERIAL_PROTOCOLCHAR(',');
       SERIAL_PROTOCOLCHAR(axis_homed[i]?'1':'0');
     }
     #if ENABLED(SDSUPPORT)
