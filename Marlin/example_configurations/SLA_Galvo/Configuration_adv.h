@@ -220,18 +220,12 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
-/**
- * M355 Case Light on-off / brightness
- */
-//#define CASE_LIGHT_ENABLE
-#if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 4          // can be defined here or in the pins_XXX.h file for your board
-                                    //  pins_XXX.h file overrides this one
-  #define INVERT_CASE_LIGHT false             // set to true if case light is ON when pin is at 0
-  #define CASE_LIGHT_DEFAULT_ON true          // set default power up state to on or off
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // set power up brightness 0-255 ( only used if on PWM
-                                              // and if CASE_LIGHT_DEFAULT is set to on
-  //#define MENU_ITEM_CASE_LIGHT              // Uncomment to have a Case Light entry in main menu
+// Define a pin to turn case light on/off
+//#define CASE_LIGHT_PIN 4
+#if PIN_EXISTS(CASE_LIGHT)
+  #define INVERT_CASE_LIGHT false   // Set to true if HIGH is the OFF state (active low)
+  //#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
+  //#define MENU_ITEM_CASE_LIGHT    // Uncomment to have a Case Light On / Off entry in main menu
 #endif
 
 //===========================================================================
@@ -1029,7 +1023,7 @@
    */
   #define  TMC2130_ADV() {  }
 
-#endif // HAVE_TMC2130
+#endif // ENABLED(HAVE_TMC2130)
 
 // @section L6470
 
@@ -1117,7 +1111,7 @@
  * (https://github.com/adafruit/Adafruit_MCP4725)
  */
 
-//#define DAC_MCP4725
+#define DAC_MCP4725
 
 /**
  * Enable this section if you have MCP4922 12-bit I2C DAC
@@ -1125,7 +1119,7 @@
  * (https://github.com/exscape/electronics/tree/master/Arduino/Libraries/DAC_MCP49xx)
  */
 
-#define DAC_MCP4922
+//#define DAC_MCP4922
 
 /**
  * TWI/I2C BUS
@@ -1222,7 +1216,7 @@
 /**
  * Include capabilities in M115 output
  */
-#define EXTENDED_CAPABILITIES_REPORT
+//#define EXTENDED_CAPABILITIES_REPORT
 
 /**
  * Volumetric extrusion default state
