@@ -2080,6 +2080,7 @@ void kill_screen(const char* lcd_msg) {
      *
      *  Prepare
      * - Unified Bed Leveling
+     *   - Manually Build Mesh
      *   - Activate UBL
      *   - Deactivate UBL
      *   - Mesh Storage
@@ -2134,6 +2135,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
+      MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
