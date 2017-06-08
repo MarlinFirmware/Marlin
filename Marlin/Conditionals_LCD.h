@@ -369,6 +369,9 @@
     #else
       #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)
     #endif
+    
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #endif
 
   /**
