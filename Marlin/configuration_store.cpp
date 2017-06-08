@@ -1130,7 +1130,7 @@ void MarlinSettings::reset() {
   LOOP_XYZE_N(i) {
     planner.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1]);
     planner.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1]);
-    planner.max_acceleration_mm_per_s2[i] = pgm_read_float(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
+    planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
   }
 
   planner.acceleration = DEFAULT_ACCELERATION;
