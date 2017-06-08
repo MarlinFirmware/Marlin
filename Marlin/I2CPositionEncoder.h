@@ -265,7 +265,7 @@
     }
 
     void change_module_address(uint8_t oldaddr, uint8_t newaddr);
-    void check_module_firmware(uint8_t address);
+    void report_module_firmware(uint8_t address);
 
     void report_error_count(uint8_t idx, AxisEnum axis) {
       CHECK_IDX

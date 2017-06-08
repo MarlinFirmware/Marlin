@@ -661,12 +661,12 @@
   }
 
 
-  void I2CPositionEncodersMgr::check_module_firmware(uint8_t address) {
+  void I2CPositionEncodersMgr::report_module_firmware(uint8_t address) {
     // First check there is a module
     Wire.beginTransmission(address);
     if (Wire.endTransmission()) {
-      SERIAL_ECHOLNPAIR("?No module detected at this address! (", address);
-      SERIAL_ECHOPGM(")");
+      SERIAL_ECHOPAIR("?No module detected at this address! (", address);
+      SERIAL_ECHOLNPGM(")");
       return;
     }
 
@@ -679,16 +679,17 @@
     Wire.endTransmission();
 
     // Read value
-    if (Wire.requestFrom((int)address, 32))
+    if (Wire.requestFrom((int)address, 32)) {
       while (Wire.available() > 0)
         SERIAL_ECHO((char)Wire.read());
+      SERIAL_EOL;
+    }
 
     // Set module back to normal (distance) mode
     Wire.beginTransmission((int)address);
     Wire.write(I2CPE_SET_REPORT_MODE);
     Wire.write(I2CPE_REPORT_DISTANCE);
     Wire.endTransmission();
-
   }
 
   int8_t I2CPositionEncodersMgr::parse() {
@@ -913,9 +914,9 @@
       int8_t idx;
       LOOP_XYZE(i) {
         if ((!I2CPE_anyaxis || parser.seen(axis_codes[i])) && ((idx = idx_from_axis(AxisEnum(i))) >= 0))
-          check_module_firmware(encoders[idx].get_address());
+          report_module_firmware(encoders[idx].get_address());
       }
-    } else check_module_firmware(I2CPE_addr);
+    } else report_module_firmware(I2CPE_addr);
   }
 
   /**
