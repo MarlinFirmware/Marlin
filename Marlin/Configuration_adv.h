@@ -1280,54 +1280,58 @@
 //#define I2C_POSITION_ENCODERS
 #if ENABLED(I2C_POSITION_ENCODERS)
 
-  #define I2CPE_ENCODER_CNT         2                       // The number of encoders installed; max of 5
-                                                            // encoders supported currently
+  #define I2CPE_ENCODER_CNT         1                       // The number of encoders installed; max of 5
+                                                            // encoders supported currently.
 
-  #define I2CPE_ENC_1_ADDR          I2CPE_PRESET_ADDR_X     // I2C address of the given encoder
-  #define I2CPE_ENC_1_AXIS          X_AXIS                  // Axis the encoder module corresponds to
-  #define I2CPE_ENC_1_INVERT        false                   // Invert the direction of axis travel
-  #define I2CPE_ENC_1_EC_THRESH     0.10                    // Set the threshold below which errors will be ignored
-  #define I2CPE_ENC_1_TYPE          I2CPE_ENC_TYPE_LINEAR   // Type of encoder
+  #define I2CPE_ENC_1_ADDR          I2CPE_PRESET_ADDR_X     // I2C address of the encoder. 30-200.
+  #define I2CPE_ENC_1_TYPE          I2CPE_ENC_TYPE_LINEAR   // Type of encoder:  I2CPE_ENC_TYPE_LINEAR -or-
+                                                            // I2CPE_ENC_TYPE_ROTARY.
+  #define I2CPE_ENC_1_AXIS          X_AXIS                  // Axis the encoder module is installed on.  <X|Y|Z|E>_AXIS.
   #define I2CPE_ENC_1_TICKS_UNIT    2048                    // 1024 for magnetic strips with 2mm poles; 2048 for
                                                             // 1mm poles. For linear encoders this is ticks / mm,
-                                                            // for rotary encoders this is ticks / revolution
-  //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders, number of stepper
-                                                            // ticks per revolution
+                                                            // for rotary encoders this is ticks / revolution.
+  //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders; number of stepper
+                                                            // steps per full revolution (motor steps/rev * microstepping)
+  #define I2CPE_ENC_1_INVERT        false                   // Invert the direction of axis travel.
+  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_NONE          // Type of error error correction.
+  #define I2CPE_ENC_1_EC_THRESH     0.10                    // Threshold size for error (in mm) above which the
+                                                            // printer will attempt to correct the error; errors
+                                                            // smaller than this are ignored to minimize effects of
+                                                            // measurement noise / latency (filter).
 
   #define I2CPE_ENC_2_ADDR          I2CPE_PRESET_ADDR_Y     // Same as above, but for encoder 2.
-  #define I2CPE_ENC_2_AXIS          Y_AXIS
-  #define I2CPE_ENC_2_INVERT        false
-  #define I2CPE_ENC_2_EC_THRESH     0.10
   #define I2CPE_ENC_2_TYPE          I2CPE_ENC_TYPE_LINEAR
+  #define I2CPE_ENC_2_AXIS          Y_AXIS
   #define I2CPE_ENC_2_TICKS_UNIT    2048
   //#define I2CPE_ENC_2_TICKS_REV   (16 * 200)
+  #define I2CPE_ENC_2_INVERT        false
+  #define I2CPE_ENC_2_EC_METHOD     I2CPE_ECM_NONE
+  #define I2CPE_ENC_2_EC_THRESH     0.10
 
-  // Duplicate the above up to 3 more times, as necessary
+  // Duplicate the above up to 3 more times, PRN.
 
-  // These settings are the default, and will be used for encoders which are
-  // enabled but do not have settings specified
-
+  // Default settings for encoders which are enabled, but without settings configured above.
+  #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_LINEAR
   #define I2CPE_DEF_ENC_TICKS_UNIT  2048
-  #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_ROTARY   // Type of encoder
-  #define I2CPE_DEF_TICKS_REV       (16 * 200)              // Number of stepper steps per full revolution (motor
-                                                            // steps per rev * microstepping)
-  #define I2CPE_DEF_EC_THRESH       0.1                     // number of mm in error above which the printer will
-                                                            // attempt to correct the error, errors smaller than
-                                                            // this are ignored to avoid measurement noise / latency
-                                                            // (filter)
-  #define I2CPE_TIME_TRUSTED        10000                   // after an encoder fault, there must be no further fault
-                                                            // for this period (ms) before the encoder is trusted again
-  #define I2CPE_DEF_EC_METHOD       I2CPE_ECM_NONE          // type of error correction
-  //#define I2CPE_ERR_THRESH_ABORT  100.0                   // number of mm error in any given axis after which
-                                                            // the printer will abort. Comment out to disable abort
-                                                            // behaviour.
+  #define I2CPE_DEF_TICKS_REV       (16 * 200)
+  #define I2CPE_DEF_EC_METHOD       I2CPE_ECM_NONE
+  #define I2CPE_DEF_EC_THRESH       0.1
 
-  // Position is checked every time a new command is executed from the buffer but during long moves,
-  // this setting determines the minimum update time between checks. A value of 100 works well with
-  // error rolling average when attempting to correct only for skips and not for vibration.
-  #define I2CPE_MIN_UPD_TIME_MS     100                     // minimum time in miliseconds between encoder checks
+  //#define I2CPE_ERR_THRESH_ABORT  100.0                   // Threshold size for error (in mm) error on any given
+                                                            // axis after which the printer will abort. Comment out to
+                                                            // disable abort behaviour.
 
-  // Use a rolling average to identify persistant errors that indicate skips vs vibration and noise
+  #define I2CPE_TIME_TRUSTED        10000                   // After an encoder fault, there must be no further fault
+                                                            // for this (in ms) before the encoder is trusted again.
+
+  /**
+   * Position is checked every time a new command is executed from the buffer but during long moves,
+   * this setting determines the minimum update time between checks. A value of 100 works well with
+   * error rolling average when attempting to correct only for skips and not for vibration.
+   */
+  #define I2CPE_MIN_UPD_TIME_MS     100                     // Minimum time in miliseconds between encoder checks.
+
+  // Use a rolling average to identify persistant errors that indicate skips, as opposed to vibration and noise.
   #define I2CPE_ERR_ROLLING_AVERAGE
 
 #endif

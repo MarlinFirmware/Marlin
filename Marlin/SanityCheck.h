@@ -277,6 +277,10 @@
   #if DISABLED(BABYSTEPPING)
     #error "I2C_POSITION_ENCODERS requires BABYSTEPPING."
   #endif
+
+  #if I2CPE_ENCODER_CNT > 5 || I2CPE_ENCODER_CNT < 1
+    #error "I2CPE_ENCODER_CNT must be between 1 and 5."
+  #endif
 #endif
 
 /**
