@@ -37,10 +37,9 @@
 
   #include <Wire.h>
 
-  void I2CPositionEncoder::init(AxisEnum axis, uint8_t address, bool invert) {
+  void I2CPositionEncoder::init(uint8_t address, AxisEnum axis) {
     encoderAxis = axis;
     i2cAddress = address;
-    invertDirection = invert;
 
     initialised = true;
 
@@ -474,118 +473,157 @@
     Wire.begin();
 
     #if I2CPE_ENCODER_CNT > 0
-      encoders[I2CPE_ENC_1_AXIS].init(I2CPE_ENC_1_AXIS, I2CPE_ENC_1_ADDR, I2CPE_ENC_1_INVERT);
-      encoders[I2CPE_ENC_1_AXIS].set_active(encoders[I2CPE_ENC_1_AXIS].passes_test(true));
-      #if defined (I2CPE_ENC_1_EC_METHOD)
-        encoders[I2CPE_ENC_1_AXIS].set_ec_method(I2CPE_ENC_1_EC_METHOD);
+      uint8_t i = 0;
+
+      encoders[i].init(I2CPE_ENC_1_ADDR, I2CPE_ENC_1_AXIS);
+
+      #if defined(I2CPE_ENC_1_TYPE)
+        encoders[i].set_type(I2CPE_ENC_1_TYPE);
       #endif
-      #if defined (I2CPE_ENC_1_EC_THRESH)
-    encoders[I2CPE_ENC_1_AXIS].set_ec_threshold(I2CPE_ENC_1_EC_THRESH);
+      #if defined(I2CPE_ENC_1_TICKS_UNIT)
+        encoders[i].set_ticks_unit(I2CPE_ENC_1_TICKS_UNIT);
       #endif
-      #if defined (I2CPE_ENC_1_TICKS_UNIT)
-    encoders[I2CPE_ENC_1_AXIS].set_ticks_unit(I2CPE_ENC_1_TICKS_UNIT);
+      #if defined(I2CPE_ENC_1_TICKS_REV)
+        encoders[i].set_stepper_ticks(I2CPE_ENC_1_TICKS_REV);
       #endif
-      #if defined (I2CPE_ENC_1_TYPE)
-    encoders[I2CPE_ENC_1_AXIS].set_type(I2CPE_ENC_1_TYPE);
+      #if defined(I2CPE_ENC_1_INVERT)
+        encoders[i].set_inverted(I2CPE_ENC_1_INVERT);
       #endif
-      #if defined (I2CPE_ENC_1_TICKS_REV)
-        encoders[I2CPE_ENC_1_AXIS].set_stepper_ticks(I2CPE_ENC_1_TICKS_REV);
+      #if defined(I2CPE_ENC_1_EC_METHOD)
+        encoders[i].set_ec_method(I2CPE_ENC_1_EC_METHOD);
       #endif
-      //#if (I2CPE_ENC_1_AXIS == E_AXIS)
-      //  encoders[index].set_homed();
-      //#endif
+      #if defined(I2CPE_ENC_1_EC_THRESH)
+        encoders[i].set_ec_threshold(I2CPE_ENC_1_EC_THRESH);
+      #endif
+
+      encoders[i].set_active(encoders[i].passes_test(true));
+
+      #if (I2CPE_ENC_1_AXIS == E_AXIS)
+        encoders[i].set_homed();
+      #endif
     #endif
 
     #if I2CPE_ENCODER_CNT > 1
-      encoders[I2CPE_ENC_2_AXIS].init(I2CPE_ENC_2_AXIS, I2CPE_ENC_2_ADDR, I2CPE_ENC_2_INVERT);
+      i++;
 
-      encoders[I2CPE_ENC_2_AXIS].set_active(encoders[I2CPE_ENC_2_AXIS].passes_test(true));
-      #if defined (I2CPE_ENC_2_EC_METHOD)
-        encoders[I2CPE_ENC_2_AXIS].set_ec_method(I2CPE_ENC_2_EC_METHOD);
+      encoders[i].init(I2CPE_ENC_2_ADDR, I2CPE_ENC_2_AXIS);
+
+      #if defined(I2CPE_ENC_2_TYPE)
+        encoders[i].set_type(I2CPE_ENC_2_TYPE);
       #endif
-      #if defined (I2CPE_ENC_2_EC_THRESH)
-    encoders[I2CPE_ENC_2_AXIS].set_ec_threshold(I2CPE_ENC_2_EC_THRESH);
+      #if defined(I2CPE_ENC_2_TICKS_UNIT)
+        encoders[i].set_ticks_unit(I2CPE_ENC_2_TICKS_UNIT);
       #endif
-      #if defined (I2CPE_ENC_2_TICKS_UNIT)
-        encoders[I2CPE_ENC_2_AXIS].set_ticks_unit(I2CPE_ENC_2_TICKS_UNIT);
+      #if defined(I2CPE_ENC_2_TICKS_REV)
+        encoders[i].set_stepper_ticks(I2CPE_ENC_2_TICKS_REV);
       #endif
-      #if defined (I2CPE_ENC_2_TYPE)
-        encoders[I2CPE_ENC_2_AXIS].set_type(I2CPE_ENC_2_TYPE);
+      #if defined(I2CPE_ENC_2_INVERT)
+        encoders[i].set_inverted(I2CPE_ENC_2_INVERT);
       #endif
-      #if defined (I2CPE_ENC_2_TICKS_REV)
-        encoders[I2CPE_ENC_2_AXIS].set_stepper_ticks(I2CPE_ENC_2_TICKS_REV);
+      #if defined(I2CPE_ENC_2_EC_METHOD)
+        encoders[i].set_ec_method(I2CPE_ENC_2_EC_METHOD);
       #endif
-  //    #if (I2CPE_ENC_2_AXIS == E_AXIS)
-  //      encoders[I2CPE_ENC_2_AXIS].set_homed();
-  //    #endif
+      #if defined(I2CPE_ENC_2_EC_THRESH)
+        encoders[i].set_ec_threshold(I2CPE_ENC_2_EC_THRESH);
+      #endif
+
+      encoders[i].set_active(encoders[i].passes_test(true));
+
+      #if (I2CPE_ENC_2_AXIS == E_AXIS)
+        encoders[i].set_homed();
+      #endif
     #endif
 
     #if I2CPE_ENCODER_CNT > 2
-      encoders[I2CPE_ENC_3_AXIS].init(I2CPE_ENC_3_AXIS, I2CPE_ENC_3_ADDR, I2CPE_ENC_3_INVERT);
-      encoders[I2CPE_ENC_3_AXIS].set_active(encoders[I2CPE_ENC_3_AXIS].passes_test(true));
-      #if defined (I2CPE_ENC_3_EC_METHOD)
-        encoders[I2CPE_ENC_3_AXIS].set_ec_method(I2CPE_ENC_3_EC_METHOD);
+      i++;
+
+      encoders[i].init(I2CPE_ENC_3_ADDR, I2CPE_ENC_3_AXIS);
+
+      #if defined(I2CPE_ENC_3_TYPE)
+        encoders[i].set_type(I2CPE_ENC_3_TYPE);
       #endif
-      #if defined (I2CPE_ENC_3_EC_THRESHOLD)
-        encoders[I2CPE_ENC_3_AXIS].set_ec_threshold(I2CPE_ENC_3_EC_THRESHOLD);
+      #if defined(I2CPE_ENC_3_TICKS_UNIT)
+        encoders[i].set_ticks_unit(I2CPE_ENC_3_TICKS_UNIT);
       #endif
-      #if defined (I2CPE_ENC_3_TICKS_PER_UNIT)
-        encoders[I2CPE_ENC_3_AXIS].set_ticks_unit(I2CPE_ENC_3_TICKS_PER_UNIT);
+      #if defined(I2CPE_ENC_3_TICKS_REV)
+        encoders[i].set_stepper_ticks(I2CPE_ENC_3_TICKS_REV);
       #endif
-      #if defined (I2CPE_ENC_3_ENCODER_TYPE)
-        encoders[I2CPE_ENC_3_AXIS].set_type(I2CPE_ENC_3_ENCODER_TYPE);
+      #if defined(I2CPE_ENC_3_INVERT)
+        encoders[i].set_inverted(I2CPE_ENC_3_INVERT);
       #endif
-      #if defined (I2CPE_ENC_3_STEPPER_TICKS_REVOLUTION)
-        encoders[I2CPE_ENC_3_AXIS].set_stepper_ticks(I2CPE_ENC_3_STEPPER_TICKS_REVOLUTION);
+      #if defined(I2CPE_ENC_3_EC_METHOD)
+        encoders[i].set_ec_method(I2CPE_ENC_3_EC_METHOD);
       #endif
-  //    #if (I2CPE_ENC_3_AXIS == E_AXIS)
-  //      encoders[I2CPE_ENC_3_AXIS].set_homed();
-  //    #endif
+      #if defined(I2CPE_ENC_3_EC_THRESH)
+        encoders[i].set_ec_threshold(I2CPE_ENC_3_EC_THRESH);
+      #endif
+
+    encoders[i].set_active(encoders[i].passes_test(true));
+
+      #if (I2CPE_ENC_3_AXIS == E_AXIS)
+        encoders[i].set_homed();
+      #endif
     #endif
 
     #if I2CPE_ENCODER_CNT > 3
-      encoders[I2CPE_ENC_4_AXIS].init(I2CPE_ENC_4_AXIS, I2CPE_ENC_4_ADDR, I2CPE_ENC_4_INVERT);
-      encoders[I2CPE_ENC_4_AXIS].set_active(encoders[I2CPE_ENC_4_AXIS].passes_test(true));
-      #if defined (I2CPE_ENC_4_EC_METHOD)
-        encoders[I2CPE_ENC_4_AXIS].set_ec_method(I2CPE_ENC_4_EC_METHOD);
+      i++;
+
+      encoders[i].init(I2CPE_ENC_4_ADDR, I2CPE_ENC_4_AXIS);
+
+      #if defined(I2CPE_ENC_4_TYPE)
+        encoders[i].set_type(I2CPE_ENC_4_TYPE);
       #endif
-      #if defined (I2CPE_ENC_4_EC_THRESHOLD)
-        encoders[I2CPE_ENC_4_AXIS].set_ec_threshold(I2CPE_ENC_4_EC_THRESHOLD);
+      #if defined(I2CPE_ENC_4_TICKS_UNIT)
+        encoders[i].set_ticks_unit(I2CPE_ENC_4_TICKS_UNIT);
       #endif
-      #if defined (I2CPE_ENC_4_TICKS_PER_UNIT)
-        encoders[I2CPE_ENC_4_AXIS].set_ticks_unit(I2CPE_ENC_4_TICKS_PER_UNIT);
+      #if defined(I2CPE_ENC_4_TICKS_REV)
+        encoders[i].set_stepper_ticks(I2CPE_ENC_4_TICKS_REV);
       #endif
-      #if defined (I2CPE_ENC_4_ENCODER_TYPE)
-        encoders[I2CPE_ENC_4_AXIS].set_type(I2CPE_ENC_4_ENCODER_TYPE);
+      #if defined(I2CPE_ENC_4_INVERT)
+        encoders[i].set_inverted(I2CPE_ENC_4_INVERT);
       #endif
-      #if defined (I2CPE_ENC_4_STEPPER_TICKS_REVOLUTION)
-        encoders[I2CPE_ENC_4_AXIS].set_stepper_ticks(I2CPE_ENC_4_STEPPER_TICKS_REVOLUTION);
+      #if defined(I2CPE_ENC_4_EC_METHOD)
+        encoders[i].set_ec_method(I2CPE_ENC_4_EC_METHOD);
       #endif
-  //    #if (I2CPE_ENC_4_AXIS == E_AXIS)
-  //      encoders[I2CPE_ENC_4_AXIS].set_homed();
-  //    #endif
+      #if defined(I2CPE_ENC_4_EC_THRESH)
+        encoders[i].set_ec_threshold(I2CPE_ENC_4_EC_THRESH);
+      #endif
+
+      encoders[i].set_active(encoders[i].passes_test(true));
+
+      #if (I2CPE_ENC_4_AXIS == E_AXIS)
+        encoders[i].set_homed();
+      #endif
     #endif
 
     #if I2CPE_ENCODER_CNT > 4
-      encoders[I2CPE_ENC_5_AXIS].init(I2CPE_ENC_5_AXIS, I2CPE_ENC_5_ADDR, I2CPE_ENC_5_INVERT);
-      encoders[I2CPE_ENC_5_AXIS].set_active(encoders[index].passes_test(true));
-      #if defined (I2CPE_ENC_5_EC_METHOD)
-        encoders[I2CPE_ENC_5_AXIS].set_ec_method(I2CPE_ENC_5_EC_METHOD);
+      i++;
+
+      encoders[i].init(I2CPE_ENC_5_ADDR, I2CPE_ENC_5_AXIS);
+
+      #if defined(I2CPE_ENC_5_TYPE)
+        encoders[i].set_type(I2CPE_ENC_5_TYPE);
       #endif
-      #if defined (I2CPE_ENC_5_EC_THRESHOLD)
-        encoders[I2CPE_ENC_5_AXIS].set_ec_threshold(I2CPE_ENC_5_EC_THRESHOLD);
+      #if defined(I2CPE_ENC_5_TICKS_UNIT)
+        encoders[i].set_ticks_unit(I2CPE_ENC_5_TICKS_UNIT);
       #endif
-      #if defined (I2CPE_ENC_5_TICKS_PER_UNIT)
-        encoders[I2CPE_ENC_5_AXIS].set_ticks_unit(I2CPE_ENC_5_TICKS_PER_UNIT);
+      #if defined(I2CPE_ENC_5_TICKS_REV)
+        encoders[i].set_stepper_ticks(I2CPE_ENC_5_TICKS_REV);
       #endif
-      #if defined (I2CPE_ENC_5_ENCODER_TYPE)
-        encoders[I2CPE_ENC_5_AXIS].set_type(I2CPE_ENC_5_ENCODER_TYPE);
+      #if defined(I2CPE_ENC_5_INVERT)
+        encoders[i].set_inverted(I2CPE_ENC_5_INVERT);
       #endif
-      #if defined (I2CPE_ENC_5_STEPPER_TICKS_REVOLUTION)
-        encoders[I2CPE_ENC_5_AXIS].set_stepper_ticks(I2CPE_ENC_5_STEPPER_TICKS_REVOLUTION);
+      #if defined(I2CPE_ENC_5_EC_METHOD)
+        encoders[i].set_ec_method(I2CPE_ENC_5_EC_METHOD);
       #endif
+      #if defined(I2CPE_ENC_5_EC_THRESH)
+        encoders[i].set_ec_threshold(I2CPE_ENC_5_EC_THRESH);
+      #endif
+
+      encoders[i].set_active(encoders[i].passes_test(true));
+
       #if (I2CPE_ENC_5_AXIS == E_AXIS)
-        encoders[I2CPE_ENC_5_AXIS].set_homed();
+        encoders[i].set_homed();
       #endif
     #endif
 

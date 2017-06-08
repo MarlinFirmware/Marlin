@@ -146,7 +146,7 @@
     #endif
 
   public:
-    void init(AxisEnum axis, byte address, bool invert);
+    void init(uint8_t address, AxisEnum axis);
     void reset();
 
     void update();
