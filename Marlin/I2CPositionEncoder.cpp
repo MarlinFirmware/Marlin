@@ -98,20 +98,20 @@
           zeroOffset -= (positionInTicks - get_position());
 
           #if defined(I2CPE_DEBUG)
-          SERIAL_ECHOPGM("Current position is ");
-          SERIAL_ECHOLN(position);
+            SERIAL_ECHOPGM("Current position is ");
+            SERIAL_ECHOLN(position);
 
-          SERIAL_ECHOPGM("Position in encoder ticks is ");
-          SERIAL_ECHOLN(positionInTicks);
+            SERIAL_ECHOPGM("Position in encoder ticks is ");
+            SERIAL_ECHOLN(positionInTicks);
 
-          SERIAL_ECHOPGM("New zero-offset of ");
-          SERIAL_ECHOLN(zeroOffset);
+            SERIAL_ECHOPGM("New zero-offset of ");
+            SERIAL_ECHOLN(zeroOffset);
 
-          SERIAL_ECHOPGM("New position reads as ");
-          SERIAL_ECHO(get_position());
-          SERIAL_ECHOPGM("(");
-          SERIAL_ECHO(mm_from_count(get_position()));
-          SERIAL_ECHOLNPGM(")");
+            SERIAL_ECHOPGM("New position reads as ");
+            SERIAL_ECHO(get_position());
+            SERIAL_ECHOPGM("(");
+            SERIAL_ECHO(mm_from_count(get_position()));
+            SERIAL_ECHOLNPGM(")");
           #endif
         }
       }*/
@@ -198,9 +198,11 @@
       //reset module's offset to zero (so current position is homed / zero)
       reset();
       delay(10);
-      this->zeroOffset = get_raw_count();
-      this->homed = true;
-      this->trusted = true;
+
+      zeroOffset = get_raw_count();
+      homed = true;
+      trusted = true;
+
       #if defined(I2CPE_DEBUG)
         SERIAL_ECHO(axis_codes[encoderAxis]);
         SERIAL_ECHOPAIR(" axis encoder homed, offset of ", zeroOffset);
@@ -300,7 +302,7 @@
 
     encoderCount.val = 0x00;
 
-    if(Wire.requestFrom((int)i2cAddress, 3) != 3) {
+    if (Wire.requestFrom((int)i2cAddress, 3) != 3) {
       //houston, we have a problem...
       return 0;
     }
@@ -663,27 +665,30 @@
     // First check there is a module
     Wire.beginTransmission(address);
     if (Wire.endTransmission()) {
-      SERIAL_ECHOLNPGM("?No module detected at this address!");
+      SERIAL_ECHOLNPAIR("?No module detected at this address! (", address);
+      SERIAL_ECHOPGM(")");
       return;
     }
 
     SERIAL_ECHOPAIR("Requesting version info from module at address ", address);
+    SERIAL_ECHOPGM(":\n ");
 
     Wire.beginTransmission(address);
     Wire.write(I2CPE_SET_REPORT_MODE);
     Wire.write(I2CPE_REPORT_VERSION);
     Wire.endTransmission();
 
-    //Read value
-    Wire.requestFrom((int)address,32);
-    while (Wire.available() > 0)
-      SERIAL_ECHO((char)Wire.read());
+    // Read value
+    if (Wire.requestFrom((int)address, 32))
+      while (Wire.available() > 0)
+        SERIAL_ECHO((char)Wire.read());
 
-    //Set module back to normal (distance) mode
+    // Set module back to normal (distance) mode
     Wire.beginTransmission((int)address);
     Wire.write(I2CPE_SET_REPORT_MODE);
     Wire.write(I2CPE_REPORT_DISTANCE);
     Wire.endTransmission();
+
   }
 
   int8_t I2CPositionEncodersMgr::parse() {
