@@ -525,20 +525,23 @@
 // @section probes
 
 //
-// See http://marlinfw.org/configuration/probes.html
+// IT IS HIGHLY RECOMMENDED TO VISIT THE PROBES SECTION OF THE MARLIN WIKI
+// AT http://marlinfw.org/configuration/probes.html
 //
 
 /**
  * Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
  *
- * Enable this option for a probe connected to the Z Min endstop pin.
+ * Use this option if you want to use the probe for both homing and probing. The
+ * probe must be connected to the Z Min endstop pin.
  */
 //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 /**
  * Z_MIN_PROBE_ENDSTOP
  *
- * Enable this option for a probe connected to any pin except Z-Min.
+ * Use this option if you want to use the probe for probing only and use the Z 
+ * Min endstop for homing. The probe can be connected to any pin except Z-Min.
  * (By default Marlin assumes the Z-Max endstop pin.)
  * To use a custom Z Probe pin, set Z_MIN_PROBE_PIN below.
  *
