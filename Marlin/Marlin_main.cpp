@@ -732,9 +732,7 @@ void report_current_position_detail();
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
     SERIAL_CHAR(')');
-
-    if (suffix) {serialprintPGM(suffix);}  //won't compile for Teensy with the previous construction
-    else SERIAL_EOL();
+    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
   }
 
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
@@ -6366,23 +6364,44 @@ inline void gcode_M42() {
               wait = parser.seen('W') ? parser.value_int() : 500;
 
     for (uint8_t pin = start; pin <= end; pin++) {
+      //report_pin_state_extended(pin, I_flag, false);
+
       if (!I_flag && pin_is_protected(pin)) {
-        SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
-        SERIAL_ECHOLNPGM(" untouched.");
+        report_pin_state_extended(pin, I_flag, true, "Untouched ");
+        SERIAL_EOL();
       }
       else {
-        SERIAL_ECHOPAIR("Pulsing Pin: ", pin);
-        pinMode(pin, OUTPUT);
-        for (int16_t j = 0; j < repeat; j++) {
-          digitalWrite(pin, 0);
-          safe_delay(wait);
-          digitalWrite(pin, 1);
-          safe_delay(wait);
-          digitalWrite(pin, 0);
-          safe_delay(wait);
+        report_pin_state_extended(pin, I_flag, true, "Pulsing   ");
+        #ifdef AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
+          if (pin == 46) {
+            SET_OUTPUT(46);
+            for (int16_t j = 0; j < repeat; j++) {
+              WRITE(46, 0); safe_delay(wait);
+              WRITE(46, 1); safe_delay(wait);
+              WRITE(46, 0); safe_delay(wait);
+            }
+          }
+          else if (pin == 47) {
+            SET_OUTPUT(47);
+            for (int16_t j = 0; j < repeat; j++) {
+              WRITE(47, 0); safe_delay(wait);
+              WRITE(47, 1); safe_delay(wait);
+              WRITE(47, 0); safe_delay(wait);
+            }
+          }
+          else
+        #endif
+        {
+          pinMode(pin, OUTPUT);
+          for (int16_t j = 0; j < repeat; j++) {
+            digitalWrite(pin, 0); safe_delay(wait);
+            digitalWrite(pin, 1); safe_delay(wait);
+            digitalWrite(pin, 0); safe_delay(wait);
+          }
         }
+
       }
-      SERIAL_CHAR('\n');
+      SERIAL_EOL();
     }
     SERIAL_ECHOLNPGM("Done.");
 
@@ -6527,13 +6546,13 @@ inline void gcode_M42() {
    *  M43 E<bool> - Enable / disable background endstop monitoring
    *                  - Machine continues to operate
    *                  - Reports changes to endstops
-   *                  - Toggles LED when an endstop changes
+   *                  - Toggles LED_PIN when an endstop changes
    *                  - Can not reliably catch the 5mS pulse from BLTouch type probes
    *
    *  M43 T       - Toggle pin(s) and report which pin is being toggled
    *                  S<pin>  - Start Pin number.   If not given, will default to 0
    *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
-   *                  I       - Flag to ignore Marlin's pin protection.   Use with caution!!!!
+   *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
    *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
    *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
    *
@@ -6542,7 +6561,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M43() {
 
-    if (parser.seen('T')) {   // must be first ot else it's "S" and "E" parameters will execute endstop or servo test
+    if (parser.seen('T')) {   // must be first or else it's "S" and "E" parameters will execute endstop or servo test
       toggle_pins();
       return;
     }
@@ -6576,6 +6595,7 @@ inline void gcode_M42() {
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
         if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
+        delay(1);
         /*
           if (IS_ANALOG(pin))
             pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
@@ -6591,7 +6611,7 @@ inline void gcode_M42() {
 
       for (;;) {
         for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-          if (pin_is_protected(pin)) continue;
+          if (pin_is_protected(pin) && !ignore_protection) continue;
           const byte val =
             /*
               IS_ANALOG(pin)
@@ -6600,7 +6620,7 @@ inline void gcode_M42() {
             //*/
               digitalRead(pin);
           if (val != pin_state[pin - first_pin]) {
-            report_pin_state(pin);
+            report_pin_state_extended(pin, ignore_protection, false);
             pin_state[pin - first_pin] = val;
           }
         }
@@ -6612,14 +6632,14 @@ inline void gcode_M42() {
           }
         #endif
 
-        safe_delay(500);
+        safe_delay(200);
       }
       return;
     }
 
     // Report current state of selected pin(s)
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
-      report_pin_state_extended(pin, ignore_protection);
+      report_pin_state_extended(pin, ignore_protection, true);
   }
 
 #endif // PINS_DEBUGGING
@@ -12164,7 +12184,9 @@ void prepare_move_to_destination() {
     val &= 0x07;
     switch (digitalPinToTimer(pin)) {
       #ifdef TCCR0A
-        case TIMER0A:
+        #if !AVR_AT90USB1286_FAMILY
+          case TIMER0A:
+        #endif
         case TIMER0B:
           //_SET_CS(0, val);
           break;
