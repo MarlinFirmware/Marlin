@@ -28,4 +28,4 @@
 #include "pins_GT2560_REV_A.h"
 
 #define BOARD_NAME			"Geeetech GT2560 Rev. A+"
-#define SERVO0_PIN			13 
+#define SERVO0_PIN			11 
