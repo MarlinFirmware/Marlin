@@ -128,9 +128,7 @@ public:
       return b;
     }
 
-    static volatile bool seen_any() {
-      return codebits[3] || codebits[2] || codebits[1] || codebits[0];
-    }
+    static volatile bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
 
     #define SEEN_TEST(L) TEST(codebits[(L - 'A') >> 3], (L - 'A') & 0x7)
 
@@ -145,9 +143,7 @@ public:
       return b;
     }
 
-    static volatile bool seen_any() {
-      return *command_args == '\0';
-    }
+    static volatile bool seen_any() { return *command_args == '\0'; }
 
     #define SEEN_TEST(L) !!strchr(command_args, L)
 
@@ -207,7 +203,7 @@ public:
 
   #if ENABLED(INCH_MODE_SUPPORT)
 
-    inline static void set_input_linear_units(LinearUnit units) {
+    inline static void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         case LINEARUNIT_INCH:
           linear_unit_factor = 25.4;
