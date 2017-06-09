@@ -328,7 +328,8 @@
       g29_repetition_cnt = parser.has_value() ? parser.value_int() : 1;
       if (g29_repetition_cnt >= GRID_MAX_POINTS) {
         set_all_mesh_points_to_value(NAN);
-      } else {
+      }
+      else {
         while (g29_repetition_cnt--) {
           if (cnt > 20) { cnt = 0; idle(); }
           const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
@@ -1454,7 +1455,7 @@
     void unified_bed_leveling::fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
       if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
-      
+
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
         const bool is_offset = parser.seen('H');
         const float h_offset = is_offset ? parser.value_linear_units() : Z_CLEARANCE_BETWEEN_PROBES;
@@ -1463,7 +1464,7 @@
           return;
         }
       #endif
-      
+
       mesh_index_pair location;
 
       if (!position_is_reachable_xy(lx, ly)) {

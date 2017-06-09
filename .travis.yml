@@ -93,7 +93,7 @@ script:
   #
   - restore_configs
   - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
   - build_marlin
   #
   # Test a Sled Z Probe
