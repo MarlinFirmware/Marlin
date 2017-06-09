@@ -452,7 +452,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
         }
         if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }  // end of IF
   } // end of for loop
 
@@ -483,7 +483,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = t
     }
     //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
     if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 }
 

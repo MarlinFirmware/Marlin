@@ -734,7 +734,7 @@ void report_current_position_detail();
     SERIAL_CHAR(')');
 
     if (suffix) {serialprintPGM(suffix);}  //won't compile for Teensy with the previous construction
-    else SERIAL_EOL;
+    else SERIAL_EOL();
   }
 
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
@@ -868,10 +868,10 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
  */
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
     SERIAL_CHAR('"');
-    SERIAL_EOL;
+    SERIAL_EOL();
     return true;
   }
   return false;
@@ -1010,7 +1010,7 @@ void servo_init() {
 #endif // HAS_COLOR_LEDS
 
 void gcode_line_error(const char* err, bool doFlush = true) {
-  SERIAL_ERROR_START;
+  SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ERRORLN(gcode_LastN);
   //Serial.println(gcode_N);
@@ -1206,7 +1206,7 @@ inline void get_serial_commands() {
           card.checkautostart(true);
         }
         else if (n == -1) {
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ECHOLNPGM(MSG_SD_ERR_READ);
         }
         if (sd_char == '#') stop_buffering = true;
@@ -1261,7 +1261,7 @@ void get_available_commands() {
 bool get_target_extruder_from_command(int code) {
   if (parser.seen('T')) {
     if (parser.value_byte() >= EXTRUDERS) {
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
       SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", parser.value_byte());
@@ -1421,7 +1421,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis_codes[axis]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 
@@ -1510,7 +1510,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
       DEBUG_POS("", current_position);
       SERIAL_ECHOPAIR("<<< set_axis_is_at_home(", axis_codes[axis]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 
@@ -1527,7 +1527,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
     hbd = 10;
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("Warning: Homing Bump Divisor < 1");
   }
   return homing_feedrate(axis) / hbd;
@@ -1748,7 +1748,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
         SERIAL_CHAR(')');
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
@@ -1777,7 +1777,7 @@ static void clean_up_after_endstop_or_probe_move() {
                  zz = z && !axis_homed[Z_AXIS];
     #endif
     if (xx || yy || zz) {
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPGM(MSG_HOME " ");
       if (xx) SERIAL_ECHOPGM(MSG_X);
       if (yy) SERIAL_ECHOPGM(MSG_Y);
@@ -1811,7 +1811,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("dock_sled(", stow);
         SERIAL_CHAR(')');
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
@@ -2054,7 +2054,7 @@ static void clean_up_after_endstop_or_probe_move() {
                                            //  (Measured completion time was 0.65 seconds
                                            //   after reset, deploy, and stow sequence)
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
           stop();                          // punt!
         }
@@ -2066,7 +2066,7 @@ static void clean_up_after_endstop_or_probe_move() {
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       #endif
     }
@@ -2098,7 +2098,7 @@ static void clean_up_after_endstop_or_probe_move() {
                                            //   measured completion time was 0.65 seconds
                                            //   after reset, deploy & stow sequence
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
           stop();                          // punt!
           return true;
@@ -2111,7 +2111,7 @@ static void clean_up_after_endstop_or_probe_move() {
         #define _AUE_ARGS
       #endif
       if (axis_unhomed_error(_AUE_ARGS)) {
-        SERIAL_ERROR_START;
+        SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
         stop();
         return true;
@@ -2159,7 +2159,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (_TRIGGERED_WHEN_STOWED_TEST == deploy) { // State hasn't changed?
 
         if (IsRunning()) {
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Z-Probe failed");
           LCD_ALERTMESSAGEPGM("Err: ZPROBE");
         }
@@ -2323,7 +2323,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
       SERIAL_PROTOCOL_F(measured_z, 3);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2523,7 +2523,7 @@ static void clean_up_after_endstop_or_probe_move() {
           SERIAL_PROTOCOLCHAR(' ');
         SERIAL_PROTOCOL((int)x);
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_PROTOCOLLNPGM("measured_z = ["); // open 2D array
@@ -2561,12 +2561,12 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_PROTOCOLCHAR(']');                     // close sub-array
         if (y < sy - 1) SERIAL_PROTOCOLCHAR(',');
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_PROTOCOLPGM("];");                       // close 2D array
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
 #endif
@@ -2596,7 +2596,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
       return;  // Don't overwrite good values.
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     // Get X neighbors, Y neighbors, and XY neighbors
     const uint8_t x1 = x + xdir, y1 = y + ydir, x2 = x1 + xdir, y2 = y1 + ydir;
@@ -2798,7 +2798,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       SERIAL_ECHOPAIR(", ", distance);
       SERIAL_ECHOPAIR(", ", fr_mm_s);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 
@@ -2841,7 +2841,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR("<<< do_homing_move(", axis_codes[axis]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 }
@@ -2896,7 +2896,7 @@ static void homeaxis(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> homeaxis(", axis_codes[axis]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 
@@ -3029,7 +3029,7 @@ static void homeaxis(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR("<<< homeaxis(", axis_codes[axis]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   #endif
 } // homeaxis()
@@ -3176,15 +3176,15 @@ void gcode_get_destination() {
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
           break;
         case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
           break;
         default:
@@ -3302,7 +3302,7 @@ inline void gcode_G0_G1(
       }
       else {
         // Bad arguments
-        SERIAL_ERROR_START;
+        SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
       }
     }
@@ -3543,7 +3543,7 @@ inline void gcode_G4() {
       else
         SERIAL_ECHOLNPGM(" (disabled)");
 
-      SERIAL_EOL;
+      SERIAL_EOL();
 
     #elif ENABLED(MESH_BED_LEVELING)
 
@@ -3557,7 +3557,7 @@ inline void gcode_G4() {
       else
         SERIAL_ECHOPGM(" (disabled)");
 
-      SERIAL_EOL;
+      SERIAL_EOL();
 
     #endif // MESH_BED_LEVELING
   }
@@ -3613,7 +3613,7 @@ inline void gcode_G4() {
     // Disallow Z homing if X or Y are unknown
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
       return;
     }
@@ -3652,7 +3652,7 @@ inline void gcode_G4() {
     }
     else {
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
     }
 
@@ -4300,14 +4300,14 @@ void home_all_axes() { gcode_G28(true); }
 
         if (parser.seen('W')) {
           if (!leveling_is_valid()) {
-            SERIAL_ERROR_START;
+            SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("No bilinear grid");
             return;
           }
 
           const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : NAN;
           if (!isnan(z) || !WITHIN(z, -10, 10)) {
-            SERIAL_ERROR_START;
+            SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
           }
@@ -4837,11 +4837,11 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
         SERIAL_PROTOCOLPGM(" d: ");
         SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
-        SERIAL_EOL;
+        SERIAL_EOL();
         if (verbose_level > 2) {
           SERIAL_PROTOCOLPGM("Mean of sampled points: ");
           SERIAL_PROTOCOL_F(mean, 8);
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       }
 
@@ -4887,9 +4887,9 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_PROTOCOLCHAR(' ');
             SERIAL_PROTOCOL_F(diff, 5);
           } // xx
-          SERIAL_EOL;
+          SERIAL_EOL();
         } // yy
-        SERIAL_EOL;
+        SERIAL_EOL();
 
         if (verbose_level > 3) {
           SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
@@ -4911,9 +4911,9 @@ void home_all_axes() { gcode_G28(true); }
                 SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
             } // xx
-            SERIAL_EOL;
+            SERIAL_EOL();
           } // yy
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       } //do_topography_map
 
@@ -5163,7 +5163,7 @@ void home_all_axes() { gcode_G28(true); }
 
       SERIAL_PROTOCOLPGM("Checking... AC");
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
-      SERIAL_EOL;
+      SERIAL_EOL();
       LCD_MESSAGEPGM("Checking... AC"); // TODO: Make translatable string
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
@@ -5179,7 +5179,7 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
         SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
       if (_7p_calibration && towers_set) {
         SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
         if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
@@ -5188,7 +5188,7 @@ void home_all_axes() { gcode_G28(true); }
         if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
         SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
         SERIAL_PROTOCOLPGM("  Tz:+0.00");
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
 
       #if ENABLED(Z_PROBE_SLED)
@@ -5356,7 +5356,7 @@ void home_all_axes() { gcode_G28(true); }
             if (z_at_pt[9] >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(z_at_pt[9], 2);
           }
-          if (!_4p_opposite_points) SERIAL_EOL;
+          if (!_4p_opposite_points) SERIAL_EOL();
           if ((_4p_opposite_points) || _7p_calibration) {
             if (_7p_calibration) {
               SERIAL_CHAR('.');
@@ -5371,7 +5371,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOLPGM("  xy:");
             if (z_at_pt[3] >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(z_at_pt[3], 2);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
         }
         if (test_precision != 0.0) {                                 // !forced end
@@ -5384,7 +5384,7 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_PROTOCOLPGM("std dev:");
               SERIAL_PROTOCOL_F(zero_std_dev, 3);
             }
-            SERIAL_EOL;
+            SERIAL_EOL();
             LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
           }
           else {                                                     // !end iterations
@@ -5395,7 +5395,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOL_SP(36);
             SERIAL_PROTOCOLPGM("std dev:");
             SERIAL_PROTOCOL_F(zero_std_dev, 3);
-            SERIAL_EOL;
+            SERIAL_EOL();
             lcd_setstatus(mess);
           }
           SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
@@ -5411,7 +5411,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
             SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
           }
-          SERIAL_EOL;
+          SERIAL_EOL();
           if (_7p_calibration && towers_set) {
             SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
             if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
@@ -5420,11 +5420,11 @@ void home_all_axes() { gcode_G28(true); }
             if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
             SERIAL_PROTOCOLPGM("  Tz:+0.00");
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
           if (zero_std_dev >= test_precision || zero_std_dev <= calibration_precision)
             serialprintPGM(save_message);
-            SERIAL_EOL;
+            SERIAL_EOL();
         }
         else {                                                       // forced end
           if (verbose_level == 0) {
@@ -5432,15 +5432,15 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOL_SP(39);
             SERIAL_PROTOCOLPGM("std dev:");
             SERIAL_PROTOCOL_F(zero_std_dev, 3);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
           else {
             SERIAL_PROTOCOLLNPGM("Calibration OK");
             LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
             SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
-            SERIAL_EOL;
+            SERIAL_EOL();
             serialprintPGM(save_message);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
         }
 
@@ -5545,7 +5545,7 @@ void home_all_axes() { gcode_G28(true); }
         if (!parser.seen('F')) feedrate_mm_s = homing_feedrate(i);
         // If G38.2 fails throw an error
         if (!G38_run_probe() && is_38_2) {
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Failed to reach target");
         }
         break;
@@ -5685,7 +5685,7 @@ inline void gcode_G92() {
     #else
 
       if (!hasP && !hasS && args && *args) {
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOLN(args);
       }
 
@@ -5899,7 +5899,7 @@ inline void gcode_M17() {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude && 
             thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
           return false;
         }
@@ -6232,7 +6232,7 @@ inline void gcode_M31() {
   elapsed.toString(buffer);
   lcd_setstatus(buffer);
 
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR("Print time: ", buffer);
 }
 
@@ -6330,7 +6330,7 @@ inline void gcode_M42() {
   if (pin_number < 0) return;
 
   if (pin_is_protected(pin_number)) {
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
     return;
   }
@@ -6391,12 +6391,12 @@ inline void gcode_M42() {
   inline void servo_probe_test() {
     #if !(NUM_SERVOS > 0 && HAS_SERVO_0)
 
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("SERVO not setup");
 
     #elif !HAS_Z_SERVO_ENDSTOP
 
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Z_ENDSTOP_SERVO_NR not setup");
 
     #else
@@ -6832,7 +6832,7 @@ inline void gcode_M42() {
             SERIAL_PROTOCOLPGM(" range: ");
             SERIAL_PROTOCOL_F(max-min, 3);
           }
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       }
 
@@ -6841,7 +6841,7 @@ inline void gcode_M42() {
     if (STOW_PROBE()) return;
 
     SERIAL_PROTOCOLPGM("Finished!");
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
@@ -6852,13 +6852,13 @@ inline void gcode_M42() {
       SERIAL_PROTOCOL_F(max, 3);
       SERIAL_PROTOCOLPGM(" Range: ");
       SERIAL_PROTOCOL_F(max-min, 3);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL;
-    SERIAL_EOL;
+    SERIAL_EOL();
+    SERIAL_EOL();
 
     clean_up_after_endstop_or_probe_move();
 
@@ -7014,11 +7014,11 @@ inline void gcode_M105() {
     SERIAL_PROTOCOLPGM(MSG_OK);
     print_heaterstates();
   #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
   #endif
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
@@ -7041,7 +7041,7 @@ inline void gcode_M105() {
     if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
       next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
       print_heaterstates();
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 
@@ -7194,7 +7194,7 @@ inline void gcode_M109() {
           SERIAL_PROTOCOLLNPGM("?");
         }
       #else
-        SERIAL_EOL;
+        SERIAL_EOL();
       #endif
     }
 
@@ -7327,7 +7327,7 @@ inline void gcode_M109() {
             SERIAL_PROTOCOLLNPGM("?");
           }
         #else
-          SERIAL_EOL;
+          SERIAL_EOL();
         #endif
       }
 
@@ -7407,7 +7407,7 @@ inline void gcode_M111() {
     #endif
   };
 
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOPGM(MSG_DEBUG_PREFIX);
   if (marlin_debug_flags) {
     uint8_t comma = 0;
@@ -7421,7 +7421,7 @@ inline void gcode_M111() {
   else {
     SERIAL_ECHOPGM(MSG_DEBUG_OFF);
   }
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -7437,7 +7437,7 @@ inline void gcode_M111() {
       NOMORE(host_keepalive_interval, 60);
     }
     else {
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPAIR("M113 S", (unsigned long)host_keepalive_interval);
     }
   }
@@ -7491,7 +7491,7 @@ inline void gcode_M140() {
   inline void gcode_M145() {
     uint8_t material = parser.seen('S') ? (uint8_t)parser.value_int() : 0;
     if (material >= COUNT(lcd_preheat_hotend_temp)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
     }
     else {
@@ -7697,7 +7697,7 @@ void report_current_position() {
   #if IS_SCARA
     SERIAL_PROTOCOLPAIR("SCARA Theta:", stepper.get_axis_position_degrees(A_AXIS));
     SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
-    SERIAL_EOL;
+    SERIAL_EOL();
   #endif
 }
 
@@ -7711,7 +7711,7 @@ void report_current_position() {
       SERIAL_CHAR(':');
       SERIAL_PROTOCOL(dtostrf(pos[i], 8, precision, str));
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
   inline void report_xyz(const float pos[XYZ]) { report_xyze(pos, 3); }
@@ -8214,7 +8214,7 @@ inline void gcode_M205() {
     if (sumAPX == 1)
       home_offset[A_AXIS] = parser.value_float();
     else if (sumAPX > 1) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Only one of A, P, or X is allowed.");
       return;
     }
@@ -8224,7 +8224,7 @@ inline void gcode_M205() {
     if (sumBTY == 1)
       home_offset[B_AXIS] = parser.value_float();
     else if (sumBTY > 1) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Only one of B, T, or Y is allowed.");
       return;
     }
@@ -8296,7 +8296,7 @@ inline void gcode_M205() {
  * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
 inline void gcode_M211() {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   #if HAS_SOFTWARE_ENDSTOPS
     if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
     SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
@@ -8335,7 +8335,7 @@ inline void gcode_M211() {
       if (parser.seen('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
     #endif
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     HOTEND_LOOP() {
       SERIAL_CHAR(' ');
@@ -8347,7 +8347,7 @@ inline void gcode_M211() {
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
 #endif // HOTENDS > 1
@@ -8447,7 +8447,7 @@ inline void gcode_M226() {
       i2c.relay(bytes);
     }
     else {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLN("Bad i2c request");
     }
   }
@@ -8466,13 +8466,13 @@ inline void gcode_M226() {
       if (parser.seen('S'))
         MOVE_SERVO(servo_index, parser.value_int());
       else {
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOPAIR(" Servo ", servo_index);
         SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
       }
     }
     else {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ECHOPAIR("Servo ", servo_index);
       SERIAL_ECHOLNPGM(" out of range");
     }
@@ -8528,7 +8528,7 @@ inline void gcode_M226() {
       #endif
 
       thermalManager.updatePID();
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       #if ENABLED(PID_PARAMS_PER_HOTEND)
         SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
       #endif // PID_PARAMS_PER_HOTEND
@@ -8539,10 +8539,10 @@ inline void gcode_M226() {
         //Kc does not have scaling applied above, or in resetting defaults
         SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
     else {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLN(MSG_INVALID_EXTRUDER);
     }
   }
@@ -8558,7 +8558,7 @@ inline void gcode_M226() {
 
     thermalManager.updatePID();
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(" p:", thermalManager.bedKp);
     SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.bedKi));
     SERIAL_ECHOLNPAIR(" d:", unscalePID_d(thermalManager.bedKd));
@@ -8611,7 +8611,7 @@ inline void gcode_M226() {
     if (parser.seen('C')) set_lcd_contrast(parser.value_int());
     SERIAL_PROTOCOLPGM("lcd contrast value: ");
     SERIAL_PROTOCOL(lcd_contrast);
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
 #endif // HAS_LCD_CONTRAST
@@ -8644,7 +8644,7 @@ inline void gcode_M226() {
       thermalManager.allow_cold_extrude = (thermalManager.extrude_min_temp == 0) || parser.value_bool();
     else if (!seen_S) {
       // Report current state
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Cold extrudes are ", (thermalManager.allow_cold_extrude ? "en" : "dis"));
       SERIAL_ECHOPAIR("abled (min temp ", thermalManager.extrude_min_temp);
       SERIAL_ECHOLNPGM("C)");
@@ -8678,7 +8678,7 @@ inline void gcode_M303() {
 
     KEEPALIVE_STATE(IN_HANDLER);
   #else
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M303_DISABLED);
   #endif
 }
@@ -8767,7 +8767,7 @@ inline void gcode_M303() {
             break;
         #endif
       default:
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOLNPGM(MSG_INVALID_SOLENOID);
         break;
     }
@@ -8971,11 +8971,11 @@ void quickstop_stepper() {
     const bool new_status = leveling_is_active();
 
     if (to_enable && !new_status) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
     }
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("Bed Leveling ", new_status ? MSG_ON : MSG_OFF);
   }
 #endif
@@ -8999,11 +8999,11 @@ void quickstop_stepper() {
     const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
 
     if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
     else if (ix < 0 || iy < 0) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
     else
@@ -9027,11 +9027,11 @@ void quickstop_stepper() {
     const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
 
     if (!hasI || !hasJ || !(hasZ || hasQ)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
     else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
     else {
@@ -9067,11 +9067,11 @@ void quickstop_stepper() {
     }
 
     if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
     else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
     else
@@ -9103,7 +9103,7 @@ void quickstop_stepper() {
           set_home_offset((AxisEnum)i, diff);
         }
         else {
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
           LCD_ALERTMESSAGEPGM("Err: Too far!");
           BUZZ(200, 40);
@@ -9202,7 +9202,7 @@ inline void gcode_M503() {
   }
 
   inline void gcode_M851() {
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
     if (parser.seen('Z')) {
       const float value = parser.value_linear_units();
@@ -9217,7 +9217,7 @@ inline void gcode_M503() {
     else
       SERIAL_ECHOPAIR(": ", zprobe_zoffset);
 
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
 #endif // HAS_BED_PROBE
@@ -9327,7 +9327,7 @@ inline void gcode_M503() {
       case DXC_DUPLICATION_MODE:
         if (parser.seen('X')) duplicate_extruder_x_offset = max(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
         if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
         SERIAL_CHAR(' ');
         SERIAL_ECHO(hotend_offset[X_AXIS][0]);
@@ -9352,7 +9352,7 @@ inline void gcode_M503() {
   inline void gcode_M605() {
     stepper.synchronize();
     extruder_duplication_enabled = parser.seen('S') && parser.value_int() == (int)DXC_DUPLICATION_MODE;
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
 
@@ -9382,12 +9382,12 @@ inline void gcode_M503() {
     }
     if (newR >= 0) planner.advance_ed_ratio = newR;
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_k);
     SERIAL_ECHOPGM(" E/D=");
     const float ratio = planner.advance_ed_ratio;
     if (ratio) SERIAL_ECHO(ratio); else SERIAL_ECHOPGM("Auto");
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 #endif // LIN_ADVANCE
 
@@ -9407,7 +9407,7 @@ inline void gcode_M503() {
     SERIAL_CHAR(name);
     SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
     serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
   static void tmc2130_clear_otpw(TMC2130Stepper &st, const char name) {
     st.clear_otpw();
@@ -9690,7 +9690,7 @@ inline void gcode_M355() {
     if (args) update_case_light();
 
     // always report case light status
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     if (!case_light_on) {
       SERIAL_ECHOLN("Case light: off");
     }
@@ -9700,7 +9700,7 @@ inline void gcode_M355() {
     }
 
   #else
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
   #endif // HAS_CASE_LIGHT
 }
@@ -9799,7 +9799,7 @@ inline void gcode_M999() {
 #endif
 
 inline void invalid_extruder_error(const uint8_t &e) {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
@@ -10120,7 +10120,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     #endif // HOTENDS <= 1
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
@@ -10138,7 +10138,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> gcode_T(", tmp_extruder);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
       DEBUG_POS("BEFORE", current_position);
     }
   #endif
@@ -10173,7 +10173,7 @@ void process_next_command() {
   char * const current_command = command_queue[cmd_queue_index_r];
 
   if (DEBUGGING(ECHO)) {
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_WATCHER)
       SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
@@ -11021,7 +11021,7 @@ void ok_to_send() {
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
     SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -11813,13 +11813,13 @@ void prepare_move_to_destination() {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
         if (thermalManager.tooColdToExtrude(active_extruder)) {
           current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
         }
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           if (labs(destination[E_AXIS] - current_position[E_AXIS]) > EXTRUDE_MAXLENGTH) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_START;
+            SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
           }
         #endif
@@ -12300,7 +12300,7 @@ void disable_all_steppers() {
           #endif
         }
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
   }
 
@@ -12373,7 +12373,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   const millis_t ms = millis();
 
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
     kill(PSTR(MSG_KILLED));
   }
@@ -12424,7 +12424,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
       kill(PSTR(MSG_KILLED));
     }
@@ -12575,7 +12575,7 @@ void idle(
  * After this the machine will need to be reset.
  */
 void kill(const char* lcd_msg) {
-  SERIAL_ERROR_START;
+  SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
   thermalManager.disable_all_heaters();
@@ -12618,7 +12618,7 @@ void stop() {
 
   if (IsRunning()) {
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -12666,7 +12666,7 @@ void setup() {
 
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
@@ -12680,17 +12680,17 @@ void setup() {
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
-  SERIAL_EOL;
+  SERIAL_EOL();
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
     SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
     SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
     SERIAL_ECHOLNPGM("Compiled: " __DATE__);
   #endif
 
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(MSG_FREE_MEMORY, freeMemory());
   SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
 

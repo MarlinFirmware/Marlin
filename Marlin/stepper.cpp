@@ -1305,7 +1305,7 @@ void Stepper::report_positions() {
   #endif
   SERIAL_PROTOCOL(zpos);
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(BABYSTEPPING)

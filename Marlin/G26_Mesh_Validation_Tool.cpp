@@ -288,7 +288,7 @@
           SERIAL_ECHOPAIR("   Doing circle at: (xi=", xi);
           SERIAL_ECHOPAIR(", yi=", yi);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
 
         start_angle = 0.0;    // assume it is going to be a full circle
@@ -467,7 +467,7 @@
                   SERIAL_ECHOPAIR(") -> (ex=", ex);
                   SERIAL_ECHOPAIR(", ey=", ey);
                   SERIAL_CHAR(')');
-                  SERIAL_EOL;
+                  SERIAL_EOL();
                   //debug_current_and_destination(PSTR("Connecting horizontal line."));
                 }
 
@@ -501,7 +501,7 @@
                     SERIAL_ECHOPAIR(") -> (ex=", ex);
                     SERIAL_ECHOPAIR(", ey=", ey);
                     SERIAL_CHAR(')');
-                    SERIAL_EOL;
+                    SERIAL_EOL();
                     debug_current_and_destination(PSTR("Connecting vertical line."));
                   }
                   print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), g26_layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), g26_layer_height);

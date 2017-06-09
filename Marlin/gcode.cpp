@@ -203,7 +203,7 @@ void GCodeParser::parse(char *p) {
       }
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) SERIAL_EOL;
+        if (debug) SERIAL_EOL();
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
@@ -229,10 +229,10 @@ void GCodeParser::parse(char *p) {
 }
 
 void GCodeParser::unknown_command_error() {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);
   SERIAL_CHAR('"');
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)
