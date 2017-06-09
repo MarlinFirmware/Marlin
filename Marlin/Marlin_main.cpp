@@ -5827,12 +5827,31 @@ inline void gcode_M17() {
     }
   }
 
+  static void ensure_safe_temperature() {
+    bool heaters_heating = true;
+
+    wait_for_heatup = true;    // M108 will clear this
+    while (wait_for_heatup && heaters_heating) {
+      idle();
+      heaters_heating = false;
+      HOTEND_LOOP() {
+        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+          heaters_heating = true;
+          #if ENABLED(ULTIPANEL)
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+          #endif
+          break;
+        }
+      }
+    }
+  }
+
   static bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
                           const float &unload_length = 0 , int8_t max_beep_count = 0, bool show_lcd = false
   ) {
     if (move_away_flag) return false; // already paused
 
-    if (!DEBUGGING(DRYRUN) && unload_length > 0) {
+    if (!DEBUGGING(DRYRUN) && unload_length != 0) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude && 
             thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
@@ -5926,25 +5945,6 @@ inline void gcode_M17() {
       thermalManager.start_heater_idle_timer(e, nozzle_timeout);
 
     return true;
-  }
-
-  static void ensure_safe_temperature() {
-    bool heaters_heating = true;
-
-    wait_for_heatup = true;    // M108 will clear this
-    while (wait_for_heatup && heaters_heating) {
-      idle();
-      heaters_heating = false;
-      HOTEND_LOOP() {
-        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
-          heaters_heating = true;
-          #if ENABLED(ULTIPANEL)
-            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
-          #endif
-          break;
-        }
-      }
-    }
   }
 
   static void wait_for_filament_reload(int8_t max_beep_count = 0) {
