@@ -47,6 +47,7 @@
   #define I2CPE_MAG_SIG_GOOD            0
   #define I2CPE_MAG_SIG_MID             1
   #define I2CPE_MAG_SIG_BAD             2
+  #define I2CPE_MAG_SIG_NF              255
 
   #define I2CPE_REQ_REPORT              0
   #define I2CPE_RESET_COUNT             1
@@ -110,7 +111,7 @@
     uint8_t         i2cAddress              = I2CPE_DEF_ADDR,
                     ecMethod                = I2CPE_DEF_EC_METHOD,
                     type                    = I2CPE_DEF_TYPE,
-                    H                       = I2CPE_MAG_SIG_BAD;    // Magnetic field strength
+                    H                       = I2CPE_MAG_SIG_NF;    // Magnetic field strength
 
     int             encoderTicksPerUnit     = I2CPE_DEF_ENC_TICKS_UNIT,
                     stepperTicks            = I2CPE_DEF_TICKS_REV;
@@ -246,6 +247,7 @@
       CHECK_IDX
       SERIAL_ECHOPAIR("Encoder ",idx);
       SERIAL_ECHOPGM(": ");
+      encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
     }
 

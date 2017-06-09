@@ -24,6 +24,9 @@
 //todo:    add z axis auto-leveling
 //todo:  consolidate some of the related M codes?
 //todo:  add endstop-replacement mode?
+//todo:  try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
+//todo:    consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
+
 
 #include "MarlinConfig.h"
 
@@ -217,27 +220,32 @@
     }
   }
 
-
   bool I2CPositionEncoder::passes_test(bool report) {
-    if (H == I2CPE_MAG_SIG_BAD) {
+    if (H == I2CPE_MAG_SIG_GOOD) {
+      if (report) {
+        SERIAL_ECHO(axis_codes[encoderAxis]);
+        SERIAL_ECHOLNPGM(" axis encoder passes test; field strength good.");
+      }
+      return true;
+    } else if (H == I2CPE_MAG_SIG_MID) {
+      if (report) {
+        SERIAL_ECHOPAIR("Warning, ", axis_codes[encoderAxis]);
+        SERIAL_ECHOLNPGM(" axis encoder passes test; field strength fair.");
+      }
+      return true;
+    } else if (H == I2CPE_MAG_SIG_BAD) {
       if (report) {
         SERIAL_ECHOPAIR("Warning, ", axis_codes[encoderAxis]);
         SERIAL_ECHOLNPGM(" axis magnetic strip not detected!");
       }
       return false;
-    } else if (H == I2CPE_MAG_SIG_GOOD || H == I2CPE_MAG_SIG_MID) {
-      if (report) {
-        SERIAL_ECHO(axis_codes[encoderAxis]);
-        SERIAL_ECHOLNPGM(" axis encoder passes test.");
-      }
-      return true;
-    } else {
-      if (report) {
-        SERIAL_ECHOPAIR("Warning, ", axis_codes[encoderAxis]);
-        SERIAL_ECHOLNPGM(" axis encoder not detected!");
-      }
-      return false;
     }
+
+    if (report) {
+      SERIAL_ECHOPAIR("Warning, ", axis_codes[encoderAxis]);
+      SERIAL_ECHOLNPGM(" axis encoder not detected!");
+    }
+    return false;
   }
 
   double I2CPositionEncoder::get_axis_error_mm(bool report) {
@@ -306,6 +314,7 @@
 
     if (Wire.requestFrom((int)i2cAddress, 3) != 3) {
       //houston, we have a problem...
+      H = I2CPE_MAG_SIG_NF;
       return 0;
     }
 
@@ -447,7 +456,7 @@
       if (iter > 1) {
         total += newStepsMm;
 
-        //swap start and end points so next loop runs from current position
+        // swap start and end points so next loop runs from current position
         float tempCoord = startCoord[encoderAxis];
         startCoord[encoderAxis] = endCoord[encoderAxis];
         endCoord[encoderAxis] = tempCoord;
@@ -705,7 +714,6 @@
     }
   }
 
-
   void I2CPositionEncodersMgr::report_module_firmware(uint8_t address) {
     // First check there is a module
     Wire.beginTransmission(address);
@@ -716,7 +724,7 @@
     }
 
     SERIAL_ECHOPAIR("Requesting version info from module at address ", address);
-    SERIAL_ECHOPGM(":\n ");
+    SERIAL_ECHOPGM(":\n");
 
     Wire.beginTransmission(address);
     Wire.write(I2CPE_SET_REPORT_MODE);
@@ -725,8 +733,9 @@
 
     // Read value
     if (Wire.requestFrom((int)address, 32)) {
-      while (Wire.available() > 0)
-        SERIAL_ECHO((char)Wire.read());
+      char c;
+      while (Wire.available() > 0 && (c = (char)Wire.read()) > 0)
+        SERIAL_ECHO(c);
       SERIAL_EOL;
     }
 
@@ -742,14 +751,14 @@
 
     if (parser.seen('A')) {
       if (!parser.has_value()) {
-        SERIAL_PROTOCOLLNPGM("?A seen, but no address specified! 30-200.");
+        SERIAL_PROTOCOLLNPGM("?A seen, but no address specified! [30-200]");
         return I2CPE_PARSE_ERR;
       };
 
       I2CPE_addr = parser.value_byte();
 
       if (!WITHIN(I2CPE_addr, 30, 200)) { // reserve the first 30 and last 55
-        SERIAL_PROTOCOLLNPGM("?Address out of range. 30-200.");
+        SERIAL_PROTOCOLLNPGM("?Address out of range. [30-200]");
         return I2CPE_PARSE_ERR;
       }
 
@@ -761,14 +770,16 @@
       }
     } else if (parser.seenval('I')) {
       if (!parser.has_value()) {
-        SERIAL_PROTOCOLLNPAIR("?I seen, but no index specified! 0-", I2CPE_ENCODER_CNT - 1);
+        SERIAL_PROTOCOLLNPAIR("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1);
+        SERIAL_ECHOLNPGM("]");
         return I2CPE_PARSE_ERR;
       };
 
       I2CPE_idx = parser.value_byte();
 
       if (!WITHIN(I2CPE_idx, 0, I2CPE_ENCODER_CNT - 1)) {
-        SERIAL_PROTOCOLLNPAIR("?Index out of range. 0-", I2CPE_ENCODER_CNT - 1);
+        SERIAL_PROTOCOLLNPAIR("?Index out of range. [0-", I2CPE_ENCODER_CNT - 1);
+        SERIAL_ECHOLNPGM("]");
         return I2CPE_PARSE_ERR;
       }
 
@@ -913,14 +924,14 @@
 
     if (parser.seen('N')) {
       if (!parser.has_value()) {
-        SERIAL_PROTOCOLLNPGM("?N seen, but no address specified! 30-200.");
+        SERIAL_PROTOCOLLNPGM("?N seen, but no address specified! [30-200]");
         return;
       };
 
       newAddress = parser.value_byte();
 
       if (!WITHIN(newAddress, 30, 200)) {
-        SERIAL_PROTOCOLLNPGM("?New address out of range. 30-200.");
+        SERIAL_PROTOCOLLNPGM("?New address out of range. [30-200]");
         return;
       }
     } else if (!I2CPE_anyaxis) {

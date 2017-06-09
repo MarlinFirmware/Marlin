@@ -1308,7 +1308,14 @@
   #define I2CPE_ENC_2_EC_METHOD     I2CPE_ECM_NONE
   #define I2CPE_ENC_2_EC_THRESH     0.10
 
-  // Duplicate the above up to 3 more times, PRN.
+  #define I2CPE_ENC_3_ADDR          I2CPE_PRESET_ADDR_Z     // Encoder 3.  Add additional configuration options
+  #define I2CPE_ENC_3_AXIS          Z_AXIS                  // as above, or use defaults below.
+
+  #define I2CPE_ENC_4_ADDR          I2CPE_PRESET_ADDR_E     // Encoder 4.
+  #define I2CPE_ENC_4_AXIS          E_AXIS
+
+  #define I2CPE_ENC_5_ADDR          34                      // Encoder 5.
+  #define I2CPE_ENC_5_AXIS          E_AXIS
 
   // Default settings for encoders which are enabled, but without settings configured above.
   #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_LINEAR
