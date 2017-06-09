@@ -34,6 +34,7 @@
   #include "stepper.h"
   #include "temperature.h"
   #include "ultralcd.h"
+  #include "gcode.h"
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
@@ -98,7 +99,8 @@
    *                    will be purged before continuing.  If no amount is specified the command will start
    *                    purging filament until the user provides an LCD Click and then it will continue with
    *                    printing the Mesh.  You can carefully remove the spent filament with a needle nose
-   *                    pliers while holding the LCD Click wheel in a depressed state.
+   *                    pliers while holding the LCD Click wheel in a depressed state.  If you do not have
+   *                    an LCD, you must specify a value if you use P.
    *
    *   Q #  Multiplier  Retraction Multiplier.  Normally not needed.  Retraction defaults to 1.0mm and
    *                    un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
@@ -106,6 +108,11 @@
    *   R #  Repeat      Prints the number of patterns given as a parameter, starting at the current location.
    *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
    *                    This works the same way that the UBL G29 P4 R parameter works.
+   *
+   *                    NOTE:  If you do not have an LCD, you -must- specify R.  This is to ensure that you are
+   *                    aware that there's some risk associated with printing without the ability to abort in
+   *                    cases where mesh point Z value may be inaccurate.  As above, if you do not include a
+   *                    parameter, every point will be printed.
    *
    *   S #  Nozzle      Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
    *
@@ -130,13 +137,11 @@
   void set_destination_to_current();
   void set_current_to_destination();
   void prepare_move_to_destination();
-  float code_value_float();
-  float code_value_linear_units();
-  float code_value_axis_units(const AxisEnum axis);
-  bool code_value_bool();
-  bool code_has_value();
   void sync_plan_position_e();
-  void chirp_at_user();
+  #if ENABLED(NEWPANEL)
+    void lcd_setstatusPGM(const char* const message, const int8_t level);
+    void chirp_at_user();
+  #endif
 
   // Private functions
 
@@ -176,29 +181,30 @@
     feedrate_mm_s = save_feedrate;  // restore global feed rate
   }
 
-  /**
-   * Detect ubl_lcd_clicked, debounce it, and return true for cancel
-   */
-  bool user_canceled() {
-    if (!ubl_lcd_clicked()) return false;
-    safe_delay(10);                       // Wait for click to settle
+  #if ENABLED(NEWPANEL)
+    /**
+     * Detect ubl_lcd_clicked, debounce it, and return true for cancel
+     */
+    bool user_canceled() {
+      if (!ubl_lcd_clicked()) return false;
+      safe_delay(10);                       // Wait for click to settle
 
-    #if ENABLED(ULTRA_LCD)
-      lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), 99);
-      lcd_quick_feedback();
-    #endif
-    lcd_reset_alert_level();
+      #if ENABLED(ULTRA_LCD)
+        lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
+        lcd_quick_feedback();
+      #endif
 
-    while (!ubl_lcd_clicked()) idle();    // Wait for button release
+      while (!ubl_lcd_clicked()) idle();    // Wait for button release
 
-    // If the button is suddenly pressed again,
-    // ask the user to resolve the issue
-    lcd_setstatuspgm(PSTR("Release button"), 99); // will never appear...
-    while (ubl_lcd_clicked()) idle();             // unless this loop happens
-    lcd_setstatuspgm(PSTR(""));
+      // If the button is suddenly pressed again,
+      // ask the user to resolve the issue
+      lcd_setstatusPGM(PSTR("Release button"), 99); // will never appear...
+      while (ubl_lcd_clicked()) idle();             // unless this loop happens
+      lcd_reset_status();
 
-    return true;
-  }
+      return true;
+    }
+  #endif
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -246,8 +252,8 @@
     // Move nozzle to the specified height for the first layer
     set_destination_to_current();
     destination[Z_AXIS] = g26_layer_height;
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], g26_ooze_amount);
+    move_to(destination, 0.0);
+    move_to(destination, g26_ooze_amount);
 
     has_control_of_lcd_panel = true;
     //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
@@ -314,7 +320,9 @@
 
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
 
-          if (user_canceled()) goto LEAVE;              // Check if the user wants to stop the Mesh Validation
+          #if ENABLED(NEWPANEL)
+            if (user_canceled()) goto LEAVE;              // Check if the user wants to stop the Mesh Validation
+          #endif
 
           int tmp_div_30 = tmp / 30.0;
           if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
@@ -354,21 +362,20 @@
     } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
-    lcd_reset_alert_level();
-    lcd_setstatuspgm(PSTR("Leaving G26"));
+    lcd_setstatusPGM(PSTR("Leaving G26"), -1);
 
     retract_filament(destination);
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
     //debug_current_and_destination(PSTR("ready to do Z-Raise."));
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Raise the nozzle
+    move_to(destination, 0); // Raise the nozzle
     //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
     destination[X_AXIS] = g26_x_pos;                                               // Move back to the starting position
     destination[Y_AXIS] = g26_y_pos;
     //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                        // Keep the nozzle where it is
 
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
+    move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
     has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
@@ -431,7 +438,9 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
+        #if ENABLED(NEWPANEL)
+          if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
+        #endif
 
         if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
                                      // This is already a half circle because we are at the edge of the bed.
@@ -545,16 +554,16 @@
 
   }
 
-  void unified_bed_leveling::retract_filament(float where[XYZE]) {
+  void unified_bed_leveling::retract_filament(const float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], -1.0 * g26_retraction_multiplier);
+      move_to(where, -1.0 * g26_retraction_multiplier);
     }
   }
 
-  void unified_bed_leveling::recover_filament(float where[XYZE]) {
+  void unified_bed_leveling::recover_filament(const float where[XYZE]) {
     if (g26_retracted) { // Only un-retract if we are retracted.
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], 1.2 * g26_retraction_multiplier);
+      move_to(where, 1.2 * g26_retraction_multiplier);
       g26_retracted = false;
     }
   }
@@ -625,29 +634,29 @@
     g26_hotend_temp           = HOTEND_TEMP;
     g26_prime_flag            = 0;
 
-    g26_ooze_amount           = code_seen('O') && code_has_value() ? code_value_linear_units() : OOZE_AMOUNT;
-    g26_keep_heaters_on       = code_seen('K') && code_value_bool();
-    g26_continue_with_closest = code_seen('C') && code_value_bool();
+    g26_ooze_amount           = parser.seen('O') && parser.has_value() ? parser.value_linear_units() : OOZE_AMOUNT;
+    g26_keep_heaters_on       = parser.seen('K') && parser.value_bool();
+    g26_continue_with_closest = parser.seen('C') && parser.value_bool();
 
-    if (code_seen('B')) {
-      g26_bed_temp = code_value_temp_abs();
+    if (parser.seen('B')) {
+      g26_bed_temp = parser.value_celsius();
       if (!WITHIN(g26_bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('L')) {
-      g26_layer_height = code_value_linear_units();
+    if (parser.seen('L')) {
+      g26_layer_height = parser.value_linear_units();
       if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('Q')) {
-      if (code_has_value()) {
-        g26_retraction_multiplier = code_value_float();
+    if (parser.seen('Q')) {
+      if (parser.has_value()) {
+        g26_retraction_multiplier = parser.value_float();
         if (!WITHIN(g26_retraction_multiplier, 0.05, 15.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified Retraction Multiplier not plausible.");
           return UBL_ERR;
@@ -659,20 +668,25 @@
       }
     }
 
-    if (code_seen('S')) {
-      g26_nozzle = code_value_float();
+    if (parser.seen('S')) {
+      g26_nozzle = parser.value_float();
       if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('P')) {
-      if (!code_has_value())
-        g26_prime_flag = -1;
-      else {
+    if (parser.seen('P')) {
+      if (!parser.has_value()) {
+        #if ENABLED(NEWPANEL)
+          g26_prime_flag = -1;
+        #else
+          SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
+          return UBL_ERR;
+        #endif
+      } else {
         g26_prime_flag++;
-        g26_prime_length = code_value_linear_units();
+        g26_prime_length = parser.value_linear_units();
         if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
           return UBL_ERR;
@@ -680,40 +694,48 @@
       }
     }
 
-    if (code_seen('F')) {
-      g26_filament_diameter = code_value_linear_units();
+    if (parser.seen('F')) {
+      g26_filament_diameter = parser.value_linear_units();
       if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
         return UBL_ERR;
       }
     }
-    g26_extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter);         // If we aren't using 1.75mm filament, we need to
+    g26_extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
                                                                       // scale up or down the length needed to get the
                                                                       // same volume of filament
 
     g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
-    if (code_seen('H')) {
-      g26_hotend_temp = code_value_temp_abs();
+    if (parser.seen('H')) {
+      g26_hotend_temp = parser.value_celsius();
       if (!WITHIN(g26_hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
         return UBL_ERR;
       }
     }
 
-    if (code_seen('U')) {
+    if (parser.seen('U')) {
       randomSeed(millis());
-      random_deviation = code_has_value() ? code_value_float() : 50.0;
+      // This setting will persist for the next G26
+      random_deviation = parser.has_value() ? parser.value_float() : 50.0;
     }
 
-    g26_repeats = code_seen('R') ? (code_has_value() ? code_value_int() : GRID_MAX_POINTS+1) : GRID_MAX_POINTS+1;
+    #if ENABLED(NEWPANEL)
+      g26_repeats = parser.seen('R') && parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    #else
+      if (!parser.seen('R')) {
+        SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
+        return UBL_ERR;
+      } else g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    #endif
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
       return UBL_ERR;
     }
 
-    g26_x_pos = code_seen('X') ? code_value_linear_units() : current_position[X_AXIS];
-    g26_y_pos = code_seen('Y') ? code_value_linear_units() : current_position[Y_AXIS];
+    g26_x_pos = parser.seen('X') ? parser.value_linear_units() : current_position[X_AXIS];
+    g26_y_pos = parser.seen('Y') ? parser.value_linear_units() : current_position[Y_AXIS];
     if (!position_is_reachable_xy(g26_x_pos, g26_y_pos)) {
       SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
       return UBL_ERR;
@@ -722,35 +744,39 @@
     /**
      * Wait until all parameters are verified before altering the state!
      */
-    state.active = !code_seen('D');
+    set_bed_leveling_enabled(!parser.seen('D'));
 
     return UBL_OK;
   }
 
-  bool unified_bed_leveling::exit_from_g26() {
-    lcd_reset_alert_level();
-    lcd_setstatuspgm(PSTR("Leaving G26"));
-    while (ubl_lcd_clicked()) idle();
-    return UBL_ERR;
-  }
+  #if ENABLED(NEWPANEL)
+    bool unified_bed_leveling::exit_from_g26() {
+      lcd_setstatusPGM(PSTR("Leaving G26"), -1);
+      while (ubl_lcd_clicked()) idle();
+      return UBL_ERR;
+    }
+  #endif
 
   /**
    * Turn on the bed and nozzle heat and
    * wait for them to get up to temperature.
    */
   bool unified_bed_leveling::turn_on_heaters() {
-    millis_t next;
+    millis_t next = millis() + 5000UL;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
-          lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
+          lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
       #endif
           has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(g26_bed_temp);
-          next = millis() + 5000UL;
           while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
-            if (ubl_lcd_clicked()) return exit_from_g26();
+
+            #if ENABLED(NEWPANEL)
+              if (ubl_lcd_clicked()) return exit_from_g26();
+            #endif
+
             if (PENDING(millis(), next)) {
               next = millis() + 5000UL;
               print_heaterstates();
@@ -759,7 +785,7 @@
           }
       #if ENABLED(ULTRA_LCD)
         }
-        lcd_setstatuspgm(PSTR("G26 Heating Nozzle."), 99);
+        lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
         lcd_quick_feedback();
       #endif
     #endif
@@ -767,7 +793,11 @@
     // Start heating the nozzle and wait for it to reach temperature.
     thermalManager.setTargetHotend(g26_hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - g26_hotend_temp) > 3) {
-      if (ubl_lcd_clicked()) return exit_from_g26();
+
+      #if ENABLED(NEWPANEL)
+        if (ubl_lcd_clicked()) return exit_from_g26();
+      #endif
+
       if (PENDING(millis(), next)) {
         next = millis() + 5000UL;
         print_heaterstates();
@@ -776,8 +806,7 @@
     }
 
     #if ENABLED(ULTRA_LCD)
-      lcd_reset_alert_level();
-      lcd_setstatuspgm(PSTR(""));
+      lcd_reset_status();
       lcd_quick_feedback();
     #endif
 
@@ -788,51 +817,55 @@
    * Prime the nozzle if needed. Return true on error.
    */
   bool unified_bed_leveling::prime_nozzle() {
-    float Total_Prime = 0.0;
 
-    if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
+    #if ENABLED(NEWPANEL)
+      float Total_Prime = 0.0;
 
-      has_control_of_lcd_panel = true;
+      if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
-      lcd_setstatuspgm(PSTR("User-Controlled Prime"), 99);
-      chirp_at_user();
-
-      set_destination_to_current();
-
-      recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
-
-      while (!ubl_lcd_clicked()) {
+        has_control_of_lcd_panel = true;
+        lcd_setstatusPGM(PSTR("User-Controlled Prime"), 99);
         chirp_at_user();
-        destination[E_AXIS] += 0.25;
-        #ifdef PREVENT_LENGTHY_EXTRUDE
-          Total_Prime += 0.25;
-          if (Total_Prime >= EXTRUDE_MAXLENGTH) return UBL_ERR;
-        #endif
-        G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
 
-        stepper.synchronize();    // Without this synchronize, the purge is more consistent,
-                                  // but because the planner has a buffer, we won't be able
-                                  // to stop as quickly.  So we put up with the less smooth
-                                  // action to give the user a more responsive 'Stop'.
         set_destination_to_current();
-        idle();
+
+        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+
+        while (!ubl_lcd_clicked()) {
+          chirp_at_user();
+          destination[E_AXIS] += 0.25;
+          #ifdef PREVENT_LENGTHY_EXTRUDE
+            Total_Prime += 0.25;
+            if (Total_Prime >= EXTRUDE_MAXLENGTH) return UBL_ERR;
+          #endif
+          G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
+
+          stepper.synchronize();    // Without this synchronize, the purge is more consistent,
+                                    // but because the planner has a buffer, we won't be able
+                                    // to stop as quickly.  So we put up with the less smooth
+                                    // action to give the user a more responsive 'Stop'.
+          set_destination_to_current();
+          idle();
+        }
+
+        while (ubl_lcd_clicked()) idle();           // Debounce Encoder Wheel
+
+        #if ENABLED(ULTRA_LCD)
+          strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
+                                                              // So...  We cheat to get a message up.
+          lcd_setstatusPGM(PSTR("Done Priming"), 99);
+          lcd_quick_feedback();
+        #endif
+
+        has_control_of_lcd_panel = false;
+
       }
-
-      while (ubl_lcd_clicked()) idle();           // Debounce Encoder Wheel
-
+      else {
+    #else
+    {
+    #endif
       #if ENABLED(ULTRA_LCD)
-        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatuspgm() without having it continue;
-                                                            // So...  We cheat to get a message up.
-        lcd_setstatuspgm(PSTR("Done Priming"), 99);
-        lcd_quick_feedback();
-      #endif
-
-      has_control_of_lcd_panel = false;
-
-    }
-    else {
-      #if ENABLED(ULTRA_LCD)
-        lcd_setstatuspgm(PSTR("Fixed Length Prime."), 99);
+        lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
         lcd_quick_feedback();
       #endif
       set_destination_to_current();

@@ -111,9 +111,12 @@
 //
 // Other board specific pins
 //
-#define FILWIDTH_PIN       37
 #define LED_PIN            13
 #define SPINDLE_ENABLE_PIN  4
 #define FAN_PIN             3
 #define PS_ON_PIN          45
 #define KILL_PIN           46
+
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     37   // should be Analog Input (0-15)
+#endif

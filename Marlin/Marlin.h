@@ -35,6 +35,10 @@
 
 #include "MarlinConfig.h"
 
+#ifdef DEBUG_GCODE_PARSER
+  #include "gcode.h"
+#endif
+
 #include "enum.h"
 #include "types.h"
 #include "fastio.h"
@@ -48,7 +52,7 @@
 #endif
 
 void idle(
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
@@ -217,8 +221,8 @@ extern bool volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[XYZ]; // axis[n].is_known
-extern bool axis_homed[XYZ]; // axis[n].is_homed
+extern bool axis_known_position[XYZ];
+extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
@@ -287,22 +291,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
-// GCode support for external objects
-bool code_seen(char);
-int code_value_int();
-int16_t code_value_temp_abs();
-int16_t code_value_temp_diff();
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  float code_value_linear_units();
-  float code_value_axis_units(const AxisEnum axis);
-  float code_value_per_axis_unit(const AxisEnum axis);
-#else
-  #define code_value_linear_units() code_value_float()
-  #define code_value_axis_units(A) code_value_float()
-  #define code_value_per_axis_unit(A) code_value_float()
-#endif
-
 #if IS_KINEMATIC
   extern float delta[ABC];
   void inverse_kinematics(const float logical[XYZ]);
@@ -326,7 +314,6 @@ int16_t code_value_temp_diff();
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   float bilinear_z_offset(const float logical[XYZ]);
-  void set_bed_leveling_enabled(bool enable=true);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -335,6 +322,9 @@ int16_t code_value_temp_diff();
 #endif
 
 #if HAS_LEVELING
+  bool leveling_is_valid();
+  bool leveling_is_active();
+  void set_bed_leveling_enabled(const bool enable=true);
   void reset_bed_level();
 #endif
 
@@ -385,8 +375,8 @@ int16_t code_value_temp_diff();
   extern int meas_delay_cm;            // Delay distance
 #endif
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-  extern FilamentChangeMenuResponse filament_change_menu_response;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -490,4 +480,4 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
   return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
 }
 
-#endif //MARLIN_H
+#endif // MARLIN_H

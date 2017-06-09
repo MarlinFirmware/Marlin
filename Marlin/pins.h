@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PINS_H
-#define PINS_H
+#ifndef __PINS_H__
+#define __PINS_H__
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
@@ -178,6 +178,8 @@
   #include "pins_GT2560_REV_A.h"
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h"
+#elif MB(ZRIB_V20)
+  #include "pins_ZRIB_V20.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -572,4 +574,4 @@
   #define SS_PIN   AVR_SS_PIN
 #endif
 
-#endif // __PINS_H
+#endif // __PINS_H__

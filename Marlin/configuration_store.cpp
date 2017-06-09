@@ -178,6 +178,10 @@ MarlinSettings settings;
 #include "temperature.h"
 #include "ultralcd.h"
 
+#if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
+  #include "gcode.h"
+#endif
+
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
@@ -453,10 +457,10 @@ void MarlinSettings::postprocess() {
     #endif
 
     #if DISABLED(ULTIPANEL)
-      const int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
-                lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
-    #endif // !ULTIPANEL
+      constexpr int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                    lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
+                    lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+    #endif
 
     EEPROM_WRITE(lcd_preheat_hotend_temp);
     EEPROM_WRITE(lcd_preheat_bed_temp);
@@ -1121,12 +1125,12 @@ void MarlinSettings::postprocess() {
  * M502 - Reset Configuration
  */
 void MarlinSettings::reset() {
-  const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
-  const uint32_t tmp3[] = DEFAULT_MAX_ACCELERATION;
+  static const float tmp1[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] PROGMEM = DEFAULT_MAX_FEEDRATE;
+  static const uint32_t tmp3[] PROGMEM = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
-    planner.axis_steps_per_mm[i]          = tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1];
-    planner.max_feedrate_mm_s[i]          = tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1];
-    planner.max_acceleration_mm_per_s2[i] = tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1];
+    planner.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1]);
+    planner.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1]);
+    planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
   }
 
   planner.acceleration = DEFAULT_ACCELERATION;
@@ -1188,7 +1192,7 @@ void MarlinSettings::reset() {
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
 
-    float z_endstop_adj =
+    z_endstop_adj =
       #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
         Z_DUAL_ENDSTOPS_ADJUSTMENT
       #else
@@ -1261,9 +1265,9 @@ void MarlinSettings::reset() {
 
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      (true)
+      true
     #else
-      (false)
+      false
     #endif
   );
 
@@ -1331,19 +1335,17 @@ void MarlinSettings::reset() {
      */
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
-      extern float linear_unit_factor, volumetric_unit_factor;
-      #define LINEAR_UNIT(N) ((N) / linear_unit_factor)
-      #define VOLUMETRIC_UNIT(N) ((N) / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor))
+      #define LINEAR_UNIT(N) ((N) / parser.linear_unit_factor)
+      #define VOLUMETRIC_UNIT(N) ((N) / (volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
-      SERIAL_CHAR(linear_unit_factor == 1.0 ? '1' : '0');
+      SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM(" ; Units in ");
-      serialprintPGM(linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
+      serialprintPGM(parser.linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
     #else
       #define LINEAR_UNIT(N) N
       #define VOLUMETRIC_UNIT(N) N
-      SERIAL_ECHOLNPGM("  G21 ; Units in mm\n");
+      SERIAL_ECHOLNPGM("  G21    ; Units in mm");
     #endif
-    SERIAL_EOL;
 
     #if ENABLED(ULTIPANEL)
 
@@ -1351,20 +1353,19 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START;
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-        extern TempUnit input_temp_units;
-        extern float to_temp_units(const float &f);
-        #define TEMP_UNIT(N) to_temp_units(N)
+        #define TEMP_UNIT(N) parser.to_temp_units(N)
         SERIAL_ECHOPGM("  M149 ");
-        SERIAL_CHAR(input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C');
+        SERIAL_CHAR(parser.temp_units_code());
         SERIAL_ECHOPGM(" ; Units in ");
-        serialprintPGM(input_temp_units == TEMPUNIT_K ? PSTR("Kelvin\n") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit\n") : PSTR("Celsius\n"));
+        serialprintPGM(parser.temp_units_name());
       #else
         #define TEMP_UNIT(N) N
-        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius\n");
+        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
       #endif
-      SERIAL_EOL;
 
     #endif
+
+    SERIAL_EOL;
 
     /**
      * Volumetric extrusion M200
@@ -1460,7 +1461,7 @@ void MarlinSettings::reset() {
     #endif
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHO_START;
+      CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR("  M201 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS + i]));
@@ -1524,7 +1525,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", leveling_is_valid() ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
@@ -1548,7 +1549,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM(":");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", ubl.state.active ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", planner.z_fade_height);
       #endif
@@ -1575,7 +1576,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Auto Bed Leveling:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", planner.abl_enabled ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
