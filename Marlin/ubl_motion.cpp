@@ -97,7 +97,7 @@
     debug_echo_axis(E_AXIS);
     SERIAL_ECHOPGM(" )   ");
     SERIAL_ECHO(title);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
   }
 
@@ -131,7 +131,7 @@
       SERIAL_ECHOPAIR(", ze=", end[Z_AXIS]);
       SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
       debug_current_and_destination(PSTR("Start of ubl.line_to_destination()"));
     }
 

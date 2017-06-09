@@ -103,9 +103,9 @@
   void dac_print_values() {
     if (!dac_present) return;
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("Stepper current values in % (Amps):");
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS));
     SERIAL_ECHOPAIR(" (",   dac_amps(X_AXIS));
     SERIAL_ECHOPAIR(") Y:", dac_perc(Y_AXIS));

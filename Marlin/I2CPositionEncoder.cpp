@@ -736,7 +736,7 @@
       char c;
       while (Wire.available() > 0 && (c = (char)Wire.read()) > 0)
         SERIAL_ECHO(c);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     // Set module back to normal (distance) mode
