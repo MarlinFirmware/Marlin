@@ -108,21 +108,21 @@
     AxisEnum        encoderAxis             = I2CPE_DEF_AXIS;
 
     uint8_t         i2cAddress              = I2CPE_DEF_ADDR,
-                    errorCorrectMethod      = I2CPE_DEF_EC_METHOD,
-                    encoderType             = I2CPE_DEF_TYPE,
+                    ecMethod                = I2CPE_DEF_EC_METHOD,
+                    type                    = I2CPE_DEF_TYPE,
                     H                       = I2CPE_MAG_SIG_BAD;    // Magnetic field strength
 
     int             encoderTicksPerUnit     = I2CPE_DEF_ENC_TICKS_UNIT,
                     stepperTicks            = I2CPE_DEF_TICKS_REV;
 
-    float           errorCorrectThreshold   = I2CPE_DEF_EC_THRESH;
+    float           ecThreshold             = I2CPE_DEF_EC_THRESH;
 
     bool            homed                   = false,
                     trusted                 = false,
                     initialised             = false,
                     active                  = false,
-                    invertDirection         = false,
-                    errorCorrect            = true;
+                    invert                  = false,
+                    ec                      = true;
 
     int             errorCount              = 0,
                     errorPrev               = 0;
@@ -141,8 +141,8 @@
     //double        positionMm; //calculate
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-      uint8_t       errArrayIndex = 0;
-      int           errorArray[I2CPE_ERR_ARRAY_SIZE] = {0};
+      uint8_t       errIdx = 0;
+      int           err[I2CPE_ERR_ARRAY_SIZE] = {0};
     #endif
 
   public:
@@ -156,8 +156,8 @@
     long get_raw_count();
 
     FORCE_INLINE double mm_from_count(long count) {
-      if (encoderType == I2CPE_ENC_TYPE_LINEAR) return count / encoderTicksPerUnit;
-      else if (encoderType == I2CPE_ENC_TYPE_ROTARY)
+      if (type == I2CPE_ENC_TYPE_LINEAR) return count / encoderTicksPerUnit;
+      else if (type == I2CPE_ENC_TYPE_ROTARY)
         return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
       return -1;
     }
@@ -183,22 +183,22 @@
     FORCE_INLINE bool get_active(void) { return active; }
     FORCE_INLINE void set_active(bool a) { active = a; }
 
-    FORCE_INLINE void set_inverted(bool i) { invertDirection = i; }
+    FORCE_INLINE void set_inverted(bool i) { invert = i; }
 
     FORCE_INLINE AxisEnum get_axis() { return encoderAxis; }
 
-    FORCE_INLINE bool get_ec_enabled() { return errorCorrect; }
-    FORCE_INLINE void set_ec_enabled(bool enabled) { errorCorrect = enabled; }
+    FORCE_INLINE bool get_ec_enabled() { return ec; }
+    FORCE_INLINE void set_ec_enabled(bool enabled) { ec = enabled; }
 
-    FORCE_INLINE uint8_t get_ec_method() { return errorCorrectMethod; }
-    FORCE_INLINE void set_ec_method(byte method) { errorCorrectMethod = method; }
+    FORCE_INLINE uint8_t get_ec_method() { return ecMethod; }
+    FORCE_INLINE void set_ec_method(byte method) { ecMethod = method; }
 
-    FORCE_INLINE float get_ec_threshold() { return errorCorrectThreshold; }
-    FORCE_INLINE void set_ec_threshold(float newThreshold) { errorCorrectThreshold = newThreshold; }
+    FORCE_INLINE float get_ec_threshold() { return ecThreshold; }
+    FORCE_INLINE void set_ec_threshold(float newThreshold) { ecThreshold = newThreshold; }
 
     FORCE_INLINE int get_encoder_ticks_mm() {
-      if (encoderType == I2CPE_ENC_TYPE_LINEAR) return encoderTicksPerUnit;
-      else if (encoderType == I2CPE_ENC_TYPE_ROTARY)
+      if (type == I2CPE_ENC_TYPE_LINEAR) return encoderTicksPerUnit;
+      else if (type == I2CPE_ENC_TYPE_ROTARY)
         return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
       return 0;
     }
@@ -206,8 +206,8 @@
     FORCE_INLINE int get_ticks_unit() { return encoderTicksPerUnit; }
     FORCE_INLINE void set_ticks_unit(int ticks) { encoderTicksPerUnit = ticks; }
 
-    FORCE_INLINE uint8_t get_type() { return encoderType; }
-    FORCE_INLINE void set_type(byte type) { encoderType = type; }
+    FORCE_INLINE uint8_t get_type() { return type; }
+    FORCE_INLINE void set_type(byte newType) { type = newType; }
 
     FORCE_INLINE int get_stepper_ticks() { return stepperTicks; }
     FORCE_INLINE void set_stepper_ticks(int ticks) { stepperTicks = ticks; }
