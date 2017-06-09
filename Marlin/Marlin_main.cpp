@@ -200,6 +200,16 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M860 - Report the position of position encoder modules.
+ * M861 - Report the status of position encoder modules.
+ * M862 - Perform an axis continuity test for position encoder modules.
+ * M863 - Perform steps-per-mm calibration for position encoder modules.
+ * M864 - Change position encoder module I2C address.
+ * M865 - Check position encoder module firmware version.
+ * M866 - Report or reset position encoder module error count.
+ * M867 - Enable/disable or toggle error correction for position encoder modules.
+ * M868 - Report or set position encoder module error correction threshold.
+ * M869 - Report position encoder module error.
  * M900 - Get and/or Set advance K factor and WH/D ratio. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
@@ -284,6 +294,10 @@
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "twibus.h"
+#endif
+
+#if ENABLED(I2C_POSITION_ENCODERS)
+  #include "I2CPositionEncoder.h"
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -660,6 +674,12 @@ static bool send_ok[BUFSIZE];
   uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
 #else
   #define host_keepalive() NOOP
+#endif
+
+#if ENABLED(I2C_POSITION_ENCODERS)
+  I2CPositionEncodersMgr I2CPEM;
+  uint8_t blockBufferIndexRef = 0;
+  millis_t lastUpdateMillis;
 #endif
 
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
@@ -1492,6 +1512,10 @@ static void set_axis_is_at_home(const AxisEnum axis) {
       SERIAL_CHAR(')');
       SERIAL_EOL;
     }
+  #endif
+
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    I2CPEM.homed(axis);
   #endif
 }
 
@@ -5609,6 +5633,11 @@ inline void gcode_G92() {
           #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
+
+            #if ENABLED(I2C_POSITION_ENCODERS)
+              I2CPEM.encoders[I2CPEM.idx_from_axis((AxisEnum) i)].set_axis_offset(position_shift[i]);
+            #endif
+
           #endif
         }
       #endif
@@ -10904,6 +10933,50 @@ void process_next_command() {
           break;
       #endif
 
+      #if ENABLED(I2C_POSITION_ENCODERS)
+
+        case 860: // M860 Report encoder module position
+          gcode_M860();
+          break;
+
+        case 861: // M861 Report encoder module status
+          gcode_M861();
+          break;
+
+        case 862: // M862 Perform axis test
+          gcode_M862();
+          break;
+
+        case 863: // M863 Calibrate steps/mm
+          gcode_M863();
+          break;
+
+        case 864: // M864 Change module address
+          gcode_M864();
+          break;
+
+        case 865: // M865 Check module firmware version
+          gcode_M865();
+          break;
+
+        case 866: // M866 Report axis error count
+          gcode_M866();
+          break;
+
+        case 867: // M867 Toggle error correction
+          gcode_M867();
+          break;
+
+        case 868: // M868 Set error correction threshold
+          gcode_M868();
+          break;
+
+        case 869: // M869 Report axis error
+          gcode_M869();
+          break;
+
+      #endif // I2C_POSITION_ENCODERS
+
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
@@ -12200,7 +12273,7 @@ void disable_all_steppers() {
       const bool has_days = (elapsed.value > 60*60*24L);
       (void)elapsed.toDigital(timestamp, has_days);
       SERIAL_ECHO(timestamp);
-      SERIAL_ECHO(": ");
+      SERIAL_ECHOPGM(": ");
       SERIAL_ECHO(axisID);
       SERIAL_ECHOLNPGM(" driver overtemperature warning!");
     }
@@ -12495,6 +12568,16 @@ void idle(
   #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
     buzzer.tick();
   #endif
+
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    if (planner.blocks_queued() &&
+        ( (blockBufferIndexRef != planner.block_buffer_head) ||
+          ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis())) ) {
+      blockBufferIndexRef = planner.block_buffer_head;
+      I2CPEM.update();
+      lastUpdateMillis = millis();
+    }
+  #endif
 }
 
 /**
@@ -12737,6 +12820,10 @@ void setup() {
     bltouch_command(BLTOUCH_RESET);
     set_bltouch_deployed(true);
     set_bltouch_deployed(false);
+  #endif
+
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    I2CPEM.init();
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
