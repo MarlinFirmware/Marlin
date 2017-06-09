@@ -75,6 +75,30 @@
 #define BIN 2
 #define BYTE 0
 
+#if ENABLED(CHUNK_SUPPORT)
+  #define CHUNK_BUFFER_SIZE 256
+  #define NUM_CHUNK_BUFFERS 16
+  #define CHUNK_START_CHAR '!'
+
+  #define CHUNK_STAGE_COLLECT 0
+  #define CHUNK_STAGE_CHECKSUM 1
+  #define CHUNK_STAGE_DRAIN 2
+  #define CHUNK_STAGE_DRAIN_POST 3
+  #define CHUNK_STAGE_WAIT 4
+
+  #define CHUNK_RESPONSE_NONE 0
+  #define CHUNK_RESPONSE_PENDING 1
+  #define CHUNK_RESPONSE_OK 2
+  #define CHUNK_RESPONSE_FAIL 3
+
+  extern unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE];
+  extern uint8_t chunk_buffer_idx;
+  extern uint8_t chunk_response[NUM_CHUNK_BUFFERS];
+  extern volatile uint8_t chunk_respond_busy;
+  extern volatile uint32_t check_sum_failures;
+  extern volatile uint32_t chunks_done;
+#endif // CHUNK_SUPPORT
+
 #ifndef USBCON
   // Define constants and variables for buffering incoming serial data.  We're
   // using a ring buffer (I think), in which rx_buffer_head is the index of the

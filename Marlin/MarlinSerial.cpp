@@ -34,6 +34,21 @@
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
 
+#if ENABLED(CHUNK_SUPPORT)
+
+  unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE] = { { 0 } };
+  uint8_t chunk_buffer_idx = 0;
+  uint8_t chunk_response[NUM_CHUNK_BUFFERS] = { CHUNK_RESPONSE_NONE };
+  volatile uint8_t chunk_respond_busy = 0;
+  volatile uint32_t check_sum_failures = 0;
+  volatile uint32_t chunks_done = 0;
+
+  uint8_t chunk_stage = CHUNK_STAGE_WAIT;
+  uint8_t chunk_buffer_iter = 0;
+  unsigned char chunk_checksum = 0;
+
+#endif // CHUNK_SUPPORT
+
 #if !defined(USBCON) && (defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H))
 
   #if UART_PRESENT(SERIAL_PORT)
@@ -136,8 +151,83 @@
 
   #endif // EMERGENCY_PARSER
 
+  //CHUNK RESPONSE
+
   FORCE_INLINE void store_char(unsigned char c) {
     CRITICAL_SECTION_START;
+
+    #if ENABLED(CHUNK_SUPPORT)
+
+      switch (chunk_stage) {
+        case CHUNK_STAGE_COLLECT:
+          chunk_buffer[chunk_buffer_idx][chunk_buffer_iter++] = c;
+          chunk_checksum ^= c;
+
+          // has not rolled back to 0, buffer still filling
+          if (chunk_buffer_iter) break;
+
+          chunk_stage = CHUNK_STAGE_CHECKSUM;
+          break;
+
+        case CHUNK_STAGE_CHECKSUM:
+          chunk_stage = CHUNK_STAGE_WAIT;
+          chunks_done++;
+
+          chunk_response[chunk_buffer_idx] = CHUNK_RESPONSE_OK;
+
+          if (chunk_checksum == c) break;
+
+          chunk_response[chunk_buffer_idx] = CHUNK_RESPONSE_FAIL;
+          check_sum_failures++;
+          break;
+
+        case CHUNK_STAGE_DRAIN:
+          chunk_buffer_iter++;
+
+          // has not rolled back to 0, buffer still filling
+          if (chunk_buffer_iter) break;
+
+          chunk_stage = CHUNK_STAGE_DRAIN_POST;
+          break;
+
+        case CHUNK_STAGE_DRAIN_POST:
+          chunk_stage = CHUNK_STAGE_WAIT;
+          chunk_respond_busy++;
+          break;
+
+        case CHUNK_STAGE_WAIT:
+        default:
+          if (c == CHUNK_START_CHAR) {
+            uint8_t oldIndex = chunk_buffer_idx;
+
+            chunk_stage = CHUNK_STAGE_COLLECT;
+            chunk_buffer_iter = 0;
+            chunk_checksum = 0;
+            if (++chunk_buffer_idx >= NUM_CHUNK_BUFFERS - 1) chunk_buffer_idx = 0;
+
+            // if chunk is still busy, drain data and respond with a busy response
+            if (chunk_response[chunk_buffer_idx] != CHUNK_RESPONSE_NONE) {
+              chunk_buffer_idx = oldIndex;
+              chunk_stage = CHUNK_STAGE_DRAIN;
+            }
+          }
+          else {
+            const uint8_t h = rx_buffer.head,
+                          i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
+
+            // if we should be storing the received character into the location
+            // just before the tail (meaning that the head would advance to the
+            // current location of the tail), we're about to overflow the buffer
+            // and so we don't write the character or advance the head.
+            if (i != rx_buffer.tail) {
+              rx_buffer.buffer[h] = c;
+              rx_buffer.head = i;
+            }
+          }
+      }
+
+    #else // !CHUNK_SUPPORT
+
       const uint8_t h = rx_buffer.head,
                     i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
 
@@ -149,6 +239,9 @@
         rx_buffer.buffer[h] = c;
         rx_buffer.head = i;
       }
+
+    #endif // !CHUNK_SUPPORT
+
     CRITICAL_SECTION_END;
 
     #if ENABLED(EMERGENCY_PARSER)
@@ -356,9 +449,10 @@
   }
 
   #else
+
     void MarlinSerial::write(uint8_t c) {
-      while (!TEST(M_UCSRxA, M_UDREx))
-        ;
+      while (!TEST(M_UCSRxA, M_UDREx));
+
       M_UDRx = c;
     }
   #endif

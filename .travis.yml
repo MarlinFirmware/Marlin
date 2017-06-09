@@ -74,6 +74,7 @@ script:
   # Test heated bed temperature sensor
   #
   - opt_set TEMP_SENSOR_BED 1
+  - opt_enable_adv CHUNK_SUPPORT
   - build_marlin
   #
   # Test 2 extruders on basic RAMPS 1.4

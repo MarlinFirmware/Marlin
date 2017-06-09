@@ -43,6 +43,10 @@
  *
  * -----------------
  *
+ * "C" Codes
+ *
+ * C0  - Execute buffered step chunk(s)
+ *
  * "G" Codes
  *
  * G0   -> G1
@@ -3199,6 +3203,24 @@ void gcode_get_destination() {
  ***************** GCode Handlers *****************
  **************************************************/
 
+#if ENABLED(CHUNK_SUPPORT)
+
+  inline void gcode_C0() {
+    static uint32_t step_speed = 0;
+
+    if (parser.seen('S')) step_speed = parser.value_feedrate();
+
+    if (!parser.seen('I')) return;
+
+    uint8_t chunk_idx = parser.value_byte(),
+            chunk_num = parser.seen('R') ? parser.value_byte() : 1;
+
+    if (step_speed)
+      planner.buffer_chunk(chunk_idx, chunk_num, active_extruder, step_speed);
+  }
+
+#endif // CHUNK_SUPPORT
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -5646,7 +5668,7 @@ inline void gcode_G92() {
   else if (didE)
     sync_plan_position_e();
 
-  report_current_position();
+  //report_current_position();
 }
 
 #if HAS_RESUME_CONTINUE
@@ -10216,8 +10238,20 @@ void process_next_command() {
   // Parse the next command in the queue
   parser.parse(current_command);
 
-  // Handle a known G, M, or T
+  // Handle a known C, G, M, or T
   switch (parser.command_letter) {
+
+    #if ENABLED(CHUNK_SUPPORT)
+
+      case 'C': switch (parser.codenum) {
+        case 0:
+          gcode_C0();
+          break;
+      }
+      break;
+
+    #endif // CHUNK_SUPPORT
+
     case 'G': switch (parser.codenum) {
 
       // G0, G1
@@ -12567,6 +12601,11 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+
+  #if ENABLED(CHUNK_SUPPORT)
+    send_chunk_ok();
+  #endif
+
   lcd_update();
 
   host_keepalive();
@@ -12864,6 +12903,8 @@ void setup() {
   #if ENABLED(SWITCHING_NOZZLE)
     move_nozzle_servo(0);  // Initialize nozzle servo
   #endif
+
+  SERIAL_PROTOCOLLNPGM("setup_done");
 }
 
 /**

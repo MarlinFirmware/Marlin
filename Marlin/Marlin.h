@@ -410,6 +410,8 @@ extern uint8_t active_extruder;
 
 void calculate_volumetric_multipliers();
 
+void send_chunk_ok();
+
 /**
  * Blocking movement and shorthand functions
  */

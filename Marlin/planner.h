@@ -53,14 +53,22 @@ enum BlockFlagBit {
   BLOCK_BIT_START_FROM_FULL_HALT,
 
   // The block is busy
-  BLOCK_BIT_BUSY
+  BLOCK_BIT_BUSY,
+
+  #if ENABLED(CHUNK_SUPPORT)
+    // The block is a predefined chunk, not the usual trapezoid
+    BLOCK_BIT_IS_CHUNK
+  #endif
 };
 
 enum BlockFlag {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
   BLOCK_FLAG_START_FROM_FULL_HALT = _BV(BLOCK_BIT_START_FROM_FULL_HALT),
-  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY)
+  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
+  #if ENABLED(CHUNK_SUPPORT)
+    BLOCK_FLAG_IS_CHUNK           = _BV(BLOCK_BIT_IS_CHUNK)
+  #endif
 };
 
 /**
@@ -91,6 +99,8 @@ typedef struct {
           acceleration_rate;                // The acceleration rate used for acceleration calculation
 
   uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+
+  uint8_t chunk_idx;                        // Chunk index, used for chunk moves only
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -285,6 +295,10 @@ class Planner {
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
+    #if ENABLED(CHUNK_SUPPORT)
+      static void buffer_chunk(const uint8_t chunk_idx, const uint8_t chunk_num, const uint8_t extruder, const uint32_t step_speed);
+    #endif
+
     /**
      * Add a new linear movement to the buffer.
      * The target is NOT translated to delta/scara
@@ -472,6 +486,12 @@ class Planner {
 };
 
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
+
+#if ENABLED(CHUNK_SUPPORT)
+  #define IS_CHUNK(block) (block->flag & BLOCK_FLAG_IS_CHUNK)
+#else
+  #define IS_CHUNK(block) (false)
+#endif
 
 extern Planner planner;
 
