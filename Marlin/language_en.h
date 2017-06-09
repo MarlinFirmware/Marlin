@@ -156,11 +156,17 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+#ifndef MSG_EDITING_STOPPED
+  #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
+#endif
 #ifndef MSG_USER_MENU
   #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #ifndef MSG_UBL_DOING_G29
+    #define MSG_UBL_DOING_G29                 _UxGT("Doing G29 UBL!")
+  #endif
   #ifndef MSG_UBL_UNHOMED
     #define MSG_UBL_UNHOMED                   _UxGT("Home XYZ first")
   #endif
@@ -172,6 +178,18 @@
   #endif
   #ifndef MSG_UBL_MANUAL_MESH
     #define MSG_UBL_MANUAL_MESH               _UxGT("Manually Build Mesh")
+  #endif
+  #ifndef MSG_UBL_BC_INSERT
+    #define MSG_UBL_BC_INSERT                 _UxGT("Place shim & measure")
+  #endif
+  #ifndef MSG_UBL_BC_INSERT2
+    #define MSG_UBL_BC_INSERT2                _UxGT("Measure")
+  #endif 
+  #ifndef MSG_UBL_BC_REMOVE
+    #define MSG_UBL_BC_REMOVE                 _UxGT("Remove & measure bed")
+  #endif
+  #ifndef MSG_UBL_MOVING_TO_NEXT
+    #define MSG_UBL_MOVING_TO_NEXT            _UxGT("Moving to next")
   #endif
   #ifndef MSG_UBL_ACTIVATE_MESH
     #define MSG_UBL_ACTIVATE_MESH             _UxGT("Activate UBL")
@@ -193,6 +211,12 @@
   #endif
   #ifndef MSG_UBL_EDIT_CUSTOM_MESH
     #define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Edit Custom Mesh")
+  #endif
+  #ifndef MSG_UBL_FINE_TUNE_MESH
+    #define MSG_UBL_FINE_TUNE_MESH            _UxGT("Fine Tuning Mesh")
+  #endif
+  #ifndef MSG_UBL_DONE_EDITING_MESH
+    #define MSG_UBL_DONE_EDITING_MESH         _UxGT("Done Editing Mesh")
   #endif
   #ifndef MSG_UBL_BUILD_CUSTOM_MESH
     #define MSG_UBL_BUILD_CUSTOM_MESH         _UxGT("Build Custom Mesh")
@@ -298,6 +322,15 @@
   #endif
   #ifndef MSG_UBL_SAVE_MESH
     #define MSG_UBL_SAVE_MESH                 _UxGT("Save Bed Mesh")
+  #endif
+  #ifndef MSG_UBL_SAVE_ERROR
+    #define MSG_UBL_SAVE_ERROR                _UxGT("save_UBL_active() error")
+  #endif
+  #ifndef MSG_UBL_RESTORE_ERROR
+    #define MSG_UBL_RESTORE_ERROR             _UxGT("restore_UBL_active() error")
+  #endif
+  #ifndef MSG_UBL_Z_OFFSET_STOPPED
+    #define MSG_UBL_Z_OFFSET_STOPPED          _UxGT("Z-Offset Stopped")
   #endif
 #endif  // AUTO_BED_LEVELING_UBL
 
