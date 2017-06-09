@@ -52,6 +52,8 @@
 class Stepper;
 extern Stepper stepper;
 
+extern const uint8_t block_moves[16][8];
+
 // intRes = intIn1 * intIn2 >> 16
 // uses:
 // r26 to store 0
@@ -327,7 +329,8 @@ class Stepper {
 
       static int8_t last_extruder = -1;
 
-      if (current_block->direction_bits != last_direction_bits || current_block->active_extruder != last_extruder) {
+      if ((current_block->direction_bits != last_direction_bits && !IS_CHUNK(current_block))
+          || current_block->active_extruder != last_extruder) {
         last_direction_bits = current_block->direction_bits;
         last_extruder = current_block->active_extruder;
         set_directions();
@@ -381,6 +384,7 @@ class Stepper {
     }
 
     static void digipot_init();
+    static void chunk_steps();
 
     #if HAS_MICROSTEPS
       static void microstep_init();

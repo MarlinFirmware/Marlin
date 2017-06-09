@@ -192,6 +192,13 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 #endif
 
+#define _COUNTER(AXIS) counter_## AXIS
+#define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
+#define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
+
+#define CYCLES_EATEN_XYZE ((_COUNT_STEPPERS_4) * 5)
+#define EXTRA_CYCLES_XYZE (STEP_PULSE_CYCLES - (CYCLES_EATEN_XYZE))
+
 // intRes = longIn1 * longIn2 >> 24
 // uses:
 // r26 to store 0
@@ -458,7 +465,23 @@ void Stepper::isr() {
 
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
-  for (uint8_t i = step_loops; i--;) {
+
+  if(IS_CHUNK(current_block)) for (uint8_t i = step_loops; i--;) {
+    //main chunk stepping routine
+    chunk_steps();
+
+    if (++step_events_completed >= current_block->step_event_count) {
+      all_steps_done = true;
+      break;
+    }
+
+    // For minimum pulse time wait before stopping pulses
+    #if EXTRA_CYCLES_XYZE > 20
+      if (i) while (EXTRA_CYCLES_XYZE > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
+    #elif EXTRA_CYCLES_XYZE > 0
+      if (i) DELAY_NOPS(EXTRA_CYCLES_XYZE);
+    #endif
+  } else for (uint8_t i = step_loops; i--;) {
     #if ENABLED(LIN_ADVANCE)
 
       counter_E += current_block->steps[E_AXIS];
@@ -511,10 +534,6 @@ void Stepper::isr() {
 
     #endif // ADVANCE or LIN_ADVANCE
 
-    #define _COUNTER(AXIS) counter_## AXIS
-    #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
-    #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
-
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define PULSE_START(AXIS) \
       _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
@@ -548,9 +567,6 @@ void Stepper::isr() {
     #else
       #define _COUNT_STEPPERS_4 _COUNT_STEPPERS_3
     #endif
-
-    #define CYCLES_EATEN_XYZE ((_COUNT_STEPPERS_4) * 5)
-    #define EXTRA_CYCLES_XYZE (STEP_PULSE_CYCLES - (CYCLES_EATEN_XYZE))
 
     // If a minimum pulse time was specified get the timer 0 value
     // which increments every 4µs on 16MHz and every 3.2µs on 20MHz.
@@ -788,12 +804,117 @@ void Stepper::isr() {
 
   // If current block is finished, reset pointer
   if (all_steps_done) {
+    if(IS_CHUNK(current_block)) {
+      //sync planner position back up with stepper positions
+      Planner::sync_from_steppers();
+      //temperature ISR can get drowned out under high step rate, make sure it gets run
+      Temperature::isr();
+    }
+
     current_block = NULL;
     planner.discard_current_block();
   }
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     _ENABLE_ISRs(); // re-enable ISRs
   #endif
+}
+
+void Stepper::chunk_steps() {
+  const uint8_t *cur_chunk = chunk_buffer[current_block->chunk_idx];
+  const uint8_t cur_chunk_block = uint8_t(step_events_completed >> 3) << 1;
+  const uint8_t block_steps = uint8_t(step_events_completed & 0x7);
+
+  const uint8_t a = cur_chunk[cur_chunk_block];
+  const uint8_t b = cur_chunk[cur_chunk_block + 1];
+
+  const uint8_t dX = a >> 4;
+  const uint8_t dY = a & 0xF;
+  const uint8_t dZ = b >> 4;
+  const uint8_t dE = b & 0xF;
+
+  uint8_t steps[4] = { 0 };
+  steps[X_AXIS] = block_moves[dX][(block_steps + 0) & 0x7];
+  steps[Y_AXIS] = block_moves[dY][(block_steps + 2) & 0x7];
+  steps[Z_AXIS] = block_moves[dZ][(block_steps + 4) & 0x7];
+  steps[E_AXIS] = block_moves[dE][(block_steps + 6) & 0x7];
+
+  //start of block, check direction
+  if(block_steps == 0) {
+    unsigned char dm = last_direction_bits;
+
+    #define UPDATE_DIR(AXIS) \
+	  if(d## AXIS == 0) {} \
+      else if(d## AXIS < 7) SBI(dm, AXIS ##_AXIS); \
+      else CBI(dm, AXIS ##_AXIS);
+
+    UPDATE_DIR(X);
+    UPDATE_DIR(Y);
+    UPDATE_DIR(Z);
+    UPDATE_DIR(E);
+
+    if (dm != last_direction_bits) {
+      last_direction_bits = dm;
+      set_directions();
+    }
+  }
+
+  #define PULSE_STARTC(AXIS) \
+    if (steps[_AXIS(AXIS)]) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); }
+
+  // Stop an active pulse, reset the Bresenham counter, update the position
+  #define PULSE_STOPC(AXIS) \
+    if (steps[_AXIS(AXIS)]) { \
+      count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+      _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+    }
+
+  // If a minimum pulse time was specified get the timer 0 value
+  // which increments every 4µs on 16MHz and every 3.2µs on 20MHz.
+  // Two or 3 counts of TCNT0 should be a sufficient delay.
+  #if EXTRA_CYCLES_XYZE > 20
+    uint32_t pulse_start = TCNT0;
+  #endif
+
+  #if HAS_X_STEP
+    PULSE_STARTC(X);
+  #endif
+  #if HAS_Y_STEP
+    PULSE_STARTC(Y);
+  #endif
+  #if HAS_Z_STEP
+    PULSE_STARTC(Z);
+  #endif
+
+  PULSE_STARTC(E);
+
+  // For minimum pulse time wait before stopping pulses
+  #if EXTRA_CYCLES_XYZE > 20
+    while (EXTRA_CYCLES_XYZE > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
+    pulse_start = TCNT0;
+  #elif EXTRA_CYCLES_XYZE > 0
+    DELAY_NOPS(EXTRA_CYCLES_XYZE);
+  #endif
+
+  #if HAS_X_STEP
+    PULSE_STOPC(X);
+  #endif
+  #if HAS_Y_STEP
+    PULSE_STOPC(Y);
+  #endif
+  #if HAS_Z_STEP
+    PULSE_STOPC(Z);
+  #endif
+
+  PULSE_STOPC(E);
+
+  //if last step of this chunk (mask last 10 bits)
+  if(((step_events_completed + 1) & 0x3FF) == 0) {
+    //release chunk so it can be filled again
+    chunk_response[current_block->chunk_idx] = CHUNK_RESPONSE_NONE;
+
+    //keep iterating until we eventually reach our total step_events_completed
+    current_block->chunk_idx = (current_block->chunk_idx + 1) % (NUM_CHUNK_BUFFERS - 1);
+  }
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)

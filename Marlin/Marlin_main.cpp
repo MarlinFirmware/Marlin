@@ -43,6 +43,10 @@
  *
  * -----------------
  *
+ * "C" Codes
+ *
+ * C0  - Execute buffered step chunk(s)
+ *
  * "G" Codes
  *
  * G0  -> G1
@@ -3259,6 +3263,27 @@ bool position_is_reachable(const float target[XYZ]
  ***************** GCode Handlers *****************
  **************************************************/
 
+inline void gcode_C0() {
+  static uint32_t step_speed = 0;
+
+  uint8_t chunk_idx = 0;
+  uint8_t chunk_num = 1;
+
+  if (code_seen('S'))
+      step_speed = code_value_linear_units();
+
+  if (code_seen('I'))
+    chunk_idx = code_value_linear_units();
+  else
+    return;
+
+  if (code_seen('R'))
+    chunk_num = code_value_linear_units();
+
+  if(step_speed)
+    Planner::buffer_chunk(chunk_idx, chunk_num, active_extruder, step_speed);
+}
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -5578,7 +5603,7 @@ inline void gcode_G92() {
   else if (didE)
     sync_plan_position_e();
 
-  report_current_position();
+  //report_current_position();
 }
 
 #if HAS_RESUME_CONTINUE
@@ -9803,8 +9828,14 @@ void process_next_command() {
 
   KEEPALIVE_STATE(IN_HANDLER);
 
-  // Handle a known G, M, or T
+  // Handle a known C, G, M, or T
   switch (command_code) {
+    case 'C': switch (codenum) {
+      case 0:
+        gcode_C0();
+        break;
+    }
+    break;
     case 'G': switch (codenum) {
 
       // G0, G1
@@ -12058,6 +12089,8 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+  send_chunk_ok();
+
   lcd_update();
 
   host_keepalive();
@@ -12320,6 +12353,9 @@ void setup() {
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
   #endif
+
+  SERIAL_PROTOCOLPGM("setup_done");
+  SERIAL_EOL;
 }
 
 /**

@@ -633,6 +633,42 @@ void Planner::check_axes_activity() {
 
 #endif // PLANNER_LEVELING
 
+void Planner::buffer_chunk(const uint8_t chunk_idx, const uint8_t chunk_num,
+    const uint8_t extruder, const uint32_t step_speed) {
+  // Calculate the buffer head after we push this byte
+  const uint8_t next_buffer_head = next_block_index(block_buffer_head);
+
+  // If the buffer is full: good! That means we are well ahead of the robot.
+  // Rest here until there is room in the buffer.
+  while (block_buffer_tail == next_buffer_head) idle();
+
+  // Prepare to set up new block
+  block_t* block = &block_buffer[block_buffer_head];
+
+  block->flag = BLOCK_FLAG_IS_CHUNK;
+
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+  #endif
+
+  block->active_extruder = extruder;
+
+  block->initial_rate =
+      block->final_rate =
+      block->nominal_rate = step_speed; //steps/s
+  block->chunk_idx = chunk_idx;
+  //blocks per chunk * 8 steps per block
+  block->step_event_count = (256 / 2 * 8) * chunk_num;
+  block->accelerate_until = 0;
+  block->decelerate_after = block->step_event_count;
+
+  // Move buffer head
+  block_buffer_head = next_buffer_head;
+
+  enable_all_steppers();
+  stepper.wake_up();
+}
+
 /**
  * Planner::_buffer_line
  *
