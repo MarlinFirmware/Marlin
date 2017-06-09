@@ -183,7 +183,7 @@ void GCodeParser::parse(char *p) {
     #endif
 
     if (PARAM_TEST) {
-    
+
       while (*p == ' ') p++;                    // skip spaces vetween parameters & values
       const bool has_num = DECIMAL_SIGNED(*p);  // The parameter has a number [-+0-9.]
 

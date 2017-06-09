@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PINS_H
-#define PINS_H
+#ifndef __PINS_H__
+#define __PINS_H__
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
@@ -570,4 +570,4 @@
   #define SS_PIN   AVR_SS_PIN
 #endif
 
-#endif // __PINS_H
+#endif // __PINS_H__

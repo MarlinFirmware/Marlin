@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  static void* heater_ttbl_map[2] = {(void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
+  static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
   static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
@@ -71,10 +71,6 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 #if HAS_HEATER_BED
   int16_t Temperature::target_temperature_bed = 0;
-#endif
-
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  float Temperature::redundant_temperature = 0.0;
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -476,8 +472,8 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    constexpr int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
-    constexpr int fanBit[] = {
+    static const int8_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
@@ -486,20 +482,20 @@ int Temperature::getHeaterPower(int heater) {
     };
     uint8_t fanState = 0;
 
-    HOTEND_LOOP() {
+    HOTEND_LOOP()
       if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
-        SBI(fanState, fanBit[e]);
-    }
+        SBI(fanState, pgm_read_byte(&fanBit[e]));
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      int8_t pin = fanPin[f];
-      if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
-        uint8_t newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+      int8_t pin = pgm_read_byte(&fanPin[f]);
+      const uint8_t bit = pgm_read_byte(&fanBit[f]);
+      if (pin >= 0 && !TEST(fanDone, bit)) {
+        uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
         // this idiom allows both digital and PWM fan outputs (see M42 handling).
         digitalWrite(pin, newFanSpeed);
         analogWrite(pin, newFanSpeed);
-        SBI(fanDone, fanBit[f]);
+        SBI(fanDone, bit);
       }
     }
   }
