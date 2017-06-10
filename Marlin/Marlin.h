@@ -35,6 +35,10 @@
 
 #include "MarlinConfig.h"
 
+#ifdef DEBUG_GCODE_PARSER
+  #include "gcode.h"
+#endif
+
 #include "enum.h"
 #include "types.h"
 #include "fastio.h"

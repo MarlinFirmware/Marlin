@@ -131,7 +131,7 @@
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12
-#define CASE_LIGHT_PIN     45 // try the keypad connector
+#define CASE_LIGHT_PIN     45   // Try the keypad connector
 
 //
 // LCD / Controller
@@ -144,9 +144,9 @@
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-  #define LCD_PINS_RS      56 // CS chip select / SS chip slave select
-  #define LCD_PINS_ENABLE  51 // SID (MOSI)
-  #define LCD_PINS_D4      52 // SCK (CLK) clock
+  #define LCD_PINS_RS      56   // CS chip select / SS chip slave select
+  #define LCD_PINS_ENABLE  51   // SID (MOSI)
+  #define LCD_PINS_D4      52   // SCK (CLK) clock
   #define SD_DETECT_PIN    35
 
 #else

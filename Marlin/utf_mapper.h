@@ -23,7 +23,7 @@
 #ifndef UTF_MAPPER_H
 #define UTF_MAPPER_H
 
-#include  "language.h"
+#include "language.h"
 
 #if ENABLED(DOGLCD)
   #define HARDWARE_CHAR_OUT u8g.print
@@ -143,6 +143,8 @@
     #error "Something went wrong in the setting of DISPLAY_CHARSET_HD44780"
   #endif // DISPLAY_CHARSET_HD44780
 #endif // SIMULATE_ROMFONT
+
+#define PRINTABLE(C) (((C) & 0xC0u) != 0x80u)
 
 #if ENABLED(MAPPER_C2C3)
 
@@ -466,8 +468,11 @@
 
   #define MAPPER_NON
 
+  #undef PRINTABLE
+  #define PRINTABLE(C) true
+
   char charset_mapper(const char c) {
-    HARDWARE_CHAR_OUT( c );
+    HARDWARE_CHAR_OUT(c);
     return 1;
   }
 

@@ -130,7 +130,7 @@ int16_t count_test_bytes(const char * const ptr) {
         }
         SERIAL_CHAR(ccc);
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
       ptr += 16;
       safe_delay(25);
       idle();
@@ -200,7 +200,7 @@ void free_memory_pool_report(char * const ptr, const int16_t size) {
         *addr = i;
         SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 #endif // M100_FREE_MEMORY_CORRUPTOR
@@ -229,7 +229,7 @@ void init_free_memory(char *ptr, int16_t size) {
     if (ptr[i] != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 }
@@ -323,7 +323,7 @@ int check_for_free_memory_corruption(const char * const title) {
   SERIAL_ECHOPGM(" return=");
   if (block_cnt == 1) {
     SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
-    SERIAL_EOL;             // area and it is appropriate to say 'no corruption'.
+    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
     return 0;
   }
   SERIAL_ECHOLNPGM("true");
