@@ -258,6 +258,12 @@ script:
   - opt_enable PRINTCOUNTER
   - build_marlin
   #
+  # Test PWM_MOTOR_CURRENT
+  #
+  - restore_configs
+  - opt_enable_adv PWM_MOTOR_CURRENT
+  - build_marlin
+  #
   # Test NOZZLE_PARK_FEATURE
   #
   - restore_configs

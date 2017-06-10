@@ -1829,7 +1829,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR("  M907 X", stepper.motor_current_setting[0]);
       SERIAL_ECHOPAIR(" Z", stepper.motor_current_setting[1]);
       SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif	
   }
 
