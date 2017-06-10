@@ -29,6 +29,9 @@
 
 #line 0 // set __LINE__ to a known value for both passes
 
+#if PIN_EXISTS(ADC_KEYPAD) && ADC_KEYPAD_PIN < NUM_ANALOG_INPUTS
+  REPORT_NAME_ANALOG(ADC_KEYPAD_PIN, __LINE__ )
+#endif
 #if defined(__FD) && __FD >= 0
   REPORT_NAME_DIGITAL(__FD, __LINE__ )
 #endif
