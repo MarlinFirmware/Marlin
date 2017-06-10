@@ -251,7 +251,7 @@ void MarlinSettings::postprocess() {
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
   #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
+  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
 
   const char version[4] = EEPROM_VERSION;
 
@@ -271,7 +271,7 @@ void MarlinSettings::postprocess() {
       if (v != eeprom_read_byte(p)) {
         eeprom_write_byte(p, v);
         if (eeprom_read_byte(p) != v) {
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
           eeprom_error = true;
           return;
@@ -651,7 +651,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
       SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
       SERIAL_ECHOLNPGM(")");
@@ -685,7 +685,7 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPGM("EEPROM version mismatch ");
       SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
       SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
@@ -1002,14 +1002,14 @@ void MarlinSettings::postprocess() {
 
       if (working_crc == stored_crc) {
           postprocess();
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
           SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
           SERIAL_ECHOLNPGM(")");
       }
       else {
-        SERIAL_ERROR_START;
+        SERIAL_ERROR_START();
         SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
         SERIAL_ERROR(stored_crc);
         SERIAL_ERRORPGM(" != ");
@@ -1025,7 +1025,7 @@ void MarlinSettings::postprocess() {
         ubl.report_state();
 
         if (!ubl.sanity_check()) {
-          SERIAL_EOL;
+          SERIAL_EOL();
           ubl.echo_name();
           SERIAL_ECHOLNPGM(" initialized.\n");
         }
@@ -1080,7 +1080,7 @@ void MarlinSettings::postprocess() {
           SERIAL_PROTOCOLPAIR("E2END=", E2END);
           SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
           SERIAL_PROTOCOLLNPAIR(" slot=", slot);
-          SERIAL_EOL;
+          SERIAL_EOL();
           return;
         }
 
@@ -1135,7 +1135,7 @@ void MarlinSettings::postprocess() {
 #else // !EEPROM_SETTINGS
 
   bool MarlinSettings::save() {
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM("EEPROM disabled");
     return false;
   }
@@ -1346,13 +1346,13 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
 }
 
 #if DISABLED(DISABLE_M503)
 
-  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
+  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
 
   /**
    * M503 - Report current settings in RAM
@@ -1396,7 +1396,7 @@ void MarlinSettings::reset() {
 
     #endif
 
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     /**
      * Volumetric extrusion M200
@@ -1405,30 +1405,30 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START;
       SERIAL_ECHOPGM("Filament settings:");
       if (volumetric_enabled)
-        SERIAL_EOL;
+        SERIAL_EOL();
       else
         SERIAL_ECHOLNPGM(" Disabled");
     }
 
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
-    SERIAL_EOL;
+    SERIAL_EOL();
     #if EXTRUDERS > 1
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
-      SERIAL_EOL;
+      SERIAL_EOL();
       #if EXTRUDERS > 2
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
-        SERIAL_EOL;
+        SERIAL_EOL();
         #if EXTRUDERS > 3
           CONFIG_ECHO_START;
           SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
-          SERIAL_EOL;
+          SERIAL_EOL();
           #if EXTRUDERS > 4
             CONFIG_ECHO_START;
             SERIAL_ECHOPAIR("  M200 T4 D", filament_size[4]);
-            SERIAL_EOL;
+            SERIAL_EOL();
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
@@ -1450,7 +1450,7 @@ void MarlinSettings::reset() {
     #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS]));
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
@@ -1470,7 +1470,7 @@ void MarlinSettings::reset() {
     #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS]));
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
@@ -1490,7 +1490,7 @@ void MarlinSettings::reset() {
     #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS]));
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
@@ -1545,7 +1545,7 @@ void MarlinSettings::reset() {
         #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
           SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]));
         #endif
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
@@ -1560,7 +1560,7 @@ void MarlinSettings::reset() {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
       for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
         for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
           CONFIG_ECHO_START;
@@ -1568,7 +1568,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR(" Y", (int)py + 1);
           SERIAL_ECHOPGM(" Z");
           SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       }
 
@@ -1584,17 +1584,17 @@ void MarlinSettings::reset() {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", planner.z_fade_height);
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
 
       if (!forReplay) {
-        SERIAL_EOL;
+        SERIAL_EOL();
         ubl.report_state();
 
         SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.state.storage_slot);
 
         SERIAL_ECHOPGM("z_offset: ");
         SERIAL_ECHO_F(ubl.state.z_offset, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
 
         SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
         SERIAL_ECHOLNPGM(" meshes.\n");
@@ -1611,7 +1611,7 @@ void MarlinSettings::reset() {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
 
     #endif
 
@@ -1637,7 +1637,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(delta_tower_angle_trim[A_AXIS]));
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
       SERIAL_ECHOPAIR(" Z", 0.00);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       if (!forReplay) {
         CONFIG_ECHO_START;
@@ -1680,7 +1680,7 @@ void MarlinSettings::reset() {
                 SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
                 if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
               #endif
-              SERIAL_EOL;
+              SERIAL_EOL();
             }
           }
           else
@@ -1695,7 +1695,7 @@ void MarlinSettings::reset() {
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
             SERIAL_ECHOPAIR(" L", lpq_len);
           #endif
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       #endif // PIDTEMP
 
@@ -1704,7 +1704,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPAIR("  M304 P", thermalManager.bedKp);
         SERIAL_ECHOPAIR(" I", unscalePID_i(thermalManager.bedKi));
         SERIAL_ECHOPAIR(" D", unscalePID_d(thermalManager.bedKd));
-        SERIAL_EOL;
+        SERIAL_EOL();
       #endif
 
     #endif // PIDTEMP || PIDTEMPBED
@@ -1804,7 +1804,7 @@ void MarlinSettings::reset() {
       #if ENABLED(E3_IS_TMC2130)
         SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
 
     /**

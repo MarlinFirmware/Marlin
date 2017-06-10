@@ -406,7 +406,7 @@
         }
 
         if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
           goto LEAVE;
         }
@@ -643,7 +643,7 @@
               SERIAL_ECHO_F(z_values[x][y], 6);
               SERIAL_ECHOPAIR(" ; X ", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
               SERIAL_ECHOPAIR(", Y ", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
-              SERIAL_EOL;
+              SERIAL_EOL();
             }
         return;
       }
@@ -766,12 +766,12 @@
     SERIAL_ECHOLNPAIR("# of samples: ", n);
     SERIAL_ECHOPGM("Mean Mesh Height: ");
     SERIAL_ECHO_F(mean, 6);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     const float sigma = sqrt(sum_of_diff_squared / (n + 1));
     SERIAL_ECHOPGM("Standard Deviation: ");
     SERIAL_ECHO_F(sigma, 6);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     if (g29_c_flag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -892,17 +892,17 @@
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPGM("d from 1st point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
         t = normal.x * (UBL_PROBE_PT_2_X) + normal.y * (UBL_PROBE_PT_2_Y);
         d = t + normal.z * z2;
         SERIAL_ECHOPGM("d from 2nd point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
         t = normal.x * (UBL_PROBE_PT_3_X) + normal.y * (UBL_PROBE_PT_3_Y);
         d = t + normal.z * z3;
         SERIAL_ECHOPGM("d from 3rd point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
@@ -1080,7 +1080,7 @@
         if (g29_verbose_level > 2) {
           SERIAL_PROTOCOLPGM("Mesh Point Measured at: ");
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       } while (location.x_index >= 0 && location.y_index >= 0);
 
@@ -1244,7 +1244,7 @@
       SERIAL_PROTOCOLPAIR("Mesh ", state.storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
@@ -1252,13 +1252,13 @@
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_PROTOCOL("planner.z_fade_height : ");
       SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
 
     #if HAS_BED_PROBE
       SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
       SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
 
     SERIAL_ECHOLNPAIR("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X) "=", UBL_MESH_MIN_X);
@@ -1280,7 +1280,7 @@
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
@@ -1288,19 +1288,19 @@
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     #if HAS_KILL
       SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
       SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-    SERIAL_EOL;
+    SERIAL_EOL();
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
@@ -1308,9 +1308,9 @@
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
-    SERIAL_EOL;
+    SERIAL_EOL();
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(25);
 
     SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
@@ -1334,7 +1334,7 @@
     unsigned char cccc;
     uint16_t kkkk;
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
     for (uint16_t i = 0; i < E2END + 1; i += 16) {
       if (!(i & 0x3)) idle();
@@ -1346,9 +1346,9 @@
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
   /**
@@ -1667,7 +1667,7 @@
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPGM("   final >>>---> ");
             SERIAL_PROTOCOL_F(measured_z, 7);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
         #endif
 
@@ -1689,7 +1689,7 @@
       SERIAL_PROTOCOL_F(lsf_results.B, 7);
       SERIAL_ECHOPGM("  D=");
       SERIAL_PROTOCOL_F(lsf_results.D, 7);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1.0000).get_normal();
@@ -1753,7 +1753,7 @@
         SERIAL_PROTOCOL_F(lsf_results.B, 7);
         SERIAL_ECHOPGM("  D=");
         SERIAL_PROTOCOL_F(lsf_results.D, 7);
-        SERIAL_EOL;
+        SERIAL_EOL();
         safe_delay(55);
 
         SERIAL_ECHOPGM("bed plane normal = [");
@@ -1763,7 +1763,7 @@
         SERIAL_PROTOCOLCHAR(',');
         SERIAL_PROTOCOL_F(normal.z, 7);
         SERIAL_ECHOPGM("]\n");
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
