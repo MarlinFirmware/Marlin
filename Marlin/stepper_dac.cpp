@@ -49,7 +49,7 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-  uint16_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
+  uint8_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
@@ -95,7 +95,7 @@
   static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0 / (DAC_STEPPER_SENSE)); }
 
   int16_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
-  void dac_current_set_percents(int16_t pct[XYZE]) {
+  void dac_current_set_percents(const int8_t pct[XYZE]) {
     LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
     mcp4728_setDrvPct(dac_channel_pct);
   }
