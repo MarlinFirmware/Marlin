@@ -291,6 +291,12 @@ script:
   - opt_enable ULTIMAKERCONTROLLER
   - build_marlin
   #
+  # PCA9632
+  #
+  - restore_configs
+  - opt_enable PCA9632
+  - build_marlin
+  #
   # MAKRPANEL
   # Needs to use Melzi and Sanguino hardware
   #

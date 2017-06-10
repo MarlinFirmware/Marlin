@@ -1027,17 +1027,13 @@ static_assert(1 >= 0
     #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
   #elif ENABLED(RGBW_LED)
     #error "Please enable only one of RGB_LED and RGBW_LED."
-  #elif ENABLED(BLINKM)
-    #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
   #endif
 #elif ENABLED(RGBW_LED)
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
-  #elif ENABLED(BLINKM)
-    #error "RGBW_LED and BLINKM are currently incompatible (both use M150)."
   #endif
-#elif DISABLED(BLINKM) && ENABLED(PRINTER_EVENT_LEDS)
-  #error "PRINTER_EVENT_LEDS requires BLINKM, RGB_LED, or RGBW_LED."
+#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632)
+  #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, or RGBW_LED."
 #endif
 
 /**
