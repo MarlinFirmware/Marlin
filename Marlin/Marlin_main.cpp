@@ -9832,7 +9832,7 @@ inline void gcode_M999() {
 #endif
 
 inline void invalid_extruder_error(const uint8_t e) {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
   SERIAL_CHAR(' ');
@@ -10145,7 +10145,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       move_extruder_servo(active_extruder);
     #endif
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
