@@ -27,37 +27,26 @@
 #include "softspi.h"
 
 template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
-class Spi {
-  static SoftSPI<MisoPin, MosiPin, SckPin> softSpi;
+class SPI {
+  static SoftSPI<MisoPin, MosiPin, SckPin> softSPI;
   public:
-    inline __attribute__((always_inline))
-    static void init() {
-        softSpi.begin();
-    }
-    inline __attribute__((always_inline))
-    static void send(uint8_t data) {
-        softSpi.send(data);
-    }
-    inline __attribute__((always_inline))
-    static uint8_t receive() {
-        return softSpi.receive();
-    }
+    FORCE_INLINE static void init() { softSPI.begin(); }
+    FORCE_INLINE static void send(uint8_t data) { softSPI.send(data); }
+    FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
 };
 
 
-//hardware spi
+// Hardware SPI
 template<>
-class Spi<MISO_PIN, MOSI_PIN, SCK_PIN> {
+class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
   public:
-    inline __attribute__((always_inline))
-    static void init() {
+    FORCE_INLINE static void init() {
         OUT_WRITE(SCK_PIN, LOW);
         OUT_WRITE(MOSI_PIN, HIGH);
         SET_INPUT(MISO_PIN);
         WRITE(MISO_PIN, HIGH);
     }
-    inline __attribute__((always_inline))
-    static uint8_t receive() {
+    FORCE_INLINE static uint8_t receive() {
       SPDR = 0;
       for (;!TEST(SPSR, SPIF););
       return SPDR;
@@ -65,4 +54,4 @@ class Spi<MISO_PIN, MOSI_PIN, SCK_PIN> {
 
 };
 
-#endif
+#endif // __SPI_H__

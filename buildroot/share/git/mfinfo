@@ -25,7 +25,7 @@ if [[ $ORG != MarlinFirmware ]]; then
 fi
 
 case "$REPO" in
-  Marlin              ) TARG=RCBugFix ;;
+  Marlin              ) TARG=bugfix-1.1.x ;;
   MarlinDev           ) TARG=dev ;;
   MarlinDocumentation ) TARG=master ;;
 esac

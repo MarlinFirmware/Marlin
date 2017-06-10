@@ -195,7 +195,7 @@
 
 #include "utf_mapper.h"
 
-int lcd_contrast;
+uint16_t lcd_contrast;
 static char currentfont = 0;
 
 // The current graphical page being rendered
@@ -234,13 +234,24 @@ char lcd_print_and_count(const char c) {
   else return charset_mapper(c);
 }
 
-void lcd_print(const char* const str) {
-  for (uint8_t i = 0; char c = str[i]; ++i) lcd_print(c);
+/**
+ * Core LCD printing functions
+ * On DOGM all strings go through a filter for utf
+ * But only use lcd_print_utf and lcd_printPGM_utf for translated text
+ */
+void lcd_print(const char* const str) { for (uint8_t i = 0; char c = str[i]; ++i) lcd_print(c); }
+void lcd_printPGM(const char* str) { for (; char c = pgm_read_byte(str); ++str) lcd_print(c); }
+
+void lcd_print_utf(const char* const str, const uint8_t maxLength=LCD_WIDTH) {
+  char c;
+  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
+    n -= charset_mapper(c);
 }
 
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-void lcd_printPGM(const char* str) {
-  for (; char c = pgm_read_byte(str); ++str) lcd_print(c);
+void lcd_printPGM_utf(const char* str, const uint8_t maxLength=LCD_WIDTH) {
+  char c;
+  for (uint8_t i = 0, n = maxLength; n && (c = str[i]); ++i)
+    n -= charset_mapper(c);
 }
 
 // Initialize or re-initialize the LCD
@@ -320,7 +331,7 @@ static void lcd_implementation_init() {
 void lcd_kill_screen() {
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(0, u8g.getHeight()/4*1);
-  lcd_print(lcd_status_message);
+  lcd_print_utf(lcd_status_message);
   u8g.setPrintPos(0, u8g.getHeight()/4*2);
   lcd_printPGM(PSTR(MSG_HALTED));
   u8g.setPrintPos(0, u8g.getHeight()/4*3);
@@ -340,15 +351,26 @@ FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uin
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
 
-FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater) {
+FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, const bool blink) {
   #if HAS_TEMP_BED
     bool isBed = heater < 0;
   #else
     const bool isBed = false;
   #endif
 
-  if (PAGE_UNDER(7))
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7);
+  if (PAGE_UNDER(7)) {
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
+      #if HAS_TEMP_BED
+        thermalManager.is_bed_idle()
+      #else
+        false
+      #endif
+      );
+
+      if (blink || !is_idle)
+    #endif
+    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
 
   if (PAGE_CONTAINS(21, 28))
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
@@ -384,6 +406,20 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
   }
 }
 
+inline void lcd_implementation_status_message() {
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    lcd_print_utf(lcd_status_message + status_scroll_pos);
+    const uint8_t slen = lcd_strlen(lcd_status_message);
+    if (slen > LCD_WIDTH) {
+      // Skip any non-printing bytes
+      while (!PRINTABLE(lcd_status_message[status_scroll_pos])) ++status_scroll_pos;
+      if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+    }
+  #else
+    lcd_print_utf(lcd_status_message);
+  #endif
+}
+
 //#define DOGM_SD_PERCENT
 
 static void lcd_implementation_status_screen() {
@@ -415,11 +451,11 @@ static void lcd_implementation_status_screen() {
 
   if (PAGE_UNDER(28)) {
     // Extruders
-    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e);
+    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e, blink);
 
     // Heated bed
     #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(81, -1);
+      _draw_heater_status(81, -1, blink);
     #endif
 
     #if HAS_FAN0
@@ -634,7 +670,7 @@ static void lcd_implementation_status_screen() {
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
-        lcd_print(lcd_status_message);
+        lcd_implementation_status_message();
       }
       else {
         lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
@@ -646,7 +682,7 @@ static void lcd_implementation_status_screen() {
         u8g.print('%');
       }
     #else
-      lcd_print(lcd_status_message);
+      lcd_implementation_status_message();
     #endif
   }
 }
@@ -656,7 +692,7 @@ static void lcd_implementation_status_screen() {
   uint8_t row_y1, row_y2;
   uint8_t constexpr row_height = DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION);
 
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     static void lcd_implementation_hotend_status(const uint8_t row) {
       row_y1 = row * row_height + 1;
@@ -673,7 +709,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
     }
 
-  #endif // FILAMENT_CHANGE_FEATURE
+  #endif // ADVANCED_PAUSE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected
   static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {
@@ -874,4 +910,4 @@ static void lcd_implementation_status_screen() {
 
 #endif // ULTIPANEL
 
-#endif //__ULTRALCD_IMPL_DOGM_H
+#endif // __ULTRALCD_IMPL_DOGM_H
