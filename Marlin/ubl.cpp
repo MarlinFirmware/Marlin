@@ -29,6 +29,8 @@
   #include "hex_print_routines.h"
   #include "temperature.h"
 
+  extern Planner planner;
+
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
@@ -67,8 +69,8 @@
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
-  constexpr float unified_bed_leveling::mesh_index_to_xpos[16],
-                  unified_bed_leveling::mesh_index_to_ypos[16];
+  constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
+                  unified_bed_leveling::_mesh_index_to_ypos[16];
 
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
@@ -76,46 +78,53 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.
+    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
   void unified_bed_leveling::reset() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
     state.storage_slot = -1;
-
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      planner.z_fade_height = 10.0;
+    #endif
     ZERO(z_values);
-
     last_specified_z = -999.9;
   }
 
   void unified_bed_leveling::invalidate() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
-    for (int x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (int y = 0; y < GRID_MAX_POINTS_Y; y++)
-        z_values[x][y] = NAN;
+    set_all_mesh_points_to_value(NAN);
+  }
+
+  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+        z_values[x][y] = value;
+      }
+    }
   }
 
   void unified_bed_leveling::display_map(const int map_type) {
     const bool map0 = map_type == 0;
-    constexpr uint8_t spaces = 9 * (GRID_MAX_POINTS_X - 2);
+    constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
       SERIAL_ECHO_SP(spaces + 3);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
-      SERIAL_EOL;
+      SERIAL_EOL();
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
       SERIAL_ECHO_SP(spaces);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
-    const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
+                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
@@ -126,7 +135,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely
@@ -145,10 +154,10 @@
           SERIAL_CHAR(' ');
         }
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
       if (j && map0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     }
 
@@ -156,11 +165,11 @@
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHO_SP(spaces + 4);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
-      SERIAL_EOL;
+      SERIAL_EOL();
       serial_echo_xy(0, 0);
       SERIAL_ECHO_SP(spaces + 5);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 

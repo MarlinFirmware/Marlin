@@ -29,6 +29,12 @@
 #define XYZ  3
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
+#define _UNUSED      __attribute__((unused))
+#define _O0          __attribute__((optimize("O0")))
+#define _Os          __attribute__((optimize("Os")))
+#define _O1          __attribute__((optimize("O1")))
+#define _O2          __attribute__((optimize("O2")))
+#define _O3          __attribute__((optimize("O3")))
 
 // Bracket code that shouldn't be interrupted
 #ifndef CRITICAL_SECTION_START
@@ -102,6 +108,8 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
+#define SIGN(a) ((a>0)-(a<0))
+
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
 #define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
@@ -118,7 +126,9 @@
 
 #define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
-#define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
+#define DECIMAL(a) (NUMERIC(a) || a == '.')
+#define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
+#define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
 #define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))

@@ -45,7 +45,6 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("单击开始热床调平")  //"Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("下个热床调平点")  //"Next Point"
 #define MSG_LEVEL_BED_DONE                  _UxGT("完成热床调平")  //"Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                _UxGT("取消热床调平")  //"Cancel"
 #define MSG_SET_HOME_OFFSETS                _UxGT("设置原点偏移")  //"Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("偏移已启用")  //"Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("设置原点")  //"Set origin"
@@ -65,6 +64,7 @@
 #define MSG_EXTRUDE                         _UxGT("挤出")  //"Extrude"
 #define MSG_RETRACT                         _UxGT("回抽")  //"Retract"
 #define MSG_MOVE_AXIS                       _UxGT("移动轴")  //"Move axis"
+#define MSG_BED_LEVELING                    _UxGT("调平热床")  //"Bed leveling"
 #define MSG_LEVEL_BED                       _UxGT("调平热床")  //"Level bed"
 #define MSG_MOVE_X                          _UxGT("移动X")  //"Move X"
 #define MSG_MOVE_Y                          _UxGT("移动Y")  //"Move Y"
@@ -92,6 +92,7 @@
 #define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
 #define MSG_SELECT                          _UxGT("选择")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
+#define MSG_JERK                            _UxGT("抖动速率")  // "Jerk"
 #define MSG_VX_JERK                         _UxGT("X轴抖动速率")  //"Vx-jerk"
 #define MSG_VY_JERK                         _UxGT("Y轴抖动速率")  //"Vy-jerk"
 #define MSG_VZ_JERK                         _UxGT("Z轴抖动速率")  //"Vz-jerk"
@@ -102,6 +103,7 @@
 #define MSG_AMAX                            _UxGT("最大打印加速度")  //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
 #define MSG_A_RETRACT                       _UxGT("收进加速度")  //"A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
 #define MSG_A_TRAVEL                        _UxGT("非打印移动加速度")  //"A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+#define MSG_STEPS_PER_MM                    _UxGT("轴步数/mm")  //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
 #define MSG_XSTEPS                          _UxGT("X轴步数/mm")  //"Xsteps/mm" axis_steps_per_mm, axis steps-per-unit G92
 #define MSG_YSTEPS                          _UxGT("Y轴步数/mm")  //"Ysteps/mm"
 #define MSG_ZSTEPS                          _UxGT("Z轴步数/mm")  //"Zsteps/mm"
@@ -199,8 +201,8 @@
 #define MSG_INFO_MAX_TEMP                   _UxGT("最高温度")  //"Max Temp"
 #define MSG_INFO_PSU                        _UxGT("电源供应")  //"Power Supply"
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("修改丝料")  //"CHANGE FILAMENT"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("修改选项:")  //"CHANGE OPTIONS:"
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("挤出更多")  //"Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("恢复打印")  //"Resume print"
 

@@ -61,6 +61,7 @@ extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;
 
 #include "Marlin.h"
+#include "gcode.h"
 #include "hex_print_routines.h"
 
 //
@@ -129,7 +130,7 @@ int16_t count_test_bytes(const char * const ptr) {
         }
         SERIAL_CHAR(ccc);
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
       ptr += 16;
       safe_delay(25);
       idle();
@@ -188,7 +189,7 @@ void free_memory_pool_report(char * const ptr, const int16_t size) {
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
   void corrupt_free_memory(char *ptr, const uint16_t size) {
-    if (code_seen('C')) {
+    if (parser.seen('C')) {
       ptr += 8;
       const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
                      j = near_top / (size + 1);
@@ -199,7 +200,7 @@ void free_memory_pool_report(char * const ptr, const int16_t size) {
         *addr = i;
         SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 #endif // M100_FREE_MEMORY_CORRUPTOR
@@ -228,7 +229,7 @@ void init_free_memory(char *ptr, int16_t size) {
     if (ptr[i] != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 }
@@ -247,23 +248,23 @@ void gcode_M100() {
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;
-  if (m100_not_initialized || code_seen('I')) {
+  if (m100_not_initialized || parser.seen('I')) {
     m100_not_initialized = false;
     init_free_memory(ptr, sp - ptr);
   }
 
   #if ENABLED(M100_FREE_MEMORY_DUMPER)
-    if (code_seen('D'))
+    if (parser.seen('D'))
       return dump_free_memory(ptr, sp);
   #endif
 
-  if (code_seen('F'))
+  if (parser.seen('F'))
     return free_memory_pool_report(ptr, sp - ptr);
 
   #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
 
-    if (code_seen('C'))
-      return corrupt_free_memory(ptr, code_value_int());
+    if (parser.seen('C'))
+      return corrupt_free_memory(ptr, parser.value_int());
 
   #endif
 }
@@ -322,7 +323,7 @@ int check_for_free_memory_corruption(const char * const title) {
   SERIAL_ECHOPGM(" return=");
   if (block_cnt == 1) {
     SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
-    SERIAL_EOL;             // area and it is appropriate to say 'no corruption'.
+    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
     return 0;
   }
   SERIAL_ECHOLNPGM("true");

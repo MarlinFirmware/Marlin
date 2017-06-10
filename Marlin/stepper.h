@@ -369,7 +369,7 @@ class Stepper {
         }
       #endif
 
-      // SERIAL_ECHO_START;
+      // SERIAL_ECHO_START();
       // SERIAL_ECHOPGM("advance :");
       // SERIAL_ECHO(current_block->advance/256.0);
       // SERIAL_ECHOPGM("advance rate :");

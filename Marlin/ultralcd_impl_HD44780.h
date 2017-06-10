@@ -193,12 +193,19 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   static void lcd_implementation_update_indicators();
 #endif
 
+static void createChar_P(const char c, const byte * const ptr) {
+  byte temp[8];
+  for (uint8_t i = 0; i < 8; i++)
+    temp[i] = pgm_read_byte(&ptr[i]);
+  lcd.createChar(c, temp);
+}
+
 static void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR)
     const bool info_screen_charset = true
   #endif
 ) {
-  static byte bedTemp[8] = {
+  const static PROGMEM byte bedTemp[8] = {
     B00000,
     B11111,
     B10101,
@@ -207,8 +214,9 @@ static void lcd_set_custom_characters(
     B11111,
     B00000,
     B00000
-  }; //thanks Sonny Mounicou
-  static byte degree[8] = {
+  };
+
+  const static PROGMEM byte degree[8] = {
     B01100,
     B10010,
     B10010,
@@ -218,7 +226,8 @@ static void lcd_set_custom_characters(
     B00000,
     B00000
   };
-  static byte thermometer[8] = {
+
+  const static PROGMEM byte thermometer[8] = {
     B00100,
     B01010,
     B01010,
@@ -228,7 +237,8 @@ static void lcd_set_custom_characters(
     B10001,
     B01110
   };
-  static byte uplevel[8] = {
+
+  const static PROGMEM byte uplevel[8] = {
     B00100,
     B01110,
     B11111,
@@ -237,8 +247,9 @@ static void lcd_set_custom_characters(
     B00000,
     B00000,
     B00000
-  }; //thanks joris
-  static byte feedrate[8] = {
+  };
+
+  const static PROGMEM byte feedrate[8] = {
     B11100,
     B10000,
     B11000,
@@ -247,8 +258,9 @@ static void lcd_set_custom_characters(
     B00110,
     B00101,
     B00000
-  }; //thanks Sonny Mounicou
-  static byte clock[8] = {
+  };
+
+  const static PROGMEM byte clock[8] = {
     B00000,
     B01110,
     B10011,
@@ -257,16 +269,10 @@ static void lcd_set_custom_characters(
     B01110,
     B00000,
     B00000
-  }; //thanks Sonny Mounicou
-
-  lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
-  lcd.createChar(LCD_STR_DEGREE[0], degree);
-  lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
-  lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
-  lcd.createChar(LCD_STR_CLOCK[0], clock);
+  };
 
   #if ENABLED(SDSUPPORT)
-    static byte refresh[8] = {
+    const static PROGMEM byte refresh[8] = {
       B00000,
       B00110,
       B11001,
@@ -275,8 +281,8 @@ static void lcd_set_custom_characters(
       B10011,
       B01100,
       B00000,
-    }; //thanks joris
-    static byte folder[8] = {
+    };
+    const static PROGMEM byte folder[8] = {
       B00000,
       B11100,
       B11111,
@@ -285,10 +291,10 @@ static void lcd_set_custom_characters(
       B11111,
       B00000,
       B00000
-    }; //thanks joris
+    };
 
     #if ENABLED(LCD_PROGRESS_BAR)
-      static byte progress[3][8] = { {
+      const static PROGMEM byte progress[3][8] = { {
         B00000,
         B10000,
         B10000,
@@ -316,26 +322,37 @@ static void lcd_set_custom_characters(
         B10101,
         B00000
       } };
+    #endif
+  #endif
+
+  createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
+  createChar_P(LCD_DEGREE_CHAR, degree);
+  createChar_P(LCD_STR_THERMOMETER[0], thermometer);
+  createChar_P(LCD_FEEDRATE_CHAR, feedrate);
+  createChar_P(LCD_CLOCK_CHAR, clock);
+
+  #if ENABLED(SDSUPPORT)
+    #if ENABLED(LCD_PROGRESS_BAR)
       static bool char_mode = false;
       if (info_screen_charset != char_mode) {
         char_mode = info_screen_charset;
         if (info_screen_charset) { // Progress bar characters for info screen
-          for (int i = 3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
+          for (int i = 3; i--;) createChar_P(LCD_STR_PROGRESS[i], progress[i]);
         }
         else { // Custom characters for submenus
-          lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-          lcd.createChar(LCD_STR_REFRESH[0], refresh);
-          lcd.createChar(LCD_STR_FOLDER[0], folder);
+          createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+          createChar_P(LCD_REFRESH_CHAR, refresh);
+          createChar_P(LCD_STR_FOLDER[0], folder);
         }
       }
     #else
-      lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-      lcd.createChar(LCD_STR_REFRESH[0], refresh);
-      lcd.createChar(LCD_STR_FOLDER[0], folder);
+      createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+      createChar_P(LCD_REFRESH_CHAR, refresh);
+      createChar_P(LCD_STR_FOLDER[0], folder);
     #endif
 
   #else
-    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+    createChar_P(LCD_UPLEVEL_CHAR, uplevel);
   #endif
 }
 
@@ -380,16 +397,20 @@ static void lcd_implementation_init(
 
 void lcd_implementation_clear() { lcd.clear(); }
 
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-void lcd_printPGM(const char *str) {
-  for (; char c = pgm_read_byte(str); ++str) charset_mapper(c);
+void lcd_print(const char c) { charset_mapper(c); }
+
+void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
+void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
+
+void lcd_print_utf(const char *str, uint8_t n=LCD_WIDTH) {
+  char c;
+  while (n && (c = *str)) n -= charset_mapper(c), ++str;
 }
 
-void lcd_print(const char* const str) {
-  for (uint8_t i = 0; char c = str[i]; ++i) charset_mapper(c);
+void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
+  char c;
+  while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
 }
-
-void lcd_print(char c) { charset_mapper(c); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -419,7 +440,7 @@ void lcd_print(char c) { charset_mapper(c); }
   }
 
   void bootscreen() {
-    byte top_left[8] = {
+    const static PROGMEM byte corner[4][8] = { {
       B00000,
       B00000,
       B00000,
@@ -428,8 +449,7 @@ void lcd_print(char c) { charset_mapper(c); }
       B00010,
       B00100,
       B00100
-    };
-    byte top_right[8] = {
+    }, {
       B00000,
       B00000,
       B00000,
@@ -438,8 +458,7 @@ void lcd_print(char c) { charset_mapper(c); }
       B01100,
       B00100,
       B00100
-    };
-    byte botom_left[8] = {
+    }, {
       B00100,
       B00010,
       B00001,
@@ -448,8 +467,7 @@ void lcd_print(char c) { charset_mapper(c); }
       B00000,
       B00000,
       B00000
-    };
-    byte botom_right[8] = {
+    }, {
       B00100,
       B01000,
       B10000,
@@ -458,11 +476,9 @@ void lcd_print(char c) { charset_mapper(c); }
       B00000,
       B00000,
       B00000
-    };
-    lcd.createChar(0, top_left);
-    lcd.createChar(1, top_right);
-    lcd.createChar(2, botom_left);
-    lcd.createChar(3, botom_right);
+    } };
+    for (uint8_t i = 0; i < 4; i++)
+      createChar_P(i, corner[i]);
 
     lcd.clear();
 
@@ -545,7 +561,7 @@ void lcd_print(char c) { charset_mapper(c); }
 
 void lcd_kill_screen() {
   lcd.setCursor(0, 0);
-  lcd_print(lcd_status_message);
+  lcd_print_utf(lcd_status_message);
   #if LCD_HEIGHT < 4
     lcd.setCursor(0, 2);
   #else
@@ -573,13 +589,51 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
   }
 }
 
+FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, const bool blink) {
+  const bool isBed = heater < 0;
+
+  const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
+              t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
+
+  if (prefix >= 0) lcd.print(prefix);
+
+  lcd.print(itostr3(t1 + 0.5));
+  lcd.print('/');
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
+      #if HAS_TEMP_BED
+        thermalManager.is_bed_idle()
+      #else
+        false
+      #endif
+    );
+
+    if (!blink && is_idle) {
+      lcd.print(' ');
+      if (t2 >= 10) lcd.print(' ');
+      if (t2 >= 100) lcd.print(' ');
+    }
+    else
+  #endif
+      lcd.print(itostr3left(t2 + 0.5));
+
+  if (prefix >= 0) {
+    lcd.print((char)LCD_DEGREE_CHAR);
+    lcd.print(' ');
+    if (t2 < 10) lcd.print(' ');
+  }
+}
+
 #if ENABLED(LCD_PROGRESS_BAR)
 
   inline void lcd_draw_progress_bar(const uint8_t percent) {
-    int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
-      cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+    const int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
+              cel = tix / 3,
+              rem = tix % 3;
+    uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
-    msg[i] = '\0';
+    msg[LCD_WIDTH] = '\0';
     while (i--) {
       if (i == cel - 1)
         b = LCD_STR_PROGRESS[2];
@@ -616,17 +670,7 @@ Possible status screens:
        |01234567890123456789|
 */
 static void lcd_implementation_status_screen() {
-
-  #define LCD_TEMP_ONLY(T1,T2) \
-    lcd.print(itostr3(T1 + 0.5)); \
-    lcd.print('/'); \
-    lcd.print(itostr3left(T2 + 0.5))
-
-  #define LCD_TEMP(T1,T2,PREFIX) \
-    lcd.print(PREFIX); \
-    LCD_TEMP_ONLY(T1,T2); \
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
-    if (T2 < 10) lcd.print(' ')
+  const bool blink = lcd_blink();
 
   //
   // Line 1
@@ -639,7 +683,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP_ONLY(thermalManager.degHotend(0), thermalManager.degTargetHotend(0));
+    _draw_heater_status(0, -1, blink);
 
     //
     // Hotend 1 or Bed Temperature
@@ -648,11 +692,11 @@ static void lcd_implementation_status_screen() {
 
       lcd.setCursor(8, 0);
       #if HOTENDS > 1
-        lcd.print(LCD_STR_THERMOMETER[0]);
-        LCD_TEMP_ONLY(thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
+        lcd.print((CHAR)LCD_STR_THERMOMETER[0]);
+        _draw_heater_status(1, -1, blink);
       #else
-        lcd.print(LCD_STR_BEDTEMP[0]);
-        LCD_TEMP_ONLY(thermalManager.degBed(), thermalManager.degTargetBed());
+        lcd.print((CHAR)LCD_BEDTEMP_CHAR);
+        _draw_heater_status(-1, -1, blink);
       #endif
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
@@ -662,7 +706,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP(thermalManager.degHotend(0), thermalManager.degTargetHotend(0), LCD_STR_THERMOMETER[0]);
+    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
 
     //
     // Hotend 1 or Bed Temperature
@@ -670,9 +714,9 @@ static void lcd_implementation_status_screen() {
     #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
       lcd.setCursor(10, 0);
       #if HOTENDS > 1
-        LCD_TEMP(thermalManager.degHotend(1), thermalManager.degTargetHotend(1), LCD_STR_THERMOMETER[0]);
+        _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
       #else
-        LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
+        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
       #endif
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
@@ -684,8 +728,6 @@ static void lcd_implementation_status_screen() {
   //
 
   #if LCD_HEIGHT > 2
-
-    bool blink = lcd_blink();
 
     #if LCD_WIDTH < 20
 
@@ -708,7 +750,7 @@ static void lcd_implementation_status_screen() {
         // If we both have a 2nd extruder and a heated bed,
         // show the heated bed temp on the left,
         // since the first line is filled with extruder temps
-        LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
+      _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
 
       #else
         // Before homing the axis letters are blinking 'X' <-> '?'.
@@ -740,7 +782,7 @@ static void lcd_implementation_status_screen() {
   #if LCD_HEIGHT > 3
 
     lcd.setCursor(0, 2);
-    lcd.print(LCD_STR_FEEDRATE[0]);
+    lcd.print((char)LCD_FEEDRATE_CHAR);
     lcd.print(itostr3(feedrate_percentage));
     lcd.print('%');
 
@@ -761,7 +803,7 @@ static void lcd_implementation_status_screen() {
     uint8_t len = elapsed.toDigital(buffer);
 
     lcd.setCursor(LCD_WIDTH - len - 1, 2);
-    lcd.print(LCD_STR_CLOCK[0]);
+    lcd.print((char)LCD_CLOCK_CHAR);
     lcd_print(buffer);
 
   #endif // LCD_HEIGHT > 3
@@ -777,8 +819,10 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
-      return lcd_draw_progress_bar(card.percentDone());
+    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])) {
+      const uint8_t percent = card.percentDone();
+      if (percent) return lcd_draw_progress_bar(percent);
+    }
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
@@ -795,24 +839,35 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
-  lcd_print(lcd_status_message);
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    static bool last_blink = false;
+    lcd_print_utf(lcd_status_message + status_scroll_pos);
+    const uint8_t slen = lcd_strlen(lcd_status_message);
+    if (slen > LCD_WIDTH) {
+      if (last_blink != blink) {
+        last_blink = blink;
+        // Skip any non-printing bytes
+        while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
+        if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+      }
+    }
+  #else
+    lcd_print_utf(lcd_status_message);
+  #endif
 }
 
 #if ENABLED(ULTIPANEL)
 
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
         lcd.setCursor(LCD_WIDTH - 9, row);
-        lcd.print(LCD_STR_THERMOMETER[0]);
-        lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
-        lcd.print('/');
-        lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+        _draw_heater_status(active_extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
 
-  #endif // FILAMENT_CHANGE_FEATURE
+  #endif // ADVANCED_PAUSE_FEATURE
 
   static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
@@ -940,7 +995,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR,LCD_UPLEVEL_CHAR)
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
