@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  static void* heater_ttbl_map[2] = {(void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
+  static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
   static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
@@ -71,10 +71,6 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 #if HAS_HEATER_BED
   int16_t Temperature::target_temperature_bed = 0;
-#endif
-
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  float Temperature::redundant_temperature = 0.0;
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -393,7 +389,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       if (ELAPSED(ms, temp_ms + 2000UL)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
           print_heaterstates();
-          SERIAL_EOL;
+          SERIAL_EOL();
         #endif
 
         temp_ms = ms;
@@ -408,17 +404,17 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         #if HAS_PID_FOR_BOTH
           const char* estring = hotend < 0 ? "bed" : "";
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
         #elif ENABLED(PIDTEMP)
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd); SERIAL_EOL();
         #else
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi); SERIAL_EOL;
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd); SERIAL_EOL();
         #endif
 
         #define _SET_BED_PID() do { \
@@ -476,8 +472,8 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    constexpr int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
-    constexpr int fanBit[] = {
+    static const int8_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
@@ -486,20 +482,20 @@ int Temperature::getHeaterPower(int heater) {
     };
     uint8_t fanState = 0;
 
-    HOTEND_LOOP() {
+    HOTEND_LOOP()
       if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
-        SBI(fanState, fanBit[e]);
-    }
+        SBI(fanState, pgm_read_byte(&fanBit[e]));
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      int8_t pin = fanPin[f];
-      if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
-        uint8_t newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+      int8_t pin = pgm_read_byte(&fanPin[f]);
+      const uint8_t bit = pgm_read_byte(&fanBit[f]);
+      if (pin >= 0 && !TEST(fanDone, bit)) {
+        uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
         // this idiom allows both digital and PWM fan outputs (see M42 handling).
         digitalWrite(pin, newFanSpeed);
         analogWrite(pin, newFanSpeed);
-        SBI(fanDone, fanBit[f]);
+        SBI(fanDone, bit);
       }
     }
   }
@@ -512,7 +508,7 @@ int Temperature::getHeaterPower(int heater) {
 void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
-    SERIAL_ERROR_START;
+    SERIAL_ERROR_START();
     serialprintPGM(serial_msg);
     SERIAL_ERRORPGM(MSG_STOPPED_HEATER);
     if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
@@ -623,7 +619,7 @@ float Temperature::get_pid_output(int e) {
     #endif // PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPAIR(MSG_PID_DEBUG, HOTEND_INDEX);
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_INPUT, current_temperature[HOTEND_INDEX]);
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_OUTPUT, pid_output);
@@ -633,7 +629,7 @@ float Temperature::get_pid_output(int e) {
       #if ENABLED(PID_EXTRUSION_SCALING)
         SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[HOTEND_INDEX]);
       #endif
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif // PID_DEBUG
 
   #else /* PID off */
@@ -674,7 +670,7 @@ float Temperature::get_pid_output(int e) {
     #endif // PID_OPENLOOP
 
     #if ENABLED(PID_BED_DEBUG)
-      SERIAL_ECHO_START;
+      SERIAL_ECHO_START();
       SERIAL_ECHOPGM(" PID_BED_DEBUG ");
       SERIAL_ECHOPGM(": Input ");
       SERIAL_ECHO(current_temperature_bed);
@@ -858,7 +854,7 @@ float Temperature::analog2temp(int raw, uint8_t e) {
     if (e >= HOTENDS)
   #endif
     {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERROR((int)e);
       SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER_NUM);
       kill(PSTR(MSG_KILLED));
@@ -1282,7 +1278,7 @@ void Temperature::init() {
     static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
 
     /**
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
         if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
         SERIAL_ECHOPAIR(" ;  State:", *state);
@@ -1293,7 +1289,7 @@ void Temperature::init() {
           SERIAL_ECHOPAIR(" ;  Idle Timeout:", heater_idle_timeout_exceeded[heater_id]);
         else
           SERIAL_ECHOPAIR(" ;  Idle Timeout:", bed_idle_timeout_exceeded);
-        SERIAL_EOL;
+        SERIAL_EOL();
     */
 
     int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
@@ -1461,7 +1457,7 @@ void Temperature::disable_all_heaters() {
     WRITE(MAX6675_SS, 1); // disable TT_MAX6675
 
     if (max6675_temp & MAX6675_ERROR_MASK) {
-      SERIAL_ERROR_START;
+      SERIAL_ERROR_START();
       SERIAL_ERRORPGM("Temp measurement error! ");
       #if MAX6675_ERROR_MASK == 7
         SERIAL_ERRORPGM("MAX31855 ");

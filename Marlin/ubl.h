@@ -138,10 +138,11 @@
         static bool look_for_lines_to_connect();
         static bool turn_on_heaters();
         static bool prime_nozzle();
-        static void retract_filament(float where[XYZE]);
-        static void recover_filament(float where[XYZE]);
+        static void retract_filament(const float where[XYZE]);
+        static void recover_filament(const float where[XYZE]);
         static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
         static void move_to(const float&, const float&, const float&, const float&);
+        inline static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
       #endif
 
     public:
@@ -154,6 +155,7 @@
       static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
       static void reset();
       static void invalidate();
+      static void set_all_mesh_points_to_value(float);
       static bool sanity_check();
 
       static void G29() _O0;                          // O0 for no optimization
@@ -254,7 +256,7 @@
           SERIAL_ECHOPAIR(",x1_i=", x1_i);
           SERIAL_ECHOPAIR(",yi=", yi);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
           return NAN;
         }
 
@@ -274,7 +276,7 @@
           SERIAL_ECHOPAIR(", xi=", xi);
           SERIAL_ECHOPAIR(", y1_i=", y1_i);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
           return NAN;
         }
 
@@ -299,7 +301,7 @@
           SERIAL_ECHOPAIR("? in get_z_correction(lx0=", lx0);
           SERIAL_ECHOPAIR(", ly0=", ly0);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
 
           #if ENABLED(ULTRA_LCD)
             strcpy(lcd_status_message, "get_z_correction() indexes out of range.");
@@ -334,7 +336,7 @@
           if (DEBUGGING(MESH_ADJUST)) {
             SERIAL_ECHOPGM(" >>>---> ");
             SERIAL_ECHO_F(z0, 6);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
         #endif
 
@@ -350,7 +352,7 @@
               SERIAL_CHAR(',');
               SERIAL_ECHO(ly0);
               SERIAL_CHAR(')');
-              SERIAL_EOL;
+              SERIAL_EOL();
             }
           #endif
         }
@@ -385,7 +387,7 @@
       FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_xpos[i]); }
       FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_ypos[i]); }
 
-      static bool prepare_linear_move_to(const float ltarget[XYZE], const float &feedrate);
+      static bool prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate);
       static void line_to_destination_cartesian(const float &fr, uint8_t e);
 
   }; // class unified_bed_leveling

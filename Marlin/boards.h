@@ -71,7 +71,7 @@
 #define BOARD_PRINTRBOARD_REVF  811  // Printrboard Revision F (AT90USB1286)
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
-#define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
 #define BOARD_BRAINWAVE_PRO     85   // Brainwave Pro (AT90USB1286)
 #define BOARD_GEN3_PLUS         9    // Gen3+
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
@@ -95,6 +95,7 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
+#define BOARD_ZRIB_V20          504  // zrib V2.0 control board (Chinese knock off RAMPS replica)
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

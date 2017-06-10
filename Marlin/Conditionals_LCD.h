@@ -101,9 +101,12 @@
   #if ENABLED(ULTIMAKERCONTROLLER)              \
    || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
    || ENABLED(G3D_PANEL)                        \
-   || ENABLED(RIGIDBOT_PANEL)                   \
-   || ENABLED(REPRAPWORLD_KEYPAD)
+   || ENABLED(RIGIDBOT_PANEL)
     #define ULTIPANEL
+    #define NEWPANEL
+  #endif
+
+  #if ENABLED(REPRAPWORLD_KEYPAD)
     #define NEWPANEL
   #endif
 
@@ -238,14 +241,14 @@
     #define LCD_STR_FILAM_MUL   "\xa4"
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
-    #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
-    #define LCD_STR_DEGREE      "\x01"
-    #define LCD_STR_THERMOMETER "\x02"
-    #define LCD_STR_UPLEVEL     "\x03"
-    #define LCD_STR_REFRESH     "\x04"
+    #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
+    #define LCD_DEGREE_CHAR      0x01
+    #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
+    #define LCD_UPLEVEL_CHAR     0x03
+    #define LCD_REFRESH_CHAR     0x04
     #define LCD_STR_FOLDER      "\x05"
-    #define LCD_STR_FEEDRATE    "\x06"
-    #define LCD_STR_CLOCK       "\x07"
+    #define LCD_FEEDRATE_CHAR    0x06
+    #define LCD_CLOCK_CHAR       0x07
     #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
   #endif
 

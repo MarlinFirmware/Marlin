@@ -120,7 +120,7 @@ public:
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static volatile bool seen(const char c) {
       const uint8_t ind = c - 'A';
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST(codebits[ind >> 3], ind & 0x7);
@@ -128,16 +128,24 @@ public:
       return b;
     }
 
+    static volatile bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
+
+    #define SEEN_TEST(L) TEST(codebits[(L - 'A') >> 3], (L - 'A') & 0x7)
+
   #else
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static volatile bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : NULL;
+      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
+
+    static volatile bool seen_any() { return *command_args == '\0'; }
+
+    #define SEEN_TEST(L) !!strchr(command_args, L)
 
   #endif // FASTER_GCODE_PARSER
 
@@ -147,6 +155,13 @@ public:
 
   // Code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
+
+  // Seen and has value
+  FORCE_INLINE static bool seenval(const char c) { return seen(c) && has_value(); }
+
+  static volatile bool seen_axis() {
+    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
+  }
 
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {
@@ -188,7 +203,7 @@ public:
 
   #if ENABLED(INCH_MODE_SUPPORT)
 
-    inline static void set_input_linear_units(LinearUnit units) {
+    inline static void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         case LINEARUNIT_INCH:
           linear_unit_factor = 25.4;
@@ -227,7 +242,7 @@ public:
         return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
       }
       FORCE_INLINE static char* temp_units_name() {
-        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius")
+        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
       }
       inline static float to_temp_units(const float &f) {
         switch (input_temp_units) {

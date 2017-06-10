@@ -108,6 +108,8 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
+#define SIGN(a) ((a>0)-(a<0))
+
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
 #define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
@@ -127,7 +129,6 @@
 #define DECIMAL(a) (NUMERIC(a) || a == '.')
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
-#define PRINTABLE(C) (((C) & 0xC0u) != 0x80u)
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
 #define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))

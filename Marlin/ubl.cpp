@@ -83,7 +83,7 @@
   }
 
   void unified_bed_leveling::reset() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
     state.storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -94,11 +94,17 @@
   }
 
   void unified_bed_leveling::invalidate() {
-    state.active = false;
+    set_bed_leveling_enabled(false);
     state.z_offset = 0;
-    for (int x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (int y = 0; y < GRID_MAX_POINTS_Y; y++)
-        z_values[x][y] = NAN;
+    set_all_mesh_points_to_value(NAN);
+  }
+
+  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+        z_values[x][y] = value;
+      }
+    }
   }
 
   void unified_bed_leveling::display_map(const int map_type) {
@@ -110,11 +116,11 @@
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
       SERIAL_ECHO_SP(spaces + 3);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
-      SERIAL_EOL;
+      SERIAL_EOL();
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
       SERIAL_ECHO_SP(spaces);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
@@ -148,10 +154,10 @@
           SERIAL_CHAR(' ');
         }
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
       if (j && map0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     }
 
@@ -159,11 +165,11 @@
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHO_SP(spaces + 4);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
-      SERIAL_EOL;
+      SERIAL_EOL();
       serial_echo_xy(0, 0);
       SERIAL_ECHO_SP(spaces + 5);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
   }
 

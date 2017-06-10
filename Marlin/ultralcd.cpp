@@ -60,6 +60,7 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
 
 uint8_t lcd_status_message_level;
 char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
+
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
   uint8_t status_scroll_pos = 0;
 #endif
@@ -685,8 +686,13 @@ void kill_screen(const char* lcd_msg) {
     else lcd_buzz(20, 440);
   }
 
-  inline void line_to_current(AxisEnum axis) {
-    planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
+  inline void line_to_current_z() {
+    planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+  }
+
+  inline void line_to_z(const float &z) {
+    current_position[Z_AXIS] = z;
+    line_to_current_z();
   }
 
   #if ENABLED(SDSUPPORT)
@@ -725,6 +731,24 @@ void kill_screen(const char* lcd_msg) {
     }
 
   #endif // SDSUPPORT
+
+  #if ENABLED(MENU_ITEM_CASE_LIGHT)
+
+    extern int case_light_brightness;
+    extern bool case_light_on;
+    extern void update_case_light();
+
+    void case_light_menu() {
+      START_MENU();
+      //
+      // ^ Main
+      //
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+      END_MENU();
+    }
+  #endif // MENU_ITEM_CASE_LIGHT
 
   #if ENABLED(BLTOUCH)
 
@@ -847,11 +871,6 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    extern bool case_light_on;
-    extern void update_case_light();
-  #endif
-
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
@@ -868,10 +887,14 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     //
-    // Switch case light on/off
+    // Set Case light on/off/brightness
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, &case_light_on, update_case_light);
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
+      }
+      else
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
@@ -1076,6 +1099,7 @@ void kill_screen(const char* lcd_msg) {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
     void lcd_enqueue_filament_change() {
       if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
         lcd_save_previous_screen();
@@ -1085,7 +1109,8 @@ void kill_screen(const char* lcd_msg) {
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600 B0"));
     }
-  #endif
+
+  #endif // ADVANCED_PAUSE_FEATURE
 
   /**
    *
@@ -1501,8 +1526,7 @@ void kill_screen(const char* lcd_msg) {
     //
     void _lcd_after_probing() {
       #if MANUAL_PROBE_HEIGHT > 0
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
-        line_to_current(Z_AXIS);
+        line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT);
       #endif
       // Display "Done" screen and wait for moves to complete
       #if MANUAL_PROBE_HEIGHT > 0 || ENABLED(MESH_BED_LEVELING)
@@ -1519,15 +1543,13 @@ void kill_screen(const char* lcd_msg) {
       // Utility to go to the next mesh point
       inline void _manual_probe_goto_xy(float x, float y) {
         #if MANUAL_PROBE_HEIGHT > 0
-          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
-          line_to_current(Z_AXIS);
+          line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT);
         #endif
         current_position[X_AXIS] = LOGICAL_X_POSITION(x);
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
         planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
         #if MANUAL_PROBE_HEIGHT > 0
-          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
-          line_to_current(Z_AXIS);
+          line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS));
         #endif
         lcd_synchronize();
       }
@@ -1580,7 +1602,6 @@ void kill_screen(const char* lcd_msg) {
 
             //
             // The last G29 will record and enable but not move.
-            // Since G29 is deferred, 
             //
             lcd_wait_for_move = true;
             enqueue_and_echo_commands_P(PSTR("G29 V1"));
@@ -1610,10 +1631,8 @@ void kill_screen(const char* lcd_msg) {
       //
       if (encoderPosition) {
         refresh_cmd_timeout();
-        current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
-        NOLESS(current_position[Z_AXIS], -(LCD_PROBE_Z_RANGE) * 0.5);
-        NOMORE(current_position[Z_AXIS],  (LCD_PROBE_Z_RANGE) * 0.5);
-        line_to_current(Z_AXIS);
+        const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
+        line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5));
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
         encoderPosition = 0;
       }
@@ -1712,7 +1731,10 @@ void kill_screen(const char* lcd_msg) {
 
     static bool _level_state;
     void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(_level_state); }
-    void _lcd_set_z_fade_height() { set_z_fade_height(planner.z_fade_height); }
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      void _lcd_set_z_fade_height() { set_z_fade_height(planner.z_fade_height); }
+    #endif
 
     /**
      * Step 1: Bed Level entry-point
@@ -1847,7 +1869,7 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_ubl_validate_custom_mesh() {
       char UBL_LCD_GCODE[24];
-      const int temp = 
+      const int temp =
         #if WATCH_THE_BED
           custom_bed_temp
         #else
@@ -2061,6 +2083,7 @@ void kill_screen(const char* lcd_msg) {
      *
      *  Prepare
      * - Unified Bed Leveling
+     *   - Manually Build Mesh
      *   - Activate UBL
      *   - Deactivate UBL
      *   - Mesh Storage
@@ -2115,6 +2138,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
+      MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
@@ -2275,15 +2299,13 @@ void kill_screen(const char* lcd_msg) {
         reset_bed_level(); // After calibration bed-level data is no longer valid
       #endif
 
-      current_position[Z_AXIS] = max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5;
-      line_to_current(Z_AXIS);
+      line_to_z(max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5);
 
       current_position[X_AXIS] = a < 0 ? LOGICAL_X_POSITION(X_HOME_POS) : cos(RADIANS(a)) * delta_calibration_radius;
       current_position[Y_AXIS] = a < 0 ? LOGICAL_Y_POSITION(Y_HOME_POS) : sin(RADIANS(a)) * delta_calibration_radius;
-      line_to_current(Z_AXIS);
+      line_to_current_z();
 
-      current_position[Z_AXIS] = 4.0;
-      line_to_current(Z_AXIS);
+      line_to_z(4.0);
 
       lcd_synchronize();
 
@@ -2512,8 +2534,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(DELTA)
       #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
       void lcd_lower_z_to_clip_height() {
-        current_position[Z_AXIS] = delta_clip_start_height;
-        line_to_current(Z_AXIS);
+        line_to_z(delta_clip_start_height);
         lcd_synchronize();
       }
     #else
@@ -2574,16 +2595,9 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  /**
-   *
-   * Callback for LCD contrast
-   *
-   */
   #if HAS_LCD_CONTRAST
-
     void lcd_callback_set_contrast() { set_lcd_contrast(lcd_contrast); }
-
-  #endif // HAS_LCD_CONTRAST
+  #endif
 
   static void lcd_factory_settings() {
     settings.reset();
@@ -2598,7 +2612,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
 
     #if HAS_LCD_CONTRAST
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, (int*)&lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
@@ -3342,6 +3356,17 @@ void kill_screen(const char* lcd_msg) {
       STATIC_ITEM(MACHINE_NAME, true);                                 // My3DPrinter
       STATIC_ITEM(WEBSITE_URL, true);                                  // www.my3dprinter.com
       STATIC_ITEM(MSG_INFO_EXTRUDERS ": " STRINGIFY(EXTRUDERS), true); // Extruders: 2
+      #if ENABLED(AUTO_BED_LEVELING_3POINT)
+        STATIC_ITEM(MSG_3POINT_LEVELING, true);                        // 3-Point Leveling
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+        STATIC_ITEM(MSG_LINEAR_LEVELING, true);                        // Linear Leveling
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        STATIC_ITEM(MSG_BILINEAR_LEVELING, true);                      // Bi-linear Leveling
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        STATIC_ITEM(MSG_UBL_LEVELING, true);                           // Unified Bed Leveling
+      #elif ENABLED(MESH_BED_LEVELING)
+        STATIC_ITEM(MSG_MESH_LEVELING, true);                          // Mesh Leveling
+      #endif
       END_SCREEN();
     }
 
@@ -3867,11 +3892,7 @@ void lcd_init() {
 int lcd_strlen(const char* s) {
   int i = 0, j = 0;
   while (s[i]) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(s[i])) j++;
-    #endif
+    if (PRINTABLE(s[i])) j++;
     i++;
   }
   return j;
@@ -3880,11 +3901,7 @@ int lcd_strlen(const char* s) {
 int lcd_strlen_P(const char* s) {
   int j = 0;
   while (pgm_read_byte(s)) {
-    #if ENABLED(MAPPER_NON)
-      j++;
-    #else
-      if (PRINTABLE(pgm_read_byte(s))) j++;
-    #endif
+    if (PRINTABLE(pgm_read_byte(s))) j++;
     s++;
   }
   return j;
@@ -4026,12 +4043,12 @@ void lcd_update() {
                 else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
 
                 #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                  SERIAL_ECHO_START;
+                  SERIAL_ECHO_START();
                   SERIAL_ECHOPAIR("Enc Step Rate: ", encoderStepRate);
                   SERIAL_ECHOPAIR("  Multiplier: ", encoderMultiplier);
                   SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
                   SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                  SERIAL_EOL;
+                  SERIAL_EOL();
                 #endif // ENCODER_RATE_MULTIPLIER_DEBUG
               }
 
@@ -4144,28 +4161,28 @@ void lcd_update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
-#if DISABLED(STATUS_MESSAGE_SCROLLING)
-
-  void set_utf_strlen(char* s, uint8_t n) {
-    uint8_t i = 0, j = 0;
-    while (s[i] && (j < n)) {
-      #if ENABLED(MAPPER_NON)
-        j++;
-      #else
-        if (PRINTABLE(s[i])) j++;
-      #endif
-      i++;
-    }
-    while (j++ < n) s[i++] = ' ';
-    s[i] = '\0';
+void pad_message_string() {
+  uint8_t i = 0, j = 0;
+  char c;
+  while ((c = lcd_status_message[i]) && j < LCD_WIDTH) {
+    if (PRINTABLE(c)) j++;
+    i++;
   }
-
-#endif // !STATUS_MESSAGE_SCROLLING
+  if (true
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      && j < LCD_WIDTH
+    #endif
+  ) {
+    // pad with spaces to fill up the line
+    while (j++ < LCD_WIDTH) lcd_status_message[i++] = ' ';
+    // chop off at the edge
+    lcd_status_message[--i] = '\0';
+  }
+}
 
 void lcd_finishstatus(bool persist=false) {
-  #if DISABLED(STATUS_MESSAGE_SCROLLING)
-    set_utf_strlen(lcd_status_message, LCD_WIDTH);
-  #endif
+
+  pad_message_string();
 
   #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
     UNUSED(persist);
