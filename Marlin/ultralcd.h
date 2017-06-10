@@ -57,6 +57,10 @@
     void dontExpireStatus();
   #endif
 
+  #if ENABLED(ADC_KEYPAD)
+    uint8_t get_ADC_keyValue();
+  #endif
+
   #if ENABLED(DOGLCD)
     extern uint16_t lcd_contrast;
     void set_lcd_contrast(const uint16_t value);
@@ -130,6 +134,25 @@
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
+    #if ENABLED(ADC_KEYPAD)
+      #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+      #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+
+      #if BUTTON_EXISTS(ENC)
+        #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE))
+      #else
+        #define LCD_CLICKED (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+      #endif
+    #else
+      #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+      #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+      #if BUTTON_EXISTS(ENC)
+        #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
+      #else
+        #define LCD_CLICKED (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+      #endif
+    #endif
+
     #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
                                               EN_REPRAPWORLD_KEYPAD_F3 | \
                                               EN_REPRAPWORLD_KEYPAD_F2 | \
@@ -141,8 +164,8 @@
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
 
-    #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
+  #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT false
     #define LCD_CLICKED (buttons & EN_C)
   #else
     #define LCD_CLICKED false
