@@ -113,7 +113,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
-  uint16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
+  int16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
 // private:
