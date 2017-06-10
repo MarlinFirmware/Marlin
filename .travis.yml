@@ -270,6 +270,12 @@ script:
   - opt_enable NOZZLE_CLEAN_FEATURE
   - build_marlin
   #
+  # Test PCA9632
+  #
+  - restore_configs
+  - opt_enable PCA9632
+  - build_marlin
+  #
   #
   ######## STANDARD LCD/PANELS ##############
   #

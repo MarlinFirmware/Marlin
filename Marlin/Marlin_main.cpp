@@ -280,6 +280,10 @@
   #include "Wire.h"
 #endif
 
+#if ENABLED(PCA9632)
+  #include "pca9632.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -986,7 +990,7 @@ void servo_init() {
       // This variant uses i2c to send the RGB components to the device.
       SendColors(r, g, b);
 
-    #else
+    #elif ENABLED(RGB_LED) || ENABLED(RGBW_LED)
 
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
@@ -1002,6 +1006,11 @@ void servo_init() {
         analogWrite(RGB_LED_W_PIN, w);
       #endif
 
+    #endif
+    
+    #if ENABLED(PCA9632)
+      // update I2C LED driver
+      PCA9632_SetColor(r, g, b);    
     #endif
   }
 
@@ -8005,7 +8014,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     );
   }
 
-#endif // BLINKM || RGB_LED
+#endif // HAS_COLOR_LEDS
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -10613,7 +10622,7 @@ void process_next_command() {
           gcode_M150();
           break;
 
-      #endif // BLINKM
+      #endif // HAS_COLOR_LEDS
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
