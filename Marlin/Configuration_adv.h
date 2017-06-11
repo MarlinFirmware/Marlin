@@ -669,7 +669,7 @@
   #define UBL_MESH_MIN_X (X_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
-  #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
+  #define UBL_MESH_MAX_Y (Y_MAX_POS - (41))
 
   // If this is defined, the currently active mesh will be saved in the
   // current slot on M500.
