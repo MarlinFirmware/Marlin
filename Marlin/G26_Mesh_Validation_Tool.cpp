@@ -684,7 +684,8 @@
           SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
           return UBL_ERR;
         #endif
-      } else {
+      }
+      else {
         g26_prime_flag++;
         g26_prime_length = parser.value_linear_units();
         if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
@@ -727,7 +728,9 @@
       if (!parser.seen('R')) {
         SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
         return UBL_ERR;
-      } else g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+      }
+      else
+        g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
     #endif
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
