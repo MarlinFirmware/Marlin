@@ -172,7 +172,7 @@ class Temperature {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
-      static uint16_t extrude_min_temp;
+      static int16_t extrude_min_temp;
       static bool tooColdToExtrude(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
