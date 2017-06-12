@@ -9005,6 +9005,11 @@ void quickstop_stepper() {
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("Bed Leveling ", new_status ? MSG_ON : MSG_OFF);
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("Fade Height ", planner.z_fade_height);
+    #endif
+   
   }
 #endif
 
