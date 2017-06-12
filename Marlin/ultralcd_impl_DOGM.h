@@ -357,7 +357,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
   #endif
 
   if (PAGE_UNDER(7)) {
-    #if ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF)
+    #if HEATER_IDLE_HANDLER
       const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
