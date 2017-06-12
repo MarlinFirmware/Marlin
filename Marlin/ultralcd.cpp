@@ -1552,7 +1552,8 @@ void kill_screen(const char* lcd_msg) {
         lcd_synchronize();
       }
 
-    #elif ENABLED(PROBE_MANUALLY)
+    #endif
+    #if ENABLED(PROBE_MANUALLY)
 
       bool lcd_wait_for_move;
 
