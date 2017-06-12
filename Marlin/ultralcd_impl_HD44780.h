@@ -341,13 +341,13 @@ static void lcd_set_custom_characters(
         }
         else { // Custom characters for submenus
           createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-          createChar_P(LCD_REFRESH_CHAR, refresh);
+          createChar_P(LCD_STR_REFRESH[0], refresh);
           createChar_P(LCD_STR_FOLDER[0], folder);
         }
       }
     #else
       createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-      createChar_P(LCD_REFRESH_CHAR, refresh);
+      createChar_P(LCD_STR_REFRESH[0], refresh);
       createChar_P(LCD_STR_FOLDER[0], folder);
     #endif
 
