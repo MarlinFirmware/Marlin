@@ -41,6 +41,9 @@
 #if defined(__GS) && __GS >= 0
   REPORT_NAME_DIGITAL(__GS, __LINE__ )
 #endif
+#if PIN_EXISTS(ADC_KEYPAD)
+  REPORT_NAME_ANALOG(ADC_KEYPAD_PIN, __LINE__ )
+#endif
 #if PIN_EXISTS(AVR_MISO)
   REPORT_NAME_DIGITAL(AVR_MISO_PIN, __LINE__ )
 #endif

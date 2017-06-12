@@ -600,7 +600,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   lcd.print(itostr3(t1 + 0.5));
   lcd.print('/');
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HEATER_IDLE_HANDLER
     const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
@@ -841,14 +841,31 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    lcd_print_utf(lcd_status_message + status_scroll_pos);
     const uint8_t slen = lcd_strlen(lcd_status_message);
-    if (slen > LCD_WIDTH) {
+    const char *stat = lcd_status_message + status_scroll_pos;
+    if (slen <= LCD_WIDTH)
+      lcd_print_utf(stat);                                      // The string isn't scrolling
+    else {
+      if (status_scroll_pos <= slen - LCD_WIDTH)
+        lcd_print_utf(stat);                                    // The string fills the screen
+      else {
+        uint8_t chars = LCD_WIDTH;
+        if (status_scroll_pos < slen) {                         // First string still visible
+          lcd_print_utf(stat);                                  // The string leaves space
+          chars -= slen - status_scroll_pos;                    // Amount of space left
+        }
+        lcd.print('.');                                         // Always at 1+ spaces left, draw a dot
+        if (--chars) {
+          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
+            --chars, lcd.print('.');
+          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+        }
+      }
       if (last_blink != blink) {
         last_blink = blink;
         // Skip any non-printing bytes
-        while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
+        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
       }
     }
   #else

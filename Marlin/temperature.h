@@ -172,7 +172,7 @@ class Temperature {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
-      static uint16_t extrude_min_temp;
+      static int16_t extrude_min_temp;
       static bool tooColdToExtrude(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
@@ -262,7 +262,7 @@ class Temperature {
       static bool paused;
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       static millis_t heater_idle_timeout_ms[HOTENDS];
       static bool heater_idle_timeout_exceeded[HOTENDS];
       #if HAS_TEMP_BED
@@ -476,7 +476,7 @@ class Temperature {
       static bool is_paused() { return paused; }
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       static void start_heater_idle_timer(uint8_t e, millis_t timeout_ms) {
         #if HOTENDS == 1
           UNUSED(e);

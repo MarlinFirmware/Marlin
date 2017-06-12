@@ -113,7 +113,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
-  uint16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
+  int16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
 // private:
@@ -203,7 +203,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
   bool Temperature::paused;
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if HEATER_IDLE_HANDLER
   millis_t Temperature::heater_idle_timeout_ms[HOTENDS] = { 0 };
   bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
   #if HAS_TEMP_BED
@@ -558,7 +558,7 @@ float Temperature::get_pid_output(int e) {
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if HEATER_IDLE_HANDLER
         if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
           pid_output = 0;
           pid_reset[HOTEND_INDEX] = true;
@@ -570,7 +570,7 @@ float Temperature::get_pid_output(int e) {
         pid_reset[HOTEND_INDEX] = true;
       }
       else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if HEATER_IDLE_HANDLER
           || heater_idle_timeout_exceeded[HOTEND_INDEX]
         #endif
         ) {
@@ -633,7 +633,7 @@ float Temperature::get_pid_output(int e) {
     #endif // PID_DEBUG
 
   #else /* PID off */
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (heater_idle_timeout_exceeded[HOTEND_INDEX])
         pid_output = 0;
       else
@@ -719,13 +719,13 @@ void Temperature::manage_heater() {
     if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + .01)) min_temp_error(0);
   #endif
 
-  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
     millis_t ms = millis();
   #endif
 
   HOTEND_LOOP() {
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (!heater_idle_timeout_exceeded[e] && heater_idle_timeout_ms[e] && ELAPSED(ms, heater_idle_timeout_ms[e]))
         heater_idle_timeout_exceeded[e] = true;
     #endif
@@ -793,7 +793,7 @@ void Temperature::manage_heater() {
 
   #if HAS_TEMP_BED
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (!bed_idle_timeout_exceeded && bed_idle_timeout_ms && ELAPSED(ms, bed_idle_timeout_ms))
         bed_idle_timeout_exceeded = true;
     #endif
@@ -802,7 +802,7 @@ void Temperature::manage_heater() {
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (bed_idle_timeout_exceeded)
       {
         soft_pwm_amount_bed = 0;
@@ -1294,7 +1294,7 @@ void Temperature::init() {
 
     int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
       if (heater_id >= 0 && heater_idle_timeout_exceeded[heater_id]) {
         *state = TRInactive;
