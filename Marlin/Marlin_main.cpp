@@ -3529,7 +3529,7 @@ inline void gcode_G4() {
       if (leveling_is_active()) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ABL_PLANAR
-          float diff[XYZ] = {
+          const float diff[XYZ] = {
             stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
             stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
             stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
@@ -5094,6 +5094,15 @@ void home_all_axes() { gcode_G28(true); }
      *
      *   E   Engage the probe for each point
      */
+
+    void print_signed_float(const char * const prefix, const float &f) {
+      SERIAL_PROTOCOLPGM("  ");
+      serialprintPGM(prefix);
+      SERIAL_PROTOCOLCHAR(':');
+      if (f >= 0) SERIAL_CHAR('+');
+      SERIAL_PROTOCOL_F(f, 2);
+    }
+
     inline void gcode_G33() {
 
       const int8_t probe_points = parser.seen('P') ? parser.value_int() : DELTA_CALIBRATION_DEFAULT_POINTS;
@@ -5115,7 +5124,7 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       const bool towers_set = !parser.seen('T'),
-                 stow_after_each = parser.seen('E'),
+                 stow_after_each      = parser.seen('E') && parser.value_bool(),
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
@@ -5183,25 +5192,16 @@ void home_all_axes() { gcode_G28(true); }
 
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (!_1p_calibration) {
-        SERIAL_PROTOCOLPGM("    Ex:");
-        if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
-        SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
-        SERIAL_PROTOCOLPGM("  Ey:");
-        if (endstop_adj[B_AXIS] >= 0) SERIAL_CHAR('+');
-        SERIAL_PROTOCOL_F(endstop_adj[B_AXIS], 2);
-        SERIAL_PROTOCOLPGM("  Ez:");
-        if (endstop_adj[C_AXIS] >= 0) SERIAL_CHAR('+');
-        SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
+        print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
+        print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
+        print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
         SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
       }
       SERIAL_EOL();
       if (_7p_calibration && towers_set) {
-        SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
-        if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
-        SERIAL_PROTOCOL_F(delta_tower_angle_trim[A_AXIS], 2);
-        SERIAL_PROTOCOLPGM("  Ty:");
-        if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
-        SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
+        SERIAL_PROTOCOLPGM(".Tower angle :  ");
+        print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
+        print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
         SERIAL_PROTOCOLPGM("  Tz:+0.00");
         SERIAL_EOL();
       }
@@ -5351,19 +5351,12 @@ void home_all_axes() { gcode_G28(true); }
          // print report
 
         if (verbose_level != 1) {
-          SERIAL_PROTOCOLPGM(".      c:");
-          if (z_at_pt[0] > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(z_at_pt[0], 2);
+          SERIAL_PROTOCOLPGM(".    ");
+          print_signed_float(PSTR("c"), z_at_pt[0]);
           if (_4p_towers_points || _7p_calibration) {
-            SERIAL_PROTOCOLPGM("     x:");
-            if (z_at_pt[1] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[1], 2);
-            SERIAL_PROTOCOLPGM("   y:");
-            if (z_at_pt[5] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[5], 2);
-            SERIAL_PROTOCOLPGM("   z:");
-            if (z_at_pt[9] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[9], 2);
+            print_signed_float(PSTR("   x"), z_at_pt[1]);
+            print_signed_float(PSTR(" y"), z_at_pt[5]);
+            print_signed_float(PSTR(" z"), z_at_pt[9]);
           }
           if (!_4p_opposite_points) SERIAL_EOL();
           if ((_4p_opposite_points) || _7p_calibration) {
@@ -5371,15 +5364,9 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_CHAR('.');
               SERIAL_PROTOCOL_SP(13);
             }
-            SERIAL_PROTOCOLPGM("    yz:");
-            if (z_at_pt[7] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[7], 2);
-            SERIAL_PROTOCOLPGM("  zx:");
-            if (z_at_pt[11] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[11], 2);
-            SERIAL_PROTOCOLPGM("  xy:");
-            if (z_at_pt[3] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(z_at_pt[3], 2);
+            print_signed_float(PSTR("  yz"), z_at_pt[7]);
+            print_signed_float(PSTR("zx"), z_at_pt[11]);
+            print_signed_float(PSTR("xy"), z_at_pt[3]);
             SERIAL_EOL();
           }
         }
@@ -5409,25 +5396,16 @@ void home_all_axes() { gcode_G28(true); }
           }
           SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
           if (!_1p_calibration) {
-            SERIAL_PROTOCOLPGM("    Ex:");
-            if (endstop_adj[A_AXIS] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(endstop_adj[A_AXIS], 2);
-            SERIAL_PROTOCOLPGM("  Ey:");
-            if (endstop_adj[B_AXIS] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(endstop_adj[B_AXIS], 2);
-            SERIAL_PROTOCOLPGM("  Ez:");
-            if (endstop_adj[C_AXIS] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(endstop_adj[C_AXIS], 2);
+            print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
+            print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
+            print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
             SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
           }
           SERIAL_EOL();
           if (_7p_calibration && towers_set) {
-            SERIAL_PROTOCOLPGM(".Tower angle :    Tx:");
-            if (delta_tower_angle_trim[A_AXIS] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(delta_tower_angle_trim[A_AXIS], 2);
-            SERIAL_PROTOCOLPGM("  Ty:");
-            if (delta_tower_angle_trim[B_AXIS] >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(delta_tower_angle_trim[B_AXIS], 2);
+            SERIAL_PROTOCOLPGM(".Tower angle :  ");
+            print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
+            print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
             SERIAL_PROTOCOLPGM("  Tz:+0.00");
             SERIAL_EOL();
           }
