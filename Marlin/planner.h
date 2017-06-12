@@ -84,6 +84,7 @@ typedef struct {
 
   // Fields used by the Bresenham algorithm for tracing the line
   int32_t steps[NUM_AXIS];                  // Step count along each axis
+
   uint32_t step_event_count;                // The number of step events required to complete this block
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -94,9 +95,10 @@ typedef struct {
           decelerate_after,                 // The index of the step event on which to start decelerating
           acceleration_rate;                // The acceleration rate used for acceleration calculation
 
-  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
-
-  uint8_t chunk_idx;                        // Chunk index, used for chunk moves only
+  union {
+    uint8_t direction_bits;                 // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+    uint8_t chunk_idx;                      // Chunk index, used for chunk moves only
+  };
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)

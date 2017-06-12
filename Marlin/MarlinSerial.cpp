@@ -35,15 +35,12 @@
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
 
 unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE] = { { 0 } };
-uint8_t chunk_buffer_idx = 0;
 uint8_t chunk_response[NUM_CHUNK_BUFFERS] = { CHUNK_RESPONSE_NONE };
+volatile uint8_t chunk_buffer_idx = 0;
+
 volatile uint8_t chunk_respond_busy = 0;
 volatile uint32_t check_sum_failures = 0;
 volatile uint32_t chunks_done = 0;
-
-uint8_t chunk_stage = CHUNK_STAGE_WAIT;
-uint8_t chunk_buffer_iter = 0;
-unsigned char chunk_checksum = 0;
 
 #if !defined(USBCON) && (defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H))
 
@@ -150,6 +147,10 @@ unsigned char chunk_checksum = 0;
   //CHUNK RESPONSE
 
   FORCE_INLINE void store_char(unsigned char c) {
+    static uint8_t chunk_stage = CHUNK_STAGE_WAIT;
+    static uint8_t chunk_buffer_iter = 0;
+    static unsigned char chunk_checksum = 0;
+
     CRITICAL_SECTION_START;
       switch(chunk_stage) {
       case CHUNK_STAGE_COLLECT:
@@ -195,18 +196,19 @@ unsigned char chunk_checksum = 0;
       case CHUNK_STAGE_WAIT:
       default:
         if(c == CHUNK_START_CHAR) {
-          uint8_t oldIndex = chunk_buffer_idx;
+          const uint8_t oldIndex = chunk_buffer_idx;
 
           chunk_stage = CHUNK_STAGE_COLLECT;
           chunk_buffer_iter = 0;
           chunk_checksum = 0;
           chunk_buffer_idx = (uint8_t)(chunk_buffer_idx + 1) % (NUM_CHUNK_BUFFERS - 1);
 
+          if(chunk_response[chunk_buffer_idx] == CHUNK_RESPONSE_NONE)
+            break;
+
           //if chunk is still busy, drain data and respond with a busy response
-          if(chunk_response[chunk_buffer_idx] != CHUNK_RESPONSE_NONE) {
-            chunk_buffer_idx = oldIndex;
-            chunk_stage = CHUNK_STAGE_DRAIN;
-          }
+          chunk_buffer_idx = oldIndex;
+          chunk_stage = CHUNK_STAGE_DRAIN;
         } else {
           const uint8_t h = rx_buffer.head,
                         i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);

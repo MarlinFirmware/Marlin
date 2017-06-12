@@ -3266,7 +3266,7 @@ bool position_is_reachable(const float target[XYZ]
 inline void gcode_C0() {
   static uint32_t step_speed = 0;
 
-  uint8_t chunk_idx = 0;
+  uint8_t chunk_idx;
   uint8_t chunk_num = 1;
 
   if (code_seen('S'))

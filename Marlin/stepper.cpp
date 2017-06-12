@@ -807,7 +807,7 @@ void Stepper::isr() {
     if(IS_CHUNK(current_block)) {
       //sync planner position back up with stepper positions
       Planner::sync_from_steppers();
-      //temperature ISR can get drowned out under high step rate, make sure it gets run
+      //temperature ISR can get drowned out under high step rate, make sure it gets run. THIS IS PROBABLY WRONG
       Temperature::isr();
     }
 
@@ -821,35 +821,44 @@ void Stepper::isr() {
 
 void Stepper::chunk_steps() {
   const uint8_t *cur_chunk = chunk_buffer[current_block->chunk_idx];
-  const uint8_t cur_chunk_block = uint8_t(step_events_completed >> 3) << 1;
-  const uint8_t block_steps = uint8_t(step_events_completed & 0x7);
+  const uint16_t step_events_completed16 = (uint16_t)step_events_completed;
+  const uint8_t segment_idx = (uint8_t)step_events_completed16 & 0x7;
 
-  const uint8_t a = cur_chunk[cur_chunk_block];
-  const uint8_t b = cur_chunk[cur_chunk_block + 1];
+  //[step_events_completed16] / 8 * 2. Divides by 4, but makes it even.
+  const uint8_t cur_chunk_segment = uint8_t(step_events_completed16 >> 3) << 1;
+  const uint8_t a = cur_chunk[cur_chunk_segment];
+  const uint8_t b = cur_chunk[cur_chunk_segment + 1];
 
   const uint8_t dX = a >> 4;
   const uint8_t dY = a & 0xF;
   const uint8_t dZ = b >> 4;
   const uint8_t dE = b & 0xF;
 
-  uint8_t steps[4] = { 0 };
-  steps[X_AXIS] = block_moves[dX][(block_steps + 0) & 0x7];
-  steps[Y_AXIS] = block_moves[dY][(block_steps + 2) & 0x7];
-  steps[Z_AXIS] = block_moves[dZ][(block_steps + 4) & 0x7];
-  steps[E_AXIS] = block_moves[dE][(block_steps + 6) & 0x7];
+  uint8_t steps[4];
+  steps[X_AXIS] = segment_moves[dX][segment_idx];
+  steps[Y_AXIS] = segment_moves[dY][segment_idx];
+  steps[Z_AXIS] = segment_moves[dZ][segment_idx];
+  steps[E_AXIS] = segment_moves[dE][segment_idx];
 
-  //start of block, check direction
-  if(block_steps == 0) {
+  //start of segment, check direction
+  if(segment_idx == 0) {
     unsigned char dm = last_direction_bits;
 
     #define UPDATE_DIR(AXIS) \
-	  if(d## AXIS == 0) {} \
-      else if(d## AXIS < 7) SBI(dm, AXIS ##_AXIS); \
-      else CBI(dm, AXIS ##_AXIS);
+      if(d## AXIS == 7) {} \
+      else if(d## AXIS <= 7) SBI(dm, _AXIS(AXIS)); \
+      else CBI(dm, _AXIS(AXIS));
 
-    UPDATE_DIR(X);
-    UPDATE_DIR(Y);
-    UPDATE_DIR(Z);
+    #if HAS_X_STEP
+      UPDATE_DIR(X);
+    #endif
+    #if HAS_Y_STEP
+      UPDATE_DIR(Y);
+    #endif
+    #if HAS_Z_STEP
+      UPDATE_DIR(Z);
+    #endif
+
     UPDATE_DIR(E);
 
     if (dm != last_direction_bits) {
@@ -907,13 +916,12 @@ void Stepper::chunk_steps() {
 
   PULSE_STOPC(E);
 
-  //if last step of this chunk (mask last 10 bits)
-  if(((step_events_completed + 1) & 0x3FF) == 0) {
+  if(step_events_completed16 == 1023) { //last step
     //release chunk so it can be filled again
     chunk_response[current_block->chunk_idx] = CHUNK_RESPONSE_NONE;
 
     //keep iterating until we eventually reach our total step_events_completed
-    current_block->chunk_idx = (current_block->chunk_idx + 1) % (NUM_CHUNK_BUFFERS - 1);
+    current_block->chunk_idx = uint8_t(current_block->chunk_idx + 1) % (NUM_CHUNK_BUFFERS - 1);
   }
 }
 

@@ -52,7 +52,7 @@
 class Stepper;
 extern Stepper stepper;
 
-extern const uint8_t block_moves[16][8];
+extern const uint8_t segment_moves[16][8];
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -104,6 +104,7 @@ class Stepper {
 
     // Counter variables for the Bresenham line tracer
     static long counter_X, counter_Y, counter_Z, counter_E;
+
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
@@ -384,7 +385,7 @@ class Stepper {
     }
 
     static void digipot_init();
-    static void chunk_steps();
+    FORCE_INLINE static void chunk_steps();
 
     #if HAS_MICROSTEPS
       static void microstep_init();
