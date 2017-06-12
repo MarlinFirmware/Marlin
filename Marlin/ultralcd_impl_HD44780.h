@@ -1076,4 +1076,12 @@ static void lcd_implementation_status_screen() {
 
 #endif // LCD_HAS_STATUS_INDICATORS
 
+#ifdef AUTO_BED_LEVELING_UBL
+    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
+    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
+      lcd_return_to_status();          // real code.
+    }
+
+#endif // AUTO_BED_LEVELING_UBL
+
 #endif // ULTRALCD_IMPL_HD44780_H
