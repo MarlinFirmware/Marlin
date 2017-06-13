@@ -411,6 +411,7 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 inline void lcd_implementation_status_message() {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
+    const bool blink = lcd_blink();
     const uint8_t slen = lcd_strlen(lcd_status_message);
     const char *stat = lcd_status_message + status_scroll_pos;
     if (slen <= LCD_WIDTH)
@@ -424,10 +425,10 @@ inline void lcd_implementation_status_message() {
           lcd_print_utf(stat);                                  // The string leaves space
           chars -= slen - status_scroll_pos;                    // Amount of space left
         }
-        lcd.print('.');                                         // Always at 1+ spaces left, draw a dot
+        u8g.print('.');                                         // Always at 1+ spaces left, draw a dot
         if (--chars) {
           if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, lcd.print('.');
+            --chars, u8g.print('.');
           if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
         }
       }
