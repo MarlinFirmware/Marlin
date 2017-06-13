@@ -107,11 +107,15 @@
     }
   }
 
+  // display_map() currently produces three different mesh map types
+  // 0 : suitable for PronterFace and Repetier's serial console
+  // 1 : .CSV file suitable for importation into various spread sheets
+  // 2 : disply of the map data on a RepRap Graphical LCD Panel
+
   void unified_bed_leveling::display_map(const int map_type) {
-    const bool map0 = map_type == 0;
     constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
-    if (map0) {
+    if (map_type == 0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
       SERIAL_ECHO_SP(spaces + 3);
@@ -123,6 +127,9 @@
       SERIAL_EOL();
     }
 
+    if (map_type == 1) { SERIAL_PROTOCOLLNPGM("\nBed Topography Report for CSV:"); SERIAL_EOL(); }
+    if (map_type == 2) { SERIAL_PROTOCOLLNPGM("\nBed Topography Report for LCD:"); SERIAL_EOL(); }
+
     const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
                 current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
@@ -131,37 +138,37 @@
         const bool is_current = i == current_xi && j == current_yi;
 
         // is the nozzle here? then mark the number
-        if (map0) SERIAL_CHAR(is_current ? '[' : ' ');
+        if (map_type == 0) SERIAL_CHAR(is_current ? '[' : ' ');
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("    .   ") : PSTR("NAN"));
+          serialprintPGM((map_type == 0) ? PSTR("    .   ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely
-          if (map0 && f >= 0.0) SERIAL_CHAR(' ');
-          SERIAL_PROTOCOL_F(f, 3);
+          if ((map_type == 0) && f >= 0.0) SERIAL_CHAR(' ');
+          if (map_type <= 1) SERIAL_PROTOCOL_F(f, 3);
           idle();
         }
-        if (!map0 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
+        if (map_type == 1 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
 
         #if TX_BUFFER_SIZE > 0
           MYSERIAL.flushTX();
         #endif
         safe_delay(15);
-        if (map0) {
+        if (map_type == 0) {
           SERIAL_CHAR(is_current ? ']' : ' ');
           SERIAL_CHAR(' ');
         }
       }
       SERIAL_EOL();
-      if (j && map0) { // we want the (0,0) up tight against the block of numbers
+      if (j && (map_type == 0)) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL();
       }
     }
 
-    if (map0) {
+    if (map_type == 0) {
       serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
       SERIAL_ECHO_SP(spaces + 4);
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);

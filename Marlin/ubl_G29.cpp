@@ -45,6 +45,9 @@
     void lcd_mesh_edit_setup(float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
+    #ifdef DOGLCD
+      extern void _lcd_ubl_output_map_lcd();
+    #endif
     float lcd_z_offset_edit();
   #endif
 
@@ -53,6 +56,9 @@
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
+  extern bool ubl_lcd_map_control;
+  typedef void (*screenFunc_t)();
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -1191,7 +1197,7 @@
     #endif
 
     g29_map_type = parser.seen('T') && parser.has_value() ? parser.value_int() : 0;
-    if (!WITHIN(g29_map_type, 0, 1)) {
+    if (!WITHIN(g29_map_type, 0, 2)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
@@ -1535,8 +1541,8 @@
         while (ubl_lcd_clicked()) { // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
+            ubl_lcd_map_control = false;
             lcd_return_to_status();
-            //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
             LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
 
@@ -1567,6 +1573,13 @@
 
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+      if (ubl_lcd_map_control) {
+        #ifdef DOGLCD
+        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+        #endif
+      }
+      else lcd_return_to_status();
     }
   #endif
 
