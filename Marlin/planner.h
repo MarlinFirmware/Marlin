@@ -98,9 +98,13 @@ typedef struct {
           decelerate_after,                 // The index of the step event on which to start decelerating
           acceleration_rate;                // The acceleration rate used for acceleration calculation
 
-  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  union {
+    uint8_t direction_bits;                 // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
-  uint8_t chunk_idx;                        // Chunk index, used for chunk moves only
+    #if ENABLED(CHUNK_SUPPORT)
+      uint8_t chunk_idx;                    // Chunk index, used for chunk moves only
+    #endif
+  };
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)

@@ -37,15 +37,10 @@
 #if ENABLED(CHUNK_SUPPORT)
 
   unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE] = { { 0 } };
-  uint8_t chunk_buffer_idx = 0;
   uint8_t chunk_response[NUM_CHUNK_BUFFERS] = { CHUNK_RESPONSE_NONE };
   volatile uint8_t chunk_respond_busy = 0;
   volatile uint32_t check_sum_failures = 0;
   volatile uint32_t chunks_done = 0;
-
-  uint8_t chunk_stage = CHUNK_STAGE_WAIT;
-  uint8_t chunk_buffer_iter = 0;
-  unsigned char chunk_checksum = 0;
 
 #endif // CHUNK_SUPPORT
 
@@ -151,13 +146,35 @@
 
   #endif // EMERGENCY_PARSER
 
-  //CHUNK RESPONSE
+  FORCE_INLINE void buffer_char(unsigned char c) {
+    const uint8_t h = rx_buffer.head,
+                  i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
+
+    // if we should be storing the received character into the location
+    // just before the tail (meaning that the head would advance to the
+    // current location of the tail), we're about to overflow the buffer
+    // and so we don't write the character or advance the head.
+    if (i != rx_buffer.tail) {
+      rx_buffer.buffer[h] = c;
+      rx_buffer.head = i;
+    }
+  }
 
   FORCE_INLINE void store_char(unsigned char c) {
     CRITICAL_SECTION_START;
 
     #if ENABLED(CHUNK_SUPPORT)
+      static uint8_t chunk_stage = CHUNK_STAGE_WAIT,
+                     chunk_buffer_iter = 0,
+                     chunk_checksum = 0,
+                     chunk_buffer_idx = 0;
 
+      /*
+       * Chunk storage state machine. After control char is processed,
+       * start buffering the chunk directly in this ISR. After the chunk
+       * is full, wait for the checksum character and set chunk_response
+       * accordingly.
+       */
       switch (chunk_stage) {
         case CHUNK_STAGE_COLLECT:
           chunk_buffer[chunk_buffer_idx][chunk_buffer_iter++] = c;
@@ -198,47 +215,26 @@
         case CHUNK_STAGE_WAIT:
         default:
           if (c == CHUNK_START_CHAR) {
-            uint8_t oldIndex = chunk_buffer_idx;
+            const uint8_t old_idx = chunk_buffer_idx;
 
             chunk_stage = CHUNK_STAGE_COLLECT;
-            chunk_buffer_iter = 0;
-            chunk_checksum = 0;
+            chunk_buffer_iter = chunk_checksum = 0;
             if (++chunk_buffer_idx >= NUM_CHUNK_BUFFERS - 1) chunk_buffer_idx = 0;
 
             // if chunk is still busy, drain data and respond with a busy response
             if (chunk_response[chunk_buffer_idx] != CHUNK_RESPONSE_NONE) {
-              chunk_buffer_idx = oldIndex;
+              chunk_buffer_idx = old_idx;
               chunk_stage = CHUNK_STAGE_DRAIN;
             }
           }
           else {
-            const uint8_t h = rx_buffer.head,
-                          i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
-
-            // if we should be storing the received character into the location
-            // just before the tail (meaning that the head would advance to the
-            // current location of the tail), we're about to overflow the buffer
-            // and so we don't write the character or advance the head.
-            if (i != rx_buffer.tail) {
-              rx_buffer.buffer[h] = c;
-              rx_buffer.head = i;
-            }
+            buffer_char(c);
           }
       }
 
     #else // !CHUNK_SUPPORT
 
-      const uint8_t h = rx_buffer.head,
-                    i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
-
-      // if we should be storing the received character into the location
-      // just before the tail (meaning that the head would advance to the
-      // current location of the tail), we're about to overflow the buffer
-      // and so we don't write the character or advance the head.
-      if (i != rx_buffer.tail) {
-        rx_buffer.buffer[h] = c;
-        rx_buffer.head = i;
-      }
+      buffer_char(c);
 
     #endif // !CHUNK_SUPPORT
 

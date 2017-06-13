@@ -25,34 +25,35 @@
 #if ENABLED(CHUNK_SUPPORT)
 
 #include "serial.h"
-#include "temperature.h"
 
-#define BLINK_LED LED_BUILTIN
+//wavetables, 3 bit move, 1 bit direction
+//    +/- 7 pulses over 8 steps
+uint8_t segment_moves[16][8] = {
+  { 1, 1, 1, 1, 1, 1, 1, 0 }, //  0 = -7
+  { 1, 1, 1, 0, 1, 1, 1, 0 }, //  1 = -6
+  { 0, 1, 1, 0, 1, 0, 1, 1 }, //  2 = -5
+  { 0, 1, 0, 1, 0, 1, 0, 1 }, //  3 = -4
+  { 0, 1, 0, 0, 1, 0, 0, 1 }, //  4 = -3
+  { 0, 0, 1, 0, 0, 0, 1, 0 }, //  5 = -2
+  { 0, 0, 0, 0, 1, 0, 0, 0 }, //  6 = -1
 
-//wave tables, 4 bit move, +/- 7
-uint8_t block_moves[16][8] = {
-  { 1, 1, 1, 1, 1, 1, 1, 0 }, // 14 = 7
-  { 1, 1, 1, 0, 1, 1, 1, 0 }, // 13 = 6
-  { 0, 1, 1, 0, 1, 0, 1, 1 }, // 12 = 5
-  { 0, 1, 0, 1, 0, 1, 0, 1 }, // 11 = 4
-  { 0, 1, 0, 0, 1, 0, 0, 1 }, // 10 = 3
-  { 0, 0, 1, 0, 0, 0, 1, 0 }, //  9 = 2
-  { 0, 0, 0, 0, 1, 0, 0, 0 }, //  8 = 1
+  { 0, 0, 0, 0, 0, 0, 0, 0 }, //  7 =  0
 
-  { 0, 0, 0, 0, 0, 0, 0, 0 }, //  7 = 0
+  { 0, 0, 0, 0, 1, 0, 0, 0 }, //  8 =  1
+  { 0, 0, 1, 0, 0, 0, 1, 0 }, //  9 =  2
+  { 0, 1, 0, 0, 1, 0, 0, 1 }, // 10 =  3
+  { 0, 1, 0, 1, 0, 1, 0, 1 }, // 11 =  4
+  { 0, 1, 1, 0, 1, 0, 1, 1 }, // 12 =  5
+  { 1, 1, 1, 0, 1, 1, 1, 0 }, // 13 =  6
+  { 1, 1, 1, 1, 1, 1, 1, 0 }, // 14 =  7
 
-  { 0, 0, 0, 0, 1, 0, 0, 0 }, //  8 = 1
-  { 0, 0, 1, 0, 0, 0, 1, 0 }, //  9 = 2
-  { 0, 1, 0, 0, 1, 0, 0, 1 }, // 10 = 3
-  { 0, 1, 0, 1, 0, 1, 0, 1 }, // 11 = 4
-  { 0, 1, 1, 0, 1, 0, 1, 1 }, // 12 = 5
-  { 1, 1, 1, 0, 1, 1, 1, 0 }, // 13 = 6
-  { 1, 1, 1, 1, 1, 1, 1, 0 }, // 14 = 7
   { 0 }
 };
 
 void send_chunk_ok() {
-  static uint8_t chunk_respond_busy_done = 0;
+  static uint8_t chunk_respond_busy_done = 0,
+                 last_response_index = 0;
+  const  uint8_t last_response_index_start = last_response_index;
 
   //concurrently keep up with response counter, should auto roll over
   while (chunk_respond_busy_done != chunk_respond_busy) {
@@ -60,23 +61,25 @@ void send_chunk_ok() {
     chunk_respond_busy_done++;
   }
 
-  //TODO: this needs to somehow respect ordering. Should we start from the current index?
-  for (int n = 0 ; n < NUM_CHUNK_BUFFERS ; n++) {
-    const int i = (uint8_t)(chunk_buffer_idx + n) % (NUM_CHUNK_BUFFERS - 1);
+  //loop through every bucket, start 1 after the index of the last response we gave
+  for(uint8_t i = 1 ; i < (NUM_CHUNK_BUFFERS + 1) ; i++) {
+    const uint8_t idx = (last_response_index_start + i) % (NUM_CHUNK_BUFFERS - 1);
 
-    switch (chunk_response[i]) {
+    switch (chunk_response[idx]) {
       case CHUNK_RESPONSE_NONE:
       case CHUNK_RESPONSE_PENDING:
         break;
 
       case CHUNK_RESPONSE_OK:
-        SERIAL_PROTOCOLLNPAIR("!ok ", i);
-        chunk_response[i] = CHUNK_RESPONSE_PENDING;
+        SERIAL_PROTOCOLLNPAIR("!ok ", idx);
+        chunk_response[idx] = CHUNK_RESPONSE_PENDING;
+        last_response_index = idx;
         break;
 
       case CHUNK_RESPONSE_FAIL:
-        SERIAL_PROTOCOLLNPGM("!fail");
-        chunk_response[i] = CHUNK_RESPONSE_NONE;
+        SERIAL_PROTOCOLLNPAIR("!fail ", idx);
+        chunk_response[idx] = CHUNK_RESPONSE_NONE;
+        last_response_index = idx;
         break;
     }
   }

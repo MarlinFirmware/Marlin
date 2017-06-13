@@ -855,7 +855,7 @@ void Stepper::isr() {
         // sync planner position back up with stepper positions
         planner.sync_from_steppers();
         // temperature ISR can get drowned out under high step rate, make sure it gets run
-        Temperature::isr();
+        //if(current_block->nominal_rate > 15000) Temperature::isr();
       }
 
     #endif
@@ -871,36 +871,49 @@ void Stepper::isr() {
 #if ENABLED(CHUNK_SUPPORT)
 
   void Stepper::chunk_steps() {
+    const uint16_t step_events_completed16 = (uint16_t)step_events_completed;
     const uint8_t *cur_chunk = chunk_buffer[current_block->chunk_idx],
-                  cur_chunk_block = uint8_t(step_events_completed >> 3) << 1,
-                  block_steps = uint8_t(step_events_completed & 0x7),
+                  cur_chunk_block = uint8_t(step_events_completed16 >> 3) << 1,
+                  segment_steps = (uint8_t)step_events_completed16 & 0x7,
 
                   a = cur_chunk[cur_chunk_block],
                   b = cur_chunk[cur_chunk_block + 1],
 
+                  //XXXXYYYY ZZZZEEEE   2 byte segment format
+                  //4 bits per 8 steps, offset by 7: [0 to 15] -> [-7 to 8]
                   dX = a >> 4,
                   dY = a & 0xF,
                   dZ = b >> 4,
-                  dE = b & 0xF;
+                  dE = b & 0xF,
 
-    uint8_t steps[4] = { 0 };
-    steps[X_AXIS] = block_moves[dX][(block_steps + 0) & 0x7];
-    steps[Y_AXIS] = block_moves[dY][(block_steps + 2) & 0x7];
-    steps[Z_AXIS] = block_moves[dZ][(block_steps + 4) & 0x7];
-    steps[E_AXIS] = block_moves[dE][(block_steps + 6) & 0x7];
+                  //Look up if we have a pulse for the current
+                  //frequency (dX) at this step in the segment.
+                  //Stagger lookups for noise reduction.
+                  stepX = segment_moves[dX][(segment_steps + 0) & 0x7],
+                  stepY = segment_moves[dY][(segment_steps + 2) & 0x7],
+                  stepZ = segment_moves[dZ][(segment_steps + 4) & 0x7],
+                  stepE = segment_moves[dE][(segment_steps + 6) & 0x7];
 
-    // Start of block? Check directions.
-    if (block_steps == 0) {
+    // Start of segment? Check directions.
+    if (segment_steps == 0) {
       unsigned char dm = last_direction_bits;
 
+      //check directions using dX, dY, etc.
       #define UPDATE_DIR(AXIS) \
-  	  if (d## AXIS == 0) {} \
-        else if (d## AXIS < 7) SBI(dm, AXIS ##_AXIS); \
-        else CBI(dm, AXIS ##_AXIS);
+  	    if (d## AXIS == 7) {} \
+        else if (d## AXIS < 7) SBI(dm, _AXIS(AXIS)); \
+        else CBI(dm, _AXIS(AXIS));
 
-      UPDATE_DIR(X);
-      UPDATE_DIR(Y);
-      UPDATE_DIR(Z);
+      #if HAS_X_STEP
+        UPDATE_DIR(X);
+      #endif
+      #if HAS_Y_STEP
+        UPDATE_DIR(Y);
+      #endif
+      #if HAS_Z_STEP
+        UPDATE_DIR(Z);
+      #endif
+
       UPDATE_DIR(E);
 
       if (dm != last_direction_bits) {
@@ -910,11 +923,11 @@ void Stepper::isr() {
     }
 
     #define PULSE_STARTC(AXIS) \
-      if (steps[_AXIS(AXIS)]) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); }
+      if (step## AXIS) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); }
 
-    // Stop an active pulse, reset the Bresenham counter, update the position
+    // Stop an active pulse, update the position
     #define PULSE_STOPC(AXIS) \
-      if (steps[_AXIS(AXIS)]) { \
+      if (step## AXIS) { \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
         _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
       }
@@ -974,8 +987,8 @@ void Stepper::isr() {
       #endif
     #endif // !ADVANCE && !LIN_ADVANCE
 
-    //if last step of this chunk (mask last 10 bits)
-    if (((step_events_completed + 1) & 0x3FF) == 0) {
+    //if last step of this chunk (manual modulo)
+    if((step_events_completed16 & 0x3FF) == 0x3FF) {
       //release chunk so it can be filled again
       chunk_response[current_block->chunk_idx] = CHUNK_RESPONSE_NONE;
 

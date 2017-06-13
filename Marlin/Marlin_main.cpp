@@ -5668,7 +5668,9 @@ inline void gcode_G92() {
   else if (didE)
     sync_plan_position_e();
 
-  //report_current_position();
+  #if DISABLED(CHUNK_SUPPORT)
+    report_current_position();
+  #endif
 }
 
 #if HAS_RESUME_CONTINUE
@@ -10249,7 +10251,6 @@ void process_next_command() {
           break;
       }
       break;
-
     #endif // CHUNK_SUPPORT
 
     case 'G': switch (parser.codenum) {
@@ -12904,7 +12905,9 @@ void setup() {
     move_nozzle_servo(0);  // Initialize nozzle servo
   #endif
 
-  SERIAL_PROTOCOLLNPGM("setup_done");
+  #if ENABLED(CHUNK_SUPPORT)
+    SERIAL_PROTOCOLLNPGM("setup_done");
+  #endif
 }
 
 /**

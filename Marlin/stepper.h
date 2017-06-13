@@ -53,7 +53,7 @@ class Stepper;
 extern Stepper stepper;
 
 #if ENABLED(CHUNK_SUPPORT)
-  extern const uint8_t block_moves[16][8];
+  extern const uint8_t segment_moves[16][8];
 #endif
 
 // intRes = intIn1 * intIn2 >> 16
@@ -388,7 +388,7 @@ class Stepper {
     static void digipot_init();
 
     #if ENABLED(CHUNK_SUPPORT)
-      static void chunk_steps();
+      static FORCE_INLINE void chunk_steps();
     #endif
 
     #if HAS_MICROSTEPS

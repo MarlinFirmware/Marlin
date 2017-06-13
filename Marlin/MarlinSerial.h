@@ -92,7 +92,6 @@
   #define CHUNK_RESPONSE_FAIL 3
 
   extern unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE];
-  extern uint8_t chunk_buffer_idx;
   extern uint8_t chunk_response[NUM_CHUNK_BUFFERS];
   extern volatile uint8_t chunk_respond_busy;
   extern volatile uint32_t check_sum_failures;
