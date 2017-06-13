@@ -328,8 +328,11 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
-  extern bool defer_return_to_status;
-  extern bool ubl_lcd_map_control;
+  #if ENABLED(ULTRA_LCD)
+    extern bool ubl_lcd_map_control;
+    extern bool defer_return_to_status;
+    extern void lcd_return_to_status();
+  #endif
   unified_bed_leveling ubl;
   #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
                            && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
@@ -7650,7 +7653,7 @@ inline void gcode_M18_M84() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  //only needed if have an LCD
       ubl_lcd_map_control = false;
-      defer_return_to_status = false;
+      lcd_return_to_status();
     #endif
 
   }
