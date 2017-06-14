@@ -56,15 +56,16 @@ void safe_delay(millis_t ms) {
   #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
 
-  // Convert unsigned int to string with 12 format
-  char* itostr2(const uint8_t &xx) {
-    conv[5] = DIGIMOD(xx, 10);
+  // Convert unsigned int to string 123 format
+  char* i8tostr3(const uint8_t xx) {
+    conv[4] = RJDIGIT(xx, 100);
+    conv[5] = RJDIGIT(xx, 10);
     conv[6] = DIGIMOD(xx, 1);
-    return &conv[5];
+    return &conv[4];
   }
 
   // Convert signed int to rj string with 123 or -12 format
-  char* itostr3(const int &x) {
+  char* itostr3(const int x) {
     int xx = x;
     conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
     conv[5] = RJDIGIT(xx, 10);
@@ -73,7 +74,7 @@ void safe_delay(millis_t ms) {
   }
 
   // Convert unsigned int to lj string with 123 format
-  char* itostr3left(const int &xx) {
+  char* itostr3left(const int xx) {
     char *str = &conv[6];
     *str = DIGIMOD(xx, 1);
     if (xx >= 10) {
@@ -85,7 +86,7 @@ void safe_delay(millis_t ms) {
   }
 
   // Convert signed int to rj string with 1234, _123, -123, _-12, or __-1 format
-  char *itostr4sign(const int &x) {
+  char *itostr4sign(const int x) {
     const bool neg = x < 0;
     const int xx = neg ? -x : x;
     if (x >= 1000) {
