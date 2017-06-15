@@ -424,10 +424,10 @@ inline void lcd_implementation_status_message() {
           lcd_print_utf(stat);                                  // The string leaves space
           chars -= slen - status_scroll_pos;                    // Amount of space left
         }
-        lcd.print('.');                                         // Always at 1+ spaces left, draw a dot
+        u8g.print('.');                                         // Always at 1+ spaces left, draw a dot
         if (--chars) {
           if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, lcd.print('.');
+            --chars, u8g.print('.');
           if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
         }
       }
