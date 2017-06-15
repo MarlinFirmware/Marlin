@@ -1482,6 +1482,9 @@
 //define BlinkM/CyzRgb Support
 //#define BLINKM
 
+//define PCA9632 PWM LED driver Support
+//#define PCA9632
+
 /**
  * RGB LED / LED Strip Control
  *
@@ -1519,7 +1522,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632)
   #define PRINTER_EVENT_LEDS
 #endif
 
