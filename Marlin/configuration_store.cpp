@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V38"
+#define EEPROM_VERSION "V39"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V38 EEPROM Layout:
+ * V39 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -156,8 +156,11 @@
  *  580  M900 K    extruder_advance_k               (float)
  *  584  M900 WHD  advance_ed_ratio                 (float)
  *
- *  588                                Minimum end-point
- * 1909 (588 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  588  M907 X    stepper xy current
+ *  592  M907 Z    stepper z current
+ *  596  M907 E    stepper e current
+ *  600                                Minimum end-point
+ * 1921 (600 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -177,6 +180,7 @@ MarlinSettings settings;
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
+#include "stepper.h"
 
 #if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
   #include "gcode.h"
@@ -626,6 +630,15 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(dummy);
     #endif
 
+    #if HAS_MOTOR_CURRENT_PWM
+      for (uint8_t q = 3; q--;)
+        EEPROM_WRITE(stepper.motor_current_setting[q]);
+    #else
+      dummy = 0.0f;
+      for (uint8_t q = 3; q--;)
+        EEPROM_WRITE(dummy);
+    #endif
+
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
@@ -979,6 +992,14 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummy);
       #endif
 
+      #if HAS_MOTOR_CURRENT_PWM
+        for (uint8_t q = 3; q--;)
+          EEPROM_READ(stepper.motor_current_setting[q]);
+      #else
+        for (uint8_t q = 3; q--;)
+          EEPROM_READ(dummy);
+      #endif
+
       if (working_crc == stored_crc) {
           postprocess();
           SERIAL_ECHO_START();
@@ -1307,6 +1328,16 @@ void MarlinSettings::reset() {
   #if ENABLED(LIN_ADVANCE)
     planner.extruder_advance_k = LIN_ADVANCE_K;
     planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
+  #endif
+
+  #if HAS_MOTOR_CURRENT_PWM
+    unsigned long tmp_motor_current_setting[3]= PWM_MOTOR_CURRENT;
+    for (uint8_t q = 3; q--;)
+      stepper.motor_current_setting[q] = tmp_motor_current_setting[q];
+  
+    stepper.digipot_current(0, stepper.motor_current_setting[0]);
+    stepper.digipot_current(1, stepper.motor_current_setting[1]);
+    stepper.digipot_current(2, stepper.motor_current_setting[2]);
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1788,6 +1819,18 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR("  M900 K", planner.extruder_advance_k);
       SERIAL_ECHOLNPAIR(" R", planner.advance_ed_ratio);
     #endif
+
+    #if HAS_MOTOR_CURRENT_PWM
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Stepper motor currents:");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M907 X", stepper.motor_current_setting[0]);
+      SERIAL_ECHOPAIR(" Z", stepper.motor_current_setting[1]);
+      SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
+      SERIAL_EOL();
+    #endif	
   }
 
 #endif // !DISABLE_M503
