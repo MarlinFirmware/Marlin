@@ -45,7 +45,7 @@
     void lcd_mesh_edit_setup(float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
-    #ifdef DOGLCD
+    #if ENABLED(DOGLCD)
       extern void _lcd_ubl_output_map_lcd();
     #endif
     float lcd_z_offset_edit();
@@ -1575,7 +1575,7 @@
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
       if (ubl_lcd_map_control) {
-        #ifdef DOGLCD
+        #if ENABLED(DOGLCD)
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
         #endif
       }

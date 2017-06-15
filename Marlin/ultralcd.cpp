@@ -257,7 +257,7 @@ uint16_t max_display_update_time = 0;
       _skipStatic = false; \
       _MENU_ITEM_PART_1(TYPE, ## __VA_ARGS__); \
       _MENU_ITEM_PART_2(TYPE, LABEL, ## __VA_ARGS__); \
-    } while(0)
+    }while(0)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
 
@@ -289,13 +289,13 @@ uint16_t max_display_update_time = 0;
         encoderRateMultiplierEnabled = true; \
         lastEncoderMovementMillis = 0; \
         _MENU_ITEM_PART_2(type, label, ## __VA_ARGS__); \
-      } while(0)
+      }while(0)
 
   #else // !ENCODER_RATE_MULTIPLIER
     #define ENCODER_RATE_MULTIPLY(F) NOOP
   #endif // !ENCODER_RATE_MULTIPLIER
 
-  #define MENU_ITEM_DUMMY() do { _thisItemNr++; } while(0)
+  #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
   #define MENU_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #define MENU_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -2075,19 +2075,19 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_command(ubl_lcd_gcode);
     }
 
-  #ifdef DOGLCD
+  #if ENABLED(DOGLCD)
 
     /**
      * UBL LCD "radar" map data
      */
-  #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
-  #define MAP_UPPER_LEFT_CORNER_Y 8  // it is easier to play with things having them here
-  #define MAP_MAX_PIXELS_X        53
-  #define MAP_MAX_PIXELS_Y        49
+    #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
+    #define MAP_UPPER_LEFT_CORNER_Y 8   // it is easier to play with things having them here
+    #define MAP_MAX_PIXELS_X        53
+    #define MAP_MAX_PIXELS_Y        49
 
     void _lcd_ubl_plot_drawing_prep() {
-      uint8_t i, j, x_offset, y_offset, x_map_pixels, y_map_pixels;
-      uint8_t pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt, inverted_y;
+      uint8_t i, j, x_offset, y_offset, x_map_pixels, y_map_pixels,
+              pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt, inverted_y;
 
       /*********************************************************/
       /************ Scale the box pixels appropriately *********/
@@ -2098,15 +2098,15 @@ void kill_screen(const char* lcd_msg) {
       pixels_per_X_mesh_pnt = x_map_pixels / GRID_MAX_POINTS_X;
       pixels_per_Y_mesh_pnt = y_map_pixels / GRID_MAX_POINTS_Y;
 
-      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X-x_map_pixels-2)/2;
-      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y-y_map_pixels-2)/2;
+      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2;
+      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
 
       /*********************************************************/
       /************ Clear the Mesh Map Box**********************/
       /*********************************************************/
 
       u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
-      u8g.drawBox(x_offset-2, y_offset-2, x_map_pixels+4, y_map_pixels+4);
+      u8g.drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
 
       u8g.setColorIndex(0);  // Now actually clear the mesh map box
       u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
@@ -2118,8 +2118,8 @@ void kill_screen(const char* lcd_msg) {
       u8g.setColorIndex(1);
       for (i = 0; i < GRID_MAX_POINTS_X; i++) {
         for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
-          u8g.drawBox(x_offset+i*pixels_per_X_mesh_pnt+pixels_per_X_mesh_pnt/2,  
-                      y_offset+j*pixels_per_Y_mesh_pnt+pixels_per_Y_mesh_pnt/2, 1, 1);
+          u8g.drawBox(x_offset + i * pixels_per_X_mesh_pnt + pixels_per_X_mesh_pnt / 2,
+                      y_offset + j * pixels_per_Y_mesh_pnt + pixels_per_Y_mesh_pnt / 2, 1, 1);
         }
       }
 
@@ -2127,9 +2127,9 @@ void kill_screen(const char* lcd_msg) {
       /************ Fill in the Specified Mesh Point ***********/
       /*********************************************************/
 
-      inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to 
+      inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to
                                                       // invert the Y to get it to plot in the right location.
-      u8g.drawBox(x_offset+x_plot*pixels_per_X_mesh_pnt, y_offset+inverted_y*pixels_per_Y_mesh_pnt, 
+      u8g.drawBox(x_offset + x_plot * pixels_per_X_mesh_pnt, y_offset + inverted_y * pixels_per_Y_mesh_pnt,
                     pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt);
 
       /*********************************************************/
@@ -2147,11 +2147,11 @@ void kill_screen(const char* lcd_msg) {
 
       // Print plot position
       u8g.setPrintPos(5, 64);
-      lcd_print("(");
+      lcd_print('(');
       u8g.print(x_plot);
-      lcd_print(",");
+      lcd_print(',');
       u8g.print(y_plot);
-      lcd_print(")");
+      lcd_print(')');
 
       // Show the location value
       u8g.setPrintPos(74, 64);
@@ -2262,7 +2262,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_output_map_lcd_cmd() {
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         enqueue_and_echo_commands_P(PSTR("G28"));
-      lcd_goto_screen(_lcd_ubl_map_homing);     
+      lcd_goto_screen(_lcd_ubl_map_homing);
     }
 
     /**
@@ -3624,7 +3624,7 @@ void kill_screen(const char* lcd_msg) {
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
       } \
       ++_thisItemNr; \
-    } while(0)
+    }while(0)
 
     void lcd_advanced_pause_toocold_menu() {
       START_MENU();
