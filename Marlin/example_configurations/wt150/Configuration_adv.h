@@ -428,7 +428,7 @@
 #define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 5 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
 // Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {0.68, 0.68, 1.18, 1.27, 1.27}
+#define DIGIPOT_I2C_MOTOR_CURRENTS {0.22, 0.22, 0.39, 0.42, 0.42}
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -670,6 +670,10 @@
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
+
+  // If this is defined, the currently active mesh will be saved in the
+  // current slot on M500.
+  #define UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 // @section extras
@@ -795,7 +799,7 @@
                                               // Longer length for bowden printers to unload filament from whole bowden tube,
                                               // shorter length for printers without bowden to unload filament from extruder only,
                                               // 0 to disable unloading for manual unloading
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
   #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
                                               // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                               // Short or zero length for printers without bowden where loading is not used
@@ -1260,8 +1264,91 @@
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  //#define USER_DESC_5 "Home & Info"
-  //#define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
+#endif
+
+//===========================================================================
+//============================ I2C Encoder Settings =========================
+//===========================================================================
+/**
+ *  I2C position encoders for closed loop control.
+ *  Developed by Chris Barr at Aus3D.
+ *
+ *  Wiki: http://wiki.aus3d.com.au/Magnetic_Encoder
+ *  Github: https://github.com/Aus3D/MagneticEncoder
+ *
+ *  Supplier: http://aus3d.com.au/magnetic-encoder-module
+ *  Alternative Supplier: http://reliabuild3d.com/
+ *
+ *  Reilabuild encoders have been modified to improve reliability.
+ */
+
+//#define I2C_POSITION_ENCODERS
+#if ENABLED(I2C_POSITION_ENCODERS)
+
+  #define I2CPE_ENCODER_CNT         1                       // The number of encoders installed; max of 5
+                                                            // encoders supported currently.
+
+  #define I2CPE_ENC_1_ADDR          I2CPE_PRESET_ADDR_X     // I2C address of the encoder. 30-200.
+  #define I2CPE_ENC_1_AXIS          X_AXIS                  // Axis the encoder module is installed on.  <X|Y|Z|E>_AXIS.
+  #define I2CPE_ENC_1_TYPE          I2CPE_ENC_TYPE_LINEAR   // Type of encoder:  I2CPE_ENC_TYPE_LINEAR -or-
+                                                            // I2CPE_ENC_TYPE_ROTARY.
+  #define I2CPE_ENC_1_TICKS_UNIT    2048                    // 1024 for magnetic strips with 2mm poles; 2048 for
+                                                            // 1mm poles. For linear encoders this is ticks / mm,
+                                                            // for rotary encoders this is ticks / revolution.
+  //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders; number of stepper
+                                                            // steps per full revolution (motor steps/rev * microstepping)
+  //#define I2CPE_ENC_1_INVERT                              // Invert the direction of axis travel.
+  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_NONE          // Type of error error correction.
+  #define I2CPE_ENC_1_EC_THRESH     0.10                    // Threshold size for error (in mm) above which the
+                                                            // printer will attempt to correct the error; errors
+                                                            // smaller than this are ignored to minimize effects of
+                                                            // measurement noise / latency (filter).
+
+  #define I2CPE_ENC_2_ADDR          I2CPE_PRESET_ADDR_Y     // Same as above, but for encoder 2.
+  #define I2CPE_ENC_2_AXIS          Y_AXIS
+  #define I2CPE_ENC_2_TYPE          I2CPE_ENC_TYPE_LINEAR
+  #define I2CPE_ENC_2_TICKS_UNIT    2048
+  //#define I2CPE_ENC_2_TICKS_REV   (16 * 200)
+  //#define I2CPE_ENC_2_INVERT
+  #define I2CPE_ENC_2_EC_METHOD     I2CPE_ECM_NONE
+  #define I2CPE_ENC_2_EC_THRESH     0.10
+
+  #define I2CPE_ENC_3_ADDR          I2CPE_PRESET_ADDR_Z     // Encoder 3.  Add additional configuration options
+  #define I2CPE_ENC_3_AXIS          Z_AXIS                  // as above, or use defaults below.
+
+  #define I2CPE_ENC_4_ADDR          I2CPE_PRESET_ADDR_E     // Encoder 4.
+  #define I2CPE_ENC_4_AXIS          E_AXIS
+
+  #define I2CPE_ENC_5_ADDR          34                      // Encoder 5.
+  #define I2CPE_ENC_5_AXIS          E_AXIS
+
+  // Default settings for encoders which are enabled, but without settings configured above.
+  #define I2CPE_DEF_TYPE            I2CPE_ENC_TYPE_LINEAR
+  #define I2CPE_DEF_ENC_TICKS_UNIT  2048
+  #define I2CPE_DEF_TICKS_REV       (16 * 200)
+  #define I2CPE_DEF_EC_METHOD       I2CPE_ECM_NONE
+  #define I2CPE_DEF_EC_THRESH       0.1
+
+  //#define I2CPE_ERR_THRESH_ABORT  100.0                   // Threshold size for error (in mm) error on any given
+                                                            // axis after which the printer will abort. Comment out to
+                                                            // disable abort behaviour.
+
+  #define I2CPE_TIME_TRUSTED        10000                   // After an encoder fault, there must be no further fault
+                                                            // for this amount of time (in ms) before the encoder
+                                                            // is trusted again.
+
+  /**
+   * Position is checked every time a new command is executed from the buffer but during long moves,
+   * this setting determines the minimum update time between checks. A value of 100 works well with
+   * error rolling average when attempting to correct only for skips and not for vibration.
+   */
+  #define I2CPE_MIN_UPD_TIME_MS     100                     // Minimum time in miliseconds between encoder checks.
+
+  // Use a rolling average to identify persistant errors that indicate skips, as opposed to vibration and noise.
+  #define I2CPE_ERR_ROLLING_AVERAGE
+
 #endif
 
 //===========================================================================
