@@ -1098,9 +1098,11 @@ void kill_screen(const char* lcd_msg) {
     #endif // HOTENDS > 1
   #endif // HAS_TEMP_HOTEND
 
-  #if WATCH_THE_BED
-    void watch_temp_callback_bed() { thermalManager.start_watching_bed(); }
-  #endif
+  void watch_temp_callback_bed() {
+    #if WATCH_THE_BED
+      thermalManager.start_watching_bed();
+    #endif
+  }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -1162,7 +1164,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if WATCH_THE_BED
+    #if HAS_TEMP_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
@@ -1810,7 +1812,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_build_custom_mesh() {
       char UBL_LCD_GCODE[20];
       enqueue_and_echo_commands_P(PSTR("G28"));
-      #if WATCH_THE_BED
+      #if HAS_TEMP_BED
         sprintf_P(UBL_LCD_GCODE, PSTR("M190 S%i"), custom_bed_temp);
         enqueue_and_echo_command(UBL_LCD_GCODE);
       #endif
@@ -1826,7 +1828,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_BUILD_MESH_MENU);
       MENU_ITEM_EDIT(int3, MSG_UBL_CUSTOM_HOTEND_TEMP, &custom_hotend_temp, EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP - 10));
-      #if WATCH_THE_BED
+      #if HAS_TEMP_BED
         MENU_ITEM_EDIT(int3, MSG_UBL_CUSTOM_BED_TEMP, &custom_bed_temp, BED_MINTEMP, (BED_MAXTEMP - 5));
       #endif
       MENU_ITEM(function, MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_build_custom_mesh);
@@ -1875,7 +1877,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_validate_custom_mesh() {
       char UBL_LCD_GCODE[24];
       const int temp =
-        #if WATCH_THE_BED
+        #if HAS_TEMP_BED
           custom_bed_temp
         #else
           0
@@ -1891,7 +1893,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_validate_mesh() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      #if WATCH_THE_BED
+      #if HAS_TEMP_BED
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_PLA_MESH, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_1_TEMP_BED) " H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_ABS_MESH, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_2_TEMP_BED) " H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
       #else
@@ -1978,7 +1980,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_build_mesh() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      #if WATCH_THE_BED
+      #if HAS_TEMP_BED
         MENU_ITEM(gcode, MSG_UBL_BUILD_PLA_MESH, PSTR(
           "G28\n"
           "M190 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\n"
@@ -2968,7 +2970,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if WATCH_THE_BED
+    #if HAS_TEMP_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
