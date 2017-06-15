@@ -752,7 +752,7 @@ void report_current_position_detail();
   #endif
 
   #define DEBUG_POS(SUFFIX,VAR) do { \
-    print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
+    print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
 #endif
 
 /**
@@ -3492,20 +3492,20 @@ inline void gcode_G4() {
       SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
       SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
       SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
-      #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
+      #if X_PROBE_OFFSET_FROM_EXTRUDER > 0
         SERIAL_ECHOPGM(" (Right");
-      #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
+      #elif X_PROBE_OFFSET_FROM_EXTRUDER < 0
         SERIAL_ECHOPGM(" (Left");
-      #elif (Y_PROBE_OFFSET_FROM_EXTRUDER != 0)
+      #elif Y_PROBE_OFFSET_FROM_EXTRUDER != 0
         SERIAL_ECHOPGM(" (Middle");
       #else
         SERIAL_ECHOPGM(" (Aligned With");
       #endif
-      #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
+      #if Y_PROBE_OFFSET_FROM_EXTRUDER > 0
         SERIAL_ECHOPGM("-Back");
-      #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
+      #elif Y_PROBE_OFFSET_FROM_EXTRUDER < 0
         SERIAL_ECHOPGM("-Front");
-      #elif (X_PROBE_OFFSET_FROM_EXTRUDER != 0)
+      #elif X_PROBE_OFFSET_FROM_EXTRUDER != 0
         SERIAL_ECHOPGM("-Center");
       #endif
       if (zprobe_zoffset < 0)
@@ -5109,7 +5109,7 @@ void home_all_axes() { gcode_G28(true); }
 
       const int8_t probe_points = parser.seen('P') ? parser.value_int() : DELTA_CALIBRATION_DEFAULT_POINTS;
       if (!WITHIN(probe_points, 1, 7)) {
-        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1-7).");
+        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1 to 7).");
         return;
       }
 
@@ -11279,7 +11279,7 @@ void ok_to_send() {
     delta[A_AXIS] = DELTA_Z(A_AXIS); \
     delta[B_AXIS] = DELTA_Z(B_AXIS); \
     delta[C_AXIS] = DELTA_Z(C_AXIS); \
-  } while(0)
+  }while(0)
 
   #define DELTA_LOGICAL_IK() do {      \
     const float raw[XYZ] = {           \
@@ -11288,7 +11288,7 @@ void ok_to_send() {
       RAW_Z_POSITION(logical[Z_AXIS])  \
     };                                 \
     DELTA_RAW_IK();                    \
-  } while(0)
+  }while(0)
 
   #define DELTA_DEBUG() do { \
       SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
@@ -11297,7 +11297,7 @@ void ok_to_send() {
       SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
       SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
       SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
-    } while(0)
+    }while(0)
 
   void inverse_kinematics(const float logical[XYZ]) {
     DELTA_LOGICAL_IK();
