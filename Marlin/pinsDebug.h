@@ -41,7 +41,7 @@ bool endstop_monitor_flag = false;
 
 // first pass - put the name strings into FLASH
 
-#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const unsigned char ENTRY_NAME[] PROGMEM = { PIN_NAME };
+#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const char ENTRY_NAME[] PROGMEM = { PIN_NAME };
 #define _ADD_PIN(PIN_NAME, COUNTER) _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
 #define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
@@ -64,12 +64,18 @@ bool endstop_monitor_flag = false;
 #undef REPORT_NAME_DIGITAL
 #undef REPORT_NAME_ANALOG
 
-#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { (const char*)ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL },
+#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { ENTRY_NAME, NAME, IS_DIGITAL },
 #define _ADD_PIN(NAME, COUNTER, IS_DIGITAL) _ADD_PIN_2(entry_NAME_##COUNTER, NAME, IS_DIGITAL)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, (uint8_t)1)
-#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, 0)
+#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, true)
+#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
 
-const char* const pin_array[][3] PROGMEM = {
+typedef struct {
+  const char * const name;
+  uint8_t pin;
+  bool is_digital;
+} PinInfo;
+
+const PinInfo pin_array[] PROGMEM = {
 
   /**
    *  [pin name]  [pin number]  [is digital or analog]  1 = digital, 0 = analog
@@ -83,20 +89,18 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      { RXD_NAME, 0, 1 },
-      { TXD_NAME, 1, 1 },
+      { RXD_NAME, 0, true },
+      { TXD_NAME, 1, true },
     #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME, 8, 1 },
-      { TXD_NAME, 9, 1 },
+      { RXD_NAME, 8, true },
+      { TXD_NAME, 9, true },
     #endif
   #endif
 
   #include "pinsDebug_list.h"
-  #line 96
+  #line 102
 
 };
-
-#define n_array (sizeof(pin_array) / sizeof(char*)) / 3
 
 #define AVR_ATmega2560_FAMILY_PLUS_70 (MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D \
 || MOTHERBOARD == BOARD_MIGHTYBOARD_REVE \
@@ -439,12 +443,12 @@ static void print_input_or_output(const bool isout) {
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false,const char *start_string = "") {
+inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
   uint8_t temp_char;
   char *name_mem_pointer, buffer[30];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
-  for (uint8_t x = 0; x < n_array; x++)  {    // scan entire array and report all instances of this pin
-    if (pgm_read_byte(&pin_array[x][1]) == pin) {
+  for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
+    if (pgm_read_byte(&pin_array[x].pin) == pin) {
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
@@ -461,7 +465,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
         SERIAL_CHAR('.');
         SERIAL_ECHO_SP(26 + strlen(start_string));  // add padding if not the first instance found
       }
-      name_mem_pointer = (char*)pgm_read_word(&pin_array[x][0]);
+      name_mem_pointer = (char*)pgm_read_word(&pin_array[x].name);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0)
@@ -489,7 +493,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
             else
           #endif
           {
-            if (!(pgm_read_byte(&pin_array[x][2]))) {
+            if (!(pgm_read_byte(&pin_array[x].is_digital))) {
               sprintf_P(buffer, PSTR("Analog in = %5d"), analogRead(pin - analogInputToDigitalPin(0)));
               SERIAL_ECHO(buffer);
             }
