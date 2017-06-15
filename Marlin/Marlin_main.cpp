@@ -5109,7 +5109,7 @@ void home_all_axes() { gcode_G28(true); }
 
       const int8_t probe_points = parser.seen('P') ? parser.value_int() : DELTA_CALIBRATION_DEFAULT_POINTS;
       if (!WITHIN(probe_points, 1, 7)) {
-        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1 to 7).");
+        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1-7).");
         return;
       }
 
