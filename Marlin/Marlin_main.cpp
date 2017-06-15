@@ -5895,7 +5895,7 @@ inline void gcode_M17() {
 
     if (!DEBUGGING(DRYRUN) && unload_length != 0) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
-        if (!thermalManager.allow_cold_extrude && 
+        if (!thermalManager.allow_cold_extrude &&
             thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
@@ -7659,7 +7659,7 @@ inline void gcode_M18_M84() {
       #endif
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  //only needed if have an LCD
       ubl_lcd_map_control = false;
       defer_return_to_status = false;
     #endif
@@ -12442,7 +12442,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  //only needed if have an LCD
       ubl_lcd_map_control = false;
       defer_return_to_status = false;
     #endif
