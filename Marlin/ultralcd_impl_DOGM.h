@@ -60,7 +60,8 @@
 #endif
 
 // Only Western languages support big / small fonts
-#if DISABLED(DISPLAY_CHARSET_ISO10646_1)
+//#if DISABLED(DISPLAY_CHARSET_ISO10646_1)
+#if !defined(DISPLAY_CHARSET_HD44780)
   #undef USE_BIG_EDIT_FONT
   #undef USE_SMALL_INFOFONT
 #endif

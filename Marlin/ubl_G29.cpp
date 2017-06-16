@@ -1576,7 +1576,7 @@
 
       if (ubl_lcd_map_control) {
         #if ENABLED(DOGLCD)
-        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+          lcd_goto_screen(_lcd_ubl_output_map_lcd);
         #endif
       }
       else lcd_return_to_status();
