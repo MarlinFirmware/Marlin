@@ -411,6 +411,7 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 inline void lcd_implementation_status_message(const bool blink) {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
+    const bool blink = lcd_blink();
     const uint8_t slen = lcd_strlen(lcd_status_message);
     const char *stat = lcd_status_message + status_scroll_pos;
     if (slen <= LCD_WIDTH)
