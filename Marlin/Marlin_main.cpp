@@ -9265,10 +9265,10 @@ inline void gcode_M503() {
    */
   inline void gcode_M600() {
 
-    // Don't allow filament change without homing first
-    if (axis_unhomed_error()) {
-        home_all_axes();
-    }
+    #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
+      // Don't allow filament change without homing first
+      if (axis_unhomed_error()) home_all_axes();
+    #endif
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
@@ -12702,10 +12702,10 @@ void setup() {
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
-  if (mcu & 1) SERIAL_ECHOLNPGM(MSG_POWERUP);
-  if (mcu & 2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
-  if (mcu & 4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
-  if (mcu & 8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
+  if (mcu &  1) SERIAL_ECHOLNPGM(MSG_POWERUP);
+  if (mcu &  2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
+  if (mcu &  4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
+  if (mcu &  8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
   if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   MCUSR = 0;
 
