@@ -2094,11 +2094,11 @@ void kill_screen(const char* lcd_msg) {
       /*********************************************************/
       /************ Scale the box pixels appropriately *********/
       /*********************************************************/
-      x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / GRID_MAX_POINTS_X) * GRID_MAX_POINTS_X;
-      y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / GRID_MAX_POINTS_Y) * GRID_MAX_POINTS_Y;
+      x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X);
+      y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y);
 
-      pixels_per_X_mesh_pnt = x_map_pixels / GRID_MAX_POINTS_X;
-      pixels_per_Y_mesh_pnt = y_map_pixels / GRID_MAX_POINTS_Y;
+      pixels_per_X_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X);
+      pixels_per_Y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y);
 
       x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2;
       y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
@@ -2184,7 +2184,7 @@ void kill_screen(const char* lcd_msg) {
     void sync_plan_position();
 
     void _lcd_ubl_output_map_lcd() {
-      static int step_scaler=0;
+      static int16_t step_scaler = 0;
       int32_t signed_enc_pos;
 
       defer_return_to_status = true;
@@ -2194,11 +2194,10 @@ void kill_screen(const char* lcd_msg) {
         if (lcd_clicked) { return _lcd_ubl_map_lcd_edit_cmd(); }
         ENCODER_DIRECTION_NORMAL();
 
-        if (encoderPosition != 0) {
+        if (encoderPosition) {
           signed_enc_pos = (int32_t)encoderPosition;
           step_scaler += signed_enc_pos;
-          x_plot = (x_plot + step_scaler / ENCODER_STEPS_PER_MENU_ITEM);
-
+          x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
           if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
             step_scaler = 0;
           refresh_cmd_timeout();
@@ -2240,7 +2239,7 @@ void kill_screen(const char* lcd_msg) {
 
           ubl_map_move_to_xy(); // Move to current location
 
-          if (planner.movesplanned()>1) { // if the nozzle is moving, cancel the move.  There is a new location
+          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
             #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
             #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
             DISABLE_STEPPER_DRIVER_INTERRUPT();
