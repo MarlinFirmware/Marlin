@@ -78,6 +78,8 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
   #include "ultralcd_impl_HD44780.h"
 #endif
 
+#include "utf_mapper.h"
+
 // The main status screen
 void lcd_status_screen();
 
@@ -107,6 +109,8 @@ uint16_t max_display_update_time = 0;
   #if HAS_POWER_SWITCH
     extern bool powersupply_on;
   #endif
+
+  uint16_t lcd_contrast;
 
   ////////////////////////////////////////////
   ///////////////// Menu Tree ////////////////
@@ -2141,9 +2145,9 @@ void kill_screen(const char* lcd_msg) {
 
         if (lcdDrawUpdate) {
           #if ENABLED(DOGLCD)
-            _lcd_ubl_plot_drawing(x_plot, y_plot);
+            _lcd_ubl_plot_DOGLCD(x_plot, y_plot);
           #else
-            _lcd_ubl_output_char_lcd();
+            _lcd_ubl_plot_HD44780(x_plot, y_plot);
           #endif
 
           ubl_map_move_to_xy(); // Move to current location
