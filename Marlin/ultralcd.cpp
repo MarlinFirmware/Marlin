@@ -1506,7 +1506,11 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
-  #if ENABLED(LCD_BED_LEVELING)
+  #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
+  #endif
+
+#if ENABLED(LCD_BED_LEVELING)
 
     /**
      *
@@ -3154,10 +3158,6 @@ void kill_screen(const char* lcd_msg) {
         #endif // E_STEPPERS > 4
       #endif // E_STEPPERS > 3
     #endif // E_STEPPERS > 2
-  #endif
-
-  #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
   // M203 / M205 Velocity options
