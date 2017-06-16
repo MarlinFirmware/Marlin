@@ -217,7 +217,7 @@
                 seen_c5 = false;
     uint8_t d = c;
     if (d >= 0x80u) { // UTF-8 handling
-           if (d == 0xC4u) { seen_c4 = true; return 0; }
+      if (d == 0xC4u) { seen_c4 = true; return 0; }
       else if (d == 0xC5u) { seen_c5 = true; return 0; }
       else if (d >= 0xC0u && !seen_c2) {
         utf_hi_char = d - 0xC2u;
@@ -505,6 +505,6 @@
     return 1;
   }
 
-  #endif // code mappers
+#endif // code mappers
 
 #endif // UTF_MAPPER_H

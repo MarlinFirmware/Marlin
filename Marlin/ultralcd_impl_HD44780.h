@@ -1080,10 +1080,10 @@ void lcd_implementation_status_screen() {
     // These are just place holders for the 20x4 LCD work that
     // is coming up very soon.   Soon this will morph into the
     // real code.
-    void lcd_return_to_status();       
+    void lcd_return_to_status();
 
-    void _lcd_ubl_plot_HD44780(uint8_t x_plot, uint8_t y_plot) {     
-      lcd_return_to_status();          
+    void _lcd_ubl_plot_HD44780(uint8_t x_plot, uint8_t y_plot) {
+      lcd_return_to_status();
     }
 
 #endif // AUTO_BED_LEVELING_UBL

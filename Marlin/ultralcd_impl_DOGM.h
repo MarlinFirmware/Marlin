@@ -232,31 +232,31 @@ void lcd_implementation_clear();
 // Status Screen
 //
 
-  #if DISABLED(DOGM_SD_PERCENT)
-    #define SD_DURATION_X (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (DOG_CHAR_WIDTH / 2))
-  #else
-    #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
-  #endif
+#if DISABLED(DOGM_SD_PERCENT)
+  #define SD_DURATION_X (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (DOG_CHAR_WIDTH / 2))
+#else
+  #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
+#endif
 
-  #if ENABLED(USE_SMALL_INFOFONT)
-    #define INFO_FONT_HEIGHT 7
-  #else
-    #define INFO_FONT_HEIGHT 8
-  #endif
+#if ENABLED(USE_SMALL_INFOFONT)
+  #define INFO_FONT_HEIGHT 7
+#else
+  #define INFO_FONT_HEIGHT 8
+#endif
 
-  #define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
+#define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
 
-  #define X_LABEL_POS  3
-  #define X_VALUE_POS 11
-  #define XYZ_SPACING 40
+#define X_LABEL_POS  3
+#define X_VALUE_POS 11
+#define XYZ_SPACING 40
 
-  #if ENABLED(XYZ_HOLLOW_FRAME)
-    #define XYZ_FRAME_TOP 29
-    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 3
-  #else
-    #define XYZ_FRAME_TOP 30
-    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
-  #endif
+#if ENABLED(XYZ_HOLLOW_FRAME)
+  #define XYZ_FRAME_TOP 29
+  #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 3
+#else
+  #define XYZ_FRAME_TOP 30
+  #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
+#endif
 
 FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uint8_t y);
 
