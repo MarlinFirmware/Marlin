@@ -31,7 +31,7 @@
 #ifndef _FASTIO_168
 #define _FASTIO_168
 
-#include "fastio.h"
+#include "fastio_AVR.h"
 
 #define DEBUG_LED   AIO5
 

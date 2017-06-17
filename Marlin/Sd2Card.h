@@ -39,18 +39,6 @@
 #include "SdFatConfig.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
-// SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
-/** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
-uint8_t const SPI_FULL_SPEED = 0;
-/** Set SCK rate to F_CPU/4. See Sd2Card::setSckRate(). */
-uint8_t const SPI_HALF_SPEED = 1;
-/** Set SCK rate to F_CPU/8. See Sd2Card::setSckRate(). */
-uint8_t const SPI_QUARTER_SPEED = 2;
-/** Set SCK rate to F_CPU/16. See Sd2Card::setSckRate(). */
-uint8_t const SPI_EIGHTH_SPEED = 3;
-/** Set SCK rate to F_CPU/32. See Sd2Card::setSckRate(). */
-uint8_t const SPI_SIXTEENTH_SPEED = 4;
-//------------------------------------------------------------------------------
 /** init timeout ms */
 uint16_t const SD_INIT_TIMEOUT = 2000;
 /** erase timeout ms */
@@ -133,6 +121,9 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
 //------------------------------------------------------------------------------
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
 //
+#define SD_CHIP_SELECT_PIN SS_PIN
+
+#if 0
 #if DISABLED(SOFTWARE_SPI)
   // hardware pin defs
   /** The default chip select pin for the SD card is SS. */
@@ -156,6 +147,9 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
   /** SPI Clock pin */
   #define SPI_SCK_PIN SOFT_SPI_SCK_PIN
 #endif  // SOFTWARE_SPI
+
+#endif
+
 //------------------------------------------------------------------------------
 /**
  * \class Sd2Card

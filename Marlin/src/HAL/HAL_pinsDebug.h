@@ -20,17 +20,16 @@
  *
  */
 
-#ifndef WATCHDOG_H
-#define WATCHDOG_H
+#ifndef HAL_PINSDEBUG_H
 
-#include "Marlin.h"
-#include <avr/wdt.h>
-
-// Initialize watchdog with a 4 second interrupt time
-void watchdog_init();
-
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or AVR will go into emergency procedures.
-inline void watchdog_reset() { wdt_reset(); }
+#ifdef ARDUINO_ARCH_AVR
+  #include "HAL_AVR/HAL_pinsDebug_AVR.h"
+#elif defined(ARDUINO_ARCH_SAM)
+  #include "HAL_DUE/HAL_pinsDebug_Due.h"
+#elif IS_32BIT_TEENSY
+  #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
+#else
+  #error Unsupported Platform!
+#endif
 
 #endif
