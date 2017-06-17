@@ -20,6 +20,7 @@
  *
  */
 
+#include <ctype.h>
 #include "cardreader.h"
 
 #include "ultralcd.h"

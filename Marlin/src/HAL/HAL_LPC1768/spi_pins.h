@@ -18,25 +18,18 @@
  */
 
 
-#ifndef HAL_SPI_PINS_H_
-#define HAL_SPI_PINS_H_
+#ifndef SPI_PINS_LPC1768_H
+#define SPI_PINS_LPC1768_H
 
-#include "MarlinConfig.h"
-
-#ifdef ARDUINO_ARCH_SAM
-  #include "HAL_DUE/spi_pins.h"
-
-#elif defined(IS_32BIT_TEENSY)
-  #include "HAL_TEENSY35_36/spi_pins.h"
-
-#elif defined(ARDUINO_ARCH_AVR)
-  #include "HAL_AVR/spi_pins.h"
-
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/spi_pins.h"
-
-#else
-  #error "Unsupported Platform!"
-#endif
-
-#endif /* HAL_SPI_PINS_H_ */
+#define SOFTWARE_SPI
+/** onboard SD card */
+//#define SCK_PIN           P0_7
+//#define MISO_PIN          P0_8
+//#define MOSI_PIN          P0_9
+//#define SS_PIN            P0_6
+/** external */
+#define SCK_PIN           52 //P0_15
+#define MISO_PIN          50 //P0_17
+#define MOSI_PIN          51 //P0_18
+#define SS_PIN            53 //P1_23
+#endif /* SPI_PINS_LPC1768_H */
