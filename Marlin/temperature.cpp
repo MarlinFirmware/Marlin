@@ -203,7 +203,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
   bool Temperature::paused;
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if HEATER_IDLE_HANDLER
   millis_t Temperature::heater_idle_timeout_ms[HOTENDS] = { 0 };
   bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
   #if HAS_TEMP_BED
@@ -421,13 +421,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           bedKp = workKp; \
           bedKi = scalePID_i(workKi); \
           bedKd = scalePID_d(workKd); \
-          updatePID(); } while(0)
+          updatePID(); }while(0)
 
         #define _SET_EXTRUDER_PID() do { \
           PID_PARAM(Kp, hotend) = workKp; \
           PID_PARAM(Ki, hotend) = scalePID_i(workKi); \
           PID_PARAM(Kd, hotend) = scalePID_d(workKd); \
-          updatePID(); } while(0)
+          updatePID(); }while(0)
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
@@ -505,7 +505,7 @@ int Temperature::getHeaterPower(int heater) {
 //
 // Temperature Error Handlers
 //
-void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg) {
+void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
@@ -524,7 +524,7 @@ void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg
   #endif
 }
 
-void Temperature::max_temp_error(int8_t e) {
+void Temperature::max_temp_error(const int8_t e) {
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MAXTEMP), e >= 0 ? PSTR(MSG_ERR_MAXTEMP) : PSTR(MSG_ERR_MAXTEMP_BED));
   #else
@@ -534,7 +534,7 @@ void Temperature::max_temp_error(int8_t e) {
     #endif
   #endif
 }
-void Temperature::min_temp_error(int8_t e) {
+void Temperature::min_temp_error(const int8_t e) {
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MINTEMP), e >= 0 ? PSTR(MSG_ERR_MINTEMP) : PSTR(MSG_ERR_MINTEMP_BED));
   #else
@@ -545,7 +545,7 @@ void Temperature::min_temp_error(int8_t e) {
   #endif
 }
 
-float Temperature::get_pid_output(int e) {
+float Temperature::get_pid_output(const int8_t e) {
   #if HOTENDS == 1
     UNUSED(e);
     #define _HOTEND_TEST     true
@@ -558,7 +558,7 @@ float Temperature::get_pid_output(int e) {
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if HEATER_IDLE_HANDLER
         if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
           pid_output = 0;
           pid_reset[HOTEND_INDEX] = true;
@@ -570,7 +570,7 @@ float Temperature::get_pid_output(int e) {
         pid_reset[HOTEND_INDEX] = true;
       }
       else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if HEATER_IDLE_HANDLER
           || heater_idle_timeout_exceeded[HOTEND_INDEX]
         #endif
         ) {
@@ -633,7 +633,7 @@ float Temperature::get_pid_output(int e) {
     #endif // PID_DEBUG
 
   #else /* PID off */
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (heater_idle_timeout_exceeded[HOTEND_INDEX])
         pid_output = 0;
       else
@@ -719,13 +719,13 @@ void Temperature::manage_heater() {
     if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + .01)) min_temp_error(0);
   #endif
 
-  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
     millis_t ms = millis();
   #endif
 
   HOTEND_LOOP() {
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (!heater_idle_timeout_exceeded[e] && heater_idle_timeout_ms[e] && ELAPSED(ms, heater_idle_timeout_ms[e]))
         heater_idle_timeout_exceeded[e] = true;
     #endif
@@ -793,7 +793,7 @@ void Temperature::manage_heater() {
 
   #if HAS_TEMP_BED
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (!bed_idle_timeout_exceeded && bed_idle_timeout_ms && ELAPSED(ms, bed_idle_timeout_ms))
         bed_idle_timeout_exceeded = true;
     #endif
@@ -802,7 +802,7 @@ void Temperature::manage_heater() {
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       if (bed_idle_timeout_exceeded)
       {
         soft_pwm_amount_bed = 0;
@@ -890,7 +890,7 @@ float Temperature::analog2temp(int raw, uint8_t e) {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For bed temperature measurement.
-float Temperature::analog2tempBed(int raw) {
+float Temperature::analog2tempBed(const int raw) {
   #if ENABLED(BED_USES_THERMISTOR)
     float celsius = 0;
     byte i;
@@ -1148,7 +1148,7 @@ void Temperature::init() {
 
   #define TEMP_MIN_ROUTINE(NR) \
     minttemp[NR] = HEATER_ ##NR## _MINTEMP; \
-    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
+    while (analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         minttemp_raw[NR] += OVERSAMPLENR; \
       else \
@@ -1156,7 +1156,7 @@ void Temperature::init() {
     }
   #define TEMP_MAX_ROUTINE(NR) \
     maxttemp[NR] = HEATER_ ##NR## _MAXTEMP; \
-    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
+    while (analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         maxttemp_raw[NR] -= OVERSAMPLENR; \
       else \
@@ -1203,7 +1203,7 @@ void Temperature::init() {
   #endif // HOTENDS > 1
 
   #ifdef BED_MINTEMP
-    while(analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+    while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
       #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
         bed_minttemp_raw += OVERSAMPLENR;
       #else
@@ -1292,9 +1292,9 @@ void Temperature::init() {
         SERIAL_EOL();
     */
 
-    int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
+    const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
       if (heater_id >= 0 && heater_idle_timeout_exceeded[heater_id]) {
         *state = TRInactive;
@@ -1922,7 +1922,7 @@ void Temperature::isr() {
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
       // ISRs to save on calls to temp update/checking code below.
-      constexpr int extra_loops = MIN_ADC_ISR_LOOPS - (int)SensorsReady;
+      constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - (int8_t)SensorsReady;
       static uint8_t delay_count = 0;
       if (extra_loops > 0) {
         if (delay_count == 0) delay_count = extra_loops;   // Init this delay

@@ -131,6 +131,12 @@
 #define BTN_EN2            59
 #define BTN_ENC            43
 
+// Buttons that are attached using shift register of reprapworld keypad  v1.1
+#define SHIFT_CLK 63
+#define SHIFT_LD 42
+#define SHIFT_OUT 17
+#define SHIFT_EN 17
+
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
