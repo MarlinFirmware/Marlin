@@ -105,7 +105,7 @@
 #define TEMP_1_PIN         2  //A2 (T2) - D69 - TEMP_1_PIN
 #define TEMP_2_PIN         3  //A3 - D63 - J5-3 & AUX-2
 #define TEMP_3_PIN         4  //A4 - D37 - BUZZER_PIN
-#define TEMP_4_PIN         5  //A5 - D49 - SD_DETECT_PIN
+//#define TEMP_4_PIN         5  //A5 - D49 - SD_DETECT_PIN
 //#define ??               6  //A6 - D0  - RXD0 - J4-4 & AUX-1
 #define FILWIDTH_PIN       7  //A7 - D1  - TXD0 - J4-5 & AUX-1
 
@@ -287,8 +287,6 @@
 
  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 //    #define LCD_SCREEN_ROT_180
-
-    #define SOFTWARE_SPI  // temp to see if it fixes the  "not found" error
 
     #undef  BEEPER_PIN
     #define BEEPER_PIN          37  // may change if cable changes

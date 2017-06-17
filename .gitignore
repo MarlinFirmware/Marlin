@@ -158,6 +158,9 @@ src/.vs/
 #Visual Studio Code
 .vscode
 
+#Visual Studio Code
+.vscode
+
 #cmake
 CMakeLists.txt
 src/CMakeLists.txt
