@@ -34,7 +34,6 @@
 
   extern u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;// LCD selection
 
-
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_RS); // 2 stripes
     // U8GLIB_ST7920_128X64 u8g(LCD_PINS_RS); // 8 stripes
@@ -201,7 +200,6 @@
 
     #endif // SHOW_BOOTSCREEN
   }
-
 
   extern char lcd_status_message[];
 
