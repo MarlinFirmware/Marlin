@@ -152,7 +152,7 @@
       static void save_ubl_active_state_and_disable();
       static void restore_ubl_active_state_and_leave();
       static void display_map(const int);
-      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
+      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16], bool);
       static void reset();
       static void invalidate();
       static void set_all_mesh_points_to_value(float);

@@ -27,7 +27,6 @@
   #include "ubl.h"
   #include "planner.h"
   #include "stepper.h"
-  #include <avr/io.h>
   #include <math.h>
 
   extern float destination[XYZE];
@@ -737,4 +736,3 @@
   #endif // UBL_DELTA
 
 #endif // AUTO_BED_LEVELING_UBL
-

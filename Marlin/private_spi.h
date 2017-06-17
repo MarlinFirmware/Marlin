@@ -20,17 +20,38 @@
  *
  */
 
-#ifndef WATCHDOG_H
-#define WATCHDOG_H
+#ifndef __PRIVATE_SPI_H__
+#define __PRIVATE_SPI_H__
 
-#include "Marlin.h"
-#include <avr/wdt.h>
+#include <stdint.h>
+#include "softspi.h"
 
-// Initialize watchdog with a 4 second interrupt time
-void watchdog_init();
+template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
+class SPI {
+  static SoftSPI<MisoPin, MosiPin, SckPin> softSPI;
+  public:
+    FORCE_INLINE static void init() { softSPI.begin(); }
+    FORCE_INLINE static void send(uint8_t data) { softSPI.send(data); }
+    FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
+};
 
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or AVR will go into emergency procedures.
-inline void watchdog_reset() { wdt_reset(); }
 
-#endif
+// Hardware SPI
+template<>
+class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
+  public:
+    FORCE_INLINE static void init() {
+        OUT_WRITE(SCK_PIN, LOW);
+        OUT_WRITE(MOSI_PIN, HIGH);
+        SET_INPUT(MISO_PIN);
+        WRITE(MISO_PIN, HIGH);
+    }
+    FORCE_INLINE static uint8_t receive() {
+      SPDR = 0;
+      for (;!TEST(SPSR, SPIF););
+      return SPDR;
+    }
+
+};
+
+#endif // __PRIVATE_SPI_H__

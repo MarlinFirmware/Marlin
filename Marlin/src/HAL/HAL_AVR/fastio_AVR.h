@@ -30,14 +30,13 @@
 #define _FASTIO_ARDUINO_H
 
 #include <avr/io.h>
-#include "macros.h"
+#include "../../../macros.h"
 
 #define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
 #define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
 #define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
 #define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
 #define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
-
 
 /**
  * Include Ports and Functions
@@ -57,7 +56,7 @@
 #endif
 
 #ifndef _BV
-  #define _BV(PIN) (1UL << PIN)
+  #define _BV(bit) (1UL << (bit))
 #endif
 
 /**
@@ -269,7 +268,7 @@ typedef enum {
   #define PWM_CHK_MOTOR_CURRENT(p) false
 #endif
 
-#if defined(NUM_SERVOS)
+#ifdef NUM_SERVOS
   #if AVR_ATmega2560_FAMILY
     #define PWM_CHK_SERVO(p) ( p == 5 || NUM_SERVOS > 12 && p == 6 || NUM_SERVOS > 24 && p == 46)  //PWMS 3A, 4A & 5A
   #elif AVR_ATmega2561_FAMILY

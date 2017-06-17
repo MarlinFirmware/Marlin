@@ -34,7 +34,8 @@
 
 #if ENABLED(SDSUPPORT)
 #include "SdBaseFile.h"
-#include <Print.h>
+//todo: HAL: create wrapper for Print?
+//#include <Print.h>
 #ifndef SdFile_h
 #define SdFile_h
 //------------------------------------------------------------------------------
@@ -42,7 +43,7 @@
  * \class SdFile
  * \brief SdBaseFile with Print.
  */
-class SdFile : public SdBaseFile, public Print {
+class SdFile : public SdBaseFile/*, public Print*/ {
  public:
   SdFile() {}
   SdFile(const char* name, uint8_t oflag);

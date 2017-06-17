@@ -20,6 +20,16 @@
  *
  */
 
+#ifndef HAL_PINSDEBUG_AVR_H
+
+void HAL_print_analog_pin(char buffer[], int8_t pin) {
+  sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
+}
+
+void HAL_analog_pin_state(char buffer[], int8_t pin) {
+  sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
+}
+
 bool endstop_monitor_flag = false;
 
 #define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
@@ -46,7 +56,7 @@ bool endstop_monitor_flag = false;
 #define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
-#include "pinsDebug_list.h"
+#include "../../../pinsDebug_list.h"
 #line 51
 
 // manually add pins that have names that are macros which don't play well with these macros
@@ -97,7 +107,7 @@ const PinInfo pin_array[] PROGMEM = {
     #endif
   #endif
 
-  #include "pinsDebug_list.h"
+  #include "../../../pinsDebug_list.h"
   #line 102
 
 };
@@ -146,7 +156,7 @@ const PinInfo pin_array[] PROGMEM = {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-static bool pwm_status(uint8_t pin) {
+static bool HAL_pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
 
   switch (digitalPinToTimer_DEBUG(pin)) {
@@ -335,7 +345,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
-static void pwm_details(uint8_t pin) {
+static void HAL_pwm_details(uint8_t pin) {
   switch (digitalPinToTimer_DEBUG(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
@@ -511,7 +521,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
                 print_input_or_output(false);
                 SERIAL_PROTOCOL(digitalRead_mod(pin));
               }
-              else if (pwm_status(pin)) {
+              else if (HAL_pwm_status(pin)) {
                 // do nothing
               }
               else {
@@ -519,7 +529,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
                 SERIAL_PROTOCOL(digitalRead_mod(pin));
               }
             }
-            if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
+            if (!multi_name_pin && extended) HAL_pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
           }
         }
       }
@@ -578,3 +588,5 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
     SERIAL_EOL();
   }
 }
+
+#endif //HAL_PINSDEBUG_AVR_H

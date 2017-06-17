@@ -1376,7 +1376,7 @@
         z_values[x][y] -= tmp_z_values[x][y];
   }
 
-  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, unsigned int bits[16], const bool far_flag) {
+  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, uint16_t bits[16], const bool far_flag) {
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
 
