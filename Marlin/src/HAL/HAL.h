@@ -87,6 +87,10 @@ void spiSendBlock(uint8_t token, const uint8_t* buf);
   #define CPU_32_BIT
   #include "HAL_TEENSY35_36/HAL_Teensy.h"
   #include "math_32bit.h"
+#elif defined(TARGET_LPC1768)
+  #define CPU_32_BIT
+  #include "math_32bit.h"
+  #include "HAL_LPC1768/HAL.h"
 #else
   #error Unsupported Platform!
 #endif

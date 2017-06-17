@@ -35,6 +35,12 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
+#define IS_RAMPS_EFB (MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB))
+#define IS_RAMPS_EEB (MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB))
+#define IS_RAMPS_EFF (MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF))
+#define IS_RAMPS_EEF (MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF))
+#define IS_RAMPS_SF  (MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF) )
+
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
 //
@@ -42,34 +48,24 @@
 #if MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
-  #define IS_RAMPS_EFB
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_13_EEB)
-  #define IS_RAMPS_EEB
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_13_EFF)
-  #define IS_RAMPS_EFF
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_13_EEF)
-  #define IS_RAMPS_EEF
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_13_SF)
-  #define IS_RAMPS_SF
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_14_EFB)
-  #define IS_RAMPS_EFB
   #include "pins_RAMPS.h"
 #elif MB(RAMPS_14_EEB)
-  #define IS_RAMPS_EEB
   #include "pins_RAMPS.h"
 #elif MB(RAMPS_14_EFF)
-  #define IS_RAMPS_EFF
   #include "pins_RAMPS.h"
 #elif MB(RAMPS_14_EEF)
-  #define IS_RAMPS_EEF
   #include "pins_RAMPS.h"
 #elif MB(RAMPS_14_SF)
-  #define IS_RAMPS_SF
   #include "pins_RAMPS.h"
 
 //
@@ -232,7 +228,22 @@
   #include "pins_5DPRINT.h"           // AT90USB1286
 
 //
-// 32-bit Boards
+// Re-ARM - LPC1768
+//
+
+#elif MB(RAMPS_14_RE_ARM_EFB)
+  #include "pins_RAMPS_RE_ARM.h"
+#elif MB(RAMPS_14_RE_ARM_EEB)
+  #include "pins_RAMPS_RE_ARM.h"
+#elif MB(RAMPS_14_RE_ARM_EFF)
+  #include "pins_RAMPS_RE_ARM.h"
+#elif MB(RAMPS_14_RE_ARM_EEF)
+  #include "pins_RAMPS_RE_ARM.h"
+#elif MB(RAMPS_14_RE_ARM_SF)
+  #include "pins_RAMPS_RE_ARM.h"
+
+//
+// Other 32-bit Boards
 //
 
 #elif MB(TEENSY35_36)
@@ -248,49 +259,34 @@
 #elif MB(RAMPS_FD_V2)
   #include "pins_RAMPS_FD_V2.h"
 #elif MB(RAMPS_SMART_EFB)
-  #define IS_RAMPS_EFB
   #include "pins_RAMPS_SMART.h"
 #elif MB(RAMPS_SMART_EEB)
-  #define IS_RAMPS_EEB
   #include "pins_RAMPS_SMART.h"
 #elif MB(RAMPS_SMART_EFF)
-  #define IS_RAMPS_EFF
   #include "pins_RAMPS_SMART.h"
 #elif MB(RAMPS_SMART_EEF)
-  #define IS_RAMPS_EEF
   #include "pins_RAMPS_SMART.h"
 #elif MB(RAMPS_SMART_SF)
-  #define IS_RAMPS_SF
   #include "pins_RAMPS_SMART.h"
 #elif MB(RAMPS_DUO_EFB)
-  #define IS_RAMPS_EFB
   #include "pins_RAMPS_DUO.h"
 #elif MB(RAMPS_DUO_EEB)
-  #define IS_RAMPS_EEB
   #include "pins_RAMPS_DUO.h"
 #elif MB(RAMPS_DUO_EFF)
-  #define IS_RAMPS_EFF
   #include "pins_RAMPS_DUO.h"
 #elif MB(RAMPS_DUO_EEF)
-  #define IS_RAMPS_EEF
   #include "pins_RAMPS_DUO.h"
 #elif MB(RAMPS_DUO_SF)
-  #define IS_RAMPS_SF
   #include "pins_RAMPS_DUO.h"
 #elif MB(RAMPS4DUE_EFB)
-  #define IS_RAMPS_EFB
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_EEB)
-  #define IS_RAMPS_EEB
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_EFF)
-  #define IS_RAMPS_EFF
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_EEF)
-  #define IS_RAMPS_EEF
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_SF)
-  #define IS_RAMPS_SF
   #include "pins_RAMPS4DUE.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"

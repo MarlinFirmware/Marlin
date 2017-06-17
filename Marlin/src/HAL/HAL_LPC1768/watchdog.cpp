@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,26 +20,34 @@
  *
  */
 
+#ifdef TARGET_LPC1768
 
-#ifndef HAL_SPI_PINS_H_
-#define HAL_SPI_PINS_H_
+#include "../../../MarlinConfig.h"
 
-#include "MarlinConfig.h"
+#if ENABLED(USE_WATCHDOG)
 
-#ifdef ARDUINO_ARCH_SAM
-  #include "HAL_DUE/spi_pins.h"
+#include "lpc17xx_wdt.h"
+#include "watchdog.h"
 
-#elif defined(IS_32BIT_TEENSY)
-  #include "HAL_TEENSY35_36/spi_pins.h"
+void watchdog_init(void) {
+  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
+  WDT_Start(WDT_TIMEOUT);
+}
 
-#elif defined(ARDUINO_ARCH_AVR)
-  #include "HAL_AVR/spi_pins.h"
+void HAL_clear_reset_source(void) {
+  WDT_ClrTimeOutFlag();
+}
 
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/spi_pins.h"
+uint8_t HAL_get_reset_source (void) {
+  if(WDT_ReadTimeOutFlag() & 1) return RST_WATCHDOG;
+  return RST_POWER_ON;
+}
 
-#else
-  #error "Unsupported Platform!"
+void watchdog_reset() {
+  WDT_Feed();
+  TOGGLE(13); // heart beat indicator on Pin13
+}
+
+#endif // USE_WATCHDOG
+
 #endif
-
-#endif /* HAL_SPI_PINS_H_ */
