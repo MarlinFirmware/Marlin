@@ -28,9 +28,10 @@
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  */
+#ifdef ARDUINO_ARCH_AVR
 
 #include "MarlinSerial.h"
-#include "Marlin.h"
+#include "../../../Marlin.h"
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
 
@@ -46,8 +47,8 @@
 
   #if ENABLED(EMERGENCY_PARSER)
 
-    #include "stepper.h"
-    #include "language.h"
+    #include "../../../stepper.h"
+    #include "../../../language.h"
 
     // Currently looking for: M108, M112, M410
     // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
@@ -514,4 +515,6 @@
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;
+#endif
+
 #endif

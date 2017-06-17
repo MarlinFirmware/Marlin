@@ -32,7 +32,7 @@
 #ifndef _FASTIO_AT90USB
 #define _FASTIO_AT90USB
 
-#include "fastio.h"
+#include "fastio_AVR.h"
 
 // change for your board
 #define DEBUG_LED   DIO31 /* led D5 red */

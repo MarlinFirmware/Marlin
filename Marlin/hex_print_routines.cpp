@@ -43,7 +43,7 @@ char* hex_word(const uint16_t w) {
 }
 
 char* hex_address(const void * const w) {
-  (void)hex_word((uint16_t)w);
+  (void)hex_word((int)w);
   return _hex;
 }
 

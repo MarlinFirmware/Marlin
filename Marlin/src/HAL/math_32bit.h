@@ -20,21 +20,14 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#ifndef MATH_32BIT_H
+#define MATH_32BIT_H
 
-#include "macros.h"
-#include "src/HAL/HAL.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
-#if defined(ARDUINO_ARCH_AVR) && !defined(USBCON)
-  #define HardwareSerial_h // trick to disable the standard HWserial
+/**
+ * Math helper functions for 32 bit CPUs
+ */
+
+#define MultiU32X32toH32(intRes, longIn1, longIn2) intRes = ((uint64_t)longIn1 * longIn2 + 0x80000000) >> 32
+#define MultiU32X24toH32(intRes, longIn1, longIn2) intRes = ((uint64_t)longIn1 * longIn2 + 0x00800000) >> 24
+
 #endif
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
-
-#endif // MARLIN_CONFIG_H

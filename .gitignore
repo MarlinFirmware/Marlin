@@ -118,7 +118,11 @@ tags
 
 # PlatformIO files/dirs
 .pio*
-lib/readme.txt
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+lib/
 
 #Visual Studio
 *.sln

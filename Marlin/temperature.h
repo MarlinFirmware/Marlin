@@ -125,7 +125,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-      #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (F_CPU / 64.0 / 256.0))
+      #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
     #endif
 
     #if ENABLED(PIDTEMP)

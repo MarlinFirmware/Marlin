@@ -31,7 +31,7 @@
 #ifndef _FASTIO_1281
 #define _FASTIO_1281
 
-#include "fastio.h"
+#include "fastio_AVR.h"
 
 // change for your board
 #define DEBUG_LED   DIO46
