@@ -9806,7 +9806,11 @@ inline void gcode_M999() {
   inline void move_extruder_servo(const uint8_t e) {
     stepper.synchronize();
     constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-    static_assert(COUNT(angles) / 2 >= E_STEPPERS, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 2 angles per servo.");
+    #if EXTRUDERS > 3
+      static_assert(COUNT(angles) == 4, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 4 angles.");
+    #else
+      static_assert(COUNT(angles) == 2, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 2 angles.");
+    #endif
 
     #if EXTRUDERS & 1
       if (e < EXTRUDERS - 1)
