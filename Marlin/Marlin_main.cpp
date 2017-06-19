@@ -6136,8 +6136,6 @@ inline void gcode_M17() {
       filament_ran_out = false;
     #endif
 
-    set_current_to_destination();
-
     #if ENABLED(ULTIPANEL)
       // Show status screen
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
