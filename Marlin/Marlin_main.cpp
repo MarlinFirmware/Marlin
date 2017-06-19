@@ -5866,7 +5866,7 @@ inline void gcode_M17() {
       idle();
       heaters_heating = false;
       HOTEND_LOOP() {
-        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > 3) {
+        if (thermalManager.degTargetHotend(e) && abs(thermalManager.degHotend(e) - thermalManager.degTargetHotend(e)) > TEMP_HYSTERESIS) {
           heaters_heating = true;
           #if ENABLED(ULTIPANEL)
             lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
@@ -5882,7 +5882,7 @@ inline void gcode_M17() {
   ) {
     if (move_away_flag) return false; // already paused
 
-    if (!DEBUGGING(DRYRUN) && unload_length != 0) {
+    if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude &&
             thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
@@ -5919,10 +5919,11 @@ inline void gcode_M17() {
     COPY(resume_position, current_position);
     set_destination_to_current();
 
-    // Initial retract before move to filament change position
-    destination[E_AXIS] += retract;
-
-    RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+    if (retract) {
+      // Initial retract before move to filament change position
+      destination[E_AXIS] += retract;
+      RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+    }
 
     // Lift Z axis
     if (z_lift > 0) {
@@ -5951,23 +5952,25 @@ inline void gcode_M17() {
       destination[E_AXIS] += unload_length;
       RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
       stepper.synchronize();
-
-      if (show_lcd) {
-        #if ENABLED(ULTIPANEL)
-          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
-        #endif
-      }
-
-      #if HAS_BUZZER
-        filament_change_beep(max_beep_count, true);
-      #endif
-
-      idle();
     }
 
-    // Disable extruders steppers for manual filament changing
-    disable_e_steppers();
-    safe_delay(100);
+    if (show_lcd) {
+      #if ENABLED(ULTIPANEL)
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+      #endif
+    }
+
+    #if HAS_BUZZER
+      filament_change_beep(max_beep_count, true);
+    #endif
+
+    idle();
+
+    // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
+    #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN
+      disable_e_steppers();
+      safe_delay(100);
+    #endif
 
     // Start the heater idle timers
     const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
@@ -5989,14 +5992,43 @@ inline void gcode_M17() {
         filament_change_beep(max_beep_count);
       #endif
 
+      // If the nozzle has timed out, wait for the user to press the button to re-heat the nozzle, then
+      // re-heat the nozzle, re-show the insert screen, restart the idle timers, and start over
       if (!nozzle_timed_out)
         HOTEND_LOOP()
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
-      #if ENABLED(ULTIPANEL)
-        if (nozzle_timed_out)
+      if (nozzle_timed_out) {
+        #if ENABLED(ULTIPANEL)
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-      #endif
+        #endif
+
+        // Wait for LCD click or M108
+        while (wait_for_user) idle(true);
+
+        // Re-enable the heaters if they timed out
+        HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+
+        // Wait for the heaters to reach the target temperatures
+        ensure_safe_temperature();
+
+        #if ENABLED(ULTIPANEL)
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+        #endif
+
+        // Start the heater idle timers
+        const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
+
+        HOTEND_LOOP()
+          thermalManager.start_heater_idle_timer(e, nozzle_timeout);
+
+        wait_for_user = true; /* Wait for user to load filament */
+        nozzle_timed_out = false;
+
+        #if HAS_BUZZER
+          filament_change_beep(max_beep_count, true);
+        #endif
+      }
 
       idle(true);
     }
@@ -6049,7 +6081,7 @@ inline void gcode_M17() {
       stepper.synchronize();
     }
 
-    #if ENABLED(ULTIPANEL) && defined(ADVANCED_PAUSE_EXTRUDE_LENGTH) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
+    #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
 
       float extrude_length = initial_extrude_length;
 
@@ -6103,8 +6135,6 @@ inline void gcode_M17() {
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
     #endif
-
-    set_current_to_destination();
 
     #if ENABLED(ULTIPANEL)
       // Show status screen
@@ -7643,7 +7673,7 @@ inline void gcode_M18_M84() {
       if (parser.seen('X')) disable_X();
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
-      #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+      #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN // Only enable on boards that have separate ENABLE_PINS
         if (parser.seen('E')) disable_e_steppers();
       #endif
     }

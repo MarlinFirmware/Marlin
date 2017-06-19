@@ -94,8 +94,8 @@
     }
 
     static float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
-      const float delta_z = (z2 - z1) / (a2 - a1);
-      const float delta_a = a0 - a1;
+      const float delta_z = (z2 - z1) / (a2 - a1),
+                  delta_a = a0 - a1;
       return z1 + delta_a * delta_z;
     }
 
