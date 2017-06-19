@@ -310,7 +310,11 @@
     #if ENABLED(MIXING_EXTRUDER)
       #define E_STEPPERS  MIXING_STEPPERS
     #else
-      #define E_STEPPERS  1                                     // One E stepper
+      #if EXTRUDERS & 1
+        #define E_STEPPERS  (EXTRUDERS + 1) / 2
+      #else
+        #define E_STEPPERS  EXTRUDERS / 2
+      #endif
     #endif
     #define E_MANUAL      1
     #define TOOL_E_INDEX  0

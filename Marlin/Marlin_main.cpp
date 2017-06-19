@@ -9843,25 +9843,43 @@ inline void gcode_M999() {
 }
 
 #if ENABLED(SWITCHING_EXTRUDER)
-  inline void move_extruder_servo(uint8_t e) {
-    const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-    MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
-    safe_delay(500);
+  inline void move_extruder_servo(const uint8_t e) {
+    stepper.synchronize();
+    constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+    #if EXTRUDERS > 3
+      static_assert(COUNT(angles) == 4, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 4 angles.");
+    #else
+      static_assert(COUNT(angles) == 2, "SWITCHING_EXTRUDER_SERVO_ANGLES needs 2 angles.");
+    #endif
+
+    #if EXTRUDERS & 1
+      if (e < EXTRUDERS - 1)
+    #endif
+    {
+      #if EXTRUDERS > 3
+        MOVE_SERVO(e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR, angles[e]);
+      #else
+        MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+      #endif
+      safe_delay(500);
+    }
   }
 #endif
 
 #if ENABLED(SWITCHING_NOZZLE)
-  inline void move_nozzle_servo(uint8_t e) {
-    const int angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+  inline void move_nozzle_servo(const uint8_t e) {
+    const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+    stepper.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
     safe_delay(500);
   }
 #endif
 
-inline void invalid_extruder_error(const uint8_t &e) {
+inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
+  SERIAL_CHAR(' ');
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
@@ -9881,10 +9899,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
-    #if HOTENDS > 1
+    if (tmp_extruder >= EXTRUDERS)
+      return invalid_extruder_error(tmp_extruder);
 
-      if (tmp_extruder >= EXTRUDERS)
-        return invalid_extruder_error(tmp_extruder);
+    #if HOTENDS > 1
 
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
 
@@ -10006,6 +10024,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           #if ENABLED(SWITCHING_NOZZLE)
+            #define DONT_SWITCH (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
@@ -10013,16 +10032,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             // Always raise by some amount (destination copied from current_position earlier)
             current_position[Z_AXIS] += z_raise;
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-            stepper.synchronize();
-
-            move_nozzle_servo(active_extruder);
-          #endif
-
-          #if ENABLED(SWITCHING_EXTRUDER)
-            #if !(ENABLED(SWITCHING_NOZZLE) && (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR))
-              stepper.synchronize();
-              move_extruder_servo(active_extruder);
-            #endif
+            move_nozzle_servo(tmp_extruder);
           #endif
 
           /**
@@ -10167,18 +10177,17 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     #else // HOTENDS <= 1
 
-      // Set the new active extruder
-      active_extruder = tmp_extruder;
-
       UNUSED(fr_mm_s);
       UNUSED(no_move);
 
-      #if ENABLED(SWITCHING_EXTRUDER)
-        stepper.synchronize();
-        move_extruder_servo(active_extruder);
-      #endif
+      // Set the new active extruder
+      active_extruder = tmp_extruder;
 
     #endif // HOTENDS <= 1
+
+    #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
+      move_extruder_servo(active_extruder);
+    #endif
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
