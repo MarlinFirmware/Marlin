@@ -8876,16 +8876,12 @@ inline void gcode_M400() { stepper.synchronize(); }
   inline void gcode_M408() {
     // I=idle, P=printing from SD card, S=stopped (i.e. needs a reset), C=running config file (i.e starting up), A=paused, D=pausing, R=resuming from a pause, B=busy (e.g. running a macro),
     SERIAL_PROTOCOLPGM("{\"status\": \"");
-    if (!planner.blocks_queued())
-      SERIAL_PROTOCOLCHAR('I'); // IDLING
-    else
-    if (IS_SD_PRINTING || print_job_timer.isRunning())
-      SERIAL_PROTOCOLCHAR('P'); // SD PRINTING
-    else
-    if (print_job_timer.isPaused())
-      SERIAL_PROTOCOLCHAR('A'); // PAUSED
-    else
-      SERIAL_PROTOCOLCHAR('B'); // SOMETHING ELSE
+    SERIAL_PROTOCOLCHAR(
+        !planner.blocks_queued()                        ? 'I' : // IDLING
+        (IS_SD_PRINTING || print_job_timer.isRunning()) ? 'P' : // SD Printing
+        print_job_timer.isPaused()                      ? 'A' : // PAUSED
+                                                          'B'   // SOMETHING ELSE
+    );
     SERIAL_PROTOCOLPGM("\",\"heaters\": [");
     #if HAS_TEMP_BED
       SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
@@ -8950,9 +8946,10 @@ inline void gcode_M400() { stepper.synchronize(); }
       SERIAL_PROTOCOLPGM("],\"fraction_printed\": ");
       SERIAL_PROTOCOL_F(card.percentDone() * 0.01, 3);
     #else
-      SERIAL_PROTOCOLPGM("]");
+      SERIAL_PROTOCOLCHAR("]");
     #endif
-    SERIAL_PROTOCOLLNPGM("}");
+    SERIAL_PROTOCOLCHAR("}");
+    SERIAL_EOL;
   }
 #endif // REPORT_M408_JSON
 
