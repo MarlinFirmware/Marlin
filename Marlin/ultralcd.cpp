@@ -1018,8 +1018,8 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places.  So we keep a
-                                                  // seperate value that doesn't lose precision.
+    float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places. So we keep a
+                                                  // separate value that doesn't lose precision.
     static int ubl_encoderPosition = 0;
 
     static void _lcd_mesh_fine_tune(const char* msg) {
