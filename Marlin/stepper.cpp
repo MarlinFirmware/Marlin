@@ -110,7 +110,21 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance;
   #endif
 
-  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+  // See https://github.com/MarlinFirmware/Marlin/issues/5699#issuecomment-309264382
+  // This fix isn't perfect and may lose steps - but better than locking up completely
+  // in future would be good for planner to slow down if advance stepping rate would be
+  // too high
+  FORCE_INLINE uint16_t ADV_rate(long steps, uint16_t t, uint16_t l) {
+    if (steps != 0) {
+      const uint16_t rate = (t * l) / abs(steps);
+      if (rate == 0)
+        return 1;
+      // if (rate == ADV_NEVER)
+      //     return ADV_NEVER - 1;
+      return rate;
+    }
+    return ADV_NEVER;
+  }
 
 #endif
 
@@ -743,7 +757,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = ADV_rate(Stepper::e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -797,7 +811,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = ADV_rate(Stepper::e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else {
@@ -807,7 +821,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
+      eISR_Rate = ADV_rate(Stepper::e_steps[TOOL_E_INDEX], OCR1A_nominal, step_loops_nominal);
 
     #endif
 
