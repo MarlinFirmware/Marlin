@@ -189,9 +189,14 @@ extern uint16_t lcd_contrast;
 extern char currentfont;
 
 // The current graphical page being rendered
-extern u8g_t u8g;
-extern u8g_dev_t *dev
+extern u8g_dev_t *dev;
 extern u8g_page_t page;
+
+void lcd_implementation_init(
+//  #if ENABLED(LCD_PROGRESS_BAR)  // no progress bar for DOGM displays
+//    const bool info_screen_charset = true
+//  #endif
+);
 
 // For selective rendering within a Y range
 #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
@@ -214,7 +219,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH);
 
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen();
-void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+void lcd_implementation_clear();  // Automatically cleared by Picture Loop
 
 //
 // Status Screen

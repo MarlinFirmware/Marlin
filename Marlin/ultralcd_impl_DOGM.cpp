@@ -70,7 +70,7 @@ uint16_t lcd_contrast;
 char currentfont = 0;
 
 // The current graphical page being rendered
-u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
+u8g_page_t page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 
 void lcd_setFont(const char font_nr) {
   switch (font_nr) {
