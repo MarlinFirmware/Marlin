@@ -265,7 +265,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
 FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink);
 
-inline void lcd_implementation_status_message();
+inline void lcd_implementation_status_message(const bool blink);
 
 void lcd_implementation_status_screen();
 

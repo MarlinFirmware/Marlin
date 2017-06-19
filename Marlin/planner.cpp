@@ -534,10 +534,10 @@ void Planner::check_axes_activity() {
       if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
-        if ((planner.z_fade_height) && (planner.z_fade_height <= RAW_Z_POSITION(lz))) return;
+        if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
         lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
       #else // no fade
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly);
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly);
       #endif // FADE
     #endif // UBL
 
@@ -598,10 +598,10 @@ void Planner::check_axes_activity() {
 
       if (ubl.state.active) {
 
-        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]);
-        const float z_ublmesh  = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]);
-        const float z_virtual  = z_physical - ubl.state.z_offset - z_ublmesh;
-              float z_logical  = LOGICAL_Z_POSITION(z_virtual);
+        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
+                    z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
+                    z_virtual = z_physical - ubl.state.z_offset - z_correct;
+              float z_logical = LOGICAL_Z_POSITION(z_virtual);
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
@@ -614,10 +614,10 @@ void Planner::check_axes_activity() {
           //    so L=(P-O-M)/(1-M/H) for L<H
 
           if (planner.z_fade_height) {
-            if (z_logical < planner.z_fade_height )
-              z_logical = z_logical / (1.0 - (z_ublmesh * planner.inverse_z_fade_height));
             if (z_logical >= planner.z_fade_height)
               z_logical = LOGICAL_Z_POSITION(z_physical - ubl.state.z_offset);
+            else
+              z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
           }
 
         #endif // ENABLE_LEVELING_FADE_HEIGHT

@@ -1021,8 +1021,8 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places.  So we keep a
-                                                  // seperate value that doesn't lose precision.
+    float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places. So we keep a
+                                                  // separate value that doesn't lose precision.
     static int ubl_encoderPosition = 0;
 
     static void _lcd_mesh_fine_tune(const char* msg) {
@@ -1110,11 +1110,16 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void lcd_enqueue_filament_change() {
-      if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
-        lcd_save_previous_screen();
-        lcd_goto_screen(lcd_advanced_pause_toocold_menu);
-        return;
-      }
+
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (!DEBUGGING(DRYRUN) && !thermalManager.allow_cold_extrude &&
+            thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
+          lcd_save_previous_screen();
+          lcd_goto_screen(lcd_advanced_pause_toocold_menu);
+          return;
+        }
+      #endif
+
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600 B0"));
     }
@@ -1509,7 +1514,11 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
-  #if ENABLED(LCD_BED_LEVELING)
+  #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
+  #endif
+
+#if ENABLED(LCD_BED_LEVELING)
 
     /**
      *
@@ -2080,6 +2089,97 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_command(ubl_lcd_gcode);
     }
 
+    #if ENABLED(DOGLCD)
+
+      /**
+       * UBL LCD "radar" map data
+       */
+      #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
+      #define MAP_UPPER_LEFT_CORNER_Y 8   // it is easier to play with things having them here
+      #define MAP_MAX_PIXELS_X        53
+      #define MAP_MAX_PIXELS_Y        49
+
+      void _lcd_ubl_plot_drawing_prep() {
+        uint8_t i, j, x_offset, y_offset, x_map_pixels, y_map_pixels,
+                pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt, inverted_y;
+
+        /*********************************************************/
+        /************ Scale the box pixels appropriately *********/
+        /*********************************************************/
+        x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X);
+        y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y);
+
+        pixels_per_X_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X);
+        pixels_per_Y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y);
+
+        x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2;
+        y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
+
+        /*********************************************************/
+        /************ Clear the Mesh Map Box *********************/
+        /*********************************************************/
+
+        u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+        u8g.drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
+
+        u8g.setColorIndex(0);  // Now actually clear the mesh map box
+        u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
+
+        /*********************************************************/
+        /************ Display Mesh Point Locations ***************/
+        /*********************************************************/
+
+        u8g.setColorIndex(1);
+        for (i = 0; i < GRID_MAX_POINTS_X; i++) {
+          for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
+            u8g.drawBox(x_offset + i * pixels_per_X_mesh_pnt + pixels_per_X_mesh_pnt / 2,
+                        y_offset + j * pixels_per_Y_mesh_pnt + pixels_per_Y_mesh_pnt / 2, 1, 1);
+          }
+        }
+
+        /*********************************************************/
+        /************ Fill in the Specified Mesh Point ***********/
+        /*********************************************************/
+
+        inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to
+                                                        // invert the Y to get it to plot in the right location.
+        u8g.drawBox(x_offset + x_plot * pixels_per_X_mesh_pnt, y_offset + inverted_y * pixels_per_Y_mesh_pnt,
+                      pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt);
+
+        /*********************************************************/
+        /************** Put Relevant Text on Display *************/
+        /*********************************************************/
+
+        // Show X and Y positions at top of screen
+        u8g.setColorIndex(1);
+        u8g.setPrintPos(5, 7);
+        lcd_print("X:");
+        lcd_print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        u8g.setPrintPos(74, 7);
+        lcd_print("Y:");
+        lcd_print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+        // Print plot position
+        u8g.setPrintPos(5, 64);
+        lcd_print('(');
+        u8g.print(x_plot);
+        lcd_print(',');
+        u8g.print(y_plot);
+        lcd_print(')');
+
+        // Show the location value
+        u8g.setPrintPos(74, 64);
+        lcd_print("Z:");
+        if (!isnan(ubl.z_values[x_plot][y_plot])) {
+          lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        }
+        else {
+          lcd_print(" -----");
+        }
+      }
+
+    #endif // DOGLCD
+
     /**
      * UBL LCD Map Movement
      */
@@ -2096,7 +2196,7 @@ void kill_screen(const char* lcd_msg) {
     void sync_plan_position();
 
     void _lcd_ubl_output_map_lcd() {
-      static int step_scaler=0;
+      static int16_t step_scaler = 0;
       int32_t signed_enc_pos;
 
       defer_return_to_status = true;
@@ -2106,11 +2206,10 @@ void kill_screen(const char* lcd_msg) {
         if (lcd_clicked) { return _lcd_ubl_map_lcd_edit_cmd(); }
         ENCODER_DIRECTION_NORMAL();
 
-        if (encoderPosition != 0) {
+        if (encoderPosition) {
           signed_enc_pos = (int32_t)encoderPosition;
           step_scaler += signed_enc_pos;
-          x_plot = (x_plot + step_scaler / ENCODER_STEPS_PER_MENU_ITEM);
-
+          x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
           if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
             step_scaler = 0;
           refresh_cmd_timeout();
@@ -2152,7 +2251,7 @@ void kill_screen(const char* lcd_msg) {
 
           ubl_map_move_to_xy(); // Move to current location
 
-          if (planner.movesplanned()>1) { // if the nozzle is moving, cancel the move.  There is a new location
+          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
             #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
             #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
             DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -3067,10 +3166,6 @@ void kill_screen(const char* lcd_msg) {
         #endif // E_STEPPERS > 4
       #endif // E_STEPPERS > 3
     #endif // E_STEPPERS > 2
-  #endif
-
-  #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
   // M203 / M205 Velocity options
@@ -4305,11 +4400,11 @@ void pad_message_string() {
     // pad with spaces to fill up the line
     while (j++ < LCD_WIDTH) lcd_status_message[i++] = ' ';
     // chop off at the edge
-    lcd_status_message[--i] = '\0';
+    lcd_status_message[i] = '\0';
   }
 }
 
-void lcd_finishstatus(bool persist=false) {
+void lcd_finishstatus(const bool persist=false) {
 
   pad_message_string();
 
