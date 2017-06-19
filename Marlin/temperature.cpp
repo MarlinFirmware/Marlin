@@ -421,13 +421,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           bedKp = workKp; \
           bedKi = scalePID_i(workKi); \
           bedKd = scalePID_d(workKd); \
-          updatePID(); } while(0)
+          updatePID(); }while(0)
 
         #define _SET_EXTRUDER_PID() do { \
           PID_PARAM(Kp, hotend) = workKp; \
           PID_PARAM(Ki, hotend) = scalePID_i(workKi); \
           PID_PARAM(Kd, hotend) = scalePID_d(workKd); \
-          updatePID(); } while(0)
+          updatePID(); }while(0)
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
@@ -505,7 +505,7 @@ int Temperature::getHeaterPower(int heater) {
 //
 // Temperature Error Handlers
 //
-void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg) {
+void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
@@ -524,7 +524,7 @@ void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg
   #endif
 }
 
-void Temperature::max_temp_error(int8_t e) {
+void Temperature::max_temp_error(const int8_t e) {
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MAXTEMP), e >= 0 ? PSTR(MSG_ERR_MAXTEMP) : PSTR(MSG_ERR_MAXTEMP_BED));
   #else
@@ -534,7 +534,7 @@ void Temperature::max_temp_error(int8_t e) {
     #endif
   #endif
 }
-void Temperature::min_temp_error(int8_t e) {
+void Temperature::min_temp_error(const int8_t e) {
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MINTEMP), e >= 0 ? PSTR(MSG_ERR_MINTEMP) : PSTR(MSG_ERR_MINTEMP_BED));
   #else
@@ -545,7 +545,7 @@ void Temperature::min_temp_error(int8_t e) {
   #endif
 }
 
-float Temperature::get_pid_output(int e) {
+float Temperature::get_pid_output(const int8_t e) {
   #if HOTENDS == 1
     UNUSED(e);
     #define _HOTEND_TEST     true
@@ -890,7 +890,7 @@ float Temperature::analog2temp(int raw, uint8_t e) {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For bed temperature measurement.
-float Temperature::analog2tempBed(int raw) {
+float Temperature::analog2tempBed(const int raw) {
   #if ENABLED(BED_USES_THERMISTOR)
     float celsius = 0;
     byte i;
@@ -1148,7 +1148,7 @@ void Temperature::init() {
 
   #define TEMP_MIN_ROUTINE(NR) \
     minttemp[NR] = HEATER_ ##NR## _MINTEMP; \
-    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
+    while (analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         minttemp_raw[NR] += OVERSAMPLENR; \
       else \
@@ -1156,7 +1156,7 @@ void Temperature::init() {
     }
   #define TEMP_MAX_ROUTINE(NR) \
     maxttemp[NR] = HEATER_ ##NR## _MAXTEMP; \
-    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
+    while (analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         maxttemp_raw[NR] -= OVERSAMPLENR; \
       else \
@@ -1203,7 +1203,7 @@ void Temperature::init() {
   #endif // HOTENDS > 1
 
   #ifdef BED_MINTEMP
-    while(analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+    while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
       #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
         bed_minttemp_raw += OVERSAMPLENR;
       #else
@@ -1292,7 +1292,7 @@ void Temperature::init() {
         SERIAL_EOL();
     */
 
-    int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
+    const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
@@ -1922,7 +1922,7 @@ void Temperature::isr() {
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
       // ISRs to save on calls to temp update/checking code below.
-      constexpr int extra_loops = MIN_ADC_ISR_LOOPS - (int)SensorsReady;
+      constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - (int8_t)SensorsReady;
       static uint8_t delay_count = 0;
       if (extra_loops > 0) {
         if (delay_count == 0) delay_count = extra_loops;   // Init this delay

@@ -370,7 +370,7 @@ void Stepper::isr() {
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
-    } while(0)
+    }while(0)
 
     if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
       endstops.update();
@@ -862,6 +862,9 @@ void Stepper::isr() {
         SET_E_STEP_DIR(2);
         #if E_STEPPERS > 3
           SET_E_STEP_DIR(3);
+          #if E_STEPPERS > 4
+            SET_E_STEP_DIR(4);
+          #endif
         #endif
       #endif
     #endif
@@ -880,6 +883,9 @@ void Stepper::isr() {
           START_E_PULSE(2);
           #if E_STEPPERS > 3
             START_E_PULSE(3);
+            #if E_STEPPERS > 4
+              START_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif
@@ -899,6 +905,9 @@ void Stepper::isr() {
           STOP_E_PULSE(2);
           #if E_STEPPERS > 3
             STOP_E_PULSE(3);
+            #if E_STEPPERS > 4
+              STOP_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif

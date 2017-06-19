@@ -115,8 +115,9 @@
   void unified_bed_leveling::display_map(const int map_type) {
     constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
+    SERIAL_PROTOCOLPGM("\nBed Topography Report");
     if (map_type == 0) {
-      SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
+      SERIAL_PROTOCOLPGM(":\n\n");
       serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
       SERIAL_ECHO_SP(spaces + 3);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
@@ -126,9 +127,10 @@
       serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
       SERIAL_EOL();
     }
-
-    if (map_type == 1) { SERIAL_PROTOCOLLNPGM("\nBed Topography Report for CSV:"); SERIAL_EOL(); }
-    if (map_type == 2) { SERIAL_PROTOCOLLNPGM("\nBed Topography Report for LCD:"); SERIAL_EOL(); }
+    else {
+      SERIAL_PROTOCOLPGM(" for ");
+      serialprintPGM(map_type == 1 ? PSTR("CSV:\n\n") : PSTR("LCD:\n\n"));
+    }
 
     const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
                 current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
@@ -142,14 +144,14 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM((map_type == 0) ? PSTR("    .   ") : PSTR("NAN"));
+          serialprintPGM(map_type == 0 ? PSTR("    .   ") : PSTR("NAN"));
         }
-        else {
+        else if (map_type <= 1) {
           // if we don't do this, the columns won't line up nicely
-          if ((map_type == 0) && f >= 0.0) SERIAL_CHAR(' ');
-          if (map_type <= 1) SERIAL_PROTOCOL_F(f, 3);
-          idle();
+          if (map_type == 0 && f >= 0.0) SERIAL_CHAR(' ');
+          SERIAL_PROTOCOL_F(f, 3);
         }
+        idle();
         if (map_type == 1 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
 
         #if TX_BUFFER_SIZE > 0
@@ -162,7 +164,7 @@
         }
       }
       SERIAL_EOL();
-      if (j && (map_type == 0)) { // we want the (0,0) up tight against the block of numbers
+      if (j && map_type == 0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL();
       }
@@ -183,8 +185,7 @@
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
-    const int a = settings.calc_num_meshes();
-    if (a < 1) {
+    if (settings.calc_num_meshes() < 1) {
       SERIAL_PROTOCOLLNPGM("?Insufficient EEPROM storage for a mesh of this size.");
       error_flag++;
     }
