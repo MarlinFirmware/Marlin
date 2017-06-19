@@ -32,8 +32,6 @@
   #include <U8glib.h>
 #else
   #include "ultralcd_impl_HD44780.h"
-  #include "utf_mapper.h"
 #endif
 
 #endif //ULTRA_LCD
-
