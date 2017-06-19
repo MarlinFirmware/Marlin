@@ -9012,7 +9012,7 @@ void quickstop_stepper() {
       if (planner.z_fade_height > 0.0)
         SERIAL_ECHOLN(planner.z_fade_height);
       else
-        SERIAL_ECHOLNPGM(MSG_OFF)
+        SERIAL_ECHOLNPGM(MSG_OFF);
     #endif
   }
 #endif
