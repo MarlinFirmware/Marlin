@@ -9008,7 +9008,11 @@ void quickstop_stepper() {
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("Fade Height ", planner.z_fade_height);
+      SERIAL_ECHOPGM("Fade Height ");
+      if (planner.z_fade_height > 0.0)
+        SERIAL_ECHOLN(planner.z_fade_height);
+      else
+        SERIAL_ECHOLNPGM(MSG_OFF)
     #endif
   }
 #endif
