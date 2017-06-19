@@ -92,7 +92,7 @@ uint16_t max_display_update_time = 0;
 
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
-  int16_t driverPercent[XYZE];
+  uint8_t driverPercent[XYZE];
 #endif
 
 #if ENABLED(ULTIPANEL)
@@ -185,6 +185,7 @@ uint16_t max_display_update_time = 0;
     typedef void _name##_void
 
   DECLARE_MENU_EDIT_TYPE(int, int3);
+  DECLARE_MENU_EDIT_TYPE(uint8_t, int8);
   DECLARE_MENU_EDIT_TYPE(float, float3);
   DECLARE_MENU_EDIT_TYPE(float, float32);
   DECLARE_MENU_EDIT_TYPE(float, float43);
@@ -1258,10 +1259,10 @@ void kill_screen(const char* lcd_msg) {
       dac_driver_getValues();
       START_MENU();
       MENU_BACK(MSG_CONTROL);
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
       MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
       END_MENU();
     }
@@ -3936,6 +3937,7 @@ void kill_screen(const char* lcd_msg) {
     typedef void _name
 
   DEFINE_MENU_EDIT_TYPE(int, int3, itostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
   DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1.0);
   DEFINE_MENU_EDIT_TYPE(float, float32, ftostr32, 100.0);
   DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000.0);
