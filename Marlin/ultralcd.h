@@ -48,6 +48,7 @@
 
   extern uint8_t lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
+  extern char lcd_status_message[];
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);

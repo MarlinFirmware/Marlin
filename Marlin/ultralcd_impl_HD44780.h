@@ -356,7 +356,7 @@ static void lcd_set_custom_characters(
   #endif
 }
 
-static void lcd_implementation_init(
+void lcd_implementation_init(
   #if ENABLED(LCD_PROGRESS_BAR)
     const bool info_screen_charset = true
   #endif
@@ -669,7 +669,7 @@ Possible status screens:
        |F100%  SD100% T--:--|
        |01234567890123456789|
 */
-static void lcd_implementation_status_screen() {
+void lcd_implementation_status_screen() {
   const bool blink = lcd_blink();
 
   //
@@ -886,7 +886,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+  void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
     char c;
     int8_t n = LCD_WIDTH;
@@ -906,7 +906,7 @@ static void lcd_implementation_status_screen() {
     while (n-- > 0) lcd.print(' ');
   }
 
-  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
+  void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     char c;
     uint8_t n = LCD_WIDTH - 2;
     lcd.setCursor(0, row);
@@ -919,7 +919,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(post_char);
   }
 
-  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+  void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
     uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
     lcd.setCursor(0, row);
@@ -1077,9 +1077,13 @@ static void lcd_implementation_status_screen() {
 #endif // LCD_HAS_STATUS_INDICATORS
 
 #ifdef AUTO_BED_LEVELING_UBL
-    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
-    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
-      lcd_return_to_status();          // real code.
+    // These are just place holders for the 20x4 LCD work that
+    // is coming up very soon.   Soon this will morph into the
+    // real code.
+    void lcd_return_to_status();
+
+    void _lcd_ubl_plot_HD44780(uint8_t x_plot, uint8_t y_plot) {
+      lcd_return_to_status();
     }
 
 #endif // AUTO_BED_LEVELING_UBL

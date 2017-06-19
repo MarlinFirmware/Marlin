@@ -437,7 +437,6 @@
         state.storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
       }
-
       switch (g29_phase_value) {
         case 0:
           //
