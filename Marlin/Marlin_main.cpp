@@ -2278,7 +2278,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-    return current_position[Z_AXIS] + zprobe_zoffset;
+    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset;
   }
 
   /**
