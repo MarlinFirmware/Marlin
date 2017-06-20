@@ -421,7 +421,7 @@ FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&ho
 
 float feedrate_mm_s = MMM_TO_MMS(1500.0);
 static float saved_feedrate_mm_s;
-int feedrate_percentage = 100, saved_feedrate_percentage,
+int16_t feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
@@ -2968,7 +2968,7 @@ static void homeaxis(const AxisEnum axis) {
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
-      float adj = fabs(z_endstop_adj);
+      float adj = FABS(z_endstop_adj);
       bool lockZ1;
       if (axis_home_dir > 0) {
         adj = -adj;
@@ -3293,7 +3293,7 @@ inline void gcode_G0_G1(
           const float e = clockwise ^ (r < 0) ? -1 : 1,           // clockwise -1/1, counterclockwise 1/-1
                       dx = x2 - x1, dy = y2 - y1,                 // X and Y differences
                       d = HYPOT(dx, dy),                          // Linear distance between the points
-                      h = sqrt(sq(r) - sq(d * 0.5)),              // Distance to the arc pivot-point
+                      h = SQRT(sq(r) - sq(d * 0.5)),              // Distance to the arc pivot-point
                       mx = (x1 + x2) * 0.5, my = (y1 + y2) * 0.5, // Point between the two points
                       sx = -dy / d, sy = dx / d,                  // Slope of the perpendicular bisector
                       cx = mx + e * h * sx, cy = my + e * h * sy; // Pivot-point of the arc
@@ -3448,7 +3448,7 @@ inline void gcode_G4() {
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
                 mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = min(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * sqrt(sq(mlratio) + 1.0);
+                fr_mm_s = min(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
     endstops.hit_on_purpose(); // clear endstop hit flags
@@ -4605,8 +4605,8 @@ void home_all_axes() { gcode_G28(true); }
           const float xBase = xCount * xGridSpacing + left_probe_bed_position,
                       yBase = yCount * yGridSpacing + front_probe_bed_position;
 
-          xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
-          yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
+          xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
+          yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[xCount][yCount] = abl_probe_index;
@@ -4710,8 +4710,8 @@ void home_all_axes() { gcode_G28(true); }
             float xBase = left_probe_bed_position + xGridSpacing * xCount,
                   yBase = front_probe_bed_position + yGridSpacing * yCount;
 
-            xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
-            yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
+            xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
+            yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
               indexIntoAB[xCount][yCount] = ++abl_probe_index; // 0...
@@ -5263,7 +5263,7 @@ void home_all_axes() { gcode_G28(true); }
             N++;
           }
         zero_std_dev_old = zero_std_dev;
-        zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+        zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
 
@@ -5464,7 +5464,7 @@ void home_all_axes() { gcode_G28(true); }
     float retract_mm[XYZ];
     LOOP_XYZ(i) {
       float dist = destination[i] - current_position[i];
-      retract_mm[i] = fabs(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
+      retract_mm[i] = FABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
 
     stepper.synchronize();  // wait until the machine is idle
@@ -5528,7 +5528,7 @@ void home_all_axes() { gcode_G28(true); }
 
     // If any axis has enough movement, do the move
     LOOP_XYZ(i)
-      if (fabs(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
+      if (FABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
         if (!parser.seen('F')) feedrate_mm_s = homing_feedrate(i);
         // If G38.2 fails throw an error
         if (!G38_run_probe() && is_38_2) {
@@ -6851,7 +6851,7 @@ inline void gcode_M42() {
       for (uint8_t j = 0; j <= n; j++)
         sum += sq(sample_set[j] - mean);
 
-      sigma = sqrt(sum / (n + 1));
+      sigma = SQRT(sum / (n + 1));
       if (verbose_level > 0) {
         if (verbose_level > 1) {
           SERIAL_PROTOCOL(n + 1);
@@ -7266,7 +7266,7 @@ inline void gcode_M109() {
 
     #if TEMP_RESIDENCY_TIME > 0
 
-      const float temp_diff = fabs(target_temp - temp);
+      const float temp_diff = FABS(target_temp - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -7395,7 +7395,7 @@ inline void gcode_M109() {
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
-        const float temp_diff = fabs(target_temp - temp);
+        const float temp_diff = FABS(target_temp - temp);
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -9252,7 +9252,7 @@ inline void gcode_M503() {
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (!no_babystep && leveling_is_active())
-          thermalManager.babystep_axis(Z_AXIS, -lround(diff * planner.axis_steps_per_mm[Z_AXIS]));
+          thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
       #else
         UNUSED(no_babystep);
       #endif
@@ -11171,7 +11171,7 @@ void ok_to_send() {
     if (last_x != x) {
       last_x = x;
       ratio_x = x * ABL_BG_FACTOR(X_AXIS);
-      const float gx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
+      const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
       ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
 
       #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
@@ -11188,7 +11188,7 @@ void ok_to_send() {
       if (last_y != y) {
         last_y = y;
         ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
-        const float gy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
+        const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
         ratio_y -= gy;
 
         #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
@@ -11221,7 +11221,7 @@ void ok_to_send() {
 
     /*
     static float last_offset = 0;
-    if (fabs(last_offset - offset) > 0.2) {
+    if (FABS(last_offset - offset) > 0.2) {
       SERIAL_ECHOPGM("Sudden Shift at ");
       SERIAL_ECHOPAIR("x=", x);
       SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
@@ -11290,7 +11290,7 @@ void ok_to_send() {
 
   #else
 
-    #define _SQRT(n) sqrt(n)
+    #define _SQRT(n) SQRT(n)
 
   #endif
 
@@ -11364,7 +11364,7 @@ void ok_to_send() {
     float distance = delta[A_AXIS];
     cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
     inverse_kinematics(cartesian);
-    return abs(distance - delta[A_AXIS]);
+    return FABS(distance - delta[A_AXIS]);
   }
 
   /**
@@ -11397,7 +11397,7 @@ void ok_to_send() {
     float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 };
 
     // Get the Magnitude of vector.
-    float d = sqrt( sq(p12[0]) + sq(p12[1]) + sq(p12[2]) );
+    float d = SQRT( sq(p12[0]) + sq(p12[1]) + sq(p12[2]) );
 
     // Create unit vector by dividing by magnitude.
     float ex[3] = { p12[0] / d, p12[1] / d, p12[2] / d };
@@ -11416,7 +11416,7 @@ void ok_to_send() {
     float ey[3] = { p13[0] - iex[0], p13[1] - iex[1], p13[2] - iex[2] };
 
     // The magnitude of Y component
-    float j = sqrt( sq(ey[0]) + sq(ey[1]) + sq(ey[2]) );
+    float j = SQRT( sq(ey[0]) + sq(ey[1]) + sq(ey[2]) );
 
     // Convert to a unit vector
     ey[0] /= j; ey[1] /= j;  ey[2] /= j;
@@ -11433,7 +11433,7 @@ void ok_to_send() {
     // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
     float Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + sq(d)) / (d * 2),
           Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + HYPOT2(i, j)) / 2 - i * Xnew) / j,
-          Znew = sqrt(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
+          Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
 
     // Start from the origin of the old coordinates and add vectors in the
     // old coords that represent the Xnew, Ynew and Znew to find the point
@@ -11656,10 +11656,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     };
 
     // Get the linear distance in XYZ
-    float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
+    float cartesian_mm = SQRT(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
 
     // If the move is very short, check the E move distance
-    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
+    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = FABS(difference[E_AXIS]);
 
     // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return true;
@@ -11947,7 +11947,7 @@ void prepare_move_to_destination() {
                 extruder_travel = logical[E_AXIS] - current_position[E_AXIS];
 
     // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
-    float angular_travel = atan2(r_X * rt_Y - r_Y * rt_X, r_X * rt_X + r_Y * rt_Y);
+    float angular_travel = ATAN2(r_X * rt_Y - r_Y * rt_X, r_X * rt_X + r_Y * rt_Y);
     if (angular_travel < 0) angular_travel += RADIANS(360);
     if (clockwise) angular_travel -= RADIANS(360);
 
@@ -11955,10 +11955,10 @@ void prepare_move_to_destination() {
     if (angular_travel == 0 && current_position[X_AXIS] == logical[X_AXIS] && current_position[Y_AXIS] == logical[Y_AXIS])
       angular_travel += RADIANS(360);
 
-    const float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
+    const float mm_of_travel = HYPOT(angular_travel * radius, FABS(linear_travel));
     if (mm_of_travel < 0.001) return;
 
-    uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
+    uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
     if (segments == 0) segments = 1;
 
     /**
@@ -12155,7 +12155,7 @@ void prepare_move_to_destination() {
     else
       C2 = (HYPOT2(sx, sy) - (L1_2 + L2_2)) / (2.0 * L1 * L2);
 
-    S2 = sqrt(1 - sq(C2));
+    S2 = SQRT(1 - sq(C2));
 
     // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
     SK1 = L1 + L2 * C2;
@@ -12164,10 +12164,10 @@ void prepare_move_to_destination() {
     SK2 = L2 * S2;
 
     // Angle of Arm1 is the difference between Center-to-End angle and the Center-to-Elbow
-    THETA = atan2(SK1, SK2) - atan2(sx, sy);
+    THETA = ATAN2(SK1, SK2) - ATAN2(sx, sy);
 
     // Angle of Arm2
-    PSI = atan2(S2, C2);
+    PSI = ATAN2(S2, C2);
 
     delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
     delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)

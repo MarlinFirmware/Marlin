@@ -80,16 +80,16 @@ void Nozzle::zigzag(
 
     for (uint8_t j = 0; j < strokes; j++) {
       for (uint8_t i = 0; i < (objects << 1); i++) {
-        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
+        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - FABS(FMOD((i*P), (2*P)) - P)) );
+        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - FABS(FMOD((i*P), (2*P)) - P)) );
 
         do_blocking_move_to_xy(x, y);
         if (i == 0) do_blocking_move_to_z(start.z);
       }
 
       for (int i = (objects << 1); i > -1; i--) {
-        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
+        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - FABS(FMOD((i*P), (2*P)) - P)) );
+        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - FABS(FMOD((i*P), (2*P)) - P)) );
 
         do_blocking_move_to_xy(x, y);
       }

@@ -213,7 +213,7 @@ public:
           linear_unit_factor = 1.0;
           break;
       }
-      volumetric_unit_factor = pow(linear_unit_factor, 3.0);
+      volumetric_unit_factor = POW(linear_unit_factor, 3.0);
     }
 
     inline static float axis_unit_factor(const AxisEnum axis) {

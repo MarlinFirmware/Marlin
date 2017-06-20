@@ -136,7 +136,7 @@
                     position;
 
     unsigned long   lastPositionTime        = 0,
-                    lastErrorCountTime      = 0,
+                    nextErrorCountTime      = 0,
                     lastErrorTime;
 
     //double        positionMm; //calculate

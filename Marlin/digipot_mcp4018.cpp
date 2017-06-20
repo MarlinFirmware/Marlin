@@ -44,7 +44,7 @@
 #define DIGIPOT_A4988_MAX_CURRENT       (DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax) - 0.5)
 
 static byte current_to_wiper(const float current) {
-  return byte(ceil(float(DIGIPOT_A4988_FACTOR) * current));
+  return byte(CEIL(float(DIGIPOT_A4988_FACTOR) * current));
 }
 
 const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {

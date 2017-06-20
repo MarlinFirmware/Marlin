@@ -126,16 +126,16 @@
     }
 
     lastPosition = position;
-    unsigned long positionTime = millis();
+    millis_t positionTime = millis();
 
     //only do error correction if setup and enabled
     if (ec && ecMethod != I2CPE_ECM_NONE) {
 
       #if defined(I2CPE_EC_THRESH_PROPORTIONAL)
+        millis_t deltaTime = positionTime - lastPositionTime;
         unsigned long distance = abs(position - lastPosition);
-        unsigned long deltaTime = positionTime - lastPositionTime;
         unsigned long speed = distance / deltaTime;
-        float threshold = constrain((speed / 50), 1, 50) * ecThreshold;
+        float threshold = constrain(speed / 50, 1, 50) * ecThreshold;
       #else
         float threshold = get_error_correct_threshold();
       #endif
@@ -162,7 +162,7 @@
       //SERIAL_ECHOLN(error);
 
       #if defined(I2CPE_ERR_THRESH_ABORT)
-        if (abs(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
+        if (labs(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
           //kill("Significant Error");
           SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
           SERIAL_ECHOLN(error);
@@ -174,29 +174,32 @@
         if (errIdx == 0) {
           // in order to correct for "error" but avoid correcting for noise and non skips
           // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-          if (abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
-              diffSum < 10*(I2CPE_ERR_ARRAY_SIZE-1) && abs(error) < 2000) { //Check for persistent error (skip)
+          if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
+              diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && labs(error) < 2000) { //Check for persistent error (skip)
             SERIAL_ECHO(axis_codes[encoderAxis]);
-            SERIAL_ECHOPAIR(" diffSum: ", diffSum/(I2CPE_ERR_ARRAY_SIZE-1));
+            SERIAL_ECHOPAIR(" diffSum: ", diffSum / (I2CPE_ERR_ARRAY_SIZE - 1));
             SERIAL_ECHOPAIR(" - err detected: ", error / planner.axis_steps_per_mm[encoderAxis]);
             SERIAL_ECHOLNPGM("mm; correcting!");
-            thermalManager.babystepsTodo[encoderAxis] = -lround(error);
+            thermalManager.babystepsTodo[encoderAxis] = -LROUND(error);
           }
         }
       #else
-        if (abs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+        if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
           //SERIAL_ECHOLN(error);
           //SERIAL_ECHOLN(position);
-          thermalManager.babystepsTodo[encoderAxis] = -lround(error/2);
+          thermalManager.babystepsTodo[encoderAxis] = -LROUND(error/2);
         }
       #endif
 
-      if (abs(error) > (I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) && millis() - lastErrorCountTime > I2CPE_ERR_CNT_DEBOUNCE_MS) {
-        SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
-        SERIAL_ECHOPAIR(" axis. error: ", (int)error);
-        SERIAL_ECHOLNPAIR("; diffSum: ", diffSum);
-        errorCount++;
-        lastErrorCountTime = millis();
+      if (labs(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
+        const millis_t ms = millis();
+        if (ELAPSED(ms, nextErrorCountTime)) {
+          SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
+          SERIAL_ECHOPAIR(" axis. error: ", (int)error);
+          SERIAL_ECHOLNPAIR("; diffSum: ", diffSum);
+          errorCount++;
+          nextErrorCountTime = ms + I2CPE_ERR_CNT_DEBOUNCE_MS;
+        }
       }
     }
 
@@ -255,7 +258,7 @@
     actual = mm_from_count(position);
     error = actual - target;
 
-    if (abs(error) > 10000) error = 0; // ?
+    if (labs(error) > 10000) error = 0; // ?
 
     if (report) {
       SERIAL_ECHO(axis_codes[encoderAxis]);
@@ -284,13 +287,13 @@
     stepperTicksPerUnit = (type == I2CPE_ENC_TYPE_ROTARY) ? stepperTicks : planner.axis_steps_per_mm[encoderAxis];
 
     //convert both 'ticks' into same units / base
-    encoderCountInStepperTicksScaled = lround((stepperTicksPerUnit * encoderTicks) / encoderTicksPerUnit);
+    encoderCountInStepperTicksScaled = LROUND((stepperTicksPerUnit * encoderTicks) / encoderTicksPerUnit);
 
     long target = stepper.position(encoderAxis),
          error = (encoderCountInStepperTicksScaled - target);
 
     //suppress discontinuities (might be caused by bad I2C readings...?)
-    bool suppressOutput = (abs(error - errorPrev) > 100);
+    bool suppressOutput = (labs(error - errorPrev) > 100);
 
     if (report) {
       SERIAL_ECHO(axis_codes[encoderAxis]);

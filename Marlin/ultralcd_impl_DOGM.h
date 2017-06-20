@@ -346,7 +346,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 // Status Screen
 //
 
-FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uint8_t y) {
+FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const uint8_t degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
   u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
   lcd_print(itostr3(temp));
@@ -484,7 +484,7 @@ static void lcd_implementation_status_screen() {
     #if HAS_FAN0
       if (PAGE_CONTAINS(20, 27)) {
         // Fan
-        const int per = ((fanSpeeds[0] + 1) * 100) / 256;
+        const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
           u8g.setPrintPos(104, 27);
           lcd_print(itostr3(per));
@@ -533,7 +533,7 @@ static void lcd_implementation_status_screen() {
       if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (unsigned int)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
         );
 
       //
@@ -847,7 +847,7 @@ static void lcd_implementation_status_screen() {
     } \
     typedef void _name##_void
 
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int, int3, itostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float32, ftostr32);
@@ -856,7 +856,7 @@ static void lcd_implementation_status_screen() {
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float51, ftostr51sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float62, ftostr62rj);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(unsigned long, long5, ftostr5rj);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint32_t, long5, ftostr5rj);
 
   #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))

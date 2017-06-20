@@ -337,7 +337,7 @@ static void lcd_set_custom_characters(
       if (info_screen_charset != char_mode) {
         char_mode = info_screen_charset;
         if (info_screen_charset) { // Progress bar characters for info screen
-          for (int i = 3; i--;) createChar_P(LCD_STR_PROGRESS[i], progress[i]);
+          for (int16_t i = 3; i--;) createChar_P(LCD_STR_PROGRESS[i], progress[i]);
         }
         else { // Custom characters for submenus
           createChar_P(LCD_UPLEVEL_CHAR, uplevel);
@@ -414,17 +414,17 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
-  void lcd_erase_line(const int line) {
+  void lcd_erase_line(const int16_t line) {
     lcd.setCursor(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
       lcd.print(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const int col, const int line, const char* const text, const int len, const int time) {
+  void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
     char tmp[LCD_WIDTH + 1] = {0};
-    int n = max(lcd_strlen_P(text) - len, 0);
-    for (int i = 0; i <= n; i++) {
+    int16_t n = max(lcd_strlen_P(text) - len, 0);
+    for (int16_t i = 0; i <= n; i++) {
       strncpy_P(tmp, text + i, min(len, LCD_WIDTH));
       lcd.setCursor(col, line);
       lcd_print(tmp);
@@ -433,7 +433,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   }
 
   static void logo_lines(const char* const extra) {
-    int indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
+    int16_t indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
     lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
     lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
     lcd.setCursor(indent, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
@@ -628,7 +628,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
 #if ENABLED(LCD_PROGRESS_BAR)
 
   inline void lcd_draw_progress_bar(const uint8_t percent) {
-    const int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
+    const int16_t tix = (int16_t)(percent * (LCD_WIDTH) * 3) / 100,
               cel = tix / 3,
               rem = tix % 3;
     uint8_t i = LCD_WIDTH;
@@ -958,7 +958,7 @@ static void lcd_implementation_status_screen() {
     } \
     typedef void _name##_void
 
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int, int3, itostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float32, ftostr32);
@@ -967,7 +967,7 @@ static void lcd_implementation_status_screen() {
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float51, ftostr51sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float62, ftostr62rj);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(unsigned long, long5, ftostr5rj);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint32_t, long5, ftostr5rj);
 
   #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))

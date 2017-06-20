@@ -498,7 +498,7 @@
 
             if (parser.seen('B')) {
               g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(height);
-              if (fabs(g29_card_thickness) > 1.5) {
+              if (FABS(g29_card_thickness) > 1.5) {
                 SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
                 return;
               }
@@ -562,7 +562,7 @@
                   // P3.13 1000X distance weighting, approaches simple average of nearest points
 
                   const float weight_power  = (cvf - 3.10) * 100.0,  // 3.12345 -> 2.345
-                              weight_factor = weight_power ? pow(10.0, weight_power) : 0;
+                              weight_factor = weight_power ? POW(10.0, weight_power) : 0;
                   smart_fill_wlsf(weight_factor);
                 }
                 break;
@@ -774,7 +774,7 @@
     SERIAL_ECHO_F(mean, 6);
     SERIAL_EOL();
 
-    const float sigma = sqrt(sum_of_diff_squared / (n + 1));
+    const float sigma = SQRT(sum_of_diff_squared / (n + 1));
     SERIAL_ECHOPGM("Standard Deviation: ");
     SERIAL_ECHO_F(sigma, 6);
     SERIAL_EOL();
@@ -1508,7 +1508,7 @@
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);    // Move the nozzle to where we are going to edit
         do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
-        new_z = floor(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
+        new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         has_control_of_lcd_panel = true;

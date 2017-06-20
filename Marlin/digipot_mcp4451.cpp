@@ -38,7 +38,7 @@
 #endif
 
 static byte current_to_wiper(const float current) {
-  return byte(ceil(float((DIGIPOT_I2C_FACTOR * current))));
+  return byte(CEIL(float((DIGIPOT_I2C_FACTOR * current))));
 }
 
 static void i2c_send(const byte addr, const byte a, const byte b) {
