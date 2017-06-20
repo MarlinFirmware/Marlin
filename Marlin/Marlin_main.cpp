@@ -4183,7 +4183,7 @@ void home_all_axes() { gcode_G28(true); }
    *  W  Write a mesh point. (Ignored during leveling.)
    *  X  Required X for mesh point
    *  Y  Required Y for mesh point
-   *  Z  Required Z for mesh point
+   *  Z  Z for mesh point. Otherwise, current Z minus Z probe offset.
    *
    * Without PROBE_MANUALLY:
    *
@@ -4316,8 +4316,8 @@ void home_all_axes() { gcode_G28(true); }
             return;
           }
 
-          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : NAN;
-          if (!isnan(z) || !WITHIN(z, -10, 10)) {
+          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : RAW_CURRENT_POSITION(Z);
+          if (!WITHIN(z, -10, 10)) {
             SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
