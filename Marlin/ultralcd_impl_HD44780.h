@@ -193,18 +193,19 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   static void lcd_implementation_update_indicators();
 #endif
 
-
-static void createChar_P(char c, PROGMEM byte *ptr) {
+static void createChar_P(const char c, const byte * const ptr) {
   byte temp[8];
-  int8_t i;
-
-  for(i=0; i<8; i++)  {
+  for (uint8_t i = 0; i < 8; i++)
     temp[i] = pgm_read_byte(&ptr[i]);
-  }
   lcd.createChar(c, temp);
 }
 
-const static PROGMEM byte bedTemp[8] = {
+static void lcd_set_custom_characters(
+  #if ENABLED(LCD_PROGRESS_BAR)
+    const bool info_screen_charset = true
+  #endif
+) {
+  const static PROGMEM byte bedTemp[8] = {
     B00000,
     B11111,
     B10101,
@@ -213,9 +214,9 @@ const static PROGMEM byte bedTemp[8] = {
     B11111,
     B00000,
     B00000
-};
+  };
 
-const static PROGMEM byte degree[8] = {
+  const static PROGMEM byte degree[8] = {
     B01100,
     B10010,
     B10010,
@@ -226,7 +227,7 @@ const static PROGMEM byte degree[8] = {
     B00000
   };
 
-const static PROGMEM byte thermometer[8] = {
+  const static PROGMEM byte thermometer[8] = {
     B00100,
     B01010,
     B01010,
@@ -237,7 +238,7 @@ const static PROGMEM byte thermometer[8] = {
     B01110
   };
 
-const static PROGMEM byte uplevel[8] = {
+  const static PROGMEM byte uplevel[8] = {
     B00100,
     B01110,
     B11111,
@@ -246,9 +247,9 @@ const static PROGMEM byte uplevel[8] = {
     B00000,
     B00000,
     B00000
-};
+  };
 
-const static PROGMEM byte feedrate[8] = {
+  const static PROGMEM byte feedrate[8] = {
     B11100,
     B10000,
     B11000,
@@ -257,9 +258,9 @@ const static PROGMEM byte feedrate[8] = {
     B00110,
     B00101,
     B00000
-};
+  };
 
-const static PROGMEM byte clock[8] = {
+  const static PROGMEM byte clock[8] = {
     B00000,
     B01110,
     B10011,
@@ -268,10 +269,10 @@ const static PROGMEM byte clock[8] = {
     B01110,
     B00000,
     B00000
-};
+  };
 
-#if ENABLED(SDSUPPORT)
-  const static PROGMEM byte refresh[8] = {
+  #if ENABLED(SDSUPPORT)
+    const static PROGMEM byte refresh[8] = {
       B00000,
       B00110,
       B11001,
@@ -280,8 +281,8 @@ const static PROGMEM byte clock[8] = {
       B10011,
       B01100,
       B00000,
-  };
-  const static PROGMEM byte folder[8] = {
+    };
+    const static PROGMEM byte folder[8] = {
       B00000,
       B11100,
       B11111,
@@ -290,10 +291,10 @@ const static PROGMEM byte clock[8] = {
       B11111,
       B00000,
       B00000
-  };
+    };
 
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const static PROGMEM byte progress[3][8] = { {
+    #if ENABLED(LCD_PROGRESS_BAR)
+      const static PROGMEM byte progress[3][8] = { {
         B00000,
         B10000,
         B10000,
@@ -321,14 +322,8 @@ const static PROGMEM byte clock[8] = {
         B10101,
         B00000
       } };
+    #endif
   #endif
-#endif
-
-static void lcd_set_custom_characters(
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
-  #endif
-) {
 
   createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
   createChar_P(LCD_DEGREE_CHAR, degree);
@@ -346,13 +341,13 @@ static void lcd_set_custom_characters(
         }
         else { // Custom characters for submenus
           createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-          createChar_P(LCD_REFRESH_CHAR, refresh);
+          createChar_P(LCD_STR_REFRESH[0], refresh);
           createChar_P(LCD_STR_FOLDER[0], folder);
         }
       }
     #else
       createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-      createChar_P(LCD_REFRESH_CHAR, refresh);
+      createChar_P(LCD_STR_REFRESH[0], refresh);
       createChar_P(LCD_STR_FOLDER[0], folder);
     #endif
 
@@ -445,7 +440,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   }
 
   void bootscreen() {
-    byte top_left[8] = {
+    const static PROGMEM byte corner[4][8] = { {
       B00000,
       B00000,
       B00000,
@@ -454,8 +449,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00010,
       B00100,
       B00100
-    };
-    byte top_right[8] = {
+    }, {
       B00000,
       B00000,
       B00000,
@@ -464,8 +458,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B01100,
       B00100,
       B00100
-    };
-    byte botom_left[8] = {
+    }, {
       B00100,
       B00010,
       B00001,
@@ -474,8 +467,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00000,
       B00000,
       B00000
-    };
-    byte botom_right[8] = {
+    }, {
       B00100,
       B01000,
       B10000,
@@ -484,11 +476,9 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       B00000,
       B00000,
       B00000
-    };
-    lcd.createChar(0, top_left);
-    lcd.createChar(1, top_right);
-    lcd.createChar(2, botom_left);
-    lcd.createChar(3, botom_right);
+    } };
+    for (uint8_t i = 0; i < 4; i++)
+      createChar_P(i, corner[i]);
 
     lcd.clear();
 
@@ -610,7 +600,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   lcd.print(itostr3(t1 + 0.5));
   lcd.print('/');
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HEATER_IDLE_HANDLER
     const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
@@ -638,10 +628,12 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
 #if ENABLED(LCD_PROGRESS_BAR)
 
   inline void lcd_draw_progress_bar(const uint8_t percent) {
-    int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
-      cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+    const int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
+              cel = tix / 3,
+              rem = tix % 3;
+    uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
-    msg[i] = '\0';
+    msg[LCD_WIDTH] = '\0';
     while (i--) {
       if (i == cel - 1)
         b = LCD_STR_PROGRESS[2];
@@ -849,14 +841,31 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    lcd_print_utf(lcd_status_message + status_scroll_pos);
     const uint8_t slen = lcd_strlen(lcd_status_message);
-    if (slen > LCD_WIDTH) {
+    const char *stat = lcd_status_message + status_scroll_pos;
+    if (slen <= LCD_WIDTH)
+      lcd_print_utf(stat);                                      // The string isn't scrolling
+    else {
+      if (status_scroll_pos <= slen - LCD_WIDTH)
+        lcd_print_utf(stat);                                    // The string fills the screen
+      else {
+        uint8_t chars = LCD_WIDTH;
+        if (status_scroll_pos < slen) {                         // First string still visible
+          lcd_print_utf(stat);                                  // The string leaves space
+          chars -= slen - status_scroll_pos;                    // Amount of space left
+        }
+        lcd.print('.');                                         // Always at 1+ spaces left, draw a dot
+        if (--chars) {
+          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
+            --chars, lcd.print('.');
+          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+        }
+      }
       if (last_blink != blink) {
         last_blink = blink;
         // Skip any non-printing bytes
-        while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos > slen - LCD_WIDTH) status_scroll_pos = 0;
+        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
+        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
       }
     }
   #else
@@ -950,6 +959,7 @@ static void lcd_implementation_status_screen() {
     typedef void _name##_void
 
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int, int3, itostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float32, ftostr32);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float43, ftostr43sign);
@@ -1003,7 +1013,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR,LCD_UPLEVEL_CHAR)
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
@@ -1066,5 +1076,13 @@ static void lcd_implementation_status_screen() {
   }
 
 #endif // LCD_HAS_STATUS_INDICATORS
+
+#ifdef AUTO_BED_LEVELING_UBL
+    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
+    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
+      lcd_return_to_status();          // real code.
+    }
+
+#endif // AUTO_BED_LEVELING_UBL
 
 #endif // ULTRALCD_IMPL_HD44780_H

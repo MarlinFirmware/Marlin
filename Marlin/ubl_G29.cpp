@@ -45,6 +45,9 @@
     void lcd_mesh_edit_setup(float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
+    #if ENABLED(DOGLCD)
+      extern void _lcd_ubl_output_map_lcd();
+    #endif
     float lcd_z_offset_edit();
   #endif
 
@@ -53,6 +56,9 @@
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
+  extern bool ubl_lcd_map_control;
+  typedef void (*screenFunc_t)();
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -406,7 +412,7 @@
         }
 
         if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
-          SERIAL_ERROR_START;
+          SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
           goto LEAVE;
         }
@@ -643,7 +649,7 @@
               SERIAL_ECHO_F(z_values[x][y], 6);
               SERIAL_ECHOPAIR(" ; X ", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
               SERIAL_ECHOPAIR(", Y ", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
-              SERIAL_EOL;
+              SERIAL_EOL();
             }
         return;
       }
@@ -713,7 +719,7 @@
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            LCD_MESSAGEPGM("Z-Offset Stopped"); // TODO: Make translatable string
+            LCD_MESSAGEPGM(MSG_UBL_Z_OFFSET_STOPPED);
             restore_ubl_active_state_and_leave();
             goto LEAVE;
           }
@@ -766,12 +772,12 @@
     SERIAL_ECHOLNPAIR("# of samples: ", n);
     SERIAL_ECHOPGM("Mean Mesh Height: ");
     SERIAL_ECHO_F(mean, 6);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     const float sigma = sqrt(sum_of_diff_squared / (n + 1));
     SERIAL_ECHOPGM("Standard Deviation: ");
     SERIAL_ECHO_F(sigma, 6);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     if (g29_c_flag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -892,17 +898,17 @@
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPGM("d from 1st point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
         t = normal.x * (UBL_PROBE_PT_2_X) + normal.y * (UBL_PROBE_PT_2_Y);
         d = t + normal.z * z2;
         SERIAL_ECHOPGM("d from 2nd point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
         t = normal.x * (UBL_PROBE_PT_3_X) + normal.y * (UBL_PROBE_PT_3_Y);
         d = t + normal.z * z3;
         SERIAL_ECHOPGM("d from 3rd point: ");
         SERIAL_ECHO_F(d, 6);
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 
@@ -971,7 +977,7 @@
       stepper.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
-      LCD_MESSAGEPGM("Place shim & measure"); // TODO: Make translatable string
+      LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
       lcd_return_to_status();
       echo_and_take_a_measurement();
 
@@ -980,7 +986,7 @@
       stepper.synchronize();
 
       SERIAL_PROTOCOLPGM("Remove shim");
-      LCD_MESSAGEPGM("Remove & measure bed"); // TODO: Make translatable string
+      LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);
       echo_and_take_a_measurement();
 
       const float z2 = measure_point_with_encoder();
@@ -1029,7 +1035,7 @@
 
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
-        LCD_MESSAGEPGM("Moving to next"); // TODO: Make translatable string
+        LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
 
         do_blocking_move_to_xy(xProbe, yProbe);
         do_blocking_move_to_z(z_clearance);
@@ -1039,7 +1045,7 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
-        serialprintPGM(parser.seen('B') ? PSTR("Place shim & measure") : PSTR("Measure")); // TODO: Make translatable strings
+        serialprintPGM(parser.seen('B') ? PSTR(MSG_UBL_BC_INSERT) : PSTR(MSG_UBL_BC_INSERT2));
 
         const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
         //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
@@ -1080,7 +1086,7 @@
         if (g29_verbose_level > 2) {
           SERIAL_PROTOCOLPGM("Mesh Point Measured at: ");
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
       } while (location.x_index >= 0 && location.y_index >= 0);
 
@@ -1097,7 +1103,7 @@
     bool err_flag = false;
 
     #if ENABLED(NEWPANEL)
-      LCD_MESSAGEPGM("Doing G29 UBL!"); // TODO: Make translatable string
+      LCD_MESSAGEPGM(MSG_UBL_DOING_G29);
       lcd_quick_feedback();
     #endif
 
@@ -1191,7 +1197,7 @@
     #endif
 
     g29_map_type = parser.seen('T') && parser.has_value() ? parser.value_int() : 0;
-    if (!WITHIN(g29_map_type, 0, 1)) {
+    if (!WITHIN(g29_map_type, 0, 2)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
@@ -1207,7 +1213,7 @@
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
 
       #if ENABLED(NEWPANEL)
-        LCD_MESSAGEPGM("save_UBL_active() error"); // TODO: Make translatable string
+        LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
         lcd_quick_feedback();
       #endif
 
@@ -1222,7 +1228,7 @@
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
 
       #if ENABLED(NEWPANEL)
-        LCD_MESSAGEPGM("restore_UBL_active() error"); // TODO: Make translatable string
+        LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
         lcd_quick_feedback();
       #endif
 
@@ -1244,7 +1250,7 @@
       SERIAL_PROTOCOLPAIR("Mesh ", state.storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
@@ -1252,13 +1258,13 @@
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_PROTOCOL("planner.z_fade_height : ");
       SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
 
     #if HAS_BED_PROBE
       SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
       SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-      SERIAL_EOL;
+      SERIAL_EOL();
     #endif
 
     SERIAL_ECHOLNPAIR("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X) "=", UBL_MESH_MIN_X);
@@ -1280,7 +1286,7 @@
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
@@ -1288,19 +1294,19 @@
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     #if HAS_KILL
       SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
       SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-    SERIAL_EOL;
+    SERIAL_EOL();
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(50);
 
     SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
@@ -1308,9 +1314,9 @@
     safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
-    SERIAL_EOL;
+    SERIAL_EOL();
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
-    SERIAL_EOL;
+    SERIAL_EOL();
     safe_delay(25);
 
     SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
@@ -1334,7 +1340,7 @@
     unsigned char cccc;
     uint16_t kkkk;
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
     for (uint16_t i = 0; i < E2END + 1; i += 16) {
       if (!(i & 0x3)) idle();
@@ -1346,9 +1352,9 @@
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 
   /**
@@ -1476,7 +1482,7 @@
 
       memset(not_done, 0xFF, sizeof(not_done));
 
-      LCD_MESSAGEPGM("Fine Tuning Mesh"); // TODO: Make translatable string
+      LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
       do_blocking_move_to_xy(lx, ly);
@@ -1535,10 +1541,10 @@
         while (ubl_lcd_clicked()) { // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
+            ubl_lcd_map_control = false;
             lcd_return_to_status();
-            //SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-            LCD_MESSAGEPGM("Mesh Editing Stopped"); // TODO: Make translatable string
+            LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
 
             while (ubl_lcd_clicked()) idle();
 
@@ -1565,8 +1571,15 @@
 
       do_blocking_move_to_xy(lx, ly);
 
-      LCD_MESSAGEPGM("Done Editing Mesh"); // TODO: Make translatable string
+      LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+      if (ubl_lcd_map_control) {
+        #if ENABLED(DOGLCD)
+          lcd_goto_screen(_lcd_ubl_output_map_lcd);
+        #endif
+      }
+      else lcd_return_to_status();
     }
   #endif
 
@@ -1593,24 +1606,33 @@
   typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
   void unified_bed_leveling::smart_fill_mesh() {
-    const smart_fill_info info[] = {
-      { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false },  // Bottom of the mesh looking up
-      { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false },  // Top of the mesh looking down
-      { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  },  // Left side of the mesh looking right
-      { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  }   // Right side of the mesh looking left
-    };
+    static const smart_fill_info
+      info0 PROGMEM = { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false },  // Bottom of the mesh looking up
+      info1 PROGMEM = { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false },  // Top of the mesh looking down
+      info2 PROGMEM = { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  },  // Left side of the mesh looking right
+      info3 PROGMEM = { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  };  // Right side of the mesh looking left
+    static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
+
+    // static const smart_fill_info info[] PROGMEM = {
+    //   { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false } PROGMEM,  // Bottom of the mesh looking up
+    //   { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false } PROGMEM,  // Top of the mesh looking down
+    //   { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM,  // Left side of the mesh looking right
+    //   { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM   // Right side of the mesh looking left
+    // };
     for (uint8_t i = 0; i < COUNT(info); ++i) {
-      const smart_fill_info &f = info[i];
-      if (f.yfirst) {
-        const int8_t dir = f.ex > f.sx ? 1 : -1;
-        for (uint8_t y = f.sy; y != f.ey; ++y)
-          for (uint8_t x = f.sx; x != f.ex; x += dir)
+      const smart_fill_info *f = (smart_fill_info*)pgm_read_word(&info[i]);
+      const int8_t sx = pgm_read_word(&f->sx), sy = pgm_read_word(&f->sy),
+                   ex = pgm_read_word(&f->ex), ey = pgm_read_word(&f->ey);
+      if (pgm_read_byte(&f->yfirst)) {
+        const int8_t dir = ex > sx ? 1 : -1;
+        for (uint8_t y = sy; y != ey; ++y)
+          for (uint8_t x = sx; x != ex; x += dir)
             if (smart_fill_one(x, y, dir, 0)) break;
       }
       else {
-        const int8_t dir = f.ey > f.sy ? 1 : -1;
-         for (uint8_t x = f.sx; x != f.ex; ++x)
-          for (uint8_t y = f.sy; y != f.ey; y += dir)
+        const int8_t dir = ey > sy ? 1 : -1;
+         for (uint8_t x = sx; x != ex; ++x)
+          for (uint8_t y = sy; y != ey; y += dir)
             if (smart_fill_one(x, y, 0, dir)) break;
       }
     }
@@ -1658,7 +1680,7 @@
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPGM("   final >>>---> ");
             SERIAL_PROTOCOL_F(measured_z, 7);
-            SERIAL_EOL;
+            SERIAL_EOL();
           }
         #endif
 
@@ -1680,7 +1702,7 @@
       SERIAL_PROTOCOL_F(lsf_results.B, 7);
       SERIAL_ECHOPGM("  D=");
       SERIAL_PROTOCOL_F(lsf_results.D, 7);
-      SERIAL_EOL;
+      SERIAL_EOL();
     }
 
     vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1.0000).get_normal();
@@ -1744,7 +1766,7 @@
         SERIAL_PROTOCOL_F(lsf_results.B, 7);
         SERIAL_ECHOPGM("  D=");
         SERIAL_PROTOCOL_F(lsf_results.D, 7);
-        SERIAL_EOL;
+        SERIAL_EOL();
         safe_delay(55);
 
         SERIAL_ECHOPGM("bed plane normal = [");
@@ -1754,7 +1776,7 @@
         SERIAL_PROTOCOLCHAR(',');
         SERIAL_PROTOCOL_F(normal.z, 7);
         SERIAL_ECHOPGM("]\n");
-        SERIAL_EOL;
+        SERIAL_EOL();
       }
     #endif
 

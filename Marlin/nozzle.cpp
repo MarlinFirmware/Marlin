@@ -136,7 +136,8 @@ void Nozzle::circle(
       // Order of movement is pretty darn important here
       do_blocking_move_to_xy(start.x, start.y);
       do_blocking_move_to_z(start.z);
-    } else {
+    }
+    else {
       do_blocking_move_to_z(start.z);
       do_blocking_move_to_xy(start.x, start.y);
     }
@@ -160,7 +161,8 @@ void Nozzle::circle(
         // As above order is important
         do_blocking_move_to_z(initial.z);
         do_blocking_move_to_xy(initial.x, initial.y);
-      } else {
+      }
+      else {
         do_blocking_move_to_xy(initial.x, initial.y);
         do_blocking_move_to_z(initial.z);
       }

@@ -470,14 +470,9 @@ void Planner::check_axes_activity() {
           if (fan_kick_end[f] == 0) { \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
             tail_fan_speed[f] = 255; \
-          } else { \
-            if (PENDING(ms, fan_kick_end[f])) { \
-              tail_fan_speed[f] = 255; \
-            } \
-          } \
-        } else { \
-          fan_kick_end[f] = 0; \
-        }
+          } else if (PENDING(ms, fan_kick_end[f])) \
+            tail_fan_speed[f] = 255; \
+        } else fan_kick_end[f] = 0
 
       #if HAS_FAN0
         KICKSTART_FAN(0);
@@ -539,10 +534,10 @@ void Planner::check_axes_activity() {
       if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
-        if ((planner.z_fade_height) && (planner.z_fade_height <= RAW_Z_POSITION(lz))) return;
+        if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
         lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
       #else // no fade
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx,ly);
+        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly);
       #endif // FADE
     #endif // UBL
 
@@ -603,10 +598,10 @@ void Planner::check_axes_activity() {
 
       if (ubl.state.active) {
 
-        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]);
-        const float z_ublmesh  = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]);
-        const float z_virtual  = z_physical - ubl.state.z_offset - z_ublmesh;
-              float z_logical  = LOGICAL_Z_POSITION(z_virtual);
+        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
+                    z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
+                    z_virtual = z_physical - ubl.state.z_offset - z_correct;
+              float z_logical = LOGICAL_Z_POSITION(z_virtual);
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
@@ -619,10 +614,10 @@ void Planner::check_axes_activity() {
           //    so L=(P-O-M)/(1-M/H) for L<H
 
           if (planner.z_fade_height) {
-            if (z_logical < planner.z_fade_height )
-              z_logical = z_logical / (1.0 - (z_ublmesh * planner.inverse_z_fade_height));
             if (z_logical >= planner.z_fade_height)
               z_logical = LOGICAL_Z_POSITION(z_physical - ubl.state.z_offset);
+            else
+              z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
           }
 
         #endif // ENABLE_LEVELING_FADE_HEIGHT
@@ -740,7 +735,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   SERIAL_ECHOPAIR(" (", dc);
   SERIAL_CHAR(')');
-  SERIAL_EOL;
+  SERIAL_EOL();
   //*/
 
   // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
@@ -766,7 +761,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           position_float[E_AXIS] = e;
           de_float = 0;
         #endif
-        SERIAL_ECHO_START;
+        SERIAL_ECHO_START();
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
@@ -777,7 +772,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
             position_float[E_AXIS] = e;
             de_float = 0;
           #endif
-          SERIAL_ECHO_START;
+          SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
       #endif
@@ -1420,7 +1415,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       block->advance_rate = block->advance = 0;
 
     /**
-     SERIAL_ECHO_START;
+     SERIAL_ECHO_START();
      SERIAL_ECHOPGM("advance :");
      SERIAL_ECHO(block->advance/256.0);
      SERIAL_ECHOPGM("advance rate :");

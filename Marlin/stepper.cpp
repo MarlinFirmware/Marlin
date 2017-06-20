@@ -110,9 +110,22 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance;
   #endif
 
-  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+  /**
+   * See https://github.com/MarlinFirmware/Marlin/issues/5699#issuecomment-309264382
+   *
+   * This fix isn't perfect and may lose steps - but better than locking up completely
+   * in future the planner should slow down if advance stepping rate would be too high
+   */
+  FORCE_INLINE uint16_t adv_rate(const int steps, const uint16_t timer, const uint8_t loops) {
+    if (steps) {
+      const uint16_t rate = (timer * loops) / abs(steps);
+      //return constrain(rate, 1, ADV_NEVER - 1)
+      return rate ? rate : 1;
+    }
+    return ADV_NEVER;
+  }
 
-#endif
+#endif // ADVANCE || LIN_ADVANCE
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
 
@@ -370,7 +383,7 @@ void Stepper::isr() {
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
-    } while(0)
+    }while(0)
 
     if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
       endstops.update();
@@ -743,7 +756,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -797,7 +810,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else {
@@ -807,7 +820,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], OCR1A_nominal, step_loops_nominal);
 
     #endif
 
@@ -862,6 +875,9 @@ void Stepper::isr() {
         SET_E_STEP_DIR(2);
         #if E_STEPPERS > 3
           SET_E_STEP_DIR(3);
+          #if E_STEPPERS > 4
+            SET_E_STEP_DIR(4);
+          #endif
         #endif
       #endif
     #endif
@@ -880,6 +896,9 @@ void Stepper::isr() {
           START_E_PULSE(2);
           #if E_STEPPERS > 3
             START_E_PULSE(3);
+            #if E_STEPPERS > 4
+              START_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif
@@ -899,6 +918,9 @@ void Stepper::isr() {
           STOP_E_PULSE(2);
           #if E_STEPPERS > 3
             STOP_E_PULSE(3);
+            #if E_STEPPERS > 4
+              STOP_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif
@@ -1305,7 +1327,7 @@ void Stepper::report_positions() {
   #endif
   SERIAL_PROTOCOL(zpos);
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(BABYSTEPPING)

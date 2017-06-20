@@ -137,7 +137,11 @@
   void set_destination_to_current();
   void set_current_to_destination();
   void prepare_move_to_destination();
-  void sync_plan_position_e();
+  #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
+    inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
+  #else
+    void sync_plan_position_e();
+  #endif
   #if ENABLED(NEWPANEL)
     void lcd_setstatusPGM(const char* const message, const int8_t level);
     void chirp_at_user();
@@ -252,8 +256,8 @@
     // Move nozzle to the specified height for the first layer
     set_destination_to_current();
     destination[Z_AXIS] = g26_layer_height;
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], g26_ooze_amount);
+    move_to(destination, 0.0);
+    move_to(destination, g26_ooze_amount);
 
     has_control_of_lcd_panel = true;
     //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
@@ -288,7 +292,7 @@
           SERIAL_ECHOPAIR("   Doing circle at: (xi=", xi);
           SERIAL_ECHOPAIR(", yi=", yi);
           SERIAL_CHAR(')');
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
 
         start_angle = 0.0;    // assume it is going to be a full circle
@@ -368,14 +372,14 @@
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
     //debug_current_and_destination(PSTR("ready to do Z-Raise."));
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Raise the nozzle
+    move_to(destination, 0); // Raise the nozzle
     //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
     destination[X_AXIS] = g26_x_pos;                                               // Move back to the starting position
     destination[Y_AXIS] = g26_y_pos;
     //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                        // Keep the nozzle where it is
 
-    move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
+    move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
     has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
@@ -467,7 +471,7 @@
                   SERIAL_ECHOPAIR(") -> (ex=", ex);
                   SERIAL_ECHOPAIR(", ey=", ey);
                   SERIAL_CHAR(')');
-                  SERIAL_EOL;
+                  SERIAL_EOL();
                   //debug_current_and_destination(PSTR("Connecting horizontal line."));
                 }
 
@@ -501,7 +505,7 @@
                     SERIAL_ECHOPAIR(") -> (ex=", ex);
                     SERIAL_ECHOPAIR(", ey=", ey);
                     SERIAL_CHAR(')');
-                    SERIAL_EOL;
+                    SERIAL_EOL();
                     debug_current_and_destination(PSTR("Connecting vertical line."));
                   }
                   print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), g26_layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), g26_layer_height);
@@ -554,16 +558,16 @@
 
   }
 
-  void unified_bed_leveling::retract_filament(float where[XYZE]) {
+  void unified_bed_leveling::retract_filament(const float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], -1.0 * g26_retraction_multiplier);
+      move_to(where, -1.0 * g26_retraction_multiplier);
     }
   }
 
-  void unified_bed_leveling::recover_filament(float where[XYZE]) {
+  void unified_bed_leveling::recover_filament(const float where[XYZE]) {
     if (g26_retracted) { // Only un-retract if we are retracted.
-      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], 1.2 * g26_retraction_multiplier);
+      move_to(where, 1.2 * g26_retraction_multiplier);
       g26_retracted = false;
     }
   }
@@ -684,7 +688,8 @@
           SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
           return UBL_ERR;
         #endif
-      } else {
+      }
+      else {
         g26_prime_flag++;
         g26_prime_length = parser.value_linear_units();
         if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
@@ -727,7 +732,9 @@
       if (!parser.seen('R')) {
         SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
         return UBL_ERR;
-      } else g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+      }
+      else
+        g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
     #endif
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
