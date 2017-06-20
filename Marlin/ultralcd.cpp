@@ -2303,6 +2303,22 @@ void kill_screen(const char* lcd_msg) {
     }
 
     /**
+     * UBL Step-By-Step submenu
+     */
+    void _lcd_ubl_step_by_step() {
+      START_MENU();
+      MENU_BACK(MSG_UBL_LEVEL_BED);
+      MENU_ITEM(gcode, MSG_H1 " " MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));
+      MENU_ITEM(function, MSG_H2 " " MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
+      MENU_ITEM(submenu, MSG_H3 " " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      MENU_ITEM(gcode, MSG_H4 " " MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
+      MENU_ITEM(submenu, MSG_H5 " " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      MENU_ITEM(gcode, MSG_H6 " " MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
+      MENU_ITEM(function, MSG_H7 " " MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+      END_MENU();
+    }
+
+    /**
      * UBL System submenu
      *
      *  Prepare
@@ -2310,6 +2326,26 @@ void kill_screen(const char* lcd_msg) {
      *   - Manually Build Mesh
      *   - Activate UBL
      *   - Deactivate UBL
+     *   - Step-By-Step UBL
+     *       1 Build Cold Mesh
+     *       2 Smart Fill-in
+     *     - 3 Validate Mesh
+     *           PLA Mesh Validation
+     *           ABS Mesh Validation
+     *         - Custom Mesh Validation
+     *             Hotend Temp:
+     *             Bed Temp:
+     *             Validate Mesh
+     *       4 Fine Tune All
+     *     - 5 Validate Mesh
+     *           PLA Mesh Validation
+     *           ABS Mesh Validation
+     *         - Custom Mesh Validation
+     *             Hotend Temp:
+     *             Bed Temp:
+     *             Validate Mesh
+     *       6 Fine Tune All
+     *       7 Save Bed Mesh
      *   - Mesh Storage
      *       Memory Slot:
      *       Load Bed Mesh
@@ -2367,6 +2403,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
+      MENU_ITEM(submenu, MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
       MENU_ITEM(submenu, MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);

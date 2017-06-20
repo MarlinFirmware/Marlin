@@ -269,6 +269,8 @@
 #define MSG_H3 "3"
 #define MSG_H4 "4"
 #define MSG_H5 "5"
+#define MSG_H6 "6"
+#define MSG_H7 "7"
 #define MSG_N1 " 1"
 #define MSG_N2 " 2"
 #define MSG_N3 " 3"
