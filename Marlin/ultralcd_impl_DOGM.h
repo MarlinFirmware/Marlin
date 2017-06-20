@@ -871,7 +871,7 @@ static void lcd_implementation_status_screen() {
     #if ENABLED(USE_BIG_EDIT_FONT)
       uint8_t lcd_width, char_width;
       if (labellen <= LCD_WIDTH_EDIT - 1) {
-        if (labellen >= LCD_WIDTH_EDIT - vallen) rows = 2;
+        if (labellen + vallen + 2 >= LCD_WIDTH_EDIT) rows = 2;
         lcd_width = LCD_WIDTH_EDIT + 1;
         char_width = DOG_CHAR_WIDTH_EDIT;
         lcd_setFont(FONT_MENU_EDIT);
@@ -890,16 +890,21 @@ static void lcd_implementation_status_screen() {
     const uint8_t segmentHeight = u8g.getHeight() / (rows + 1); // 1 / (rows+1) = 1/2 or 1/3
     uint8_t baseline = segmentHeight + (DOG_CHAR_HEIGHT_EDIT + 1) / 2;
 
-    if (PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline)) {
+    bool onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
+    if (onpage) {
       u8g.setPrintPos(0, baseline);
       lcd_printPGM(pstr);
     }
 
     if (value != NULL) {
-      baseline += (rows - 1) * segmentHeight;
-      if (PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline)) {
-        u8g.print(':');
-        u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, baseline);
+      u8g.print(':');
+      if (rows == 2) {
+        baseline += segmentHeight;
+        onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
+      }
+      if (onpage) {
+        u8g.setPrintPos(((lcd_width - 1) - (vallen + 1)) * char_width, baseline); // Right-justified, leaving padded by spaces
+        u8g.print(' '); // overwrite char if value gets shorter
         lcd_print(value);
       }
     }
