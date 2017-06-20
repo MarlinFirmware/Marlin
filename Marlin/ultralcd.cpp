@@ -1754,15 +1754,16 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * Step 1: Bed Level entry-point
-     *  - Cancel
-     *  - Auto Home       (if homing needed)
-     *  - Leveling On/Off (if data exists, and homed)
-     *  - Level Bed >
-     *  - Fade Height     (Req: ENABLE_LEVELING_FADE_HEIGHT)
-     *  - Mesh Z Offset   (Req: MESH_BED_LEVELING)
-     *  - Z Probe Offset  (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
-     *  - Load Settings   (Req: EEPROM_SETTINGS)
-     *  - Save Settings   (Req: EEPROM_SETTINGS)
+     *
+     * << Prepare
+     *    Auto Home           (if homing needed)
+     *    Leveling On/Off     (if data exists, and homed)
+     *    Level Bed
+     *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
+     *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
+     *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
+     *    Load Settings       (Req: EEPROM_SETTINGS)
+     *    Save Settings       (Req: EEPROM_SETTINGS)
      */
     void lcd_bed_leveling() {
       START_MENU();
@@ -1833,6 +1834,11 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Custom Mesh submenu
+     *
+     * << Build Mesh
+     *    Hotend Temp: ---
+     *    Bed Temp: ---
+     *    Build Custom Mesh
      */
     void _lcd_ubl_custom_mesh() {
       START_MENU();
@@ -1858,6 +1864,11 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Adjust Mesh Height submenu
+     *
+     * << Edit Mesh
+     *    Height Amount: ---
+     *    Adjust Mesh Height
+     * << Info Screen
      */
     void _lcd_ubl_height_adjust_menu() {
       START_MENU();
@@ -1870,6 +1881,12 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Edit Mesh submenu
+     *
+     * << UBL Tools
+     *    Fine Tune All
+     *    Fine Tune Closest
+     *  - Adjust Mesh Height >>
+     * << Info Screen
      */
     void _lcd_ubl_edit_mesh() {
       START_MENU();
@@ -1899,6 +1916,12 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Validate Mesh submenu
+     *
+     * << UBL Tools
+     *    PLA Mesh Validation
+     *    ABS Mesh Validation
+     *    Validate Custom Mesh
+     * << Info Screen
      */
     void _lcd_ubl_validate_mesh() {
       START_MENU();
@@ -1926,6 +1949,10 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Grid Leveling submenu
+     *
+     * << UBL Tools
+     *    Side points: ---
+     *    Level Mesh
      */
     void _lcd_ubl_grid_level() {
       START_MENU();
@@ -1937,6 +1964,11 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Mesh Leveling submenu
+     *
+     * << UBL Tools
+     *    3-Point Mesh Leveling
+     *  - Grid Mesh Leveling >>
+     * << Info Screen
      */
     void _lcd_ubl_mesh_leveling() {
       START_MENU();
@@ -1967,6 +1999,13 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Fill-in Mesh submenu
+     *
+     * << Build Mesh
+     *    Fill-in Amount: ---
+     *    Fill-in Mesh
+     *    Smart Fill-in
+     *    Manual Fill-in
+     * << Info Screen
      */
     void _lcd_ubl_fillin_menu() {
       START_MENU();
@@ -1986,6 +2025,17 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Build Mesh submenu
+     *
+     * << UBL Tools
+     *    Build PLA Mesh
+     *    Build ABS Mesh
+     *  - Build Custom Mesh >>
+     *    Build Cold Mesh
+     *  - Fill-in Mesh >>
+     *    Continue Bed Mesh
+     *    Invalidate All
+     *    Invalidate Closest
+     * << Info Screen
      */
     void _lcd_ubl_build_mesh() {
       START_MENU();
@@ -2051,6 +2101,11 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Mesh Storage submenu
+     *
+     * << Unified Bed Leveling
+     *    Memory Slot: ---
+     *    Load Bed Mesh
+     *    Save Bed Mesh
      */
     void _lcd_ubl_storage_mesh() {
       START_MENU();
@@ -2278,6 +2333,12 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Output map submenu
+     *
+     * << Unified Bed Leveling
+     *  Output for Host
+     *  Output for CSV
+     *  Off Printer Backup
+     *  Output Mesh Map
      */
     void _lcd_ubl_output_map() {
       START_MENU();
@@ -2291,6 +2352,12 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Tools submenu
+     *
+     * << Unified Bed Leveling
+     *  - Build Mesh >>
+     *  - Validate Mesh >>
+     *  - Edit Mesh >>
+     *  - Mesh Leveling >>
      */
     void _lcd_ubl_tools_menu() {
       START_MENU();
@@ -2304,6 +2371,15 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL Step-By-Step submenu
+     *
+     * << Unified Bed Leveling
+     *    1 Build Cold Mesh
+     *    2 Smart Fill-in
+     *  - 3 Validate Mesh >>
+     *    4 Fine Tune All
+     *  - 5 Validate Mesh >>
+     *    6 Fine Tune All
+     *    7 Save Bed Mesh
      */
     void _lcd_ubl_step_by_step() {
       START_MENU();
@@ -2321,80 +2397,15 @@ void kill_screen(const char* lcd_msg) {
     /**
      * UBL System submenu
      *
-     *  Prepare
-     * - Unified Bed Leveling
-     *   - Manually Build Mesh
-     *   - Activate UBL
-     *   - Deactivate UBL
-     *   - Step-By-Step UBL
-     *       1 Build Cold Mesh
-     *       2 Smart Fill-in
-     *     - 3 Validate Mesh
-     *           PLA Mesh Validation
-     *           ABS Mesh Validation
-     *         - Custom Mesh Validation
-     *             Hotend Temp:
-     *             Bed Temp:
-     *             Validate Mesh
-     *       4 Fine Tune All
-     *     - 5 Validate Mesh
-     *           PLA Mesh Validation
-     *           ABS Mesh Validation
-     *         - Custom Mesh Validation
-     *             Hotend Temp:
-     *             Bed Temp:
-     *             Validate Mesh
-     *       6 Fine Tune All
-     *       7 Save Bed Mesh
-     *   - Mesh Storage
-     *       Memory Slot:
-     *       Load Bed Mesh
-     *       Save Bed Mesh
-     *   - Output Map
-     *       Topography to Host
-     *       CSV for Spreadsheet
-     *       Mesh Output Backup
-     *       Output to LCD Grid
-     *   - UBL Tools
-     *     - Build Mesh
-     *         Build PLA Mesh
-     *         Build ABS Mesh
-     *       - Build Custom Mesh
-     *           Hotend Temp:
-     *           Bed Temp:
-     *           Build Custom Mesh
-     *         Info Screen
-     *       - Build Cold Mesh
-     *       - Fill-in Mesh
-     *           Fill-in Mesh
-     *           Smart Fill-in
-     *           Manual Fill-in
-     *           Info Screen
-     *         Continue Bed Mesh
-     *         Invalidate All
-     *         Invalidate Closest
-     *     - Validate Mesh
-     *         PLA Mesh Validation
-     *         ABS Mesh Validation
-     *       - Custom Mesh Validation
-     *           Hotend Temp:
-     *           Bed Temp:
-     *           Validate Mesh
-     *         Info Screen
-     *     - Edit Mesh
-     *         Fine Tune All
-     *         Fine Tune Closest
-     *       - Adjust Mesh Height
-     *           Height Amount:
-     *           Adjust Mesh Height
-     *         Info Screen
-     *     - Mesh Leveling
-     *         3-Point Mesh Leveling
-     *       - Grid Mesh Leveling
-     *           Side points:
-     *           Level Mesh
-     *         Info Screen
-     *   - Output UBL Info
+     * << Prepare
+     *  - Manually Build Mesh >>
+     *  - Activate UBL >>
+     *  - Deactivate UBL >>
+     *  - Step-By-Step UBL >>
+     *  - Mesh Storage >>
+     *  - Output Map >>
+     *  - UBL Tools >>
+     *  - Output UBL Info >>
      */
 
     void _lcd_ubl_level_bed() {
