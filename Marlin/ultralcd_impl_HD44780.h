@@ -978,7 +978,9 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM(pstr);
     if (value != NULL) {
       lcd.print(':');
-      lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
+      const uint8_t valrow = (lcd_strlen_P(pstr) + 1 + lcd_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit
+      lcd.setCursor((LCD_WIDTH - 1) - (lcd_strlen(value) + 1), valrow);                                   // Right-justified, padded by spaces
+      lcd.print(' ');                                                                                     // overwrite char if value gets shorter
       lcd_print(value);
     }
   }
