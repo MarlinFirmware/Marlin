@@ -135,6 +135,7 @@
 #define MSG_UBL_SAVE_ERROR                  _UxGT("Err: Salvataggio UBL")
 #define MSG_UBL_RESTORE_ERROR               _UxGT("Err: Ripristino UBL")
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Offset Fermato")
+#define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL passo passo")
 
 #define MSG_MOVING                          _UxGT("In movimento...")
 #define MSG_FREE_XY                         _UxGT("XY liberi")
