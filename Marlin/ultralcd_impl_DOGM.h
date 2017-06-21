@@ -939,6 +939,96 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+    /**
+     * UBL LCD "radar" map data
+     */
+  #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
+  #define MAP_UPPER_LEFT_CORNER_Y 8  // it is easier to play with things having them here
+  #define MAP_MAX_PIXELS_X        53
+  #define MAP_MAX_PIXELS_Y        49
+
+    void _lcd_ubl_plot_DOGLCD(uint8_t x_plot, uint8_t y_plot) {
+      uint8_t i, j, x_offset, y_offset, x_map_pixels, y_map_pixels;
+      uint8_t pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt, inverted_y;
+
+      /*********************************************************/
+      /************ Scale the box pixels appropriately *********/
+      /*********************************************************/
+      x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / GRID_MAX_POINTS_X) * GRID_MAX_POINTS_X;
+      y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / GRID_MAX_POINTS_Y) * GRID_MAX_POINTS_Y;
+
+      pixels_per_X_mesh_pnt = x_map_pixels / GRID_MAX_POINTS_X;
+      pixels_per_Y_mesh_pnt = y_map_pixels / GRID_MAX_POINTS_Y;
+
+      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X-x_map_pixels-2)/2;
+      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y-y_map_pixels-2)/2;
+
+      /*********************************************************/
+      /************ Clear the Mesh Map Box**********************/
+      /*********************************************************/
+
+      u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+      u8g.drawBox(x_offset-2, y_offset-2, x_map_pixels+4, y_map_pixels+4);
+
+      u8g.setColorIndex(0);  // Now actually clear the mesh map box
+      u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
+
+      /*********************************************************/
+      /************ Display Mesh Point Locations ***************/
+      /*********************************************************/
+
+      u8g.setColorIndex(1);
+      for (i = 0; i < GRID_MAX_POINTS_X; i++) {
+        for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
+          u8g.drawBox(x_offset+i*pixels_per_X_mesh_pnt+pixels_per_X_mesh_pnt/2,  
+                      y_offset+j*pixels_per_Y_mesh_pnt+pixels_per_Y_mesh_pnt/2, 1, 1);
+        }
+      }
+
+      /*********************************************************/
+      /************ Fill in the Specified Mesh Point ***********/
+      /*********************************************************/
+
+      inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to
+                                                      // invert the Y to get it to plot in the right location.
+      u8g.drawBox(x_offset+x_plot*pixels_per_X_mesh_pnt, y_offset+inverted_y*pixels_per_Y_mesh_pnt, 
+                    pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt);
+
+      /*********************************************************/
+      /************** Put Relevent Text on Display *************/
+      /*********************************************************/
+
+      // Show X and Y positions at top of screen
+      u8g.setColorIndex(1);
+      u8g.setPrintPos(5, 7);
+      lcd_print("X:");
+      lcd_print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+      u8g.setPrintPos(74, 7);
+      lcd_print("Y:");
+      lcd_print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+      // Print plot position
+      u8g.setPrintPos(5, 64);
+      lcd_print("(");
+      u8g.print(x_plot);
+      lcd_print(",");
+      u8g.print(y_plot);
+      lcd_print(")");
+
+      // Show the location value
+      u8g.setPrintPos(74, 64);
+      lcd_print("Z:");
+      if (!isnan(ubl.z_values[x_plot][y_plot])) {
+        lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      }
+      else {
+        lcd_print(" -----");
+      }
+    }
+  #endif // AUTO_BED_LEVELING_UBL
+
 #endif // ULTIPANEL
 
 #endif // __ULTRALCD_IMPL_DOGM_H

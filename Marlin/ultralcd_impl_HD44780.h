@@ -31,6 +31,10 @@
 #include "utility.h"
 #include "duration_t.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
+#endif
+
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
@@ -1080,9 +1084,65 @@ static void lcd_implementation_status_screen() {
 #endif // LCD_HAS_STATUS_INDICATORS
 
 #ifdef AUTO_BED_LEVELING_UBL
-    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
-    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
-      lcd_return_to_status();          // real code.
+
+    // These are just basic data for the 20x4 LCD work that
+    // is coming up very soon.
+    // Soon this will morph into a map code.
+
+    void _lcd_ubl_plot_HD44780(uint8_t x_plot, uint8_t y_plot) {
+
+      uint8_t lcd_w_pos = 8, lcd_h_pos = 1;
+
+      #if LCD_WIDTH < 20
+        lcd_w_pos = 8;
+      #else
+        lcd_w_pos = 12;
+      #endif
+      #if LCD_HEIGHT > 3
+        lcd_h_pos = 3;
+      #elif LCD_HEIGHT > 2
+        lcd_h_pos = 2;
+      #else
+        lcd_h_pos = 1;
+      #endif
+
+      // Show X and Y positions at top of screen
+      lcd.setCursor(0, 0);
+      #if LCD_WIDTH < 20
+        lcd.print("X");
+      #else
+        lcd.print("X:");
+      #endif
+      lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+      lcd.setCursor(lcd_w_pos, 0);
+      #if LCD_WIDTH < 20
+        lcd.print("Y");
+      #else
+        lcd.print("Y:");
+      #endif
+      lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+      // Print plot position
+      lcd.setCursor(0, lcd_h_pos);
+      lcd.print("(");
+      lcd.print(x_plot);
+      lcd.print(",");
+      lcd.print(y_plot);
+      lcd.print(")");
+
+      // Show the location value
+      lcd.setCursor(lcd_w_pos, lcd_h_pos);
+      #if LCD_WIDTH < 20
+        lcd.print("Z");
+      #else
+        lcd.print("Z:");
+      #endif
+      if (!isnan(ubl.z_values[x_plot][y_plot])) {
+        lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      }
+      else {
+        lcd.print(" -----");
+      }
     }
 
 #endif // AUTO_BED_LEVELING_UBL
