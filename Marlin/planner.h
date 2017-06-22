@@ -454,7 +454,7 @@ class Planner {
      * 'distance'.
      */
     static float max_allowable_speed(const float &accel, const float &target_velocity, const float &distance) {
-      return sqrt(sq(target_velocity) - 2 * accel * distance);
+      return SQRT(sq(target_velocity) - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);

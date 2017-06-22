@@ -492,15 +492,15 @@
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
-        const float delta_A = rz + sqrt( delta_diagonal_rod_2_tower[A_AXIS]
+        const float delta_A = rz + SQRT( delta_diagonal_rod_2_tower[A_AXIS]
                                          - HYPOT2( delta_tower[A_AXIS][X_AXIS] - rx,
                                                    delta_tower[A_AXIS][Y_AXIS] - ry ));
 
-        const float delta_B = rz + sqrt( delta_diagonal_rod_2_tower[B_AXIS]
+        const float delta_B = rz + SQRT( delta_diagonal_rod_2_tower[B_AXIS]
                                          - HYPOT2( delta_tower[B_AXIS][X_AXIS] - rx,
                                                    delta_tower[B_AXIS][Y_AXIS] - ry ));
 
-        const float delta_C = rz + sqrt( delta_diagonal_rod_2_tower[C_AXIS]
+        const float delta_C = rz + SQRT( delta_diagonal_rod_2_tower[C_AXIS]
                                          - HYPOT2( delta_tower[C_AXIS][X_AXIS] - rx,
                                                    delta_tower[C_AXIS][Y_AXIS] - ry ));
 
@@ -516,8 +516,8 @@
         inverse_kinematics(lseg); // this writes delta[ABC] from lseg[XYZ]
                                   // should move the feedrate scaling to scara inverse_kinematics
 
-        float adiff = abs(delta[A_AXIS] - scara_oldA),
-              bdiff = abs(delta[B_AXIS] - scara_oldB);
+        const float adiff = FABS(delta[A_AXIS] - scara_oldA),
+                    bdiff = FABS(delta[B_AXIS] - scara_oldB);
         scara_oldA = delta[A_AXIS];
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;

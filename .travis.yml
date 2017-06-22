@@ -228,10 +228,11 @@ script:
   #- opt_enable MAKRPANEL
   #- build_marlin
   #
-  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, and BABYSTEPPING
+  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
   - restore_configs
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING
+  - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
   - build_marlin
   #
   # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
@@ -299,12 +300,11 @@ script:
   ######## Example Configurations ##############
   #
   # BQ Hephestos 2
-  - restore_configs
-  - use_example_configs Hephestos_2
-  - build_marlin
+  #- restore_configs
+  #- use_example_configs Hephestos_2
+  #- build_marlin
   #
   # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
-  - restore_configs
   - use_example_configs delta/generic
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
   - build_marlin
@@ -326,17 +326,11 @@ script:
   #- use_example_configs makibox
   #- build_marlin
   #
-  # SCARA Config
+  # SCARA with TMC2130
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
-  - build_marlin
-  #
-  # TMC2130 Config
-  #
-  - restore_configs
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
-  - build_marlin
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #

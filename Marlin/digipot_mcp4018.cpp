@@ -43,10 +43,8 @@
 #define DIGIPOT_A4988_MAX_CURRENT       2.0
 
 static byte current_to_wiper(const float current) {
-  int value = ceil(float(DIGIPOT_A4988_FACTOR) * current);
-  if (value < 0) value = 0;
-  if (value > DIGIPOT_A4988_MAX_VALUE) value = DIGIPOT_A4988_MAX_VALUE;
-  return byte(value);
+  const int16_t value = CEIL(float(DIGIPOT_A4988_FACTOR) * current);
+  return byte(constrain(value, 0, DIGIPOT_A4988_MAX_VALUE));
 }
 
 const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
