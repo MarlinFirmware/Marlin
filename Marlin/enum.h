@@ -167,10 +167,13 @@ enum LCDViewAction {
   LCDVIEW_CALL_NO_REDRAW
 };
 
+/**
+ * Dual X Carriage modes. A Dual Nozzle can also do duplication.
+ */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   enum DualXMode {
-    DXC_FULL_CONTROL_MODE,
-    DXC_AUTO_PARK_MODE,
+    DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
+    DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
     DXC_DUPLICATION_MODE
   };
 #endif
