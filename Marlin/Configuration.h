@@ -1389,6 +1389,9 @@
 //
 // Sainsmart YW Robot (LCM1602) LCD Display
 //
+// Note: This controller requires F.Malpartida's LiquidCrystal_I2C library
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home
+//
 //#define LCD_I2C_SAINSMART_YWROBOT
 
 //
