@@ -73,7 +73,7 @@
  * "M" Codes
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
- * M1   - Same as M0
+ * M1   -> M0
  * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
  * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
  * M5   - Turn laser/spindle off
@@ -3270,6 +3270,7 @@ inline void gcode_G0_G1(
  *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
  */
 #if ENABLED(ARC_SUPPORT)
+
   inline void gcode_G2_G3(bool clockwise) {
     if (IsRunning()) {
 
@@ -3318,7 +3319,8 @@ inline void gcode_G0_G1(
       }
     }
   }
-#endif
+
+#endif // ARC_SUPPORT
 
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
@@ -12201,7 +12203,7 @@ void prepare_move_to_destination() {
       #endif
       HOTEND_LOOP()
         max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
-      bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
+      const bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;
         #if PIN_EXISTS(STAT_LED_RED)

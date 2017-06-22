@@ -4001,7 +4001,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   #if ENABLED(REPRAPWORLD_KEYPAD)
-    void _reprapworld_keypad_move(AxisEnum axis, int16_t dir) {
+    void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
       move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
       encoderPosition = dir;
       switch (axis) {
