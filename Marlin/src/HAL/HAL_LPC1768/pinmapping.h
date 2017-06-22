@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,30 +20,24 @@
  *
  */
 
+#ifndef __HAL_PINMAPPING_H__
+#define __HAL_PINMAPPING_H__
 
-#ifndef HAL_SPI_PINS_H_
-#define HAL_SPI_PINS_H_
+struct pin_data {
+  uint8_t port;
+  uint8_t pin;
+};
 
-#ifdef ARDUINO_ARCH_SAM
+struct adc_pin_data {
+  uint8_t port;
+  uint8_t pin;
+  uint8_t adc;
+};
 
-  #include "HAL_DUE/spi_pins.h"
-
-#elif defined(IS_32BIT_TEENSY)
-
-  #include "HAL_TEENSY35_36/spi_pins.h"
-
-#elif defined(ARDUINO_ARCH_AVR)
-
-  #include "HAL_AVR/spi_pins.h"
-
-  #elif defined(TARGET_LPC1768)
-
-    #include "HAL_LPC1768/spi_pins.h"
-
+#ifdef IS_REARM
+  #include "pinmap_re_arm.h"
 #else
-
-  #error Unsupported Platform!
-
+  #error "HAL: LPC1768: No defined pinnmapping"
 #endif
 
-#endif /* HAL_SPI_PINS_H_ */
+#endif //__HAL_PINMAPPING_H__
