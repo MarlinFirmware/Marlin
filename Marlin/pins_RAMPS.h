@@ -44,7 +44,7 @@
  *         7 | 11
  */
 
-#if !defined(IS_RAMPS_SMART) && !defined(IS_RAMPS_DUO) && !defined(IS_RAMPS4DUE)
+#if !defined(IS_RAMPS_SMART) && !defined(IS_RAMPS_DUO) && !defined(IS_RAMPS4DUE) && !defined(TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
     #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
   #endif
@@ -208,6 +208,15 @@
 
 #define PS_ON_PIN          12
 
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
+    #define CASE_LIGHT_PIN   6      // MUST BE HARDWARE PWM
+  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
+      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+    #define CASE_LIGHT_PIN   44     // MUST BE HARDWARE PWM
+  #endif
+#endif
+
 //
 // LCD / Controller
 //
@@ -271,10 +280,10 @@
       #define SD_DETECT_PIN -1
       #define KILL_PIN 41
     #elif ENABLED(LCD_I2C_VIKI)
-      #define BTN_EN1 22  // reverse if the encoder turns the wrong way.
-      #define BTN_EN2 7   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf
-                          // tells about 40/42.
-                          // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
+
+      #define BTN_EN1           22 // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN2            7 // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
+
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SD_DETECT_PIN 49

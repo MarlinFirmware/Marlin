@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,30 +20,28 @@
  *
  */
 
+#ifndef WATCHDOG_LPC1768_H
+#define WATCHDOG_LPC1768_H
 
-#ifndef HAL_SPI_PINS_H_
-#define HAL_SPI_PINS_H_
+#define RST_POWER_ON   1
+#define RST_EXTERNAL   2
+#define RST_BROWN_OUT  4
+#define RST_WATCHDOG   8
 
-#ifdef ARDUINO_ARCH_SAM
+// Initialize watchdog with a 4 second interrupt time
+void watchdog_init();
 
-  #include "HAL_DUE/spi_pins.h"
+// Reset watchdog. MUST be called at least every 4 seconds after the
+// first watchdog_init
+inline void watchdog_reset() {
+  LPC_WDT->WDFEED = 0xAA;
+  LPC_WDT->WDFEED = 0x55;
+}
 
-#elif defined(IS_32BIT_TEENSY)
+/** clear reset reason */
+void HAL_clear_reset_source (void);
 
-  #include "HAL_TEENSY35_36/spi_pins.h"
+/** reset reason */
+uint8_t HAL_get_reset_source (void);
 
-#elif defined(ARDUINO_ARCH_AVR)
-
-  #include "HAL_AVR/spi_pins.h"
-
-  #elif defined(TARGET_LPC1768)
-
-    #include "HAL_LPC1768/spi_pins.h"
-
-#else
-
-  #error Unsupported Platform!
-
-#endif
-
-#endif /* HAL_SPI_PINS_H_ */
+#endif /* WATCHDOG_H */
