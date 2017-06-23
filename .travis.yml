@@ -72,14 +72,14 @@ script:
   - build_marlin
   #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
-  #  plus a "Fix Mounted" Probe with Safe Homing
+  #  plus a "Fix Mounted" Probe with Safe Homing and some arc options
   #
   - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
   - opt_set EXTRUDERS 2
   - opt_set TEMP_SENSOR_0 -2
   - opt_set TEMP_SENSOR_1 1
   - opt_set TEMP_SENSOR_BED 1
-  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING
+  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
   - build_marlin
   #
   # ...with AUTO_BED_LEVELING_LINEAR, Z_MIN_PROBE_REPEATABILITY_TEST, and DEBUG_LEVELING_FEATURE
