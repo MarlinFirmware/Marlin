@@ -630,9 +630,9 @@ float cartes[XYZ] = { 0 };
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
         filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
-  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1];          // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
-  int filwidth_delay_index[2] = { 0, -1 };                      // Indexes into ring buffer
-  int meas_delay_cm = MEASUREMENT_DELAY_CM;                     // Distance delay setting
+  uint8_t meas_delay_cm = MEASUREMENT_DELAY_CM,                 // Distance delay setting
+          measurement_delay[MAX_MEASUREMENT_DELAY + 1];         // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+  int8_t filwidth_delay_index[2] = { 0, -1 };                   // Indexes into ring buffer
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -8898,11 +8898,11 @@ inline void gcode_M400() { stepper.synchronize(); }
   inline void gcode_M405() {
     // This is technically a linear measurement, but since it's quantized to centimeters and is a different unit than
     // everything else, it uses parser.value_int() instead of parser.value_linear_units().
-    if (parser.seen('D')) meas_delay_cm = parser.value_int();
+    if (parser.seen('D')) meas_delay_cm = parser.value_byte();
     NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
     if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
-      const int temp_ratio = thermalManager.widthFil_to_size_ratio() - 100; // -100 to scale within a signed byte
+      const uint8_t temp_ratio = thermalManager.widthFil_to_size_ratio() - 100; // -100 to scale within a signed byte
 
       for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
         measurement_delay[i] = temp_ratio;

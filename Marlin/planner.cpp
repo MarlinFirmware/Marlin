@@ -1103,12 +1103,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
 
         // Convert into an index into the measurement array
-        filwidth_delay_index[0] = (int)(filwidth_delay_dist * 0.1 + 0.0001);
+        filwidth_delay_index[0] = int8_t(filwidth_delay_dist * 0.1);
 
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
           filwidth_e_count = 0; // Reset the E movement counter
-          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          const uint8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
           do {
             filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement

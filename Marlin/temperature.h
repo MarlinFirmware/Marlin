@@ -247,7 +247,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static int16_t meas_shift_index;  // Index of a delayed sample in buffer
+      static int8_t meas_shift_index;  // Index of a delayed sample in buffer
     #endif
 
     #if HAS_AUTO_FAN
@@ -255,7 +255,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
+      static uint16_t current_raw_filwidth; // Measured filament diameter - one extruder only
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
