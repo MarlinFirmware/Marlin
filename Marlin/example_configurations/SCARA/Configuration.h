@@ -56,19 +56,16 @@
  */
 
 //===========================================================================
-//============================= DELTA Printer ===============================
-//===========================================================================
-// For Delta printers start with one of the configuration files in the
-// example_configurations/delta directory and customize for your machine.
-//
-
-//===========================================================================
 //============================= SCARA Printer ===============================
 //===========================================================================
-// MORGAN_SCARA for Marlin was developed by QHARLEY in ZA in 2012/2013. Implemented
-// and slightly reworked by JCERNY in 06/2014 with the goal to bring it into Master-Branch
-// QHARLEYS Autobedlevelling has not been ported, because Marlin has now Bed-levelling
-// You might need Z-Min endstop on SCARA-Printer to use this feature. Actually untested!
+
+/**
+ * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
+ * Implemented and slightly reworked by JCERNY in June, 2014.
+ *
+ * MAKERARM_SCARA is in development, included as an alternate example.
+ * Other SCARA models may be added, or SCARA may be unified in the future.
+ */
 
 // Specify the specific SCARA model
 #define MORGAN_SCARA
