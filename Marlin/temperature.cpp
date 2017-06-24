@@ -180,7 +180,7 @@ int16_t Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TE
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  int16_t Temperature::meas_shift_index;  // Index of a delayed sample in buffer
+  int8_t Temperature::meas_shift_index;  // Index of a delayed sample in buffer
 #endif
 
 #if HAS_AUTO_FAN
@@ -196,7 +196,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  int Temperature::current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
+  uint16_t Temperature::current_raw_filwidth = 0; // Measured filament diameter - one extruder only
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
@@ -962,7 +962,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 
   // Convert raw Filament Width to millimeters
   float Temperature::analog2widthFil() {
-    return current_raw_filwidth / 16383.0 * 5.0;
+    return current_raw_filwidth * 5.0 * (1.0 / 16383.0);
     //return current_raw_filwidth;
   }
 
