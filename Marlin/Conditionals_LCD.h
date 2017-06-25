@@ -46,6 +46,21 @@
     #define DEFAULT_LCD_CONTRAST 17
   #endif
 
+  #if ENABLED(ANET_KEYPAD_LCD)
+    #define REPRAPWORLD_KEYPAD
+    #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+    #define ADC_KEYPAD
+    #define ADC_KEY_NUM 8
+    #define ULTIPANEL
+    // this helps to implement ADC_KEYPAD menus
+    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define REVERSE_MENU_DIRECTION
+  #endif
+
+  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #endif
+  
   #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)

@@ -212,6 +212,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
   #endif
 #endif
 
+#if ENABLED(ADC_KEYPAD)
+  uint32_t Temperature::current_ADCKey_raw = 0;
+  uint8_t Temperature::ADCKey_count = 0;
+#endif
+
 #if HAS_PID_HEATING
 
   void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
@@ -1625,6 +1630,9 @@ void Temperature::isr() {
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
+  #if ENABLED(ADC_KEYPAD)
+    static unsigned int raw_ADCKey_value = 0;
+  #endif
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -1997,8 +2005,28 @@ void Temperature::isr() {
           raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
           raw_filwidth_value += ((unsigned long)ADC << 7); // Add new ADC reading, scaled by 128
         }
-        break;
+      break;
     #endif
+
+    #if ENABLED(ADC_KEYPAD)
+      case Prepare_ADC_KEY:
+        START_ADC(ADC_KEYPAD_PIN);
+        break;
+      case Measure_ADC_KEY:
+        if (ADCKey_count < 16) {
+          raw_ADCKey_value = ADC;
+          if (raw_ADCKey_value > 900) {
+            //ADC Key release
+            ADCKey_count = 0;
+            current_ADCKey_raw = 0;
+          }
+          else {
+            current_ADCKey_raw += raw_ADCKey_value;
+            ADCKey_count++;
+          }
+        }
+        break;
+    #endif // ADC_KEYPAD
 
     case StartupDelay: break;
 

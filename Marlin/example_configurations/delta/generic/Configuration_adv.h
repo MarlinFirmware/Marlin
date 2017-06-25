@@ -123,8 +123,8 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
-//Show Temperature ADC value
-//The M105 command return, besides traditional information, the ADC value read from temperature sensors.
+// Show Temperature ADC value
+// Enable for M105 to include ADC values read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
 
 /**
