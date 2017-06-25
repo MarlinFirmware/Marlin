@@ -1249,6 +1249,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   #if ENABLED(DAC_STEPPER_CURRENT)
+
     void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
 
     void dac_driver_commit() { dac_current_set_percents(driverPercent); }
@@ -1266,7 +1267,27 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
       END_MENU();
     }
-  #endif
+
+  #endif // DAC_STEPPER_CURRENT
+
+  #if HAS_MOTOR_CURRENT_PWM
+
+    void lcd_pwm_menu() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+        MENU_ITEM_EDIT_CALLBACK(long5, MSG_X MSG_Y, &stepper.motor_current_setting[0], 100, 2000, Stepper::refresh_motor_power);
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+        MENU_ITEM_EDIT_CALLBACK(long5, MSG_Z, &stepper.motor_current_setting[1], 100, 2000, Stepper::refresh_motor_power);
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+        MENU_ITEM_EDIT_CALLBACK(long5, MSG_E, &stepper.motor_current_setting[2], 100, 2000, Stepper::refresh_motor_power);
+      #endif
+      END_MENU();
+    }
+
+  #endif // HAS_MOTOR_CURRENT_PWM
 
   constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
@@ -2893,6 +2914,9 @@ void kill_screen(const char* lcd_msg) {
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
+    #endif
+    #if HAS_MOTOR_CURRENT_PWM
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_pwm_menu);
     #endif
 
     #if ENABLED(BLTOUCH)
