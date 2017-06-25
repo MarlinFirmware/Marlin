@@ -74,8 +74,8 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 
 // private:
 
-unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
-unsigned int Stepper::cleaning_buffer_counter = 0;
+uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
+uint16_t Stepper::cleaning_buffer_counter = 0;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::locked_z_motor = false;
@@ -1447,11 +1447,11 @@ void Stepper::report_positions() {
 #if HAS_DIGIPOTSS
 
   // From Arduino DigitalPotControl example
-  void Stepper::digitalPotWrite(int address, int value) {
-    WRITE(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
-    SPI.transfer(address); //  send in the address and value via SPI:
+  void Stepper::digitalPotWrite(const int16_t address, const int16_t value) {
+    WRITE(DIGIPOTSS_PIN, LOW);  // Take the SS pin low to select the chip
+    SPI.transfer(address);      // Send the address and value via SPI
     SPI.transfer(value);
-    WRITE(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
+    WRITE(DIGIPOTSS_PIN, HIGH); // Take the SS pin high to de-select the chip
     //delay(10);
   }
 
@@ -1486,21 +1486,24 @@ void Stepper::report_positions() {
     #endif
   }
 
-  void Stepper::digipot_current(uint8_t driver, int current) {
+  void Stepper::digipot_current(const uint8_t driver, const int current) {
+
     #if HAS_DIGIPOTSS
+
       const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
       digitalPotWrite(digipot_ch[driver], current);
+
     #elif HAS_MOTOR_CURRENT_PWM
-      #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+      #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
       switch (driver) {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          case 0: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_XY_PIN); break;
+          case 0: _WRITE_CURRENT_PWM(XY); break;
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          case 1: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_Z_PIN); break;
+          case 1: _WRITE_CURRENT_PWM(Z); break;
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          case 2: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_E_PIN); break;
+          case 2: _WRITE_CURRENT_PWM(E); break;
         #endif
       }
     #endif
@@ -1550,7 +1553,7 @@ void Stepper::report_positions() {
       microstep_mode(i, microstep_modes[i]);
   }
 
-  void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
+  void Stepper::microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2) {
     if (ms1 >= 0) switch (driver) {
       case 0: WRITE(X_MS1_PIN, ms1); break;
       #if HAS_Y_MICROSTEPS
@@ -1601,7 +1604,7 @@ void Stepper::report_positions() {
     }
   }
 
-  void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
+  void Stepper::microstep_mode(const uint8_t driver, const uint8_t stepping_mode) {
     switch (stepping_mode) {
       case 1: microstep_ms(driver, MICROSTEP1); break;
       case 2: microstep_ms(driver, MICROSTEP2); break;

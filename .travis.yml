@@ -202,9 +202,9 @@ script:
   #
   # Enable COREYX (swapped)
   #
-  - restore_configs
-  - opt_enable COREYX
-  - build_marlin
+  #- restore_configs
+  #- opt_enable COREYX
+  #- build_marlin
   #
   #
   ######## Other Standard LCD/Panels ##############
