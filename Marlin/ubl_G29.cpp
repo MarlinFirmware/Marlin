@@ -242,11 +242,13 @@
    *                    pressing and holding the encoder wheel until the system recognizes the exit request.
    *                    Phase 4's general form is G29 P4 [R # of points] [X position] [Y position]
    *
-   *                    The user has the option to supply the addional S(urface) parameter so it will place the
-   *                    nozzle at the current mesh height on the surface of the bed instead of current mesh
-   *                    height + Z_CLEARANCE_BETWEEN_PROBES.  The user then can use the LCD Panel to carefully
-   *                    adjust the nozzle so it is just barely touching the bed.  When the user clicks the
-   *                    control, the System will lock in that height for that point in the Mesh Compensation System.
+   *                    The user has the option to supply the addional H [offset] parameter so it will place the
+   *                    nozzle at the current mesh height + [offset] instead of current mesh
+   *                    height + Z_CLEARANCE_BETWEEN_PROBES.  The user will then use the LCD Panel to carefully
+   *                    adjust the nozzle to the offset height.  This command is useful if a shim is used to 
+   *                    fine tune your mesh.  For a 0.4mm shim the command G29 P4 L 0.4 would be used.  The nozzle would
+   *                    be adjusted to the height of the shim and the user clicks the control and he System will lock in
+   *                    that height minus the offset for that point in the Mesh Compensation System.
    *                    !!Use caution with this option as a very poor mesh could cause the nozzle to crash into the bed!!
    *
    *                    NOTE:  P4 is not available unless you have LCD support enabled!
@@ -1479,7 +1481,12 @@
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
       
       #ifdef UBL_MESH_EDIT_MOVES_Z
-        bool is_surface = parser.seen('S');
+        bool is_offset = parser.seen('H');
+        float H_offset = parser.value_float();
+        if (!WITHIN(H_offset, 0, 10)) {
+          SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
+          return;
+        }
       #endif
       
       mesh_index_pair location;
@@ -1534,8 +1541,8 @@
         do {
           new_z = lcd_mesh_edit();
           #ifdef UBL_MESH_EDIT_MOVES_Z
-            if(is_surface)
-            	do_blocking_move_to_z(new_z);
+            if (is_offset)
+              do_blocking_move_to_z(H_offset + new_z);
             else
               do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + new_z);  // Move the nozzle as the point is edited
           #endif
