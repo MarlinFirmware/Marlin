@@ -2285,8 +2285,11 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-//    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset; // this reports a false height to G33; can't use raw - need to include info on home_offset[Z_AXIS]
-    return current_position[Z_AXIS] + zprobe_zoffset;
+    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
+    #if ENABLED(DELTA) // check if this is also required on cartesians
+      + home_offset[Z_AXIS]
+    #endif
+    ;
   }
 
   /**
@@ -5323,8 +5326,6 @@ void home_all_axes() { gcode_G28(true); }
         if (zero_std_dev < zero_std_dev_min)
           zero_std_dev_min = zero_std_dev;
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
-
-        if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
 
         // Solve matrices
 
