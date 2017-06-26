@@ -1772,7 +1772,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float z_dest = LOGICAL_Z_POSITION(z_raise);
     if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
-    #if ENABLED(DELTA)
+    #if ENABLED(DELTA) // check if this is also required on cartesians
       z_dest -= home_offset[Z_AXIS];
     #endif
 
@@ -2263,7 +2263,7 @@ static void clean_up_after_endstop_or_probe_move() {
       // move down quickly before doing the slow probe
       float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
       if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-      #if ENABLED(DELTA)
+      #if ENABLED(DELTA) // check if this is also required on cartesians
         z -= home_offset[Z_AXIS];
       #endif
       if (z < current_position[Z_AXIS])
@@ -2285,7 +2285,8 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset;
+//    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset; // this reports a false height to G33; can't use raw - need to include info on home_offset[Z_AXIS]
+    return current_position[Z_AXIS] + zprobe_zoffset;
   }
 
   /**
