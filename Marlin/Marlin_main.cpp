@@ -5181,7 +5181,7 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       const bool towers_set = !parser.seen('T'),
-                 stow_after_each      = parser.seen('E') && parser.value_bool(),
+                 stow_after_each      = parser.seen('E'),
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
