@@ -4026,44 +4026,34 @@ void kill_screen(const char* lcd_msg) {
    */
   #if ENABLED(ADC_KEYPAD)
 
-    inline void handle_adc_keypad() {
+    inline bool handle_adc_keypad() {
       static uint8_t adc_steps = 0;
       if (buttons_reprapworld_keypad) {
-        adc_steps++;
-        NOMORE(adc_steps, 20);
-
+        if (adc_steps < 20) ++adc_steps;
         lcd_quick_feedback();
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        return_to_status_ms = millis() + LCD_TIMEOUT_TO_STATUS;
         if (encoderDirection == -1) { // side effect which signals we are inside a menu
-          if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
-            encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
-            encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
-            menu_action_back();
-          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
-            // enqueue_and_echo_commands_P(PSTR("M0 Pause"));
-            lcd_return_to_status();
+          if      (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)  encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)    encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)  menu_action_back();
+          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT) lcd_return_to_status();
         }
         else {
           const int8_t step = adc_steps > 19 ? 100 : adc_steps > 10 ? 10 : 1;
-          if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
-            encoderPosition += ENCODER_PULSES_PER_STEP * step;
-          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
-            encoderPosition -= ENCODER_PULSES_PER_STEP * step;
-          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
-            encoderPosition = 0;
+               if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)  encoderPosition += ENCODER_PULSES_PER_STEP * step;
+          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)    encoderPosition -= ENCODER_PULSES_PER_STEP * step;
+          else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT) encoderPosition = 0;
         }
         #if ENABLED(ADC_KEYPAD_DEBUG)
           SERIAL_PROTOCOLLNPAIR("buttons_reprapworld_keypad = ", (uint32_t)buttons_reprapworld_keypad);
           SERIAL_PROTOCOLLNPAIR("encoderPosition = ", (uint32_t)encoderPosition);
         #endif
+        return true;
       }
-      else if (!thermalManager.current_ADCKey_raw) {
-        // reset stepping acceleration
-        adc_steps = 0;
-      }
+      else if (!thermalManager.current_ADCKey_raw)
+        adc_steps = 0; // reset stepping acceleration
+
+      return false;
     }
 
   #elif ENABLED(REPRAPWORLD_KEYPAD)
@@ -4360,7 +4350,8 @@ void lcd_update() {
 
       #if ENABLED(ADC_KEYPAD)
 
-        handle_adc_keypad();
+        if (handle_adc_keypad())
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
 
       #elif ENABLED(REPRAPWORLD_KEYPAD)
 
@@ -4792,7 +4783,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     uint8_t  ADCKeyNo;
   } _stADCKeypadTable_;
 
-  static const _stADCKeypadTable_ stADCKeyTable[] = PROGMEM {
+  static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
     // VALUE_MIN, VALUE_MAX, KEY
     { 4000, 4096, BLEN_REPRAPWORLD_KEYPAD_F1 + 1 },     // F1
     { 4000, 4096, BLEN_REPRAPWORLD_KEYPAD_F2 + 1 },     // F2

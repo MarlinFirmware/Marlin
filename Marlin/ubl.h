@@ -115,7 +115,7 @@
       #endif
 
       static float measure_point_with_encoder();
-      static float measure_business_card_thickness(float&);
+      static float measure_business_card_thickness(float);
       static bool g29_parameter_parsing();
       static void find_mean_mesh_height();
       static void shift_mesh_height();
