@@ -1772,7 +1772,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float z_dest = LOGICAL_Z_POSITION(z_raise);
     if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
-    #if ENABLED(DELTA)
+    #if ENABLED(DELTA) // check if this is also required on cartesians
       z_dest -= home_offset[Z_AXIS];
     #endif
 
@@ -2263,7 +2263,7 @@ static void clean_up_after_endstop_or_probe_move() {
       // move down quickly before doing the slow probe
       float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
       if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-      #if ENABLED(DELTA)
+      #if ENABLED(DELTA) // check if this is also required on cartesians
         z -= home_offset[Z_AXIS];
       #endif
       if (z < current_position[Z_AXIS])
@@ -2285,7 +2285,11 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset;
+    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
+    #if ENABLED(DELTA) // check if this is also required on cartesians
+      + home_offset[Z_AXIS]
+    #endif
+    ;
   }
 
   /**
@@ -5134,6 +5138,8 @@ void home_all_axes() { gcode_G28(true); }
      *   T   Don't calibrate tower angle corrections
      *
      *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
+     *   
+     *   Fn  Force to run at least n iterations and takes the best result
      *
      *   Vn  Verbose level:
      *
@@ -5172,8 +5178,14 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
+      const int8_t force_iterations = parser.seen('F') ? parser.value_int() : 1;
+      if (!WITHIN(force_iterations, 1, 30)) {
+        SERIAL_PROTOCOLLNPGM("?(F)orce iteration is implausible (1-30).");
+        return;
+      }
+
       const bool towers_set = !parser.seen('T'),
-                 stow_after_each      = parser.seen('E') && parser.value_bool(),
+                 stow_after_each      = parser.seen('E'),
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
@@ -5206,6 +5218,7 @@ void home_all_axes() { gcode_G28(true); }
       float test_precision,
             zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
             zero_std_dev_old = zero_std_dev,
+            zero_std_dev_min = zero_std_dev,
             e_old[XYZ] = {
               endstop_adj[A_AXIS],
               endstop_adj[B_AXIS],
@@ -5310,18 +5323,20 @@ void home_all_axes() { gcode_G28(true); }
             N++;
           }
         zero_std_dev_old = zero_std_dev;
-        zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
-
-        if (iterations == 1) home_offset[Z_AXIS] = zh_old; // reset height after 1st probe change
+        if (zero_std_dev < zero_std_dev_min)
+          zero_std_dev_min = zero_std_dev;
+        zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         // Solve matrices
 
-        if (zero_std_dev < test_precision && zero_std_dev > calibration_precision) {
-          COPY(e_old, endstop_adj);
-          dr_old = delta_radius;
-          zh_old = home_offset[Z_AXIS];
-          alpha_old = delta_tower_angle_trim[A_AXIS];
-          beta_old = delta_tower_angle_trim[B_AXIS];
+        if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
+          if (zero_std_dev < zero_std_dev_min) {
+            COPY(e_old, endstop_adj);
+            dr_old = delta_radius;
+            zh_old = home_offset[Z_AXIS];
+            alpha_old = delta_tower_angle_trim[A_AXIS];
+            beta_old = delta_tower_angle_trim[B_AXIS];
+          }
 
           float e_delta[XYZ] = { 0.0 }, r_delta = 0.0, t_alpha = 0.0, t_beta = 0.0;
           const float r_diff = delta_radius - delta_calibration_radius,
@@ -5420,7 +5435,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         if (test_precision != 0.0) {                                 // !forced end
-          if (zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) {  // end iterations
+          if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
             SERIAL_PROTOCOL_SP(36);
             if (zero_std_dev >= test_precision)
@@ -5458,7 +5473,7 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_PROTOCOLPGM("  Tz:+0.00");
             SERIAL_EOL();
           }
-          if (zero_std_dev >= test_precision || zero_std_dev <= calibration_precision)
+          if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations)
             serialprintPGM(save_message);
             SERIAL_EOL();
         }
@@ -5485,7 +5500,7 @@ void home_all_axes() { gcode_G28(true); }
         endstops.not_homing();
 
       }
-      while (zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31);
+      while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
 
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
