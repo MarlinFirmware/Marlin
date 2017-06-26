@@ -4034,7 +4034,7 @@ void kill_screen(const char* lcd_msg) {
 
         lcd_quick_feedback();
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        return_to_status_ms = millis() + LCD_TIMEOUT_TO_STATUS;
+        static millis_t return_to_status_ms = millis() + LCD_TIMEOUT_TO_STATUS;
         if (encoderDirection == -1) { // side effect which signals we are inside a menu
           if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
             encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
@@ -4792,7 +4792,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     uint8_t  ADCKeyNo;
   } _stADCKeypadTable_;
 
-  static const _stADCKeypadTable_ stADCKeyTable[] = PROGMEM {
+  static const PROGMEM _stADCKeypadTable_ stADCKeyTable[] = {
     // VALUE_MIN, VALUE_MAX, KEY
     { 4000, 4096, BLEN_REPRAPWORLD_KEYPAD_F1 + 1 },     // F1
     { 4000, 4096, BLEN_REPRAPWORLD_KEYPAD_F2 + 1 },     // F2
