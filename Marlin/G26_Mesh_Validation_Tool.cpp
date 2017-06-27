@@ -638,9 +638,9 @@
     g26_hotend_temp           = HOTEND_TEMP;
     g26_prime_flag            = 0;
 
-    g26_ooze_amount           = parser.seenval('O') ? parser.value_linear_units() : OOZE_AMOUNT;
-    g26_keep_heaters_on       = parser.seen('K') && parser.value_bool();
-    g26_continue_with_closest = parser.seen('C') && parser.value_bool();
+    g26_ooze_amount           = parser.linearval('O', OOZE_AMOUNT);
+    g26_keep_heaters_on       = parser.boolval('K');
+    g26_continue_with_closest = parser.boolval('C');
 
     if (parser.seenval('B')) {
       g26_bed_temp = parser.value_celsius();
@@ -727,7 +727,7 @@
     }
 
     #if ENABLED(NEWPANEL)
-      g26_repeats = parser.seen('R') && parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+      g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
     #else
       if (!parser.seen('R')) {
         SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
@@ -741,8 +741,8 @@
       return UBL_ERR;
     }
 
-    g26_x_pos = parser.seen('X') ? parser.value_linear_units() : current_position[X_AXIS];
-    g26_y_pos = parser.seen('Y') ? parser.value_linear_units() : current_position[Y_AXIS];
+    g26_x_pos = parser.linearval('X', current_position[X_AXIS]);
+    g26_y_pos = parser.linearval('Y', current_position[Y_AXIS]);
     if (!position_is_reachable_xy(g26_x_pos, g26_y_pos)) {
       SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
       return UBL_ERR;

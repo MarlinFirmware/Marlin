@@ -314,7 +314,7 @@
 
     // Check for commands that require the printer to be homed
     if (axis_unhomed_error()) {
-      const int8_t p_val = parser.seenval('P') ? parser.value_int() : -1;
+      const int8_t p_val = parser.intval('P', -1);
       if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
         home_all_axes();
     }
@@ -492,7 +492,7 @@
               return;
             }
 
-            const float height = parser.seenval('H') ? parser.value_float() : Z_CLEARANCE_BETWEEN_PROBES;
+            const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
             manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
 
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
@@ -1180,7 +1180,7 @@
       }
     #endif
 
-    g29_map_type = parser.seenval('T') ? parser.value_int() : 0;
+    g29_map_type = parser.intval('T');
     if (!WITHIN(g29_map_type, 0, 2)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
