@@ -8266,7 +8266,6 @@ inline void gcode_M205() {
   inline void gcode_M665() {
     if (parser.seen('H')) {
       home_offset[Z_AXIS] = parser.value_linear_units() - DELTA_HEIGHT;
-      current_position[Z_AXIS] += parser.value_linear_units() - DELTA_HEIGHT - home_offset[Z_AXIS];
       update_software_endstops(Z_AXIS);
     }
     if (parser.seen('L')) delta_diagonal_rod = parser.value_linear_units();
