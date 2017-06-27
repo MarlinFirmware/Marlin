@@ -31,6 +31,10 @@
 #include "utility.h"
 #include "duration_t.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
+#endif
+
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
@@ -1080,9 +1084,193 @@ static void lcd_implementation_status_screen() {
 #endif // LCD_HAS_STATUS_INDICATORS
 
 #ifdef AUTO_BED_LEVELING_UBL
-    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
-    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
-      lcd_return_to_status();          // real code.
+
+    /* 
+     * These are just basic data for the 20x4 LCD work that
+     * is coming up very soon.
+     * Soon this will morph into a map code.
+     */
+
+    /**
+    Possible map screens:
+
+    16x2   |X000.00  Y000.00|
+           |(00,00)  Z00.000|
+
+    20x2   | X:000.00  Y:000.00 |
+           | (00,00)   Z:00.000 |
+
+    16x4   |+-------+(00,00)|
+           ||       |X000.00|
+           ||       |Y000.00|
+           |+-------+Z00.000|
+
+    20x4   | +-------+  (00,00) |
+           | |       |  X:000.00|
+           | |       |  Y:000.00|
+           | +-------+  Z:00.000|
+    */
+
+    void _lcd_ubl_plot_HD44780(uint8_t x_plot, uint8_t y_plot) {
+
+      uint8_t lcd_w_pos;
+
+      #if LCD_WIDTH < 20
+        lcd_w_pos = 8;
+      #else
+        lcd_w_pos = 12;
+      #endif
+
+      #if LCD_HEIGHT < 3
+
+        /*
+         *** 16x2 or 20x2 display **
+         * 
+         * Show X and Y positions
+         */
+        #if LCD_WIDTH < 20
+          lcd.setCursor(0, 0);
+          lcd.print("X");
+        #else
+          lcd.setCursor(1, 0);
+          lcd.print("X:");
+        #endif
+        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+
+        lcd.setCursor(lcd_w_pos, 0);
+        #if LCD_WIDTH < 20
+          lcd.print("Y");
+        #else
+          lcd.print("Y:");
+        #endif
+        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+        /*
+         * Print plot position
+         */
+        #if LCD_WIDTH < 20
+          lcd.setCursor(0, 1);
+        #else
+          lcd.setCursor(1, 1);
+        #endif
+        lcd.print("(");
+        lcd.print(x_plot);
+        lcd.print(",");
+        lcd.print(y_plot);
+        lcd.print(")");
+
+        /*
+         * Print Z values
+         */
+        lcd.setCursor(lcd_w_pos, 1);
+        #if LCD_WIDTH < 20
+          lcd.print("Z");
+        #else
+          lcd.print("Z:");
+        #endif
+        if (!isnan(ubl.z_values[x_plot][y_plot])) {
+          lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        }
+        else {
+          lcd.print(" -----");
+        }
+
+      #elif LCD_HEIGHT > 3
+
+        //#include "_ubl_lcd_map_characters.h"
+
+        const static PROGMEM byte _lcd_box_top[8] = {
+          B11111,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000
+        };
+
+        const static PROGMEM byte _lcd_box_bottom[8] = {
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B00000,
+          B11111
+        };
+
+        /*
+         * Draw the Mesh Map Box
+         */
+        // First create the box custom characters
+        createChar_P(1, _lcd_box_top);
+        createChar_P(2, _lcd_box_bottom);
+
+        // Draw the mesh map box
+        uint8_t m;
+        
+        #if LCD_WIDTH < 20
+
+          for(m = 1; m <= 5; m++) { lcd.setCursor(m, 0); lcd.write(1); } // Top
+          for(m = 1; m <= 5; m++) { lcd.setCursor(m, 3); lcd.write(2); } // Bottom
+          for(m = 0; m <= 3; m++) { lcd.setCursor(2, m); lcd.write('|'); } // Left
+          for(m = 0; m <= 3; m++) { lcd.setCursor(8, m); lcd.write('|');  } // Right
+
+        #else
+        
+          for(m = 3; m <= 7; m++) { lcd.setCursor(m, 0); lcd.write(1); } // Top
+          for(m = 3; m <= 7; m++) { lcd.setCursor(m, 3); lcd.write(2); } // Bottom
+          for(m = 0; m <= 3; m++) { lcd.setCursor(2, m); lcd.write('|'); } // Left
+          for(m = 0; m <= 3; m++) { lcd.setCursor(8, m); lcd.write('|');  } // Right
+
+        #endif
+        /*
+         * Print plot position
+         */
+        lcd.setCursor(lcd_w_pos, 0);
+        lcd.print("(");
+        lcd.print(x_plot);
+        lcd.print(",");
+        lcd.print(y_plot);
+        lcd.print(")");
+
+        /*
+         * Show all values at right of screen
+         */
+        lcd.setCursor(lcd_w_pos, 1);
+        #if LCD_WIDTH < 20
+          lcd.print("X");
+        #else
+          lcd.print("X:");
+        #endif
+        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        lcd.setCursor(lcd_w_pos, 2);
+        #if LCD_WIDTH < 20
+          lcd.print("Y");
+        #else
+          lcd.print("Y:");
+        #endif
+        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+        /*
+         * Show the location value
+         */
+        lcd.setCursor(lcd_w_pos, 3);
+        #if LCD_WIDTH < 20
+          lcd.print("Z");
+        #else
+          lcd.print("Z:");
+        #endif
+        if (!isnan(ubl.z_values[x_plot][y_plot])) {
+          lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        }
+        else {
+          lcd.print(" -----");
+        }
+
+      #endif // LCD_HEIGHT > 3
     }
 
 #endif // AUTO_BED_LEVELING_UBL
