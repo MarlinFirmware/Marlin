@@ -1276,16 +1276,17 @@ void get_available_commands() {
  *
  * Returns TRUE if the target is invalid
  */
-bool get_target_extruder_from_command(int code) {
+bool get_target_extruder_from_command(const uint16_t code) {
   if (parser.seen('T')) {
-    if (parser.value_byte() >= EXTRUDERS) {
+    const int8_t e = parser.value_byte();
+    if (e >= EXTRUDERS) {
       SERIAL_ECHO_START();
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", parser.value_byte());
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
       return true;
     }
-    target_extruder = parser.value_byte();
+    target_extruder = e;
   }
   else
     target_extruder = active_extruder;
@@ -5676,7 +5677,7 @@ inline void gcode_G92() {
         #if HAS_POSITION_SHIFT
           const float p = current_position[i];
         #endif
-        float v = parser.value_axis_units((AxisEnum)i);
+        const float v = parser.value_axis_units((AxisEnum)i);
 
         current_position[i] = v;
 
@@ -6405,7 +6406,7 @@ static bool pin_is_protected(const int8_t pin) {
 inline void gcode_M42() {
   if (!parser.seen('S')) return;
 
-  int pin_status = parser.value_int();
+  const int pin_status = parser.value_int();
   if (!WITHIN(pin_status, 0, 255)) return;
 
   int pin_number = parser.seen('P') ? parser.value_int() : LED_PIN;
@@ -6645,7 +6646,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M43() {
 
-    if (parser.seen('T')) {   // must be first or else it's "S" and "E" parameters will execute endstop or servo test
+    if (parser.seen('T')) {   // must be first or else its "S" and "E" parameters will execute endstop or servo test
       toggle_pins();
       return;
     }
@@ -8268,10 +8269,10 @@ inline void gcode_M205() {
       home_offset[Z_AXIS] = parser.value_linear_units() - DELTA_HEIGHT;
       update_software_endstops(Z_AXIS);
     }
-    if (parser.seen('L')) delta_diagonal_rod = parser.value_linear_units();
-    if (parser.seen('R')) delta_radius = parser.value_linear_units();
-    if (parser.seen('S')) delta_segments_per_second = parser.value_float();
-    if (parser.seen('B')) delta_calibration_radius = parser.value_float();
+    if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
+    if (parser.seen('R')) delta_radius                   = parser.value_linear_units();
+    if (parser.seen('S')) delta_segments_per_second      = parser.value_float();
+    if (parser.seen('B')) delta_calibration_radius       = parser.value_float();
     if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
     if (parser.seen('Z')) { // rotate all 3 axis for Z = 0
@@ -8580,7 +8581,7 @@ inline void gcode_M226() {
    */
   inline void gcode_M280() {
     if (!parser.seen('P')) return;
-    int servo_index = parser.value_int();
+    const int servo_index = parser.value_int();
     if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
       if (parser.seen('S'))
         MOVE_SERVO(servo_index, parser.value_int());
@@ -8753,7 +8754,7 @@ inline void gcode_M226() {
    *       M302 S170 P1 ; set min extrude temp to 170 but leave disabled
    */
   inline void gcode_M302() {
-    bool seen_S = parser.seen('S');
+    const bool seen_S = parser.seen('S');
     if (seen_S) {
       thermalManager.extrude_min_temp = parser.value_celsius();
       thermalManager.allow_cold_extrude = (thermalManager.extrude_min_temp == 0);
@@ -8960,10 +8961,12 @@ inline void gcode_M400() { stepper.synchronize(); }
    * M405: Turn on filament sensor for control
    */
   inline void gcode_M405() {
-    // This is technically a linear measurement, but since it's quantized to centimeters and is a different unit than
-    // everything else, it uses parser.value_int() instead of parser.value_linear_units().
-    if (parser.seen('D')) meas_delay_cm = parser.value_byte();
-    NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
+    // This is technically a linear measurement, but since it's quantized to centimeters and is a different
+    // unit than everything else, it uses parser.value_byte() instead of parser.value_linear_units().
+    if (parser.seen('D')) {
+      meas_delay_cm = parser.value_byte();
+      NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
+    }
 
     if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
       const uint8_t temp_ratio = thermalManager.widthFil_to_size_ratio() - 100; // -100 to scale within a signed byte
