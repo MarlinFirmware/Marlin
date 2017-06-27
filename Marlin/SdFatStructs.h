@@ -523,7 +523,7 @@ struct directoryEntry {
   uint8_t  reservedNT;
           /**
            * The granularity of the seconds part of creationTime is 2 seconds
-           * so this field is a count of tenths of a second and its valid
+           * so this field is a count of tenths of a second and it's valid
            * value range is 0-199 inclusive. (WHG note - seems to be hundredths)
            */
   uint8_t  creationTimeTenths;
