@@ -97,6 +97,13 @@ public:
   // Reset is done before parsing
   static void reset();
 
+  // Index so that 'X' falls on index 24
+  #define PARAM_IND(N)  ((N) >> 3)
+  #define PARAM_BIT(N)  ((N) & 0x7)
+  #define LETTER_OFF(N) ((N) - 'A' + 1)
+  #define LETTER_IND(N) PARAM_IND(LETTER_OFF(N))
+  #define LETTER_BIT(N) PARAM_BIT(LETTER_OFF(N))
+
   #if ENABLED(FASTER_GCODE_PARSER)
 
     // Set the flag and pointer for a parameter
@@ -105,14 +112,14 @@ public:
         , const bool debug=false
       #endif
     ) {
-      const uint8_t ind = c - 'A';
+      const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
-      SBI(codebits[ind >> 3], ind & 0x7);        // parameter exists
+      SBI(codebits[PARAM_IND(ind)], PARAM_BIT(ind));        // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Set bit ", (int)(ind & 0x7));
-          SERIAL_ECHOPAIR(" of index ", (int)(ind >> 3));
+          SERIAL_ECHOPAIR("Set bit ", (int)PARAM_BIT(ind));
+          SERIAL_ECHOPAIR(" of index ", (int)PARAM_IND(ind));
           SERIAL_ECHOLNPAIR(" | param = ", hex_address((void*)param[ind]));
         }
       #endif
@@ -120,22 +127,28 @@ public:
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
+    // This is volatile because its side-effects are important
     static volatile bool seen(const char c) {
-      const uint8_t ind = c - 'A';
+      const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
-      const bool b = TEST(codebits[ind >> 3], ind & 0x7);
+      const bool b = TEST(codebits[PARAM_IND(ind)], PARAM_BIT(ind));
       if (b) value_ptr = command_ptr + param[ind];
       return b;
     }
 
-    static volatile bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
+    static bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
 
-    #define SEEN_TEST(L) TEST(codebits[(L - 'A') >> 3], (L - 'A') & 0x7)
+    #define SEEN_TEST(L) TEST(codebits[LETTER_IND(L)], LETTER_BIT(L))
+
+    // Seen any axis parameter
+    // Optimized by moving 'X' up to index 24
+    FORCE_INLINE bool seen_axis() { return codebits[3] || SEEN_TEST('E'); }
 
   #else // !FASTER_GCODE_PARSER
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
+    // This is volatile because its side-effects are important
     static volatile bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
@@ -143,9 +156,14 @@ public:
       return b;
     }
 
-    static volatile bool seen_any() { return *command_args == '\0'; }
+    static bool seen_any() { return *command_args == '\0'; }
 
     #define SEEN_TEST(L) !!strchr(command_args, L)
+
+    // Seen any axis parameter
+    static bool seen_axis() {
+      return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
+    }
 
   #endif // !FASTER_GCODE_PARSER
 
@@ -153,15 +171,11 @@ public:
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
 
-  // Code value pointer was set
+  // The code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
 
-  // Seen and has value
+  // Seen a parameter with a value
   inline static bool seenval(const char c) { return seen(c) && has_value(); }
-
-  static volatile bool seen_axis() {
-    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
-  }
 
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {
