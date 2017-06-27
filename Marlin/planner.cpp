@@ -1275,7 +1275,8 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
 
   /**
-   * Adapted from Prusa MKS firmware
+   * Adapted from Průša MKS firmware
+   * https://github.com/prusa3d/Prusa-Firmware
    *
    * Start with a safe speed (from which the machine may halt to stop immediately).
    */

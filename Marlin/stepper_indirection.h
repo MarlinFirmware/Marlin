@@ -472,8 +472,14 @@
   #endif
 #else
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #if ENABLED(MK2_MULTIPLEXER)
+    // Even-numbered steppers are reversed
+    #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
+  #else
+    #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #endif
 #endif
 
 #endif // STEPPER_INDIRECTION_H

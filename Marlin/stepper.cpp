@@ -860,8 +860,14 @@ void Stepper::isr() {
 
     nextAdvanceISR = eISR_Rate;
 
-    #define SET_E_STEP_DIR(INDEX) \
-      if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+    #if ENABLED(MK2_MULTIPLEXER)
+      // Even-numbered steppers are reversed
+      #define SET_E_STEP_DIR(INDEX) \
+        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0))
+    #else
+      #define SET_E_STEP_DIR(INDEX) \
+        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+    #endif
 
     #define START_E_PULSE(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)

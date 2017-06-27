@@ -9436,6 +9436,39 @@ inline void gcode_M503() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
+#if ENABLED(MK2_MULTIPLEXER)
+
+  inline void select_multiplexed_stepper(const uint8_t e) {
+    stepper.synchronize();
+    disable_e_steppers();
+    WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+    WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+    WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
+    safe_delay(100);
+  }
+
+  /**
+   * M702: Unload all extruders
+   */
+  inline void gcode_M702() {
+    for (uint8_t s = 0; s < E_STEPPERS; s++) {
+      select_multiplexed_stepper(e);
+      // TODO: standard unload filament function
+      // MK2 firmware behavior:
+      //  - Make sure temperature is high enough
+      //  - Raise Z to at least 15 to make room
+      //  - Extrude 1cm of filament in 1 second
+      //  - Under 230C quickly purge ~12mm, over 230C purge ~10mm
+      //  - Change E max feedrate to 80, eject the filament from the tube. Sync.
+      //  - Restore E max feedrate to 50
+    }
+    // Go back to the last active extruder
+    select_multiplexed_stepper(active_extruder);
+    disable_e_steppers();
+  }
+
+#endif // MK2_MULTIPLEXER
+
 #if ENABLED(DUAL_X_CARRIAGE)
 
   /**
@@ -10257,14 +10290,23 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       UNUSED(fr_mm_s);
       UNUSED(no_move);
 
-      // Set the new active extruder
-      active_extruder = tmp_extruder;
+      #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
+
+        stepper.synchronize();
+        move_extruder_servo(tmp_extruder);
+
+      #elif ENABLED(MK2_MULTIPLEXER)
+
+        if (tmp_extruder >= E_STEPPERS)
+          return invalid_extruder_error(tmp_extruder);
+
+        select_multiplexed_stepper(tmp_extruder);
+
+      #endif
 
     #endif // HOTENDS <= 1
 
-    #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
-      move_extruder_servo(active_extruder);
-    #endif
+    active_extruder = tmp_extruder;
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
@@ -11000,6 +11042,12 @@ void process_next_command() {
           gcode_M605();
           break;
       #endif // DUAL_X_CARRIAGE
+
+      #if ENABLED(MK2_MULTIPLEXER)
+        case 702: // M702: Unload all extruders
+          gcode_M702();
+          break;
+      #endif
 
       #if ENABLED(LIN_ADVANCE)
         case 900: // M900: Set advance K factor.
@@ -12966,6 +13014,12 @@ void setup() {
     #if ENABLED(RGBW_LED)
       SET_OUTPUT(RGB_LED_W_PIN);
     #endif
+  #endif
+
+  #if ENABLED(MK2_MULTIPLEXER)
+    SET_OUTPUT(E_MUX0_PIN);
+    SET_OUTPUT(E_MUX1_PIN);
+    SET_OUTPUT(E_MUX2_PIN);
   #endif
 
   lcd_init();
