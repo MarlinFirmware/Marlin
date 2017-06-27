@@ -6438,7 +6438,7 @@ inline void gcode_M42() {
       }
       else {
         report_pin_state_extended(pin, I_flag, true, "Pulsing   ");
-        #ifdef AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
+        #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
           if (pin == 46) {
             SET_OUTPUT(46);
             for (int16_t j = 0; j < repeat; j++) {
