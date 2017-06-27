@@ -1277,7 +1277,7 @@ void get_available_commands() {
  * Returns TRUE if the target is invalid
  */
 bool get_target_extruder_from_command(const uint16_t code) {
-  if (parser.seen('T')) {
+  if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
     if (e >= EXTRUDERS) {
       SERIAL_ECHO_START();
@@ -3135,7 +3135,7 @@ static void homeaxis(const AxisEnum axis) {
       const char* mixing_codes = "ABCDHI";
       byte mix_bits = 0;
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-        if (parser.seen(mixing_codes[i])) {
+        if (parser.seenval(mixing_codes[i])) {
           SBI(mix_bits, i);
           float v = parser.value_float();
           NOLESS(v, 0.0);
@@ -3304,7 +3304,7 @@ inline void gcode_G0_G1(
       #endif
 
       float arc_offset[2] = { 0.0, 0.0 };
-      if (parser.seen('R')) {
+      if (parser.seenval('R')) {
         const float r = parser.value_linear_units(),
                     p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
                     p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
@@ -3321,8 +3321,8 @@ inline void gcode_G0_G1(
         }
       }
       else {
-        if (parser.seen('I')) arc_offset[0] = parser.value_linear_units();
-        if (parser.seen('J')) arc_offset[1] = parser.value_linear_units();
+        if (parser.seenval('I')) arc_offset[0] = parser.value_linear_units();
+        if (parser.seenval('J')) arc_offset[1] = parser.value_linear_units();
       }
 
       if (arc_offset[0] || arc_offset[1]) {
@@ -3358,8 +3358,8 @@ inline void gcode_G0_G1(
 inline void gcode_G4() {
   millis_t dwell_ms = 0;
 
-  if (parser.seen('P')) dwell_ms = parser.value_millis(); // milliseconds to wait
-  if (parser.seen('S')) dwell_ms = parser.value_millis_from_seconds(); // seconds to wait
+  if (parser.seenval('P')) dwell_ms = parser.value_millis(); // milliseconds to wait
+  if (parser.seenval('S')) dwell_ms = parser.value_millis_from_seconds(); // seconds to wait
 
   stepper.synchronize();
   refresh_cmd_timeout();
@@ -4111,7 +4111,7 @@ void home_all_axes() { gcode_G28(true); }
         break;
 
       case MeshSet:
-        if (parser.seen('X')) {
+        if (parser.seenval('X')) {
           px = parser.value_int() - 1;
           if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
             SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(GRID_MAX_POINTS_X) ").");
@@ -4123,7 +4123,7 @@ void home_all_axes() { gcode_G28(true); }
           return;
         }
 
-        if (parser.seen('Y')) {
+        if (parser.seenval('Y')) {
           py = parser.value_int() - 1;
           if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
             SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
@@ -4135,7 +4135,7 @@ void home_all_axes() { gcode_G28(true); }
           return;
         }
 
-        if (parser.seen('Z')) {
+        if (parser.seenval('Z')) {
           mbl.z_values[px][py] = parser.value_linear_units();
         }
         else {
@@ -4145,7 +4145,7 @@ void home_all_axes() { gcode_G28(true); }
         break;
 
       case MeshSetZOffset:
-        if (parser.seen('Z')) {
+        if (parser.seenval('Z')) {
           mbl.z_offset = parser.value_linear_units();
         }
         else {
@@ -4371,17 +4371,17 @@ void home_all_axes() { gcode_G28(true); }
             return;
           }
 
-          const float z = parser.seen('Z') && parser.has_value() ? parser.value_float() : RAW_CURRENT_POSITION(Z);
+          const float z = parser.seenval('Z') ? parser.value_float() : RAW_CURRENT_POSITION(Z);
           if (!WITHIN(z, -10, 10)) {
             SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
           }
 
-          const float x = parser.seen('X') && parser.has_value() ? parser.value_float() : NAN,
-                      y = parser.seen('Y') && parser.has_value() ? parser.value_float() : NAN;
-          int8_t i = parser.seen('I') && parser.has_value() ? parser.value_byte() : -1,
-                 j = parser.seen('J') && parser.has_value() ? parser.value_byte() : -1;
+          const float x = parser.seenval('X') ? parser.value_float() : NAN,
+                      y = parser.seenval('Y') ? parser.value_float() : NAN;
+          int8_t i = parser.seenval('I') ? parser.value_byte() : -1,
+                 j = parser.seenval('J') ? parser.value_byte() : -1;
 
           if (!isnan(x) && !isnan(y)) {
             // Get nearest i / j from x / y
@@ -4413,7 +4413,7 @@ void home_all_axes() { gcode_G28(true); }
 
       #endif
 
-      verbose_level = parser.seen('V') && parser.has_value() ? parser.value_int() : 0;
+      verbose_level = parser.seenval('V') ? parser.value_int() : 0;
       if (!WITHIN(verbose_level, 0, 4)) {
         SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
         return;
@@ -4433,7 +4433,7 @@ void home_all_axes() { gcode_G28(true); }
         // These values may be saved with the completed mesh
         abl_grid_points_x = parser.seen('X') ? parser.value_int() : GRID_MAX_POINTS_X;
         abl_grid_points_y = parser.seen('Y') ? parser.value_int() : GRID_MAX_POINTS_Y;
-        if (parser.seen('P')) abl_grid_points_x = abl_grid_points_y = parser.value_int();
+        if (parser.seenval('P')) abl_grid_points_x = abl_grid_points_y = parser.value_int();
 
         if (abl_grid_points_x < 2 || abl_grid_points_y < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probe points is implausible (2 minimum).");
@@ -5595,7 +5595,7 @@ void home_all_axes() { gcode_G28(true); }
     // If any axis has enough movement, do the move
     LOOP_XYZ(i)
       if (FABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
-        if (!parser.seen('F')) feedrate_mm_s = homing_feedrate(i);
+        if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate(i);
         // If G38.2 fails throw an error
         if (!G38_run_probe() && is_38_2) {
           SERIAL_ERROR_START();
@@ -5616,10 +5616,10 @@ void home_all_axes() { gcode_G28(true); }
    */
   inline void gcode_G42() {
     if (IsRunning()) {
-      const bool hasI = parser.seen('I');
-      const int8_t ix = parser.has_value() ? parser.value_int() : 0;
-      const bool hasJ = parser.seen('J');
-      const int8_t iy = parser.has_value() ? parser.value_int() : 0;
+      const bool hasI = parser.seenval('I');
+      const int8_t ix = hasI ? parser.value_int() : 0;
+      const bool hasJ = parser.seenval('J');
+      const int8_t iy = hasJ ? parser.value_int() : 0;
 
       if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
         SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
@@ -5664,12 +5664,12 @@ void home_all_axes() { gcode_G28(true); }
  */
 inline void gcode_G92() {
   bool didXYZ = false,
-       didE = parser.seen('E');
+       didE = parser.seenval('E');
 
   if (!didE) stepper.synchronize();
 
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i])) {
+    if (parser.seenval(axis_codes[i])) {
       #if IS_SCARA
         current_position[i] = parser.value_axis_units((AxisEnum)i);
         if (i != E_AXIS) didXYZ = true;
@@ -5715,11 +5715,11 @@ inline void gcode_G92() {
 
     millis_t ms = 0;
     bool hasP = false, hasS = false;
-    if (parser.seen('P')) {
+    if (parser.seenval('P')) {
       ms = parser.value_millis(); // milliseconds to wait
       hasP = ms > 0;
     }
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       ms = parser.value_millis_from_seconds(); // seconds to wait
       hasS = ms > 0;
     }
@@ -6272,7 +6272,7 @@ inline void gcode_M17() {
    * M26: Set SD Card file index
    */
   inline void gcode_M26() {
-    if (card.cardOK && parser.seen('S'))
+    if (card.cardOK && parser.seenval('S'))
       card.setIndex(parser.value_long());
   }
 
@@ -6334,7 +6334,7 @@ inline void gcode_M31() {
     if (card.cardOK) {
       card.openFile(namestartpos, true, call_procedure);
 
-      if (parser.seen('S'))
+      if (parser.seenval('S'))
         card.setIndex(parser.value_long());
 
       card.startFileprint();
@@ -6370,8 +6370,8 @@ inline void gcode_M31() {
      */
     inline void gcode_M34() {
       if (parser.seen('S')) card.setSortOn(parser.value_bool());
-      if (parser.seen('F')) {
-        int v = parser.value_long();
+      if (parser.seenval('F')) {
+        const int v = parser.value_long();
         card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);
       }
       //if (parser.seen('R')) card.setSortReverse(parser.value_bool());
@@ -6404,10 +6404,8 @@ static bool pin_is_protected(const int8_t pin) {
  *  S<byte> Pin status from 0 - 255
  */
 inline void gcode_M42() {
-  if (!parser.seen('S')) return;
-
-  const int pin_status = parser.value_int();
-  if (!WITHIN(pin_status, 0, 255)) return;
+  if (!parser.seenval('S')) return;
+  const byte pin_status = parser.value_byte();
 
   int pin_number = parser.seen('P') ? parser.value_int() : LED_PIN;
   if (pin_number < 0) return;
@@ -6666,8 +6664,8 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    const uint8_t first_pin = parser.seen('P') ? parser.value_byte() : 0,
-                  last_pin = parser.seen('P') ? first_pin : NUM_DIGITAL_PINS - 1;
+    const uint8_t first_pin = parser.seenval('P') ? parser.value_byte() : 0,
+                  last_pin = parser.seenval('P') ? first_pin : NUM_DIGITAL_PINS - 1;
 
     if (first_pin > last_pin) return;
 
@@ -7026,7 +7024,7 @@ inline void gcode_M104() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  if (parser.seen('S')) {
+  if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
 
@@ -7153,7 +7151,7 @@ inline void gcode_M105() {
    * M155: Set temperature auto-report interval. M155 S<seconds>
    */
   inline void gcode_M155() {
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       auto_report_temp_interval = parser.value_byte();
       NOMORE(auto_report_temp_interval, 60);
       next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
@@ -7240,8 +7238,8 @@ inline void gcode_M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  const bool no_wait_for_cooling = parser.seen('S');
-  if (no_wait_for_cooling || parser.seen('R')) {
+  const bool no_wait_for_cooling = parser.seenval('S');
+  if (no_wait_for_cooling || parser.seenval('R')) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
 
@@ -7389,8 +7387,8 @@ inline void gcode_M109() {
     if (DEBUGGING(DRYRUN)) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
-    const bool no_wait_for_cooling = parser.seen('S');
-    if (no_wait_for_cooling || parser.seen('R')) {
+    const bool no_wait_for_cooling = parser.seenval('S');
+    if (no_wait_for_cooling || parser.seenval('R')) {
       thermalManager.setTargetBed(parser.value_celsius());
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
         if (parser.value_celsius() > BED_MINTEMP)
@@ -7497,7 +7495,7 @@ inline void gcode_M109() {
  * M110: Set Current Line Number
  */
 inline void gcode_M110() {
-  if (parser.seen('N')) gcode_LastN = parser.value_long();
+  if (parser.seenval('N')) gcode_LastN = parser.value_long();
 }
 
 /**
@@ -7547,7 +7545,7 @@ inline void gcode_M111() {
    *   S<seconds> Optional. Set the keepalive interval.
    */
   inline void gcode_M113() {
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       host_keepalive_interval = parser.value_byte();
       NOMORE(host_keepalive_interval, 60);
     }
@@ -7590,7 +7588,7 @@ inline void gcode_M111() {
  */
 inline void gcode_M140() {
   if (DEBUGGING(DRYRUN)) return;
-  if (parser.seen('S')) thermalManager.setTargetBed(parser.value_celsius());
+  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
 }
 
 #if ENABLED(ULTIPANEL)
@@ -7611,16 +7609,16 @@ inline void gcode_M140() {
     }
     else {
       int v;
-      if (parser.seen('H')) {
+      if (parser.seenval('H')) {
         v = parser.value_int();
         lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
       }
-      if (parser.seen('F')) {
+      if (parser.seenval('F')) {
         v = parser.value_int();
         lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
       }
       #if TEMP_SENSOR_BED != 0
-        if (parser.seen('B')) {
+        if (parser.seenval('B')) {
           v = parser.value_int();
           lcd_preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
         }
@@ -7635,9 +7633,9 @@ inline void gcode_M140() {
    * M149: Set temperature units
    */
   inline void gcode_M149() {
-         if (parser.seen('C')) parser.set_input_temp_units(TEMPUNIT_C);
-    else if (parser.seen('K')) parser.set_input_temp_units(TEMPUNIT_K);
-    else if (parser.seen('F')) parser.set_input_temp_units(TEMPUNIT_F);
+         if (parser.seenval('C')) parser.set_input_temp_units(TEMPUNIT_C);
+    else if (parser.seenval('K')) parser.set_input_temp_units(TEMPUNIT_K);
+    else if (parser.seenval('F')) parser.set_input_temp_units(TEMPUNIT_F);
   }
 #endif
 
@@ -7726,7 +7724,7 @@ inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
  * M18, M84: Disable stepper motors
  */
 inline void gcode_M18_M84() {
-  if (parser.seen('S')) {
+  if (parser.seenval('S')) {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
@@ -8448,11 +8446,11 @@ inline void gcode_M211() {
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218) || target_extruder == 0) return;
 
-    if (parser.seen('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
-    if (parser.seen('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+    if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
+    if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
 
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
-      if (parser.seen('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+      if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
     #endif
 
     SERIAL_ECHO_START();
@@ -8476,7 +8474,7 @@ inline void gcode_M211() {
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
  */
 inline void gcode_M220() {
-  if (parser.seen('S')) feedrate_percentage = parser.value_int();
+  if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 }
 
 /**
@@ -8484,7 +8482,7 @@ inline void gcode_M220() {
  */
 inline void gcode_M221() {
   if (get_target_extruder_from_command(221)) return;
-  if (parser.seen('S'))
+  if (parser.seenval('S'))
     flow_percentage[target_extruder] = parser.value_int();
 }
 
@@ -9777,14 +9775,14 @@ inline void gcode_M907() {
    *       S# determines MS1 or MS2, X# sets the pin high/low.
    */
   inline void gcode_M351() {
-    if (parser.seen('S')) switch (parser.value_byte()) {
+    if (parser.seenval('S')) switch (parser.value_byte()) {
       case 1:
-        LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.microstep_ms(i, parser.value_byte(), -1);
-        if (parser.seen('B')) stepper.microstep_ms(4, parser.value_byte(), -1);
+        LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) stepper.microstep_ms(i, parser.value_byte(), -1);
+        if (parser.seenval('B')) stepper.microstep_ms(4, parser.value_byte(), -1);
         break;
       case 2:
-        LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.microstep_ms(i, -1, parser.value_byte());
-        if (parser.seen('B')) stepper.microstep_ms(4, -1, parser.value_byte());
+        LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) stepper.microstep_ms(i, -1, parser.value_byte());
+        if (parser.seenval('B')) stepper.microstep_ms(4, -1, parser.value_byte());
         break;
     }
     stepper.microstep_readings();
@@ -9827,8 +9825,8 @@ inline void gcode_M907() {
 inline void gcode_M355() {
   #if HAS_CASE_LIGHT
     uint8_t args = 0;
-    if (parser.seen('P')) ++args, case_light_brightness = parser.value_byte();
-    if (parser.seen('S')) ++args, case_light_on = parser.value_bool();
+    if (parser.seenval('P')) ++args, case_light_brightness = parser.value_byte();
+    if (parser.seenval('S')) ++args, case_light_on = parser.value_bool();
     if (args) update_case_light();
 
     // always report case light status

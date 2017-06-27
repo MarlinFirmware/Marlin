@@ -638,11 +638,11 @@
     g26_hotend_temp           = HOTEND_TEMP;
     g26_prime_flag            = 0;
 
-    g26_ooze_amount           = parser.seen('O') && parser.has_value() ? parser.value_linear_units() : OOZE_AMOUNT;
+    g26_ooze_amount           = parser.seenval('O') ? parser.value_linear_units() : OOZE_AMOUNT;
     g26_keep_heaters_on       = parser.seen('K') && parser.value_bool();
     g26_continue_with_closest = parser.seen('C') && parser.value_bool();
 
-    if (parser.seen('B')) {
+    if (parser.seenval('B')) {
       g26_bed_temp = parser.value_celsius();
       if (!WITHIN(g26_bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
@@ -650,7 +650,7 @@
       }
     }
 
-    if (parser.seen('L')) {
+    if (parser.seenval('L')) {
       g26_layer_height = parser.value_linear_units();
       if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
@@ -672,7 +672,7 @@
       }
     }
 
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       g26_nozzle = parser.value_float();
       if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
@@ -699,7 +699,7 @@
       }
     }
 
-    if (parser.seen('F')) {
+    if (parser.seenval('F')) {
       g26_filament_diameter = parser.value_linear_units();
       if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
@@ -712,7 +712,7 @@
 
     g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
-    if (parser.seen('H')) {
+    if (parser.seenval('H')) {
       g26_hotend_temp = parser.value_celsius();
       if (!WITHIN(g26_hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");

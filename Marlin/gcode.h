@@ -132,7 +132,7 @@ public:
 
     #define SEEN_TEST(L) TEST(codebits[(L - 'A') >> 3], (L - 'A') & 0x7)
 
-  #else
+  #else // !FASTER_GCODE_PARSER
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
@@ -147,7 +147,7 @@ public:
 
     #define SEEN_TEST(L) !!strchr(command_args, L)
 
-  #endif // FASTER_GCODE_PARSER
+  #endif // !FASTER_GCODE_PARSER
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
@@ -157,7 +157,7 @@ public:
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
 
   // Seen and has value
-  FORCE_INLINE static bool seenval(const char c) { return seen(c) && has_value(); }
+  inline static bool seenval(const char c) { return seen(c) && has_value(); }
 
   static volatile bool seen_axis() {
     return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
@@ -184,20 +184,20 @@ public:
   }
 
   // Code value as a long or ulong
-  inline          static long value_long()  { return value_ptr ? strtol(value_ptr, NULL, 10) : 0L; }
-  inline unsigned static long value_ulong() { return value_ptr ? strtoul(value_ptr, NULL, 10) : 0UL; }
+  inline static int32_t value_long() { return value_ptr ? strtol(value_ptr, NULL, 10) : 0L; }
+  inline static uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, NULL, 10) : 0UL; }
 
   // Code value for use as time
   FORCE_INLINE static millis_t value_millis() { return value_ulong(); }
   FORCE_INLINE static millis_t value_millis_from_seconds() { return value_float() * 1000UL; }
 
   // Reduce to fewer bits
-  FORCE_INLINE static int value_int()    { return (int)value_long(); }
-  FORCE_INLINE uint16_t value_ushort()   { return (uint16_t)value_long(); }
-  inline static uint8_t value_byte()     { return (uint8_t)(constrain(value_long(), 0, 255)); }
+  FORCE_INLINE static int16_t value_int() { return (int16_t)value_long(); }
+  FORCE_INLINE static uint16_t value_ushort() { return (uint16_t)value_long(); }
+  inline static uint8_t value_byte() { return (uint8_t)constrain(value_long(), 0, 255); }
 
   // Bool is true with no value or non-zero
-  inline static bool value_bool()        { return !has_value() || value_byte(); }
+  inline static bool value_bool() { return !has_value() || value_byte(); }
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
@@ -282,12 +282,12 @@ public:
       }
     }
 
-  #else
+  #else // !TEMPERATURE_UNITS_SUPPORT
 
     FORCE_INLINE static float value_celsius()      { return value_float(); }
     FORCE_INLINE static float value_celsius_diff() { return value_float(); }
 
-  #endif
+  #endif // !TEMPERATURE_UNITS_SUPPORT
 
   FORCE_INLINE static float value_feedrate() { return value_linear_units(); }
 
