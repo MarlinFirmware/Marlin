@@ -130,6 +130,7 @@
  * M114 - Report current position.
  * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
+ * M118 - Display a message in the host console.
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
@@ -7992,6 +7993,14 @@ inline void gcode_M115() {
 inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
 
 /**
+ * M118: Display a message in the host console.
+ */
+inline void gcode_M118() {
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLN(parser.string_arg);
+}
+
+/**
  * M119: Output endstop states to serial output
  */
 inline void gcode_M119() { endstops.M119(); }
@@ -10757,6 +10766,9 @@ void process_next_command() {
         break;
       case 117: // M117: Set LCD message text, if possible
         gcode_M117();
+        break;
+      case 118: // M118: Display a message in the host console
+        gcode_M118();
         break;
       case 119: // M119: Report endstop states
         gcode_M119();
