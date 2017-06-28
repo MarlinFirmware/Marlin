@@ -789,7 +789,7 @@ void kill_screen(const char* lcd_msg) {
       encoderPosition = 0;
       lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
       lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.print('%');
+      lcd.print(itostr3(bar_percent)); lcd.write('%');
       lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
     }
 
@@ -2144,8 +2144,12 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_map_homing() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        #if DISABLED(DOGLCD)
+          lcd_set_ubl_map_plot_chars();
+        #endif
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
+      }
     }
 
     /**
@@ -2217,19 +2221,13 @@ void kill_screen(const char* lcd_msg) {
         #if IS_KINEMATIC
           n_edit_pts = 9; //TODO: Delta accessible edit points
         #else
-          if (x_plot < 1 || x_plot >= GRID_MAX_POINTS_X - 1)
-            if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 4; // Corners
-            else n_edit_pts = 6;
-          else if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 6; // Edges
-          else n_edit_pts = 9; // Field
+          const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
+                     yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
+          n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
         #endif
 
         if (lcdDrawUpdate) {
-          #if ENABLED(DOGLCD)
-            _lcd_ubl_plot_DOGLCD(x_plot, y_plot);
-          #else
-            _lcd_ubl_plot_HD44780(x_plot, y_plot);
-          #endif
+          lcd_implementation_ubl_plot(x_plot, y_plot);
 
           ubl_map_move_to_xy(); // Move to current location
 
