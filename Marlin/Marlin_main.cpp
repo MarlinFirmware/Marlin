@@ -9159,7 +9159,6 @@ void quickstop_stepper() {
     int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
     const bool hasI = ix >= 0,
                hasJ = iy >= 0,
-               hasC = parser.seen('C'),
                hasZ = parser.seen('Z'),
                hasQ = !hasZ && parser.seen('Q');
 
