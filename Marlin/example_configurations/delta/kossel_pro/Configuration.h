@@ -1103,7 +1103,7 @@
 // M500 - stores parameters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
-//define this to enable EEPROM support
+// Define this to enable EEPROM support
 //#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -1626,13 +1626,13 @@
 // SkeinForge sends the wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
-// Support for the BariCUDA Paste Extruder.
+// Support for the BariCUDA Paste Extruder
 //#define BARICUDA
 
-//define BlinkM/CyzRgb Support
+// Support for BlinkM/CyzRgb
 //#define BLINKM
 
-//define PCA9632 PWM LED driver Support
+// Support for PCA9632 PWM LED driver
 //#define PCA9632
 
 /**
