@@ -5141,7 +5141,7 @@ void home_all_axes() { gcode_G28(true); }
      *   T   Don't calibrate tower angle corrections
      *
      *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
-     *   
+     *
      *   Fn  Force to run at least n iterations and takes the best result
      *
      *   Vn  Verbose level:
@@ -5687,7 +5687,7 @@ inline void gcode_G92() {
             update_software_endstops((AxisEnum)i);
 
             #if ENABLED(I2C_POSITION_ENCODERS)
-              I2CPEM.encoders[I2CPEM.idx_from_axis((AxisEnum) i)].set_axis_offset(position_shift[i]);
+              I2CPEM.encoders[I2CPEM.idx_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
             #endif
 
           #endif
