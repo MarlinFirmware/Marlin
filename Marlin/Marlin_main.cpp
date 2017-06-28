@@ -7994,9 +7994,13 @@ inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
 
 /**
  * M118: Display a message in the host console.
+ *
+ *  A  Append '// ' for an action command, as in OctoPrint
+ *  E  Have the host 'echo:' the text
  */
 inline void gcode_M118() {
-  SERIAL_ECHO_START();
+  if (parser.boolval('E')) SERIAL_ECHO_START();
+  if (parser.boolval('A')) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(parser.string_arg);
 }
 
