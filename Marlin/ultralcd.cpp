@@ -108,7 +108,6 @@ uint16_t max_display_update_time = 0;
     extern bool powersupply_on;
   #endif
 
-
   ////////////////////////////////////////////
   ///////////////// Menu Tree ////////////////
   ////////////////////////////////////////////
@@ -790,7 +789,7 @@ void kill_screen(const char* lcd_msg) {
       encoderPosition = 0;
       lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
       lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.print('%');
+      lcd.print(itostr3(bar_percent)); lcd.write('%');
       lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
     }
 
@@ -2145,8 +2144,12 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_map_homing() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        #if DISABLED(DOGLCD)
+          lcd_set_ubl_map_plot_chars();
+        #endif
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
+      }
     }
 
     /**
@@ -2162,97 +2165,6 @@ void kill_screen(const char* lcd_msg) {
       snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
       enqueue_and_echo_command(ubl_lcd_gcode);
     }
-
-  #if ENABLED(DOGLCD)
-
-    /**
-     * UBL LCD "radar" map data
-     */
-    #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
-    #define MAP_UPPER_LEFT_CORNER_Y 8   // it is easier to play with things having them here
-    #define MAP_MAX_PIXELS_X        53
-    #define MAP_MAX_PIXELS_Y        49
-
-    void _lcd_ubl_plot_drawing_prep() {
-      uint8_t i, j, x_offset, y_offset, x_map_pixels, y_map_pixels,
-              pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt, inverted_y;
-
-      /*********************************************************/
-      /************ Scale the box pixels appropriately *********/
-      /*********************************************************/
-      x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X);
-      y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y);
-
-      pixels_per_X_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X);
-      pixels_per_Y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y);
-
-      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2;
-      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
-
-      /*********************************************************/
-      /************ Clear the Mesh Map Box**********************/
-      /*********************************************************/
-
-      u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
-      u8g.drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
-
-      u8g.setColorIndex(0);  // Now actually clear the mesh map box
-      u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
-
-      /*********************************************************/
-      /************ Display Mesh Point Locations ***************/
-      /*********************************************************/
-
-      u8g.setColorIndex(1);
-      for (i = 0; i < GRID_MAX_POINTS_X; i++) {
-        for (j = 0; j < GRID_MAX_POINTS_Y; j++) {
-          u8g.drawBox(x_offset + i * pixels_per_X_mesh_pnt + pixels_per_X_mesh_pnt / 2,
-                      y_offset + j * pixels_per_Y_mesh_pnt + pixels_per_Y_mesh_pnt / 2, 1, 1);
-        }
-      }
-
-      /*********************************************************/
-      /************ Fill in the Specified Mesh Point ***********/
-      /*********************************************************/
-
-      inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;    // The origin is typically in the lower right corner.  We need to
-                                                      // invert the Y to get it to plot in the right location.
-      u8g.drawBox(x_offset + x_plot * pixels_per_X_mesh_pnt, y_offset + inverted_y * pixels_per_Y_mesh_pnt,
-                    pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt);
-
-      /*********************************************************/
-      /************** Put Relevent Text on Display *************/
-      /*********************************************************/
-
-      // Show X and Y positions at top of screen
-      u8g.setColorIndex(1);
-      u8g.setPrintPos(5, 7);
-      lcd_print("X:");
-      lcd_print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-      u8g.setPrintPos(74, 7);
-      lcd_print("Y:");
-      lcd_print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
-
-      // Print plot position
-      u8g.setPrintPos(5, 64);
-      lcd_print('(');
-      u8g.print(x_plot);
-      lcd_print(',');
-      u8g.print(y_plot);
-      lcd_print(')');
-
-      // Show the location value
-      u8g.setPrintPos(74, 64);
-      lcd_print("Z:");
-      if (!isnan(ubl.z_values[x_plot][y_plot])) {
-        lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
-      }
-      else {
-        lcd_print(" -----");
-      }
-    }
-
-  #endif // DOGLCD
 
     /**
      * UBL LCD Map Movement
@@ -2309,19 +2221,13 @@ void kill_screen(const char* lcd_msg) {
         #if IS_KINEMATIC
           n_edit_pts = 9; //TODO: Delta accessible edit points
         #else
-          if (x_plot < 1 || x_plot >= GRID_MAX_POINTS_X - 1)
-            if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 4; // Corners
-            else n_edit_pts = 6;
-          else if (y_plot < 1 || y_plot >= GRID_MAX_POINTS_Y - 1) n_edit_pts = 6; // Edges
-          else n_edit_pts = 9; // Field
+          const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
+                     yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
+          n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
         #endif
 
         if (lcdDrawUpdate) {
-          #if ENABLED(DOGLCD)
-            _lcd_ubl_plot_drawing_prep();
-          #else
-            _lcd_ubl_output_char_lcd();
-          #endif
+          lcd_implementation_ubl_plot(x_plot, y_plot);
 
           ubl_map_move_to_xy(); // Move to current location
 

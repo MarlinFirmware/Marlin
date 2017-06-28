@@ -688,7 +688,7 @@ static void lcd_implementation_status_screen() {
 
   #define STATUS_BASELINE (55 + INFO_FONT_HEIGHT)
 
-  if (PAGE_CONTAINS(STATUS_BASELINE + 1 - INFO_FONT_HEIGHT, STATUS_BASELINE)) {
+  if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_HEIGHT - 1), STATUS_BASELINE)) {
     u8g.setPrintPos(0, STATUS_BASELINE);
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -938,6 +938,95 @@ static void lcd_implementation_status_screen() {
     #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
 
   #endif // SDSUPPORT
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+    /**
+     * UBL LCD "radar" map data
+     */
+    #define MAP_UPPER_LEFT_CORNER_X 35  // These probably should be moved to the .h file  But for now,
+    #define MAP_UPPER_LEFT_CORNER_Y  8  // it is easier to play with things having them here
+    #define MAP_MAX_PIXELS_X        53
+    #define MAP_MAX_PIXELS_Y        49
+
+    void lcd_implementation_ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
+      // Scale the box pixels appropriately
+      uint8_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X),
+              y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y),
+
+              pixels_per_X_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X),
+              pixels_per_Y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y),
+
+              x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
+              y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
+
+      // Clear the Mesh Map
+
+      if (PAGE_CONTAINS(y_offset - 2, y_offset + y_map_pixels + 4)) {
+        u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+        u8g.drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
+        if (PAGE_CONTAINS(y_offset, y_offset + y_map_pixels)) {
+          u8g.setColorIndex(0);  // Now actually clear the mesh map box
+          u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
+        }
+      }
+
+      // Display Mesh Point Locations
+
+      u8g.setColorIndex(1);
+      const uint8_t sx = x_offset + pixels_per_X_mesh_pnt / 2;
+            uint8_t  y = y_offset + pixels_per_Y_mesh_pnt / 2;
+      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_Y_mesh_pnt)
+        if (PAGE_CONTAINS(y, y))
+          for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_X_mesh_pnt)
+            u8g.drawBox(sx, y, 1, 1);
+
+      // Fill in the Specified Mesh Point
+
+      uint8_t inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;  // The origin is typically in the lower right corner.  We need to
+                                                            // invert the Y to get it to plot in the right location.
+
+      const uint8_t by = y_offset + inverted_y * pixels_per_Y_mesh_pnt;
+      if (PAGE_CONTAINS(by, by + pixels_per_Y_mesh_pnt))
+        u8g.drawBox(
+          x_offset + x_plot * pixels_per_X_mesh_pnt, by,
+          pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt
+        );
+
+      // Put Relevant Text on Display
+
+      // Show X and Y positions at top of screen
+      u8g.setColorIndex(1);
+      if (PAGE_UNDER(7)) {
+        u8g.setPrintPos(5, 7);
+        lcd_print("X:");
+        lcd_print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        u8g.setPrintPos(74, 7);
+        lcd_print("Y:");
+        lcd_print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+      }
+
+      // Print plot position
+      if (PAGE_CONTAINS(64 - (INFO_FONT_HEIGHT - 1), 64)) {
+        u8g.setPrintPos(5, 64);
+        lcd_print('(');
+        u8g.print(x_plot);
+        lcd_print(',');
+        u8g.print(y_plot);
+        lcd_print(')');
+
+        // Show the location value
+        u8g.setPrintPos(74, 64);
+        lcd_print("Z:");
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
+          lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        else
+          lcd_printPGM(PSTR(" -----"));
+      }
+
+    }
+
+  #endif // AUTO_BED_LEVELING_UBL
 
 #endif // ULTIPANEL
 
