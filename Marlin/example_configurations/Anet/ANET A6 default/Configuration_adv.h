@@ -80,8 +80,8 @@
   //#define WATCH_TEMP_PERIOD 20                // Seconds
   //#define WATCH_TEMP_INCREASE 2               // Degrees Celsius
   //ANET A6:
-  #define THERMAL_PROTECTION_BED_PERIOD 60    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 5 // Degrees Celsius
+  #define WATCH_TEMP_PERIOD 60               // Seconds
+  #define WATCH_TEMP_INCREASE 5               // Degrees Celsius
 #endif
 
 /**
