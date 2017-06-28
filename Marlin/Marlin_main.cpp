@@ -163,6 +163,7 @@
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
+ * M217 - Send text to serial output.  Text is preceeded by "//".
  * M218 - Set a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
@@ -8430,6 +8431,21 @@ inline void gcode_M211() {
   SERIAL_ECHOLNPAIR(" " MSG_Z, soft_endstop_max[Z_AXIS]);
 }
 
+/**
+ * M217: Send text to serial output
+ *
+ * Usage: M217 some text
+ * Text must be prefixed by "//" and this will be prepended if it is not present
+ */
+inline void gcode_M217() {
+  if (strncmp(parser.string_arg, "//", 2) == 0) {
+    SERIAL_ECHOLN(parser.string_arg);
+  } 
+  else {
+    SERIAL_ECHOLNPAIR("// ", parser.string_arg);
+  } 
+}
+
 #if HOTENDS > 1
 
   /**
@@ -10859,6 +10875,10 @@ void process_next_command() {
 
       case 211: // M211: Enable, Disable, and/or Report software endstops
         gcode_M211();
+        break;
+
+      case 217: // M217: Echo string to serial output
+        gcode_M217();
         break;
 
       #if HOTENDS > 1
