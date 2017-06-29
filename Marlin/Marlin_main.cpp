@@ -5275,8 +5275,6 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_EOL();
       }
 
-      home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1); // 1st probe to set height
-
       do {
 
         float z_at_pt[13] = { 0.0 };
