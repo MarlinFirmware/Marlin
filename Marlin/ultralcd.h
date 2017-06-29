@@ -26,7 +26,6 @@
 #include "Marlin.h"
 
 #if ENABLED(ULTRA_LCD)
-
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
@@ -47,6 +46,7 @@
   bool lcd_detected(void);
 
   extern uint8_t lcdDrawUpdate;
+  extern char lcd_status_message[];
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER
