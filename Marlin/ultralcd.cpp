@@ -547,6 +547,15 @@ uint16_t max_display_update_time = 0;
 
 void lcd_status_screen() {
 
+  #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
+    if(!ubl_lcd_map_control)
+      lcd_set_custom_characters(
+       #if ENABLED(LCD_PROGRESS_BAR)
+        const bool info_screen_charset = true
+       #endif
+      );
+  #endif
+
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
@@ -2158,8 +2167,6 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_map_lcd_edit_cmd() {
       char ubl_lcd_gcode [50], str[10], str2[10];
 
-      ubl_lcd_map_control = true; // Used for returning to the map screen
-
       dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
       dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
       snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
@@ -2253,6 +2260,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Homing before LCD map
      */
     void _lcd_ubl_output_map_lcd_cmd() {
+      ubl_lcd_map_control = true; // Used for returning to the map screen
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         enqueue_and_echo_commands_P(PSTR("G28"));
       lcd_goto_screen(_lcd_ubl_map_homing);
@@ -2393,6 +2401,8 @@ void kill_screen(const char* lcd_msg) {
         if (!g29_in_progress)
       #endif
       MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
+    #elif PLANNER_LEVELING
+      MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
     #endif
 
     #if HAS_M206_COMMAND
