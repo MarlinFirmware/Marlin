@@ -104,7 +104,7 @@ public:
   // Index so that 'X' falls on index 24
   #define PARAM_IND(N)  ((N) >> 3)
   #define PARAM_BIT(N)  ((N) & 0x7)
-  #define LETTER_OFF(N) ((N) - 'A' + 1)
+  #define LETTER_OFF(N) ((N) - 'A')
   #define LETTER_IND(N) PARAM_IND(LETTER_OFF(N))
   #define LETTER_BIT(N) PARAM_BIT(LETTER_OFF(N))
 
