@@ -5188,7 +5188,7 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      const bool towers_set           = !parser.boolval('T'),
+      const bool towers_set           = !parser.notboolval('T'),
                  stow_after_each      = parser.boolval('E'),
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
