@@ -432,9 +432,12 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     extern const float L1, L2;
   #endif
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry, const bool printable = true) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+      if (printable)
+        return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+      else
+        return HYPOT2(rx, ry) <= sq(DELTA_PHYSICAL_RADIUS);
     #elif IS_SCARA
       #if MIDDLE_DEAD_ZONE_R > 0
         const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
@@ -447,24 +450,24 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     #endif
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry, const bool printable = true) {
 
     // Both the nozzle and the probe must be able to reach the point.
     // This won't work on SCARA since the probe offset rotates with the arm.
 
     return position_is_reachable_raw_xy(rx, ry)
-        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER, printable);
   }
 
 #else // CARTESIAN
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry, const bool printable = true) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
           && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry, const bool printable = true) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
           && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
@@ -472,12 +475,12 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 
 #endif // CARTESIAN
 
-FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly) {
-  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly, const bool printable = true) {
+  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly), printable);
 }
 
-FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
-  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly, const bool printable = true) {
+  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly), printable);
 }
 
 #endif // MARLIN_H
