@@ -51,7 +51,7 @@
 
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float probe_pt(const float &x, const float &y, const bool, const uint8_t);
+  extern float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool=true);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
   typedef void (*screenFunc_t)();
