@@ -220,6 +220,15 @@
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
   #endif // !Panelolu2
 
+    #if ENABLED(LCD_MELZI)
+	#define LCD_PINS_RS       17
+	#define LCD_PINS_ENABLE   16
+	#define LCD_PINS_D4       11
+	#define BTN_ENC           28
+	#define BTN_EN1           29
+	#define BTN_EN2           30
+  #endif // LCD MELZI
+  
   #define SD_DETECT_PIN         -1
 
 #endif // ULTRA_LCD && NEWPANEL
