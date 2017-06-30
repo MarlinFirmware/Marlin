@@ -639,8 +639,8 @@
     g26_prime_flag            = 0;
 
     g26_ooze_amount           = parser.linearval('O', OOZE_AMOUNT);
-    g26_keep_heaters_on       = parser.boolval_f('K');
-    g26_continue_with_closest = parser.boolval_f('C');
+    g26_keep_heaters_on       = parser.boolval('K');
+    g26_continue_with_closest = parser.boolval('C');
 
     if (parser.seenval('B')) {
       g26_bed_temp = parser.value_celsius();
