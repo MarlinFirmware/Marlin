@@ -467,8 +467,6 @@
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7)
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
-    // Free print surface diameter/2 measured inside fixing bolts or clamps
-    #define DELTA_PHYSICAL_RADIUS 150.0 // mm
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
