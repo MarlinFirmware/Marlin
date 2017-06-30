@@ -5201,23 +5201,6 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_quadruple_circle = probe_points == 7,
                  _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle,
                  _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
-
-      if (!_1p_calibration) {  // test if the outer radius is reachable
-        const float circles = (_7p_quadruple_circle ? 1.5 :
-                               _7p_triple_circle    ? 1.0 :
-                               _7p_double_circle    ? 0.5 : 0),
-                    radius = (1 + circles * 0.1) * delta_calibration_radius;
-        for (uint8_t axis = 1; axis < 13; ++axis) {
-          const float rx = RAW_X_POSITION(cos(RADIANS(180 + 30 * axis)) * radius),
-                      ry = RAW_Y_POSITION(sin(RADIANS(180 + 30 * axis)) * radius);
-          if (HYPOT2(rx, ry) >= sq(DELTA_PRINTABLE_RADIUS)
-           || HYPOT2(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER) > sq(DELTA_PHYSICAL_RADIUS)) {
-            SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
-            return;
-          }
-        }
-      }
-
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
                   dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
@@ -5236,6 +5219,19 @@ void home_all_axes() { gcode_G28(true); }
             alpha_old = delta_tower_angle_trim[A_AXIS],
             beta_old = delta_tower_angle_trim[B_AXIS];
 
+       if (!_1p_calibration) {  // test if the outer radius is reachable
+        const float circles = (_7p_quadruple_circle ? 1.5 :
+                               _7p_triple_circle    ? 1.0 :
+                               _7p_double_circle    ? 0.5 : 0),
+                    r = (1 + circles * 0.1) * delta_calibration_radius;
+        for (uint8_t axis = 1; axis < 13; ++axis) {
+          const float a = RADIANS(180 + 30 * axis);
+          if (!position_is_reachable_by_probe_xy(cos(a) * r + dx, sin(a) * r + dy)) {
+            SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
+            return;
+          }
+        }
+      }
       SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
       stepper.synchronize();
