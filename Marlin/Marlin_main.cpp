@@ -3410,7 +3410,7 @@ inline void gcode_G4() {
   inline void gcode_G10_G11(bool doRetract=false) {
     #if EXTRUDERS > 1
       if (doRetract)
-        retracted_swap[active_extruder] = parser.boolval('S'); // checks for swap retract argument
+        retracted_swap[active_extruder] = parser.boolval_f('S'); // checks for swap retract argument
     #endif
     retract(doRetract
      #if EXTRUDERS > 1
@@ -4269,7 +4269,7 @@ void home_all_axes() { gcode_G28(true); }
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
-      const bool faux = parser.boolval('C');
+      const bool faux = parser.boolval_f('C');
     #elif ENABLED(PROBE_MANUALLY)
       const bool faux = no_action;
     #else
@@ -4419,7 +4419,7 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      dryrun = parser.boolval('D')
+      dryrun = parser.boolval_f('D')
         #if ENABLED(PROBE_MANUALLY)
           || no_action
         #endif
@@ -4427,7 +4427,7 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-        do_topography_map = verbose_level > 2 || parser.boolval('T');
+        do_topography_map = verbose_level > 2 || parser.boolval_f('T');
 
         // X and Y specify points in each direction, overriding the default
         // These values may be saved with the completed mesh
@@ -4735,7 +4735,7 @@ void home_all_axes() { gcode_G28(true); }
 
     #else // !PROBE_MANUALLY
 
-      const bool stow_probe_after_each = parser.boolval('E');
+      const bool stow_probe_after_each = parser.boolval_f('E');
 
       #if ABL_GRID
 
@@ -5098,7 +5098,7 @@ void home_all_axes() { gcode_G28(true); }
 
     setup_for_endstop_or_probe_move();
 
-    const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
+    const float measured_z = probe_pt(xpos, ypos, parser.boolval_f('S', true), 1);
 
     if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -5188,8 +5188,8 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      const bool towers_set           = !parser.boolval('T'),
-                 stow_after_each      = parser.boolval('E'),
+      const bool towers_set           = parser.boolval_t('T'),
+                 stow_after_each      = parser.boolval_f('E'),
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
@@ -5201,20 +5201,6 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_quadruple_circle = probe_points == 7,
                  _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle,
                  _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
-
-      if (!_1p_calibration) {  // test if the outer radius is reachable
-        const float circles = (_7p_quadruple_circle ? 1.5 :
-                               _7p_triple_circle    ? 1.0 :
-                               _7p_double_circle    ? 0.5 : 0),
-                    radius = (1 + circles * 0.1) * delta_calibration_radius;
-        for (uint8_t axis = 1; axis < 13; ++axis) {
-          if (!position_is_reachable_xy(cos(RADIANS(180 + 30 * axis)) * radius, sin(RADIANS(180 + 30 * axis)) * radius)) {
-            SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
-            return;
-          }
-        }
-      }
-
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
                   dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
@@ -5233,6 +5219,19 @@ void home_all_axes() { gcode_G28(true); }
             alpha_old = delta_tower_angle_trim[A_AXIS],
             beta_old = delta_tower_angle_trim[B_AXIS];
 
+       if (!_1p_calibration) {  // test if the outer radius is reachable
+        const float circles = (_7p_quadruple_circle ? 1.5 :
+                               _7p_triple_circle    ? 1.0 :
+                               _7p_double_circle    ? 0.5 : 0),
+                    r = (1 + circles * 0.1) * delta_calibration_radius;
+        for (uint8_t axis = 1; axis < 13; ++axis) {
+          const float a = RADIANS(180 + 30 * axis);
+          if (!position_is_reachable_by_probe_xy(cos(a) * r + dx, sin(a) * r + dy)) {
+            SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
+            return;
+          }
+        }
+      }
       SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
       stepper.synchronize();
@@ -5273,12 +5272,10 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1); // 1st probe to set height
-      do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
-
+      
       do {
 
-        float z_at_pt[13] = { 0.0 }, S1 = 0.0, S2 = 0.0;
-        int16_t N = 0;
+        float z_at_pt[13] = { 0.0 };
 
         test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
 
@@ -5315,12 +5312,12 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         if (_7p_intermed_points) // average intermediates to tower and opposites
-          for (uint8_t axis = 1; axis <= 11; axis += 2)
+          for (uint8_t axis = 1; axis < 13; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
-        S1 += z_at_pt[0];
-        S2 += sq(z_at_pt[0]);
-        N++;
+        float S1 = z_at_pt[0],
+              S2 = sq(z_at_pt[0]);
+        int16_t N = 1;
         if (!_1p_calibration) // std dev from zero plane
           for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < 13; axis += (_4p_calibration ? 4 : 2)) {
             S1 += z_at_pt[axis];
@@ -5640,7 +5637,7 @@ void home_all_axes() { gcode_G28(true); }
       set_destination_to_current();
       if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
       if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
-      if (parser.boolval('P')) {
+      if (parser.boolval_f('P')) {
         if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
         if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
       }
@@ -6329,7 +6326,7 @@ inline void gcode_M31() {
       stepper.synchronize();
 
     char* namestartpos = parser.string_arg;
-    const bool call_procedure = parser.boolval('P');
+    const bool call_procedure = parser.boolval_f('P');
 
     if (card.cardOK) {
       card.openFile(namestartpos, true, call_procedure);
@@ -6440,7 +6437,7 @@ inline void gcode_M42() {
   #include "pinsDebug.h"
 
   inline void toggle_pins() {
-    const bool I_flag = parser.boolval('I');
+    const bool I_flag = parser.boolval_f('I');
     const int repeat = parser.intval('R', 1),
               start = parser.intval('S'),
               end = parser.intval('E', NUM_DIGITAL_PINS - 1),
@@ -6669,10 +6666,10 @@ inline void gcode_M42() {
 
     if (first_pin > last_pin) return;
 
-    const bool ignore_protection = parser.boolval('I');
+    const bool ignore_protection = parser.boolval_f('I');
 
     // Watch until click, M108, or reset
-    if (parser.boolval('W')) {
+    if (parser.boolval_f('W')) {
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
@@ -6766,7 +6763,7 @@ inline void gcode_M42() {
       return;
     }
 
-    const bool stow_probe_after_each = parser.boolval('E');
+    const bool stow_probe_after_each = parser.boolval_f('E');
 
     float X_current = current_position[X_AXIS],
           Y_current = current_position[Y_AXIS];
@@ -6798,7 +6795,7 @@ inline void gcode_M42() {
     }
     if (n_legs == 1) n_legs = 2;
 
-    const bool schizoid_flag = parser.boolval('S');
+    const bool schizoid_flag = parser.boolval_f('S');
     if (schizoid_flag && !seen_L) n_legs = 7;
 
     /**
@@ -7999,8 +7996,8 @@ inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
  *  E  Have the host 'echo:' the text
  */
 inline void gcode_M118() {
-  if (parser.boolval('E')) SERIAL_ECHO_START();
-  if (parser.boolval('A')) SERIAL_ECHOPGM("// ");
+  if (parser.boolval_f('E')) SERIAL_ECHO_START();
+  if (parser.boolval_f('A')) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(parser.string_arg);
 }
 
@@ -8792,7 +8789,7 @@ inline void gcode_M226() {
 inline void gcode_M303() {
   #if HAS_PID_HEATING
     const int e = parser.intval('E'), c = parser.intval('C', 5);
-    const bool u = parser.boolval('U');
+    const bool u = parser.boolval_f('U');
 
     int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
 
@@ -9087,7 +9084,7 @@ void quickstop_stepper() {
       #endif
     }
 
-    const bool to_enable = parser.boolval('S');
+    const bool to_enable = parser.boolval_f('S');
     if (parser.seen('S'))
       set_bed_leveling_enabled(to_enable);
 
@@ -9286,7 +9283,7 @@ inline void gcode_M502() {
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  (void)settings.report(!parser.boolval('S', true));
+  (void)settings.report(!parser.boolval_f('S', true));
 }
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -9955,7 +9952,7 @@ inline void gcode_M999() {
   Running = true;
   lcd_reset_alert_level();
 
-  if (parser.boolval('S')) return;
+  if (parser.boolval_f('S')) return;
 
   // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
@@ -10347,7 +10344,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
     tool_change(
       tmp_extruder,
       MMM_TO_MMS(parser.linearval('F')),
-      (tmp_extruder == active_extruder) || parser.boolval('S')
+      (tmp_extruder == active_extruder) || parser.boolval_f('S')
     );
 
   #endif
