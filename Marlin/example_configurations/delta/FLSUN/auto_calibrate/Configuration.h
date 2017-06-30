@@ -467,18 +467,16 @@
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
-  //#define DELTA_CALIBRATION_MENU
+  #define DELTA_CALIBRATION_MENU
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
-  //#define DELTA_AUTO_CALIBRATION
+  #define DELTA_AUTO_CALIBRATION
 
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7)
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
-    // Free print surface diameter/2 measured inside fixing bolts or clamps
-    #define DELTA_PHYSICAL_RADIUS 100.0 // mm
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
@@ -486,6 +484,8 @@
     #define DELTA_CALIBRATION_RADIUS 73.5 // mm
   #endif
 
+  // Free print surface diameter/2 measured inside fixing bolts or clamps
+  #define DELTA_PHYSICAL_RADIUS 100.0 // mm
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 85.0 // mm
 
