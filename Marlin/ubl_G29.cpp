@@ -1016,7 +1016,7 @@
                     xProbe = LOGICAL_X_POSITION(rawx),
                     yProbe = LOGICAL_Y_POSITION(rawy);
 
-        if (!position_is_reachable_raw_xy(rawx, rawy, true)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
+        if (!position_is_reachable_raw_xy(rawx, rawy)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
 
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -1406,7 +1406,7 @@
           // Also for round beds, there are grid points outside the bed the nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if (probe_as_reference ? !position_is_reachable_by_probe_raw_xy(mx, my) : !position_is_reachable_raw_xy(mx, my, true))
+          if (probe_as_reference ? !position_is_reachable_by_probe_raw_xy(mx, my) : !position_is_reachable_raw_xy(mx, my))
             continue;
 
           // Reachable. Check if it's the best_so_far location to the nozzle.
@@ -1492,7 +1492,7 @@
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
 
-        if (!position_is_reachable_raw_xy(rawx, rawy, true)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+        if (!position_is_reachable_raw_xy(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
           break;
 
         float new_z = z_values[location.x_index][location.y_index];

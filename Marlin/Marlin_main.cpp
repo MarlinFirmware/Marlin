@@ -2317,7 +2317,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    if (!position_is_reachable_by_probe_xy(x, y)) return NAN;
+    if (!position_is_reachable_by_probe_xy(x, y, false)) return NAN;
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -5089,7 +5089,7 @@ void home_all_axes() { gcode_G28(true); }
     const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
                 ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (!position_is_reachable_by_probe_xy(xpos, ypos)) return;
+    if (!position_is_reachable_by_probe_xy(xpos, ypos, false)) return;
 
     // Disable leveling so the planner won't mess with us
     #if HAS_LEVELING
@@ -5226,7 +5226,7 @@ void home_all_axes() { gcode_G28(true); }
                     r = (1 + circles * 0.1) * delta_calibration_radius;
         for (uint8_t axis = 1; axis < 13; ++axis) {
           const float a = RADIANS(180 + 30 * axis);
-          if (!position_is_reachable_by_probe_xy(cos(a) * r + dx, sin(a) * r + dy)) {
+          if (!position_is_reachable_by_probe_xy(cos(a) * r + dx, sin(a) * r + dy, false)) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
