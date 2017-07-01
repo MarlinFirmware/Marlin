@@ -484,8 +484,6 @@
     #define DELTA_CALIBRATION_RADIUS 73.5 // mm
   #endif
 
-  // Free print surface diameter/2 measured inside fixing bolts or clamps
-  #define DELTA_PHYSICAL_RADIUS 100.0 // mm
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 85.0 // mm
 
