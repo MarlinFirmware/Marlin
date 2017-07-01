@@ -31,7 +31,12 @@
   #include <math.h>
 
   extern float destination[XYZE];
-  extern void set_current_to_destination();
+  
+  #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
+    inline void set_current_to_destination() { COPY(current_position, destination); }
+  #else
+    extern void set_current_to_destination();
+  #endif
 
 #if ENABLED(DELTA)
 
