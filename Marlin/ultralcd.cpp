@@ -470,8 +470,14 @@ uint16_t max_display_update_time = 0;
         screen_history_depth = 0;
       }
       lcd_implementation_clear();
-      #if ENABLED(LCD_PROGRESS_BAR)
-        // For LCD_PROGRESS_BAR re-initialize custom characters
+      // Re-initialize custom characters that may be re-used
+      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
+        if (!ubl_lcd_map_control) lcd_set_custom_characters(
+          #if ENABLED(LCD_PROGRESS_BAR)
+            screen == lcd_status_screen
+          #endif
+        );
+      #elif ENABLED(LCD_PROGRESS_BAR)
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -546,15 +552,6 @@ uint16_t max_display_update_time = 0;
  */
 
 void lcd_status_screen() {
-
-  #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
-    if(!ubl_lcd_map_control)
-      lcd_set_custom_characters(
-       #if ENABLED(LCD_PROGRESS_BAR)
-        const bool info_screen_charset = true
-       #endif
-      );
-  #endif
 
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
@@ -2151,6 +2148,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_output_map_lcd();
 
     void _lcd_ubl_map_homing() {
+      defer_return_to_status = true;
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
@@ -2260,7 +2258,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Homing before LCD map
      */
     void _lcd_ubl_output_map_lcd_cmd() {
-      ubl_lcd_map_control = true; // Used for returning to the map screen
+      ubl_lcd_map_control = true; // Return to the map screen (and don't restore the character set)
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         enqueue_and_echo_commands_P(PSTR("G28"));
       lcd_goto_screen(_lcd_ubl_map_homing);

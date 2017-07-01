@@ -54,7 +54,6 @@
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
-  extern bool ubl_lcd_map_control;
   typedef void (*screenFunc_t)();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
@@ -1569,7 +1568,8 @@
 
       if (ubl_lcd_map_control)
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
-      else lcd_return_to_status();
+      else
+        lcd_return_to_status();
     }
 
   #endif // NEWPANEL
