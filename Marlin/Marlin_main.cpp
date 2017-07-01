@@ -2320,7 +2320,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (printable)
       if (!position_is_reachable_by_probe_xy(x, y)) return NAN;
     else
-      if (!position_is_reachable_xy(x, y)) return NAN;
+      if (!position_is_reachable_xy(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER)) return NAN;
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -5229,7 +5229,7 @@ void home_all_axes() { gcode_G28(true); }
                     r = (1 + circles * 0.1) * delta_calibration_radius;
         for (uint8_t axis = 1; axis < 13; ++axis) {
           const float a = RADIANS(180 + 30 * axis);
-          if (!position_is_reachable_xy(cos(a) * r + dx, sin(a) * r + dy)) {
+          if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
