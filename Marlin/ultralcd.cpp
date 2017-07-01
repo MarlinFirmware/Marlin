@@ -2192,51 +2192,51 @@ void kill_screen(const char* lcd_msg) {
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         return lcd_goto_screen(_lcd_ubl_map_homing);
 
-        if (lcd_clicked) return _lcd_ubl_map_lcd_edit_cmd();
-        ENCODER_DIRECTION_NORMAL();
+      if (lcd_clicked) return _lcd_ubl_map_lcd_edit_cmd();
+      ENCODER_DIRECTION_NORMAL();
 
-        if (encoderPosition) {
-          step_scaler += (int32_t)encoderPosition;
-          x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-          if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
-            step_scaler = 0;
-          refresh_cmd_timeout();
+      if (encoderPosition) {
+        step_scaler += (int32_t)encoderPosition;
+        x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
+        if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
+          step_scaler = 0;
+        refresh_cmd_timeout();
 
-          encoderPosition = 0;
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        encoderPosition = 0;
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+      }
+
+      // Encoder to the right (++)
+      if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
+      if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
+
+      // Encoder to the left (--)
+      if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+      if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+
+      // Prevent underrun/overrun of plot numbers
+      x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
+      y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+
+      // Determine number of points to edit
+      #if IS_KINEMATIC
+        n_edit_pts = 9; //TODO: Delta accessible edit points
+      #else
+        const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
+                   yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
+        n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
+      #endif
+
+      if (lcdDrawUpdate) {
+        lcd_implementation_ubl_plot(x_plot, y_plot);
+
+        ubl_map_move_to_xy(); // Move to current location
+
+        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move. There is a new location
+          quickstop_stepper();
+          ubl_map_move_to_xy(); // Move to new location
         }
-
-        // Encoder to the right (++)
-        if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
-        if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
-
-        // Encoder to the left (--)
-        if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-        if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
-
-        // Prevent underrun/overrun of plot numbers
-        x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
-        y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
-
-        // Determine number of points to edit
-        #if IS_KINEMATIC
-          n_edit_pts = 9; //TODO: Delta accessible edit points
-        #else
-          const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
-                     yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
-          n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
-        #endif
-
-        if (lcdDrawUpdate) {
-          lcd_implementation_ubl_plot(x_plot, y_plot);
-
-          ubl_map_move_to_xy(); // Move to current location
-
-          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move. There is a new location
-            quickstop_stepper();
-            ubl_map_move_to_xy(); // Move to new location
-          }
-        }
+      }
     }
 
     /**
