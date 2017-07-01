@@ -2188,27 +2188,23 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
-      int32_t signed_enc_pos;
 
-      defer_return_to_status = true;
+      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+        return lcd_goto_screen(_lcd_ubl_map_homing);
 
-      if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
-
-        if (lcd_clicked) { return _lcd_ubl_map_lcd_edit_cmd(); }
+        if (lcd_clicked) return _lcd_ubl_map_lcd_edit_cmd();
         ENCODER_DIRECTION_NORMAL();
 
         if (encoderPosition) {
-          signed_enc_pos = (int32_t)encoderPosition;
-          step_scaler += signed_enc_pos;
+          step_scaler += (int32_t)encoderPosition;
           x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
           if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
             step_scaler = 0;
           refresh_cmd_timeout();
 
+          encoderPosition = 0;
           lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         }
-
-        encoderPosition = 0;
 
         // Encoder to the right (++)
         if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
@@ -2236,22 +2232,11 @@ void kill_screen(const char* lcd_msg) {
 
           ubl_map_move_to_xy(); // Move to current location
 
-          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
-            #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-            #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-            DISABLE_STEPPER_DRIVER_INTERRUPT();
-            while (planner.blocks_queued()) planner.discard_current_block();
-            stepper.current_block = NULL;
-            planner.clear_block_buffer_runtime();
-            ENABLE_STEPPER_DRIVER_INTERRUPT();
-            set_current_from_steppers_for_axis(ALL_AXES);
-            sync_plan_position();
+          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move. There is a new location
+            quickstop_stepper();
             ubl_map_move_to_xy(); // Move to new location
           }
         }
-        safe_delay(10);
-      }
-      else lcd_goto_screen(_lcd_ubl_map_homing);
     }
 
     /**

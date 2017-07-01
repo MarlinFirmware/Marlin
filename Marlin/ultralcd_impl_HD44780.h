@@ -1134,8 +1134,8 @@ static void lcd_implementation_status_screen() {
           B00000,
           B11111
         };
-        createChar_P(1, _lcd_box_top);
-        createChar_P(2, _lcd_box_bottom);
+        createChar_P(LCD_UBL_BOXTOP_CHAR, _lcd_box_top);
+        createChar_P(LCD_UBL_BOXBOT_CHAR, _lcd_box_bottom);
       #endif
     }
 
@@ -1178,8 +1178,8 @@ static void lcd_implementation_status_screen() {
          * Draw the Mesh Map Box
          */
         uint8_t m;
-        lcd.setCursor(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(1); // Top
-        lcd.setCursor(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(2); // Bottom
+        lcd.setCursor(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXTOP_CHAR); // Top
+        lcd.setCursor(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXBOT_CHAR); // Bottom
         for (m = 0; m <= 3; m++) {
           lcd.setCursor(2, m); lcd.write('|'); // Left
           lcd.setCursor(8, m); lcd.write('|'); // Right
