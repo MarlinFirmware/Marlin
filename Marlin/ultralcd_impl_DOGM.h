@@ -97,6 +97,9 @@
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_TR)
     #include "dogm_font_data_ISO10646_1_tr.h"
     #define FONT_MENU_NAME ISO10646_TR
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_CZ)
+    #include "dogm_font_data_ISO10646_CZ.h"
+    #define FONT_MENU_NAME ISO10646_CZ
   #else // fall-back
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7

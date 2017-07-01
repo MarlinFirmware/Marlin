@@ -40,7 +40,7 @@
 #define MSG_BACK                            _UxGT("Zpet")
 #define MSG_SD_INSERTED                     _UxGT("Karta vlozena")
 #define MSG_SD_REMOVED                      _UxGT("Karta vyjmuta")
-#define MSG_LCD_ENDSTOPS                    _UxGT("Endstopy") // maximalne 8 znaku
+#define MSG_LCD_ENDSTOPS                    _UxGT("Endstopy") // max 8 znaku
 #define MSG_MAIN                            _UxGT("Hlavni nabidka")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
 #define MSG_DISABLE_STEPPERS                _UxGT("Uvolnit motory")
@@ -130,7 +130,7 @@
 #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Zrusit posledni")
 #define MSG_UBL_FINE_TUNE_ALL               _UxGT("Upravit vsechny")
 #define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Upravit posledni")
-#define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Stockage maille")
+#define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Uloziste siti")
 #define MSG_UBL_STORAGE_SLOT                _UxGT("Pametovy slot")
 #define MSG_UBL_LOAD_MESH                   _UxGT("Nacist sit bodu")
 #define MSG_UBL_SAVE_MESH                   _UxGT("Ulozit sit bodu")
