@@ -2306,7 +2306,7 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float &x, const float &y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
+  float probe_pt(const float &x, const float &y, const bool stow/*=true*/, const int verbose_level/*=1*/, const bool printable = true) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -2317,11 +2317,10 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    #if ENABLED(DELTA)
-      if (!position_is_reachable_xy(x, y)) return NAN;
-    #else
+    if (printable)
       if (!position_is_reachable_by_probe_xy(x, y)) return NAN;
-    #endif
+    else
+      if (!position_is_reachable_xy(x, y)) return NAN;
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -5093,11 +5092,7 @@ void home_all_axes() { gcode_G28(true); }
     const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
                 ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    #if ENABLED(DELTA)
-      if (!position_is_reachable_xy(xpos, ypos)) return;
-    #else
       if (!position_is_reachable_by_probe_xy(xpos, ypos)) return;
-    #endif
 
     // Disable leveling so the planner won't mess with us
     #if HAS_LEVELING
@@ -5279,7 +5274,7 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_EOL();
       }
 
-      home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1); // 1st probe to set height
+      home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
       
       do {
 
@@ -5292,12 +5287,12 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
-          z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1);
+          z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
         }
         if (_7p_calibration) { // probe extra center points
           for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
             const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
-            z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+            z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false);
           }
           z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
         }
@@ -5313,7 +5308,7 @@ void home_all_axes() { gcode_G28(true); }
             for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
               const float a = RADIANS(180 + 30 * axis),
                           r = delta_calibration_radius * (1 + circles * (zig_zag ? 0.1 : -0.1));
-              z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+              z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false);
             }
             zig_zag = !zig_zag;
             z_at_pt[axis] /= (2 * offset_circles + 1);
