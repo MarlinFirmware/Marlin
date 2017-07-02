@@ -38,7 +38,7 @@
 #if ENABLED(DEBUG_GCODE_PARSER)
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     extern char* hex_address(const void * const w);
-  #else  
+  #else
     #include "hex_print_routines.h"
   #endif
   #include "serial.h"

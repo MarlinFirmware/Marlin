@@ -1086,6 +1086,9 @@ static_assert(1 >= 0
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)
     + 1
   #endif
+  #if ENABLED(LCD_FOR_MELZI)
+    + 1
+  #endif
   #if ENABLED(CARTESIO_UI)
     + 1
   #endif

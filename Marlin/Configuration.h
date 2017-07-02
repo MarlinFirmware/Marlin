@@ -1403,6 +1403,11 @@
                                   // different pins/wiring (see pins_ANET_10.h).
 
 //
+// LCD for Melzi Card with Graphical LCD
+//
+//#define LCD_FOR_MELZI
+
+//
 // CONTROLLER TYPE: I2C
 //
 // Note: These controllers require the installation of Arduino's LiquidCrystal_I2C

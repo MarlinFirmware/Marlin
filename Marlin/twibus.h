@@ -48,8 +48,8 @@ typedef void (*twiRequestFunc_t)();
  * for the host to interpret.
  *
  *  For more information see
- *    - http://marlinfw.org/docs/gcode/M260.html 
- *    - http://marlinfw.org/docs/gcode/M261.html 
+ *    - http://marlinfw.org/docs/gcode/M260.html
+ *    - http://marlinfw.org/docs/gcode/M261.html
  *
  */
 class TWIBus {
