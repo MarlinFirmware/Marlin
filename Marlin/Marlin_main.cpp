@@ -9279,12 +9279,14 @@ inline void gcode_M502() {
   (void)settings.reset();
 }
 
-/**
- * M503: print settings currently in memory
- */
-inline void gcode_M503() {
-  (void)settings.report(!parser.boolval('S', true));
-}
+#if DISABLED(DISABLE_M503)
+  /**
+   * M503: print settings currently in memory
+   */
+  inline void gcode_M503() {
+    (void)settings.report(!parser.boolval('S', true));
+  }
+#endif
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 
@@ -11022,9 +11024,12 @@ void process_next_command() {
       case 502: // M502: Revert to default settings
         gcode_M502();
         break;
-      case 503: // M503: print settings currently in memory
-        gcode_M503();
-        break;
+
+      #if DISABLED(DISABLE_M503)
+        case 503: // M503: print settings currently in memory
+          gcode_M503();
+          break;
+      #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
         case 540: // M540: Set abort on endstop hit for SD printing

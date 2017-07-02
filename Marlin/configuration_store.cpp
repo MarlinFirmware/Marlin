@@ -1051,7 +1051,7 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    #if ENABLED(EEPROM_CHITCHAT)
+    #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       report();
     #endif
 
