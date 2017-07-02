@@ -45,9 +45,7 @@
     void lcd_mesh_edit_setup(float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
-    #if ENABLED(DOGLCD)
-      extern void _lcd_ubl_output_map_lcd();
-    #endif
+    extern void _lcd_ubl_output_map_lcd();
     float lcd_z_offset_edit();
   #endif
 
@@ -56,7 +54,6 @@
   extern float probe_pt(const float &x, const float &y, bool, int);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
-  extern bool ubl_lcd_map_control;
   typedef void (*screenFunc_t)();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
@@ -1522,7 +1519,7 @@
           idle();
         } while (!ubl_lcd_clicked());
 
-        lcd_return_to_status();
+        if (!ubl_lcd_map_control) lcd_return_to_status();
 
         // The technique used here generates a race condition for the encoder click.
         // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
@@ -1569,12 +1566,10 @@
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
-      if (ubl_lcd_map_control) {
-        #if ENABLED(DOGLCD)
-          lcd_goto_screen(_lcd_ubl_output_map_lcd);
-        #endif
-      }
-      else lcd_return_to_status();
+      if (ubl_lcd_map_control)
+        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+      else
+        lcd_return_to_status();
     }
 
   #endif // NEWPANEL

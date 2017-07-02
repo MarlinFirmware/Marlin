@@ -1085,151 +1085,151 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    /* 
-     * These are just basic data for the 20x4 LCD work that
-     * is coming up very soon.
-     * Soon this will morph into a map code.
-     */
+  /* 
+   * These are just basic data for the 20x4 LCD work that
+   * is coming up very soon.
+   * Soon this will morph into a map code.
+   */
 
-    /**
-    Possible map screens:
+  /**
+  Possible map screens:
 
-    16x2   |X000.00  Y000.00|
-           |(00,00)  Z00.000|
+  16x2   |X000.00  Y000.00|
+         |(00,00)  Z00.000|
 
-    20x2   | X:000.00  Y:000.00 |
-           | (00,00)   Z:00.000 |
+  20x2   | X:000.00  Y:000.00 |
+         | (00,00)   Z:00.000 |
 
-    16x4   |+-------+(00,00)|
-           ||       |X000.00|
-           ||       |Y000.00|
-           |+-------+Z00.000|
+  16x4   |+-------+(00,00)|
+         ||       |X000.00|
+         ||       |Y000.00|
+         |+-------+Z00.000|
 
-    20x4   | +-------+  (00,00) |
-           | |       |  X:000.00|
-           | |       |  Y:000.00|
-           | +-------+  Z:00.000|
-    */
+  20x4   | +-------+  (00,00) |
+         | |       |  X:000.00|
+         | |       |  Y:000.00|
+         | +-------+  Z:00.000|
+  */
 
-    void lcd_set_ubl_map_plot_chars() {
-      #if LCD_HEIGHT > 3
-        //#include "_ubl_lcd_map_characters.h"
-        const static byte _lcd_box_top[8] PROGMEM = {
-          B11111,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000
-        };
-        const static byte _lcd_box_bottom[8] PROGMEM = {
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B00000,
-          B11111
-        };
-        createChar_P(1, _lcd_box_top);
-        createChar_P(2, _lcd_box_bottom);
-      #endif
-    }
+  void lcd_set_ubl_map_plot_chars() {
+    #if LCD_HEIGHT > 3
+      //#include "_ubl_lcd_map_characters.h"
+      const static byte _lcd_box_top[8] PROGMEM = {
+        B11111,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000
+      };
+      const static byte _lcd_box_bottom[8] PROGMEM = {
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B00000,
+        B11111
+      };
+      createChar_P(LCD_UBL_BOXTOP_CHAR, _lcd_box_top);
+      createChar_P(LCD_UBL_BOXBOT_CHAR, _lcd_box_bottom);
+    #endif
+  }
 
-    void lcd_implementation_ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
+  void lcd_implementation_ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
 
-      #if LCD_WIDTH >= 20
-        #define _LCD_W_POS 12
-        #define _PLOT_X 1
-        #define _MAP_X 3
-        #define _LABEL(C,X,Y) lcd.setCursor(X, Y); lcd.print(C)
-        #define _XLABEL(X,Y) _LABEL("X:",X,Y)
-        #define _YLABEL(X,Y) _LABEL("Y:",X,Y)
-        #define _ZLABEL(X,Y) _LABEL("Z:",X,Y)
-      #else
-        #define _LCD_W_POS 8
-        #define _PLOT_X 0
-        #define _MAP_X 1
-        #define _LABEL(X,Y,C) lcd.setCursor(X, Y); lcd.write(C)
-        #define _XLABEL(X,Y) _LABEL('X',X,Y)
-        #define _YLABEL(X,Y) _LABEL('Y',X,Y)
-        #define _ZLABEL(X,Y) _LABEL('Z',X,Y)
-      #endif
+    #if LCD_WIDTH >= 20
+      #define _LCD_W_POS 12
+      #define _PLOT_X 1
+      #define _MAP_X 3
+      #define _LABEL(C,X,Y) lcd.setCursor(X, Y); lcd.print(C)
+      #define _XLABEL(X,Y) _LABEL("X:",X,Y)
+      #define _YLABEL(X,Y) _LABEL("Y:",X,Y)
+      #define _ZLABEL(X,Y) _LABEL("Z:",X,Y)
+    #else
+      #define _LCD_W_POS 8
+      #define _PLOT_X 0
+      #define _MAP_X 1
+      #define _LABEL(X,Y,C) lcd.setCursor(X, Y); lcd.write(C)
+      #define _XLABEL(X,Y) _LABEL('X',X,Y)
+      #define _YLABEL(X,Y) _LABEL('Y',X,Y)
+      #define _ZLABEL(X,Y) _LABEL('Z',X,Y)
+    #endif
 
-      #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
-
-        /**
-         * Show X and Y positions
-         */
-        _XLABEL(_PLOT_X, 0);
-        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-
-        _YLABEL(_LCD_W_POS, 0);
-        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
-
-        lcd.setCursor(_PLOT_X, 0);
-
-      #else                 // 16x4 or 20x4 display
-
-        /**
-         * Draw the Mesh Map Box
-         */
-        uint8_t m;
-        lcd.setCursor(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(1); // Top
-        lcd.setCursor(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(2); // Bottom
-        for (m = 0; m <= 3; m++) {
-          lcd.setCursor(2, m); lcd.write('|'); // Left
-          lcd.setCursor(8, m); lcd.write('|'); // Right
-        }
-
-        lcd.setCursor(_LCD_W_POS, 0);
-
-      #endif
+    #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
 
       /**
-       * Print plot position
+       * Show X and Y positions
        */
-      lcd.write('(');
-      lcd.print(x_plot);
-      lcd.write(',');
-      lcd.print(y_plot);
-      lcd.write(')');
+      _XLABEL(_PLOT_X, 0);
+      lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
 
-      #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
+      _YLABEL(_LCD_W_POS, 0);
+      lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
-        /**
-         * Print Z values
-         */
-        _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
-          lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
-        else
-          lcd_printPGM(PSTR(" -----"));
+      lcd.setCursor(_PLOT_X, 0);
 
-      #else                 // 16x4 or 20x4 display
+    #else                 // 16x4 or 20x4 display
 
-        /**
-         * Show all values at right of screen
-         */
-        _XLABEL(_LCD_W_POS, 1);
-        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-        _YLABEL(_LCD_W_POS, 2);
-        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+      /**
+       * Draw the Mesh Map Box
+       */
+      uint8_t m;
+      lcd.setCursor(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXTOP_CHAR); // Top
+      lcd.setCursor(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXBOT_CHAR); // Bottom
+      for (m = 0; m <= 3; m++) {
+        lcd.setCursor(2, m); lcd.write('|'); // Left
+        lcd.setCursor(8, m); lcd.write('|'); // Right
+      }
 
-        /**
-         * Show the location value
-         */
-        _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
-          lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
-        else
-          lcd_printPGM(PSTR(" -----"));
+      lcd.setCursor(_LCD_W_POS, 0);
 
-      #endif // LCD_HEIGHT > 3
-    }
+    #endif
+
+    /**
+     * Print plot position
+     */
+    lcd.write('(');
+    lcd.print(x_plot);
+    lcd.write(',');
+    lcd.print(y_plot);
+    lcd.write(')');
+
+    #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
+
+      /**
+       * Print Z values
+       */
+      _ZLABEL(_LCD_W_POS, 1);
+      if (!isnan(ubl.z_values[x_plot][y_plot]))
+        lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      else
+        lcd_printPGM(PSTR(" -----"));
+
+    #else                 // 16x4 or 20x4 display
+
+      /**
+       * Show all values at right of screen
+       */
+      _XLABEL(_LCD_W_POS, 1);
+      lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+      _YLABEL(_LCD_W_POS, 2);
+      lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+
+      /**
+       * Show the location value
+       */
+      _ZLABEL(_LCD_W_POS, 3);
+      if (!isnan(ubl.z_values[x_plot][y_plot]))
+        lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      else
+        lcd_printPGM(PSTR(" -----"));
+
+    #endif // LCD_HEIGHT > 3
+  }
 
 #endif // AUTO_BED_LEVELING_UBL
 

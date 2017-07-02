@@ -470,8 +470,14 @@ uint16_t max_display_update_time = 0;
         screen_history_depth = 0;
       }
       lcd_implementation_clear();
-      #if ENABLED(LCD_PROGRESS_BAR)
-        // For LCD_PROGRESS_BAR re-initialize custom characters
+      // Re-initialize custom characters that may be re-used
+      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
+        if (!ubl_lcd_map_control) lcd_set_custom_characters(
+          #if ENABLED(LCD_PROGRESS_BAR)
+            screen == lcd_status_screen
+          #endif
+        );
+      #elif ENABLED(LCD_PROGRESS_BAR)
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -2142,6 +2148,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_output_map_lcd();
 
     void _lcd_ubl_map_homing() {
+      defer_return_to_status = true;
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
@@ -2157,8 +2164,6 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_ubl_map_lcd_edit_cmd() {
       char ubl_lcd_gcode [50], str[10], str2[10];
-
-      ubl_lcd_map_control = true; // Used for returning to the map screen
 
       dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
       dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
@@ -2183,76 +2188,62 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
-      int32_t signed_enc_pos;
 
-      defer_return_to_status = true;
+      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+        return lcd_goto_screen(_lcd_ubl_map_homing);
 
-      if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
+      if (lcd_clicked) return _lcd_ubl_map_lcd_edit_cmd();
+      ENCODER_DIRECTION_NORMAL();
 
-        if (lcd_clicked) { return _lcd_ubl_map_lcd_edit_cmd(); }
-        ENCODER_DIRECTION_NORMAL();
-
-        if (encoderPosition) {
-          signed_enc_pos = (int32_t)encoderPosition;
-          step_scaler += signed_enc_pos;
-          x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-          if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
-            step_scaler = 0;
-          refresh_cmd_timeout();
-
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        }
+      if (encoderPosition) {
+        step_scaler += (int32_t)encoderPosition;
+        x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
+        if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
+          step_scaler = 0;
+        refresh_cmd_timeout();
 
         encoderPosition = 0;
-
-        // Encoder to the right (++)
-        if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
-        if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
-
-        // Encoder to the left (--)
-        if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-        if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
-
-        // Prevent underrun/overrun of plot numbers
-        x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
-        y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
-
-        // Determine number of points to edit
-        #if IS_KINEMATIC
-          n_edit_pts = 9; //TODO: Delta accessible edit points
-        #else
-          const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
-                     yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
-          n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
-        #endif
-
-        if (lcdDrawUpdate) {
-          lcd_implementation_ubl_plot(x_plot, y_plot);
-
-          ubl_map_move_to_xy(); // Move to current location
-
-          if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
-            #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-            #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-            DISABLE_STEPPER_DRIVER_INTERRUPT();
-            while (planner.blocks_queued()) planner.discard_current_block();
-            stepper.current_block = NULL;
-            planner.clear_block_buffer_runtime();
-            ENABLE_STEPPER_DRIVER_INTERRUPT();
-            set_current_from_steppers_for_axis(ALL_AXES);
-            sync_plan_position();
-            ubl_map_move_to_xy(); // Move to new location
-          }
-        }
-        safe_delay(10);
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
-      else lcd_goto_screen(_lcd_ubl_map_homing);
+
+      // Encoder to the right (++)
+      if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
+      if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
+
+      // Encoder to the left (--)
+      if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+      if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+
+      // Prevent underrun/overrun of plot numbers
+      x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
+      y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+
+      // Determine number of points to edit
+      #if IS_KINEMATIC
+        n_edit_pts = 9; //TODO: Delta accessible edit points
+      #else
+        const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
+                   yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
+        n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
+      #endif
+
+      if (lcdDrawUpdate) {
+        lcd_implementation_ubl_plot(x_plot, y_plot);
+
+        ubl_map_move_to_xy(); // Move to current location
+
+        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move. There is a new location
+          quickstop_stepper();
+          ubl_map_move_to_xy(); // Move to new location
+        }
+      }
     }
 
     /**
      * UBL Homing before LCD map
      */
     void _lcd_ubl_output_map_lcd_cmd() {
+      ubl_lcd_map_control = true; // Return to the map screen (and don't restore the character set)
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         enqueue_and_echo_commands_P(PSTR("G28"));
       lcd_goto_screen(_lcd_ubl_map_homing);
@@ -2393,6 +2384,8 @@ void kill_screen(const char* lcd_msg) {
         if (!g29_in_progress)
       #endif
       MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
+    #elif PLANNER_LEVELING
+      MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
     #endif
 
     #if HAS_M206_COMMAND
