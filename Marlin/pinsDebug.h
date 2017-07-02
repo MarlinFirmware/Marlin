@@ -357,7 +357,7 @@ static void pwm_details(uint8_t pin) {
   // on pins that have two PWMs, print info on second PWM
   #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
     // looking for port B7 - PWMs 0A and 1C
-    if ( ('B' == digitalPinToPort(pin) + 64) && (0x80 == digitalPinToBitMask(pin))) {
+    if (digitalPinToPort(pin) == 2 && digitalPinToBitMask(pin) == 0x80) {
       #ifndef TEENSYDUINO_IDE
         SERIAL_PROTOCOLPGM("\n .");
         SERIAL_PROTOCOL_SP(18);

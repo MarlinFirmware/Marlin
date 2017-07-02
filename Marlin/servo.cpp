@@ -221,7 +221,7 @@ static void finISR(timer16_Sequence_t timer) {
           , OCIE3A);    // disable the timer3 output compare A interrupt
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
-  #else //!WIRING
+  #else // !WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
     UNUSED(timer);
   #endif

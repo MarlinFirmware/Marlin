@@ -47,4 +47,4 @@
     ZERO(z_values);
   }
 
-#endif  // MESH_BED_LEVELING
+#endif // MESH_BED_LEVELING

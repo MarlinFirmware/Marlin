@@ -203,4 +203,4 @@ void setup_endstop_interrupts( void ) {
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }
 
-#endif //_ENDSTOP_INTERRUPTS_H_
+#endif // _ENDSTOP_INTERRUPTS_H_

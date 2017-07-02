@@ -133,6 +133,7 @@
 #define LED_PIN            13
 #define PS_ON_PIN          45
 #define KILL_PIN           46
+#define CASE_LIGHT_PIN     45
 
 //
 // LCD / Controller
@@ -148,3 +149,10 @@
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 14  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN          15
