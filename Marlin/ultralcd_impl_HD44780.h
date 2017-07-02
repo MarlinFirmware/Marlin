@@ -1085,7 +1085,7 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  /* 
+  /**
    * These are just basic data for the 20x4 LCD work that
    * is coming up very soon.
    * Soon this will morph into a map code.
