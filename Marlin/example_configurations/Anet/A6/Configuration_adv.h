@@ -1268,6 +1268,13 @@
   #define USER_GCODE_5 "G28\nM503"
 #endif
 
+/**
+ * Specify an action command to send to the host when the printer is killed.
+ * Will be sent in the form '//action:ACTION_ON_KILL', e.g. '//action:poweroff'.
+ * The host must be configured to handle the action command.
+ */
+//#define ACTION_ON_KILL "poweroff"
+
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
