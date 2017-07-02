@@ -124,7 +124,7 @@ public:
         if (debug) {
           SERIAL_ECHOPAIR("Set bit ", (int)PARAM_BIT(ind));
           SERIAL_ECHOPAIR(" of index ", (int)PARAM_IND(ind));
-          SERIAL_ECHOLNPAIR(" | param = ", hex_address((void*)param[ind]));
+          SERIAL_ECHOLNPAIR(" | param = ", (int)param[ind]);
         }
       #endif
     }

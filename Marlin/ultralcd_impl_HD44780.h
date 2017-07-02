@@ -443,7 +443,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     lcd.setCursor(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
   }
 
-  void bootscreen() {
+  void lcd_bootscreen() {
     const static PROGMEM byte corner[4][8] = { {
       B00000,
       B00000,
