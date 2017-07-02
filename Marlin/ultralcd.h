@@ -64,8 +64,10 @@
   #if ENABLED(DOGLCD)
     extern uint16_t lcd_contrast;
     void set_lcd_contrast(const uint16_t value);
-  #elif ENABLED(SHOW_BOOTSCREEN)
-    void bootscreen();
+  #endif
+
+  #if ENABLED(SHOW_BOOTSCREEN)
+    void lcd_bootscreen();
   #endif
 
   #define LCD_UPDATE_INTERVAL 100

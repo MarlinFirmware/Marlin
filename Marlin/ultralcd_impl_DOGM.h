@@ -256,6 +256,55 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
 }
 
+#if ENABLED(SHOW_BOOTSCREEN)
+
+  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+    void lcd_custom_bootscreen() {
+      u8g.firstPage();
+      do {
+        u8g.drawBitmapP(
+          (128 - (CUSTOM_BOOTSCREEN_BMPWIDTH))  /2,
+          ( 64 - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) /2,
+          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp);
+      } while (u8g.nextPage());
+    }
+
+  #endif // SHOW_CUSTOM_BOOTSCREEN
+
+  void lcd_bootscreen() {
+
+    static bool show_bootscreen = true;
+
+    if (show_bootscreen) {
+      show_bootscreen = false;
+
+      #if ENABLED(START_BMPHIGH)
+        constexpr uint8_t offy = 0;
+      #else
+        constexpr uint8_t offy = DOG_CHAR_HEIGHT;
+      #endif
+
+      const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2,
+                    txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
+
+      u8g.firstPage();
+      do {
+        u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+        lcd_setFont(FONT_MENU);
+        #ifndef STRING_SPLASH_LINE2
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
+        #else
+          const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+        #endif
+      } while (u8g.nextPage());
+    }
+  }
+
+#endif // SHOW_BOOTSCREEN
+
 // Initialize or re-initialize the LCD
 static void lcd_implementation_init() {
 
@@ -284,49 +333,12 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
-    static bool show_bootscreen = true;
-
     #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-      if (show_bootscreen) {
-        u8g.firstPage();
-        do {
-          u8g.drawBitmapP(
-            (128 - (CUSTOM_BOOTSCREEN_BMPWIDTH))  /2,
-            ( 64 - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) /2,
-            CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp);
-        } while (u8g.nextPage());
-        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
-      }
-    #endif // SHOW_CUSTOM_BOOTSCREEN
-
-    const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
-
-    #if ENABLED(START_BMPHIGH)
-      constexpr uint8_t offy = 0;
+      lcd_custom_bootscreen();
     #else
-      constexpr uint8_t offy = DOG_CHAR_HEIGHT;
+      lcd_bootscreen();
     #endif
-
-    const uint8_t txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
-
-    if (show_bootscreen) {
-      u8g.firstPage();
-      do {
-        u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-        lcd_setFont(FONT_MENU);
-        #ifndef STRING_SPLASH_LINE2
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
-        #else
-          const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
-        #endif
-      } while (u8g.nextPage());
-    }
-
-    show_bootscreen = false;
-
-  #endif // SHOW_BOOTSCREEN
+  #endif
 }
 
 // The kill screen is displayed for unrecoverable conditions
