@@ -655,10 +655,12 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
-      SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
-      SERIAL_ECHOLNPGM(")");
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
+        SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
+        SERIAL_ECHOLNPGM(")");
+      #endif
     }
 
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
@@ -689,10 +691,12 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("EEPROM version mismatch ");
-      SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
-      SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPGM("EEPROM version mismatch ");
+        SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
+        SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
+      #endif
       reset();
     }
     else {
@@ -1004,20 +1008,24 @@ void MarlinSettings::postprocess() {
       #endif
 
       if (working_crc == stored_crc) {
-          postprocess();
+        postprocess();
+        #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ECHO_START();
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
           SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
           SERIAL_ECHOLNPGM(")");
+        #endif
       }
       else {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
-        SERIAL_ERROR(stored_crc);
-        SERIAL_ERRORPGM(" != ");
-        SERIAL_ERROR(working_crc);
-        SERIAL_ERRORLNPGM(" (calculated)!");
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_ERROR_START();
+          SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
+          SERIAL_ERROR(stored_crc);
+          SERIAL_ERRORPGM(" != ");
+          SERIAL_ERROR(working_crc);
+          SERIAL_ERRORLNPGM(" (calculated)!");
+        #endif
         reset();
       }
 
@@ -1029,29 +1037,37 @@ void MarlinSettings::postprocess() {
 
         if (!ubl.sanity_check()) {
           SERIAL_EOL();
-          ubl.echo_name();
-          SERIAL_ECHOLNPGM(" initialized.\n");
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl.echo_name();
+            SERIAL_ECHOLNPGM(" initialized.\n");
+          #endif
         }
         else {
-          SERIAL_PROTOCOLPGM("?Can't enable ");
-          ubl.echo_name();
-          SERIAL_PROTOCOLLNPGM(".");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_PROTOCOLPGM("?Can't enable ");
+            ubl.echo_name();
+            SERIAL_PROTOCOLLNPGM(".");
+          #endif
           ubl.reset();
         }
 
         if (ubl.state.storage_slot >= 0) {
           load_mesh(ubl.state.storage_slot);
-          SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
-          SERIAL_ECHOLNPGM(" loaded from storage.");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
+            SERIAL_ECHOLNPGM(" loaded from storage.");
+          #endif
         }
         else {
           ubl.reset();
-          SERIAL_ECHOLNPGM("UBL System reset()");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_ECHOLNPGM("UBL System reset()");
+          #endif
         }
       #endif
     }
 
-    #if ENABLED(EEPROM_CHITCHAT)
+    #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       report();
     #endif
 
@@ -1060,11 +1076,13 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    void ubl_invalid_slot(const int s) {
-      SERIAL_PROTOCOLLNPGM("?Invalid slot.");
-      SERIAL_PROTOCOL(s);
-      SERIAL_PROTOCOLLNPGM(" mesh slots available.");
-    }
+    #if ENABLED(EEPROM_CHITCHAT)
+      void ubl_invalid_slot(const int s) {
+        SERIAL_PROTOCOLLNPGM("?Invalid slot.");
+        SERIAL_PROTOCOL(s);
+        SERIAL_PROTOCOLLNPGM(" mesh slots available.");
+      }
+    #endif
 
     int MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
@@ -1079,11 +1097,13 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         const int a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
-          ubl_invalid_slot(a);
-          SERIAL_PROTOCOLPAIR("E2END=", E2END);
-          SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
-          SERIAL_PROTOCOLLNPAIR(" slot=", slot);
-          SERIAL_EOL();
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl_invalid_slot(a);
+            SERIAL_PROTOCOLPAIR("E2END=", E2END);
+            SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
+            SERIAL_PROTOCOLLNPAIR(" slot=", slot);
+            SERIAL_EOL();
+          #endif
           return;
         }
 
@@ -1094,7 +1114,9 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
-        SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
+        #endif
 
       #else
 
@@ -1110,7 +1132,9 @@ void MarlinSettings::postprocess() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!WITHIN(slot, 0, a - 1)) {
-          ubl_invalid_slot(a);
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl_invalid_slot(a);
+          #endif
           return;
         }
 
@@ -1121,7 +1145,9 @@ void MarlinSettings::postprocess() {
 
         // Compare crc with crc from MAT, or read from end
 
-        SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
+        #endif
 
       #else
 
@@ -1345,8 +1371,10 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  #if ENABLED(EEPROM_CHITCHAT)
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  #endif
 }
 
 #if DISABLED(DISABLE_M503)

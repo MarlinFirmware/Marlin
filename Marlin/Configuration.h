@@ -992,8 +992,8 @@
 //#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
-  // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
-  #define EEPROM_CHITCHAT // Please keep turned on if you can.
+  //#define DISABLE_M503  // Saves ~2700 bytes of PROGMEM. Disable for release!
+  #define EEPROM_CHITCHAT // Print a report on M500. Please keep turned on.
 #endif
 
 //
