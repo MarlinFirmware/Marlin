@@ -1437,6 +1437,14 @@
 //
 //#define OLED_PANEL_TINYBOY2
 
+// If you want you can define your own set of delays in Configuration.h (If you see garbled graphics on the screen uncomment all three)
+#define ST7920_DELAY_1 DELAY_0_NOP
+#define ST7920_DELAY_2 DELAY_3_NOP
+#define ST7920_DELAY_3 DELAY_0_NOP
+
+//LCD for MELZI (If you have a Melzi board with LCD for Melzi card uncomment this)
+#define LCD_MELZI
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
