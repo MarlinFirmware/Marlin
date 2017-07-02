@@ -906,12 +906,6 @@ void setup_killpin() {
 
 #endif
 
-void setup_homepin(void) {
-  #if HAS_HOME
-    SET_INPUT_PULLUP(HOME_PIN);
-  #endif
-}
-
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, HIGH);
@@ -13008,7 +13002,9 @@ void setup() {
     OUT_WRITE(SOL1_PIN, LOW); // turn it off
   #endif
 
-  setup_homepin();
+  #if HAS_HOME
+    SET_INPUT_PULLUP(HOME_PIN);
+  #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // turn it off
