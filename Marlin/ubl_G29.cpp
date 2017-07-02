@@ -1533,7 +1533,6 @@
         while (ubl_lcd_clicked()) { // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
-            ubl_lcd_map_control = false;
             lcd_return_to_status();
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
             LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
