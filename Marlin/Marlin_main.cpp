@@ -4228,10 +4228,14 @@ void home_all_axes() { gcode_G28(true); }
    *
    *  A  Abort current leveling procedure
    *
-   *  W  Write a mesh point. (Ignored during leveling.)
-   *  X  Required X for mesh point
-   *  Y  Required Y for mesh point
-   *  Z  Z for mesh point. Otherwise, current Z minus Z probe offset.
+   * Extra parameters with BILINEAR only:
+   *
+   *  W  Write a mesh point. (If G29 is idle.)
+   *  I  X index for mesh point
+   *  J  Y index for mesh point
+   *  X  X for mesh point, overrides I
+   *  Y  Y for mesh point, overrides J
+   *  Z  Z for mesh point. Otherwise, raw current Z.
    *
    * Without PROBE_MANUALLY:
    *
