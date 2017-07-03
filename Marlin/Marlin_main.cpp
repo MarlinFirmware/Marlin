@@ -5530,7 +5530,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOL_SP(39);
           SERIAL_PROTOCOLPGM("std dev:");
           SERIAL_PROTOCOL_F(zero_std_dev, 3);
-          SERIAL_EOL;
+          SERIAL_EOL();
         }
 
         endstops.enable(true);
