@@ -13031,6 +13031,10 @@ void setup() {
 
   lcd_init();
 
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
+
   #if ENABLED(SHOW_BOOTSCREEN)
     #if ENABLED(DOGLCD)                           // On DOGM the first bootscreen is already drawn
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
