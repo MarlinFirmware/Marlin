@@ -7933,6 +7933,9 @@ inline void gcode_M115() {
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
     SERIAL_PROTOCOLLNPGM("Cap:PROGRESS:0");
 
+    // Print Job timer M75, M76, M77
+    SERIAL_PROTOCOLLNPGM("Cap:PRINT_JOB:1");
+
     // AUTOLEVEL (G29)
     #if HAS_ABL
       SERIAL_PROTOCOLLNPGM("Cap:AUTOLEVEL:1");
