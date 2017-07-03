@@ -2491,13 +2491,13 @@ void kill_screen(const char* lcd_msg) {
         reset_bed_level(); // After calibration bed-level data is no longer valid
       #endif
 
-      if (current_position[Z_AXIS] > delta_clip_start_height)
-        do_blocking_move_to_z(delta_clip_start_height);
-
-      float z_dest = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
-      z_dest -= home_offset[Z_AXIS];
-      do_blocking_move_to_z(z_dest);
-      do_blocking_move_to_xy(lx, ly);
+      float z_dest = LOGICAL_Z_POSITION((Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5);
+      line_to_z(z_dest);
+      current_position[X_AXIS] = LOGICAL_X_POSITION(lx);
+      current_position[Y_AXIS] = LOGICAL_Y_POSITION(ly);
+      line_to_current_z();
+      z_dest = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
+      line_to_z(z_dest);
 
       lcd_synchronize();
       move_menu_scale = 0.1;
