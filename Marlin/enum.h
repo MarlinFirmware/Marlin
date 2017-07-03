@@ -154,7 +154,7 @@ enum EndstopEnum {
 /**
  * SD Card
  */
-enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };
+enum LsAction { LS_SerialPrint, LS_SerialPrint_Without_Size, LS_Count, LS_GetFilename };
 
 /**
  * Ultra LCD

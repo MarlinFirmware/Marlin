@@ -6221,10 +6221,13 @@ inline void gcode_M17() {
 
   /**
    * M20: List SD card to serial output
+   *
+   *    Defaults to list with file size
+   *    M20 S0 will create the list without file size
    */
   inline void gcode_M20() {
     SERIAL_PROTOCOLLNPGM(MSG_BEGIN_FILE_LIST);
-    card.ls();
+    parser.boolval('S', true) ? card.ls(LS_SerialPrint) : card.ls(LS_SerialPrint_Without_Size);
     SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
   }
 
