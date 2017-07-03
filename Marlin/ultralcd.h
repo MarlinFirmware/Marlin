@@ -197,4 +197,8 @@ void lcd_reset_status();
   float lcd_z_offset_edit();
 #endif
 
+#if ENABLED(DELTA_CALIBRATION_MENU)
+  float lcd_probe_pt(const float &lx, const float &ly);
+#endif
+
 #endif // ULTRALCD_H
