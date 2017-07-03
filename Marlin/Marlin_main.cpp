@@ -6243,8 +6243,15 @@ inline void gcode_M17() {
 
   /**
    * M23: Open a file
+   *
+   *  Simplify3D will send the file size along with the file name because M20 defaults
+   *  to that format.  The work around is to terminates the file name at first space
+   *  if any are present.  This is OK because M23 only supports DOS 8.3 file names.
    */
-  inline void gcode_M23() { card.openFile(parser.string_arg, true); }
+  inline void gcode_M23() { 
+    for (uint8_t i = 0; !(parser.string_arg[i] == 0); i++) if (parser.string_arg[i] == ' ') parser.string_arg[i] = 0;
+    card.openFile(parser.string_arg, true); 
+  }
 
   /**
    * M24: Start or Resume SD Print
