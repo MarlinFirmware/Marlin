@@ -5,22 +5,22 @@
 # Make a PR of the current branch against RCBugFix or dev
 #
 
-MFINFO=$(mfinfo "$@") || exit
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
 
+MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
-
 ORG=${INFO[0]}
 FORK=${INFO[1]}
 REPO=${INFO[2]}
 TARG=${INFO[3]}
 BRANCH=${INFO[4]}
+OLDBRANCH=${INFO[5]}
 
-if [[ ! -z "$1" ]]; then { BRANCH=$1 ; git checkout $1 || exit 1; } fi
+[[ $BRANCH == $TARG ]] && { echo "Can't create a PR from the PR Target ($BRANCH). Make a copy first." 1>&2 ; exit 1; }
 
-if [[ $BRANCH == $TARG ]]; then
-  echo "Can't make a PR from $BRANCH" ; exit
-fi
+[[ $BRANCH != $OLDBRANCH ]] && { git checkout $BRANCH || exit 1; }
 
+# See if it's been pushed yet
 if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
 
 TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
@@ -33,3 +33,5 @@ else
   echo "Opening a New PR Form..."
   "$TOOL" "$URL"
 fi
+
+[[ $BRANCH != $OLDBRANCH ]] && git checkout $OLDBRANCH

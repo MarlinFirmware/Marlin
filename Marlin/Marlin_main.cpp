@@ -2299,7 +2299,7 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float &x, const float &y, const bool stow/*=true*/, const int verbose_level/*=1*/) {
+  float probe_pt(const float &x, const float &y, const bool stow, const uint8_t verbose_level) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -4228,10 +4228,14 @@ void home_all_axes() { gcode_G28(true); }
    *
    *  A  Abort current leveling procedure
    *
-   *  W  Write a mesh point. (Ignored during leveling.)
-   *  X  Required X for mesh point
-   *  Y  Required Y for mesh point
-   *  Z  Z for mesh point. Otherwise, current Z minus Z probe offset.
+   * Extra parameters with BILINEAR only:
+   *
+   *  W  Write a mesh point. (If G29 is idle.)
+   *  I  X index for mesh point
+   *  J  Y index for mesh point
+   *  X  X for mesh point, overrides I
+   *  Y  Y for mesh point, overrides J
+   *  Z  Z for mesh point. Otherwise, raw current Z.
    *
    * Without PROBE_MANUALLY:
    *
@@ -13030,6 +13034,10 @@ void setup() {
   #endif
 
   lcd_init();
+
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
     #if ENABLED(DOGLCD)                           // On DOGM the first bootscreen is already drawn
