@@ -28,8 +28,10 @@
  * These are the most common LCD character displays.
  */
 
+#include "lcdprint.h"
 #include "utility.h"
 #include "duration_t.h"
+#include "fontutils.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
@@ -182,8 +184,6 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #define LCD_CLASS LiquidCrystal
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
 #endif
-
-#include "utf_mapper.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
   static millis_t progress_bar_ms = 0;
@@ -401,46 +401,35 @@ static void lcd_implementation_init(
 
 void lcd_implementation_clear() { lcd.clear(); }
 
-void lcd_print(const char c) { charset_mapper(c); }
-
-void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
-void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
-
-void lcd_print_utf(const char *str, uint8_t n=LCD_WIDTH) {
-  char c;
-  while (n && (c = *str)) n -= charset_mapper(c), ++str;
-}
-
-void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
-  char c;
-  while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
-}
-
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void lcd_erase_line(const int16_t line) {
-    lcd.setCursor(0, line);
+    lcd_moveto(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
       lcd.write(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    char tmp[LCD_WIDTH + 1] = {0};
-    int16_t n = max(lcd_strlen_P(text) - len, 0);
-    for (int16_t i = 0; i <= n; i++) {
-      strncpy_P(tmp, text + i, min(len, LCD_WIDTH));
-      lcd.setCursor(col, line);
-      lcd_print(tmp);
-      delay(time / max(n, 1));
-    }
+    #if 1
+      lcd_print(text);
+    #else
+      char tmp[LCD_WIDTH + 1] = {0};
+      int16_t n = max(utf8_strlen_P(text) - len, 0);
+      for (int16_t i = 0; i <= n; i++) {
+        utf8_strncpy_p(tmp, text + i, min(len, LCD_WIDTH));
+        lcd_moveto(col, line);
+        lcd_print(tmp);
+        delay(time / max(n, 1));
+      }
+    #endif
   }
 
   static void logo_lines(const char* const extra) {
-    int16_t indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
-    lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x01');
-    lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
-    lcd.setCursor(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
+    int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
+    lcd_moveto(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x01');
+    lcd_moveto(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
+    lcd_moveto(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
   }
 
   void lcd_bootscreen() {
@@ -490,8 +479,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
     #define CENTER_OR_SCROLL(STRING,DELAY) \
       lcd_erase_line(3); \
-      if (strlen(STRING) <= LCD_WIDTH) { \
-        lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
+      if (utf8_strlen(STRING) <= LCD_WIDTH) { \
+        lcd_moveto((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
         lcd_printPGM(PSTR(STRING)); \
         safe_delay(DELAY); \
       } \
@@ -503,7 +492,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       //
       // Show the Marlin logo with splash line 1
       //
-      if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE1) + 1) {
+      if (LCD_EXTRA_SPACE >= utf8_strlen(STRING_SPLASH_LINE1) + 1) {
         //
         // Show the Marlin logo, splash line1, and splash line 2
         //
@@ -534,7 +523,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       //
       // Show splash line 2 only, alongside the logo if possible
       //
-      if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE2) + 1) {
+      if (LCD_EXTRA_SPACE >= utf8_strlen(STRING_SPLASH_LINE2) + 1) {
         logo_lines(PSTR(" " STRING_SPLASH_LINE2));
         safe_delay(2000);
       }
@@ -564,14 +553,14 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 #endif // SHOW_BOOTSCREEN
 
 void lcd_kill_screen() {
-  lcd.setCursor(0, 0);
-  lcd_print_utf(lcd_status_message);
+  lcd_moveto(0, 0);
+  lcd_print(lcd_status_message);
   #if LCD_HEIGHT < 4
-    lcd.setCursor(0, 2);
+    lcd_moveto(0, 2);
   #else
-    lcd.setCursor(0, 2);
+    lcd_moveto(0, 2);
     lcd_printPGM(PSTR(MSG_HALTED));
-    lcd.setCursor(0, 3);
+    lcd_moveto(0, 3);
   #endif
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
@@ -599,9 +588,9 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
               t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
 
-  if (prefix >= 0) lcd.print(prefix);
+  if (prefix >= 0) lcd.write(prefix);
 
-  lcd.print(itostr3(t1 + 0.5));
+  lcd_print(itostr3(t1 + 0.5));
   lcd.write('/');
 
   #if HEATER_IDLE_HANDLER
@@ -620,10 +609,10 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
     }
     else
   #endif
-      lcd.print(itostr3left(t2 + 0.5));
+      lcd_print(itostr3left(t2 + 0.5));
 
   if (prefix >= 0) {
-    lcd.print((char)LCD_DEGREE_CHAR);
+    lcd.write(LCD_DEGREE_CHAR);
     lcd.write(' ');
     if (t2 < 10) lcd.write(' ');
   }
@@ -680,7 +669,7 @@ static void lcd_implementation_status_screen() {
   // Line 1
   //
 
-  lcd.setCursor(0, 0);
+  lcd_moveto(0, 0);
 
   #if LCD_WIDTH < 20
 
@@ -694,12 +683,12 @@ static void lcd_implementation_status_screen() {
     //
     #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
-      lcd.setCursor(8, 0);
+      lcd_moveto(8, 0);
       #if HOTENDS > 1
-        lcd.print((CHAR)LCD_STR_THERMOMETER[0]);
+        lcd.write(LCD_STR_THERMOMETER[0]);
         _draw_heater_status(1, -1, blink);
       #else
-        lcd.print((CHAR)LCD_BEDTEMP_CHAR);
+        lcd.write(LCD_BEDTEMP_CHAR);
         _draw_heater_status(-1, -1, blink);
       #endif
 
@@ -716,7 +705,7 @@ static void lcd_implementation_status_screen() {
     // Hotend 1 or Bed Temperature
     //
     #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
-      lcd.setCursor(10, 0);
+      lcd_moveto(10, 0);
       #if HOTENDS > 1
         _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
       #else
@@ -736,10 +725,10 @@ static void lcd_implementation_status_screen() {
     #if LCD_WIDTH < 20
 
       #if ENABLED(SDSUPPORT)
-        lcd.setCursor(0, 2);
+        lcd_moveto(0, 2);
         lcd_printPGM(PSTR("SD"));
         if (IS_SD_PRINTING)
-          lcd.print(itostr3(card.percentDone()));
+          lcd_print(itostr3(card.percentDone()));
         else
           lcd_printPGM(PSTR("---"));
           lcd.write('%');
@@ -747,7 +736,7 @@ static void lcd_implementation_status_screen() {
 
     #else // LCD_WIDTH >= 20
 
-      lcd.setCursor(0, 1);
+      lcd_moveto(0, 1);
 
       #if HOTENDS > 1 && TEMP_SENSOR_BED != 0
 
@@ -762,20 +751,20 @@ static void lcd_implementation_status_screen() {
         // When everything is ok you see a constant 'X'.
 
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(current_position[X_AXIS]));
+        lcd_print(ftostr4sign(current_position[X_AXIS]));
 
         lcd.write(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(current_position[Y_AXIS]));
+        lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
-    lcd.setCursor(LCD_WIDTH - 8, 1);
+    lcd_moveto(LCD_WIDTH - 8, 1);
     _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
+    lcd_print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
   #endif // LCD_HEIGHT > 2
 
@@ -785,17 +774,17 @@ static void lcd_implementation_status_screen() {
 
   #if LCD_HEIGHT > 3
 
-    lcd.setCursor(0, 2);
-    lcd.print((char)LCD_FEEDRATE_CHAR);
-    lcd.print(itostr3(feedrate_percentage));
+    lcd_moveto(0, 2);
+    lcd.write(LCD_FEEDRATE_CHAR);
+    lcd_print(itostr3(feedrate_percentage));
     lcd.write('%');
 
     #if LCD_WIDTH >= 20 && ENABLED(SDSUPPORT)
 
-      lcd.setCursor(7, 2);
+      lcd_moveto(7, 2);
       lcd_printPGM(PSTR("SD"));
       if (IS_SD_PRINTING)
-        lcd.print(itostr3(card.percentDone()));
+        lcd_print(itostr3(card.percentDone()));
       else
         lcd_printPGM(PSTR("---"));
       lcd.write('%');
@@ -806,8 +795,8 @@ static void lcd_implementation_status_screen() {
     duration_t elapsed = print_job_timer.duration();
     uint8_t len = elapsed.toDigital(buffer);
 
-    lcd.setCursor(LCD_WIDTH - len - 1, 2);
-    lcd.print((char)LCD_CLOCK_CHAR);
+    lcd_moveto(LCD_WIDTH - len - 1, 2);
+    lcd.write(LCD_CLOCK_CHAR);
     lcd_print(buffer);
 
   #endif // LCD_HEIGHT > 3
@@ -817,7 +806,7 @@ static void lcd_implementation_status_screen() {
   // Status Message (which may be a Progress Bar or Filament display)
   //
 
-  lcd.setCursor(0, LCD_HEIGHT - 1);
+  lcd_moveto(0, LCD_HEIGHT - 1);
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
@@ -845,24 +834,24 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
+    const uint8_t slen = utf8_strlen(lcd_status_message);
     const char *stat = lcd_status_message + status_scroll_pos;
     if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+      lcd_print(stat);                                        // The string isn't scrolling
     else {
       if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+        lcd_print(stat);                                      // The string fills the screen
       else {
         uint8_t chars = LCD_WIDTH;
-        if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
-          chars -= slen - status_scroll_pos;                    // Amount of space left
+        if (status_scroll_pos < slen) {                       // First string still visible
+          lcd_print(stat);                                    // The string leaves space
+          chars -= slen - status_scroll_pos;                  // Amount of space left
         }
-        lcd.write('.');                                         // Always at 1+ spaces left, draw a dot
+        lcd.write('.');                                       // Always at 1+ spaces left, draw a dot
         if (--chars) {
-          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
+          if (status_scroll_pos < slen + 1)                   // Draw a second dot if there's space
             --chars, lcd.write('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+          if (chars) lcd_printstr(lcd_status_message, chars); // Print a second copy of the message
         }
       }
       if (last_blink != blink) {
@@ -873,7 +862,7 @@ static void lcd_implementation_status_screen() {
       }
     }
   #else
-    lcd_print_utf(lcd_status_message);
+    lcd_print(lcd_status_message);
   #endif
 }
 
@@ -883,7 +872,7 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
-        lcd.setCursor(LCD_WIDTH - 9, row);
+        lcd_moveto(LCD_WIDTH - 9, row);
         _draw_heater_status(active_extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
@@ -892,59 +881,40 @@ static void lcd_implementation_status_screen() {
 
   static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
-    char c;
     int8_t n = LCD_WIDTH;
-    lcd.setCursor(0, row);
+    lcd_moveto(0, row);
     if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd.write(' '); n--; }
     }
-    while (n > 0 && (c = pgm_read_byte(pstr))) {
-      n -= charset_mapper(c);
-      pstr++;
-    }
-    if (valstr) while (n > 0 && (c = *valstr)) {
-      n -= charset_mapper(c);
-      valstr++;
-    }
-    while (n-- > 0) lcd.write(' ');
+    n -= lcd_printstr_P(pstr, n);
+    if (valstr) n -= lcd_printstr(valstr, n);
+    for (; n > 0; --n) lcd.write(' ');
   }
 
   static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
-    char c;
     uint8_t n = LCD_WIDTH - 2;
-    lcd.setCursor(0, row);
-    lcd.print(sel ? pre_char : ' ');
-    while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= charset_mapper(c);
-      pstr++;
-    }
+    lcd_moveto(0, row);
+    lcd.write(sel ? pre_char : ' ');
+    n -= lcd_printstr_P(pstr, n);
     while (n--) lcd.write(' ');
     lcd.print(post_char);
   }
 
   static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
-    char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
-    lcd.setCursor(0, row);
-    lcd.print(sel ? pre_char : ' ');
-    while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= charset_mapper(c);
-      pstr++;
-    }
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
+    lcd_moveto(0, row);
+    lcd.write(sel ? pre_char : ' ');
+    n -= lcd_printstr_P(pstr, n);
     lcd.write(':');
     while (n--) lcd.write(' ');
     lcd_print(data);
   }
   static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
-    char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen_P(data);
-    lcd.setCursor(0, row);
-    lcd.print(sel ? pre_char : ' ');
-    while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= charset_mapper(c);
-      pstr++;
-    }
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
+    lcd_moveto(0, row);
+    lcd.write(sel ? pre_char : ' ');
+    n -= lcd_printstr_P(pstr, n);
     lcd.write(':');
     while (n--) lcd.write(' ');
     lcd_printPGM(data);
@@ -978,43 +948,37 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
-    lcd.setCursor(1, 1);
+    lcd_moveto(1, 1);
     lcd_printPGM(pstr);
     if (value != NULL) {
       lcd.write(':');
-      const uint8_t valrow = (lcd_strlen_P(pstr) + 1 + lcd_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit
-      lcd.setCursor((LCD_WIDTH - 1) - (lcd_strlen(value) + 1), valrow);                                   // Right-justified, padded by spaces
-      lcd.write(' ');                                                                                     // overwrite char if value gets shorter
+      const uint8_t len = utf8_strlen(value) + 1,
+                    valrow = (utf8_strlen_P(pstr) + 1 + len) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit
+      lcd_moveto((LCD_WIDTH - 1) - len, valrow);                                         // Right-justified, padded by spaces
+      lcd.write(' ');                                                                    // overwrite char if value gets shorter
       lcd_print(value);
     }
   }
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const char post_char) {
       UNUSED(pstr);
-      char c;
-      uint8_t n = LCD_WIDTH - concat;
-      lcd.setCursor(0, row);
-      lcd.print(sel ? '>' : ' ');
-      if (longFilename[0]) {
-        filename = longFilename;
-        longFilename[n] = '\0';
-      }
-      while ((c = *filename) && n > 0) {
-        n -= charset_mapper(c);
-        filename++;
-      }
+      uint8_t n = LCD_WIDTH - 2;
+      lcd_moveto(0, row);
+      lcd.write(sel ? '>' : ' ');
+      if (longFilename[0]) filename = longFilename;
+      n -= lcd_printstr(filename, n);
       while (n--) lcd.write(' ');
       lcd.print(post_char);
     }
 
     static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
+      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, ' ');
     }
 
     static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
+      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, LCD_STR_FOLDER[0]);
     }
 
   #endif // SDSUPPORT
@@ -1145,7 +1109,7 @@ static void lcd_implementation_status_screen() {
       #define _LCD_W_POS 12
       #define _PLOT_X 1
       #define _MAP_X 3
-      #define _LABEL(C,X,Y) lcd.setCursor(X, Y); lcd.print(C)
+      #define _LABEL(C,X,Y) lcd_moveto(X, Y); lcd.print(C)
       #define _XLABEL(X,Y) _LABEL("X:",X,Y)
       #define _YLABEL(X,Y) _LABEL("Y:",X,Y)
       #define _ZLABEL(X,Y) _LABEL("Z:",X,Y)
@@ -1153,7 +1117,7 @@ static void lcd_implementation_status_screen() {
       #define _LCD_W_POS 8
       #define _PLOT_X 0
       #define _MAP_X 1
-      #define _LABEL(X,Y,C) lcd.setCursor(X, Y); lcd.write(C)
+      #define _LABEL(X,Y,C) lcd_moveto(X, Y); lcd.write(C)
       #define _XLABEL(X,Y) _LABEL('X',X,Y)
       #define _YLABEL(X,Y) _LABEL('Y',X,Y)
       #define _ZLABEL(X,Y) _LABEL('Z',X,Y)
@@ -1170,7 +1134,7 @@ static void lcd_implementation_status_screen() {
       _YLABEL(_LCD_W_POS, 0);
       lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
-      lcd.setCursor(_PLOT_X, 0);
+      lcd_moveto(_PLOT_X, 0);
 
     #else                 // 16x4 or 20x4 display
 
@@ -1178,14 +1142,14 @@ static void lcd_implementation_status_screen() {
        * Draw the Mesh Map Box
        */
       uint8_t m;
-      lcd.setCursor(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXTOP_CHAR); // Top
-      lcd.setCursor(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXBOT_CHAR); // Bottom
+      lcd_moveto(_MAP_X, 0); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXTOP_CHAR); // Top
+      lcd_moveto(_MAP_X, 3); for (m = 0; m < 5; m++) lcd.write(LCD_UBL_BOXBOT_CHAR); // Bottom
       for (m = 0; m <= 3; m++) {
-        lcd.setCursor(2, m); lcd.write('|'); // Left
-        lcd.setCursor(8, m); lcd.write('|'); // Right
+        lcd_moveto(2, m); lcd.write('|'); // Left
+        lcd_moveto(8, m); lcd.write('|'); // Right
       }
 
-      lcd.setCursor(_LCD_W_POS, 0);
+      lcd_moveto(_LCD_W_POS, 0);
 
     #endif
 

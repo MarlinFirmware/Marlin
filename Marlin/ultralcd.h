@@ -32,8 +32,6 @@
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-  int16_t lcd_strlen(const char* s);
-  int16_t lcd_strlen_P(const char* s);
   void lcd_update();
   void lcd_init();
   bool lcd_hasstatus();
