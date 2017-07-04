@@ -708,6 +708,22 @@
   #endif
 
   /**
+   * Set the boundaries for probing (where the probe can reach) if user has not already configured.
+   */
+  #ifndef LEFT_PROBE_BED_POSITION
+    #define LEFT_PROBE_BED_POSITION ((X_PROBE_OFFSET_FROM_EXTRUDER) <= (MIN_PROBE_EDGE) ? (X_MIN_POS + MIN_PROBE_EDGE) : (X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+  #ifndef RIGHT_PROBE_BED_POSITION
+    #define RIGHT_PROBE_BED_POSITION ((X_PROBE_OFFSET_FROM_EXTRUDER) >= (-MIN_PROBE_EDGE) ? (X_MAX_POS - MIN_PROBE_EDGE) : (X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+  #ifndef FRONT_PROBE_BED_POSITION
+    #define FRONT_PROBE_BED_POSITION ((Y_PROBE_OFFSET_FROM_EXTRUDER) <= (MIN_PROBE_EDGE) ? (Y_MIN_POS + MIN_PROBE_EDGE) : (Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+  #ifndef BACK_PROBE_BED_POSITION
+    #define BACK_PROBE_BED_POSITION ((Y_PROBE_OFFSET_FROM_EXTRUDER) >= (-MIN_PROBE_EDGE) ? (Y_MAX_POS - MIN_PROBE_EDGE) : (Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+  
+  /**
    * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
