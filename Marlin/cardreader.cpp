@@ -75,6 +75,7 @@ char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
  *   LS_Count       - Add +1 to nrFiles for every file within the parent
  *   LS_GetFilename - Get the filename of the file indexed by nrFiles
  *   LS_SerialPrint - Print the full path and size of each file to serial output
+ *   LS_SerialPrint_Without_Size - Print the full path but NOT the size of each file to serial output
  */
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
   dir_t p;
@@ -83,7 +84,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
   // Read the next entry from a directory
   while (parent.readDir(p, longFilename) > 0) {
 
-    // If the entry is a directory and the action is LS_SerialPrint
+    // If the entry is a directory and the action is LS_SerialPrint or LS_SerialPrint_Without_Size
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
       // Get the short name for the item, which we know is a folder
@@ -108,7 +109,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       // and dive recursively into it.
       SdFile dir;
       if (!dir.open(parent, lfilename, O_READ)) {
-        if (lsAction == LS_SerialPrint) {
+        if (lsAction == LS_SerialPrint || lsAction == LS_SerialPrint_Without_Size) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
           SERIAL_ECHOLN(lfilename);
@@ -141,6 +142,12 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
           SERIAL_PROTOCOLCHAR(' ');
           SERIAL_PROTOCOLLN(p.fileSize);
           break;
+          
+        case LS_SerialPrint_Without_Size:
+          createFilename(filename, p);
+          SERIAL_PROTOCOL(prepend);
+          SERIAL_PROTOCOLLN(filename);
+          break;  
 
         case LS_GetFilename:
           createFilename(filename, p);
@@ -156,8 +163,8 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
   } // while readDir
 }
 
-void CardReader::ls() {
-  lsAction = LS_SerialPrint;
+void CardReader::ls(const LsAction action = LS_SerialPrint) {
+  lsAction = action;
   root.rewind();
   lsDive("", root);
 }

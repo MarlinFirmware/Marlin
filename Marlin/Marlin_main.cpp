@@ -6236,10 +6236,13 @@ inline void gcode_M17() {
 
   /**
    * M20: List SD card to serial output
+   *
+   *    Defaults to list with file size
+   *    M20 S0 will create the list without file size
    */
   inline void gcode_M20() {
     SERIAL_PROTOCOLLNPGM(MSG_BEGIN_FILE_LIST);
-    card.ls();
+    parser.boolval('S', true) ? card.ls(LS_SerialPrint) : card.ls(LS_SerialPrint_Without_Size);
     SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
   }
 
@@ -6255,8 +6258,15 @@ inline void gcode_M17() {
 
   /**
    * M23: Open a file
+   *
+   *  Simplify3D will send the file size along with the file name because M20 defaults
+   *  to that format.  The work around is to terminates the file name at first space
+   *  if any are present.  This is OK because M23 only supports DOS 8.3 file names.
    */
-  inline void gcode_M23() { card.openFile(parser.string_arg, true); }
+  inline void gcode_M23() { 
+    for (uint8_t i = 0; !(parser.string_arg[i] == 0); i++) if (parser.string_arg[i] == ' ') parser.string_arg[i] = 0;
+    card.openFile(parser.string_arg, true); 
+  }
 
   /**
    * M24: Start or Resume SD Print
