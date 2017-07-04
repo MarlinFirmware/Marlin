@@ -28,7 +28,7 @@ echo "Fetching upstream ($ORG/$REPO)..."
 git fetch upstream
 
 echo ; echo "Bringing $TARG up to date..."
-if [[ git checkout -q $TARG ]]; then
+if [[ ! $(git checkout -q $TARG) ]]; then
   git reset --hard upstream/$TARG
   git push -f origin
 else
