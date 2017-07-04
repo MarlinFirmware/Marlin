@@ -20,8 +20,20 @@
  *
  */
 
-#ifndef PINS_H
-#define PINS_H
+/**
+ * Include pins definitions
+ *
+ * Pins numbering schemes:
+ *
+ *  - Digital I/O pin number if used by READ/WRITE macros. (e.g., X_STEP_DIR)
+ *    The FastIO headers map digital pins to their ports and functions.
+ *
+ *  - Analog Input number if used by analogRead or DAC. (e.g., TEMP_n_PIN)
+ *    These numbers are the same in any pin mapping.
+ */
+
+#ifndef __PINS_H__
+#define __PINS_H__
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
@@ -95,6 +107,8 @@
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
   #include "pins_AZTEEG_X3_PRO.h"
+#elif MB(ANET_10)
+  #include "pins_ANET_10.h"
 #elif MB(ULTIMAKER)
   #include "pins_ULTIMAKER.h"
 #elif MB(ULTIMAKER_OLD)
@@ -318,7 +332,17 @@
 #define _E3_PINS
 #define _E4_PINS
 
-#if EXTRUDERS > 1
+#if ENABLED(SWITCHING_EXTRUDER)
+                      // Tools 0 and 1 use E0
+  #if EXTRUDERS > 2   // Tools 2 and 3 use E1
+    #undef _E1_PINS
+    #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
+    #if EXTRUDERS > 4 // Tools 4 and 5 use E2
+      #undef _E2_PINS
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+    #endif
+  #endif
+#elif EXTRUDERS > 1
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
   #if EXTRUDERS > 2
@@ -537,19 +561,10 @@
   #define AVR_MOSI_PIN 51
   #define AVR_SS_PIN   53
 #elif defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
-  #if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)
-    // Teensy pin assignments
-    #define AVR_SCK_PIN  21
-    #define AVR_MISO_PIN 23
-    #define AVR_MOSI_PIN 22
-    #define AVR_SS_PIN   20
-  #else
-    // Traditional pin assignments
-    #define AVR_SCK_PIN  9
-    #define AVR_MISO_PIN 11
-    #define AVR_MOSI_PIN 10
-    #define AVR_SS_PIN   8
-  #endif
+  #define AVR_SCK_PIN  21
+  #define AVR_MISO_PIN 23
+  #define AVR_MOSI_PIN 22
+  #define AVR_SS_PIN   20
 #elif defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
   #define AVR_SCK_PIN  10
   #define AVR_MISO_PIN 12
@@ -570,4 +585,4 @@
   #define SS_PIN   AVR_SS_PIN
 #endif
 
-#endif // __PINS_H
+#endif // __PINS_H__

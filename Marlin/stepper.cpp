@@ -72,10 +72,14 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
   bool Stepper::performing_homing = false;
 #endif
 
+#if HAS_MOTOR_CURRENT_PWM
+  uint32_t Stepper::motor_current_setting[3] = PWM_MOTOR_CURRENT;
+#endif
+
 // private:
 
-unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
-unsigned int Stepper::cleaning_buffer_counter = 0;
+uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
+uint16_t Stepper::cleaning_buffer_counter = 0;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::locked_z_motor = false;
@@ -110,9 +114,22 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance;
   #endif
 
-  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+  /**
+   * See https://github.com/MarlinFirmware/Marlin/issues/5699#issuecomment-309264382
+   *
+   * This fix isn't perfect and may lose steps - but better than locking up completely
+   * in future the planner should slow down if advance stepping rate would be too high
+   */
+  FORCE_INLINE uint16_t adv_rate(const int steps, const uint16_t timer, const uint8_t loops) {
+    if (steps) {
+      const uint16_t rate = (timer * loops) / abs(steps);
+      //return constrain(rate, 1, ADV_NEVER - 1)
+      return rate ? rate : 1;
+    }
+    return ADV_NEVER;
+  }
 
-#endif
+#endif // ADVANCE || LIN_ADVANCE
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
 
@@ -370,7 +387,7 @@ void Stepper::isr() {
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
-    } while(0)
+    }while(0)
 
     if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
       endstops.update();
@@ -743,7 +760,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -797,7 +814,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_RATE(timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
     #endif
   }
   else {
@@ -807,7 +824,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], OCR1A_nominal, step_loops_nominal);
 
     #endif
 
@@ -843,8 +860,14 @@ void Stepper::isr() {
 
     nextAdvanceISR = eISR_Rate;
 
-    #define SET_E_STEP_DIR(INDEX) \
-      if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+    #if ENABLED(MK2_MULTIPLEXER)
+      // Even-numbered steppers are reversed
+      #define SET_E_STEP_DIR(INDEX) \
+        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0))
+    #else
+      #define SET_E_STEP_DIR(INDEX) \
+        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+    #endif
 
     #define START_E_PULSE(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
@@ -862,6 +885,9 @@ void Stepper::isr() {
         SET_E_STEP_DIR(2);
         #if E_STEPPERS > 3
           SET_E_STEP_DIR(3);
+          #if E_STEPPERS > 4
+            SET_E_STEP_DIR(4);
+          #endif
         #endif
       #endif
     #endif
@@ -880,6 +906,9 @@ void Stepper::isr() {
           START_E_PULSE(2);
           #if E_STEPPERS > 3
             START_E_PULSE(3);
+            #if E_STEPPERS > 4
+              START_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif
@@ -899,6 +928,9 @@ void Stepper::isr() {
           STOP_E_PULSE(2);
           #if E_STEPPERS > 3
             STOP_E_PULSE(3);
+            #if E_STEPPERS > 4
+              STOP_E_PULSE(4);
+            #endif
           #endif
         #endif
       #endif
@@ -1305,7 +1337,7 @@ void Stepper::report_positions() {
   #endif
   SERIAL_PROTOCOL(zpos);
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(BABYSTEPPING)
@@ -1425,62 +1457,98 @@ void Stepper::report_positions() {
 #if HAS_DIGIPOTSS
 
   // From Arduino DigitalPotControl example
-  void Stepper::digitalPotWrite(int address, int value) {
-    WRITE(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
-    SPI.transfer(address); //  send in the address and value via SPI:
+  void Stepper::digitalPotWrite(const int16_t address, const int16_t value) {
+    WRITE(DIGIPOTSS_PIN, LOW);  // Take the SS pin low to select the chip
+    SPI.transfer(address);      // Send the address and value via SPI
     SPI.transfer(value);
-    WRITE(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
+    WRITE(DIGIPOTSS_PIN, HIGH); // Take the SS pin high to de-select the chip
     //delay(10);
   }
 
 #endif // HAS_DIGIPOTSS
 
+#if HAS_MOTOR_CURRENT_PWM
+
+  void Stepper::refresh_motor_power() {
+    for (uint8_t i = 0; i < COUNT(motor_current_setting); ++i) {
+      switch (i) {
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          case 0:
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          case 1:
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          case 2:
+        #endif
+            digipot_current(i, motor_current_setting[i]);
+        default: break;
+      }
+    }
+  }
+
+#endif // HAS_MOTOR_CURRENT_PWM
+
 #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
 
-  void Stepper::digipot_init() {
+  void Stepper::digipot_current(const uint8_t driver, const int current) {
+
     #if HAS_DIGIPOTSS
+
+      const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+      digitalPotWrite(digipot_ch[driver], current);
+
+    #elif HAS_MOTOR_CURRENT_PWM
+
+      if (WITHIN(driver, 0, 2))
+        motor_current_setting[driver] = current; // update motor_current_setting
+
+      #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+      switch (driver) {
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          case 0: _WRITE_CURRENT_PWM(XY); break;
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          case 1: _WRITE_CURRENT_PWM(Z); break;
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          case 2: _WRITE_CURRENT_PWM(E); break;
+        #endif
+      }
+    #endif
+  }
+
+  void Stepper::digipot_init() {
+
+    #if HAS_DIGIPOTSS
+
       static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+
       SPI.begin();
       SET_OUTPUT(DIGIPOTSS_PIN);
+
       for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
         //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
         digipot_current(i, digipot_motor_current[i]);
       }
+
     #elif HAS_MOTOR_CURRENT_PWM
+
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
         SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
-        digipot_current(0, motor_current_setting[0]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
         SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
-        digipot_current(1, motor_current_setting[1]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
         SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
-        digipot_current(2, motor_current_setting[2]);
       #endif
-      //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
-      TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
-    #endif
-  }
 
-  void Stepper::digipot_current(uint8_t driver, int current) {
-    #if HAS_DIGIPOTSS
-      const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
-      digitalPotWrite(digipot_ch[driver], current);
-    #elif HAS_MOTOR_CURRENT_PWM
-      #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
-      switch (driver) {
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          case 0: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_XY_PIN); break;
-        #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          case 1: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_Z_PIN); break;
-        #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          case 2: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_E_PIN); break;
-        #endif
-      }
+      refresh_motor_power();
+
+      // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
+      SET_CS5(PRESCALER_1);
+
     #endif
   }
 
@@ -1528,7 +1596,7 @@ void Stepper::report_positions() {
       microstep_mode(i, microstep_modes[i]);
   }
 
-  void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
+  void Stepper::microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2) {
     if (ms1 >= 0) switch (driver) {
       case 0: WRITE(X_MS1_PIN, ms1); break;
       #if HAS_Y_MICROSTEPS
@@ -1579,7 +1647,7 @@ void Stepper::report_positions() {
     }
   }
 
-  void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
+  void Stepper::microstep_mode(const uint8_t driver, const uint8_t stepping_mode) {
     switch (stepping_mode) {
       case 1: microstep_ms(driver, MICROSTEP1); break;
       case 2: microstep_ms(driver, MICROSTEP2); break;

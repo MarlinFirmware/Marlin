@@ -5,16 +5,15 @@
 # Start Jekyll in watch mode to work on Marlin Documentation and preview locally
 #
 
-MFINFO=$(mfinfo "$@") || exit
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 ORG=${INFO[0]}
 REPO=${INFO[2]}
-BRANCH=${INFO[4]}
+BRANCH=${INFO[5]}
 
-if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
-  echo "Wrong repository."
-  exit
-fi
+[[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
 
 opensite() {
   TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
