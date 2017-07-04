@@ -753,6 +753,15 @@ static_assert(1 >= 0
 #endif // Z_SAFE_HOMING
 
 /**
+ * Make sure DISABLE_[XYZ] compatible with selected homing options
+ */
+#if ENABLED(DISABLE_X) || ENABLED(DISABLE_Y) || ENABLED(DISABLE_Z)
+  #if ENABLED(HOME_AFTER_DEACTIVATE) || ENABLED(Z_SAFE_HOMING)
+    #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
+  #endif
+#endif // DISABLE_[XYZ]
+
+/**
  * Advance Extrusion
  */
 #if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
