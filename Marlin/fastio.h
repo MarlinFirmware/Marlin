@@ -32,27 +32,25 @@
 #include <avr/io.h>
 #include "macros.h"
 
-/**
- * Enable this option to use Teensy++ 2.0 assignments for AT90USB processors.
- */
-//#define AT90USBxx_TEENSYPP_ASSIGNMENTS
+#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
+#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
+#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
+#define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
+#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
+
 
 /**
  * Include Ports and Functions
  */
-#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+#if AVR_ATmega328_FAMILY
   #include "fastio_168.h"
-#elif defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
+#elif AVR_ATmega1284_FAMILY
   #include "fastio_644.h"
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#elif AVR_ATmega2560_FAMILY
   #include "fastio_1280.h"
-#elif defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
-  #ifdef AT90USBxx_TEENSYPP_ASSIGNMENTS
-    #include "fastio_AT90USB-Teensy.h"
-  #else
-    #include "fastio_AT90USB-Marlin.h"
-  #endif
-#elif defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+#elif AVR_AT90USB1286_FAMILY
+  #include "fastio_AT90USB.h"
+#elif AVR_ATmega2561_FAMILY
   #include "fastio_1281.h"
 #else
   #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
@@ -217,10 +215,6 @@ typedef enum {
 
 // Set Compare Mode bits
 #define _SET_COM(T,Q,V) (TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM##T##Q##0)) | (int(V) << COM##T##Q##0))
-#define _SET_COMA(T,V) _SET_COM(T,A,V)
-#define _SET_COMB(T,V) _SET_COM(T,B,V)
-#define _SET_COMC(T,V) _SET_COM(T,C,V)
-#define _SET_COMS(T,V1,V2,V3) do{ _SET_COMA(T,V1); _SET_COMB(T,V2); _SET_COMC(T,V3); }while(0)
 #define SET_COM(T,Q,V) _SET_COM(T,Q,COM_##V)
 #define SET_COMA(T,V) SET_COM(T,A,V)
 #define SET_COMB(T,V) SET_COM(T,B,V)
@@ -243,11 +237,6 @@ typedef enum {
 /**
  * PWM availability macros
  */
-#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
-#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
-#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
-#define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
-#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
 
 //find out which harware PWMs are already in use
 #if PIN_EXISTS(CONTROLLER_FAN)

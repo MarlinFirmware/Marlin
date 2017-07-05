@@ -296,7 +296,7 @@
     stepper##A.setMicroSteps(A##_MICROSTEPS); \
     stepper##A.setOverCurrent(A##_OVERCURRENT); \
     stepper##A.setStallCurrent(A##_STALLCURRENT); \
-  } while(0)
+  }while(0)
 
   void L6470_init() {
     #if ENABLED(X_IS_L6470)

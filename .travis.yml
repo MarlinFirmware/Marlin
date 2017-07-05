@@ -71,48 +71,15 @@ script:
   #
   - build_marlin
   #
-  # Test heated bed temperature sensor
-  #
-  - opt_set TEMP_SENSOR_BED 1
-  - build_marlin
-  #
-  # Test 2 extruders on basic RAMPS 1.4
+  # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
+  #  plus a "Fix Mounted" Probe with Safe Homing and some arc options
   #
   - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
   - opt_set EXTRUDERS 2
-  - opt_set TEMP_SENSOR_1 1
-  - build_marlin
-  #
-  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
-  # Include a test for LIN_ADVANCE here also
-  #
-  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-  - opt_set EXTRUDERS 5
-  - opt_set TEMP_SENSOR_1 1
-  - opt_set TEMP_SENSOR_2 5
-  - opt_set TEMP_SENSOR_3 20
-  - opt_set TEMP_SENSOR_4 999
-  - opt_set TEMP_SENSOR_BED 1
-  - opt_enable_adv LIN_ADVANCE
-  - build_marlin
-  #
-  # Test PIDTEMPBED
-  #
-  - restore_configs
-  - opt_set TEMP_SENSOR_BED 1
-  - opt_enable PIDTEMPBED
-  - build_marlin
-  #
-  # Test MAX6675
-  #
-  - restore_configs
   - opt_set TEMP_SENSOR_0 -2
-  - build_marlin
-  #
-  # Test a "Fix Mounted" Probe along with Safe Homing
-  #
-  - restore_configs
-  - opt_enable FIX_MOUNTED_PROBE Z_SAFE_HOMING
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_BED 1
+  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
   - build_marlin
   #
   # ...with AUTO_BED_LEVELING_LINEAR, Z_MIN_PROBE_REPEATABILITY_TEST, and DEBUG_LEVELING_FEATURE
@@ -126,7 +93,7 @@ script:
   #
   - restore_configs
   - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
   - build_marlin
   #
   # Test a Sled Z Probe
@@ -151,17 +118,27 @@ script:
   - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - build_marlin
   #
-  # Test PROBE_MANUALLY feature, with LCD support
+  # Test PROBE_MANUALLY feature, with LCD support,
+  #      EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
+  #      INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
   #
   - restore_configs
+  - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR LCD_BED_LEVELING ULTIMAKERCONTROLLER
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - build_marlin
   #
-  # Test EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
-  #   INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
+  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
+  # Include a test for LIN_ADVANCE here also
   #
-  - restore_configs
-  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
+  - opt_set EXTRUDERS 5
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_2 5
+  - opt_set TEMP_SENSOR_3 20
+  - opt_set TEMP_SENSOR_4 999
+  - opt_set TEMP_SENSOR_BED 1
+  - opt_enable_adv LIN_ADVANCE
   - build_marlin
   #
   # Mixing Extruder with 5 steppers
@@ -202,34 +179,19 @@ script:
   - build_marlin
   #
   # Test MINIRAMBO for PWM_MOTOR_CURRENT
+  #      ULTIMAKERCONTROLLER, FILAMENT_LCD_DISPLAY, FILAMENT_WIDTH_SENSOR,
+  #      PRINTCOUNTER, NOZZLE_PARK_FEATURE, NOZZLE_CLEAN_FEATURE, PCA9632,
+  #      Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS, BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS,
+  #      FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, LCD_INFO_MENU,
   #
   - restore_configs
-  - opt_set MOTHERBOARD BOARD_MINIRAMBO
-  - build_marlin
-  #
-  # Test FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, and LCD_INFO_MENU
-  #
-  - restore_configs
-  - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
-  - build_marlin
-  #
-  # Enable filament sensor
-  #
-  - restore_configs
-  - opt_enable FILAMENT_WIDTH_SENSOR
-  - build_marlin
-  #
-  # Enable filament sensor with LCD display
-  #
-  - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY
-  - build_marlin
-  #
-  # Enable BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS, and I2C_SLAVE_ADDRESS
-  #
-  - restore_configs
-  - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
+  - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR SDSUPPORT
+  - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632
+  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
   - opt_set_adv I2C_SLAVE_ADDRESS 63
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
+  - pins_set RAMPS X_MAX_PIN -1
+  - opt_set_adv Z2_MAX_PIN 2
   - build_marlin
   #
   # Enable COREXY
@@ -240,38 +202,12 @@ script:
   #
   # Enable COREYX (swapped)
   #
-  - restore_configs
-  - opt_enable COREYX
-  - build_marlin
-  #
-  # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
-  #
-  - restore_configs
-  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
-  - pins_set RAMPS X_MAX_PIN -1
-  - opt_set_adv Z2_MAX_PIN 2
-  - build_marlin
-  #
-  # Test PRINTCOUNTER
-  #
-  - restore_configs
-  - opt_enable PRINTCOUNTER
-  - build_marlin
-  #
-  # Test NOZZLE_PARK_FEATURE
-  #
-  - restore_configs
-  - opt_enable NOZZLE_PARK_FEATURE
-  - build_marlin
-  #
-  # Test NOZZLE_CLEAN_FEATURE
-  #
-  - restore_configs
-  - opt_enable NOZZLE_CLEAN_FEATURE
-  - build_marlin
+  #- restore_configs
+  #- opt_enable COREYX
+  #- build_marlin
   #
   #
-  ######## STANDARD LCD/PANELS ##############
+  ######## Other Standard LCD/Panels ##############
   #
   # ULTRA_LCD
   #
@@ -285,12 +221,6 @@ script:
   - opt_enable DOGLCD
   - build_marlin
   #
-  # ULTIMAKERCONTROLLER
-  #
-  - restore_configs
-  - opt_enable ULTIMAKERCONTROLLER
-  - build_marlin
-  #
   # MAKRPANEL
   # Needs to use Melzi and Sanguino hardware
   #
@@ -298,31 +228,29 @@ script:
   #- opt_enable MAKRPANEL
   #- build_marlin
   #
-  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, and BABYSTEPPING
+  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
   - restore_configs
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING
+  - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
   - build_marlin
   #
-  # G3D_PANEL
+  # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
   #
   - restore_configs
   - opt_enable G3D_PANEL SDSUPPORT
-  - build_marlin
-  #
-  # Add SDCARD_SORT_ALPHA, test G3D_PANEL again
-  #
-  - opt_enable_adv SDCARD_SORT_ALPHA
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
   - opt_set_adv SDSORT_GCODE true
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
   - opt_set_adv SDSORT_CACHE_NAMES true
   - build_marlin
   #
-  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
   #
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
   - build_marlin
   #
   # REPRAPWORLD_KEYPAD
@@ -372,12 +300,11 @@ script:
   ######## Example Configurations ##############
   #
   # BQ Hephestos 2
-  - restore_configs
-  - use_example_configs Hephestos_2
-  - build_marlin
+  #- restore_configs
+  #- use_example_configs Hephestos_2
+  #- build_marlin
   #
   # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
-  - restore_configs
   - use_example_configs delta/generic
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
   - build_marlin
@@ -399,17 +326,11 @@ script:
   #- use_example_configs makibox
   #- build_marlin
   #
-  # SCARA Config
+  # SCARA with TMC2130
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
-  - build_marlin
-  #
-  # TMC2130 Config
-  #
-  - restore_configs
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
-  - build_marlin
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #

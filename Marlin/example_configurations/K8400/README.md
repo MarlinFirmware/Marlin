@@ -2,7 +2,7 @@
 http://www.k8400.eu/
 
 Configuration files for the K8400, ported upstream from the official Velleman firmware.
-Like it's predecessor, (K8200), the K8400 is a 3Drag clone. There are some minor differences, documented in pins_K8400.h.
+Like its predecessor, (K8200), the K8400 is a 3Drag clone. There are some minor differences, documented in pins_K8400.h.
 
 Single and dual head configurations provided. Copy the correct Configuration.h and Configuration_adv.h to the /Marlin/ directory.
 
