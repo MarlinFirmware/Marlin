@@ -44,6 +44,16 @@
 #include "pins_RAMPS.h"
 
 //
+// PSU / SERVO
+// In case of use ATX like PSU or 12v LED PSU with SSR:
+// Set PS_ON_PIN to SERVO3 pin.
+
+#if POWER_SUPPLY > 0
+   #define PS_ON_PIN   4
+   #define SERVO3_PIN -1
+#endif
+
+//
 // LCD / Controller
 //
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
