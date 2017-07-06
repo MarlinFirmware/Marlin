@@ -307,7 +307,10 @@
     #endif
   #endif
 
-  #ifndef BOOTSCREEN_TIMEOUT
+  // Boot screens
+  #if DISABLED(ULTRA_LCD)
+    #undef SHOW_BOOTSCREEN
+  #elif !defined(BOOTSCREEN_TIMEOUT)
     #define BOOTSCREEN_TIMEOUT 2500
   #endif
 
