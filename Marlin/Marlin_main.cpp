@@ -6256,7 +6256,11 @@ inline void gcode_M17() {
   /**
    * M23: Open a file
    */
-  inline void gcode_M23() { card.openFile(parser.string_arg, true); }
+  inline void gcode_M23() {
+    // Simplify3D includes the size, so zero out all spaces (#7227)
+    for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
+    card.openFile(parser.string_arg, true); 
+  }
 
   /**
    * M24: Start or Resume SD Print
