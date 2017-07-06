@@ -10528,8 +10528,8 @@ void process_next_command() {
 
       #if ENABLED(G38_PROBE_TARGET)
         case 38: // G38.2 & G38.3
-          if (subcode == 2 || subcode == 3)
-            gcode_G38(subcode == 2);
+          if (parser.subcode == 2 || parser.subcode == 3)
+            gcode_G38(parser.subcode == 2);
           break;
       #endif
 

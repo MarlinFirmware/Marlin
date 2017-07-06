@@ -91,7 +91,7 @@ public:
   static char command_letter;             // G, M, or T
   static int codenum;                     // 123
   #if USE_GCODE_SUBCODES
-    static int subcode;                   // .1
+    static uint8_t subcode;               // .1
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
