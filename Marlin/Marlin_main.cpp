@@ -4310,7 +4310,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
-      ABL_VAR float xGridSpacing, yGridSpacing;
+      ABL_VAR float xGridSpacing = 0, yGridSpacing = 0;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
