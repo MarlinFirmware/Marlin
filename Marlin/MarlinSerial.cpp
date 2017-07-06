@@ -37,10 +37,8 @@
 #if ENABLED(CHUNK_SUPPORT)
 
   unsigned char chunk_buffer[NUM_CHUNK_BUFFERS][CHUNK_BUFFER_SIZE] = { { 0 } };
-  uint8_t chunk_response[NUM_CHUNK_BUFFERS] = { CHUNK_RESPONSE_NONE };
+  volatile uint8_t chunk_response[NUM_CHUNK_BUFFERS] = { CHUNK_RESPONSE_NONE };
   volatile uint8_t chunk_respond_busy = 0;
-  volatile uint32_t check_sum_failures = 0;
-  volatile uint32_t chunks_done = 0;
 
 #endif // CHUNK_SUPPORT
 
@@ -169,6 +167,8 @@
                      chunk_checksum = 0,
                      chunk_buffer_idx = 0;
 
+      const uint8_t cur_idx = chunk_buffer_idx;
+
       /*
        * Chunk storage state machine. After control char is processed,
        * start buffering the chunk directly in this ISR. After the chunk
@@ -177,7 +177,7 @@
        */
       switch (chunk_stage) {
         case CHUNK_STAGE_COLLECT:
-          chunk_buffer[chunk_buffer_idx][chunk_buffer_iter++] = c;
+          chunk_buffer[cur_idx][chunk_buffer_iter++] = c;
           chunk_checksum ^= c;
 
           // has not rolled back to 0, buffer still filling
@@ -188,21 +188,19 @@
 
         case CHUNK_STAGE_CHECKSUM:
           chunk_stage = CHUNK_STAGE_WAIT;
-          chunks_done++;
 
-          chunk_response[chunk_buffer_idx] = CHUNK_RESPONSE_OK;
+          //iterate index after checksum completes
+          chunk_buffer_idx = (chunk_buffer_idx + 1) & (NUM_CHUNK_BUFFERS - 1);
+
+          chunk_response[cur_idx] = CHUNK_RESPONSE_OK;
 
           if (chunk_checksum == c) break;
 
-          chunk_response[chunk_buffer_idx] = CHUNK_RESPONSE_FAIL;
-          check_sum_failures++;
+          chunk_response[cur_idx] = CHUNK_RESPONSE_FAIL;
           break;
 
         case CHUNK_STAGE_DRAIN:
-          chunk_buffer_iter++;
-
-          // has not rolled back to 0, buffer still filling
-          if (chunk_buffer_iter) break;
+          if (++chunk_buffer_iter) break;
 
           chunk_stage = CHUNK_STAGE_DRAIN_POST;
           break;
@@ -215,17 +213,12 @@
         case CHUNK_STAGE_WAIT:
         default:
           if (c == CHUNK_START_CHAR) {
-            const uint8_t old_idx = chunk_buffer_idx;
-
             chunk_stage = CHUNK_STAGE_COLLECT;
             chunk_buffer_iter = chunk_checksum = 0;
-            if (++chunk_buffer_idx >= NUM_CHUNK_BUFFERS - 1) chunk_buffer_idx = 0;
 
             // if chunk is still busy, drain data and respond with a busy response
-            if (chunk_response[chunk_buffer_idx] != CHUNK_RESPONSE_NONE) {
-              chunk_buffer_idx = old_idx;
+            if (chunk_response[cur_idx] != CHUNK_RESPONSE_NONE)
               chunk_stage = CHUNK_STAGE_DRAIN;
-            }
           }
           else {
             buffer_char(c);
@@ -277,7 +270,7 @@
 
   #ifdef M_USARTx_RX_vect
     ISR(M_USARTx_RX_vect) {
-      const unsigned char c = M_UDRx;
+      unsigned char c = M_UDRx;
       store_char(c);
     }
   #endif

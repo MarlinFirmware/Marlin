@@ -50,38 +50,41 @@ uint8_t segment_moves[16][8] = {
   { 0 }
 };
 
+FORCE_INLINE bool send_one_ok() {
+  static uint8_t response_index = 0;
+
+  switch (chunk_response[response_index]) {
+    case CHUNK_RESPONSE_NONE:
+    case CHUNK_RESPONSE_PENDING:
+      return false;
+
+    case CHUNK_RESPONSE_OK:
+      chunk_response[response_index] = CHUNK_RESPONSE_PENDING;
+      SERIAL_PROTOCOLLNPAIR("!ok ", response_index);
+      break;
+
+    case CHUNK_RESPONSE_FAIL:
+      chunk_response[response_index] = CHUNK_RESPONSE_NONE;
+      SERIAL_PROTOCOLLNPAIR("!fail ", response_index);
+      break;
+  }
+
+  //keep iterating
+  response_index = (response_index + 1) & (NUM_CHUNK_BUFFERS - 1);
+
+  return true;
+}
+
 void send_chunk_ok() {
-  static uint8_t chunk_respond_busy_done = 0,
-                 last_response_index = 0;
-  const  uint8_t last_response_index_start = last_response_index;
+  static uint8_t chunk_respond_busy_done = 0;
+
+  //send oks first
+  while(send_one_ok());
 
   //concurrently keep up with response counter, should auto roll over
   while (chunk_respond_busy_done != chunk_respond_busy) {
     SERIAL_PROTOCOLLNPGM("!busy");
     chunk_respond_busy_done++;
-  }
-
-  //loop through every bucket, start 1 after the index of the last response we gave
-  for(uint8_t i = 1 ; i < (NUM_CHUNK_BUFFERS + 1) ; i++) {
-    const uint8_t idx = (last_response_index_start + i) % (NUM_CHUNK_BUFFERS - 1);
-
-    switch (chunk_response[idx]) {
-      case CHUNK_RESPONSE_NONE:
-      case CHUNK_RESPONSE_PENDING:
-        break;
-
-      case CHUNK_RESPONSE_OK:
-        SERIAL_PROTOCOLLNPAIR("!ok ", idx);
-        chunk_response[idx] = CHUNK_RESPONSE_PENDING;
-        last_response_index = idx;
-        break;
-
-      case CHUNK_RESPONSE_FAIL:
-        SERIAL_PROTOCOLLNPAIR("!fail ", idx);
-        chunk_response[idx] = CHUNK_RESPONSE_NONE;
-        last_response_index = idx;
-        break;
-    }
   }
 }
 

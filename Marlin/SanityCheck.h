@@ -1295,3 +1295,18 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
     #endif
   #endif
 #endif // SPINDLE_LASER_ENABLE
+
+/**
+ * Sanity checks for stepper chunk support
+ */
+#if ENABLED(CHUNK_SUPPORT)
+  #if (NUM_CHUNK_BUFFERS & (NUM_CHUNK_BUFFERS - 1)) != 0
+    #error "CHUNK_SUPPORT: NUM_CHUNK_BUFFERS must be a power of 2."
+  #endif
+  #if (TX_BUFFER_SIZE < 8 && !CHUNK_OVERRIDE_TX_BUFFER_CHECK)
+    #warning "CHUNK_SUPPORT: TX_BUFFER_SIZE should be at least 8 bytes. Can use CHUNK_OVERRIDE_TX_BUFFER_CHECK to override."
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    #error "CHUNK_SUPPORT: currently not compatible with LIN_ADVANCE, enable in external planner if possible."
+  #endif
+#endif

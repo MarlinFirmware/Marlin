@@ -715,6 +715,8 @@
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
   #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+#elif ENABLED(CHUNK_SUPPORT)
+  #define BLOCK_BUFFER_SIZE 4  // Needs more memory for chunks, but can do more steps per block
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
@@ -748,6 +750,28 @@
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
 //#define ADVANCED_OK
+
+// @section chunk
+
+/**
+ * This is an experimental feature that allows a host device to send
+ * direct stepper buffers (chunks) instead of G0/1 movement commands.
+ * This frees up processing power on the Marlin device and allows
+ * a higher consistent step rate.
+ *
+ * This is useful when used with an "external planner" that
+ * acts as the USB host and controls the GCode stream while
+ * producing and triggering direct stepper chunks using the
+ * described protocol:
+ *
+ * <!insert links to docs here!>
+ */
+
+//#define CHUNK_SUPPORT
+#if ENABLED(CHUNK_SUPPORT)
+  #define NUM_CHUNK_BUFFERS 16                      // must be a power of 2
+  #define CHUNK_OVERRIDE_TX_BUFFER_CHECK false      // override sanity check for TX_BUFFER_SIZE
+#endif
 
 // @section fwretract
 
@@ -1260,9 +1284,6 @@
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
 #endif
-
-// Experimental host-supplied stepper chunk support — @colinrgodsey
-//#define CHUNK_SUPPORT
 
 //===========================================================================
 //============================ I2C Encoder Settings =========================

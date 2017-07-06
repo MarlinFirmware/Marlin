@@ -873,11 +873,13 @@ void Stepper::isr() {
   void Stepper::chunk_steps() {
     const uint16_t step_events_completed16 = (uint16_t)step_events_completed;
     const uint8_t *cur_chunk = chunk_buffer[current_block->chunk_idx],
-                  cur_chunk_block = uint8_t(step_events_completed16 >> 3) << 1,
+                  //which segment in the chunk, (steps / 8) * 2
+                  cur_chunk_segment = uint8_t(step_events_completed16 >> 3) << 1,
+                  //which step event in the segment (steps % 8)
                   segment_steps = (uint8_t)step_events_completed16 & 0x7,
 
-                  a = cur_chunk[cur_chunk_block],
-                  b = cur_chunk[cur_chunk_block + 1],
+                  a = cur_chunk[cur_chunk_segment],
+                  b = cur_chunk[cur_chunk_segment + 1],
 
                   //XXXXYYYY ZZZZEEEE   2 byte segment format
                   //4 bits per 8 steps, offset by 7: [0 to 15] -> [-7 to 8]
@@ -894,27 +896,34 @@ void Stepper::isr() {
                   stepZ = segment_moves[dZ][(segment_steps + 4) & 0x7],
                   stepE = segment_moves[dE][(segment_steps + 6) & 0x7];
 
-    // Start of segment? Check directions.
+    // Start of segment? Check directions and iterate count_position.
     if (segment_steps == 0) {
       unsigned char dm = last_direction_bits;
 
       //check directions using dX, dY, etc.
-      #define UPDATE_DIR(AXIS) \
+      #define CHUNK_UPDATE_DIR(AXIS) \
   	    if (d## AXIS == 7) {} \
         else if (d## AXIS < 7) SBI(dm, _AXIS(AXIS)); \
         else CBI(dm, _AXIS(AXIS));
 
+      //Update count position per segment
+      #define CHUNK_UPDATE_POSITION(AXIS) count_position[_AXIS(AXIS)] += (int8_t(d## AXIS) - 7)
+
       #if HAS_X_STEP
-        UPDATE_DIR(X);
+        CHUNK_UPDATE_DIR(X);
+        CHUNK_UPDATE_POSITION(X);
       #endif
       #if HAS_Y_STEP
-        UPDATE_DIR(Y);
+        CHUNK_UPDATE_DIR(Y);
+        CHUNK_UPDATE_POSITION(Y);
       #endif
       #if HAS_Z_STEP
-        UPDATE_DIR(Z);
+        CHUNK_UPDATE_DIR(Z);
+        CHUNK_UPDATE_POSITION(Z);
       #endif
 
-      UPDATE_DIR(E);
+      CHUNK_UPDATE_DIR(E);
+      CHUNK_UPDATE_POSITION(E);
 
       if (dm != last_direction_bits) {
         last_direction_bits = dm;
@@ -923,14 +932,11 @@ void Stepper::isr() {
     }
 
     #define PULSE_STARTC(AXIS) \
-      if (step## AXIS) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); }
+      if (step## AXIS) _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0);
 
     // Stop an active pulse, update the position
     #define PULSE_STOPC(AXIS) \
-      if (step## AXIS) { \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
-      }
+      if (step## AXIS) _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0);
 
     // If a minimum pulse time was specified get the timer 0 value
     // which increments every 4µs on 16MHz and every 3.2µs on 20MHz.
@@ -993,7 +999,7 @@ void Stepper::isr() {
       chunk_response[current_block->chunk_idx] = CHUNK_RESPONSE_NONE;
 
       //keep iterating until we eventually reach our total step_events_completed
-      current_block->chunk_idx = (current_block->chunk_idx + 1) % (NUM_CHUNK_BUFFERS - 1);
+      current_block->chunk_idx = (current_block->chunk_idx + 1) & (NUM_CHUNK_BUFFERS - 1);
     }
   }
 
