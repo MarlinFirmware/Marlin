@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V38"
+#define EEPROM_VERSION "V39"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V38 EEPROM Layout:
+ * V39 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -140,24 +140,29 @@
  *  534  M200 T D  filament_size                    (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    20 bytes
- *  554  M906 X    stepperX current                 (uint16_t)
- *  556  M906 Y    stepperY current                 (uint16_t)
- *  558  M906 Z    stepperZ current                 (uint16_t)
- *  560  M906 X2   stepperX2 current                (uint16_t)
- *  562  M906 Y2   stepperY2 current                (uint16_t)
- *  564  M906 Z2   stepperZ2 current                (uint16_t)
- *  566  M906 E0   stepperE0 current                (uint16_t)
- *  568  M906 E1   stepperE1 current                (uint16_t)
- *  570  M906 E2   stepperE2 current                (uint16_t)
- *  572  M906 E3   stepperE3 current                (uint16_t)
- *  576  M906 E4   stepperE4 current                (uint16_t)
+ *  554  M906 X    Stepper X current                (uint16_t)
+ *  556  M906 Y    Stepper Y current                (uint16_t)
+ *  558  M906 Z    Stepper Z current                (uint16_t)
+ *  560  M906 X2   Stepper X2 current               (uint16_t)
+ *  562  M906 Y2   Stepper Y2 current               (uint16_t)
+ *  564  M906 Z2   Stepper Z2 current               (uint16_t)
+ *  566  M906 E0   Stepper E0 current               (uint16_t)
+ *  568  M906 E1   Stepper E1 current               (uint16_t)
+ *  570  M906 E2   Stepper E2 current               (uint16_t)
+ *  572  M906 E3   Stepper E3 current               (uint16_t)
+ *  576  M906 E4   Stepper E4 current               (uint16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
  *  580  M900 K    extruder_advance_k               (float)
  *  584  M900 WHD  advance_ed_ratio                 (float)
  *
- *  588                                Minimum end-point
- * 1909 (588 + 36 + 9 + 288 + 988)     Maximum end-point
+ * HAS_MOTOR_CURRENT_PWM:
+ *  588  M907 X    Stepper XY current               (uint32_t)
+ *  592  M907 Z    Stepper Z current                (uint32_t)
+ *  596  M907 E    Stepper E current                (uint32_t)
+ *
+ *  600                                Minimum end-point
+ * 1921 (600 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -177,6 +182,7 @@ MarlinSettings settings;
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
+#include "stepper.h"
 
 #if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
   #include "gcode.h"
@@ -237,6 +243,10 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     refresh_bed_level();
     //set_bed_leveling_enabled(leveling_is_on);
+  #endif
+
+  #if HAS_MOTOR_CURRENT_PWM
+    stepper.refresh_motor_power();
   #endif
 }
 
@@ -626,6 +636,13 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(dummy);
     #endif
 
+    #if HAS_MOTOR_CURRENT_PWM
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(stepper.motor_current_setting[q]);
+    #else
+      const uint32_t dummyui32 = 0;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
+    #endif
+
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
@@ -638,10 +655,12 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
-      SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
-      SERIAL_ECHOLNPGM(")");
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
+        SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
+        SERIAL_ECHOLNPGM(")");
+      #endif
     }
 
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
@@ -672,10 +691,12 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("EEPROM version mismatch ");
-      SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
-      SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPGM("EEPROM version mismatch ");
+        SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
+        SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
+      #endif
       reset();
     }
     else {
@@ -979,21 +1000,32 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummy);
       #endif
 
+      #if HAS_MOTOR_CURRENT_PWM
+        for (uint8_t q = 3; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
+      #else
+        uint32_t dummyui32;
+        for (uint8_t q = 3; q--;) EEPROM_READ(dummyui32);
+      #endif
+
       if (working_crc == stored_crc) {
-          postprocess();
+        postprocess();
+        #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ECHO_START();
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
           SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
           SERIAL_ECHOLNPGM(")");
+        #endif
       }
       else {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
-        SERIAL_ERROR(stored_crc);
-        SERIAL_ERRORPGM(" != ");
-        SERIAL_ERROR(working_crc);
-        SERIAL_ERRORLNPGM(" (calculated)!");
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_ERROR_START();
+          SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
+          SERIAL_ERROR(stored_crc);
+          SERIAL_ERRORPGM(" != ");
+          SERIAL_ERROR(working_crc);
+          SERIAL_ERRORLNPGM(" (calculated)!");
+        #endif
         reset();
       }
 
@@ -1005,29 +1037,37 @@ void MarlinSettings::postprocess() {
 
         if (!ubl.sanity_check()) {
           SERIAL_EOL();
-          ubl.echo_name();
-          SERIAL_ECHOLNPGM(" initialized.\n");
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl.echo_name();
+            SERIAL_ECHOLNPGM(" initialized.\n");
+          #endif
         }
         else {
-          SERIAL_PROTOCOLPGM("?Can't enable ");
-          ubl.echo_name();
-          SERIAL_PROTOCOLLNPGM(".");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_PROTOCOLPGM("?Can't enable ");
+            ubl.echo_name();
+            SERIAL_PROTOCOLLNPGM(".");
+          #endif
           ubl.reset();
         }
 
         if (ubl.state.storage_slot >= 0) {
           load_mesh(ubl.state.storage_slot);
-          SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
-          SERIAL_ECHOLNPGM(" loaded from storage.");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
+            SERIAL_ECHOLNPGM(" loaded from storage.");
+          #endif
         }
         else {
           ubl.reset();
-          SERIAL_ECHOLNPGM("UBL System reset()");
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_ECHOLNPGM("UBL System reset()");
+          #endif
         }
       #endif
     }
 
-    #if ENABLED(EEPROM_CHITCHAT)
+    #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       report();
     #endif
 
@@ -1036,11 +1076,13 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    void ubl_invalid_slot(const int s) {
-      SERIAL_PROTOCOLLNPGM("?Invalid slot.");
-      SERIAL_PROTOCOL(s);
-      SERIAL_PROTOCOLLNPGM(" mesh slots available.");
-    }
+    #if ENABLED(EEPROM_CHITCHAT)
+      void ubl_invalid_slot(const int s) {
+        SERIAL_PROTOCOLLNPGM("?Invalid slot.");
+        SERIAL_PROTOCOL(s);
+        SERIAL_PROTOCOLLNPGM(" mesh slots available.");
+      }
+    #endif
 
     int MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
@@ -1055,11 +1097,13 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         const int a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
-          ubl_invalid_slot(a);
-          SERIAL_PROTOCOLPAIR("E2END=", E2END);
-          SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
-          SERIAL_PROTOCOLLNPAIR(" slot=", slot);
-          SERIAL_EOL();
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl_invalid_slot(a);
+            SERIAL_PROTOCOLPAIR("E2END=", E2END);
+            SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
+            SERIAL_PROTOCOLLNPAIR(" slot=", slot);
+            SERIAL_EOL();
+          #endif
           return;
         }
 
@@ -1070,7 +1114,9 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
-        SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
+        #endif
 
       #else
 
@@ -1086,7 +1132,9 @@ void MarlinSettings::postprocess() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!WITHIN(slot, 0, a - 1)) {
-          ubl_invalid_slot(a);
+          #if ENABLED(EEPROM_CHITCHAT)
+            ubl_invalid_slot(a);
+          #endif
           return;
         }
 
@@ -1097,7 +1145,9 @@ void MarlinSettings::postprocess() {
 
         // Compare crc with crc from MAT, or read from end
 
-        SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
+        #endif
 
       #else
 
@@ -1309,14 +1359,22 @@ void MarlinSettings::reset() {
     planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
   #endif
 
+  #if HAS_MOTOR_CURRENT_PWM
+    uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
+    for (uint8_t q = 3; q--;)
+      stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+  #endif
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     ubl.reset();
   #endif
 
   postprocess();
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  #if ENABLED(EEPROM_CHITCHAT)
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  #endif
 }
 
 #if DISABLED(DISABLE_M503)
@@ -1787,6 +1845,18 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M900 K", planner.extruder_advance_k);
       SERIAL_ECHOLNPAIR(" R", planner.advance_ed_ratio);
+    #endif
+
+    #if HAS_MOTOR_CURRENT_PWM
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Stepper motor currents:");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M907 X", stepper.motor_current_setting[0]);
+      SERIAL_ECHOPAIR(" Z", stepper.motor_current_setting[1]);
+      SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
+      SERIAL_EOL();
     #endif
   }
 

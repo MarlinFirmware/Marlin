@@ -5,26 +5,22 @@
 # Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
 
-MFINFO=$(mfinfo) || exit
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
+REPO=${INFO[2]}
+TARG=${INFO[3]}
+BRANCH=${INFO[5]}
 
-if [[ ${INFO[4]} == "(no" ]]; then
-  echo "Branch is unavailable!" ; exit 1
-fi
-
-case "$#" in
-  0 ) ;;
-  * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
-esac
-
-git add * .travis.yml
+git add .
 git commit -m "patch"
 
-if [[ ${INFO[3]} == ${INFO[4]} ]]; then
-  if [[ ${INFO[2]} == "MarlinDocumentation" ]]; then
+if [[ $BRANCH == $TARG ]]; then
+  if [[ $REPO == "MarlinDocumentation" ]]; then
     git rebase -i HEAD~2
   else
-    echo "Don't alter the PR target branch."; exit 1
+    echo "Don't alter the PR Target branch."; exit 1
   fi
 else
   mfrb

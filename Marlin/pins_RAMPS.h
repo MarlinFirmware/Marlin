@@ -215,6 +215,29 @@
 #endif
 
 //
+// M3/M4/M5 - Spindle/Laser Control
+//
+#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
+    #define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
+    #define SPINDLE_DIR_PIN           5
+  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
+      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+    #define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
+    #define SPINDLE_DIR_PIN          65
+  #endif
+#endif
+
+//
+// Průša i3 MK2 Multiplexer Support
+//
+#define E_MUX0_PIN         40   // Z_CS_PIN
+#define E_MUX1_PIN         42   // E0_CS_PIN
+#define E_MUX2_PIN         44   // E1_CS_PIN
+
+//
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
@@ -378,19 +401,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
-    #define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
-    #define SPINDLE_DIR_PIN           5
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
-      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
-    #define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
-    #define SPINDLE_DIR_PIN          65
-  #endif
-#endif

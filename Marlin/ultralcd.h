@@ -30,10 +30,10 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  extern int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+  extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-  int lcd_strlen(const char* s);
-  int lcd_strlen_P(const char* s);
+  int16_t lcd_strlen(const char* s);
+  int16_t lcd_strlen_P(const char* s);
   void lcd_update();
   void lcd_init();
   bool lcd_hasstatus();
@@ -57,11 +57,17 @@
     void dontExpireStatus();
   #endif
 
+  #if ENABLED(ADC_KEYPAD)
+    uint8_t get_ADC_keyValue();
+  #endif
+
   #if ENABLED(DOGLCD)
     extern uint16_t lcd_contrast;
     void set_lcd_contrast(const uint16_t value);
-  #elif ENABLED(SHOW_BOOTSCREEN)
-    void bootscreen();
+  #endif
+
+  #if ENABLED(SHOW_BOOTSCREEN)
+    void lcd_bootscreen();
   #endif
 
   #define LCD_UPDATE_INTERVAL 100
@@ -130,6 +136,21 @@
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
+    #if ENABLED(ADC_KEYPAD)
+      #define REPRAPWORLD_KEYPAD_MOVE_HOME  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+      #define KEYPAD_EN_C                   EN_REPRAPWORLD_KEYPAD_MIDDLE
+    #else
+      #define REPRAPWORLD_KEYPAD_MOVE_HOME  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+      #define KEYPAD_EN_C                   EN_REPRAPWORLD_KEYPAD_F1
+    #endif
+    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
+
+    #if BUTTON_EXISTS(ENC)
+      #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
+    #else
+      #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
+    #endif
+
     #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
                                               EN_REPRAPWORLD_KEYPAD_F3 | \
                                               EN_REPRAPWORLD_KEYPAD_F2 | \
@@ -141,7 +162,6 @@
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
 
-    #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
     #define LCD_CLICKED (buttons & EN_C)
   #else
@@ -170,10 +190,15 @@
 void lcd_reset_status();
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+  extern bool ubl_lcd_map_control;
   void lcd_mesh_edit_setup(float initial);
   float lcd_mesh_edit();
   void lcd_z_offset_edit_setup(float);
   float lcd_z_offset_edit();
+#endif
+
+#if ENABLED(DELTA_CALIBRATION_MENU)
+  float lcd_probe_pt(const float &lx, const float &ly);
 #endif
 
 #endif // ULTRALCD_H

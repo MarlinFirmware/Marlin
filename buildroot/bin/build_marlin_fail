@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
 
-if arduino --verify --board arduino:avr:mega:cpu=atmega2560 Marlin/Marlin.ino ; then
-  return 1
-else
-  return 0
-fi
+build_marlin $@ && exit 0
+exit 1

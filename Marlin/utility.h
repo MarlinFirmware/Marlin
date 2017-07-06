@@ -31,17 +31,17 @@ void safe_delay(millis_t ms);
 
 #if ENABLED(ULTRA_LCD)
 
-  // Convert unsigned int to string with 12 format
-  char* itostr2(const uint8_t &x);
+  // Convert uint8_t to string with 123 format
+  char* i8tostr3(const uint8_t x);
 
   // Convert signed int to rj string with 123 or -12 format
-  char* itostr3(const int &x);
+  char* itostr3(const int x);
 
   // Convert unsigned int to lj string with 123 format
-  char* itostr3left(const int &xx);
+  char* itostr3left(const int xx);
 
   // Convert signed int to rj string with _123, -123, _-12, or __-1 format
-  char *itostr4sign(const int &x);
+  char *itostr4sign(const int x);
 
   // Convert unsigned float to string with 1.23 format
   char* ftostr12ns(const float &x);

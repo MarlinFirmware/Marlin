@@ -81,6 +81,10 @@ enum ADCSensorState {
     Prepare_FILWIDTH,
     Measure_FILWIDTH,
   #endif
+  #if ENABLED(ADC_KEYPAD)
+    Prepare_ADC_KEY,
+    Measure_ADC_KEY,
+  #endif
   SensorsReady, // Temperatures ready. Delay the next round of readings to let ADC pins settle.
   StartupDelay  // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
@@ -247,7 +251,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static int16_t meas_shift_index;  // Index of a delayed sample in buffer
+      static int8_t meas_shift_index;  // Index of a delayed sample in buffer
     #endif
 
     #if HAS_AUTO_FAN
@@ -255,7 +259,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
+      static uint16_t current_raw_filwidth; // Measured filament diameter - one extruder only
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -272,6 +276,10 @@ class Temperature {
     #endif
 
   public:
+    #if ENABLED(ADC_KEYPAD)
+      static uint32_t current_ADCKey_raw;
+      static uint8_t ADCKey_count;
+    #endif
 
     /**
      * Instance Methods

@@ -5,12 +5,13 @@
 # Create the upstream remote for a forked repository
 #
 
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+
+[[ -z $(git branch 2>/dev/null | grep ^* | sed 's/\* //g') ]] && { echo "No git repository here!" 1>&2 ; exit 1; }
+
 REPO=$(git remote get-url origin 2>/dev/null | sed -E 's/.*\/(.*)\.git/\1/')
+[[ -z $REPO ]] && { echo "`basename $0`: No 'origin' remote found." 1>&2 ; exit 1; }
 
-if [[ -z $REPO ]]; then
-  echo "`basename $0`: No 'origin' remote found." 1>&2 ; exit 1
-fi
-
+echo "Adding 'upstream' remote for convenience."
 git remote add upstream "git@github.com:MarlinFirmware/$REPO.git"
-
 git fetch upstream

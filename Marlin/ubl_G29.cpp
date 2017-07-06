@@ -45,18 +45,15 @@
     void lcd_mesh_edit_setup(float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
-    #if ENABLED(DOGLCD)
-      extern void _lcd_ubl_output_map_lcd();
-    #endif
+    extern void _lcd_ubl_output_map_lcd();
     float lcd_z_offset_edit();
   #endif
 
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float probe_pt(const float &x, const float &y, bool, int);
+  extern float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool=true);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
-  extern bool ubl_lcd_map_control;
   typedef void (*screenFunc_t)();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
 
@@ -84,25 +81,23 @@
    *
    *   A     Activate   Activate the Unified Bed Leveling system.
    *
-   *   B #   Business   Use the 'Business Card' mode of the Manual Probe subsystem. This is invoked as
-   *                    G29 P2 B. The mode of G29 P2 allows you to use a business card or recipe card
-   *                    as a shim that the nozzle will pinch as it is lowered. The idea is that you
-   *                    can easily feel the nozzle getting to the same height by the amount of resistance
-   *                    the business card exhibits to movement. You should try to achieve the same amount
-   *                    of resistance on each probed point to facilitate accurate and repeatable measurements.
-   *                    You should be very careful not to drive the nozzle into the business card with a
-   *                    lot of force as it is very possible to cause damage to your printer if your are
-   *                    careless. If you use the B option with G29 P2 B you can omit the numeric value
-   *                    on first use to measure the business card's thickness. Subsequent usage of 'B'
-   *                    will apply the previously-measured thickness as the default.
-   *                    Note: A non-compressible Spark Gap feeler gauge is recommended over a Business Card.
+   *   B #   Business   Use the 'Business Card' mode of the Manual Probe subsystem with P2.
+   *                    Note: A non-compressible Spark Gap feeler gauge is recommended over a business card.
+   *                    In this mode of G29 P2, a business or index card is used as a shim that the nozzle can
+   *                    grab onto as it is lowered. In principle, the nozzle-bed distance is the same when the
+   *                    same resistance is felt in the shim. You can omit the numerical value on first invocation
+   *                    of G29 P2 B to measure shim thickness. Subsequent use of 'B' will apply the previously-
+   *                    measured thickness by default.
    *
-   *   C     Continue   Continue, Constant, Current Location. This is not a primary command. C is used to
-   *                    further refine the behaviour of several other commands. Issuing a G29 P1 C will
-   *                    continue the generation of a partially constructed Mesh without invalidating what has
-   *                    been done. Issuing a G29 P2 C will tell the Manual Probe subsystem to use the current
-   *                    location in its search for the closest unmeasured Mesh Point. When used with a G29 Z C
-   *                    it indicates to use the current location instead of defaulting to the center of the print bed.
+   *   C     Continue   G29 P1 C continues the generation of a partially-constructed Mesh without invalidating
+   *                    previous measurements.
+   *
+   *   C     Constant   G29 P2 C specifies a Constant and tells the Manual Probe subsystem to use the current
+   *                    location in its search for the closest unmeasured Mesh Point.
+   *
+   *                    G29 P3 C specifies the Constant for the fill. Otherwise, uses a "reasonable" value.
+   *
+   *   C     Current    G29 Z C uses the Current location (instead of bed center or nearest edge).
    *
    *   D     Disable    Disable the Unified Bed Leveling system.
    *
@@ -112,17 +107,18 @@
    *                    specified height, no correction is applied and natural printer kenimatics take over. If no
    *                    number is specified for the command, 10mm is assumed to be reasonable.
    *
-   *   H #   Height     Specify the Height to raise the nozzle after each manual probe of the bed. The
-   *                    default is 5mm.
+   *   H #   Height     With P2, 'H' specifies the Height to raise the nozzle after each manual probe of the bed.
+   *                    If omitted, the nozzle will raise by Z_CLEARANCE_BETWEEN_PROBES.
    *
-   *   I #   Invalidate Invalidate specified number of Mesh Points. The nozzle location is used unless
-   *                    the X and Y parameter are used. If no number is specified, only the closest Mesh
-   *                    point to the location is invalidated. The 'T' parameter is also available to produce
-   *                    a map after the operation. This command is useful to invalidate a portion of the
-   *                    Mesh so it can be adjusted using other tools in the Unified Bed Leveling System. When
-   *                    attempting to invalidate an isolated bad point in the mesh, the 'T' option will indicate
-   *                    where the nozzle is positioned in the Mesh with (#). You can move the nozzle around on
-   *                    the bed and use this feature to select the center of the area (or cell) you want to
+   *   H #   Offset     With P4, 'H' specifies the Offset above the mesh height to place the nozzle.
+   *                    If omitted, Z_CLEARANCE_BETWEEN_PROBES will be used.
+   *
+   *   I #   Invalidate Invalidate the specified number of Mesh Points near the given 'X' 'Y'. If X or Y are omitted,
+   *                    the nozzle location is used. If no 'I' value is given, only the point nearest to the location
+   *                    is invalidated. Use 'T' to produce a map afterward. This command is useful to invalidate a
+   *                    portion of the Mesh so it can be adjusted using other UBL tools. When attempting to invalidate
+   *                    an isolated bad mesh point, the 'T' option shows the nozzle position in the Mesh with (#). You
+   *                    can move the nozzle around and use this feature to select the center of the area (or cell) to
    *                    invalidate.
    *
    *   J #   Grid       Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
@@ -151,95 +147,81 @@
    *                    area cannot be automatically probed. For Delta printers the area in which DELTA_PROBEABLE_RADIUS
    *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
    *
-   *                    These points will be handled in Phase 2 and Phase 3. If the Phase 1 command is given the
-   *                    C (Continue) parameter it does not invalidate the Mesh prior to automatically
-   *                    probing needed locations. This allows you to invalidate portions of the Mesh but still
-   *                    use the automatic probing capabilities of the Unified Bed Leveling System. An X and Y
-   *                    parameter can be given to prioritize where the command should be trying to measure points.
-   *                    If the X and Y parameters are not specified the current probe position is used.
-   *                    P1 accepts a 'T' (Topology) parameter so you can observe mesh generation.
-   *                    P1 also watches for the LCD Panel Encoder Switch to be held down (assuming you have one),
-   *                    and will suspend generation of the Mesh in that case. (Note: This check is only done
-   *                    between probe points, so you must press and hold the switch until the Phase 1 command
-   *                    detects it.)
+   *                    Unreachable points will be handled in Phase 2 and Phase 3.
    *
-   *   P2    Phase 2    Probe areas of the Mesh that can't be automatically handled. Phase 2 respects an H
-   *                    parameter to control the height between Mesh points. The default height for movement
-   *                    between Mesh points is 5mm. A smaller number can be used to make this part of the
-   *                    calibration less time consuming. You will be running the nozzle down until it just barely
-   *                    touches the glass. You should have the nozzle clean with no plastic obstructing your view.
-   *                    Use caution and move slowly. It is possible to damage your printer if you are careless.
-   *                    Note that this command will use the configuration #define SIZE_OF_LITTLE_RAISE if the
-   *                    nozzle is moving a distance of less than BIG_RAISE_NOT_NEEDED.
+   *                    Use 'C' to leave the previous mesh intact and automatically probe needed points. This allows you
+   *                    to invalidate parts of the Mesh but still use Automatic Probing.
    *
-   *                    The H parameter can be set negative if your Mesh dips in a large area. You can press
-   *                    and hold the LCD Panel's encoder wheel to terminate the current Phase 2 command. You
-   *                    can then re-issue the G29 P 2 command with an H parameter that is more suitable for the
-   *                    area you are manually probing. Note that the command tries to start you in a corner
-   *                    of the bed where movement will be predictable. You can force the location to be used in
-   *                    the distance calculations by using the X and Y parameters. You may find it is helpful to
-   *                    print out a Mesh Map (G29 T) to understand where the mesh is invalidated and where
-   *                    the nozzle will need to move in order to complete the command. The C parameter is
-   *                    available on the Phase 2 command also and indicates the search for points to measure should
-   *                    be done based on the current location of the nozzle.
+   *                    The 'X' and 'Y' parameters prioritize where to try and measure points. If omitted, the current
+   *                    probe position is used.
    *
-   *                    A B parameter is also available for this command and described up above. It places the
-   *                    manual probe subsystem into Business Card mode where the thickness of a business card is
-   *                    measured and then used to accurately set the nozzle height in all manual probing for the
-   *                    duration of the command. (S for Shim mode would be a better parameter name, but S is needed
-   *                    for Save or Store of the Mesh to EEPROM)  A Business card can be used, but you will have
-   *                    better results if you use a flexible Shim that does not compress very much. That makes it
-   *                    easier for you to get the nozzle to press with similar amounts of force against the shim so you
-   *                    can get accurate measurements. As you are starting to touch the nozzle against the shim try
-   *                    to get it to grasp the shim with the same force as when you measured the thickness of the
-   *                    shim at the start of the command.
+   *                    Use 'T' (Topology) to generate a report of mesh generation.
    *
-   *                    Phase 2 allows the T (Map) parameter to be specified. This helps the user see the progression
-   *                    of the Mesh being built.
+   *                    P1 will suspend Mesh generation if the controller button is held down. Note that you may need
+   *                    to press and hold the switch for several seconds if moves are underway.
    *
-   *                    NOTE:  P2 is not available unless you have LCD support enabled!
+   *   P2    Phase 2    Probe unreachable points.
    *
-   *   P3    Phase 3    Fill the unpopulated regions of the Mesh with a fixed value. There are two different paths the
-   *                    user can go down. If the user specifies the value using the C parameter, the closest invalid
-   *                    mesh points to the nozzle will be filled. The user can specify a repeat count using the R
-   *                    parameter with the C version of the command.
+   *                    Use 'H' to set the height between Mesh points. If omitted, Z_CLEARANCE_BETWEEN_PROBES is used.
+   *                    Smaller values will be quicker. Move the nozzle down till it barely touches the bed. Make sure the
+   *                    nozzle is clean and unobstructed. Use caution and move slowly. This can damage your printer!
+   *                    (Uses SIZE_OF_LITTLE_RAISE mm if the nozzle is moving less than BIG_RAISE_NOT_NEEDED mm.)
    *
-   *                    A second version of the fill command is available if no C constant is specified. Not
-   *                    specifying a C constant will invoke the 'Smart Fill' algorithm. The G29 P3 command will search
-   *                    from the edges of the mesh inward looking for invalid mesh points. It will look at the next
-   *                    several mesh points to determine if the print bed is sloped up or down. If the bed is sloped
-   *                    upward from the invalid mesh point, it will be replaced with the value of the nearest mesh point.
-   *                    If the bed is sloped downward from the invalid mesh point, it will be replaced with a value that
-   *                    puts all three points in a line. The second version of the G29 P3 command is a quick, easy and
-   *                    usually safe way to populate the unprobed regions of your mesh so you can continue to the G26
-   *                    Mesh Validation Pattern phase. Please note that you are populating your mesh with unverified
-   *                    numbers. You should use some scrutiny and caution.
+   *                    The 'H' value can be negative if the Mesh dips in a large area. Press and hold the
+   *                    controller button to terminate the current Phase 2 command. You can then re-issue "G29 P 2"
+   *                    with an 'H' parameter more suitable for the area you're manually probing. Note that the command
+   *                    tries to start in a corner of the bed where movement will be predictable. Override the distance
+   *                    calculation location with the X and Y parameters. You can print a Mesh Map (G29 T) to see where
+   *                    the mesh is invalidated and where the nozzle needs to move to complete the command. Use 'C' to
+   *                    indicate that the search should be based on the current position.
    *
-   *   P4    Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assume the existence of
-   *                    an LCD Panel. It is possible to fine tune the mesh without the use of an LCD Panel using
-   *                    G42 and M421; see the UBL documentation for further details.
+   *                    The 'B' parameter for this command is described above. It places the manual probe subsystem into
+   *                    Business Card mode where the thickness of a business card is measured and then used to accurately
+   *                    set the nozzle height in all manual probing for the duration of the command. A Business card can
+   *                    be used, but you'll get better results with a flexible Shim that doesn't compress. This makes it
+   *                    easier to produce similar amounts of force and get more accurate measurements. Google if you're
+   *                    not sure how to use a shim.
    *
-   *                    The System will search for the closest Mesh Point to the nozzle. It will move the
-   *                    nozzle to this location. The user can use the LCD Panel to carefully adjust the nozzle
-   *                    so it is just barely touching the bed. When the user clicks the control, the System
-   *                    will lock in that height for that point in the Mesh Compensation System.
+   *                    The 'T' (Map) parameter helps track Mesh building progress.
    *
-   *                    Phase 4 has several additional parameters that the user may find helpful. Phase 4
-   *                    can be started at a specific location by specifying an X and Y parameter. Phase 4
-   *                    can be requested to continue the adjustment of Mesh Points by using the R(epeat)
-   *                    parameter. If the Repetition count is not specified, it is assumed the user wishes
-   *                    to adjust the entire matrix. The nozzle is moved to the Mesh Point being edited.
-   *                    The command can be terminated early (or after the area of interest has been edited) by
-   *                    pressing and holding the encoder wheel until the system recognizes the exit request.
-   *                    Phase 4's general form is G29 P4 [R # of points] [X position] [Y position]
+   *                    NOTE: P2 requires an LCD controller!
    *
-   *                    Phase 4 is intended to be used with the G26 Mesh Validation Command. Using the
-   *                    information left on the printer's bed from the G26 command it is very straight forward
-   *                    and easy to fine tune the Mesh. One concept that is important to remember and that
-   *                    will make using the Phase 4 command easy to use is this:  You are editing the Mesh Points.
-   *                    If you have too little clearance and not much plastic was extruded in an area, you want to
-   *                    LOWER the Mesh Point at the location. If you did not get good adheasion, you want to
-   *                    RAISE the Mesh Point at that location.
+   *   P3    Phase 3    Fill the unpopulated regions of the Mesh with a fixed value. There are two different paths to
+   *                    go down:
+   *
+   *                    - If a 'C' constant is specified, the closest invalid mesh points to the nozzle will be filled,
+   *                      and a repeat count can then also be specified with 'R'.
+   *
+   *                    - Leaving out 'C' invokes Smart Fill, which scans the mesh from the edges inward looking for
+   *                      invalid mesh points. Adjacent points are used to determine the bed slope. If the bed is sloped
+   *                      upward from the invalid point, it takes the value of the nearest point. If sloped downward, it's
+   *                      replaced by a value that puts all three points in a line. This version of G29 P3 is a quick, easy
+   *                      and (usually) safe way to populate unprobed mesh regions before continuing to G26 Mesh Validation
+   *                      Pattern. Note that this populates the mesh with unverified values. Pay attention and use caution.
+   *
+   *   P4    Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assumes the existence of
+   *                    an LCD Panel. It is possible to fine tune the mesh without an LCD Panel using
+   *                    G42 and M421. See the UBL documentation for further details.
+   *
+   *                    Phase 4 is meant to be used with G26 Mesh Validation to fine tune the mesh by direct editing
+   *                    of Mesh Points. Raise and lower points to fine tune the mesh until it gives consistently reliable
+   *                    adhesion.
+   *
+   *                    P4 moves to the closest Mesh Point (and/or the given X Y), raises the nozzle above the mesh height
+   *                    by the given 'H' offset (or default Z_CLEARANCE_BETWEEN_PROBES), and waits while the controller is
+   *                    used to adjust the nozzle height. On click the displayed height is saved in the mesh.
+   *
+   *                    Start Phase 4 at a specific location with X and Y. Adjust a specific number of Mesh Points with
+   *                    the 'R' (Repeat) parameter. (If 'R' is left out, the whole matrix is assumed.) This command can be
+   *                    terminated early (e.g., after editing the area of interest) by pressing and holding the encoder button.
+   *
+   *                    The general form is G29 P4 [R points] [X position] [Y position]
+   *
+   *                    The H [offset] parameter is useful if a shim is used to fine-tune the mesh. For a 0.4mm shim the
+   *                    command would be G29 P4 H0.4. The nozzle is moved to the shim height, you adjust height to the shim,
+   *                    and on click the height minus the shim thickness will be saved in the mesh.
+   *
+   *                    !!Use with caution, as a very poor mesh could cause the nozzle to crash into the bed!!
    *
    *                    NOTE:  P4 is not available unless you have LCD support enabled!
    *
@@ -329,7 +311,7 @@
 
     // Check for commands that require the printer to be homed
     if (axis_unhomed_error()) {
-      const int8_t p_val = parser.seen('P') && parser.has_value() ? parser.value_int() : -1;
+      const int8_t p_val = parser.intval('P', -1);
       if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
         home_all_axes();
     }
@@ -343,7 +325,8 @@
       g29_repetition_cnt = parser.has_value() ? parser.value_int() : 1;
       if (g29_repetition_cnt >= GRID_MAX_POINTS) {
         set_all_mesh_points_to_value(NAN);
-      } else {
+      }
+      else {
         while (g29_repetition_cnt--) {
           if (cnt > 20) { cnt = 0; idle(); }
           const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
@@ -494,28 +477,29 @@
               g29_y_pos = current_position[Y_AXIS];
             }
 
-            float height = Z_CLEARANCE_BETWEEN_PROBES;
-
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(height);
-              if (fabs(g29_card_thickness) > 1.5) {
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(Z_CLEARANCE_BETWEEN_PROBES);
+              if (FABS(g29_card_thickness) > 1.5) {
                 SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
                 return;
               }
             }
-
-            if (parser.seen('H') && parser.has_value()) height = parser.value_float();
 
             if (!position_is_reachable_xy(g29_x_pos, g29_y_pos)) {
               SERIAL_PROTOCOLLNPGM("XY outside printable radius.");
               return;
             }
 
+            const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
             manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
+
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
+
           #else
+
             SERIAL_PROTOCOLLNPGM("?P2 is only available when an LCD is present.");
             return;
+
           #endif
         } break;
 
@@ -537,19 +521,17 @@
                 if (location.x_index < 0) {
                   // No more REACHABLE INVALID mesh points to populate, so we ASSUME
                   // user meant to populate ALL INVALID mesh points to value
-                  for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-                    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-                      if ( isnan(z_values[x][y])) {
+                  for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+                    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+                      if (isnan(z_values[x][y]))
                         z_values[x][y] = g29_constant;
-                      }
-                    }
-                  }
                   break; // No more invalid Mesh Points to populate
                 }
                 z_values[location.x_index][location.y_index] = g29_constant;
               }
             }
-          } else {
+          }
+          else {
             const float cvf = parser.value_float();
             switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
@@ -562,7 +544,7 @@
                   // P3.13 1000X distance weighting, approaches simple average of nearest points
 
                   const float weight_power  = (cvf - 3.10) * 100.0,  // 3.12345 -> 2.345
-                              weight_factor = weight_power ? pow(10.0, weight_power) : 0;
+                              weight_factor = weight_power ? POW(10.0, weight_power) : 0;
                   smart_fill_wlsf(weight_factor);
                 }
                 break;
@@ -774,7 +756,7 @@
     SERIAL_ECHO_F(mean, 6);
     SERIAL_EOL();
 
-    const float sigma = sqrt(sum_of_diff_squared / (n + 1));
+    const float sigma = SQRT(sum_of_diff_squared / (n + 1));
     SERIAL_ECHOPGM("Standard Deviation: ");
     SERIAL_ECHO_F(sigma, 6);
     SERIAL_EOL();
@@ -967,7 +949,7 @@
 
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
-    float unified_bed_leveling::measure_business_card_thickness(float &in_height) {
+    float unified_bed_leveling::measure_business_card_thickness(float in_height) {
       has_control_of_lcd_panel = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
@@ -1110,9 +1092,9 @@
     g29_constant = 0.0;
     g29_repetition_cnt = 0;
 
-    g29_x_flag = parser.seen('X') && parser.has_value();
+    g29_x_flag = parser.seenval('X');
     g29_x_pos = g29_x_flag ? parser.value_float() : current_position[X_AXIS];
-    g29_y_flag = parser.seen('Y') && parser.has_value();
+    g29_y_flag = parser.seenval('Y');
     g29_y_pos = g29_y_flag ? parser.value_float() : current_position[Y_AXIS];
 
     if (parser.seen('R')) {
@@ -1186,7 +1168,7 @@
       g29_constant = parser.value_float();
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (parser.seen('F') && parser.has_value()) {
+      if (parser.seenval('F')) {
         const float fh = parser.value_float();
         if (!WITHIN(fh, 0.0, 100.0)) {
           SERIAL_PROTOCOLLNPGM("?(F)ade height for Bed Level Correction not plausible.\n");
@@ -1196,7 +1178,7 @@
       }
     #endif
 
-    g29_map_type = parser.seen('T') && parser.has_value() ? parser.value_int() : 0;
+    g29_map_type = parser.intval('T');
     if (!WITHIN(g29_map_type, 0, 2)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
@@ -1466,12 +1448,21 @@
   }
 
   #if ENABLED(NEWPANEL)
+
     void unified_bed_leveling::fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
       if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
+      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+        const bool is_offset = parser.seen('H');
+        const float h_offset = is_offset ? parser.value_linear_units() : Z_CLEARANCE_BETWEEN_PROBES;
+        if (is_offset && !WITHIN(h_offset, 0, 10)) {
+          SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
+          return;
+        }
+      #endif
+
       mesh_index_pair location;
-      uint16_t not_done[16];
 
       if (!position_is_reachable_xy(lx, ly)) {
         SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
@@ -1480,12 +1471,13 @@
 
       save_ubl_active_state_and_disable();
 
-      memset(not_done, 0xFF, sizeof(not_done));
-
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
       do_blocking_move_to_xy(lx, ly);
+
+      uint16_t not_done[16];
+      memset(not_done, 0xFF, sizeof(not_done));
       do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
 
@@ -1508,7 +1500,7 @@
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);    // Move the nozzle to where we are going to edit
         do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
-        new_z = floor(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
+        new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         has_control_of_lcd_panel = true;
@@ -1521,13 +1513,13 @@
 
         do {
           new_z = lcd_mesh_edit();
-          #ifdef UBL_MESH_EDIT_MOVES_Z
-            do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + new_z);  // Move the nozzle as the point is edited
+          #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+            do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
         } while (!ubl_lcd_clicked());
 
-        lcd_return_to_status();
+        if (!ubl_lcd_map_control) lcd_return_to_status();
 
         // The technique used here generates a race condition for the encoder click.
         // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
@@ -1574,14 +1566,13 @@
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
-      if (ubl_lcd_map_control) {
-        #if ENABLED(DOGLCD)
-          lcd_goto_screen(_lcd_ubl_output_map_lcd);
-        #endif
-      }
-      else lcd_return_to_status();
+      if (ubl_lcd_map_control)
+        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+      else
+        lcd_return_to_status();
     }
-  #endif
+
+  #endif // NEWPANEL
 
   /**
    * 'Smart Fill': Scan from the outward edges of the mesh towards the center.

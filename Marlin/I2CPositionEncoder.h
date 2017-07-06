@@ -95,195 +95,202 @@
   #define I2CPE_PARSE_OK                0
 
   #define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
-  #define CHECK_IDX if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return;
+  #define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
 
   extern const char axis_codes[XYZE];
 
   typedef union {
-    volatile long   val = 0;
-    uint8_t         bval[4];
+    volatile int32_t val = 0;
+    uint8_t          bval[4];
   } i2cLong;
 
   class I2CPositionEncoder {
   private:
-    AxisEnum        encoderAxis             = I2CPE_DEF_AXIS;
+    AxisEnum  encoderAxis         = I2CPE_DEF_AXIS;
 
-    uint8_t         i2cAddress              = I2CPE_DEF_ADDR,
-                    ecMethod                = I2CPE_DEF_EC_METHOD,
-                    type                    = I2CPE_DEF_TYPE,
-                    H                       = I2CPE_MAG_SIG_NF;    // Magnetic field strength
+    uint8_t   i2cAddress          = I2CPE_DEF_ADDR,
+              ecMethod            = I2CPE_DEF_EC_METHOD,
+              type                = I2CPE_DEF_TYPE,
+              H                   = I2CPE_MAG_SIG_NF;    // Magnetic field strength
 
-    int             encoderTicksPerUnit     = I2CPE_DEF_ENC_TICKS_UNIT,
-                    stepperTicks            = I2CPE_DEF_TICKS_REV;
+    int       encoderTicksPerUnit = I2CPE_DEF_ENC_TICKS_UNIT,
+              stepperTicks        = I2CPE_DEF_TICKS_REV,
+              errorCount          = 0,
+              errorPrev           = 0;
 
-    float           ecThreshold             = I2CPE_DEF_EC_THRESH;
+    float     ecThreshold         = I2CPE_DEF_EC_THRESH;
 
-    bool            homed                   = false,
-                    trusted                 = false,
-                    initialised             = false,
-                    active                  = false,
-                    invert                  = false,
-                    ec                      = true;
+    bool      homed               = false,
+              trusted             = false,
+              initialised         = false,
+              active              = false,
+              invert              = false,
+              ec                  = true;
 
-    int             errorCount              = 0,
-                    errorPrev               = 0;
+    float     axisOffset          = 0;
 
-    float           axisOffset              = 0;
+    int32_t   axisOffsetTicks     = 0,
+              zeroOffset          = 0,
+              lastPosition        = 0,
+              position;
 
-    long            axisOffsetTicks         = 0,
-                    zeroOffset              = 0,
-                    lastPosition            = 0,
-                    position;
-
-    unsigned long   lastPositionTime        = 0,
-                    lastErrorCountTime      = 0,
-                    lastErrorTime;
+    millis_t  lastPositionTime    = 0,
+              nextErrorCountTime  = 0,
+              lastErrorTime;
 
     //double        positionMm; //calculate
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-      uint8_t       errIdx = 0;
-      int           err[I2CPE_ERR_ARRAY_SIZE] = {0};
+      uint8_t errIdx = 0;
+      int     err[I2CPE_ERR_ARRAY_SIZE] = { 0 };
     #endif
 
+    //float        positionMm; //calculate
+
   public:
-    void init(uint8_t address, AxisEnum axis);
+    void init(const uint8_t address, const AxisEnum axis);
     void reset();
 
     void update();
 
     void set_homed();
 
-    long get_raw_count();
+    int32_t get_raw_count();
 
-    FORCE_INLINE double mm_from_count(long count) {
-      if (type == I2CPE_ENC_TYPE_LINEAR) return count / encoderTicksPerUnit;
-      else if (type == I2CPE_ENC_TYPE_ROTARY)
-        return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
-      return -1;
+    FORCE_INLINE float mm_from_count(const int32_t count) {
+      switch (type) {
+        default: return -1;
+        case I2CPE_ENC_TYPE_LINEAR:
+          return count / encoderTicksPerUnit;
+        case I2CPE_ENC_TYPE_ROTARY:
+          return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
+      }
     }
 
-    FORCE_INLINE double get_position_mm() { return mm_from_count(get_position()); }
-    FORCE_INLINE long get_position() { return get_raw_count() - zeroOffset - axisOffsetTicks; }
+    FORCE_INLINE float get_position_mm() { return mm_from_count(get_position()); }
+    FORCE_INLINE int32_t get_position() { return get_raw_count() - zeroOffset - axisOffsetTicks; }
 
-    long get_axis_error_steps(bool report);
-    double get_axis_error_mm(bool report);
+    int32_t get_axis_error_steps(const bool report);
+    float get_axis_error_mm(const bool report);
 
-    void calibrate_steps_mm(int iter);
+    void calibrate_steps_mm(const uint8_t iter);
 
-    bool passes_test(bool report);
+    bool passes_test(const bool report);
 
     bool test_axis(void);
 
     FORCE_INLINE int get_error_count(void) { return errorCount; }
-    FORCE_INLINE void set_error_count(int newCount) { errorCount = newCount; }
+    FORCE_INLINE void set_error_count(const int newCount) { errorCount = newCount; }
 
     FORCE_INLINE uint8_t get_address() { return i2cAddress; }
-    FORCE_INLINE void set_address(uint8_t addr) { i2cAddress = addr; }
+    FORCE_INLINE void set_address(const uint8_t addr) { i2cAddress = addr; }
 
     FORCE_INLINE bool get_active(void) { return active; }
-    FORCE_INLINE void set_active(bool a) { active = a; }
+    FORCE_INLINE void set_active(const bool a) { active = a; }
 
-    FORCE_INLINE void set_inverted(bool i) { invert = i; }
+    FORCE_INLINE void set_inverted(const bool i) { invert = i; }
 
     FORCE_INLINE AxisEnum get_axis() { return encoderAxis; }
 
     FORCE_INLINE bool get_ec_enabled() { return ec; }
-    FORCE_INLINE void set_ec_enabled(bool enabled) { ec = enabled; }
+    FORCE_INLINE void set_ec_enabled(const bool enabled) { ec = enabled; }
 
     FORCE_INLINE uint8_t get_ec_method() { return ecMethod; }
-    FORCE_INLINE void set_ec_method(byte method) { ecMethod = method; }
+    FORCE_INLINE void set_ec_method(const byte method) { ecMethod = method; }
 
     FORCE_INLINE float get_ec_threshold() { return ecThreshold; }
-    FORCE_INLINE void set_ec_threshold(float newThreshold) { ecThreshold = newThreshold; }
+    FORCE_INLINE void set_ec_threshold(const float newThreshold) { ecThreshold = newThreshold; }
 
     FORCE_INLINE int get_encoder_ticks_mm() {
-      if (type == I2CPE_ENC_TYPE_LINEAR) return encoderTicksPerUnit;
-      else if (type == I2CPE_ENC_TYPE_ROTARY)
-        return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
-      return 0;
+      switch (type) {
+        default: return 0;
+        case I2CPE_ENC_TYPE_LINEAR:
+          return encoderTicksPerUnit;
+        case I2CPE_ENC_TYPE_ROTARY:
+          return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
+      }
     }
 
     FORCE_INLINE int get_ticks_unit() { return encoderTicksPerUnit; }
-    FORCE_INLINE void set_ticks_unit(int ticks) { encoderTicksPerUnit = ticks; }
+    FORCE_INLINE void set_ticks_unit(const int ticks) { encoderTicksPerUnit = ticks; }
 
     FORCE_INLINE uint8_t get_type() { return type; }
-    FORCE_INLINE void set_type(byte newType) { type = newType; }
+    FORCE_INLINE void set_type(const byte newType) { type = newType; }
 
     FORCE_INLINE int get_stepper_ticks() { return stepperTicks; }
-    FORCE_INLINE void set_stepper_ticks(int ticks) { stepperTicks = ticks; }
+    FORCE_INLINE void set_stepper_ticks(const int ticks) { stepperTicks = ticks; }
 
     FORCE_INLINE float get_axis_offset() { return axisOffset; }
-    FORCE_INLINE void set_axis_offset(float newOffset) {
+    FORCE_INLINE void set_axis_offset(const float newOffset) {
       axisOffset = newOffset;
-      axisOffsetTicks = (long)(axisOffset * get_encoder_ticks_mm());
+      axisOffsetTicks = int32_t(axisOffset * get_encoder_ticks_mm());
     }
 
-    FORCE_INLINE void set_current_position(float newPositionMm) {
+    FORCE_INLINE void set_current_position(const float newPositionMm) {
       set_axis_offset(get_position_mm() - newPositionMm + axisOffset);
     }
   };
 
   class I2CPositionEncodersMgr {
   private:
-    bool I2CPE_anyaxis;
-    uint8_t I2CPE_addr;
-    int8_t I2CPE_idx;
+    static bool I2CPE_anyaxis;
+    static uint8_t I2CPE_addr, I2CPE_idx;
 
   public:
-    void init(void);
+
+    static void init(void);
 
     // consider only updating one endoder per call / tick if encoders become too time intensive
-    void update(void) { LOOP_PE(i) encoders[i].update(); }
+    static void update(void) { LOOP_PE(i) encoders[i].update(); }
 
-    void homed(AxisEnum axis) {
+    static void homed(const AxisEnum axis) {
       LOOP_PE(i)
         if (encoders[i].get_axis() == axis) encoders[i].set_homed();
     }
 
-    void report_position(uint8_t idx, bool units, bool noOffset);
+    static void report_position(const int8_t idx, const bool units, const bool noOffset);
 
-    void report_status(uint8_t idx) {
-      CHECK_IDX
+    static void report_status(const int8_t idx) {
+      CHECK_IDX();
       SERIAL_ECHOPAIR("Encoder ",idx);
       SERIAL_ECHOPGM(": ");
       encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
     }
 
-    void report_error(uint8_t idx) {
-      CHECK_IDX
+    static void report_error(const int8_t idx) {
+      CHECK_IDX();
       encoders[idx].get_axis_error_steps(true);
     }
 
-    void test_axis(uint8_t idx) {
-      CHECK_IDX
+    static void test_axis(const int8_t idx) {
+      CHECK_IDX();
       encoders[idx].test_axis();
     }
 
-    void calibrate_steps_mm(uint8_t idx, int iterations) {
-      CHECK_IDX
+    static void calibrate_steps_mm(const int8_t idx, const int iterations) {
+      CHECK_IDX();
       encoders[idx].calibrate_steps_mm(iterations);
     }
 
-    void change_module_address(uint8_t oldaddr, uint8_t newaddr);
-    void report_module_firmware(uint8_t address);
+    static void change_module_address(const uint8_t oldaddr, const uint8_t newaddr);
+    static void report_module_firmware(const uint8_t address);
 
-    void report_error_count(uint8_t idx, AxisEnum axis) {
-      CHECK_IDX
+    static void report_error_count(const int8_t idx, const AxisEnum axis) {
+      CHECK_IDX();
       SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
       SERIAL_ECHOLNPAIR(" axis is ", encoders[idx].get_error_count());
     }
 
-    void reset_error_count(uint8_t idx, AxisEnum axis) {
-      CHECK_IDX
+    static void reset_error_count(const int8_t idx, const AxisEnum axis) {
+      CHECK_IDX();
       encoders[idx].set_error_count(0);
       SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
       SERIAL_ECHOLNPGM(" axis has been reset.");
     }
 
-    void enable_ec(uint8_t idx, bool enabled, AxisEnum axis) {
-      CHECK_IDX
+    static void enable_ec(const int8_t idx, const bool enabled, const AxisEnum axis) {
+      CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
       SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis]);
       SERIAL_ECHOPGM(" axis is ");
@@ -291,66 +298,62 @@
       SERIAL_ECHOLNPGM("abled.");
     }
 
-    void set_ec_threshold(uint8_t idx, float newThreshold, AxisEnum axis) {
-      CHECK_IDX
+    static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
+      CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
       SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
       SERIAL_ECHOPAIR_F(" axis set to ", newThreshold);
       SERIAL_ECHOLNPGM("mm.");
     }
 
-    void get_ec_threshold(uint8_t idx, AxisEnum axis) {
-      CHECK_IDX
-      float threshold = encoders[idx].get_ec_threshold();
+    static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
+      CHECK_IDX();
+      const float threshold = encoders[idx].get_ec_threshold();
       SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
       SERIAL_ECHOPAIR_F(" axis is ", threshold);
       SERIAL_ECHOLNPGM("mm.");
     }
 
-    int8_t idx_from_axis(AxisEnum axis) {
+    static int8_t idx_from_axis(const AxisEnum axis) {
       LOOP_PE(i)
         if (encoders[i].get_axis() == axis) return i;
-
       return -1;
     }
 
-    int8_t idx_from_addr(uint8_t addr) {
+    static int8_t idx_from_addr(const uint8_t addr) {
       LOOP_PE(i)
         if (encoders[i].get_address() == addr) return i;
-
       return -1;
     }
 
-    int8_t parse();
+    static int8_t parse();
 
-    void M860();
-    void M861();
-    void M862();
-    void M863();
-    void M864();
-    void M865();
-    void M866();
-    void M867();
-    void M868();
-    void M869();
+    static void M860();
+    static void M861();
+    static void M862();
+    static void M863();
+    static void M864();
+    static void M865();
+    static void M866();
+    static void M867();
+    static void M868();
+    static void M869();
 
-    I2CPositionEncoder encoders[I2CPE_ENCODER_CNT];
+    static I2CPositionEncoder encoders[I2CPE_ENCODER_CNT];
   };
 
   extern I2CPositionEncodersMgr I2CPEM;
 
-  FORCE_INLINE void gcode_M860() { I2CPEM.M860(); }
-  FORCE_INLINE void gcode_M861() { I2CPEM.M861(); }
-  FORCE_INLINE void gcode_M862() { I2CPEM.M862(); }
-  FORCE_INLINE void gcode_M863() { I2CPEM.M863(); }
-  FORCE_INLINE void gcode_M864() { I2CPEM.M864(); }
-  FORCE_INLINE void gcode_M865() { I2CPEM.M865(); }
-  FORCE_INLINE void gcode_M866() { I2CPEM.M866(); }
-  FORCE_INLINE void gcode_M867() { I2CPEM.M867(); }
-  FORCE_INLINE void gcode_M868() { I2CPEM.M868(); }
-  FORCE_INLINE void gcode_M869() { I2CPEM.M869(); }
+  FORCE_INLINE static void gcode_M860() { I2CPEM.M860(); }
+  FORCE_INLINE static void gcode_M861() { I2CPEM.M861(); }
+  FORCE_INLINE static void gcode_M862() { I2CPEM.M862(); }
+  FORCE_INLINE static void gcode_M863() { I2CPEM.M863(); }
+  FORCE_INLINE static void gcode_M864() { I2CPEM.M864(); }
+  FORCE_INLINE static void gcode_M865() { I2CPEM.M865(); }
+  FORCE_INLINE static void gcode_M866() { I2CPEM.M866(); }
+  FORCE_INLINE static void gcode_M867() { I2CPEM.M867(); }
+  FORCE_INLINE static void gcode_M868() { I2CPEM.M868(); }
+  FORCE_INLINE static void gcode_M869() { I2CPEM.M869(); }
 
 #endif //I2C_POSITION_ENCODERS
 #endif //I2CPOSENC_H
-
-

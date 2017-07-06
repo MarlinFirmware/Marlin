@@ -72,7 +72,7 @@ script:
   - build_marlin
   #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
-  #  plus a "Fix Mounted" Probe with Safe Homing
+  #  plus a "Fix Mounted" Probe with Safe Homing and some arc options
   # Also test CHUNK_SUPPORT
   #
   - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
@@ -80,7 +80,7 @@ script:
   - opt_set TEMP_SENSOR_0 -2
   - opt_set TEMP_SENSOR_1 1
   - opt_set TEMP_SENSOR_BED 1
-  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING
+  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
   - opt_enable_adv CHUNK_SUPPORT
   - build_marlin
   #
@@ -95,7 +95,7 @@ script:
   #
   - restore_configs
   - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
   - build_marlin
   #
   # Test a Sled Z Probe
@@ -111,7 +111,7 @@ script:
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
-  - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP
+  - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
   - build_marlin
   #
   # Test MESH_BED_LEVELING feature, with LCD
@@ -204,9 +204,9 @@ script:
   #
   # Enable COREYX (swapped)
   #
-  - restore_configs
-  - opt_enable COREYX
-  - build_marlin
+  #- restore_configs
+  #- opt_enable COREYX
+  #- build_marlin
   #
   #
   ######## Other Standard LCD/Panels ##############
@@ -230,10 +230,11 @@ script:
   #- opt_enable MAKRPANEL
   #- build_marlin
   #
-  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, and BABYSTEPPING
+  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
   - restore_configs
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING
+  - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
   - build_marlin
   #
   # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
@@ -301,12 +302,11 @@ script:
   ######## Example Configurations ##############
   #
   # BQ Hephestos 2
-  - restore_configs
-  - use_example_configs Hephestos_2
-  - build_marlin
+  #- restore_configs
+  #- use_example_configs Hephestos_2
+  #- build_marlin
   #
   # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
-  - restore_configs
   - use_example_configs delta/generic
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
   - build_marlin
@@ -328,17 +328,11 @@ script:
   #- use_example_configs makibox
   #- build_marlin
   #
-  # SCARA Config
+  # SCARA with TMC2130
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
-  - build_marlin
-  #
-  # TMC2130 Config
-  #
-  - restore_configs
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
-  - build_marlin
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #

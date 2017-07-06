@@ -189,19 +189,17 @@ void free_memory_pool_report(char * const ptr, const int16_t size) {
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
   void corrupt_free_memory(char *ptr, const uint16_t size) {
-    if (parser.seen('C')) {
-      ptr += 8;
-      const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
-                     j = near_top / (size + 1);
+    ptr += 8;
+    const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
+                   j = near_top / (size + 1);
 
-      SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-      for (uint16_t i = 1; i <= size; i++) {
-        char * const addr = ptr + i * j;
-        *addr = i;
-        SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
-      }
-      SERIAL_EOL();
+    SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
+    for (uint16_t i = 1; i <= size; i++) {
+      char * const addr = ptr + i * j;
+      *addr = i;
+      SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
     }
+    SERIAL_EOL();
   }
 #endif // M100_FREE_MEMORY_CORRUPTOR
 

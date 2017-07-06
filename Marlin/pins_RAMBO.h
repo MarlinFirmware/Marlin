@@ -143,6 +143,20 @@
 #endif
 
 //
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN    45  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 31  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN          32
+
+//
+// Průša i3 MK2 Multiplexer Support
+//
+#define E_MUX0_PIN         17
+#define E_MUX1_PIN         16
+#define E_MUX2_PIN         84 // 84 in MK2 Firmware
+
+//
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
@@ -212,10 +226,3 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_PWM_PIN    45  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 31  // Pin should have a pullup!
-#define SPINDLE_DIR_PIN          32
