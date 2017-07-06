@@ -137,7 +137,11 @@
   void set_destination_to_current();
   void set_current_to_destination();
   void prepare_move_to_destination();
-  void sync_plan_position_e();
+  #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
+    inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
+  #else
+    void sync_plan_position_e();
+  #endif
   #if ENABLED(NEWPANEL)
     void lcd_setstatusPGM(const char* const message, const int8_t level);
     void chirp_at_user();

@@ -215,10 +215,6 @@ typedef enum {
 
 // Set Compare Mode bits
 #define _SET_COM(T,Q,V) (TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM##T##Q##0)) | (int(V) << COM##T##Q##0))
-#define _SET_COMA(T,V) _SET_COM(T,A,V)
-#define _SET_COMB(T,V) _SET_COM(T,B,V)
-#define _SET_COMC(T,V) _SET_COM(T,C,V)
-#define _SET_COMS(T,V1,V2,V3) do{ _SET_COMA(T,V1); _SET_COMB(T,V2); _SET_COMC(T,V3); }while(0)
 #define SET_COM(T,Q,V) _SET_COM(T,Q,COM_##V)
 #define SET_COMA(T,V) SET_COM(T,A,V)
 #define SET_COMB(T,V) SET_COM(T,B,V)

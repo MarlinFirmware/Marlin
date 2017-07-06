@@ -341,13 +341,13 @@ static void lcd_set_custom_characters(
         }
         else { // Custom characters for submenus
           createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-          createChar_P(LCD_REFRESH_CHAR, refresh);
+          createChar_P(LCD_STR_REFRESH[0], refresh);
           createChar_P(LCD_STR_FOLDER[0], folder);
         }
       }
     #else
       createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-      createChar_P(LCD_REFRESH_CHAR, refresh);
+      createChar_P(LCD_STR_REFRESH[0], refresh);
       createChar_P(LCD_STR_FOLDER[0], folder);
     #endif
 
@@ -600,7 +600,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   lcd.print(itostr3(t1 + 0.5));
   lcd.print('/');
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HEATER_IDLE_HANDLER
     const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
@@ -1012,7 +1012,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR,LCD_UPLEVEL_CHAR)
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
@@ -1075,5 +1075,13 @@ static void lcd_implementation_status_screen() {
   }
 
 #endif // LCD_HAS_STATUS_INDICATORS
+
+#ifdef AUTO_BED_LEVELING_UBL
+    void lcd_return_to_status();       // These are just place holders for the 20x4 LCD work that
+    void _lcd_ubl_output_char_lcd() {  // is coming up very soon.   Soon this will morph into the
+      lcd_return_to_status();          // real code.
+    }
+
+#endif // AUTO_BED_LEVELING_UBL
 
 #endif // ULTRALCD_IMPL_HD44780_H

@@ -25,9 +25,9 @@
  *  structurs for 2560 family boards that use morre than 70 pins
  */
 
-#ifndef Plus_70_h
-  #define Plus_70_h
-  
+#ifndef __PINSDEBUG_PLUS_70_H__
+#define __PINSDEBUG_PLUS_70_H__
+
 #undef NUM_DIGITAL_PINS
 #if MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D
   #define NUM_DIGITAL_PINS            85
@@ -124,22 +124,22 @@ const uint8_t PROGMEM digital_pin_to_port_PGM_plus_70[] = {
   PK  , // PK 5 ** 67 ** A13
   PK  , // PK 6 ** 68 ** A14
   PK  , // PK 7 ** 69 ** A15
-  PG  , // PG 4 ** 70 ** 
-  PG  , // PG 3 ** 71 ** 
-  PJ  , // PJ 2 ** 72 ** 
-  PJ  , // PJ 3 ** 73 ** 
-  PJ  , // PJ 7 ** 74 ** 
-  PJ  , // PJ 4 ** 75 ** 
-  PJ  , // PJ 5 ** 76 ** 
-  PJ  , // PJ 6 ** 77 ** 
-  PE  , // PE 2 ** 78 ** 
-  PE  , // PE 6 ** 79 ** 
-  PE  , // PE 7 ** 80 ** 
-  PD  , // PD 4 ** 81 ** 
-  PD  , // PD 5 ** 82 ** 
-  PD  , // PD 6 ** 83 ** 
-  PH  , // PH 2 ** 84 ** 
-  PH  , // PH 7 ** 85 ** 
+  PG  , // PG 4 ** 70 **
+  PG  , // PG 3 ** 71 **
+  PJ  , // PJ 2 ** 72 **
+  PJ  , // PJ 3 ** 73 **
+  PJ  , // PJ 7 ** 74 **
+  PJ  , // PJ 4 ** 75 **
+  PJ  , // PJ 5 ** 76 **
+  PJ  , // PJ 6 ** 77 **
+  PE  , // PE 2 ** 78 **
+  PE  , // PE 6 ** 79 **
+  PE  , // PE 7 ** 80 **
+  PD  , // PD 4 ** 81 **
+  PD  , // PD 5 ** 82 **
+  PD  , // PD 6 ** 83 **
+  PH  , // PH 2 ** 84 **
+  PH  , // PH 7 ** 85 **
 };
 
 #define digitalPinToPort_plus_70(P) ( pgm_read_byte( digital_pin_to_port_PGM_plus_70 + (P) ) )
@@ -217,22 +217,22 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM_plus_70[] = {
   _BV( 5 )  , // PK 5 ** 67 ** A13
   _BV( 6 )  , // PK 6 ** 68 ** A14
   _BV( 7 )  , // PK 7 ** 69 ** A15
-  _BV( 4 )  , // PG 4 ** 70 ** 
-  _BV( 3 )  , // PG 3 ** 71 ** 
-  _BV( 2 )  , // PJ 2 ** 72 ** 
-  _BV( 3 )  , // PJ 3 ** 73 ** 
-  _BV( 7 )  , // PJ 7 ** 74 ** 
-  _BV( 4 )  , // PJ 4 ** 75 ** 
-  _BV( 5 )  , // PJ 5 ** 76 ** 
-  _BV( 6 )  , // PJ 6 ** 77 ** 
-  _BV( 2 )  , // PE 2 ** 78 ** 
-  _BV( 6 )  , // PE 6 ** 79 ** 
-  _BV( 7 )  , // PE 7 ** 80 ** 
-  _BV( 4 )  , // PD 4 ** 81 ** 
-  _BV( 5 )  , // PD 5 ** 82 ** 
-  _BV( 6 )  , // PD 6 ** 83 ** 
-  _BV( 2 )  , // PH 2 ** 84 ** 
-  _BV( 7 )  , // PH 7 ** 85 ** 
+  _BV( 4 )  , // PG 4 ** 70 **
+  _BV( 3 )  , // PG 3 ** 71 **
+  _BV( 2 )  , // PJ 2 ** 72 **
+  _BV( 3 )  , // PJ 3 ** 73 **
+  _BV( 7 )  , // PJ 7 ** 74 **
+  _BV( 4 )  , // PJ 4 ** 75 **
+  _BV( 5 )  , // PJ 5 ** 76 **
+  _BV( 6 )  , // PJ 6 ** 77 **
+  _BV( 2 )  , // PE 2 ** 78 **
+  _BV( 6 )  , // PE 6 ** 79 **
+  _BV( 7 )  , // PE 7 ** 80 **
+  _BV( 4 )  , // PD 4 ** 81 **
+  _BV( 5 )  , // PD 5 ** 82 **
+  _BV( 6 )  , // PD 6 ** 83 **
+  _BV( 2 )  , // PH 2 ** 84 **
+  _BV( 7 )  , // PH 7 ** 85 **
 };
 
 #define digitalPinToBitMask_plus_70(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM_plus_70 + (P) ) )
@@ -338,5 +338,4 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM_plus_70[] = {
  */
 
 
-#endif
-
+#endif // __PINSDEBUG_PLUS_70_H__
