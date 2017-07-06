@@ -621,6 +621,12 @@
     #ifndef MAX_BED_POWER
       #define MAX_BED_POWER 255
     #endif
+    #ifndef HEATER_BED_ON
+      #define HEATER_BED_ON HIGH
+    #endif
+    #ifndef HEATER_BED_OFF
+      #define HEATER_BED_OFF LOW
+    #endif
   #endif
 
   /**

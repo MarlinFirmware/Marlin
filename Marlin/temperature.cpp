@@ -813,7 +813,7 @@ void Temperature::manage_heater() {
         soft_pwm_amount_bed = 0;
 
         #if DISABLED(PIDTEMPBED)
-          WRITE_HEATER_BED(LOW);
+          WRITE_HEATER_BED(HEATER_BED_OFF);
         #endif
       }
       else
@@ -832,7 +832,7 @@ void Temperature::manage_heater() {
         }
         else {
           soft_pwm_amount_bed = 0;
-          WRITE_HEATER_BED(LOW);
+          WRITE_HEATER_BED(HEATER_BED_OFF);
         }
       #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
         // Check if temperature is within the correct range
@@ -841,7 +841,7 @@ void Temperature::manage_heater() {
         }
         else {
           soft_pwm_amount_bed = 0;
-          WRITE_HEATER_BED(LOW);
+          WRITE_HEATER_BED(HEATER_BED_OFF);
         }
       #endif
     }
@@ -1384,7 +1384,7 @@ void Temperature::disable_all_heaters() {
     target_temperature_bed = 0;
     soft_pwm_amount_bed = 0;
     #if HAS_HEATER_BED
-      WRITE_HEATER_BED(LOW);
+      WRITE_HEATER_BED(HEATER_BED_OFF);
     #endif
   #endif
 }
@@ -1702,7 +1702,7 @@ void Temperature::isr() {
 
       #if HAS_HEATER_BED
         soft_pwm_count_BED = (soft_pwm_count_BED & pwm_mask) + soft_pwm_amount_bed;
-        WRITE_HEATER_BED(soft_pwm_count_BED > pwm_mask ? HIGH : LOW);
+        WRITE_HEATER_BED(soft_pwm_count_BED > pwm_mask ? HEATER_BED_ON : HEATER_BED_OFF);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
@@ -1721,33 +1721,33 @@ void Temperature::isr() {
       #endif
     }
     else {
-      if (soft_pwm_count_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
+      if (soft_pwm_count_0 <= pwm_count_tmp) WRITE_HEATER_0(LOW);
       #if HOTENDS > 1
-        if (soft_pwm_count_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
+        if (soft_pwm_count_1 <= pwm_count_tmp) WRITE_HEATER_1(LOW);
         #if HOTENDS > 2
-          if (soft_pwm_count_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
+          if (soft_pwm_count_2 <= pwm_count_tmp) WRITE_HEATER_2(LOW);
           #if HOTENDS > 3
-            if (soft_pwm_count_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+            if (soft_pwm_count_3 <= pwm_count_tmp) WRITE_HEATER_3(LOW);
             #if HOTENDS > 4
-              if (soft_pwm_count_4 <= pwm_count_tmp) WRITE_HEATER_4(0);
+              if (soft_pwm_count_4 <= pwm_count_tmp) WRITE_HEATER_4(LOW);
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
       #endif // HOTENDS > 1
 
       #if HAS_HEATER_BED
-        if (soft_pwm_count_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
+        if (soft_pwm_count_BED <= pwm_count_tmp) WRITE_HEATER_BED(HEATER_BED_OFF);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
-          if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
+          if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(LOW);
         #endif
         #if HAS_FAN1
-          if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
+          if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN1(LOW);
         #endif
         #if HAS_FAN2
-          if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
+          if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN2(LOW);
         #endif
       #endif
     }
@@ -1856,13 +1856,13 @@ void Temperature::isr() {
         #endif
       }
       #if HAS_FAN0
-        if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
+        if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(LOW);
       #endif
       #if HAS_FAN1
-        if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
+        if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN1(LOW);
       #endif
       #if HAS_FAN2
-        if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
+        if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN2(LOW);
       #endif
     #endif // FAN_SOFT_PWM
 
