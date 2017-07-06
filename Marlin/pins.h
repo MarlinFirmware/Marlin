@@ -190,6 +190,8 @@
   #include "pins_SAINSMART_2IN1.h"
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"
+#elif MB(MELZI_CREALITY)
+  #include "pins_MELZI_CREALITY.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
