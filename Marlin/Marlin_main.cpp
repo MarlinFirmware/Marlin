@@ -7079,6 +7079,8 @@ inline void gcode_M104() {
     #endif
     const int8_t e=-2
   ) {
+    UNUSED(e);
+
     SERIAL_PROTOCOLCHAR(' ');
     SERIAL_PROTOCOLCHAR(
       #if HAS_TEMP_BED && HAS_TEMP_HOTEND
