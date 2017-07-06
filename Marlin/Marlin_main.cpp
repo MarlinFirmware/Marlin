@@ -2312,10 +2312,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
     const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (printable)
+    if (printable) {
       if (!position_is_reachable_by_probe_xy(lx, ly)) return NAN;
-    else
-      if (!position_is_reachable_xy(nx, ny)) return NAN;
+    }
+    else if (!position_is_reachable_xy(nx, ny)) return NAN;
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -4308,7 +4308,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       ABL_VAR int left_probe_bed_position, right_probe_bed_position, front_probe_bed_position, back_probe_bed_position;
-      ABL_VAR float xGridSpacing, yGridSpacing;
+      ABL_VAR float xGridSpacing = 0, yGridSpacing = 0;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         ABL_VAR uint8_t abl_grid_points_x = GRID_MAX_POINTS_X,
@@ -7081,6 +7081,10 @@ inline void gcode_M104() {
     #endif
     const int8_t e=-2
   ) {
+    #if !(HAS_TEMP_BED && HAS_TEMP_HOTEND) && HOTENDS <= 1
+      UNUSED(e);
+    #endif
+
     SERIAL_PROTOCOLCHAR(' ');
     SERIAL_PROTOCOLCHAR(
       #if HAS_TEMP_BED && HAS_TEMP_HOTEND
@@ -12735,13 +12739,13 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
       && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
-      bool oldstatus;
       #if ENABLED(SWITCHING_EXTRUDER)
-        oldstatus = E0_ENABLE_READ;
+        const bool oldstatus = E0_ENABLE_READ;
         enable_E0();
       #else // !SWITCHING_EXTRUDER
+        bool oldstatus;
         switch (active_extruder) {
-          case 0: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
           #if E_STEPPERS > 1
             case 1: oldstatus = E1_ENABLE_READ; enable_E1(); break;
             #if E_STEPPERS > 2

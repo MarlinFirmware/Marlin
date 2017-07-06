@@ -107,3 +107,12 @@
   #define Z_MIN_PIN       19 // IND_S_5V
   #define Z_MAX_PIN       18 // Z-MIN Label
 #endif
+
+
+//
+// This pin is used by the official Hephestos 2 heated bed upgrade kit
+//
+#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
+  #undef HEATER_BED_PIN
+  #define HEATER_BED_PIN 8
+#endif
