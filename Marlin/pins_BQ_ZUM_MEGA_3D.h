@@ -113,11 +113,13 @@
 // Inverts the output logic for the heated bed controller.
 // This is required by the official Hephestos 2 heated bed upgrade kit
 //
-#undef HEATER_BED_PIN
-#define HEATER_BED_PIN 8
+#if ENABLED(HEPHESTOS2_WITH_HEATED_BED)
+  #undef HEATER_BED_PIN
+  #define HEATER_BED_PIN 8
 
-#undef HEATER_BED_ON
-#define HEATER_BED_ON LOW
+  #undef HEATER_BED_ON
+  #define HEATER_BED_ON LOW
 
-#undef HEATER_BED_OFF
-#define HEATER_BED_OFF HIGH
+  #undef HEATER_BED_OFF
+  #define HEATER_BED_OFF HIGH
+#endif
