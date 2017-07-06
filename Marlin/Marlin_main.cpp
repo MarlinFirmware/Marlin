@@ -2312,10 +2312,12 @@ static void clean_up_after_endstop_or_probe_move() {
 
     const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (printable)
+    if (printable) {
       if (!position_is_reachable_by_probe_xy(lx, ly)) return NAN;
-    else
+    }
+    else {
       if (!position_is_reachable_xy(nx, ny)) return NAN;
+    }
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
@@ -5280,7 +5282,7 @@ void home_all_axes() { gcode_G28(true); }
       #if DISABLED(PROBE_MANUALLY)
         home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
       #endif
-      
+
       do {
 
         float z_at_pt[13] = { 0.0 };
@@ -5380,7 +5382,7 @@ void home_all_axes() { gcode_G28(true); }
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
           #endif
-          
+
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
@@ -12861,7 +12863,7 @@ void kill(const char* lcd_msg) {
   #if defined(ACTION_ON_KILL)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
-  
+
   #if HAS_POWER_SWITCH
     SET_INPUT(PS_ON_PIN);
   #endif
