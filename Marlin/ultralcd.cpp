@@ -2500,16 +2500,18 @@ void kill_screen(const char* lcd_msg) {
       line_to_z(z_dest);
 
       lcd_synchronize();
-      move_menu_scale = 0.1;
+      move_menu_scale = PROBE_MANUALLY_STEP;
       lcd_goto_screen(lcd_move_z);
     }
 
     float lcd_probe_pt(const float &lx, const float &ly) {
       _man_probe_pt(lx, ly);
       KEEPALIVE_STATE(PAUSED_FOR_USER);
+      defer_return_to_status = true;
       wait_for_user = true;
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
+      defer_return_to_status = false;
       return current_position[Z_AXIS];
     }
 
@@ -2518,12 +2520,32 @@ void kill_screen(const char* lcd_msg) {
     void _goto_tower_z() { _man_probe_pt(cos(RADIANS( 90)) * delta_calibration_radius, sin(RADIANS( 90)) * delta_calibration_radius); }
     void _goto_center()  { _man_probe_pt(0,0); }
 
+    void _delta_G33_settings() {
+      START_MENU();
+      MENU_BACK(MSG_DELTA_CALIBRATE);
+      float delta_height = DELTA_HEIGHT + home_offset[Z_AXIS], Tz = 0.00;
+      MENU_ITEM_EDIT(float52, "Height", &delta_height, delta_height, delta_height);
+      MENU_ITEM_EDIT(float43, "Ex", &endstop_adj[A_AXIS], endstop_adj[A_AXIS], endstop_adj[A_AXIS]);
+      MENU_ITEM_EDIT(float43, "Ey", &endstop_adj[B_AXIS], endstop_adj[B_AXIS], endstop_adj[B_AXIS]);
+      MENU_ITEM_EDIT(float43, "Ez", &endstop_adj[C_AXIS], endstop_adj[C_AXIS], endstop_adj[C_AXIS]);
+      MENU_ITEM_EDIT(float52, "Radius", &delta_radius, delta_radius, delta_radius);
+      MENU_ITEM_EDIT(float43, "Tx", &delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[A_AXIS]);
+      MENU_ITEM_EDIT(float43, "Ty", &delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[B_AXIS]);
+      MENU_ITEM_EDIT(float43, "Tz", &Tz, Tz, Tz);
+      END_MENU();
+    }
+
     void lcd_delta_calibrate_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
       #if ENABLED(DELTA_AUTO_CALIBRATION)
+        MENU_ITEM(submenu, MSG_DELTA_SETTINGS, _delta_G33_settings);
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
         MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 P1"));
+        #if ENABLED(EEPROM_SETTINGS)
+          MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+          MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+        #endif
       #endif
       MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
       if (axis_homed[Z_AXIS]) {
@@ -2612,7 +2634,11 @@ void kill_screen(const char* lcd_msg) {
       encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
+    if (lcdDrawUpdate) 
+      if (move_menu_scale == 10 || move_menu_scale == 1 || move_menu_scale == 0.1)
+        lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
+      else
+        lcd_implementation_drawedit(name, ftostr43sign(current_position[axis]));
   }
   void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
   void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
