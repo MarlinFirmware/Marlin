@@ -470,6 +470,19 @@
   #define Z_MIN_PIN          -1
 #endif
 
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4 -1
+#endif
+#ifndef LCD_PINS_D5
+  #define LCD_PINS_D5 -1
+#endif
+#ifndef LCD_PINS_D6
+  #define LCD_PINS_D6 -1
+#endif
+#ifndef LCD_PINS_D7
+  #define LCD_PINS_D7 -1
+#endif
+
 //
 // Dual X-carriage, Dual Y, Dual Z support
 //
