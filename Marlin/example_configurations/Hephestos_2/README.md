@@ -5,11 +5,18 @@ NOTE: The look and feel of the Hephestos 2 while navigating the LCD menu will ch
 
 ## Changelog
  * 2016/03/01 - Initial release
+
  * 2016/03/21 - Activated 4-point auto leveling by default
                 Updated miscellaneous z-probe values
+
  * 2016/06/21 - Disabled hot bed related options
                 Activated software endstops
                 SD printing now disables the heater when finished
+
  * 2016/07/13 - Update the `DEFAULT_AXIS_STEPS_PER_UNIT` for the Z axis
                 Increased the `DEFAULT_XYJERK`
+
  * 2016/12/13 - Configuration updated.
+
+ * 2017/07/06 - Configuration updated to the latest Marlin version.
+                Added support for the official BQ heated bed kit.
