@@ -107,3 +107,19 @@
   #define Z_MIN_PIN       19 // IND_S_5V
   #define Z_MAX_PIN       18 // Z-MIN Label
 #endif
+
+
+//
+// Inverts the output logic for the heated bed controller.
+// This is required by the official Hephestos 2 heated bed upgrade kit
+//
+#if ENABLED(HEPHESTOS2_WITH_HEATED_BED)
+  #undef HEATER_BED_PIN
+  #define HEATER_BED_PIN 8
+
+  #undef HEATER_BED_ON
+  #define HEATER_BED_ON LOW
+
+  #undef HEATER_BED_OFF
+  #define HEATER_BED_OFF HIGH
+#endif
