@@ -5854,7 +5854,7 @@ inline void gcode_G92() {
         WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // turn spindle off
         delay_for_power_down();
       }
-      digitalWrite(SPINDLE_DIR_PIN, rotation_dir);
+      WRITE(SPINDLE_DIR_PIN, rotation_dir);
     #endif
 
     /**
@@ -6569,10 +6569,10 @@ inline void gcode_M42() {
       for (uint8_t i = 0; i < 4; i++) {
         servo[probe_index].move(z_servo_angle[0]); //deploy
         safe_delay(500);
-        deploy_state = digitalRead(PROBE_TEST_PIN);
+        deploy_state = READ(PROBE_TEST_PIN);
         servo[probe_index].move(z_servo_angle[1]); //stow
         safe_delay(500);
-        stow_state = digitalRead(PROBE_TEST_PIN);
+        stow_state = READ(PROBE_TEST_PIN);
       }
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
@@ -6607,9 +6607,9 @@ inline void gcode_M42() {
           if (0 == j % (500 * 1)) // keep cmd_timeout happy
             refresh_cmd_timeout();
 
-          if (deploy_state != digitalRead(PROBE_TEST_PIN)) { // probe triggered
+          if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
 
-            for (probe_counter = 1; probe_counter < 50 && deploy_state != digitalRead(PROBE_TEST_PIN); ++probe_counter)
+            for (probe_counter = 1; probe_counter < 50 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter)
               safe_delay(2);
 
             if (probe_counter == 50)
@@ -9876,9 +9876,9 @@ inline void gcode_M907() {
       if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
         analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
       }
-      else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH );
+      else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
     }
-    else digitalWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+    else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
   }
 #endif // HAS_CASE_LIGHT
 
