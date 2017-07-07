@@ -5280,7 +5280,7 @@ void home_all_axes() { gcode_G28(true); }
       #if DISABLED(PROBE_MANUALLY)
         home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
       #endif
-      
+
       do {
 
         float z_at_pt[13] = { 0.0 };
@@ -5380,7 +5380,7 @@ void home_all_axes() { gcode_G28(true); }
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
           #endif
-          
+
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
@@ -6259,7 +6259,7 @@ inline void gcode_M17() {
   inline void gcode_M23() {
     // Simplify3D includes the size, so zero out all spaces (#7227)
     for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
-    card.openFile(parser.string_arg, true); 
+    card.openFile(parser.string_arg, true);
   }
 
   /**
@@ -12877,7 +12877,7 @@ void kill(const char* lcd_msg) {
   #if defined(ACTION_ON_KILL)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
-  
+
   #if HAS_POWER_SWITCH
     SET_INPUT(PS_ON_PIN);
   #endif
