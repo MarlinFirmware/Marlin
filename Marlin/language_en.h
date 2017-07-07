@@ -713,6 +713,9 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
 #endif
+#ifndef MSG_DELTA_SETTINGS
+  #define MSG_DELTA_SETTINGS                  _UxGT("Show Delta Settings")
+#endif
 #ifndef MSG_DELTA_AUTO_CALIBRATE
   #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")
 #endif

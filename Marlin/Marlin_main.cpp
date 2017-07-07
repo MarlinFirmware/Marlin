@@ -5168,11 +5168,28 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOL_F(f, 2);
     }
 
+    inline void print_G33_settings(const bool end_stops, const bool tower_angles){ // TODO echo these to LCD ???
+      SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+      if (end_stops) {
+        print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
+        print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
+        print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
+        SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
+      }
+      SERIAL_EOL();
+      if (tower_angles) {
+        SERIAL_PROTOCOLPGM(".Tower angle :  ");
+        print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
+        print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
+        SERIAL_PROTOCOLLNPGM("  Tz:+0.00");
+      }
+    }
+
     inline void gcode_G33() {
 
       const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
       if (!WITHIN(probe_points, 1, 7)) {
-        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1 to 7).");
+        SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (1-7).");
         return;
       }
 
@@ -5256,26 +5273,13 @@ void home_all_axes() { gcode_G28(true); }
 
       // print settings
 
-      SERIAL_PROTOCOLPGM("Checking... AC");
+      const char *checkingac = PSTR("Checking... AC"); // TODO: Make translatable string
+      serialprintPGM(checkingac);
       if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
       SERIAL_EOL();
-      LCD_MESSAGEPGM("Checking... AC"); // TODO: Make translatable string
+      lcd_setstatusPGM(checkingac);
 
-      SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
-      if (!_1p_calibration) {
-        print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
-        print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
-        print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
-        SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
-      }
-      SERIAL_EOL();
-      if (_7p_calibration && towers_set) {
-        SERIAL_PROTOCOLPGM(".Tower angle :  ");
-        print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
-        print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
-        SERIAL_PROTOCOLPGM("  Tz:+0.00");
-        SERIAL_EOL();
-      }
+      print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
 
       #if DISABLED(PROBE_MANUALLY)
         home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
@@ -5345,7 +5349,6 @@ void home_all_axes() { gcode_G28(true); }
             N++;
           }
         zero_std_dev_old = zero_std_dev;
-        NOMORE(zero_std_dev_min, zero_std_dev);
         zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         // Solve matrices
@@ -5436,8 +5439,9 @@ void home_all_axes() { gcode_G28(true); }
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
+        NOMORE(zero_std_dev_min, zero_std_dev);
 
-         // print report
+        // print report
 
         if (verbose_level != 1) {
           SERIAL_PROTOCOLPGM(".    ");
@@ -5470,47 +5474,51 @@ void home_all_axes() { gcode_G28(true); }
             #endif
               {
                 SERIAL_PROTOCOLPGM("std dev:");
-                SERIAL_PROTOCOL_F(zero_std_dev, 3);
+                SERIAL_PROTOCOL_F(zero_std_dev_min, 3);
               }
             SERIAL_EOL();
-            LCD_MESSAGEPGM("Calibration OK"); // TODO: Make translatable string
+            char mess[21];
+            sprintf_P(mess, PSTR("Calibration sd:"));
+            if (zero_std_dev_min < 1)
+              sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev_min * 1000.0));
+            else
+              sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev_min));
+            lcd_setstatus(mess);
+            print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
+            serialprintPGM(save_message);
+            SERIAL_EOL();
           }
           else {                                                     // !end iterations
-            char mess[15] = "No convergence";
+            char mess[15];
             if (iterations < 31)
               sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
+            else
+              sprintf_P(mess, PSTR("No convergence"));
             SERIAL_PROTOCOL(mess);
             SERIAL_PROTOCOL_SP(36);
             SERIAL_PROTOCOLPGM("std dev:");
             SERIAL_PROTOCOL_F(zero_std_dev, 3);
             SERIAL_EOL();
             lcd_setstatus(mess);
+            print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
           }
-          SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
-          if (!_1p_calibration) {
-            print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
-            print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
-            print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
-            SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
-          }
-          SERIAL_EOL();
-          if (_7p_calibration && towers_set) {
-            SERIAL_PROTOCOLPGM(".Tower angle :  ");
-            print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
-            print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
-            SERIAL_PROTOCOLPGM("  Tz:+0.00");
-            SERIAL_EOL();
-          }
-          if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations)
-            serialprintPGM(save_message);
-            SERIAL_EOL();
         }
         else {                                                       // dry run
-          SERIAL_PROTOCOLPGM("End DRY-RUN");
+          const char *enddryrun = PSTR("End DRY-RUN");
+          serialprintPGM(enddryrun);
           SERIAL_PROTOCOL_SP(39);
           SERIAL_PROTOCOLPGM("std dev:");
           SERIAL_PROTOCOL_F(zero_std_dev, 3);
           SERIAL_EOL();
+
+          char mess[21];
+          sprintf_P(mess, enddryrun);
+          sprintf_P(&mess[11], PSTR(" sd:"));
+          if (zero_std_dev < 1)
+            sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev * 1000.0));
+          else
+            sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev));
+          lcd_setstatus(mess);
         }
 
         endstops.enable(true);
