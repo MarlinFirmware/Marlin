@@ -1,4 +1,4 @@
-This is an example configuration for the CL-260.
+This is an example configuration for the CL-260 Ultimaker 2 clone.
 Change Z_MAX_POS to 300 for the CL-260MAX.
 
 (The printer is available on AliExpress; be aware that this is not a beginner's
