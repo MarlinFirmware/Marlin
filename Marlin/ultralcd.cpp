@@ -467,6 +467,9 @@ uint16_t max_display_update_time = 0;
       encoderPosition = encoder;
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl_lcd_map_control = false;
+        #endif
         screen_history_depth = 0;
       }
       lcd_implementation_clear();
@@ -2149,14 +2152,11 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_map_homing() {
       defer_return_to_status = true;
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+      ubl_lcd_map_control = true; // Return to the map screen
+      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
-        #if DISABLED(DOGLCD)
-          lcd_set_ubl_map_plot_chars();
-        #endif
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
-      }
     }
 
     /**
@@ -2232,9 +2232,12 @@ void kill_screen(const char* lcd_msg) {
 
         ubl_map_move_to_xy(); // Move to current location
 
-        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move. There is a new location
-          quickstop_stepper();
+        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
+          stepper.quick_stop();
+          set_current_from_steppers_for_axis(ALL_AXES);
+          sync_plan_position();
           ubl_map_move_to_xy(); // Move to new location
+          refresh_cmd_timeout();
         }
       }
     }
@@ -2243,9 +2246,10 @@ void kill_screen(const char* lcd_msg) {
      * UBL Homing before LCD map
      */
     void _lcd_ubl_output_map_lcd_cmd() {
-      ubl_lcd_map_control = true; // Return to the map screen (and don't restore the character set)
-      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])) {
+        axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
         enqueue_and_echo_commands_P(PSTR("G28"));
+      }
       lcd_goto_screen(_lcd_ubl_map_homing);
     }
 
@@ -2281,6 +2285,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
       MENU_ITEM(submenu, MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
+      MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
       MENU_ITEM(submenu, MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
       MENU_ITEM(submenu, MSG_UBL_EDIT_MESH_MENU, _lcd_ubl_edit_mesh);
       MENU_ITEM(submenu, MSG_UBL_MESH_LEVELING, _lcd_ubl_mesh_leveling);
@@ -2329,10 +2334,10 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
-      MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
+      MENU_ITEM(function, MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
       MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
       MENU_ITEM(submenu, MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);

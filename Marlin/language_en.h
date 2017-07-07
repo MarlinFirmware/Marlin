@@ -208,6 +208,9 @@
 #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
   #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #endif
+#ifndef MSG_UBL_MESH_EDIT
+  #define MSG_UBL_MESH_EDIT                   _UxGT("Mesh Edit")
+#endif
 #ifndef MSG_UBL_EDIT_CUSTOM_MESH
   #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Edit Custom Mesh")
 #endif
