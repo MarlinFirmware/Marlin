@@ -6474,20 +6474,20 @@ inline void gcode_M42() {
       else {
         report_pin_state_extended(pin, I_flag, true, "Pulsing   ");
         #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
-          if (pin == 46) {
-            SET_OUTPUT(46);
+          if (pin == TEENSY_E2) {
+            SET_OUTPUT(TEENSY_E2);
             for (int16_t j = 0; j < repeat; j++) {
-              WRITE(46, 0); safe_delay(wait);
-              WRITE(46, 1); safe_delay(wait);
-              WRITE(46, 0); safe_delay(wait);
+              WRITE(TEENSY_E2, LOW);  safe_delay(wait);
+              WRITE(TEENSY_E2, HIGH); safe_delay(wait);
+              WRITE(TEENSY_E2, LOW);  safe_delay(wait);
             }
           }
-          else if (pin == 47) {
-            SET_OUTPUT(47);
+          else if (pin == TEENSY_E3) {
+            SET_OUTPUT(TEENSY_E3);
             for (int16_t j = 0; j < repeat; j++) {
-              WRITE(47, 0); safe_delay(wait);
-              WRITE(47, 1); safe_delay(wait);
-              WRITE(47, 0); safe_delay(wait);
+              WRITE(TEENSY_E3, LOW);  safe_delay(wait);
+              WRITE(TEENSY_E3, HIGH); safe_delay(wait);
+              WRITE(TEENSY_E3, LOW);  safe_delay(wait);
             }
           }
           else
@@ -6671,7 +6671,7 @@ inline void gcode_M42() {
     if (parser.seen('E')) {
       endstop_monitor_flag = parser.value_bool();
       SERIAL_PROTOCOLPGM("endstop monitor ");
-      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
+      serialprintPGM(endstop_monitor_flag ? PSTR("en") : PSTR("dis"));
       SERIAL_PROTOCOLLNPGM("abled");
       return;
     }
