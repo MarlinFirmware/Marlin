@@ -1251,6 +1251,7 @@
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
   #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define CUSTOM_USER_MENU_RETURN  // disable to stay in custom user menu once command is complete
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
