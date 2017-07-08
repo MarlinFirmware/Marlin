@@ -62,7 +62,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
   extern bool ubl_lcd_map_control;
 #endif
 
@@ -1285,7 +1285,7 @@ void Stepper::finish_and_disable() {
 }
 
 void Stepper::quick_stop() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
     if (!ubl_lcd_map_control)
       cleaning_buffer_counter = 5000;
   #else
