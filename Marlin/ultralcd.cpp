@@ -834,8 +834,8 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     void _lcd_user_gcode(const char * const cmd) {
-      lcd_return_to_status();
       enqueue_and_echo_commands_P(cmd);
+      lcd_completion_feedback();
     }
 
     #if defined(USER_DESC_1) && defined(USER_GCODE_1)
