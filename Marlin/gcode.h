@@ -131,8 +131,7 @@ public:
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    // This is volatile because its side-effects are important
-    static volatile bool seen(const char c) {
+    static bool seen(const char c) {
       const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST(codebits[PARAM_IND(ind)], PARAM_BIT(ind));
@@ -148,8 +147,7 @@ public:
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    // This is volatile because its side-effects are important
-    static volatile bool seen(const char c) {
+    static bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
