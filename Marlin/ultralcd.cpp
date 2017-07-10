@@ -834,7 +834,9 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     void _lcd_user_gcode(const char * const cmd) {
-      lcd_return_to_status();
+      #ifdef CUSTOM_USER_MENU_RETURN
+        lcd_return_to_status();
+      #endif
       enqueue_and_echo_commands_P(cmd);
     }
 
