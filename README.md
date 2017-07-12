@@ -1,3 +1,15 @@
+This version has been configured to suit my Tevo Tarantula.  Changes are restricted to configuration.h only.
+
+Tevo Tarantula, configured with:
+ Large Bed
+ BLTouch Autolevel
+ E3Dv6 Thermistor
+ EEPROM Enabled
+ SDRAM enabled
+
+This version works for my printer.  Your experiences may differ.  Use at your own risk !
+_____________________________________________________________________________________________________________________________
+
 # Marlin 3D Printer Firmware
 <img align="right" src="../../raw/1.1.x/buildroot/share/pixmaps/logo/marlin-250.png" />
 
