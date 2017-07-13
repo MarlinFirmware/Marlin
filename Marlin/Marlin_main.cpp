@@ -2087,7 +2087,11 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(PROBING_FANS_OFF)
         fans_pause(p);
       #endif
-      if (p) safe_delay(25);
+      #if defined(WAIT_BEFORE_PROBING)
+        if (p) safe_delay(WAIT_BEFORE_PROBING);
+      #else
+        if (p) safe_delay(25);
+      #endif
     }
   #endif // QUIET_PROBING
 
