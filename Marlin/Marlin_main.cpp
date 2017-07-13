@@ -4623,6 +4623,8 @@ void home_all_axes() { gcode_G28(true); }
           eqnAMatrix[abl_probe_index + 1 * abl2] = yProbe;
           eqnAMatrix[abl_probe_index + 2 * abl2] = 1;
 
+          incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
+
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
           z_values[xCount][yCount] = measured_z + zoffset;
