@@ -279,6 +279,10 @@
   #include "watchdog.h"
 #endif
 
+#if ENABLED(NEOPIXEL_RGBW_LED)
+  #include <Adafruit_NeoPixel.h>
+#endif
+
 #if ENABLED(BLINKM)
   #include "blinkm.h"
   #include "Wire.h"
@@ -968,12 +972,60 @@ void servo_init() {
 
 #if HAS_COLOR_LEDS
 
+  #if ENABLED(NEOPIXEL_RGBW_LED)
+
+    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+
+    void set_neopixel_color(const uint32_t color) {
+      for (uint16_t i = 0; i < pixels.numPixels(); ++i)
+        pixels.setPixelColor(i, color);
+      pixels.show();
+    }
+
+    void setup_neopixel() {
+      pixels.setBrightness(255); // 0 - 255 range
+      pixels.begin();
+      pixels.show(); // initialize to all off
+
+      #if ENABLED(NEOPIXEL_STARTUP_TEST)
+        delay(2000);
+        set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
+        delay(2000);
+        set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
+        delay(2000);
+        set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
+        delay(2000);
+      #endif
+      set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
+    }
+
+  #endif // NEOPIXEL_RGBW_LED
+
   void set_led_color(
     const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED)
-        , const uint8_t w=0
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
+        , const uint8_t w = 0
+        #if ENABLED(NEOPIXEL_RGBW_LED)
+          , bool isSequence = false
+        #endif
       #endif
   ) {
+
+    #if ENABLED(NEOPIXEL_RGBW_LED)
+
+      const uint32_t color = pixels.Color(r, g, b, w);
+      static int nextLed = 0;
+
+      if (!isSequence)
+        set_neopixel_color(color);
+      else {
+        pixels.setPixelColor(nextLed, color);
+        pixels.show();
+        if (++nextLed >= pixels.numPixels()) nextLed = 0;
+        return;
+      }
+
+    #endif
 
     #if ENABLED(BLINKM)
 
@@ -7355,7 +7407,14 @@ inline void gcode_M109() {
       // Gradually change LED strip from violet to red as nozzle heats up
       if (!wants_to_cool) {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
-        if (blue != old_blue) set_led_color(255, 0, (old_blue = blue));
+        if (blue != old_blue) {
+          old_blue = blue;
+          set_led_color(255, 0, blue
+            #if ENABLED(NEOPIXEL_RGBW_LED)
+              , 0, true
+            #endif
+          );
+        }
       }
     #endif
 
@@ -7390,7 +7449,7 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGBW_LED)
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
       #else
         set_led_color(255, 255, 255); // Set LEDs All On
@@ -7488,7 +7547,14 @@ inline void gcode_M109() {
         // Gradually change LED strip from blue to violet as bed heats up
         if (!wants_to_cool) {
           const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
-          if (red != old_red) set_led_color((old_red = red), 0, 255);
+          if (red != old_red) {
+            old_red = red;
+            set_led_color(red, 0, 255
+              #if ENABLED(NEOPIXEL_RGBW_LED)
+                , 0, true
+              #endif
+            );
+          }
         }
       #endif
 
@@ -8146,7 +8212,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-      #if ENABLED(RGBW_LED)
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
       #endif
     );
@@ -13070,6 +13136,11 @@ void setup() {
 
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
+  #endif
+
+  #if ENABLED(NEOPIXEL_RGBW_LED)
+    SET_OUTPUT(NEOPIXEL_PIN);
+    setup_neopixel();
   #endif
 
   #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)

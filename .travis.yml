@@ -50,6 +50,10 @@ install:
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
+  # Install: Adafruit Neopixel library
+  - git clone https://github.com/adafruit/Adafruit_NeoPixel.git
+  - sudo mv Adafruit_NeoPixel /usr/local/share/arduino/libraries/Adafruit_NeoPixel
+  #
 before_script:
   #
   # Change current working directory to the build dir
@@ -80,6 +84,7 @@ script:
   - opt_set TEMP_SENSOR_1 1
   - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
+  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_RGBW_LED
   - build_marlin
   #
   # ...with AUTO_BED_LEVELING_LINEAR, Z_MIN_PROBE_REPEATABILITY_TEST, and DEBUG_LEVELING_FEATURE
