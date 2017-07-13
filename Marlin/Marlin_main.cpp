@@ -3242,7 +3242,7 @@ inline void gcode_G0_G1(
       if (autoretract_enabled && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z')) && parser.seen('E')) {
         const float echange = destination[E_AXIS] - current_position[E_AXIS];
         // Is this move an attempt to retract or recover?
-        if ((echange < -MIN_RETRACT && !retracted[active_extruder]) || (echange > MIN_RETRACT && retracted[active_extruder])) {
+        if ((echange < -(MIN_RETRACT) && !retracted[active_extruder]) || (echange > MIN_RETRACT && retracted[active_extruder])) {
           current_position[E_AXIS] = destination[E_AXIS]; // hide the slicer-generated retract/recover from calculations
           sync_plan_position_e();  // AND from the planner
           retract(!retracted[active_extruder]);
@@ -4617,11 +4617,11 @@ void home_all_axes() { gcode_G28(true); }
 
         #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-//        mean += measured_z;                                  // I believe this is unused code?
-//        eqnBVector[abl_probe_index] = measured_z;            // I believe this is unused code?
-//        eqnAMatrix[abl_probe_index + 0 * abl2] = xProbe;     // I believe this is unused code?
-//        eqnAMatrix[abl_probe_index + 1 * abl2] = yProbe;     // I believe this is unused code?
-//        eqnAMatrix[abl_probe_index + 2 * abl2] = 1;          // I believe this is unused code?
+          mean += measured_z;
+          eqnBVector[abl_probe_index] = measured_z;
+          eqnAMatrix[abl_probe_index + 0 * abl2] = xProbe;
+          eqnAMatrix[abl_probe_index + 1 * abl2] = yProbe;
+          eqnAMatrix[abl_probe_index + 2 * abl2] = 1;
 
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -4797,9 +4797,6 @@ void home_all_axes() { gcode_G28(true); }
 
               incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
 
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-            indexIntoAB[xCount][yCount] = abl_probe_index;
-          #endif
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
               z_values[xCount][yCount] = measured_z + zoffset;
@@ -4924,11 +4921,10 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       // Create the matrix but don't correct the position yet
-      if (!dryrun) {
+      if (!dryrun)
         planner.bed_level_matrix = matrix_3x3::create_look_at(
-          vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eleminate the '-' here and up above
+          vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eliminate the '-' here and up above
         );
-      }
 
       // Show the Topography map if enabled
       if (do_topography_map) {

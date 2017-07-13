@@ -976,8 +976,8 @@ static void lcd_implementation_status_screen() {
       uint8_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X),
               y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y),
 
-              pixels_per_X_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X),
-              pixels_per_Y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y),
+              pixels_per_x_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X),
+              pixels_per_y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y),
 
               x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
               y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
@@ -996,11 +996,11 @@ static void lcd_implementation_status_screen() {
       // Display Mesh Point Locations
 
       u8g.setColorIndex(1);
-      const uint8_t sx = x_offset + pixels_per_X_mesh_pnt / 2;
-            uint8_t  y = y_offset + pixels_per_Y_mesh_pnt / 2;
-      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_Y_mesh_pnt)
+      const uint8_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
+            uint8_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
+      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
         if (PAGE_CONTAINS(y, y))
-          for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_X_mesh_pnt)
+          for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
             u8g.drawBox(sx, y, 1, 1);
 
       // Fill in the Specified Mesh Point
@@ -1008,11 +1008,11 @@ static void lcd_implementation_status_screen() {
       uint8_t inverted_y = GRID_MAX_POINTS_Y - y_plot - 1;  // The origin is typically in the lower right corner.  We need to
                                                             // invert the Y to get it to plot in the right location.
 
-      const uint8_t by = y_offset + inverted_y * pixels_per_Y_mesh_pnt;
-      if (PAGE_CONTAINS(by, by + pixels_per_Y_mesh_pnt))
+      const uint8_t by = y_offset + inverted_y * pixels_per_y_mesh_pnt;
+      if (PAGE_CONTAINS(by, by + pixels_per_y_mesh_pnt))
         u8g.drawBox(
-          x_offset + x_plot * pixels_per_X_mesh_pnt, by,
-          pixels_per_X_mesh_pnt, pixels_per_Y_mesh_pnt
+          x_offset + x_plot * pixels_per_x_mesh_pnt, by,
+          pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt
         );
 
       // Put Relevant Text on Display
