@@ -295,7 +295,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp \
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp endstops.cpp stopwatch.cpp utility.cpp \
+	dac_mcp4728.cpp vector_3.cpp least_squares_fit.cpp endstops.cpp stopwatch.cpp utility.cpp \
 	printcounter.cpp nozzle.cpp serial.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
