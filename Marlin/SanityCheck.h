@@ -364,8 +364,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-#elif ENABLED(MK2_MULTIPLEXER)
-  #error "MK2_MULTIPLEXER requires 2 or more EXTRUDERS."
+  #if ENABLED(MK2_MULTIPLEXER)
+    #if EXTRUDERS > 4 && !PIN_EXISTS(E_MUX2)
+      #error "E_MUX2_PIN must be defined to use MK2_MULTIPLEXER with greater than 4 extruders."
+    #elif EXTRUDERS > 2 && !PIN_EXISTS(E_MUX1)
+      #error "E_MUX1_PIN must be defined to use MK2_MULTIPLEXER with greater than 2 extruders."
+    #endif
+  #endif
+
 #elif ENABLED(SINGLENOZZLE)
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
 #endif
@@ -375,8 +381,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #ifdef SNMM
   #error "SNMM is now MK2_MULTIPLEXER. Please update your configuration."
-#elif ENABLED(MK2_MULTIPLEXER) && DISABLED(ADVANCED_PAUSE_FEATURE)
-  #error "ADVANCED_PAUSE_FEATURE is required with MK2_MULTIPLEXER."
+#elif ENABLED(MK2_MULTIPLEXER)
+  #if ENABLED(MIXING_EXTRUDER)
+    #error "MK2_MULTIPLEXER is incompatible with MIXING_EXTRUDER."
+  #elif !defined(E_MUX0_PIN)
+    #error "E_MUX0_PIN must be defined to use MK2_MULTIPLEXER."
+  #elif PIN_EXISTS(E_MUX2) && !PIN_EXISTS(E_MUX1)
+    #error "E_MUX1_PIN must be defined if E_MUX2_PIN is defined."
+  #endif
 #endif
 
 /**
