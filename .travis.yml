@@ -3,6 +3,7 @@ language: c
   #
 dist: trusty
 sudo: required
+group: deprecated-2017Q2
 notifications:
   email: false
   #
