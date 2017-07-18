@@ -616,8 +616,18 @@
   #else
     #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
   #endif
+
+  /**
+   * Heated bed requires settings
+   */
   #if HAS_HEATER_BED
-    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #ifndef MAX_BED_POWER
+      #define MAX_BED_POWER 255
+    #endif
+    #ifndef HEATER_BED_INVERTING
+      #define HEATER_BED_INVERTING false
+    #endif
+    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ HEATER_BED_INVERTING)
   #endif
 
   /**

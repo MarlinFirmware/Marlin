@@ -118,10 +118,6 @@
 
   #define LCD_PINS_RS      -1
   #define LCD_PINS_ENABLE  -1
-  #define LCD_PINS_D4      -1
-  #define LCD_PINS_D5      -1
-  #define LCD_PINS_D6      -1
-  #define LCD_PINS_D7      -1
 
   // Buttons are directly attached using keypad
   #define BTN_EN1          -1

@@ -97,12 +97,14 @@
   #include "pins_SANGUINOLOLU_12.h"
 #elif MB(MELZI)
   #include "pins_MELZI.h"
+#elif MB(MELZI_MAKR3D)
+  #include "pins_MELZI_MAKR3D.h"
+#elif MB(MELZI_CREALITY)
+  #include "pins_MELZI_CREALITY.h"
 #elif MB(STB_11)
   #include "pins_STB_11.h"
 #elif MB(AZTEEG_X1)
   #include "pins_AZTEEG_X1.h"
-#elif MB(MELZI_MAKR3D)
-  #include "pins_MELZI_MAKR3D.h"
 #elif MB(AZTEEG_X3)
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
@@ -468,6 +470,19 @@
 #if DISABLED(USE_ZMIN_PLUG)
   #undef Z_MIN_PIN
   #define Z_MIN_PIN          -1
+#endif
+
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4 -1
+#endif
+#ifndef LCD_PINS_D5
+  #define LCD_PINS_D5 -1
+#endif
+#ifndef LCD_PINS_D6
+  #define LCD_PINS_D6 -1
+#endif
+#ifndef LCD_PINS_D7
+  #define LCD_PINS_D7 -1
 #endif
 
 //

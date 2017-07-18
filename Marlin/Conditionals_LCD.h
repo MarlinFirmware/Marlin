@@ -273,12 +273,6 @@
     #define LCD_FEEDRATE_CHAR    0x06
     #define LCD_CLOCK_CHAR       0x07
     #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #define LCD_UBL_BOXTOP_CHAR 0x01
-      #define LCD_UBL_BOXBOT_CHAR 0x02
-    #endif
-
   #endif
 
   /**
@@ -307,7 +301,10 @@
     #endif
   #endif
 
-  #ifndef BOOTSCREEN_TIMEOUT
+  // Boot screens
+  #if DISABLED(ULTRA_LCD)
+    #undef SHOW_BOOTSCREEN
+  #elif !defined(BOOTSCREEN_TIMEOUT)
     #define BOOTSCREEN_TIMEOUT 2500
   #endif
 

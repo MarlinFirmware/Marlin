@@ -32,9 +32,9 @@
  *
  *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
  *    Installation instructions are at the above URL.
- *    
+ *
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
- *    
+ *
  *    Note: With Teensyduino extension, the Arduino IDE will report 130048 bytes of program storage space available,
  *    but there is actually only 122880 bytes due to the larger DFU bootloader shipped by default on all Printrboard RevF.
  *
@@ -99,8 +99,8 @@
 #define DAC_STEPPER_CURRENT
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
-#ifndef DAC_MOTOR_CURRENT_DEFAULT 
-  #define DAC_MOTOR_CURRENT_DEFAULT { 70, 70, 50, 70 }    
+#ifndef DAC_MOTOR_CURRENT_DEFAULT
+  #define DAC_MOTOR_CURRENT_DEFAULT { 70, 70, 50, 70 }
 #endif
 
 // Number of channels available for DAC
@@ -170,17 +170,17 @@
 
 #if ENABLED(MINIPANEL)
   #if ENABLED(USE_INTERNAL_SD)
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN# 
-    #define SDSS               20  //        10               B0  
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#
+    #define SDSS               20  //        10               B0
     #define SD_DETECT_PIN      -1  // no auto-detect SD insertion on built-in Printrboard SD reader
   #else
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#  
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
     #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
     #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
   #endif
-  
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#  
-    #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04      
+
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+    #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04
     #define DOGLCD_CS           5  //        30               D5                EXP2-06             EXP1-05
     #define BTN_ENC             6  //        31               D6                EXP2-07             EXP1-09
     #define BEEPER_PIN          7  //        32               D7                EXP2-08             EXP1-10
@@ -190,8 +190,8 @@
   //#define LCD_BACKLIGHT_PIN  43  //        56               F5                EXP1-12     Not Implemented
   //#define SCK                21  //        11               B1                ICSP-04             EXP2-09
   //#define MOSI               22  //        12               B2                ICSP-03             EXP2-05
-  //#define MISO               23  //        13               B3                ICSP-06             EXP2-05            
-  
+  //#define MISO               23  //        13               B3                ICSP-06             EXP2-05
+
   // encoder connections present
   #define BLEN_A 0
   #define BLEN_B 1
