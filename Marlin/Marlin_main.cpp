@@ -12511,7 +12511,7 @@ void prepare_move_to_destination() {
 
 #endif // FAST_PWM_FAN
 
-float calculate_volumetric_multiplier(float diameter) {
+float calculate_volumetric_multiplier(const float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
   return 1.0 / (M_PI * sq(diameter * 0.5));
 }
