@@ -427,16 +427,10 @@ static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
+// Initialized by settings.load()
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled =
-        #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-          true
-        #else
-          false
-        #endif
-      ;
-float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
-      volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
+     volumetric_enabled;
+float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 
 #if HAS_WORKSPACE_OFFSET
   #if HAS_POSITION_SHIFT
@@ -513,7 +507,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 static uint8_t target_extruder;
 
 #if HAS_BED_PROBE
-  float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+  float zprobe_zoffset; // Initialized by settings.load()
 #endif
 
 #if HAS_ABL
@@ -542,18 +536,12 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj =
-    #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
-      Z_DUAL_ENDSTOPS_ADJUSTMENT
-    #else
-      0
-    #endif
-  ;
+  float z_endstop_adj;
 #endif
 
 // Extruder offsets
 #if HOTENDS > 1
-  float hotend_offset[XYZ][HOTENDS];
+  float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()
 #endif
 
 #if HAS_Z_SERVO_ENDSTOP
@@ -596,8 +584,7 @@ static uint8_t target_extruder;
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
-  // These values are loaded or reset at boot time when setup() calls
-  // settings.load(), which calls recalc_delta_settings().
+  // Initialized by settings.load()
   float delta_radius,
         delta_tower_angle_trim[2],
         delta_tower[ABC][2],

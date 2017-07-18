@@ -77,7 +77,7 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 #endif
 
 #if HAS_MOTOR_CURRENT_PWM
-  uint32_t Stepper::motor_current_setting[3] = PWM_MOTOR_CURRENT;
+  uint32_t Stepper::motor_current_setting[3]; // Initialized by settings.load()
 #endif
 
 // private:

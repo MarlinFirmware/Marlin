@@ -49,6 +49,7 @@
   bool ubl_lcd_map_control = false;
 #endif
 
+// Initialized by settings.load()
 int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
