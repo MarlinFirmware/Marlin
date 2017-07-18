@@ -51,23 +51,23 @@
  * G3   - CCW ARC
  * G4   - Dwell S<seconds> or P<milliseconds>
  * G5   - Cubic B-spline with XYZE destination and IJPQ offsets
- * G10  - Retract filament according to settings of M207
- * G11  - Retract recover filament according to settings of M208
- * G12  - Clean tool
+ * G10  - Retract filament according to settings of M207 (Requires FWRETRACT)
+ * G11  - Retract recover filament according to settings of M208 (Requires FWRETRACT)
+ * G12  - Clean tool (Requires NOZZLE_CLEAN_FEATURE)
  * G17  - Select Plane XY (Requires CNC_WORKSPACE_PLANES)
  * G18  - Select Plane ZX (Requires CNC_WORKSPACE_PLANES)
  * G19  - Select Plane YZ (Requires CNC_WORKSPACE_PLANES)
- * G20  - Set input units to inches
- * G21  - Set input units to millimeters
+ * G20  - Set input units to inches (Requires INCH_MODE_SUPPORT)
+ * G21  - Set input units to millimeters (Requires INCH_MODE_SUPPORT)
  * G26  - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
- * G29  - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
+ * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
  * G30  - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31  - Dock sled (Z_PROBE_SLED only)
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
- * G38  - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
+ * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires AUTO_BED_LEVELING_UBL)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
