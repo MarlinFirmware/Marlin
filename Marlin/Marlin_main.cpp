@@ -3403,19 +3403,23 @@ inline void gcode_G4() {
 
   /**
    * G10 - Retract filament according to settings of M207
-   * G11 - Recover filament according to settings of M208
    */
-  inline void gcode_G10_G11(bool doRetract=false) {
+  inline void gcode_G10() {
     #if EXTRUDERS > 1
-      if (doRetract)
-        retracted_swap[active_extruder] = parser.boolval('S'); // checks for swap retract argument
+      const bool rs = parser.boolval('S');
+      retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
     #endif
-    retract(doRetract
-     #if EXTRUDERS > 1
-      , retracted_swap[active_extruder]
-     #endif
+    retract(true
+      #if EXTRUDERS > 1
+        , rs
+      #endif
     );
   }
+
+  /**
+   * G11 - Recover filament according to settings of M208
+   */
+  inline void gcode_G11() { retract(false); }
 
 #endif // FWRETRACT
 
@@ -10450,8 +10454,8 @@ void process_next_command() {
 
       // G2, G3
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
-        case 2: // G2  - CW ARC
-        case 3: // G3  - CCW ARC
+        case 2: // G2: CW ARC
+        case 3: // G3: CCW ARC
           gcode_G2_G3(parser.codenum == 2);
           break;
       #endif
@@ -10462,16 +10466,17 @@ void process_next_command() {
         break;
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
-        // G5
-        case 5: // G5  - Cubic B_spline
+        case 5: // G5: Cubic B_spline
           gcode_G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
+          gcode_G10();
+          break;
         case 11: // G11: retract_recover
-          gcode_G10_G11(parser.codenum == 10);
+          gcode_G11();
           break;
       #endif // FWRETRACT
 
