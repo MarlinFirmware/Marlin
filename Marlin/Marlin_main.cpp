@@ -561,8 +561,8 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(BARICUDA)
-  int baricuda_valve_pressure = 0;
-  int baricuda_e_to_p_pressure = 0;
+  uint8_t baricuda_valve_pressure = 0,
+          baricuda_e_to_p_pressure = 0;
 #endif
 
 #if ENABLED(FWRETRACT)

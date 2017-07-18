@@ -409,10 +409,10 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      unsigned char tail_valve_pressure = baricuda_valve_pressure;
+      uint8_t tail_valve_pressure = baricuda_valve_pressure;
     #endif
     #if HAS_HEATER_2
-      unsigned char tail_e_to_p_pressure = baricuda_e_to_p_pressure;
+      uint8_t tail_e_to_p_pressure = baricuda_e_to_p_pressure;
     #endif
   #endif
 
