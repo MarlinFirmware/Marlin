@@ -1001,7 +1001,7 @@ static void lcd_implementation_status_screen() {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
         if (PAGE_CONTAINS(y, y))
           for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
-            u8g.drawBox(sx, y, 1, 1);
+            u8g.drawBox(x, y, 1, 1);
 
       // Fill in the Specified Mesh Point
 
