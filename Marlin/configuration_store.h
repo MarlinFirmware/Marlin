@@ -72,8 +72,6 @@ class MarlinSettings {
 
       #endif
 
-      static void write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc);
-      static void read_data(int &pos, uint8_t *value, uint16_t size, uint16_t *crc);
     #endif
 };
 

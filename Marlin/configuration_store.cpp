@@ -251,12 +251,14 @@ void MarlinSettings::postprocess() {
 }
 
 #if ENABLED(EEPROM_SETTINGS)
+  #include "src/HAL/persistent_store_api.h"
 
   #define DUMMY_PID_VALUE 3000.0f
-  #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
+  #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; HAL::PersistentStore::access_start()
+  #define EEPROM_FINISH() HAL::PersistentStore::access_finish()
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
-  #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_READ(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
+  #define EEPROM_WRITE(VAR) HAL::PersistentStore::write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
+  #define EEPROM_READ(VAR) HAL::PersistentStore::read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
 
   const char version[4] = EEPROM_VERSION;
@@ -266,39 +268,6 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     int MarlinSettings::meshes_begin;
   #endif
-
-  void MarlinSettings::write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
-    if (eeprom_error) return;
-    while (size--) {
-      uint8_t * const p = (uint8_t * const)pos;
-      uint8_t v = *value;
-      // EEPROM has only ~100,000 write cycles,
-      // so only write bytes that have changed!
-      if (v != eeprom_read_byte(p)) {
-        eeprom_write_byte(p, v);
-        if (eeprom_read_byte(p) != v) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
-          eeprom_error = true;
-          return;
-        }
-      }
-      crc16(crc, &v, 1);
-      pos++;
-      value++;
-    };
-  }
-
-  void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
-    if (eeprom_error) return;
-    do {
-      uint8_t c = eeprom_read_byte((unsigned char*)pos);
-      *value = c;
-      crc16(crc, &c, 1);
-      pos++;
-      value++;
-    } while (--size);
-  }
 
   /**
    * M500 - Store Configuration
@@ -667,7 +636,7 @@ void MarlinSettings::postprocess() {
       if (ubl.state.storage_slot >= 0)
         store_mesh(ubl.state.storage_slot);
     #endif
-
+    EEPROM_FINISH();
     return !eeprom_error;
   }
 
@@ -1070,6 +1039,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       report();
     #endif
+    EEPROM_FINISH();
 
     return !eeprom_error;
   }
@@ -1110,7 +1080,7 @@ void MarlinSettings::postprocess() {
         uint16_t crc = 0;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
 
-        write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
@@ -1141,7 +1111,7 @@ void MarlinSettings::postprocess() {
         uint16_t crc = 0;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
         uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
-        read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
 
         // Compare crc with crc from MAT, or read from end
 
