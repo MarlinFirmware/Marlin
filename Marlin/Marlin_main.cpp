@@ -3150,6 +3150,10 @@ static void homeaxis(const AxisEnum axis) {
     const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
 
     const float old_feedrate_mm_s = feedrate_mm_s;
+    const int16_t old_flow = flow_percentage[active_extruder];
+
+    // Don't apply flow multiplication to retract/recover
+    flow_percentage[active_extruder] = 100;
 
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
@@ -3192,6 +3196,8 @@ static void homeaxis(const AxisEnum axis) {
       prepare_move_to_destination();  // Recover E
     }
 
+    // Restore flow and feedrate
+    flow_percentage[active_extruder] = old_flow;
     feedrate_mm_s = old_feedrate_mm_s;
 
     // The active extruder is now retracted or recovered
