@@ -38,14 +38,7 @@ Endstops endstops;
 
 // public:
 
-bool  Endstops::enabled = true,
-      Endstops::enabled_globally =
-        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-          (true)
-        #else
-          (false)
-        #endif
-      ;
+bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
