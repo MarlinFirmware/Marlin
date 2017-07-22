@@ -1542,9 +1542,14 @@
  * *** CAUTION ***
  *
  */
+//#define NEOPIXEL_RGBW_LED
 //#define RGB_LED
 //#define RGBW_LED
-#if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+
+#if ENABLED(NEOPIXEL_RGBW_LED)
+  #define NEOPIXEL_PIN 4 // D4 (EXP2-5 on Printrboard)
+  #define NEOPIXEL_PIXELS 3
+#elif ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35
@@ -1562,7 +1567,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 
