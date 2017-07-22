@@ -60,13 +60,13 @@
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Всё")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" Сопло")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Стол")
-#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Настройки")
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Настр|ойки")          // <--- FIX ME!
 #define MSG_PREHEAT_2                       _UxGT("Преднагрев ABS")
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Всё")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" Сопло")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Стол")
-#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" Настройки")
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" Настр|ойки")          // <--- FIX ME!
 #define MSG_COOLDOWN                        _UxGT("Охлаждение")
 #define MSG_SWITCH_PS_ON                    _UxGT("Включить Питание")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Отключить Питание")
@@ -75,16 +75,16 @@
 #define MSG_MOVE_AXIS                       _UxGT("Движение по осям")
 #define MSG_BED_LEVELING                    _UxGT("Калибровать стол")
 #define MSG_LEVEL_BED                       _UxGT("Калибровать стол")
-#define MSG_EDITING_STOPPED                 _UxGT("Правка сетки остановлена")
-#define MSG_USER_MENU                       _UxGT("Пользовательские комманды")
+#define MSG_EDITING_STOPPED                 _UxGT("Правка сетки останов|лена")          // <--- FIX ME!
+#define MSG_USER_MENU                       _UxGT("Пользовательские ком|манды")         // <--- FIX ME!
 #define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
 #define MSG_UBL_TOOLS                       _UxGT("Утилиты UBL")
-#define MSG_UBL_LEVEL_BED                   _UxGT("Универсальное выранвнивание стла")
-#define MSG_UBL_MANUAL_MESH                 _UxGT("Ручное создание сетки")
-#define MSG_UBL_BC_INSERT                   _UxGT("Подложите бумагу и измерьте")
+#define MSG_UBL_LEVEL_BED                   _UxGT("Универсальное выранв|нивание стла")  // <--- FIX ME!
+#define MSG_UBL_MANUAL_MESH                 _UxGT("Ручное создание сетк|и")             // <--- FIX ME!
+#define MSG_UBL_BC_INSERT                   _UxGT("Подложите бумагу и и|змерьте")       // <--- FIX ME!
 #define MSG_UBL_BC_INSERT2                  _UxGT("Измерение")
-#define MSG_UBL_BC_REMOVE                   _UxGT("Удалите и измерьте стол")
+#define MSG_UBL_BC_REMOVE                   _UxGT("Удалите и измерьте с|тол")           // <--- FIX ME!
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Двигаемся дальше")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Активировать UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Выключить UBL")
@@ -93,24 +93,24 @@
 #define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Температура сопла")
 #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #define MSG_UBL_MESH_EDIT                   _UxGT("Редактор сеток")
-#define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Редактировать свою сетку")
-#define MSG_UBL_FINE_TUNE_MESH              _UxGT("Тонкая настройка сетки")
-#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Закончить редактирование сетки")
+#define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Редактировать свою с|етку")          // <--- FIX ME!
+#define MSG_UBL_FINE_TUNE_MESH              _UxGT("Тонкая настройка сет|ки")            // <--- FIX ME!
+#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Закончить редактиров|ание сетки")    // <--- FIX ME!
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Построить свою сетку")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Построить сетку")
 #define MSG_UBL_BUILD_PLA_MESH              _UxGT("Построить сетку PLA")
 #define MSG_UBL_BUILD_ABS_MESH              _UxGT("Построить сетку ABS")
-#define MSG_UBL_BUILD_COLD_MESH             _UxGT("Построить холодную сетку")
-#define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Установить высотку сетки")
+#define MSG_UBL_BUILD_COLD_MESH             _UxGT("Построить холодную с|етку")          // <--- FIX ME!
+#define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Установить высотку с|етки")          // <--- FIX ME!
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("Высота")
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Проверить сетку")
 #define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Проверить сетку PLA")
 #define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Проверить сетку ABS")
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Проверить свою сетку")
-#define MSG_UBL_CONTINUE_MESH               _UxGT("Продолжить сетку стола")
-#define MSG_UBL_MESH_LEVELING               _UxGT("Выравнивание по сетке")
-#define MSG_UBL_3POINT_MESH_LEVELING        _UxGT("Выравнивание по 3 точкам")
-#define MSG_UBL_GRID_MESH_LEVELING          _UxGT("Выравнивание по решетке")
+#define MSG_UBL_CONTINUE_MESH               _UxGT("Продолжить сетку сто|ла")            // <--- FIX ME!
+#define MSG_UBL_MESH_LEVELING               _UxGT("Выравнивание по сетк|е")             // <--- FIX ME!
+#define MSG_UBL_3POINT_MESH_LEVELING        _UxGT("Выравнивание по 3 то|чкам")          // <--- FIX ME!
+#define MSG_UBL_GRID_MESH_LEVELING          _UxGT("Выравнивание по реше|тке")           // <--- FIX ME!
 #define MSG_UBL_MESH_LEVEL                  _UxGT("Выровнять сетку")
 #define MSG_UBL_SIDE_POINTS                 _UxGT("Крайние точки")
 #define MSG_UBL_MAP_TYPE                    _UxGT("Типа карты")
@@ -118,23 +118,23 @@
 #define MSG_UBL_OUTPUT_MAP_HOST             _UxGT("Вывести на хост")
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Вывести в CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Забекапить сетку")
-#define MSG_UBL_INFO_UBL                    _UxGT("Вывести информацию UBL")
+#define MSG_UBL_INFO_UBL                    _UxGT("Вывести информацию U|BL")            // <--- FIX ME!
 #define MSG_UBL_EDIT_MESH_MENU              _UxGT("Редактировать сетку")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Заполнить значения")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Ручное заполнение")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Уменое заполнение")
 #define MSG_UBL_FILLIN_MESH                 _UxGT("Заполнить сетку")
 #define MSG_UBL_INVALIDATE_ALL              _UxGT("Аннулировать всё")
-#define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Аннулировать ближайшие")
-#define MSG_UBL_FINE_TUNE_ALL               _UxGT("Тонкая настройка всего")
-#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Тонкая настройка ближайших")
+#define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Аннулировать ближайш|ие")            // <--- FIX ME!
+#define MSG_UBL_FINE_TUNE_ALL               _UxGT("Тонкая настройка все|го")            // <--- FIX ME!
+#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Тонкая настройка бли|жайших")        // <--- FIX ME!
 #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Хранилище сетей")
 #define MSG_UBL_STORAGE_SLOT                _UxGT("Слот памяти")
-#define MSG_UBL_LOAD_MESH                   _UxGT("Загрузить сетку стола")
-#define MSG_UBL_SAVE_MESH                   _UxGT("Сохранить сетку стола")
-#define MSG_UBL_SAVE_ERROR                  _UxGT("Ошибка: Сохранения UBL")
+#define MSG_UBL_LOAD_MESH                   _UxGT("Загрузить сетку стол|а")             // <--- FIX ME!
+#define MSG_UBL_SAVE_MESH                   _UxGT("Сохранить сетку стол|а")             // <--- FIX ME!
+#define MSG_UBL_SAVE_ERROR                  _UxGT("Ошибка: Сохранения U|BL")            // <--- FIX ME!
 #define MSG_UBL_RESTORE_ERROR               _UxGT("Ошибка: Загрузки UBL")
-#define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Смещение Z остановлено")
+#define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Смещение Z остановле|но")            // <--- FIX ME!
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Пошаговый UBL")
 #define MSG_MOVING                          _UxGT("Движемся...")
 #define MSG_FREE_XY                         _UxGT("Освобождаем XY")
@@ -197,7 +197,7 @@
 #define MSG_STORE_EEPROM                    _UxGT("Сохранить в EEPROM")
 #define MSG_LOAD_EEPROM                     _UxGT("Считать из EEPROM")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Сброс EEPROM")
-#define MSG_INIT_EEPROM                     _UxGT("Инициализировать EEPROM")
+#define MSG_INIT_EEPROM                     _UxGT("Инициализировать EEP|ROM")           // <--- FIX ME!
 #define MSG_REFRESH                         _UxGT("Обновить")
 #define MSG_WATCH                           _UxGT("Обзор")
 #define MSG_PREPARE                         _UxGT("Действия")
@@ -208,7 +208,7 @@
 #define MSG_CARD_MENU                       _UxGT("Обзор карты")
 #define MSG_NO_CARD                         _UxGT("Нет карты")
 #define MSG_DWELL                           _UxGT("Сон...")
-#define MSG_USERWAIT                        _UxGT("Нажми для продолжения...")
+#define MSG_USERWAIT                        _UxGT("Нажми для продолжени|я...")          // <--- FIX ME!
 #define MSG_PRINT_PAUSED                    _UxGT("Печать остановлена")
 #define MSG_RESUMING                        _UxGT("Возобновление...")
 #define MSG_PRINT_ABORTED                   _UxGT("Отмена печати")
@@ -240,7 +240,7 @@
 #define MSG_BABYSTEP_Z                      _UxGT("Микрошаг Z")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Сработал концевик")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Разогрев не удался")
-#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Ошибка:Слишком горячо")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Ошибка:Слишком горяч|о")             // <--- FIX ME!
 #define MSG_THERMAL_RUNAWAY                 _UxGT("ТЕПЛО УБЕГАНИЯ!")
 #define MSG_ERR_MAXTEMP                     _UxGT("Ошибка: Т макс.")
 #define MSG_ERR_MINTEMP                     _UxGT("Ошибка: Т мин.")
@@ -261,18 +261,18 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калибровать Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Калибровать Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Калибровать центр")
-#define MSG_DELTA_SETTINGS                  _UxGT("Показать настройки Delta")
+#define MSG_DELTA_SETTINGS                  _UxGT("Показать настройки D|elta")          // <--- FIX ME!
 #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Авто калибровка")
 #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Задать высоту Delta")
 #define MSG_INFO_MENU                       _UxGT("О принтере")
-#define MSG_INFO_PRINTER_MENU               _UxGT("Информация о принтере")
-#define MSG_3POINT_LEVELING                 _UxGT("Выравнивание по 3 точкам")
-#define MSG_LINEAR_LEVELING                 _UxGT("Линейное выравнивание")
-#define MSG_BILINEAR_LEVELING               _UxGT("Квадратичное выравнивание")
-#define MSG_UBL_LEVELING                    _UxGT("Универсальное выравниваие")
-#define MSG_MESH_LEVELING                   _UxGT("Выравнивание по сетке")
+#define MSG_INFO_PRINTER_MENU               _UxGT("Информация о принтер|е")             // <--- FIX ME!
+#define MSG_3POINT_LEVELING                 _UxGT("Выравнивание по 3 то|чкам")          // <--- FIX ME!
+#define MSG_LINEAR_LEVELING                 _UxGT("Линейное выравнивани|е")             // <--- FIX ME!
+#define MSG_BILINEAR_LEVELING               _UxGT("Квадратичное выравни|вание")         // <--- FIX ME!
+#define MSG_UBL_LEVELING                    _UxGT("Универсальное выравн|иваие")         // <--- FIX ME!
+#define MSG_MESH_LEVELING                   _UxGT("Выравнивание по сетк|е")             // <--- FIX ME!
 #define MSG_INFO_STATS_MENU                 _UxGT("Статистика принтера")
-#define MSG_INFO_BOARD_MENU                 _UxGT("Информация о контроллере")
+#define MSG_INFO_BOARD_MENU                 _UxGT("Информация о контрол|лере")          // <--- FIX ME!
 #define MSG_INFO_THERMISTOR_MENU            _UxGT("Термисторы")
 #define MSG_INFO_EXTRUDERS                  _UxGT("Экструдеры")
 #define MSG_INFO_BAUDRATE                   _UxGT("Бод")
@@ -280,10 +280,10 @@
 #define MSG_CASE_LIGHT                      _UxGT("Корпусное освещение")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Яркость освещения")
 #if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              _UxGT("Количество отпечатков")
+  #define MSG_INFO_PRINT_COUNT              _UxGT("Количество отпечатко|в")             // <--- FIX ME!
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")
   #define MSG_INFO_PRINT_TIME               _UxGT("Полное время печати")
-  #define MSG_INFO_PRINT_LONGEST            _UxGT("Максимальное время печати")
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("Максимальное время п|ечати")         // <--- FIX ME!
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Длинна филамента")
 #else
   #define MSG_INFO_PRINT_COUNT              _UxGT("Отпечатков")
@@ -292,79 +292,49 @@
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Наибольшее")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Выдавлено")
 #endif
-#define MSG_INFO_MIN_TEMP                   _UxGT("Минимальная температура")
-#define MSG_INFO_MAX_TEMP                   _UxGT("Максимальная температура")
+#define MSG_INFO_MIN_TEMP                   _UxGT("Минимальная температ|ура")           // <--- FIX ME!
+#define MSG_INFO_MAX_TEMP                   _UxGT("Максимальная темпера|тура")          // <--- FIX ME!
 #define MSG_INFO_PSU                        _UxGT("Блок питания")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Сила привода")
 #define MSG_DAC_PERCENT                     _UxGT("Привод %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Записи DAC EEPROM")
 #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ПЕЧАТЬ ОСТАНОВЛЕНА")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ВАРИАНТЫ ПРОДОЛЖЕНИЯ:")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ВАРИАНТЫ ПРОДОЛЖЕНИЯ|:")             // <--- FIX ME!
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Выдавить ещё")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Возобновить печать")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Минимальная температура ")
+#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Минимальная температ|ура ")          // <--- FIX ME!
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Сопла: ")
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display
 //
 #if LCD_HEIGHT >= 4
-  #ifndef MSG_FILAMENT_CHANGE_INIT_1
-    #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Ожидайте")
-    #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("начала смены")
-    #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("филамента")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ожидайте")
-    #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("выгрузки филамента")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
-    #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Вставьте филамент")
-    #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("и нажмите кнопку")
-    #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("для продолжения...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_HEAT_1
-    #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Нажмите кнопку для")
-    #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("нагрева сопла...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
-    #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Нагрев сопла")
-    #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Ждите...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
-    #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ожидайте")
-    #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("загрузки филамента")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ожидайте")
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("выдавливания филамента")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_1
-    #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Ожидайте")
-    #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("возобновления")
-  #endif
+  #define MSG_FILAMENT_CHANGE_INIT_1      _UxGT("Ожидайте")
+  #define MSG_FILAMENT_CHANGE_INIT_2      _UxGT("начала смены")
+  #define MSG_FILAMENT_CHANGE_INIT_3      _UxGT("филамента")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1    _UxGT("Ожидайте")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2    _UxGT("выгрузки филамента")
+  #define MSG_FILAMENT_CHANGE_INSERT_1    _UxGT("Вставьте филамент")
+  #define MSG_FILAMENT_CHANGE_INSERT_2    _UxGT("и нажмите кнопку")
+  #define MSG_FILAMENT_CHANGE_INSERT_3    _UxGT("для продолжения...")
+  #define MSG_FILAMENT_CHANGE_HEAT_1      _UxGT("Нажмите кнопку для")
+  #define MSG_FILAMENT_CHANGE_HEAT_2      _UxGT("нагрева сопла...")
+  #define MSG_FILAMENT_CHANGE_HEATING_1   _UxGT("Нагрев сопла")
+  #define MSG_FILAMENT_CHANGE_HEATING_2   _UxGT("Ждите...")
+  #define MSG_FILAMENT_CHANGE_LOAD_1      _UxGT("Ожидайте")
+  #define MSG_FILAMENT_CHANGE_LOAD_2      _UxGT("загрузки филамента")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1   _UxGT("Ожидайте")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2   _UxGT("выдавливания филамен|та")              // <--- FIX ME!
+  #define MSG_FILAMENT_CHANGE_RESUME_1    _UxGT("Ожидайте")
+  #define MSG_FILAMENT_CHANGE_RESUME_2    _UxGT("возобновления")
 #else // LCD_HEIGHT < 4
-  #ifndef MSG_FILAMENT_CHANGE_INIT_1
-    #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Ожидайте...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Выгрузка...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
-    #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Вставь и нажми")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
-    #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Нагрев...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
-    #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Загрузка...")
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Выдавливание...")
-  #endif
-#ifndef MSG_FILAMENT_CHANGE_RESUME_1
-    #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Возобновление...")
-  #endif
+  #define MSG_FILAMENT_CHANGE_INIT_1      _UxGT("Ожидайте...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1    _UxGT("Выгрузка...")
+  #define MSG_FILAMENT_CHANGE_INSERT_1    _UxGT("Вставь и нажми")
+  #define MSG_FILAMENT_CHANGE_HEATING_1   _UxGT("Нагрев...")
+  #define MSG_FILAMENT_CHANGE_LOAD_1      _UxGT("Загрузка...")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1   _UxGT("Выдавливание...")
+  #define MSG_FILAMENT_CHANGE_RESUME_1    _UxGT("Возобновление...")
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_RU_H

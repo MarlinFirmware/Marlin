@@ -362,8 +362,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int baricuda_valve_pressure;
-  extern int baricuda_e_to_p_pressure;
+  extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)

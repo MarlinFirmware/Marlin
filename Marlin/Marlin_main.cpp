@@ -51,23 +51,23 @@
  * G3   - CCW ARC
  * G4   - Dwell S<seconds> or P<milliseconds>
  * G5   - Cubic B-spline with XYZE destination and IJPQ offsets
- * G10  - Retract filament according to settings of M207
- * G11  - Retract recover filament according to settings of M208
- * G12  - Clean tool
+ * G10  - Retract filament according to settings of M207 (Requires FWRETRACT)
+ * G11  - Retract recover filament according to settings of M208 (Requires FWRETRACT)
+ * G12  - Clean tool (Requires NOZZLE_CLEAN_FEATURE)
  * G17  - Select Plane XY (Requires CNC_WORKSPACE_PLANES)
  * G18  - Select Plane ZX (Requires CNC_WORKSPACE_PLANES)
  * G19  - Select Plane YZ (Requires CNC_WORKSPACE_PLANES)
- * G20  - Set input units to inches
- * G21  - Set input units to millimeters
+ * G20  - Set input units to inches (Requires INCH_MODE_SUPPORT)
+ * G21  - Set input units to millimeters (Requires INCH_MODE_SUPPORT)
  * G26  - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
- * G29  - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
+ * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
  * G30  - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31  - Dock sled (Z_PROBE_SLED only)
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
- * G38  - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
+ * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires AUTO_BED_LEVELING_UBL)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
@@ -427,16 +427,10 @@ static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
+// Initialized by settings.load()
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled =
-        #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-          true
-        #else
-          false
-        #endif
-      ;
-float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
-      volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
+     volumetric_enabled;
+float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 
 #if HAS_WORKSPACE_OFFSET
   #if HAS_POSITION_SHIFT
@@ -513,7 +507,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 static uint8_t target_extruder;
 
 #if HAS_BED_PROBE
-  float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+  float zprobe_zoffset; // Initialized by settings.load()
 #endif
 
 #if HAS_ABL
@@ -542,18 +536,12 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj =
-    #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
-      Z_DUAL_ENDSTOPS_ADJUSTMENT
-    #else
-      0
-    #endif
-  ;
+  float z_endstop_adj;
 #endif
 
 // Extruder offsets
 #if HOTENDS > 1
-  float hotend_offset[XYZ][HOTENDS];
+  float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()
 #endif
 
 #if HAS_Z_SERVO_ENDSTOP
@@ -561,8 +549,8 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(BARICUDA)
-  int baricuda_valve_pressure = 0;
-  int baricuda_e_to_p_pressure = 0;
+  uint8_t baricuda_valve_pressure = 0,
+          baricuda_e_to_p_pressure = 0;
 #endif
 
 #if ENABLED(FWRETRACT)
@@ -596,8 +584,7 @@ static uint8_t target_extruder;
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
-  // These values are loaded or reset at boot time when setup() calls
-  // settings.load(), which calls recalc_delta_settings().
+  // Initialized by settings.load()
   float delta_radius,
         delta_tower_angle_trim[2],
         delta_tower[ABC][2],
@@ -3403,19 +3390,23 @@ inline void gcode_G4() {
 
   /**
    * G10 - Retract filament according to settings of M207
-   * G11 - Recover filament according to settings of M208
    */
-  inline void gcode_G10_G11(bool doRetract=false) {
+  inline void gcode_G10() {
     #if EXTRUDERS > 1
-      if (doRetract)
-        retracted_swap[active_extruder] = parser.boolval('S'); // checks for swap retract argument
+      const bool rs = parser.boolval('S');
+      retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
     #endif
-    retract(doRetract
-     #if EXTRUDERS > 1
-      , retracted_swap[active_extruder]
-     #endif
+    retract(true
+      #if EXTRUDERS > 1
+        , rs
+      #endif
     );
   }
+
+  /**
+   * G11 - Recover filament according to settings of M208
+   */
+  inline void gcode_G11() { retract(false); }
 
 #endif // FWRETRACT
 
@@ -10350,21 +10341,19 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       UNUSED(fr_mm_s);
       UNUSED(no_move);
 
-      #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
-
-        stepper.synchronize();
-        move_extruder_servo(tmp_extruder);
-
-      #elif ENABLED(MK2_MULTIPLEXER)
-
+      #if ENABLED(MK2_MULTIPLEXER)
         if (tmp_extruder >= E_STEPPERS)
           return invalid_extruder_error(tmp_extruder);
 
         select_multiplexed_stepper(tmp_extruder);
-
       #endif
 
     #endif // HOTENDS <= 1
+
+    #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
+      stepper.synchronize();
+      move_extruder_servo(tmp_extruder);
+    #endif
 
     active_extruder = tmp_extruder;
 
@@ -10450,8 +10439,8 @@ void process_next_command() {
 
       // G2, G3
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
-        case 2: // G2  - CW ARC
-        case 3: // G3  - CCW ARC
+        case 2: // G2: CW ARC
+        case 3: // G3: CCW ARC
           gcode_G2_G3(parser.codenum == 2);
           break;
       #endif
@@ -10462,16 +10451,17 @@ void process_next_command() {
         break;
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
-        // G5
-        case 5: // G5  - Cubic B_spline
+        case 5: // G5: Cubic B_spline
           gcode_G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
+          gcode_G10();
+          break;
         case 11: // G11: retract_recover
-          gcode_G10_G11(parser.codenum == 10);
+          gcode_G11();
           break;
       #endif // FWRETRACT
 
@@ -12511,7 +12501,7 @@ void prepare_move_to_destination() {
 
 #endif // FAST_PWM_FAN
 
-float calculate_volumetric_multiplier(float diameter) {
+float calculate_volumetric_multiplier(const float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
   return 1.0 / (M_PI * sq(diameter * 0.5));
 }

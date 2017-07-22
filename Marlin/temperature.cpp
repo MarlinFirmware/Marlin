@@ -73,28 +73,24 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
   int16_t Temperature::target_temperature_bed = 0;
 #endif
 
+// Initialized by settings.load()
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-    float Temperature::Kp[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kp),
-          Temperature::Ki[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Ki) * (PID_dT)),
-          Temperature::Kd[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Kd) / (PID_dT));
+    float Temperature::Kp[HOTENDS], Temperature::Ki[HOTENDS], Temperature::Kd[HOTENDS];
     #if ENABLED(PID_EXTRUSION_SCALING)
-      float Temperature::Kc[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kc);
+      float Temperature::Kc[HOTENDS];
     #endif
   #else
-    float Temperature::Kp = DEFAULT_Kp,
-          Temperature::Ki = (DEFAULT_Ki) * (PID_dT),
-          Temperature::Kd = (DEFAULT_Kd) / (PID_dT);
+    float Temperature::Kp, Temperature::Ki, Temperature::Kd;
     #if ENABLED(PID_EXTRUSION_SCALING)
-      float Temperature::Kc = DEFAULT_Kc;
+      float Temperature::Kc;
     #endif
   #endif
 #endif
 
+// Initialized by settings.load()
 #if ENABLED(PIDTEMPBED)
-  float Temperature::bedKp = DEFAULT_bedKp,
-        Temperature::bedKi = ((DEFAULT_bedKi) * PID_dT),
-        Temperature::bedKd = ((DEFAULT_bedKd) / PID_dT);
+  float Temperature::bedKp, Temperature::bedKi, Temperature::bedKd;
 #endif
 
 #if ENABLED(BABYSTEPPING)
