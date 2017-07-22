@@ -755,7 +755,7 @@
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
 //#define ADVANCED_OK
 
-// @section fwretract
+// @section extras
 
 /**
  * Firmware-based and LCD-controlled retract
