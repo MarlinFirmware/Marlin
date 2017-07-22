@@ -10341,21 +10341,19 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       UNUSED(fr_mm_s);
       UNUSED(no_move);
 
-      #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
-
-        stepper.synchronize();
-        move_extruder_servo(tmp_extruder);
-
-      #elif ENABLED(MK2_MULTIPLEXER)
-
+      #if ENABLED(MK2_MULTIPLEXER)
         if (tmp_extruder >= E_STEPPERS)
           return invalid_extruder_error(tmp_extruder);
 
         select_multiplexed_stepper(tmp_extruder);
-
       #endif
 
     #endif // HOTENDS <= 1
+
+    #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
+      stepper.synchronize();
+      move_extruder_servo(tmp_extruder);
+    #endif
 
     active_extruder = tmp_extruder;
 
