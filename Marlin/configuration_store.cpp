@@ -1762,7 +1762,7 @@ void MarlinSettings::reset() {
 
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
+        SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR("  M209 S", autoretract_enabled ? 1 : 0);

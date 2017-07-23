@@ -558,8 +558,8 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(FWRETRACT)                      // Initialized by settings.load()...
-  bool  autoretract_enabled,                // M209 S - Autoretract switch
-        retracted[EXTRUDERS] = { false };   // Which extruders are currently retracted
+  bool autoretract_enabled,                 // M209 S - Autoretract switch
+       retracted[EXTRUDERS] = { false };    // Which extruders are currently retracted
   float retract_length,                     // M207 S - G10 Retract length
         retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
         retract_zlift,                      // M207 Z - G10 Retract hop size
@@ -3350,14 +3350,16 @@ inline void gcode_G0_G1(
     gcode_get_destination(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
-      // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
-      if (autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
-        const float echange = destination[E_AXIS] - current_position[E_AXIS];
-        // Is this a retract or recover move?
-        if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && retracted[active_extruder] == (echange > 0.0)) {
-          current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/recover from calculations
-          sync_plan_position_e();                         // AND from the planner
-          return retract(echange < 0.0);                  // Firmware-based retract/recover (double-retract ignored)
+      if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+        // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
+        if (autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
+          const float echange = destination[E_AXIS] - current_position[E_AXIS];
+          // Is this a retract or recover move?
+          if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && retracted[active_extruder] == (echange > 0.0)) {
+            current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/recover from calculations
+            sync_plan_position_e();                         // AND from the planner
+            return retract(echange < 0.0);                  // Firmware-based retract/recover (double-retract ignored)
+          }
         }
       }
     #endif // FWRETRACT
@@ -8584,9 +8586,11 @@ inline void gcode_M205() {
    *   moves will be classified as retraction.
    */
   inline void gcode_M209() {
-    if (parser.seen('S')) {
-      autoretract_enabled = parser.value_bool();
-      for (int i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+    if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+      if (parser.seen('S')) {
+        autoretract_enabled = parser.value_bool();
+        for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+      }
     }
   }
 
@@ -11051,7 +11055,7 @@ void process_next_command() {
           gcode_M208();
           break;
         case 209: // M209: Turn Automatic Retract Detection on/off
-          gcode_M209();
+          if (MIN_AUTORETRACT <= MAX_AUTORETRACT) gcode_M209();
           break;
       #endif // FWRETRACT
 
