@@ -2786,7 +2786,7 @@ static void clean_up_after_endstop_or_probe_move() {
     int bilinear_grid_spacing_virt[2] = { 0 };
     float bilinear_grid_factor_virt[2] = { 0 };
 
-    static void bed_level_virt_print() {
+    static void print_bilinear_leveling_grid_virt() {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
       print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
         [](const uint8_t ix, const uint8_t iy) { return z_values_virt[ix][iy]; }
@@ -5042,7 +5042,7 @@ void home_all_axes() { gcode_G28(true); }
         refresh_bed_level();
 
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_print();
+          print_bilinear_leveling_grid_virt();
         #endif
 
       #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -9314,17 +9314,17 @@ void quickstop_stepper() {
     if (parser.seen('V')) {
       #if ABL_PLANAR
         planner.bed_level_matrix.debug(PSTR("Bed Level Correction Matrix:"));
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      #else
         if (leveling_is_valid()) {
-          print_bilinear_leveling_grid();
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_print();
+          #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+            print_bilinear_leveling_grid();
+            #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+              print_bilinear_leveling_grid_virt();
+            #endif
+          #elif ENABLED(MESH_BED_LEVELING)
+            SERIAL_ECHOLNPGM("Mesh Bed Level data:");
+            mbl_mesh_report();
           #endif
-        }
-      #elif ENABLED(MESH_BED_LEVELING)
-        if (leveling_is_valid()) {
-          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
-          mbl_mesh_report();
         }
       #endif
     }
