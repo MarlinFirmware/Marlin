@@ -2356,6 +2356,15 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
+
+
+
+	// DODANE albowiem jakieœ chujki stwierdzily ze bazowanie G28 musi wylaczac leveling mode M420 S1
+	void bazowanie_bed_on(){
+		enqueue_and_echo_commands_P(PSTR("G28"));
+		enqueue_and_echo_commands_P(PSTR("M420 S1"));
+	}
+
   /**
    *
    * "Prepare" submenu
@@ -2373,7 +2382,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Auto Home
     //
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+	MENU_ITEM(function, MSG_AUTO_HOME, bazowanie_bed_on);  //dodane, bylo: PSTR("G28 X");
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
       MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
       MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
@@ -2407,7 +2416,7 @@ void kill_screen(const char* lcd_msg) {
 		  // Change filament
 		  //
 	#if ENABLED(ADVANCED_PAUSE_FEATURE)
-			  if (!thermalManager.tooColdToExtrude(active_extruder))
+			  //if (!thermalManager.tooColdToExtrude(active_extruder))
 				  MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
 	#endif
 
@@ -4052,6 +4061,20 @@ void kill_screen(const char* lcd_msg) {
 #endif // ULTIPANEL
 
 void lcd_init() {
+	/*
+	* DODANE Z RACJI CHUJOWEGO RESET_PINU NA NIEKTORYCH OLEDACH
+	*/
+	int LCD_Reset = 29;
+	int LCD_Reset_state;
+	LCD_Reset_state = digitalRead(29);
+	if (LCD_Reset_state == LOW){
+		pinMode(LCD_Reset, OUTPUT);
+		digitalWrite(LCD_Reset, LOW);
+		delay(200);
+		digitalWrite(LCD_Reset, HIGH);
+	}
+	else{ digitalWrite(LCD_Reset, HIGH); }
+
 
   lcd_implementation_init(
     #if ENABLED(LCD_PROGRESS_BAR)
