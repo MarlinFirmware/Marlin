@@ -3929,7 +3929,7 @@ inline void gcode_G28(const bool always_home_all) {
   lcd_refresh();
 
   report_current_position();
-
+  enqueue_and_echo_commands_P(PSTR("M420 S1")); //dodane z podobnych powodow
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif

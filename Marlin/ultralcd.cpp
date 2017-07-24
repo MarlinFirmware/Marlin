@@ -1556,6 +1556,12 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
+	// DODANE albowiem jakieœ chujki stwierdzily ze bazowanie G28 musi wylaczac leveling mode M420 S1
+	void bazowanie_bed_on(){
+		enqueue_and_echo_commands_P(PSTR("G28"));
+		enqueue_and_echo_commands_P(PSTR("M420 S1"));
+	}
+
 #if ENABLED(LCD_BED_LEVELING)
 
     /**
@@ -2353,11 +2359,7 @@ void kill_screen(const char* lcd_msg) {
 
 
 
-	// DODANE albowiem jakieœ chujki stwierdzily ze bazowanie G28 musi wylaczac leveling mode M420 S1
-	void bazowanie_bed_on(){
-		enqueue_and_echo_commands_P(PSTR("G28"));
-		enqueue_and_echo_commands_P(PSTR("M420 S1"));
-	}
+
 
   /**
    *
