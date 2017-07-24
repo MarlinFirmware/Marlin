@@ -1668,6 +1668,7 @@ void kill_screen(const char* lcd_msg) {
             _lcd_after_probing();
 
             mbl.set_has_mesh(true);
+			set_bed_leveling_enabled(true);
             mesh_probing_done();
 
           #endif
@@ -1810,7 +1811,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_PREPARE);
 
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
-        MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+		  MENU_ITEM(function, MSG_AUTO_HOME, bazowanie_bed_on);  //dodane, bylo: PSTR("G28 X");
       else if (leveling_is_valid()) {
         _level_state = leveling_is_active();
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);

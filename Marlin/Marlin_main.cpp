@@ -3998,8 +3998,8 @@ void home_all_axes() { gcode_G28(true); }
   }
 
   void mesh_probing_done() {
-	enqueue_and_echo_commands_P(PSTR("M500"));  // dodane aby zapisywało poziomowanie podczas trwania funkcji
     mbl.set_has_mesh(true);
+	enqueue_and_echo_commands_P(PSTR("M500"));  // dodane aby zapisywało poziomowanie podczas trwania funkcji
     home_all_axes();
     set_bed_leveling_enabled(true);
     #if ENABLED(MESH_G28_REST_ORIGIN)
