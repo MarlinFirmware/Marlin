@@ -23,8 +23,15 @@
 /**
  * Polish for DOGM display - includes accented characters
  */
+//dodane:
+#define MSG_PREHEAT_PRINTER					"Rozgrzej"
+#define MSG_PREHEAT_1                       LCD_STR_THERMOMETER _UxGT("Rozgrzej PLA")
+#define MSG_PREHEAT_2                       LCD_STR_THERMOMETER _UxGT("Rozgrzej ABS")
+#define MSG_PREHEAT_3						LCD_STR_THERMOMETER _UxGT("Rozgrzej PET-G")
+#define MSG_PREHEAT_3_SETTINGS				_UxGT("Ustaw. rozg. PET-G")
+#define MSG_ADVANCED						_UxGT("Zaawansowane")
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowa.")
 #define MSG_SD_INSERTED                     _UxGT("Karta włożona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunięta")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Kranców.") // Max length 8 characters
@@ -42,13 +49,11 @@
 #define MSG_LEVEL_BED_DONE                  _UxGT("Wypoziomowano!")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
-#define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
-#define MSG_PREHEAT_1                       _UxGT("Rozgrzej PLA")
+#define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero"
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" wsz.")
 #define MSG_PREHEAT_1_BEDONLY               _UxGT("Rozgrzej stół PLA")
 #define MSG_PREHEAT_1_SETTINGS              _UxGT("Ustaw. rozg. PLA")
-#define MSG_PREHEAT_2                       _UxGT("Rozgrzej ABS")
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" wsz.")
 #define MSG_PREHEAT_2_BEDONLY               _UxGT("Rozgrzej stół ABS")
