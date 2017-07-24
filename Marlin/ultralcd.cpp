@@ -118,9 +118,12 @@ uint16_t max_display_update_time = 0;
   void lcd_move_menu();
   void lcd_control_menu();
   void lcd_control_temperature_menu();
+  void lcd_control_temperature_advanced_menu();  // dodane 
   void lcd_control_temperature_preheat_material1_settings_menu();
   void lcd_control_temperature_preheat_material2_settings_menu();
+  void lcd_control_temperature_preheat_material3_settings_menu();
   void lcd_control_motion_menu();
+  void lcd_control_motion_advanced_menu(); // dodane
   void lcd_control_filament_menu();
 
   #if ENABLED(LCD_INFO_MENU)
@@ -1324,6 +1327,10 @@ void kill_screen(const char* lcd_msg) {
     void lcd_preheat_m1_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
     void lcd_preheat_m2_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
     #if TEMP_SENSOR_BED != 0
+	void lcd_preheat_pla() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); } //dodane
+	void lcd_preheat_abs() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); } //dodane
+	void lcd_preheat_pet() { _lcd_preheat(0, lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2]); } //dodane
+
       void lcd_preheat_m1_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
       void lcd_preheat_m2_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
     #endif
@@ -1514,6 +1521,24 @@ void kill_screen(const char* lcd_msg) {
     }
 
   #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
+
+	/* DODANE PREHEAT PRINTO */
+	void lcd_preheat_menu() {
+		START_MENU();
+		MENU_BACK(MSG_PREPARE);
+		MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_pla);
+		MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_abs);
+		MENU_ITEM(function, MSG_PREHEAT_3, lcd_preheat_pet);
+		END_MENU();
+	}
+
+	/* DODANE PREHEAT FILAMENT CHANGE *//*
+	void lcd_preheat_filament_change_menu() {
+		START_MENU();
+		MENU_BACK(MSG_PREPARE);
+		MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+		END_MENU();
+	} */
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
