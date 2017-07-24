@@ -312,8 +312,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
           u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
         #else
           const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 2 / 2, STRING_SPLASH_LINE1);  // dodane
+          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 4, STRING_SPLASH_LINE2);  // dodane
         #endif
       } while (u8g.nextPage());
     }
@@ -404,7 +404,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
   if (PAGE_CONTAINS(21, 28))
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
-
+  /*
   if (PAGE_CONTAINS(17, 20)) {
     const uint8_t h = isBed ? 7 : 8,
                   y = isBed ? 18 : 17;
@@ -416,7 +416,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     else {
       u8g.drawBox(x + h, y, 2, 2);
     }
-  }
+  } */ //dodane
 }
 
 FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
@@ -483,7 +483,7 @@ static void lcd_implementation_status_screen() {
   //
   // Fan Animation
   //
-
+  /*
   if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
 
     u8g.drawBitmapP(9, 1, STATUS_SCREENBYTEWIDTH, STATUS_SCREENHEIGHT,
@@ -494,20 +494,32 @@ static void lcd_implementation_status_screen() {
       #endif
     );
 
-  }
+  } */ //dodane
 
   //
   // Temperature Graphics and Info
   //
 
   if (PAGE_UNDER(28)) {
-    // Extruders
-    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e, blink);
+	  //dodane
+	  //  u8g.drawFrame(0, 0, 128, 20);
 
-    // Heated bed
-    #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(81, -1, blink);
-    #endif
+	  u8g.drawBitmapP(1, 1, 1, 8, status_e1_bmp);
+	  u8g.setPrintPos(14, 9);
+	  lcd_print(itostr3(thermalManager.degHotend(0)));
+	  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+	  //  u8g.drawLine(45, 0, 45, 19);
+
+	  u8g.drawBitmapP(49, 1, 1, 8,status_bed1_bmp);
+	  u8g.setPrintPos(59, 9);
+	  lcd_print(itostr3(thermalManager.degBed()));
+	  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+	  //  u8g.drawLine(89, 0, 89, 19);
+
+	  u8g.drawBitmapP(94, 1, 1, 8,status_fan_bmp);
+	  u8g.setPrintPos(104, 9);
 
     #if HAS_FAN0
       if (PAGE_CONTAINS(20, 27)) {
