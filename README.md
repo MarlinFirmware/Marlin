@@ -16,7 +16,9 @@ See example_configurations/Tevo Tarantula for other Tarantula configurations:
 Do you have a configuration for the Tarantula that is not covered above? Would
 you like to share it with others by having it added to the above examples?
 If so, please contact me at jb.github (at) rcairgallery (dot) com and we'll work something
-out.
+out. (Note: Please do not contact me for support questions. I'm afraid I just do not have
+the time for answering such inquiries. Best bet is to ask in the Tevo Tarantual
+Facebook group at https://www.facebook.com/groups/TEVO.3dprinter.owners/.)
 
 Thanks!
 
