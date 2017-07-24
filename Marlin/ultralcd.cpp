@@ -1589,13 +1589,14 @@ void kill_screen(const char* lcd_msg) {
       // Utility to go to the next mesh point
       inline void _manual_probe_goto_xy(float x, float y) {
         #if MANUAL_PROBE_HEIGHT > 0
-          line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT);
+          const float prev_z = current_position[Z_AXIS];
+          line_to_z(current_position[Z_AXIS] + MANUAL_PROBE_HEIGHT);
         #endif
         current_position[X_AXIS] = LOGICAL_X_POSITION(x);
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
         planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
         #if MANUAL_PROBE_HEIGHT > 0
-          line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS));
+          line_to_z(prev_z);
         #endif
         lcd_synchronize();
       }

@@ -3998,10 +3998,10 @@ void home_all_axes() { gcode_G28(true); }
 
   inline void _manual_goto_xy(const float &x, const float &y) {
     const float old_feedrate_mm_s = feedrate_mm_s;
-
     #if MANUAL_PROBE_HEIGHT > 0
+      const float prev_z = current_position[Z_AXIS];
       feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+      current_position[Z_AXIS] = prev_z + MANUAL_PROBE_HEIGHT;
       line_to_current_position();
     #endif
 
@@ -4012,7 +4012,7 @@ void home_all_axes() { gcode_G28(true); }
 
     #if MANUAL_PROBE_HEIGHT > 0
       feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS); // just slightly over the bed
+      current_position[Z_AXIS] = prev_z; // move back to the previous Z.
       line_to_current_position();
     #endif
 
