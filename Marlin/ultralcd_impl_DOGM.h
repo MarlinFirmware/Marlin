@@ -471,7 +471,7 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-//#define DOGM_SD_PERCENT
+#define DOGM_SD_PERCENT
 
 static void lcd_implementation_status_screen() {
 
@@ -539,7 +539,7 @@ static void lcd_implementation_status_screen() {
     //
     // SD Card Symbol
     //
-
+  /*
     if (PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
       // Upper box
       u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
@@ -549,12 +549,12 @@ static void lcd_implementation_status_screen() {
       u8g.drawFrame(42, 49 - (TALL_FONT_CORRECTION), 10, 4);  // 49-52 (or 48-51)
       // Corner pixel
       u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));         // 43 (or 42)
-    }
+    } */ //dodane
 
     //
     // Progress bar frame
     //
-
+  /*
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
@@ -575,6 +575,36 @@ static void lcd_implementation_status_screen() {
           PROGRESS_BAR_X + 1, 50,
           (uint16_t)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
         );
+
+*/ //dodane
+
+#define PROGRESS_BAR_X 0
+#define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
+
+  if (PAGE_CONTAINS(15, 36 - (TALL_FONT_CORRECTION)))       // 49-52 (or 49-51)
+	  u8g.drawFrame(
+	  PROGRESS_BAR_X, 15,
+	  PROGRESS_BAR_WIDTH, 21 - (TALL_FONT_CORRECTION)
+	  );
+  u8g.setColorIndex(0);
+  u8g.drawPixel(0, 15);
+  u8g.drawPixel(0, 35);
+  u8g.drawPixel(127, 15);
+  u8g.drawPixel(127, 35);
+  u8g.setColorIndex(1);
+
+  if (IS_SD_PRINTING) {
+
+	  //
+	  // Progress bar solid part
+	  //
+
+	  if (PAGE_CONTAINS(15, 36 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
+		  u8g.drawBox(
+		  PROGRESS_BAR_X + 1, 15,
+		  (unsigned int)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 20 - (TALL_FONT_CORRECTION)
+		  );
+
 
       //
       // SD Percent Complete
@@ -600,13 +630,13 @@ static void lcd_implementation_status_screen() {
       #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
     #endif
 
-    if (PAGE_CONTAINS(41, 48)) {
+    if (PAGE_CONTAINS(41, 50)) {
 
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value > 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
-      u8g.setPrintPos(SD_DURATION_X, 48);
+      u8g.setPrintPos(SD_DURATION_X, 50);
       lcd_print(buffer);
     }
 
@@ -621,6 +651,8 @@ static void lcd_implementation_status_screen() {
   #else
     #define INFO_FONT_HEIGHT 8
   #endif
+
+	/*
 
   #define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
 
@@ -690,6 +722,8 @@ static void lcd_implementation_status_screen() {
       #endif
     }
   }
+
+  */ //dodane
 
   //
   // Feedrate
