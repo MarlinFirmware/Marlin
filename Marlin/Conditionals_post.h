@@ -190,6 +190,13 @@
   #endif
 
   /**
+   * Provide a MAX_AUTORETRACT for older configs
+   */
+  #if ENABLED(FWRETRACT) && !defined(MAX_AUTORETRACT)
+    #define MAX_AUTORETRACT 99
+  #endif
+
+  /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
   #if ENABLED(CONFIG_STEPPERS_TOSHIBA)
