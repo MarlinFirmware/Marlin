@@ -208,6 +208,9 @@
 #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
   #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #endif
+#ifndef MSG_UBL_MESH_EDIT
+  #define MSG_UBL_MESH_EDIT                   _UxGT("Mesh Edit")
+#endif
 #ifndef MSG_UBL_EDIT_CUSTOM_MESH
   #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Edit Custom Mesh")
 #endif
@@ -280,9 +283,9 @@
 #ifndef MSG_UBL_OUTPUT_MAP_CSV
   #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Output for CSV")
 #endif
-  #ifndef MSG_UBL_OUTPUT_MAP_BACKUP
-    #define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Off Printer Backup")
-  #endif
+#ifndef MSG_UBL_OUTPUT_MAP_BACKUP
+  #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Off Printer Backup")
+#endif
 #ifndef MSG_UBL_INFO_UBL
   #define MSG_UBL_INFO_UBL                    _UxGT("Output UBL Info")
 #endif
@@ -333,6 +336,9 @@
 #endif
 #ifndef MSG_UBL_Z_OFFSET_STOPPED
   #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Offset Stopped")
+#endif
+#ifndef MSG_UBL_STEP_BY_STEP_MENU
+  #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
 #endif
 
 #ifndef MSG_MOVING
@@ -709,6 +715,9 @@
 #endif
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
+#endif
+#ifndef MSG_DELTA_SETTINGS
+  #define MSG_DELTA_SETTINGS                  _UxGT("Show Delta Settings")
 #endif
 #ifndef MSG_DELTA_AUTO_CALIBRATE
   #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")

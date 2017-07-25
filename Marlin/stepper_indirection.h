@@ -416,9 +416,19 @@
  * Extruder indirection for the single E axis
  */
 #if ENABLED(SWITCHING_EXTRUDER)
-  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
-  #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
+  #if EXTRUDERS == 2
+    #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
+    #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
+    #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
+  #elif EXTRUDERS > 4
+    #define E_STEP_WRITE(v) { if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else if (current_block->active_extruder < 4) E1_STEP_WRITE(v); else E2_STEP_WRITE(v); }
+    #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(!INVERT_E2_DIR); } }
+    #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(INVERT_E2_DIR); } }
+  #elif EXTRUDERS > 2
+    #define E_STEP_WRITE(v) { if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else if (current_block->active_extruder < 4) E1_STEP_WRITE(v); else E1_STEP_WRITE(v); }
+    #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); } }
+    #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }
+  #endif
 #elif EXTRUDERS > 4
   #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }
   #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }
@@ -462,8 +472,14 @@
   #endif
 #else
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #if ENABLED(MK2_MULTIPLEXER)
+    // Even-numbered steppers are reversed
+    #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
+  #else
+    #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #endif
 #endif
 
 #endif // STEPPER_INDIRECTION_H

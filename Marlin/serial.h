@@ -40,7 +40,7 @@
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
-#define SERIAL_CHAR(x) (MYSERIAL.write(x))
+#define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
 #define SERIAL_EOL() SERIAL_CHAR('\n')
 
 #define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)

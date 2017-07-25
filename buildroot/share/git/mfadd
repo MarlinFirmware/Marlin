@@ -5,20 +5,16 @@
 # Add a remote and fetch it
 #
 
-MFINFO=$(mfinfo) || exit
+[[ $# == 1 ]] || { echo "Usage: `basename $0` user" 1>&2 ; exit 1; }
 
+USER=$1
+
+MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
-
 REPO=${INFO[2]}
-OLDBRANCH=${INFO[4]}
-
-case "$#" in
-  1 ) USER=$1 ;;
-  * ) echo "Usage: `basename $0` [user]" 1>&2 ; exit 1 ;;
-esac
 
 set -e
 
 echo "Adding and fetching $USER..."
-
-git remote add -f "$USER" "git@github.com:$USER/$REPO.git"
+git remote add "$USER" "git@github.com:$USER/$REPO.git"
+git fetch "$USER"

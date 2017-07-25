@@ -64,7 +64,9 @@
 #endif
 #define SERVO1_PIN          6
 #define SERVO2_PIN          5
-#define SERVO3_PIN          4
+#ifndef SERVO3_PIN
+  #define SERVO3_PIN        4
+#endif
 
 //
 // Limit Switches
@@ -203,7 +205,9 @@
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #define FIL_RUNOUT_PIN      4
 
-#define PS_ON_PIN          12
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN        12
+#endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
@@ -213,6 +217,29 @@
     #define CASE_LIGHT_PIN   44     // MUST BE HARDWARE PWM
   #endif
 #endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
+    #define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
+    #define SPINDLE_DIR_PIN           5
+  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
+      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+    #define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
+    #define SPINDLE_DIR_PIN          65
+  #endif
+#endif
+
+//
+// Průša i3 MK2 Multiplexer Support
+//
+#define E_MUX0_PIN         40   // Z_CS_PIN
+#define E_MUX1_PIN         42   // E0_CS_PIN
+#define E_MUX2_PIN         44   // E1_CS_PIN
 
 //
 // LCD / Controller
@@ -378,19 +405,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
-    #define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
-    #define SPINDLE_DIR_PIN           5
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
-      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
-    #define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
-    #define SPINDLE_DIR_PIN          65
-  #endif
-#endif

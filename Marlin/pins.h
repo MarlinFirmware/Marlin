@@ -97,16 +97,20 @@
   #include "pins_SANGUINOLOLU_12.h"
 #elif MB(MELZI)
   #include "pins_MELZI.h"
+#elif MB(MELZI_MAKR3D)
+  #include "pins_MELZI_MAKR3D.h"
+#elif MB(MELZI_CREALITY)
+  #include "pins_MELZI_CREALITY.h"
 #elif MB(STB_11)
   #include "pins_STB_11.h"
 #elif MB(AZTEEG_X1)
   #include "pins_AZTEEG_X1.h"
-#elif MB(MELZI_MAKR3D)
-  #include "pins_MELZI_MAKR3D.h"
 #elif MB(AZTEEG_X3)
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
   #include "pins_AZTEEG_X3_PRO.h"
+#elif MB(ANET_10)
+  #include "pins_ANET_10.h"
 #elif MB(ULTIMAKER)
   #include "pins_ULTIMAKER.h"
 #elif MB(ULTIMAKER_OLD)
@@ -330,7 +334,17 @@
 #define _E3_PINS
 #define _E4_PINS
 
-#if EXTRUDERS > 1
+#if ENABLED(SWITCHING_EXTRUDER)
+                      // Tools 0 and 1 use E0
+  #if EXTRUDERS > 2   // Tools 2 and 3 use E1
+    #undef _E1_PINS
+    #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
+    #if EXTRUDERS > 4 // Tools 4 and 5 use E2
+      #undef _E2_PINS
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+    #endif
+  #endif
+#elif EXTRUDERS > 1
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
   #if EXTRUDERS > 2
@@ -456,6 +470,19 @@
 #if DISABLED(USE_ZMIN_PLUG)
   #undef Z_MIN_PIN
   #define Z_MIN_PIN          -1
+#endif
+
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4 -1
+#endif
+#ifndef LCD_PINS_D5
+  #define LCD_PINS_D5 -1
+#endif
+#ifndef LCD_PINS_D6
+  #define LCD_PINS_D6 -1
+#endif
+#ifndef LCD_PINS_D7
+  #define LCD_PINS_D7 -1
 #endif
 
 //

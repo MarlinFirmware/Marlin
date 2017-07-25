@@ -31,10 +31,12 @@
  *  and with the mainstream Marlin software.
  *
  *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *    Installation instructions are at the above URL.
+ *
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
  *
- *    Installation instructions are at the above URL.  Don't bother loading the
- *    libraries - they are not used with the Marlin software.
+ *    Note: With Teensyduino extension, the Arduino IDE will report 130048 bytes of program storage space available,
+ *    but there is actually only 122880 bytes due to the larger DFU bootloader shipped by default on all Printrboard RevF.
  *
  *  Printrboard - https://github.com/scwimbush/Printrboard-HID-Arduino-IDE-Support
  *
@@ -48,12 +50,11 @@
  *       3. Restart Arduino.
  *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
  *
- *  Teensyduino is the most popular option. Printrboard is used if your board doesn't have
- *  the Teensyduino bootloader on it.
+ *  Teensyduino is the most popular and easiest option.
  */
 
 /**
- *  To burn the bootloader that comes with Printrboard:
+ *  To burn the bootloader that comes with Printrboard HID extension:
  *
  *   1. Connect your programmer to the board.
  *   2. In the Arduino IDE select "Printrboard" and then select the programmer.
@@ -94,9 +95,15 @@
 #define E0_DIR_PIN         35   // A7
 #define E0_ENABLE_PIN      13   // C3
 
-// uncomment to enable an I2C based DAC like on the Printrboard REVF
+// Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
 #define DAC_STEPPER_CURRENT
-// Number of channels available for DAC, For Printrboar REVF there are 4
+
+// Set default drive strength percents if not already defined - X, Y, Z, E axis
+#ifndef DAC_MOTOR_CURRENT_DEFAULT
+  #define DAC_MOTOR_CURRENT_DEFAULT { 70, 70, 50, 70 }
+#endif
+
+// Number of channels available for DAC
 #define DAC_STEPPER_ORDER { 3, 2, 1, 0 }
 
 #define DAC_STEPPER_SENSE    0.11
@@ -123,14 +130,10 @@
 #define FAN_PIN            16   // C6 PWM3A
 
 //
-// Misc. Functions
-//
-#define SDSS               20   // B0 SS
-#define FILWIDTH_PIN        2   // Analog Input
-
-//
 // LCD / Controller
 //
+//#define USE_INTERNAL_SD
+
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       -1
 
@@ -164,3 +167,53 @@
   #define STAT_LED_RED_PIN  12  // C2       JP11-14
   #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
 #endif
+
+#if ENABLED(MINIPANEL)
+  #if ENABLED(USE_INTERNAL_SD)
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#
+    #define SDSS               20  //        10               B0
+    #define SD_DETECT_PIN      -1  // no auto-detect SD insertion on built-in Printrboard SD reader
+  #else
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+    #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
+    #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+  #endif
+
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+    #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04
+    #define DOGLCD_CS           5  //        30               D5                EXP2-06             EXP1-05
+    #define BTN_ENC             6  //        31               D6                EXP2-07             EXP1-09
+    #define BEEPER_PIN          7  //        32               D7                EXP2-08             EXP1-10
+    #define KILL_PIN            8  //        33               E0                EXP2-10             EXP2-03
+    #define BTN_EN1            10  //        35               C0                EXP2-12             EXP2-06
+    #define BTN_EN2            12  //        37               C2                EXP2-14             EXP2-08
+  //#define LCD_BACKLIGHT_PIN  43  //        56               F5                EXP1-12     Not Implemented
+  //#define SCK                21  //        11               B1                ICSP-04             EXP2-09
+  //#define MOSI               22  //        12               B2                ICSP-03             EXP2-05
+  //#define MISO               23  //        13               B3                ICSP-06             EXP2-05
+
+  // encoder connections present
+  #define BLEN_A 0
+  #define BLEN_B 1
+  #define BLEN_C 2
+
+  // encoder rotation values
+  #define encrot0 0
+  #define encrot1 2
+  #define encrot2 3
+  #define encrot3 1
+
+  // increase delays to max
+  #define ST7920_DELAY_1 DELAY_5_NOP
+  #define ST7920_DELAY_2 DELAY_5_NOP
+  #define ST7920_DELAY_3 DELAY_5_NOP
+#endif
+
+//
+// Misc. Functions
+//
+#ifndef SDSS
+  #define SDSS               20   // B0 SS
+#endif
+
+#define FILWIDTH_PIN        2   // Analog Input

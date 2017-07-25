@@ -36,7 +36,11 @@
 //#define DEBUG_GCODE_PARSER
 
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #include "hex_print_routines.h"
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    extern char* hex_address(const void * const w);
+  #else
+    #include "hex_print_routines.h"
+  #endif
   #include "serial.h"
 #endif
 
@@ -87,7 +91,7 @@ public:
   static char command_letter;             // G, M, or T
   static int codenum;                     // 123
   #if USE_GCODE_SUBCODES
-    static int subcode;                   // .1
+    static uint8_t subcode;               // .1
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
@@ -97,6 +101,13 @@ public:
   // Reset is done before parsing
   static void reset();
 
+  // Index so that 'X' falls on index 24
+  #define PARAM_IND(N)  ((N) >> 3)
+  #define PARAM_BIT(N)  ((N) & 0x7)
+  #define LETTER_OFF(N) ((N) - 'A')
+  #define LETTER_IND(N) PARAM_IND(LETTER_OFF(N))
+  #define LETTER_BIT(N) PARAM_BIT(LETTER_OFF(N))
+
   #if ENABLED(FASTER_GCODE_PARSER)
 
     // Set the flag and pointer for a parameter
@@ -105,63 +116,64 @@ public:
         , const bool debug=false
       #endif
     ) {
-      const uint8_t ind = c - 'A';
+      const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
-      SBI(codebits[ind >> 3], ind & 0x7);        // parameter exists
+      SBI(codebits[PARAM_IND(ind)], PARAM_BIT(ind));        // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Set bit ", (int)(ind & 0x7));
-          SERIAL_ECHOPAIR(" of index ", (int)(ind >> 3));
-          SERIAL_ECHOLNPAIR(" | param = ", hex_address((void*)param[ind]));
+          SERIAL_ECHOPAIR("Set bit ", (int)PARAM_BIT(ind));
+          SERIAL_ECHOPAIR(" of index ", (int)PARAM_IND(ind));
+          SERIAL_ECHOLNPAIR(" | param = ", (int)param[ind]);
         }
       #endif
     }
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static volatile bool seen(const char c) {
-      const uint8_t ind = c - 'A';
+    static bool seen(const char c) {
+      const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
-      const bool b = TEST(codebits[ind >> 3], ind & 0x7);
-      if (b) value_ptr = command_ptr + param[ind];
+      const bool b = TEST(codebits[PARAM_IND(ind)], PARAM_BIT(ind));
+      if (b) value_ptr = param[ind] ? command_ptr + param[ind] : (char*)NULL;
       return b;
     }
 
-    static volatile bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
+    static bool seen_any() { return codebits[3] || codebits[2] || codebits[1] || codebits[0]; }
 
-    #define SEEN_TEST(L) TEST(codebits[(L - 'A') >> 3], (L - 'A') & 0x7)
+    #define SEEN_TEST(L) TEST(codebits[LETTER_IND(L)], LETTER_BIT(L))
 
-  #else
+  #else // !FASTER_GCODE_PARSER
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static volatile bool seen(const char c) {
+    static bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
 
-    static volatile bool seen_any() { return *command_args == '\0'; }
+    static bool seen_any() { return *command_args == '\0'; }
 
     #define SEEN_TEST(L) !!strchr(command_args, L)
 
-  #endif // FASTER_GCODE_PARSER
+  #endif // !FASTER_GCODE_PARSER
+
+  // Seen any axis parameter
+  static bool seen_axis() {
+    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
+  }
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
 
-  // Code value pointer was set
+  // The code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
 
-  // Seen and has value
-  FORCE_INLINE static bool seenval(const char c) { return seen(c) && has_value(); }
-
-  static volatile bool seen_axis() {
-    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
-  }
+  // Seen a parameter with a value
+  inline static bool seenval(const char c) { return seen(c) && has_value(); }
 
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {
@@ -184,20 +196,20 @@ public:
   }
 
   // Code value as a long or ulong
-  inline          static long value_long()  { return value_ptr ? strtol(value_ptr, NULL, 10) : 0L; }
-  inline unsigned static long value_ulong() { return value_ptr ? strtoul(value_ptr, NULL, 10) : 0UL; }
+  inline static int32_t value_long() { return value_ptr ? strtol(value_ptr, NULL, 10) : 0L; }
+  inline static uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, NULL, 10) : 0UL; }
 
   // Code value for use as time
   FORCE_INLINE static millis_t value_millis() { return value_ulong(); }
   FORCE_INLINE static millis_t value_millis_from_seconds() { return value_float() * 1000UL; }
 
   // Reduce to fewer bits
-  FORCE_INLINE static int value_int()    { return (int)value_long(); }
-  FORCE_INLINE uint16_t value_ushort()   { return (uint16_t)value_long(); }
-  inline static uint8_t value_byte()     { return (uint8_t)(constrain(value_long(), 0, 255)); }
+  FORCE_INLINE static int16_t value_int() { return (int16_t)value_long(); }
+  FORCE_INLINE static uint16_t value_ushort() { return (uint16_t)value_long(); }
+  inline static uint8_t value_byte() { return (uint8_t)constrain(value_long(), 0, 255); }
 
   // Bool is true with no value or non-zero
-  inline static bool value_bool()        { return !has_value() || value_byte(); }
+  inline static bool value_bool() { return !has_value() || value_byte(); }
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
@@ -213,7 +225,7 @@ public:
           linear_unit_factor = 1.0;
           break;
       }
-      volumetric_unit_factor = pow(linear_unit_factor, 3.0);
+      volumetric_unit_factor = POW(linear_unit_factor, 3.0);
     }
 
     inline static float axis_unit_factor(const AxisEnum axis) {
@@ -282,16 +294,27 @@ public:
       }
     }
 
-  #else
+  #else // !TEMPERATURE_UNITS_SUPPORT
 
     FORCE_INLINE static float value_celsius()      { return value_float(); }
     FORCE_INLINE static float value_celsius_diff() { return value_float(); }
 
-  #endif
+  #endif // !TEMPERATURE_UNITS_SUPPORT
 
   FORCE_INLINE static float value_feedrate() { return value_linear_units(); }
 
   void unknown_command_error();
+
+  // Provide simple value accessors with default option
+  FORCE_INLINE static float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
+  FORCE_INLINE static bool     boolval(const char c, const bool dval=false)   { return seen(c)    ? value_bool()         : dval; }
+  FORCE_INLINE static uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
+  FORCE_INLINE static int16_t  intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
+  FORCE_INLINE static uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
+  FORCE_INLINE static int32_t  longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
+  FORCE_INLINE static uint32_t ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
+  FORCE_INLINE static float    linearval(const char c, const float dval=0.0)  { return seenval(c) ? value_linear_units() : dval; }
+  FORCE_INLINE static float    celsiusval(const char c, const float dval=0.0) { return seenval(c) ? value_celsius()      : dval; }
 
 };
 

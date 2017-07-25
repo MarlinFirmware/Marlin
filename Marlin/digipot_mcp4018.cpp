@@ -34,17 +34,17 @@
 #define DIGIPOT_I2C_ADDRESS             0x2F
 
 #define DIGIPOT_A4988_Rsx               0.250
-#define DIGIPOT_A4988_Vrefmax           5.0
+#define DIGIPOT_A4988_Vrefmax           1.666
 #define DIGIPOT_A4988_MAX_VALUE         127
 
 #define DIGIPOT_A4988_Itripmax(Vref)    ((Vref)/(8.0*DIGIPOT_A4988_Rsx))
 
 #define DIGIPOT_A4988_FACTOR            ((DIGIPOT_A4988_MAX_VALUE)/DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
-//TODO: MAX_CURRENT -0.5A ?? (currently set to 2A, max possible current 2.5A)
-#define DIGIPOT_A4988_MAX_CURRENT       (DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax) - 0.5)
+#define DIGIPOT_A4988_MAX_CURRENT       2.0
 
 static byte current_to_wiper(const float current) {
-  return byte(ceil(float(DIGIPOT_A4988_FACTOR) * current));
+  const int16_t value = ceil(float(DIGIPOT_A4988_FACTOR) * current);
+  return byte(constrain(value, 0, DIGIPOT_A4988_MAX_VALUE));
 }
 
 const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
