@@ -2853,11 +2853,11 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(PID_AUTOTUNE_MENU)
 
     #if ENABLED(PIDTEMP)
-      int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
+      int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(200); //zmienione ze 150 na 200
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      int16_t autotune_temp_bed = 70;
+      int16_t autotune_temp_bed = 60;
     #endif
 
     void _lcd_autotune(int16_t e) {
@@ -2985,77 +2985,96 @@ void kill_screen(const char* lcd_msg) {
       #endif
     #endif // FAN_COUNT > 0
 
-    //
-    // Autotemp, Min, Max, Fact
-    //
-    #if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
-      MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float32, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
-    #endif
 
-    //
-    // PID-P, PID-I, PID-D, PID-C, PID Autotune
-    // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
-    // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
-    // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
-    // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
-    // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
-    //
-    #if ENABLED(PIDTEMP)
+	MENU_ITEM(submenu, MSG_ADVANCED, lcd_control_temperature_advanced_menu);
 
-      #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
-        raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
-        raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
-        MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
-        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
-        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+	END_MENU();
 
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        #define _PID_MENU_ITEMS(ELABEL, eindex) \
-          _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
-          MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
-      #else
-        #define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
-      #endif
+	}
 
-      #if ENABLED(PID_AUTOTUNE_MENU)
-        #define PID_MENU_ITEMS(ELABEL, eindex) \
-          _PID_MENU_ITEMS(ELABEL, eindex); \
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
-      #else
-        #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
-      #endif
 
-      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-        PID_MENU_ITEMS(" " MSG_E1, 0);
-        PID_MENU_ITEMS(" " MSG_E2, 1);
-        #if HOTENDS > 2
-          PID_MENU_ITEMS(" " MSG_E3, 2);
-          #if HOTENDS > 3
-            PID_MENU_ITEMS(" " MSG_E4, 3);
-            #if HOTENDS > 4
-              PID_MENU_ITEMS(" " MSG_E5, 4);
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-        PID_MENU_ITEMS("", 0);
-      #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+  /* DODATKOWA FUNKCJA ZAMYKAJACA NIEKTORE OPCJE W MENU "ZAAWANSOWANE" */
+  void lcd_control_temperature_advanced_menu(){
 
-    #endif // PIDTEMP
+	  START_MENU();
+	  MENU_BACK(MSG_TEMPERATURE);
 
-    //
-    // Preheat Material 1 conf
-    //
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+	  //
+	  // Preheat Material 1 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
 
-    //
-    // Preheat Material 2 conf
-    //
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
-    END_MENU();
+	  //
+	  // Preheat Material 2 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
+
+	  //
+	  // Preheat Material 3 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_3_SETTINGS, lcd_control_temperature_preheat_material3_settings_menu);
+
+	  //
+	  // Autotemp, Min, Max, Fact
+	  //
+	#if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
+	  MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
+	  MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
+	  MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
+	  MENU_ITEM_EDIT(float32, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
+	#endif
+	  //
+	  // PID-P, PID-I, PID-D, PID-C, PID Autotune
+	  // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
+	  // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
+	  // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
+	  // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
+	  // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
+	  //
+		#if ENABLED(PIDTEMP)
+
+		#define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
+			raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
+			raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
+			MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
+			MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
+			MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+
+		#if ENABLED(PID_EXTRUSION_SCALING)
+		#define _PID_MENU_ITEMS(ELABEL, eindex) \
+			_PID_BASE_MENU_ITEMS(ELABEL, eindex); \
+			MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+		#else
+		#define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
+		#endif
+
+		#if ENABLED(PID_AUTOTUNE_MENU)
+		#define PID_MENU_ITEMS(ELABEL, eindex) \
+			_PID_MENU_ITEMS(ELABEL, eindex); \
+			MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
+		#else
+		#define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
+		#endif
+
+		#if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+			  PID_MENU_ITEMS(" " MSG_E1, 0);
+			  PID_MENU_ITEMS(" " MSG_E2, 1);
+		#if HOTENDS > 2
+			  PID_MENU_ITEMS(" " MSG_E3, 2);
+		#if HOTENDS > 3
+			  PID_MENU_ITEMS(" " MSG_E4, 3);
+		#if HOTENDS > 4
+			  PID_MENU_ITEMS(" " MSG_E5, 4);
+		#endif // HOTENDS > 4
+		#endif // HOTENDS > 3
+		#endif // HOTENDS > 2
+		#else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+			  PID_MENU_ITEMS("", 0);
+		#endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+
+		#endif // PIDTEMP
+
+	  END_MENU();
   }
 
   void _lcd_control_temperature_preheat_settings_menu(uint8_t material) {
@@ -3103,6 +3122,12 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   void lcd_control_temperature_preheat_material2_settings_menu() { _lcd_control_temperature_preheat_settings_menu(1); }
+  /**
+  *
+  * "Temperature" > "Preheat Material 3 conf" submenu
+  *
+  */
+  void lcd_control_temperature_preheat_material3_settings_menu() { _lcd_control_temperature_preheat_settings_menu(2); }
 
 
   /**
