@@ -43,7 +43,6 @@ static __INLINE uint32_t SysTick_Config(uint32_t ticks) {
   SysTick_CTRL_ENABLE_Msk; /* Enable SysTick IRQ and SysTick Timer */
   return (0); /* Function successful */
 }
-
 extern "C" {
 extern void disk_timerproc(void);
 volatile uint32_t _millis;
@@ -70,6 +69,7 @@ extern "C" void SystemPostInit() {
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern HalSerial usb_serial;
 int main(void) {
+  debug_frmwrk_init();
 
   (void)MSC_SD_Init(0);
   USB_Init();                               // USB Initialization
@@ -81,8 +81,7 @@ int main(void) {
     TOGGLE(13);     // Flash fast while USB initialisation completes
   }
 
-  debug_frmwrk_init();
-  usb_serial.printf("\n\nRe-ARM (LPC1768 @ %dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+  usb_serial.printf("\n\nRe-ARM (LPC1768 @ %dMhz) USB Initialised\n", SystemCoreClock / 1000000);
 
   HAL_timer_init();
 

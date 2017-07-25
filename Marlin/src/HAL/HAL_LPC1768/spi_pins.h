@@ -21,7 +21,12 @@
 #ifndef SPI_PINS_LPC1768_H
 #define SPI_PINS_LPC1768_H
 
-#define SOFTWARE_SPI
+//new config options
+#define SD_SPI_CHANNEL (HAL::SPI::CHANNEL_2)
+#define LCD_SPI_FREQUENCY 4000000
+#define LCD_SPI_CHANNEL (HAL::SPI::CHANNEL_1)
+
+//#define SOFTWARE_SPI
 /** onboard SD card */
 //#define SCK_PIN           P0_7
 //#define MISO_PIN          P0_8
