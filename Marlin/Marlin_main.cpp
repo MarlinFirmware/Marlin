@@ -3929,7 +3929,7 @@ inline void gcode_G28(const bool always_home_all) {
   lcd_refresh();
 
   report_current_position();
-
+  enqueue_and_echo_commands_P(PSTR("M420 S1")); //dodane z podobnych powodow
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
@@ -3999,6 +3999,7 @@ void home_all_axes() { gcode_G28(true); }
 
   void mesh_probing_done() {
     mbl.set_has_mesh(true);
+	enqueue_and_echo_commands_P(PSTR("M500"));  // dodane aby zapisywało poziomowanie podczas trwania funkcji
     home_all_axes();
     set_bed_leveling_enabled(true);
     #if ENABLED(MESH_G28_REST_ORIGIN)

@@ -23,8 +23,15 @@
 /**
  * Polish for DOGM display - includes accented characters
  */
+//dodane:
+#define MSG_PREHEAT_PRINTER					"Rozgrzej"
+#define MSG_PREHEAT_1                       LCD_STR_THERMOMETER _UxGT("Rozgrzej PLA")
+#define MSG_PREHEAT_2                       LCD_STR_THERMOMETER _UxGT("Rozgrzej ABS")
+#define MSG_PREHEAT_3						LCD_STR_THERMOMETER _UxGT("Rozgrzej PET-G")
+#define MSG_PREHEAT_3_SETTINGS				_UxGT("Ustaw. rozg. PET-G")
+#define MSG_ADVANCED						_UxGT("Zaawansowane")
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowa.")
 #define MSG_SD_INSERTED                     _UxGT("Karta włożona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunięta")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Kranców.") // Max length 8 characters
@@ -32,9 +39,9 @@
 #define MSG_AUTOSTART                       _UxGT("Autostart")
 #define MSG_DISABLE_STEPPERS                _UxGT("Wyłącz silniki")
 #define MSG_AUTO_HOME                       _UxGT("Pozycja zerowa")
-#define MSG_AUTO_HOME_X                     _UxGT("Zeruj X")
-#define MSG_AUTO_HOME_Y                     _UxGT("Zeruj Y")
-#define MSG_AUTO_HOME_Z                     _UxGT("Zeruj Z")
+#define MSG_AUTO_HOME_X                     _UxGT("Bazuj X")
+#define MSG_AUTO_HOME_Y                     _UxGT("Bazuj Y")
+#define MSG_AUTO_HOME_Z                     _UxGT("Bazuj Z")
 #define MSG_LEVEL_BED                       _UxGT("Poziom. stołu")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Pozycja zerowa")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
@@ -42,13 +49,11 @@
 #define MSG_LEVEL_BED_DONE                  _UxGT("Wypoziomowano!")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
-#define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
-#define MSG_PREHEAT_1                       _UxGT("Rozgrzej PLA")
+#define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero"
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" wsz.")
 #define MSG_PREHEAT_1_BEDONLY               _UxGT("Rozgrzej stół PLA")
 #define MSG_PREHEAT_1_SETTINGS              _UxGT("Ustaw. rozg. PLA")
-#define MSG_PREHEAT_2                       _UxGT("Rozgrzej ABS")
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" wsz.")
 #define MSG_PREHEAT_2_BEDONLY               _UxGT("Rozgrzej stół ABS")
@@ -91,6 +96,7 @@
 #define MSG_VY_JERK                         _UxGT("Zryw Vy")
 #define MSG_VZ_JERK                         _UxGT("Zryw Vz")
 #define MSG_VE_JERK                         _UxGT("Zryw Ve")
+#define MSG_VELOCITY						_UxGT("Prędkości")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
 #define MSG_VTRAV_MIN                       _UxGT("Vskok min")
@@ -180,8 +186,8 @@
 #define MSG_INFO_MENU                       _UxGT("O drukarce")
 #define MSG_INFO_PRINTER_MENU               _UxGT("Info drukarki")
 #define MSG_INFO_STATS_MENU                 _UxGT("Statystyki")
-#define MSG_INFO_BOARD_MENU                 _UxGT("Board Info")
-#define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistory")
+#define MSG_INFO_BOARD_MENU                 _UxGT("Sterownik")
+#define MSG_INFO_THERMISTOR_MENU            _UxGT("Termistory")
 #define MSG_INFO_EXTRUDERS                  _UxGT("Ekstrudery")
 #define MSG_INFO_BAUDRATE                   _UxGT("Predkość USB")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokół")

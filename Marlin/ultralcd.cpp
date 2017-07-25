@@ -118,9 +118,12 @@ uint16_t max_display_update_time = 0;
   void lcd_move_menu();
   void lcd_control_menu();
   void lcd_control_temperature_menu();
+  void lcd_control_temperature_advanced_menu();  // dodane 
   void lcd_control_temperature_preheat_material1_settings_menu();
   void lcd_control_temperature_preheat_material2_settings_menu();
+  void lcd_control_temperature_preheat_material3_settings_menu();
   void lcd_control_motion_menu();
+  void lcd_control_motion_advanced_menu(); // dodane
   void lcd_control_filament_menu();
 
   #if ENABLED(LCD_INFO_MENU)
@@ -954,17 +957,6 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if HAS_M206_COMMAND
-    /**
-     * Set the home offset based on the current_position
-     */
-    void lcd_set_home_offsets() {
-      // M428 Command
-      enqueue_and_echo_commands_P(PSTR("M428"));
-      lcd_return_to_status();
-    }
-  #endif
-
   #if ENABLED(BABYSTEPPING)
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
@@ -1324,6 +1316,10 @@ void kill_screen(const char* lcd_msg) {
     void lcd_preheat_m1_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
     void lcd_preheat_m2_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
     #if TEMP_SENSOR_BED != 0
+	void lcd_preheat_pla() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); } //dodane
+	void lcd_preheat_abs() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); } //dodane
+	void lcd_preheat_pet() { _lcd_preheat(0, lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2]); } //dodane
+
       void lcd_preheat_m1_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
       void lcd_preheat_m2_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
     #endif
@@ -1515,6 +1511,24 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
 
+	/* DODANE PREHEAT PRINTO */
+	void lcd_preheat_menu() {
+		START_MENU();
+		MENU_BACK(MSG_PREPARE);
+		MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_pla);
+		MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_abs);
+		MENU_ITEM(function, MSG_PREHEAT_3, lcd_preheat_pet);
+		END_MENU();
+	}
+
+	/* DODANE PREHEAT FILAMENT CHANGE *//*
+	void lcd_preheat_filament_change_menu() {
+		START_MENU();
+		MENU_BACK(MSG_PREPARE);
+		MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+		END_MENU();
+	} */
+
   void lcd_cooldown() {
     #if FAN_COUNT > 0
       for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
@@ -1541,6 +1555,12 @@ void kill_screen(const char* lcd_msg) {
   #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
+
+	// DODANE albowiem jakieœ chujki stwierdzily ze bazowanie G28 musi wylaczac leveling mode M420 S1
+	void bazowanie_bed_on(){
+		enqueue_and_echo_commands_P(PSTR("G28"));
+		enqueue_and_echo_commands_P(PSTR("M420 S1"));
+	}
 
 #if ENABLED(LCD_BED_LEVELING)
 
@@ -1654,6 +1674,7 @@ void kill_screen(const char* lcd_msg) {
             _lcd_after_probing();
 
             mbl.set_has_mesh(true);
+			set_bed_leveling_enabled(true);
             mesh_probing_done();
 
           #endif
@@ -1796,7 +1817,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_PREPARE);
 
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
-        MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+		  MENU_ITEM(function, MSG_AUTO_HOME, bazowanie_bed_on);  //dodane, bylo: PSTR("G28 X");
       else if (leveling_is_valid()) {
         _level_state = leveling_is_active();
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
@@ -1805,13 +1826,6 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         set_z_fade_height(planner.z_fade_height);
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &planner.z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
-      #endif
-
-      //
-      // MBL Z Offset
-      //
-      #if ENABLED(MESH_BED_LEVELING)
-        MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
       #endif
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -2342,6 +2356,11 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
+
+
+
+
+
   /**
    *
    * "Prepare" submenu
@@ -2357,22 +2376,45 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
 
     //
-    // Move Axis
-    //
-    #if ENABLED(DELTA)
-      if (axis_homed[Z_AXIS])
-    #endif
-        MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
-
-    //
     // Auto Home
     //
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+	MENU_ITEM(function, MSG_AUTO_HOME, bazowanie_bed_on);  //dodane, bylo: PSTR("G28 X");
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
       MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
       MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
       MENU_ITEM(gcode, MSG_AUTO_HOME_Z, PSTR("G28 Z"));
     #endif
+
+
+	#if TEMP_SENSOR_0 != 0
+		  //
+		  // Preheat for Material 1 and 2
+		  //
+	#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
+	  MENU_ITEM(submenu, MSG_PREHEAT_PRINTER, lcd_preheat_menu); //dodane
+	#else
+		  MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
+		  MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
+	#endif
+		  //
+		  // Cooldown
+		  //
+		  bool has_heat = false;
+		  HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
+	#if HAS_TEMP_BED
+		  if (thermalManager.target_temperature_bed) has_heat = true;
+	#endif
+		  if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+	#endif // TEMP_SENSOR_0 != 0
+
+		  //
+		  // Change filament
+		  //
+	#if ENABLED(ADVANCED_PAUSE_FEATURE)
+			  //if (!thermalManager.tooColdToExtrude(active_extruder))
+				  MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+	#endif
 
     //
     // Level Bed
@@ -2388,51 +2430,22 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
     #endif
 
-    #if HAS_M206_COMMAND
-      //
-      // Set Home Offsets
-      //
-      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-      //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-    #endif
+
+	  //
+	  // Move Axis
+	  //
+	#if ENABLED(DELTA)
+		  if (axis_homed[Z_AXIS])
+	#endif
+		  MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+
 
     //
     // Disable Steppers
     //
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
 
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!thermalManager.tooColdToExtrude(active_extruder))
-        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
-    #endif
 
-    #if TEMP_SENSOR_0 != 0
-
-      //
-      // Cooldown
-      //
-      bool has_heat = false;
-      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
-      #if HAS_TEMP_BED
-        if (thermalManager.target_temperature_bed) has_heat = true;
-      #endif
-      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-
-      //
-      // Preheat for Material 1 and 2
-      //
-      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
-        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
-        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
-      #else
-        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
-        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
-      #endif
-
-    #endif // TEMP_SENSOR_0 != 0
 
     //
     // BLTouch Self-Test and Reset
@@ -2443,15 +2456,6 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
     #endif
 
-    //
-    // Switch power on/off
-    //
-    #if HAS_POWER_SWITCH
-      if (powersupply_on)
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-      else
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    #endif
 
     //
     // Autostart
@@ -2849,11 +2853,11 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(PID_AUTOTUNE_MENU)
 
     #if ENABLED(PIDTEMP)
-      int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
+      int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(200); //zmienione ze 150 na 200
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      int16_t autotune_temp_bed = 70;
+      int16_t autotune_temp_bed = 60;
     #endif
 
     void _lcd_autotune(int16_t e) {
@@ -2868,6 +2872,7 @@ void kill_screen(const char* lcd_msg) {
         #endif
       );
       enqueue_and_echo_command(cmd);
+	  enqueue_and_echo_commands_P(PSTR("M500")); //dodane by automatycznie zapisac po autokalibracji PID
     }
 
   #endif // PID_AUTOTUNE_MENU
@@ -2980,77 +2985,96 @@ void kill_screen(const char* lcd_msg) {
       #endif
     #endif // FAN_COUNT > 0
 
-    //
-    // Autotemp, Min, Max, Fact
-    //
-    #if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
-      MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float32, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
-    #endif
 
-    //
-    // PID-P, PID-I, PID-D, PID-C, PID Autotune
-    // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
-    // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
-    // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
-    // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
-    // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
-    //
-    #if ENABLED(PIDTEMP)
+	MENU_ITEM(submenu, MSG_ADVANCED, lcd_control_temperature_advanced_menu);
 
-      #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
-        raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
-        raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
-        MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
-        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
-        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+	END_MENU();
 
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        #define _PID_MENU_ITEMS(ELABEL, eindex) \
-          _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
-          MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
-      #else
-        #define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
-      #endif
+	}
 
-      #if ENABLED(PID_AUTOTUNE_MENU)
-        #define PID_MENU_ITEMS(ELABEL, eindex) \
-          _PID_MENU_ITEMS(ELABEL, eindex); \
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
-      #else
-        #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
-      #endif
 
-      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-        PID_MENU_ITEMS(" " MSG_E1, 0);
-        PID_MENU_ITEMS(" " MSG_E2, 1);
-        #if HOTENDS > 2
-          PID_MENU_ITEMS(" " MSG_E3, 2);
-          #if HOTENDS > 3
-            PID_MENU_ITEMS(" " MSG_E4, 3);
-            #if HOTENDS > 4
-              PID_MENU_ITEMS(" " MSG_E5, 4);
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-        PID_MENU_ITEMS("", 0);
-      #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+  /* DODATKOWA FUNKCJA ZAMYKAJACA NIEKTORE OPCJE W MENU "ZAAWANSOWANE" */
+  void lcd_control_temperature_advanced_menu(){
 
-    #endif // PIDTEMP
+	  START_MENU();
+	  MENU_BACK(MSG_TEMPERATURE);
 
-    //
-    // Preheat Material 1 conf
-    //
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+	  //
+	  // Preheat Material 1 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
 
-    //
-    // Preheat Material 2 conf
-    //
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
-    END_MENU();
+	  //
+	  // Preheat Material 2 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
+
+	  //
+	  // Preheat Material 3 conf
+	  //
+	  MENU_ITEM(submenu, MSG_PREHEAT_3_SETTINGS, lcd_control_temperature_preheat_material3_settings_menu);
+
+	  //
+	  // Autotemp, Min, Max, Fact
+	  //
+	#if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
+	  MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
+	  MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
+	  MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
+	  MENU_ITEM_EDIT(float32, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
+	#endif
+	  //
+	  // PID-P, PID-I, PID-D, PID-C, PID Autotune
+	  // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
+	  // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
+	  // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
+	  // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
+	  // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
+	  //
+		#if ENABLED(PIDTEMP)
+
+		#define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
+			raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
+			raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
+			MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
+			MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
+			MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+
+		#if ENABLED(PID_EXTRUSION_SCALING)
+		#define _PID_MENU_ITEMS(ELABEL, eindex) \
+			_PID_BASE_MENU_ITEMS(ELABEL, eindex); \
+			MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+		#else
+		#define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
+		#endif
+
+		#if ENABLED(PID_AUTOTUNE_MENU)
+		#define PID_MENU_ITEMS(ELABEL, eindex) \
+			_PID_MENU_ITEMS(ELABEL, eindex); \
+			MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
+		#else
+		#define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
+		#endif
+
+		#if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+			  PID_MENU_ITEMS(" " MSG_E1, 0);
+			  PID_MENU_ITEMS(" " MSG_E2, 1);
+		#if HOTENDS > 2
+			  PID_MENU_ITEMS(" " MSG_E3, 2);
+		#if HOTENDS > 3
+			  PID_MENU_ITEMS(" " MSG_E4, 3);
+		#if HOTENDS > 4
+			  PID_MENU_ITEMS(" " MSG_E5, 4);
+		#endif // HOTENDS > 4
+		#endif // HOTENDS > 3
+		#endif // HOTENDS > 2
+		#else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+			  PID_MENU_ITEMS("", 0);
+		#endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+
+		#endif // PIDTEMP
+
+	  END_MENU();
   }
 
   void _lcd_control_temperature_preheat_settings_menu(uint8_t material) {
@@ -3098,6 +3122,12 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   void lcd_control_temperature_preheat_material2_settings_menu() { _lcd_control_temperature_preheat_settings_menu(1); }
+  /**
+  *
+  * "Temperature" > "Preheat Material 3 conf" submenu
+  *
+  */
+  void lcd_control_temperature_preheat_material3_settings_menu() { _lcd_control_temperature_preheat_settings_menu(2); }
 
 
   /**
@@ -4053,6 +4083,20 @@ void kill_screen(const char* lcd_msg) {
 #endif // ULTIPANEL
 
 void lcd_init() {
+	/*
+	* DODANE Z RACJI CHUJOWEGO RESET_PINU NA NIEKTORYCH OLEDACH
+	*/
+	int LCD_Reset = 29;
+	int LCD_Reset_state;
+	LCD_Reset_state = digitalRead(29);
+	if (LCD_Reset_state == LOW){
+		pinMode(LCD_Reset, OUTPUT);
+		digitalWrite(LCD_Reset, LOW);
+		delay(200);
+		digitalWrite(LCD_Reset, HIGH);
+	}
+	else{ digitalWrite(LCD_Reset, HIGH); }
+
 
   lcd_implementation_init(
     #if ENABLED(LCD_PROGRESS_BAR)

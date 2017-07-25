@@ -187,6 +187,19 @@
   // The MINIPanel display
   //U8GLIB_MINI12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
   U8GLIB_MINI12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
+  /*
+  * OLEDY PRINTOOOOOO DODANE
+  */
+	#elif ENABLED(PRINTO3D_OLED_I2C)
+	// Generic support for SSD1306 OLED I2C LCDs
+	U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_FAST);  // Dev 0, Fast I2C / TWI
+	//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST);
+
+	#elif ENABLED(PRINTO3D_OLED_I2C_242)
+	// Generic support for SSD1306 OLED I2C LCDs
+	//U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_FAST);  // Dev 0, Fast I2C / TWI
+	U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST);
+
 #else
   // for regular DOGM128 display with HW-SPI
   //U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0  // 8 stripes
@@ -299,8 +312,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
           u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
         #else
           const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 2 / 2, STRING_SPLASH_LINE1);  // dodane
+          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 4, STRING_SPLASH_LINE2);  // dodane
         #endif
       } while (u8g.nextPage());
     }
@@ -391,7 +404,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
   if (PAGE_CONTAINS(21, 28))
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
-
+  /*
   if (PAGE_CONTAINS(17, 20)) {
     const uint8_t h = isBed ? 7 : 8,
                   y = isBed ? 18 : 17;
@@ -403,7 +416,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     else {
       u8g.drawBox(x + h, y, 2, 2);
     }
-  }
+  } */ //dodane
 }
 
 FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
@@ -458,7 +471,7 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-//#define DOGM_SD_PERCENT
+#define DOGM_SD_PERCENT
 
 static void lcd_implementation_status_screen() {
 
@@ -470,7 +483,7 @@ static void lcd_implementation_status_screen() {
   //
   // Fan Animation
   //
-
+  /*
   if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
 
     u8g.drawBitmapP(9, 1, STATUS_SCREENBYTEWIDTH, STATUS_SCREENHEIGHT,
@@ -481,20 +494,32 @@ static void lcd_implementation_status_screen() {
       #endif
     );
 
-  }
+  } */ //dodane
 
   //
   // Temperature Graphics and Info
   //
 
   if (PAGE_UNDER(28)) {
-    // Extruders
-    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e, blink);
+	  //dodane
+	  //  u8g.drawFrame(0, 0, 128, 20);
 
-    // Heated bed
-    #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(81, -1, blink);
-    #endif
+	  u8g.drawBitmapP(1, 1, 1, 8, status_e1_bmp);
+	  u8g.setPrintPos(14, 9);
+	  lcd_print(itostr3(thermalManager.degHotend(0)));
+	  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+	  //  u8g.drawLine(45, 0, 45, 19);
+
+	  u8g.drawBitmapP(49, 1, 1, 8,status_bed1_bmp);
+	  u8g.setPrintPos(59, 9);
+	  lcd_print(itostr3(thermalManager.degBed()));
+	  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+	  //  u8g.drawLine(89, 0, 89, 19);
+
+	  u8g.drawBitmapP(94, 1, 1, 8,status_fan_bmp);
+	  u8g.setPrintPos(104, 9);
 
     #if HAS_FAN0
       if (PAGE_CONTAINS(20, 27)) {
@@ -514,7 +539,7 @@ static void lcd_implementation_status_screen() {
     //
     // SD Card Symbol
     //
-
+  /*
     if (PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
       // Upper box
       u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
@@ -524,12 +549,12 @@ static void lcd_implementation_status_screen() {
       u8g.drawFrame(42, 49 - (TALL_FONT_CORRECTION), 10, 4);  // 49-52 (or 48-51)
       // Corner pixel
       u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));         // 43 (or 42)
-    }
+    } */ //dodane
 
     //
     // Progress bar frame
     //
-
+  /*
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
@@ -550,6 +575,36 @@ static void lcd_implementation_status_screen() {
           PROGRESS_BAR_X + 1, 50,
           (uint16_t)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
         );
+
+*/ //dodane
+
+#define PROGRESS_BAR_X 0
+#define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
+
+  if (PAGE_CONTAINS(15, 36 - (TALL_FONT_CORRECTION)))       // 49-52 (or 49-51)
+	  u8g.drawFrame(
+	  PROGRESS_BAR_X, 15,
+	  PROGRESS_BAR_WIDTH, 21 - (TALL_FONT_CORRECTION)
+	  );
+  u8g.setColorIndex(0);
+  u8g.drawPixel(0, 15);
+  u8g.drawPixel(0, 35);
+  u8g.drawPixel(127, 15);
+  u8g.drawPixel(127, 35);
+  u8g.setColorIndex(1);
+
+  if (IS_SD_PRINTING) {
+
+	  //
+	  // Progress bar solid part
+	  //
+
+	  if (PAGE_CONTAINS(15, 36 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
+		  u8g.drawBox(
+		  PROGRESS_BAR_X + 1, 15,
+		  (unsigned int)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 20 - (TALL_FONT_CORRECTION)
+		  );
+
 
       //
       // SD Percent Complete
@@ -575,13 +630,13 @@ static void lcd_implementation_status_screen() {
       #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
     #endif
 
-    if (PAGE_CONTAINS(41, 48)) {
+    if (PAGE_CONTAINS(41, 50)) {
 
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value > 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
-      u8g.setPrintPos(SD_DURATION_X, 48);
+      u8g.setPrintPos(SD_DURATION_X, 50);
       lcd_print(buffer);
     }
 
@@ -596,6 +651,8 @@ static void lcd_implementation_status_screen() {
   #else
     #define INFO_FONT_HEIGHT 8
   #endif
+
+	/*
 
   #define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
 
@@ -665,6 +722,8 @@ static void lcd_implementation_status_screen() {
       #endif
     }
   }
+
+  */ //dodane
 
   //
   // Feedrate

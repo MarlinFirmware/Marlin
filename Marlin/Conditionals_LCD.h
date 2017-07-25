@@ -116,6 +116,39 @@
     #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 / SH1106 graphic Display Family)
   #endif
 
+	// **************************************************************************
+	// DODANE DLA PRINTO3D_OLED_I2C Generic support for SSD1309 OLED based LCDs.
+	// **************************************************************************
+	#if ENABLED(PRINTO3D_OLED_I2C)
+	#define ULTRA_LCD  //general LCD support, also 16x2
+	#define ULTIPANEL
+	#define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
+
+	#ifndef ENCODER_PULSES_PER_STEP
+	#define ENCODER_PULSES_PER_STEP 4
+	#endif
+
+	#ifndef ENCODER_STEPS_PER_MENU_ITEM
+	#define ENCODER_STEPS_PER_MENU_ITEM 1
+	#endif
+	#endif
+	// **************************************************************************
+	// DODANE DLA PRINTO3D_OLED_I2C Generic support for SSD1309 OLED based LCDs.
+	// **************************************************************************
+	#if ENABLED(PRINTO3D_OLED_I2C_242)
+	#define ULTRA_LCD  //general LCD support, also 16x2
+	#define ULTIPANEL
+	#define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
+
+	#ifndef ENCODER_PULSES_PER_STEP
+	#define ENCODER_PULSES_PER_STEP 4
+	#endif
+
+	#ifndef ENCODER_STEPS_PER_MENU_ITEM
+	#define ENCODER_STEPS_PER_MENU_ITEM 1
+	#endif
+	#endif
+
   #if ENABLED(PANEL_ONE) || ENABLED(U8GLIB_SH1106)
     #define ULTIMAKERCONTROLLER
   #endif
