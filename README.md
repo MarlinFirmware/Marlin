@@ -12,6 +12,8 @@ See example_configurations/Tevo Tarantula for other Tarantula configurations:
   - Small bed, NO bed autolevel, SD support, EEPROM enabled
 - Tarantula-04
   - Large bed, NO bed autolevel, SD support, EEPROM enabled
+- Tarantula-05
+  - Large bed, BLTouch, SD support, EEPROM enabled, Thermistor for Genuine E3Dv6, Software PWM Layer Fan
   
 Do you have a configuration for the Tarantula that is not covered above? Would
 you like to share it with others by having it added to the above examples?
