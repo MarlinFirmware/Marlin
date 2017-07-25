@@ -2872,6 +2872,7 @@ void kill_screen(const char* lcd_msg) {
         #endif
       );
       enqueue_and_echo_command(cmd);
+	  enqueue_and_echo_commands_P(PSTR("M500")); //dodane by automatycznie zapisac po autokalibracji PID
     }
 
   #endif // PID_AUTOTUNE_MENU
