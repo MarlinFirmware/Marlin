@@ -990,6 +990,46 @@ void kill_screen(const char* lcd_msg) {
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
+      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+      void _lcd_babystep_zoffset_overlay(float zprobe_zoffset) {
+        // Determine whether the user is raising or lowering the nozzle.
+        static int dir = 0;
+        static float old_zprobe_zoffset = 0;
+        if(zprobe_zoffset != old_zprobe_zoffset) {
+          dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
+          old_zprobe_zoffset = zprobe_zoffset;
+        }
+
+        #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
+          const unsigned char* rot_up   = ccw_bmp;
+          const unsigned char* rot_down = cw_bmp;
+        #else
+          const unsigned char* rot_up   = cw_bmp;
+          const unsigned char* rot_down = ccw_bmp;
+        #endif
+
+        #if ENABLED(USE_BIG_EDIT_FONT)
+        const int left   = 0;
+        const int right  = 45;
+        const int nozzle = 95;
+        #else
+        const int left   = 5;
+        const int right  = 90;
+        const int nozzle = 60;
+        #endif
+
+        // Draw a representation of the nozzle
+        u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_bmp);
+        u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+
+        // Draw cw/ccw indicator and up/down arrows.
+        u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+        u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+        u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+        u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+      }
+      #endif // BABYSTEP_ZPROBE_GFX_OVERLAY
+
       void lcd_babystep_zoffset() {
         if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
         defer_return_to_status = true;
@@ -1011,6 +1051,9 @@ void kill_screen(const char* lcd_msg) {
         }
         if (lcdDrawUpdate)
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+            _lcd_babystep_zoffset_overlay(zprobe_zoffset);
+          #endif
       }
 
     #else // !BABYSTEP_ZPROBE_OFFSET
