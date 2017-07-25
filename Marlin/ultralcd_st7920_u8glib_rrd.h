@@ -105,21 +105,22 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
   #define U8G_DELAY() u8g_10MicroDelay()
 #endif
 
-#define ST7920_CS()              { WRITE(ST7920_CS_PIN,1); U8G_DELAY(); }
-#define ST7920_NCS()             { WRITE(ST7920_CS_PIN,0); }
-#define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); U8G_DELAY(); }
-#define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); U8G_DELAY(); }
-#define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u)); U8G_DELAY(); }
-#define ST7920_WRITE_BYTES(p,l)  { for (uint8_t i = l + 1; --i;) { ST7920_SWSPI_SND_8BIT(*p&0xF0); ST7920_SWSPI_SND_8BIT(*p<<4); p++; } U8G_DELAY(); }
+#include "src/HAL/spi_api.h"
+
+#define ST7920_CS()              { HAL::SPI::enable_cs(LCD_SPI_CHANNEL); U8G_DELAY();}
+#define ST7920_NCS()             { HAL::SPI::disable_cs(LCD_SPI_CHANNEL); }
+#define ST7920_SET_CMD()         { HAL::SPI::write(LCD_SPI_CHANNEL, 0xF8); U8G_DELAY(); }
+#define ST7920_SET_DAT()         { HAL::SPI::write(LCD_SPI_CHANNEL, 0xFA); U8G_DELAY(); }
+#define ST7920_WRITE_BYTE(a)     { HAL::SPI::write(LCD_SPI_CHANNEL, (uint8_t)((a)&0xF0u)); HAL::SPI::write(LCD_SPI_CHANNEL, (uint8_t)((a)<<4u)); U8G_DELAY(); }
+#define ST7920_WRITE_BYTES(p,l)  { for (uint8_t j = l + 1; --j;) { HAL::SPI::write(LCD_SPI_CHANNEL, *p&0xF0); HAL::SPI::write(LCD_SPI_CHANNEL, *p<<4); p++; } U8G_DELAY(); }
+
 
 uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   uint8_t i, y;
   switch (msg) {
     case U8G_DEV_MSG_INIT: {
-      OUT_WRITE(ST7920_CS_PIN, LOW);
-      OUT_WRITE(ST7920_DAT_PIN, LOW);
-      OUT_WRITE(ST7920_CLK_PIN, HIGH);
-
+      HAL::SPI::initialise(LCD_SPI_CHANNEL);
+      HAL::SPI::set_frequency(LCD_SPI_CHANNEL, LCD_SPI_FREQUENCY);
       ST7920_CS();
       u8g_Delay(120);                 //initial delay for boot up
       ST7920_SET_CMD();

@@ -30,6 +30,7 @@
 
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
+#include "src/HAL/spi_api.h"
 
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
@@ -89,14 +90,14 @@ uint32_t Sd2Card::cardSize() {
 }
 //------------------------------------------------------------------------------
 void Sd2Card::chipSelectHigh() {
-  digitalWrite(chipSelectPin_, HIGH);
+  HAL::SPI::disable_cs(SD_SPI_CHANNEL);
 }
 //------------------------------------------------------------------------------
 void Sd2Card::chipSelectLow() {
   #if DISABLED(SOFTWARE_SPI)
     spiInit(spiRate_);
   #endif  // SOFTWARE_SPI
-  digitalWrite(chipSelectPin_, LOW);
+  HAL::SPI::enable_cs(SD_SPI_CHANNEL);
 }
 //------------------------------------------------------------------------------
 /** Erase a range of blocks.
