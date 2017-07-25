@@ -96,6 +96,7 @@
 #define MSG_VY_JERK                         _UxGT("Zryw Vy")
 #define MSG_VZ_JERK                         _UxGT("Zryw Vz")
 #define MSG_VE_JERK                         _UxGT("Zryw Ve")
+#define MSG_VELOCITY						_UxGT("Prędkości")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
 #define MSG_VTRAV_MIN                       _UxGT("Vskok min")
