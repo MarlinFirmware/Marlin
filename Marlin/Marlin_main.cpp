@@ -6632,7 +6632,7 @@ inline void gcode_M42() {
 
 #if ENABLED(PINS_DEBUGGING)
 
-  #include "pinsDebug.h"
+  #include "src/HAL/HAL_pinsDebug.h"
 
   inline void toggle_pins() {
     const bool I_flag = parser.boolval('I');
@@ -6643,7 +6643,7 @@ inline void gcode_M42() {
 
     for (uint8_t pin = start; pin <= end; pin++) {
       //report_pin_state_extended(pin, I_flag, false);
-
+      if (!VALID_PIN(pin)) continue;
       if (!I_flag && pin_is_protected(pin)) {
         report_pin_state_extended(pin, I_flag, true, "Untouched ");
         SERIAL_EOL();
@@ -6869,14 +6869,15 @@ inline void gcode_M42() {
     // Watch until click, M108, or reset
     if (parser.boolval('W')) {
       SERIAL_PROTOCOLLNPGM("Watching pins");
-      byte pin_state[last_pin - first_pin + 1];
+      uint8_t pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+        if (!VALID_PIN(pin)) continue;
         if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
         delay(1);
         /*
           if (IS_ANALOG(pin))
-            pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
+            pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
           else
         //*/
             pin_state[pin - first_pin] = digitalRead(pin);
@@ -6889,11 +6890,12 @@ inline void gcode_M42() {
 
       for (;;) {
         for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+          if (!VALID_PIN(pin)) continue;
           if (pin_is_protected(pin) && !ignore_protection) continue;
           const byte val =
             /*
               IS_ANALOG(pin)
-                ? analogRead(pin - analogInputToDigitalPin(0)) : // int16_t val
+                ? analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)) : // int16_t val
                 :
             //*/
               digitalRead(pin);
@@ -6917,7 +6919,7 @@ inline void gcode_M42() {
 
     // Report current state of selected pin(s)
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
-      report_pin_state_extended(pin, ignore_protection, true);
+      if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
   }
 
 #endif // PINS_DEBUGGING
@@ -11085,6 +11087,7 @@ void process_next_command() {
       case 140: // M140: Set bed temperature
         gcode_M140();
         break;
+
 
       case 105: // M105: Report current temperature
         gcode_M105();
