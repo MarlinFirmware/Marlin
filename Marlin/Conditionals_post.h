@@ -189,13 +189,37 @@
     #define DEFAULT_KEEPALIVE_INTERVAL 2
   #endif
 
+  #ifdef CPU_32_BIT
+    /**
+     * Hidden options for developer
+     */
+    // Double stepping start from STEP_DOUBLER_FREQUENCY + 1, quad stepping start from STEP_DOUBLER_FREQUENCY * 2 + 1
+    #ifndef STEP_DOUBLER_FREQUENCY
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        #define STEP_DOUBLER_FREQUENCY 60000 // Hz
+      #else
+        #define STEP_DOUBLER_FREQUENCY 80000 // Hz
+      #endif
+    #endif
+    // Disable double / quad stepping
+    //#define DISABLE_MULTI_STEPPING
+  #endif
+
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
   #if ENABLED(CONFIG_STEPPERS_TOSHIBA)
-    #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
+    #ifdef CPU_32_BIT
+      #define MAX_STEP_FREQUENCY STEP_DOUBLER_FREQUENCY // Max step frequency for Toshiba Stepper Controllers, 96kHz is close to maximum for an Arduino Due
+    #else
+      #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
+    #endif
   #else
-    #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
+    #ifdef CPU_32_BIT
+      #define MAX_STEP_FREQUENCY (STEP_DOUBLER_FREQUENCY * 4) // Max step frequency for the Due is approx. 330kHz
+    #else
+      #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
+    #endif
   #endif
 
   // MS1 MS2 Stepper Driver Microstepping mode table
@@ -203,7 +227,16 @@
   #define MICROSTEP2 HIGH,LOW
   #define MICROSTEP4 LOW,HIGH
   #define MICROSTEP8 HIGH,HIGH
+  #ifdef __SAM3X8E__
+    #if MB(ALLIGATOR)
+      #define MICROSTEP16 LOW,LOW
+      #define MICROSTEP32 HIGH,HIGH
+    #else
+      #define MICROSTEP16 HIGH,HIGH
+    #endif
+  #else
   #define MICROSTEP16 HIGH,HIGH
+  #endif
 
   /**
    * Advance calculated values
@@ -327,6 +360,10 @@
   #elif TEMP_SENSOR_BED > 0
     #define THERMISTORBED TEMP_SENSOR_BED
     #define BED_USES_THERMISTOR
+  #endif
+
+  #ifdef __SAM3X8E__
+    #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595))
   #endif
 
   /**
@@ -849,6 +886,18 @@
 
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #ifdef CPU_32_BIT
+    // Add additional delay for between direction signal and pulse signal of stepper
+    #ifndef STEPPER_DIRECTION_DELAY
+      #define STEPPER_DIRECTION_DELAY 0 // time in microseconds
+    #endif
+  #endif
+
+  #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
+    #undef UI_VOLTAGE_LEVEL
+    #undef RADDS_DISPLAY
+    #undef MOTOR_CURRENT
+  #endif
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
@@ -894,4 +943,32 @@
     #undef PROBE_MANUALLY
   #endif
 
+  // Use float instead of double. Needs profiling.
+  #if defined(ARDUINO_ARCH_SAM) && ENABLED(DELTA_FAST_SQRT)
+    #undef ATAN2
+    #undef FABS
+    #undef POW
+    #undef SQRT
+    #undef CEIL
+    #undef FLOOR
+    #undef LROUND
+    #undef FMOD
+    #define ATAN2(y, x) atan2f(y, x)
+    #define FABS(x) fabsf(x)
+    #define POW(x, y) powf(x, y)
+    #define SQRT(x) sqrtf(x)
+    #define CEIL(x) ceilf(x)
+    #define FLOOR(x) floorf(x)
+    #define LROUND(x) lroundf(x)
+    #define FMOD(x, y) fmodf(x, y)
+  #endif
+
+  #if defined(TEENSYDUINO)
+    #undef max
+    #define max(a,b) ((a)>(b)?(a):(b))
+    #undef min
+    #define min(a,b) ((a)<(b)?(a):(b))
+
+    #define NOT_A_PIN 0 // For PINS_DEBUGGING
+  #endif
 #endif // CONDITIONALS_POST_H
