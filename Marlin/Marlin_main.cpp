@@ -565,8 +565,8 @@ static uint8_t target_extruder;
         retract_zlift,                      // M207 Z - G10 Retract hop size
         retract_recover_length,             // M208 S - G11 Recover length
         retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-        retract_length_swap,                // M207 W - G10 Swap Retract length
-        retract_recover_length_swap,        // M208 W - G11 Swap Recover length
+        swap_retract_length,                // M207 W - G10 Swap Retract length
+        swap_retract_recover_length,        // M208 W - G11 Swap Recover length
         swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
   #if EXTRUDERS > 1
     bool retracted_swap[EXTRUDERS] = { false }; // Which extruders are swap-retracted
@@ -3165,7 +3165,7 @@ static void homeaxis(const AxisEnum axis) {
 
       // Retract by moving from a faux E position back to the current E position
       feedrate_mm_s = retract_feedrate_mm_s;
-      current_position[E_AXIS] += (swapping ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
+      current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
 
@@ -3189,7 +3189,7 @@ static void homeaxis(const AxisEnum axis) {
       // A retract multiplier has been added here to get faster swap recovery
       feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
-      const float move_e = swapping ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
+      const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
 
@@ -8554,7 +8554,7 @@ inline void gcode_M205() {
    * M207: Set firmware retraction values
    *
    *   S[+units]    retract_length
-   *   W[+units]    retract_length_swap (multi-extruder)
+   *   W[+units]    swap_retract_length (multi-extruder)
    *   F[units/min] retract_feedrate_mm_s
    *   Z[units]     retract_zlift
    */
@@ -8562,14 +8562,14 @@ inline void gcode_M205() {
     if (parser.seen('S')) retract_length = parser.value_axis_units(E_AXIS);
     if (parser.seen('F')) retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
     if (parser.seen('Z')) retract_zlift = parser.value_linear_units();
-    if (parser.seen('W')) retract_length_swap = parser.value_axis_units(E_AXIS);
+    if (parser.seen('W')) swap_retract_length = parser.value_axis_units(E_AXIS);
   }
 
   /**
    * M208: Set firmware un-retraction values
    *
    *   S[+units]    retract_recover_length (in addition to M207 S*)
-   *   W[+units]    retract_recover_length_swap (multi-extruder)
+   *   W[+units]    swap_retract_recover_length (multi-extruder)
    *   F[units/min] retract_recover_feedrate_mm_s
    *   R[units/min] swap_retract_recover_feedrate_mm_s
    */
@@ -8577,7 +8577,7 @@ inline void gcode_M205() {
     if (parser.seen('S')) retract_recover_length = parser.value_axis_units(E_AXIS);
     if (parser.seen('F')) retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
     if (parser.seen('R')) swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-    if (parser.seen('W')) retract_recover_length_swap = parser.value_axis_units(E_AXIS);
+    if (parser.seen('W')) swap_retract_recover_length = parser.value_axis_units(E_AXIS);
   }
 
   /**

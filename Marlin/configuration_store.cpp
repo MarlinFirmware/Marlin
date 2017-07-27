@@ -132,8 +132,8 @@
  *  513  M207 Z    retract_zlift                    (float)
  *  517  M208 S    retract_recover_length           (float)
  *  521  M208 F    retract_recover_feedrate_mm_s    (float)
- *  525  M207 W    retract_length_swap              (float)
- *  529  M208 W    retract_recover_length_swap      (float)
+ *  525  M207 W    swap_retract_length              (float)
+ *  529  M208 W    swap_retract_recover_length      (float)
  *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
@@ -528,8 +528,8 @@ void MarlinSettings::postprocess() {
                   retract_zlift = 0,
                   retract_recover_length = 0,
                   retract_recover_feedrate_mm_s = 0,
-                  retract_length_swap = 13,
-                  retract_recover_length_swap = 0,
+                  swap_retract_length = 13,
+                  swap_retract_recover_length = 0,
                   swap_retract_recover_feedrate_mm_s = 8;
     #endif
     EEPROM_WRITE(autoretract_enabled);
@@ -538,8 +538,8 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(retract_zlift);
     EEPROM_WRITE(retract_recover_length);
     EEPROM_WRITE(retract_recover_feedrate_mm_s);
-    EEPROM_WRITE(retract_length_swap);
-    EEPROM_WRITE(retract_recover_length_swap);
+    EEPROM_WRITE(swap_retract_length);
+    EEPROM_WRITE(swap_retract_recover_length);
     EEPROM_WRITE(swap_retract_recover_feedrate_mm_s);
 
     EEPROM_WRITE(volumetric_enabled);
@@ -920,8 +920,8 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(retract_zlift);
         EEPROM_READ(retract_recover_length);
         EEPROM_READ(retract_recover_feedrate_mm_s);
-        EEPROM_READ(retract_length_swap);
-        EEPROM_READ(retract_recover_length_swap);
+        EEPROM_READ(swap_retract_length);
+        EEPROM_READ(swap_retract_recover_length);
         EEPROM_READ(swap_retract_recover_feedrate_mm_s);
       #else
         EEPROM_READ(dummyb);
@@ -1292,8 +1292,8 @@ void MarlinSettings::reset() {
     retract_zlift = RETRACT_ZLIFT;
     retract_recover_length = RETRACT_RECOVER_LENGTH;
     retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-    retract_length_swap = RETRACT_LENGTH_SWAP;
-    retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
+    swap_retract_length = RETRACT_LENGTH_SWAP;
+    swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
     swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   #endif // FWRETRACT
 
@@ -1747,7 +1747,7 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M207 S", LINEAR_UNIT(retract_length));
-      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(retract_length_swap));
+      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(swap_retract_length));
       SERIAL_ECHOPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(retract_feedrate_mm_s)));
       SERIAL_ECHOLNPAIR(" Z", LINEAR_UNIT(retract_zlift));
 
@@ -1757,7 +1757,7 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M208 S", LINEAR_UNIT(retract_recover_length));
-      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(retract_recover_length_swap));
+      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(swap_retract_recover_length));
       SERIAL_ECHOLNPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(retract_recover_feedrate_mm_s)));
 
       if (!forReplay) {

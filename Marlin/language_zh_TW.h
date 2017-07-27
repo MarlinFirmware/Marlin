@@ -134,11 +134,11 @@
 #define MSG_KILLED                          _UxGT("已殺掉")  //"KILLED. "
 #define MSG_STOPPED                         _UxGT("已停止")  //"STOPPED. "
 #define MSG_CONTROL_RETRACT                 _UxGT("回抽長度mm")  //"Retract mm" retract_length, retract length (positive mm)
-#define MSG_CONTROL_RETRACT_SWAP            _UxGT("換手回抽長度mm")  //"Swap Re.mm" retract_length_swap, swap retract length (positive mm), for extruder change
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("換手回抽長度mm")  //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
 #define MSG_CONTROL_RETRACTF                _UxGT("回抽速率mm/s")  //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
 #define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")  //"Hop mm" retract_zlift, retract Z-lift
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("回抽恢複長度mm")  //"UnRet +mm" retract_recover_length, additional recover length (mm, added to retract length when recovering)
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("換手回抽恢複長度mm")  //"S UnRet+mm" retract_recover_length_swap, additional swap recover length (mm, added to retract length when recovering from extruder change)
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("換手回抽恢複長度mm")  //"S UnRet+mm" swap_retract_recover_length, additional swap recover length (mm, added to retract length when recovering from extruder change)
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("回抽恢複後進料速率mm/s")  //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
 #define MSG_AUTORETRACT                     _UxGT("自動抽回")  //"AutoRetr." autoretract_enabled,
 #define MSG_FILAMENTCHANGE                  _UxGT("更換絲料")  //"Change filament"
