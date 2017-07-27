@@ -7,7 +7,7 @@
 #   - Remote (upstream) Org name (MarlinFirmware)
 #   - Remote (origin) Org name (your Github username)
 #   - Repo Name (Marlin, MarlinDev, MarlinDocumentation)
-#   - PR Target branch (bugfix-1.1.x, dev, or master)
+#   - PR Target branch (bugfix-2.0.x, dev, or master)
 #   - Branch Arg (the branch argument or current branch)
 #   - Current Branch
 #
@@ -23,7 +23,7 @@ ORG=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
 [[ $ORG == MarlinFirmware ]] || { echo "`basename $0`: Not a Marlin repository." 1>&2 ; exit 1; }
 
 case "$REPO" in
-  Marlin              ) TARG=bugfix-1.1.x ;;
+  Marlin              ) TARG=bugfix-2.0.x ;;
   MarlinDev           ) TARG=dev ;;
   MarlinDocumentation ) TARG=master ;;
 esac

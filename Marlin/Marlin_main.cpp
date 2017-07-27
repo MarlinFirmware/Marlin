@@ -8351,7 +8351,7 @@ inline void gcode_M205() {
    *
    * *** @thinkyhead: I recommend deprecating M206 for SCARA in favor of M665.
    * ***              M206 for SCARA will remain enabled in 1.1.x for compatibility.
-   * ***              In the next 1.2 release, it will simply be disabled by default.
+   * ***              In the 2.0 release, it will simply be disabled by default.
    */
   inline void gcode_M206() {
     LOOP_XYZ(i)
