@@ -73,8 +73,6 @@
 
 #define BOARD_NAME         "Brainwave"
 
-#define USBCON 646  // Disable MarlinSerial etc.
-
 //
 // Limit Switches
 //

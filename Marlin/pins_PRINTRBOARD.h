@@ -67,7 +67,6 @@
 
 #define BOARD_NAME         "Printrboard"
 
-#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
