@@ -34,9 +34,28 @@
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
   #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
   #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
-  #define X_CENTER float((X_MIN_POS + X_MAX_POS) * 0.5)
-  #define Y_CENTER float((Y_MIN_POS + Y_MAX_POS) * 0.5)
-  #define Z_CENTER float((Z_MIN_POS + Z_MAX_POS) * 0.5)
+
+  // Defined only if the sanity-check is bypassed
+  #ifndef X_BED_SIZE
+    #define X_BED_SIZE X_MAX_LENGTH
+  #endif
+  #ifndef Y_BED_SIZE
+    #define Y_BED_SIZE Y_MAX_LENGTH
+  #endif
+
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define X_CENTER 0
+    #define Y_CENTER 0
+  #else
+    #define X_CENTER ((X_BED_SIZE) / 2)
+    #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #endif
+  #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
+
+  #define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
+  #define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
+  #define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
+  #define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
 
   /**
    * CoreXY, CoreXZ, and CoreYZ - and their reverse
@@ -87,11 +106,11 @@
     #if ENABLED(DELTA)
       #define X_HOME_POS 0
     #else
-      #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+      #define X_HOME_POS ((X_BED_SIZE) * (X_HOME_DIR) * 0.5)
     #endif
   #else
     #if ENABLED(DELTA)
-      #define X_HOME_POS (X_MIN_POS + (X_MAX_LENGTH) * 0.5)
+      #define X_HOME_POS (X_MIN_POS + (X_BED_SIZE) * 0.5)
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
     #endif
@@ -103,11 +122,11 @@
     #if ENABLED(DELTA)
       #define Y_HOME_POS 0
     #else
-      #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+      #define Y_HOME_POS ((Y_BED_SIZE) * (Y_HOME_DIR) * 0.5)
     #endif
   #else
     #if ENABLED(DELTA)
-      #define Y_HOME_POS (Y_MIN_POS + (Y_MAX_LENGTH) * 0.5)
+      #define Y_HOME_POS (Y_MIN_POS + (Y_BED_SIZE) * 0.5)
     #else
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
     #endif
@@ -151,10 +170,10 @@
    */
   #if ENABLED(Z_SAFE_HOMING)
     #ifndef Z_SAFE_HOMING_X_POINT
-      #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)
+      #define Z_SAFE_HOMING_X_POINT X_CENTER
     #endif
     #ifndef Z_SAFE_HOMING_Y_POINT
-      #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
+      #define Z_SAFE_HOMING_Y_POINT Y_CENTER
     #endif
     #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
     #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
@@ -792,25 +811,40 @@
     #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
   #endif
 
+  /**
+   * Bed Probing rectangular bounds
+   * These can be further constrained in code for Delta and SCARA
+   */
   #if ENABLED(DELTA)
-    // These will be further constrained in code, but UBL_PROBE_PT values
-    // cannot be compile-time verified within the radius.
-    #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_X ( DELTA_PRINTABLE_RADIUS)
-    #define MIN_PROBE_Y (-DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y ( DELTA_PRINTABLE_RADIUS)
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+    #endif
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
+    #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
+    #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-    #define MIN_PROBE_X (-SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_X ( SCARA_PRINTABLE_RADIUS)
-    #define MIN_PROBE_Y (-SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y ( SCARA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
   #else
-    // Boundaries for probing based on set limits
-    #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define MIN_PROBE_X (max(X_PROBE_OFFSET_FROM_EXTRUDER, 0) - (X_BED_SIZE) / 2)
+      #define MIN_PROBE_Y (max(Y_PROBE_OFFSET_FROM_EXTRUDER, 0) - (Y_BED_SIZE) / 2)
+      #define MAX_PROBE_X (min(X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define MAX_PROBE_Y (min(Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define MIN_PROBE_X (max(X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER, 0))
+      #define MIN_PROBE_Y (max(Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, 0))
+      #define MAX_PROBE_X (min(X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE))
+      #define MAX_PROBE_Y (min(Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE))
+    #endif
   #endif
 
   // Stepper pulse duration, in cycles
@@ -835,7 +869,7 @@
   #endif
 
   /**
-   * DELTA_SEGMENT_MIN_LENGTH and DELTA_PROBEABLE_RADIUS for UBL_DELTA
+   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
    */
   #if UBL_DELTA
     #ifndef DELTA_SEGMENT_MIN_LENGTH
@@ -846,9 +880,6 @@
       #else // CARTESIAN
         #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
       #endif
-    #endif
-    #ifndef DELTA_PROBEABLE_RADIUS
-      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
     #endif
   #endif
 

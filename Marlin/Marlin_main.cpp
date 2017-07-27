@@ -456,8 +456,8 @@ float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 #if HAS_SOFTWARE_ENDSTOPS
   bool soft_endstops_enabled = true;
 #endif
-float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-      soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
+      soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
@@ -6905,15 +6905,16 @@ inline void gcode_M42() {
 
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
-        int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
-        float angle = random(0.0, 360.0),
-              radius = random(
-                #if ENABLED(DELTA)
-                  DELTA_PROBEABLE_RADIUS / 8, DELTA_PROBEABLE_RADIUS / 3
-                #else
-                  5, X_MAX_LENGTH / 8
-                #endif
-              );
+        const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
+        float angle = random(0.0, 360.0);
+        const float radius = random(
+          #if ENABLED(DELTA)
+            0.1250000000 * (DELTA_PROBEABLE_RADIUS),
+            0.3333333333 * (DELTA_PROBEABLE_RADIUS)
+          #else
+            5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
+          #endif
+        );
 
         if (verbose_level > 3) {
           SERIAL_ECHOPAIR("Starting radius: ", radius);
