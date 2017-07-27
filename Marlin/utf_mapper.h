@@ -39,7 +39,7 @@
    || ENABLED(DISPLAY_CHARSET_ISO10646_TR)
     #define MAPPER_ONE_TO_ONE
   #endif
-#else // SIMULATE_ROMFONT
+#else // SIMULATE_ROMFONT || !DOGLCD
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
     #if ENABLED(MAPPER_C2C3)
       const PROGMEM uint8_t utf_recode[] =
@@ -401,27 +401,28 @@
 
 #elif ENABLED(MAPPER_C3C4C5_PL)
 
-  //Ą c4 84 = 80
-  //ą c4 85 = 81
-  //Ć c4 86 = 82
-  //ć c4 87 = 83
-  //Ę c4 98 = 84
-  //ę c4 99 = 85
-  //Ł c5 81 = 86
-  //ł c5 82 = 87
-  //Ń c5 83 = 88
-  //ń c5 84 = 89
-  //Ó c3 93 = 8a
-  //ó c3 b3 = 8b
-  //Ś c5 9a = 8c
-  //ś c5 9b = 8d
-  //Ź c5 b9 = 8e
-  //ź c5 ba = 8f
-  //Ż c5 bb = 90
-  //ż c5 bc = 91
+  /**
+   * Ą C4 84 = 80
+   * ą C4 85 = 81
+   * Ć C4 86 = 82
+   * ć C4 87 = 83
+   * Ę C4 98 = 84
+   * ę C4 99 = 85
+   * Ł C5 81 = 86
+   * ł C5 82 = 87
+   * Ń C5 83 = 88
+   * ń C5 84 = 89
+   * Ó C3 93 = 8A
+   * ó C3 B3 = 8B
+   * Ś C5 9A = 8C
+   * ś C5 9B = 8D
+   * Ź C5 B9 = 8E
+   * ź C5 BA = 8F
+   * Ż C5 BB = 90
+   * ż C5 BC = 91
+   */
 
   char charset_mapper(const char c) {
-    static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_c3 = false,
                 seen_c4 = false,
                 seen_c5 = false;
@@ -464,6 +465,97 @@
     return 1;
   }
 
+#elif ENABLED(MAPPER_C3C4C5_CZ)
+
+  /**
+   * Á C3 81 = 80
+   * É C3 89 = 81
+   * Í C3 8D = 82
+   * Ó C3 93 = 83
+   * Ú C3 9A = 84
+   * Ý C3 9D = 85
+   * á C3 A1 = 86
+   * é C3 A9 = 87
+   * í C3 AD = 88
+   * ó C3 B3 = 89
+   * ú C3 BA = 8A
+   * ý C3 BD = 8B
+   * Č C4 8C = 8C
+   * č C4 8D = 8D
+   * Ď C4 8E = 8E
+   * ď C4 8F = 8F
+   * Ě C4 9A = 90
+   * ě C4 9B = 91
+   * Ň C5 87 = 92
+   * ň C5 88 = 93
+   * Ř C5 98 = 94
+   * ř C5 99 = 95
+   * Š C5 A0 = 96
+   * š C5 A1 = 97
+   * Ť C5 A4 = 98
+   * ť C5 A5 = 99
+   * Ů C5 AE = 9A
+   * ů C5 AF = 9B
+   * Ž C5 BD = 9C
+   * ž C5 BE = 9D
+   */
+
+  char charset_mapper(const char c) {
+    static bool seen_c3 = false,
+                seen_c4 = false,
+                seen_c5 = false;
+    uint8_t d = c;
+    if (d >= 0x80u) { // UTF-8 handling
+           if (d == 0xC4u) { seen_c4 = true; return 0; }
+      else if (d == 0xC5u) { seen_c5 = true; return 0; }
+      else if (d == 0xC3u) { seen_c3 = true; return 0; }
+      else if (seen_c4) {
+        switch(d) {
+          case 0x8Cu ... 0x8Fu: break;          // ČčĎď Mapping 1:1
+          case 0x9Au ... 0x9Bu: d -= 10; break; // Ěě
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c5) {
+        switch(d) {
+          case 0x87u ... 0x88u: d += 0x0Bu; break;  // Ňň
+          case 0x98u ... 0x99u: d -= 0x04u; break;  // Řř
+          case 0xA0u ... 0xA1u: d -= 0x0Au; break;  // Šš
+          case 0xA4u ... 0xA5u: d -= 0x0Cu; break;  // Ťť
+          case 0xAEu ... 0xAFu: d -= 0x14u; break;  // Ůů
+          case 0xBDu ... 0xBEu: d -= 0x21u; break;  // Žž
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c3) {
+        switch(d) {
+          case 0x81u: d = 0x80u; break;  // Á
+          case 0x89u: d = 0x81u; break;  // É
+          case 0x8Du: d = 0x82u; break;  // Í
+          case 0x93u: d = 0x83u; break;  // Ó
+          case 0x9Au: d = 0x84u; break;  // Ú
+          case 0x9Du: d = 0x85u; break;  // Ý
+          case 0xA1u: d = 0x86u; break;  // á
+          case 0xA9u: d = 0x87u; break;  // é
+          case 0xADu: d = 0x88u; break;  // í
+          case 0xB3u: d = 0x89u; break;  // ó
+          case 0xBAu: d = 0x8Au; break;  // ú
+          case 0xBDu: d = 0x8Bu; break;  // ý
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+
+    }
+    else {
+      HARDWARE_CHAR_OUT((char) c );
+    }
+    seen_c3 = seen_c4 = seen_c5 = false;
+    return 1;
+  }
+
 #else
 
   #define MAPPER_NON
@@ -476,6 +568,6 @@
     return 1;
   }
 
-  #endif // code mappers
+#endif // code mappers
 
 #endif // UTF_MAPPER_H

@@ -31,7 +31,12 @@
   #include <math.h>
 
   extern float destination[XYZE];
-  extern void set_current_to_destination();
+
+  #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
+    inline void set_current_to_destination() { COPY(current_position, destination); }
+  #else
+    extern void set_current_to_destination();
+  #endif
 
 #if ENABLED(DELTA)
 
@@ -67,19 +72,17 @@
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
-    if (de == 0.0) return;
+    if (de == 0.0) return; // Printing moves only
 
-    const float dx = current_position[X_AXIS] - destination[X_AXIS],
-                dy = current_position[Y_AXIS] - destination[Y_AXIS],
+    const float dx = destination[X_AXIS] - current_position[X_AXIS],
+                dy = destination[Y_AXIS] - current_position[Y_AXIS],
                 xy_dist = HYPOT(dx, dy);
 
-    if (xy_dist == 0.0)
-      return;
-    else {
-      SERIAL_ECHOPGM("   fpmm=");
-      const float fpmm = de / xy_dist;
-      SERIAL_ECHO_F(fpmm, 6);
-    }
+    if (xy_dist == 0.0) return;
+
+    SERIAL_ECHOPGM("   fpmm=");
+    const float fpmm = de / xy_dist;
+    SERIAL_ECHO_F(fpmm, 6);
 
     SERIAL_ECHOPGM("    current=( ");
     SERIAL_ECHO_F(current_position[X_AXIS], 6);
@@ -99,7 +102,7 @@
     debug_echo_axis(E_AXIS);
     SERIAL_ECHOPGM(" )   ");
     SERIAL_ECHO(title);
-    SERIAL_EOL;
+    SERIAL_EOL();
 
   }
 
@@ -133,7 +136,7 @@
       SERIAL_ECHOPAIR(", ze=", end[Z_AXIS]);
       SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
       SERIAL_CHAR(')');
-      SERIAL_EOL;
+      SERIAL_EOL();
       debug_current_and_destination(PSTR("Start of ubl.line_to_destination()"));
     }
 
@@ -494,15 +497,15 @@
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
-        const float delta_A = rz + sqrt( delta_diagonal_rod_2_tower[A_AXIS]
+        const float delta_A = rz + SQRT( delta_diagonal_rod_2_tower[A_AXIS]
                                          - HYPOT2( delta_tower[A_AXIS][X_AXIS] - rx,
                                                    delta_tower[A_AXIS][Y_AXIS] - ry ));
 
-        const float delta_B = rz + sqrt( delta_diagonal_rod_2_tower[B_AXIS]
+        const float delta_B = rz + SQRT( delta_diagonal_rod_2_tower[B_AXIS]
                                          - HYPOT2( delta_tower[B_AXIS][X_AXIS] - rx,
                                                    delta_tower[B_AXIS][Y_AXIS] - ry ));
 
-        const float delta_C = rz + sqrt( delta_diagonal_rod_2_tower[C_AXIS]
+        const float delta_C = rz + SQRT( delta_diagonal_rod_2_tower[C_AXIS]
                                          - HYPOT2( delta_tower[C_AXIS][X_AXIS] - rx,
                                                    delta_tower[C_AXIS][Y_AXIS] - ry ));
 
@@ -518,8 +521,8 @@
         inverse_kinematics(lseg); // this writes delta[ABC] from lseg[XYZ]
                                   // should move the feedrate scaling to scara inverse_kinematics
 
-        float adiff = abs(delta[A_AXIS] - scara_oldA),
-              bdiff = abs(delta[B_AXIS] - scara_oldB);
+        const float adiff = FABS(delta[A_AXIS] - scara_oldA),
+                    bdiff = FABS(delta[B_AXIS] - scara_oldB);
         scara_oldA = delta[A_AXIS];
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;

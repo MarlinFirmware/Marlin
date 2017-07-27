@@ -126,21 +126,21 @@
 //
 // LCD / Controller
 //
-#define LCD_PINS_RS         70 // Ext2_5
-#define LCD_PINS_ENABLE     71 // Ext2_7
-#define LCD_PINS_D4         72 // Ext2_9 ?
-#define LCD_PINS_D5         73 // Ext2_11 ?
-#define LCD_PINS_D6         74 // Ext2_13
-#define LCD_PINS_D7         75 // Ext2_15 ?
+#define LCD_PINS_RS         70   // Ext2_5
+#define LCD_PINS_ENABLE     71   // Ext2_7
+#define LCD_PINS_D4         72   // Ext2_9 ?
+#define LCD_PINS_D5         73   // Ext2_11 ?
+#define LCD_PINS_D6         74   // Ext2_13
+#define LCD_PINS_D7         75   // Ext2_15 ?
 #define BEEPER_PIN          -1
 
-#define BTN_HOME            80 // Ext_16
-#define BTN_CENTER          81 // Ext_14
+#define BTN_HOME            80   // Ext_16
+#define BTN_CENTER          81   // Ext_14
 #define BTN_ENC             BTN_CENTER
-#define BTN_RIGHT           82 // Ext_12
-#define BTN_LEFT            83 // Ext_10
-#define BTN_UP              84 // Ext2_8
-#define BTN_DOWN            85 // Ext2_6
+#define BTN_RIGHT           82   // Ext_12
+#define BTN_LEFT            83   // Ext_10
+#define BTN_UP              84   // Ext2_8
+#define BTN_DOWN            85   // Ext2_6
 
 #define HOME_PIN            BTN_HOME
 
@@ -151,7 +151,7 @@
   #define DOGLCD_CS         71
   #define LCD_SCREEN_ROT_180
 
-  #define SD_DETECT_PIN     -1 // Pin 72 if using easy adapter board
+  #define SD_DETECT_PIN     -1   // Pin 72 if using easy adapter board
 
   #define STAT_LED_RED_PIN  22
   #define STAT_LED_BLUE_PIN 32

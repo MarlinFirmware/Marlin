@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
-arduino --verify --board arduino:avr:mega:cpu=atmega2560 Marlin/Marlin.ino
+case "$#" in
+  0 ) BOARD=arduino:avr:mega:cpu=atmega2560 ;;
+  * ) BOARD=arduino:avr:$1 ;;
+esac
+
+arduino --verify --board $BOARD Marlin/Marlin.ino

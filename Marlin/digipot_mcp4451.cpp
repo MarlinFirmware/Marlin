@@ -37,11 +37,11 @@
   #define DIGIPOT_I2C_MAX_CURRENT 2.5
 #endif
 
-static byte current_to_wiper(float current) {
-  return byte(ceil(float((DIGIPOT_I2C_FACTOR * current))));
+static byte current_to_wiper(const float current) {
+  return byte(CEIL(float((DIGIPOT_I2C_FACTOR * current))));
 }
 
-static void i2c_send(byte addr, byte a, byte b) {
+static void i2c_send(const byte addr, const byte a, const byte b) {
   Wire.beginTransmission(addr);
   Wire.write(a);
   Wire.write(b);
@@ -49,7 +49,7 @@ static void i2c_send(byte addr, byte a, byte b) {
 }
 
 // This is for the MCP4451 I2C based digipot
-void digipot_i2c_set_current(int channel, float current) {
+void digipot_i2c_set_current(uint8_t channel, float current) {
   current = min((float) max(current, 0.0f), DIGIPOT_I2C_MAX_CURRENT);
   // these addresses are specific to Azteeg X3 Pro, can be set to others,
   // In this case first digipot is at address A0=0, A1= 0, second one is at A0=0, A1= 1
@@ -69,11 +69,11 @@ void digipot_i2c_set_current(int channel, float current) {
 }
 
 void digipot_i2c_init() {
-  const float digipot_motor_current[] = DIGIPOT_I2C_MOTOR_CURRENTS;
+  static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
   Wire.begin();
   // setup initial currents as defined in Configuration_adv.h
-  for (int i = 0; i < COUNT(digipot_motor_current); i++)
-    digipot_i2c_set_current(i, digipot_motor_current[i]);
+  for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++)
+    digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
 
 #endif // DIGIPOT_I2C
