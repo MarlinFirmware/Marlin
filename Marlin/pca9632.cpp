@@ -88,13 +88,15 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   Wire.endTransmission();
 }
 
-static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
-  Wire.beginTransmission(addr);
-  Wire.write(regadd);
-  const byte value = Wire.read();
-  Wire.endTransmission();
-  return value;
-}
+#if 0
+  static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
+    Wire.beginTransmission(addr);
+    Wire.write(regadd);
+    const byte value = Wire.read();
+    Wire.endTransmission();
+    return value;
+  }
+#endif
 
 void PCA9632_SetColor(const byte r, const byte g, const byte b) {
   if (!PCA_init) {

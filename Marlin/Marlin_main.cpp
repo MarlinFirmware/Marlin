@@ -1014,7 +1014,7 @@ void servo_init() {
     #if ENABLED(NEOPIXEL_RGBW_LED)
 
       const uint32_t color = pixels.Color(r, g, b, w);
-      static int nextLed = 0;
+      static uint16_t nextLed = 0;
 
       if (!isSequence)
         set_neopixel_color(color);
@@ -5602,12 +5602,14 @@ void home_all_axes() { gcode_G28(true); }
 
     bool G38_pass_fail = false;
 
-    // Get direction of move and retract
-    float retract_mm[XYZ];
-    LOOP_XYZ(i) {
-      float dist = destination[i] - current_position[i];
-      retract_mm[i] = FABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
-    }
+    #if ENABLED(PROBE_DOUBLE_TOUCH)
+      // Get direction of move and retract
+      float retract_mm[XYZ];
+      LOOP_XYZ(i) {
+        float dist = destination[i] - current_position[i];
+        retract_mm[i] = FABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
+      }
+    #endif
 
     stepper.synchronize();  // wait until the machine is idle
 
@@ -5671,7 +5673,7 @@ void home_all_axes() { gcode_G28(true); }
     // If any axis has enough movement, do the move
     LOOP_XYZ(i)
       if (FABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
-        if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate(i);
+        if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
         // If G38.2 fails throw an error
         if (!G38_run_probe() && is_38_2) {
           SERIAL_ERROR_START();

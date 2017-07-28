@@ -1838,7 +1838,6 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_level_bed();
 
     static int16_t ubl_storage_slot = 0,
-               custom_bed_temp = 50,
                custom_hotend_temp = 190,
                side_points = 3,
                ubl_fillin_amount = 5,
@@ -1846,6 +1845,10 @@ void kill_screen(const char* lcd_msg) {
                n_edit_pts = 1,
                x_plot = 0,
                y_plot = 0;
+
+    #if HAS_TEMP_BED
+      static int16_t custom_bed_temp = 50;
+    #endif
 
     /**
      * UBL Build Custom Mesh Command
