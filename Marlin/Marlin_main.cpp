@@ -4575,6 +4575,9 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+        #if ENABLED(PROBE_MANUALLY)
+          if (!no_action)
+        #endif
         if ( xGridSpacing != bilinear_grid_spacing[X_AXIS]
           || yGridSpacing != bilinear_grid_spacing[Y_AXIS]
           || left_probe_bed_position != LOGICAL_X_POSITION(bilinear_start[X_AXIS])
