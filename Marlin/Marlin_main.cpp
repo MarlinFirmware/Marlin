@@ -12954,7 +12954,7 @@ void kill(const char* lcd_msg) {
   _delay_ms(250); //Wait to ensure all interrupts routines stopped
   thermalManager.disable_all_heaters(); //turn off heaters again
 
-  #if defined(ACTION_ON_KILL)
+  #ifdef ACTION_ON_KILL
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
 
