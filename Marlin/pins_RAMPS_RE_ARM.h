@@ -52,7 +52,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN         11  
+#define SERVO0_PIN         11
 #define SERVO1_PIN          6  // also on J5-1
 #define SERVO2_PIN          5
 #define SERVO3_PIN          4  // 5V output - PWM capable
@@ -214,9 +214,9 @@
  *
  * All controllers can use J3 and J5 on the Re-ARM board.  Custom cabling will be required.
  */
- 
-/** 
- * Smart LCD adapter 
+
+/**
+ * Smart LCD adapter
  *
  * The Smart LCD adapter can be used for the two 10 pin LCD controllers such as
  * REPRAP_DISCOUNT_SMART_CONTROLLER.  It can't be used for controllers that use
@@ -224,7 +224,7 @@
  * is needed to pick up 5V for the EXP1 connection.
  *
  * SD card on the LCD uses the same SPI signals as the LCD. This results in garbage/lines
- * on the LCD display during accesses of the SD card. The menus/code has been arranged so 
+ * on the LCD display during accesses of the SD card. The menus/code has been arranged so
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
@@ -248,7 +248,7 @@
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && ENABLED(SDSUPPORT)
     #define SDCARD_SORT_ALPHA           // Using SORT feature to keep one directory level in RAM
                                         // When going up/down directory levels the SD card is
-                                        // accessed but the garbage/lines are removed when the 
+                                        // accessed but the garbage/lines are removed when the
                                         // LCD updates
 
     // SD Card Sorting options
@@ -262,7 +262,7 @@
       #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
     #endif
   #endif
-  
+
   #define BTN_EN1             31  // J3-2 & AUX-4
   #define BTN_EN2             33  // J3-4 & AUX-4
   #define BTN_ENC             35  // J3-3 & AUX-4
@@ -286,7 +286,7 @@
   //#define MOSI                51  // system defined J3-10 & AUX-3
   //#define SCK                 52  // system defined J3-9 & AUX-3
   //#define SS_PIN              53  // system defined J3-5 & AUX-3 - sometimes called SDSS
- 
+
 
   #if ENABLED(VIKI2) || ENABLED(miniVIKI)
     #define LCD_SCREEN_ROT_180
