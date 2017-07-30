@@ -69,6 +69,8 @@ public:
   void updir();
   void setroot();
 
+  uint16_t get_num_Files();
+  
   #if ENABLED(SDCARD_SORT_ALPHA)
     void presort();
     void getfilename_sorted(const uint16_t nr);
