@@ -629,9 +629,11 @@
  * potential EM interference by quieting/silencing the source of the 'noise' (the change
  * in current flowing through the wires).  This is likely most useful to users of the
  * BLTouch probe, but may also help those with inductive or other probe types.
+ * Increase WAIT_BEFORE_PROBING to prevent false triggering from mechanical vibrations with piezo sensors.
  */
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 //#define PROBING_FANS_OFF          // Turn fans off when probing
+//#define WAIT_BEFORE_PROBING 200   // [ms]
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
