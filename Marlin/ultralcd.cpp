@@ -915,9 +915,6 @@ void kill_screen(const char* lcd_msg) {
     }
     else {
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-      #if ENABLED(DELTA_CALIBRATION_MENU)
-        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
-      #endif
     }
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
@@ -1589,13 +1586,14 @@ void kill_screen(const char* lcd_msg) {
       // Utility to go to the next mesh point
       inline void _manual_probe_goto_xy(float x, float y) {
         #if MANUAL_PROBE_HEIGHT > 0
+          const float prev_z = current_position[Z_AXIS];
           line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT);
         #endif
         current_position[X_AXIS] = LOGICAL_X_POSITION(x);
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
         planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
         #if MANUAL_PROBE_HEIGHT > 0
-          line_to_z(LOGICAL_Z_POSITION(Z_MIN_POS));
+          line_to_z(prev_z);
         #endif
         lcd_synchronize();
       }
@@ -2467,6 +2465,13 @@ void kill_screen(const char* lcd_msg) {
     //
     #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
       MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+    #endif
+
+    //
+    // Delta Calibration
+    //
+    #if ENABLED(DELTA_CALIBRATION_MENU)
+      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
     #endif
 
     END_MENU();
@@ -3376,13 +3381,13 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
       #if EXTRUDERS > 1
-        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
+        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &swap_retract_length, 0, 100);
       #endif
       MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate_mm_s, 1, 999);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, -100, 100);
       #if EXTRUDERS > 1
-        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &retract_recover_length_swap, -100, 100);
+        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &swap_retract_recover_length, -100, 100);
       #endif
       MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate_mm_s, 1, 999);
       END_MENU();
