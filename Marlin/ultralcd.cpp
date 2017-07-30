@@ -3414,7 +3414,7 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
       if (!lcdDrawUpdate && !lcd_clicked) return; // nothing to do (so don't thrash the SD card)
-      const uint16_t fileCnt = card.getnrfilenames();
+      const uint16_t fileCnt = card.get_num_Files();
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
@@ -3427,27 +3427,29 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
       }
 
-      for (uint16_t i = 0; i < fileCnt; i++) {
-        if (_menuLineNr == _thisItemNr) {
-          const uint16_t nr =
-            #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-              fileCnt - 1 -
+      if (fileCnt) {
+        for (uint16_t i = 0; i < fileCnt; i++) {
+          if (_menuLineNr == _thisItemNr) {
+            const uint16_t nr =
+              #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+                fileCnt - 1 -
+              #endif
+            i;
+
+            #if ENABLED(SDCARD_SORT_ALPHA)
+              card.getfilename_sorted(nr);
+            #else
+              card.getfilename(nr);
             #endif
-          i;
 
-          #if ENABLED(SDCARD_SORT_ALPHA)
-            card.getfilename_sorted(nr);
-          #else
-            card.getfilename(nr);
-          #endif
-
-          if (card.filenameIsDir)
-            MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
-          else
-            MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
-        }
-        else {
-          MENU_ITEM_DUMMY();
+            if (card.filenameIsDir)
+              MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+            else
+              MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
+          }
+          else {
+            MENU_ITEM_DUMMY();
+          }
         }
       }
       END_MENU();
