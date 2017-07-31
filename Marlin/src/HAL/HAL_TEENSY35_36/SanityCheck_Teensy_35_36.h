@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,20 +20,10 @@
  *
  */
 
-#ifndef HAL_PINSDEBUG_H
+/**
+ * Test TEENSY35_36 specific configuration values for errors at compile-time.
+ */
 
-#if defined(PINS_DEBUGGING)
-  #ifdef ARDUINO_ARCH_AVR
-    #include "src/HAL/HAL_AVR/pinsDebug_AVR_8_bit.h"
-  #elif defined(ARDUINO_ARCH_SAM)
-    #include "HAL_DUE/HAL_pinsDebug_Due.h"
-  #elif IS_32BIT_TEENSY
-    #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
-  #elif defined(TARGET_LPC1768)
-    #include "src/HAL/HAL_LPC1768/pinsDebug_Re_ARM.h"
-  #else
-    #error Unsupported Platform!
-  #endif
-#endif  
-
-#endif
+/**
+ * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
+ */
