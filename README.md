@@ -5,15 +5,24 @@ __Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
 See example_configurations/Tevo Tarantula for other Tarantula configurations:
 
 - Tarantula-01
-  - Small bed, BLTouch, NO SD support, EEPROM enabled
+  - BLTouch, NO SD support, EEPROM enabled
 - Tarantula-02
-  - Small bed, BLTouch, SD support, EEPROM enabled
+  - BLTouch, SD support, EEPROM enabled
 - Tarantula-03
-  - Small bed, NO bed autolevel, SD support, EEPROM enabled
-- Tarantula-04
-  - Large bed, NO bed autolevel, SD support, EEPROM enabled
-- Tarantula-05
-  - Large bed, BLTouch, SD support, EEPROM enabled, Thermistor for Genuine E3Dv6, Software PWM Layer Fan
+  - NO bed autolevel, SD support, EEPROM enabled
+- Tarantula-04 (contributed by Roy Gilby)
+  - BLTouch, SD support, EEPROM enabled, Thermistor for Genuine E3Dv6, Software PWM Layer Fan
+
+To set the bed size (large or small) after copying the configuration files that are appropriate to your
+printer, edit the "configuration.h" and look for these line:
+
+```
+// The size of the print bed
+#define X_BED_SIZE 200
+#define Y_BED_SIZE 200
+```
+
+Change the bed size values to match your bed.
   
 Do you have a configuration for the Tarantula that is not covered above? Would
 you like to share it with others by having it added to the above examples?
