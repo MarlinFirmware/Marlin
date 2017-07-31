@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,17 +20,10 @@
  *
  */
 
-#ifndef __HAL_PINMAPPING_H__
-#define __HAL_PINMAPPING_H__
-#include "../../../macros.h"
+/**
+ * Test Arduino Due specific configuration values for errors at compile-time.
+ */
 
-struct pin_data { uint8_t port, pin; };
-struct adc_pin_data { uint8_t port, pin, adc; };
-
-#if defined(IS_REARM)
-  #include "pinmap_re_arm.h"
-#else
-  #error "HAL: LPC1768: No defined pin-mapping"
-#endif
-
-#endif // __HAL_PINMAPPING_H__
+/**
+ * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
+ */
