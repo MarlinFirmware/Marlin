@@ -22,16 +22,18 @@
 
 #ifndef HAL_PINSDEBUG_H
 
-#ifdef ARDUINO_ARCH_AVR
-  #include "HAL_AVR/HAL_pinsDebug_AVR.h"
-#elif defined(ARDUINO_ARCH_SAM)
-  #include "HAL_DUE/HAL_pinsDebug_Due.h"
-#elif IS_32BIT_TEENSY
-  #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/HAL_pinsDebug.h"
-#else
-  #error Unsupported Platform!
-#endif
+#if defined(PINS_DEBUGGING)
+  #ifdef ARDUINO_ARCH_AVR
+    #include "HAL_AVR/pinsDebug_AVR_8_bit.h"
+  #elif defined(ARDUINO_ARCH_SAM)
+    #include "HAL_DUE/HAL_pinsDebug_Due.h"
+  #elif IS_32BIT_TEENSY
+    #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
+  #elif defined(TARGET_LPC1768)
+    #include "HAL_LPC1768/pinsDebug_Re_ARM.h"
+  #else
+    #error Unsupported Platform!
+  #endif
+#endif  
 
 #endif

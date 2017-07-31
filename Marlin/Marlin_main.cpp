@@ -6497,7 +6497,7 @@ inline void gcode_M42() {
 
 #if ENABLED(PINS_DEBUGGING)
 
-  #include "src/HAL/HAL_pinsDebug.h"
+  #include "pinsDebug.h"
 
   inline void toggle_pins() {
     const bool I_flag = parser.boolval('I');
