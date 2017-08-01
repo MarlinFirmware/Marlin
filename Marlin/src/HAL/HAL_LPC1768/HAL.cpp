@@ -25,7 +25,7 @@
  */
 
 #ifdef TARGET_LPC1768
-
+#include "../../../macros.h"
 #include "../HAL.h"
 
 extern "C" {
