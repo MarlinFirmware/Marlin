@@ -12251,7 +12251,7 @@ void prepare_move_to_destination() {
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx()
+      prepare_move_to_destination_dualx() || prepare_move_to_destination_cartesian()
     #else
       prepare_move_to_destination_cartesian()
     #endif
