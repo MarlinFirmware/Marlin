@@ -22,6 +22,7 @@
 
 #ifdef TARGET_LPC1768
 #include <lpc17xx_pinsel.h>
+#include "../../../macros.h"
 #include "HAL.h"
 
 // Interrupts

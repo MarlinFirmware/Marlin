@@ -22,6 +22,7 @@
 
 #ifndef __HAL_PINMAPPING_H__
 #define __HAL_PINMAPPING_H__
+#include "../../../macros.h"
 
 struct pin_data { uint8_t port, pin; };
 struct adc_pin_data { uint8_t port, pin, adc; };
