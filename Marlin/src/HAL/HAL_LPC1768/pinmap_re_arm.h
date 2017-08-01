@@ -63,7 +63,6 @@ const adc_pin_data adc_pin_map[] = {
 #define VALID_PIN(r)  (r <   0 ? 0 :\
                        r ==  7 ? 0 :\
                        r == 17 ? 0 :\
-                       r == 17 ? 0 :\
                        r == 22 ? 0 :\
                        r == 23 ? 0 :\
                        r == 25 ? 0 :\
@@ -81,6 +80,20 @@ const adc_pin_data adc_pin_map[] = {
                        r == 65 ? 0 :\
                        r == 66 ? 0 :\
                        r >= NUM_DIGITAL_PINS ? 0 : 1)
+
+#define PWM_PIN(r)  (r <   0 ? 0 :\
+                       r ==  3 ? 1 :\
+                       r ==  4 ? 1 :\
+                       r ==  6 ? 1 :\
+                       r ==  9 ? 1 :\
+                       r == 10 ? 1 :\
+                       r == 11 ? 1 :\
+                       r == 14 ? 1 :\
+                       r == 26 ? 1 :\
+                       r == 46 ? 1 :\
+                       r == 53 ? 1 :\
+                       r == 54 ? 1 :\
+                       r == 60 ? 1 : 0)
 
 const pin_data pin_map[] = { // pin map for variable pin function
   {0,3},        //  DIO0   RXD0             A6               J4-4                           AUX-1

@@ -20,20 +20,18 @@
  *
  */
 
-#ifndef HAL_PINSDEBUG_H
+#ifndef HAL_SANITYCHECK_H
 
-#if defined(PINS_DEBUGGING)
-  #ifdef ARDUINO_ARCH_AVR
-    #include "src/HAL/HAL_AVR/pinsDebug_AVR_8_bit.h"
-  #elif defined(ARDUINO_ARCH_SAM)
-    #include "HAL_DUE/HAL_pinsDebug_Due.h"
-  #elif IS_32BIT_TEENSY
-    #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
-  #elif defined(TARGET_LPC1768)
-    #include "src/HAL/HAL_LPC1768/pinsDebug_Re_ARM.h"
-  #else
-    #error Unsupported Platform!
-  #endif
-#endif  
-
+#ifdef ARDUINO_ARCH_AVR
+  #include "src/HAL/HAL_AVR/SanityCheck_AVR_8_bit.h"
+#elif defined(ARDUINO_ARCH_SAM)
+  #include "HAL_DUE/SanityCheck_Due.h"
+#elif IS_32BIT_TEENSY
+  #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
+#elif defined(TARGET_LPC1768)
+  #include "src/HAL/HAL_LPC1768/SanityCheck_Re_ARM.h"
+#else
+  #error Unsupported Platform!
+#endif
+ 
 #endif
