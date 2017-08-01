@@ -1,3 +1,5 @@
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+
 #include "../persistent_store_api.h"
 
 #include "../../../types.h"
@@ -5,7 +7,6 @@
 #include "../../../serial.h"
 #include "../../../utility.h"
 
-#ifdef ARDUINO_ARCH_AVR
 #if ENABLED(EEPROM_SETTINGS)
 
 namespace HAL {
