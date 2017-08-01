@@ -1,3 +1,4 @@
+#ifdef TARGET_LPC1768
 #include "../persistent_store_api.h"
 
 #include "../../../types.h"
@@ -8,7 +9,7 @@
 #include "chanfs/diskio.h"
 #include "chanfs/ff.h"
 
-#ifdef TARGET_LPC1768
+
 #if ENABLED(EEPROM_SETTINGS)
 
 namespace HAL {

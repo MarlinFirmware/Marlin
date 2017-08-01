@@ -1,3 +1,5 @@
+#ifdef ARDUINO_ARCH_AVR
+
 #include "../persistent_store_api.h"
 
 #include "../../../types.h"
@@ -5,7 +7,6 @@
 #include "../../../serial.h"
 #include "../../../utility.h"
 
-#ifdef ARDUINO_ARCH_SAM
 #if ENABLED(EEPROM_SETTINGS)
 
 namespace HAL {

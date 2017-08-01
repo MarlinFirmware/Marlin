@@ -74,9 +74,12 @@ char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
 /**
  * Dive into a folder and recurse depth-first to perform a pre-set operation lsAction:
  *   LS_Count       - Add +1 to nrFiles for every file within the parent
- *   LS_GetFilename - Get the filename of the file indexed by nrFiles
+ *   LS_GetFilename - Get the filename of the file indexed by nrFile_index
  *   LS_SerialPrint - Print the full path and size of each file to serial output
  */
+ 
+uint16_t nrFile_index;
+
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
   dir_t p;
   uint8_t cnt = 0;
@@ -130,7 +133,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
       if (!filenameIsDir && (p.name[8] != 'G' || p.name[9] == '~')) continue;
 
-      switch (lsAction) {
+      switch (lsAction) {  // 1 based file count
         case LS_Count:
           nrFiles++;
           break;
@@ -148,7 +151,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
           if (match != NULL) {
             if (strcasecmp(match, filename) == 0) return;
           }
-          else if (cnt == nrFiles) return;
+          else if (cnt == nrFile_index) return;  // 0 based index
           cnt++;
           break;
       }
@@ -596,7 +599,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   #endif // SDSORT_CACHE_NAMES
   curDir = &workDir;
   lsAction = LS_GetFilename;
-  nrFiles = nr;
+  nrFile_index = nr;
   curDir->rewind();
   lsDive("", *curDir, match);
 }
@@ -860,6 +863,13 @@ void CardReader::updir() {
   }
 
 #endif // SDCARD_SORT_ALPHA
+
+#if (ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES)  
+ // if true - don't need to access the SD card for file names
+  uint16_t CardReader::get_num_Files() {return nrFiles;}
+#else
+  uint16_t CardReader::get_num_Files() {return getnrfilenames(); } 
+#endif
 
 void CardReader::printingHasFinished() {
   stepper.synchronize();
