@@ -880,7 +880,7 @@
   #define LEFT_PROBE_BED_POSITION 23
   #define RIGHT_PROBE_BED_POSITION 175
   #define FRONT_PROBE_BED_POSITION 0
-  #define BACK_PROBE_BED_POSITION 220
+  #define BACK_PROBE_BED_POSITION 200
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 5
