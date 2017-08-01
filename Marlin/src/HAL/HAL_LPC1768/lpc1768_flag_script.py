@@ -14,9 +14,9 @@ if __name__ == "__main__":
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
 
-                    "-IMarlin/src/HAL/HAL_LPC1768/framework_cmsis/CMSIS/Include",
-                    "-IMarlin/src/HAL/HAL_LPC1768/framework_cmsis/Device/NXP/LPC17xx/Include",
-                    "-IMarlin/src/HAL/HAL_LPC1768/framework_cmsis/Device/NXP/LPC17xx/drivers/include",
+                    "-IMarlin/frameworks/CMSIS/LPC1768/include",
+                    "-IMarlin/frameworks/CMSIS/LPC1768/lib",
+                    "-IMarlin/src/HAL",
 
                     "-MMD",
                     "-MP",
@@ -46,6 +46,6 @@ else:
           "--specs=nano.specs",
           "--specs=nosys.specs",
           "-u_printf_float",
-          "-Wl,-TMarlin/src/HAL/HAL_LPC1768/framework_cmsis/Device/NXP/LPC17xx/Source/Re-ARM/LPC1768.ld,--gc-sections"
+          "-Wl,-TMarlin/frameworks/CMSIS/LPC1768/Re-ARM/LPC1768.ld,--gc-sections"
       ],
   )

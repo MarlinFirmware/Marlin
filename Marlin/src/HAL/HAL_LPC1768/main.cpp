@@ -10,18 +10,18 @@ extern "C" {
 #include <lpc17xx_gpio.h>
 }
 
-#include "usb/usb.h"
-#include "usb/usbcfg.h"
-#include "usb/usbhw.h"
-#include "usb/usbcore.h"
-#include "usb/cdc.h"
-#include "usb/cdcuser.h"
-#include "usb/mscuser.h"
+#include <usb/usb.h>
+#include <usb/usbcfg.h>
+#include <usb/usbhw.h>
+#include <usb/usbcore.h>
+#include <usb/cdc.h>
+#include <usb/cdcuser.h>
+#include <usb/mscuser.h>
 
 extern "C" {
 #include <debug_frmwrk.h>
-#include "chanfs/diskio.h"
-#include "chanfs/ff.h"
+#include <chanfs/diskio.h>
+#include <chanfs/ff.h>
 }
 
 #include "fastio.h"
