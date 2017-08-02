@@ -728,7 +728,7 @@ static_assert(1 >= 0
   #if DISABLED(ULTIPANEL)
     #error "LCD_BED_LEVELING requires an LCD controller."
   #elif DISABLED(MESH_BED_LEVELING) && !(HAS_ABL && ENABLED(PROBE_MANUALLY))
-    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or PROBE_MANUALLY."
+    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or PROBE_MANUALLY with auto bed leveling enabled."
   #endif
 #endif
 
