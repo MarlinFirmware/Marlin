@@ -37,11 +37,11 @@
 // --------------------------------------------------------------------------
 
 #include "../../../MarlinConfig.h"
-#include "../spi_api.h"
 
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
+
 
 // --------------------------------------------------------------------------
 // Public functions
@@ -138,32 +138,39 @@
   }
 #else
   void spiBegin() {
-    HAL::SPI::initialise(SD_SPI_CHANNEL);
   }
 
   void spiInit(uint8_t spiRate) {
-    uint32_t freq =  8000000 / (1u << spiRate);
-    HAL::SPI::set_frequency(SD_SPI_CHANNEL, freq);
   }
 
   void spiSend(byte b) {
-    HAL::SPI::write(SD_SPI_CHANNEL, b);
+  }
+
+  void spiSend(const uint8_t* buf, size_t n) {
+  }
+
+  void spiSend(uint32_t chan, byte b) {
+  }
+
+  void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
+
   }
 
   // Read single byte from SPI
   uint8_t spiRec() {
-    return HAL::SPI::read(SD_SPI_CHANNEL);
+    return 0;
+  }
+
+  uint8_t spiRec(uint32_t chan) {
+    return 0;
   }
 
   // Read from SPI into buffer
   void spiRead(uint8_t*buf, uint16_t nbyte) {
-    HAL::SPI::read(SD_SPI_CHANNEL, buf, nbyte);
   }
 
   // Write from buffer to SPI
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
-    HAL::SPI::write(SD_SPI_CHANNEL, token);
-    HAL::SPI::write(SD_SPI_CHANNEL, buf, 512);
   }
 #endif // ENABLED(SOFTWARE_SPI)
 
