@@ -2416,7 +2416,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(SDSUPPORT)
         && !card.sdprinting
       #endif
-    )
+      )
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
