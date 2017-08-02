@@ -67,5 +67,8 @@
   #define SS_PIN   AVR_SS_PIN
 #endif
 
+#define SD_SPI_CHANNEL  (HAL::SPI::CHANNEL_1)
+#define LCD_SPI_CHANNEL (HAL::SPI::CHANNEL_1)
+#define LCD_SPI_FREQUENCY 4000000
 
 #endif /* SPI_PINS_H_ */
