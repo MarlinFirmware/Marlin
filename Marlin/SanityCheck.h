@@ -416,8 +416,8 @@
 /**
  * Servo deactivation depends on servo endstops or switching nozzle
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR)
-  #error "Z_ENDSTOP_SERVO_NR or switching nozzle is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR)
+  #error "Z_ENDSTOP_SERVO_NR or switching nozzle or switching_extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
