@@ -23,11 +23,6 @@
 #ifndef SPI_PINS_H_
 #define SPI_PINS_H_
 
-//new config options
-#define SD_SPI_CHANNEL (HAL::SPI::CHANNEL_0)
-#define LCD_SPI_FREQUENCY 4000000
-#define LCD_SPI_CHANNEL (HAL::SPI::CHANNEL_1)
-
 #define SCK_PIN		13
 #define MISO_PIN	12
 #define MOSI_PIN	11
