@@ -186,7 +186,7 @@
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
       const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? z1 + (z2 - z1) * yratio * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
+      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
        * If part of the Mesh is undefined, it will show up as NAN
