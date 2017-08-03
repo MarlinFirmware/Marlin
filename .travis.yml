@@ -1,4 +1,5 @@
----
+dist: precise
+  #
 language: c
   #
 notifications:
