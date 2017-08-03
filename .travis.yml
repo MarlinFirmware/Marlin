@@ -1,5 +1,5 @@
 dist: trusty
-sudo: true 
+sudo: true
   #
 language: c
   #
