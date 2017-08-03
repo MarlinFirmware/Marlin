@@ -1,4 +1,4 @@
-dist: pristine
+dist: precise
 
 language: python
 python:
