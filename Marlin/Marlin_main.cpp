@@ -1409,6 +1409,9 @@ bool get_target_extruder_from_command(const uint16_t code) {
           soft_endstop_max[axis] = base_max_pos(axis) + offs;
         }
       }
+    #elif ENABLED(DELTA)
+      soft_endstop_min[axis] = base_min_pos(axis) + (axis == Z_AXIS ? 0 : offs);
+      soft_endstop_max[axis] = base_max_pos(axis) + offs;
     #else
       soft_endstop_min[axis] = base_min_pos(axis) + offs;
       soft_endstop_max[axis] = base_max_pos(axis) + offs;
@@ -1806,12 +1809,8 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    float z_dest = LOGICAL_Z_POSITION(z_raise);
+    float z_dest = z_raise;
     if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
-
-    #if ENABLED(DELTA)
-      z_dest -= home_offset[Z_AXIS]; // Account for delta height adjustment
-    #endif
 
     if (z_dest > current_position[Z_AXIS])
       do_blocking_move_to_z(z_dest);
@@ -2106,7 +2105,7 @@ static void clean_up_after_endstop_or_probe_move() {
       safe_delay(BLTOUCH_DELAY);
     }
 
-    void set_bltouch_deployed(const bool deploy) {
+    bool set_bltouch_deployed(const bool deploy) {
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    //  try to reset it.
         bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
@@ -2118,6 +2117,7 @@ static void clean_up_after_endstop_or_probe_move() {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
           stop();                          // punt!
+          return true;
         }
       }
 
@@ -2130,6 +2130,8 @@ static void clean_up_after_endstop_or_probe_move() {
           SERIAL_EOL();
         }
       #endif
+
+      return false;
     }
 
   #endif // BLTOUCH
@@ -2149,23 +2151,7 @@ static void clean_up_after_endstop_or_probe_move() {
     // Make room for probe
     do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
 
-    // When deploying make sure BLTOUCH is not already triggered
-    #if ENABLED(BLTOUCH)
-      if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
-        bltouch_command(BLTOUCH_RESET);    // try to reset it.
-        bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
-        bltouch_command(BLTOUCH_STOW);     // clear the triggered condition.
-        safe_delay(1500);                  // wait for internal self test to complete
-                                           //   measured completion time was 0.65 seconds
-                                           //   after reset, deploy & stow sequence
-        if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
-          stop();                          // punt!
-          return true;
-        }
-      }
-    #elif ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
       #if ENABLED(Z_PROBE_SLED)
         #define _AUE_ARGS true, false, false
       #else
@@ -2236,14 +2222,14 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  static void do_probe_move(float z, float fr_mm_m) {
+  static bool do_probe_move(float z, float fr_mm_m) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
 
     // Deploy BLTouch at the start of any probe
     #if ENABLED(BLTOUCH)
-      set_bltouch_deployed(true);
+      if (set_bltouch_deployed(true)) return true;
     #endif
 
     #if QUIET_PROBING
@@ -2251,15 +2237,24 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // Move down until probe triggered
-    do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+    do_blocking_move_to_z(z, MMM_TO_MMS(fr_mm_m));
+
+    // Check to see if the probe was triggered
+    const bool probe_triggered = TEST(Endstops::endstop_hit_bits,
+      #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+        Z_MIN
+      #else
+        Z_MIN_PROBE
+      #endif
+    );
 
     #if QUIET_PROBING
       probing_pause(false);
     #endif
 
-    // Retract BLTouch immediately after a probe
+    // Retract BLTouch immediately after a probe if it was triggered
     #if ENABLED(BLTOUCH)
-      set_bltouch_deployed(false);
+      if (probe_triggered && set_bltouch_deployed(false)) return true;
     #endif
 
     // Clear endstop flags
@@ -2274,11 +2269,13 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
     #endif
+
+    return !probe_triggered;
   }
 
   // Do a single Z probe and return with current_position[Z_AXIS]
   // at the height where the probe triggered.
-  static float run_z_probe() {
+  static float run_z_probe(bool printable=true) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -2290,34 +2287,33 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(PROBE_DOUBLE_TOUCH)
 
       // Do a first probe at the fast speed
-      do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
+      if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         float first_probe_z = current_position[Z_AXIS];
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
       #endif
 
-      // move up by the bump distance
-      do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      // move up to make clearance for the probe
+      do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
     #else
 
       // If the nozzle is above the travel height then
       // move down quickly before doing the slow probe
-      float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
+      float z = Z_CLEARANCE_DEPLOY_PROBE;
       if (zprobe_zoffset < 0) z -= zprobe_zoffset;
 
-      #if ENABLED(DELTA)
-        z -= home_offset[Z_AXIS]; // Account for delta height adjustment
-      #endif
+      if (z < current_position[Z_AXIS]) {
 
-      if (z < current_position[Z_AXIS])
-        do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-
+        // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
+        if (!do_probe_move(z, Z_PROBE_SPEED_FAST))
+          do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      }
     #endif
 
     // move down slowly to find bed
-    do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_SLOW);
+    if (do_probe_move(-10 + (printable ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
@@ -2330,6 +2326,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
+
     return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
       #if ENABLED(DELTA)
         + home_offset[Z_AXIS] // Account for delta height adjustment
@@ -2371,22 +2368,31 @@ static void clean_up_after_endstop_or_probe_move() {
         do_blocking_move_to_z(delta_clip_start_height);
     #endif
 
-    // Ensure a minimum height before moving the probe
-    do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
+    #if HAS_SOFTWARE_ENDSTOPS
+      // Store the status of the soft endstops and disable if we're probing a non-printable location
+      static bool enable_soft_endstops = soft_endstops_enabled;
+      if (!printable) soft_endstops_enabled = false;
+    #endif
 
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
     // Move the probe to the given XY
     do_blocking_move_to_xy(nx, ny);
 
-    if (DEPLOY_PROBE()) return NAN;
+    float measured_z = NAN;
+    if (!DEPLOY_PROBE()) {
+      measured_z = run_z_probe(printable);
 
-    const float measured_z = run_z_probe();
+      if (!stow)
+        do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      else
+        if (STOW_PROBE()) measured_z = NAN;
+    }
 
-    if (!stow)
-      do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
-    else
-      if (STOW_PROBE()) return NAN;
+    #if HAS_SOFTWARE_ENDSTOPS
+      // Restore the soft endstop status
+      soft_endstops_enabled = enable_soft_endstops;
+    #endif
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
@@ -3752,7 +3758,7 @@ inline void gcode_G4() {
    * A delta can only safely home all axes at the same time
    * This is like quick_home_xy() but for 3 towers.
    */
-  inline void home_delta() {
+  inline bool home_delta() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
     #endif
@@ -3761,10 +3767,23 @@ inline void gcode_G4() {
     sync_plan_position();
 
     // Move all carriages together linearly until an endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (DELTA_HEIGHT + home_offset[Z_AXIS] + 10);
     feedrate_mm_s = homing_feedrate(X_AXIS);
     line_to_current_position();
     stepper.synchronize();
+
+    // If an endstop was not hit, then damage can occur if homing is continued.
+    // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
+    // not set correctly.
+    if (!(TEST(Endstops::endstop_hit_bits, X_MAX) ||
+          TEST(Endstops::endstop_hit_bits, Y_MAX) ||
+          TEST(Endstops::endstop_hit_bits, Z_MAX))) {
+      LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
+      return false;
+    }
+
     endstops.hit_on_purpose(); // clear endstop hit flags
 
     // At least one carriage has reached the top.
@@ -3784,6 +3803,8 @@ inline void gcode_G4() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
     #endif
+
+    return true;
   }
 
 #endif // DELTA
@@ -4104,6 +4125,20 @@ void home_all_axes() { gcode_G28(true); }
   }
 
 #endif
+
+#if HAS_BED_PROBE
+
+  static bool nan_error(const float v) {
+    const bool is_nan = isnan(v);
+    if (is_nan) {
+      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+    }
+    return is_nan;
+  }
+
+#endif // HAS_BED_PROBE
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -4648,7 +4683,7 @@ void home_all_axes() { gcode_G28(true); }
         // Deploy the probe. Probe will raise if needed.
         if (DEPLOY_PROBE()) {
           planner.abl_enabled = abl_should_enable;
-          return;
+          goto FAIL;
         }
       #endif
 
@@ -4864,7 +4899,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif // AUTO_BED_LEVELING_3POINT
 
     #else // !PROBE_MANUALLY
-
+    {
       const bool stow_probe_after_each = parser.boolval('E');
 
       #if ABL_GRID
@@ -4909,9 +4944,9 @@ void home_all_axes() { gcode_G28(true); }
 
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
-            if (isnan(measured_z)) {
+            if (nan_error(measured_z)) {
               planner.abl_enabled = abl_should_enable;
-              return;
+              goto FAIL;
             }
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -4945,9 +4980,9 @@ void home_all_axes() { gcode_G28(true); }
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
-          if (isnan(measured_z)) {
+          if (nan_error(measured_z)) {
             planner.abl_enabled = abl_should_enable;
-            return;
+            goto FAIL;
           }
           points[i].z = measured_z;
         }
@@ -4970,9 +5005,9 @@ void home_all_axes() { gcode_G28(true); }
       // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
       if (STOW_PROBE()) {
         planner.abl_enabled = abl_should_enable;
-        return;
+        goto FAIL;
       }
-
+    }
     #endif // !PROBE_MANUALLY
 
     //
@@ -4984,9 +5019,6 @@ void home_all_axes() { gcode_G28(true); }
     // If code above wants to continue leveling, it should
     // return or loop before this point.
     //
-
-    // Restore state after probing
-    if (!faux) clean_up_after_endstop_or_probe_move();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
@@ -5192,6 +5224,14 @@ void home_all_axes() { gcode_G28(true); }
       stepper.synchronize();
     #endif
 
+    // Auto Bed Leveling is complete! Enable if possible.
+    planner.abl_enabled = dryrun ? abl_should_enable : true;
+
+    FAIL:
+
+    // Restore state after probing
+    if (!faux) clean_up_after_endstop_or_probe_move();
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G29");
     #endif
@@ -5199,9 +5239,6 @@ void home_all_axes() { gcode_G28(true); }
     report_current_position();
 
     KEEPALIVE_STATE(IN_HANDLER);
-
-    // Auto Bed Leveling is complete! Enable if possible.
-    planner.abl_enabled = dryrun ? abl_should_enable : true;
 
     if (planner.abl_enabled)
       SYNC_PLAN_POSITION_KINEMATIC();
@@ -5235,7 +5272,7 @@ void home_all_axes() { gcode_G28(true); }
 
     const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
 
-    if (!isnan(measured_z)) {
+    if (!nan_error(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
       SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
       SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
@@ -5399,9 +5436,9 @@ void home_all_axes() { gcode_G28(true); }
         tool_change(0, 0, true);
       #endif
       setup_for_endstop_or_probe_move();
-      DEPLOY_PROBE();
       endstops.enable(true);
-      home_delta();
+      if (!home_delta())
+        return;
       endstops.not_homing();
 
       // print settings
@@ -5415,7 +5452,11 @@ void home_all_axes() { gcode_G28(true); }
       print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
 
       #if DISABLED(PROBE_MANUALLY)
-        home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
+        const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
+        if (nan_error(measured_z))
+          goto FAIL;
+        else
+          home_offset[Z_AXIS] -= measured_z;
       #endif
 
       do {
@@ -5433,6 +5474,7 @@ void home_all_axes() { gcode_G28(true); }
             z_at_pt[0] += lcd_probe_pt(0, 0);
           #else
             z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
+            if (nan_error(z_at_pt[0])) goto FAIL;
           #endif
         }
         if (_7p_calibration) { // probe extra center points
@@ -5441,7 +5483,8 @@ void home_all_axes() { gcode_G28(true); }
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
             #else
-              z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false);
+              z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+              if (nan_error(z_at_pt[0])) goto FAIL;
             #endif
           }
           z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
@@ -5461,7 +5504,8 @@ void home_all_axes() { gcode_G28(true); }
               #if ENABLED(PROBE_MANUALLY)
                 z_at_pt[axis] += lcd_probe_pt(cos(a) * r, sin(a) * r);
               #else
-                z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false);
+                z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+                if (nan_error(z_at_pt[axis])) goto FAIL;
               #endif
             }
             zig_zag = !zig_zag;
@@ -5660,6 +5704,8 @@ void home_all_axes() { gcode_G28(true); }
 
       }
       while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
+
+      FAIL:
 
       #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         do_blocking_move_to_z(delta_clip_start_height);
@@ -6979,13 +7025,13 @@ inline void gcode_M42() {
 
     setup_for_endstop_or_probe_move();
 
+    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+
     // Move to the first point, deploy, and probe
     const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
-    if (isnan(t)) return;
+    if (nan_error(t)) goto FAIL;
 
     randomSeed(millis());
-
-    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
@@ -7058,6 +7104,7 @@ inline void gcode_M42() {
 
       // Probe a single point
       sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
+      if (nan_error(sample_set[n])) goto FAIL;
 
       /**
        * Get the current mean for the data points we have so far
@@ -7103,7 +7150,7 @@ inline void gcode_M42() {
 
     } // End of probe loop
 
-    if (STOW_PROBE()) return;
+    if (STOW_PROBE()) goto FAIL;
 
     SERIAL_PROTOCOLPGM("Finished!");
     SERIAL_EOL();
@@ -7124,6 +7171,8 @@ inline void gcode_M42() {
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_EOL();
     SERIAL_EOL();
+
+    FAIL:
 
     clean_up_after_endstop_or_probe_move();
 
@@ -11452,19 +11501,22 @@ void ok_to_send() {
   //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
   //       now enforces is_position_reachable for X/Y regardless
   //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
-  //       redundant here.  Probably should #ifdef out the X/Y
-  //       axis clamps here for delta and just leave the Z clamp.
+  //       redundant here.
 
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
     #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      #if DISABLED(DELTA)
+        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      #endif
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
     #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      #if DISABLED(DELTA)
+        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      #endif
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
     #endif
   }
