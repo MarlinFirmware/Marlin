@@ -1,3 +1,17 @@
+
+
+//#define LARGE_BED
+#define SDSUPPORT
+#define BLTOUCH
+//#define SN04
+
+#define SENSOR_LEFT        1
+#define SENSOR_RIGHT       0
+#define SENSOR_FRONT      31
+#define SENSOR_BEHIND      0
+
+#define XTRA_BED          40 
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -350,10 +364,9 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-	// TEVO Tarantula Custom PID Settings - Hotend
-	#define  DEFAULT_Kp 11.72
-	#define  DEFAULT_Ki 0.60
-	#define  DEFAULT_Kd 57.12
+  #define  DEFAULT_Kp 11.72
+  #define  DEFAULT_Ki 0.60
+  #define  DEFAULT_Kd 57.12
 
 #endif // PIDTEMP
 
@@ -395,10 +408,9 @@
   //#define  DEFAULT_bedKi 1.41
   //#define  DEFAULT_bedKd 1675.16
 
-	// TEVO Tarantula Custom PID Settings - Heatbed
-	#define  DEFAULT_bedKp 828.69
-	#define  DEFAULT_bedKi 162.12
-	#define  DEFAULT_bedKd 1058.97
+  #define  DEFAULT_bedKp 828.69
+  #define  DEFAULT_bedKi 162.12
+  #define  DEFAULT_bedKd 1058.97
 
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -520,16 +532,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, 96.1261 }  // Custom for TEVO Tarantula
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, 96.1261 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-//#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 50 }    // Custom for TEVO Tarantula
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 50 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -537,8 +547,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-//#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
-#define DEFAULT_MAX_ACCELERATION      { 500,  500, 50, 500 }    // Custom for TEVO Tarantula
+#define DEFAULT_MAX_ACCELERATION      { 500,  500, 50, 500 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -548,8 +557,7 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-//#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_ACCELERATION          500    // Custom for TEVO Tarantula
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  500    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
 
@@ -561,14 +569,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define DEFAULT_XJERK                 20.0
-#define DEFAULT_XJERK                 4.0    // Custom for TEVO Tarantula
-//#define DEFAULT_YJERK                 20.0
-#define DEFAULT_YJERK                 7.0    // Custom for TEVO Tarantula
-//#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_ZJERK                  0.2   // Custom for Tevo Tarantula
-//#define DEFAULT_EJERK                  5.0
-#define DEFAULT_EJERK                  2.5   // Custom for Tevo Tarantula
+#define DEFAULT_XJERK                  4.0
+#define DEFAULT_YJERK                  7.0
+#define DEFAULT_ZJERK                  0.2
+#define DEFAULT_EJERK                  2.5
 
 
 //===========================================================================
@@ -637,7 +641,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH
+//#define BLTOUCH
 #if ENABLED(BLTOUCH)
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 #endif
@@ -683,8 +687,8 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -1  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -36 // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER SENSOR_RIGHT - SENSOR_LEFT  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER SENSOR_BEHIND - SENSOR_FRONT // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
@@ -777,14 +781,18 @@
 
 // The size of the print bed
 #define X_BED_SIZE 200
-#define Y_BED_SIZE 200
+#if ENABLED(LARGE_BED)
+  #define Y_BED_SIZE 280
+#else
+  #define Y_BED_SIZE 200
+#endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE-2
-#define Y_MAX_POS Y_BED_SIZE+40
+#define X_MAX_POS X_BED_SIZE
+#define Y_MAX_POS Y_BED_SIZE + XTRA_BED
 #define Z_MAX_POS 200
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
@@ -850,10 +858,10 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT
+#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
-#define AUTO_BED_LEVELING_UBL
+//#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
 /**
@@ -910,12 +918,12 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X 5
-  #define ABL_PROBE_PT_1_Y 195
-  #define ABL_PROBE_PT_2_X 195
-  #define ABL_PROBE_PT_2_Y 195
-  #define ABL_PROBE_PT_3_X 100
-  #define ABL_PROBE_PT_3_Y 5
+  #define ABL_PROBE_PT_1_X 5 + SENSOR_RIGHT
+  #define ABL_PROBE_PT_1_Y 5 + SENSOR_BEHIND
+  #define ABL_PROBE_PT_2_X X_BED_SIZE - 5 - SENSOR_LEFT
+  #define ABL_PROBE_PT_2_Y 5 + SENSOR_BEHIND
+  #define ABL_PROBE_PT_3_X X_BED_SIZE / 2
+  #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - (XTRA_BED - SENSOR_FRONT)
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -992,10 +1000,8 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  // #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
-  // #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_X_POINT 100    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT 100    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Homing speeds (mm/m)
