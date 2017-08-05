@@ -836,7 +836,9 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_user_gcode(const char * const cmd) {
       enqueue_and_echo_commands_P(cmd);
-      lcd_completion_feedback();
+      #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
+        lcd_completion_feedback();
+      #endif
     }
 
     #if defined(USER_DESC_1) && defined(USER_GCODE_1)
