@@ -161,7 +161,10 @@
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
-  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1[, E2, E3]
+  #if EXTRUDERS > 3
+    #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
+  #endif
 #endif
 
 // A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
@@ -800,60 +803,6 @@
 #endif // Z_PROBE_ALLEN_KEY
 
 /**
- *   *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
- *
- *   - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
- *   - Use 5V for powered (usu. inductive) sensors.
- *   - Otherwise connect:
- *     - normally-closed switches to GND and D32.
- *     - normally-open switches to 5V and D32.
- *
- *   Normally-closed switches are advised and are the default.
- *
- *
- *   PIN OPTIONS\SETUP FOR Z PROBES
- *
- *
- *   WARNING:
- *   Setting the wrong pin may have unexpected and potentially disastrous consequences.
- *   Use with caution and do your homework.
- *
- *
- *   All Z PROBE pin options are configured by defining (or not defining)
- *   the following five items:
- *       Z_MIN_PROBE_ENDSTOP – defined below
- *       Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN – defined below
- *       Z_MIN_PIN - defined in the pins_YOUR_BOARD.h file
- *       Z_MIN_PROBE_PIN - defined in the pins_YOUR_BOARD.h file
- *
- *   If you're using a probe then you need to tell Marlin which pin to use as
- *   the Z MIN ENDSTOP.  Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN determines if the
- *   Z_MIN_PIN or if the Z_MIN_PROBE_PIN is used.
- *
- *   The pin selected for the probe is ONLY checked during probing operations.
- *   If you want to use the Z_MIN_PIN as an endstop AND you want to have a Z PROBE
- *   then you’ll need to use the Z_MIN_PROBE_PIN option.
- *
- *   Z_MIN_PROBE_ENDSTOP also needs to be enabled if you want to use Z_MIN_PROBE_PIN.
- *
- *   The settings needed to use the Z_MIN_PROBE_PIN are:
- *       1. select the type of probe you're using
- *       2. define Z_MIN_PROBE_PIN in your pins_YOUR_BOARD.h file
- *       3. disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. enable Z_MIN_PROBE_ENDSTOP
- *   NOTE – if Z_MIN_PIN is defined then it’ll be checked during all moves in the
- *          negative Z direction.
- *
- *   The settings needed to use the Z_MIN_PIN are:
- *       1. select the type of probe you're using
- *       2. enable Z_MIN _PIN in your pins_YOUR_BOARD.h file
- *       3. enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. disable Z_MIN_PROBE_ENDSTOP
- *   NOTES – if Z_MIN_PROBE_PIN is defined in the pins_YOUR_BOARD.h file then it’ll be
- *          ignored by Marlin
- */
-
-/**
  * Z probes require clearance when deploying, stowing, and moving between
  * probe points to avoid hitting the bed and other hardware.
  * Servo-mounted probes require extra space for the arm to rotate.
@@ -1047,6 +996,11 @@
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    // Beyond the probed grid, continue the implied tilt?
+    // Default is to maintain the height of the nearest edge.
+    //#define EXTRAPOLATE_BEYOND_GRID
+
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
@@ -1147,8 +1101,8 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Delta only homes to Z
@@ -1635,11 +1589,6 @@
 //#define U8GLIB_SSD1306
 
 //
-// TinyBoy2 128x64 OLED / Encoder Panel
-//
-//#define OLED_PANEL_TINYBOY2
-
-//
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
 //
 //#define SAV_3DGLCD
@@ -1655,6 +1604,11 @@
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+//
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
 
 //=============================================================================
 //=============================== Extra Features ==============================
