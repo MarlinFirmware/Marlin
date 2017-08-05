@@ -2412,7 +2412,7 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!thermalManager.tooColdToExtrude(active_extruder) && !card.sdprinting)
+      if (!thermalManager.tooColdToExtrude(active_extruder) && !IS_SD_PRINTING)
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
