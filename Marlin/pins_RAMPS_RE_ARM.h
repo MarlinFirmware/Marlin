@@ -275,11 +275,11 @@
   #define LCD_PINS_ENABLE     51  // (MOSI) J3-10 & AUX-3
   #define LCD_PINS_D4         52  // (SCK)  J3-9 & AUX-3
 
-  #define LCD_PINS_D5         59  // J3-8 & AUX-2
+  #define LCD_PINS_D5         71  // ENET_MDIO
   #define DOGLCD_A0           59  // J3-8 & AUX-2
-  #define LCD_PINS_D6         63  // J5-3 & AUX-2
+  #define LCD_PINS_D6         73  // ENET_RX_ER
   #define DOGLCD_CS           63  // J5-3 & AUX-2
-  #define LCD_PINS_D7          6  // (SERVO1) J5-1 & SERVO connector
+  #define LCD_PINS_D7         75  // ENET_RXD1
 
 
   //#define MISO                50  // system defined J3-10 & AUX-3
