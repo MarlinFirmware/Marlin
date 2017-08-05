@@ -5,12 +5,17 @@
 #define BLTOUCH
 //#define SN04
 
+#define TRIPOINT
+//#define LINEAR
+//#define BILINEAR
+//#define UBL
+
 #define SENSOR_LEFT        1
 #define SENSOR_RIGHT       0
 #define SENSOR_FRONT      31
 #define SENSOR_BEHIND      0
 
-#define XTRA_BED          40 
+#define XTRA_BED           0
 
 /**
  * Marlin 3D Printer Firmware
@@ -490,18 +495,33 @@
   //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
-  //#define ENDSTOPPULLUP_ZMIN
-  #define ENDSTOPPULLUP_ZMIN_PROBE
+  #if ENABLED(BLTOUCH)
+    //#define ENDSTOPPULLUP_ZMIN
+    #define ENDSTOPPULLUP_ZMIN_PROBE
+  #else
+    #define ENDSTOPPULLUP_ZMIN
+    //#define ENDSTOPPULLUP_ZMIN_PROBE
+  #endif
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-//#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#if ENABLED(BLTOUCH)
+  #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#else
+  #define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#endif
 //#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#if ENABLED(BLTOUCH)
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#elif ENABLED(SN04)
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#else
+  //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#endif
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -589,7 +609,9 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#if ENABLED(BLTOUCH) || ENABLED(SN04)
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -624,13 +646,17 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
+#if DISABLED(BLTOUCH) && DISABLED(SN04)
+  #define PROBE_MANUALLY
+#endif
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-//#define FIX_MOUNTED_PROBE
+#if ENABLED(SN04)
+  #define FIX_MOUNTED_PROBE
+#endif
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -858,11 +884,17 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#define AUTO_BED_LEVELING_3POINT
-//#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#if ENABLED(TRIPOINT)
+  #define AUTO_BED_LEVELING_3POINT
+#elif ENABLED(LINEAR)
+  #define AUTO_BED_LEVELING_LINEAR
+#elif ENABLED(BILINEAR)
+  #define AUTO_BED_LEVELING_BILINEAR
+#elif ENABLED(UBL)
+  #define AUTO_BED_LEVELING_UBL
+#else
+  #define MESH_BED_LEVELING
+#endif
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -915,16 +947,28 @@
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-
+/*
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
   #define ABL_PROBE_PT_1_X 5 + SENSOR_RIGHT
   #define ABL_PROBE_PT_1_Y 5 + SENSOR_BEHIND
   #define ABL_PROBE_PT_2_X X_BED_SIZE - 5 - SENSOR_LEFT
   #define ABL_PROBE_PT_2_Y 5 + SENSOR_BEHIND
-  #define ABL_PROBE_PT_3_X X_BED_SIZE / 2
-  #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - (XTRA_BED - SENSOR_FRONT)
-
+  #define ABL_PROBE_PT_3_X (X_BED_SIZE / 2)
+  #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT
+*/
+  #define ABL_PROBE_PT_1_X 5 + SENSOR_RIGHT
+  #define ABL_PROBE_PT_1_Y 5 + SENSOR_BEHIND
+  #define ABL_PROBE_PT_2_X X_BED_SIZE - 5 - SENSOR_LEFT
+  #define ABL_PROBE_PT_2_Y 5 + SENSOR_BEHIND
+  #define ABL_PROBE_PT_3_X (X_BED_SIZE / 2)
+  #if XTRA_BED > 0 && XTRA_BED > SENSOR_FRONT
+    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT + (XTRA_BED - (XTRA_BED - SENSOR_FRONT))
+  #elif XTRA_BED > 0 && XTRA_BED <= SENSOR_FRONT
+    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT + XTRA_BED
+  #else
+    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT
+  #endif
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
   //===========================================================================
@@ -963,7 +1007,9 @@
  * Use the LCD controller for bed leveling
  * Requires MESH_BED_LEVELING or PROBE_MANUALLY
  */
-//#define LCD_BED_LEVELING
+#if DISABLED(BLTOUCH) && DISABLED(SN04)
+  #define LCD_BED_LEVELING
+#endif
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
