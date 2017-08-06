@@ -1,21 +1,79 @@
+//======================================================================
+/**************** TEVO TARANTULA EASY CONFIG ***************************
+            Original idea by terryb.print3d@gmail.com
+             Modified by jb.github@rcairgallery.com
 
+ The latest version of Terry's original file will always be found at:
+          https://github.com/terryb58/Marlin-EasyConfig
 
+ The latest version of this file (and complete firmware) will always be found at:
+          https://github.com/JimBrown/MarlinTarantula
+
+     This is an attempt to create a simple configuration for as many
+  different Tevo Tarantula variants as possible.  This will always be
+  a work in progress. Email me if you have any questions, suggestions,
+  or if you encounter problems when using Easy Config.
+
+     This is a Marlin 1.1.x configuration file. I will update this as
+  new versions of Marlin are released.
+
+  NOTE: Sanity check should still work and should not show any errors.
+    Please report any errors.  Thank you.
+
+  **********************************************************************/
+
+// Equipment options
 //#define LARGE_BED
 #define SDSUPPORT
+#define Y_MOTOR_ON_RIGHT
+
+// Offset from endpoints to get nozzle to 0,0 (front/left of bed)
+// (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
+#define NOZZLE_X          -2
+#define NOZZLE_Y          -4
+
+// Extruder steps per mm (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+#define E0_STEPS      96.1261
+
+// Z-Probe type (must be none or one of them, not both)
 #define BLTOUCH
 //#define SN04
 
-#define TRIPOINT
-//#define LINEAR
-//#define BILINEAR
-//#define UBL
-
+// Z-Probe offset from extruder (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
+// Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
 #define SENSOR_LEFT        1
 #define SENSOR_RIGHT       0
-#define SENSOR_FRONT      31
+#define SENSOR_FRONT      36
 #define SENSOR_BEHIND      0
 
-#define XTRA_BED           0
+// Margin around perimiter of bed for probing (will not probe outside this margin)
+#define BED_MARGIN         5
+
+// Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types)
+//#define TRIPOINT
+//#define LINEAR
+//#define BILINEAR
+#define UBL
+// Number of grid points in each direction
+// Minimum 3. Maximum 7 for Linear or Bilinear, 15 for UBL
+#define GRID_POINTS        3
+
+//#define DUAL_EXTRUDER
+#if ENABLED(DUAL_EXTRUDER)
+  // Offset for second extruder from first extruder
+  #define EXTRUDER2_X 10
+  #define EXTRUDER2_Y 0
+  // Second Extruder steps per mm (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+  #define E1_STEPS      96.1261
+#endif
+
+// Extra movement of Y axis (small bed only). Can help with probing more of the bed.
+// Set both to 0 (zero) if you have a large bed or do not have a Z-Probe.
+#define XTRA_BED_FRONT    55 // Distance bed can move towards the front past Y = 200
+#define XTRA_BED_BACK     5  // Distance bed can move towards the back past Y = 0
+
+/************************ END OF EASY CONFIG ***************************
+//======================================================================
 
 /**
  * Marlin 3D Printer Firmware
@@ -142,7 +200,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Tarantula"
+#define CUSTOM_MACHINE_NAME "TEVO Tarantula"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -152,7 +210,11 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5]
-#define EXTRUDERS 1
+#if ENABLED(DUAL_EXTRUDER)
+   #define EXTRUDERS 2
+#else
+   #define EXTRUDERS 1
+#endif
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -212,8 +274,10 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-//#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#if ENABLED(DUAL_EXTRUDER)
+  #define HOTEND_OFFSET_X {0.0, EXTRUDER2_X} // (in mm) for each extruder, offset of the hotend on the X axis
+  #define HOTEND_OFFSET_Y {0.0, EXTRUDER2_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#endif
 
 // @section machine
 
@@ -286,8 +350,12 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 71
-#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_0 1
+#if ENABLED(DUAL_EXTRUDER)
+  #define TEMP_SENSOR_1 1
+#else
+  #define TEMP_SENSOR_1 0
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -369,9 +437,10 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-  #define  DEFAULT_Kp 11.72
+  // TEVO Tarantula Custom PID Settings - Hotend
+  #define  DEFAULT_Kp 11.20
   #define  DEFAULT_Ki 0.60
-  #define  DEFAULT_Kd 57.12
+  #define  DEFAULT_Kd 52.53
 
 #endif // PIDTEMP
 
@@ -413,9 +482,10 @@
   //#define  DEFAULT_bedKi 1.41
   //#define  DEFAULT_bedKd 1675.16
 
-  #define  DEFAULT_bedKp 828.69
-  #define  DEFAULT_bedKi 162.12
-  #define  DEFAULT_bedKd 1058.97
+  // TEVO Tarantula Custom PID Settings - Heatbed
+  #define  DEFAULT_bedKp 841.21
+  #define  DEFAULT_bedKi 165.63
+  #define  DEFAULT_bedKd 1068.13
 
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -545,21 +615,31 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#if ENABLED(DUAL_EXTRUDER)
+  #define DISTINCT_E_FACTORS
+#endif
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, 96.1261 }
+#if ENABLED(DUAL_EXTRUDER)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS, E1_STEPS }
+#else
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS }
+#endif
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 50 }
+#if ENABLED(DUAL_EXTRUDER)
+  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 50, 50 }
+#else
+  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 50 }
+#endif
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -567,7 +647,11 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500,  500, 50, 500 }
+#if ENABLED(DUAL_EXTRUDER)
+  #define DEFAULT_MAX_ACCELERATION      { 500,  500, 50, 500, 500 }
+#else
+  #define DEFAULT_MAX_ACCELERATION      { 500,  500, 50, 500 }
+#endif
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -638,7 +722,7 @@
  * Probe Type
  *
  * Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
- * You must activate one of these to use Auto Bed Leveling below.
+ * Activate one of these to use Auto Bed Leveling below.
  */
 
 /**
@@ -751,7 +835,9 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#define Z_MIN_PROBE_REPEATABILITY_TEST
+#if ENABLED(BLTOUCH) || ENABLED(SN04)
+  #define Z_MIN_PROBE_REPEATABILITY_TEST
+#endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -777,7 +863,11 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR true
+#if ENABLED(Y_MOTOR_ON_RIGHT)
+  #define INVERT_Y_DIR true
+#else
+  #define INVERT_Y_DIR false
+#endif
 #define INVERT_Z_DIR false
 
 // Enable this option for Toshiba stepper drivers
@@ -815,10 +905,10 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define Y_MIN_POS 0 - XTRA_BED_BACK
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE + XTRA_BED
+#define Y_MAX_POS Y_BED_SIZE + XTRA_BED_FRONT
 #define Z_MAX_POS 200
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
@@ -903,6 +993,24 @@
  */
 //#define DEBUG_LEVELING_FEATURE
 
+#if XTRA_BED_BACK > SENSOR_BEHIND
+  #define PROBE_Y_FRONT BED_MARGIN + SENSOR_BEHIND - (XTRA_BED_BACK - (XTRA_BED_BACK - SENSOR_BEHIND))
+#elif XTRA_BED_BACK > 0 && XTRA_BED_BACK <= SENSOR_BEHIND
+  #define PROBE_Y_FRONT BED_MARGIN + SENSOR_BEHIND - XTRA_BED_BACK
+#else
+  #define PROBE_Y_FRONT BED_MARGIN + SENSOR_BEHIND
+#endif
+#if XTRA_BED_FRONT > SENSOR_FRONT
+  #define PROBE_Y_BACK Y_BED_SIZE - BED_MARGIN - SENSOR_FRONT + XTRA_BED_FRONT - (XTRA_BED_FRONT - SENSOR_FRONT)
+#elif XTRA_BED_FRONT > 0 && XTRA_BED_FRONT <= SENSOR_FRONT
+  #define PROBE_Y_BACK Y_BED_SIZE - BED_MARGIN - SENSOR_FRONT + XTRA_BED_FRONT
+#else
+  #define PROBE_Y_BACK Y_BED_SIZE - BED_MARGIN - SENSOR_FRONT
+#endif
+#define PROBE_X_LEFT BED_MARGIN + SENSOR_RIGHT
+#define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
+#define PROBE_X_MIDDLE (X_BED_SIZE / 2)
+
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
@@ -913,17 +1021,17 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 2
+  #define GRID_MAX_POINTS_X GRID_POINTS
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 5
-  #define RIGHT_PROBE_BED_POSITION 195
-  #define FRONT_PROBE_BED_POSITION 5
-  #define BACK_PROBE_BED_POSITION 195
+  #define LEFT_PROBE_BED_POSITION PROBE_X_LEFT
+  #define RIGHT_PROBE_BED_POSITION PROBE_X_RIGHT
+  #define FRONT_PROBE_BED_POSITION PROBE_Y_FRONT
+  #define BACK_PROBE_BED_POSITION PROBE_Y_BACK
 
   // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 5
+  #define MIN_PROBE_EDGE BED_MARGIN
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -947,44 +1055,32 @@
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-/*
+
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X 5 + SENSOR_RIGHT
-  #define ABL_PROBE_PT_1_Y 5 + SENSOR_BEHIND
-  #define ABL_PROBE_PT_2_X X_BED_SIZE - 5 - SENSOR_LEFT
-  #define ABL_PROBE_PT_2_Y 5 + SENSOR_BEHIND
-  #define ABL_PROBE_PT_3_X (X_BED_SIZE / 2)
-  #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT
-*/
-  #define ABL_PROBE_PT_1_X 5 + SENSOR_RIGHT
-  #define ABL_PROBE_PT_1_Y 5 + SENSOR_BEHIND
-  #define ABL_PROBE_PT_2_X X_BED_SIZE - 5 - SENSOR_LEFT
-  #define ABL_PROBE_PT_2_Y 5 + SENSOR_BEHIND
-  #define ABL_PROBE_PT_3_X (X_BED_SIZE / 2)
-  #if XTRA_BED > 0 && XTRA_BED > SENSOR_FRONT
-    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT + (XTRA_BED - (XTRA_BED - SENSOR_FRONT))
-  #elif XTRA_BED > 0 && XTRA_BED <= SENSOR_FRONT
-    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT + XTRA_BED
-  #else
-    #define ABL_PROBE_PT_3_Y Y_BED_SIZE - 5 - SENSOR_FRONT
-  #endif
+  #define ABL_PROBE_PT_1_X PROBE_X_LEFT
+  #define ABL_PROBE_PT_1_Y PROBE_Y_FRONT
+  #define ABL_PROBE_PT_2_X PROBE_X_RIGHT
+  #define ABL_PROBE_PT_2_Y PROBE_Y_FRONT
+  #define ABL_PROBE_PT_3_X PROBE_X_MIDDLE
+  #define ABL_PROBE_PT_3_Y PROBE_Y_BACK
+
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
   //===========================================================================
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #define UBL_MESH_INSET 1          // Mesh inset margin on print area
-  #define GRID_MAX_POINTS_X 8      // Don't use more than 15 points per axis, implementation limited.
+  #define UBL_MESH_INSET BED_MARGIN // Mesh inset margin on print area
+  #define GRID_MAX_POINTS_X GRID_POINTS      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
-  #define UBL_PROBE_PT_1_X 5        // Probing points for 3-Point leveling of the mesh
-  #define UBL_PROBE_PT_1_Y 195
-  #define UBL_PROBE_PT_2_X 195
-  #define UBL_PROBE_PT_2_Y 195
-  #define UBL_PROBE_PT_3_X 100
-  #define UBL_PROBE_PT_3_Y 5
+  #define UBL_PROBE_PT_1_X PROBE_X_LEFT // Probing points for 3-Point leveling of the mesh
+  #define UBL_PROBE_PT_1_Y PROBE_Y_FRONT
+  #define UBL_PROBE_PT_2_X PROBE_X_RIGHT
+  #define UBL_PROBE_PT_2_Y PROBE_Y_FRONT
+  #define UBL_PROBE_PT_3_X PROBE_X_MIDDLE
+  #define UBL_PROBE_PT_3_Y PROBE_Y_BACK
 
   #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -995,8 +1091,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 1           // Mesh inset margin on print area
-  #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_INSET BED_MARGIN  // Mesh inset margin on print area
+  #define GRID_MAX_POINTS_X GRID_POINTS    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -1030,8 +1126,8 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS -2
-#define MANUAL_Y_HOME_POS -4
+#define MANUAL_X_HOME_POS NOZZLE_X
+#define MANUAL_Y_HOME_POS NOZZLE_Y
 //#define MANUAL_Z_HOME_POS 0 // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
@@ -1383,12 +1479,6 @@
 //#define ULTIPANEL
 
 //
-// Cartesio UI
-// http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
-//
-//#define CARTESIO_UI
-
-//
 // PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
 // http://reprap.org/wiki/PanelOne
 //
@@ -1469,6 +1559,12 @@
 // default with the BQ Hephestos 2 and Witbox 2.
 //
 //#define BQ_LCD_SMART_CONTROLLER
+
+//
+// Cartesio UI
+// http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
+//
+//#define CARTESIO_UI
 
 //
 // ANET_10 Controller supported displays.
