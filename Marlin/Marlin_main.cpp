@@ -1410,7 +1410,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
         }
       }
     #elif ENABLED(DELTA)
-      soft_endstop_min[axis] = base_min_pos(axis) + (axis == Z_AXIS) ? 0 : offs;
+      soft_endstop_min[axis] = base_min_pos(axis) + (axis == Z_AXIS ? 0 : offs);
       soft_endstop_max[axis] = base_max_pos(axis) + offs;
     #else
       soft_endstop_min[axis] = base_min_pos(axis) + offs;
@@ -2241,7 +2241,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Check to see if the probe was triggered
     bool probe_triggered = TEST(Endstops::endstop_hit_bits,
-      #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
         Z_MIN
       #else
         Z_MIN_PROBE
@@ -3776,9 +3776,7 @@ inline void gcode_G4() {
     // If an endstop was not hit, then damage can occur if homing is continued.
     // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
     // not set correctly.
-    if (!(TEST(Endstops::endstop_hit_bits, X_MAX) ||
-          TEST(Endstops::endstop_hit_bits, Y_MAX) ||
-          TEST(Endstops::endstop_hit_bits, Z_MAX))) {
+    if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
       LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
@@ -11533,14 +11531,14 @@ void ok_to_send() {
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
     #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-      #if !ENABLED(DELTA)
+      #if DISABLED(DELTA)
         NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
         NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
       #endif
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
     #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-      #if !ENABLED(DELTA)
+      #if DISABLED(DELTA)
         NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
         NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
       #endif
@@ -13437,4 +13435,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-
