@@ -20,12 +20,16 @@
   NOTE: Sanity check should still work and should not show any errors.
     Please report any errors.  Thank you.
 
+  NOTE: Don't forget to do an M502 followed by an M500 any time you upload
+        the firmware.
+
   **********************************************************************/
 
 // Equipment options
 //#define LARGE_BED
 #define SDSUPPORT
 #define Y_MOTOR_ON_RIGHT
+//#define HOTEND_E3DV6 // Genuine E3D v6 hotend. Also enables Fan Soft PWM
 
 // Offset from endpoints to get nozzle to 0,0 (front/left of bed)
 // (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
@@ -37,7 +41,7 @@
 
 // Z-Probe type (must be none or one of them, not both)
 #define BLTOUCH
-//#define SN04
+//#define SN04 // May work with other inductive sensors. Let me know if not.
 
 // Z-Probe offset from extruder (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
 // Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
@@ -54,8 +58,9 @@
 //#define LINEAR
 //#define BILINEAR
 #define UBL
+//#define MANUAL // Do NOT use if you have a Z-Probe
 // Number of grid points in each direction
-// Minimum 3. Maximum 7 for Linear or Bilinear, 15 for UBL
+// Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
 #define GRID_POINTS        3
 
 //#define DUAL_EXTRUDER
@@ -350,7 +355,11 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
+#if ENABLED(HOTEND_E3DV6)
+  #define TEMP_SENSOR_0 5
+#else
+  #define TEMP_SENSOR_0 1
+#endif
 #if ENABLED(DUAL_EXTRUDER)
   #define TEMP_SENSOR_1 1
 #else
@@ -437,10 +446,17 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-  // TEVO Tarantula Custom PID Settings - Hotend
-  #define  DEFAULT_Kp 11.20
-  #define  DEFAULT_Ki 0.60
-  #define  DEFAULT_Kd 52.53
+  #if ENABLED(HOTEND_E3DV6)
+    // TEVO Tarantula Custom PID Settings - E3Dv6 Hotend with Silicon Boot
+    #define  DEFAULT_Kp 18.39
+    #define  DEFAULT_Ki 1.27
+    #define  DEFAULT_Kd 66.43
+  #else
+    // TEVO Tarantula Custom PID Settings - Stock Hotend
+    #define  DEFAULT_Kp 11.20
+    #define  DEFAULT_Ki 0.60
+    #define  DEFAULT_Kd 52.53
+  #endif
 
 #endif // PIDTEMP
 
@@ -482,11 +498,17 @@
   //#define  DEFAULT_bedKi 1.41
   //#define  DEFAULT_bedKd 1675.16
 
-  // TEVO Tarantula Custom PID Settings - Heatbed
-  #define  DEFAULT_bedKp 841.21
-  #define  DEFAULT_bedKi 165.63
-  #define  DEFAULT_bedKd 1068.13
-
+  #if ENABLED(HOTEND_E3DV6)
+    // TEVO Tarantula Custom PID Settings - Tevo Stock Heatbed with Tevo Hotbed MosFET - no hotbed insulation - Glass Bed with PEI
+    #define  DEFAULT_bedKp 286.24
+    #define  DEFAULT_bedKi 56.0
+    #define  DEFAULT_bedKd 365.78
+  #else
+    // TEVO Tarantula Custom PID Settings - Heatbed
+    #define  DEFAULT_bedKp 841.21
+    #define  DEFAULT_bedKi 165.63
+    #define  DEFAULT_bedKd 1068.13
+  #endif
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -730,7 +752,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if DISABLED(BLTOUCH) && DISABLED(SN04)
+#if ENABLED(MANUAL)
   #define PROBE_MANUALLY
 #endif
 
@@ -982,7 +1004,7 @@
   #define AUTO_BED_LEVELING_BILINEAR
 #elif ENABLED(UBL)
   #define AUTO_BED_LEVELING_UBL
-#else
+#elif ENABLED(MANUAL)
   #define MESH_BED_LEVELING
 #endif
 
@@ -1103,7 +1125,7 @@
  * Use the LCD controller for bed leveling
  * Requires MESH_BED_LEVELING or PROBE_MANUALLY
  */
-#if DISABLED(BLTOUCH) && DISABLED(SN04)
+#if ENABLED(MANUAL)
   #define LCD_BED_LEVELING
 #endif
 
@@ -1664,7 +1686,9 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#if ENABLED(HOTEND_E3DV6)
+  #define FAN_SOFT_PWM
+#endif
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
