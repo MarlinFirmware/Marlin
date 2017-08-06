@@ -74,7 +74,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "RepRapWorld.com" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -118,7 +118,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_5DPRINT
+  #define MOTHERBOARD BOARD_MEGATRONICS_3
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -272,7 +272,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-#define TEMP_SENSOR_BED 12
+#define TEMP_SENSOR_BED 1
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -372,10 +372,7 @@
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-#define MAX_BED_POWER 175 // limits duty cycle to bed; 255=full current
-// This limit is set to 175 by default in the Makibox configuration and it can be adjusted
-// to increase the heatup rate. However, if changed, be aware of the safety concerns of
-// drawing too much current from the power supply.
+#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #if ENABLED(PIDTEMPBED)
 
@@ -475,13 +472,13 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -512,14 +509,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 400, 400, 400, 163 }     // default steps per unit for ***** MakiBox A6 *****
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.7402*2, 78.7402*2, 5120.00, 760*1*1.5 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 60, 60, 20, 45 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -527,7 +524,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 30, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -730,7 +727,7 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR false
+#define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
 
 // Enable this option for Toshiba stepper drivers
@@ -739,7 +736,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true
+#define INVERT_E0_DIR false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -759,8 +756,8 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 110
-#define Y_BED_SIZE 150
+#define X_BED_SIZE 200
+#define Y_BED_SIZE 200
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -768,7 +765,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 86
+#define Z_MAX_POS 200
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 #define MIN_SOFTWARE_ENDSTOPS
@@ -980,8 +977,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY 1500
-#define HOMING_FEEDRATE_Z  (2*60)
+#define HOMING_FEEDRATE_XY (50*60)
+#define HOMING_FEEDRATE_Z  (4*60)
 
 //=============================================================================
 //============================= Additional Features ===========================
@@ -997,7 +994,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-#define EEPROM_SETTINGS   // Enable for M500 and M501 commands
+//#define EEPROM_SETTINGS // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
@@ -1031,11 +1028,11 @@
 // Preheat Constants
 #define PREHEAT_1_TEMP_HOTEND 180
 #define PREHEAT_1_TEMP_BED     70
-#define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
+#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    100
-#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
+#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park -- EXPERIMENTAL
@@ -1165,7 +1162,7 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', test':'TEST' }
  */
-//#define LCD_LANGUAGE en
+#define LCD_LANGUAGE en
 
 /**
  * LCD Character Set
@@ -1201,7 +1198,7 @@
  * IMPORTANT: The U8glib library is required for Full Graphic Display!
  *            https://github.com/olikraus/U8glib_Arduino
  */
-//#define ULTRA_LCD   // Character based
+#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
 
 /**
@@ -1219,7 +1216,7 @@
  * Enable one of the following items for a slower SPI transfer speed.
  * This may be required to resolve "volume init" errors.
  */
-#define SPI_SPEED SPI_HALF_SPEED
+//#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
 //#define SPI_SPEED SPI_EIGHTH_SPEED
 
@@ -1228,7 +1225,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1378,8 +1375,8 @@
 // REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
 // is pressed, a value of 10.0 means 10mm per click.
 //
-//#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
+#define REPRAPWORLD_KEYPAD
+#define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
 
 //
 // RigidBot Panel V1.0

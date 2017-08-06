@@ -284,7 +284,7 @@
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
-    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine this value
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // Use M666 to determine/test this value
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -337,7 +337,7 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_BUMP_MM 2
 #define Y_HOME_BUMP_MM 2
-#define Z_HOME_BUMP_MM 2 // deltas need the same for all three axis
+#define Z_HOME_BUMP_MM 2 // deltas need the same for all three axes
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
@@ -396,7 +396,7 @@
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
-#define MINIMUM_PLANNER_SPEED 0.05// (mm/sec)
+#define MINIMUM_PLANNER_SPEED 0.05 // (mm/sec)
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
@@ -453,6 +453,9 @@
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
+
+// The timeout (in ms) to return to the status screen from sub-menus
+//#define LCD_TIMEOUT_TO_STATUS 15000
 
 #if ENABLED(SDSUPPORT)
 
@@ -647,7 +650,7 @@
    *
    * Set to 0 to auto-detect the ratio based on given Gcode G1 print moves.
    *
-   * Slic3r (including Průša Slic3r) produces Gcode compatible with the automatic mode.
+   * Slic3r (including Průša Control) produces Gcode compatible with the automatic mode.
    * Cura (as of this writing) may produce Gcode incompatible with the automatic mode.
    */
   #define LIN_ADVANCE_E_D_RATIO 0 // The calculated ratio (or 0) according to the formula W * H / ((D / 2) ^ 2 * PI)
@@ -669,6 +672,10 @@
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
+
+  // If this is defined, the currently active mesh will be saved in the
+  // current slot on M500.
+  #define UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 // @section extras
@@ -1257,6 +1264,7 @@
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
   #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define USER_SCRIPT_AUDIBLE_FEEDBACK
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
@@ -1284,6 +1292,7 @@
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
+
 /**
  *  I2C position encoders for closed loop control.
  *  Developed by Chris Barr at Aus3D.

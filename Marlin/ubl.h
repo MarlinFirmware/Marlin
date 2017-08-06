@@ -384,18 +384,12 @@
         FORCE_INLINE static float fade_scaling_factor_for_z(const float &lz) { return 1.0; }
       #endif
 
-      FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) { 
-        if (i<GRID_MAX_POINTS_X) 
-          return pgm_read_float(&_mesh_index_to_xpos[i]); 
-        else  
-          return UBL_MESH_MIN_X + i * (MESH_X_DIST);
+      FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) {
+        return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : UBL_MESH_MIN_X + i * (MESH_X_DIST);
       }
 
-      FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) { 
-        if (i<GRID_MAX_POINTS_Y) 
-          return pgm_read_float(&_mesh_index_to_ypos[i]); 
-        else  
-          return UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
+      FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) {
+        return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
       }
 
       static bool prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate);

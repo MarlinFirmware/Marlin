@@ -129,6 +129,9 @@ Marlin/Debug/
 Marlin/__vm/
 Marlin/.vs/
 
+#VScode
+.vscode
+
 #cmake
 CMakeLists.txt
 Marlin/CMakeLists.txt

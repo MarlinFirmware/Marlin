@@ -161,7 +161,10 @@
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
-  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1[, E2, E3]
+  #if EXTRUDERS > 3
+    #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
+  #endif
 #endif
 
 // A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
@@ -512,7 +515,7 @@
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 //#define USE_XMIN_PLUG
 //#define USE_YMIN_PLUG
-#define USE_ZMIN_PLUG
+#define USE_ZMIN_PLUG // a Z probe
 #define USE_XMAX_PLUG
 #define USE_YMAX_PLUG
 #define USE_ZMAX_PLUG
@@ -656,13 +659,18 @@
  * Activate one of these to use Auto Bed Leveling below.
  */
 
-
 /**
  * The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
 //#define PROBE_MANUALLY
+
+/**
+ * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
+ *   (e.g., an inductive probe or a nozzle-based probe-switch.)
+ */
+//#define FIX_MOUNTED_PROBE
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -1084,8 +1092,8 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Delta only homes to Z
@@ -1572,11 +1580,6 @@
 //#define U8GLIB_SSD1306
 
 //
-// TinyBoy2 128x64 OLED / Encoder Panel
-//
-//#define OLED_PANEL_TINYBOY2
-
-//
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
 //
 //#define SAV_3DGLCD
@@ -1592,6 +1595,11 @@
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+//
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
 
 //=============================================================================
 //=============================== Extra Features ==============================

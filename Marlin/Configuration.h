@@ -709,7 +709,6 @@
 #define DEFAULT_ZJERK                  0.2
 #define DEFAULT_EJERK                  2.5
 
-
 //===========================================================================
 //============================= Z Probe Options =============================
 //===========================================================================
@@ -1113,7 +1112,7 @@
   #define UBL_PROBE_PT_3_X PROBE_X_MIDDLE
   #define UBL_PROBE_PT_3_Y PROBE_Y_BACK
 
-  #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
+  //#define UBL_G26_MESH_VALIDATION // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
 
 #elif ENABLED(MESH_BED_LEVELING)

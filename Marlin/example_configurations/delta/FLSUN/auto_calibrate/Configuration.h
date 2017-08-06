@@ -161,7 +161,10 @@
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
-  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1[, E2, E3]
+  #if EXTRUDERS > 3
+    #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
+  #endif
 #endif
 
 // A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
@@ -851,7 +854,7 @@
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
 
-// Enable this option for Toshiba steppers drivers
+// Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
@@ -974,6 +977,7 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
+  // Works best with 5 or more points in each dimension.
   #define GRID_MAX_POINTS_X 7
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1096,8 +1100,8 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Delta only homes to Z
@@ -1585,11 +1589,6 @@
 //#define U8GLIB_SSD1306
 
 //
-// TinyBoy2 128x64 OLED / Encoder Panel
-//
-//#define OLED_PANEL_TINYBOY2
-
-//
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
 //
 //#define SAV_3DGLCD
@@ -1605,6 +1604,11 @@
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+//
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
 
 //=============================================================================
 //=============================== Extra Features ==============================
