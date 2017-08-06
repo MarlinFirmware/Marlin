@@ -173,20 +173,20 @@
        * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
        */
 
-      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST)),
-                  z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
-                      (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
-                  z2 = z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
-                      (z_values[cell_dest_xi + 1][cell_dest_yi + 1] - z_values[cell_dest_xi][cell_dest_yi + 1]);
+      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST));
+
+      float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
+                (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
+            z2 = z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
+                (z_values[cell_dest_xi + 1][cell_dest_yi + 1] - z_values[cell_dest_xi][cell_dest_yi + 1]);
+
+      if (cell_dest_xi >= GRID_MAX_POINTS_X - 1) z1 = z2 = 0.0;
 
       // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
       const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-
-      float z0 = z1 + (z2 - z1) * yratio;
-
-      z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
        * If part of the Mesh is undefined, it will show up as NAN

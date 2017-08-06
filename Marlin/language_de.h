@@ -53,6 +53,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klick für Start")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nächste Koordinate")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Fertig")
+#define MSG_Z_FADE_HEIGHT                   _UxGT("Niv. Ausblendhöhe")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Setze Homeversatz")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Homeversatz aktiv")
 #define MSG_SET_ORIGIN                      _UxGT("Setze Nullpunkt") //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
@@ -169,6 +170,7 @@
 #define MSG_INIT_SDCARD                     _UxGT("SD-Karte erkennen")  // Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      _UxGT("Sensor ausserhalb")
+#define MSG_BLTOUCH                         _UxGT("BLTouch")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch Reset")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch ausfahren")
@@ -202,6 +204,7 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibriere Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibriere Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibriere Mitte")
+#define MSG_DELTA_SETTINGS                  _UxGT("Delta Einst. anzeig.")
 #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Autom. Kalibrierung")
 #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Delta Höhe setzen")
 
@@ -236,6 +239,7 @@
 #define MSG_UBL_CUSTOM_BED_TEMP           MSG_UBL_SET_BED_TEMP
 #define MSG_UBL_SET_HOTEND_TEMP           _UxGT("Hotend Temp.")
 #define MSG_UBL_CUSTOM_HOTEND_TEMP        MSG_UBL_SET_HOTEND_TEMP
+#define MSG_UBL_MESH_EDIT                 _UxGT("Netz bearbeiten")
 #define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Eigenes Netz bearb.")
 #define MSG_UBL_FINE_TUNE_MESH            _UxGT("Feineinstellung...")
 #define MSG_UBL_DONE_EDITING_MESH         _UxGT("Bearbeitung beendet")
@@ -260,6 +264,7 @@
 #define MSG_UBL_OUTPUT_MAP                _UxGT("Karte ausgeben")
 #define MSG_UBL_OUTPUT_MAP_HOST           _UxGT("Ausgabe für Host")
 #define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Ausgabe für CSV")
+#define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Externe Sicherung")
 #define MSG_UBL_INFO_UBL                  _UxGT("UBL Info ausgeben")
 #define MSG_UBL_EDIT_MESH_MENU            _UxGT("Netz bearbeiten")
 #define MSG_UBL_FILLIN_AMOUNT             _UxGT("Menge an Fill-in")
@@ -277,6 +282,7 @@
 #define MSG_UBL_SAVE_ERROR                _UxGT("ERR:UBL speichern")
 #define MSG_UBL_RESTORE_ERROR             _UxGT("ERR:UBL wiederherst.")
 #define MSG_UBL_Z_OFFSET_STOPPED          _UxGT("Z-Versatz angehalten")
+#define MSG_UBL_STEP_BY_STEP_MENU         _UxGT("Schrittweises UBL")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Gesamte Drucke")

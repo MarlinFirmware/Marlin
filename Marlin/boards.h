@@ -64,6 +64,8 @@
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
+#define BOARD_GT2560_REV_A      74   // Geeetech GT2560 Rev. A
+#define BOARD_GT2560_REV_A_PLUS 75   // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_3DRAG             77   // 3Drag Controller
 #define BOARD_K8200             78   // Velleman K8200 Controller (derived from 3Drag Controller)
 #define BOARD_K8400             79   // Velleman K8400 Controller (derived from 3Drag Controller)

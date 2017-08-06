@@ -284,7 +284,7 @@
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
-    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine this value
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // Use M666 to determine/test this value
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -452,6 +452,9 @@
 // On the Info Screen, display XY with one decimal place when possible
 #define LCD_DECIMAL_SMALL_XY
 
+// The timeout (in ms) to return to the status screen from sub-menus
+//#define LCD_TIMEOUT_TO_STATUS 15000
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -531,8 +534,25 @@
 
 #endif // SDSUPPORT
 
-// Some additional options are available for graphical displays:
+/**
+ * Additional options for Graphical Displays
+ *
+ * Use the optimizations here to improve printing performance,
+ * which can be adversely affected by graphical display drawing,
+ * especially when doing several short moves, and when printing
+ * on DELTA and SCARA machines.
+ *
+ * Some of these options may result in the display lagging behind
+ * controller events, as there is a trade-off between reliable
+ * printing performance versus fast display updates.
+ */
 #if ENABLED(DOGLCD)
+  // Enable to save many cycles by drawing a hollow frame on the Info Screen
+  #define XYZ_HOLLOW_FRAME
+
+  // Enable to save many cycles by drawing a hollow frame on Menu Screens
+  #define MENU_HOLLOW_FRAME
+
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   #define USE_BIG_EDIT_FONT
@@ -628,7 +648,7 @@
    *
    * Set to 0 to auto-detect the ratio based on given Gcode G1 print moves.
    *
-   * Slic3r (including Průša Slic3r) produces Gcode compatible with the automatic mode.
+   * Slic3r (including Průša Control) produces Gcode compatible with the automatic mode.
    * Cura (as of this writing) may produce Gcode incompatible with the automatic mode.
    */
   #define LIN_ADVANCE_E_D_RATIO 0 // The calculated ratio (or 0) according to the formula W * H / ((D / 2) ^ 2 * PI)
@@ -650,6 +670,10 @@
   #define UBL_MESH_MAX_X (X_MAX_POS - (UBL_MESH_INSET))
   #define UBL_MESH_MIN_Y (Y_MIN_POS + UBL_MESH_INSET)
   #define UBL_MESH_MAX_Y (Y_MAX_POS - (UBL_MESH_INSET))
+
+  // If this is defined, the currently active mesh will be saved in the
+  // current slot on M500.
+  #define UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 // @section extras
@@ -1238,6 +1262,7 @@
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
   #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define USER_SCRIPT_AUDIBLE_FEEDBACK
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
@@ -1265,6 +1290,7 @@
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
+
 /**
  *  I2C position encoders for closed loop control.
  *  Developed by Chris Barr at Aus3D.
