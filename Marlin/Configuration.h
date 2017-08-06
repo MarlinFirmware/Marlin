@@ -1,4 +1,13 @@
 //======================================================================
+/******************* DO NOT USE THIS FILE!!! ***************************
+
+    Copy the configuration files from the TEVO Tarantula folder in the
+    example configurations folder into the main Marlin folder.
+
+***********************************************************************/
+//======================================================================
+
+//======================================================================
 /**************** TEVO TARANTULA EASY CONFIG ***************************
             Original idea by terryb.print3d@gmail.com
              Modified by jb.github@rcairgallery.com
