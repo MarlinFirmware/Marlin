@@ -681,16 +681,6 @@
   #endif
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
-
-  /**
-   * Heater & Fan Pausing
-   */
-  #if FAN_COUNT == 0
-    #undef PROBING_FANS_OFF
-  #endif
-  #define QUIET_PROBING (HAS_BED_PROBE && (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0))
-  #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
-
   /**
    * Servos and probes
    */
@@ -702,7 +692,6 @@
   #endif
 
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
-
   #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
@@ -742,6 +731,15 @@
     #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
+
+  /**
+   * Heater & Fan Pausing
+   */
+  #if FAN_COUNT == 0
+    #undef PROBING_FANS_OFF
+  #endif
+  #define QUIET_PROBING (HAS_BED_PROBE && (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0))
+  #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
 
   /**
    * Delta radius/rod trimmers/angle trimmers
