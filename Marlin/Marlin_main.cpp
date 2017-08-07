@@ -2411,6 +2411,12 @@ static void clean_up_after_endstop_or_probe_move() {
 
     feedrate_mm_s = old_feedrate_mm_s;
 
+    if (isnan(measured_z)) {
+      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+    }
+
     return measured_z;
   }
 
@@ -4660,17 +4666,15 @@ void home_all_axes() { gcode_G28(true); }
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      if (!faux) setup_for_endstop_or_probe_move();
-
-      //xProbe = yProbe = measured_z = 0;
-
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
         if (DEPLOY_PROBE()) {
           planner.abl_enabled = abl_should_enable;
-          goto fail;
+          return;
         }
       #endif
+
+      if (!faux) setup_for_endstop_or_probe_move();
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -4892,7 +4896,7 @@ void home_all_axes() { gcode_G28(true); }
         bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
         // Outer loop is Y with PROBE_Y_FIRST disabled
-        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END; PR_OUTER_VAR++) {
+        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
           int8_t inStart, inStop, inInc;
 
@@ -4931,10 +4935,7 @@ void home_all_axes() { gcode_G28(true); }
 
             if (isnan(measured_z)) {
               planner.abl_enabled = abl_should_enable;
-              LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-              SERIAL_ERROR_START();
-              SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-              goto fail;
+              break;
             }
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -4970,15 +4971,12 @@ void home_all_axes() { gcode_G28(true); }
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
           if (isnan(measured_z)) {
             planner.abl_enabled = abl_should_enable;
-            LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-            SERIAL_ERROR_START();
-            SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-            goto fail;
+            break;
           }
           points[i].z = measured_z;
         }
 
-        if (!dryrun) {
+        if (!dryrun && !isnan(measured_z)) {
           vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
           if (planeNormal.z < 0) {
             planeNormal.x *= -1;
@@ -4996,7 +4994,7 @@ void home_all_axes() { gcode_G28(true); }
       // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
       if (STOW_PROBE()) {
         planner.abl_enabled = abl_should_enable;
-        goto fail;
+        measured_z = NAN;
       }
     }
     #endif // !PROBE_MANUALLY
@@ -5023,114 +5021,91 @@ void home_all_axes() { gcode_G28(true); }
     #endif
 
     // Calculate leveling, print reports, correct the position
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    if (!isnan(measured_z)) {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (!dryrun) extrapolate_unprobed_bed_level();
-      print_bilinear_leveling_grid();
+        if (!dryrun) extrapolate_unprobed_bed_level();
+        print_bilinear_leveling_grid();
 
-      refresh_bed_level();
+        refresh_bed_level();
 
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_print();
-      #endif
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_print();
+        #endif
 
-    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-      // For LINEAR leveling calculate matrix, print reports, correct the position
+        // For LINEAR leveling calculate matrix, print reports, correct the position
 
-      /**
-       * solve the plane equation ax + by + d = z
-       * A is the matrix with rows [x y 1] for all the probed points
-       * B is the vector of the Z positions
-       * the normal vector to the plane is formed by the coefficients of the
-       * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-       * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
-       */
-      float plane_equation_coefficients[3];
+        /**
+         * solve the plane equation ax + by + d = z
+         * A is the matrix with rows [x y 1] for all the probed points
+         * B is the vector of the Z positions
+         * the normal vector to the plane is formed by the coefficients of the
+         * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+         * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+         */
+        float plane_equation_coefficients[3];
 
-      finish_incremental_LSF(&lsf_results);
-      plane_equation_coefficients[0] = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
-      plane_equation_coefficients[1] = -lsf_results.B;  // but that is not yet tested.
-      plane_equation_coefficients[2] = -lsf_results.D;
+        finish_incremental_LSF(&lsf_results);
+        plane_equation_coefficients[0] = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
+        plane_equation_coefficients[1] = -lsf_results.B;  // but that is not yet tested.
+        plane_equation_coefficients[2] = -lsf_results.D;
 
-      mean /= abl2;
+        mean /= abl2;
 
-      if (verbose_level) {
-        SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
-        SERIAL_PROTOCOLPGM(" b: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
-        SERIAL_PROTOCOLPGM(" d: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
-        SERIAL_EOL();
-        if (verbose_level > 2) {
-          SERIAL_PROTOCOLPGM("Mean of sampled points: ");
-          SERIAL_PROTOCOL_F(mean, 8);
+        if (verbose_level) {
+          SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
+          SERIAL_PROTOCOLPGM(" b: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
+          SERIAL_PROTOCOLPGM(" d: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
           SERIAL_EOL();
+          if (verbose_level > 2) {
+            SERIAL_PROTOCOLPGM("Mean of sampled points: ");
+            SERIAL_PROTOCOL_F(mean, 8);
+            SERIAL_EOL();
+          }
         }
-      }
 
-      // Create the matrix but don't correct the position yet
-      if (!dryrun)
-        planner.bed_level_matrix = matrix_3x3::create_look_at(
-          vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eliminate the '-' here and up above
-        );
+        // Create the matrix but don't correct the position yet
+        if (!dryrun)
+          planner.bed_level_matrix = matrix_3x3::create_look_at(
+            vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eliminate the '-' here and up above
+          );
 
-      // Show the Topography map if enabled
-      if (do_topography_map) {
+        // Show the Topography map if enabled
+        if (do_topography_map) {
 
-        SERIAL_PROTOCOLLNPGM("\nBed Height Topography:\n"
-                               "   +--- BACK --+\n"
-                               "   |           |\n"
-                               " L |    (+)    | R\n"
-                               " E |           | I\n"
-                               " F | (-) N (+) | G\n"
-                               " T |           | H\n"
-                               "   |    (-)    | T\n"
-                               "   |           |\n"
-                               "   O-- FRONT --+\n"
-                               " (0,0)");
+          SERIAL_PROTOCOLLNPGM("\nBed Height Topography:\n"
+                                 "   +--- BACK --+\n"
+                                 "   |           |\n"
+                                 " L |    (+)    | R\n"
+                                 " E |           | I\n"
+                                 " F | (-) N (+) | G\n"
+                                 " T |           | H\n"
+                                 "   |    (-)    | T\n"
+                                 "   |           |\n"
+                                 "   O-- FRONT --+\n"
+                                 " (0,0)");
 
-        float min_diff = 999;
-
-        for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
-          for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
-            int ind = indexIntoAB[xx][yy];
-            float diff = eqnBVector[ind] - mean,
-                  x_tmp = eqnAMatrix[ind + 0 * abl2],
-                  y_tmp = eqnAMatrix[ind + 1 * abl2],
-                  z_tmp = 0;
-
-            apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
-
-            NOMORE(min_diff, eqnBVector[ind] - z_tmp);
-
-            if (diff >= 0.0)
-              SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
-            else
-              SERIAL_PROTOCOLCHAR(' ');
-            SERIAL_PROTOCOL_F(diff, 5);
-          } // xx
-          SERIAL_EOL();
-        } // yy
-        SERIAL_EOL();
-
-        if (verbose_level > 3) {
-          SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
+          float min_diff = 999;
 
           for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
+              float diff = eqnBVector[ind] - mean,
+                    x_tmp = eqnAMatrix[ind + 0 * abl2],
                     y_tmp = eqnAMatrix[ind + 1 * abl2],
                     z_tmp = 0;
 
               apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-              float diff = eqnBVector[ind] - z_tmp - min_diff;
+              NOMORE(min_diff, eqnBVector[ind] - z_tmp);
+
               if (diff >= 0.0)
-                SERIAL_PROTOCOLPGM(" +");
-              // Include + for column alignment
+                SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
               else
                 SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
@@ -5138,87 +5113,110 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_EOL();
           } // yy
           SERIAL_EOL();
-        }
-      } //do_topography_map
 
-    #endif // AUTO_BED_LEVELING_LINEAR
+          if (verbose_level > 3) {
+            SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
 
-    #if ABL_PLANAR
+            for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
+              for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
+                int ind = indexIntoAB[xx][yy];
+                float x_tmp = eqnAMatrix[ind + 0 * abl2],
+                      y_tmp = eqnAMatrix[ind + 1 * abl2],
+                      z_tmp = 0;
 
-      // For LINEAR and 3POINT leveling correct the current position
+                apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-      if (verbose_level > 0)
-        planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
+                float diff = eqnBVector[ind] - z_tmp - min_diff;
+                if (diff >= 0.0)
+                  SERIAL_PROTOCOLPGM(" +");
+                // Include + for column alignment
+                else
+                  SERIAL_PROTOCOLCHAR(' ');
+                SERIAL_PROTOCOL_F(diff, 5);
+              } // xx
+              SERIAL_EOL();
+            } // yy
+            SERIAL_EOL();
+          }
+        } //do_topography_map
 
-      if (!dryrun) {
-        //
-        // Correct the current XYZ position based on the tilted plane.
-        //
+      #endif // AUTO_BED_LEVELING_LINEAR
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
-        #endif
+      #if ABL_PLANAR
 
-        float converted[XYZ];
-        COPY(converted, current_position);
+        // For LINEAR and 3POINT leveling correct the current position
 
-        planner.abl_enabled = true;
-        planner.unapply_leveling(converted); // use conversion machinery
-        planner.abl_enabled = false;
+        if (verbose_level > 0)
+          planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
 
-        // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
-          && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-        ) {
-          const float simple_z = current_position[Z_AXIS] - measured_z;
+        if (!dryrun) {
+          //
+          // Correct the current XYZ position based on the tilted plane.
+          //
+
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Z from Probe:", simple_z);
-              SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
-              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
-            }
+            if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
           #endif
-          converted[Z_AXIS] = simple_z;
+
+          float converted[XYZ];
+          COPY(converted, current_position);
+
+          planner.abl_enabled = true;
+          planner.unapply_leveling(converted); // use conversion machinery
+          planner.abl_enabled = false;
+
+          // Use the last measured distance to the bed, if possible
+          if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
+            && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+          ) {
+            const float simple_z = current_position[Z_AXIS] - measured_z;
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                SERIAL_ECHOPAIR("Z from Probe:", simple_z);
+                SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
+                SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
+              }
+            #endif
+            converted[Z_AXIS] = simple_z;
+          }
+
+          // The rotated XY and corrected Z are now current_position
+          COPY(current_position, converted);
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+          #endif
         }
 
-        // The rotated XY and corrected Z are now current_position
-        COPY(current_position, converted);
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+        if (!dryrun) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+          #endif
+
+          // Unapply the offset because it is going to be immediately applied
+          // and cause compensation movement in Z
+          current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
+          #endif
+        }
+
+      #endif // ABL_PLANAR
+
+      #ifdef Z_PROBE_END_SCRIPT
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
         #endif
-      }
-
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-      if (!dryrun) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
-        #endif
-
-        // Unapply the offset because it is going to be immediately applied
-        // and cause compensation movement in Z
-        current_position[Z_AXIS] -= bilinear_z_offset(current_position);
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
-        #endif
-      }
-
-    #endif // ABL_PLANAR
-
-    #ifdef Z_PROBE_END_SCRIPT
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+        enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
+        stepper.synchronize();
       #endif
-      enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
-      stepper.synchronize();
-    #endif
 
-    // Auto Bed Leveling is complete! Enable if possible.
-    planner.abl_enabled = dryrun ? abl_should_enable : true;
-
-fail:
+      // Auto Bed Leveling is complete! Enable if possible.
+      planner.abl_enabled = dryrun ? abl_should_enable : true;
+    }
 
     // Restore state after probing
     if (!faux) clean_up_after_endstop_or_probe_move();
@@ -5267,11 +5265,6 @@ fail:
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
       SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
       SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
-    }
-    else {
-      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
     }
 
     clean_up_after_endstop_or_probe_move();
@@ -5349,6 +5342,21 @@ fail:
         print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
         SERIAL_PROTOCOLLNPGM("  Tz:+0.00");
       }
+    }
+
+    void G33_cleanup(
+      #if HOTENDS > 1
+        const uint8_t old_tool_index
+      #endif
+    ) {
+      #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
+        do_blocking_move_to_z(delta_clip_start_height);
+      #endif
+      STOW_PROBE();
+      clean_up_after_endstop_or_probe_move();
+      #if HOTENDS > 1
+        tool_change(old_tool_index, 0, true);
+      #endif
     }
 
     inline void gcode_G33() {
@@ -5450,10 +5458,12 @@ fail:
       #if DISABLED(PROBE_MANUALLY)
         const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
         if (isnan(measured_z)) {
-          LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-          goto fail;
+          void G33_cleanup(
+            #if HOTENDS > 1
+              old_tool_index
+            #endif
+          );
+          return;
         }
         else
           home_offset[Z_AXIS] -= measured_z;
@@ -5475,10 +5485,12 @@ fail:
           #else
             z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
             if (isnan(z_at_pt[0])) {
-              LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-              SERIAL_ERROR_START();
-              SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-              goto fail;
+              void G33_cleanup(
+                #if HOTENDS > 1
+                  old_tool_index
+                #endif
+              );
+              return;
             }
           #endif
         }
@@ -5490,10 +5502,12 @@ fail:
             #else
               z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
               if (isnan(z_at_pt[0])) {
-                LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-                SERIAL_ERROR_START();
-                SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-                goto fail;
+                void G33_cleanup(
+                  #if HOTENDS > 1
+                    old_tool_index
+                  #endif
+                );
+                return;
               }
             #endif
           }
@@ -5516,10 +5530,12 @@ fail:
               #else
                 z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
                 if (isnan(z_at_pt[axis])) {
-                  LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-                  SERIAL_ERROR_START();
-                  SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-                  goto fail;
+                  void G33_cleanup(
+                    #if HOTENDS > 1
+                      old_tool_index
+                    #endif
+                  );
+                  return;
                 }
               #endif
             }
@@ -5720,16 +5736,11 @@ fail:
       }
       while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
 
-fail:
-
-      #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
-        do_blocking_move_to_z(delta_clip_start_height);
-      #endif
-      STOW_PROBE();
-      clean_up_after_endstop_or_probe_move();
-      #if HOTENDS > 1
-        tool_change(old_tool_index, 0, true);
-      #endif
+      G33_cleanup(
+        #if HOTENDS > 1
+          old_tool_index
+        #endif
+      );
     }
 
   #endif // DELTA_AUTO_CALIBRATION
@@ -7038,166 +7049,161 @@ inline void gcode_M42() {
       set_bed_leveling_enabled(false);
     #endif
 
+    bool probing_failed = false;
+
     setup_for_endstop_or_probe_move();
 
     // Move to the first point, deploy, and probe
+    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+    
     const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
-    if (isnan(t)) {
-      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-      goto fail;
+    if (isnan(t))
+      probing_failed = true;
+    else {
+      randomSeed(millis());
+
+      for (uint8_t n = 0; n < n_samples; n++) {
+        if (n_legs) {
+          const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
+          float angle = random(0.0, 360.0);
+          const float radius = random(
+            #if ENABLED(DELTA)
+              0.1250000000 * (DELTA_PROBEABLE_RADIUS),
+              0.3333333333 * (DELTA_PROBEABLE_RADIUS)
+            #else
+              5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
+            #endif
+          );
+
+          if (verbose_level > 3) {
+            SERIAL_ECHOPAIR("Starting radius: ", radius);
+            SERIAL_ECHOPAIR("   angle: ", angle);
+            SERIAL_ECHOPGM(" Direction: ");
+            if (dir > 0) SERIAL_ECHOPGM("Counter-");
+            SERIAL_ECHOLNPGM("Clockwise");
+          }
+
+          for (uint8_t l = 0; l < n_legs - 1; l++) {
+            double delta_angle;
+
+            if (schizoid_flag)
+              // The points of a 5 point star are 72 degrees apart.  We need to
+              // skip a point and go to the next one on the star.
+              delta_angle = dir * 2.0 * 72.0;
+
+            else
+              // If we do this line, we are just trying to move further
+              // around the circle.
+              delta_angle = dir * (float) random(25, 45);
+
+            angle += delta_angle;
+
+            while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
+              angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
+            while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
+              angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
+
+            X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
+            Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
+
+            #if DISABLED(DELTA)
+              X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
+              Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+            #else
+              // If we have gone out too far, we can do a simple fix and scale the numbers
+              // back in closer to the origin.
+              while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
+                X_current *= 0.8;
+                Y_current *= 0.8;
+                if (verbose_level > 3) {
+                  SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
+                  SERIAL_ECHOLNPAIR(", ", Y_current);
+                }
+              }
+            #endif
+            if (verbose_level > 3) {
+              SERIAL_PROTOCOLPGM("Going to:");
+              SERIAL_ECHOPAIR(" X", X_current);
+              SERIAL_ECHOPAIR(" Y", Y_current);
+              SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
+            }
+            do_blocking_move_to_xy(X_current, Y_current);
+          } // n_legs loop
+        } // n_legs
+
+        // Probe a single point
+        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
+        if (isnan(sample_set[n]))
+          probing_failed = true;
+        else {
+          /**
+           * Get the current mean for the data points we have so far
+           */
+          double sum = 0.0;
+          for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
+          mean = sum / (n + 1);
+
+          NOMORE(min, sample_set[n]);
+          NOLESS(max, sample_set[n]);
+
+          /**
+           * Now, use that mean to calculate the standard deviation for the
+           * data points we have so far
+           */
+          sum = 0.0;
+          for (uint8_t j = 0; j <= n; j++)
+            sum += sq(sample_set[j] - mean);
+
+          sigma = SQRT(sum / (n + 1));
+          if (verbose_level > 0) {
+            if (verbose_level > 1) {
+              SERIAL_PROTOCOL(n + 1);
+              SERIAL_PROTOCOLPGM(" of ");
+              SERIAL_PROTOCOL((int)n_samples);
+              SERIAL_PROTOCOLPGM(": z: ");
+              SERIAL_PROTOCOL_F(sample_set[n], 3);
+              if (verbose_level > 2) {
+                SERIAL_PROTOCOLPGM(" mean: ");
+                SERIAL_PROTOCOL_F(mean, 4);
+                SERIAL_PROTOCOLPGM(" sigma: ");
+                SERIAL_PROTOCOL_F(sigma, 6);
+                SERIAL_PROTOCOLPGM(" min: ");
+                SERIAL_PROTOCOL_F(min, 3);
+                SERIAL_PROTOCOLPGM(" max: ");
+                SERIAL_PROTOCOL_F(max, 3);
+                SERIAL_PROTOCOLPGM(" range: ");
+                SERIAL_PROTOCOL_F(max-min, 3);
+              }
+              SERIAL_EOL();
+            }
+          }
+        }
+      } // End of probe loop
     }
 
-    randomSeed(millis());
+    STOW_PROBE();
 
-    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+    if (!probing_failed) {
+      SERIAL_PROTOCOLPGM("Finished!");
+      SERIAL_EOL();
 
-    for (uint8_t n = 0; n < n_samples; n++) {
-      if (n_legs) {
-        const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
-        float angle = random(0.0, 360.0);
-        const float radius = random(
-          #if ENABLED(DELTA)
-            0.1250000000 * (DELTA_PROBEABLE_RADIUS),
-            0.3333333333 * (DELTA_PROBEABLE_RADIUS)
-          #else
-            5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
-          #endif
-        );
-
-        if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Starting radius: ", radius);
-          SERIAL_ECHOPAIR("   angle: ", angle);
-          SERIAL_ECHOPGM(" Direction: ");
-          if (dir > 0) SERIAL_ECHOPGM("Counter-");
-          SERIAL_ECHOLNPGM("Clockwise");
-        }
-
-        for (uint8_t l = 0; l < n_legs - 1; l++) {
-          double delta_angle;
-
-          if (schizoid_flag)
-            // The points of a 5 point star are 72 degrees apart.  We need to
-            // skip a point and go to the next one on the star.
-            delta_angle = dir * 2.0 * 72.0;
-
-          else
-            // If we do this line, we are just trying to move further
-            // around the circle.
-            delta_angle = dir * (float) random(25, 45);
-
-          angle += delta_angle;
-
-          while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
-            angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
-          while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
-            angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
-
-          X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
-          Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
-
-          #if DISABLED(DELTA)
-            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
-          #else
-            // If we have gone out too far, we can do a simple fix and scale the numbers
-            // back in closer to the origin.
-            while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
-              X_current *= 0.8;
-              Y_current *= 0.8;
-              if (verbose_level > 3) {
-                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
-                SERIAL_ECHOLNPAIR(", ", Y_current);
-              }
-            }
-          #endif
-          if (verbose_level > 3) {
-            SERIAL_PROTOCOLPGM("Going to:");
-            SERIAL_ECHOPAIR(" X", X_current);
-            SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
-          }
-          do_blocking_move_to_xy(X_current, Y_current);
-        } // n_legs loop
-      } // n_legs
-
-      // Probe a single point
-      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
-      if (isnan(sample_set[n])) {
-        LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-        goto fail;
-      }
-
-      /**
-       * Get the current mean for the data points we have so far
-       */
-      double sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
-      mean = sum / (n + 1);
-
-      NOMORE(min, sample_set[n]);
-      NOLESS(max, sample_set[n]);
-
-      /**
-       * Now, use that mean to calculate the standard deviation for the
-       * data points we have so far
-       */
-      sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++)
-        sum += sq(sample_set[j] - mean);
-
-      sigma = SQRT(sum / (n + 1));
       if (verbose_level > 0) {
-        if (verbose_level > 1) {
-          SERIAL_PROTOCOL(n + 1);
-          SERIAL_PROTOCOLPGM(" of ");
-          SERIAL_PROTOCOL((int)n_samples);
-          SERIAL_PROTOCOLPGM(": z: ");
-          SERIAL_PROTOCOL_F(sample_set[n], 3);
-          if (verbose_level > 2) {
-            SERIAL_PROTOCOLPGM(" mean: ");
-            SERIAL_PROTOCOL_F(mean, 4);
-            SERIAL_PROTOCOLPGM(" sigma: ");
-            SERIAL_PROTOCOL_F(sigma, 6);
-            SERIAL_PROTOCOLPGM(" min: ");
-            SERIAL_PROTOCOL_F(min, 3);
-            SERIAL_PROTOCOLPGM(" max: ");
-            SERIAL_PROTOCOL_F(max, 3);
-            SERIAL_PROTOCOLPGM(" range: ");
-            SERIAL_PROTOCOL_F(max-min, 3);
-          }
-          SERIAL_EOL();
-        }
+        SERIAL_PROTOCOLPGM("Mean: ");
+        SERIAL_PROTOCOL_F(mean, 6);
+        SERIAL_PROTOCOLPGM(" Min: ");
+        SERIAL_PROTOCOL_F(min, 3);
+        SERIAL_PROTOCOLPGM(" Max: ");
+        SERIAL_PROTOCOL_F(max, 3);
+        SERIAL_PROTOCOLPGM(" Range: ");
+        SERIAL_PROTOCOL_F(max-min, 3);
+        SERIAL_EOL();
       }
 
-    } // End of probe loop
-
-    if (STOW_PROBE()) goto fail;
-
-    SERIAL_PROTOCOLPGM("Finished!");
-    SERIAL_EOL();
-
-    if (verbose_level > 0) {
-      SERIAL_PROTOCOLPGM("Mean: ");
-      SERIAL_PROTOCOL_F(mean, 6);
-      SERIAL_PROTOCOLPGM(" Min: ");
-      SERIAL_PROTOCOL_F(min, 3);
-      SERIAL_PROTOCOLPGM(" Max: ");
-      SERIAL_PROTOCOL_F(max, 3);
-      SERIAL_PROTOCOLPGM(" Range: ");
-      SERIAL_PROTOCOL_F(max-min, 3);
+      SERIAL_PROTOCOLPGM("Standard Deviation: ");
+      SERIAL_PROTOCOL_F(sigma, 6);
+      SERIAL_EOL();
       SERIAL_EOL();
     }
-
-    SERIAL_PROTOCOLPGM("Standard Deviation: ");
-    SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL();
-    SERIAL_EOL();
-
-fail:
 
     clean_up_after_endstop_or_probe_move();
 
