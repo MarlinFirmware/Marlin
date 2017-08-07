@@ -3,27 +3,28 @@
             Original idea by terryb.print3d@gmail.com
              Modified by jb.github@rcairgallery.com
 
- The latest version of Terry's original file will always be found at:
+    The latest version of Terry's original file will always be found at:
           https://github.com/terryb58/Marlin-EasyConfig
 
- The latest version of this file (and complete firmware) will always be found at:
+    The latest version of this file (and complete firmware) will always
+  be found at:
           https://github.com/JimBrown/MarlinTarantula
 
-     This is an attempt to create a simple configuration for as many
+    This is an attempt to create a simple configuration for as many
   different Tevo Tarantula variants as possible.  This will always be
   a work in progress. Email me if you have any questions, suggestions,
   or if you encounter problems when using Easy Config.
 
-     This is a Marlin 1.1.x configuration file. I will update this as
+    This is a Marlin 1.1.x configuration file. I will update this as
   new versions of Marlin are released.
 
-  NOTE: Sanity check should still work and should not show any errors.
-    Please report any errors.  Thank you.
+    NOTE: Sanity check should still work and should not show any errors.
+      Please report any errors.  Thank you.
 
-  NOTE: Don't forget to do an M502 followed by an M500 any time you upload
-        the firmware.
+    NOTE: Don't forget to do an M502 followed by an M500 any time you
+      upload the firmware.
 
-  **********************************************************************/
+***********************************************************************/
 
 // Equipment options
 //#define LARGE_BED
@@ -36,8 +37,9 @@
 #define NOZZLE_X          0
 #define NOZZLE_Y          0
 
-// Extruder steps per mm (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E0_STEPS        100.0
+// Primary Extruder steps per mm
+// (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+#define E1_STEPS      100.0
 
 // Z-Probe type (must be none or one of them, not both)
 //#define BLTOUCH
@@ -68,8 +70,9 @@
   // Offset for second extruder from first extruder
   #define EXTRUDER2_X 10
   #define EXTRUDER2_Y 0
-  // Second Extruder steps per mm (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-  #define E1_STEPS      100.0
+  // Secondary Extruder steps per mm
+  // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+  #define E2_STEPS      100
 #endif
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
@@ -647,9 +650,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUAL_EXTRUDER)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS, E1_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS, E2_STEPS }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS }
 #endif
 
 /**
