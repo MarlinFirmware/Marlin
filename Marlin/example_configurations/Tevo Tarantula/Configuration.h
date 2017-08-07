@@ -72,6 +72,20 @@
   #define E1_STEPS      100.0
 #endif
 
+// TEVO Tarantula Custom PID Settings - Stock Hotend
+#define  hot_Kp 11.20
+#define  hot_Ki 0.60
+#define  hot_Kd 52.53
+// FIND YOUR OWN: "M303 E0 C8 S200" to run autotune on the hotend at 200 degreesC for 8 cycles.
+// More info here: http://reprap.org/wiki/PID_Tuning
+
+// TEVO Tarantula Custom PID Settings - Stock Heatbed
+#define  bed_Kp 841.21
+#define  bed_Ki 165.63
+#define  bed_Kd 1068.13
+// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+// More info here: http://reprap.org/wiki/PID_Tuning
+
 // Extra movement of Y axis (small bed only). Can help with probing more of the bed.
 // Set both to 0 (zero) if you have a large bed or do not have a Z-Probe.
 #define XTRA_BED_FRONT     0 // Distance bed can move towards the front past Y = 200
@@ -446,17 +460,10 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
-  #if ENABLED(HOTEND_E3DV6)
-    // TEVO Tarantula Custom PID Settings - E3Dv6 Hotend with Silicon Boot
-    #define  DEFAULT_Kp 18.39
-    #define  DEFAULT_Ki 1.27
-    #define  DEFAULT_Kd 66.43
-  #else
-    // TEVO Tarantula Custom PID Settings - Stock Hotend
-    #define  DEFAULT_Kp 11.20
-    #define  DEFAULT_Ki 0.60
-    #define  DEFAULT_Kd 52.53
-  #endif
+  // TEVO Tarantula Custom PID Settings
+  #define  DEFAULT_Kp hot_Kp
+  #define  DEFAULT_Ki hot_Ki
+  #define  DEFAULT_Kd hot_Kd
 
 #endif // PIDTEMP
 
@@ -498,17 +505,10 @@
   //#define  DEFAULT_bedKi 1.41
   //#define  DEFAULT_bedKd 1675.16
 
-  #if ENABLED(HOTEND_E3DV6)
-    // TEVO Tarantula Custom PID Settings - Tevo Stock Heatbed with Tevo Hotbed MosFET - no hotbed insulation - Glass Bed with PEI
-    #define  DEFAULT_bedKp 286.24
-    #define  DEFAULT_bedKi 56.0
-    #define  DEFAULT_bedKd 365.78
-  #else
-    // TEVO Tarantula Custom PID Settings - Heatbed
-    #define  DEFAULT_bedKp 841.21
-    #define  DEFAULT_bedKi 165.63
-    #define  DEFAULT_bedKd 1068.13
-  #endif
+  // TEVO Tarantula Custom PID Settings - Heatbed
+  #define  DEFAULT_bedKp bed_Kp
+  #define  DEFAULT_bedKi bed_Ki
+  #define  DEFAULT_bedKd bed_Kd
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -699,7 +699,6 @@
 #define DEFAULT_YJERK                  7.0
 #define DEFAULT_ZJERK                  0.2
 #define DEFAULT_EJERK                  2.5
-
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1104,7 +1103,7 @@
   #define UBL_PROBE_PT_3_X PROBE_X_MIDDLE
   #define UBL_PROBE_PT_3_Y PROBE_Y_BACK
 
-  #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
+  //#define UBL_G26_MESH_VALIDATION // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
 
 #elif ENABLED(MESH_BED_LEVELING)
