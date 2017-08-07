@@ -152,7 +152,7 @@
       static void save_ubl_active_state_and_disable();
       static void restore_ubl_active_state_and_leave();
       static void display_map(const int);
-      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
+      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16], bool);
       static void reset();
       static void invalidate();
       static void set_all_mesh_points_to_value(float);
@@ -247,10 +247,10 @@
 
       /**
        * z_correction_for_x_on_horizontal_mesh_line is an optimization for
-       * the rare occasion when a point lies exactly on a Mesh line (denoted by index yi).
+       * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
        */
       inline static float z_correction_for_x_on_horizontal_mesh_line(const float &lx0, const int x1_i, const int yi) {
-        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
           serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1l_i") : PSTR("yi") );
           SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(lx0=", lx0);
           SERIAL_ECHOPAIR(",x1_i=", x1_i);
@@ -270,7 +270,7 @@
       // See comments above for z_correction_for_x_on_horizontal_mesh_line
       //
       inline static float z_correction_for_y_on_vertical_mesh_line(const float &ly0, const int xi, const int y1_i) {
-        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
+        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 2)) {
           serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("yl_i") );
           SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ly0=", ly0);
           SERIAL_ECHOPAIR(", xi=", xi);
@@ -296,7 +296,7 @@
         const int8_t cx = get_cell_index_x(RAW_X_POSITION(lx0)),
                      cy = get_cell_index_y(RAW_Y_POSITION(ly0));
 
-        if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 1)) {
+        if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 2)) {
 
           SERIAL_ECHOPAIR("? in get_z_correction(lx0=", lx0);
           SERIAL_ECHOPAIR(", ly0=", ly0);
@@ -307,7 +307,7 @@
             strcpy(lcd_status_message, "get_z_correction() indexes out of range.");
             lcd_quick_feedback();
           #endif
-          return 0.0; // this used to return state.z_offset
+          return NAN; // this used to return state.z_offset
         }
 
         const float z1 = calc_z0(RAW_X_POSITION(lx0),
@@ -384,8 +384,13 @@
         FORCE_INLINE static float fade_scaling_factor_for_z(const float &lz) { return 1.0; }
       #endif
 
-      FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_xpos[i]); }
-      FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) { return pgm_read_float(&_mesh_index_to_ypos[i]); }
+      FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) {
+        return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : UBL_MESH_MIN_X + i * (MESH_X_DIST);
+      }
+
+      FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) {
+        return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
+      }
 
       static bool prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate);
       static void line_to_destination_cartesian(const float &fr, uint8_t e);

@@ -208,6 +208,9 @@
 #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
   #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #endif
+#ifndef MSG_UBL_MESH_EDIT
+  #define MSG_UBL_MESH_EDIT                   _UxGT("Mesh Edit")
+#endif
 #ifndef MSG_UBL_EDIT_CUSTOM_MESH
   #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Edit Custom Mesh")
 #endif
@@ -712,6 +715,9 @@
 #endif
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
+#endif
+#ifndef MSG_DELTA_SETTINGS
+  #define MSG_DELTA_SETTINGS                  _UxGT("Show Delta Settings")
 #endif
 #ifndef MSG_DELTA_AUTO_CALIBRATE
   #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")

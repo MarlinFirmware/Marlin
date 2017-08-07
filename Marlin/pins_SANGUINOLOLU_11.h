@@ -59,7 +59,7 @@
   #define BOARD_NAME "Sanguinololu <1.2"
 #endif
 
-#define IS_MELZI (MB(MELZI) || MB(MELZI_MAKR3D))
+#define IS_MELZI (MB(MELZI) || MB(MELZI_MAKR3D) || MB(MELZI_CREALITY))
 
 //
 // Limit Switches

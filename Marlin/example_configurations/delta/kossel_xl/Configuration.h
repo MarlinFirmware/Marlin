@@ -161,7 +161,10 @@
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
-  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1[, E2, E3]
+  #if EXTRUDERS > 3
+    #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
+  #endif
 #endif
 
 // A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
@@ -476,6 +479,8 @@
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
     // Set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS*0.869 for non-eccentric probes
     #define DELTA_CALIBRATION_RADIUS 121.5 // mm
+    // Set the steprate for papertest probing
+    #define PROBE_MANUALLY_STEP 0.025
   #endif
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
@@ -491,7 +496,7 @@
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
   #define DELTA_RADIUS 174.1 //mm  Get this value from auto calibrate
-  
+
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
@@ -694,14 +699,15 @@
 #endif
 
 /**
- * Enable if probing seems unreliable. Heaters and/or fans - consistent with the
- * options selected below - will be disabled during probing so as to minimize
- * potential EM interference by quieting/silencing the source of the 'noise' (the change
- * in current flowing through the wires).  This is likely most useful to users of the
- * BLTouch probe, but may also help those with inductive or other probe types.
+ * Enable one or more of the following if probing seems unreliable.
+ * Heaters and/or fans can be disabled during probing to minimize electrical
+ * noise. A delay can also be added to allow noise and vibration to settle.
+ * These options are most useful for the BLTouch probe, but may also improve
+ * readings with inductive probes and piezo sensors.
  */
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 //#define PROBING_FANS_OFF          // Turn fans off when probing
+//#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
@@ -797,60 +803,6 @@
 #endif // Z_PROBE_ALLEN_KEY
 
 /**
- *   *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
- *
- *   - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
- *   - Use 5V for powered (usu. inductive) sensors.
- *   - Otherwise connect:
- *     - normally-closed switches to GND and D32.
- *     - normally-open switches to 5V and D32.
- *
- *   Normally-closed switches are advised and are the default.
- *
- *
- *   PIN OPTIONS\SETUP FOR Z PROBES
- *
- *
- *   WARNING:
- *   Setting the wrong pin may have unexpected and potentially disastrous consequences.
- *   Use with caution and do your homework.
- *
- *
- *   All Z PROBE pin options are configured by defining (or not defining)
- *   the following five items:
- *       Z_MIN_PROBE_ENDSTOP – defined below
- *       Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN – defined below
- *       Z_MIN_PIN - defined in the pins_YOUR_BOARD.h file
- *       Z_MIN_PROBE_PIN - defined in the pins_YOUR_BOARD.h file
- *
- *   If you're using a probe then you need to tell Marlin which pin to use as
- *   the Z MIN ENDSTOP.  Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN determines if the
- *   Z_MIN_PIN or if the Z_MIN_PROBE_PIN is used.
- *
- *   The pin selected for the probe is ONLY checked during probing operations.
- *   If you want to use the Z_MIN_PIN as an endstop AND you want to have a Z PROBE
- *   then you’ll need to use the Z_MIN_PROBE_PIN option.
- *
- *   Z_MIN_PROBE_ENDSTOP also needs to be enabled if you want to use Z_MIN_PROBE_PIN.
- *
- *   The settings needed to use the Z_MIN_PROBE_PIN are:
- *       1. select the type of probe you're using
- *       2. define Z_MIN_PROBE_PIN in your pins_YOUR_BOARD.h file
- *       3. disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. enable Z_MIN_PROBE_ENDSTOP
- *   NOTE – if Z_MIN_PIN is defined then it’ll be checked during all moves in the
- *          negative Z direction.
- *
- *   The settings needed to use the Z_MIN_PIN are:
- *       1. select the type of probe you're using
- *       2. enable Z_MIN _PIN in your pins_YOUR_BOARD.h file
- *       3. enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
- *       4. disable Z_MIN_PROBE_ENDSTOP
- *   NOTES – if Z_MIN_PROBE_PIN is defined in the pins_YOUR_BOARD.h file then it’ll be
- *          ignored by Marlin
- */
-
-/**
  * Z probes require clearance when deploying, stowing, and moving between
  * probe points to avoid hitting the bed and other hardware.
  * Servo-mounted probes require extra space for the arm to rotate.
@@ -926,7 +878,11 @@
 
 // @section machine
 
-// Travel limits after homing (units are in mm)
+// The size of the print bed
+#define X_BED_SIZE ((DELTA_PRINTABLE_RADIUS) * 2)
+#define Y_BED_SIZE ((DELTA_PRINTABLE_RADIUS) * 2)
+
+// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
@@ -1040,6 +996,11 @@
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    // Beyond the probed grid, continue the implied tilt?
+    // Default is to maintain the height of the nearest edge.
+    //#define EXTRAPOLATE_BEYOND_GRID
+
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
@@ -1140,8 +1101,8 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Delta only homes to Z
@@ -1173,6 +1134,7 @@
 //
 #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
+#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
 // M100 Free Memory Watcher
@@ -1627,11 +1589,6 @@
 //#define U8GLIB_SSD1306
 
 //
-// TinyBoy2 128x64 OLED / Encoder Panel
-//
-//#define OLED_PANEL_TINYBOY2
-
-//
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
 //
 //#define SAV_3DGLCD
@@ -1647,6 +1604,11 @@
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+//
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
 
 //=============================================================================
 //=============================== Extra Features ==============================
@@ -1721,6 +1683,14 @@
   #define RGB_LED_W_PIN -1
 #endif
 
+// Support for Adafruit Neopixel LED driver
+//#define NEOPIXEL_RGBW_LED
+#if ENABLED(NEOPIXEL_RGBW_LED)
+  #define NEOPIXEL_PIN    4       // D4 (EXP2-5 on Printrboard)
+  #define NEOPIXEL_PIXELS 3
+  //#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
+#endif
+
 /**
  * Printer Event LEDs
  *
@@ -1732,7 +1702,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 

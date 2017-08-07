@@ -382,6 +382,10 @@
 #define DIO47_WPORT PORTE
 #define DIO47_PWM   NULL
 #define DIO47_DDR   DDRE
+
+#define TEENSY_E2   46
+#define TEENSY_E3   47
+
 //-- end not supported by Teensyduino
 
 #undef PA0
