@@ -2229,7 +2229,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Deploy BLTouch at the start of any probe
     #if ENABLED(BLTOUCH)
-      if (set_bltouch_deployed(true)) return NAN;
+      if (set_bltouch_deployed(true)) return false;
     #endif
 
     #if QUIET_PROBING
@@ -2254,7 +2254,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Retract BLTouch immediately after a probe if it was triggered
     #if ENABLED(BLTOUCH)
-      if (probe_triggered && set_bltouch_deployed(false)) return NAN;
+      if (probe_triggered && set_bltouch_deployed(false)) return false;
     #endif
 
     // Clear endstop flags
@@ -7055,7 +7055,7 @@ inline void gcode_M42() {
 
     // Move to the first point, deploy, and probe
     double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
-    
+
     const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
     if (isnan(t))
       probing_failed = true;
