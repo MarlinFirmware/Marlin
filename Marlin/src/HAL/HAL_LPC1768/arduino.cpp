@@ -121,6 +121,16 @@ void digitalWrite(int pin, int pin_status) {
     LPC_GPIO(pin_map[pin].port)->FIOSET = LPC_PIN(pin_map[pin].pin);
   else
     LPC_GPIO(pin_map[pin].port)->FIOCLR = LPC_PIN(pin_map[pin].pin);
+
+  pinMode(pin, OUTPUT);  // Set pin mode on every write (Arduino version does this)
+
+    /**
+     * Must be done AFTER the output state is set. Doing this before will cause a
+     * 2uS glitch if writing a "1".
+     *
+     * When the Port Direction bit is written to a "1" the output is immediately set
+     * to the value of the FIOPIN bit which is "0" because of power up defaults.
+     */
 }
 
 bool digitalRead(int pin) {
