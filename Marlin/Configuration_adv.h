@@ -747,6 +747,18 @@
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
 #define RX_BUFFER_SIZE 1024
 
+// This setting determines if the printer will send the XON/XOFF
+// control characters to the host to signal RX buffer is becoming full
+#define SERIAL_XON_XOFF 1
+
+// This setting determines if you want to display and collect
+// maximum RX queue usage after transferring a file to the SD
+//#define SERIAL_STATS_MAX_RX_QUEUED 1
+
+// This setting determines if you want to display and collect
+// the number of dropped bytes after a file transfer to the SD
+#define SERIAL_STATS_DROPPED_RX 1
+
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
 // Currently handles M108, M112, M410
