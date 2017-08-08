@@ -84,6 +84,9 @@
   #ifndef RX_BUFFER_SIZE
     #define RX_BUFFER_SIZE 128
   #endif
+  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+	#error "XON/XOFF requires a 1024 or greater RX_BUFFER_SIZE for allowing reliable transfers without drops"
+  #endif
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
