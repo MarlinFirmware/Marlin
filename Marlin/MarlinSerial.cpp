@@ -44,6 +44,17 @@
     #endif
   #endif
 
+  #if ENABLED(SERIAL_XON_XOFF)
+	uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
+  #endif
+  
+  #if ENABLED(SERIAL_STATS_DROPPED_RX)
+	uint8_t rx_dropped_bytes = 0;
+  #endif
+  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+	ring_buffer_pos_t rx_max_enqueued = 0;
+  #endif  
+
   #if ENABLED(EMERGENCY_PARSER)
 
     #include "stepper.h"
@@ -136,20 +147,94 @@
 
   #endif // EMERGENCY_PARSER
 
-  FORCE_INLINE void store_char(unsigned char c) {
-    CRITICAL_SECTION_START;
-      const uint8_t h = rx_buffer.head,
-                    i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
+  FORCE_INLINE void store_rxd_char() {
+    const ring_buffer_pos_t h = rx_buffer.head,
+							i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
 
       // if we should be storing the received character into the location
       // just before the tail (meaning that the head would advance to the
       // current location of the tail), we're about to overflow the buffer
       // and so we don't write the character or advance the head.
       if (i != rx_buffer.tail) {
-        rx_buffer.buffer[h] = c;
+      rx_buffer.buffer[h] = M_UDRx;
         rx_buffer.head = i;
       }
-    CRITICAL_SECTION_END;
+	else {
+		(void)M_UDRx;
+  #if ENABLED(SERIAL_STATS_DROPPED_RX)		
+	  if (!++rx_dropped_bytes)
+		  ++rx_dropped_bytes;
+  #endif	  
+	}
+  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+	{
+	  // calculate count of bytes stored into the RX buffer
+	  ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+	  
+	  // Keep track of the maximum count of enqueued bytes
+	  if (rx_max_enqueued < rx_count)
+	    rx_max_enqueued = rx_count;
+	}
+  #endif  
+	  
+  #if ENABLED(SERIAL_XON_XOFF)
+  
+    // for high speed transfers, we can use XON/XOFF protocol to do 
+    // software handshake and avoid overruns.
+    if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
+	
+	  // calculate count of bytes stored into the RX buffer
+	  ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+	
+	  // if we are above 12.5% of RX buffer capacity, send XOFF before
+	  // 	we run out of RX buffer space .. We need 325 bytes @ 250kbits/s to
+	  //  let the host react and stop sending bytes. This translates to 13mS
+	  //  propagation time.
+	  if (rx_count >= (RX_BUFFER_SIZE/8)) {
+		
+	    // If TX interrupts are disabled and data register is empty,
+	    // just write the byte to the data register and be done. This 
+	    // shortcut helps significantly improve the effective datarate
+	    // at high (>500kbit/s) bitrates, where interrupt overhead 
+	    // becomes a slowdown.
+	    if (!TEST(M_UCSRxB, M_UDRIEx) && TEST(M_UCSRxA, M_UDREx)) {
+		
+		  // Send an XOFF character
+		  M_UDRx = XOFF_CHAR;
+		
+		  // clear the TXC bit -- "can be cleared by writing a one to its bit
+		  // location". This makes sure flush() won't return until the bytes
+		  // actually got written
+		  SBI(M_UCSRxA, M_TXCx);
+		  
+		  // And remember we already sent it
+		  xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+		  
+	    } else {
+
+		  // TX interrupts disabled, but buffer still not empty ... or 
+		  // TX interrupts enabled. Reenable TX ints and schedule XOFF 
+		  // character to be sent
+	  #if TX_BUFFER_SIZE > 0		
+		
+		  SBI(M_UCSRxB, M_UDRIEx);
+		  xon_xoff_state = XOFF_CHAR;
+		
+	  #else
+		  // We are not using TX interrupts, we will have to send this manually
+		  while (!TEST(M_UCSRxA, M_UDREx))
+		    ;
+		  M_UDRx = XOFF_CHAR;
+		
+		  // And remember we already sent it
+		  xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+
+	  #endif
+		}
+
+	  }
+	}
+  #endif
 
     #if ENABLED(EMERGENCY_PARSER)
       emergency_parser(c);
@@ -160,13 +245,31 @@
 
     FORCE_INLINE void _tx_udr_empty_irq(void) {
       // If interrupts are enabled, there must be more data in the output
-      // buffer. Send the next byte
+      // buffer.
+
+    #if ENABLED(SERIAL_XON_XOFF)
+	
+	  // If we must do a priority insertion of an XON/XOFF char, 
+	  //  do it now
+	  uint8_t state = xon_xoff_state;
+	  if (!(state & XON_XOFF_CHAR_SENT)) {
+		M_UDRx = state & XON_XOFF_CHAR_MASK;
+		xon_xoff_state = state | XON_XOFF_CHAR_SENT;
+		
+	  } else {
+	#endif
+	  
+		// Send the next byte
       const uint8_t t = tx_buffer.tail,
                     c = tx_buffer.buffer[t];
       tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
 
       M_UDRx = c;
 
+    #if ENABLED(SERIAL_XON_XOFF)
+	  }
+	#endif
+	
       // clear the TXC bit -- "can be cleared by writing a one to its bit
       // location". This makes sure flush() won't return until the bytes
       // actually got written
@@ -188,8 +291,7 @@
 
   #ifdef M_USARTx_RX_vect
     ISR(M_USARTx_RX_vect) {
-      const unsigned char c = M_UDRx;
-      store_char(c);
+      store_rxd_char();
     }
   #endif
 
@@ -237,8 +339,9 @@
 
   void MarlinSerial::checkRx(void) {
     if (TEST(M_UCSRxA, M_RXCx)) {
-      const uint8_t c = M_UDRx;
-      store_char(c);
+	  CRITICAL_SECTION_START;
+        store_rxd_char();
+	  CRITICAL_SECTION_END;
     }
   }
 
@@ -252,23 +355,52 @@
   int MarlinSerial::read(void) {
     int v;
     CRITICAL_SECTION_START;
-      const uint8_t t = rx_buffer.tail;
+      const ring_buffer_pos_t t = rx_buffer.tail;
       if (rx_buffer.head == t)
         v = -1;
       else {
         v = rx_buffer.buffer[t];
-        rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+        rx_buffer.tail = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+		
+	  #if ENABLED(SERIAL_XON_XOFF)
+	  
+		// for high speed transfers, we can use XON/XOFF protocol to do 
+		// software handshake and avoid overruns.
+		if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+			
+		  // calculate count of bytes stored into the RX buffer
+		  ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+			
+		  // if we are below 10% of RX buffer capacity, send XON before
+		  // 	we run out of RX buffer bytes
+		  if (rx_count < (RX_BUFFER_SIZE/10)) {
+				
+			// Send an XON character
+			xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+	
+			// End critical section
+			CRITICAL_SECTION_END;	
+			 
+			// Transmit the XON character
+			writeNoHandshake(XON_CHAR);
+			
+			// Done
+			return v;
+		  }
+		}
+	  #endif
+		
       }
     CRITICAL_SECTION_END;
     return v;
   }
 
-  uint8_t MarlinSerial::available(void) {
+  ring_buffer_pos_t MarlinSerial::available(void) {
     CRITICAL_SECTION_START;
-      const uint8_t h = rx_buffer.head,
+      const ring_buffer_pos_t h = rx_buffer.head,
                     t = rx_buffer.tail;
     CRITICAL_SECTION_END;
-    return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
+    return (ring_buffer_pos_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
   }
 
   void MarlinSerial::flush(void) {
@@ -281,6 +413,20 @@
     CRITICAL_SECTION_START;
       rx_buffer.head = rx_buffer.tail;
     CRITICAL_SECTION_END;
+	
+  #if ENABLED(SERIAL_XON_XOFF)
+  
+	// for high speed transfers, we can use XON/XOFF protocol to do 
+	// software handshake and avoid overruns.
+	if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+		
+		// Send an XON character
+		xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+
+		// Transmit the XON character
+		writeNoHandshake(XON_CHAR);
+	}
+  #endif
   }
 
   #if TX_BUFFER_SIZE > 0
@@ -293,10 +439,26 @@
     }
 
     void MarlinSerial::write(const uint8_t c) {
+	
+	#if ENABLED(SERIAL_XON_XOFF)
+	  uint8_t state = xon_xoff_state;
+  	  if (!(state & XON_XOFF_CHAR_SENT)) {
+		// 2 characters to send: The XON/XOFF character and the user
+		// specified char. 
+		writeNoHandshake(state & XON_XOFF_CHAR_MASK);
+		xon_xoff_state = state | XON_XOFF_CHAR_SENT;		
+	  }
+	#endif
+	  writeNoHandshake(c);
+    }
+	
+	void MarlinSerial::writeNoHandshake(uint8_t c) {
+		
       _written = true;
       CRITICAL_SECTION_START;
         bool emty = (tx_buffer.head == tx_buffer.tail);
       CRITICAL_SECTION_END;
+	  
       // If the buffer and the data register is empty, just write the byte
       // to the data register and be done. This shortcut helps
       // significantly improve the effective datarate at high (>
@@ -335,6 +497,7 @@
       return;
     }
 
+	
     void MarlinSerial::flushTX(void) {
       // TX
       // If we have never written a byte, no need to flush. This special
@@ -357,6 +520,21 @@
 
   #else
     void MarlinSerial::write(uint8_t c) {
+		
+	#if ENABLED(SERIAL_XON_XOFF)
+	  // If we must do a priority insertion of an XON/XOFF char, do it now
+	  uint8_t state = xon_xoff_state;
+	  if (!(state & XON_XOFF_CHAR_SENT)) {
+		  
+		writeNoHandshake(state & XON_XOFF_CHAR_MASK);
+		xon_xoff_state = state | XON_XOFF_CHAR_SENT;
+	  }
+	#endif
+
+	  writeNoHandshake(c);
+    }
+	
+    void MarlinSerial::writeNoHandshake(uint8_t c) {
       while (!TEST(M_UCSRxA, M_UDREx))
         ;
       M_UDRx = c;

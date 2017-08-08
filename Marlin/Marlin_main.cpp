@@ -13329,6 +13329,12 @@ void loop() {
           // M29 closes the file
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+		#if ENABLED(SERIAL_STATS_DROPPED_RX)
+		  SERIAL_ECHOLNPAIR("Dropped bytes: ", MarlinSerial::dropped());
+		#endif
+		#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+		  SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MarlinSerial::rxMaxEnqueued());
+		#endif  
           ok_to_send();
         }
         else {

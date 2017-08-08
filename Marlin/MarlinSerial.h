@@ -90,17 +90,22 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
-  #if !((RX_BUFFER_SIZE == 256) ||(RX_BUFFER_SIZE == 128) ||(RX_BUFFER_SIZE == 64) ||(RX_BUFFER_SIZE == 32) ||(RX_BUFFER_SIZE == 16) ||(RX_BUFFER_SIZE == 8) ||(RX_BUFFER_SIZE == 4) ||(RX_BUFFER_SIZE == 2))
+  #if !IS_POWEROF2(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE < 2)
     #error "RX_BUFFER_SIZE has to be a power of 2 and >= 2"
   #endif
-  #if !((TX_BUFFER_SIZE == 256) ||(TX_BUFFER_SIZE == 128) ||(TX_BUFFER_SIZE == 64) ||(TX_BUFFER_SIZE == 32) ||(TX_BUFFER_SIZE == 16) ||(TX_BUFFER_SIZE == 8) ||(TX_BUFFER_SIZE == 4) ||(TX_BUFFER_SIZE == 2) ||(TX_BUFFER_SIZE == 0))
-    #error TX_BUFFER_SIZE has to be a power of 2 or 0
+  #if TX_BUFFER_SIZE != 0 && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWEROF2(TX_BUFFER_SIZE))
+    #error "TX_BUFFER_SIZE has to be a power of 2 or 0"
+  #endif
+  #if RX_BUFFER_SIZE > 256
+	typedef uint16_t ring_buffer_pos_t;
+  #else
+	typedef uint8_t ring_buffer_pos_t;
   #endif
 
   struct ring_buffer_r {
     unsigned char buffer[RX_BUFFER_SIZE];
-    volatile uint8_t head;
-    volatile uint8_t tail;
+    volatile ring_buffer_pos_t head;
+    volatile ring_buffer_pos_t tail;
   };
 
   #if TX_BUFFER_SIZE > 0
@@ -118,6 +123,24 @@
     #endif
   #endif
 
+  #if ENABLED(SERIAL_XON_XOFF)
+	#define XON_XOFF_CHAR_SENT 	(uint8_t)0x80	/* XON / XOFF Character was sent */
+	#define XON_XOFF_CHAR_MASK  (uint8_t)0x1F	/* XON / XOFF character to send */
+	
+	extern uint8_t xon_xoff_state;
+
+	// XON / XOFF character definitions
+	#define XON_CHAR  (uint8_t)17
+	#define XOFF_CHAR (uint8_t)19
+  #endif
+  
+  #if ENABLED(SERIAL_STATS_DROPPED_RX)
+	extern uint8_t rx_dropped_bytes;
+  #endif
+  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+	extern ring_buffer_pos_t rx_max_enqueued;
+  #endif  
+  
   class MarlinSerial { //: public Stream
 
     public:
@@ -127,13 +150,21 @@
       static int peek(void);
       static int read(void);
       static void flush(void);
-      static uint8_t available(void);
+      static ring_buffer_pos_t available(void);
       static void checkRx(void);
       static void write(const uint8_t c);
       #if TX_BUFFER_SIZE > 0
         static uint8_t availableForWrite(void);
         static void flushTX(void);
       #endif
+	  static void writeNoHandshake(uint8_t c);
+
+  #if ENABLED(SERIAL_STATS_DROPPED_RX)
+	  static uint32_t dropped() { return rx_dropped_bytes; }
+  #endif
+  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+	  static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
+  #endif  
 
     private:
       static void printNumber(unsigned long, const uint8_t);
