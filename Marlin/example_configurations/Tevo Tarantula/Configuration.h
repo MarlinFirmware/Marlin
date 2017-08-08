@@ -39,7 +39,7 @@
 
 // Primary Extruder steps per mm
 // (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E1_STEPS      100.0
+#define E1_STEPS      100.0 // Stock extruder. If you have a Tevo Titan, try 376.14.
 
 // Z-Probe type (must be none or one of them, not both)
 //#define BLTOUCH
@@ -72,7 +72,7 @@
   #define EXTRUDER2_Y 0
   // Secondary Extruder steps per mm
   // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-  #define E2_STEPS      100
+  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 376.14.
 #endif
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
