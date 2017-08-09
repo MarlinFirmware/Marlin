@@ -133,7 +133,7 @@ Marlin/Debug/
 Marlin/__vm/
 Marlin/.vs/
 
-#VScode
+#Visual Studio Code
 .vscode
 
 #cmake
