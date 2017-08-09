@@ -167,7 +167,7 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
     index += index >> 1;
     lba = fatStartBlock_ + (index >> 9);
     if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto fail;
-    index &= 0X1FF;
+    index &= 0x1FF;
     uint16_t tmp = cacheBuffer_.data[index];
     index++;
     if (index == 512) {
@@ -175,7 +175,7 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
       index = 0;
     }
     tmp |= cacheBuffer_.data[index] << 8;
-    *value = cluster & 1 ? tmp >> 4 : tmp & 0XFFF;
+    *value = cluster & 1 ? tmp >> 4 : tmp & 0xFFF;
     return true;
   }
   if (fatType_ == 16) {
@@ -191,10 +191,10 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
     if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto fail;
   }
   if (fatType_ == 16) {
-    *value = cacheBuffer_.fat16[cluster & 0XFF];
+    *value = cacheBuffer_.fat16[cluster & 0xFF];
   }
   else {
-    *value = cacheBuffer_.fat32[cluster & 0X7F] & FAT32MASK;
+    *value = cacheBuffer_.fat32[cluster & 0x7F] & FAT32MASK;
   }
   return true;
 fail:
@@ -217,7 +217,7 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
     if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto fail;
     // mirror second FAT
     if (fatCount_ > 1) cacheMirrorBlock_ = lba + blocksPerFat_;
-    index &= 0X1FF;
+    index &= 0x1FF;
     uint8_t tmp = value;
     if (cluster & 1) {
       tmp = (cacheBuffer_.data[index] & 0XF) | tmp << 4;
@@ -233,7 +233,7 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
     }
     tmp = value >> 4;
     if (!(cluster & 1)) {
-      tmp = ((cacheBuffer_.data[index] & 0XF0)) | tmp >> 4;
+      tmp = ((cacheBuffer_.data[index] & 0xF0)) | tmp >> 4;
     }
     cacheBuffer_.data[index] = tmp;
     return true;
@@ -250,10 +250,10 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
   if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto fail;
   // store entry
   if (fatType_ == 16) {
-    cacheBuffer_.fat16[cluster & 0XFF] = value;
+    cacheBuffer_.fat16[cluster & 0xFF] = value;
   }
   else {
-    cacheBuffer_.fat32[cluster & 0X7F] = value;
+    cacheBuffer_.fat32[cluster & 0x7F] = value;
   }
   // mirror second FAT
   if (fatCount_ > 1) cacheMirrorBlock_ = lba + blocksPerFat_;
@@ -344,7 +344,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   allocSearchStart_ = 2;
   cacheDirty_ = 0;  // cacheFlush() will write block if true
   cacheMirrorBlock_ = 0;
-  cacheBlockNumber_ = 0XFFFFFFFF;
+  cacheBlockNumber_ = 0xFFFFFFFF;
 
   // if part == 0 assume super floppy with FAT boot sector in block zero
   // if part > 0 assume mbr volume with partition table
@@ -352,7 +352,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
     if (part > 4)goto fail;
     if (!cacheRawBlock(volumeStartBlock, CACHE_FOR_READ)) goto fail;
     part_t* p = &cacheBuffer_.mbr.part[part - 1];
-    if ((p->boot & 0X7F) != 0  ||
+    if ((p->boot & 0x7F) != 0  ||
         p->totalSectors < 100 ||
         p->firstSector == 0) {
       // not a valid partition

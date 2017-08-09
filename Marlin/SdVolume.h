@@ -76,7 +76,7 @@ class SdVolume {
    */
   cache_t* cacheClear() {
     if (!cacheFlush()) return 0;
-    cacheBlockNumber_ = 0XFFFFFFFF;
+    cacheBlockNumber_ = 0xFFFFFFFF;
     return &cacheBuffer_;
   }
   /** Initialize a FAT volume.  Try partition one first then try super
