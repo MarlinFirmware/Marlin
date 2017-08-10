@@ -39,15 +39,17 @@
 
 // Primary Extruder steps per mm
 // (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E1_STEPS      100.0 // Stock extruder. If you have a Tevo Titan, try 376.14.
+#define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 375 then calibrate.
 
-// Z-Probe type (must be none or one of them, not both)
+// Z-Probe type (must be none or one of them)
 // If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
 // one of the other bed leveling types below.
 //#define BLTOUCH
-//#define SN04 // May work with other inductive sensors. Let me know if not.
+//#define SN04          // Green sensor
+//#define INDUCTIVE_NO  // Normally open inductive sensor
+//#define INDUCTIVE_NC  // Normally closed inductive sensor
 
-// Z-Probe offset from extruder (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
+// Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
 // Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
 #define SENSOR_LEFT        0
 #define SENSOR_RIGHT       0
@@ -67,14 +69,16 @@
 // Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
 #define GRID_POINTS        3
 
+//Enable this to turn on support for a dual nozzle with two separate extruders
 //#define DUAL_EXTRUDER
+
 #if ENABLED(DUAL_EXTRUDER)
-  // Offset for second extruder from first extruder
+  // Offset for second nozzle from first nozzle
   #define EXTRUDER2_X 10
   #define EXTRUDER2_Y 0
   // Secondary Extruder steps per mm
   // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 376.14.
+  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 375 then calibrate
 #endif
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
@@ -592,7 +596,7 @@
   //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
-  #if ENABLED(BLTOUCH)
+  #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO)
     //#define ENDSTOPPULLUP_ZMIN
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #else
@@ -605,6 +609,8 @@
 #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #if ENABLED(BLTOUCH)
+  // #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#elif ENABLED(INDUCTIVE_NC)
   #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #else
   #define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
@@ -612,9 +618,9 @@
 //#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#if ENABLED(BLTOUCH)
+#if ENABLED(BLTOUCH) || ENABLED(INDUCTIVE_NC)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#elif ENABLED(SN04)
+#elif ENABLED(SN04) || ENABLED(INDUCTIVE_NO)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -719,7 +725,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#if ENABLED(BLTOUCH) || ENABLED(SN04)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
@@ -764,7 +770,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#if ENABLED(SN04)
+#if ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO)
   #define FIX_MOUNTED_PROBE
 #endif
 
