@@ -42,6 +42,8 @@
 #define E1_STEPS      100.0 // Stock extruder. If you have a Tevo Titan, try 376.14.
 
 // Z-Probe type (must be none or one of them, not both)
+// If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
+// one of the other bed leveling types below.
 //#define BLTOUCH
 //#define SN04 // May work with other inductive sensors. Let me know if not.
 

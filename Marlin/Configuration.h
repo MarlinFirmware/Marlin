@@ -54,6 +54,8 @@
 #define E1_STEPS      96.1261 // Stock extruder. If you have a Tevo Titan, try 376.14.
 
 // Z-Probe type (must be none or one of them, not both)
+// If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
+// one of the other bed leveling types below.
 #define BLTOUCH
 //#define SN04 // May work with other inductive sensors. Let me know if not.
 
@@ -662,9 +664,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUAL_EXTRUDER)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS, E2_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1592.04, E1_STEPS, E2_STEPS }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1592.04, E1_STEPS }
 #endif
 
 /**
