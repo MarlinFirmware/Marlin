@@ -273,12 +273,6 @@
     #define LCD_FEEDRATE_CHAR    0x06
     #define LCD_CLOCK_CHAR       0x07
     #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #define LCD_UBL_BOXTOP_CHAR 0x01
-      #define LCD_UBL_BOXBOT_CHAR 0x02
-    #endif
-
   #endif
 
   /**
@@ -307,7 +301,10 @@
     #endif
   #endif
 
-  #ifndef BOOTSCREEN_TIMEOUT
+  // Boot screens
+  #if DISABLED(ULTRA_LCD)
+    #undef SHOW_BOOTSCREEN
+  #elif !defined(BOOTSCREEN_TIMEOUT)
     #define BOOTSCREEN_TIMEOUT 2500
   #endif
 
@@ -379,11 +376,6 @@
       #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
     #endif
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
-    #undef SERVO_DELAY
-    #define SERVO_DELAY 50
-    #ifndef BLTOUCH_DELAY
-      #define BLTOUCH_DELAY 375
-    #endif
     #undef Z_SERVO_ANGLES
     #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
@@ -433,6 +425,6 @@
 
   #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
   #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
-  #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632))
+  #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED))
 
 #endif // CONDITIONALS_LCD_H

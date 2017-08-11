@@ -54,15 +54,18 @@
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12   62   // Sanguinololu 1.2 and above
 #define BOARD_MELZI             63   // Melzi
+#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_CREALITY    89   // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
-#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_AZTEEG_X3         67   // Azteeg X3
 #define BOARD_AZTEEG_X3_PRO     68   // Azteeg X3 Pro
 #define BOARD_ANET_10           69   // Anet 1.0 (Melzi clone)
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
+#define BOARD_GT2560_REV_A      74   // Geeetech GT2560 Rev. A
+#define BOARD_GT2560_REV_A_PLUS 75   // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_3DRAG             77   // 3Drag Controller
 #define BOARD_K8200             78   // Velleman K8200 Controller (derived from 3Drag Controller)
 #define BOARD_K8400             79   // Velleman K8400 Controller (derived from 3Drag Controller)

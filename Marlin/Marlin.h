@@ -362,8 +362,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int baricuda_valve_pressure;
-  extern int baricuda_e_to_p_pressure;
+  extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -384,10 +383,15 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if ENABLED(FWRETRACT)
-  extern bool autoretract_enabled;
-  extern bool retracted[EXTRUDERS]; // extruder[n].retracted
-  extern float retract_length, retract_length_swap, retract_feedrate_mm_s, retract_zlift;
-  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate_mm_s;
+  extern bool autoretract_enabled;                 // M209 S - Autoretract switch
+  extern float retract_length,                     // M207 S - G10 Retract length
+               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
+               retract_zlift,                      // M207 Z - G10 Retract hop size
+               retract_recover_length,             // M208 S - G11 Recover length
+               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
+               swap_retract_length,                // M207 W - G10 Swap Retract length
+               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
+               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 #endif
 
 // Print job timer
