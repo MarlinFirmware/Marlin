@@ -244,7 +244,7 @@ void Sd2Card::chipSelectLow() {
  */
 bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
   csd_t csd;
-  if (!readCSD(&csd)) goto fail;
+  if (!readCSD(&csd)) goto FAIL;
   // check for single block erase
   if (!csd.v1.erase_blk_en) {
     // erase size mask
@@ -252,7 +252,7 @@ bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
     if ((firstBlock & m) != 0 || ((lastBlock + 1) & m) != 0) {
       // error card can't erase specified area
       error(SD_CARD_ERROR_ERASE_SINGLE_BLOCK);
-      goto fail;
+      goto FAIL;
     }
   }
   if (type_ != SD_CARD_TYPE_SDHC) {
@@ -263,15 +263,15 @@ bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
       || cardCommand(CMD33, lastBlock)
       || cardCommand(CMD38, 0)) {
     error(SD_CARD_ERROR_ERASE);
-    goto fail;
+    goto FAIL;
   }
   if (!waitNotBusy(SD_ERASE_TIMEOUT)) {
     error(SD_CARD_ERROR_ERASE_TIMEOUT);
-    goto fail;
+    goto FAIL;
   }
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -335,7 +335,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
     if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
       error(SD_CARD_ERROR_CMD0);
-      goto fail;
+      goto FAIL;
     }
   }
   // check SD version
@@ -347,7 +347,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
     for (uint8_t i = 0; i < 4; i++) status_ = spiRec();
     if (status_ != 0xAA) {
       error(SD_CARD_ERROR_CMD8);
-      goto fail;
+      goto FAIL;
     }
     type(SD_CARD_TYPE_SD2);
   }
@@ -358,14 +358,14 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
     // check for timeout
     if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
       error(SD_CARD_ERROR_ACMD41);
-      goto fail;
+      goto FAIL;
     }
   }
   // if SD2 read OCR register to check for SDHC card
   if (type() == SD_CARD_TYPE_SD2) {
     if (cardCommand(CMD58, 0)) {
       error(SD_CARD_ERROR_CMD58);
-      goto fail;
+      goto FAIL;
     }
     if ((spiRec() & 0xC0) == 0xC0) type(SD_CARD_TYPE_SDHC);
     // discard rest of ocr - contains allowed voltage range
@@ -380,7 +380,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
     return true;
   #endif  // SOFTWARE_SPI
 
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -486,12 +486,12 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   while ((status_ = spiRec()) == 0XFF) {
     if (((uint16_t)millis() - t0) > SD_READ_TIMEOUT) {
       error(SD_CARD_ERROR_READ_TIMEOUT);
-      goto fail;
+      goto FAIL;
     }
   }
   if (status_ != DATA_START_BLOCK) {
     error(SD_CARD_ERROR_READ);
-    goto fail;
+    goto FAIL;
   }
   // transfer data
   spiRead(dst, count);
@@ -503,7 +503,7 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
     recvCrc |= spiRec();
     if (calcCrc != recvCrc) {
       error(SD_CARD_ERROR_CRC);
-      goto fail;
+      goto FAIL;
     }
   }
 #else
@@ -515,7 +515,7 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // Send an additional dummy byte, required by Toshiba Flash Air SD Card
   spiSend(0XFF);
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   // Send an additional dummy byte, required by Toshiba Flash Air SD Card
   spiSend(0XFF);
@@ -527,10 +527,10 @@ bool Sd2Card::readRegister(uint8_t cmd, void* buf) {
   uint8_t* dst = reinterpret_cast<uint8_t*>(buf);
   if (cardCommand(cmd, 0)) {
     error(SD_CARD_ERROR_READ_REG);
-    goto fail;
+    goto FAIL;
   }
   return readData(dst, 16);
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -549,11 +549,11 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD18, blockNumber)) {
     error(SD_CARD_ERROR_CMD18);
-    goto fail;
+    goto FAIL;
   }
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -567,11 +567,11 @@ bool Sd2Card::readStop() {
   chipSelectLow();
   if (cardCommand(CMD12, 0)) {
     error(SD_CARD_ERROR_CMD12);
-    goto fail;
+    goto FAIL;
   }
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -601,10 +601,10 @@ bool Sd2Card::setSckRate(uint8_t sckRateID) {
 bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
   uint16_t t0 = millis();
   while (spiRec() != 0XFF) {
-    if (((uint16_t)millis() - t0) >= timeoutMillis) goto fail;
+    if (((uint16_t)millis() - t0) >= timeoutMillis) goto FAIL;
   }
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -621,23 +621,23 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD24, blockNumber)) {
     error(SD_CARD_ERROR_CMD24);
-    goto fail;
+    goto FAIL;
   }
-  if (!writeData(DATA_START_BLOCK, src)) goto fail;
+  if (!writeData(DATA_START_BLOCK, src)) goto FAIL;
 
   // wait for flash programming to complete
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
     error(SD_CARD_ERROR_WRITE_TIMEOUT);
-    goto fail;
+    goto FAIL;
   }
   // response is r2 so get and check two bytes for nonzero
   if (cardCommand(CMD13, 0) || spiRec()) {
     error(SD_CARD_ERROR_WRITE_PROGRAMMING);
-    goto fail;
+    goto FAIL;
   }
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -650,11 +650,11 @@ fail:
 bool Sd2Card::writeData(const uint8_t* src) {
   chipSelectLow();
   // wait for previous write to finish
-  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
-  if (!writeData(WRITE_MULTIPLE_TOKEN, src)) goto fail;
+  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto FAIL;
+  if (!writeData(WRITE_MULTIPLE_TOKEN, src)) goto FAIL;
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   error(SD_CARD_ERROR_WRITE_MULTIPLE);
   chipSelectHigh();
   return false;
@@ -670,10 +670,10 @@ bool Sd2Card::writeData(uint8_t token, const uint8_t* src) {
   status_ = spiRec();
   if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {
     error(SD_CARD_ERROR_WRITE);
-    goto fail;
+    goto FAIL;
   }
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -693,17 +693,17 @@ bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
   // send pre-erase count
   if (cardAcmd(ACMD23, eraseCount)) {
     error(SD_CARD_ERROR_ACMD23);
-    goto fail;
+    goto FAIL;
   }
   // use address if not SDHC card
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD25, blockNumber)) {
     error(SD_CARD_ERROR_CMD25);
-    goto fail;
+    goto FAIL;
   }
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   chipSelectHigh();
   return false;
 }
@@ -715,12 +715,12 @@ fail:
  */
 bool Sd2Card::writeStop() {
   chipSelectLow();
-  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
+  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto FAIL;
   spiSend(STOP_TRAN_TOKEN);
-  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
+  if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto FAIL;
   chipSelectHigh();
   return true;
-fail:
+  FAIL:
   error(SD_CARD_ERROR_STOP_TRAN);
   chipSelectHigh();
   return false;
