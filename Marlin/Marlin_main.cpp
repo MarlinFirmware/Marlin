@@ -7038,150 +7038,154 @@ inline void gcode_M42() {
 
     // Move to the first point, deploy, and probe
     const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
-    if (nan_error(t)) goto FAIL;
+    bool probing_good = !isnan(t);
 
-    randomSeed(millis());
+    if (probing_good) {
+      randomSeed(millis());
 
-    for (uint8_t n = 0; n < n_samples; n++) {
-      if (n_legs) {
-        const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
-        float angle = random(0.0, 360.0);
-        const float radius = random(
-          #if ENABLED(DELTA)
-            0.1250000000 * (DELTA_PROBEABLE_RADIUS),
-            0.3333333333 * (DELTA_PROBEABLE_RADIUS)
-          #else
-            5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
-          #endif
-        );
+      for (uint8_t n = 0; n < n_samples; n++) {
+        if (n_legs) {
+          const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
+          float angle = random(0.0, 360.0);
+          const float radius = random(
+            #if ENABLED(DELTA)
+              0.1250000000 * (DELTA_PROBEABLE_RADIUS),
+              0.3333333333 * (DELTA_PROBEABLE_RADIUS)
+            #else
+              5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
+            #endif
+          );
 
-        if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Starting radius: ", radius);
-          SERIAL_ECHOPAIR("   angle: ", angle);
-          SERIAL_ECHOPGM(" Direction: ");
-          if (dir > 0) SERIAL_ECHOPGM("Counter-");
-          SERIAL_ECHOLNPGM("Clockwise");
-        }
-
-        for (uint8_t l = 0; l < n_legs - 1; l++) {
-          double delta_angle;
-
-          if (schizoid_flag)
-            // The points of a 5 point star are 72 degrees apart.  We need to
-            // skip a point and go to the next one on the star.
-            delta_angle = dir * 2.0 * 72.0;
-
-          else
-            // If we do this line, we are just trying to move further
-            // around the circle.
-            delta_angle = dir * (float) random(25, 45);
-
-          angle += delta_angle;
-
-          while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
-            angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
-          while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
-            angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
-
-          X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
-          Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
-
-          #if DISABLED(DELTA)
-            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
-          #else
-            // If we have gone out too far, we can do a simple fix and scale the numbers
-            // back in closer to the origin.
-            while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
-              X_current *= 0.8;
-              Y_current *= 0.8;
-              if (verbose_level > 3) {
-                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
-                SERIAL_ECHOLNPAIR(", ", Y_current);
-              }
-            }
-          #endif
           if (verbose_level > 3) {
-            SERIAL_PROTOCOLPGM("Going to:");
-            SERIAL_ECHOPAIR(" X", X_current);
-            SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
+            SERIAL_ECHOPAIR("Starting radius: ", radius);
+            SERIAL_ECHOPAIR("   angle: ", angle);
+            SERIAL_ECHOPGM(" Direction: ");
+            if (dir > 0) SERIAL_ECHOPGM("Counter-");
+            SERIAL_ECHOLNPGM("Clockwise");
           }
-          do_blocking_move_to_xy(X_current, Y_current);
-        } // n_legs loop
-      } // n_legs
 
-      // Probe a single point
-      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
-      if (nan_error(sample_set[n])) goto FAIL;
+          for (uint8_t l = 0; l < n_legs - 1; l++) {
+            double delta_angle;
 
-      /**
-       * Get the current mean for the data points we have so far
-       */
-      double sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
-      mean = sum / (n + 1);
+            if (schizoid_flag)
+              // The points of a 5 point star are 72 degrees apart.  We need to
+              // skip a point and go to the next one on the star.
+              delta_angle = dir * 2.0 * 72.0;
 
-      NOMORE(min, sample_set[n]);
-      NOLESS(max, sample_set[n]);
+            else
+              // If we do this line, we are just trying to move further
+              // around the circle.
+              delta_angle = dir * (float) random(25, 45);
 
-      /**
-       * Now, use that mean to calculate the standard deviation for the
-       * data points we have so far
-       */
-      sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++)
-        sum += sq(sample_set[j] - mean);
+            angle += delta_angle;
 
-      sigma = SQRT(sum / (n + 1));
-      if (verbose_level > 0) {
-        if (verbose_level > 1) {
-          SERIAL_PROTOCOL(n + 1);
-          SERIAL_PROTOCOLPGM(" of ");
-          SERIAL_PROTOCOL((int)n_samples);
-          SERIAL_PROTOCOLPGM(": z: ");
-          SERIAL_PROTOCOL_F(sample_set[n], 3);
-          if (verbose_level > 2) {
-            SERIAL_PROTOCOLPGM(" mean: ");
-            SERIAL_PROTOCOL_F(mean, 4);
-            SERIAL_PROTOCOLPGM(" sigma: ");
-            SERIAL_PROTOCOL_F(sigma, 6);
-            SERIAL_PROTOCOLPGM(" min: ");
-            SERIAL_PROTOCOL_F(min, 3);
-            SERIAL_PROTOCOLPGM(" max: ");
-            SERIAL_PROTOCOL_F(max, 3);
-            SERIAL_PROTOCOLPGM(" range: ");
-            SERIAL_PROTOCOL_F(max-min, 3);
+            while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
+              angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
+            while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
+              angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
+
+            X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
+            Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
+
+            #if DISABLED(DELTA)
+              X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
+              Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+            #else
+              // If we have gone out too far, we can do a simple fix and scale the numbers
+              // back in closer to the origin.
+              while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
+                X_current *= 0.8;
+                Y_current *= 0.8;
+                if (verbose_level > 3) {
+                  SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
+                  SERIAL_ECHOLNPAIR(", ", Y_current);
+                }
+              }
+            #endif
+            if (verbose_level > 3) {
+              SERIAL_PROTOCOLPGM("Going to:");
+              SERIAL_ECHOPAIR(" X", X_current);
+              SERIAL_ECHOPAIR(" Y", Y_current);
+              SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
+            }
+            do_blocking_move_to_xy(X_current, Y_current);
+          } // n_legs loop
+        } // n_legs
+
+        // Probe a single point
+        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
+
+        // Break the loop if the probe fails
+        probing_good = !isnan(sample_set[n]);
+        if (!probing_good) break;
+
+        /**
+         * Get the current mean for the data points we have so far
+         */
+        double sum = 0.0;
+        for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
+        mean = sum / (n + 1);
+
+        NOMORE(min, sample_set[n]);
+        NOLESS(max, sample_set[n]);
+
+        /**
+         * Now, use that mean to calculate the standard deviation for the
+         * data points we have so far
+         */
+        sum = 0.0;
+        for (uint8_t j = 0; j <= n; j++)
+          sum += sq(sample_set[j] - mean);
+
+        sigma = SQRT(sum / (n + 1));
+        if (verbose_level > 0) {
+          if (verbose_level > 1) {
+            SERIAL_PROTOCOL(n + 1);
+            SERIAL_PROTOCOLPGM(" of ");
+            SERIAL_PROTOCOL((int)n_samples);
+            SERIAL_PROTOCOLPGM(": z: ");
+            SERIAL_PROTOCOL_F(sample_set[n], 3);
+            if (verbose_level > 2) {
+              SERIAL_PROTOCOLPGM(" mean: ");
+              SERIAL_PROTOCOL_F(mean, 4);
+              SERIAL_PROTOCOLPGM(" sigma: ");
+              SERIAL_PROTOCOL_F(sigma, 6);
+              SERIAL_PROTOCOLPGM(" min: ");
+              SERIAL_PROTOCOL_F(min, 3);
+              SERIAL_PROTOCOLPGM(" max: ");
+              SERIAL_PROTOCOL_F(max, 3);
+              SERIAL_PROTOCOLPGM(" range: ");
+              SERIAL_PROTOCOL_F(max-min, 3);
+            }
+            SERIAL_EOL();
           }
-          SERIAL_EOL();
         }
-      }
 
-    } // End of probe loop
-
-    if (STOW_PROBE()) goto FAIL;
-
-    SERIAL_PROTOCOLPGM("Finished!");
-    SERIAL_EOL();
-
-    if (verbose_level > 0) {
-      SERIAL_PROTOCOLPGM("Mean: ");
-      SERIAL_PROTOCOL_F(mean, 6);
-      SERIAL_PROTOCOLPGM(" Min: ");
-      SERIAL_PROTOCOL_F(min, 3);
-      SERIAL_PROTOCOLPGM(" Max: ");
-      SERIAL_PROTOCOL_F(max, 3);
-      SERIAL_PROTOCOLPGM(" Range: ");
-      SERIAL_PROTOCOL_F(max-min, 3);
-      SERIAL_EOL();
+      } // n_samples loop
     }
 
-    SERIAL_PROTOCOLPGM("Standard Deviation: ");
-    SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL();
-    SERIAL_EOL();
+    STOW_PROBE();
 
-    FAIL:
+    if (probing_good) {
+      SERIAL_PROTOCOLLNPGM("Finished!");
+
+      if (verbose_level > 0) {
+        SERIAL_PROTOCOLPGM("Mean: ");
+        SERIAL_PROTOCOL_F(mean, 6);
+        SERIAL_PROTOCOLPGM(" Min: ");
+        SERIAL_PROTOCOL_F(min, 3);
+        SERIAL_PROTOCOLPGM(" Max: ");
+        SERIAL_PROTOCOL_F(max, 3);
+        SERIAL_PROTOCOLPGM(" Range: ");
+        SERIAL_PROTOCOL_F(max-min, 3);
+        SERIAL_EOL();
+      }
+
+      SERIAL_PROTOCOLPGM("Standard Deviation: ");
+      SERIAL_PROTOCOL_F(sigma, 6);
+      SERIAL_EOL();
+      SERIAL_EOL();
+    }
 
     clean_up_after_endstop_or_probe_move();
 
