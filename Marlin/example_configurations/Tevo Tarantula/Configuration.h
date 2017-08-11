@@ -29,7 +29,7 @@
 // Equipment options
 //#define LARGE_BED
 #define SDSUPPORT
-#define Y_MOTOR_ON_RIGHT
+#define CHANGE_Y_DIRECTION  // If your bed homes in the wrong direction front to back, enable this.
 //#define HOTEND_E3DV6 // Genuine E3D v6 hotend. Also enables Fan Soft PWM
 
 // Offset from endpoints to get nozzle to 0,0 (front/left of bed)
@@ -39,7 +39,8 @@
 
 // Primary Extruder steps per mm
 // (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 375 then calibrate.
+#define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
+//#define CHANGE_E1_DIRECTION   // If your extruder is going backwards, enable this.
 
 // Z-Probe type (must be none or one of them)
 // If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
@@ -78,7 +79,8 @@
   #define EXTRUDER2_Y 0
   // Secondary Extruder steps per mm
   // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 375 then calibrate
+  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
+  //#define CHANGE_E2_DIRECTION   // If your secondary extruder is going backwards, enable this.
 #endif
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
@@ -895,7 +897,7 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#if ENABLED(Y_MOTOR_ON_RIGHT)
+#if ENABLED(CHANGE_Y_DIRECTION)
   #define INVERT_Y_DIR true
 #else
   #define INVERT_Y_DIR false
@@ -908,8 +910,16 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
+#if ENABLED(CHANGE_E1_DIRECTION)
+  #define INVERT_E0_DIR true
+#else
+  #define INVERT_E0_DIR false
+#endif
+#if ENABLED(CHANGE_E2_DIRECTION)
+  #define INVERT_E1_DIR true
+#else
+  #define INVERT_E1_DIR false
+#endif
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
