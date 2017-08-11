@@ -5355,6 +5355,21 @@ void home_all_axes() { gcode_G28(true); }
       }
     }
 
+    void G33_cleanup(
+      #if HOTENDS > 1
+        const uint8_t old_tool_index
+      #endif
+    ) {
+      #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
+        do_blocking_move_to_z(delta_clip_start_height);
+      #endif
+      STOW_PROBE();
+      clean_up_after_endstop_or_probe_move();
+      #if HOTENDS > 1
+        tool_change(old_tool_index, 0, true);
+      #endif
+    }
+
     inline void gcode_G33() {
 
       const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
@@ -5431,10 +5446,15 @@ void home_all_axes() { gcode_G28(true); }
       #if HAS_LEVELING
         reset_bed_level(); // After calibration bed-level data is no longer valid
       #endif
+
       #if HOTENDS > 1
         const uint8_t old_tool_index = active_extruder;
         tool_change(0, 0, true);
+        #define G33_CLEANUP() G33_cleanup(old_tool_index)
+      #else
+        #define G33_CLEANUP() G33_cleanup()
       #endif
+
       setup_for_endstop_or_probe_move();
       endstops.enable(true);
       if (!home_delta())
@@ -5453,10 +5473,8 @@ void home_all_axes() { gcode_G28(true); }
 
       #if DISABLED(PROBE_MANUALLY)
         const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
-        if (nan_error(measured_z))
-          goto FAIL;
-        else
-          home_offset[Z_AXIS] -= measured_z;
+        if (isnan(measured_z)) return G33_CLEANUP();
+        home_offset[Z_AXIS] -= measured_z;
       #endif
 
       do {
@@ -5474,7 +5492,7 @@ void home_all_axes() { gcode_G28(true); }
             z_at_pt[0] += lcd_probe_pt(0, 0);
           #else
             z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
-            if (nan_error(z_at_pt[0])) goto FAIL;
+            if (isnan(z_at_pt[0])) return G33_CLEANUP();
           #endif
         }
         if (_7p_calibration) { // probe extra center points
@@ -5484,7 +5502,7 @@ void home_all_axes() { gcode_G28(true); }
               z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
             #else
               z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-              if (nan_error(z_at_pt[0])) goto FAIL;
+              if (isnan(z_at_pt[0])) return G33_CLEANUP();
             #endif
           }
           z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
@@ -5505,7 +5523,7 @@ void home_all_axes() { gcode_G28(true); }
                 z_at_pt[axis] += lcd_probe_pt(cos(a) * r, sin(a) * r);
               #else
                 z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-                if (nan_error(z_at_pt[axis])) goto FAIL;
+                if (isnan(z_at_pt[axis])) return G33_CLEANUP();
               #endif
             }
             zig_zag = !zig_zag;
@@ -5705,16 +5723,7 @@ void home_all_axes() { gcode_G28(true); }
       }
       while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
 
-      FAIL:
-
-      #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
-        do_blocking_move_to_z(delta_clip_start_height);
-      #endif
-      STOW_PROBE();
-      clean_up_after_endstop_or_probe_move();
-      #if HOTENDS > 1
-        tool_change(old_tool_index, 0, true);
-      #endif
+      G33_CLEANUP();
     }
 
   #endif // DELTA_AUTO_CALIBRATION
