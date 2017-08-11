@@ -8,6 +8,8 @@ files from the "example configurations/TEVO Tarantula" folder.
 Open configuration.h file in a text editor and make the changes at the top (EasyConfig)
 section of the file. You should not have to make any other changes.
 
+See [this video](https://youtu.be/-sQ8p00pG5E) for an excellent tutorial on using this firmware.
+
 Do you have a configuration for the Tarantula that is not covered in the EasyConfig? Would
 you like to share it with others by having it added to the EasyConfig?
 If so, please contact me at jb.github (at) rcairgallery (dot) com and we'll work something

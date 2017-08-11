@@ -24,6 +24,9 @@
     NOTE: Don't forget to do an M502 followed by an M500 any time you
       upload the firmware.
 
+    See https://youtu.be/-sQ8p00pG5E for an excellent tutorial on using
+    this firmware.
+
 ***********************************************************************/
 
 // Equipment options
