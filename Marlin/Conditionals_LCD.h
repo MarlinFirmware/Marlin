@@ -377,7 +377,7 @@
     #endif
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
     #undef SERVO_DELAY
-    #define SERVO_DELAY 50
+    #define SERVO_DELAY { 50 }
     #ifndef BLTOUCH_DELAY
       #define BLTOUCH_DELAY 375
     #endif
