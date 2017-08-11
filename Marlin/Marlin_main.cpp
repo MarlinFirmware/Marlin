@@ -2222,7 +2222,14 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  static bool do_probe_move(float z, float fr_mm_m) {
+  /**
+   * @brief Used by run_z_probe to do a single Z probe move.
+   *
+   * @param  z        Z destination
+   * @param  fr_mm_s  Feedrate in mm/s
+   * @return true to indicate an error
+   */
+  static bool do_probe_move(const float z, const float fr_mm_m) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
@@ -2241,7 +2248,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Check to see if the probe was triggered
     const bool probe_triggered = TEST(Endstops::endstop_hit_bits,
-      #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
         Z_MIN
       #else
         Z_MIN_PROBE
@@ -2273,9 +2280,14 @@ static void clean_up_after_endstop_or_probe_move() {
     return !probe_triggered;
   }
 
-  // Do a single Z probe and return with current_position[Z_AXIS]
-  // at the height where the probe triggered.
-  static float run_z_probe(bool printable=true) {
+  /**
+   * @details Used by probe_pt to do a single Z probe.
+   *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
+   *
+   * @param  short_move Flag for a shorter probe move towards the bed
+   * @return The raw Z position where the probe was triggered
+   */
+  static float run_z_probe(const bool short_move=true) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -2313,7 +2325,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // move down slowly to find bed
-    if (do_probe_move(-10 + (printable ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
+    if (do_probe_move(-10 + (short_move ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
@@ -2409,6 +2421,12 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     feedrate_mm_s = old_feedrate_mm_s;
+
+    if (isnan(measured_z)) {
+      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+    }
 
     return measured_z;
   }
@@ -3775,9 +3793,7 @@ inline void gcode_G4() {
     // If an endstop was not hit, then damage can occur if homing is continued.
     // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
     // not set correctly.
-    if (!(TEST(Endstops::endstop_hit_bits, X_MAX) ||
-          TEST(Endstops::endstop_hit_bits, Y_MAX) ||
-          TEST(Endstops::endstop_hit_bits, Z_MAX))) {
+    if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
       LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
@@ -4125,20 +4141,6 @@ void home_all_axes() { gcode_G28(true); }
   }
 
 #endif
-
-#if HAS_BED_PROBE
-
-  static bool nan_error(const float v) {
-    const bool is_nan = isnan(v);
-    if (is_nan) {
-      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-    }
-    return is_nan;
-  }
-
-#endif // HAS_BED_PROBE
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -4675,17 +4677,15 @@ void home_all_axes() { gcode_G28(true); }
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      if (!faux) setup_for_endstop_or_probe_move();
-
-      //xProbe = yProbe = measured_z = 0;
-
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
         if (DEPLOY_PROBE()) {
           planner.abl_enabled = abl_should_enable;
-          goto FAIL;
+          return;
         }
       #endif
+
+      if (!faux) setup_for_endstop_or_probe_move();
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -4907,7 +4907,7 @@ void home_all_axes() { gcode_G28(true); }
         bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
         // Outer loop is Y with PROBE_Y_FIRST disabled
-        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END; PR_OUTER_VAR++) {
+        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
           int8_t inStart, inStop, inInc;
 
@@ -4944,9 +4944,9 @@ void home_all_axes() { gcode_G28(true); }
 
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
-            if (nan_error(measured_z)) {
+            if (isnan(measured_z)) {
               planner.abl_enabled = abl_should_enable;
-              goto FAIL;
+              break;
             }
 
             #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -4980,14 +4980,14 @@ void home_all_axes() { gcode_G28(true); }
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
-          if (nan_error(measured_z)) {
+          if (isnan(measured_z)) {
             planner.abl_enabled = abl_should_enable;
-            goto FAIL;
+            break;
           }
           points[i].z = measured_z;
         }
 
-        if (!dryrun) {
+        if (!dryrun && !isnan(measured_z)) {
           vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
           if (planeNormal.z < 0) {
             planeNormal.x *= -1;
@@ -5005,7 +5005,7 @@ void home_all_axes() { gcode_G28(true); }
       // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
       if (STOW_PROBE()) {
         planner.abl_enabled = abl_should_enable;
-        goto FAIL;
+        measured_z = NAN;
       }
     }
     #endif // !PROBE_MANUALLY
@@ -5032,114 +5032,91 @@ void home_all_axes() { gcode_G28(true); }
     #endif
 
     // Calculate leveling, print reports, correct the position
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    if (!isnan(measured_z)) {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (!dryrun) extrapolate_unprobed_bed_level();
-      print_bilinear_leveling_grid();
+        if (!dryrun) extrapolate_unprobed_bed_level();
+        print_bilinear_leveling_grid();
 
-      refresh_bed_level();
+        refresh_bed_level();
 
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_print();
-      #endif
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_print();
+        #endif
 
-    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-      // For LINEAR leveling calculate matrix, print reports, correct the position
+        // For LINEAR leveling calculate matrix, print reports, correct the position
 
-      /**
-       * solve the plane equation ax + by + d = z
-       * A is the matrix with rows [x y 1] for all the probed points
-       * B is the vector of the Z positions
-       * the normal vector to the plane is formed by the coefficients of the
-       * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-       * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
-       */
-      float plane_equation_coefficients[3];
+        /**
+         * solve the plane equation ax + by + d = z
+         * A is the matrix with rows [x y 1] for all the probed points
+         * B is the vector of the Z positions
+         * the normal vector to the plane is formed by the coefficients of the
+         * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+         * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+         */
+        float plane_equation_coefficients[3];
 
-      finish_incremental_LSF(&lsf_results);
-      plane_equation_coefficients[0] = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
-      plane_equation_coefficients[1] = -lsf_results.B;  // but that is not yet tested.
-      plane_equation_coefficients[2] = -lsf_results.D;
+        finish_incremental_LSF(&lsf_results);
+        plane_equation_coefficients[0] = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
+        plane_equation_coefficients[1] = -lsf_results.B;  // but that is not yet tested.
+        plane_equation_coefficients[2] = -lsf_results.D;
 
-      mean /= abl2;
+        mean /= abl2;
 
-      if (verbose_level) {
-        SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
-        SERIAL_PROTOCOLPGM(" b: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
-        SERIAL_PROTOCOLPGM(" d: ");
-        SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
-        SERIAL_EOL();
-        if (verbose_level > 2) {
-          SERIAL_PROTOCOLPGM("Mean of sampled points: ");
-          SERIAL_PROTOCOL_F(mean, 8);
+        if (verbose_level) {
+          SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
+          SERIAL_PROTOCOLPGM(" b: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
+          SERIAL_PROTOCOLPGM(" d: ");
+          SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
           SERIAL_EOL();
+          if (verbose_level > 2) {
+            SERIAL_PROTOCOLPGM("Mean of sampled points: ");
+            SERIAL_PROTOCOL_F(mean, 8);
+            SERIAL_EOL();
+          }
         }
-      }
 
-      // Create the matrix but don't correct the position yet
-      if (!dryrun)
-        planner.bed_level_matrix = matrix_3x3::create_look_at(
-          vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eliminate the '-' here and up above
-        );
+        // Create the matrix but don't correct the position yet
+        if (!dryrun)
+          planner.bed_level_matrix = matrix_3x3::create_look_at(
+            vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1)    // We can eliminate the '-' here and up above
+          );
 
-      // Show the Topography map if enabled
-      if (do_topography_map) {
+        // Show the Topography map if enabled
+        if (do_topography_map) {
 
-        SERIAL_PROTOCOLLNPGM("\nBed Height Topography:\n"
-                               "   +--- BACK --+\n"
-                               "   |           |\n"
-                               " L |    (+)    | R\n"
-                               " E |           | I\n"
-                               " F | (-) N (+) | G\n"
-                               " T |           | H\n"
-                               "   |    (-)    | T\n"
-                               "   |           |\n"
-                               "   O-- FRONT --+\n"
-                               " (0,0)");
+          SERIAL_PROTOCOLLNPGM("\nBed Height Topography:\n"
+                                 "   +--- BACK --+\n"
+                                 "   |           |\n"
+                                 " L |    (+)    | R\n"
+                                 " E |           | I\n"
+                                 " F | (-) N (+) | G\n"
+                                 " T |           | H\n"
+                                 "   |    (-)    | T\n"
+                                 "   |           |\n"
+                                 "   O-- FRONT --+\n"
+                                 " (0,0)");
 
-        float min_diff = 999;
-
-        for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
-          for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
-            int ind = indexIntoAB[xx][yy];
-            float diff = eqnBVector[ind] - mean,
-                  x_tmp = eqnAMatrix[ind + 0 * abl2],
-                  y_tmp = eqnAMatrix[ind + 1 * abl2],
-                  z_tmp = 0;
-
-            apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
-
-            NOMORE(min_diff, eqnBVector[ind] - z_tmp);
-
-            if (diff >= 0.0)
-              SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
-            else
-              SERIAL_PROTOCOLCHAR(' ');
-            SERIAL_PROTOCOL_F(diff, 5);
-          } // xx
-          SERIAL_EOL();
-        } // yy
-        SERIAL_EOL();
-
-        if (verbose_level > 3) {
-          SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
+          float min_diff = 999;
 
           for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
+              float diff = eqnBVector[ind] - mean,
+                    x_tmp = eqnAMatrix[ind + 0 * abl2],
                     y_tmp = eqnAMatrix[ind + 1 * abl2],
                     z_tmp = 0;
 
               apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-              float diff = eqnBVector[ind] - z_tmp - min_diff;
+              NOMORE(min_diff, eqnBVector[ind] - z_tmp);
+
               if (diff >= 0.0)
-                SERIAL_PROTOCOLPGM(" +");
-              // Include + for column alignment
+                SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
               else
                 SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
@@ -5147,87 +5124,110 @@ void home_all_axes() { gcode_G28(true); }
             SERIAL_EOL();
           } // yy
           SERIAL_EOL();
-        }
-      } //do_topography_map
 
-    #endif // AUTO_BED_LEVELING_LINEAR
+          if (verbose_level > 3) {
+            SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
 
-    #if ABL_PLANAR
+            for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
+              for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
+                int ind = indexIntoAB[xx][yy];
+                float x_tmp = eqnAMatrix[ind + 0 * abl2],
+                      y_tmp = eqnAMatrix[ind + 1 * abl2],
+                      z_tmp = 0;
 
-      // For LINEAR and 3POINT leveling correct the current position
+                apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-      if (verbose_level > 0)
-        planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
+                float diff = eqnBVector[ind] - z_tmp - min_diff;
+                if (diff >= 0.0)
+                  SERIAL_PROTOCOLPGM(" +");
+                // Include + for column alignment
+                else
+                  SERIAL_PROTOCOLCHAR(' ');
+                SERIAL_PROTOCOL_F(diff, 5);
+              } // xx
+              SERIAL_EOL();
+            } // yy
+            SERIAL_EOL();
+          }
+        } //do_topography_map
 
-      if (!dryrun) {
-        //
-        // Correct the current XYZ position based on the tilted plane.
-        //
+      #endif // AUTO_BED_LEVELING_LINEAR
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
-        #endif
+      #if ABL_PLANAR
 
-        float converted[XYZ];
-        COPY(converted, current_position);
+        // For LINEAR and 3POINT leveling correct the current position
 
-        planner.abl_enabled = true;
-        planner.unapply_leveling(converted); // use conversion machinery
-        planner.abl_enabled = false;
+        if (verbose_level > 0)
+          planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
 
-        // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
-          && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-        ) {
-          const float simple_z = current_position[Z_AXIS] - measured_z;
+        if (!dryrun) {
+          //
+          // Correct the current XYZ position based on the tilted plane.
+          //
+
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Z from Probe:", simple_z);
-              SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
-              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
-            }
+            if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
           #endif
-          converted[Z_AXIS] = simple_z;
+
+          float converted[XYZ];
+          COPY(converted, current_position);
+
+          planner.abl_enabled = true;
+          planner.unapply_leveling(converted); // use conversion machinery
+          planner.abl_enabled = false;
+
+          // Use the last measured distance to the bed, if possible
+          if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
+            && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+          ) {
+            const float simple_z = current_position[Z_AXIS] - measured_z;
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                SERIAL_ECHOPAIR("Z from Probe:", simple_z);
+                SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
+                SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
+              }
+            #endif
+            converted[Z_AXIS] = simple_z;
+          }
+
+          // The rotated XY and corrected Z are now current_position
+          COPY(current_position, converted);
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+          #endif
         }
 
-        // The rotated XY and corrected Z are now current_position
-        COPY(current_position, converted);
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+        if (!dryrun) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+          #endif
+
+          // Unapply the offset because it is going to be immediately applied
+          // and cause compensation movement in Z
+          current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
+          #endif
+        }
+
+      #endif // ABL_PLANAR
+
+      #ifdef Z_PROBE_END_SCRIPT
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
         #endif
-      }
-
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-      if (!dryrun) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
-        #endif
-
-        // Unapply the offset because it is going to be immediately applied
-        // and cause compensation movement in Z
-        current_position[Z_AXIS] -= bilinear_z_offset(current_position);
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
-        #endif
-      }
-
-    #endif // ABL_PLANAR
-
-    #ifdef Z_PROBE_END_SCRIPT
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+        enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
+        stepper.synchronize();
       #endif
-      enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
-      stepper.synchronize();
-    #endif
 
-    // Auto Bed Leveling is complete! Enable if possible.
-    planner.abl_enabled = dryrun ? abl_should_enable : true;
-
-    FAIL:
+      // Auto Bed Leveling is complete! Enable if possible.
+      planner.abl_enabled = dryrun ? abl_should_enable : true;
+    } // !isnan(measured_z)
 
     // Restore state after probing
     if (!faux) clean_up_after_endstop_or_probe_move();
@@ -5272,7 +5272,7 @@ void home_all_axes() { gcode_G28(true); }
 
     const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
 
-    if (!nan_error(measured_z)) {
+    if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
       SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
       SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
