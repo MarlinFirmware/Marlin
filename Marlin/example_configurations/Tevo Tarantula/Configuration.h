@@ -72,16 +72,13 @@
 
 //Enable this to turn on support for a dual nozzle with two separate extruders
 //#define DUAL_EXTRUDER
-
-#if ENABLED(DUAL_EXTRUDER)
-  // Offset for second nozzle from first nozzle
-  #define EXTRUDER2_X 10
-  #define EXTRUDER2_Y 0
-  // Secondary Extruder steps per mm
-  // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-  #define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
-  //#define CHANGE_E2_DIRECTION   // If your secondary extruder is going backwards, enable this.
-#endif
+// Offset for second nozzle from first nozzle
+#define EXTRUDER2_X 10
+#define EXTRUDER2_Y 0
+// Secondary Extruder steps per mm
+// (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+#define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
+//#define CHANGE_E2_DIRECTION   // If your secondary extruder is going backwards, enable this.
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
 #define  hot_Kp 11.20
