@@ -672,9 +672,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUAL_EXTRUDER)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1592.04, E1_STEPS, E2_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS, E2_STEPS }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1592.04, E1_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS }
 #endif
 
 /**
