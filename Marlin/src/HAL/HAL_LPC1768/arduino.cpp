@@ -140,17 +140,27 @@ bool digitalRead(int pin) {
   return LPC_GPIO(pin_map[pin].port)->FIOPIN & LPC_PIN(pin_map[pin].pin) ? 1 : 0;
 }
 
-void analogWrite(int pin, int pin_status) { //todo: Hardware PWM
-  /*
-  if (pin == P2_4) {
-    LPC_PWM1->MR5 = pin_status; // set value
-    LPC_PWM1->LER = _BV(5); // set latch
+void analogWrite(int pin, int pwm_value) {
+/*
+  if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
+    return;
+
+  int old_pin = pin;
+  int old_value = pwm_value;
+
+  if(old_value != 0) {
+    for(uint16_t x = 0; x <= 5000; x++) {
+      LPC_GPIO(pin_map[pin].port)->FIOSET = LPC_PIN(pin_map[pin].pin);
+      //digitalWrite(old_pin, HIGH);
+      delayMicroseconds(old_value);
+      LPC_GPIO(pin_map[pin].port)->FIOCLR = LPC_PIN(pin_map[pin].pin);
+      //pinMode(pin, OUTPUT);
+      //digitalWrite(old_pin, LOW);
+      delayMicroseconds(255 - old_value);
+    }
   }
-  else if (pin == P2_5) {
-    LPC_PWM1->MR6 = pin_status;
-    LPC_PWM1->LER = _BV(6);
-  }
-  */
+*/
+
 }
 
 extern bool HAL_adc_finished();
@@ -175,7 +185,6 @@ void eeprom_read_block (void *__dst, const void *__src, size_t __n) { }
 
 void eeprom_update_block (const void *__src, void *__dst, size_t __n) { }
 
-/***/
 char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s) {
   char format_string[20];
   snprintf(format_string, 20, "%%%d.%df", __width, __prec);
@@ -193,6 +202,10 @@ int32_t random(int32_t min, int32_t max) {
 
 void randomSeed(uint32_t value) {
   srand(value);
+}
+
+int map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 #endif // TARGET_LPC1768
