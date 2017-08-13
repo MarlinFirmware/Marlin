@@ -3494,6 +3494,12 @@ inline void gcode_G0_G1(
 
 #endif // ARC_SUPPORT
 
+void dwell(millis_t time) {
+  refresh_cmd_timeout();
+  time += previous_cmd_ms;
+  while (PENDING(millis(), time)) idle();
+}
+
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
  */
@@ -3504,12 +3510,10 @@ inline void gcode_G4() {
   if (parser.seenval('S')) dwell_ms = parser.value_millis_from_seconds(); // seconds to wait
 
   stepper.synchronize();
-  refresh_cmd_timeout();
-  dwell_ms += previous_cmd_ms;  // keep track of when we started waiting
 
   if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
-  while (PENDING(millis(), dwell_ms)) idle();
+  dwell(dwell_ms);
 }
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
@@ -4083,7 +4087,13 @@ inline void gcode_G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1
-    tool_change(old_tool_index, 0, true);
+    tool_change(old_tool_index, 0,
+      #if ENABLED(PARKING_EXTRUDER)
+        false // fetch the previous toolhead
+      #else
+        true
+      #endif
+    );
   #endif
 
   lcd_refresh();
@@ -6017,16 +6027,10 @@ inline void gcode_G92() {
    */
 
   // Wait for spindle to come up to speed
-  inline void delay_for_power_up() {
-    refresh_cmd_timeout();
-    while (PENDING(millis(), SPINDLE_LASER_POWERUP_DELAY + previous_cmd_ms)) idle();
-  }
+  inline void delay_for_power_up() { dwell(SPINDLE_LASER_POWERUP_DELAY); }
 
   // Wait for spindle to stop turning
-  inline void delay_for_power_down() {
-    refresh_cmd_timeout();
-    while (PENDING(millis(), SPINDLE_LASER_POWERDOWN_DELAY + previous_cmd_ms + 1)) idle();
-  }
+  inline void delay_for_power_down() { dwell(SPINDLE_LASER_POWERDOWN_DELAY); }
 
   /**
    * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
@@ -8697,7 +8701,7 @@ inline void gcode_M211() {
     if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
     if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
 
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
       if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
     #endif
 
@@ -8708,7 +8712,7 @@ inline void gcode_M211() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
@@ -10244,6 +10248,29 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
+#if ENABLED(PARKING_EXTRUDER)
+
+  #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
+    #define PE_MAGNET_ON_STATE !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
+  #else
+    #define PE_MAGNET_ON_STATE PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
+  #endif
+
+  void pe_set_magnet(const uint8_t extruder_num, const uint8_t state) {
+    switch (extruder_num) {
+      case 1: OUT_WRITE(SOL1_PIN, state); break;
+      default: OUT_WRITE(SOL0_PIN, state); break;
+    }
+    #if PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
+      dwell(PARKING_EXTRUDER_SOLENOIDS_DELAY);
+    #endif
+  }
+
+  inline void pe_activate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, PE_MAGNET_ON_STATE); }
+  inline void pe_deactivate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, !PE_MAGNET_ON_STATE); }
+
+#endif // PARKING_EXTRUDER
+
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
@@ -10271,8 +10298,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       if (tmp_extruder != active_extruder) {
         if (!no_move && axis_unhomed_error()) {
-          SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("No move on toolchange");
+          #endif
         }
 
         // Save current position to destination, for use later
@@ -10382,7 +10411,117 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
 
           // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
+
         #else // !DUAL_X_CARRIAGE
+
+          #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
+            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+            float z_raise = 0;
+            if (!no_move) {
+
+              const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
+                          midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0] + hotend_offset[X_AXIS][active_extruder],
+                          grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
+                                    + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
+              /**
+               *  Steps:
+               *    1. raise Z-Axis to have enough clearance
+               *    2. move to park poition of old extruder
+               *    3. disengage magnetc field, wait for delay
+               *    4. move near new extruder
+               *    5. engage magnetic field for new extruder
+               *    6. move to parking incl. offset of new extruder
+               *    7. lower Z-Axis
+               */
+
+              // STEP 1
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("Starting Autopark");
+                if (DEBUGGING(LEVELING)) DEBUG_POS("current position:", current_position);
+              #endif
+              z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
+              current_position[Z_AXIS] += z_raise;
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("(1) Raise Z-Axis ");
+                if (DEBUGGING(LEVELING)) DEBUG_POS("Moving to Raised Z-Position", current_position);
+              #endif
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+              stepper.synchronize();
+
+              // STEP 2
+              current_position[X_AXIS] = parkingposx[active_extruder] + hotend_offset[X_AXIS][active_extruder];
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPAIR("(2) Park extruder ", active_extruder);
+                if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
+              #endif
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+              stepper.synchronize();
+
+              // STEP 3
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("(3) Disengage magnet ");
+              #endif
+              pe_deactivate_magnet(active_extruder);
+
+              // STEP 4
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("(4) Move to position near new extruder");
+              #endif
+              current_position[X_AXIS] += (active_extruder == 0 ? 10 : -10); // move 10mm away from parked extruder
+
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) DEBUG_POS("Moving away from parked extruder", current_position);
+              #endif
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+              stepper.synchronize();
+
+              // STEP 5
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("(5) Engage magnetic field");
+              #endif
+
+              #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
+                pe_activate_magnet(active_extruder); //just save power for inverted magnets
+              #endif
+              pe_activate_magnet(tmp_extruder);
+
+              // STEP 6
+              current_position[X_AXIS] = grabpos + (tmp_extruder == 0 ? (+10) : (-10));
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+              current_position[X_AXIS] = grabpos;
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPAIR("(6) Unpark extruder ", tmp_extruder);
+                if (DEBUGGING(LEVELING)) DEBUG_POS("Move UnparkPos", current_position);
+              #endif
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
+              stepper.synchronize();
+
+              // Step 7
+              current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("(7) Move midway between hotends");
+                if (DEBUGGING(LEVELING)) DEBUG_POS("Move midway to new extruder", current_position);
+              #endif
+              planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+              stepper.synchronize();
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                SERIAL_ECHOLNPGM("Autopark done.");
+              #endif
+            }
+            else { // nomove == true
+              // Only engage magnetic field for new extruder
+              pe_activate_magnet(tmp_extruder);
+              #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
+                pe_activate_magnet(active_extruder); // Just save power for inverted magnets
+              #endif
+            }
+            current_position[Z_AXIS] -= hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]; // Apply Zoffset
+
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) DEBUG_POS("Applying Z-offset", current_position);
+            #endif
+
+          #endif // dualParking extruder
 
           #if ENABLED(SWITCHING_NOZZLE)
             #define DONT_SWITCH (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR)
@@ -10487,7 +10626,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
+          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(PARKING_EXTRUDER)
             for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
               #if HAS_POSITION_SHIFT
                 position_shift[i] += xydiff[i];
@@ -10529,7 +10668,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       stepper.synchronize();
 
-      #if ENABLED(EXT_SOLENOID)
+      #if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
         disable_all_solenoids();
         enable_solenoid_on_active_extruder();
       #endif // EXT_SOLENOID
@@ -10684,11 +10823,11 @@ void process_next_command() {
       #endif // CNC_WORKSPACE_PLANES
 
       #if ENABLED(INCH_MODE_SUPPORT)
-        case 20: //G20: Inch Mode
+        case 20: // G20: Inch Mode
           gcode_G20();
           break;
 
-        case 21: //G21: MM Mode
+        case 21: // G21: MM Mode
           gcode_G21();
           break;
       #endif // INCH_MODE_SUPPORT
@@ -10835,7 +10974,7 @@ void process_next_command() {
         #endif
 
         #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
-          case 34: //M34 - Set SD card sorting options
+          case 34: // M34: Set SD card sorting options
             gcode_M34(); break;
         #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
 
@@ -11085,7 +11224,7 @@ void process_next_command() {
       case 204: // M204: Set acceleration
         gcode_M204();
         break;
-      case 205: //M205: Set advanced settings
+      case 205: // M205: Set advanced settings
         gcode_M205();
         break;
 
@@ -13351,6 +13490,16 @@ void setup() {
 
   #if ENABLED(SWITCHING_NOZZLE)
     move_nozzle_servo(0);  // Initialize nozzle servo
+  #endif
+  
+  #if ENABLED(PARKING_EXTRUDER)
+    #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
+      pe_activate_magnet(0);
+      pe_activate_magnet(1);
+    #else 
+      pe_deactivate_magnet(0);
+      pe_deactivate_magnet(1);
+    #endif
   #endif
 }
 
