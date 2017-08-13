@@ -112,4 +112,6 @@ void randomSeed(uint32_t);
 
 char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
 
+int map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
+
 #endif // __ARDUINO_DEF_H__
