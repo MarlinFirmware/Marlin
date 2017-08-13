@@ -175,18 +175,19 @@
   //#define HOTEND_OFFSET_Z { 0.0, 0.0 }
 #endif
 
-
+// Two separate X-carriages with extuders which connect via a magnatic docking mechanism to a moving part
 #define PARKING_EXTRUDER //DualParking extruder
 #if ENABLED(PARKING_EXTRUDER)
-	#define PARKING_EXTRUDER_SOLENOIDS_INVERT    		//invert solenoids (defined = solenoid not magnetc with applied volatge)
-	#define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE	LOW	// LOW: coil is energized on LOW signal on PIN
-	#define PARKING_EXTRUDER_SOLENOIDS_DELAY 250  		//Delay for magnetc filed
-	#define PARKING_EXTRUDER_PARKINGPOSX {-78,184} 		//X-postitons whre to park the extruder
-	#define PARKING_EXTRUDER_GRABDISTANCE 1  			// additional distance to grab the extruder
-	#define PARKING_EXTRUDER_SECURITY_RAISE 5           // Z-Raise before parking
-	#define HOTEND_OFFSET_Z { 0.0, 1.3 }
+  #define PARKING_EXTRUDER_SOLENOIDS_INVERT    		//invert solenoids (defined = solenoid not magnetc with applied volatge)
+  #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE	LOW	// LOW: coil is energized on LOW signal on PIN
+  #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250  		//Delay for magnetc filed
+  #define PARKING_EXTRUDER_PARKINGPOSX {-78,184} 		//X-postitons whre to park the extruder
+  #define PARKING_EXTRUDER_GRABDISTANCE 1  			// additional distance to grab the extruder
+  #define PARKING_EXTRUDER_SECURITY_RAISE 5           // Z-Raise before parking
+  #define HOTEND_OFFSET_Z { 0.0, 1.3 }
 #endif
-	/**
+
+/**
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
