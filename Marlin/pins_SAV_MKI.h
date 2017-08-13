@@ -69,7 +69,6 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #define BOARD_NAME              "SAV MkI"
 
-#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 //
@@ -155,10 +154,6 @@
 #define BEEPER_PIN         -1
 #define LCD_PINS_RS        -1
 #define LCD_PINS_ENABLE    -1
-#define LCD_PINS_D4        -1
-#define LCD_PINS_D5        -1
-#define LCD_PINS_D6        -1
-#define LCD_PINS_D7        -1
 
 #if ENABLED(SAV_3DLCD)
   // For LCD SHIFT register LCD
