@@ -932,7 +932,7 @@ void Stepper::isr() {
     // Is the next advance ISR scheduled before the next main ISR?
     if (nextAdvanceISR <= nextMainISR) {
       // Set up the next interrupt
-      OCR1A = nextAdvanceISR;
+      HAL_timer_set_count(STEP_TIMER_NUM, nextAdvanceISR);
       // New interval for the next main ISR
       if (nextMainISR) nextMainISR -= nextAdvanceISR;
       // Will call Stepper::advance_isr on the next interrupt
@@ -940,7 +940,7 @@ void Stepper::isr() {
     }
     else {
       // The next main ISR comes first
-      OCR1A = nextMainISR;
+    HAL_timer_set_count(STEP_TIMER_NUM, nextMainISR);
       // New interval for the next advance ISR, if any
       if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
         nextAdvanceISR -= nextMainISR;
@@ -949,7 +949,14 @@ void Stepper::isr() {
     }
 
     // Don't run the ISR faster than possible
-    NOLESS(OCR1A, TCNT1 + 16);
+         #ifdef CPU_32_BIT
+        // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
+        uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM);
+        uint32_t stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+        HAL_timer_set_count(STEP_TIMER_NUM, stepper_timer_count < stepper_timer_current_count ? stepper_timer_current_count : stepper_timer_count);
+      #else
+        NOLESS(OCR1A, TCNT1 + 16);
+      #endif
 
     // Restore original ISR settings
     HAL_ENABLE_ISRs();
