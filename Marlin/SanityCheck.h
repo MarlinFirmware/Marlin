@@ -417,6 +417,44 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Parking Extruder requirements
+ */
+
+#if ENABLED(PARKING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "PARKING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
+  #elif EXTRUDERS != 2
+    #error "PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif !PIN_EXISTS(SOL0) || !PIN_EXISTS(SOL1)
+    #error "PARKING_EXTRUDER requires SOL0 and SOL1 Pin "
+  #elif !defined PARKING_EXTRUDER_PARKINGPOSX
+    #error "Definition of PARKING_EXTRUDER_PARKINGPOSX is required"
+  #elif !defined PARKING_EXTRUDER_GRABDISTANCE
+	#define PARKING_EXTRUDER_GRABDISTANCE 0
+  #elif !defined PARKING_EXTRUDER_SECURITY_RAISE
+	#error "Definition of PARKING_EXTRUDER_SECURITY_RAISE is required."
+  #elif ENABLED(EXT_SOLENOID)
+	#error "PARKING_EXTRUDER and EXT_SOLENOID are incompatible pins are used twice."
+  #endif
+	#if !defined PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
+		#define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
+	#endif
+	#if PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE == HIGH
+		#define PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE = LOW
+	#elif PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE == LOW
+		#define PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE = HIGH
+	#else
+		#error "Definition of PARKING_EXTRUDER_SOLENOIDS_PINS is invalid
+	#endif
+#endif
+
+
+ 
+ 
+ 
+ /**
  * Limited number of servos
  */
 #if NUM_SERVOS > 4
