@@ -10230,7 +10230,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
       }
     #elif !ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-      if(extuder_num == 0){
+      if(extruder_num == 0){
         OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
       }else{
         OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
@@ -10393,6 +10393,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           
           const float parkingposx[] = PARKING_EXTRUDER_PARKINGPOSX;
           const float midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0]+hotend_offset[X_AXIS][active_extruder];
+          const float grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]+ (tmp_extruder==0 ? (-PARKING_EXTRUDER_GRABDISTANCE) : (PARKING_EXTRUDER_GRABDISTANCE));
           /*
             Steps:
               1. raise Z-Axis to have enough clearence
@@ -10435,33 +10436,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
            //STEP 3
           SERIAL_ECHOLNPGM("STEP3: Disengaging magnetic field ");
           pe_deactivate_magnet(active_extruder);
-          /*
-          #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-            if(active_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }
-          #else
-            if(active_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }
-          #endif
-          
-          #if defined PARKING_EXTRUDER_SOLENOIDS_DELAY 
-            millis_t magnetic_delay = PARKING_EXTRUDER_SOLENOIDS_DELAY;
-            refresh_cmd_timeout();
-            magnetic_delay += previous_cmd_ms;  // keep track of when we started waiting
-            while (PENDING(millis(), magnetic_delay)) idle();
-          #endif*/
            //STEP 4
           SERIAL_ECHOLNPGM("STEP4: Moving to mid position between boths hotends");
-          current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][active_extruder];
+          current_position[X_AXIS] += (active_extruder == 0? (+10): (-10)); //move 10mm away from parked extruder
+   
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              DEBUG_POS("Moving MidPos new extruder", current_position);
+              DEBUG_POS("Moving away from parked extruder", current_position);
             }
           #endif
           planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
@@ -10469,32 +10450,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
             pe_activate_magnet(active_extruder); //just save power for inverted magnets
           #endif
-           //STEP 5
+          //STEP 5
           SERIAL_ECHOLNPGM("STEP5: Engaging magnetic field");
           pe_activate_magnet(tmp_extruder);
-          /*
-          #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-              if(active_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }
-          #endif
-          #if !ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-            if(tmp_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }
-          #endif
-          #if defined PARKING_EXTRUDER_SOLENOIDS_DELAY 
-            refresh_cmd_timeout();
-            magnetic_delay = PARKING_EXTRUDER_SOLENOIDS_DELAY + previous_cmd_ms;
-            while (PENDING(millis(), magnetic_delay)) idle();
-          #endif*/
           //STEP 6
           SERIAL_ECHOLNPAIR("STEP6: Unparking of extruder ", tmp_extruder);
-          current_position[X_AXIS] = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]+ (tmp_extruder==0 ? (-PARKING_EXTRUDER_GRABDISTANCE) : (PARKING_EXTRUDER_GRABDISTANCE));
+          current_position[X_AXIS] = grabpos + (tmp_extruder == 0? (+10): (-10));
+          planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+          current_position[X_AXIS] = grabpos;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               DEBUG_POS("Moving UnparkPos", current_position);
@@ -10520,20 +10483,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
             pe_activate_magnet(active_extruder); //just save power for inverted magnets
           #endif
-          /*
-          #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-              if(active_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_INACTIVE);
-            }
-          #elif !ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-            if(tmp_extruder == 0){
-              OUT_WRITE(SOL0_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }else{
-              OUT_WRITE(SOL1_PIN, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-            }
-          #endif*/
         }
         current_position[Z_AXIS] -= hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]; //Apply Zoffset
           #if ENABLED(DEBUG_LEVELING_FEATURE) 
