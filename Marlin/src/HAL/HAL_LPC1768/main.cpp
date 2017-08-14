@@ -30,6 +30,7 @@ extern "C" {
 #include <stdarg.h>
 #include "arduino.h"
 #include "serial.h"
+#include "LPC1768_PWM.h"
 
 static __INLINE uint32_t SysTick_Config(uint32_t ticks) {
   if (ticks > SysTick_LOAD_RELOAD_Msk)
@@ -85,6 +86,9 @@ int main(void) {
   usb_serial.printf("\n\nRe-ARM (LPC1768 @ %dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
 
   HAL_timer_init();
+
+  extern void LPC1768_PWM_init();
+  LPC1768_PWM_init();
 
   setup();
   while (true) {

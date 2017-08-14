@@ -140,27 +140,34 @@ bool digitalRead(int pin) {
   return LPC_GPIO(pin_map[pin].port)->FIOPIN & LPC_PIN(pin_map[pin].pin) ? 1 : 0;
 }
 
-void analogWrite(int pin, int pwm_value) {
-/*
+
+
+void analogWrite(int pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
+
+  extern bool LPC1768_PWM_attach_pin(uint8_t, uint32_t, uint32_t, uint8_t);
+  extern bool LPC1768_PWM_write(uint8_t, uint32_t);
+  extern bool LPC1768_PWM_detach_pin(uint8_t);
+  #define MR0_MARGIN 200       // if channel value too close to MR0 the system locks up
+
+  static bool out_of_PWM_slots = false;
+
   if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
     return;
 
-  int old_pin = pin;
-  int old_value = pwm_value;
-
-  if(old_value != 0) {
-    for(uint16_t x = 0; x <= 5000; x++) {
-      LPC_GPIO(pin_map[pin].port)->FIOSET = LPC_PIN(pin_map[pin].pin);
-      //digitalWrite(old_pin, HIGH);
-      delayMicroseconds(old_value);
-      LPC_GPIO(pin_map[pin].port)->FIOCLR = LPC_PIN(pin_map[pin].pin);
-      //pinMode(pin, OUTPUT);
-      //digitalWrite(old_pin, LOW);
-      delayMicroseconds(255 - old_value);
+  uint value = MAX(MIN(pwm_value, 255), 0);
+  if (value == 0 || value == 255) {  // treat as digital pin
+    LPC1768_PWM_detach_pin(pin);    // turn off PWM
+    digitalWrite(pin, value);
+  }
+  else {
+    if (LPC1768_PWM_attach_pin(pin, 1, (LPC_PWM1->MR0 - MR0_MARGIN),  0xff))   // locks up if get too close to MR0 value
+      LPC1768_PWM_write(pin, map(value, 1, 254, 1, (LPC_PWM1->MR0 - MR0_MARGIN)));  // map 1-254 onto PWM range
+    else {                                                                 // out of PWM channels
+      if (!out_of_PWM_slots) usb_serial.printf(".\nWARNING - OUT OF PWM CHANNELS\n.\n");  //only warn once
+      out_of_PWM_slots = true;
+      digitalWrite(pin, value);  // treat as a digital pin if out of channels
     }
   }
-*/
-
 }
 
 extern bool HAL_adc_finished();
