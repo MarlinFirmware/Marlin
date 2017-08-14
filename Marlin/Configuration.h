@@ -175,16 +175,19 @@
   //#define HOTEND_OFFSET_Z { 0.0, 0.0 }
 #endif
 
-// Two separate X-carriages with extuders which connect via a magnatic docking mechanism to a moving part
-#define PARKING_EXTRUDER //DualParking extruder
+/**
+ * Two separate X-carriages with extruders which connect to a moving part via a magnetic docking mechanism
+ * you need to define the SOL1_PIN and SOL2_PIN
+ */
+//#define PARKING_EXTRUDER //DualParking extruder
 #if ENABLED(PARKING_EXTRUDER)
-  #define PARKING_EXTRUDER_SOLENOIDS_INVERT    		//invert solenoids (defined = solenoid not magnetc with applied volatge)
-  #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE	LOW	// LOW: coil is energized on LOW signal on PIN
-  #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250  		//Delay for magnetc filed
-  #define PARKING_EXTRUDER_PARKINGPOSX {-78,184} 		//X-postitons whre to park the extruder
-  #define PARKING_EXTRUDER_GRABDISTANCE 1  			// additional distance to grab the extruder
-  #define PARKING_EXTRUDER_SECURITY_RAISE 5           // Z-Raise before parking
-  #define HOTEND_OFFSET_Z { 0.0, 1.3 }
+  #define PARKING_EXTRUDER_SOLENOIDS_INVERT              // invert solenoids (defined = solenoid not magnetc with applied voltage)
+  #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW     // LOW: coil is energized on LOW signal on PIN
+  #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250           // delay(0..2000 ms) for magnetic field, no delay if 0 or not defined.
+  #define PARKING_EXTRUDER_PARKINGPOSX {-78,184}         // X-postions where to park the extruder
+  #define PARKING_EXTRUDER_GRABDISTANCE 1                // mm to move beyond the parking point to grab the extruder
+  #define PARKING_EXTRUDER_SECURITY_RAISE 5              // Z-raise before parking
+  #define HOTEND_OFFSET_Z { 0.0, 1.3 }                   // Z-offsets between the two hotends, first one has to be 0.0
 #endif
 
 /**
