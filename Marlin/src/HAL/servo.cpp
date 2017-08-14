@@ -56,7 +56,7 @@
 
 #include "HAL.h"
 
-#if HAS_SERVOS && !IS_32BIT_TEENSY
+#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768))
 
 //#include <Arduino.h>
 

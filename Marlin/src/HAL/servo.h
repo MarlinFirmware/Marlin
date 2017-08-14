@@ -71,6 +71,10 @@
 
 #if IS_32BIT_TEENSY
   #include "HAL_TEENSY35_36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
+
+#elif defined(TARGET_LPC1768)
+  #include "HAL_LPC1768/LPC1768_Servo.cpp"
+
 #else
 
 #include <inttypes.h>
