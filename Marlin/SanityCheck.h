@@ -435,6 +435,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #define PARKING_EXTRUDER_GRABDISTANCE 0
   #elif !defined PARKING_EXTRUDER_SECURITY_RAISE
     #error "Definition of PARKING_EXTRUDER_SECURITY_RAISE is required."
+  #elif PARKING_EXTRUDER_SECURITY_RAISE < 0
+    #error "PARKING_EXTRUDER_SECURITY_RAISE needs to be 0 or higher."
   #elif ENABLED(EXT_SOLENOID)
     #error "PARKING_EXTRUDER and EXT_SOLENOID are incompatible pins are used twice."
   #endif
@@ -448,8 +450,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #else
     #error "Definition of PARKING_EXTRUDER_SOLENOIDS_PINS is invalid"
   #endif
-  #if !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY,0,2000)
-    #error "PARKING_EXTRUDER_SOLENOIDS_DELAY should be within 0 and 2000ms"
+  #if defined PARKING_EXTRUDER_SOLENOIDS_DELAY
+    #if !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY,0,2000)
+      #error "PARKING_EXTRUDER_SOLENOIDS_DELAY should be within 0 and 2000ms"
+    #endif
   #endif
 #endif
 

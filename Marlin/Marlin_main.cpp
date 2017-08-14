@@ -10392,20 +10392,20 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         if(!no_move){
           
           const float parkingposx[] = PARKING_EXTRUDER_PARKINGPOSX;
-          const float midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0]+hotend_offset[X_AXIS][active_extruder];
-          const float grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]+ (tmp_extruder==0 ? (-PARKING_EXTRUDER_GRABDISTANCE) : (PARKING_EXTRUDER_GRABDISTANCE));
+          const float midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0] + hotend_offset[X_AXIS][active_extruder];
+          const float grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
+                              + (tmp_extruder==0 ? (-PARKING_EXTRUDER_GRABDISTANCE) : (PARKING_EXTRUDER_GRABDISTANCE));
           /*
             Steps:
               1. raise Z-Axis to have enough clearence
               2. move to park poition of old extuder
               3. disengage magnetc field , wait for delay 
-              4. move half way to new extuder
+              4. move near new extuder
               5. engage magnetic field for new extuder
               6. move to parking incl. offset of new extuder
               7. lower Z-Axis
           */
           //STEP 1
-          // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
           SERIAL_ECHOLNPGM("Starting Autoparking");
           #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -10437,8 +10437,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           SERIAL_ECHOLNPGM("STEP3: Disengaging magnetic field ");
           pe_deactivate_magnet(active_extruder);
            //STEP 4
-          SERIAL_ECHOLNPGM("STEP4: Moving to mid position between boths hotends");
-          current_position[X_AXIS] += (active_extruder == 0? (+10): (-10)); //move 10mm away from parked extruder
+          SERIAL_ECHOLNPGM("STEP4: Moving to position near new extruder");
+          current_position[X_AXIS] += (active_extruder == 0 ? (+10) : (-10)); //move 10mm away from parked extruder
    
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -10447,15 +10447,15 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
           stepper.synchronize(); //Wait for end of move
+          //STEP 5
+          SERIAL_ECHOLNPGM("STEP5: Engaging magnetic field");
           #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
             pe_activate_magnet(active_extruder); //just save power for inverted magnets
           #endif
-          //STEP 5
-          SERIAL_ECHOLNPGM("STEP5: Engaging magnetic field");
           pe_activate_magnet(tmp_extruder);
           //STEP 6
           SERIAL_ECHOLNPAIR("STEP6: Unparking of extruder ", tmp_extruder);
-          current_position[X_AXIS] = grabpos + (tmp_extruder == 0? (+10): (-10));
+          current_position[X_AXIS] = grabpos + (tmp_extruder == 0 ? (+10) : (-10));
           planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
           current_position[X_AXIS] = grabpos;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -10465,7 +10465,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
           stepper.synchronize(); //Wait for end of move
-          
           // Step 7
           SERIAL_ECHOLNPGM("STEP7: moving to mid position between boths hotends");
           current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
@@ -10476,7 +10475,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
           stepper.synchronize(); //Wait for end of move
-          SERIAL_ECHOLNPGM("Finished autoparking");
+          SERIAL_ECHOLNPGM("Finished autoparking procedure");
         }else {    //   nomove == true
           //Only engage magnetic field for new extuder
           pe_activate_magnet(tmp_extruder);
