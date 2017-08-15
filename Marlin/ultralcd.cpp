@@ -2720,11 +2720,16 @@ void kill_screen(const char* lcd_msg) {
 
   screenFunc_t _manual_move_func_ptr;
 
-  void lcd_move_menu_10mm() { move_menu_scale = 10.0; lcd_goto_screen(_manual_move_func_ptr); }
-  void lcd_move_menu_1mm()  { move_menu_scale =  1.0; lcd_goto_screen(_manual_move_func_ptr); }
-  void lcd_move_menu_01mm() { move_menu_scale =  0.1; lcd_goto_screen(_manual_move_func_ptr); }
+  void _goto_manual_move(const float scale) {
+    defer_return_to_status = true;
+    move_menu_scale = scale;
+    lcd_goto_screen(_manual_move_func_ptr);
+  }
+  void lcd_move_menu_10mm() { _goto_manual_move(10.0); }
+  void lcd_move_menu_1mm()  { _goto_manual_move( 1.0); }
+  void lcd_move_menu_01mm() { _goto_manual_move( 0.1); }
 
-  void _lcd_move_distance_menu(AxisEnum axis, screenFunc_t func) {
+  void _lcd_move_distance_menu(const AxisEnum axis, const screenFunc_t func) {
     _manual_move_func_ptr = func;
     START_MENU();
     if (LCD_HEIGHT >= 4) {

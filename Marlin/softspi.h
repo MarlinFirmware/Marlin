@@ -455,7 +455,7 @@ void badPinCheck(uint8_t pin) {
 static inline __attribute__((always_inline))
 void fastBitWriteSafe(volatile uint8_t* address, uint8_t bit, bool level) {
   uint8_t oldSREG;
-  if (address > (uint8_t*)0X5F) {
+  if (address > (uint8_t*)0x5F) {
     oldSREG = SREG;
     cli();
   }
@@ -464,7 +464,7 @@ void fastBitWriteSafe(volatile uint8_t* address, uint8_t bit, bool level) {
   } else {
     *address &= ~(1 << bit);
   }
-  if (address > (uint8_t*)0X5F) {
+  if (address > (uint8_t*)0x5F) {
     SREG = oldSREG;
   }
 }
@@ -488,7 +488,7 @@ bool fastDigitalRead(uint8_t pin) {
 static inline __attribute__((always_inline))
 void fastDigitalToggle(uint8_t pin) {
   badPinCheck(pin);
-    if (pinMap[pin].pin > (uint8_t*)0X5F) {
+    if (pinMap[pin].pin > (uint8_t*)0x5F) {
       // must write bit to high address port
       *pinMap[pin].pin = 1 << pinMap[pin].bit;
     } else {

@@ -2359,10 +2359,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
     const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (printable) {
-      if (!position_is_reachable_by_probe_xy(lx, ly)) return NAN;
-    }
-    else if (!position_is_reachable_xy(nx, ny)) return NAN;
+    if (printable
+      ? !position_is_reachable_xy(nx, ny)
+      : !position_is_reachable_by_probe_xy(lx, ly)
+    ) return NAN;
+
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 

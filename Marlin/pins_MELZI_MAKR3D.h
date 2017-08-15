@@ -24,7 +24,7 @@
  * Melzi with ATmega1284 (MaKr3d version) pin assignments
  */
 
-#define BOARD_NAME "Melzi ATmega1284"
+#define BOARD_NAME "Melzi (ATmega1284)"
 
 #ifdef __AVR_ATmega1284P__
   #define LARGE_FLASH true
