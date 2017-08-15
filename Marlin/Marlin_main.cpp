@@ -7081,8 +7081,7 @@ inline void gcode_M104() {
     SERIAL_PROTOCOLCHAR(
       #if HAS_TEMP_BED && HAS_TEMP_HOTEND
         e == -1 ? 'B' : 'T'
-
-                #elif HAS_TEMP_HOTEND
+      #elif HAS_TEMP_HOTEND
         'T'
       #else
         'B'
