@@ -692,6 +692,21 @@
   #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
 
   /**
+   *Part Cooling fan multipliexer
+   */
+  #ifndef FANMUX0_PIN
+    #define FANMUX0_PIN -1
+  #endif
+  #ifndef FANMUX1_PIN
+    #define FANMUX1_PIN -1
+  #endif
+  #ifndef FANMUX2_PIN
+    #define FANMUX2_PIN -1
+  #endif
+  #if PIN_EXISTS(FANMUX0)
+    #define HAS_FANMUX
+  #endif
+ /**
    * Servos and probes
    */
 
