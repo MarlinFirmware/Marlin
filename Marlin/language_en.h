@@ -717,13 +717,22 @@
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
 #endif
 #ifndef MSG_DELTA_SETTINGS
-  #define MSG_DELTA_SETTINGS                  _UxGT("Show Delta Settings")
+  #define MSG_DELTA_SETTINGS                  _UxGT("Delta Settings")
 #endif
 #ifndef MSG_DELTA_AUTO_CALIBRATE
   #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration")
 #endif
 #ifndef MSG_DELTA_HEIGHT_CALIBRATE
   #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
+#endif
+#ifndef MSG_DELTA_DIAG_ROG
+  #define MSG_DELTA_DIAG_ROG                  _UxGT("Diag Rod")
+#endif
+#ifndef MSG_DELTA_HEIGHT
+  #define MSG_DELTA_HEIGHT                    _UxGT("Height")
+#endif
+#ifndef MSG_DELTA_RADIUS
+  #define MSG_DELTA_RADIUS                    _UxGT("Radius")
 #endif
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")
@@ -839,6 +848,12 @@
 #endif
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
   #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
+#endif
+#ifndef MSG_ERR_HOMING_FAILED
+  #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
+#endif
+#ifndef MSG_ERR_PROBING_FAILED
+  #define MSG_ERR_PROBING_FAILED              _UxGT("Probing failed")
 #endif
 
 //
