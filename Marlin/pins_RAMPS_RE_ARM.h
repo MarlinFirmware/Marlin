@@ -232,6 +232,28 @@
 
   #define BEEPER_PIN          37  // not 5V tolerant
 
+  //#define BTN_EN1             31  // J3-2 & AUX-4
+  #define BTN_EN2             33  // J3-4 & AUX-4
+  #define BTN_ENC             35  // J3-3 & AUX-4
+
+  #define SD_DETECT_PIN       49  // not 5V tolerant   J3-1 & AUX-3
+  #define KILL_PIN            41  // J5-4 & AUX-4
+  #define LCD_PINS_RS         16  // J3-7 & AUX-4
+  #define LCD_SDSS            16  // J3-7 & AUX-4
+  #define LCD_BACKLIGHT_PIN   16  // J3-7 & AUX-4 - only used on DOGLCD controllers
+  #define LCD_PINS_ENABLE     51  // (MOSI) J3-10 & AUX-3
+  #define LCD_PINS_D4         52  // (SCK)  J3-9 & AUX-3
+
+  #define LCD_PINS_D5         59  // J3-8 & AUX-2
+  #define DOGLCD_A0           59  // J3-8 & AUX-2
+  #define LCD_PINS_D6         63  // J5-3 & AUX-2
+  #define DOGLCD_CS           63  // J5-3 & AUX-2
+  #define LCD_PINS_D7          6  // (SERVO1) J5-1 & SERVO connector  
+  
+  #define LCD_PINS_D5         71  // ENET_MDIO
+  #define LCD_PINS_D6         73  // ENET_RX_ER
+  #define LCD_PINS_D7         75  // ENET_RXD1
+ 
   #if ENABLED(NEWPANEL)
     #if ENABLED(REPRAPWORLD_KEYPAD)
       #define SHIFT_OUT         51  // (MOSI) J3-10 & AUX-3
@@ -245,7 +267,7 @@
     //#define SHIFT_EN            41  // J5-4 & AUX-4
   #endif
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT)
     #define SDCARD_SORT_ALPHA           // Using SORT feature to keep one directory level in RAM
                                         // When going up/down directory levels the SD card is
                                         // accessed but the garbage/lines are removed when the
@@ -263,38 +285,43 @@
     #endif
   #endif
 
-  #define BTN_EN1             31  // J3-2 & AUX-4
-  #define BTN_EN2             33  // J3-4 & AUX-4
-  #define BTN_ENC             35  // J3-3 & AUX-4
+ #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+//    #define LCD_SCREEN_ROT_180
+    
+    #define SOFTWARE_SPI  // temp to see if it fixes the  "not found" error
+    
+    #undef  BEEPER_PIN
+    #define BEEPER_PIN          37  // may change if cable changes
+    
+    #define BTN_EN1             31  // J3-2 & AUX-4
+    #define BTN_EN2             33  // J3-4 & AUX-4
+    #define BTN_ENC             35  // J3-3 & AUX-4
 
-  #define SD_DETECT_PIN       49  // not 5V tolerant   J3-1 & AUX-3
-  #define KILL_PIN            41  // J5-4 & AUX-4
-  #define LCD_PINS_RS         16  // J3-7 & AUX-4
-  #define LCD_SDSS            16  // J3-7 & AUX-4
-  #define LCD_BACKLIGHT_PIN   16  // J3-7 & AUX-4 - only used on DOGLCD controllers
-  #define LCD_PINS_ENABLE     51  // (MOSI) J3-10 & AUX-3
-  #define LCD_PINS_D4         52  // (SCK)  J3-9 & AUX-3
+    #define SD_DETECT_PIN       49  // not 5V tolerant   J3-1 & AUX-3
+    #define KILL_PIN            41  // J5-4 & AUX-4
 
-  #define LCD_PINS_D5         71  // ENET_MDIO
-  #define DOGLCD_A0           59  // J3-8 & AUX-2
-  #define LCD_PINS_D6         73  // ENET_RX_ER
-  #define DOGLCD_CS           63  // J5-3 & AUX-2
-  #define LCD_PINS_D7         75  // ENET_RXD1
+    #undef  DOGLCD_CS
+    #define DOGLCD_CS           16 
+    #undef  LCD_BACKLIGHT_PIN   //16  // J3-7 & AUX-4 - only used on DOGLCD controllers
+    #undef  LCD_PINS_ENABLE     //51  // (MOSI) J3-10 & AUX-3
+    #undef  LCD_PINS_D4         //52  // (SCK)  J3-9 & AUX-3
 
-
-  //#define MISO                50  // system defined J3-10 & AUX-3
-  //#define MOSI                51  // system defined J3-10 & AUX-3
-  //#define SCK                 52  // system defined J3-9 & AUX-3
-  //#define SS_PIN              53  // system defined J3-5 & AUX-3 - sometimes called SDSS
-
-
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    #define LCD_SCREEN_ROT_180
-
-    #define STAT_LED_RED_PIN  20  // I2C connector
-    #define STAT_LED_BLUE_PIN 21  // I2C connector
+    #undef  LCD_PINS_D5         //59  // J3-8 & AUX-2
+    #define DOGLCD_A0           59  // J3-8 & AUX-2
+    #undef  LCD_PINS_D6         //63  // J5-3 & AUX-2
+    #undef  LCD_PINS_D7          //6  // (SERVO1) J5-1 & SERVO connector
+    #define DOGLCD_SCK SCK_PIN 
+    #define DOGLCD_MOSI MOSI_PIN
+ 
+    #define STAT_LED_BLUE_PIN   63  // may change if cable changes
+    #define STAT_LED_RED_PIN     6  // may change if cable changes
   #endif
-
+  //#define MISO_PIN            50  // system defined J3-10 & AUX-3
+  //#define MOSI_PIN            51  // system defined J3-10 & AUX-3
+  //#define SCK_PIN             52  // system defined J3-9 & AUX-3
+  //#define SS_PIN              53  // system defined J3-5 & AUX-3 - sometimes called SDSS
+  
+  
   #if ENABLED(MINIPANEL)
     // GLCD features
     //#define LCD_CONTRAST   190
