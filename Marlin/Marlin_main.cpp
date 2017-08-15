@@ -7136,6 +7136,7 @@ inline void gcode_M104() {
         SERIAL_PROTOCOL(thermalManager.getHeaterPower(e));
       }
     #endif
+    SERIAL_EOL();
   }
 #endif
 
