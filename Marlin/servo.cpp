@@ -68,6 +68,7 @@
 
 static ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 static volatile int8_t Channel[_Nbr_16timers ];             // counter for the servo being pulsed for each timer (or -1 if refresh interval)
+static uint16_t servo_delay[NUM_SERVOS] = SERVO_DELAY;
 
 uint8_t ServoCount = 0;                                     // the total number of attached servos
 
@@ -310,7 +311,7 @@ bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 void Servo::move(int value) {
   if (this->attach(0) >= 0) {
     this->write(value);
-    delay(SERVO_DELAY);
+    delay(servo_delay[this->servoIndex]);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
       this->detach();
     #endif

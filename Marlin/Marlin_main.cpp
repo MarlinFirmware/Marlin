@@ -2103,7 +2103,6 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
-      safe_delay(BLTOUCH_DELAY);
     }
 
     void set_bltouch_deployed(const bool deploy) {
@@ -6712,10 +6711,8 @@ inline void gcode_M42() {
       bool deploy_state, stow_state;
       for (uint8_t i = 0; i < 4; i++) {
         servo[probe_index].move(z_servo_angle[0]); //deploy
-        safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
         servo[probe_index].move(z_servo_angle[1]); //stow
-        safe_delay(500);
         stow_state = READ(PROBE_TEST_PIN);
       }
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
@@ -10174,7 +10171,6 @@ inline void gcode_M999() {
     #endif
     {
       MOVE_SERVO(_SERVO_NR, angles[e]);
-      safe_delay(500);
     }
   }
 #endif // SWITCHING_EXTRUDER
@@ -10184,7 +10180,6 @@ inline void gcode_M999() {
     const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
     stepper.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
-    safe_delay(500);
   }
 #endif
 
