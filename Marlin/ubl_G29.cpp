@@ -1132,15 +1132,12 @@
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
       err_flag = true;
     }
-    if (!WITHIN(RAW_X_POSITION(g29_x_pos), X_MIN_BED, X_MAX_BED)) {
-      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
-      err_flag = true;
-    }
 
-    if (!WITHIN(RAW_Y_POSITION(g29_y_pos), Y_MIN_BED, Y_MAX_BED)) {
-      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
-      err_flag = true;
-    }
+    if (!WITHIN(RAW_X_POSITION(g29_x_pos), X_MIN_BED, X_MAX_BED))  // if X & Y are not valid, use center of the bed values
+      g29_x_pos = (X_MIN_BED + X_MAX_BED) / 2.0;
+
+    if (!WITHIN(RAW_Y_POSITION(g29_y_pos), Y_MIN_BED, Y_MAX_BED))  // if X & Y are not valid, use center of the bed values
+      g29_y_pos = (Y_MIN_BED + Y_MAX_BED) / 2.0;
 
     if (err_flag) return UBL_ERR;
 
