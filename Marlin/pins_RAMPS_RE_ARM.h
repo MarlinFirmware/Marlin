@@ -232,7 +232,7 @@
 
   #define BEEPER_PIN          37  // not 5V tolerant
 
-  //#define BTN_EN1             31  // J3-2 & AUX-4
+  #define BTN_EN1             31  // J3-2 & AUX-4
   #define BTN_EN2             33  // J3-4 & AUX-4
   #define BTN_ENC             35  // J3-3 & AUX-4
 
@@ -244,15 +244,15 @@
   #define LCD_PINS_ENABLE     51  // (MOSI) J3-10 & AUX-3
   #define LCD_PINS_D4         52  // (SCK)  J3-9 & AUX-3
 
-  #define LCD_PINS_D5         59  // J3-8 & AUX-2
   #define DOGLCD_A0           59  // J3-8 & AUX-2
-  #define LCD_PINS_D6         63  // J5-3 & AUX-2
   #define DOGLCD_CS           63  // J5-3 & AUX-2
-  #define LCD_PINS_D7          6  // (SERVO1) J5-1 & SERVO connector  
+
+#ifdef ULTIPANEL
   
   #define LCD_PINS_D5         71  // ENET_MDIO
   #define LCD_PINS_D6         73  // ENET_RX_ER
   #define LCD_PINS_D7         75  // ENET_RXD1
+#endif
  
   #if ENABLED(NEWPANEL)
     #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -336,12 +336,14 @@
 //
 // Ethernet pins
 //
-#define ENET_MOC    70  // J12-3
+#ifndef ULTIPANEL
 #define ENET_MDIO   71  // J12-4
-#define REF_CLK     72  // J12-5
 #define ENET_RX_ER  73  // J12-6
-#define ENET_RXD0   74  // J12-7
 #define ENET_RXD1   75  // J12-8
+#endif
+#define ENET_MOC    70  // J12-3
+#define REF_CLK     72  // J12-5
+#define ENET_RXD0   74  // J12-7
 #define ENET_CRS    76  // J12-9
 #define ENET_TX_EN  77  // J12-10
 #define ENET_TXD0   78  // J12-11
