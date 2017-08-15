@@ -221,6 +221,19 @@
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 /**
+ * Part cooling fan multiplexer
+ * 
+ * thise feture allows you to control external multiplexer to multiplex 
+ * the fan output to different part cooling fans
+ * the multiplexer is switched during the tool change.
+ * you need to define at least the FANMUX0_PIN
+ * set to FANMUX-Pins to -1 to disable the feature
+ */
+#define FANMUX0_PIN -1
+#define FANMUX1_PIN -1
+#define FANMUX2_PIN -1
+
+/**
  * M355 Case Light on-off / brightness
  */
 //#define CASE_LIGHT_ENABLE
