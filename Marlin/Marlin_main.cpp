@@ -7097,6 +7097,7 @@ inline void gcode_M104() {
       SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
       SERIAL_PROTOCOLCHAR(')');
     #endif
+    SERIAL_EOL();
   }
 
   void print_heaterstates() {

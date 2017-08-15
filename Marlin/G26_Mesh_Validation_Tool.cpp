@@ -785,7 +785,7 @@
               if (ubl_lcd_clicked()) return exit_from_g26();
             #endif
 
-            if (PENDING(millis(), next)) {
+            if (ELAPSED(millis(), next)) {
               next = millis() + 5000UL;
               print_heaterstates();
             }
@@ -806,7 +806,7 @@
         if (ubl_lcd_clicked()) return exit_from_g26();
       #endif
 
-      if (PENDING(millis(), next)) {
+      if (ELAPSED(millis(), next)) {
         next = millis() + 5000UL;
         print_heaterstates();
       }
