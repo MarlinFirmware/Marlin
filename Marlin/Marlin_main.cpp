@@ -6192,32 +6192,25 @@ inline void gcode_M17() {
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
       #endif
     }
-    stepper.synchronize();
 
     // Save current position
+    stepper.synchronize();
     COPY(resume_position, current_position);
-    set_destination_to_current();
 
     if (retract) {
       // Initial retract before move to filament change position
+      set_destination_to_current();
       destination[E_AXIS] += retract;
       RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+      stepper.synchronize();
     }
 
     // Lift Z axis
-    if (z_lift > 0) {
-      destination[Z_AXIS] += z_lift;
-      NOMORE(destination[Z_AXIS], Z_MAX_POS);
-      RUNPLAN(PAUSE_PARK_Z_FEEDRATE);
-    }
+    if (z_lift > 0)
+      do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
 
     // Move XY axes to filament exchange position
-    destination[X_AXIS] = x_pos;
-    destination[Y_AXIS] = y_pos;
-
-    clamp_to_software_endstops(destination);
-    RUNPLAN(PAUSE_PARK_XY_FEEDRATE);
-    stepper.synchronize();
+    do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
 
     if (unload_length != 0) {
       if (show_lcd) {
@@ -6228,6 +6221,7 @@ inline void gcode_M17() {
       }
 
       // Unload filament
+      set_destination_to_current();
       destination[E_AXIS] += unload_length;
       RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
       stepper.synchronize();
@@ -6355,7 +6349,6 @@ inline void gcode_M17() {
 
       // Load filament
       destination[E_AXIS] += load_length;
-
       RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
       stepper.synchronize();
     }
@@ -6398,18 +6391,9 @@ inline void gcode_M17() {
     destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
     planner.set_e_position_mm(current_position[E_AXIS]);
 
-    #if IS_KINEMATIC
-      // Move XYZ to starting position
-      planner.buffer_line_kinematic(resume_position, PAUSE_PARK_XY_FEEDRATE, active_extruder);
-    #else
-      // Move XY to starting position, then Z
-      destination[X_AXIS] = resume_position[X_AXIS];
-      destination[Y_AXIS] = resume_position[Y_AXIS];
-      RUNPLAN(PAUSE_PARK_XY_FEEDRATE);
-      destination[Z_AXIS] = resume_position[Z_AXIS];
-      RUNPLAN(PAUSE_PARK_Z_FEEDRATE);
-    #endif
-    stepper.synchronize();
+    // Move XY to starting position, then Z
+    do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
+    do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
@@ -8292,14 +8276,14 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
-      #if defined(PAUSE_PARK_RETRACT_LENGTH) && PAUSE_PARK_RETRACT_LENGTH > 0
+      #ifdef PAUSE_PARK_RETRACT_LENGTH
         - (PAUSE_PARK_RETRACT_LENGTH)
       #endif
     ;
 
     // Lift Z axis
     const float z_lift = parser.linearval('Z')
-      #if PAUSE_PARK_Z_ADD > 0
+      #ifdef PAUSE_PARK_Z_ADD
         + PAUSE_PARK_Z_ADD
       #endif
     ;
@@ -8322,7 +8306,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       #endif
     ;
 
-    const bool job_running = print_job_timer.isRunning();
+    #if DISABLED(SDSUPPORT)
+      const bool job_running = print_job_timer.isRunning();
+    #endif
 
     if (pause_print(retract, z_lift, x_pos, y_pos)) {
       #if DISABLED(SDSUPPORT)
@@ -9642,14 +9628,14 @@ inline void gcode_M502() {
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
-      #if defined(PAUSE_PARK_RETRACT_LENGTH) && PAUSE_PARK_RETRACT_LENGTH > 0
+      #ifdef PAUSE_PARK_RETRACT_LENGTH
         - (PAUSE_PARK_RETRACT_LENGTH)
       #endif
     ;
 
     // Lift Z axis
     const float z_lift = parser.linearval('Z', 0
-      #if defined(PAUSE_PARK_Z_ADD) && PAUSE_PARK_Z_ADD > 0
+      #ifdef PAUSE_PARK_Z_ADD
         + PAUSE_PARK_Z_ADD
       #endif
     );
