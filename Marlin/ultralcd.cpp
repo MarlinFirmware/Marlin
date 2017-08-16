@@ -546,6 +546,11 @@ uint16_t max_display_update_time = 0;
       lcd_return_to_status();
   }
 
+  void lcd_goto_previous_menu_no_defer() {
+    defer_return_to_status = false;
+    lcd_goto_previous_menu();
+  }
+
 #endif // ULTIPANEL
 
 /**
@@ -971,7 +976,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(BABYSTEPPING)
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+      if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
@@ -994,7 +999,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       void lcd_babystep_zoffset() {
-        if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+        if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
         defer_return_to_status = true;
         ENCODER_DIRECTION_NORMAL();
         if (encoderPosition) {
@@ -1545,7 +1550,52 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
-#if ENABLED(LCD_BED_LEVELING)
+
+  #if ENABLED(LEVEL_BED_CORNERS)
+
+    /**
+     * Level corners, starting in the front-left corner.
+     */
+    static int8_t bed_corner;
+    void _lcd_goto_next_corner() {
+      line_to_z(LOGICAL_Z_POSITION(4.0));
+      switch (bed_corner) {
+        case 0:
+          current_position[X_AXIS] = X_MIN_BED + 10;
+          current_position[Y_AXIS] = Y_MIN_BED + 10;
+          break;
+        case 1:
+          current_position[X_AXIS] = X_MAX_BED - 10;
+          break;
+        case 2:
+          current_position[Y_AXIS] = Y_MAX_BED - 10;
+          break;
+        case 3:
+          current_position[X_AXIS] = X_MIN_BED + 10;
+          break;
+      }
+      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+      line_to_z(LOGICAL_Z_POSITION(0.0));
+      if (++bed_corner > 3) bed_corner = 0;
+    }
+
+    void _lcd_corner_submenu() {
+      START_MENU();
+      MENU_ITEM(function, MSG_NEXT_CORNER, _lcd_goto_next_corner);
+      MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
+      END_MENU();
+    }
+
+    void _lcd_level_bed_corners() {
+      defer_return_to_status = true;
+      lcd_goto_screen(_lcd_corner_submenu);
+      bed_corner = 0;
+      _lcd_goto_next_corner();
+    }
+
+  #endif // LEVEL_BED_CORNERS
+
+  #if ENABLED(LCD_BED_LEVELING)
 
     /**
      *
@@ -1788,10 +1838,11 @@ void kill_screen(const char* lcd_msg) {
      * << Prepare
      *    Auto Home           (if homing needed)
      *    Leveling On/Off     (if data exists, and homed)
-     *    Level Bed
      *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
      *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
      *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
+     *    Level Bed >
+     *    Level Corners >     (if homed)
      *    Load Settings       (Req: EEPROM_SETTINGS)
      *    Save Settings       (Req: EEPROM_SETTINGS)
      */
@@ -1825,6 +1876,12 @@ void kill_screen(const char* lcd_msg) {
       #endif
 
       MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
+
+      #if ENABLED(LEVEL_BED_CORNERS)
+        // Move to the next corner for leveling
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+      #endif
 
       #if ENABLED(EEPROM_SETTINGS)
         MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
@@ -2404,8 +2461,14 @@ void kill_screen(const char* lcd_msg) {
         if (!g29_in_progress)
       #endif
       MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
-    #elif PLANNER_LEVELING
-      MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
+    #else
+      #if PLANNER_LEVELING
+        MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
+      #endif
+      #if ENABLED(LEVEL_BED_CORNERS)
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+      #endif
     #endif
 
     #if HAS_M206_COMMAND
@@ -2538,8 +2601,7 @@ void kill_screen(const char* lcd_msg) {
       wait_for_user = true;
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
-      defer_return_to_status = false;
-      lcd_goto_previous_menu();
+      lcd_goto_previous_menu_no_defer();
       return current_position[Z_AXIS];
     }
 

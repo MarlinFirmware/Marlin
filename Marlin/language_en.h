@@ -156,6 +156,12 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+#ifndef MSG_LEVEL_CORNERS
+  #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
+#endif
+#ifndef MSG_NEXT_CORNER
+  #define MSG_NEXT_CORNER                     _UxGT("Next corner")
+#endif
 #ifndef MSG_EDITING_STOPPED
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
