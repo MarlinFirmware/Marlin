@@ -328,11 +328,11 @@
 #ifndef MSG_UBL_SAVE_MESH
   #define MSG_UBL_SAVE_MESH                   _UxGT("Save Bed Mesh")
 #endif
-#ifndef MSG_MAP_LOADED
-  #define MSG_MAP_LOADED                      _UxGT("Map %i loaded")
+#ifndef MSG_MESH_LOADED
+  #define MSG_MESH_LOADED                     _UxGT("Mesh %i loaded")
 #endif
-#ifndef MSG_MAP_SAVED
-  #define MSG_MAP_SAVED                       _UxGT("Map %i saved")
+#ifndef MSG_MESH_SAVED
+  #define MSG_MESH_SAVED                      _UxGT("Mesh %i saved")
 #endif
 #ifndef MSG_NO_STORAGE
   #define MSG_NO_STORAGE                      _UxGT("No storage")
