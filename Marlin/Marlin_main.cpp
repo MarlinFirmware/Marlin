@@ -2101,7 +2101,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(BLTOUCH)
 
     void bltouch_command(int angle) {
-      servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
+      MOVE_SERVO(Z_ENDSTOP_SERVO_NR, angle);  // Give the BL-Touch the command and wait
       safe_delay(BLTOUCH_DELAY);
     }
 
@@ -2192,7 +2192,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
         #elif HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
 
-          servo[Z_ENDSTOP_SERVO_NR].move(z_servo_angle[deploy ? 0 : 1]);
+          MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
 
         #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -6702,7 +6702,7 @@ inline void gcode_M42() {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Z_ENDSTOP_SERVO_NR not setup");
 
-    #else
+    #else // HAS_Z_SERVO_ENDSTOP
 
       const uint8_t probe_index = parser.byteval('P', Z_ENDSTOP_SERVO_NR);
 
@@ -6750,10 +6750,10 @@ inline void gcode_M42() {
       SET_INPUT_PULLUP(PROBE_TEST_PIN);
       bool deploy_state, stow_state;
       for (uint8_t i = 0; i < 4; i++) {
-        servo[probe_index].move(z_servo_angle[0]); //deploy
+        MOVE_SERVO(probe_index, z_servo_angle[0]); //deploy
         safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
-        servo[probe_index].move(z_servo_angle[1]); //stow
+        MOVE_SERVO(probe_index, z_servo_angle[1]); //stow
         safe_delay(500);
         stow_state = READ(PROBE_TEST_PIN);
       }
@@ -6777,7 +6777,7 @@ inline void gcode_M42() {
 
       }
       else {                                           // measure active signal length
-        servo[probe_index].move(z_servo_angle[0]);     // deploy
+        MOVE_SERVO(probe_index, z_servo_angle[0]);     // deploy
         safe_delay(500);
         SERIAL_PROTOCOLLNPGM("please trigger probe");
         uint16_t probe_counter = 0;
@@ -6802,7 +6802,7 @@ inline void gcode_M42() {
             else
               SERIAL_PROTOCOLLNPGM("noise detected - please re-run test"); // less than 2mS pulse
 
-            servo[probe_index].move(z_servo_angle[1]); //stow
+            MOVE_SERVO(probe_index, z_servo_angle[1]); //stow
 
           }  // pulse detected
 
