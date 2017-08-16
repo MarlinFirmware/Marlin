@@ -10243,7 +10243,27 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_CHAR(' ');
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
-
+#if ENABLED(HAS_FANMUX)
+  void fanmux_switch(const uint8_t e){
+    WRITE(FANMUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+        #if PIN_EXISTS(FANMUX1)
+           WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+        #endif
+        #if PIN_EXISTS(FANMUX2)
+          WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
+       #endif
+  }
+  void fanmux_init(void){
+       SET_OUTPUT(FANMUX0_PIN);
+        #if PIN_EXISTS(FANMUX1)
+          SET_OUTPUT(FANMUX2_PIN);
+        #endif
+        #if PIN_EXISTS(FANMUX2)
+          SET_OUTPUT(FANMUX2_PIN);
+       #endif 
+       fanmux_switch(0);
+  }
+#endif
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
@@ -10274,6 +10294,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
         }
+
+        #if ENABLED(HAS_FANMUX)
+          fanmux_switch(tmp_extruder);
+        #endif
 
         // Save current position to destination, for use later
         set_destination_to_current();
@@ -13294,7 +13318,11 @@ void setup() {
     SET_OUTPUT(E_MUX1_PIN);
     SET_OUTPUT(E_MUX2_PIN);
   #endif
-
+  
+  #if ENABLED(HAS_FANMUX)
+    fanmux_init();
+  #endif
+  
   lcd_init();
 
   #ifndef CUSTOM_BOOTSCREEN_TIMEOUT

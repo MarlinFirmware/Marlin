@@ -417,6 +417,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Part cooling fan multiplexer
+ */
+#if PIN_EXISTS(FANMUX1) && !PIN_EXISTS(FANMUX0)
+  #error "FANMUX0_PIN is required to use FANMUX1_PIN"
+#endif
+#if PIN_EXISTS(FANMUX2) && (!PIN_EXISTS(FANMUX0) || !PIN_EXISTS(FANMUX0))
+  #error "FANMUX0_PIN and FANMUX1_PIN are required to use FANMUX2_PIN"
+#endif
+
+/**
  * Limited number of servos
  */
 #if NUM_SERVOS > 4
