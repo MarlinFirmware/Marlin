@@ -90,6 +90,13 @@
   #define IS_CARTESIAN !IS_KINEMATIC
 
   /**
+   * No adjustable bed on non-cartesians
+   */
+  #if IS_KINEMATIC
+    #undef LEVEL_BED_CORNERS
+  #endif
+
+  /**
    * SCARA cannot use SLOWDOWN and requires QUICKHOME
    */
   #if IS_SCARA

@@ -940,6 +940,7 @@
 #if ENABLED(LCD_BED_LEVELING)
   #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
+  #define LEVEL_BED_CORNERS   // Add an option to move between corners
 #endif
 
 /**

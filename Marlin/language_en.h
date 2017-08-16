@@ -156,6 +156,12 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+#ifndef MSG_LEVEL_CORNERS
+  #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
+#endif
+#ifndef MSG_NEXT_CORNER
+  #define MSG_NEXT_CORNER                     _UxGT("Next corner")
+#endif
 #ifndef MSG_EDITING_STOPPED
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
@@ -829,7 +835,7 @@
   #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #endif
 #ifndef MSG_INFO_PSU
-  #define MSG_INFO_PSU                        _UxGT("Power Supply")
+  #define MSG_INFO_PSU                        _UxGT("PSU")
 #endif
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")
