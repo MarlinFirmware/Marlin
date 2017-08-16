@@ -2121,7 +2121,7 @@ void kill_screen(const char* lcd_msg) {
       char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MAP_LOADED "."), ubl_storage_slot);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_LOADED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2132,7 +2132,7 @@ void kill_screen(const char* lcd_msg) {
       char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MAP_SAVED "."), ubl_storage_slot);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_SAVED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
