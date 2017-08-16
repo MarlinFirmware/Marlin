@@ -127,7 +127,6 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
 }
 
 bool HAL_adc_finished(void) {
-  uint32_t data = LPC_ADC->ADGDR;
   return LPC_ADC->ADGDR & ADC_DONE;
 }
 
