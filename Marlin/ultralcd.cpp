@@ -2121,7 +2121,7 @@ void kill_screen(const char* lcd_msg) {
       char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i loaded."), ubl_storage_slot);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MAP_LOADED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2132,7 +2132,7 @@ void kill_screen(const char* lcd_msg) {
       char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i saved."), ubl_storage_slot);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MAP_SAVED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2149,8 +2149,8 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
       if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
-        STATIC_ITEM("No storage");
-        STATIC_ITEM("Initialize EEPROM");
+        STATIC_ITEM(MSG_NO_STORAGE);
+        STATIC_ITEM(MSG_INIT_EEPROM);
       }
       else {
         MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
