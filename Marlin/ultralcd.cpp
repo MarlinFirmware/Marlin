@@ -2118,8 +2118,10 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      char UBL_LCD_GCODE[8];
+      char UBL_LCD_GCODE[20];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
+      enqueue_and_echo_command(UBL_LCD_GCODE);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i loaded."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2127,8 +2129,10 @@ void kill_screen(const char* lcd_msg) {
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      char UBL_LCD_GCODE[8];
+      char UBL_LCD_GCODE[20];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
+      enqueue_and_echo_command(UBL_LCD_GCODE);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i saved."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2141,9 +2145,10 @@ void kill_screen(const char* lcd_msg) {
      *    Save Bed Mesh
      */
     void _lcd_ubl_storage_mesh() {
+      int16_t a = settings.calc_num_meshes();
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, 9);
+      MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
       MENU_ITEM(function, MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
       MENU_ITEM(function, MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
       END_MENU();
