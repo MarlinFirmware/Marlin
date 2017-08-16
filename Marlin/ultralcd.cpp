@@ -2118,7 +2118,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      char UBL_LCD_GCODE[20];
+      char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
       sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i loaded."), ubl_storage_slot);
@@ -2129,7 +2129,7 @@ void kill_screen(const char* lcd_msg) {
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      char UBL_LCD_GCODE[20];
+      char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
       sprintf_P(UBL_LCD_GCODE, PSTR("M117 Map %i saved."), ubl_storage_slot);
