@@ -376,7 +376,7 @@
       #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
     #endif
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
-    #if NUM_SERVOS = 1
+    #if NUM_SERVOS == 1
       #undef SERVO_DELAY
       #define SERVO_DELAY { 50 }
 	#endif
