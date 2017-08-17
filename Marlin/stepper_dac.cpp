@@ -49,13 +49,8 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-  uint8_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
 
   int dac_init() {
-    #if PIN_EXISTS(DAC_DISABLE)
-      OUT_WRITE(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
-    #endif
-
     mcp4728_init();
 
     if (mcp4728_simpleCommand(RESET)) return -1;
@@ -65,11 +60,6 @@
     mcp4728_setVref_all(DAC_STEPPER_VREF);
     mcp4728_setGain_all(DAC_STEPPER_GAIN);
 
-    if (mcp4728_getDrvPct(0) < 1 || mcp4728_getDrvPct(1) < 1 || mcp4728_getDrvPct(2) < 1 || mcp4728_getDrvPct(3) < 1 ) {
-      mcp4728_setDrvPct(dac_channel_pct);
-      mcp4728_eepromWrite();
-    }
-
     return 0;
   }
 
@@ -78,7 +68,7 @@
 
     NOMORE(val, 100);
 
-    mcp4728_analogWrite(dac_order[channel], val * 0.01 * (DAC_STEPPER_MAX));
+    mcp4728_analogWrite(dac_order[channel], val * DAC_STEPPER_MAX / 100);
     mcp4728_simpleCommand(UPDATE);
   }
 
@@ -91,29 +81,23 @@
     mcp4728_simpleCommand(UPDATE);
   }
 
-  static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0 / (DAC_STEPPER_MAX)); }
-  static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0 / (DAC_STEPPER_SENSE)); }
-
-  uint8_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
-  void dac_current_set_percents(const uint8_t pct[XYZE]) {
-    LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
-    mcp4728_setDrvPct(dac_channel_pct);
-  }
+  static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) / DAC_STEPPER_MAX; }
+  static float dac_amps(int8_t n) { return ((2.048 * mcp4728_getValue(dac_order[n])) / 4096.0) / (8.0 * DAC_STEPPER_SENSE); }
 
   void dac_print_values() {
     if (!dac_present) return;
 
-    SERIAL_ECHO_START();
+    SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Stepper current values in % (Amps):");
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS));
-    SERIAL_ECHOPAIR(" (",   dac_amps(X_AXIS));
-    SERIAL_ECHOPAIR(") Y:", dac_perc(Y_AXIS));
-    SERIAL_ECHOPAIR(" (",   dac_amps(Y_AXIS));
-    SERIAL_ECHOPAIR(") Z:", dac_perc(Z_AXIS));
-    SERIAL_ECHOPAIR(" (",   dac_amps(Z_AXIS));
-    SERIAL_ECHOPAIR(") E:", dac_perc(E_AXIS));
-    SERIAL_ECHOPAIR(" (",   dac_amps(E_AXIS));
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(" X:",  dac_perc(0));
+    SERIAL_ECHOPAIR(" (",   dac_amps(0));
+    SERIAL_ECHOPAIR(") Y:", dac_perc(1));
+    SERIAL_ECHOPAIR(" (",   dac_amps(1));
+    SERIAL_ECHOPAIR(") Z:", dac_perc(2));
+    SERIAL_ECHOPAIR(" (",   dac_amps(2));
+    SERIAL_ECHOPAIR(") E:", dac_perc(3));
+    SERIAL_ECHOPAIR(" (",   dac_amps(3));
     SERIAL_ECHOLN(")");
   }
 

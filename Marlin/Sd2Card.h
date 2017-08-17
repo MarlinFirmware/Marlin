@@ -37,6 +37,7 @@
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 #include "SdFatConfig.h"
+#include "Sd2PinMap.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
@@ -125,7 +126,7 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  * define SOFTWARE_SPI to use bit-bang SPI
  */
 //------------------------------------------------------------------------------
-#if MEGA_SOFT_SPI
+#if MEGA_SOFT_SPI && (defined(__AVR_ATmega1280__)||defined(__AVR_ATmega2560__))
   #define SOFTWARE_SPI
 #elif USE_SOFTWARE_SPI
   #define SOFTWARE_SPI
@@ -136,25 +137,25 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
 #if DISABLED(SOFTWARE_SPI)
   // hardware pin defs
   /** The default chip select pin for the SD card is SS. */
-  #define SD_CHIP_SELECT_PIN SS_PIN
+  uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
   // The following three pins must not be redefined for hardware SPI.
   /** SPI Master Out Slave In pin */
-  #define SPI_MOSI_PIN MOSI_PIN
+  uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
   /** SPI Master In Slave Out pin */
-  #define SPI_MISO_PIN MISO_PIN
+  uint8_t const  SPI_MISO_PIN = MISO_PIN;
   /** SPI Clock pin */
-  #define SPI_SCK_PIN SCK_PIN
+  uint8_t const  SPI_SCK_PIN = SCK_PIN;
 
 #else  // SOFTWARE_SPI
 
   /** SPI chip select pin */
-  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN
+  uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
   /** SPI Master Out Slave In pin */
-  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN
+  uint8_t const SPI_MOSI_PIN = SOFT_SPI_MOSI_PIN;
   /** SPI Master In Slave Out pin */
-  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN
+  uint8_t const SPI_MISO_PIN = SOFT_SPI_MISO_PIN;
   /** SPI Clock pin */
-  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN
+  uint8_t const SPI_SCK_PIN = SOFT_SPI_SCK_PIN;
 #endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 /**

@@ -51,62 +51,36 @@
  * REF http://sanguino.cc/hardware
  */
 
-/**
- * Rev B    26 DEC 2016
- *
- * added pointer to a current Arduino IDE extension
- *
- */
-
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
-
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
-  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)"
+  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)
 #endif
 
-#define BOARD_NAME         "Final OMCA"
-
-//
-// Limit Switches
-//
-#define X_STOP_PIN         0
-#define Y_STOP_PIN         1
-#define Z_STOP_PIN         2
-
-//
-// Steppers
-//
 #define X_STEP_PIN         26
 #define X_DIR_PIN          25
 #define X_ENABLE_PIN       10
+#define X_STOP_PIN         0
 
 #define Y_STEP_PIN         28
 #define Y_DIR_PIN          27
 #define Y_ENABLE_PIN       10
+#define Y_STOP_PIN         1
 
 #define Z_STEP_PIN         23
 #define Z_DIR_PIN          22
 #define Z_ENABLE_PIN       10
+#define Z_STOP_PIN         2
 
 #define E0_STEP_PIN        24
 #define E0_DIR_PIN         21
 #define E0_ENABLE_PIN      10
+
+// future proofing
+#define __FS  20
+#define __FD  19
+#define __GS  18
+#define __GD  13
+
+#define UNUSED_PWM         14 // PWM on LEFT connector
 
 #define E1_STEP_PIN        -1 // 21
 #define E1_DIR_PIN         -1 // 20
@@ -116,33 +90,25 @@
 #define E2_DIR_PIN         -1 // 20
 #define E2_ENABLE_PIN      -1 // 18
 
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN          0   // Analog Input
-#define TEMP_1_PIN          1   // Analog Input
-#define TEMP_BED_PIN        2   // Analog Input (1,2 or I2C)
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN        3 // DONE PWM on RIGHT connector
-#define HEATER_BED_PIN      4
-
-#define FAN_PIN            14 // PWM on MIDDLE connector
-
-//
-// Misc. Functions
-//
+#define SDPOWER            -1
 #define SDSS               11
+#define SD_DETECT_PIN      -1 // 10 optional also used as mode pin
+#define LED_PIN            -1
+#define FAN_PIN            14 // PWM on MIDDLE connector
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
 
-#define I2C_SCL_PIN        16
-#define I2C_SDA_PIN        17
+#define HEATER_0_PIN        3 // DONE PWM on RIGHT connector
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
+#define TEMP_0_PIN          0 // ANALOG INPUT NUMBERING
+#define TEMP_1_PIN          1 // ANALOG
+#define TEMP_2_PIN         -1 // 2
+#define HEATER_BED_PIN      4
+#define TEMP_BED_PIN        2 // 1,2 or I2C
 
-// future proofing
-#define __FS  20
-#define __FD  19
-#define __GS  18
-#define __GD  13
+#define I2C_SCL            16
+#define I2C_SDA            17
 
-#define UNUSED_PWM         14 // PWM on LEFT connector

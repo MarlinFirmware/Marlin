@@ -26,25 +26,14 @@
 
   mesh_bed_leveling mbl;
 
-  uint8_t mesh_bed_leveling::status;
-
-  float mesh_bed_leveling::z_offset,
-        mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
-        mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
-
-  mesh_bed_leveling::mesh_bed_leveling() {
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
-      index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
-      index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
-    reset();
-  }
+  mesh_bed_leveling::mesh_bed_leveling() { reset(); }
 
   void mesh_bed_leveling::reset() {
-    status = MBL_STATUS_NONE;
+    active = 0;
     z_offset = 0;
-    ZERO(z_values);
+    for (int y = 0; y < MESH_NUM_Y_POINTS; y++)
+      for (int x = 0; x < MESH_NUM_X_POINTS; x++)
+        z_values[y][x] = 0;
   }
 
-#endif // MESH_BED_LEVELING
+#endif  // MESH_BED_LEVELING

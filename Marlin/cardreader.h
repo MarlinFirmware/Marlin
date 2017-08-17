@@ -23,16 +23,12 @@
 #ifndef CARDREADER_H
 #define CARDREADER_H
 
-#include "MarlinConfig.h"
-
 #if ENABLED(SDSUPPORT)
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
-
-#include "types.h"
-#include "enum.h"
+enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };
 
 class CardReader {
 public:
@@ -51,7 +47,7 @@ public:
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
-  void stopSDPrint();
+  void pauseSDPrint();
   void getStatus();
   void printingHasFinished();
 
@@ -69,17 +65,6 @@ public:
   void updir();
   void setroot();
 
-  #if ENABLED(SDCARD_SORT_ALPHA)
-    void presort();
-    void getfilename_sorted(const uint16_t nr);
-    #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE void setSortOn(bool b) { sort_alpha = b; presort(); }
-      FORCE_INLINE void setSortFolders(int i) { sort_folders = i; presort(); }
-      //FORCE_INLINE void setSortReverse(bool b) { sort_reverse = b; }
-    #endif
-  #endif
-
-  FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
@@ -94,51 +79,6 @@ public:
 private:
   SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
-
-  // Sort files and folders alphabetically.
-  #if ENABLED(SDCARD_SORT_ALPHA)
-    uint16_t sort_count;        // Count of sorted items in the current directory
-    #if ENABLED(SDSORT_GCODE)
-      bool sort_alpha;          // Flag to enable / disable the feature
-      int sort_folders;         // Flag to enable / disable folder sorting
-      //bool sort_reverse;      // Flag to enable / disable reverse sorting
-    #endif
-
-    // By default the sort index is static
-    #if ENABLED(SDSORT_DYNAMIC_RAM)
-      uint8_t *sort_order;
-    #else
-      uint8_t sort_order[SDSORT_LIMIT];
-    #endif
-
-    // Cache filenames to speed up SD menus.
-    #if ENABLED(SDSORT_USES_RAM)
-
-      // If using dynamic ram for names, allocate on the heap.
-      #if ENABLED(SDSORT_CACHE_NAMES)
-        #if ENABLED(SDSORT_DYNAMIC_RAM)
-          char **sortshort, **sortnames;
-        #else
-          char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-          char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
-        #endif
-      #elif DISABLED(SDSORT_USES_STACK)
-        char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
-      #endif
-
-      // Folder sorting uses an isDir array when caching items.
-      #if HAS_FOLDER_SORTING
-        #if ENABLED(SDSORT_DYNAMIC_RAM)
-          uint8_t *isDir;
-        #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-          uint8_t isDir[(SDSORT_LIMIT+7)>>3];
-        #endif
-      #endif
-
-    #endif // SDSORT_USES_RAM
-
-  #endif // SDCARD_SORT_ALPHA
-
   Sd2Card card;
   SdVolume volume;
   SdFile file;
@@ -158,10 +98,6 @@ private:
   uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
   void lsDive(const char *prepend, SdFile parent, const char * const match=NULL);
-
-  #if ENABLED(SDCARD_SORT_ALPHA)
-    void flush_presort();
-  #endif
 };
 
 extern CardReader card;
@@ -183,6 +119,6 @@ extern CardReader card;
 
 #define IS_SD_PRINTING (false)
 
-#endif // SDSUPPORT
+#endif //SDSUPPORT
 
-#endif // __CARDREADER_H
+#endif //__CARDREADER_H

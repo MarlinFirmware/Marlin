@@ -24,99 +24,69 @@
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  enum MeshLevelingState {
-    MeshReport,
-    MeshStart,
-    MeshNext,
-    MeshSet,
-    MeshSetZOffset,
-    MeshReset
-  };
-
-  enum MBLStatus {
-    MBL_STATUS_NONE = 0,
-    MBL_STATUS_HAS_MESH_BIT = 0,
-    MBL_STATUS_ACTIVE_BIT = 1
-  };
-
-  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
-  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_POINTS_Y - 1))
+  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X))/(MESH_NUM_X_POINTS - 1))
+  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y))/(MESH_NUM_Y_POINTS - 1))
 
   class mesh_bed_leveling {
   public:
-    static uint8_t status; // Has Mesh and Is Active bits
-    static float z_offset,
-                 z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-                 index_to_xpos[GRID_MAX_POINTS_X],
-                 index_to_ypos[GRID_MAX_POINTS_Y];
+    bool active;
+    float z_offset;
+    float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
 
     mesh_bed_leveling();
 
-    static void reset();
+    void reset();
 
-    static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
+    float get_x(int i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    float get_y(int i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
+    void set_z(int ix, int iy, float z) { z_values[iy][ix] = z; }
 
-    static bool active()                       { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
-    static void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
-    static bool has_mesh()                     { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
-    static void set_has_mesh(const bool onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
-
-    static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
-      px = index % (GRID_MAX_POINTS_X);
-      py = index / (GRID_MAX_POINTS_X);
-      if (py & 1) px = (GRID_MAX_POINTS_X - 1) - px; // Zig zag
+    inline void zigzag(int index, int &ix, int &iy) {
+      ix = index % (MESH_NUM_X_POINTS);
+      iy = index / (MESH_NUM_X_POINTS);
+      if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
     }
 
-    static void set_zigzag_z(const int8_t index, const float &z) {
-      int8_t px, py;
-      zigzag(index, px, py);
-      set_z(px, py, z);
+    void set_zigzag_z(int index, float z) {
+      int ix, iy;
+      zigzag(index, ix, iy);
+      set_z(ix, iy, z);
     }
 
-    static int8_t cell_index_x(const float &x) {
-      int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
-      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);
+    int select_x_index(float x) {
+      int i = 1;
+      while (x > get_x(i) && i < MESH_NUM_X_POINTS - 1) i++;
+      return i - 1;
     }
 
-    static int8_t cell_index_y(const float &y) {
-      int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
-      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);
+    int select_y_index(float y) {
+      int i = 1;
+      while (y > get_y(i) && i < MESH_NUM_Y_POINTS - 1) i++;
+      return i - 1;
     }
 
-    static int8_t probe_index_x(const float &x) {
-      int8_t px = (x - (MESH_MIN_X) + 0.5 * (MESH_X_DIST)) * (1.0 / (MESH_X_DIST));
-      return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
-    }
-
-    static int8_t probe_index_y(const float &y) {
-      int8_t py = (y - (MESH_MIN_Y) + 0.5 * (MESH_Y_DIST)) * (1.0 / (MESH_Y_DIST));
-      return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
-    }
-
-    static float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
-      const float delta_z = (z2 - z1) / (a2 - a1),
-                  delta_a = a0 - a1;
+    float calc_z0(float a0, float a1, float z1, float a2, float z2) {
+      float delta_z = (z2 - z1) / (a2 - a1);
+      float delta_a = a0 - a1;
       return z1 + delta_a * delta_z;
     }
 
-    static float get_z(const float &x0, const float &y0
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        , const float &factor
-      #endif
-    ) {
-      const int8_t cx = cell_index_x(x0), cy = cell_index_y(y0);
-      const float z1 = calc_z0(x0, index_to_xpos[cx], z_values[cx][cy], index_to_xpos[cx + 1], z_values[cx + 1][cy]),
-                  z2 = calc_z0(x0, index_to_xpos[cx], z_values[cx][cy + 1], index_to_xpos[cx + 1], z_values[cx + 1][cy + 1]),
-                  z0 = calc_z0(y0, index_to_ypos[cy], z1, index_to_ypos[cy + 1], z2);
-
-      return z_offset + z0
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          * factor
-        #endif
-      ;
+    float get_z(float x0, float y0) {
+      int x_index = select_x_index(x0);
+      int y_index = select_y_index(y0);
+      float z1 = calc_z0(x0,
+                         get_x(x_index), z_values[y_index][x_index],
+                         get_x(x_index + 1), z_values[y_index][x_index + 1]);
+      float z2 = calc_z0(x0,
+                         get_x(x_index), z_values[y_index + 1][x_index],
+                         get_x(x_index + 1), z_values[y_index + 1][x_index + 1]);
+      float z0 = calc_z0(y0,
+                         get_y(y_index), z1,
+                         get_y(y_index + 1), z2);
+      return z0 + z_offset;
     }
   };
 
   extern mesh_bed_leveling mbl;
 
-#endif // MESH_BED_LEVELING
+#endif  // MESH_BED_LEVELING

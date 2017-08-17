@@ -24,100 +24,70 @@
  * Sethi 3D_1 pin assignments - www.sethi3d.com.br
  */
 
-/**
- * Rev B    26 DEC 2016
- *
- * added pointer to a current Arduino IDE extension
- *    this assumes that this board uses the Sanguino pin map
- */
-
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
-
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
-  #error "Oops!  Make sure you have 'Sethi 3D' selected from the 'Tools -> Boards' menu."
+  #error Oops!  Make sure you have 'Sethi 3D' selected from the 'Tools -> Boards' menu.
 #endif
-
-#define BOARD_NAME "Sethi 3D_1"
 
 #ifndef GEN7_VERSION
   #define GEN7_VERSION 12 // v1.x
 #endif
 
-//
-// Limit Switches
-//
-#define X_STOP_PIN          2
-#define Y_STOP_PIN          0
-#define Z_MIN_PIN           1
-#define Z_MAX_PIN           0
+//x axis pins
+#define X_STEP_PIN 19
+#define X_DIR_PIN 18
+#define X_ENABLE_PIN 24
+#define X_STOP_PIN 2
 
-//
-// Steppers
-//
-#define X_STEP_PIN         19
-#define X_DIR_PIN          18
-#define X_ENABLE_PIN       24
+//y axis pins
+#define Y_STEP_PIN 23
+#define Y_DIR_PIN 22
+#define Y_ENABLE_PIN 24
+#define Y_STOP_PIN 0
 
-#define Y_STEP_PIN         23
-#define Y_DIR_PIN          22
-#define Y_ENABLE_PIN       24
+//z axis pins
+#define Z_STEP_PIN 26
+#define Z_DIR_PIN 25
+#define Z_ENABLE_PIN 24
+#define Z_MIN_PIN 1
+#define Z_MAX_PIN 0
 
-#define Z_STEP_PIN         26
-#define Z_DIR_PIN          25
-#define Z_ENABLE_PIN       24
+//extruder pins
+#define E0_STEP_PIN 28
+#define E0_DIR_PIN 27
+#define E0_ENABLE_PIN 24
 
-#define E0_STEP_PIN        28
-#define E0_DIR_PIN         27
-#define E0_ENABLE_PIN      24
+#define TEMP_0_PIN 1
+#define TEMP_1_PIN -1
+#define TEMP_2_PIN -1
+#define TEMP_BED_PIN 2
 
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN          1   // Analog Input
-#define TEMP_BED_PIN        2   // Analog Input
+#define HEATER_0_PIN 4
+#define HEATER_1_PIN -1
+#define HEATER_2_PIN -1
+#define HEATER_BED_PIN 3
 
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN        4
-#define HEATER_BED_PIN      3
+#define KILL_PIN -1
 
+#define SDPOWER -1
+#define SDSS -1 // SCL pin of I2C header
+#define LED_PIN -1
 
-#if GEN7_VERSION >= 13
+#if (GEN7_VERSION >= 13)
   // Gen7 v1.3 removed the fan pin
-  #define FAN_PIN          -1
+  #define FAN_PIN -1
 #else
-  #define FAN_PIN          31
+  #define FAN_PIN 31
 #endif
 
-//
-// Misc. Functions
-//
-#define PS_ON_PIN          15
+#define PS_ON_PIN 15
 
-// All these generations of Gen7 supply thermistor power
-// via PS_ON, so ignore bad thermistor readings
+//All these generations of Gen7 supply thermistor power
+//via PS_ON, so ignore bad thermistor readings
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-// our pin for debugging.
-#define DEBUG_PIN           0
+//our pin for debugging.
+#define DEBUG_PIN 0
 
-// our RS485 pins
-#define TX_ENABLE_PIN      12
-#define RX_ENABLE_PIN      13
+//our RS485 pins
+#define TX_ENABLE_PIN 12
+#define RX_ENABLE_PIN 13

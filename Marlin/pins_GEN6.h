@@ -24,98 +24,61 @@
  * Gen6 pin assignments
  */
 
- /**
- * Rev B    26 DEC 2016
- *
- * 1) added pointer to a current Arduino IDE extension
- * 2) added support for M3, M4 & M5 spindle control commands
- * 3) added case light pin definition
- *
- */
-
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
-
 #ifndef __AVR_ATmega644P__
   #ifndef __AVR_ATmega1284P__
-    #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
+    #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
   #endif
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Gen6"
+//x axis pins
+#define X_STEP_PIN      15
+#define X_DIR_PIN       18
+#define X_ENABLE_PIN    19
+#define X_STOP_PIN      20
+
+//y axis pins
+#define Y_STEP_PIN      23
+#define Y_DIR_PIN       22
+#define Y_ENABLE_PIN    24
+#define Y_STOP_PIN      25
+
+//z axis pins
+#define Z_STEP_PIN      27
+#define Z_DIR_PIN       28
+#define Z_ENABLE_PIN    29
+#define Z_STOP_PIN      30
+
+//extruder pins
+#define E0_STEP_PIN      4    //Edited @ EJE Electronics 20100715
+#define E0_DIR_PIN       2    //Edited @ EJE Electronics 20100715
+#define E0_ENABLE_PIN    3    //Added @ EJE Electronics 20100715
+#define TEMP_0_PIN      5     //changed @ rkoeppl 20110410
+#define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
+
+
+#define TEMP_2_PIN      -1    //changed @ rkoeppl 20110410
+#define HEATER_0_PIN    14    //changed @ rkoeppl 20110410
+#define HEATER_1_PIN    -1
+#define HEATER_2_PIN    -1
+
+#if MB(GEN6)
+  #define HEATER_BED_PIN  -1    //changed @ rkoeppl 20110410
+  #define TEMP_BED_PIN    -1    //changed @ rkoeppl 20110410
+#else
+  #define HEATER_BED_PIN   1    //changed @ rkoeppl 20110410
+  #define TEMP_BED_PIN     0    //changed @ rkoeppl 20110410
 #endif
 
-//
-// Limit Switches
-//
-#define X_STOP_PIN         20
-#define Y_STOP_PIN         25
-#define Z_STOP_PIN         30
+#define SDPOWER          -1
+#define SDSS          17
+#define LED_PIN         -1    //changed @ rkoeppl 20110410
+#define FAN_PIN         -1    //changed @ rkoeppl 20110410
+#define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
+#define KILL_PIN        -1    //changed @ drakelive 20120830
+//our pin for debugging.
 
-//
-// Steppers
-//
-#define X_STEP_PIN         15
-#define X_DIR_PIN          18
-#define X_ENABLE_PIN       19
+#define DEBUG_PIN        0
 
-#define Y_STEP_PIN         23
-#define Y_DIR_PIN          22
-#define Y_ENABLE_PIN       24
-
-#define Z_STEP_PIN         27
-#define Z_DIR_PIN          28
-#define Z_ENABLE_PIN       29
-
-#define E0_STEP_PIN         4   // Edited @ EJE Electronics 20100715
-#define E0_DIR_PIN          2   // Edited @ EJE Electronics 20100715
-#define E0_ENABLE_PIN       3   // Added @ EJE Electronics 20100715
-
-//
-// Temperature Sensor
-//
-#define TEMP_0_PIN          5   // Analog Input
-
-//
-// Heaters
-//
-#define HEATER_0_PIN       14   // changed @ rkoeppl 20110410
-
-#if !MB(GEN6)
-  #define HEATER_BED_PIN    1   // changed @ rkoeppl 20110410
-  #define TEMP_BED_PIN      0   // Analog Input
-#endif
-
-//
-// Misc. Functions
-//
-#define SDSS               17
-#define DEBUG_PIN           0
-#define CASE_LIGHT_PIN     16   // MUST BE HARDWARE PWM
-
-// RS485 pins
-#define TX_ENABLE_PIN      12
-#define RX_ENABLE_PIN      13
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_ENABLE_PIN  5   // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    16   // MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN           6
+//our RS485 pins
+#define TX_ENABLE_PIN 12
+#define RX_ENABLE_PIN 13

@@ -63,7 +63,7 @@
    attached()  - Returns true if there is a servo attached.
    detach()    - Stops an attached servos from pulsing its i/o pin.
    move(angle) - Sequence of attach(0), write(angle),
-                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
+                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY and detach.
  */
 
 #ifndef servo_h
@@ -82,7 +82,7 @@
 
 // Say which 16 bit timers can be used and in what order
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-  //#define _useTimer1 // Timer 1 is used by the stepper ISR
+  //#define _useTimer1
   #define _useTimer3
   #define _useTimer4
   #if !HAS_MOTOR_CURRENT_PWM
@@ -147,7 +147,7 @@ class Servo {
     void writeMicroseconds(int value); // write pulse width in microseconds
     void move(int value);              // attach the servo, then move to value
                                        // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-                                       // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
+                                       // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY, then detach
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
     int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
     bool attached();                   // return true if this servo is attached, otherwise false

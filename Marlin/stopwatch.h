@@ -1,4 +1,4 @@
-/**
+/*
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -28,6 +28,12 @@
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
+enum StopwatchStatus {
+  STPWTCH_STOPPED,
+  STPWTCH_RUNNING,
+  STPWTCH_PAUSED
+};
+
 /**
  * @brief Stopwatch class
  * @details This class acts as a timer proving stopwatch functionality including
@@ -35,16 +41,10 @@
  */
 class Stopwatch {
   private:
-    enum State {
-      STOPPED,
-      RUNNING,
-      PAUSED
-    };
-
-    Stopwatch::State state;
-    millis_t accumulator;
-    millis_t startTimestamp;
-    millis_t stopTimestamp;
+    StopwatchStatus status;
+    uint16_t accumulator;
+    uint32_t startTimestamp;
+    uint32_t stopTimestamp;
 
   public:
     /**
@@ -56,25 +56,22 @@ class Stopwatch {
      * @brief Stops the stopwatch
      * @details Stops the running timer, it will silently ignore the request if
      * no timer is currently running.
-     * @return true is method was successful
      */
-    bool stop();
+    void stop();
 
     /**
-     * @brief Pause the stopwatch
+     * @brief Pauses the stopwatch
      * @details Pauses the running timer, it will silently ignore the request if
      * no timer is currently running.
-     * @return true is method was successful
      */
-    bool pause();
+    void pause();
 
     /**
      * @brief Starts the stopwatch
      * @details Starts the timer, it will silently ignore the request if the
      * timer is already running.
-     * @return true is method was successful
      */
-    bool start();
+    void start();
 
     /**
      * @brief Resets the stopwatch
@@ -85,23 +82,23 @@ class Stopwatch {
     /**
      * @brief Checks if the timer is running
      * @details Returns true if the timer is currently running, false otherwise.
-     * @return true if stopwatch is running
+     * @return bool
      */
     bool isRunning();
 
     /**
      * @brief Checks if the timer is paused
      * @details Returns true if the timer is currently paused, false otherwise.
-     * @return true if stopwatch is paused
+     * @return bool
      */
     bool isPaused();
 
     /**
      * @brief Gets the running time
      * @details Returns the total number of seconds the timer has been running.
-     * @return the delta since starting the stopwatch
+     * @return uint16_t
      */
-    millis_t duration();
+    uint16_t duration();
 
     #if ENABLED(DEBUG_STOPWATCH)
 
@@ -114,4 +111,4 @@ class Stopwatch {
     #endif
 };
 
-#endif // STOPWATCH_H
+#endif //STOPWATCH_H

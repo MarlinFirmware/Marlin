@@ -24,40 +24,21 @@
  * FELIXprinters v2.0/3.0 (RAMPS v1.4) pin assignments
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Felix 2.0+ supports up to 2 hotends / E-steppers. Comment out this line to continue."
-#endif
+#include "pins_RAMPS_14_EFB.h"
 
-#define BOARD_NAME "Felix 2.0+"
+#undef HEATER_1_PIN
+#define HEATER_1_PIN        7 // EXTRUDER 2
 
-//
-// Heaters / Fans
-//
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN 7
-
-#include "pins_RAMPS.h"
-
-//
-// Misc. Functions
-//
 #undef SDPOWER
 #define SDPOWER             1
 
 #define PS_ON_PIN          12
 
-//
-// LCD / Controller
-//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
+  #define BLEN_C 2
+  #define BLEN_B 1
+  #define BLEN_A 0
   #define SD_DETECT_PIN 6
 
 #endif // NEWPANEL && ULTRA_LCD
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#undef SPINDLE_LASER_PWM_PIN     // Definitions in pins_RAMPS.h are not valid with this board
-#undef SPINDLE_LASER_ENABLE_PIN
-#undef SPINDLE_DIR_PIN
