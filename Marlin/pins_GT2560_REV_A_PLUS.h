@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 /**
  * Geeetech GT2560 Revision A+ board pin assignments
- */ 
+ */
 
 #include "pins_GT2560_REV_A.h"
 
 #define BOARD_NAME  "GT2560 Rev.A+"
 
-#define SERVO0_PIN  11 
+#define SERVO0_PIN  11

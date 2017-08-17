@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 /**
- * Geeetech GT2560 Revision A board pin assignments, based on the work of 
- * George Robles (https://georges3dprinters.com) and 
+ * Geeetech GT2560 Revision A board pin assignments, based on the work of
+ * George Robles (https://georges3dprinters.com) and
  * Richard Smith <galorin@gmail.com>
- */ 
- 
+ */
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
@@ -96,7 +96,7 @@
 
   #define BEEPER_PIN       18
 
-  #if ENABLED(NEWPANEL)       
+  #if ENABLED(NEWPANEL)
 
     #define LCD_PINS_RS    20
     #define LCD_PINS_ENABLE 17
@@ -109,7 +109,7 @@
     #define BTN_EN1        42
     #define BTN_EN2        40
     #define BTN_ENC        19
-    
+
     #define SD_DETECT_PIN  38
 
   #else // !NEWPANEL
