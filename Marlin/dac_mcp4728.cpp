@@ -31,11 +31,10 @@
  */
 
 #include "dac_mcp4728.h"
-#include "enum.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
-uint16_t mcp4728_values[XYZE];
+uint16_t     mcp4728_values[4];
 
 /**
  * Begin I2C, get current values (input register and eeprom) of mcp4728
@@ -43,13 +42,16 @@ uint16_t mcp4728_values[XYZE];
 void mcp4728_init() {
   Wire.begin();
   Wire.requestFrom(int(DAC_DEV_ADDRESS), 24);
-  while (Wire.available()) {
-    char deviceID = Wire.read(),
-         hiByte = Wire.read(),
-         loByte = Wire.read();
+  while(Wire.available()) {
+    int deviceID = Wire.receive();
+    int hiByte = Wire.receive();
+    int loByte = Wire.receive();
 
-    if (!(deviceID & 0x08))
-      mcp4728_values[(deviceID & 0x30) >> 4] = word((hiByte & 0x0F), loByte);
+    int isEEPROM = (deviceID & 0B00001000) >> 3;
+    int channel = (deviceID & 0B00110000) >> 4;
+    if (isEEPROM != 1) {
+      mcp4728_values[channel] = word((hiByte & 0B00001111), loByte);
+    }
   }
 }
 
@@ -61,7 +63,6 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
   mcp4728_values[channel] = value;
   return mcp4728_fastWrite();
 }
-
 /**
  * Write all input resistor values to EEPROM using SequencialWrite method.
  * This will update both input register and EEPROM value
@@ -69,10 +70,10 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
  */
 uint8_t mcp4728_eepromWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(SEQWRITE);
-  LOOP_XYZE(i) {
-    Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[i]));
-    Wire.write(lowByte(mcp4728_values[i]));
+  Wire.send(SEQWRITE);
+  for (uint8_t channel=0; channel <= 3; channel++) {
+    Wire.send(DAC_STEPPER_VREF << 7 | 0 << 5 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[channel]));
+    Wire.send(lowByte(mcp4728_values[channel]));
   }
   return Wire.endTransmission();
 }
@@ -82,7 +83,7 @@ uint8_t mcp4728_eepromWrite() {
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(VREFWRITE | (value ? 0x0F : 0x00));
+  Wire.send(VREFWRITE | value << 3 | value << 2 | value << 1 | value);
   return Wire.endTransmission();
 }
 /**
@@ -90,12 +91,12 @@ uint8_t mcp4728_setVref_all(uint8_t value) {
  */
 uint8_t mcp4728_setGain_all(uint8_t value) {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(GAINWRITE | (value ? 0x0F : 0x00));
+  Wire.send(GAINWRITE | value << 3 | value << 2 | value << 1 | value);
   return Wire.endTransmission();
 }
 
 /**
- * Return Input Register value
+ * Return Input Regiter value
  */
 uint16_t mcp4728_getValue(uint8_t channel) { return mcp4728_values[channel]; }
 
@@ -104,26 +105,12 @@ uint16_t mcp4728_getValue(uint8_t channel) { return mcp4728_values[channel]; }
  * Return Vout
  *
 uint16_t mcp4728_getVout(uint8_t channel) {
-  uint32_t vref = 2048,
-           vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
+  uint32_t vref = 2048;
+  uint32_t vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
   if (vOut > defaultVDD) vOut = defaultVDD;
   return vOut;
 }
 */
-
-/**
- * Returns DAC values as a 0-100 percentage of drive strength
- */
-uint8_t mcp4728_getDrvPct(uint8_t channel) { return uint8_t(100.0 * mcp4728_values[channel] / (DAC_STEPPER_MAX) + 0.5); }
-
-/**
- * Receives all Drive strengths as 0-100 percent values, updates
- * DAC Values array and calls fastwrite to update the DAC.
- */
-void mcp4728_setDrvPct(uint8_t pct[XYZE]) {
-  LOOP_XYZE(i) mcp4728_values[i] = 0.01 * pct[i] * (DAC_STEPPER_MAX);
-  mcp4728_fastWrite();
-}
 
 /**
  * FastWrite input register values - All DAC ouput update. refer to DATASHEET 5.6.1
@@ -132,9 +119,9 @@ void mcp4728_setDrvPct(uint8_t pct[XYZE]) {
  */
 uint8_t mcp4728_fastWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  LOOP_XYZE(i) {
-    Wire.write(highByte(mcp4728_values[i]));
-    Wire.write(lowByte(mcp4728_values[i]));
+  for (uint8_t channel=0; channel <= 3; channel++) {
+    Wire.send(highByte(mcp4728_values[channel]));
+    Wire.send(lowByte(mcp4728_values[channel]));
   }
   return Wire.endTransmission();
 }
@@ -144,7 +131,7 @@ uint8_t mcp4728_fastWrite() {
  */
 uint8_t mcp4728_simpleCommand(byte simpleCommand) {
   Wire.beginTransmission(GENERALCALL);
-  Wire.write(simpleCommand);
+  Wire.send(simpleCommand);
   return Wire.endTransmission();
 }
 

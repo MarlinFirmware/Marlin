@@ -1,4 +1,4 @@
-/**
+/*
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -27,70 +27,64 @@ Stopwatch::Stopwatch() {
   this->reset();
 }
 
-bool Stopwatch::stop() {
+void Stopwatch::stop() {
   #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("stop"));
+    debug(PSTR("stop"));
   #endif
 
-  if (this->isRunning() || this->isPaused()) {
-    this->state = STOPPED;
-    this->stopTimestamp = millis();
-    return true;
-  }
-  else return false;
+  if (!this->isRunning()) return;
+
+  this->status = STPWTCH_STOPPED;
+  this->stopTimestamp = millis();
 }
 
-bool Stopwatch::pause() {
+void Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("pause"));
+    debug(PSTR("pause"));
   #endif
 
-  if (this->isRunning()) {
-    this->state = PAUSED;
-    this->stopTimestamp = millis();
-    return true;
-  }
-  else return false;
+  if (!this->isRunning()) return;
+
+  this->status = STPWTCH_PAUSED;
+  this->stopTimestamp = millis();
 }
 
-bool Stopwatch::start() {
+void Stopwatch::start() {
   #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("start"));
+    debug(PSTR("start"));
   #endif
 
-  if (!this->isRunning()) {
-    if (this->isPaused()) this->accumulator = this->duration();
-    else this->reset();
+  if (this->isRunning()) return;
 
-    this->state = RUNNING;
-    this->startTimestamp = millis();
-    return true;
-  }
-  else return false;
+  if (this->isPaused()) this->accumulator = this->duration();
+  else this->reset();
+
+  this->status = STPWTCH_RUNNING;
+  this->startTimestamp = millis();
 }
 
 void Stopwatch::reset() {
   #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("reset"));
+    debug(PSTR("reset"));
   #endif
 
-  this->state = STOPPED;
+  this->status = STPWTCH_STOPPED;
   this->startTimestamp = 0;
   this->stopTimestamp = 0;
   this->accumulator = 0;
 }
 
 bool Stopwatch::isRunning() {
-  return (this->state == RUNNING) ? true : false;
+  return (this->status == STPWTCH_RUNNING) ? true : false;
 }
 
 bool Stopwatch::isPaused() {
-  return (this->state == PAUSED) ? true : false;
+  return (this->status == STPWTCH_PAUSED) ? true : false;
 }
 
-millis_t Stopwatch::duration() {
+uint16_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
-          - this->startTimestamp) / 1000UL + this->accumulator;
+          - this->startTimestamp) / 1000 + this->accumulator;
 }
 
 #if ENABLED(DEBUG_STOPWATCH)

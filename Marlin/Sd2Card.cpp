@@ -30,18 +30,13 @@
 
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
-
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
-
 //------------------------------------------------------------------------------
 #if DISABLED(SOFTWARE_SPI)
   // functions for hardware SPI
   //------------------------------------------------------------------------------
   // make sure SPCR rate is in expected bits
   #if (SPR0 != 0 || SPR1 != 1)
-    #error "unexpected SPCR bits"
+    #error unexpected SPCR bits
   #endif
   /**
    * Initialize hardware SPI
@@ -104,10 +99,10 @@
     // no interrupts during byte receive - about 8 us
     cli();
     // output pin high - like sending 0XFF
-    WRITE(SPI_MOSI_PIN, HIGH);
+    fastDigitalWrite(SPI_MOSI_PIN, HIGH);
 
     for (uint8_t i = 0; i < 8; i++) {
-      WRITE(SPI_SCK_PIN, HIGH);
+      fastDigitalWrite(SPI_SCK_PIN, HIGH);
 
       // adjust so SCK is nice
       nop;
@@ -115,9 +110,9 @@
 
       data <<= 1;
 
-      if (READ(SPI_MISO_PIN)) data |= 1;
+      if (fastDigitalRead(SPI_MISO_PIN)) data |= 1;
 
-      WRITE(SPI_SCK_PIN, LOW);
+      fastDigitalWrite(SPI_SCK_PIN, LOW);
     }
     // enable interrupts
     sei();
@@ -135,13 +130,13 @@
     // no interrupts during byte send - about 8 us
     cli();
     for (uint8_t i = 0; i < 8; i++) {
-      WRITE(SPI_SCK_PIN, LOW);
+      fastDigitalWrite(SPI_SCK_PIN, LOW);
 
-      WRITE(SPI_MOSI_PIN, data & 0X80);
+      fastDigitalWrite(SPI_MOSI_PIN, data & 0X80);
 
       data <<= 1;
 
-      WRITE(SPI_SCK_PIN, HIGH);
+      fastDigitalWrite(SPI_SCK_PIN, HIGH);
     }
     // hold SCK high for a few ns
     nop;
@@ -149,7 +144,7 @@
     nop;
     nop;
 
-    WRITE(SPI_SCK_PIN, LOW);
+    fastDigitalWrite(SPI_SCK_PIN, LOW);
     // enable interrupts
     sei();
   }
@@ -303,25 +298,19 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   uint16_t t0 = (uint16_t)millis();
   uint32_t arg;
 
-  // If init takes more than 4s it could trigger
-  // watchdog leading to a reboot loop.
-  #if ENABLED(USE_WATCHDOG)
-    watchdog_reset();
-  #endif
-
   // set pin modes
   pinMode(chipSelectPin_, OUTPUT);
   chipSelectHigh();
-  SET_INPUT(SPI_MISO_PIN);
-  SET_OUTPUT(SPI_MOSI_PIN);
-  SET_OUTPUT(SPI_SCK_PIN);
+  pinMode(SPI_MISO_PIN, INPUT);
+  pinMode(SPI_MOSI_PIN, OUTPUT);
+  pinMode(SPI_SCK_PIN, OUTPUT);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
-    SET_OUTPUT(SS_PIN);
+    pinMode(SS_PIN, OUTPUT);
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
+      digitalWrite(SS_PIN, HIGH);
     #endif  // SET_SPI_SS_HIGH
     // set SCK rate for initialization commands
     spiRate_ = SPI_SD_INIT_RATE;
@@ -406,7 +395,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else
         error(SD_CARD_ERROR_CMD17);
 
-      if (!--retryCnt) break;
+      if (--retryCnt) break;
 
       chipSelectHigh();
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
@@ -664,8 +653,8 @@ fail:
 bool Sd2Card::writeData(uint8_t token, const uint8_t* src) {
   spiSendBlock(token, src);
 
-  spiSend(0xFF);  // dummy crc
-  spiSend(0xFF);  // dummy crc
+  spiSend(0xff);  // dummy crc
+  spiSend(0xff);  // dummy crc
 
   status_ = spiRec();
   if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {

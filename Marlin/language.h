@@ -23,22 +23,10 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "MarlinConfig.h"
+#include "Configuration.h"
 
-#define _UxGT(a) a
+#define GENERATE_LANGUAGE_INCLUDE(M)  STRINGIFY_(language_##M.h)
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
-
-// Fallback if no language is set. DON'T CHANGE
-#ifndef LCD_LANGUAGE
-  #define LCD_LANGUAGE en
-#endif
-
-// For character-based LCD controllers (DISPLAY_CHARSET_HD44780)
-#define JAPANESE 1
-#define WESTERN  2
-#define CYRILLIC 3
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
 //
@@ -47,34 +35,39 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
-// an         Aragonese
-// bg         Bulgarian
-// ca         Catalan
-// cn         Chinese
-// cz         Czech
-// cz_utf8    Czech (UTF8)
-// de         German
-// el         Greek
-// el-gr      Greek (Greece)
 // en         English
-// es         Spanish
-// eu         Basque-Euskera
-// fi         Finnish
+// pl         Polish
 // fr         French
-// gl         Galician
-// hr         Croatian
+// de         German
+// es         Spanish
+// ru         Russian
+// bg         Bulgarian
 // it         Italian
+// pt         Portuguese
+// pt_utf8    Portuguese (UTF8)
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// fi         Finnish
+// an         Aragonese
+// nl         Dutch
+// gl         Galician
+// ca         Catalan
+// eu         Basque-Euskera
 // kana       Japanese
 // kana_utf8  Japanese (UTF8)
-// nl         Dutch
-// pl         Polish
-// pt         Portuguese
-// pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian) (UTF8)
-// pt_utf8    Portuguese (UTF8)
-// ru         Russian
-// tr         Turkish
-// uk         Ukrainian
+// cn         Chinese
+// cz         Czech
+
+// fallback if no language is set, don't change
+#ifndef LANGUAGE_INCLUDE
+  #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#endif
+
+#if ENABLED(USE_AUTOMATIC_VERSIONING)
+  #include "_Version.h"
+#else
+  #include "Version.h"
+#endif
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -109,7 +102,7 @@
 
 // Serial Console Messages (do not translate those!)
 
-#define MSG_ENQUEUEING                      "enqueueing \""
+#define MSG_Enqueueing                      "enqueueing \""
 #define MSG_POWERUP                         "PowerUp"
 #define MSG_EXTERNAL_RESET                  " External Reset"
 #define MSG_BROWNOUT_RESET                  " Brown out Reset"
@@ -121,7 +114,6 @@
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
 #define MSG_WAIT                            "wait"
-#define MSG_STATS                           "Stats: "
 #define MSG_FILE_SAVED                      "Done saving file."
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
@@ -133,9 +125,9 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
-#define MSG_COUNT_X                         " Count X:"
-#define MSG_COUNT_A                         " Count A:"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_COUNT_X                         " Count X: "
+#define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_BUSY_PROCESSING                 "busy: processing"
@@ -150,29 +142,19 @@
 #define MSG_Y_MAX                           "y_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
-#define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
-#define MSG_FILAMENT_RUNOUT_SENSOR          "filament: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M355_NONE                   "No case light"
-#define MSG_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
-#define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
-#define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
-#define MSG_ERR_PROTECTED_PIN               "Protected Pin"
-#define MSG_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
+#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
+#define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
-#define MSG_DUPLICATION_MODE                "Duplication mode: "
-#define MSG_SOFT_ENDSTOPS                   "Soft endstops: "
-#define MSG_SOFT_MIN                        "  Min: "
-#define MSG_SOFT_MAX                        "  Max: "
 
-#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
+#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir"
 #define MSG_SD_INIT_FAIL                    "SD init fail"
 #define MSG_SD_VOL_INIT_FAIL                "volume.init failed"
 #define MSG_SD_OPENROOT_FAIL                "openRoot failed"
@@ -186,7 +168,6 @@
 #define MSG_SD_PRINTING_BYTE                "SD printing byte "
 #define MSG_SD_NOT_PRINTING                 "Not SD printing"
 #define MSG_SD_ERR_WRITE_TO_FILE            "error writing to file"
-#define MSG_SD_ERR_READ                     "SD read error"
 #define MSG_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define MSG_STEPPER_TOO_HIGH                "Steprate too high: "
@@ -200,11 +181,6 @@
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
-
-#define MSG_STOP_BLTOUCH                    "STOP called because of BLTouch error - restart with M999"
-#define MSG_STOP_UNHOMED                    "STOP called because of unhomed error - restart with M999"
-#define MSG_KILL_INACTIVE_TIME              "KILL caused by too much inactive time - current command: "
-#define MSG_KILL_BUTTON                     "KILL caused by KILL button/pin"
 
 // temperature.cpp strings
 #define MSG_PID_AUTOTUNE                    "PID Autotune"
@@ -256,55 +232,11 @@
 
 // LCD Menu Messages
 
-#define LANGUAGE_INCL_(M) STRINGIFY_(language_##M.h)
-#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
-#define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
-
-// Never translate these strings
-#define MSG_X "X"
-#define MSG_Y "Y"
-#define MSG_Z "Z"
-#define MSG_E "E"
-#define MSG_H1 "1"
-#define MSG_H2 "2"
-#define MSG_H3 "3"
-#define MSG_H4 "4"
-#define MSG_H5 "5"
-#define MSG_N1 " 1"
-#define MSG_N2 " 2"
-#define MSG_N3 " 3"
-#define MSG_N4 " 4"
-#define MSG_N5 " 5"
-#define MSG_E1 "E1"
-#define MSG_E2 "E2"
-#define MSG_E3 "E3"
-#define MSG_E4 "E4"
-#define MSG_E5 "E5"
-#define MSG_MOVE_E1 "1"
-#define MSG_MOVE_E2 "2"
-#define MSG_MOVE_E3 "3"
-#define MSG_MOVE_E4 "4"
-#define MSG_MOVE_E5 "5"
-#define MSG_DIAM_E1 " 1"
-#define MSG_DIAM_E2 " 2"
-#define MSG_DIAM_E3 " 3"
-#define MSG_DIAM_E4 " 4"
-#define MSG_DIAM_E5 " 5"
-
-#include INCLUDE_LANGUAGE
-
-#if DISABLED(SIMULATE_ROMFONT) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_1) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_TR) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_PL) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CZ)
-  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#if DISABLED(DISPLAY_CHARSET_HD44780_JAPAN) && DISABLED(DISPLAY_CHARSET_HD44780_WESTERN) && DISABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
+  #define DISPLAY_CHARSET_HD44780_JAPAN
 #endif
 
+#include LANGUAGE_INCLUDE
 #include "language_en.h"
 
-#endif // __LANGUAGE_H
+#endif //__LANGUAGE_H

@@ -21,36 +21,51 @@
  */
 
 /**
- * servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
- * Copyright (c) 2009 Michael Margolis.  All right reserved.
+ servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+ Copyright (c) 2009 Michael Margolis.  All right reserved.
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
- * A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
- * The servos are pulsed in the background using the value most recently written using the write() method
- *
- * Note that analogWrite of PWM on pins associated with the timer are disabled when the first servo is attached.
- * Timers are seized as needed in groups of 12 servos - 24 servos use two timers, 48 servos will use four.
- *
- * The methods are:
- *
- * Servo - Class for manipulating servo motors connected to Arduino pins.
- *
- * attach(pin)           - Attach a servo motor to an i/o pin.
- * attach(pin, min, max) - Attach to a pin, setting min and max values in microseconds
- *                         Default min is 544, max is 2400
- *
- * write()               - Set the servo angle in degrees. (Invalid angles —over MIN_PULSE_WIDTH— are treated as µs.)
- * writeMicroseconds()   - Set the servo pulse width in microseconds.
- * move(pin, angle)      - Sequence of attach(pin), write(angle), delay(SERVO_DELAY).
- *                         With DEACTIVATE_SERVOS_AFTER_MOVE it detaches after SERVO_DELAY.
- * read()                - Get the last-written servo pulse width as an angle between 0 and 180.
- * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
- * attached()            - Return true if a servo is attached.
- * detach()              - Stop an attached servo from pulsing its i/o pin.
- *
- */
-#include "MarlinConfig.h"
+
+ A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
+ The servos are pulsed in the background using the value most recently written using the write() method
+
+ Note that analogWrite of PWM on pins associated with the timer are disabled when the first servo is attached.
+ Timers are seized as needed in groups of 12 servos - 24 servos use two timers, 48 servos will use four.
+
+ The methods are:
+
+ Servo - Class for manipulating servo motors connected to Arduino pins.
+
+ attach(pin )  - Attaches a servo motor to an i/o pin.
+ attach(pin, min, max  ) - Attaches to a pin setting min and max values in microseconds
+ default min is 544, max is 2400
+
+ write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
+ writeMicroseconds() - Sets the servo pulse width in microseconds
+ move(pin, angle) - Sequence of attach(pin), write(angle).
+                    With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
+ read()      - Gets the last written servo pulse width as an angle between 0 and 180.
+ readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
+ attached()  - Returns true if there is a servo attached.
+ detach()    - Stops an attached servos from pulsing its i/o pin.
+
+*/
+#include "Configuration.h"
 
 #if HAS_SERVOS
 
@@ -95,7 +110,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
   if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
     *OCRnA = *TCNTn + SERVO(timer, Channel[timer]).ticks;
     if (SERVO(timer, Channel[timer]).Pin.isActive)    // check if activated
-      digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // it's an active channel so pulse it high
+      digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // its an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
@@ -126,7 +141,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
-#else // WIRING
+#else //!WIRING
 
   // Interrupt handlers for Wiring
   #if ENABLED(_useTimer1)
@@ -136,7 +151,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
-#endif // WIRING
+#endif //!WIRING
 
 
 static void initISR(timer16_Sequence_t timer) {
@@ -168,8 +183,8 @@ static void initISR(timer16_Sequence_t timer) {
         SBI(TIFR, OCF3A);     // clear any pending interrupts;
         SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
       #else
-        SBI(TIFR3, OCF3A);   // clear any pending interrupts;
-        SBI(TIMSK3, OCIE3A); // enable the output compare interrupt
+        TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
+        TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
       #endif
       #ifdef WIRING
         timerAttach(TIMER3OUTCOMPAREA_INT, Timer3Service);  // for Wiring platform only
@@ -183,7 +198,7 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR4B = _BV(CS41);     // set prescaler of 8
       TCNT4 = 0;              // clear the timer count
       TIFR4 = _BV(OCF4A);     // clear any pending interrupts;
-      TIMSK4 = _BV(OCIE4A);   // enable the output compare interrupt
+      TIMSK4 =  _BV(OCIE4A) ; // enable the output compare interrupt
     }
   #endif
 
@@ -193,7 +208,7 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR5B = _BV(CS51);     // set prescaler of 8
       TCNT5 = 0;              // clear the timer count
       TIFR5 = _BV(OCF5A);     // clear any pending interrupts;
-      TIMSK5 = _BV(OCIE5A);   // enable the output compare interrupt
+      TIMSK5 =  _BV(OCIE5A) ; // enable the output compare interrupt
     }
   #endif
 }
@@ -203,31 +218,30 @@ static void finISR(timer16_Sequence_t timer) {
   #ifdef WIRING
     if (timer == _timer1) {
       CBI(
-        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-          TIMSK1
-        #else
-          TIMSK
-        #endif
+      #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+        TIMSK1
+      #else
+        TIMSK
+      #endif
           , OCIE1A);    // disable timer 1 output compare interrupt
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
       CBI(
-        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-          TIMSK3
-        #else
-          ETIMSK
-        #endif
+      #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+        TIMSK3
+      #else
+        ETIMSK
+      #endif
           , OCIE3A);    // disable the timer3 output compare A interrupt
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
-  #else // !WIRING
+  #else //!WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
-    UNUSED(timer);
   #endif
 }
 
-static bool isTimerActive(timer16_Sequence_t timer) {
+static boolean isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
   for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
     if (SERVO(timer, channel).Pin.isActive)
@@ -310,8 +324,8 @@ bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 void Servo::move(int value) {
   if (this->attach(0) >= 0) {
     this->write(value);
-    delay(SERVO_DELAY);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
+      delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif
   }
