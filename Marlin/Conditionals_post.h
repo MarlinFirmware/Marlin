@@ -906,4 +906,14 @@
     #undef PROBE_MANUALLY
   #endif
 
+  // Parking Extruder
+  #if ENABLED(PARKING_EXTRUDER)
+    #ifndef PARKING_EXTRUDER_GRAB_DISTANCE
+      #define PARKING_EXTRUDER_GRAB_DISTANCE 0
+    #endif
+    #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
+      #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
+    #endif
+  #endif
+
 #endif // CONDITIONALS_POST_H
