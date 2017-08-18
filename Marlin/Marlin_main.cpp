@@ -13484,7 +13484,7 @@ void setup() {
     setup_endstop_interrupts();
   #endif
 
-  #if ENABLED(SWITCHING_EXTRUDER)
+  #if ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH
     move_extruder_servo(0);  // Initialize extruder servo
   #endif
 
