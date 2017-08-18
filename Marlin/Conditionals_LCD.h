@@ -379,7 +379,7 @@
     #if NUM_SERVOS == 1
       #undef SERVO_DELAY
       #define SERVO_DELAY { 50 }
-	#endif
+    #endif
     #ifndef BLTOUCH_DELAY
       #define BLTOUCH_DELAY 375
     #endif
