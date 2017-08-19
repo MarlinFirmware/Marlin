@@ -159,6 +159,7 @@
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
         this->detach();
         LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal
+        LPC1768_PWM_attach_pin(servo_info[this->servoIndex].Pin.nbr, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, this->servoIndex);  // make sure no one else steals the slot
       #endif
     }
   }
