@@ -45,7 +45,7 @@
 #define PCA9632_PWM3        0x05
 #define PCA9632_GRPPWM      0x06
 #define PCA9632_GRPFREQ     0x07
-#define PCA9632_LEDOUT      0X08
+#define PCA9632_LEDOUT      0x08
 #define PCA9632_SUBADR1     0x09
 #define PCA9632_SUBADR2     0x0A
 #define PCA9632_SUBADR3     0x0B
@@ -88,13 +88,15 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   Wire.endTransmission();
 }
 
-static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
-  Wire.beginTransmission(addr);
-  Wire.write(regadd);
-  const byte value = Wire.read();
-  Wire.endTransmission();
-  return value;
-}
+#if 0
+  static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
+    Wire.beginTransmission(addr);
+    Wire.write(regadd);
+    const byte value = Wire.read();
+    Wire.endTransmission();
+    return value;
+  }
+#endif
 
 void PCA9632_SetColor(const byte r, const byte g, const byte b) {
   if (!PCA_init) {
