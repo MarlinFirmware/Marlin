@@ -210,7 +210,7 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 /**
  * Feedrate scaling and conversion
  */
-extern int feedrate_percentage;
+extern int16_t feedrate_percentage;
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
@@ -218,7 +218,7 @@ extern int feedrate_percentage;
 
 extern bool axis_relative_modes[];
 extern bool volumetric_enabled;
-extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
+extern int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern bool axis_known_position[XYZ];
@@ -370,9 +370,9 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
   extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
                filament_width_meas;    // Measured filament diameter
-  extern int8_t measurement_delay[];   // Ring buffer to delay measurement
-  extern int filwidth_delay_index[2];  // Ring buffer indexes. Used by planner, temperature, and main code
-  extern int meas_delay_cm;            // Delay distance
+  extern uint8_t meas_delay_cm,        // Delay distance
+                 measurement_delay[];  // Ring buffer to delay measurement
+  extern int8_t filwidth_delay_index[2]; // Ring buffer indexes. Used by planner, temperature, and main code
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)

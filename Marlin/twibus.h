@@ -38,18 +38,18 @@ typedef void (*twiRequestFunc_t)();
 /**
  * TWIBUS class
  *
- * This class implements a wrapper around the two wire (I2C) bus, it allows
- * Marlin to send and request data from any slave device on the bus. This is
- * an experimental feature and it's inner workings as well as public facing
- * interface are prune to change in the future.
+ * This class implements a wrapper around the two wire (I2C) bus, allowing
+ * Marlin to send and request data from any slave device on the bus.
  *
- * The two main consumers of this class are M260 and M261, where M260 allows
- * Marlin to send a I2C packet to a device (please be aware that no repeated
- * starts are possible), this can be done in caching method by calling multiple
- * times M260 B<byte-1 value in base 10> or a one liner M260, have a look at
- * the gcode_M260() function for more information. M261 allows Marlin to
- * request data from a device, the received data is then relayed into the serial
- * line for host interpretation.
+ * The two main consumers of this class are M260 and M261. M260 provides a way
+ * to send an I2C packet to a device (no repeated starts) by caching up to 32
+ * bytes in a buffer and then sending the buffer.
+ * M261 requests data from a device. The received data is relayed to serial out
+ * for the host to interpret.
+ *
+ *  For more information see
+ *    - http://marlinfw.org/docs/gcode/M260.html
+ *    - http://marlinfw.org/docs/gcode/M261.html
  *
  */
 class TWIBus {

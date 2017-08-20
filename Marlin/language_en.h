@@ -156,147 +156,187 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
+#ifndef MSG_EDITING_STOPPED
+  #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
+#endif
 #ifndef MSG_USER_MENU
   #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #ifndef MSG_UBL_UNHOMED
-    #define MSG_UBL_UNHOMED                   _UxGT("Home XYZ first")
-  #endif
-  #ifndef MSG_UBL_TOOLS
-    #define MSG_UBL_TOOLS                     _UxGT("UBL Tools")
-  #endif
-  #ifndef MSG_UBL_LEVEL_BED
-    #define MSG_UBL_LEVEL_BED                 _UxGT("Unified Bed Leveling")
-  #endif
-  #ifndef MSG_UBL_ACTIVATE_MESH
-    #define MSG_UBL_ACTIVATE_MESH             _UxGT("Activate UBL")
-  #endif
-  #ifndef MSG_UBL_DEACTIVATE_MESH
-    #define MSG_UBL_DEACTIVATE_MESH           _UxGT("Deactivate UBL")
-  #endif
-  #ifndef MSG_UBL_SET_BED_TEMP
-    #define MSG_UBL_SET_BED_TEMP              _UxGT("Bed Temp")
-  #endif
-  #ifndef MSG_UBL_CUSTOM_BED_TEMP
-    #define MSG_UBL_CUSTOM_BED_TEMP           MSG_UBL_SET_BED_TEMP
-  #endif
-  #ifndef MSG_UBL_SET_HOTEND_TEMP
-    #define MSG_UBL_SET_HOTEND_TEMP           _UxGT("Hotend Temp")
-  #endif
-  #ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
-    #define MSG_UBL_CUSTOM_HOTEND_TEMP        MSG_UBL_SET_HOTEND_TEMP
-  #endif
-  #ifndef MSG_UBL_EDIT_CUSTOM_MESH
-    #define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Edit Custom Mesh")
-  #endif
-  #ifndef MSG_UBL_BUILD_CUSTOM_MESH
-    #define MSG_UBL_BUILD_CUSTOM_MESH         _UxGT("Build Custom Mesh")
-  #endif
-  #ifndef MSG_UBL_BUILD_MESH_MENU
-    #define MSG_UBL_BUILD_MESH_MENU           _UxGT("Build Mesh")
-  #endif
-  #ifndef MSG_UBL_BUILD_PLA_MESH
-    #define MSG_UBL_BUILD_PLA_MESH            _UxGT("Build PLA Mesh")
-  #endif
-  #ifndef MSG_UBL_BUILD_ABS_MESH
-    #define MSG_UBL_BUILD_ABS_MESH            _UxGT("Build ABS Mesh")
-  #endif
-  #ifndef MSG_UBL_BUILD_COLD_MESH
-    #define MSG_UBL_BUILD_COLD_MESH           _UxGT("Build Cold Mesh")
-  #endif
-  #ifndef MSG_UBL_MESH_HEIGHT_ADJUST
-    #define MSG_UBL_MESH_HEIGHT_ADJUST        _UxGT("Adjust Mesh Height")
-  #endif
-  #ifndef MSG_UBL_MESH_HEIGHT_AMOUNT
-    #define MSG_UBL_MESH_HEIGHT_AMOUNT        _UxGT("Height Amount")
-  #endif
-  #ifndef MSG_UBL_VALIDATE_MESH_MENU
-    #define MSG_UBL_VALIDATE_MESH_MENU        _UxGT("Validate Mesh")
-  #endif
-  #ifndef MSG_UBL_VALIDATE_PLA_MESH
-    #define MSG_UBL_VALIDATE_PLA_MESH         _UxGT("Validate PLA Mesh")
-  #endif
-  #ifndef MSG_UBL_VALIDATE_ABS_MESH
-    #define MSG_UBL_VALIDATE_ABS_MESH         _UxGT("Validate ABS Mesh")
-  #endif
-  #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
-    #define MSG_UBL_VALIDATE_CUSTOM_MESH      _UxGT("Validate Custom Mesh")
-  #endif
-  #ifndef MSG_UBL_CONTINUE_MESH
-    #define MSG_UBL_CONTINUE_MESH             _UxGT("Continue Bed Mesh")
-  #endif
-  #ifndef MSG_UBL_MESH_LEVELING
-    #define MSG_UBL_MESH_LEVELING             _UxGT("Mesh Leveling")
-  #endif
-  #ifndef MSG_UBL_3POINT_MESH_LEVELING
-    #define MSG_UBL_3POINT_MESH_LEVELING      _UxGT("3-Point Leveling")
-  #endif
-  #ifndef MSG_UBL_GRID_MESH_LEVELING
-    #define MSG_UBL_GRID_MESH_LEVELING        _UxGT("Grid Mesh Leveling")
-  #endif
-  #ifndef MSG_UBL_MESH_LEVEL
-    #define MSG_UBL_MESH_LEVEL                _UxGT("Level Mesh")
-  #endif
-  #ifndef MSG_UBL_SIDE_POINTS
-    #define MSG_UBL_SIDE_POINTS               _UxGT("Side Points")
-  #endif
-  #ifndef MSG_UBL_MAP_TYPE
-    #define MSG_UBL_MAP_TYPE                  _UxGT("Map Type")
-  #endif
-  #ifndef MSG_UBL_OUTPUT_MAP
-    #define MSG_UBL_OUTPUT_MAP                _UxGT("Output Mesh Map")
-  #endif
-  #ifndef MSG_UBL_OUTPUT_MAP_HOST
-    #define MSG_UBL_OUTPUT_MAP_HOST           _UxGT("Output for Host")
-  #endif
-  #ifndef MSG_UBL_OUTPUT_MAP_CSV
-    #define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Output for CSV")
-  #endif
-  #ifndef MSG_UBL_INFO_UBL
-    #define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
-  #endif
-  #ifndef MSG_UBL_EDIT_MESH_MENU
-    #define MSG_UBL_EDIT_MESH_MENU            _UxGT("Edit Mesh")
-  #endif
-  #ifndef MSG_UBL_FILLIN_AMOUNT
-    #define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
-  #endif
-  #ifndef MSG_UBL_MANUAL_FILLIN
-    #define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
-  #endif
-  #ifndef MSG_UBL_SMART_FILLIN
-    #define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")
-  #endif
-  #ifndef MSG_UBL_FILLIN_MESH
-    #define MSG_UBL_FILLIN_MESH               _UxGT("Fill-in Mesh")
-  #endif
-  #ifndef MSG_UBL_INVALIDATE_ALL
-    #define MSG_UBL_INVALIDATE_ALL            _UxGT("Invalidate All")
-  #endif
-  #ifndef MSG_UBL_INVALIDATE_CLOSEST
-    #define MSG_UBL_INVALIDATE_CLOSEST        _UxGT("Invalidate Closest")
-  #endif
-  #ifndef MSG_UBL_FINE_TUNE_ALL
-    #define MSG_UBL_FINE_TUNE_ALL             _UxGT("Fine Tune All")
-  #endif
-  #ifndef MSG_UBL_FINE_TUNE_CLOSEST
-    #define MSG_UBL_FINE_TUNE_CLOSEST         _UxGT("Fine Tune Closest")
-  #endif
-  #ifndef MSG_UBL_STORAGE_MESH_MENU
-    #define MSG_UBL_STORAGE_MESH_MENU         _UxGT("Mesh Storage")
-  #endif
-  #ifndef MSG_UBL_STORAGE_SLOT
-    #define MSG_UBL_STORAGE_SLOT              _UxGT("Memory Slot")
-  #endif
-  #ifndef MSG_UBL_LOAD_MESH
-    #define MSG_UBL_LOAD_MESH                 _UxGT("Load Bed Mesh")
-  #endif
-  #ifndef MSG_UBL_SAVE_MESH
-    #define MSG_UBL_SAVE_MESH                 _UxGT("Save Bed Mesh")
-  #endif
-#endif  // AUTO_BED_LEVELING_UBL
+#ifndef MSG_UBL_DOING_G29
+  #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
+#endif
+#ifndef MSG_UBL_UNHOMED
+  #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ first")
+#endif
+#ifndef MSG_UBL_TOOLS
+  #define MSG_UBL_TOOLS                       _UxGT("UBL Tools")
+#endif
+#ifndef MSG_UBL_LEVEL_BED
+  #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
+#endif
+#ifndef MSG_UBL_MANUAL_MESH
+  #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
+#endif
+#ifndef MSG_UBL_BC_INSERT
+  #define MSG_UBL_BC_INSERT                   _UxGT("Place shim & measure")
+#endif
+#ifndef MSG_UBL_BC_INSERT2
+  #define MSG_UBL_BC_INSERT2                  _UxGT("Measure")
+#endif
+#ifndef MSG_UBL_BC_REMOVE
+  #define MSG_UBL_BC_REMOVE                   _UxGT("Remove & measure bed")
+#endif
+#ifndef MSG_UBL_MOVING_TO_NEXT
+  #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Moving to next")
+#endif
+#ifndef MSG_UBL_ACTIVATE_MESH
+  #define MSG_UBL_ACTIVATE_MESH               _UxGT("Activate UBL")
+#endif
+#ifndef MSG_UBL_DEACTIVATE_MESH
+  #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Deactivate UBL")
+#endif
+#ifndef MSG_UBL_SET_BED_TEMP
+  #define MSG_UBL_SET_BED_TEMP                _UxGT("Bed Temp")
+#endif
+#ifndef MSG_UBL_CUSTOM_BED_TEMP
+  #define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
+#endif
+#ifndef MSG_UBL_SET_HOTEND_TEMP
+  #define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Hotend Temp")
+#endif
+#ifndef MSG_UBL_CUSTOM_HOTEND_TEMP
+  #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
+#endif
+#ifndef MSG_UBL_EDIT_CUSTOM_MESH
+  #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Edit Custom Mesh")
+#endif
+#ifndef MSG_UBL_FINE_TUNE_MESH
+  #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Fine Tuning Mesh")
+#endif
+#ifndef MSG_UBL_DONE_EDITING_MESH
+  #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Done Editing Mesh")
+#endif
+#ifndef MSG_UBL_BUILD_CUSTOM_MESH
+  #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Build Custom Mesh")
+#endif
+#ifndef MSG_UBL_BUILD_MESH_MENU
+  #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Build Mesh")
+#endif
+#ifndef MSG_UBL_BUILD_PLA_MESH
+  #define MSG_UBL_BUILD_PLA_MESH              _UxGT("Build PLA Mesh")
+#endif
+#ifndef MSG_UBL_BUILD_ABS_MESH
+  #define MSG_UBL_BUILD_ABS_MESH              _UxGT("Build ABS Mesh")
+#endif
+#ifndef MSG_UBL_BUILD_COLD_MESH
+  #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Build Cold Mesh")
+#endif
+#ifndef MSG_UBL_MESH_HEIGHT_ADJUST
+  #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Adjust Mesh Height")
+#endif
+#ifndef MSG_UBL_MESH_HEIGHT_AMOUNT
+  #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("Height Amount")
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_MENU
+  #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Validate Mesh")
+#endif
+#ifndef MSG_UBL_VALIDATE_PLA_MESH
+  #define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Validate PLA Mesh")
+#endif
+#ifndef MSG_UBL_VALIDATE_ABS_MESH
+  #define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Validate ABS Mesh")
+#endif
+#ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
+  #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
+#endif
+#ifndef MSG_UBL_CONTINUE_MESH
+  #define MSG_UBL_CONTINUE_MESH               _UxGT("Continue Bed Mesh")
+#endif
+#ifndef MSG_UBL_MESH_LEVELING
+  #define MSG_UBL_MESH_LEVELING               _UxGT("Mesh Leveling")
+#endif
+#ifndef MSG_UBL_3POINT_MESH_LEVELING
+  #define MSG_UBL_3POINT_MESH_LEVELING        _UxGT("3-Point Leveling")
+#endif
+#ifndef MSG_UBL_GRID_MESH_LEVELING
+  #define MSG_UBL_GRID_MESH_LEVELING          _UxGT("Grid Mesh Leveling")
+#endif
+#ifndef MSG_UBL_MESH_LEVEL
+  #define MSG_UBL_MESH_LEVEL                  _UxGT("Level Mesh")
+#endif
+#ifndef MSG_UBL_SIDE_POINTS
+  #define MSG_UBL_SIDE_POINTS                 _UxGT("Side Points")
+#endif
+#ifndef MSG_UBL_MAP_TYPE
+  #define MSG_UBL_MAP_TYPE                    _UxGT("Map Type")
+#endif
+#ifndef MSG_UBL_OUTPUT_MAP
+  #define MSG_UBL_OUTPUT_MAP                  _UxGT("Output Mesh Map")
+#endif
+#ifndef MSG_UBL_OUTPUT_MAP_HOST
+  #define MSG_UBL_OUTPUT_MAP_HOST             _UxGT("Output for Host")
+#endif
+#ifndef MSG_UBL_OUTPUT_MAP_CSV
+  #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Output for CSV")
+#endif
+#ifndef MSG_UBL_OUTPUT_MAP_BACKUP
+  #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Off Printer Backup")
+#endif
+#ifndef MSG_UBL_INFO_UBL
+  #define MSG_UBL_INFO_UBL                    _UxGT("Output UBL Info")
+#endif
+#ifndef MSG_UBL_EDIT_MESH_MENU
+  #define MSG_UBL_EDIT_MESH_MENU              _UxGT("Edit Mesh")
+#endif
+#ifndef MSG_UBL_FILLIN_AMOUNT
+  #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Fill-in Amount")
+#endif
+#ifndef MSG_UBL_MANUAL_FILLIN
+  #define MSG_UBL_MANUAL_FILLIN               _UxGT("Manual Fill-in")
+#endif
+#ifndef MSG_UBL_SMART_FILLIN
+  #define MSG_UBL_SMART_FILLIN                _UxGT("Smart Fill-in")
+#endif
+#ifndef MSG_UBL_FILLIN_MESH
+  #define MSG_UBL_FILLIN_MESH                 _UxGT("Fill-in Mesh")
+#endif
+#ifndef MSG_UBL_INVALIDATE_ALL
+  #define MSG_UBL_INVALIDATE_ALL              _UxGT("Invalidate All")
+#endif
+#ifndef MSG_UBL_INVALIDATE_CLOSEST
+  #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Invalidate Closest")
+#endif
+#ifndef MSG_UBL_FINE_TUNE_ALL
+  #define MSG_UBL_FINE_TUNE_ALL               _UxGT("Fine Tune All")
+#endif
+#ifndef MSG_UBL_FINE_TUNE_CLOSEST
+  #define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Fine Tune Closest")
+#endif
+#ifndef MSG_UBL_STORAGE_MESH_MENU
+  #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Mesh Storage")
+#endif
+#ifndef MSG_UBL_STORAGE_SLOT
+  #define MSG_UBL_STORAGE_SLOT                _UxGT("Memory Slot")
+#endif
+#ifndef MSG_UBL_LOAD_MESH
+  #define MSG_UBL_LOAD_MESH                   _UxGT("Load Bed Mesh")
+#endif
+#ifndef MSG_UBL_SAVE_MESH
+  #define MSG_UBL_SAVE_MESH                   _UxGT("Save Bed Mesh")
+#endif
+#ifndef MSG_UBL_SAVE_ERROR
+  #define MSG_UBL_SAVE_ERROR                  _UxGT("Err: UBL Save")
+#endif
+#ifndef MSG_UBL_RESTORE_ERROR
+  #define MSG_UBL_RESTORE_ERROR               _UxGT("Err: UBL Restore")
+#endif
+#ifndef MSG_UBL_Z_OFFSET_STOPPED
+  #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Offset Stopped")
+#endif
+#ifndef MSG_UBL_STEP_BY_STEP_MENU
+  #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
+#endif
 
 #ifndef MSG_MOVING
   #define MSG_MOVING                          _UxGT("Moving...")
@@ -684,6 +724,21 @@
 #endif
 #ifndef MSG_INFO_PRINTER_MENU
   #define MSG_INFO_PRINTER_MENU               _UxGT("Printer Info")
+#endif
+#ifndef MSG_3POINT_LEVELING
+  #define MSG_3POINT_LEVELING                 _UxGT("3-Point Leveling")
+#endif
+#ifndef MSG_LINEAR_LEVELING
+  #define MSG_LINEAR_LEVELING                 _UxGT("Linear Leveling")
+#endif
+#ifndef MSG_BILINEAR_LEVELING
+  #define MSG_BILINEAR_LEVELING               _UxGT("Bilinear Leveling")
+#endif
+#ifndef MSG_UBL_LEVELING
+  #define MSG_UBL_LEVELING                    _UxGT("Unified Bed Leveling")
+#endif
+#ifndef MSG_MESH_LEVELING
+  #define MSG_MESH_LEVELING                   _UxGT("Mesh Leveling")
 #endif
 #ifndef MSG_INFO_STATS_MENU
   #define MSG_INFO_STATS_MENU                 _UxGT("Printer Stats")

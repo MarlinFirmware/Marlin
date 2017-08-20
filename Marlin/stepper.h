@@ -91,10 +91,17 @@ class Stepper {
       static bool performing_homing;
     #endif
 
+    #if HAS_MOTOR_CURRENT_PWM
+      #ifndef PWM_MOTOR_CURRENT
+        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+      #endif
+      static uint32_t motor_current_setting[3];
+    #endif
+
   private:
 
-    static unsigned char last_direction_bits;        // The next stepping-bits to be output
-    static unsigned int cleaning_buffer_counter;
+    static uint8_t last_direction_bits;        // The next stepping-bits to be output
+    static uint16_t cleaning_buffer_counter;
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static bool locked_z_motor, locked_z2_motor;
@@ -131,13 +138,6 @@ class Stepper {
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
-
-    #if HAS_MOTOR_CURRENT_PWM
-      #ifndef PWM_MOTOR_CURRENT
-        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
-      #endif
-      static constexpr int motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    #endif
 
     //
     // Positions of stepper motors, in step units
@@ -243,20 +243,20 @@ class Stepper {
     static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-      static void digitalPotWrite(int address, int value);
-      static void digipot_current(uint8_t driver, int current);
+      static void digitalPotWrite(const int16_t address, const int16_t value);
+      static void digipot_current(const uint8_t driver, const int16_t current);
     #endif
 
     #if HAS_MICROSTEPS
-      static void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
-      static void microstep_mode(uint8_t driver, uint8_t stepping);
+      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2);
+      static void microstep_mode(const uint8_t driver, const uint8_t stepping);
       static void microstep_readings();
     #endif
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
-      static FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
-      static FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
+      static FORCE_INLINE void set_homing_flag(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_z_lock(const bool state) { locked_z_motor = state; }
+      static FORCE_INLINE void set_z2_lock(const bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -278,6 +278,10 @@ class Stepper {
     static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
+
+    #if HAS_MOTOR_CURRENT_PWM
+      static void refresh_motor_power();
+    #endif
 
   private:
 
@@ -369,7 +373,7 @@ class Stepper {
         }
       #endif
 
-      // SERIAL_ECHO_START;
+      // SERIAL_ECHO_START();
       // SERIAL_ECHOPGM("advance :");
       // SERIAL_ECHO(current_block->advance/256.0);
       // SERIAL_ECHOPGM("advance rate :");
@@ -380,7 +384,9 @@ class Stepper {
       // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
-    static void digipot_init();
+    #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+      static void digipot_init();
+    #endif
 
     #if HAS_MICROSTEPS
       static void microstep_init();

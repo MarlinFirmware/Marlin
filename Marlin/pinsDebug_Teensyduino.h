@@ -25,21 +25,16 @@
 //  do not function the same as the other Arduino extensions
 //
 
+#ifndef __PINSDEBUG_TEENSYDUINO_H__
+#define __PINSDEBUG_TEENSYDUINO_H__
 
-#define TEENSYDUINO_IDE
+#undef NUM_DIGITAL_PINS
+#define NUM_DIGITAL_PINS 48  // Teensy says 46 but FASTIO is 48
 
-//digitalPinToTimer(pin) function works like Arduino but Timers are not defined
-#define TIMER0B 1
-#define TIMER1A 7
-#define TIMER1B 8
-#define TIMER1C 9
-#define TIMER2A 6
-#define TIMER2B 2
-#define TIMER3A 5
-#define TIMER3B 4
-#define TIMER3C 3
+// "digitalPinToPort" function just returns the pin number so need to create our own.
+// Can't use the name "digitalPinToPort" for our own because it interferes with the
+// FAST_PWM_FAN function if we do
 
-// digitalPinToPort function just returns the pin number so need to create our own
 #define PA 1
 #define PB 2
 #define PC 3
@@ -47,9 +42,8 @@
 #define PE 5
 #define PF 6
 
-#undef digitalPinToPort
 
-const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
+const uint8_t PROGMEM digital_pin_to_port_PGM_Teensy[] = {
   PD, // 0  - PD0 - INT0 - PWM
   PD, // 1  - PD1 - INT1 - PWM
   PD, // 2  - PD2 - INT2 - RX
@@ -100,7 +94,7 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
   PE, // 47 - PE3 (not defined in teensyduino)
 };
 
-#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
+#define digitalPinToPort_Teensy(P) ( pgm_read_byte( digital_pin_to_port_PGM_Teensy + (P) ) )
 
 // digitalPinToBitMask(pin) is OK
 
@@ -108,3 +102,5 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
                                              // disable the PWMs so we can use it as is
 
 // portModeRegister(pin) is OK
+
+#endif // __PINSDEBUG_TEENSYDUINO_H__

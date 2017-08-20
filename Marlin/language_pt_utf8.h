@@ -22,6 +22,7 @@
 
 /**
  * Portuguese
+ * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
  * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language

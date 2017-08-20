@@ -125,7 +125,7 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  * define SOFTWARE_SPI to use bit-bang SPI
  */
 //------------------------------------------------------------------------------
-#if MEGA_SOFT_SPI && (defined(__AVR_ATmega1280__)||defined(__AVR_ATmega2560__))
+#if MEGA_SOFT_SPI
   #define SOFTWARE_SPI
 #elif USE_SOFTWARE_SPI
   #define SOFTWARE_SPI

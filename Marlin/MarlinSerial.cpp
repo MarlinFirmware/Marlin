@@ -320,7 +320,8 @@
           // space for us.
           if (TEST(M_UCSRxA, M_UDREx))
             _tx_udr_empty_irq();
-        } else {
+        }
+        else {
           // nop, the interrupt handler will free up space for us
         }
       }

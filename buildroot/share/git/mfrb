@@ -5,16 +5,15 @@
 # Do "git rebase -i" against the "target" branch (RCBugFix or dev)
 #
 
-MFINFO=$(mfinfo) || exit
-IFS=' ' read -a INFO <<< "$MFINFO"
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
 
-case "$#" in
-  0 ) ;;
-  * ) echo "Usage: `basename $0`" 1>&2 ; exit 1 ;;
-esac
+MFINFO=$(mfinfo) || exit 1
+IFS=' ' read -a INFO <<< "$MFINFO"
+TARG=${INFO[3]}
+BRANCH=${INFO[5]}
 
 # If the branch isn't currently the PR target
-if [[ ${INFO[3]} != ${INFO[4]} ]]; then
+if [[ $TARG != $BRANCH ]]; then
   git fetch upstream
-  git rebase upstream/${INFO[3]} && git rebase -i upstream/${INFO[3]}
+  git rebase upstream/$TARG && git rebase -i upstream/$TARG
 fi

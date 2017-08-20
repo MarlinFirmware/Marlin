@@ -5,14 +5,15 @@
 # Create a new branch from the default target with the given name
 #
 
-MFINFO=$(mfinfo) || exit
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 TARG=${INFO[3]}
 
 case "$#" in
   0 ) BRANCH=pr_for_$TARG-$(date +"%G-%m-%d_%H.%M.%S") ;;
   1 ) BRANCH=$1 ;;
-  * ) echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1 ;;
 esac
 
 git fetch upstream

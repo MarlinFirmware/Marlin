@@ -134,9 +134,9 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN    49 // For easy adapter board
+  #define SD_DETECT_PIN    49   // For easy adapter board
   #undef BEEPER_PIN
-  #define  BEEPER_PIN  12     // 33 isn't physically available to the LCD display
+  #define  BEEPER_PIN      12   // 33 isn't physically available to the LCD display
 #else
   #define STAT_LED_RED_PIN 32
   #define STAT_LED_BLUE_PIN 35
@@ -146,9 +146,9 @@
 // Misc. Functions
 //
 #if ENABLED(CASE_LIGHT_ENABLE)  && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
-  #undef DOGLCD_A0            // steal pin 44 for the case light; if you have a Viki2 and have connected it
-  #define DOGLCD_A0      57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
-                                // as the wiring diagram uses pin 44 for DOGLCD_A0
+  #undef DOGLCD_A0            // Steal pin 44 for the case light; if you have a Viki2 and have connected it
+  #define DOGLCD_A0        57 // following the Panucatt wiring diagram, you may need to tweak these pin assignments
+                              // as the wiring diagram uses pin 44 for DOGLCD_A0
 #endif
 
 //

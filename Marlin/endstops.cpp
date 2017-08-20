@@ -161,7 +161,7 @@ void Endstops::report_state() {
     #define ENDSTOP_HIT_TEST_Y() _ENDSTOP_HIT_TEST(Y,'Y')
     #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
 
-    SERIAL_ECHO_START;
+    SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
     ENDSTOP_HIT_TEST_X();
     ENDSTOP_HIT_TEST_Y();
@@ -171,7 +171,7 @@ void Endstops::report_state() {
       #define P_AXIS Z_AXIS
       if (TEST(endstop_hit_bits, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
     #endif
-    SERIAL_EOL;
+    SERIAL_EOL();
 
     #if ENABLED(ULTRA_LCD)
       lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);

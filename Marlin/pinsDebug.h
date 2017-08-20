@@ -20,17 +20,12 @@
  *
  */
 
-
 bool endstop_monitor_flag = false;
 
-#define NAME_FORMAT "%-28s"   // one place to specify the format of all the sources of names
+#define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
                                // "-" left justify, "28" minimum width of name, pad with blanks
 
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
-
-#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
-#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
-#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
@@ -46,13 +41,13 @@ bool endstop_monitor_flag = false;
 
 // first pass - put the name strings into FLASH
 
-#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const unsigned char ENTRY_NAME[] PROGMEM = { PIN_NAME };
+#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const char ENTRY_NAME[] PROGMEM = { PIN_NAME };
 #define _ADD_PIN(PIN_NAME, COUNTER) _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
 #define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 56
+#line 51
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
@@ -69,12 +64,18 @@ bool endstop_monitor_flag = false;
 #undef REPORT_NAME_DIGITAL
 #undef REPORT_NAME_ANALOG
 
-#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { (const char*)ENTRY_NAME, (const char*)NAME, (const char*)IS_DIGITAL },
+#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { ENTRY_NAME, NAME, IS_DIGITAL },
 #define _ADD_PIN(NAME, COUNTER, IS_DIGITAL) _ADD_PIN_2(entry_NAME_##COUNTER, NAME, IS_DIGITAL)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, (uint8_t)1)
-#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, 0)
+#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, true)
+#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
 
-const char* const pin_array[][3] PROGMEM = {
+typedef struct {
+  const char * const name;
+  uint8_t pin;
+  bool is_digital;
+} PinInfo;
+
+const PinInfo pin_array[] PROGMEM = {
 
   /**
    *  [pin name]  [pin number]  [is digital or analog]  1 = digital, 0 = analog
@@ -88,27 +89,52 @@ const char* const pin_array[][3] PROGMEM = {
   // manually add pins ...
   #if SERIAL_PORT == 0
     #if AVR_ATmega2560_FAMILY
-      { RXD_NAME, "0", "1" },
-      { TXD_NAME, "1", "1" },
+      { RXD_NAME, 0, true },
+      { TXD_NAME, 1, true },
     #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME, "8", "1" },
-      { TXD_NAME, "9", "1" },
+      { RXD_NAME, 8, true },
+      { TXD_NAME, 9, true },
     #endif
   #endif
 
   #include "pinsDebug_list.h"
-  #line 101
+  #line 102
 
 };
 
-#define n_array (sizeof(pin_array) / sizeof(char*)) / 3
+#define AVR_ATmega2560_FAMILY_PLUS_70 (MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D \
+|| MOTHERBOARD == BOARD_MIGHTYBOARD_REVE \
+|| MOTHERBOARD == BOARD_MINIRAMBO \
+|| MOTHERBOARD == BOARD_SCOOVO_X9H)
 
-#ifndef TIMER1B
-  // working with Teensyduino extension so need to re-define some things
+#if AVR_AT90USB1286_FAMILY
+  // Working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
+  // Can't use the "digitalPinToPort" function from the Teensyduino type IDEs
+  // portModeRegister takes a different argument
+  #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
+  #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
+  #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
+  #define get_pinMode(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
+#elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
+  #include "pinsDebug_plus_70.h"
+  #define digitalPinToTimer_DEBUG(p) digitalPinToTimer_plus_70(p)
+  #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask_plus_70(p)
+  #define digitalPinToPort_DEBUG(p) digitalPinToPort_plus_70(p)
+  bool get_pinMode(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
+#else
+  #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
+  #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
+  #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
+  bool get_pinMode(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 #endif
 
-#define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", V); SERIAL_ECHO(buffer); }while(0)
+#if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
+  #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it
+  #define NUM_DIGITAL_PINS 32     // set to digital only + digital/analog
+#endif
+
+#define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), V); SERIAL_ECHO(buffer); }while(0)
 #define PWM_CASE(N,Z)                                           \
   case TIMER##N##Z:                                             \
     if (TCCR##N##A & (_BV(COM##N##Z##1) | _BV(COM##N##Z##0))) { \
@@ -123,11 +149,13 @@ const char* const pin_array[][3] PROGMEM = {
 static bool pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
 
-  switch (digitalPinToTimer(pin)) {
+  switch (digitalPinToTimer_DEBUG(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
       #ifdef TIMER0A
-        PWM_CASE(0, A);
+        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+          PWM_CASE(0, A);
+        #endif
       #endif
       PWM_CASE(0, B);
     #endif
@@ -244,9 +272,10 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 static void err_is_counter()     { SERIAL_PROTOCOLPGM("   non-standard PWM mode"); }
 static void err_is_interrupt()   { SERIAL_PROTOCOLPGM("   compare interrupt enabled"); }
 static void err_prob_interrupt() { SERIAL_PROTOCOLPGM("   overflow interrupt enabled"); }
+static void print_is_also_tied() { SERIAL_PROTOCOLPGM(" is also tied to this pin"); SERIAL_PROTOCOL_SP(14); }
 
 void com_print(uint8_t N, uint8_t Z) {
-  uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
+  const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_PROTOCOLPGM("    COM");
   SERIAL_PROTOCOLCHAR(N + '0');
   switch (Z) {
@@ -264,8 +293,8 @@ void com_print(uint8_t N, uint8_t Z) {
 
 void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
   char buffer[20];   // for the sprintf statements
-  uint8_t *TCCRB = (uint8_t*)TCCR_B(T);
-  uint8_t *TCCRA = (uint8_t*)TCCR_A(T);
+  const uint8_t *TCCRB = (uint8_t*)TCCR_B(T),
+                *TCCRA = (uint8_t*)TCCR_A(T);
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
@@ -275,11 +304,11 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   SERIAL_PROTOCOL_SP(3);
 
   if (N == 3) {
-    uint8_t *OCRVAL8 = (uint8_t*)OCR_VAL(T, L - 'A');
+    const uint8_t *OCRVAL8 = (uint8_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL8);
   }
   else {
-    uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
+    const uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL16);
   }
   SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
@@ -294,12 +323,12 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR("B: ", *TCCRB);
 
-  uint8_t *TMSK = (uint8_t*)TIMSK(T);
+  const uint8_t *TMSK = (uint8_t*)TIMSK(T);
   SERIAL_PROTOCOLPGM("    TIMSK");
   SERIAL_PROTOCOLCHAR(T + '0');
   SERIAL_PROTOCOLPAIR(": ", *TMSK);
 
-  uint8_t OCIE = L - 'A' + 1;
+  const uint8_t OCIE = L - 'A' + 1;
   if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }
   else        { if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13) err_is_counter(); }
   if (TEST(*TMSK, OCIE)) err_is_interrupt();
@@ -307,11 +336,13 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
 }
 
 static void pwm_details(uint8_t pin) {
-  switch (digitalPinToTimer(pin)) {
+  switch (digitalPinToTimer_DEBUG(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
       #ifdef TIMER0A
-        case TIMER0A: timer_prefix(0, 'A', 3); break;
+        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+          case TIMER0A: timer_prefix(0, 'A', 3); break;
+        #endif
       #endif
       case TIMER0B: timer_prefix(0, 'B', 3); break;
     #endif
@@ -357,136 +388,193 @@ static void pwm_details(uint8_t pin) {
   // on pins that have two PWMs, print info on second PWM
   #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
     // looking for port B7 - PWMs 0A and 1C
-    if (digitalPinToPort(pin) == 2 && digitalPinToBitMask(pin) == 0x80) {
-      #ifndef TEENSYDUINO_IDE
+    if (digitalPinToPort_DEBUG(pin) == 'B' - 64 && 0x80 == digitalPinToBitMask_DEBUG(pin)) {
+      #if !AVR_AT90USB1286_FAMILY
         SERIAL_PROTOCOLPGM("\n .");
         SERIAL_PROTOCOL_SP(18);
-        SERIAL_PROTOCOLPGM("TIMER1C is also tied to this pin");
-        SERIAL_PROTOCOL_SP(13);
+        SERIAL_PROTOCOLPGM("TIMER1C");
+        print_is_also_tied();
         timer_prefix(1, 'C', 4);
       #else
         SERIAL_PROTOCOLPGM("\n .");
         SERIAL_PROTOCOL_SP(18);
-        SERIAL_PROTOCOLPGM("TIMER0A is also tied to this pin");
-        SERIAL_PROTOCOL_SP(13);
+        SERIAL_PROTOCOLPGM("TIMER0A");
+        print_is_also_tied();
         timer_prefix(0, 'A', 3);
       #endif
     }
   #endif
 } // pwm_details
 
-bool get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin); }
-
-#ifndef digitalRead_mod             // use Teensyduino's version of digitalRead - it doesn't disable the PWMs
-  int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
-    uint8_t port = digitalPinToPort(pin);
-    return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask(pin)) ? HIGH : LOW;
+#ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
+  int digitalRead_mod(const int8_t pin) { // same as digitalRead except the PWM stop section has been removed
+    const uint8_t port = digitalPinToPort_DEBUG(pin);
+    return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask_DEBUG(pin)) ? HIGH : LOW;
   }
 #endif
 
 void print_port(int8_t pin) {   // print port number
-  #ifdef digitalPinToPort
+  #ifdef digitalPinToPort_DEBUG
+    uint8_t x;
     SERIAL_PROTOCOLPGM("  Port: ");
-    uint8_t x = digitalPinToPort(pin) + 64;
+    #if AVR_AT90USB1286_FAMILY
+      x = (pin == 46 || pin == 47) ? 'E' : digitalPinToPort_DEBUG(pin) + 64;
+    #else
+      x = digitalPinToPort_DEBUG(pin) + 64;
+    #endif
     SERIAL_CHAR(x);
-    uint8_t temp = digitalPinToBitMask(pin);
-    for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+
+    #if AVR_AT90USB1286_FAMILY
+      if (pin == 46)
+        x = '2';
+      else if (pin == 47)
+        x = '3';
+      else {
+        uint8_t temp = digitalPinToBitMask_DEBUG(pin);
+        for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      }
+    #else
+      uint8_t temp = digitalPinToBitMask_DEBUG(pin);
+      for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+    #endif
     SERIAL_CHAR(x);
   #else
     SERIAL_PROTOCOL_SP(10);
   #endif
 }
 
+static void print_input_or_output(const bool isout) {
+  serialprintPGM(isout ? PSTR("Output = ") : PSTR("Input  = "));
+}
+
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = true) {
+inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
   uint8_t temp_char;
-  char *name_mem_pointer;
-  char buffer[30];   // for the sprintf statements
-  bool found = false,
-       multi_name_pin = false;
-  for (uint8_t x = 0; x < n_array; x++)  {    // scan entire array and report all instances of this pin
-    if (pgm_read_byte(&pin_array[x][1]) == pin) {
+  char *name_mem_pointer, buffer[30];   // for the sprintf statements
+  bool found = false, multi_name_pin = false;
+  for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
+    if (pgm_read_byte(&pin_array[x].pin) == pin) {
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
-        sprintf(buffer, "PIN: %3d ", pin);     // digital pin number
+        sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);     // digital pin number
         SERIAL_ECHO(buffer);
         print_port(pin);
         if (IS_ANALOG(pin)) {
-          sprintf(buffer, " (A%2d)  ", int(pin - analogInputToDigitalPin(0)));    // analog pin number
+          sprintf_P(buffer, PSTR(" (A%2d)  "), int(pin - analogInputToDigitalPin(0)));    // analog pin number
           SERIAL_ECHO(buffer);
         }
         else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
       }
       else {
         SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(25);  // add padding if not the first instance found
+        SERIAL_ECHO_SP(26 + strlen(start_string));  // add padding if not the first instance found
       }
-      name_mem_pointer = (char*)pgm_read_word(&pin_array[x][0]);
+      name_mem_pointer = (char*)pgm_read_word(&pin_array[x].name);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
-        if (temp_char != 0) MYSERIAL.write(temp_char);
+        if (temp_char != 0)
+          MYSERIAL.write(temp_char);
         else {
           for (uint8_t i = 0; i < 28 - y; i++) MYSERIAL.write(' ');
           break;
         }
       }
-      if (pin_is_protected(pin) && !ignore)
-        SERIAL_ECHOPGM("protected ");
-      else {
-        if (!(pgm_read_byte(&pin_array[x][2]))) {
-          sprintf(buffer, "Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-          SERIAL_ECHO(buffer);
-        }
+      if (extended) {
+        if (pin_is_protected(pin) && !ignore)
+          SERIAL_ECHOPGM("protected ");
         else {
-          if (!get_pinMode(pin)) {
-            //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
-                                           // because this could interfere with inductive/capacitive
-                                           // sensors (high impedance voltage divider) and with PT100 amplifier
-            SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+          #if AVR_AT90USB1286_FAMILY //Teensy IDEs don't know about these pins so must use FASTIO
+            if (pin == 46 || pin == 47) {
+              if (pin == 46) {
+                print_input_or_output(GET_OUTPUT(46));
+                SERIAL_PROTOCOL(READ(46));
+              }
+              else if (pin == 47) {
+                print_input_or_output(GET_OUTPUT(47));
+                SERIAL_PROTOCOL(READ(47));
+              }
+            }
+            else
+          #endif
+          {
+            if (!(pgm_read_byte(&pin_array[x].is_digital))) {
+              sprintf_P(buffer, PSTR("Analog in = %5d"), analogRead(pin - analogInputToDigitalPin(0)));
+              SERIAL_ECHO(buffer);
+            }
+            else {
+
+              if (!get_pinMode(pin)) {
+                //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
+                                               // because this could interfere with inductive/capacitive
+                                               // sensors (high impedance voltage divider) and with PT100 amplifier
+                print_input_or_output(false);
+                SERIAL_PROTOCOL(digitalRead_mod(pin));
+              }
+              else if (pwm_status(pin)) {
+                // do nothing
+              }
+              else {
+                print_input_or_output(true);
+                SERIAL_PROTOCOL(digitalRead_mod(pin));
+              }
+            }
+            if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
           }
-          else if (pwm_status(pin)) {
-            // do nothing
-          }
-          else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
         }
-        if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
       }
-      SERIAL_EOL;
+      SERIAL_EOL();
     }  // end of IF
   } // end of for loop
 
   if (!found) {
-    sprintf(buffer, "PIN: %3d ", pin);
+    sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);
     SERIAL_ECHO(buffer);
     print_port(pin);
     if (IS_ANALOG(pin)) {
-      sprintf(buffer, " (A%2d)  ", int(pin - analogInputToDigitalPin(0)));    // analog pin number
+      sprintf_P(buffer, PSTR(" (A%2d)  "), int(pin - analogInputToDigitalPin(0)));    // analog pin number
       SERIAL_ECHO(buffer);
     }
     else
       SERIAL_ECHO_SP(8);   // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
-    if (get_pinMode(pin)) {
-      SERIAL_PROTOCOL_SP(12);
-      SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
-    }
-    else {
-      if (IS_ANALOG(pin)) {
-        sprintf(buffer, "   Analog in = %5d", analogRead(pin - analogInputToDigitalPin(0)));
-        SERIAL_ECHO(buffer);
+    if (extended) {
+      #if AVR_AT90USB1286_FAMILY  //Teensy IDEs don't know about these pins so must use FASTIO
+        if (pin == 46 || pin == 47) {
+          SERIAL_PROTOCOL_SP(12);
+          if (pin == 46) {
+            print_input_or_output(GET_OUTPUT(46));
+            SERIAL_PROTOCOL(READ(46));
+          }
+          else {
+            print_input_or_output(GET_OUTPUT(47));
+            SERIAL_PROTOCOL(READ(47));
+          }
+        }
+        else
+      #endif
+      {
+        if (get_pinMode(pin)) {
+          SERIAL_PROTOCOL_SP(12);
+          print_input_or_output(true);
+          SERIAL_PROTOCOL(digitalRead_mod(pin));
+        }
+        else {
+          if (IS_ANALOG(pin)) {
+            sprintf_P(buffer, PSTR("   Analog in = %5d"), analogRead(pin - analogInputToDigitalPin(0)));
+            SERIAL_ECHO(buffer);
+            SERIAL_ECHOPGM("   ");
+          }
+          else
+          SERIAL_ECHO_SP(12);   // add padding if not an analog pin
+
+          print_input_or_output(false);
+          SERIAL_PROTOCOL(digitalRead_mod(pin));
+        }
+        //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
+        if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
       }
-      else
-        SERIAL_ECHO_SP(9);   // add padding if not an analog pin
-
-      SERIAL_PROTOCOLPAIR("   Input  = ", digitalRead_mod(pin));
     }
-    //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-    if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
-}
-
-inline void report_pin_state(int8_t pin) {
-  report_pin_state_extended(pin, false, false);
 }

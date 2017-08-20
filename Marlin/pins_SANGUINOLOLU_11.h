@@ -209,16 +209,39 @@
   #define BTN_EN2               10
 
   #if ENABLED(LCD_I2C_PANELOLU2)
+
     #if IS_MELZI
       #define BTN_ENC           29
       #define LCD_SDSS          30 // Panelolu2 SD card reader rather than the Melzi
     #else
       #define BTN_ENC           30
     #endif
-  #else  // !Panelolu2
+
+  #elif ENABLED(LCD_FOR_MELZI)
+
+    #define LCD_PINS_RS         17
+    #define LCD_PINS_ENABLE     16
+    #define LCD_PINS_D4         11
+    #define BTN_ENC             28
+    #define BTN_EN1             29
+    #define BTN_EN2             30
+
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_0_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_2 DELAY_3_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_0_NOP
+    #endif
+
+  #else  // !LCD_I2C_PANELOLU2 && !LCD_FOR_MELZI
+
     #define BTN_ENC             16
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
-  #endif // !Panelolu2
+
+  #endif
 
   #define SD_DETECT_PIN         -1
 

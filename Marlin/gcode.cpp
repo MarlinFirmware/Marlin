@@ -150,7 +150,7 @@ void GCodeParser::parse(char *p) {
   #endif
 
   // Only use string_arg for these M codes
-  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 928: string_arg = p; return; default: break; }
+  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return; default: break; }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;
@@ -184,7 +184,7 @@ void GCodeParser::parse(char *p) {
 
     if (PARAM_TEST) {
 
-      while (*p == ' ') p++;                    // skip spaces vetween parameters & values
+      while (*p == ' ') p++;                    // Skip spaces between parameters & values
       const bool has_num = DECIMAL_SIGNED(*p);  // The parameter has a number [-+0-9.]
 
       #if ENABLED(DEBUG_GCODE_PARSER)
@@ -203,7 +203,7 @@ void GCodeParser::parse(char *p) {
       }
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) SERIAL_EOL;
+        if (debug) SERIAL_EOL();
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
@@ -222,17 +222,17 @@ void GCodeParser::parse(char *p) {
     }
 
     if (!WITHIN(*p, 'A', 'Z')) {
-      while (*p && NUMERIC(*p)) p++;              // Skip over the value section of a parameter
-      while (*p == ' ') p++;                      // Skip over all spaces
+      while (*p && NUMERIC(*p)) p++;            // Skip over the value section of a parameter
+      while (*p == ' ') p++;                    // Skip over all spaces
     }
   }
 }
 
 void GCodeParser::unknown_command_error() {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);
   SERIAL_CHAR('"');
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)

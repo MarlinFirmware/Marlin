@@ -63,7 +63,7 @@ vector_3 vector_3::get_normal() {
   return normalized;
 }
 
-float vector_3::get_length() { return sqrt(sq(x) + sq(y) + sq(z)); }
+float vector_3::get_length() { return SQRT(sq(x) + sq(y) + sq(z)); }
 
 void vector_3::normalize() {
   const float inv_length = 1.0 / get_length();
@@ -89,7 +89,7 @@ void vector_3::debug(const char * const title) {
   SERIAL_PROTOCOL_F(y, 6);
   SERIAL_PROTOCOLPGM(" z: ");
   SERIAL_PROTOCOL_F(z, 6);
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 void apply_rotation_xyz(matrix_3x3 matrix, float &x, float &y, float &z) {
@@ -152,7 +152,7 @@ void matrix_3x3::debug(const char * const title) {
       SERIAL_PROTOCOLCHAR(' ');
       count++;
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 }
 

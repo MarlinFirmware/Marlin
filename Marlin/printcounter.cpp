@@ -108,7 +108,7 @@ void PrintCounter::showStats() {
   SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
     - ((this->isRunning() || this->isPaused()) ? 1 : 0));
 
-  SERIAL_EOL;
+  SERIAL_EOL();
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
   elapsed = this->data.printTime;
@@ -135,14 +135,14 @@ void PrintCounter::showStats() {
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_EOL;
+  SERIAL_EOL();
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
   SERIAL_ECHOPGM("Filament used: ");
   SERIAL_ECHO(this->data.filamentUsed / 1000);
   SERIAL_ECHOPGM("m");
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 void PrintCounter::tick() {
