@@ -28,6 +28,9 @@
 
 #define LOW          0x00
 #define HIGH         0x01
+#define CHANGE       0x02
+#define FALLING      0x03
+#define RISING       0x04
 
 #define INPUT        0x00
 #define OUTPUT       0x01
@@ -64,6 +67,10 @@ typedef uint8_t byte;
 //Interrupts
 void cli(void); // Disable
 void sei(void); // Enable
+void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode);
+void detachInterrupt(uint32_t pin);
+extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
+extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 
 // Program Memory
 #define pgm_read_ptr(address_short) (*(address_short))

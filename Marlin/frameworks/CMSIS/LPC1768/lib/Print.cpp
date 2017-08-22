@@ -28,7 +28,10 @@
 #include "Print.h"
 #include <stdarg.h>
 
-#define PrintfEnable  0
+#define PrintfEnable  1
+typedef signed short sint16_t;
+typedef signed long sint32_t;
+
 // Public Methods //////////////////////////////////////////////////////////////
 
 /* default implementation: may be overridden */
