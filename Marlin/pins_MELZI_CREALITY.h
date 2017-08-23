@@ -24,7 +24,7 @@
  * Melzi (Creality) pin assignments
  */
 
-#define BOARD_NAME "Melzi Creality"
+#define BOARD_NAME "Melzi (Creality)"
 
 #ifdef __AVR_ATmega1284P__
   #define LARGE_FLASH true

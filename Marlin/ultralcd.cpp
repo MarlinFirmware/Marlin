@@ -546,6 +546,11 @@ uint16_t max_display_update_time = 0;
       lcd_return_to_status();
   }
 
+  void lcd_goto_previous_menu_no_defer() {
+    defer_return_to_status = false;
+    lcd_goto_previous_menu();
+  }
+
 #endif // ULTIPANEL
 
 /**
@@ -971,7 +976,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(BABYSTEPPING)
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+      if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
@@ -994,7 +999,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       void lcd_babystep_zoffset() {
-        if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+        if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
         defer_return_to_status = true;
         ENCODER_DIRECTION_NORMAL();
         if (encoderPosition) {
@@ -1545,7 +1550,52 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_refresh_zprobe_zoffset() { refresh_zprobe_zoffset(); }
   #endif
 
-#if ENABLED(LCD_BED_LEVELING)
+
+  #if ENABLED(LEVEL_BED_CORNERS)
+
+    /**
+     * Level corners, starting in the front-left corner.
+     */
+    static int8_t bed_corner;
+    void _lcd_goto_next_corner() {
+      line_to_z(LOGICAL_Z_POSITION(4.0));
+      switch (bed_corner) {
+        case 0:
+          current_position[X_AXIS] = X_MIN_BED + 10;
+          current_position[Y_AXIS] = Y_MIN_BED + 10;
+          break;
+        case 1:
+          current_position[X_AXIS] = X_MAX_BED - 10;
+          break;
+        case 2:
+          current_position[Y_AXIS] = Y_MAX_BED - 10;
+          break;
+        case 3:
+          current_position[X_AXIS] = X_MIN_BED + 10;
+          break;
+      }
+      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+      line_to_z(LOGICAL_Z_POSITION(0.0));
+      if (++bed_corner > 3) bed_corner = 0;
+    }
+
+    void _lcd_corner_submenu() {
+      START_MENU();
+      MENU_ITEM(function, MSG_NEXT_CORNER, _lcd_goto_next_corner);
+      MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
+      END_MENU();
+    }
+
+    void _lcd_level_bed_corners() {
+      defer_return_to_status = true;
+      lcd_goto_screen(_lcd_corner_submenu);
+      bed_corner = 0;
+      _lcd_goto_next_corner();
+    }
+
+  #endif // LEVEL_BED_CORNERS
+
+  #if ENABLED(LCD_BED_LEVELING)
 
     /**
      *
@@ -1788,10 +1838,11 @@ void kill_screen(const char* lcd_msg) {
      * << Prepare
      *    Auto Home           (if homing needed)
      *    Leveling On/Off     (if data exists, and homed)
-     *    Level Bed
      *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
      *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
      *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
+     *    Level Bed >
+     *    Level Corners >     (if homed)
      *    Load Settings       (Req: EEPROM_SETTINGS)
      *    Save Settings       (Req: EEPROM_SETTINGS)
      */
@@ -1825,6 +1876,12 @@ void kill_screen(const char* lcd_msg) {
       #endif
 
       MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
+
+      #if ENABLED(LEVEL_BED_CORNERS)
+        // Move to the next corner for leveling
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+      #endif
 
       #if ENABLED(EEPROM_SETTINGS)
         MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
@@ -2118,8 +2175,10 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      char UBL_LCD_GCODE[8];
+      char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
+      enqueue_and_echo_command(UBL_LCD_GCODE);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_LOADED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2127,8 +2186,10 @@ void kill_screen(const char* lcd_msg) {
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      char UBL_LCD_GCODE[8];
+      char UBL_LCD_GCODE[25];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
+      enqueue_and_echo_command(UBL_LCD_GCODE);
+      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_SAVED "."), ubl_storage_slot);
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
 
@@ -2141,11 +2202,18 @@ void kill_screen(const char* lcd_msg) {
      *    Save Bed Mesh
      */
     void _lcd_ubl_storage_mesh() {
+      int16_t a = settings.calc_num_meshes();
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
-      MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, 9);
-      MENU_ITEM(function, MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
-      MENU_ITEM(function, MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+      if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
+        STATIC_ITEM(MSG_NO_STORAGE);
+        STATIC_ITEM(MSG_INIT_EEPROM);
+      }
+      else {
+        MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
+        MENU_ITEM(function, MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
+        MENU_ITEM(function, MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+      }
       END_MENU();
     }
 
@@ -2393,8 +2461,14 @@ void kill_screen(const char* lcd_msg) {
         if (!g29_in_progress)
       #endif
       MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
-    #elif PLANNER_LEVELING
-      MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
+    #else
+      #if PLANNER_LEVELING
+        MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
+      #endif
+      #if ENABLED(LEVEL_BED_CORNERS)
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+      #endif
     #endif
 
     #if HAS_M206_COMMAND
@@ -2414,7 +2488,7 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!thermalManager.tooColdToExtrude(active_extruder) && !IS_SD_PRINTING)
+      if (!thermalManager.tooColdToExtrude(active_extruder) && !IS_SD_FILE_OPEN)
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
@@ -2527,8 +2601,7 @@ void kill_screen(const char* lcd_msg) {
       wait_for_user = true;
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
-      defer_return_to_status = false;
-      lcd_goto_previous_menu();
+      lcd_goto_previous_menu_no_defer();
       return current_position[Z_AXIS];
     }
 
@@ -2537,15 +2610,23 @@ void kill_screen(const char* lcd_msg) {
     void _goto_tower_z() { _man_probe_pt(cos(RADIANS( 90)) * delta_calibration_radius, sin(RADIANS( 90)) * delta_calibration_radius); }
     void _goto_center()  { _man_probe_pt(0,0); }
 
-    void lcd_delta_G33_settings() {
+    static float _delta_height = DELTA_HEIGHT;
+    void _lcd_set_delta_height() {
+      home_offset[Z_AXIS] = _delta_height - DELTA_HEIGHT;
+      update_software_endstops(Z_AXIS);
+    }
+
+    void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
-      float delta_height = DELTA_HEIGHT + home_offset[Z_AXIS], Tz = 0.00;
-      MENU_ITEM_EDIT(float52, "Height", &delta_height, delta_height, delta_height);
+      float Tz = 0.00;
+      MENU_ITEM_EDIT(float52, MSG_DELTA_DIAG_ROG, &delta_diagonal_rod, DELTA_DIAGONAL_ROD - 5.0, DELTA_DIAGONAL_ROD + 5.0);
+      _delta_height = DELTA_HEIGHT + home_offset[Z_AXIS];
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_HEIGHT, &_delta_height, _delta_height - 10.0, _delta_height + 10.0, _lcd_set_delta_height);
       MENU_ITEM_EDIT(float43, "Ex", &endstop_adj[A_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Ey", &endstop_adj[B_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Ez", &endstop_adj[C_AXIS], -5.0, 5.0);
-      MENU_ITEM_EDIT(float52, "Radius", &delta_radius, DELTA_RADIUS - 5.0, DELTA_RADIUS + 5.0);
+      MENU_ITEM_EDIT(float52, MSG_DELTA_RADIUS, &delta_radius, DELTA_RADIUS - 5.0, DELTA_RADIUS + 5.0);
       MENU_ITEM_EDIT(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Tz", &Tz, -5.0, 5.0);
@@ -2556,7 +2637,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_MAIN);
       #if ENABLED(DELTA_AUTO_CALIBRATION)
-        MENU_ITEM(submenu, MSG_DELTA_SETTINGS, lcd_delta_G33_settings);
+        MENU_ITEM(submenu, MSG_DELTA_SETTINGS, lcd_delta_settings);
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
         MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 P1"));
         #if ENABLED(EEPROM_SETTINGS)
@@ -2720,11 +2801,16 @@ void kill_screen(const char* lcd_msg) {
 
   screenFunc_t _manual_move_func_ptr;
 
-  void lcd_move_menu_10mm() { move_menu_scale = 10.0; lcd_goto_screen(_manual_move_func_ptr); }
-  void lcd_move_menu_1mm()  { move_menu_scale =  1.0; lcd_goto_screen(_manual_move_func_ptr); }
-  void lcd_move_menu_01mm() { move_menu_scale =  0.1; lcd_goto_screen(_manual_move_func_ptr); }
+  void _goto_manual_move(const float scale) {
+    defer_return_to_status = true;
+    move_menu_scale = scale;
+    lcd_goto_screen(_manual_move_func_ptr);
+  }
+  void lcd_move_menu_10mm() { _goto_manual_move(10.0); }
+  void lcd_move_menu_1mm()  { _goto_manual_move( 1.0); }
+  void lcd_move_menu_01mm() { _goto_manual_move( 0.1); }
 
-  void _lcd_move_distance_menu(AxisEnum axis, screenFunc_t func) {
+  void _lcd_move_distance_menu(const AxisEnum axis, const screenFunc_t func) {
     _manual_move_func_ptr = func;
     START_MENU();
     if (LCD_HEIGHT >= 4) {
