@@ -81,7 +81,7 @@ int main(void) {
     delay(50);
     TOGGLE(13);     // Flash fast while USB initialisation completes
   }
-
+  delay(200);
   debug_frmwrk_init();
   usb_serial.printf("\n\nRe-ARM (LPC1768 @ %dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
 
