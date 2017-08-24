@@ -17,10 +17,10 @@
     uint8_t externalDac_buf[2] = {0x20,0x00};//all off
 
     // All SPI chip-select HIGH
-    pinMode (DAC0_SYNC, OUTPUT);
+    pinMode(DAC0_SYNC, OUTPUT);
     digitalWrite( DAC0_SYNC , HIGH );
     #if EXTRUDERS > 1
-      pinMode (DAC1_SYNC, OUTPUT);
+      pinMode(DAC1_SYNC, OUTPUT);
       digitalWrite( DAC1_SYNC , HIGH );
     #endif
     digitalWrite( SPI_EEPROM1_CS , HIGH );
@@ -68,8 +68,8 @@
     else
       externalDac_buf[0] |= (3 - channel << 6);
 
-    externalDac_buf[0] |= (value>>4);
-    externalDac_buf[1] |= (value<<4);
+    externalDac_buf[0] |= (value >> 4);
+    externalDac_buf[1] |= (value << 4);
     
     // All SPI chip-select HIGH
     digitalWrite( DAC0_SYNC , HIGH );
