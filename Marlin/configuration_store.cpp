@@ -659,7 +659,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EEPROM_CHITCHAT)
         SERIAL_ECHO_START();
         SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
-        SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
+        SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
         SERIAL_ECHOLNPGM(")");
       #endif
     }
@@ -1010,7 +1010,7 @@ void MarlinSettings::postprocess() {
           SERIAL_ECHO_START();
           SERIAL_ECHO(version);
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
-          SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
+          SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
           SERIAL_ECHOLNPGM(")");
         #endif
       }

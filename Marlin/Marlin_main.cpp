@@ -13324,6 +13324,7 @@ void setup() {
     SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
     SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
     SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("Compiled: " __DATE__);
   #endif
 
@@ -13491,12 +13492,12 @@ void setup() {
   #if ENABLED(SWITCHING_NOZZLE)
     move_nozzle_servo(0);  // Initialize nozzle servo
   #endif
-  
+
   #if ENABLED(PARKING_EXTRUDER)
     #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
       pe_activate_magnet(0);
       pe_activate_magnet(1);
-    #else 
+    #else
       pe_deactivate_magnet(0);
       pe_deactivate_magnet(1);
     #endif
