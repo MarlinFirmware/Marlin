@@ -32,62 +32,53 @@
 #include "HAL_timers.h"
 
 void HAL_timer_init(void) {
-  LPC_SC->PCONP |= (0x1 << 0x1);  // power on timer0
+  SBI(LPC_SC->PCONP, 1);  // power on timer0
   LPC_TIM0->PR = ((HAL_TIMER_RATE / HAL_STEPPER_TIMER_RATE) - 1); // Use prescaler to set frequency if needed
 
-  LPC_SC->PCONP |= (0x1 << 0x2);  // power on timer1
+  SBI(LPC_SC->PCONP, 2);  // power on timer1
   LPC_TIM1->PR = ((HAL_TIMER_RATE / 1000000) - 1);
 }
 
-void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
-  switch(timer_num) {
-  case 0:
-    LPC_TIM0->MCR = 3;              // Match on MR0, reset on MR0
-    LPC_TIM0->MR0 = (uint32_t)(HAL_STEPPER_TIMER_RATE / frequency); // Match value (period) to set frequency
-    LPC_TIM0->TCR = (1 << 0);       // enable
-    break;
-  case 1:
-    LPC_TIM1->MCR = 3;
-    LPC_TIM1->MR0 = (uint32_t)(HAL_TEMP_TIMER_RATE / frequency);;
-    LPC_TIM1->TCR = (1 << 0);
-    break;
-  default:
-    return;
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+  switch (timer_num) {
+    case 0:
+      LPC_TIM0->MCR = 3;              // Match on MR0, reset on MR0
+      LPC_TIM0->MR0 = (uint32_t)(HAL_STEPPER_TIMER_RATE / frequency); // Match value (period) to set frequency
+      LPC_TIM0->TCR = _BV(0);       // enable
+      break;
+    case 1:
+      LPC_TIM1->MCR = 3;
+      LPC_TIM1->MR0 = (uint32_t)(HAL_TEMP_TIMER_RATE / frequency);;
+      LPC_TIM1->TCR = _BV(0);
+      break;
+    default: break;
   }
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num) {
-  switch(timer_num) {
-  case 0:
-    NVIC_EnableIRQ(TIMER0_IRQn);     // Enable interrupt handler
-    NVIC_SetPriority(TIMER0_IRQn, NVIC_EncodePriority(0, 1, 0));
-    break;
-  case 1:
-    NVIC_EnableIRQ(TIMER1_IRQn);
-    NVIC_SetPriority(TIMER1_IRQn, NVIC_EncodePriority(0, 2, 0));
-    break;
+void HAL_timer_enable_interrupt(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0:
+      NVIC_EnableIRQ(TIMER0_IRQn); // Enable interrupt handler
+      NVIC_SetPriority(TIMER0_IRQn, NVIC_EncodePriority(0, 1, 0));
+      break;
+    case 1:
+      NVIC_EnableIRQ(TIMER1_IRQn);
+      NVIC_SetPriority(TIMER1_IRQn, NVIC_EncodePriority(0, 2, 0));
+      break;
   }
 }
 
-void HAL_timer_disable_interrupt (uint8_t timer_num) {
-  switch(timer_num) {
-  case 0:
-    NVIC_DisableIRQ(TIMER0_IRQn);     // disable interrupt handler
-    break;
-  case 1:
-    NVIC_DisableIRQ(TIMER1_IRQn);
-    break;
+void HAL_timer_disable_interrupt(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: NVIC_DisableIRQ(TIMER0_IRQn); break; // disable interrupt handler
+    case 1: NVIC_DisableIRQ(TIMER1_IRQn); break;
   }
 }
 
-void HAL_timer_isr_prologue (uint8_t timer_num) {
-  switch(timer_num) {
-  case 0:
-    LPC_TIM0->IR |= 1; //Clear the Interrupt
-    break;
-  case 1:
-    LPC_TIM1->IR |= 1;
-    break;
+void HAL_timer_isr_prologue(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: SBI(LPC_TIM0->IR, 0); break; // Clear the Interrupt
+    case 1: SBI(LPC_TIM1->IR, 0); break;
   }
 }
 

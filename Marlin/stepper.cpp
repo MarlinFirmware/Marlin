@@ -1155,7 +1155,7 @@ void Stepper::init() {
   TCNT1 = 0;
 #else
   // Init Stepper ISR to 122 Hz for quick starting
-  HAL_timer_start (STEP_TIMER_NUM, 122);
+  HAL_timer_start(STEP_TIMER_NUM, 122);
 #endif
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();

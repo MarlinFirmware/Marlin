@@ -53,14 +53,13 @@
 #define HAL_TEMP_TIMER_RATE    1000000
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt (STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt (STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt (TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt (TEMP_TIMER_NUM)
+#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr) DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
-#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
-//
 #define HAL_STEP_TIMER_ISR  extern "C" void TIMER0_IRQHandler(void)
 #define HAL_TEMP_TIMER_ISR  extern "C" void TIMER1_IRQHandler(void)
 
@@ -75,47 +74,34 @@
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
-void HAL_timer_init (void);
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
+void HAL_timer_init(void);
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count (uint8_t timer_num, HAL_TIMER_TYPE count) {
-  switch(timer_num) {
-  case 0:
-    LPC_TIM0->MR0 = count;
-    break;
-  case 1:
-    LPC_TIM1->MR0 = count;
-    break;
-  default:
-    return;
+static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const HAL_TIMER_TYPE count) {
+  switch (timer_num) {
+    case 0: LPC_TIM0->MR0 = count; break;
+    case 1: LPC_TIM1->MR0 = count; break;
   }
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num) {
-  switch(timer_num) {
-  case 0:
-    return LPC_TIM0->MR0;
-  case 1:
-    return LPC_TIM1->MR0;
-  default:
-    return 0;
+static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: return LPC_TIM0->MR0;
+    case 1: return LPC_TIM1->MR0;
   }
+  return 0;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_current_count(uint8_t timer_num) {
-  switch(timer_num) {
-  case 0:
-    return LPC_TIM0->TC;
-  case 1:
-    return LPC_TIM1->TC;
-  default:
-    return 0;
+static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_current_count(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: return LPC_TIM0->TC;
+    case 1: return LPC_TIM1->TC;
   }
+  return 0;
 }
 
-void HAL_timer_enable_interrupt(uint8_t timer_num);
-void HAL_timer_disable_interrupt(uint8_t timer_num);
-void HAL_timer_isr_prologue (uint8_t timer_num);
-
+void HAL_timer_enable_interrupt(const uint8_t timer_num);
+void HAL_timer_disable_interrupt(const uint8_t timer_num);
+void HAL_timer_isr_prologue(const uint8_t timer_num);
 
 #endif // _HAL_TIMERS_DUE_H

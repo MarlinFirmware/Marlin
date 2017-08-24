@@ -23,7 +23,6 @@
  * Description: HAL for Teensy 3.5 and Teensy 3.6
  */
 
-
 #ifndef _HAL_TEENSY_H
 #define _HAL_TEENSY_H
 
@@ -64,15 +63,12 @@
 
 #define HAL_SERVO_LIB libServo
 
-//#define _BV(bit) 	(1 << (bit))
-
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
 #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
 #define CRITICAL_SECTION_END    SREG = _sreg;
-
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -96,12 +92,12 @@
 #define RST_BACKUP     64
 
 /** clear reset reason */
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source(void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
-void _delay_ms(int delay);
+FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 extern "C" {
   int freeMemory(void);
@@ -124,21 +120,21 @@ void HAL_adc_init();
 
 #define HAL_ANALOG_SELECT(pin) NOOP;
 
-void HAL_adc_start_conversion (uint8_t adc_pin);
+void HAL_adc_start_conversion(uint8_t adc_pin);
 
 uint16_t HAL_adc_get_result(void);
 
 /*
-uint16_t HAL_getAdcReading(uint8_t chan);
+  uint16_t HAL_getAdcReading(uint8_t chan);
 
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
+  void HAL_startAdcConversion(uint8_t chan);
+  uint8_t HAL_pinToAdcChannel(int pin);
 
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
+  uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
+  //uint16_t HAL_getAdcSuperSample(uint8_t chan);
 
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
+  void HAL_enable_AdcFreerun(void);
+  //void HAL_disable_AdcFreerun(uint8_t chan);
 */
 
 // --------------------------------------------------------------------------
@@ -146,4 +142,3 @@ void HAL_enable_AdcFreerun(void);
 // --------------------------------------------------------------------------
 
 #endif // _HAL_TEENSY_H
-

@@ -31,7 +31,6 @@
 
 uint16_t HAL_adc_result;
 
-
 static const uint8_t pin2sc1a[] = {
   5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 3, 19+128, 14+128, 15+128, // 0-13 -> A0-A13
   5, 14, 8, 9, 13, 12, 6, 7, 15, 4, // 14-23 are A0-A9
@@ -49,45 +48,31 @@ static const uint8_t pin2sc1a[] = {
 };
 
 /*
-// disable interrupts
-void cli(void)
-{
-	noInterrupts();
-}
+  // disable interrupts
+  void cli(void) { noInterrupts(); }
 
-// enable interrupts
-void sei(void)
-{
-	interrupts();
-}
+  // enable interrupts
+  void sei(void) { interrupts(); }
 */
+
 void HAL_adc_init() {
   analog_init();
   while (ADC0_SC3 & ADC_SC3_CAL) {}; // Wait for calibration to finish
   NVIC_ENABLE_IRQ(IRQ_FTM1);
 }
 
-void HAL_clear_reset_source (void)
-{ }
+void HAL_clear_reset_source(void) { }
 
-uint8_t HAL_get_reset_source (void)
-{
-  switch ( RCM_SRS0 )
-  {
+uint8_t HAL_get_reset_source(void) {
+  switch (RCM_SRS0) {
     case 128: return RST_POWER_ON; break;
     case 64: return RST_EXTERNAL; break;
     case 32: return RST_WATCHDOG; break;
-//  case 8: return RST_LOSS_OF_LOCK; break;
-//  case 4: return RST_LOSS_OF_CLOCK; break;
-//  case 2: return RST_LOW_VOLTAGE; break;
-    default:
-      return 0;
+    // case 8: return RST_LOSS_OF_LOCK; break;
+    // case 4: return RST_LOSS_OF_CLOCK; break;
+    // case 2: return RST_LOW_VOLTAGE; break;
   }
-}
-
-void _delay_ms (int delay_ms)
-{
-	delay (delay_ms);
+  return 0;
 }
 
 extern "C" {
@@ -105,15 +90,8 @@ extern "C" {
   }
 }
 
-void HAL_adc_start_conversion (uint8_t adc_pin)
-{
-	ADC0_SC1A = pin2sc1a[adc_pin];
-}
+void HAL_adc_start_conversion(const uint8_t adc_pin) { ADC0_SC1A = pin2sc1a[adc_pin]; }
 
-uint16_t HAL_adc_get_result(void)
-{
-	return ADC0_RA;
-}
+uint16_t HAL_adc_get_result(void) { return ADC0_RA; }
 
 #endif // __MK64FX512__ || __MK66FX1M0__
-
