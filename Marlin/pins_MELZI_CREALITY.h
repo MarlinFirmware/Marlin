@@ -25,16 +25,11 @@
  */
 
 #define BOARD_NAME "Melzi (Creality)"
-
-#ifdef __AVR_ATmega1284P__
-  #define LARGE_FLASH true
-#endif
+#define IS_MELZI
+#include "pins_SANGUINOLOLU_12.h"
 
 // For the stock CR-10 use the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 //   option for the display in Configuration.h
-
-#define SANGUINOLOLU_V_1_2
-#include "pins_SANGUINOLOLU_11.h"
 
 #undef LCD_SDSS
 #undef LED_PIN
