@@ -443,6 +443,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
+/**
+ * Part-Cooling Fan Multiplexer requirements
+ */
+#if PIN_EXISTS(FANMUX1)
+  #if !HAS_FANMUX
+    #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
+  #endif
+#elif PIN_EXISTS(FANMUX2)
+  #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
+#endif
 
 /**
  * Limited number of servos

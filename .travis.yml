@@ -93,6 +93,7 @@ script:
   - opt_enable_adv FWRETRACT
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
+  - opt_set_adv FANMUX0_PIN 53
   - build_marlin
   #
   # Test a simple build of AUTO_BED_LEVELING_UBL
