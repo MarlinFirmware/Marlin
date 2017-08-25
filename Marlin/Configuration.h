@@ -75,7 +75,7 @@
 // Margin around perimiter of bed for probing (will not probe outside this margin)
 #define BED_MARGIN         5
 
-// Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types)
+// Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
 //#define TRIPOINT
 //#define LINEAR
 //#define BILINEAR
