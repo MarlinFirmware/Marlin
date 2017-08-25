@@ -13205,7 +13205,7 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
-  #ifdef ENABLED(MAX7219_DEBUG)
+  #if ENABLED(MAX7219_DEBUG)
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
