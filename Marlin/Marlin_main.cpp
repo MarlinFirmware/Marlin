@@ -279,6 +279,10 @@
   #include "watchdog.h"
 #endif
 
+#if ENABLED(MAX7219_DEBUG)
+  #include "Max7219_Debug_LEDs.h"
+#endif
+
 #if ENABLED(NEOPIXEL_RGBW_LED)
   #include <Adafruit_NeoPixel.h>
 #endif
@@ -10292,7 +10296,7 @@ inline void invalid_extruder_error(const uint8_t e) {
       SET_OUTPUT(FANMUX1_PIN);
       #if PIN_EXISTS(FANMUX2)
         SET_OUTPUT(FANMUX2_PIN);
-      #endif 
+      #endif
     #endif
     fanmux_switch(0);
   }
@@ -13201,6 +13205,10 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+  #ifdef ENABLED(MAX7219_DEBUG)
+    Max7219_idle_tasks();
+  #endif  // MAX7219_DEBUG
+
   lcd_update();
 
   host_keepalive();
@@ -13315,6 +13323,10 @@ void stop() {
  *    • status LEDs
  */
 void setup() {
+
+  #if ENABLED(MAX7219_DEBUG)
+    Max7219_init();
+  #endif
 
   #ifdef DISABLE_JTAG
     // Disable JTAG on AT90USB chips to free up pins for IO
@@ -13467,11 +13479,11 @@ void setup() {
     SET_OUTPUT(E_MUX1_PIN);
     SET_OUTPUT(E_MUX2_PIN);
   #endif
-  
+
   #if HAS_FANMUX
     fanmux_init();
   #endif
-  
+
   lcd_init();
 
   #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
