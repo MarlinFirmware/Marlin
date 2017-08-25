@@ -25,10 +25,11 @@
  * can be enabled to facilitate the display of extra debug information during
  * code development.   It assumes the existance of a Max7219 LED Matrix.   You
  * can get one on eBay similar to this: http://www.ebay.com/itm/191781645249
- * for about $1.50 including shipping.
+ * for under $2.00 including shipping.
  *
- * You just need to connect up +5v and Gnd to give it power.  And then 3 wires
- * declared in the #define's below.
+ * Just connect up +5v and Gnd to give it power.  And then 3 wires declared in the 
+ * #define's below.  Actual pin assignments can be changed in MAX7219_DEBUG section 
+ * of configuration_adv.h
  *
  * You first call Max7219_init() and then you have 3 support functions available
  * to control the LED's in the 8x8 grid.
