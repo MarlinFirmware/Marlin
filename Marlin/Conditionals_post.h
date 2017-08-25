@@ -689,6 +689,11 @@
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
   /**
+   * Part Cooling fan multipliexer
+   */
+  #define HAS_FANMUX PIN_EXISTS(FANMUX0)
+
+  /**
    * Servos and probes
    */
 
