@@ -92,18 +92,18 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
 */
 
 
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
-  Tc *tc = TimerConfig [timer_num].pTimerRegs;
-  IRQn_Type irq = TimerConfig [timer_num].IRQ_Id;
-  uint32_t channel = TimerConfig [timer_num].channel;
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+  Tc *tc = TimerConfig[timer_num].pTimerRegs;
+  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  uint32_t channel = TimerConfig[timer_num].channel;
 
   pmc_set_writeprotect(false);
   pmc_enable_periph_clk((uint32_t)irq);
-  NVIC_SetPriority (irq, TimerConfig [timer_num].priority);
+  NVIC_SetPriority(irq, TimerConfig [timer_num].priority);
 
-  TC_Configure (tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
+  TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
 
-  TC_SetRC(tc, channel, VARIANT_MCK/2/frequency);
+  TC_SetRC(tc, channel, VARIANT_MCK / 2 / frequency);
   TC_Start(tc, channel);
 
   // enable interrupt on RC compare
@@ -112,25 +112,25 @@ void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
   NVIC_EnableIRQ(irq);
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num) {
-  const tTimerConfig *pConfig = &TimerConfig [timer_num];
-  pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IER = TC_IER_CPCS;
+void HAL_timer_enable_interrupt(const uint8_t timer_num) {
+  const tTimerConfig *pConfig = &TimerConfig[timer_num];
+  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IER = TC_IER_CPCS;
 }
 
-void HAL_timer_disable_interrupt (uint8_t timer_num) {
-  const tTimerConfig *pConfig = &TimerConfig [timer_num];
-  pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IDR = TC_IDR_CPCS;
+void HAL_timer_disable_interrupt(const uint8_t timer_num) {
+  const tTimerConfig *pConfig = &TimerConfig[timer_num];
+  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IDR = TC_IDR_CPCS;
 }
 
 #if 0
-  void HAL_timer_set_count (uint8_t timer_num, uint32_t count) {
-    const tTimerConfig *pConfig = &TimerConfig [timer_num];
-    TC_SetRC (pConfig->pTimerRegs, pConfig->channel, count);
+  void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
+    const tTimerConfig *pConfig = &TimerConfig[timer_num];
+    TC_SetRC(pConfig->pTimerRegs, pConfig->channel, count);
   }
 
-  void HAL_timer_isr_prologue (uint8_t timer_num) {
-    const tTimerConfig *pConfig = &TimerConfig [timer_num];
-    TC_GetStatus (pConfig->pTimerRegs, pConfig->channel);
+  void HAL_timer_isr_prologue(const uint8_t timer_num) {
+    const tTimerConfig *pConfig = &TimerConfig[timer_num];
+    TC_GetStatus(pConfig->pTimerRegs, pConfig->channel);
   }
 #endif
 

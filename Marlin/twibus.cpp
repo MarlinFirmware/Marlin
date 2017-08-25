@@ -94,7 +94,7 @@ void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
   serialprintPGM(prefix);
   SERIAL_ECHOPAIR(": from:", adr);
   SERIAL_ECHOPAIR(" bytes:", bytes);
-  SERIAL_ECHOPGM (" data:");
+  SERIAL_ECHOPGM(" data:");
 }
 
 // static

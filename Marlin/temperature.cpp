@@ -1081,8 +1081,8 @@ void Temperature::init() {
     OCR0B = 128;
     SBI(TIMSK0, OCIE0B);
   #else
-    HAL_timer_start (TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
-    HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
+    HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
+    HAL_timer_enable_interrupt(TEMP_TIMER_NUM);
   #endif
 
   #if HAS_AUTO_FAN_0
@@ -1594,7 +1594,7 @@ void Temperature::set_current_temp_raw() {
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  */
 HAL_TEMP_TIMER_ISR {
-  HAL_timer_isr_prologue (TEMP_TIMER_NUM);
+  HAL_timer_isr_prologue(TEMP_TIMER_NUM);
   Temperature::isr();
 }
 
@@ -1608,7 +1608,7 @@ void Temperature::isr() {
 
   // Allow UART and stepper ISRs
   DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
-  #if !defined(CPU_32_BIT)
+  #ifndef CPU_32_BIT
     sei();
   #endif
 
@@ -2114,7 +2114,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if !defined(CPU_32_BIT)
+  #ifndef CPU_32_BIT
     cli();
   #endif
   in_temp_isr = false;

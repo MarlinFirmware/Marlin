@@ -112,21 +112,21 @@ extern "C" {
 #define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
 #define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
 
-//void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
-#define HAL_timer_start (timer_num,frequency)
+//void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
+#define HAL_timer_start(timer_num,frequency)
 
-//void HAL_timer_set_count (uint8_t timer_num, uint16_t count);
-#define HAL_timer_set_count(timer,count) timer = (count)
+//void HAL_timer_set_count(const uint8_t timer_num, const uint16_t count);
+#define HAL_timer_set_count(timer, count) timer = (count)
 
 #define HAL_timer_get_current_count(timer) timer
 
-//void HAL_timer_isr_prologue (uint8_t timer_num);
+//void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_prologue(timer_num)
 
 #define HAL_STEP_TIMER_ISR ISR(TIMER1_COMPA_vect)
 #define HAL_TEMP_TIMER_ISR ISR(TIMER0_COMPB_vect)
 
-#define HAL_ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+#define HAL_ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // ADC
 #ifdef DIDR2

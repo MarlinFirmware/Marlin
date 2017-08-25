@@ -96,19 +96,19 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
   // Interrupt handlers for Arduino
   #if ENABLED(_useTimer1)
-    SIGNAL (TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
+    SIGNAL(TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
 
   #if ENABLED(_useTimer3)
-    SIGNAL (TIMER3_COMPA_vect) { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
+    SIGNAL(TIMER3_COMPA_vect) { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
   #if ENABLED(_useTimer4)
-    SIGNAL (TIMER4_COMPA_vect) { handle_interrupts(_timer4, &TCNT4, &OCR4A); }
+    SIGNAL(TIMER4_COMPA_vect) { handle_interrupts(_timer4, &TCNT4, &OCR4A); }
   #endif
 
   #if ENABLED(_useTimer5)
-    SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
+    SIGNAL(TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
 #else // WIRING

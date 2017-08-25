@@ -52,8 +52,8 @@
 #define FTM0_TIMER_PRESCALE_BITS 0b011
 #define FTM1_TIMER_PRESCALE_BITS 0b010
 
-#define FTM0_TIMER_RATE F_BUS/FTM0_TIMER_PRESCALE // 60MHz / 8 = 7500kHz
-#define FTM1_TIMER_RATE F_BUS/FTM1_TIMER_PRESCALE // 60MHz / 4 = 15MHz
+#define FTM0_TIMER_RATE (F_BUS / FTM0_TIMER_PRESCALE) // 60MHz / 8 = 7500kHz
+#define FTM1_TIMER_RATE (F_BUS / FTM1_TIMER_PRESCALE) // 60MHz / 4 = 15MHz
 
 #define STEPPER_TIMER STEP_TIMER_NUM // Alias?
 #define STEPPER_TIMER_PRESCALE 0 // Not defined anywhere else!
@@ -64,46 +64,45 @@
 
 #define TEMP_TIMER_FREQUENCY   1000
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt (STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt (STEP_TIMER_NUM)
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt (TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT()  HAL_timer_disable_interrupt (TEMP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
 #define HAL_STEP_TIMER_ISR  extern "C" void ftm0_isr(void) //void TC3_Handler()
 #define HAL_TEMP_TIMER_ISR  extern "C" void ftm1_isr(void) //void TC4_Handler()
 
-#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr) DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count (uint8_t timer_num, uint32_t count) {
+static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
   switch(timer_num) {
-  case 0: FTM0_C0V = count; break;
-  case 1: FTM1_C0V = count; break;
-  default: break;
+    case 0: FTM0_C0V = count; break;
+    case 1: FTM1_C0V = count; break;
   }
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num) {
+static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
   switch(timer_num) {
-  case 0: return FTM0_C0V;
-  case 1: return FTM1_C0V;
-  default: return 0;
+    case 0: return FTM0_C0V;
+    case 1: return FTM1_C0V;
   }
+  return 0;
 }
 
-static FORCE_INLINE uint32_t HAL_timer_get_current_count(uint8_t timer_num) {
+static FORCE_INLINE uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
   switch(timer_num) {
-  case 0: return FTM0_CNT;
-  case 1: return FTM1_CNT;
-  default: return 0;
+    case 0: return FTM0_CNT;
+    case 1: return FTM1_CNT;
   }
+  return 0;
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num);
-void HAL_timer_disable_interrupt (uint8_t timer_num);
+void HAL_timer_enable_interrupt(const uint8_t timer_num);
+void HAL_timer_disable_interrupt(const uint8_t timer_num);
 
-void HAL_timer_isr_prologue(uint8_t timer_num);
+void HAL_timer_isr_prologue(const uint8_t timer_num);
 
 #endif // _HAL_TIMERS_TEENSY_H
 

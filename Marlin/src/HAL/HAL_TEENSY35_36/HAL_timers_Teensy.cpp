@@ -30,65 +30,55 @@
 #include "HAL_timers_Teensy.h"
 
 
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
-  case 0:
-    FTM0_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN;
-    FTM0_SC = 0x00; // Set this to zero before changing the modulus
-    FTM0_CNT = 0x0000; // Reset the count to zero
-    FTM0_MOD = 0xFFFF; // max modulus = 65535
-    FTM0_C0V = FTM0_TIMER_RATE / frequency; // Initial FTM Channel 0 compare value
-    FTM0_SC = (FTM_SC_CLKS(0b1)&FTM_SC_CLKS_MASK) | (FTM_SC_PS(FTM0_TIMER_PRESCALE_BITS)&FTM_SC_PS_MASK); // Bus clock 60MHz divided by prescaler 8
-    FTM0_C0SC = FTM_CSC_CHIE | FTM_CSC_MSA | FTM_CSC_ELSA;
-    break;
-  case 1:
-    FTM1_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN; // Disable write protection, Enable FTM1
-    FTM1_SC = 0x00; // Set this to zero before changing the modulus
-    FTM1_CNT = 0x0000; // Reset the count to zero
-    FTM1_MOD = 0xFFFF; // max modulus = 65535
-    FTM1_C0V = FTM1_TIMER_RATE / frequency; // Initial FTM Channel 0 compare value 65535
-    FTM1_SC = (FTM_SC_CLKS(0b1)&FTM_SC_CLKS_MASK) | (FTM_SC_PS(FTM1_TIMER_PRESCALE_BITS)&FTM_SC_PS_MASK); // Bus clock 60MHz divided by prescaler 4
-    FTM1_C0SC = FTM_CSC_CHIE | FTM_CSC_MSA | FTM_CSC_ELSA;
-    break;
-  default:
-    break;
+    case 0:
+      FTM0_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN;
+      FTM0_SC = 0x00; // Set this to zero before changing the modulus
+      FTM0_CNT = 0x0000; // Reset the count to zero
+      FTM0_MOD = 0xFFFF; // max modulus = 65535
+      FTM0_C0V = FTM0_TIMER_RATE / frequency; // Initial FTM Channel 0 compare value
+      FTM0_SC = (FTM_SC_CLKS(0b1) & FTM_SC_CLKS_MASK) | (FTM_SC_PS(FTM0_TIMER_PRESCALE_BITS) & FTM_SC_PS_MASK); // Bus clock 60MHz divided by prescaler 8
+      FTM0_C0SC = FTM_CSC_CHIE | FTM_CSC_MSA | FTM_CSC_ELSA;
+      break;
+    case 1:
+      FTM1_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN; // Disable write protection, Enable FTM1
+      FTM1_SC = 0x00; // Set this to zero before changing the modulus
+      FTM1_CNT = 0x0000; // Reset the count to zero
+      FTM1_MOD = 0xFFFF; // max modulus = 65535
+      FTM1_C0V = FTM1_TIMER_RATE / frequency; // Initial FTM Channel 0 compare value 65535
+      FTM1_SC = (FTM_SC_CLKS(0b1) & FTM_SC_CLKS_MASK) | (FTM_SC_PS(FTM1_TIMER_PRESCALE_BITS) & FTM_SC_PS_MASK); // Bus clock 60MHz divided by prescaler 4
+      FTM1_C0SC = FTM_CSC_CHIE | FTM_CSC_MSA | FTM_CSC_ELSA;
+      break;
   }
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num)
-{
+void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch(timer_num) {
-  case 0: NVIC_ENABLE_IRQ(IRQ_FTM0); break;
-  case 1: NVIC_ENABLE_IRQ(IRQ_FTM1); break;
-  default:
-    break;
+    case 0: NVIC_ENABLE_IRQ(IRQ_FTM0); break;
+    case 1: NVIC_ENABLE_IRQ(IRQ_FTM1); break;
   }
 }
 
-void HAL_timer_disable_interrupt (uint8_t timer_num)
-{
+void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-  case 0: NVIC_DISABLE_IRQ(IRQ_FTM0); break;
-  case 1: NVIC_DISABLE_IRQ(IRQ_FTM1); break;
-  default:
-    break;
+    case 0: NVIC_DISABLE_IRQ(IRQ_FTM0); break;
+    case 1: NVIC_DISABLE_IRQ(IRQ_FTM1); break;
   }
 }
 
-void HAL_timer_isr_prologue(uint8_t timer_num) {
+void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch(timer_num) {
-  case 0:
-    FTM0_CNT = 0x0000;
-    FTM0_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
-    FTM0_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag
-    break;
-  case 1:
-    FTM1_CNT = 0x0000;
-    FTM1_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
-    FTM1_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag
-    break;
-  default:
-    break;
+    case 0:
+      FTM0_CNT = 0x0000;
+      FTM0_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
+      FTM0_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag
+      break;
+    case 1:
+      FTM1_CNT = 0x0000;
+      FTM1_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
+      FTM1_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag
+      break;
   }
 }
 

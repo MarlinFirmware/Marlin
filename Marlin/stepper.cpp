@@ -803,9 +803,9 @@ void Stepper::isr() {
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM);
-      uint32_t stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-      HAL_timer_set_count(STEP_TIMER_NUM, stepper_timer_count < stepper_timer_current_count ? stepper_timer_current_count : stepper_timer_count);
+      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+               stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+      HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
       NOLESS(OCR1A, TCNT1 + 16);
     #endif
@@ -932,7 +932,7 @@ void Stepper::isr() {
     // Is the next advance ISR scheduled before the next main ISR?
     if (nextAdvanceISR <= nextMainISR) {
       // Set up the next interrupt
-      OCR1A = nextAdvanceISR;
+      HAL_timer_set_count(STEP_TIMER_NUM, nextAdvanceISR);
       // New interval for the next main ISR
       if (nextMainISR) nextMainISR -= nextAdvanceISR;
       // Will call Stepper::advance_isr on the next interrupt
@@ -940,7 +940,7 @@ void Stepper::isr() {
     }
     else {
       // The next main ISR comes first
-      OCR1A = nextMainISR;
+      HAL_timer_set_count(STEP_TIMER_NUM, nextMainISR);
       // New interval for the next advance ISR, if any
       if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
         nextAdvanceISR -= nextMainISR;
@@ -949,7 +949,14 @@ void Stepper::isr() {
     }
 
     // Don't run the ISR faster than possible
-    NOLESS(OCR1A, TCNT1 + 16);
+    #ifdef CPU_32_BIT
+      // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
+      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+               stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+      HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
+    #else
+      NOLESS(OCR1A, TCNT1 + 16);
+    #endif
 
     // Restore original ISR settings
     HAL_ENABLE_ISRs();
@@ -1129,27 +1136,27 @@ void Stepper::init() {
     E_AXIS_INIT(4);
   #endif
 
-#ifdef ARDUINO_ARCH_AVR
-  // waveform generation = 0100 = CTC
-  SET_WGM(1, CTC_OCRnA);
+  #ifdef ARDUINO_ARCH_AVR
+    // waveform generation = 0100 = CTC
+    SET_WGM(1, CTC_OCRnA);
 
-  // output mode = 00 (disconnected)
-  SET_COMA(1, NORMAL);
+    // output mode = 00 (disconnected)
+    SET_COMA(1, NORMAL);
 
-  // Set the timer pre-scaler
-  // Generally we use a divider of 8, resulting in a 2MHz timer
-  // frequency on a 16MHz MCU. If you are going to change this, be
-  // sure to regenerate speed_lookuptable.h with
-  // create_speed_lookuptable.py
-  SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
+    // Set the timer pre-scaler
+    // Generally we use a divider of 8, resulting in a 2MHz timer
+    // frequency on a 16MHz MCU. If you are going to change this, be
+    // sure to regenerate speed_lookuptable.h with
+    // create_speed_lookuptable.py
+    SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
 
-  // Init Stepper ISR to 122 Hz for quick starting
-  OCR1A = 0x4000;
-  TCNT1 = 0;
-#else
-  // Init Stepper ISR to 122 Hz for quick starting
-  HAL_timer_start (STEP_TIMER_NUM, 122);
-#endif
+    // Init Stepper ISR to 122 Hz for quick starting
+    OCR1A = 0x4000;
+    TCNT1 = 0;
+  #else
+    // Init Stepper ISR to 122 Hz for quick starting
+    HAL_timer_start(STEP_TIMER_NUM, 122);
+  #endif
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
