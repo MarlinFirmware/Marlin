@@ -310,7 +310,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
 	dac_mcp4728.cpp vector_3.cpp least_squares_fit.cpp endstops.cpp stopwatch.cpp utility.cpp \
-	printcounter.cpp nozzle.cpp serial.cpp gcode.cpp
+	printcounter.cpp nozzle.cpp serial.cpp gcode.cpp Max7219_Debug_LEDs.cpp
 ifeq ($(NEOPIXEL), 1)
 CXXSRC += Adafruit_NeoPixel.cpp
 endif
