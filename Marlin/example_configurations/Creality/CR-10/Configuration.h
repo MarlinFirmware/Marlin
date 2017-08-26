@@ -1390,6 +1390,16 @@
 //
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+//Fixes for ultralcd related bugs
+#define DELAY_0_NOP  NOOP
+#define DELAY_1_NOP  __asm__("nop\n\t")
+#define DELAY_2_NOP  __asm__("nop\n\t" "nop\n\t")
+#define DELAY_3_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t")
+#define DELAY_4_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t")
+#define ST7920_DELAY_1 DELAY_2_NOP
+#define ST7920_DELAY_2 DELAY_2_NOP
+#define ST7920_DELAY_3 DELAY_2_NOP
+
 //
 // MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
