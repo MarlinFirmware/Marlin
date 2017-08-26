@@ -16,6 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifdef TARGET_LPC1768
+
 #include "../../../macros.h"
 #include "../HAL.h"
 #include "arduino.h"
@@ -222,3 +224,5 @@ return; //silences warning
 }
 }
 #endif
+
+#endif // TARGET_LPC1768

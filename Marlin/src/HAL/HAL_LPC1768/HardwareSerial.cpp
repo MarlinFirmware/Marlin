@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef TARGET_LPC1768
+
 #include "../../../macros.h"
 #include "../HAL.h"
 #include "HardwareSerial.h"
@@ -634,3 +636,5 @@ void UART3_IRQHandler (void)
 #ifdef __cplusplus
 }
 #endif
+
+#endif // TARGET_LPC1768

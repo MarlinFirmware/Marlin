@@ -61,6 +61,7 @@
  *
  */
 
+#ifdef TARGET_LPC1768
 
 #if HAS_SERVOS
 
@@ -166,5 +167,5 @@
 
 #endif // HAS_SERVOS
 
-
+#endif // TARGET_LPC1768
 
