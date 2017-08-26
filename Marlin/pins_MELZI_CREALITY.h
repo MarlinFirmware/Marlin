@@ -33,19 +33,22 @@
 
 #undef LCD_SDSS
 #undef LED_PIN
-
 #undef LCD_PINS_RS
 #undef LCD_PINS_ENABLE
-
-#define LCD_PINS_RS     28 // st9720 CS
-#define LCD_PINS_ENABLE 17 // st9720 DAT
-
 #undef LCD_PINS_D4
 #undef LCD_PINS_D5
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
+#undef FIL_RUNOUT_PIN
 
+#define LCD_SDSS		31 // Smart Controller SD card reader rather than the Melzi
+#define LCD_PINS_RS     28 // st9720 CS
+#define LCD_PINS_ENABLE 17 // st9720 DAT
 #define LCD_PINS_D4     30 // st9720 CLK
+#define LCD_PINS_D5     -1
+#define LCD_PINS_D6     -1
+#define LCD_PINS_D7     -1
+#define FIL_RUNOUT_PIN	-1 //Filament Runout Pin - Uses Beeper/LED Pin Pulled to GND
 
 /**
   PIN:   0   Port: B0        E0_DIR_PIN                  protected
