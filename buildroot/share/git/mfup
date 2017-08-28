@@ -2,10 +2,10 @@
 #
 # mfup
 #
-# - Fetch latest upstream and replace the PR Target branch with 
+# - Fetch latest upstream and replace the PR Target branch with
 # - Rebase the (current or specified) branch on the PR Target
 # - Force-push the branch to 'origin'
-# - 
+# -
 #
 
 [[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }

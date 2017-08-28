@@ -92,27 +92,27 @@ uint8_t const SD_CARD_ERROR_ERASE_TIMEOUT = 0XE;
 /** card returned an error token instead of read data */
 uint8_t const SD_CARD_ERROR_READ = 0XF;
 /** read CID or CSD failed */
-uint8_t const SD_CARD_ERROR_READ_REG = 0X10;
+uint8_t const SD_CARD_ERROR_READ_REG = 0x10;
 /** timeout while waiting for start of read data */
-uint8_t const SD_CARD_ERROR_READ_TIMEOUT = 0X11;
+uint8_t const SD_CARD_ERROR_READ_TIMEOUT = 0x11;
 /** card did not accept STOP_TRAN_TOKEN */
-uint8_t const SD_CARD_ERROR_STOP_TRAN = 0X12;
+uint8_t const SD_CARD_ERROR_STOP_TRAN = 0x12;
 /** card returned an error token as a response to a write operation */
-uint8_t const SD_CARD_ERROR_WRITE = 0X13;
+uint8_t const SD_CARD_ERROR_WRITE = 0x13;
 /** attempt to write protected block zero */
-uint8_t const SD_CARD_ERROR_WRITE_BLOCK_ZERO = 0X14;  // REMOVE - not used
+uint8_t const SD_CARD_ERROR_WRITE_BLOCK_ZERO = 0x14;  // REMOVE - not used
 /** card did not go ready for a multiple block write */
-uint8_t const SD_CARD_ERROR_WRITE_MULTIPLE = 0X15;
+uint8_t const SD_CARD_ERROR_WRITE_MULTIPLE = 0x15;
 /** card returned an error to a CMD13 status check after a write */
-uint8_t const SD_CARD_ERROR_WRITE_PROGRAMMING = 0X16;
+uint8_t const SD_CARD_ERROR_WRITE_PROGRAMMING = 0x16;
 /** timeout occurred during write programming */
-uint8_t const SD_CARD_ERROR_WRITE_TIMEOUT = 0X17;
+uint8_t const SD_CARD_ERROR_WRITE_TIMEOUT = 0x17;
 /** incorrect rate selected */
-uint8_t const SD_CARD_ERROR_SCK_RATE = 0X18;
+uint8_t const SD_CARD_ERROR_SCK_RATE = 0x18;
 /** init() not called */
-uint8_t const SD_CARD_ERROR_INIT_NOT_CALLED = 0X19;
+uint8_t const SD_CARD_ERROR_INIT_NOT_CALLED = 0x19;
 /** crc check error */
-uint8_t const SD_CARD_ERROR_CRC = 0X20;
+uint8_t const SD_CARD_ERROR_CRC = 0x20;
 //------------------------------------------------------------------------------
 // card types
 /** Standard capacity V1 SD card */

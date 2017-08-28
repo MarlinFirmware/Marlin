@@ -34,9 +34,28 @@
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
   #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
   #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
-  #define X_CENTER float((X_MIN_POS + X_MAX_POS) * 0.5)
-  #define Y_CENTER float((Y_MIN_POS + Y_MAX_POS) * 0.5)
-  #define Z_CENTER float((Z_MIN_POS + Z_MAX_POS) * 0.5)
+
+  // Defined only if the sanity-check is bypassed
+  #ifndef X_BED_SIZE
+    #define X_BED_SIZE X_MAX_LENGTH
+  #endif
+  #ifndef Y_BED_SIZE
+    #define Y_BED_SIZE Y_MAX_LENGTH
+  #endif
+
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define X_CENTER 0
+    #define Y_CENTER 0
+  #else
+    #define X_CENTER ((X_BED_SIZE) / 2)
+    #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #endif
+  #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
+
+  #define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
+  #define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
+  #define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
+  #define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
 
   /**
    * CoreXY, CoreXZ, and CoreYZ - and their reverse
@@ -71,6 +90,13 @@
   #define IS_CARTESIAN !IS_KINEMATIC
 
   /**
+   * No adjustable bed on non-cartesians
+   */
+  #if IS_KINEMATIC
+    #undef LEVEL_BED_CORNERS
+  #endif
+
+  /**
    * SCARA cannot use SLOWDOWN and requires QUICKHOME
    */
   #if IS_SCARA
@@ -87,11 +113,11 @@
     #if ENABLED(DELTA)
       #define X_HOME_POS 0
     #else
-      #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+      #define X_HOME_POS ((X_BED_SIZE) * (X_HOME_DIR) * 0.5)
     #endif
   #else
     #if ENABLED(DELTA)
-      #define X_HOME_POS (X_MIN_POS + (X_MAX_LENGTH) * 0.5)
+      #define X_HOME_POS (X_MIN_POS + (X_BED_SIZE) * 0.5)
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
     #endif
@@ -103,11 +129,11 @@
     #if ENABLED(DELTA)
       #define Y_HOME_POS 0
     #else
-      #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+      #define Y_HOME_POS ((Y_BED_SIZE) * (Y_HOME_DIR) * 0.5)
     #endif
   #else
     #if ENABLED(DELTA)
-      #define Y_HOME_POS (Y_MIN_POS + (Y_MAX_LENGTH) * 0.5)
+      #define Y_HOME_POS (Y_MIN_POS + (Y_BED_SIZE) * 0.5)
     #else
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
     #endif
@@ -151,10 +177,10 @@
    */
   #if ENABLED(Z_SAFE_HOMING)
     #ifndef Z_SAFE_HOMING_X_POINT
-      #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)
+      #define Z_SAFE_HOMING_X_POINT X_CENTER
     #endif
     #ifndef Z_SAFE_HOMING_Y_POINT
-      #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
+      #define Z_SAFE_HOMING_Y_POINT Y_CENTER
     #endif
     #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
     #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
@@ -168,6 +194,13 @@
    */
   #ifndef DEFAULT_KEEPALIVE_INTERVAL
     #define DEFAULT_KEEPALIVE_INTERVAL 2
+  #endif
+
+  /**
+   * Provide a MAX_AUTORETRACT for older configs
+   */
+  #if ENABLED(FWRETRACT) && !defined(MAX_AUTORETRACT)
+    #define MAX_AUTORETRACT 99
   #endif
 
   /**
@@ -616,8 +649,18 @@
   #else
     #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
   #endif
+
+  /**
+   * Heated bed requires settings
+   */
   #if HAS_HEATER_BED
-    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #ifndef MAX_BED_POWER
+      #define MAX_BED_POWER 255
+    #endif
+    #ifndef HEATER_BED_INVERTING
+      #define HEATER_BED_INVERTING false
+    #endif
+    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ HEATER_BED_INVERTING)
   #endif
 
   /**
@@ -645,15 +688,10 @@
   #endif
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
-
   /**
-   * Heater & Fan Pausing
+   * Part Cooling fan multipliexer
    */
-  #if FAN_COUNT == 0
-    #undef PROBING_FANS_OFF
-  #endif
-  #define QUIET_PROBING (HAS_BED_PROBE && (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF)))
-  #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
+  #define HAS_FANMUX PIN_EXISTS(FANMUX0)
 
   /**
    * Servos and probes
@@ -666,7 +704,6 @@
   #endif
 
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
-
   #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
@@ -706,6 +743,15 @@
     #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
+
+  /**
+   * Heater & Fan Pausing
+   */
+  #if FAN_COUNT == 0
+    #undef PROBING_FANS_OFF
+  #endif
+  #define QUIET_PROBING (HAS_BED_PROBE && (ENABLED(PROBING_HEATERS_OFF) || ENABLED(PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0))
+  #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
 
   /**
    * Delta radius/rod trimmers/angle trimmers
@@ -782,25 +828,40 @@
     #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
   #endif
 
+  /**
+   * Bed Probing rectangular bounds
+   * These can be further constrained in code for Delta and SCARA
+   */
   #if ENABLED(DELTA)
-    // These will be further constrained in code, but UBL_PROBE_PT values
-    // cannot be compile-time verified within the radius.
-    #define MIN_PROBE_X (-DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_X ( DELTA_PRINTABLE_RADIUS)
-    #define MIN_PROBE_Y (-DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y ( DELTA_PRINTABLE_RADIUS)
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+    #endif
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
+    #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
+    #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-    #define MIN_PROBE_X (-SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_X ( SCARA_PRINTABLE_RADIUS)
-    #define MIN_PROBE_Y (-SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y ( SCARA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
   #else
-    // Boundaries for probing based on set limits
-    #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define MIN_PROBE_X (max(X_PROBE_OFFSET_FROM_EXTRUDER, 0) - (X_BED_SIZE) / 2)
+      #define MIN_PROBE_Y (max(Y_PROBE_OFFSET_FROM_EXTRUDER, 0) - (Y_BED_SIZE) / 2)
+      #define MAX_PROBE_X (min(X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define MAX_PROBE_Y (min(Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define MIN_PROBE_X (max(X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER, 0))
+      #define MIN_PROBE_Y (max(Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, 0))
+      #define MAX_PROBE_X (min(X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE))
+      #define MAX_PROBE_Y (min(Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE))
+    #endif
   #endif
 
   // Stepper pulse duration, in cycles
@@ -825,7 +886,7 @@
   #endif
 
   /**
-   * DELTA_SEGMENT_MIN_LENGTH and DELTA_PROBEABLE_RADIUS for UBL_DELTA
+   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
    */
   #if UBL_DELTA
     #ifndef DELTA_SEGMENT_MIN_LENGTH
@@ -836,9 +897,6 @@
       #else // CARTESIAN
         #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
       #endif
-    #endif
-    #ifndef DELTA_PROBEABLE_RADIUS
-      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
     #endif
   #endif
 
@@ -851,6 +909,16 @@
   // MESH_BED_LEVELING overrides PROBE_MANUALLY
   #if ENABLED(MESH_BED_LEVELING)
     #undef PROBE_MANUALLY
+  #endif
+
+  // Parking Extruder
+  #if ENABLED(PARKING_EXTRUDER)
+    #ifndef PARKING_EXTRUDER_GRAB_DISTANCE
+      #define PARKING_EXTRUDER_GRAB_DISTANCE 0
+    #endif
+    #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
+      #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
+    #endif
   #endif
 
 #endif // CONDITIONALS_POST_H

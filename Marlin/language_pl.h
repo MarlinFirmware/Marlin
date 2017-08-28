@@ -30,8 +30,8 @@
 #ifndef LANGUAGE_PL_H
 #define LANGUAGE_PL_H
 
-#define DISPLAY_CHARSET_ISO10646_PL
 #define MAPPER_C3C4C5_PL
+#define DISPLAY_CHARSET_ISO10646_PL
 
 /**
  * One version with accented characters and one without
