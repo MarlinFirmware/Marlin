@@ -44,8 +44,10 @@
 // Equipment options
 //#define LARGE_BED
 #define SDSUPPORT
-#define CHANGE_Y_DIRECTION  // If your bed homes in the wrong direction front to back, enable this.
-//#define HOTEND_E3DV6 // Genuine E3D v6 hotend. Also enables Fan Soft PWM
+#define CHANGE_Y_DIRECTION    // If your bed homes in the wrong direction front to back, enable this.
+//#define HOTEND_E3DV6        // Genuine E3D v6 hotend. Also enables Fan Soft PWM
+#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
+                              // stock controller is a RepRap Discount Smart Controller)
 
 // Offset from endpoints to get nozzle to 0,0 (front/left of bed)
 // (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
@@ -1586,7 +1588,9 @@
 //
 // Note: Usually sold with a white PCB.
 //
-#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#if DISABLED(FULL_GRAPHIC_SMART)
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+#endif
 
 //
 // GADGETS3D G3D LCD/SD Controller
@@ -1600,7 +1604,9 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#if ENABLED(FULL_GRAPHIC_SMART)
+  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#endif
 
 //
 // MakerLab Mini Panel with graphic

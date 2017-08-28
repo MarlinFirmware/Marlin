@@ -520,7 +520,11 @@
   #endif
 
   // Show a progress bar on HD44780 LCDs for SD printing
-  #define LCD_PROGRESS_BAR
+  #if ENABLED(FULL_GRAPHIC_SMART)
+    //#define LCD_PROGRESS_BAR
+  #else
+    #define LCD_PROGRESS_BAR
+  #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
     // Amount of time (ms) to show the bar
