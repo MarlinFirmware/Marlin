@@ -29,6 +29,7 @@ The latest version of this library can always be found at
 http://arduiniana.org.
 */
 
+#ifdef TARGET_LPC1768
 
 //
 // Includes
@@ -396,3 +397,5 @@ int SoftwareSerial::peek()
   // Read from "head"
   return _receive_buffer[_receive_buffer_head];
 }
+
+#endif // TARGET_LPC1768

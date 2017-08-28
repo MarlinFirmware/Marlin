@@ -330,7 +330,7 @@ void Stepper::isr() {
   #endif
 
   #define _SPLIT(L) (ocr_val = (HAL_TIMER_TYPE)L)
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) || defined(CPU_32_BIT)
     #define SPLIT(L) _SPLIT(L)
   #else                 // sample endstops in between step pulses
     static uint32_t step_remaining = 0;
