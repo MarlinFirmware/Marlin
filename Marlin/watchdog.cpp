@@ -26,16 +26,22 @@
 
 #include "watchdog.h"
 
-// Initialize watchdog with a 4 sec interrupt time
+// Initialize watchdog with 8s timeout, if possible. Otherwise, make it 4s.
 void watchdog_init() {
+  #if ENABLED(WATCHDOG_DURATION_8S) && defined(WDTO_8S)
+    #define WDTO_NS WDTO_8S
+  #else
+    #define WDTO_NS WDTO_4S
+  #endif
   #if ENABLED(WATCHDOG_RESET_MANUAL)
     // We enable the watchdog timer, but only for the interrupt.
-    // Take care, as this requires the correct order of operation, with interrupts disabled. See the datasheet of any AVR chip for details.
+    // Take care, as this requires the correct order of operation, with interrupts disabled.
+    // See the datasheet of any AVR chip for details.
     wdt_reset();
     _WD_CONTROL_REG = _BV(_WD_CHANGE_BIT) | _BV(WDE);
-    _WD_CONTROL_REG = _BV(WDIE) | WDTO_4S;
+    _WD_CONTROL_REG = _BV(WDIE) | WDTO_NS;
   #else
-    wdt_enable(WDTO_4S);
+    wdt_enable(WDTO_NS);
   #endif
 }
 
