@@ -46,7 +46,7 @@
 #define SDSUPPORT
 #define CHANGE_Y_DIRECTION    // If your bed homes in the wrong direction front to back, enable this.
 //#define HOTEND_E3DV6        // Genuine E3D v6 hotend. Also enables Fan Soft PWM
-#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
+//#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
                               // stock controller is a RepRap Discount Smart Controller)
 
 // Offset from endpoints to get nozzle to 0,0 (front/left of bed)
