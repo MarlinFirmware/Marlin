@@ -1027,14 +1027,16 @@ void kill_screen(const char* lcd_msg) {
           #endif
 
           // Draw a representation of the nozzle
-          u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_bmp);
-          u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+          if(PAGE_CONTAINS(3,16))  u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_bmp);
+          if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
 
           // Draw cw/ccw indicator and up/down arrows.
-          u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
-          u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
-          u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
-          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+          if(PAGE_CONTAINS(47,62)) {
+            u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+            u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+            u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+          }
         }
       #endif // BABYSTEP_ZPROBE_GFX_OVERLAY
 
