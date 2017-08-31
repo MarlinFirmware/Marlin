@@ -57,11 +57,10 @@ uint8_t const SPI_QUARTER_SPEED = 2;
 /** Set SCK rate to 1/8 max rate. */
 uint8_t const SPI_EIGHTH_SPEED = 3;
 /** Set SCK rate to 1/16 of max rate. */
-uint8_t const SPI_SIXTEENTH_SPEED = 4;
+uint8_t const SPI_SPEED_5 = 4;
 /** Set SCK rate to 1/32 of max rate. */
-uint8_t const SPI_SPEED_5 = 5;
-/** Set SCK rate to 1/64 of max rate. */
-uint8_t const SPI_SPEED_6 = 6;
+uint8_t const SPI_SPEED_6 = 5;
+
 
 // Standard SPI functions
 /** Initialise SPI bus */
