@@ -21,7 +21,7 @@
  */
 
 /**
- * The class Servo uses the PWM class to implement it's functions
+ * The class Servo uses the PWM class to implement its functions
  *
  * The PWM1 module is only used to generate interrups at specified times. It
  * is NOT used to directly toggle pins. The ISR writes to the pin assigned to
@@ -31,39 +31,32 @@
  *
  */
 
-#ifndef LPC1768_SERVO_h
-  #define LPC1768_SERVO_h
+#ifndef LPC1768_SERVO_H
+#define LPC1768_SERVO_H
 
-  #ifdef TARGET_LPC1768
-    #include <inttypes.h>
+#include <inttypes.h>
 
+class Servo {
+  public:
+    Servo();
+    int8_t attach(int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
+    int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
+    void detach();
+    void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+    void writeMicroseconds(int value); // write pulse width in microseconds
+    void move(int value);              // attach the servo, then move to value
+                                       // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+                                       // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
+    int read();                        // returns current pulse width as an angle between 0 and 180 degrees
+    int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
+    bool attached();                   // return true if this servo is attached, otherwise false
 
-    class Servo {
-      public:
-        Servo();
-        int8_t attach(int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
-        int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
-        void detach();
-        void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-        void writeMicroseconds(int value); // write pulse width in microseconds
-        void move(int value);              // attach the servo, then move to value
-                                           // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-                                           // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
-        int read();                        // returns current pulse width as an angle between 0 and 180 degrees
-        int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
-        bool attached();                   // return true if this servo is attached, otherwise false
+  private:
+    uint8_t servoIndex;               // index into the channel data for this servo
+    int min;
+    int max;
+};
 
-      private:
-        uint8_t servoIndex;               // index into the channel data for this servo
-        int min;
-        int max;
-    };
+#define HAL_SERVO_LIB Servo
 
-
-    #define HAL_SERVO_LIB Servo
-
-  #endif
-#endif
-
-
-
+#endif // LPC1768_SERVO_H

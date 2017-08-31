@@ -21,7 +21,7 @@
  */
 
 /**
- * The class Servo uses the PWM class to implement it's functions
+ * The class Servo uses the PWM class to implement its functions
  *
  * All PWMs use the same repetition rate - 20mS because that's the normal servo rate
 */
@@ -489,7 +489,7 @@ return;
  *          writes to the LER register
  *          sets the PWM_table_swap flag active
  *          re-enables the ISR
- *     7) On the next interrupt the ISR changes it's pointer to the work table which is now the old, 
+ *     7) On the next interrupt the ISR changes its pointer to the work table which is now the old, 
  *        unmodified, active table.
  *     8) On the next MR0 interrupt the ISR:
  *          switches over to the active table

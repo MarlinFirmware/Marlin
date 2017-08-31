@@ -66,48 +66,47 @@
                    With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
-#ifndef servo_h
-#define servo_h
+#ifndef SERVO_H
+#define SERVO_H
 
 #if IS_32BIT_TEENSY
   #include "HAL_TEENSY35_36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
 
 #elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/LPC1768_Servo.cpp"
+  #include "HAL_LPC1768/LPC1768_Servo.h"
 
 #else
+  #include <inttypes.h>
 
-#include <inttypes.h>
+  #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAM)
+    // we're good to go
+  #else
+    #error "This library only supports boards with an AVR or SAM3X processor."
+  #endif
 
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAM)
-  // we're good to go
-#else
-  #error "This library only supports boards with an AVR or SAM3X processor."
-#endif
+  #define Servo_VERSION           2     // software version of this library
 
-#define Servo_VERSION           2     // software version of this library
+  class Servo {
+    public:
+      Servo();
+      int8_t attach(int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
+      int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
+      void detach();
+      void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+      void writeMicroseconds(int value); // write pulse width in microseconds
+      void move(int value);              // attach the servo, then move to value
+                                         // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+                                         // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
+      int read();                        // returns current pulse width as an angle between 0 and 180 degrees
+      int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
+      bool attached();                   // return true if this servo is attached, otherwise false
 
-class Servo {
-  public:
-    Servo();
-    int8_t attach(int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
-    int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
-    void detach();
-    void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-    void writeMicroseconds(int value); // write pulse width in microseconds
-    void move(int value);              // attach the servo, then move to value
-                                       // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-                                       // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
-    int read();                        // returns current pulse width as an angle between 0 and 180 degrees
-    int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
-    bool attached();                   // return true if this servo is attached, otherwise false
-
-  private:
-    uint8_t servoIndex;               // index into the channel data for this servo
-    int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
-    int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH
-};
-
-#endif // !TEENSY
+    private:
+      uint8_t servoIndex;               // index into the channel data for this servo
+      int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
+      int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH
+  };
 
 #endif
+
+#endif // SERVO_H

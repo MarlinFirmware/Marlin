@@ -23,8 +23,6 @@
 #ifndef WATCHDOG_AVR_H
 #define WATCHDOG_AVR_H
 
-//#include "../../../Marlin.h"
-
 #include <avr/wdt.h>
 
 // Initialize watchdog with a 4 second interrupt time
@@ -34,4 +32,4 @@ void watchdog_init();
 // first watchdog_init or AVR will go into emergency procedures.
 inline void watchdog_reset() { wdt_reset(); }
 
-#endif
+#endif // WATCHDOG_AVR_H
