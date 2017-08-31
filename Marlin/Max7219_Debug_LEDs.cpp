@@ -63,11 +63,8 @@
   void Max7219_PutByte(uint8_t data) {
     for (uint8_t i = 8; i--;) {
       WRITE(MAX7219_CLK_PIN, LOW);       // tick
-      delay(1);                          // Some delay is needed — experiment
       WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-      delay(1);
       WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-      delay(1);
       data <<= 1;
     }
   }
@@ -198,17 +195,19 @@
     #ifdef MAX7219_DEBUG_STEPPER_HEAD
       Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_HEAD);
       Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_HEAD + 1);
-      uint8_t hrow = planner.block_buffer_head, hcol = MAX7219_DEBUG_STEPPER_HEAD;
-      if (planner.block_buffer_head < 8) hrow -= 8, ++hcol;
-      Max7219_LED_On(hrow, hcol);
+      if ( planner.block_buffer_head < 8)
+        Max7219_LED_On( planner.block_buffer_head, MAX7219_DEBUG_STEPPER_HEAD);
+      else
+        Max7219_LED_On( planner.block_buffer_head-8, MAX7219_DEBUG_STEPPER_HEAD+1);
     #endif
 
     #ifdef MAX7219_DEBUG_STEPPER_TAIL
       Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_TAIL);
       Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_TAIL + 1);
-      uint8_t trow = planner.block_buffer_tail, tcol = MAX7219_DEBUG_STEPPER_TAIL;
-      if (planner.block_buffer_tail < 8) trow -= 8, ++tcol;
-      Max7219_LED_On(trow, tcol);
+      if ( planner.block_buffer_tail < 8)
+        Max7219_LED_On( planner.block_buffer_tail, MAX7219_DEBUG_STEPPER_TAIL );
+      else
+        Max7219_LED_On( planner.block_buffer_tail-8, MAX7219_DEBUG_STEPPER_TAIL+1 );
     #endif
 
     #ifdef MAX7219_DEBUG_STEPPER_QUEUE
@@ -222,8 +221,12 @@
 
         const uint8_t st = min(current_depth, last_depth),
                       en = max(current_depth, last_depth);
-        for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
-          Max7219_LED_Off(i >> 1, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+        if (current_depth < last_depth)
+          for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
+            Max7219_LED_Off(i >> 1, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+        else
+          for (uint8_t i = st; i <= en; i++)   // set the highest order LEDs
+            Max7219_LED_On(i >> 1, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
 
         last_depth = current_depth;
       }
