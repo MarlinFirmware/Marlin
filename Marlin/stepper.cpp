@@ -355,11 +355,8 @@ void Stepper::isr() {
       }
 
       _NEXT_ISR(ocr_val);
-      #ifdef CPU_32_BIT
-        //todo: HAL?
-      #else
-        NOLESS(OCR1A, TCNT1 + 16);
-      #endif
+
+      NOLESS(OCR1A, TCNT1 + 16);
 
       HAL_ENABLE_ISRs(); // re-enable ISRs
       return;
