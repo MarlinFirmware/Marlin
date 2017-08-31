@@ -94,8 +94,8 @@ uint8_t HAL_get_reset_source (void) {
 }
 
 void _delay_ms(int delay_ms) {
-  //todo: port for Due?
-  delay (delay_ms);
+  // todo: port for Due?
+  delay(delay_ms);
 }
 
 extern "C" {

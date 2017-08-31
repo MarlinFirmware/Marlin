@@ -91,7 +91,6 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
   Timer_clock4: Prescaler 128 -> 656.25kHz
 */
 
-
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   Tc *tc = TimerConfig[timer_num].pTimerRegs;
   IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;

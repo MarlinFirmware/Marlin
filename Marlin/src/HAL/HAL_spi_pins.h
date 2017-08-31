@@ -41,4 +41,4 @@
   #error "Unsupported Platform!"
 #endif
 
-#endif /* HAL_SPI_PINS_H_ */
+#endif // HAL_SPI_PINS_H_
