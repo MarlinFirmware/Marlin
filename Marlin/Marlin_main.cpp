@@ -3535,6 +3535,14 @@ inline void gcode_G4() {
   inline void gcode_G5() {
     if (IsRunning()) {
 
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        if (workspace_plane != PLANE_XY) {
+          SERIAL_ERROR_START();
+          SERIAL_ERRORLNPGM(MSG_ERR_BAD_PLANE_MODE);
+          return;
+        }
+      #endif
+
       gcode_get_destination();
 
       const float offset[] = {
@@ -5559,7 +5567,7 @@ void home_all_axes() { gcode_G28(true); }
             N++;
           }
         zero_std_dev_old = zero_std_dev;
-        zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+        zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         // Solve matrices
 
@@ -7745,16 +7753,17 @@ inline void gcode_M110() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = parser.byteval('S', (uint8_t)DEBUG_NONE);
+  if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
-  const static char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
-  const static char str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS;
-  const static char str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN;
-  const static char str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION;
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    const static char str_debug_32[] PROGMEM = MSG_DEBUG_LEVELING;
-  #endif
+  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
+                    str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
+                    str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
+                    str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
+                    str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION
+                    #if ENABLED(DEBUG_LEVELING_FEATURE)
+                      , str_debug_32[] PROGMEM = MSG_DEBUG_LEVELING
+                    #endif
+                    ;
 
   const static char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
@@ -12591,7 +12600,7 @@ void prepare_move_to_destination() {
     millis_t next_idle_ms = millis() + 200UL;
 
     #if N_ARC_CORRECTION > 1
-      int8_t count = N_ARC_CORRECTION;
+      int8_t arc_recalc_count = N_ARC_CORRECTION;
     #endif
 
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
@@ -12603,7 +12612,7 @@ void prepare_move_to_destination() {
       }
 
       #if N_ARC_CORRECTION > 1
-        if (--count) {
+        if (--arc_recalc_count) {
           // Apply vector rotation matrix to previous r_P / 1
           const float r_new_Y = r_P * sin_T + r_Q * cos_T;
           r_P = r_P * cos_T - r_Q * sin_T;
@@ -12613,7 +12622,7 @@ void prepare_move_to_destination() {
       #endif
       {
         #if N_ARC_CORRECTION > 1
-          count = N_ARC_CORRECTION;
+          arc_recalc_count = N_ARC_CORRECTION;
         #endif
 
         // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
@@ -12643,8 +12652,9 @@ void prepare_move_to_destination() {
     // motion control system might still be processing the action and the real tool position
     // in any intermediate location.
     set_current_to_destination();
-  }
-#endif
+  } // plan_arc
+
+#endif // ARC_SUPPORT
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 

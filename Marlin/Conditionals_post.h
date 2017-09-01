@@ -28,6 +28,10 @@
 #ifndef CONDITIONALS_POST_H
 #define CONDITIONALS_POST_H
 
+  #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
+  #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
+  #define IS_CARTESIAN !IS_KINEMATIC
+
   /**
    * Axis lengths and center
    */
@@ -43,6 +47,12 @@
     #define Y_BED_SIZE Y_MAX_LENGTH
   #endif
 
+  // Require 0,0 bed center for Delta and SCARA
+  #if IS_KINEMATIC
+    #define BED_CENTER_AT_0_0
+  #endif
+
+  // Define center values for future use
   #if ENABLED(BED_CENTER_AT_0_0)
     #define X_CENTER 0
     #define Y_CENTER 0
@@ -52,6 +62,7 @@
   #endif
   #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
 
+  // Get the linear boundaries of the bed
   #define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
   #define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
   #define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
@@ -84,10 +95,6 @@
       #define CORESIGN(n) (n)
     #endif
   #endif
-
-  #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
-  #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
-  #define IS_CARTESIAN !IS_KINEMATIC
 
   /**
    * No adjustable bed on non-cartesians
