@@ -9101,6 +9101,90 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 #endif // FILAMENT_WIDTH_SENSOR
 
+#if ENABLED(REPORT_M408_JSON)
+  /**
+   * M408: Report JSON-style response to serial
+   */
+  inline void gcode_M408() {
+    // I=idle, P=printing from SD card, S=stopped (i.e. needs a reset), C=running config file (i.e starting up), A=paused, D=pausing, R=resuming from a pause, B=busy (e.g. running a macro),
+    SERIAL_PROTOCOLPGM("{\"status\": \"");
+    SERIAL_PROTOCOLCHAR(
+        !planner.blocks_queued()                        ? 'I' : // IDLING
+        (IS_SD_PRINTING || print_job_timer.isRunning()) ? 'P' : // SD Printing
+        print_job_timer.isPaused()                      ? 'A' : // PAUSED
+                                                          'B'   // SOMETHING ELSE
+    );
+    SERIAL_PROTOCOLPGM("\",\"heaters\": [");
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
+    #else
+      SERIAL_PROTOCOL(-1);
+    #endif
+    #if HAS_TEMP_HOTEND
+      HOTEND_LOOP() {
+        SERIAL_PROTOCOLCHAR(',');
+        SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
+      }
+    #endif
+    SERIAL_PROTOCOLPGM("],\"active\": [");
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOL(thermalManager.degTargetBed());
+    #else
+      SERIAL_PROTOCOL(-1);
+    #endif
+    #if HAS_TEMP_HOTEND
+      HOTEND_LOOP() {
+        SERIAL_PROTOCOLCHAR(',');
+        SERIAL_PROTOCOL(thermalManager.degTargetHotend(e));
+      }
+    #endif
+    //skipped standbay & hstat
+    SERIAL_PROTOCOLPGM("],\"pos\": [");
+    LOOP_XYZ(i) {
+      if ( i != X_AXIS )
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(current_position[i], 2);
+    }
+    SERIAL_PROTOCOLPGM("],\"extr\": [");
+    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      if (i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(current_position[E_AXIS + i], 1);
+    }
+    SERIAL_PROTOCOLPGM("],\"sfactor\": ");
+    SERIAL_PROTOCOL(feedrate_percentage);
+    SERIAL_PROTOCOLPGM(",\"efactor\": [");
+    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      if (i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL(flow_percentage[ i ]);
+    }
+    SERIAL_PROTOCOLPGM("],\"tool\": ");
+    SERIAL_PROTOCOL((int)active_extruder);
+    SERIAL_PROTOCOLPGM(",\"fanPercent\": [");
+    for (uint8_t i = 0; i < FAN_COUNT; i++) {
+      if (i)
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOL_F(fanSpeeds[i] / 2.5, 1);
+    }
+    //skipped fanRPM
+    SERIAL_PROTOCOLPGM("],\"homed\": [");
+    LOOP_XYZ(i) {
+      if ( i != X_AXIS )
+        SERIAL_PROTOCOLCHAR(',');
+      SERIAL_PROTOCOLCHAR(axis_homed[i]?'1':'0');
+    }
+    #if ENABLED(SDSUPPORT)
+      SERIAL_PROTOCOLPGM("],\"fraction_printed\": ");
+      SERIAL_PROTOCOL_F(card.percentDone() * 0.01, 3);
+    #else
+      SERIAL_PROTOCOLCHAR("]");
+    #endif
+    SERIAL_PROTOCOLCHAR("}");
+    SERIAL_EOL;
+  }
+#endif // REPORT_M408_JSON
+
 void quickstop_stepper() {
   stepper.quick_stop();
   stepper.synchronize();
@@ -11097,6 +11181,12 @@ void process_next_command() {
           gcode_M407();
           break;
       #endif // FILAMENT_WIDTH_SENSOR
+
+      #if ENABLED(REPORT_M408_JSON)
+        case 408: // M408: Report JSON-style response
+          gcode_M408();
+        break;
+      #endif // REPORT_M408_JSON
 
       #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
