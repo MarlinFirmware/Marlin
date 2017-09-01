@@ -32,9 +32,11 @@
 // Equipment options
 //#define LARGE_BED
 #define SDSUPPORT
-#define CHANGE_Y_DIRECTION    // If your bed homes in the wrong direction front to back, enable this.
+//#define CHANGE_Y_DIRECTION    // If your bed homes in the wrong direction front to back, enable this.
+//#define CHANGE_X_DIRECTION    // If your X carriage homes in the wrong direction left to right, enable this.
+//#define CHANGE_Z_DIRECTION    // If your Z homes in the wrong direction bottom to top, enable this.
 //#define HOTEND_E3DV6        // Genuine E3D v6 hotend. Also enables Fan Soft PWM
-#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
+//#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
                               // stock controller is a RepRap Discount Smart Controller)
 
 // Offset from endpoints to get nozzle to 0,0 (front/left of bed)
@@ -42,10 +44,10 @@
 #define NOZZLE_X          0
 #define NOZZLE_Y          0
 
-// Primary Extruder steps per mm
+// Primary Extruder steps per mm (plugged in to E0 port on controller)
 // (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
-//#define CHANGE_E1_DIRECTION   // If your extruder is going backwards, enable this.
+#define E0_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
+//#define CHANGE_E0_DIRECTION   // If your extruder is going backwards, enable this.
 
 // Z-Probe type (must be none or one of them)
 // If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
@@ -75,15 +77,16 @@
 // Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
 #define GRID_POINTS        3
 
-//Enable this to turn on support for a dual nozzle with two separate extruders
+// Enable this to turn on support for a dual nozzle with two separate extruders
+// (plugged in to E1 port on controller)
 //#define DUAL_EXTRUDER
 // Offset for second nozzle from first nozzle
-#define EXTRUDER2_X 10
-#define EXTRUDER2_Y 0
+#define EXTRUDER_E1_X 0
+#define EXTRUDER_E1_Y 0
 // Secondary Extruder steps per mm
 // (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E2_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
-//#define CHANGE_E2_DIRECTION   // If your secondary extruder is going backwards, enable this.
+#define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
+//#define CHANGE_E1_DIRECTION   // If your secondary extruder is going backwards, enable this.
 
 // TEVO Tarantula Custom PID Settings - Stock Hotend
 #define  hot_Kp 11.20
@@ -322,8 +325,8 @@
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 #if ENABLED(DUAL_EXTRUDER)
-  #define HOTEND_OFFSET_X {0.0, EXTRUDER2_X} // (in mm) for each extruder, offset of the hotend on the X axis
-  #define HOTEND_OFFSET_Y {0.0, EXTRUDER2_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
+  #define HOTEND_OFFSET_X {0.0, EXTRUDER_E1_X} // (in mm) for each extruder, offset of the hotend on the X axis
+  #define HOTEND_OFFSET_Y {0.0, EXTRUDER_E1_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
 #endif
 
 // @section machine
@@ -677,9 +680,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUAL_EXTRUDER)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS, E2_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS, E1_STEPS }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E1_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS }
 #endif
 
 /**
@@ -913,13 +916,21 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
+#if ENABLED(CHANGE_X_DIRECTION)
+  #define INVERT_X_DIR true
+#else
+  #define INVERT_X_DIR false
+#endif
 #if ENABLED(CHANGE_Y_DIRECTION)
   #define INVERT_Y_DIR true
 #else
   #define INVERT_Y_DIR false
 #endif
-#define INVERT_Z_DIR false
+#if ENABLED(CHANGE_Z_DIRECTION)
+  #define INVERT_Z_DIR true
+#else
+  #define INVERT_Z_DIR false
+#endif
 
 // Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -927,12 +938,12 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#if ENABLED(CHANGE_E1_DIRECTION)
+#if ENABLED(CHANGE_E0_DIRECTION)
   #define INVERT_E0_DIR true
 #else
   #define INVERT_E0_DIR false
 #endif
-#if ENABLED(CHANGE_E2_DIRECTION)
+#if ENABLED(CHANGE_E1_DIRECTION)
   #define INVERT_E1_DIR true
 #else
   #define INVERT_E1_DIR false
