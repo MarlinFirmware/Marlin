@@ -1946,8 +1946,8 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_ubl_adjust_height_cmd() {
       char UBL_LCD_GCODE[16];
-      const int ind = ubl_height_amount < 0 ? 6 : 7;
-      strcpy_P(UBL_LCD_GCODE, PSTR("G29 P6-"));
+      const int ind = ubl_height_amount > 0 ? 9 : 10;
+      strcpy_P(UBL_LCD_GCODE, PSTR("G29 P6 C -"));
       sprintf_P(&UBL_LCD_GCODE[ind], PSTR(".%i"), abs(ubl_height_amount));
       enqueue_and_echo_command(UBL_LCD_GCODE);
     }
@@ -1963,8 +1963,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_height_adjust_menu() {
       START_MENU();
       MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
-      MENU_ITEM_EDIT(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9);
-      MENU_ITEM(function, MSG_UBL_MESH_HEIGHT_ADJUST, _lcd_ubl_adjust_height_cmd);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9, _lcd_ubl_adjust_height_cmd);
       MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
@@ -2100,8 +2099,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_fillin_menu() {
       START_MENU();
       MENU_BACK(MSG_UBL_BUILD_MESH_MENU);
-      MENU_ITEM_EDIT(int3, MSG_UBL_FILLIN_AMOUNT, &ubl_fillin_amount, 0, 9);
-      MENU_ITEM(function, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_amount_cmd);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_FILLIN_AMOUNT, &ubl_fillin_amount, 0, 9, _lcd_ubl_fillin_amount_cmd);
       MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
       MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
       MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
@@ -2960,7 +2958,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500")); // TODO: Add "Are You Sure?" step
+      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500\nM501")); // TODO: Add "Are You Sure?" step
     #endif
 
     END_MENU();
