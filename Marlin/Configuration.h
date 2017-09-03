@@ -71,6 +71,7 @@
 
 // Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
 // Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
+// If you have a dual nozzle the offsets are calculated from the primary nozzle (the one plugged in to E0)
 #define SENSOR_LEFT        1
 #define SENSOR_RIGHT       0
 #define SENSOR_FRONT      36
@@ -90,9 +91,13 @@
 #define GRID_POINTS        10
 
 // Enable this to turn on support for a dual nozzle with two separate extruders
-// (plugged in to E1 port on controller)
+// (primary nozzle plugged in to E0 port and secondary plugged in to E1 port)
 //#define DUAL_EXTRUDER
 // Offset for second nozzle from first nozzle
+// The X value is positive if the secondary nozzle is to the right of the primary and
+// negative if the secondary nozzle is to the left of the primary.
+// The Y value is positive if the secondary nozzle is behind the primary and
+// negative if the secondary nozzle is in front of the primary.
 #define EXTRUDER_E1_X 0
 #define EXTRUDER_E1_Y 0
 // Secondary Extruder steps per mm
@@ -337,7 +342,7 @@
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 #if ENABLED(DUAL_EXTRUDER)
-  #define HOTEND_OFFSET_X {0.0, EXTRUDER_E1_X} // (in mm) for each extruder, offset of the hotend on the X axis
+  #define HOTEND_OFFSET_X {0.0, EXTRUDER_E1_X}  // (in mm) for each extruder, offset of the hotend on the X axis
   #define HOTEND_OFFSET_Y {0.0, EXTRUDER_E1_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
 #endif
 
