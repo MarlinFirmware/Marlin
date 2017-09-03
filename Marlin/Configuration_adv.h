@@ -1185,20 +1185,26 @@
  *
  * You'll need to select a pin for the ON/OFF function and optionally choose a 0-5V
  * hardware PWM pin for the speed control and a pin for the rotation direction.
+ * 
+ * Special case is when you have only PWM control (0-5V) on SPINDLE_LASER_PWM_PIN, without
+ * SPINDLE_LASER_ENABLE_PIN being used. For that purpose, check SPINDLE_LASER_PWM_ACTS_AS_ENABLE.
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
 //#define SPINDLE_LASER_ENABLE
 #if ENABLED(SPINDLE_LASER_ENABLE)
 
-  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
-  #define SPINDLE_LASER_PWM             true   // set to true if your controller supports setting the speed/power
-  #define SPINDLE_LASER_PWM_INVERT      true   // set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWERUP_DELAY   5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
-  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // delay in milliseconds to allow the spindle to stop
-  #define SPINDLE_DIR_CHANGE            true   // set to true if your spindle controller supports changing spindle direction
-  #define SPINDLE_INVERT_DIR            false
-  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
+  #define SPINDLE_LASER_ENABLE_INVERT       false  // set to "true" if the on/off function is reversed
+  #define SPINDLE_LASER_PWM                 true   // set to true if your controller supports setting the speed/power
+  #define SPINDLE_LASER_PWM_INVERT          true   // set to "true" if the speed/power goes up when you want it to go slower
+  #define SPINDLE_LASER_PWM_ACTS_AS_ENABLE  true  // set to "true" if you only have PWM control (without using separate ENABLE pin).  
+                                                  // When true, M3 S0, M4 S0 and M5 are disabling laser by setting PWM = 0, 
+                                                  // SPINDLE_LASER_ENABLE_PIN isn't used.  
+  #define SPINDLE_LASER_POWERUP_DELAY       5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWERDOWN_DELAY     5000   // delay in milliseconds to allow the spindle to stop
+  #define SPINDLE_DIR_CHANGE                true   // set to true if your spindle controller supports changing spindle direction
+  #define SPINDLE_INVERT_DIR                false
+  #define SPINDLE_STOP_ON_DIR_CHANGE        true   // set to true if Marlin should stop the spindle before changing rotation direction
 
   /**
    *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
