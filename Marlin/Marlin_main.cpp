@@ -6093,12 +6093,10 @@ inline void gcode_G92() {
             ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // limit to max RPM
           if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
           
-          if (SPINDLE_LASER_PWM_ACTS_AS_ENABLE) {
-            analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte                                          
+          if (!SPINDLE_LASER_PWM_ACTS_AS_ENABLE) {   // only write to SPINDLE_LASER_ENABLE_PIN if SPINDLE_LASER_PWM_ACTS_AS_ENABLE == false                    
+            WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)                              
           }
-          else {
-            WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
-          }
+          analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte 
           
           delay_for_power_up();
         }
