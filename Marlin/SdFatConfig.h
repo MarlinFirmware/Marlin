@@ -125,7 +125,11 @@
   * Defines for long (vfat) filenames
   */
   /** Number of VFAT entries used. Every entry has 13 UTF-16 characters */
-  #define MAX_VFAT_ENTRIES (2)
+  #if ENABLED(SCROLL_LONG_FILE_NAMES)
+    #define MAX_VFAT_ENTRIES (5)
+  #else
+    #define MAX_VFAT_ENTRIES (2)
+  #endif
   /** Total size of the buffer used to store the long filenames */
   #define LONG_FILENAME_LENGTH (FILENAME_LENGTH*MAX_VFAT_ENTRIES+1)
 #endif  // SdFatConfig_h

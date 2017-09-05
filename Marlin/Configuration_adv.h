@@ -222,7 +222,7 @@
 
 /**
  * Part-Cooling Fan Multiplexer
- * 
+ *
  * This feature allows you to digitally multiplex the fan output.
  * The multiplexer is automatically switched at tool-change.
  * Set FANMUX[012]_PINs below for up to 2, 4, or 8 multiplexed fans.
@@ -575,6 +575,9 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
+
+  // Enable this option to cause long filenames on the SD card menu to scroll.
+  //#define SCROLL_LONG_FILE_NAMES
 #endif // DOGLCD
 
 // @section safety
