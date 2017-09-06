@@ -26,10 +26,14 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
+
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(SDSUPPORT)
+
 #include "SdFatUtil.h"
+
+#include "../core/serial.h"
 
 //------------------------------------------------------------------------------
 /** Amount of free RAM
@@ -88,4 +92,5 @@ void SdFatUtil::SerialPrint_P(PGM_P str) {
 void SdFatUtil::SerialPrintln_P(PGM_P str) {
   println_P(str);
 }
-#endif
+
+#endif // SDSUPPORT

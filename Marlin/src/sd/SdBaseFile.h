@@ -26,18 +26,19 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
 
-#ifndef SdBaseFile_h
-#define SdBaseFile_h
+#ifndef SDBASEFILE_H
+#define SDBASEFILE_H
 /**
  * \file
  * \brief SdBaseFile class
  */
-#include "Marlin.h"
+
 #include "SdFatConfig.h"
 #include "SdVolume.h"
+
+#include <stdint.h>
+
 //------------------------------------------------------------------------------
 /**
  * \struct filepos_t
@@ -488,5 +489,4 @@ class SdBaseFile {
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
 
-#endif  // SdBaseFile_h
-#endif
+#endif // SDBASEFILE_H

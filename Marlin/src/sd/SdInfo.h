@@ -26,12 +26,11 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
+#ifndef SDINFO_H
+#define SDINFO_H
 
-#ifndef SdInfo_h
-#define SdInfo_h
 #include <stdint.h>
+
 // Based on the document:
 //
 // SD Specifications
@@ -284,6 +283,5 @@ union csd_t {
   csd1_t v1;
   csd2_t v2;
 };
-#endif  // SdInfo_h
 
-#endif
+#endif  // SDINFO_H

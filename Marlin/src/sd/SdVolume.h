@@ -26,10 +26,9 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
-#ifndef SdVolume_h
-#define SdVolume_h
+#ifndef SDVOLUME_H
+#define SDVOLUME_H
+
 /**
  * \file
  * \brief SdVolume class
@@ -37,6 +36,8 @@
 #include "SdFatConfig.h"
 #include "Sd2Card.h"
 #include "SdFatStructs.h"
+
+#include <stdint.h>
 
 //==============================================================================
 // SdVolume class
@@ -136,19 +137,19 @@ class SdVolume {
   // value for dirty argument in cacheRawBlock to indicate write to cache
   static bool const CACHE_FOR_WRITE = true;
 
-#if USE_MULTIPLE_CARDS
-  cache_t cacheBuffer_;        // 512 byte cache for device blocks
-  uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-  Sd2Card* sdCard_;            // Sd2Card object for cache
-  bool cacheDirty_;            // cacheFlush() will write block if true
-  uint32_t cacheMirrorBlock_;  // block number for mirror FAT
-#else  // USE_MULTIPLE_CARDS
-  static cache_t cacheBuffer_;        // 512 byte cache for device blocks
-  static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-  static Sd2Card* sdCard_;            // Sd2Card object for cache
-  static bool cacheDirty_;            // cacheFlush() will write block if true
-  static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
-#endif  // USE_MULTIPLE_CARDS
+  #if USE_MULTIPLE_CARDS
+    cache_t cacheBuffer_;        // 512 byte cache for device blocks
+    uint32_t cacheBlockNumber_;  // Logical number of block in the cache
+    Sd2Card* sdCard_;            // Sd2Card object for cache
+    bool cacheDirty_;            // cacheFlush() will write block if true
+    uint32_t cacheMirrorBlock_;  // block number for mirror FAT
+  #else  // USE_MULTIPLE_CARDS
+    static cache_t cacheBuffer_;        // 512 byte cache for device blocks
+    static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
+    static Sd2Card* sdCard_;            // Sd2Card object for cache
+    static bool cacheDirty_;            // cacheFlush() will write block if true
+    static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
+  #endif  // USE_MULTIPLE_CARDS
   uint32_t allocSearchStart_;   // start cluster for alloc search
   uint8_t blocksPerCluster_;    // cluster size in blocks
   uint32_t blocksPerFat_;       // FAT size in blocks
@@ -173,13 +174,13 @@ class SdVolume {
   }
   cache_t* cache() {return &cacheBuffer_;}
   uint32_t cacheBlockNumber() {return cacheBlockNumber_;}
-#if USE_MULTIPLE_CARDS
-  bool cacheFlush();
-  bool cacheRawBlock(uint32_t blockNumber, bool dirty);
-#else  // USE_MULTIPLE_CARDS
-  static bool cacheFlush();
-  static bool cacheRawBlock(uint32_t blockNumber, bool dirty);
-#endif  // USE_MULTIPLE_CARDS
+  #if USE_MULTIPLE_CARDS
+    bool cacheFlush();
+    bool cacheRawBlock(uint32_t blockNumber, bool dirty);
+  #else  // USE_MULTIPLE_CARDS
+    static bool cacheFlush();
+    static bool cacheRawBlock(uint32_t blockNumber, bool dirty);
+  #endif  // USE_MULTIPLE_CARDS
   // used by SdBaseFile write to assign cache to SD location
   void cacheSetBlockNumber(uint32_t blockNumber, bool dirty) {
     cacheDirty_ = dirty;
@@ -206,22 +207,22 @@ class SdVolume {
   }
   //------------------------------------------------------------------------------
   // Deprecated functions  - suppress cpplint warnings with NOLINT comment
-#if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
- public:
-  /** \deprecated Use: bool SdVolume::init(Sd2Card* dev);
-   * \param[in] dev The SD card where the volume is located.
-   * \return true for success or false for failure.
-   */
-  bool init(Sd2Card& dev) {return init(&dev);}  // NOLINT
-  /** \deprecated Use: bool SdVolume::init(Sd2Card* dev, uint8_t vol);
-   * \param[in] dev The SD card where the volume is located.
-   * \param[in] part The partition to be used.
-   * \return true for success or false for failure.
-   */
-  bool init(Sd2Card& dev, uint8_t part) {  // NOLINT
-    return init(&dev, part);
-  }
-#endif  // ALLOW_DEPRECATED_FUNCTIONS
+  #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
+    public:
+      /** \deprecated Use: bool SdVolume::init(Sd2Card* dev);
+       * \param[in] dev The SD card where the volume is located.
+       * \return true for success or false for failure.
+       */
+      bool init(Sd2Card& dev) {return init(&dev);}  // NOLINT
+      /** \deprecated Use: bool SdVolume::init(Sd2Card* dev, uint8_t vol);
+       * \param[in] dev The SD card where the volume is located.
+       * \param[in] part The partition to be used.
+       * \return true for success or false for failure.
+       */
+      bool init(Sd2Card& dev, uint8_t part) {  // NOLINT
+        return init(&dev, part);
+      }
+  #endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
-#endif  // SdVolume
-#endif
+
+#endif // SDVOLUME_H

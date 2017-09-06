@@ -26,10 +26,15 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
+
+#include "../inc/MarlinConfig.h"
+
 #if ENABLED(SDSUPPORT)
 
 #include "SdVolume.h"
+
+#include "../Marlin.h"
+
 //------------------------------------------------------------------------------
 #if !USE_MULTIPLE_CARDS
   // raw block cache
@@ -417,4 +422,5 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   FAIL:
   return false;
 }
-#endif
+
+#endif // SDSUPPORT
