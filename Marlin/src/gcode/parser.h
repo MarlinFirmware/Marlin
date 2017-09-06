@@ -21,27 +21,20 @@
  */
 
 /**
- * gcode.h - Parser for a GCode line, providing a parameter interface.
+ * parser.h - Parser for a GCode line, providing a parameter interface.
  *           Codes like M149 control the way the GCode parser behaves,
  *           so settings for these codes are located in this class.
  */
 
-#ifndef GCODE_H
-#define GCODE_H
+#ifndef PARSER_H
+#define PARSER_H
 
-#include "enum.h"
-#include "types.h"
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 //#define DEBUG_GCODE_PARSER
 
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    extern char* hex_address(const void * const w);
-  #else
-    #include "hex_print_routines.h"
-  #endif
-  #include "serial.h"
+  #include "../core/serial.h"
 #endif
 
 #if ENABLED(INCH_MODE_SUPPORT)
@@ -320,4 +313,4 @@ public:
 
 extern GCodeParser parser;
 
-#endif // GCODE_H
+#endif // PARSER_H

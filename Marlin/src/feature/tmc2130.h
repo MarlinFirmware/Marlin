@@ -23,8 +23,16 @@
 #ifndef _TMC2130_H_
 #define _TMC2130_H_
 
+#include <TMC2130Stepper.h>
+
+#include "../inc/MarlinConfig.h"
+
 extern bool auto_current_control;
 
 void tmc2130_checkOverTemp(void);
+
+#if ENABLED(SENSORLESS_HOMING)
+  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true);
+#endif
 
 #endif // _TMC2130_H_

@@ -30,8 +30,6 @@
 #include "../libs/duration_t.h"
 #include "../module/stepper_indirection.h"
 
-#include <TMC2130Stepper.h>
-
 #ifdef AUTOMATIC_CURRENT_CONTROL
   bool auto_current_control = 0;
 #endif
@@ -131,5 +129,27 @@ void tmc2130_checkOverTemp(void) {
     #endif
   }
 }
+
+/**
+ * TMC2130 specific sensorless homing using stallGuard2.
+ * stallGuard2 only works when in spreadCycle mode.
+ * spreadCycle and stealthChop are mutually exclusive.
+ */
+#if ENABLED(SENSORLESS_HOMING)
+  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true) {
+    #if ENABLED(STEALTHCHOP)
+      if (enable) {
+        st.coolstep_min_speed(1024UL * 1024UL - 1UL);
+        st.stealthChop(0);
+      }
+      else {
+        st.coolstep_min_speed(0);
+        st.stealthChop(1);
+      }
+    #endif
+
+    st.diag1_stall(enable ? 1 : 0);
+  }
+#endif // SENSORLESS_HOMING
 
 #endif // HAVE_TMC2130

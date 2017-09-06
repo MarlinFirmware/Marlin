@@ -20,6 +20,8 @@
  *
  */
 
+#include "../../libs/hex_print_routines.h"
+
 /**
  * M100 Free Memory Watcher
  *
@@ -48,10 +50,6 @@
 #define M100_FREE_MEMORY_DUMPER     // Enable for the `M110 D` Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
-#include "MarlinConfig.h"
-
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-
 #define TEST_BYTE ((char) 0xE5)
 
 extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
@@ -60,16 +58,11 @@ extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;
 
-#include "Marlin.h"
-#include "gcode.h"
-#include "hex_print_routines.h"
-
 //
 // Utility functions
 //
 
 #define END_OF_HEAP() (__brkval ? __brkval : &__bss_end)
-int check_for_free_memory_corruption(const char * const title);
 
 // Location of a variable on its stack frame. Returns a value above
 // the stack (once the function returns to the caller).
@@ -137,17 +130,78 @@ int16_t count_test_bytes(const char * const ptr) {
     }
   }
 
-void M100_dump_routine(const char * const title, const char *start, const char *end) {
-  SERIAL_ECHOLN(title);
-  //
-  // Round the start and end locations to produce full lines of output
-  //
-  start = (char*)((uint16_t) start & 0xFFF0);
-  end   = (char*)((uint16_t) end   | 0x000F);
-  dump_free_memory(start, end);
-}
+  void M100_dump_routine(const char * const title, const char *start, const char *end) {
+    SERIAL_ECHOLN(title);
+    //
+    // Round the start and end locations to produce full lines of output
+    //
+    start = (char*)((uint16_t) start & 0xFFF0);
+    end   = (char*)((uint16_t) end   | 0x000F);
+    dump_free_memory(start, end);
+  }
 
 #endif // M100_FREE_MEMORY_DUMPER
+
+int check_for_free_memory_corruption(const char * const title) {
+  SERIAL_ECHO(title);
+
+  char *ptr = END_OF_HEAP(), *sp = top_of_stack();
+  int n = sp - ptr;
+
+  SERIAL_ECHOPAIR("\nfmc() n=", n);
+  SERIAL_ECHOPAIR("\n&__brkval: ", hex_address(&__brkval));
+  SERIAL_ECHOPAIR("=",             hex_address(__brkval));
+  SERIAL_ECHOPAIR("\n__bss_end: ", hex_address(&__bss_end));
+  SERIAL_ECHOPAIR(" sp=",          hex_address(sp));
+
+  if (sp < ptr)  {
+    SERIAL_ECHOPGM(" sp < Heap ");
+    // SET_INPUT_PULLUP(63);           // if the developer has a switch wired up to their controller board
+    // safe_delay(5);                  // this code can be enabled to pause the display as soon as the
+    // while ( READ(63))               // malfunction is detected.   It is currently defaulting to a switch
+    //   idle();                       // being on pin-63 which is unassigend and available on most controller
+    // safe_delay(20);                 // boards.
+    // while ( !READ(63))
+    //   idle();
+    safe_delay(20);
+    #if ENABLED(M100_FREE_MEMORY_DUMPER)
+      M100_dump_routine("   Memory corruption detected with sp<Heap\n", (char*)0x1B80, (char*)0x21FF);
+    #endif
+  }
+
+  // Scan through the range looking for the biggest block of 0xE5's we can find
+  int block_cnt = 0;
+  for (int i = 0; i < n; i++) {
+    if (ptr[i] == TEST_BYTE) {
+      int16_t j = count_test_bytes(ptr + i);
+      if (j > 8) {
+        // SERIAL_ECHOPAIR("Found ", j);
+        // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(ptr + i));
+        i += j;
+        block_cnt++;
+        SERIAL_ECHOPAIR(" (", block_cnt);
+        SERIAL_ECHOPAIR(") found=", j);
+        SERIAL_ECHOPGM("   ");
+      }
+    }
+  }
+  SERIAL_ECHOPAIR("  block_found=", block_cnt);
+
+  if (block_cnt != 1 || __brkval != 0x0000)
+    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+
+  if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
+    block_cnt = -1;         // error to the calling code!
+
+  SERIAL_ECHOPGM(" return=");
+  if (block_cnt == 1) {
+    SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
+    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
+    return 0;
+  }
+  SERIAL_ECHOLNPGM("true");
+  return block_cnt;
+}
 
 /**
  * M100 F
@@ -266,68 +320,3 @@ void gcode_M100() {
 
   #endif
 }
-
-int check_for_free_memory_corruption(const char * const title) {
-  SERIAL_ECHO(title);
-
-  char *ptr = END_OF_HEAP(), *sp = top_of_stack();
-  int n = sp - ptr;
-
-  SERIAL_ECHOPAIR("\nfmc() n=", n);
-  SERIAL_ECHOPAIR("\n&__brkval: ", hex_address(&__brkval));
-  SERIAL_ECHOPAIR("=",             hex_address(__brkval));
-  SERIAL_ECHOPAIR("\n__bss_end: ", hex_address(&__bss_end));
-  SERIAL_ECHOPAIR(" sp=",          hex_address(sp));
-
-  if (sp < ptr)  {
-    SERIAL_ECHOPGM(" sp < Heap ");
-    // SET_INPUT_PULLUP(63);           // if the developer has a switch wired up to their controller board
-    // safe_delay(5);                  // this code can be enabled to pause the display as soon as the
-    // while ( READ(63))               // malfunction is detected.   It is currently defaulting to a switch
-    //   idle();                       // being on pin-63 which is unassigend and available on most controller
-    // safe_delay(20);                 // boards.
-    // while ( !READ(63))
-    //   idle();
-    safe_delay(20);
-    #ifdef M100_FREE_MEMORY_DUMPER
-      M100_dump_routine("   Memory corruption detected with sp<Heap\n", (char*)0x1B80, (char*)0x21FF);
-    #endif
-  }
-
-  // Scan through the range looking for the biggest block of 0xE5's we can find
-  int block_cnt = 0;
-  for (int i = 0; i < n; i++) {
-    if (ptr[i] == TEST_BYTE) {
-      int16_t j = count_test_bytes(ptr + i);
-      if (j > 8) {
-        // SERIAL_ECHOPAIR("Found ", j);
-        // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(ptr + i));
-        i += j;
-        block_cnt++;
-        SERIAL_ECHOPAIR(" (", block_cnt);
-        SERIAL_ECHOPAIR(") found=", j);
-        SERIAL_ECHOPGM("   ");
-      }
-    }
-  }
-  SERIAL_ECHOPAIR("  block_found=", block_cnt);
-
-  if (block_cnt != 1 || __brkval != 0x0000)
-    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
-
-  if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
-    block_cnt = -1;         // error to the calling code!
-
-  SERIAL_ECHOPGM(" return=");
-  if (block_cnt == 1) {
-    SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
-    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
-    return 0;
-  }
-  SERIAL_ECHOLNPGM("true");
-  return block_cnt;
-}
-
-#endif // M100_FREE_MEMORY_WATCHER
-
-
