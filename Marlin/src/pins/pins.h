@@ -35,11 +35,19 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#define IS_RAMPS_EFB (MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB))
-#define IS_RAMPS_EEB (MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB))
-#define IS_RAMPS_EFF (MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF))
-#define IS_RAMPS_EEF (MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF))
-#define IS_RAMPS_SF  (MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF) )
+#include "../inc/MarlinConfig.h"
+
+#if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
+  #define IS_RAMPS_EFB
+#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB)
+  #define IS_RAMPS_EEB
+#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF)
+  #define IS_RAMPS_EFF
+#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF)
+  #define IS_RAMPS_EEF
+#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF) 
+  #define IS_RAMPS_SF
+#endif
 
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
@@ -254,7 +262,7 @@
   #include "pins_DUE3DOM_MINI.h"
 #elif MB(RADDS)
   #include "pins_RADDS.h"
-#elif MB(RAMPS_FD_V1)
+#elif MB(RAMPS_FD)
   #include "pins_RAMPS_FD.h"
 #elif MB(RAMPS_FD_V2)
   #include "pins_RAMPS_FD_V2.h"
@@ -290,9 +298,6 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"
-#elif MB(RAMPS_FD_V1) || MB(RAMPS_FD_V2)
-  #include "pins_RAMPS_FD_v1.h"
-
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -670,7 +675,6 @@
 
 // Note: default SPI pins are defined in the HAL
 
-#include "src/HAL/HAL_spi_pins.h"
-
+#include "../HAL/HAL_spi_pins.h"
 
 #endif // __PINS_H__
