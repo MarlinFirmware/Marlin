@@ -341,15 +341,4 @@ class I2CPositionEncodersMgr {
 
 extern I2CPositionEncodersMgr I2CPEM;
 
-FORCE_INLINE static void gcode_M860() { I2CPEM.M860(); }
-FORCE_INLINE static void gcode_M861() { I2CPEM.M861(); }
-FORCE_INLINE static void gcode_M862() { I2CPEM.M862(); }
-FORCE_INLINE static void gcode_M863() { I2CPEM.M863(); }
-FORCE_INLINE static void gcode_M864() { I2CPEM.M864(); }
-FORCE_INLINE static void gcode_M865() { I2CPEM.M865(); }
-FORCE_INLINE static void gcode_M866() { I2CPEM.M866(); }
-FORCE_INLINE static void gcode_M867() { I2CPEM.M867(); }
-FORCE_INLINE static void gcode_M868() { I2CPEM.M868(); }
-FORCE_INLINE static void gcode_M869() { I2CPEM.M869(); }
-
 #endif //I2CPOSENC_H

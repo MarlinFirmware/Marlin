@@ -1,0 +1,263 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#if N_ARC_CORRECTION < 1
+  #undef N_ARC_CORRECTION
+  #define N_ARC_CORRECTION 1
+#endif
+
+/**
+ * Plan an arc in 2 dimensions
+ *
+ * The arc is approximated by generating many small linear segments.
+ * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
+ * Arcs should only be made relatively large (over 5mm), as larger arcs with
+ * larger segments will tend to be more efficient. Your slicer should have
+ * options for G2/G3 arc generation. In future these options may be GCode tunable.
+ */
+void plan_arc(
+  float logical[XYZE], // Destination position
+  float *offset,       // Center of rotation relative to current_position
+  uint8_t clockwise    // Clockwise?
+) {
+  #if ENABLED(CNC_WORKSPACE_PLANES)
+    AxisEnum p_axis, q_axis, l_axis;
+    switch (workspace_plane) {
+      case PLANE_XY: p_axis = X_AXIS; q_axis = Y_AXIS; l_axis = Z_AXIS; break;
+      case PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
+      case PLANE_YZ: p_axis = Y_AXIS; q_axis = Z_AXIS; l_axis = X_AXIS; break;
+    }
+  #else
+    constexpr AxisEnum p_axis = X_AXIS, q_axis = Y_AXIS, l_axis = Z_AXIS;
+  #endif
+
+  // Radius vector from center to current location
+  float r_P = -offset[0], r_Q = -offset[1];
+
+  const float radius = HYPOT(r_P, r_Q),
+              center_P = current_position[p_axis] - r_P,
+              center_Q = current_position[q_axis] - r_Q,
+              rt_X = logical[p_axis] - center_P,
+              rt_Y = logical[q_axis] - center_Q,
+              linear_travel = logical[l_axis] - current_position[l_axis],
+              extruder_travel = logical[E_AXIS] - current_position[E_AXIS];
+
+  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
+  float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
+  if (angular_travel < 0) angular_travel += RADIANS(360);
+  if (clockwise) angular_travel -= RADIANS(360);
+
+  // Make a circle if the angular rotation is 0 and the target is current position
+  if (angular_travel == 0 && current_position[p_axis] == logical[p_axis] && current_position[q_axis] == logical[q_axis])
+    angular_travel = RADIANS(360);
+
+  const float mm_of_travel = HYPOT(angular_travel * radius, FABS(linear_travel));
+  if (mm_of_travel < 0.001) return;
+
+  uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
+  if (segments == 0) segments = 1;
+
+  /**
+   * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
+   * and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
+   *     r_T = [cos(phi) -sin(phi);
+   *            sin(phi)  cos(phi)] * r ;
+   *
+   * For arc generation, the center of the circle is the axis of rotation and the radius vector is
+   * defined from the circle center to the initial position. Each line segment is formed by successive
+   * vector rotations. This requires only two cos() and sin() computations to form the rotation
+   * matrix for the duration of the entire arc. Error may accumulate from numerical round-off, since
+   * all double numbers are single precision on the Arduino. (True double precision will not have
+   * round off issues for CNC applications.) Single precision error can accumulate to be greater than
+   * tool precision in some cases. Therefore, arc path correction is implemented.
+   *
+   * Small angle approximation may be used to reduce computation overhead further. This approximation
+   * holds for everything, but very small circles and large MM_PER_ARC_SEGMENT values. In other words,
+   * theta_per_segment would need to be greater than 0.1 rad and N_ARC_CORRECTION would need to be large
+   * to cause an appreciable drift error. N_ARC_CORRECTION~=25 is more than small enough to correct for
+   * numerical drift error. N_ARC_CORRECTION may be on the order a hundred(s) before error becomes an
+   * issue for CNC machines with the single precision Arduino calculations.
+   *
+   * This approximation also allows plan_arc to immediately insert a line segment into the planner
+   * without the initial overhead of computing cos() or sin(). By the time the arc needs to be applied
+   * a correction, the planner should have caught up to the lag caused by the initial plan_arc overhead.
+   * This is important when there are successive arc motions.
+   */
+  // Vector rotation matrix values
+  float arc_target[XYZE];
+  const float theta_per_segment = angular_travel / segments,
+              linear_per_segment = linear_travel / segments,
+              extruder_per_segment = extruder_travel / segments,
+              sin_T = theta_per_segment,
+              cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
+
+  // Initialize the linear axis
+  arc_target[l_axis] = current_position[l_axis];
+
+  // Initialize the extruder axis
+  arc_target[E_AXIS] = current_position[E_AXIS];
+
+  const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
+
+  millis_t next_idle_ms = millis() + 200UL;
+
+  #if N_ARC_CORRECTION > 1
+    int8_t arc_recalc_count = N_ARC_CORRECTION;
+  #endif
+
+  for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
+
+    thermalManager.manage_heater();
+    if (ELAPSED(millis(), next_idle_ms)) {
+      next_idle_ms = millis() + 200UL;
+      idle();
+    }
+
+    #if N_ARC_CORRECTION > 1
+      if (--arc_recalc_count) {
+        // Apply vector rotation matrix to previous r_P / 1
+        const float r_new_Y = r_P * sin_T + r_Q * cos_T;
+        r_P = r_P * cos_T - r_Q * sin_T;
+        r_Q = r_new_Y;
+      }
+      else
+    #endif
+    {
+      #if N_ARC_CORRECTION > 1
+        arc_recalc_count = N_ARC_CORRECTION;
+      #endif
+
+      // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
+      // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
+      // To reduce stuttering, the sin and cos could be computed at different times.
+      // For now, compute both at the same time.
+      const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
+      r_P = -offset[0] * cos_Ti + offset[1] * sin_Ti;
+      r_Q = -offset[0] * sin_Ti - offset[1] * cos_Ti;
+    }
+
+    // Update arc_target location
+    arc_target[p_axis] = center_P + r_P;
+    arc_target[q_axis] = center_Q + r_Q;
+    arc_target[l_axis] += linear_per_segment;
+    arc_target[E_AXIS] += extruder_per_segment;
+
+    clamp_to_software_endstops(arc_target);
+
+    planner.buffer_line_kinematic(arc_target, fr_mm_s, active_extruder);
+  }
+
+  // Ensure last segment arrives at target location.
+  planner.buffer_line_kinematic(logical, fr_mm_s, active_extruder);
+
+  // As far as the parser is concerned, the position is now == target. In reality the
+  // motion control system might still be processing the action and the real tool position
+  // in any intermediate location.
+  set_current_to_destination();
+} // plan_arc
+
+/**
+ * G2: Clockwise Arc
+ * G3: Counterclockwise Arc
+ *
+ * This command has two forms: IJ-form and R-form.
+ *
+ *  - I specifies an X offset. J specifies a Y offset.
+ *    At least one of the IJ parameters is required.
+ *    X and Y can be omitted to do a complete circle.
+ *    The given XY is not error-checked. The arc ends
+ *     based on the angle of the destination.
+ *    Mixing I or J with R will throw an error.
+ *
+ *  - R specifies the radius. X or Y is required.
+ *    Omitting both X and Y will throw an error.
+ *    X or Y must differ from the current XY.
+ *    Mixing R with I or J will throw an error.
+ *
+ *  - P specifies the number of full circles to do
+ *    before the specified arc move.
+ *
+ *  Examples:
+ *
+ *    G2 I10           ; CW circle centered at X+10
+ *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
+ */
+void gcode_G2_G3(bool clockwise) {
+  if (IsRunning()) {
+
+    #if ENABLED(SF_ARC_FIX)
+      const bool relative_mode_backup = relative_mode;
+      relative_mode = true;
+    #endif
+
+    gcode_get_destination();
+
+    #if ENABLED(SF_ARC_FIX)
+      relative_mode = relative_mode_backup;
+    #endif
+
+    float arc_offset[2] = { 0.0, 0.0 };
+    if (parser.seenval('R')) {
+      const float r = parser.value_linear_units(),
+                  p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
+                  p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
+      if (r && (p2 != p1 || q2 != q1)) {
+        const float e = clockwise ^ (r < 0) ? -1 : 1,           // clockwise -1/1, counterclockwise 1/-1
+                    dx = p2 - p1, dy = q2 - q1,                 // X and Y differences
+                    d = HYPOT(dx, dy),                          // Linear distance between the points
+                    h = SQRT(sq(r) - sq(d * 0.5)),              // Distance to the arc pivot-point
+                    mx = (p1 + p2) * 0.5, my = (q1 + q2) * 0.5, // Point between the two points
+                    sx = -dy / d, sy = dx / d,                  // Slope of the perpendicular bisector
+                    cx = mx + e * h * sx, cy = my + e * h * sy; // Pivot-point of the arc
+        arc_offset[0] = cx - p1;
+        arc_offset[1] = cy - q1;
+      }
+    }
+    else {
+      if (parser.seenval('I')) arc_offset[0] = parser.value_linear_units();
+      if (parser.seenval('J')) arc_offset[1] = parser.value_linear_units();
+    }
+
+    if (arc_offset[0] || arc_offset[1]) {
+
+      #if ENABLED(ARC_P_CIRCLES)
+        // P indicates number of circles to do
+        int8_t circles_to_do = parser.byteval('P');
+        if (!WITHIN(circles_to_do, 0, 100)) {
+          SERIAL_ERROR_START();
+          SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
+        }
+        while (circles_to_do--)
+          plan_arc(current_position, arc_offset, clockwise);
+      #endif
+
+      // Send the arc to the planner
+      plan_arc(destination, arc_offset, clockwise);
+      refresh_cmd_timeout();
+    }
+    else {
+      // Bad arguments
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
+    }
+  }
+}

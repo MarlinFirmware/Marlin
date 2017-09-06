@@ -30,8 +30,6 @@
 #include "../libs/duration_t.h"
 #include "../module/stepper_indirection.h"
 
-#include <TMC2130Stepper.h>
-
 #ifdef AUTOMATIC_CURRENT_CONTROL
   bool auto_current_control = 0;
 #endif

@@ -21,13 +21,16 @@
  */
 
 /**
- * gcode.cpp - Parser for a GCode line, providing a parameter interface.
+ * parser.cpp - Parser for a GCode line, providing a parameter interface.
  */
 
-#include "gcode.h"
+#include "parser.h"
 
-#include "Marlin.h"
-#include "language.h"
+#include "../Marlin.h"
+
+#if ENABLED(DEBUG_GCODE_PARSER)
+  #include "../../libs/hex_print_routines.h"
+#endif
 
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.

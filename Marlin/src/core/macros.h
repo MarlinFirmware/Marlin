@@ -172,6 +172,9 @@
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
+
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
