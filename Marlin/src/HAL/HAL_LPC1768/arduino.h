@@ -38,7 +38,7 @@
 
 #define _BV(bit) (1 << (bit))
 
-#define E2END 4096 //EEPROM end address
+#define E2END 0xFFF // EEPROM end address
 
 typedef uint8_t byte;
 #define PROGMEM
@@ -49,10 +49,10 @@ typedef uint8_t byte;
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
 #ifndef isnan
-#define isnan std::isnan
+  #define isnan std::isnan
 #endif
 #ifndef isinf
-#define isinf std::isinf
+  #define isinf std::isinf
 #endif
 
 //not constexpr until c++14
@@ -89,8 +89,6 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 #define vsnprintf_P vsnprintf
 #define strcpy_P strcpy
 #define snprintf_P snprintf
-
-void serialprintPGM(const char *);
 
 // Time functions
 extern "C" {

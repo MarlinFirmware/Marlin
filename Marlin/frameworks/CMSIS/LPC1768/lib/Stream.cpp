@@ -23,7 +23,7 @@
  */
 
 #include <stdlib.h>
-#include "../../../../src/HAL/HAL_LPC1768/arduino.h"
+#include <HAL_LPC1768/arduino.h>
 
 #include "Stream.h"
 

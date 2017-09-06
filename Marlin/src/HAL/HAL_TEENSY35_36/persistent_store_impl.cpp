@@ -1,13 +1,10 @@
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
-#include "../persistent_store_api.h"
-
-#include "../../../types.h"
-#include "../../../language.h"
-#include "../../../serial.h"
-#include "../../../utility.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
+
+#include "../persistent_store_api.h"
 
 namespace HAL {
 namespace PersistentStore {
@@ -16,7 +13,7 @@ bool access_start() {
   return true;
 }
 
-bool access_finish(){
+bool access_finish() {
   return true;
 }
 
@@ -51,8 +48,8 @@ void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
   } while (--size);
 }
 
-}
-}
+} // PersistentStore
+} // HAL
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_AVR
+#endif // __MK64FX512__ || __MK66FX1M0__

@@ -1,20 +1,16 @@
 #ifdef TARGET_LPC1768
-#include "../persistent_store_api.h"
 
-#include "../../../types.h"
-#include "../../../language.h"
-#include "../../../serial.h"
-#include "../../../utility.h"
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(EEPROM_SETTINGS)
+
+#include "../persistent_store_api.h"
 
 #include "chanfs/diskio.h"
 #include "chanfs/ff.h"
 
-
-#if ENABLED(EEPROM_SETTINGS)
-
 namespace HAL {
 namespace PersistentStore {
-
 
 FATFS fat_fs;
 FIL eeprom_file;
@@ -25,7 +21,7 @@ bool access_start() {
   return (res == FR_OK);
 }
 
-bool access_finish(){
+bool access_finish() {
   f_close(&eeprom_file);
   f_unmount("");
   return true;
@@ -48,8 +44,8 @@ void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
   pos = pos + size;
 }
 
-}
-}
+} // PersistentStore
+} // HAL
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_AVR
+#endif // TARGET_LPC1768

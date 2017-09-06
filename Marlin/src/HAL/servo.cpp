@@ -52,7 +52,7 @@
  */
 
 
-#include "../../MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #include "HAL.h"
 

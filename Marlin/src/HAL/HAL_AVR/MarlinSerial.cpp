@@ -31,7 +31,7 @@
 #ifdef ARDUINO_ARCH_AVR
 
 #include "MarlinSerial.h"
-#include "../../../Marlin.h"
+#include "../../Marlin.h"
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
 
@@ -47,8 +47,7 @@
 
   #if ENABLED(EMERGENCY_PARSER)
 
-    #include "../../../stepper.h"
-    #include "../../../language.h"
+    #include "../../module/stepper.h"
 
     // Currently looking for: M108, M112, M410
     // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h

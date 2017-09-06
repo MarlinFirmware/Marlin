@@ -18,15 +18,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-
-/**
- *
- * For TARGET_LPC1768
- */
-
 #ifdef TARGET_LPC1768
-#include "../../../macros.h"
+
+#include "../../core/macros.h"
 #include "../HAL.h"
+
+#include <stdint.h>
 
 extern "C" {
   //#include <lpc17xx_adc.h>
@@ -51,7 +48,7 @@ extern "C" void u8g_Delay(uint16_t val) {
 //************************//
 
 // return free heap space
-int freeMemory(){
+int freeMemory() {
   char stack_end;
   void *heap_start = malloc(sizeof(uint32_t));
   if (heap_start == 0) return 0;
@@ -82,22 +79,22 @@ void HAL_adc_init(void) {
 }
 
 // externals need to make the call to KILL compile
-#include "../../../language.h"
+#include "../../core/language.h"
 
 extern void kill(const char*);
 extern const char errormagic[];
 
 void HAL_adc_enable_channel(int pin) {
-  if (pin < 0 || pin >= NUM_ANALOG_INPUTS)  {
+  if (!WITHIN(pin, 0, NUM_ANALOG_INPUTS - 1)) {
     usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, pin);
     kill(MSG_KILLED);
   }
 
-  int8_t pin_port = adc_pin_map[pin].port;
-  int8_t pin_port_pin = adc_pin_map[pin].pin;
-  int8_t pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
+  int8_t pin_port = adc_pin_map[pin].port,
+         pin_port_pin = adc_pin_map[pin].pin,
+         pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
   uint8_t pin_sel_register = (pin_port == 0 && pin_port_pin <= 15) ? 0 :
-                             (pin_port == 0)                       ? 1 :
+                              pin_port == 0                        ? 1 :
                               pin_port == 1                        ? 3 : 10;
 
   switch (pin_sel_register) {
@@ -117,24 +114,21 @@ void HAL_adc_enable_channel(int pin) {
 }
 
 void HAL_adc_start_conversion(uint8_t adc_pin) {
-  if(  (adc_pin >= NUM_ANALOG_INPUTS) || (adc_pin_map[adc_pin].port == 0xFF) ) {
-    usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n",adc_pin);
+  if (adc_pin >= (NUM_ANALOG_INPUTS) || adc_pin_map[adc_pin].port == 0xFF) {
+    usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
     return;
   }
-  LPC_ADC->ADCR &= ~0xFF;                                // Reset
-  LPC_ADC->ADCR |= ( 0x01 << adc_pin_map[adc_pin].adc ); // Select Channel
-  LPC_ADC->ADCR |= ( 0x01 << 24 );                       // start conversion
+  LPC_ADC->ADCR &= ~0xFF;                       // Reset
+  SBI(LPC_ADC->ADCR, adc_pin_map[adc_pin].adc); // Select Channel
+  SBI(LPC_ADC->ADCR, 24);                       // Start conversion
 }
 
-bool HAL_adc_finished(void) {
-  return LPC_ADC->ADGDR & ADC_DONE;
-}
+bool HAL_adc_finished(void) { return LPC_ADC->ADGDR & ADC_DONE; }
 
 uint16_t HAL_adc_get_result(void) {
   uint32_t data = LPC_ADC->ADGDR;
-  LPC_ADC->ADCR &= ~(1 << 24); //stop conversion
-  if ( data & ADC_OVERRUN ) return 0;
-  return ((data >> 6) & 0x3ff); //10bit
+  CBI(LPC_ADC->ADCR, 24);                       // Stop conversion
+  return (data & ADC_OVERRUN) ? 0 : (data >> 6) & 0x3FF; // 10bit
 }
 
 #define SBIT_CNTEN     0

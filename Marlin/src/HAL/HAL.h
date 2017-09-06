@@ -92,7 +92,7 @@ void spiSendBlock(uint8_t token, const uint8_t* buf);
   #include "math_32bit.h"
   #include "HAL_LPC1768/HAL.h"
 #else
-  #error Unsupported Platform!
+  #error "Unsupported Platform!"
 #endif
 
-#endif /* HAL_H_ */
+#endif // _HAL_H

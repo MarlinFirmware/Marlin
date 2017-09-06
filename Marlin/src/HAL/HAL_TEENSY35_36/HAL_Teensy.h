@@ -30,8 +30,6 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
 #include "Arduino.h"
 
 #include "fastio_Teensy.h"
@@ -39,10 +37,13 @@
 
 #include "HAL_timers_Teensy.h"
 
+#include <stdint.h>
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
+#undef MOTHERBOARD
 #define MOTHERBOARD BOARD_TEENSY35_36
 
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
