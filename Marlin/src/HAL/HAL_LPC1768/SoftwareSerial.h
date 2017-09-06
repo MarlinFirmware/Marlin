@@ -29,13 +29,13 @@ The latest version of this library can always be found at
 http://arduiniana.org.
 */
 
-#ifndef SoftwareSerial_h
-#define SoftwareSerial_h
+#ifndef SOFTWARESERIAL_H
+#define SOFTWARESERIAL_H
 
 #include "arduino.h"
-#include <inttypes.h>
+#include <stdint.h>
 //#include "serial.h"
- #include <Stream.h>
+#include <Stream.h>
 #include <Print.h>
 
 /******************************************************************************
@@ -116,4 +116,4 @@ public:
 #undef abs
 #undef round
 
-#endif
+#endif // SOFTWARESERIAL_H

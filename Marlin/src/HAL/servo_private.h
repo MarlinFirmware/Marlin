@@ -21,7 +21,7 @@
  */
 
 /**
-  servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+  servo_private.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
   Copyright (c) 2009 Michael Margolis.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -39,10 +39,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef servo_private_h
-#define servo_private_h
+#ifndef SERVO_PRIVATE_H
+#define SERVO_PRIVATE_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
 // Architecture specific include
 #ifdef ARDUINO_ARCH_AVR
@@ -99,5 +99,4 @@ extern ServoInfo_t servo_info[MAX_SERVOS];
 extern void initISR(timer16_Sequence_t timer);
 extern void finISR(timer16_Sequence_t timer);
 
-
-#endif
+#endif // SERVO_PRIVATE_H

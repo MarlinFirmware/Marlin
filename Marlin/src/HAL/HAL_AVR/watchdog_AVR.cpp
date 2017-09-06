@@ -22,13 +22,13 @@
 
 #ifdef ARDUINO_ARCH_AVR
 
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(USE_WATCHDOG)
 
 #include "watchdog_AVR.h"
 
-#include "../../../Marlin.h"
+#include "../../Marlin.h"
 
 // Initialize watchdog with a 4 sec interrupt time
 void watchdog_init() {

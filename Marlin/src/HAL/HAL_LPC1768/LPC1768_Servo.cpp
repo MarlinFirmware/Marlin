@@ -60,7 +60,7 @@
  * unless DEACTIVATE_SERVOS_AFTER_MOVE is enabled and a MOVE command was issued.
  */
 
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS && defined(TARGET_LPC1768)
 

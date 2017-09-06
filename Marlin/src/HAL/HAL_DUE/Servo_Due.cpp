@@ -40,7 +40,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 

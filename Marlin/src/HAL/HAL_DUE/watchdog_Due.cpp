@@ -22,7 +22,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
  
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(USE_WATCHDOG)
 

@@ -22,7 +22,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../../macros.h"
+#include "../../core/macros.h"
 #include "../HAL.h"
 #include "HardwareSerial.h"
 #define UART3 3

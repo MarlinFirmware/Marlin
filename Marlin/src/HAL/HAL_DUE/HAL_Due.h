@@ -74,9 +74,15 @@
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
 #endif
 
+#ifndef vsnprintf_P
+  #define vsnprintf_P vsnprintf
+#endif
+
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
+#define pgm_read_ptr(addr) (*((void**)(addr)))
+#undef pgm_read_word
+#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 #define RST_POWER_ON   1
 #define RST_EXTERNAL   2

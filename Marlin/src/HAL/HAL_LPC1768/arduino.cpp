@@ -21,18 +21,14 @@
  */
 
 #ifdef TARGET_LPC1768
+
 #include <lpc17xx_pinsel.h>
 #include "HAL.h"
-#include "../../macros.h"
+#include "../../core/macros.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable
 void sei(void) { __enable_irq(); }  // Enable
-
-// Program Memory
-void serialprintPGM(const char * str){
-  usb_serial.print(str);
-}
 
 // Time functions
 void _delay_ms(int delay_ms) {

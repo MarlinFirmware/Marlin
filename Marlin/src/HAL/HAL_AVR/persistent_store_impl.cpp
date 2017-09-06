@@ -2,10 +2,7 @@
 
 #include "../persistent_store_api.h"
 
-#include "../../../types.h"
-#include "../../../language.h"
-#include "../../../serial.h"
-#include "../../../utility.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 

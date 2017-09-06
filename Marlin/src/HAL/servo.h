@@ -76,7 +76,7 @@
   #include "HAL_LPC1768/LPC1768_Servo.h"
 
 #else
-  #include <inttypes.h>
+  #include <stdint.h>
 
   #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAM)
     // we're good to go

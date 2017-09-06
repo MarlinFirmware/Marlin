@@ -53,7 +53,7 @@
 
 #ifdef ARDUINO_ARCH_AVR
 
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 

@@ -56,7 +56,7 @@ bool endstop_monitor_flag = false;
 #define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
-#include "../../../pinsDebug_list.h"
+#include "../../pins/pinsDebug_list.h"
 #line 51
 
 // manually add pins that have names that are macros which don't play well with these macros
@@ -107,7 +107,7 @@ const PinInfo pin_array[] PROGMEM = {
     #endif
   #endif
 
-  #include "../../../pinsDebug_list.h"
+  #include "../../pins/pinsDebug_list.h"
   #line 102
 
 };
@@ -483,7 +483,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
         SERIAL_CHAR('.');
         SERIAL_ECHO_SP(26 + strlen(start_string));  // add padding if not the first instance found
       }
-      name_mem_pointer = (char*)pgm_read_word(&pin_array[x].name);
+      name_mem_pointer = (char*)pgm_read_ptr(&pin_array[x].name);
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0)

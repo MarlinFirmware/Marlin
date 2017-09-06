@@ -497,7 +497,7 @@ int32_t EMAC_SetPHYMode(uint32_t ulPHYMode)
 #endif
 			/* Wait to complete Auto_Negotiation */
 			for (tout = EMAC_PHY_RESP_TOUT; tout>=0; tout--) {
-				
+
 			}
 			break;
 		case EMAC_MODE_10M_FULL:

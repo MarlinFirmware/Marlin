@@ -30,8 +30,6 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
 #include "Arduino.h"
 
 #include "fastio_Teensy.h"
@@ -39,10 +37,13 @@
 
 #include "HAL_timers_Teensy.h"
 
+#include <stdint.h>
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
+#undef MOTHERBOARD
 #define MOTHERBOARD BOARD_TEENSY35_36
 
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
@@ -79,9 +80,10 @@
 
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
+#define pgm_read_ptr(addr) (*((void**)(addr)))
+// Add type-checking to pgm_read_word
 #undef pgm_read_word
-#define pgm_read_word(addr) (*(addr))
+#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 #define RST_POWER_ON   1
 #define RST_EXTERNAL   2

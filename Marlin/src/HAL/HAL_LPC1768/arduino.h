@@ -38,7 +38,7 @@
 
 #define _BV(bit) (1 << (bit))
 
-#define E2END 4096 //EEPROM end address
+#define E2END 0xFFF // EEPROM end address
 
 typedef uint8_t byte;
 #define PROGMEM
@@ -49,10 +49,10 @@ typedef uint8_t byte;
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
 #ifndef isnan
-#define isnan std::isnan
+  #define isnan std::isnan
 #endif
 #ifndef isinf
-#define isinf std::isinf
+  #define isinf std::isinf
 #endif
 
 //not constexpr until c++14
@@ -73,15 +73,15 @@ extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
 extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 
 // Program Memory
-#define pgm_read_ptr(address_short) (*(address_short))
-#define pgm_read_byte_near(address_short) (*address_short)
-#define pgm_read_byte(address_short) pgm_read_byte_near(address_short)
-#define pgm_read_float_near(address_short) (*address_short)
-#define pgm_read_float(address_short) pgm_read_float_near(address_short)
-#define pgm_read_word_near(address_short) (*address_short)
-#define pgm_read_word(address_short) pgm_read_word_near(address_short)
-#define pgm_read_dword_near(address_short) (*address_short)
-#define pgm_read_dword(address_short) pgm_read_dword_near(address_short)
+#define pgm_read_ptr(addr)        (*((void**)(addr)))
+#define pgm_read_byte_near(addr)  (*((uint8_t*)(addr)))
+#define pgm_read_float_near(addr) (*((float*)(addr)))
+#define pgm_read_word_near(addr)  (*((uint16_t*)(addr)))
+#define pgm_read_dword_near(addr) (*((uint32_t*)(addr)))
+#define pgm_read_byte(addr)       pgm_read_byte_near(addr)
+#define pgm_read_float(addr)      pgm_read_float_near(addr)
+#define pgm_read_word(addr)       pgm_read_word_near(addr)
+#define pgm_read_dword(addr)      pgm_read_dword_near(addr)
 
 #define sprintf_P sprintf
 #define strstr_P strstr
@@ -89,8 +89,6 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 #define vsnprintf_P vsnprintf
 #define strcpy_P strcpy
 #define snprintf_P snprintf
-
-void serialprintPGM(const char *);
 
 // Time functions
 extern "C" {

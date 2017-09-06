@@ -1,4 +1,4 @@
-#dynaomic build flags for generic compile options
+#dynamic build flags for generic compile options
 if __name__ == "__main__":
   print " ".join([  "-std=gnu11",
                     "-std=gnu++11",

@@ -34,7 +34,7 @@
 // --------------------------------------------------------------------------
 
 #include "../HAL.h"
-#include "../../../macros.h"
+#include "../../core/macros.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -75,7 +75,7 @@
 // --------------------------------------------------------------------------
 
 #if ENABLED(SDSUPPORT)
-  #include "../../../SdFatUtil.h"
+  #include "../../sd/SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
 #else
 
