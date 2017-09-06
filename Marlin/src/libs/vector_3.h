@@ -38,10 +38,9 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef VECTOR_3_H
 #define VECTOR_3_H
-
-#if HAS_ABL
 
 class matrix_3x3;
 
@@ -79,5 +78,4 @@ struct matrix_3x3 {
 
 void apply_rotation_xyz(matrix_3x3 rotationMatrix, float &x, float &y, float &z);
 
-#endif // HAS_ABL
 #endif // VECTOR_3_H

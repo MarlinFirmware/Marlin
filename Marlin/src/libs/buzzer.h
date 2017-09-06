@@ -23,11 +23,10 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
-#include "types.h"
-#include "circularqueue.h"
-#include "temperature.h"
+#include "../inc/MarlinConfig.h"
 
-#include "MarlinConfig.h"
+#include "circularqueue.h"
+#include "../module/temperature.h"
 
 #define TONE_QUEUE_LENGTH 4
 
