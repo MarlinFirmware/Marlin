@@ -26,11 +26,11 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
 
-#ifndef SdFatStructs_h
-#define SdFatStructs_h
+#ifndef SDFATSTRUCTS_H
+#define SDFATSTRUCTS_H
+
+#include <stdint.h>
 
 #define PACKED __attribute__((__packed__))
 /**
@@ -649,7 +649,5 @@ static inline uint8_t DIR_IS_SUBDIR(const dir_t* dir) {
 static inline uint8_t DIR_IS_FILE_OR_SUBDIR(const dir_t* dir) {
   return (dir->attributes & DIR_ATT_VOLUME_ID) == 0;
 }
-#endif  // SdFatStructs_h
 
-
-#endif
+#endif // SDFATSTRUCTS_H

@@ -23,16 +23,11 @@
 #ifndef CARDREADER_H
 #define CARDREADER_H
 
-#include "MarlinConfig.h"
-
-#if ENABLED(SDSUPPORT)
-
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
 
-#include "types.h"
-#include "enum.h"
+#include "../inc/MarlinConfig.h"
 
 class CardReader {
 public:
@@ -70,7 +65,7 @@ public:
   void setroot();
 
   uint16_t get_num_Files();
-  
+
   #if ENABLED(SDCARD_SORT_ALPHA)
     void presort();
     void getfilename_sorted(const uint16_t nr);
@@ -166,27 +161,25 @@ private:
   #endif
 };
 
-extern CardReader card;
-
-#define IS_SD_PRINTING (card.sdprinting)
-#define IS_SD_FILE_OPEN (card.isFileOpen())
-
 #if PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) != 0)
+    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == HIGH)
   #else
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == 0)
+    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
   #endif
 #else
   //No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED true
 #endif
 
+#if ENABLED(SDSUPPORT)
+  #define IS_SD_PRINTING (card.sdprinting)
+  #define IS_SD_FILE_OPEN (card.isFileOpen())
 #else
+  #define IS_SD_PRINTING (false)
+  #define IS_SD_FILE_OPEN (false)
+#endif
 
-#define IS_SD_PRINTING (false)
-#define IS_SD_FILE_OPEN (false)
+extern CardReader card;
 
-#endif // SDSUPPORT
-
-#endif // __CARDREADER_H
+#endif // CARDREADER_H

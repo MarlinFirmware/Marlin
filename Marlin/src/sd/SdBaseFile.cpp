@@ -27,10 +27,14 @@
  * This file is part of the Arduino Sd2Card Library
  */
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
+
 #if ENABLED(SDSUPPORT)
 
 #include "SdBaseFile.h"
+
+#include "../Marlin.h"
+
 //------------------------------------------------------------------------------
 // pointer to cwd directory
 SdBaseFile* SdBaseFile::cwd_ = 0;
@@ -1822,5 +1826,4 @@ int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
   void (*SdBaseFile::oldDateTime_)(uint16_t &date, uint16_t &time) = 0;  // NOLINT
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
 
-
-#endif
+#endif // SDSUPPORT

@@ -26,18 +26,20 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
+
 /**
  * \file
  * \brief SdFile class
  */
-#include "Marlin.h"
 
-#if ENABLED(SDSUPPORT)
+#ifndef SDFILE_H
+#define SDFILE_H
+
 #include "SdBaseFile.h"
-//todo: HAL: create wrapper for Print?
-//#include <Print.h>
-#ifndef SdFile_h
-#define SdFile_h
+
+#include <stdint.h>
+#include <string.h>
+
 //------------------------------------------------------------------------------
 /**
  * \class SdFile
@@ -58,7 +60,5 @@ class SdFile : public SdBaseFile/*, public Print*/ {
   void write_P(PGM_P str);
   void writeln_P(PGM_P str);
 };
-#endif  // SdFile_h
 
-
-#endif
+#endif // SDFILE_H

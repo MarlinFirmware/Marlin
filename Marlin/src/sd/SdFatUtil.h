@@ -26,11 +26,10 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef SdFatUtil_h
-#define SdFatUtil_h
+#ifndef SDFATUTIL_H
+#define SDFATUTIL_H
 
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
+#include <string.h>
 
 /**
  * \file
@@ -51,6 +50,4 @@ namespace SdFatUtil {
 
 using namespace SdFatUtil;  // NOLINT
 
-#endif // SDSUPPORT
-
-#endif // SdFatUtil_h
+#endif // SDFATUTIL_H

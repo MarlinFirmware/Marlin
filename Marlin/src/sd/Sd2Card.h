@@ -27,17 +27,18 @@
  * This file is part of the Arduino Sd2Card Library
  */
 
-#include "Marlin.h"
-#if ENABLED(SDSUPPORT)
+#ifndef SD2CARD_H
+#define SD2CARD_H
 
-#ifndef Sd2Card_h
-#define Sd2Card_h
 /**
  * \file
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 #include "SdFatConfig.h"
 #include "SdInfo.h"
+
+#include <stdint.h>
+
 //------------------------------------------------------------------------------
 /** init timeout ms */
 uint16_t const SD_INIT_TIMEOUT = 2000;
@@ -239,7 +240,5 @@ class Sd2Card {
   bool waitNotBusy(uint16_t timeoutMillis);
   bool writeData(uint8_t token, const uint8_t* src);
 };
-#endif  // Sd2Card_h
 
-
-#endif
+#endif // SD2CARD_H
