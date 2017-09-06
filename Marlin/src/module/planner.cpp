@@ -60,16 +60,16 @@
 
 #include "planner.h"
 #include "stepper.h"
-#include "temperature.h"
-#include "ultralcd.h"
-#include "language.h"
-#include "ubl.h"
-#include "gcode.h"
+#include "../module/temperature.h"
+#include "../lcd/ultralcd.h"
+#include "../core/language.h"
+#include "../feature/ubl/ubl.h"
+#include "../gcode/parser.h"
 
-#include "Marlin.h"
+#include "../Marlin.h"
 
 #if ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
+  #include "../feature/mbl/mesh_bed_leveling.h"
 #endif
 
 Planner planner;

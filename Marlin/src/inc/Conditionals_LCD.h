@@ -350,6 +350,14 @@
     #endif
   #endif
 
+  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+
+  #if HOTENDS == 1
+    #define HOTEND_INDEX  0
+  #else
+    #define HOTEND_INDEX  e
+  #endif
+
   #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // Unified E axis
     #if ENABLED(MIXING_EXTRUDER)
       #define E_STEPPERS  MIXING_STEPPERS

@@ -27,7 +27,7 @@
 #ifndef ENDSTOPS_H
 #define ENDSTOPS_H
 
-#include "enum.h"
+#include "../core/enum.h"
 
 class Endstops {
 
@@ -48,7 +48,7 @@ class Endstops {
     /**
      * Initialize the endstop pins
      */
-    void init();
+    static void init();
 
     /**
      * Update the endstops bits from the pins

@@ -30,7 +30,7 @@
 #ifndef PLANNER_BEZIER_H
 #define PLANNER_BEZIER_H
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 
 void cubic_b_spline(
               const float position[NUM_AXIS], // current position

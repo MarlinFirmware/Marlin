@@ -32,12 +32,10 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
-#include "types.h"
-#include "enum.h"
-#include "Marlin.h"
+#include "../Marlin.h"
 
 #if HAS_ABL
-  #include "vector_3.h"
+  #include "../libs/vector_3.h"
 #endif
 
 enum BlockFlagBit {

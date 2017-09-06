@@ -33,7 +33,7 @@
 
 #include "stepper_indirection.h"
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 //
 // TMC26X Driver objects and inits
@@ -129,7 +129,7 @@
 
   #include <SPI.h>
   #include <TMC2130Stepper.h>
-  #include "enum.h"
+  #include "../core/enum.h"
 
   #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
 
