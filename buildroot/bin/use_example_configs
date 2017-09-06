@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-eval "cp Marlin/example_configurations/${1}/Configuration* Marlin/"
+restore_configs
 
-if [ -f "Marlin/example_configurations/${1}/_Bootscreen.h" ]; then
-  cp "Marlin/example_configurations/${1}/_Bootscreen.h" Marlin/
+eval "cp Marlin/src/config/examples/${1}/Configuration* Marlin/src/config/"
+
+if [ -f "Marlin/src/config/examples/${1}/_Bootscreen.h" ]; then
+  cp "Marlin/src/config/examples/${1}/_Bootscreen.h" Marlin/src/config/
 fi
