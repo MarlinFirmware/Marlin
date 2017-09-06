@@ -23,7 +23,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #define _UxGT(a) a
 
@@ -44,7 +44,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+// See also http://marlinfw.org/docs/development/lcd_language.html
 
 // Languages
 // an         Aragonese
@@ -260,7 +260,7 @@
 
 // LCD Menu Messages
 
-#define LANGUAGE_INCL_(M) STRINGIFY_(language_##M.h)
+#define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 #define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
 
@@ -310,6 +310,6 @@
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
-#include "language_en.h"
+#include "../lcd/language/language_en.h"
 
 #endif // __LANGUAGE_H

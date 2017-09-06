@@ -23,6 +23,8 @@
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
 
+#include "../inc/MarlinConfig.h"
+
 void safe_delay(millis_t ms);
 
 #if ENABLED(EEPROM_SETTINGS)

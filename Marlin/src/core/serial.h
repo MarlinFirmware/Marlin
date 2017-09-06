@@ -23,7 +23,9 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "src/HAL/HAL.h"
+#include "../HAL/HAL.h"
+
+#include "../inc/MarlinConfig.h"
 
 //todo: HAL: breaks encapsulation
 // For AVR only, define a serial interface based on configuration
@@ -36,12 +38,10 @@
       #define MYSERIAL Serial
     #endif // BLUETOOTH
   #else
-    #include "src/HAL/HAL_AVR/MarlinSerial.h"
+    #include "../HAL/HAL_AVR/MarlinSerial.h"
     #define MYSERIAL customizedSerial
   #endif
 #endif
-
-#include "MarlinConfig.h"
 
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
