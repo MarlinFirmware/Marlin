@@ -301,7 +301,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
-  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) &&  ENABLED(MESH_BED_LEVELING)
+  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && ENABLED(MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
@@ -643,12 +643,10 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if HAS_ABL
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
-    #else
-      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
-    #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+  #elif HAS_ABL
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
 #endif
@@ -918,10 +916,11 @@ static_assert(1 >= 0
   #error "TEMP_SENSOR_0 is required."
 #endif
 
-#if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
-  #if !HAS_HEATER_1
-    #error "HEATER_1_PIN not defined for this board."
-  #endif
+// Pins are required for heaters
+#if ENABLED(HEATER_0_USES_MAX6675) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
+  #error "MAX6675_SS (required for TEMP_SENSOR_0) not defined for this board."
+#elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
+  #error "HEATER_1_PIN not defined for this board."
 #endif
 
 #if HOTENDS > 1
@@ -1297,4 +1296,4 @@ static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many 
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
 
 
-#include "src/HAL/HAL_SanityCheck.h"  // get CPU specific checks
+#include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
