@@ -11,19 +11,19 @@ Bringing silky smooth prints to Felix.
   - In both cases use the "Download Zip" button on the right.
 
 ```
-cd Marlin/Marlin
-cp example_configurations/Felix/Configuration_adv.h .
+cd Marlin/src
+cp config/examples/Felix/Configuration_adv.h .
 ```
 
 The next step depends on your setup:
 
 ### Single Extruder Configuration
 
-    cp example_configurations/Felix/Configuration.h .
+    cp config/examples/Felix/Configuration.h .
 
 ### Dual Extruder Configuration
 
-    cp example_configurations/Felix/DUAL/Configuration.h Configuration.h
+    cp config/examples/Felix/DUAL/Configuration.h Configuration.h
 
 ### Compile Firmware
 
