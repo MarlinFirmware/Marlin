@@ -19,32 +19,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef MARLIN_H
-#define MARLIN_H
+#ifndef __MARLIN_H__
+#define __MARLIN_H__
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
 
-#include "MarlinConfig.h"
+#include "inc/MarlinConfig.h"
 
 #ifdef DEBUG_GCODE_PARSER
-  #include "gcode.h"
+  #include "gcode/parser.h"
 #endif
-#include "src/HAL/HAL.h"
-
-#include "enum.h"
-#include "types.h"
-#include "utility.h"
-#include "serial.h"
 
 #if ENABLED(PRINTCOUNTER)
-  #include "printcounter.h"
+  #include "module/printcounter.h"
 #else
-  #include "stopwatch.h"
+  #include "libs/stopwatch.h"
 #endif
+
+void stop();
 
 void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -194,10 +188,6 @@ void clear_command_queue();
 
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
-
-#if ENABLED(FAST_PWM_FAN)
-  void setPwmFrequency(uint8_t pin, int val);
-#endif
 
 /**
  * Feedrate scaling and conversion
@@ -476,4 +466,4 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
   return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
 }
 
-#endif // MARLIN_H
+#endif // __MARLIN_H__
