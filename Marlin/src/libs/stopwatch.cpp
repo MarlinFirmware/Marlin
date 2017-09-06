@@ -20,7 +20,7 @@
  *
  */
 
-#include "Marlin.h"
+#include "../Marlin.h"
 #include "stopwatch.h"
 
 Stopwatch::Stopwatch() {

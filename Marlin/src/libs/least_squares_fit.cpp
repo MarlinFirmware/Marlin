@@ -32,14 +32,13 @@
  *
  */
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-#include "macros.h"
-#include <math.h>
-
 #include "least_squares_fit.h"
+
+#include <math.h>
 
 int finish_incremental_LSF(struct linear_fit_data *lsf) {
 

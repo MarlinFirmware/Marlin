@@ -32,12 +32,10 @@
  *
  */
 
-#include "MarlinConfig.h"
+#ifndef _LEAST_SQUARES_FIT_H_
+#define _LEAST_SQUARES_FIT_H_
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_LINEAR)
-
-#include "Marlin.h"
-#include "macros.h"
+#include "../inc/MarlinConfig.h"
 #include <math.h>
 
 struct linear_fit_data {
@@ -54,7 +52,7 @@ void inline incremental_LSF_reset(struct linear_fit_data *lsf) {
 
 void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
   // weight each accumulator by factor w, including the "number" of samples
-  // (analagous to calling inc_LSF twice with same values to weight it by 2X)
+  // (analogous to calling inc_LSF twice with same values to weight it by 2X)
   lsf->xbar  += w * x;
   lsf->ybar  += w * y;
   lsf->zbar  += w * z;
@@ -86,5 +84,4 @@ void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const f
 
 int finish_incremental_LSF(struct linear_fit_data *);
 
-#endif
-
+#endif // _LEAST_SQUARES_FIT_H_

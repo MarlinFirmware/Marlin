@@ -19,37 +19,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "Marlin.h"
-#include "gcode.h"
+
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
 
-#include "hex_print_routines.h"
+  #include "hex_print_routines.h"
 
-static char _hex[7] = "0x0000";
+  #ifdef CPU_32_BIT
+    constexpr int byte_start = 0;
+    static char _hex[] = "0x0000";
+  #else
+    constexpr int byte_start = 4;
+    static char _hex[] = "0x00000000";
+  #endif
 
-char* hex_byte(const uint8_t b) {
-  _hex[4] = hex_nybble(b >> 4);
-  _hex[5] = hex_nybble(b);
-  return &_hex[4];
-}
+  char* hex_byte(const uint8_t b) {
+    _hex[byte_start + 4] = hex_nybble(b >> 4);
+    _hex[byte_start + 5] = hex_nybble(b);
+    return &_hex[byte_start];
+  }
 
-char* hex_word(const uint16_t w) {
-  _hex[2] = hex_nybble(w >> 12);
-  _hex[3] = hex_nybble(w >> 8);
-  _hex[4] = hex_nybble(w >> 4);
-  _hex[5] = hex_nybble(w);
-  return &_hex[2];
-}
+  char* hex_word(const uint16_t w) {
+    _hex[byte_start + 2] = hex_nybble(w >> 12);
+    _hex[byte_start + 3] = hex_nybble(w >> 8);
+    _hex[byte_start + 4] = hex_nybble(w >> 4);
+    _hex[byte_start + 5] = hex_nybble(w);
+    return &_hex[byte_start - 2];
+  }
 
-char* hex_address(const void * const w) {
-  (void)hex_word((int)w);
-  return _hex;
-}
+  #ifdef CPU_32_BIT
+    char* hex_long(const uint32_t w) {
+      _hex[byte_start - 2] = hex_nybble(w >> 28);
+      _hex[byte_start - 1] = hex_nybble(w >> 24);
+      _hex[byte_start + 0] = hex_nybble(w >> 20);
+      _hex[byte_start + 1] = hex_nybble(w >> 16);
+      (void)hex_word((uint16_t)(w & 0xFFFF));
+      return &_hex[byte_start - 6];
+    }
+  #endif
 
-void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
-void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
-void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
-void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
+  char* hex_address(const void * const w) {
+    #ifdef CPU_32_BIT
+      (void)hex_long((ptr_int_t)w);
+    #else
+      (void)hex_word((ptr_int_t)w);
+    #endif
+    return _hex;
+  }
+
+  void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
+  void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
+  void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
+  void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
 #endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER || DEBUG_GCODE_PARSER

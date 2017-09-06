@@ -23,8 +23,8 @@
 #ifndef __PRIVATE_SPI_H__
 #define __PRIVATE_SPI_H__
 
-#include <stdint.h>
 #include "softspi.h"
+#include <stdint.h>
 
 template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
 class SPI {
