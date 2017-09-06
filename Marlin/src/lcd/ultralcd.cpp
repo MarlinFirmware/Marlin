@@ -20,33 +20,43 @@
  *
  */
 
-#include "ultralcd.h"
+#include "../inc/MarlinConfig.h"
+
 #if ENABLED(ULTRA_LCD)
-#include "Marlin.h"
-#include "language.h"
-#include "cardreader.h"
-#include "temperature.h"
-#include "planner.h"
-#include "stepper.h"
-#include "configuration_store.h"
-#include "utility.h"
+
+#include "ultralcd.h"
+
+#include "../sd/cardreader.h"
+#include "../module/temperature.h"
+#include "../module/planner.h"
+#include "../module/stepper.h"
+#include "../module/configuration_store.h"
+
+#include "../Marlin.h"
 
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
-  #include "buzzer.h"
+  #include "../libs/buzzer.h"
 #endif
 
 #if ENABLED(PRINTCOUNTER)
-  #include "printcounter.h"
-  #include "duration_t.h"
+  #include "../module/printcounter.h"
+  #include "../libs/duration_t.h"
+#endif
+
+#if ENABLED(FILAMENT_LCD_DISPLAY)
+  #include "../feature/filwidth.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "../module/probe.h"
 #endif
 
 #if ENABLED(BLTOUCH)
-  #include "endstops.h"
+  #include "../module/endstops.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl.h"
-  bool ubl_lcd_map_control = false;
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 // Initialized by settings.load()
@@ -92,7 +102,7 @@ uint16_t max_display_update_time = 0;
 #endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-  #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+  #include "../feature/dac/stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
   uint8_t driverPercent[XYZE];
 #endif
 
@@ -101,9 +111,6 @@ uint16_t max_display_update_time = 0;
   #ifndef TALL_FONT_CORRECTION
     #define TALL_FONT_CORRECTION 0
   #endif
-
-  // Function pointer to menu functions.
-  typedef void (*screenFunc_t)();
 
   #if HAS_POWER_SWITCH
     extern bool powersupply_on;
@@ -161,7 +168,7 @@ uint16_t max_display_update_time = 0;
   #endif
 
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    #include "mesh_bed_leveling.h"
+    #include "../feature/mbl/mesh_bed_leveling.h"
     extern void mesh_probing_done();
   #endif
 
@@ -443,7 +450,7 @@ uint16_t max_display_update_time = 0;
   /**
    * General function to go directly to a screen
    */
-  void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0) {
+  void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     if (currentScreen != screen) {
 
       #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)
@@ -469,14 +476,14 @@ uint16_t max_display_update_time = 0;
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
         #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl_lcd_map_control = false;
+          ubl.lcd_map_control = false;
         #endif
         screen_history_depth = 0;
       }
       lcd_implementation_clear();
       // Re-initialize custom characters that may be re-used
       #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl_lcd_map_control) lcd_set_custom_characters(
+        if (!ubl.lcd_map_control) lcd_set_custom_characters(
           #if ENABLED(LCD_PROGRESS_BAR)
             screen == lcd_status_screen
           #endif
@@ -928,7 +935,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
         if (card.isFileOpen()) {
-          if (card.sdprinting)
+          if (IS_SD_PRINTING)
             MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
           else
             MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
@@ -2224,7 +2231,7 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_map_homing() {
       defer_return_to_status = true;
-      ubl_lcd_map_control = true; // Return to the map screen
+      ubl.lcd_map_control = true; // Return to the map screen
       if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
