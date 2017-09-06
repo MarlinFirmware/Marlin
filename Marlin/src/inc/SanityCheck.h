@@ -1297,4 +1297,4 @@ static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many 
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
 
 
-#include "src/HAL/HAL_SanityCheck.h"  // get CPU specific checks
+#include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
