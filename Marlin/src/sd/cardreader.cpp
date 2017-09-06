@@ -20,16 +20,19 @@
  *
  */
 
-#include <ctype.h>
-#include "cardreader.h"
-
-#include "ultralcd.h"
-#include "stepper.h"
-#include "language.h"
-
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(SDSUPPORT)
+
+#include "cardreader.h"
+
+#include "../Marlin.h"
+#include "../lcd/ultralcd.h"
+#include "../module/stepper.h"
+#include "../module/printcounter.h"
+#include "../core/language.h"
+
+#include <ctype.h>
 
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
 
@@ -77,7 +80,7 @@ char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
  *   LS_GetFilename - Get the filename of the file indexed by nrFile_index
  *   LS_SerialPrint - Print the full path and size of each file to serial output
  */
- 
+
 uint16_t nrFile_index;
 
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
@@ -864,12 +867,15 @@ void CardReader::updir() {
 
 #endif // SDCARD_SORT_ALPHA
 
-#if (ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES)  
- // if true - don't need to access the SD card for file names
-  uint16_t CardReader::get_num_Files() {return nrFiles;}
-#else
-  uint16_t CardReader::get_num_Files() {return getnrfilenames(); } 
-#endif
+uint16_t CardReader::get_num_Files() {
+  return
+    #if ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES
+      nrFiles // no need to access the SD card for filenames
+    #else
+      getnrfilenames()
+    #endif
+  ;
+}
 
 void CardReader::printingHasFinished() {
   stepper.synchronize();

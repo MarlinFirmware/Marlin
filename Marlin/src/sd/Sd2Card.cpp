@@ -26,10 +26,14 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#include "Marlin.h"
+
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(SDSUPPORT)
+
 #include "Sd2Card.h"
+
+#include "../Marlin.h"
 
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
