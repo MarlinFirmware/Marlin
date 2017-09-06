@@ -44,19 +44,23 @@
 /* The timer calculations of this module informed by the 'RepRap cartesian firmware' by Zack Smith
    and Philipp Tiefenbacher. */
 
-#include "Marlin.h"
 #include "stepper.h"
-#include "endstops.h"
-#include "planner.h"
-#if MB(ALLIGATOR)
-  #include "dac_dac084s085.h"
-#endif
-#include "temperature.h"
-#include "ultralcd.h"
-#include "language.h"
-#include "cardreader.h"
+
 #ifdef ARDUINO_ARCH_AVR
   #include "speed_lookuptable.h"
+#endif
+
+#include "endstops.h"
+#include "planner.h"
+
+#include "../Marlin.h"
+#include "../module/temperature.h"
+#include "../lcd/ultralcd.h"
+#include "../core/language.h"
+#include "../sd/cardreader.h"
+
+#if MB(ALLIGATOR)
+  #include "../feature/dac/dac_dac084s085.h"
 #endif
 
 #if HAS_DIGIPOTSS

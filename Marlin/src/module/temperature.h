@@ -27,9 +27,13 @@
 #ifndef TEMPERATURE_H
 #define TEMPERATURE_H
 
-#include "thermistortables.h"
+#include "thermistor/thermistors.h"
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(BABYSTEPPING)
+  extern bool axis_known_position[XYZ];
+#endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
@@ -532,6 +536,10 @@ class Temperature {
     #endif
 
   private:
+
+    #if ENABLED(FAST_PWM_FAN)
+      static void setPwmFrequency(const uint8_t pin, const int val);
+    #endif
 
     static void set_current_temp_raw();
 

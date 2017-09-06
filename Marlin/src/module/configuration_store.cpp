@@ -177,20 +177,20 @@
 
 MarlinSettings settings;
 
-#include "Marlin.h"
-#include "language.h"
 #include "endstops.h"
 #include "planner.h"
-#include "temperature.h"
-#include "ultralcd.h"
 #include "stepper.h"
+#include "../module/temperature.h"
+#include "../lcd/ultralcd.h"
+#include "../core/language.h"
+#include "../Marlin.h"
 
 #if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
-  #include "gcode.h"
+  #include "../gcode/parser.h"
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
+  #include "../feature/mbl/mesh_bed_leveling.h"
 #endif
 
 #if ENABLED(HAVE_TMC2130)
@@ -198,7 +198,7 @@ MarlinSettings settings;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl.h"
+  #include "../feature/ubl/ubl.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -252,7 +252,7 @@ void MarlinSettings::postprocess() {
 }
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "src/HAL/persistent_store_api.h"
+  #include "../HAL/persistent_store_api.h"
 
   #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; HAL::PersistentStore::access_start()
