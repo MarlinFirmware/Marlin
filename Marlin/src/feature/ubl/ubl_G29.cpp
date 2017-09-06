@@ -20,21 +20,22 @@
  *
  */
 
-#include "MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
-  #include "Marlin.h"
-  #include "hex_print_routines.h"
-  #include "configuration_store.h"
-  #include "ultralcd.h"
-  #include "stepper.h"
-  #include "planner.h"
-  #include "gcode.h"
+
+  #include "../../Marlin.h"
+  #include "../../libs/hex_print_routines.h"
+  #include "../../module/configuration_store.h"
+  #include "../../lcd/ultralcd.h"
+  #include "../../module/stepper.h"
+  #include "../../module/planner.h"
+  #include "../../gcode/parser.h"
+  #include "../../libs/least_squares_fit.h"
 
   #include <math.h>
-  #include "least_squares_fit.h"
 
   #define UBL_G29_P31
 

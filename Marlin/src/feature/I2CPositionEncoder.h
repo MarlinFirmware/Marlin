@@ -23,88 +23,85 @@
 #ifndef I2CPOSENC_H
 #define I2CPOSENC_H
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
-#if ENABLED(I2C_POSITION_ENCODERS)
+#include "../module/planner.h"
 
-  #include "enum.h"
-  #include "macros.h"
-  #include "types.h"
-  #include <Wire.h>
+#include <Wire.h>
 
-  //=========== Advanced / Less-Common Encoder Configuration Settings ==========
+//=========== Advanced / Less-Common Encoder Configuration Settings ==========
 
-  #define I2CPE_EC_THRESH_PROPORTIONAL                    // if enabled adjusts the error correction threshold
-                                                          // proportional to the current speed of the axis allows
-                                                          // for very small error margin at low speeds without
-                                                          // stuttering due to reading latency at high speeds
+#define I2CPE_EC_THRESH_PROPORTIONAL                    // if enabled adjusts the error correction threshold
+                                                        // proportional to the current speed of the axis allows
+                                                        // for very small error margin at low speeds without
+                                                        // stuttering due to reading latency at high speeds
 
-  #define I2CPE_DEBUG                                     // enable encoder-related debug serial echos
+#define I2CPE_DEBUG                                     // enable encoder-related debug serial echos
 
-  #define I2CPE_REBOOT_TIME             5000              // time we wait for an encoder module to reboot
-                                                          // after changing address.
+#define I2CPE_REBOOT_TIME             5000              // time we wait for an encoder module to reboot
+                                                        // after changing address.
 
-  #define I2CPE_MAG_SIG_GOOD            0
-  #define I2CPE_MAG_SIG_MID             1
-  #define I2CPE_MAG_SIG_BAD             2
-  #define I2CPE_MAG_SIG_NF              255
+#define I2CPE_MAG_SIG_GOOD            0
+#define I2CPE_MAG_SIG_MID             1
+#define I2CPE_MAG_SIG_BAD             2
+#define I2CPE_MAG_SIG_NF              255
 
-  #define I2CPE_REQ_REPORT              0
-  #define I2CPE_RESET_COUNT             1
-  #define I2CPE_SET_ADDR                2
-  #define I2CPE_SET_REPORT_MODE         3
-  #define I2CPE_CLEAR_EEPROM            4
+#define I2CPE_REQ_REPORT              0
+#define I2CPE_RESET_COUNT             1
+#define I2CPE_SET_ADDR                2
+#define I2CPE_SET_REPORT_MODE         3
+#define I2CPE_CLEAR_EEPROM            4
 
-  #define I2CPE_LED_PAR_MODE            10
-  #define I2CPE_LED_PAR_BRT             11
-  #define I2CPE_LED_PAR_RATE            14
+#define I2CPE_LED_PAR_MODE            10
+#define I2CPE_LED_PAR_BRT             11
+#define I2CPE_LED_PAR_RATE            14
 
-  #define I2CPE_REPORT_DISTANCE         0
-  #define I2CPE_REPORT_STRENGTH         1
-  #define I2CPE_REPORT_VERSION          2
+#define I2CPE_REPORT_DISTANCE         0
+#define I2CPE_REPORT_STRENGTH         1
+#define I2CPE_REPORT_VERSION          2
 
-  // Default I2C addresses
-  #define I2CPE_PRESET_ADDR_X           30
-  #define I2CPE_PRESET_ADDR_Y           31
-  #define I2CPE_PRESET_ADDR_Z           32
-  #define I2CPE_PRESET_ADDR_E           33
+// Default I2C addresses
+#define I2CPE_PRESET_ADDR_X           30
+#define I2CPE_PRESET_ADDR_Y           31
+#define I2CPE_PRESET_ADDR_Z           32
+#define I2CPE_PRESET_ADDR_E           33
 
-  #define I2CPE_DEF_AXIS                X_AXIS
-  #define I2CPE_DEF_ADDR                I2CPE_PRESET_ADDR_X
+#define I2CPE_DEF_AXIS                X_AXIS
+#define I2CPE_DEF_ADDR                I2CPE_PRESET_ADDR_X
 
-  // Error event counter; tracks how many times there is an error exceeding a certain threshold
-  #define I2CPE_ERR_CNT_THRESH          3.00
-  #define I2CPE_ERR_CNT_DEBOUNCE_MS     2000
+// Error event counter; tracks how many times there is an error exceeding a certain threshold
+#define I2CPE_ERR_CNT_THRESH          3.00
+#define I2CPE_ERR_CNT_DEBOUNCE_MS     2000
 
-  #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-    #define I2CPE_ERR_ARRAY_SIZE        32
-  #endif
+#if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
+  #define I2CPE_ERR_ARRAY_SIZE        32
+#endif
 
-  // Error Correction Methods
-  #define I2CPE_ECM_NONE                0
-  #define I2CPE_ECM_MICROSTEP           1
-  #define I2CPE_ECM_PLANNER             2
-  #define I2CPE_ECM_STALLDETECT         3
+// Error Correction Methods
+#define I2CPE_ECM_NONE                0
+#define I2CPE_ECM_MICROSTEP           1
+#define I2CPE_ECM_PLANNER             2
+#define I2CPE_ECM_STALLDETECT         3
 
-  // Encoder types
-  #define I2CPE_ENC_TYPE_ROTARY         0
-  #define I2CPE_ENC_TYPE_LINEAR         1
+// Encoder types
+#define I2CPE_ENC_TYPE_ROTARY         0
+#define I2CPE_ENC_TYPE_LINEAR         1
 
-  // Parser
-  #define I2CPE_PARSE_ERR               1
-  #define I2CPE_PARSE_OK                0
+// Parser
+#define I2CPE_PARSE_ERR               1
+#define I2CPE_PARSE_OK                0
 
-  #define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
-  #define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
+#define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
+#define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
 
-  extern const char axis_codes[XYZE];
+extern const char axis_codes[XYZE];
 
-  typedef union {
-    volatile int32_t val = 0;
-    uint8_t          bval[4];
-  } i2cLong;
+typedef union {
+  volatile int32_t val = 0;
+  uint8_t          bval[4];
+} i2cLong;
 
-  class I2CPositionEncoder {
+class I2CPositionEncoder {
   private:
     AxisEnum  encoderAxis         = I2CPE_DEF_AXIS;
 
@@ -229,9 +226,9 @@
     FORCE_INLINE void set_current_position(const float newPositionMm) {
       set_axis_offset(get_position_mm() - newPositionMm + axisOffset);
     }
-  };
+};
 
-  class I2CPositionEncodersMgr {
+class I2CPositionEncodersMgr {
   private:
     static bool I2CPE_anyaxis;
     static uint8_t I2CPE_addr, I2CPE_idx;
@@ -252,7 +249,7 @@
 
     static void report_status(const int8_t idx) {
       CHECK_IDX();
-      SERIAL_ECHOPAIR("Encoder ",idx);
+      SERIAL_ECHOPAIR("Encoder ", idx);
       SERIAL_ECHOPGM(": ");
       encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
@@ -340,20 +337,19 @@
     static void M869();
 
     static I2CPositionEncoder encoders[I2CPE_ENCODER_CNT];
-  };
+};
 
-  extern I2CPositionEncodersMgr I2CPEM;
+extern I2CPositionEncodersMgr I2CPEM;
 
-  FORCE_INLINE static void gcode_M860() { I2CPEM.M860(); }
-  FORCE_INLINE static void gcode_M861() { I2CPEM.M861(); }
-  FORCE_INLINE static void gcode_M862() { I2CPEM.M862(); }
-  FORCE_INLINE static void gcode_M863() { I2CPEM.M863(); }
-  FORCE_INLINE static void gcode_M864() { I2CPEM.M864(); }
-  FORCE_INLINE static void gcode_M865() { I2CPEM.M865(); }
-  FORCE_INLINE static void gcode_M866() { I2CPEM.M866(); }
-  FORCE_INLINE static void gcode_M867() { I2CPEM.M867(); }
-  FORCE_INLINE static void gcode_M868() { I2CPEM.M868(); }
-  FORCE_INLINE static void gcode_M869() { I2CPEM.M869(); }
+FORCE_INLINE static void gcode_M860() { I2CPEM.M860(); }
+FORCE_INLINE static void gcode_M861() { I2CPEM.M861(); }
+FORCE_INLINE static void gcode_M862() { I2CPEM.M862(); }
+FORCE_INLINE static void gcode_M863() { I2CPEM.M863(); }
+FORCE_INLINE static void gcode_M864() { I2CPEM.M864(); }
+FORCE_INLINE static void gcode_M865() { I2CPEM.M865(); }
+FORCE_INLINE static void gcode_M866() { I2CPEM.M866(); }
+FORCE_INLINE static void gcode_M867() { I2CPEM.M867(); }
+FORCE_INLINE static void gcode_M868() { I2CPEM.M868(); }
+FORCE_INLINE static void gcode_M869() { I2CPEM.M869(); }
 
-#endif //I2C_POSITION_ENCODERS
 #endif //I2CPOSENC_H

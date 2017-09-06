@@ -1,5 +1,5 @@
-#ifndef dac084s085_h
-#define dac084s085_h
+#ifndef DAC084S085_H
+#define DAC084S085_H
 
 class dac084s085 {
   public:
@@ -8,4 +8,4 @@ class dac084s085 {
     static void setValue(uint8_t channel, uint8_t value);
 };
 
-#endif //dac084s085_h
+#endif // DAC084S085_H

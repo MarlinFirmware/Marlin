@@ -20,7 +20,7 @@
  *
  */
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(DIGIPOT_I2C) && DISABLED(DIGIPOT_MCP4018)
 

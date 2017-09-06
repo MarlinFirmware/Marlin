@@ -24,17 +24,18 @@
  * Marlin Firmware -- G26 - Mesh Validation Tool
  */
 
-#include "MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
 
   #include "ubl.h"
-  #include "Marlin.h"
-  #include "planner.h"
-  #include "stepper.h"
-  #include "temperature.h"
-  #include "ultralcd.h"
-  #include "gcode.h"
+
+  #include "../../Marlin.h"
+  #include "../../module/planner.h"
+  #include "../../module/stepper.h"
+  #include "../../module/temperature.h"
+  #include "../../lcd/ultralcd.h"
+  #include "../../gcode/parser.h"
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
@@ -140,8 +141,8 @@
     inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
     inline void set_current_to_destination() { COPY(current_position, destination); }
   #else
-    extern void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
-    extern void set_current_to_destination() { COPY(current_position, destination); }
+    extern void sync_plan_position_e();
+    extern void set_current_to_destination();
   #endif
   #if ENABLED(NEWPANEL)
     void lcd_setstatusPGM(const char* const message, const int8_t level);

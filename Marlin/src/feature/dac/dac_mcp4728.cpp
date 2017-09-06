@@ -30,10 +30,11 @@
  * http://arduino.cc/forum/index.php/topic,51842.0.html
  */
 
-#include "dac_mcp4728.h"
-#include "enum.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
+
+#include "dac_mcp4728.h"
 
 uint16_t mcp4728_values[XYZE];
 

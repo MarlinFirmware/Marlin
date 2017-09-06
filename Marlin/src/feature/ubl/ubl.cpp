@@ -20,16 +20,18 @@
  *
  */
 
-#include "Marlin.h"
-#include "math.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
-  #include "hex_print_routines.h"
-  #include "temperature.h"
+  unified_bed_leveling ubl;
 
-  extern Planner planner;
+  #include "../../module/configuration_store.h"
+  #include "../../core/serial.h"
+  #include "../../module/planner.h"
+
+  #include "math.h"
 
   /**
    * These support functions allow the use of large bit arrays of flags that take very
@@ -37,9 +39,9 @@
    * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
    * in the future.
    */
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+  void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y) { CBI(bits[y], x); }
+  void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { SBI(bits[y], x); }
+  bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 
   uint8_t ubl_cnt = 0;
 

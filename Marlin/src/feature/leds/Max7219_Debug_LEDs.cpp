@@ -49,14 +49,15 @@
  * void Max7219_idle_tasks();
  */
 
-#include "MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(MAX7219_DEBUG)
 
-  #include "Marlin.h"
-  #include "planner.h"
-  #include "stepper.h"
   #include "Max7219_Debug_LEDs.h"
+
+  #include "../../module/planner.h"
+  #include "../../module/stepper.h"
+  #include "../../Marlin.h"
 
   static uint8_t LEDs[8] = { 0 };
 

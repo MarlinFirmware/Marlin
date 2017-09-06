@@ -19,14 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  #include "Marlin.h"
   #include "ubl.h"
-  #include "planner.h"
-  #include "stepper.h"
+
+  #include "../../Marlin.h"
+  #include "../../module/planner.h"
+  #include "../../module/stepper.h"
+
   #include <math.h>
 
   extern float destination[XYZE];
