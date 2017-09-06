@@ -304,13 +304,13 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
 SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
 endif
-CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp \
-	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp \
-	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
-	temperature.cpp cardreader.cpp configuration_store.cpp \
-	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp least_squares_fit.cpp endstops.cpp stopwatch.cpp utility.cpp \
-	printcounter.cpp nozzle.cpp serial.cpp gcode.cpp Max7219_Debug_LEDs.cpp
+CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin.cpp \
+	MarlinSerial.cpp sd/Sd2Card.cpp sd/SdBaseFile.cpp sd/SdFatUtil.cpp \
+	sd/SdFile.cpp sd/SdVolume.cpp module/planner.cpp module/stepper.cpp \
+	module/temperature.cpp sd/cardreader.cpp module/configuration_store.cpp \
+	HAL/watchdog.cpp SPI.cpp HAL/servo.cpp Tone.cpp lcd/ultralcd.cpp libs/digipot_mcp4451.cpp \
+	feature/dac/dac_mcp4728.cpp libs/vector_3.cpp libs/least_squares_fit.cpp module/endstops.cpp libs/stopwatch.cpp core/utility.cpp \
+	module/printcounter.cpp libs/nozzle.cpp core/serial.cpp gcode/parser.cpp libs/Max7219_Debug_LEDs.cpp
 ifeq ($(NEOPIXEL), 1)
 CXXSRC += Adafruit_NeoPixel.cpp
 endif
