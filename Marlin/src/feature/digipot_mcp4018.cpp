@@ -20,11 +20,11 @@
  *
  */
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(DIGIPOT_I2C) && ENABLED(DIGIPOT_MCP4018)
 
-#include "enum.h"
+#include "../core/enum.h"
 #include "Stream.h"
 #include "utility/twi.h"
 #include <SlowSoftI2CMaster.h>  //https://github.com/stawel/SlowSoftI2CMaster

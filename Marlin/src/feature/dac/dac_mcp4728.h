@@ -27,9 +27,6 @@
 #ifndef DAC_MCP4728_H
 #define DAC_MCP4728_H
 
-#include "MarlinConfig.h"
-
-#if ENABLED(DAC_STEPPER_CURRENT)
 #include "Wire.h"
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
@@ -50,7 +47,6 @@
 // DAC_OR_ADDRESS defined in pins_BOARD.h  file
 #define DAC_DEV_ADDRESS (BASE_ADDR | DAC_OR_ADDRESS)
 
-
 void mcp4728_init();
 uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value);
 uint8_t mcp4728_eepromWrite();
@@ -62,5 +58,4 @@ uint8_t mcp4728_simpleCommand(byte simpleCommand);
 uint8_t mcp4728_getDrvPct(uint8_t channel);
 void mcp4728_setDrvPct(uint8_t pct[XYZE]);
 
-#endif
 #endif // DAC_MCP4728_H

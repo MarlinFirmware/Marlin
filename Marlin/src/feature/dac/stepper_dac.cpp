@@ -41,11 +41,12 @@
   along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Marlin.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
   #include "stepper_dac.h"
+  #include "../../core/serial.h"
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
