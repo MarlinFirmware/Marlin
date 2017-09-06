@@ -27,9 +27,13 @@
 #ifndef TEMPERATURE_H
 #define TEMPERATURE_H
 
-#include "thermistortables.h"
+#include "thermistor/thermistors.h"
 
-#include "MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(BABYSTEPPING)
+  extern bool axis_known_position[XYZ];
+#endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
@@ -37,16 +41,6 @@
 
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
-#endif
-
-#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
-
-#if HOTENDS == 1
-  #define HOTEND_INDEX  0
-  #define EXTRUDER_IDX  0
-#else
-  #define HOTEND_INDEX  e
-  #define EXTRUDER_IDX  active_extruder
 #endif
 
 /**
@@ -532,6 +526,10 @@ class Temperature {
     #endif
 
   private:
+
+    #if ENABLED(FAST_PWM_FAN)
+      static void setPwmFrequency(const uint8_t pin, const int val);
+    #endif
 
     static void set_current_temp_raw();
 

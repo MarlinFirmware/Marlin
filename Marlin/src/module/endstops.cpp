@@ -24,12 +24,13 @@
  * endstops.cpp - A singleton object to manage endstops
  */
 
-#include "Marlin.h"
-#include "cardreader.h"
 #include "endstops.h"
-#include "temperature.h"
 #include "stepper.h"
-#include "ultralcd.h"
+
+#include "../Marlin.h"
+#include "../sd/cardreader.h"
+#include "../module/temperature.h"
+#include "../lcd/ultralcd.h"
 
 // TEST_ENDSTOP: test the old and the current status of an endstop
 #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits & old_endstop_bits, ENDSTOP))

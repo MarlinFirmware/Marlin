@@ -43,11 +43,15 @@
 #ifndef STEPPER_H
 #define STEPPER_H
 
-#include "planner.h"
-#include "speed_lookuptable.h"
 #include "stepper_indirection.h"
-#include "language.h"
-#include "types.h"
+
+#ifdef ARDUINO_ARCH_AVR
+  #include "speed_lookuptable.h"
+#endif
+
+#include "../inc/MarlinConfig.h"
+#include "../module/planner.h"
+#include "../core/language.h"
 
 class Stepper;
 extern Stepper stepper;

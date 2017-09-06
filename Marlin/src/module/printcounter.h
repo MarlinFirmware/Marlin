@@ -23,9 +23,8 @@
 #ifndef PRINTCOUNTER_H
 #define PRINTCOUNTER_H
 
-#include "macros.h"
-#include "language.h"
-#include "stopwatch.h"
+#include "../inc/MarlinConfig.h"
+#include "../libs/stopwatch.h"
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
