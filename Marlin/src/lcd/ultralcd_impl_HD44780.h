@@ -28,11 +28,14 @@
  * These are the most common LCD character displays.
  */
 
-#include "utility.h"
-#include "duration_t.h"
+#include "../inc/MarlinConfig.h"
+
+#if LCD_HEIGHT > 3
+  #include "../libs/duration_t.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl.h"
+  #include "../feature/ubl/ubl.h"
 
   #if ENABLED(ULTIPANEL)
     #define ULTRA_X_PIXELS_PER_CHAR    5

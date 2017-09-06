@@ -20,6 +20,15 @@
  *
  */
 
+/**
+ * thermistornames.h
+ *
+ * Used by LCD code to obtain a thermistor name
+ *
+ * Usage: Set THERMISTOR_ID then #include this file
+ * to set a new value for THERMISTOR_NAME.
+ */
+
 #undef THERMISTOR_NAME
 
 // Thermcouples

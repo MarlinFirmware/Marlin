@@ -20,32 +20,35 @@
  *
  */
 
-#include "ultralcd.h"
+#include "../inc/MarlinConfig.h"
+
 #if ENABLED(ULTRA_LCD)
-#include "Marlin.h"
-#include "language.h"
-#include "cardreader.h"
-#include "temperature.h"
-#include "planner.h"
-#include "stepper.h"
-#include "configuration_store.h"
-#include "utility.h"
+
+#include "ultralcd.h"
+
+#include "../sd/cardreader.h"
+#include "../module/temperature.h"
+#include "../module/planner.h"
+#include "../module/stepper.h"
+#include "../module/configuration_store.h"
+
+#include "../Marlin.h"
 
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
-  #include "buzzer.h"
+  #include "../libs/buzzer.h"
 #endif
 
 #if ENABLED(PRINTCOUNTER)
-  #include "printcounter.h"
-  #include "duration_t.h"
+  #include "../module/printcounter.h"
+  #include "../libs/duration_t.h"
 #endif
 
 #if ENABLED(BLTOUCH)
-  #include "endstops.h"
+  #include "../module/endstops.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl.h"
+  #include "../feature/ubl/ubl.h"
   bool ubl_lcd_map_control = false;
 #endif
 
@@ -92,7 +95,7 @@ uint16_t max_display_update_time = 0;
 #endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-  #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+  #include "../feature/dac/stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
   uint8_t driverPercent[XYZE];
 #endif
 
@@ -161,7 +164,7 @@ uint16_t max_display_update_time = 0;
   #endif
 
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    #include "mesh_bed_leveling.h"
+    #include "../feature/mbl/mesh_bed_leveling.h"
     extern void mesh_probing_done();
   #endif
 
@@ -928,7 +931,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
         if (card.isFileOpen()) {
-          if (card.sdprinting)
+          if (IS_SD_PRINTING)
             MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
           else
             MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);

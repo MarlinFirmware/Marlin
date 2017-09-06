@@ -23,7 +23,7 @@
 #ifndef UTF_MAPPER_H
 #define UTF_MAPPER_H
 
-#include "language.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(DOGLCD)
   #define HARDWARE_CHAR_OUT u8g.print
