@@ -20,12 +20,12 @@
  *
  */
 
-/*
+/**
  * Driver for the Philips PCA9632 LED driver.
  * Written by Robert Mendon Feb 2017.
  */
 
-#include "MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PCA9632)
 

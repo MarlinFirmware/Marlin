@@ -20,11 +20,12 @@
  *
  */
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
 
 #include "twibus.h"
+
 #include <Wire.h>
 
 TWIBus::TWIBus() {
