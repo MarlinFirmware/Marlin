@@ -128,17 +128,17 @@ tags
 *.sln
 *.vcxproj
 *.vcxproj.filters
-Marlin/Release/
-Marlin/Debug/
-Marlin/__vm/
-Marlin/.vs/
+src/Release/
+src/Debug/
+src/__vm/
+src/.vs/
 
 #Visual Studio Code
 .vscode
 
 #cmake
 CMakeLists.txt
-Marlin/CMakeLists.txt
+src/CMakeLists.txt
 CMakeListsPrivate.txt
 
 #CLion
