@@ -25,6 +25,15 @@
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
+
+void serialprintPGM(const char * str) {
+  #ifdef TARGET_LPC1768
+    MYSERIAL.print(str);
+  #else
+    while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
+  #endif
+}
+
 void serial_echopair_P(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
 void serial_echopair_P(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }

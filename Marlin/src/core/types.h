@@ -23,6 +23,9 @@
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
-typedef unsigned long millis_t;
+#include <stdint.h>
+#include <string.h>
+
+typedef uint32_t millis_t;
 
 #endif
