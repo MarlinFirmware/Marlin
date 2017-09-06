@@ -23,7 +23,7 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "src/HAL/HAL.h"
+#include "../inc/MarlinConfig.h"
 
 //todo: HAL: breaks encapsulation
 // For AVR only, define a serial interface based on configuration
@@ -36,12 +36,10 @@
       #define MYSERIAL Serial
     #endif // BLUETOOTH
   #else
-    #include "src/HAL/HAL_AVR/MarlinSerial.h"
+    #include "../HAL/HAL_AVR/MarlinSerial.h"
     #define MYSERIAL customizedSerial
   #endif
 #endif
-
-#include "MarlinConfig.h"
 
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
@@ -100,8 +98,6 @@ void serial_spaces(uint8_t count);
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
-}
+void serialprintPGM(const char* str);
 
 #endif // __SERIAL_H__

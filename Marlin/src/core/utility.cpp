@@ -20,9 +20,10 @@
  *
  */
 
-#include "Marlin.h"
 #include "utility.h"
-#include "temperature.h"
+
+#include "../Marlin.h"
+#include "../module/temperature.h"
 
 void safe_delay(millis_t ms) {
   while (ms > 50) {
@@ -255,3 +256,126 @@ void safe_delay(millis_t ms) {
   }
 
 #endif // ULTRA_LCD
+
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+
+  #include "../module/probe.h"
+  #include "../module/motion.h"
+  #include "../module/stepper.h"
+  #include "../feature/bedlevel/bedlevel.h"
+
+  void log_machine_info() {
+    SERIAL_ECHOPGM("Machine Type: ");
+    #if ENABLED(DELTA)
+      SERIAL_ECHOLNPGM("Delta");
+    #elif IS_SCARA
+      SERIAL_ECHOLNPGM("SCARA");
+    #elif IS_CORE
+      SERIAL_ECHOLNPGM("Core");
+    #else
+      SERIAL_ECHOLNPGM("Cartesian");
+    #endif
+
+    SERIAL_ECHOPGM("Probe: ");
+    #if ENABLED(PROBE_MANUALLY)
+      SERIAL_ECHOLNPGM("PROBE_MANUALLY");
+    #elif ENABLED(FIX_MOUNTED_PROBE)
+      SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
+    #elif ENABLED(BLTOUCH)
+      SERIAL_ECHOLNPGM("BLTOUCH");
+    #elif HAS_Z_SERVO_ENDSTOP
+      SERIAL_ECHOLNPGM("SERVO PROBE");
+    #elif ENABLED(Z_PROBE_SLED)
+      SERIAL_ECHOLNPGM("Z_PROBE_SLED");
+    #elif ENABLED(Z_PROBE_ALLEN_KEY)
+      SERIAL_ECHOLNPGM("Z_PROBE_ALLEN_KEY");
+    #else
+      SERIAL_ECHOLNPGM("NONE");
+    #endif
+
+    #if HAS_BED_PROBE
+      SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
+      SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
+      SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+      #if X_PROBE_OFFSET_FROM_EXTRUDER > 0
+        SERIAL_ECHOPGM(" (Right");
+      #elif X_PROBE_OFFSET_FROM_EXTRUDER < 0
+        SERIAL_ECHOPGM(" (Left");
+      #elif Y_PROBE_OFFSET_FROM_EXTRUDER != 0
+        SERIAL_ECHOPGM(" (Middle");
+      #else
+        SERIAL_ECHOPGM(" (Aligned With");
+      #endif
+      #if Y_PROBE_OFFSET_FROM_EXTRUDER > 0
+        SERIAL_ECHOPGM("-Back");
+      #elif Y_PROBE_OFFSET_FROM_EXTRUDER < 0
+        SERIAL_ECHOPGM("-Front");
+      #elif X_PROBE_OFFSET_FROM_EXTRUDER != 0
+        SERIAL_ECHOPGM("-Center");
+      #endif
+      if (zprobe_zoffset < 0)
+        SERIAL_ECHOPGM(" & Below");
+      else if (zprobe_zoffset > 0)
+        SERIAL_ECHOPGM(" & Above");
+      else
+        SERIAL_ECHOPGM(" & Same Z as");
+      SERIAL_ECHOLNPGM(" Nozzle)");
+    #endif
+
+    #if HAS_ABL
+      SERIAL_ECHOPGM("Auto Bed Leveling: ");
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        SERIAL_ECHOPGM("LINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        SERIAL_ECHOPGM("BILINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+        SERIAL_ECHOPGM("3POINT");
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        SERIAL_ECHOPGM("UBL");
+      #endif
+      if (leveling_is_active()) {
+        SERIAL_ECHOLNPGM(" (enabled)");
+        #if ABL_PLANAR
+          const float diff[XYZ] = {
+            stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
+            stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
+            stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
+          };
+          SERIAL_ECHOPGM("ABL Adjustment X");
+          if (diff[X_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[X_AXIS]);
+          SERIAL_ECHOPGM(" Y");
+          if (diff[Y_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[Y_AXIS]);
+          SERIAL_ECHOPGM(" Z");
+          if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[Z_AXIS]);
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          SERIAL_ECHOPAIR("UBL Adjustment Z", stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]);
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          SERIAL_ECHOPAIR("ABL Adjustment Z", bilinear_z_offset(current_position));
+        #endif
+      }
+      else
+        SERIAL_ECHOLNPGM(" (disabled)");
+
+      SERIAL_EOL();
+
+    #elif ENABLED(MESH_BED_LEVELING)
+
+      SERIAL_ECHOPGM("Mesh Bed Leveling");
+      if (leveling_is_active()) {
+        float lz = current_position[Z_AXIS];
+        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
+        SERIAL_ECHOLNPGM(" (enabled)");
+        SERIAL_ECHOPAIR("MBL Adjustment Z", lz);
+      }
+      else
+        SERIAL_ECHOPGM(" (disabled)");
+
+      SERIAL_EOL();
+
+    #endif // MESH_BED_LEVELING
+  }
+
+#endif // DEBUG_LEVELING_FEATURE
