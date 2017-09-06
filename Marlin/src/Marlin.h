@@ -25,25 +25,20 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
 
-#include "MarlinConfig.h"
+#include "inc/MarlinConfig.h"
 
 #ifdef DEBUG_GCODE_PARSER
-  #include "gcode.h"
+  #include "gcode/parser.h"
 #endif
-#include "src/HAL/HAL.h"
 
-#include "enum.h"
-#include "types.h"
-#include "utility.h"
-#include "serial.h"
+#include "core/utility.h"
+#include "core/serial.h"
 
 #if ENABLED(PRINTCOUNTER)
-  #include "printcounter.h"
+  #include "module/printcounter.h"
 #else
-  #include "stopwatch.h"
+  #include "libs/stopwatch.h"
 #endif
 
 void idle(
@@ -194,10 +189,6 @@ void clear_command_queue();
 
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
-
-#if ENABLED(FAST_PWM_FAN)
-  void setPwmFrequency(uint8_t pin, int val);
-#endif
 
 /**
  * Feedrate scaling and conversion
