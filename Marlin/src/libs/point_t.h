@@ -34,10 +34,7 @@
  * @param e The e-coordinate of the point.
  */
 struct point_t {
-  float x;
-  float y;
-  float z;
-  float e;
+  float x, y, z, e;
 
   /**
    * @brief Two dimensional point constructor

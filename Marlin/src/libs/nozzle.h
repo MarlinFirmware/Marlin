@@ -23,7 +23,7 @@
 #ifndef __NOZZLE_H__
 #define __NOZZLE_H__
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 #include "point_t.h"
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -106,4 +106,4 @@ class Nozzle {
     ) _Os;
 };
 
-#endif
+#endif // __NOZZLE_H__
