@@ -35,7 +35,7 @@ http://arduiniana.org.
 // Includes
 //
 //#include <WInterrupts.h>
-#include "../../../macros.h"
+#include "../../core/macros.h"
 #include "../HAL.h"
 #include <stdint.h>
 #include <stdarg.h>

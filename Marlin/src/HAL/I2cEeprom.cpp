@@ -25,7 +25,7 @@
  * Not platform dependent.
  */
 
-#include "../../MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_EEPROM)
 

@@ -23,16 +23,16 @@
 #ifndef WATCHDOG_TEENSY_H
 #define WATCHDOG_TEENSY_H
 
-//#include "../../../Marlin.h"
+#include "../HAL.h"
 
 // Arduino Due core now has watchdog support
 
 void watchdog_init();
 
 inline void watchdog_reset() {
-	// Watchdog refresh sequence
-	WDOG_REFRESH = 0xA602;
-	WDOG_REFRESH = 0xB480;
+  // Watchdog refresh sequence
+  WDOG_REFRESH = 0xA602;
+  WDOG_REFRESH = 0xB480;
 }
 
-#endif /* WATCHDOG_TEENSY_H */
+#endif // WATCHDOG_TEENSY_H

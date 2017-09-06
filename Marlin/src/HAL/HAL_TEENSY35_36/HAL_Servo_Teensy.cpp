@@ -2,7 +2,7 @@
 
 
 #include "HAL_Servo_Teensy.h"
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 
 int8_t libServo::attach(int pin) {

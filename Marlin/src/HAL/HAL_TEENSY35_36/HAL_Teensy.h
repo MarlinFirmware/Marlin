@@ -30,14 +30,14 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
 #include "Arduino.h"
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"
 
 #include "HAL_timers_Teensy.h"
+
+#include <stdint.h>
 
 // --------------------------------------------------------------------------
 // Defines

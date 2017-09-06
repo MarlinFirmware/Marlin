@@ -22,12 +22,12 @@
 
 #ifndef __HAL_PINMAPPING_H__
 #define __HAL_PINMAPPING_H__
-#include "../../../macros.h"
+#include "../../core/macros.h"
 
 struct pin_data { uint8_t port, pin; };
 struct adc_pin_data { uint8_t port, pin, adc; };
 
-#if defined(IS_REARM)
+#if ENABLED(IS_REARM)
   #include "pinmap_re_arm.h"
 #else
   #error "HAL: LPC1768: No defined pin-mapping"

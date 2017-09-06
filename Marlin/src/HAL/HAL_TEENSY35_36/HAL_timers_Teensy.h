@@ -25,7 +25,6 @@
  * Teensy3.6 (__MK66FX1M0__)
  */
 
-
 #ifndef _HAL_TIMERS_TEENSY_H
 #define _HAL_TIMERS_TEENSY_H
 

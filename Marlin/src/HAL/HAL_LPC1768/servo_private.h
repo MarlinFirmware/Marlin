@@ -48,11 +48,10 @@
  */
 
 
-#ifndef servo_private_h
-#define servo_private_h
+#ifndef SERVO_PRIVATE_H
+#define SERVO_PRIVATE_H
 
-#include <inttypes.h>
-
+#include <stdint.h>
 
 // Macros
 //values in microseconds
@@ -83,5 +82,4 @@ typedef struct {
 extern uint8_t ServoCount;
 extern ServoInfo_t servo_info[MAX_SERVOS];
 
-
-#endif
+#endif // SERVO_PRIVATE_H

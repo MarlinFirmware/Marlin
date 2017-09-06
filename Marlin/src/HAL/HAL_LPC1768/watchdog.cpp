@@ -22,7 +22,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #include "lpc17xx_wdt.h"
 #include "watchdog.h"

@@ -4,7 +4,7 @@
 #include <SPI.h>
 #include <pins_arduino.h>
 #include "spi_pins.h"
-#include "../../../macros.h"
+#include "../../core/macros.h"
 
 static SPISettings spiConfig;
 

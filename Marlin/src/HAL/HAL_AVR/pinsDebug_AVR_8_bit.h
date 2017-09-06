@@ -362,7 +362,8 @@ static void pwm_details(uint8_t pin) {
   }
 #endif
 
-#ifndef PRINT_PORT(p)
+#ifndef PRINT_PORT
+
   void print_port(int8_t pin) {   // print port number
     #ifdef digitalPinToPort_DEBUG
       uint8_t x;
@@ -394,4 +395,5 @@ static void pwm_details(uint8_t pin) {
   }
   
   #define PRINT_PORT(p) print_port(p)
+
 #endif

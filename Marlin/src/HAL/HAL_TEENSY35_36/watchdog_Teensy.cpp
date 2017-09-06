@@ -22,7 +22,7 @@
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
  
-  #include "../../../Marlin.h"
+  #include "../../Marlin.h"
 
   #if ENABLED(USE_WATCHDOG)
 
