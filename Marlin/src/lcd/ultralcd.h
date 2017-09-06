@@ -23,14 +23,20 @@
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(ULTRA_LCD)
+
+  #include "../Marlin.h"
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
+  #if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+    extern bool lcd_wait_for_move;
+  #endif
 
   int16_t lcd_strlen(const char* s);
   int16_t lcd_strlen_P(const char* s);
@@ -74,6 +80,11 @@
 
   #if ENABLED(ULTIPANEL)
 
+    // Function pointer to menu functions.
+    typedef void (*screenFunc_t)();
+
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
@@ -91,7 +102,18 @@
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
-    #endif // ADVANCED_PAUSE_FEATURE
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      void lcd_mesh_edit_setup(float initial);
+      float lcd_mesh_edit();
+      void lcd_z_offset_edit_setup(float);
+      float lcd_z_offset_edit();
+    #endif
+
+    #if ENABLED(DELTA_CALIBRATION_MENU)
+      float lcd_probe_pt(const float &lx, const float &ly);
+    #endif
 
   #else
 
@@ -189,16 +211,9 @@
 
 void lcd_reset_status();
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  extern bool ubl_lcd_map_control;
-  void lcd_mesh_edit_setup(float initial);
-  float lcd_mesh_edit();
-  void lcd_z_offset_edit_setup(float);
-  float lcd_z_offset_edit();
-#endif
-
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  float lcd_probe_pt(const float &lx, const float &ly);
+// For i2c define BUZZ to use lcd_buzz
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  #define BUZZ(d,f) lcd_buzz(d, f)
 #endif
 
 #endif // ULTRALCD_H
