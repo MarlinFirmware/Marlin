@@ -249,19 +249,36 @@
 // Dual X Steppers
 // Uncomment this option to drive two X axis motors.
 // The next unused E driver will be assigned to the second X stepper.
-//#define X_DUAL_STEPPER_DRIVERS
+#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   // Set true if the two X motors need to rotate in opposite directions
-  #define INVERT_X2_VS_X_DIR true
+  #define INVERT_X2_VS_X_DIR true //mpcnc
+  //mpcnc
+  #define X_DUAL_ENDSTOPS
+
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    #define X2_USE_ENDSTOP _XMAX_
+    #define X_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
+  #endif
+  //mpcnc
 #endif
 
 // Dual Y Steppers
 // Uncomment this option to drive two Y axis motors.
 // The next unused E driver will be assigned to the second Y stepper.
-//#define Y_DUAL_STEPPER_DRIVERS
+#define Y_DUAL_STEPPER_DRIVERS //mpcnc
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   // Set true if the two Y motors need to rotate in opposite directions
-  #define INVERT_Y2_VS_Y_DIR true
+  #define INVERT_Y2_VS_Y_DIR true //mpcnc
+
+  //mpcnc
+  #define Y_DUAL_ENDSTOPS
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #define Y2_USE_ENDSTOP _YMAX_
+    #define Y_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
+  #endif
+  //mpcnc
 #endif
 
 // A single Z stepper driver is usually used to drive 2 stepper motors.
@@ -283,7 +300,7 @@
   //#define Z_DUAL_ENDSTOPS
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z2_USE_ENDSTOP _XMAX_
+    #define Z2_USE_ENDSTOP _YMAX_
     #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
   #endif
 

@@ -93,6 +93,10 @@ enum EndstopEnum {
   X_MAX,
   Y_MAX,
   Z_MAX,
+  X2_MIN, //mpcnc
+  X2_MAX, //mpcnc
+  Y2_MIN, //mpcnc
+  Y2_MAX, //mpcnc
   Z2_MIN,
   Z2_MAX
 };

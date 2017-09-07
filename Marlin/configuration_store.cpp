@@ -102,9 +102,16 @@
  *  380  M665 Y    delta_tower_angle_trim[B]        (float)
  *  ---  M665 Z    delta_tower_angle_trim[C]        (float) is always 0.0
  *
+ * X_DUAL_ENDSTOPS:                                 48 bytes
+ *  348  M666 Z    x_endstop_adj                    (float)
+ *  ---            dummy data                       (float x11)
+ * Y_DUAL_ENDSTOPS:                                 48 bytes
+ *  348  M666 Z    y_endstop_adj                    (float)
+ *  ---            dummy data                       (float x11)
  * Z_DUAL_ENDSTOPS:                                 48 bytes
  *  348  M666 Z    z_endstop_adj                    (float)
  *  ---            dummy data                       (float x11)
+ *  
  *
  * ULTIPANEL:                                       6 bytes
  *  396  M145 S0 H lcd_preheat_hotend_temp          (int x2)
@@ -447,6 +454,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
+
     // 9 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
       EEPROM_WRITE(endstop_adj);               // 3 floats
@@ -457,6 +465,21 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_tower_angle_trim);    // 2 floats
       dummy = 0.0f;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+
+    //mpcnc
+    #elif ENABLED(X_DUAL_ENDSTOPS)
+      EEPROM_WRITE(x_endstop_adj);             // 1 float
+      dummy = 0.0f;
+      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
+      //mpcnc
+      
+    //mpcnc
+    #elif ENABLED(Y_DUAL_ENDSTOPS)
+      EEPROM_WRITE(y_endstop_adj);             // 1 float
+      dummy = 0.0f;
+      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
+      
+      //mpcnc
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(z_endstop_adj);             // 1 float
       dummy = 0.0f;
@@ -846,6 +869,18 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(delta_tower_angle_trim);    // 2 floats
         dummy = 0.0f;
         for (uint8_t q=3; q--;) EEPROM_READ(dummy);
+      //mpcnc
+     // #elif ENABLED(X_DUAL_ENDSTOPS)
+     //   EEPROM_READ(x_endstop_adj);
+     //   dummy = 0.0f;
+     //   for (uint8_t q=11; q--;) EEPROM_READ(dummy);
+        //mpcnc
+      //mpcnc
+    //  #elif ENABLED(Y_DUAL_ENDSTOPS)
+     //   EEPROM_READ(y_endstop_adj);
+    //    dummy = 0.0f;
+     //   for (uint8_t q=11; q--;) EEPROM_READ(dummy);
+        //mpcnc
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(z_endstop_adj);
         dummy = 0.0f;
@@ -1240,6 +1275,30 @@ void MarlinSettings::reset() {
     delta_tower_angle_trim[B_AXIS] = dta[B_AXIS] - dta[C_AXIS];
     home_offset[Z_AXIS] = 0;
 
+//mpcnc
+ #elif ENABLED(X_DUAL_ENDSTOPS)
+
+    x_endstop_adj =
+      #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
+        X_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
+    //mpcnc
+    
+ //mpcnc
+ #elif ENABLED(Y_DUAL_ENDSTOPS)
+
+    y_endstop_adj =
+      #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+        Y_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
+    //mpcnc
+ 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
 
     z_endstop_adj =
@@ -1665,6 +1724,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
       SERIAL_ECHOPAIR(" Z", 0.00);
       SERIAL_EOL();
+    
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       if (!forReplay) {
         CONFIG_ECHO_START;

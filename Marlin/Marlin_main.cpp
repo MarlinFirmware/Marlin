@@ -541,6 +541,30 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+//mpcnc
+#if ENABLED(X_DUAL_ENDSTOPS)
+  float x_endstop_adj =
+    #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
+      X_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
+#endif
+//mpcnc
+
+//mpcnc
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  float y_endstop_adj =
+    #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+      Y_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
+#endif
+//mpcnc
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj =
     #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
@@ -2935,10 +2959,24 @@ static void homeaxis(const AxisEnum axis) {
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
-
+  
+ //mpcnc
+// Set a flag for X motor locking
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) stepper.set_homing_flag(true);
+  #endif
+  //mpcnc
+  
+  //mpcnc
+// Set a flag for Y motor locking
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) stepper.set_homing_flagY(true); //mpcnc
+  #endif
+  //mpcnc
+  
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+    if (axis == Z_AXIS) stepper.set_homing_flagZ(true); //mpcnc
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -2980,6 +3018,52 @@ static void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
+//mpcnc
+#if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) {
+      float adj = FABS(x_endstop_adj);
+      bool lockX1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockX1 = (x_endstop_adj > 0);
+      }
+      else
+        lockX1 = (x_endstop_adj < 0);
+
+      if (lockX1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockX1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
+      stepper.set_homing_flag(false);
+    } // X_AXIS
+  #endif
+  //mpcnc
+  
+//mpcnc
+#if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) {
+      float adj = FABS(y_endstop_adj);
+      bool lockY1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockY1 = (y_endstop_adj > 0);
+      }
+      else
+        lockY1 = (y_endstop_adj < 0);
+
+      if (lockY1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockY1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
+      stepper.set_homing_flag(false);
+    } // Y_AXIS
+  #endif
+  //mpcnc
+  
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
       float adj = FABS(z_endstop_adj);
@@ -8372,6 +8456,8 @@ inline void gcode_M205() {
       return;
     }
   }
+
+
 
 #elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
 

@@ -87,7 +87,7 @@ class Stepper {
       static bool abort_on_endstop_hit;
     #endif
 
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(X_DUAL_ENDSTOPS) //mpcnc
       static bool performing_homing;
     #endif
 
@@ -103,6 +103,18 @@ class Stepper {
     static uint8_t last_direction_bits;        // The next stepping-bits to be output
     static uint16_t cleaning_buffer_counter;
 
+//mpcnc
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      static bool locked_x_motor, locked_x2_motor;
+    #endif
+//mpcnc
+
+//mpcnc
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static bool locked_y_motor, locked_y2_motor;
+    #endif
+//mpcnc
+    
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static bool locked_z_motor, locked_z2_motor;
     #endif
@@ -253,8 +265,24 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+//mpcnc
+#if ENABLED(X_DUAL_ENDSTOPS)
       static FORCE_INLINE void set_homing_flag(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_x_lock(const bool state) { locked_x_motor = state; }
+      static FORCE_INLINE void set_x2_lock(const bool state) { locked_x2_motor = state; }
+    #endif
+//mpcnc
+
+//mpcnc
+#if ENABLED(Y_DUAL_ENDSTOPS)
+      static FORCE_INLINE void set_homing_flagY(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_y_lock(const bool state) { locked_y_motor = state; }
+      static FORCE_INLINE void set_y2_lock(const bool state) { locked_y2_motor = state; }
+    #endif
+//mpcnc
+
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      static FORCE_INLINE void set_homing_flagZ(const bool state) { performing_homing = state; }
       static FORCE_INLINE void set_z_lock(const bool state) { locked_z_motor = state; }
       static FORCE_INLINE void set_z2_lock(const bool state) { locked_z2_motor = state; }
     #endif

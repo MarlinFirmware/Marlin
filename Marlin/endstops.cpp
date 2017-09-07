@@ -48,7 +48,7 @@ bool  Endstops::enabled = true,
       ;
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
-#if ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(X_DUAL_ENDSTOPS) //mpcnc
   uint16_t
 #else
   byte
@@ -74,6 +74,16 @@ void Endstops::init() {
     #endif
   #endif
 
+  //mpcnc
+  #if HAS_X2_MIN
+    #if ENABLED(ENDSTOPPULLUP_XMIN)
+      SET_INPUT_PULLUP(X2_MIN_PIN);
+    #else
+      SET_INPUT(X2_MIN_PIN);
+    #endif
+  #endif
+//mpcnc
+
   #if HAS_Y_MIN
     #if ENABLED(ENDSTOPPULLUP_YMIN)
       SET_INPUT_PULLUP(Y_MIN_PIN);
@@ -81,6 +91,16 @@ void Endstops::init() {
       SET_INPUT(Y_MIN_PIN);
     #endif
   #endif
+
+//mpcnc
+  #if HAS_Y2_MIN
+    #if ENABLED(ENDSTOPPULLUP_YMIN)
+      SET_INPUT_PULLUP(Y2_MIN_PIN);
+    #else
+      SET_INPUT(Y2_MIN_PIN);
+    #endif
+  #endif
+//mpcnc
 
   #if HAS_Z_MIN
     #if ENABLED(ENDSTOPPULLUP_ZMIN)
@@ -106,6 +126,16 @@ void Endstops::init() {
     #endif
   #endif
 
+//mpcnc
+  #if HAS_X2_MAX
+    #if ENABLED(ENDSTOPPULLUP_XMAX)
+      SET_INPUT_PULLUP(X2_MAX_PIN);
+    #else
+      SET_INPUT(X2_MAX_PIN);
+    #endif
+  #endif
+//mpcnc
+
   #if HAS_Y_MAX
     #if ENABLED(ENDSTOPPULLUP_YMAX)
       SET_INPUT_PULLUP(Y_MAX_PIN);
@@ -113,6 +143,16 @@ void Endstops::init() {
       SET_INPUT(Y_MAX_PIN);
     #endif
   #endif
+
+//mpcnc
+  #if HAS_Y2_MAX
+    #if ENABLED(ENDSTOPPULLUP_YMAX)
+      SET_INPUT_PULLUP(Y2_MAX_PIN);
+    #else
+      SET_INPUT(Y2_MAX_PIN);
+    #endif
+  #endif
+//mpcnc
 
   #if HAS_Z_MAX
     #if ENABLED(ENDSTOPPULLUP_ZMAX)
@@ -196,18 +236,42 @@ void Endstops::M119() {
     SERIAL_PROTOCOLPGM(MSG_X_MIN);
     SERIAL_PROTOCOLLN(((READ(X_MIN_PIN)^X_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  //mpcnc
+  #if HAS_X2_MIN
+    SERIAL_PROTOCOLPGM(MSG_X2_MIN);
+    SERIAL_PROTOCOLLN(((READ(X2_MIN_PIN)^X2_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
+  //mpcnc
   #if HAS_X_MAX
     SERIAL_PROTOCOLPGM(MSG_X_MAX);
     SERIAL_PROTOCOLLN(((READ(X_MAX_PIN)^X_MAX_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  //mpcnc
+  #if HAS_X2_MAX
+    SERIAL_PROTOCOLPGM(MSG_X2_MAX);
+    SERIAL_PROTOCOLLN(((READ(X2_MAX_PIN)^X2_MAX_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
+  //mpcnc
   #if HAS_Y_MIN
     SERIAL_PROTOCOLPGM(MSG_Y_MIN);
     SERIAL_PROTOCOLLN(((READ(Y_MIN_PIN)^Y_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  //mpcnc
+  #if HAS_Y2_MIN
+    SERIAL_PROTOCOLPGM(MSG_Y2_MIN);
+    SERIAL_PROTOCOLLN(((READ(Y2_MIN_PIN)^Y2_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
+  //mpcnc
   #if HAS_Y_MAX
     SERIAL_PROTOCOLPGM(MSG_Y_MAX);
     SERIAL_PROTOCOLLN(((READ(Y_MAX_PIN)^Y_MAX_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  //mpcnc
+  #if HAS_Y2_MAX
+    SERIAL_PROTOCOLPGM(MSG_Y2_MAX);
+    SERIAL_PROTOCOLLN(((READ(Y2_MAX_PIN)^Y2_MAX_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
+  //mpcnc
   #if HAS_Z_MIN
     SERIAL_PROTOCOLPGM(MSG_Z_MIN);
     SERIAL_PROTOCOLLN(((READ(Z_MIN_PIN)^Z_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
@@ -233,6 +297,38 @@ void Endstops::M119() {
     SERIAL_PROTOCOLLN(((READ(FIL_RUNOUT_PIN)^FIL_RUNOUT_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
 } // Endstops::M119
+
+//mpcnc
+#if ENABLED(X_DUAL_ENDSTOPS)
+
+  // Pass the result of the endstop test
+  void Endstops::test_dual_x_endstops(const EndstopEnum es1, const EndstopEnum es2) {
+    byte x_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for X, bit 1 for X2
+    if (x_test && stepper.current_block->steps[X_AXIS] > 0) {
+      SBI(endstop_hit_bits, X_MIN);
+      if (!stepper.performing_homing || (x_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
+        stepper.kill_current_block();
+    }
+  }
+
+#endif
+//mpcnc
+
+//mpcnc
+#if ENABLED(Y_DUAL_ENDSTOPS)
+
+  // Pass the result of the endstop test
+  void Endstops::test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2) {
+    byte y_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Y, bit 1 for Y2
+    if (y_test && stepper.current_block->steps[Y_AXIS] > 0) {
+      SBI(endstop_hit_bits, Y_MIN);
+      if (!stepper.performing_homing || (y_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
+        stepper.kill_current_block();
+    }
+  }
+
+#endif
+//mpcnc
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
 
@@ -365,33 +461,103 @@ void Endstops::update() {
    * Check and update endstops according to conditions
    */
 
-  if (X_MOVE_TEST) {
-    if (stepper.motor_direction(X_AXIS_HEAD)) {
-      if (X_MIN_TEST) { // -direction
-        #if HAS_X_MIN
-          UPDATE_ENDSTOP(X, MIN);
-        #endif
-      }
+//  if (X_MOVE_TEST) {
+//    if (stepper.motor_direction(X_AXIS_HEAD)) {
+//      if (X_MIN_TEST) { // -direction
+//        #if HAS_X_MIN
+//          UPDATE_ENDSTOP(X, MIN);
+//        #endif
+//      }
+//    }
+//    else if (X_MAX_TEST) { // +direction
+//      #if HAS_X_MAX
+//        UPDATE_ENDSTOP(X, MAX);
+//      #endif
+//    }
+//  }
+if (X_MOVE_TEST) {
+    if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+     #if HAS_X_MIN
+     //mpcnc
+     #if ENABLED(X_DUAL_ENDSTOPS)
+
+          UPDATE_ENDSTOP_BIT(X, MIN);
+          #if HAS_X2_MIN
+            UPDATE_ENDSTOP_BIT(X2, MIN);
+          #else
+            COPY_BIT(current_endstop_bits, X_MIN, X2_MIN);
+          #endif
+
+          test_dual_x_endstops(X_MIN, X2_MIN);
+
+        #else // !X_DUAL_ENDSTOPS
+        //mpcnc
+        UPDATE_ENDSTOP(X, MIN);
+      #endif
+      #endif
     }
-    else if (X_MAX_TEST) { // +direction
+    else { // +direction
       #if HAS_X_MAX
+      #if ENABLED(X_DUAL_ENDSTOPS)
+
+          UPDATE_ENDSTOP_BIT(X, MAX);
+          #if HAS_X2_MAX
+            UPDATE_ENDSTOP_BIT(X2, MAX);
+          #else
+            COPY_BIT(current_endstop_bits, X_MAX, X2_MAX);
+          #endif
+
+          test_dual_x_endstops(X_MAX, X2_MAX);
+
+          #else
         UPDATE_ENDSTOP(X, MAX);
+      #endif
       #endif
     }
   }
-
-  if (Y_MOVE_TEST) {
+  //mpcnc
+ if (Y_MOVE_TEST) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN
+     #if HAS_Y_MIN
+     //mpcnc
+     #if ENABLED(Y_DUAL_ENDSTOPS)
+
+          UPDATE_ENDSTOP_BIT(Y, MIN);
+          #if HAS_Y2_MIN
+            UPDATE_ENDSTOP_BIT(Y2, MIN);
+          #else
+            COPY_BIT(current_endstop_bits, Y_MIN, Y2_MIN);
+          #endif
+
+          test_dual_y_endstops(Y_MIN, Y2_MIN);
+
+        #else // !Y_DUAL_ENDSTOPS
+        //mpcnc
         UPDATE_ENDSTOP(Y, MIN);
+      #endif
       #endif
     }
     else { // +direction
       #if HAS_Y_MAX
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+
+          UPDATE_ENDSTOP_BIT(Y, MAX);
+          #if HAS_Y2_MAX
+            UPDATE_ENDSTOP_BIT(Y2, MAX);
+          #else
+            COPY_BIT(current_endstop_bits, Y_MAX, Y2_MAX);
+          #endif
+
+          test_dual_y_endstops(Y_MAX, Y2_MAX);
+
+          #else
         UPDATE_ENDSTOP(Y, MAX);
+      #endif
       #endif
     }
   }
+
+
 
   if (Z_MOVE_TEST) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
