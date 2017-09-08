@@ -303,18 +303,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern int lpq_len;
 #endif
 
-#if ENABLED(FWRETRACT)
-  extern bool autoretract_enabled;                 // M209 S - Autoretract switch
-  extern float retract_length,                     // M207 S - G10 Retract length
-               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-               retract_zlift,                      // M207 Z - G10 Retract hop size
-               retract_recover_length,             // M208 S - G11 Recover length
-               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-               swap_retract_length,                // M207 W - G10 Swap Retract length
-               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
-#endif
-
 // Print job timer
 #if ENABLED(PRINTCOUNTER)
   extern PrintCounter print_job_timer;

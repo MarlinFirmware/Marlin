@@ -20,16 +20,26 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "fwretract.h"
+#include "../../gcode.h"
+
 /**
- * M209: Enable automatic retract (M209 S1)
- *   For slicers that don't support G10/11, reversed extrude-only
- *   moves will be classified as retraction.
+ * M207: Set firmware retraction values
+ *
+ *   S[+units]    retract_length
+ *   W[+units]    swap_retract_length (multi-extruder)
+ *   F[units/min] retract_feedrate_mm_s
+ *   Z[units]     retract_zlift
  */
-void gcode_M209() {
-  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
-    if (parser.seen('S')) {
-      autoretract_enabled = parser.value_bool();
-      for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
-    }
-  }
+void GcodeSuite::M207() {
+  if (parser.seen('S')) fwretract.retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('Z')) fwretract.retract_zlift = parser.value_linear_units();
+  if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
+
+#endif // FWRETRACT

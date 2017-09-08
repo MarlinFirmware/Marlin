@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "fwretract.h"
+#include "../../gcode.h"
+
 /**
  * M208: Set firmware un-retraction values
  *
@@ -28,9 +35,11 @@
  *   F[units/min] retract_recover_feedrate_mm_s
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
-void gcode_M208() {
-  if (parser.seen('S')) retract_recover_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+void GcodeSuite::M208() {
+  if (parser.seen('S')) fwretract.retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
 }
+
+#endif // FWRETRACT

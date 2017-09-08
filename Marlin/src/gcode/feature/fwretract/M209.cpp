@@ -20,22 +20,25 @@
  *
  */
 
-/**
- * G10 - Retract filament according to settings of M207
- */
-void gcode_G10() {
-  #if EXTRUDERS > 1
-    const bool rs = parser.boolval('S');
-    retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
-  #endif
-  retract(true
-    #if EXTRUDERS > 1
-      , rs
-    #endif
-  );
-}
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "fwretract.h"
+#include "../../gcode.h"
 
 /**
- * G11 - Recover filament according to settings of M208
+ * M209: Enable automatic retract (M209 S1)
+ *   For slicers that don't support G10/11, reversed extrude-only
+ *   moves will be classified as retraction.
  */
-void gcode_G11() { retract(false); }
+void GcodeSuite::M209() {
+  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+    if (parser.seen('S')) {
+      fwretract.autoretract_enabled = parser.value_bool();
+      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
+    }
+  }
+}
+
+#endif // FWRETRACT
