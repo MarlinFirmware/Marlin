@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "../../../feature/fwretract.h"
+#include "../../gcode.h"
+
 /**
  * M207: Set firmware retraction values
  *
@@ -28,9 +35,11 @@
  *   F[units/min] retract_feedrate_mm_s
  *   Z[units]     retract_zlift
  */
-void gcode_M207() {
-  if (parser.seen('S')) retract_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) retract_zlift = parser.value_linear_units();
-  if (parser.seen('W')) swap_retract_length = parser.value_axis_units(E_AXIS);
+void GcodeSuite::M207() {
+  if (parser.seen('S')) fwretract.retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('Z')) fwretract.retract_zlift = parser.value_linear_units();
+  if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
+
+#endif // FWRETRACT

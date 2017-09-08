@@ -20,16 +20,25 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "../../../feature/fwretract.h"
+#include "../../gcode.h"
+
 /**
  * M209: Enable automatic retract (M209 S1)
  *   For slicers that don't support G10/11, reversed extrude-only
  *   moves will be classified as retraction.
  */
-void gcode_M209() {
+void GcodeSuite::M209() {
   if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
     if (parser.seen('S')) {
-      autoretract_enabled = parser.value_bool();
-      for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+      fwretract.autoretract_enabled = parser.value_bool();
+      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
     }
   }
 }
+
+#endif // FWRETRACT

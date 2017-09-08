@@ -20,17 +20,32 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FWRETRACT)
+
+#include "../../../feature/fwretract.h"
+#include "../../gcode.h"
+#include "../../../module/motion.h"
+
 /**
- * M208: Set firmware un-retraction values
- *
- *   S[+units]    retract_recover_length (in addition to M207 S*)
- *   W[+units]    swap_retract_recover_length (multi-extruder)
- *   F[units/min] retract_recover_feedrate_mm_s
- *   R[units/min] swap_retract_recover_feedrate_mm_s
+ * G10 - Retract filament according to settings of M207
  */
-void gcode_M208() {
-  if (parser.seen('S')) retract_recover_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+void GcodeSuite::G10() {
+  #if EXTRUDERS > 1
+    const bool rs = parser.boolval('S');
+    fwretract.retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
+  #endif
+  fwretract.retract(true
+    #if EXTRUDERS > 1
+      , rs
+    #endif
+  );
 }
+
+/**
+ * G11 - Recover filament according to settings of M208
+ */
+void GcodeSuite::G11() { fwretract.retract(false); }
+
+#endif // FWRETRACT

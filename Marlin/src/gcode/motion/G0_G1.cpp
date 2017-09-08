@@ -25,6 +25,10 @@
 
 #include "../../Marlin.h"
 
+#if ENABLED(FWRETRACT)
+  #include "../../feature/fwretract.h"
+#endif
+
 #include "../../sd/cardreader.h"
 
 extern float destination[XYZE];
@@ -41,18 +45,20 @@ void GcodeSuite::G0_G1(
     get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
+
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
-        if (autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
+        if (fwretract.autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
           const float echange = destination[E_AXIS] - current_position[E_AXIS];
           // Is this a retract or recover move?
-          if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && retracted[active_extruder] == (echange > 0.0)) {
+          if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/recover from calculations
             sync_plan_position_e();                         // AND from the planner
-            return retract(echange < 0.0);                  // Firmware-based retract/recover (double-retract ignored)
+            return fwretract.retract(echange < 0.0);        // Firmware-based retract/recover (double-retract ignored)
           }
         }
       }
+
     #endif // FWRETRACT
 
     #if IS_SCARA
