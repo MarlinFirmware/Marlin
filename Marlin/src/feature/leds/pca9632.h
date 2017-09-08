@@ -29,8 +29,8 @@
 #define __PCA9632_H__
 
 #include "Arduino.h"
-#include "Wire.h"
+#include <Wire.h>
 
-void PCA9632_SetColor(const byte r, const byte g, const byte  b);
+void pca9632_set_led_color(const byte r, const byte g, const byte b);
 
 #endif // __PCA9632_H__

@@ -21,26 +21,18 @@
  */
 
 /**
- * blinkm.cpp - Library for controlling a BlinkM over i2c
- * Created by Tim Koster, August 21 2013.
+ * Neopixel support
  */
 
-#include "../../inc/MarlinConfig.h"
+#ifndef __NEOPIXEL_H__
+#define __NEOPIXEL_H__
 
-#if ENABLED(BLINKM)
+#include <Adafruit_NeoPixel.h>
+#include <stdint.h>
 
-#include "blinkm.h"
+void setup_neopixel();
+bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const bool isSequence);
 
-void blinkm_set_led_color(const byte r, const byte g, const byte b) {
-  Wire.begin();
-  Wire.beginTransmission(0x09);
-  Wire.write('o');                    //to disable ongoing script, only needs to be used once
-  Wire.write('n');
-  Wire.write(r);
-  Wire.write(g);
-  Wire.write(b);
-  Wire.endTransmission();
-}
+extern Adafruit_NeoPixel pixels;
 
-#endif // BLINKM
-
+#endif // __NEOPIXEL_H__
