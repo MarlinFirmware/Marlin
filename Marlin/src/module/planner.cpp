@@ -64,13 +64,12 @@
 #include "../module/temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
-#include "../feature/ubl/ubl.h"
 #include "../gcode/parser.h"
 
 #include "../Marlin.h"
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "../feature/mbl/mesh_bed_leveling.h"
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 Planner planner;

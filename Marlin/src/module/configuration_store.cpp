@@ -189,20 +189,12 @@ MarlinSettings settings;
   #include "../gcode/parser.h"
 #endif
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "../feature/mbl/mesh_bed_leveling.h"
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(HAVE_TMC2130)
   #include "stepper_indirection.h"
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/ubl/ubl.h"
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern void refresh_bed_level();
 #endif
 
 #if ENABLED(FWRETRACT)

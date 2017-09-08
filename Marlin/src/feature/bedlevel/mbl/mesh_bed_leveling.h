@@ -23,7 +23,7 @@
 #ifndef _MESH_BED_LEVELING_H_
 #define _MESH_BED_LEVELING_H_
 
-#include "../../Marlin.h"
+#include "../../../Marlin.h"
 
 enum MeshLevelingState {
   MeshReport,

@@ -67,7 +67,7 @@ void gcode_M420() {
     // L to load a mesh from the EEPROM
     if (parser.seen('L') || parser.seen('V')) {
       ubl.display_map(0);  // Currently only supports one map type
-      SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+      SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
       SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
     }
 

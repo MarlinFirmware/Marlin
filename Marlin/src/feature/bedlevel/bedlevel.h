@@ -20,7 +20,34 @@
  *
  */
 
-#ifndef CALIBRATE_COMMON_H
-#define CALIBRATE_COMMON_H
+#ifndef __BEDLEVEL_H__
+#define __BEDLEVEL_H__
 
-#endif // CALIBRATE_COMMON_H
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(MESH_BED_LEVELING)
+  #include "mbl/mesh_bed_leveling.h"
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl/ubl.h"
+#elif HAS_ABL
+  #include "abl/abl.h"
+  //#include "../../libs/vector_3.h"
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #include "../../libs/least_squares_fit.h"
+  #endif
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+
+  #include <stdint.h>
+
+  typedef float (*element_2d_fn)(const uint8_t, const uint8_t);
+
+  /**
+   * Print calibration results for plotting or manual frame adjustment.
+   */
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
+
+#endif
+
+#endif // __BEDLEVEL_H__

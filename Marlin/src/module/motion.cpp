@@ -27,16 +27,16 @@
 #include "motion.h"
 
 #include "../gcode/gcode.h"
-// #include "../module/planner.h"
 // #include "../Marlin.h"
 // #include "../inc/MarlinConfig.h"
 
 #include "../core/serial.h"
 #include "../module/stepper.h"
+#include "../module/planner.h"
 #include "../module/temperature.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/ubl/ubl.h"
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
@@ -75,6 +75,24 @@ uint8_t active_extruder = 0;
 // Set by the last G0 through G5 command's "F" parameter.
 // Functions that override this for custom moves *must always* restore it!
 float feedrate_mm_s = MMM_TO_MMS(1500.0);
+
+// Homing feedrate is const progmem - compare to constexpr in the header
+const float homing_feedrate_mm_s[4] PROGMEM = {
+  #if ENABLED(DELTA)
+    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
+  #else
+    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
+  #endif
+  MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
+};
+
+// Cartesian conversion result goes here:
+float cartes[XYZ];
+
+// Until kinematics.cpp is created, create this here
+#if IS_KINEMATIC
+  float delta[ABC];
+#endif
 
 /**
  * sync_plan_position
@@ -184,72 +202,23 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
-
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
-
-  /**
-   * Prepare a bilinear-leveled linear move on Cartesian,
-   * splitting the move where it crosses grid borders.
-   */
-  void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
-    int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
-        cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
-        cx2 = CELL_INDEX(X, destination[X_AXIS]),
-        cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
-    cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
-    cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
-    cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
-    cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
-
-    if (cx1 == cx2 && cy1 == cy2) {
-      // Start and end on same mesh square
-      line_to_destination(fr_mm_s);
-      set_current_to_destination();
-      return;
-    }
-
-    #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
-
-    float normalized_dist, end[XYZE];
-
-    // Split at the left/front border of the right/top square
-    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
-    if (cx2 != cx1 && TEST(x_splits, gcx)) {
-      COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
-      normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
-      destination[Y_AXIS] = LINE_SEGMENT_END(Y);
-      CBI(x_splits, gcx);
-    }
-    else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-      COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
-      normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
-      destination[X_AXIS] = LINE_SEGMENT_END(X);
-      CBI(y_splits, gcy);
-    }
-    else {
-      // Already split on a border
-      line_to_destination(fr_mm_s);
-      set_current_to_destination();
-      return;
-    }
-
-    destination[Z_AXIS] = LINE_SEGMENT_END(Z);
-    destination[E_AXIS] = LINE_SEGMENT_END(E);
-
-    // Do the split and look for more borders
-    bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
-
-    // Restore destination from stack
-    COPY(destination, end);
-    bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
-  }
-
-#endif // AUTO_BED_LEVELING_BILINEAR
-
 #if IS_KINEMATIC && !UBL_DELTA
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(DELTA)
+      #define ADJUST_DELTA(V) \
+        if (planner.abl_enabled) { \
+          const float zadj = bilinear_z_offset(V); \
+          delta[A_AXIS] += zadj; \
+          delta[B_AXIS] += zadj; \
+          delta[C_AXIS] += zadj; \
+        }
+    #else
+      #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
+    #endif
+  #else
+    #define ADJUST_DELTA(V) NOOP
+  #endif
 
   /**
    * Prepare a linear move in a DELTA or SCARA setup.

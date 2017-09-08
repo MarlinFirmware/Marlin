@@ -49,10 +49,6 @@ void idle(
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled;
-#endif
-
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
   #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
@@ -212,29 +208,10 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
-#if IS_KINEMATIC
-  extern float delta[ABC];
+#if IS_SCARA
+  extern float delta_segments_per_second;
   void inverse_kinematics(const float logical[XYZ]);
-#endif
-
-#if ENABLED(DELTA)
-  extern float endstop_adj[ABC],
-               delta_radius,
-               delta_diagonal_rod,
-               delta_calibration_radius,
-               delta_segments_per_second,
-               delta_tower_angle_trim[2],
-               delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod);
-#elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern int bilinear_grid_spacing[2], bilinear_start[2];
-  extern float bilinear_grid_factor[2],
-               z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float logical[XYZ]);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -331,5 +308,9 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 #endif
+
+void set_axis_is_at_home(const AxisEnum axis);
+void homeaxis(const AxisEnum axis);
+#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 #endif // MARLIN_H

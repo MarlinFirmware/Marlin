@@ -42,6 +42,20 @@ extern bool relative_mode;
 
 extern float current_position[XYZE], destination[XYZE];
 
+extern float cartes[XYZ]; // scratch space for the cartesian result
+
+// Until kinematics.cpp is created, declare this here
+#if IS_KINEMATIC
+  extern float delta[ABC];
+#endif
+
+/**
+ * Feed rates are often configured with mm/m
+ * but the planner and stepper like mm/s units.
+ */
+extern const float homing_feedrate_mm_s[4];
+FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+
 extern float feedrate_mm_s;
 
 extern uint8_t active_extruder;
@@ -214,10 +228,16 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
   return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
 }
 
+/**
+ * Dual X Carriage / Dual Nozzle
+ */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
 #endif
 
+/**
+ * Dual X Carriage
+ */
 #if ENABLED(DUAL_X_CARRIAGE)
 
   extern DualXMode dual_x_carriage_mode;

@@ -47,15 +47,6 @@
 #include "gcode/parser.h"
 #include "gcode/gcode.h"
 
-#if HAS_ABL
-  #include "libs/vector_3.h"
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    #include "libs/least_squares_fit.h"
-  #endif
-#elif ENABLED(MESH_BED_LEVELING)
-  #include "feature/mbl/mesh_bed_leveling.h"
-#endif
-
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   #include "module/planner_bezier.h"
 #endif
@@ -113,15 +104,12 @@
        G38_endstop_hit = false;
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "feature/ubl/ubl.h"
-  extern bool defer_return_to_status;
-  unified_bed_leveling ubl;
-  #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
-                           && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
-                           && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
-                           && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
-                           || isnan(ubl.z_values[0][0]))
+#if ENABLED(DELTA)
+  #include "module/delta.h"
+#endif
+
+#if HAS_LEVELING
+  #include "feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
@@ -144,20 +132,6 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
-
-/**
- * Feed rates are often configured with mm/m
- * but the planner and stepper like mm/s units.
- */
-static const float homing_feedrate_mm_s[] PROGMEM = {
-  #if ENABLED(DELTA)
-    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
-  #else
-    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
-  #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
-};
-FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
 
 static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage,
@@ -234,22 +208,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #if ENABLED(DELTA)
-    #define ADJUST_DELTA(V) \
-      if (planner.abl_enabled) { \
-        const float zadj = bilinear_z_offset(V); \
-        delta[A_AXIS] += zadj; \
-        delta[B_AXIS] += zadj; \
-        delta[C_AXIS] += zadj; \
-      }
-  #else
-    #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
-  #endif
-#elif IS_KINEMATIC
-  #define ADJUST_DELTA(V) NOOP
-#endif
-
 #if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj;
 #endif
@@ -278,42 +236,14 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   ;
 #endif
 
-#if ENABLED(DELTA)
-
-  float delta[ABC],
-        endstop_adj[ABC] = { 0 };
-
-  // Initialized by settings.load()
-  float delta_radius,
-        delta_tower_angle_trim[2],
-        delta_tower[ABC][2],
-        delta_diagonal_rod,
-        delta_calibration_radius,
-        delta_diagonal_rod_2_tower[ABC],
-        delta_segments_per_second,
-        delta_clip_start_height = Z_MAX_POS;
-
-  float delta_safe_distance_from_top();
-
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  int bilinear_grid_spacing[2], bilinear_start[2];
-  float bilinear_grid_factor[2],
-        z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-#endif
-
 #if IS_SCARA
   // Float constants for SCARA calculations
   const float L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
               L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
               L2_2 = sq(float(L2));
 
-  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
-        delta[ABC];
+  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 #endif
-
-float cartes[XYZ] = { 0 };
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
@@ -600,7 +530,7 @@ void servo_init() {
  *
  * Callers must sync the planner position after calling this!
  */
-static void set_axis_is_at_home(const AxisEnum axis) {
+void set_axis_is_at_home(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis_codes[axis]);
@@ -1677,292 +1607,6 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_LEVELING
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
-
-  /**
-   * Enable to produce output in JSON format suitable
-   * for SCAD or JavaScript mesh visualizers.
-   *
-   * Visualize meshes in OpenSCAD using the included script.
-   *
-   *   buildroot/shared/scripts/MarlinMesh.scad
-   */
-  //#define SCAD_MESH_OUTPUT
-
-  /**
-   * Print calibration results for plotting or manual frame adjustment.
-   */
-  static void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, float (*fn)(const uint8_t, const uint8_t)) {
-    #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < sx; x++) {
-        for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
-          SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)x);
-      }
-      SERIAL_EOL();
-    #endif
-    #ifdef SCAD_MESH_OUTPUT
-      SERIAL_PROTOCOLLNPGM("measured_z = ["); // open 2D array
-    #endif
-    for (uint8_t y = 0; y < sy; y++) {
-      #ifdef SCAD_MESH_OUTPUT
-        SERIAL_PROTOCOLPGM(" [");           // open sub-array
-      #else
-        if (y < 10) SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)y);
-      #endif
-      for (uint8_t x = 0; x < sx; x++) {
-        SERIAL_PROTOCOLCHAR(' ');
-        const float offset = fn(x, y);
-        if (!isnan(offset)) {
-          if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
-          SERIAL_PROTOCOL_F(offset, precision);
-        }
-        else {
-          #ifdef SCAD_MESH_OUTPUT
-            for (uint8_t i = 3; i < precision + 3; i++)
-              SERIAL_PROTOCOLCHAR(' ');
-            SERIAL_PROTOCOLPGM("NAN");
-          #else
-            for (uint8_t i = 0; i < precision + 3; i++)
-              SERIAL_PROTOCOLCHAR(i ? '=' : ' ');
-          #endif
-        }
-        #ifdef SCAD_MESH_OUTPUT
-          if (x < sx - 1) SERIAL_PROTOCOLCHAR(',');
-        #endif
-      }
-      #ifdef SCAD_MESH_OUTPUT
-        SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOLCHAR(']');                     // close sub-array
-        if (y < sy - 1) SERIAL_PROTOCOLCHAR(',');
-      #endif
-      SERIAL_EOL();
-    }
-    #ifdef SCAD_MESH_OUTPUT
-      SERIAL_PROTOCOLPGM("];");                       // close 2D array
-    #endif
-    SERIAL_EOL();
-  }
-
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-  /**
-   * Extrapolate a single point from its neighbors
-   */
-  static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPGM("Extrapolate [");
-        if (x < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO((int)x);
-        SERIAL_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
-        SERIAL_CHAR(' ');
-        if (y < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO((int)y);
-        SERIAL_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
-        SERIAL_CHAR(']');
-      }
-    #endif
-    if (!isnan(z_values[x][y])) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
-      #endif
-      return;  // Don't overwrite good values.
-    }
-    SERIAL_EOL();
-
-    // Get X neighbors, Y neighbors, and XY neighbors
-    const uint8_t x1 = x + xdir, y1 = y + ydir, x2 = x1 + xdir, y2 = y1 + ydir;
-    float a1 = z_values[x1][y ], a2 = z_values[x2][y ],
-          b1 = z_values[x ][y1], b2 = z_values[x ][y2],
-          c1 = z_values[x1][y1], c2 = z_values[x2][y2];
-
-    // Treat far unprobed points as zero, near as equal to far
-    if (isnan(a2)) a2 = 0.0; if (isnan(a1)) a1 = a2;
-    if (isnan(b2)) b2 = 0.0; if (isnan(b1)) b1 = b2;
-    if (isnan(c2)) c2 = 0.0; if (isnan(c1)) c1 = c2;
-
-    const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
-
-    // Take the average instead of the median
-    z_values[x][y] = (a + b + c) / 3.0;
-
-    // Median is robust (ignores outliers).
-    // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
-    //                                : ((c < b) ? b : (a < c) ? a : c);
-  }
-
-  //Enable this if your SCARA uses 180° of total area
-  //#define EXTRAPOLATE_FROM_EDGE
-
-  #if ENABLED(EXTRAPOLATE_FROM_EDGE)
-    #if GRID_MAX_POINTS_X < GRID_MAX_POINTS_Y
-      #define HALF_IN_X
-    #elif GRID_MAX_POINTS_Y < GRID_MAX_POINTS_X
-      #define HALF_IN_Y
-    #endif
-  #endif
-
-  /**
-   * Fill in the unprobed points (corners of circular print surface)
-   * using linear extrapolation, away from the center.
-   */
-  static void extrapolate_unprobed_bed_level() {
-    #ifdef HALF_IN_X
-      constexpr uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
-    #else
-      constexpr uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
-                        ctrx2 = (GRID_MAX_POINTS_X) / 2,     // right-of-center
-                        xlen = ctrx1;
-    #endif
-
-    #ifdef HALF_IN_Y
-      constexpr uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
-    #else
-      constexpr uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
-                        ctry2 = (GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
-                        ylen = ctry1;
-    #endif
-
-    for (uint8_t xo = 0; xo <= xlen; xo++)
-      for (uint8_t yo = 0; yo <= ylen; yo++) {
-        uint8_t x2 = ctrx2 + xo, y2 = ctry2 + yo;
-        #ifndef HALF_IN_X
-          const uint8_t x1 = ctrx1 - xo;
-        #endif
-        #ifndef HALF_IN_Y
-          const uint8_t y1 = ctry1 - yo;
-          #ifndef HALF_IN_X
-            extrapolate_one_point(x1, y1, +1, +1);   //  left-below + +
-          #endif
-          extrapolate_one_point(x2, y1, -1, +1);     // right-below - +
-        #endif
-        #ifndef HALF_IN_X
-          extrapolate_one_point(x1, y2, +1, -1);     //  left-above + -
-        #endif
-        extrapolate_one_point(x2, y2, -1, -1);       // right-above - -
-      }
-
-  }
-
-  static void print_bilinear_leveling_grid() {
-    SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3,
-      [](const uint8_t ix, const uint8_t iy) { return z_values[ix][iy]; }
-    );
-  }
-
-  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-
-    #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
-    #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
-    #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
-    #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
-    float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    int bilinear_grid_spacing_virt[2] = { 0 };
-    float bilinear_grid_factor_virt[2] = { 0 };
-
-    static void print_bilinear_leveling_grid_virt() {
-      SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
-        [](const uint8_t ix, const uint8_t iy) { return z_values_virt[ix][iy]; }
-      );
-    }
-
-    #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
-    float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
-      uint8_t ep = 0, ip = 1;
-      if (!x || x == ABL_TEMP_POINTS_X - 1) {
-        if (x) {
-          ep = GRID_MAX_POINTS_X - 1;
-          ip = GRID_MAX_POINTS_X - 2;
-        }
-        if (WITHIN(y, 1, ABL_TEMP_POINTS_Y - 2))
-          return LINEAR_EXTRAPOLATION(
-            z_values[ep][y - 1],
-            z_values[ip][y - 1]
-          );
-        else
-          return LINEAR_EXTRAPOLATION(
-            bed_level_virt_coord(ep + 1, y),
-            bed_level_virt_coord(ip + 1, y)
-          );
-      }
-      if (!y || y == ABL_TEMP_POINTS_Y - 1) {
-        if (y) {
-          ep = GRID_MAX_POINTS_Y - 1;
-          ip = GRID_MAX_POINTS_Y - 2;
-        }
-        if (WITHIN(x, 1, ABL_TEMP_POINTS_X - 2))
-          return LINEAR_EXTRAPOLATION(
-            z_values[x - 1][ep],
-            z_values[x - 1][ip]
-          );
-        else
-          return LINEAR_EXTRAPOLATION(
-            bed_level_virt_coord(x, ep + 1),
-            bed_level_virt_coord(x, ip + 1)
-          );
-      }
-      return z_values[x - 1][y - 1];
-    }
-
-    static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t) {
-      return (
-          p[i-1] * -t * sq(1 - t)
-        + p[i]   * (2 - 5 * sq(t) + 3 * t * sq(t))
-        + p[i+1] * t * (1 + 4 * t - 3 * sq(t))
-        - p[i+2] * sq(t) * (1 - t)
-      ) * 0.5;
-    }
-
-    static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
-      float row[4], column[4];
-      for (uint8_t i = 0; i < 4; i++) {
-        for (uint8_t j = 0; j < 4; j++) {
-          column[j] = bed_level_virt_coord(i + x - 1, j + y - 1);
-        }
-        row[i] = bed_level_virt_cmr(column, 1, ty);
-      }
-      return bed_level_virt_cmr(row, 1, tx);
-    }
-
-    void bed_level_virt_interpolate() {
-      bilinear_grid_spacing_virt[X_AXIS] = bilinear_grid_spacing[X_AXIS] / (BILINEAR_SUBDIVISIONS);
-      bilinear_grid_spacing_virt[Y_AXIS] = bilinear_grid_spacing[Y_AXIS] / (BILINEAR_SUBDIVISIONS);
-      bilinear_grid_factor_virt[X_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[X_AXIS]);
-      bilinear_grid_factor_virt[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[Y_AXIS]);
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-          for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
-            for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
-              if ((ty && y == GRID_MAX_POINTS_Y - 1) || (tx && x == GRID_MAX_POINTS_X - 1))
-                continue;
-              z_values_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
-                bed_level_virt_2cmr(
-                  x + 1,
-                  y + 1,
-                  (float)tx / (BILINEAR_SUBDIVISIONS),
-                  (float)ty / (BILINEAR_SUBDIVISIONS)
-                );
-            }
-    }
-  #endif // ABL_BILINEAR_SUBDIVISION
-
-  // Refresh after other values have been updated
-  void refresh_bed_level() {
-    bilinear_grid_factor[X_AXIS] = RECIPROCAL(bilinear_grid_spacing[X_AXIS]);
-    bilinear_grid_factor[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing[Y_AXIS]);
-    #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-      bed_level_virt_interpolate();
-    #endif
-  }
-
-#endif // AUTO_BED_LEVELING_BILINEAR
-
 /**
  * Home an individual linear axis
  */
@@ -2023,28 +1667,6 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 }
 
 /**
- * TMC2130 specific sensorless homing using stallGuard2.
- * stallGuard2 only works when in spreadCycle mode.
- * spreadCycle and stealthChop are mutually exclusive.
- */
-#if ENABLED(SENSORLESS_HOMING)
-  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true) {
-    #if ENABLED(STEALTHCHOP)
-      if (enable) {
-        st.coolstep_min_speed(1024UL * 1024UL - 1UL);
-        st.stealthChop(0);
-      }
-      else {
-        st.coolstep_min_speed(0);
-        st.stealthChop(1);
-      }
-    #endif
-
-    st.diag1_stall(enable ? 1 : 0);
-  }
-#endif
-
-/**
  * Home an individual "raw axis" to its endstop.
  * This applies to XYZ on Cartesian and Core robots, and
  * to the individual ABC steppers on DELTA and SCARA.
@@ -2055,9 +1677,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
  * before updating the current position.
  */
 
-#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
-
-static void homeaxis(const AxisEnum axis) {
+void homeaxis(const AxisEnum axis) {
 
   #if IS_SCARA
     // Only Z homing (with probe) is permitted
@@ -2939,325 +2559,6 @@ void quickstop_stepper() {
 #include "gcode/control/M999.h"
 
 #include "gcode/control/T.h"
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt[A]
-    #define ABL_BG_FACTOR(A)  bilinear_grid_factor_virt[A]
-    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
-    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
-    #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
-  #else
-    #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
-    #define ABL_BG_FACTOR(A)  bilinear_grid_factor[A]
-    #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
-    #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
-    #define ABL_BG_GRID(X,Y)  z_values[X][Y]
-  #endif
-
-  // Get the Z adjustment for non-linear bed leveling
-  float bilinear_z_offset(const float logical[XYZ]) {
-
-    static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
-                 last_x = -999.999, last_y = -999.999;
-
-    // Whole units for the grid line indices. Constrained within bounds.
-    static int8_t gridx, gridy, nextx, nexty,
-                  last_gridx = -99, last_gridy = -99;
-
-    // XY relative to the probed area
-    const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
-                y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
-
-    #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
-      // Keep using the last grid box
-      #define FAR_EDGE_OR_BOX 2
-    #else
-      // Just use the grid far edge
-      #define FAR_EDGE_OR_BOX 1
-    #endif
-
-    if (last_x != x) {
-      last_x = x;
-      ratio_x = x * ABL_BG_FACTOR(X_AXIS);
-      const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
-      ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
-
-      #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
-        // Beyond the grid maintain height at grid edges
-        NOLESS(ratio_x, 0); // Never < 0.0. (> 1.0 is ok when nextx==gridx.)
-      #endif
-
-      gridx = gx;
-      nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
-    }
-
-    if (last_y != y || last_gridx != gridx) {
-
-      if (last_y != y) {
-        last_y = y;
-        ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
-        const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
-        ratio_y -= gy;
-
-        #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
-          // Beyond the grid maintain height at grid edges
-          NOLESS(ratio_y, 0); // Never < 0.0. (> 1.0 is ok when nexty==gridy.)
-        #endif
-
-        gridy = gy;
-        nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
-      }
-
-      if (last_gridx != gridx || last_gridy != gridy) {
-        last_gridx = gridx;
-        last_gridy = gridy;
-        // Z at the box corners
-        z1 = ABL_BG_GRID(gridx, gridy);       // left-front
-        d2 = ABL_BG_GRID(gridx, nexty) - z1;  // left-back (delta)
-        z3 = ABL_BG_GRID(nextx, gridy);       // right-front
-        d4 = ABL_BG_GRID(nextx, nexty) - z3;  // right-back (delta)
-      }
-
-      // Bilinear interpolate. Needed since y or gridx has changed.
-                  L = z1 + d2 * ratio_y;   // Linear interp. LF -> LB
-      const float R = z3 + d4 * ratio_y;   // Linear interp. RF -> RB
-
-      D = R - L;
-    }
-
-    const float offset = L + ratio_x * D;   // the offset almost always changes
-
-    /*
-    static float last_offset = 0;
-    if (FABS(last_offset - offset) > 0.2) {
-      SERIAL_ECHOPGM("Sudden Shift at ");
-      SERIAL_ECHOPAIR("x=", x);
-      SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
-      SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
-      SERIAL_ECHOPAIR(" y=", y);
-      SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
-      SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
-      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
-      SERIAL_ECHOLNPAIR(" ratio_y=", ratio_y);
-      SERIAL_ECHOPAIR(" z1=", z1);
-      SERIAL_ECHOPAIR(" z2=", z2);
-      SERIAL_ECHOPAIR(" z3=", z3);
-      SERIAL_ECHOLNPAIR(" z4=", z4);
-      SERIAL_ECHOPAIR(" L=", L);
-      SERIAL_ECHOPAIR(" R=", R);
-      SERIAL_ECHOLNPAIR(" offset=", offset);
-    }
-    last_offset = offset;
-    //*/
-
-    return offset;
-  }
-
-#endif // AUTO_BED_LEVELING_BILINEAR
-
-#if ENABLED(DELTA)
-
-  /**
-   * Recalculate factors used for delta kinematics whenever
-   * settings have been changed (e.g., by M665).
-   */
-  void recalc_delta_settings(float radius, float diagonal_rod) {
-    const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
-                drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
-    delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]); // front left tower
-    delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]);
-    delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]); // front right tower
-    delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]);
-    delta_tower[C_AXIS][X_AXIS] = 0.0; // back middle tower
-    delta_tower[C_AXIS][Y_AXIS] = (radius + trt[C_AXIS]);
-    delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + drt[A_AXIS]);
-    delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + drt[B_AXIS]);
-    delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + drt[C_AXIS]);
-  }
-
-  #if ENABLED(DELTA_FAST_SQRT) && defined(ARDUINO_ARCH_AVR)
-    /**
-     * Fast inverse sqrt from Quake III Arena
-     * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root
-     */
-    float Q_rsqrt(float number) {
-      long i;
-      float x2, y;
-      const float threehalfs = 1.5f;
-      x2 = number * 0.5f;
-      y  = number;
-      i  = * ( long * ) &y;                       // evil floating point bit level hacking
-      i  = 0x5F3759DF - ( i >> 1 );               // what the f***?
-      y  = * ( float * ) &i;
-      y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
-      // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-      return y;
-    }
-
-    #define _SQRT(n) (1.0f / Q_rsqrt(n))
-
-  #else
-
-    #define _SQRT(n) SQRT(n)
-
-  #endif
-
-  /**
-   * Delta Inverse Kinematics
-   *
-   * Calculate the tower positions for a given logical
-   * position, storing the result in the delta[] array.
-   *
-   * This is an expensive calculation, requiring 3 square
-   * roots per segmented linear move, and strains the limits
-   * of a Mega2560 with a Graphical Display.
-   *
-   * Suggested optimizations include:
-   *
-   * - Disable the home_offset (M206) and/or position_shift (G92)
-   *   features to remove up to 12 float additions.
-   *
-   * - Use a fast-inverse-sqrt function and add the reciprocal.
-   *   (see above)
-   */
-
-  // Macro to obtain the Z position of an individual tower
-  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
-    delta_diagonal_rod_2_tower[T] - HYPOT2(   \
-        delta_tower[T][X_AXIS] - raw[X_AXIS], \
-        delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
-      )                                       \
-    )
-
-  #define DELTA_RAW_IK() do {        \
-    delta[A_AXIS] = DELTA_Z(A_AXIS); \
-    delta[B_AXIS] = DELTA_Z(B_AXIS); \
-    delta[C_AXIS] = DELTA_Z(C_AXIS); \
-  }while(0)
-
-  #define DELTA_LOGICAL_IK() do {      \
-    const float raw[XYZ] = {           \
-      RAW_X_POSITION(logical[X_AXIS]), \
-      RAW_Y_POSITION(logical[Y_AXIS]), \
-      RAW_Z_POSITION(logical[Z_AXIS])  \
-    };                                 \
-    DELTA_RAW_IK();                    \
-  }while(0)
-
-  #define DELTA_DEBUG() do { \
-      SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
-      SERIAL_ECHOPAIR(" Y:", raw[Y_AXIS]);          \
-      SERIAL_ECHOLNPAIR(" Z:", raw[Z_AXIS]);        \
-      SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
-      SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
-      SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
-    }while(0)
-
-  void inverse_kinematics(const float logical[XYZ]) {
-    DELTA_LOGICAL_IK();
-    // DELTA_DEBUG();
-  }
-
-  /**
-   * Calculate the highest Z position where the
-   * effector has the full range of XY motion.
-   */
-  float delta_safe_distance_from_top() {
-    float cartesian[XYZ] = {
-      LOGICAL_X_POSITION(0),
-      LOGICAL_Y_POSITION(0),
-      LOGICAL_Z_POSITION(0)
-    };
-    inverse_kinematics(cartesian);
-    float distance = delta[A_AXIS];
-    cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
-    inverse_kinematics(cartesian);
-    return FABS(distance - delta[A_AXIS]);
-  }
-
-  /**
-   * Delta Forward Kinematics
-   *
-   * See the Wikipedia article "Trilateration"
-   * https://en.wikipedia.org/wiki/Trilateration
-   *
-   * Establish a new coordinate system in the plane of the
-   * three carriage points. This system has its origin at
-   * tower1, with tower2 on the X axis. Tower3 is in the X-Y
-   * plane with a Z component of zero.
-   * We will define unit vectors in this coordinate system
-   * in our original coordinate system. Then when we calculate
-   * the Xnew, Ynew and Znew values, we can translate back into
-   * the original system by moving along those unit vectors
-   * by the corresponding values.
-   *
-   * Variable names matched to Marlin, c-version, and avoid the
-   * use of any vector library.
-   *
-   * by Andreas Hardtung 2016-06-07
-   * based on a Java function from "Delta Robot Kinematics V3"
-   * by Steve Graves
-   *
-   * The result is stored in the cartes[] array.
-   */
-  void forward_kinematics_DELTA(float z1, float z2, float z3) {
-    // Create a vector in old coordinates along x axis of new coordinate
-    float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 };
-
-    // Get the Magnitude of vector.
-    float d = SQRT( sq(p12[0]) + sq(p12[1]) + sq(p12[2]) );
-
-    // Create unit vector by dividing by magnitude.
-    float ex[3] = { p12[0] / d, p12[1] / d, p12[2] / d };
-
-    // Get the vector from the origin of the new system to the third point.
-    float p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 };
-
-    // Use the dot product to find the component of this vector on the X axis.
-    float i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2];
-
-    // Create a vector along the x axis that represents the x component of p13.
-    float iex[3] = { ex[0] * i, ex[1] * i, ex[2] * i };
-
-    // Subtract the X component from the original vector leaving only Y. We use the
-    // variable that will be the unit vector after we scale it.
-    float ey[3] = { p13[0] - iex[0], p13[1] - iex[1], p13[2] - iex[2] };
-
-    // The magnitude of Y component
-    float j = SQRT( sq(ey[0]) + sq(ey[1]) + sq(ey[2]) );
-
-    // Convert to a unit vector
-    ey[0] /= j; ey[1] /= j;  ey[2] /= j;
-
-    // The cross product of the unit x and y is the unit z
-    // float[] ez = vectorCrossProd(ex, ey);
-    float ez[3] = {
-      ex[1] * ey[2] - ex[2] * ey[1],
-      ex[2] * ey[0] - ex[0] * ey[2],
-      ex[0] * ey[1] - ex[1] * ey[0]
-    };
-
-    // We now have the d, i and j values defined in Wikipedia.
-    // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
-    float Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + sq(d)) / (d * 2),
-          Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + HYPOT2(i, j)) / 2 - i * Xnew) / j,
-          Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
-
-    // Start from the origin of the old coordinates and add vectors in the
-    // old coords that represent the Xnew, Ynew and Znew to find the point
-    // in the old system.
-    cartes[X_AXIS] = delta_tower[A_AXIS][X_AXIS] + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew;
-    cartes[Y_AXIS] = delta_tower[A_AXIS][Y_AXIS] + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew;
-    cartes[Z_AXIS] =             z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
-  }
-
-  void forward_kinematics_DELTA(float point[ABC]) {
-    forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
-  }
-
-#endif // DELTA
 
 /**
  * Get the stepper positions in the cartes[] array.

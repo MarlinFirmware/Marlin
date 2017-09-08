@@ -24,19 +24,19 @@
  * Marlin Firmware -- G26 - Mesh Validation Tool
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
 
   #include "ubl.h"
 
-  #include "../../Marlin.h"
-  #include "../../module/planner.h"
-  #include "../../module/stepper.h"
-  #include "../../module/motion.h"
-  #include "../../module/temperature.h"
-  #include "../../lcd/ultralcd.h"
-  #include "../../gcode/parser.h"
+  #include "../../../Marlin.h"
+  #include "../../../module/planner.h"
+  #include "../../../module/stepper.h"
+  #include "../../../module/motion.h"
+  #include "../../../module/temperature.h"
+  #include "../../../lcd/ultralcd.h"
+  #include "../../../gcode/parser.h"
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
@@ -130,13 +130,12 @@
 
   // External references
 
-  extern Planner planner;
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
   #endif
-  extern float destination[XYZE];
-  extern void set_destination_to_current() { COPY(destination, current_position); }
-  void prepare_move_to_destination();
+
+  // Remove this if all is well with Teensy compile:
+  #if 0
   #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
     inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
     inline void set_current_to_destination() { COPY(current_position, destination); }
@@ -144,6 +143,8 @@
     extern void sync_plan_position_e();
     extern void set_current_to_destination();
   #endif
+  #endif
+
   #if ENABLED(NEWPANEL)
     void lcd_setstatusPGM(const char* const message, const int8_t level);
     void chirp_at_user();

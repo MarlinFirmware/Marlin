@@ -20,17 +20,17 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
   unified_bed_leveling ubl;
 
-  #include "../../module/configuration_store.h"
-  #include "../../core/serial.h"
-  #include "../../module/planner.h"
-  #include "../../module/motion.h"
+  #include "../../../module/configuration_store.h"
+  #include "../../../core/serial.h"
+  #include "../../../module/planner.h"
+  #include "../../../module/motion.h"
 
   #include "math.h"
 

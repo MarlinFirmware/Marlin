@@ -20,13 +20,13 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(MESH_BED_LEVELING)
 
   #include "mesh_bed_leveling.h"
 
-  #include "../../module/motion.h"
+  #include "../../../module/motion.h"
 
   mesh_bed_leveling mbl;
 

@@ -51,7 +51,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/ubl/ubl.h"
+  #include "../feature/bedlevel/ubl/ubl.h"
   bool ubl_lcd_map_control = false;
 #endif
 
@@ -168,7 +168,7 @@ uint16_t max_display_update_time = 0;
   #endif
 
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    #include "../feature/mbl/mesh_bed_leveling.h"
+    #include "../feature/bedlevel/mbl/mesh_bed_leveling.h"
     extern void mesh_probing_done();
   #endif
 

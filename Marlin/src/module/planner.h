@@ -34,6 +34,12 @@
 
 #include "../Marlin.h"
 
+#include "motion.h"
+
+#if ENABLED(DELTA)
+  #include "delta.h"
+#endif
+
 #if HAS_ABL
   #include "../libs/vector_3.h"
 #endif

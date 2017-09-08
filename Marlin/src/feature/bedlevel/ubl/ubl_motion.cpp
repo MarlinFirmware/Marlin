@@ -19,16 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
 
-  #include "../../Marlin.h"
-  #include "../../module/planner.h"
-  #include "../../module/stepper.h"
-  #include "../../module/motion.h"
+  #include "../../../Marlin.h"
+  #include "../../../module/planner.h"
+  #include "../../../module/stepper.h"
+  #include "../../../module/motion.h"
+
+  #if ENABLED(DELTA)
+    #include "../../../module/delta.h"
+  #endif
 
   #include <math.h>
 
@@ -39,25 +43,6 @@
   #else
     extern void set_current_to_destination();
   #endif
-
-#if ENABLED(DELTA)
-
-  extern float delta[ABC],
-               endstop_adj[ABC];
-
-  extern float delta_radius,
-               delta_tower_angle_trim[2],
-               delta_tower[ABC][2],
-               delta_diagonal_rod,
-               delta_calibration_radius,
-               delta_diagonal_rod_2_tower[ABC],
-               delta_segments_per_second,
-               delta_clip_start_height;
-
-  extern float delta_safe_distance_from_top();
-
-#endif
-
 
   static void debug_echo_axis(const AxisEnum axis) {
     if (current_position[axis] == destination[axis])
