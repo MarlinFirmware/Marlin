@@ -20,6 +20,29 @@
  *
  */
 
+/**
+ * G29.cpp - Auto Bed Leveling
+ */
+
+#include "../../../inc/MarlinConfig.h"
+
+#if OLDSCHOOL_ABL
+
+#include "../../gcode.h"
+#include "../../../feature/bedlevel/bedlevel.h"
+#include "../../../module/motion.h"
+#include "../../../module/planner.h"
+#include "../../../module/stepper.h"
+#include "../../../module/probe.h"
+
+#if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+  #include "../../../lcd/ultralcd.h"
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #include "../../../libs/least_squares_fit.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -106,7 +129,7 @@
  *     There's no extra effect if you have a fixed Z probe.
  *
  */
-void gcode_G29() {
+void GcodeSuite::G29() {
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -176,12 +199,10 @@ void gcode_G29() {
                         abl_grid_points_y = GRID_MAX_POINTS_Y;
     #endif
 
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(PROBE_MANUALLY)
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-        ABL_VAR int abl2;
-      #else // Bilinear
-        int constexpr abl2 = GRID_MAX_POINTS;
-      #endif
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      ABL_VAR int abl2;
+    #elif ENABLED(PROBE_MANUALLY) // Bilinear
+      int constexpr abl2 = GRID_MAX_POINTS;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -199,7 +220,9 @@ void gcode_G29() {
 
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
-    int constexpr abl2 = 3;
+    #if ENABLED(PROBE_MANUALLY)
+      int constexpr abl2 = 3; // used to show total points
+    #endif
 
     // Probe at 3 arbitrary points
     ABL_VAR vector_3 points[3] = {
@@ -944,3 +967,5 @@ void gcode_G29() {
   if (planner.abl_enabled)
     SYNC_PLAN_POSITION_KINEMATIC();
 }
+
+#endif // OLDSCHOOL_ABL

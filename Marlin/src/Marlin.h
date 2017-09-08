@@ -48,10 +48,6 @@ void idle(
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled;
-#endif
-
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
   #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
@@ -179,13 +175,6 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-/**
- * Feedrate scaling and conversion
- */
-extern int16_t feedrate_percentage;
-
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
-
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 
@@ -197,71 +186,23 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
-// Hotend Offsets
-#if HOTENDS > 1
-  extern float hotend_offset[XYZ][HOTENDS];
-#endif
-
-// Software Endstops
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
-  void update_software_endstops(const AxisEnum axis);
-#endif
-
-#if IS_KINEMATIC
-  extern float delta[ABC];
-  void inverse_kinematics(const float logical[XYZ]);
-#endif
-
-#if ENABLED(DELTA)
-  extern float endstop_adj[ABC],
-               delta_radius,
-               delta_diagonal_rod,
-               delta_calibration_radius,
-               delta_segments_per_second,
-               delta_tower_angle_trim[2],
-               delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod);
-#elif IS_SCARA
-  void forward_kinematics_SCARA(const float &a, const float &b);
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern int bilinear_grid_spacing[2], bilinear_start[2];
-  extern float bilinear_grid_factor[2],
-               z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float logical[XYZ]);
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   typedef struct { double A, B, D; } linear_fit;
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
-#endif
-
-#if HAS_LEVELING
-  bool leveling_is_valid();
-  bool leveling_is_active();
-  void set_bed_leveling_enabled(const bool enable=true);
-  void reset_bed_level();
-#endif
-
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
 
-#if HAS_BED_PROBE
-  extern float zprobe_zoffset;
-  void refresh_zprobe_zoffset(const bool no_babystep=false);
-  #define DEPLOY_PROBE() set_probe_deployed(true)
-  #define STOW_PROBE() set_probe_deployed(false)
-#else
-  #define DEPLOY_PROBE()
-  #define STOW_PROBE()
+#if HAS_SERVOS
+  #include "HAL/servo.h"
+  extern HAL_SERVO_LIB servo[NUM_SERVOS];
+  #define MOVE_SERVO(I, P) servo[I].move(P)
+  #if HAS_Z_SERVO_ENDSTOP
+    #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
+    #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
+  #endif
 #endif
 
 #if FAN_COUNT > 0
@@ -308,17 +249,5 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 void calculate_volumetric_multipliers();
-
-/**
- * Blocking movement and shorthand functions
- */
-void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
-void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
-
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
-#endif
 
 #endif // __MARLIN_H__

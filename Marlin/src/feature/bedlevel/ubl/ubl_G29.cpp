@@ -20,20 +20,23 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
 
-  #include "../../Marlin.h"
-  #include "../../libs/hex_print_routines.h"
-  #include "../../module/configuration_store.h"
-  #include "../../lcd/ultralcd.h"
-  #include "../../module/stepper.h"
-  #include "../../module/planner.h"
-  #include "../../gcode/parser.h"
-  #include "../../libs/least_squares_fit.h"
+  #include "../../../Marlin.h"
+  #include "../../../libs/hex_print_routines.h"
+  #include "../../../module/configuration_store.h"
+  #include "../../../lcd/ultralcd.h"
+  #include "../../../module/stepper.h"
+  #include "../../../module/planner.h"
+  #include "../../../module/probe.h"
+  #include "../../../gcode/gcode.h"
+  #include "../../../gcode/parser.h"
+  #include "../../../feature/bedlevel/bedlevel.h"
+  #include "../../../libs/least_squares_fit.h"
 
   #include <math.h>
 
@@ -52,11 +55,8 @@
 
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool=true);
-  extern bool set_probe_deployed(bool);
-  extern void set_bed_leveling_enabled(bool);
-  typedef void (*screenFunc_t)();
-  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
+  //extern bool set_probe_deployed(bool);
+  //extern void set_bed_leveling_enabled(bool);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -314,7 +314,7 @@
     if (axis_unhomed_error()) {
       const int8_t p_val = parser.intval('P', -1);
       if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
-        home_all_axes();
+        gcode.home_all_axes();
     }
 
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
@@ -1515,7 +1515,7 @@
           idle();
         } while (!ubl_lcd_clicked());
 
-        if (!ubl_lcd_map_control) lcd_return_to_status();
+        if (!lcd_map_control) lcd_return_to_status();
 
         // The technique used here generates a race condition for the encoder click.
         // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
@@ -1561,7 +1561,7 @@
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
-      if (ubl_lcd_map_control)
+      if (lcd_map_control)
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
       else
         lcd_return_to_status();
@@ -1606,7 +1606,7 @@
     //   { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM   // Right side of the mesh looking left
     // };
     for (uint8_t i = 0; i < COUNT(info); ++i) {
-      const smart_fill_info *f = (smart_fill_info*)pgm_read_word(&info[i]);
+      const smart_fill_info *f = (smart_fill_info*)pgm_read_ptr(&info[i]);
       const int8_t sx = pgm_read_word(&f->sx), sy = pgm_read_word(&f->sy),
                    ex = pgm_read_word(&f->ex), ey = pgm_read_word(&f->ey);
       if (pgm_read_byte(&f->yfirst)) {

@@ -52,6 +52,7 @@
 
 #include "endstops.h"
 #include "planner.h"
+#include "motion.h"
 
 #include "../Marlin.h"
 #include "../module/temperature.h"

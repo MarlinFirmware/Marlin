@@ -21,29 +21,49 @@
  */
 
 /**
+ * unified.cpp - Unified Bed Leveling
+ */
+
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+
+#include "../../gcode.h"
+#include "../../../feature/bedlevel/ubl/ubl.h"
+
+/**
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
  * Usage:
- *   M421 X<linear> Y<linear> Z<linear>
- *   M421 X<linear> Y<linear> Q<offset>
  *   M421 I<xindex> J<yindex> Z<linear>
  *   M421 I<xindex> J<yindex> Q<offset>
+ *   M421 C Z<linear>
+ *   M421 C Q<offset>
  */
-void gcode_M421() {
-  const bool hasX = parser.seen('X'), hasI = parser.seen('I');
-  const int8_t ix = hasI ? parser.value_int() : hasX ? mbl.probe_index_x(RAW_X_POSITION(parser.value_linear_units())) : -1;
-  const bool hasY = parser.seen('Y'), hasJ = parser.seen('J');
-  const int8_t iy = hasJ ? parser.value_int() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(parser.value_linear_units())) : -1;
-  const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
+void GcodeSuite::M421() {
+  int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
+  const bool hasI = ix >= 0,
+             hasJ = iy >= 0,
+             hasC = parser.seen('C'),
+             hasZ = parser.seen('Z'),
+             hasQ = !hasZ && parser.seen('Q');
 
-  if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ)) {
+  if (hasC) {
+    const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+    ix = location.x_index;
+    iy = location.y_index;
+  }
+
+  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
   }
-  else if (ix < 0 || iy < 0) {
+  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
   }
   else
-    mbl.set_z(ix, iy, parser.value_linear_units() + (hasQ ? mbl.z_values[ix][iy] : 0));
+    ubl.z_values[ix][iy] = parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
 }
+
+#endif // AUTO_BED_LEVELING_UBL

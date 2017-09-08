@@ -35,7 +35,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/ubl/ubl.h"
+  #include "../feature/bedlevel/ubl/ubl.h"
 
   #if ENABLED(ULTIPANEL)
     #define ULTRA_X_PIXELS_PER_CHAR    5
