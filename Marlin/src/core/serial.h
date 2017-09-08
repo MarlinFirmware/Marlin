@@ -41,6 +41,26 @@
   #endif
 #endif
 
+#include "../libs/vector_3.h"
+
+/**
+ * Define debug bit-masks
+ */
+enum DebugFlags {
+  DEBUG_NONE          = 0,
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
+  DEBUG_ALL           = 0xFF
+};
+
+extern uint8_t marlin_debug_flags;
+#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
+
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
@@ -99,5 +119,15 @@ void serial_spaces(uint8_t count);
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
 void serialprintPGM(const char* str);
+
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+  void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z);
+  void print_xyz(const char* prefix, const char* suffix, const float xyz[]);
+  #if HAS_ABL
+    void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz);
+  #endif
+  #define DEBUG_POS(SUFFIX,VAR) do { \
+    print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
+#endif
 
 #endif // __SERIAL_H__

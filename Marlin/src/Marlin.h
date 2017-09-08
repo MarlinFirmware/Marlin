@@ -184,9 +184,6 @@ void quickstop_stepper();
   void handle_filament_runout();
 #endif
 
-extern uint8_t marlin_debug_flags;
-#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
-
 extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
