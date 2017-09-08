@@ -24,7 +24,7 @@
  * M105: Read hot end and bed temperature
  */
 void gcode_M105() {
-  if (get_target_extruder_from_command(105)) return;
+  if (gcode.get_target_extruder_from_command()) return;
 
   #if HAS_TEMP_HOTEND || HAS_TEMP_BED
     SERIAL_PROTOCOLPGM(MSG_OK);

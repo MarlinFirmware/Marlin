@@ -30,6 +30,7 @@
 #include "../lcd/ultralcd.h"
 #include "../module/stepper.h"
 #include "../core/language.h"
+#include "../gcode/queue.h"
 
 #include <ctype.h>
 

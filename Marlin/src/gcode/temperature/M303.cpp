@@ -20,6 +20,9 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M303: PID relay autotune
  *
@@ -28,7 +31,7 @@
  *       C<cycles>
  *       U<bool> with a non-zero value will apply the result to current settings
  */
-void gcode_M303() {
+void GcodeSuite::M303() {
   #if HAS_PID_HEATING
     const int e = parser.intval('E'), c = parser.intval('C', 5);
     const bool u = parser.boolval('U');
@@ -36,7 +39,7 @@ void gcode_M303() {
     int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
 
     if (WITHIN(e, 0, HOTENDS - 1))
-      target_extruder = e;
+      gcode.target_extruder = e;
 
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(NOT_BUSY);

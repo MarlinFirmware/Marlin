@@ -168,9 +168,6 @@ void enable_all_steppers();
 void disable_e_steppers();
 void disable_all_steppers();
 
-void FlushSerialRequestResend();
-void ok_to_send();
-
 void kill(const char*);
 
 void quickstop_stepper();
@@ -183,13 +180,6 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
-void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
-void clear_command_queue();
-
-extern millis_t previous_cmd_ms;
-inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
-
 /**
  * Feedrate scaling and conversion
  */
@@ -197,11 +187,11 @@ extern int16_t feedrate_percentage;
 
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
-extern bool axis_relative_modes[];
 extern bool volumetric_enabled;
 extern int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
+
 extern bool axis_known_position[XYZ];
 extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
@@ -210,48 +200,6 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
-extern float current_position[NUM_AXIS];
-
-// Workspace offsets
-#if HAS_WORKSPACE_OFFSET
-  #if HAS_HOME_OFFSET
-    extern float home_offset[XYZ];
-  #endif
-  #if HAS_POSITION_SHIFT
-    extern float position_shift[XYZ];
-  #endif
-#endif
-
-#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-  extern float workspace_offset[XYZ];
-  #define WORKSPACE_OFFSET(AXIS) workspace_offset[AXIS]
-#elif HAS_HOME_OFFSET
-  #define WORKSPACE_OFFSET(AXIS) home_offset[AXIS]
-#elif HAS_POSITION_SHIFT
-  #define WORKSPACE_OFFSET(AXIS) position_shift[AXIS]
-#else
-  #define WORKSPACE_OFFSET(AXIS) 0
-#endif
-
-#define LOGICAL_POSITION(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
-#define RAW_POSITION(POS, AXIS)     ((POS) - WORKSPACE_OFFSET(AXIS))
-
-#if HAS_POSITION_SHIFT || DISABLED(DELTA)
-  #define LOGICAL_X_POSITION(POS)   LOGICAL_POSITION(POS, X_AXIS)
-  #define LOGICAL_Y_POSITION(POS)   LOGICAL_POSITION(POS, Y_AXIS)
-  #define RAW_X_POSITION(POS)       RAW_POSITION(POS, X_AXIS)
-  #define RAW_Y_POSITION(POS)       RAW_POSITION(POS, Y_AXIS)
-#else
-  #define LOGICAL_X_POSITION(POS)   (POS)
-  #define LOGICAL_Y_POSITION(POS)   (POS)
-  #define RAW_X_POSITION(POS)       (POS)
-  #define RAW_Y_POSITION(POS)       (POS)
-#endif
-
-#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
-#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
-#define RAW_CURRENT_POSITION(A)     RAW_##A##_POSITION(current_position[A##_AXIS])
-
 // Hotend Offsets
 #if HOTENDS > 1
   extern float hotend_offset[XYZ][HOTENDS];
@@ -259,14 +207,6 @@ extern float current_position[NUM_AXIS];
 
 // Software Endstops
 extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-
-#if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
-  void clamp_to_software_endstops(float target[XYZ]);
-#else
-  #define soft_endstops_enabled false
-  #define clamp_to_software_endstops(x) NOOP
-#endif
 
 #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
   void update_software_endstops(const AxisEnum axis);
@@ -382,9 +322,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern Stopwatch print_job_timer;
 #endif
 
-// Handling multiple extruders pins
-extern uint8_t active_extruder;
-
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
@@ -406,63 +343,5 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 #endif
-
-/**
- * position_is_reachable family of functions
- */
-
-#if IS_KINEMATIC // (DELTA or SCARA)
-
-  #if IS_SCARA
-    extern const float L1, L2;
-  #endif
-
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
-    #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
-    #elif IS_SCARA
-      #if MIDDLE_DEAD_ZONE_R > 0
-        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-        return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
-      #else
-        return HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y) <= sq(L1 + L2);
-      #endif
-    #else // CARTESIAN
-      // To be migrated from MakerArm branch in future
-    #endif
-  }
-
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
-
-    // Both the nozzle and the probe must be able to reach the point.
-    // This won't work on SCARA since the probe offset rotates with the arm.
-
-    return position_is_reachable_raw_xy(rx, ry)
-        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
-  }
-
-#else // CARTESIAN
-
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
-      // Add 0.001 margin to deal with float imprecision
-      return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
-          && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
-  }
-
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
-      // Add 0.001 margin to deal with float imprecision
-      return WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
-          && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
-  }
-
-#endif // CARTESIAN
-
-FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly) {
-  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
-
-FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
-  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
 
 #endif // MARLIN_H

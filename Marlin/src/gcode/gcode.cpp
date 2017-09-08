@@ -21,10 +21,240 @@
  */
 
 /**
+ * gcode.cpp - Temporary container for all gcode handlers
+ *             Most will migrate to classes, by feature.
+ */
+
+#include "gcode.h"
+GcodeSuite gcode;
+
+#include "parser.h"
+#include "queue.h"
+#include "../module/motion.h"
+#include "../core/serial.h"
+
+uint8_t GcodeSuite::target_extruder;
+millis_t GcodeSuite::previous_cmd_ms;
+
+bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
+
+/**
+ * Set target_extruder from the T parameter or the active_extruder
+ *
+ * Returns TRUE if the target is invalid
+ */
+bool GcodeSuite::get_target_extruder_from_command() {
+  if (parser.seenval('T')) {
+    const int8_t e = parser.value_byte();
+    if (e >= EXTRUDERS) {
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('M');
+      SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
+      return true;
+    }
+    target_extruder = e;
+  }
+  else
+    target_extruder = active_extruder;
+
+  return false;
+}
+
+/**
+ * Set XYZE destination and feedrate from the current GCode command
+ *
+ *  - Set destination from included axis codes
+ *  - Set to current for missing axis codes
+ *  - Set the feedrate, if included
+ */
+void GcodeSuite::get_destination_from_command() {
+  LOOP_XYZE(i) {
+    if (parser.seen(axis_codes[i]))
+      destination[i] = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+    else
+      destination[i] = current_position[i];
+  }
+
+  if (parser.linearval('F') > 0.0)
+    feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
+
+  #if ENABLED(PRINTCOUNTER)
+    if (!DEBUGGING(DRYRUN))
+      print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+  #endif
+
+  // Get ABCDHI mixing factors
+  #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
+    gcode_get_mix();
+  #endif
+}
+
+//
+// Placeholders for non-migrated codes
+//
+extern void gcode_G0_G1(
+  #if IS_SCARA
+    bool fast_move=false
+  #endif
+);
+extern void gcode_G2_G3(bool clockwise);
+extern void gcode_G4();
+extern void gcode_G5();
+extern void gcode_G12();
+extern void gcode_G17();
+extern void gcode_G18();
+extern void gcode_G19();
+extern void gcode_G20();
+extern void gcode_G21();
+extern void gcode_G26();
+extern void gcode_G27();
+extern void gcode_G28(const bool always_home_all);
+extern void gcode_G29();
+extern void gcode_G30();
+extern void gcode_G31();
+extern void gcode_G32();
+extern void gcode_G33();
+extern void gcode_G38(bool is_38_2);
+extern void gcode_G42();
+extern void gcode_G92();
+extern void gcode_M0_M1();
+extern void gcode_M3_M4(bool is_M3);
+extern void gcode_M5();
+extern void gcode_M17();
+extern void gcode_M18_M84();
+extern void gcode_M20();
+extern void gcode_M21();
+extern void gcode_M22();
+extern void gcode_M23();
+extern void gcode_M24();
+extern void gcode_M25();
+extern void gcode_M26();
+extern void gcode_M27();
+extern void gcode_M28();
+extern void gcode_M29();
+extern void gcode_M30();
+extern void gcode_M31();
+extern void gcode_M32();
+extern void gcode_M33();
+extern void gcode_M34();
+extern void gcode_M42();
+extern void gcode_M43();
+extern void gcode_M48();
+extern void gcode_M49();
+extern void gcode_M75();
+extern void gcode_M76();
+extern void gcode_M77();
+extern void gcode_M78();
+extern void gcode_M80();
+extern void gcode_M81();
+extern void gcode_M82();
+extern void gcode_M83();
+extern void gcode_M85();
+extern void gcode_M92();
+extern void gcode_M100();
+extern void gcode_M105();
+extern void gcode_M106();
+extern void gcode_M107();
+extern void gcode_M108();
+extern void gcode_M110();
+extern void gcode_M111();
+extern void gcode_M112();
+extern void gcode_M113();
+extern void gcode_M114();
+extern void gcode_M115();
+extern void gcode_M117();
+extern void gcode_M118();
+extern void gcode_M119();
+extern void gcode_M120();
+extern void gcode_M121();
+extern void gcode_M125();
+extern void gcode_M126();
+extern void gcode_M127();
+extern void gcode_M128();
+extern void gcode_M129();
+extern void gcode_M140();
+extern void gcode_M145();
+extern void gcode_M149();
+extern void gcode_M150();
+extern void gcode_M155();
+extern void gcode_M163();
+extern void gcode_M164();
+extern void gcode_M165();
+extern void gcode_M190();
+extern void gcode_M201();
+extern void gcode_M203();
+extern void gcode_M204();
+extern void gcode_M205();
+extern void gcode_M206();
+extern void gcode_M211();
+extern void gcode_M218();
+extern void gcode_M220();
+extern void gcode_M226();
+extern void gcode_M240();
+extern void gcode_M250();
+extern void gcode_M260();
+extern void gcode_M261();
+extern void gcode_M280();
+extern void gcode_M300();
+extern void gcode_M301();
+extern void gcode_M302();
+extern void gcode_M304();
+extern void gcode_M350();
+extern void gcode_M351();
+extern void gcode_M355();
+extern bool gcode_M360();
+extern bool gcode_M361();
+extern bool gcode_M362();
+extern bool gcode_M363();
+extern bool gcode_M364();
+extern void gcode_M380();
+extern void gcode_M381();
+extern void gcode_M400();
+extern void gcode_M401();
+extern void gcode_M402();
+extern void gcode_M404();
+extern void gcode_M405();
+extern void gcode_M406();
+extern void gcode_M407();
+extern void gcode_M410();
+extern void gcode_M420();
+extern void gcode_M421();
+extern void gcode_M428();
+extern void gcode_M500();
+extern void gcode_M501();
+extern void gcode_M502();
+extern void gcode_M503();
+extern void gcode_M540();
+extern void gcode_M600();
+extern void gcode_M605();
+extern void gcode_M665();
+extern void gcode_M666();
+extern void gcode_M702();
+extern void gcode_M851();
+extern void gcode_M900();
+extern void gcode_M906();
+extern void gcode_M911();
+extern void gcode_M912();
+extern void gcode_M913();
+extern void gcode_M914();
+extern void gcode_M907();
+extern void gcode_M908();
+extern void gcode_M909();
+extern void gcode_M910();
+extern void gcode_M928();
+extern void gcode_M999();
+extern void gcode_T(uint8_t tmp_extruder);
+
+#if ENABLED(M100_FREE_MEMORY_WATCHER)
+  extern void M100_dump_routine(const char * const title, const char *start, const char *end);
+#endif
+
+/**
  * Process a single command and dispatch it to its handler
  * This is called from the main loop()
  */
-void process_next_command() {
+void GcodeSuite::process_next_command() {
   char * const current_command = command_queue[cmd_queue_index_r];
 
   if (DEBUGGING(ECHO)) {
@@ -49,9 +279,9 @@ void process_next_command() {
       case 0:
       case 1:
         #if IS_SCARA
-          gcode_G0_G1(parser.codenum == 0);
+          G0_G1(parser.codenum == 0);
         #else
-          gcode_G0_G1();
+          G0_G1();
         #endif
         break;
 
@@ -76,10 +306,10 @@ void process_next_command() {
 
       #if ENABLED(FWRETRACT)
         case 10: // G10: retract
-          gcode_G10();
+          G10();
           break;
         case 11: // G11: retract_recover
-          gcode_G11();
+          G11();
           break;
       #endif // FWRETRACT
 
@@ -304,7 +534,7 @@ void process_next_command() {
       #endif
 
       case 104: // M104: Set hot end temperature
-        gcode_M104();
+        M104();
         break;
 
       case 110: // M110: Set Current Line Number
@@ -354,7 +584,7 @@ void process_next_command() {
       #endif
 
       case 109: // M109: Wait for hotend temperature to reach target
-        gcode_M109();
+        M109();
         break;
 
       #if HAS_TEMP_BED
@@ -488,7 +718,7 @@ void process_next_command() {
       #endif
 
       case 200: // M200: Set filament diameter, E to cubic units
-        gcode_M200();
+        M200();
         break;
       case 201: // M201: Set max acceleration for print moves (units/s^2)
         gcode_M201();
@@ -528,13 +758,13 @@ void process_next_command() {
 
       #if ENABLED(FWRETRACT)
         case 207: // M207: Set Retract Length, Feedrate, and Z lift
-          gcode_M207();
+          M207();
           break;
         case 208: // M208: Set Recover (unretract) Additional Length and Feedrate
-          gcode_M208();
+          M208();
           break;
         case 209: // M209: Turn Automatic Retract Detection on/off
-          if (MIN_AUTORETRACT <= MAX_AUTORETRACT) gcode_M209();
+          if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();
           break;
       #endif // FWRETRACT
 
@@ -553,7 +783,7 @@ void process_next_command() {
         break;
 
       case 221: // M221: Set Flow Percentage
-        gcode_M221();
+        M221();
         break;
 
       case 226: // M226: Wait until a pin reaches a state
@@ -615,7 +845,7 @@ void process_next_command() {
       #endif // PREVENT_COLD_EXTRUSION
 
       case 303: // M303: PID autotune
-        gcode_M303();
+        M303();
         break;
 
       #if ENABLED(MORGAN_SCARA)
@@ -811,43 +1041,43 @@ void process_next_command() {
       #if ENABLED(I2C_POSITION_ENCODERS)
 
         case 860: // M860 Report encoder module position
-          gcode_M860();
+          M860();
           break;
 
         case 861: // M861 Report encoder module status
-          gcode_M861();
+          M861();
           break;
 
         case 862: // M862 Perform axis test
-          gcode_M862();
+          M862();
           break;
 
         case 863: // M863 Calibrate steps/mm
-          gcode_M863();
+          M863();
           break;
 
         case 864: // M864 Change module address
-          gcode_M864();
+          M864();
           break;
 
         case 865: // M865 Check module firmware version
-          gcode_M865();
+          M865();
           break;
 
         case 866: // M866 Report axis error count
-          gcode_M866();
+          M866();
           break;
 
         case 867: // M867 Toggle error correction
-          gcode_M867();
+          M867();
           break;
 
         case 868: // M868 Set error correction threshold
-          gcode_M868();
+          M868();
           break;
 
         case 869: // M869 Report axis error
-          gcode_M869();
+          M869();
           break;
 
       #endif // I2C_POSITION_ENCODERS

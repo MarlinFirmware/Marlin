@@ -28,7 +28,7 @@
  */
 void gcode_M92() {
 
-  GET_TARGET_EXTRUDER(92);
+  GET_TARGET_EXTRUDER();
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {

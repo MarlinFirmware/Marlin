@@ -37,5 +37,5 @@ void gcode_M999() {
   if (parser.boolval('S')) return;
 
   // gcode_LastN = Stopped_gcode_LastN;
-  FlushSerialRequestResend();
+  flush_and_request_resend();
 }

@@ -20,16 +20,24 @@
  *
  */
 
+#include "../gcode.h"
+#include "../parser.h"
+#include "../../module/motion.h"
+
+#include "../../Marlin.h"
+
+extern float destination[XYZE];
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
-void gcode_G0_G1(
+void GcodeSuite::G0_G1(
   #if IS_SCARA
     bool fast_move=false
   #endif
 ) {
   if (IsRunning()) {
-    gcode_get_destination(); // For X Y Z E F
+    get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {

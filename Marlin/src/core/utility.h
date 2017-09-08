@@ -25,6 +25,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+
 void safe_delay(millis_t ms);
 
 #if ENABLED(EEPROM_SETTINGS)

@@ -20,23 +20,32 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+#include "../../module/motion.h"
+#include "../../module/planner.h"
+#include "../../core/serial.h"
+#include "../../lcd/ultralcd.h"
+
 /**
  * M104: Set hot end temperature
  */
-void gcode_M104() {
-  if (get_target_extruder_from_command(104)) return;
+void GcodeSuite::M104() {
+  if (gcode.get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
 
+  const uint8_t e = gcode.target_extruder;
+
   #if ENABLED(SINGLENOZZLE)
-    if (target_extruder != active_extruder) return;
+    if (e != active_extruder) return;
   #endif
 
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
-    thermalManager.setTargetHotend(temp, target_extruder);
+    thermalManager.setTargetHotend(temp, e);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
+      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && e == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -53,8 +62,8 @@ void gcode_M104() {
       }
     #endif
 
-    if (parser.value_celsius() > thermalManager.degHotend(target_extruder))
-      lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+    if (parser.value_celsius() > thermalManager.degHotend(e))
+      lcd_status_printf_P(0, PSTR("E%i %s"), e + 1, MSG_HEATING);
   }
 
   #if ENABLED(AUTOTEMP)

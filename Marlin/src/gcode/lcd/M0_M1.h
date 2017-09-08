@@ -20,6 +20,8 @@
  *
  */
 
+#include "../gcode.h"
+
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
@@ -62,7 +64,7 @@ void gcode_M0_M1() {
   wait_for_user = true;
 
   stepper.synchronize();
-  refresh_cmd_timeout();
+  gcode.refresh_cmd_timeout();
 
   if (ms > 0) {
     ms += previous_cmd_ms;  // wait until this time for a click

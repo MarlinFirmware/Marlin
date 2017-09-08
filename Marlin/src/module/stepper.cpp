@@ -57,6 +57,7 @@
 #include "../module/temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
+#include "../gcode/queue.h"
 #include "../sd/cardreader.h"
 
 #if MB(ALLIGATOR)

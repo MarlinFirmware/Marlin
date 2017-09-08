@@ -20,6 +20,8 @@
  *
  */
 
+#include "../queue.h"
+
 // Save 130 bytes with non-duplication of PSTR
 void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 

@@ -23,6 +23,7 @@
 #include "nozzle.h"
 
 #include "../Marlin.h"
+#include "../module/motion.h"
 #include "point_t.h"
 
 /**

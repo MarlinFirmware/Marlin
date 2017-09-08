@@ -20,11 +20,15 @@
  *
  */
 
+#include "../gcode.h"
+#include "../parser.h"
+#include "../../Marlin.h"
+
 /**
  * M221: Set extrusion percentage (M221 T0 S95)
  */
-void gcode_M221() {
-  if (get_target_extruder_from_command(221)) return;
+void GcodeSuite::M221() {
+  if (get_target_extruder_from_command()) return;
   if (parser.seenval('S'))
-    flow_percentage[target_extruder] = parser.value_int();
+    flow_percentage[gcode.target_extruder] = parser.value_int();
 }
