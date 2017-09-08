@@ -31,6 +31,7 @@
 #include "../module/stepper.h"
 #include "../module/printcounter.h"
 #include "../core/language.h"
+#include "../gcode/queue.h"
 
 #include <ctype.h>
 

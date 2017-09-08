@@ -20,6 +20,8 @@
  *
  */
 
+#include "../gcode.h"
+
 #include "../../pins/pinsDebug.h"
 
 inline void toggle_pins() {
@@ -141,7 +143,7 @@ inline void servo_probe_test() {
     }
     if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
-    refresh_cmd_timeout();
+    gcode.refresh_cmd_timeout();
 
     if (deploy_state != stow_state) {
       SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
@@ -170,7 +172,7 @@ inline void servo_probe_test() {
         safe_delay(2);
 
         if (0 == j % (500 * 1)) // keep cmd_timeout happy
-          refresh_cmd_timeout();
+          gcode.refresh_cmd_timeout();
 
         if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
 

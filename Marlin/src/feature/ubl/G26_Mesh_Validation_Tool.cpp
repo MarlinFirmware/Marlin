@@ -33,6 +33,7 @@
   #include "../../Marlin.h"
   #include "../../module/planner.h"
   #include "../../module/stepper.h"
+  #include "../../module/motion.h"
   #include "../../module/temperature.h"
   #include "../../lcd/ultralcd.h"
   #include "../../gcode/parser.h"
@@ -129,7 +130,6 @@
 
   // External references
 
-  extern float feedrate_mm_s; // must set before calling prepare_move_to_destination
   extern Planner planner;
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];

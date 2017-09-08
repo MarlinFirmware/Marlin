@@ -20,15 +20,18 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../Marlin.h"
+
 /**
  * M200: Set filament diameter and set E axis units to cubic units
  *
  *    T<extruder> - Optional extruder number. Current extruder if omitted.
  *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
  */
-void gcode_M200() {
+void GcodeSuite::M200() {
 
-  if (get_target_extruder_from_command(200)) return;
+  if (get_target_extruder_from_command()) return;
 
   if (parser.seen('D')) {
     // setting any extruder filament size disables volumetric on the assumption that

@@ -120,4 +120,6 @@ public:
 
 extern mesh_bed_leveling mbl;
 
+void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+
 #endif // _MESH_BED_LEVELING_H_

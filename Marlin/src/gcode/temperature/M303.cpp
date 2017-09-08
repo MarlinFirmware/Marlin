@@ -20,6 +20,9 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M303: PID relay autotune
  *
@@ -28,7 +31,7 @@
  *       C<cycles>
  *       U<bool> with a non-zero value will apply the result to current settings
  */
-void gcode_M303() {
+void GcodeSuite::M303() {
   #if HAS_PID_HEATING
     const int e = parser.intval('E'), c = parser.intval('C', 5);
     const bool u = parser.boolval('U');

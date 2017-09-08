@@ -20,6 +20,20 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+#include "../../module/planner.h"
+#include "../../lcd/ultralcd.h"
+#include "../../Marlin.h"
+
+#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  #include "../../module/printcounter.h"
+#endif
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  #include "../../module/motion.h"
+#endif
+
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
@@ -32,9 +46,9 @@
   #define MIN_COOLING_SLOPE_TIME 60
 #endif
 
-void gcode_M109() {
+void GcodeSuite::M109() {
 
-  if (get_target_extruder_from_command(109)) return;
+  if (get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
 
   #if ENABLED(SINGLENOZZLE)

@@ -31,10 +31,13 @@
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
+#include "planner.h"
+#include "motion.h"
+#include "temperature.h"
+
 #include "../Marlin.h"
-#include "../module/planner.h"
 #include "../core/language.h"
-#include "../module/temperature.h"
+#include "../gcode/queue.h"
 
 // See the meaning in the documentation of cubic_b_spline().
 #define MIN_STEP 0.002

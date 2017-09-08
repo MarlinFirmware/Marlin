@@ -20,6 +20,8 @@
  *
  */
 
+#include "../gcode.h"
+
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1
@@ -209,7 +211,7 @@ void gcode_G2_G3(bool clockwise) {
       relative_mode = true;
     #endif
 
-    gcode_get_destination();
+    gcode.get_destination_from_command();
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;
@@ -252,7 +254,7 @@ void gcode_G2_G3(bool clockwise) {
 
       // Send the arc to the planner
       plan_arc(destination, arc_offset, clockwise);
-      refresh_cmd_timeout();
+      gcode.refresh_cmd_timeout();
     }
     else {
       // Bad arguments

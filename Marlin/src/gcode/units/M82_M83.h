@@ -23,9 +23,9 @@
 /**
  * M82: Set E codes absolute (default)
  */
-void gcode_M82() { axis_relative_modes[E_AXIS] = false; }
+void gcode_M82() { gcode.axis_relative_modes[E_AXIS] = false; }
 
 /**
  * M83: Set E codes relative while in Absolute Coordinates (G90) mode
  */
-void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
+void gcode_M83() { gcode.axis_relative_modes[E_AXIS] = true; }

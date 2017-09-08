@@ -27,7 +27,7 @@
  */
 void gcode_M201() {
 
-  GET_TARGET_EXTRUDER(201);
+  GET_TARGET_EXTRUDER();
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
