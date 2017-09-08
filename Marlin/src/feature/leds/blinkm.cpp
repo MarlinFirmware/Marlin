@@ -25,20 +25,20 @@
  * Created by Tim Koster, August 21 2013.
  */
 
-#include "../../Marlin.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(BLINKM)
 
 #include "blinkm.h"
 
-void SendColors(byte red, byte grn, byte blu) {
+void blinkm_set_led_color(const byte r, const byte g, const byte b) {
   Wire.begin();
   Wire.beginTransmission(0x09);
   Wire.write('o');                    //to disable ongoing script, only needs to be used once
   Wire.write('n');
-  Wire.write(red);
-  Wire.write(grn);
-  Wire.write(blu);
+  Wire.write(r);
+  Wire.write(g);
+  Wire.write(b);
   Wire.endTransmission();
 }
 

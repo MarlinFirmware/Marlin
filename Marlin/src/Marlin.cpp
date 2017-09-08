@@ -64,20 +64,12 @@
   #include "libs/buzzer.h"
 #endif
 
+#if HAS_COLOR_LEDS
+  #include "feature/leds/leds.h"
+#endif
+
 #if ENABLED(MAX7219_DEBUG)
-  #include "feature/leds/Max7219_Debug_LEDs.h"
-#endif
-
-#if ENABLED(NEOPIXEL_RGBW_LED)
-  #include <Adafruit_NeoPixel.h>
-#endif
-
-#if ENABLED(BLINKM)
-  #include "feature/leds/blinkm.h"
-#endif
-
-#if ENABLED(PCA9632)
-  #include "feature/leds/pca9632.h"
+  #include "feature/Max7219_Debug_LEDs.h"
 #endif
 
 #if HAS_SERVOS
@@ -495,96 +487,6 @@ void servo_init() {
   }
 
 #endif
-
-#if HAS_COLOR_LEDS
-
-  #if ENABLED(NEOPIXEL_RGBW_LED)
-
-    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
-
-    void set_neopixel_color(const uint32_t color) {
-      for (uint16_t i = 0; i < pixels.numPixels(); ++i)
-        pixels.setPixelColor(i, color);
-      pixels.show();
-    }
-
-    void setup_neopixel() {
-      pixels.setBrightness(255); // 0 - 255 range
-      pixels.begin();
-      pixels.show(); // initialize to all off
-
-      #if ENABLED(NEOPIXEL_STARTUP_TEST)
-        delay(2000);
-        set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-        delay(2000);
-        set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-        delay(2000);
-        set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-        delay(2000);
-      #endif
-      set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
-    }
-
-  #endif // NEOPIXEL_RGBW_LED
-
-  void set_led_color(
-    const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-        , const uint8_t w = 0
-        #if ENABLED(NEOPIXEL_RGBW_LED)
-          , bool isSequence = false
-        #endif
-      #endif
-  ) {
-
-    #if ENABLED(NEOPIXEL_RGBW_LED)
-
-      const uint32_t color = pixels.Color(r, g, b, w);
-      static uint16_t nextLed = 0;
-
-      if (!isSequence)
-        set_neopixel_color(color);
-      else {
-        pixels.setPixelColor(nextLed, color);
-        pixels.show();
-        if (++nextLed >= pixels.numPixels()) nextLed = 0;
-        return;
-      }
-
-    #endif
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #endif
-
-    #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
-      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
-      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-      #if ENABLED(RGBW_LED)
-        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
-        analogWrite(RGB_LED_W_PIN, w);
-      #endif
-
-    #endif
-
-    #if ENABLED(PCA9632)
-      // Update I2C LED driver
-      PCA9632_SetColor(r, g, b);
-    #endif
-  }
-
-#endif // HAS_COLOR_LEDS
 
 #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
 

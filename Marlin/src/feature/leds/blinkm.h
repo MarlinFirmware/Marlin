@@ -25,7 +25,12 @@
  * Created by Tim Koster, August 21 2013.
  */
 
+#ifndef __BLINKM_H__
+#define __BLINKM_H__
+
 #include "Arduino.h"
 #include "Wire.h"
 
-void SendColors(byte red, byte grn, byte blu);
+void blinkm_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b);
+
+#endif // __BLINKM_H__

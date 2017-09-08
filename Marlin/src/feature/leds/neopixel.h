@@ -20,17 +20,19 @@
  *
  */
 
-/*
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
+/**
+ * Neopixel support
  */
 
-#ifndef __PCA9632_H__
-#define __PCA9632_H__
+#ifndef __NEOPIXEL_H__
+#define __NEOPIXEL_H__
 
-#include "Arduino.h"
-#include "Wire.h"
+#include <Adafruit_NeoPixel.h>
+#include <stdint.h>
 
-void pca9632_set_led_color(const byte r, const byte g, const byte b);
+void setup_neopixel();
+bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const bool isSequence);
 
-#endif // __PCA9632_H__
+extern Adafruit_NeoPixel pixels;
+
+#endif // __NEOPIXEL_H__

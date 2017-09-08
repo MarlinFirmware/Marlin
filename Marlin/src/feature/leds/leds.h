@@ -20,17 +20,34 @@
  *
  */
 
-/*
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
+/**
+ * Marlin general RGB LED support
  */
 
-#ifndef __PCA9632_H__
-#define __PCA9632_H__
+#ifndef __LEDS_H__
+#define __LEDS_H__
 
-#include "Arduino.h"
-#include "Wire.h"
+#if ENABLED(NEOPIXEL_RGBW_LED)
+  #include <Adafruit_NeoPixel.h>
+  #include "neopixel.h"
+#endif
 
-void pca9632_set_led_color(const byte r, const byte g, const byte b);
+#if ENABLED(BLINKM)
+  #include "blinkm.h"
+#endif
 
-#endif // __PCA9632_H__
+#if ENABLED(PCA9632)
+  #include "pca9632.h"
+#endif
+
+void set_led_color(
+  const uint8_t r, const uint8_t g, const uint8_t b
+  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
+    , const uint8_t w = 0
+    #if ENABLED(NEOPIXEL_RGBW_LED)
+      , bool isSequence = false
+    #endif
+  #endif
+);
+
+#endif // __LEDS_H__
