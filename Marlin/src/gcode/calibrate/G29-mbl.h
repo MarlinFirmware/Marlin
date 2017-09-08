@@ -20,6 +20,8 @@
  *
  */
 
+#include "../queue.h"
+
 #include "../../libs/buzzer.h"
 #include "../../lcd/ultralcd.h"
 

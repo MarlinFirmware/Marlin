@@ -237,8 +237,8 @@
  *
  */
 
-#ifndef GCODE_H
-#define GCODE_H
+#ifndef _GCODE_H_
+#define _GCODE_H_
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -251,6 +251,30 @@ class GcodeSuite {
 public:
 
   GcodeSuite() {}
+
+  static uint8_t target_extruder;
+
+  static bool axis_relative_modes[];
+
+  static millis_t previous_cmd_ms;
+  FORCE_INLINE static void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
+
+  static bool get_target_extruder_from_command();
+  static void get_destination_from_command();
+  static void process_next_command();
+
+  /**
+   * Multi-stepper support for M92, M201, M203
+   */
+  #if ENABLED(DISTINCT_E_FACTORS)
+    #define GET_TARGET_EXTRUDER() if (gcode.get_target_extruder_from_command()) return
+    #define TARGET_EXTRUDER gcode.target_extruder
+  #else
+    #define GET_TARGET_EXTRUDER() NOOP
+    #define TARGET_EXTRUDER 0
+  #endif
+
+  static FORCE_INLINE void home_all_axes() { G28(true); }
 
 private:
 
@@ -375,7 +399,7 @@ private:
     static void M48();
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+  #if ENABLED(UBL_G26_MESH_VALIDATION)
     static void M49();
   #endif
 
@@ -679,4 +703,4 @@ private:
 
 extern GcodeSuite gcode;
 
-#endif // GCODE_H
+#endif // _GCODE_H_

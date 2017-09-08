@@ -20,6 +20,8 @@
  *
  */
 
+#include "../gcode.h"
+
 #ifndef MIN_COOLING_SLOPE_DEG_BED
   #define MIN_COOLING_SLOPE_DEG_BED 1.50
 #endif
@@ -63,7 +65,7 @@ void gcode_M190() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
-  target_extruder = active_extruder; // for print_heaterstates
+  gcode.target_extruder = active_extruder; // for print_heaterstates
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     const float start_temp = thermalManager.degBed();
@@ -95,7 +97,7 @@ void gcode_M190() {
     }
 
     idle();
-    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
+    gcode.refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     const float temp = thermalManager.degBed();
 

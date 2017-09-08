@@ -28,6 +28,7 @@
   #include "../../Marlin.h"
   #include "../../module/planner.h"
   #include "../../module/stepper.h"
+  #include "../../module/motion.h"
 
   #include <math.h>
 

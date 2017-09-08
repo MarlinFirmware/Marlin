@@ -20,6 +20,8 @@
  *
  */
 
+#include "../queue.h"
+
 /**
  * M110: Set Current Line Number
  */

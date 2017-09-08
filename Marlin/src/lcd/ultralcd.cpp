@@ -30,6 +30,9 @@
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/stepper.h"
+#include "../module/motion.h"
+#include "../gcode/gcode.h"
+#include "../gcode/queue.h"
 #include "../module/configuration_store.h"
 
 #include "../Marlin.h"
@@ -1734,7 +1737,7 @@ void kill_screen(const char* lcd_msg) {
       // Encoder knob or keypad buttons adjust the Z position
       //
       if (encoderPosition) {
-        refresh_cmd_timeout();
+        gcode.refresh_cmd_timeout();
         const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
         line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5));
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -2280,7 +2283,7 @@ void kill_screen(const char* lcd_msg) {
         x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
         if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
           step_scaler = 0;
-        refresh_cmd_timeout();
+        gcode.refresh_cmd_timeout();
 
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
@@ -2317,7 +2320,7 @@ void kill_screen(const char* lcd_msg) {
           set_current_from_steppers_for_axis(ALL_AXES);
           sync_plan_position();
           ubl_map_move_to_xy(); // Move to new location
-          refresh_cmd_timeout();
+          gcode.refresh_cmd_timeout();
         }
       }
     }
@@ -2702,7 +2705,7 @@ void kill_screen(const char* lcd_msg) {
     if (lcd_clicked) { return lcd_goto_previous_menu(); }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
-      refresh_cmd_timeout();
+      gcode.refresh_cmd_timeout();
 
       float min = current_position[axis] - 1000,
             max = current_position[axis] + 1000;

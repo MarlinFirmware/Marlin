@@ -20,6 +20,8 @@
  *
  */
 
+#include "../gcode.h"
+
 static bool G38_run_probe() {
 
   bool G38_pass_fail = false;
@@ -88,7 +90,7 @@ static bool G38_run_probe() {
  */
 void gcode_G38(bool is_38_2) {
   // Get X Y Z E F
-  gcode_get_destination();
+  gcode.get_destination_from_command();
 
   setup_for_endstop_or_probe_move();
 

@@ -30,6 +30,7 @@
   #include "../../module/configuration_store.h"
   #include "../../core/serial.h"
   #include "../../module/planner.h"
+  #include "../../module/motion.h"
 
   #include "math.h"
 

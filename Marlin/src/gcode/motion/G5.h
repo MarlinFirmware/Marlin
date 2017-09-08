@@ -21,6 +21,7 @@
  */
 
 #include "../../module/planner_bezier.h"
+#include "../../gcode/gcode.h"
 
 void plan_cubic_move(const float offset[4]) {
   cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
@@ -52,7 +53,7 @@ void gcode_G5() {
       }
     #endif
 
-    gcode_get_destination();
+    gcode.get_destination_from_command();
 
     const float offset[] = {
       parser.linearval('I'),

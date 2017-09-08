@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HOTENDS > 1
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+
 /**
  * M218 - set hotend offset (in linear units)
  *
@@ -28,8 +35,8 @@
  *   Y<yoffset>
  *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
  */
-void gcode_M218() {
-  if (get_target_extruder_from_command(218) || target_extruder == 0) return;
+void GcodeSuite::M218() {
+  if (get_target_extruder_from_command() || target_extruder == 0) return;
 
   if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
   if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
@@ -52,3 +59,5 @@ void gcode_M218() {
   }
   SERIAL_EOL();
 }
+
+#endif // HOTENDS > 1
