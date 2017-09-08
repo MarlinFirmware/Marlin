@@ -20,17 +20,17 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   #include "ubl.h"
   unified_bed_leveling ubl;
 
-  #include "../../module/configuration_store.h"
-  #include "../../core/serial.h"
-  #include "../../module/planner.h"
-  #include "../../module/motion.h"
+  #include "../../../module/configuration_store.h"
+  #include "../../../module/planner.h"
+  #include "../../../module/motion.h"
+  #include "../../bedlevel/bedlevel.h"
 
   #include "math.h"
 
@@ -77,6 +77,10 @@
 
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
+
+  #if ENABLED(ULTRA_LCD)
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
 
   volatile int unified_bed_leveling::encoder_diff;
 

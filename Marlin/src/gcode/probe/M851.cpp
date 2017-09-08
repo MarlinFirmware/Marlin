@@ -20,43 +20,15 @@
  *
  */
 
-void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
-  static float last_zoffset = NAN;
+#include "../../inc/MarlinConfig.h"
 
-  if (!isnan(last_zoffset)) {
+#if HAS_BED_PROBE
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET) || ENABLED(DELTA)
-      const float diff = zprobe_zoffset - last_zoffset;
-    #endif
+#include "../gcode.h"
+#include "../../feature/bedlevel/bedlevel.h"
+#include "../../module/probe.h"
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Correct bilinear grid for new probe offset
-      if (diff) {
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-            z_values[x][y] -= diff;
-      }
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_interpolate();
-      #endif
-    #endif
-
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      if (!no_babystep && leveling_is_active())
-        thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
-    #else
-      UNUSED(no_babystep);
-    #endif
-
-    #if ENABLED(DELTA) // correct the delta_height
-      home_offset[Z_AXIS] -= diff;
-    #endif
-  }
-
-  last_zoffset = zprobe_zoffset;
-}
-
-void gcode_M851() {
+void GcodeSuite::M851() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
   if (parser.seen('Z')) {
@@ -74,3 +46,5 @@ void gcode_M851() {
 
   SERIAL_EOL();
 }
+
+#endif // HAS_BED_PROBE

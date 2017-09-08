@@ -21,31 +21,26 @@
  */
 
 /**
- * M421: Set a single Mesh Bed Leveling Z coordinate
- *
- * Usage:
- *   M421 I<xindex> J<yindex> Z<linear>
- *   M421 I<xindex> J<yindex> Q<offset>
+ * scara.h - SCARA-specific functions
  */
-void gcode_M421() {
-  int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
-  const bool hasI = ix >= 0,
-             hasJ = iy >= 0,
-             hasZ = parser.seen('Z'),
-             hasQ = !hasZ && parser.seen('Q');
 
-  if (!hasI || !hasJ || !(hasZ || hasQ)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-  }
-  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-  }
-  else {
-    z_values[ix][iy] = parser.value_linear_units() + (hasQ ? z_values[ix][iy] : 0);
-    #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-      bed_level_virt_interpolate();
-    #endif
-  }
-}
+#ifndef __SCARA_H__
+#define __SCARA_H__
+
+#include "../core/macros.h"
+
+extern float delta_segments_per_second;
+
+// Float constants for SCARA calculations
+float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
+                L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+                L2_2 = sq(float(L2));
+
+void scara_set_axis_is_at_home(const AxisEnum axis);
+
+void inverse_kinematics(const float logical[XYZ]);
+void forward_kinematics_SCARA(const float &a, const float &b);
+
+void scara_report_positions();
+
+#endif // __SCARA_H__

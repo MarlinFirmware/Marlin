@@ -23,7 +23,7 @@
 #ifndef _MESH_BED_LEVELING_H_
 #define _MESH_BED_LEVELING_H_
 
-#include "../../Marlin.h"
+#include "../../../inc/MarlinConfig.h"
 
 enum MeshLevelingState {
   MeshReport,
@@ -120,6 +120,10 @@ public:
 
 extern mesh_bed_leveling mbl;
 
+// Support functions, which may be embedded in the class later
+
 void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+
+void mbl_mesh_report();
 
 #endif // _MESH_BED_LEVELING_H_

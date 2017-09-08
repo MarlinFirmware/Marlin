@@ -20,11 +20,22 @@
  *
  */
 
-#include "common.h"
+#include "../../inc/MarlinConfig.h"
+
+#include "../gcode.h"
+
+#include "../../module/stepper.h"
+#include "../../module/endstops.h"
 
 #if HOTENDS > 1
-  #include "../control/tool_change.h"
+  #include "../../module/tool_change.h"
 #endif
+
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
+#include "../../lcd/ultralcd.h"
 
 #if ENABLED(QUICK_HOME)
 
@@ -126,11 +137,11 @@
  *  Z   Home to the Z endstop
  *
  */
-void gcode_G28(const bool always_home_all) {
+void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPGM(">>> gcode_G28");
+      SERIAL_ECHOLNPGM(">>> G28");
       log_machine_info();
     }
   #endif
@@ -288,7 +299,7 @@ void gcode_G28(const bool always_home_all) {
 
     SYNC_PLAN_POSITION_KINEMATIC();
 
-  #endif // !DELTA (gcode_G28)
+  #endif // !DELTA (G28)
 
   endstops.not_homing();
 
@@ -319,6 +330,6 @@ void gcode_G28(const bool always_home_all) {
   report_current_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
   #endif
 }

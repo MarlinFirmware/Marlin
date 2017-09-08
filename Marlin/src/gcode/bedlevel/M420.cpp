@@ -20,6 +20,18 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_LEVELING
+
+#include "../gcode.h"
+#include "../../feature/bedlevel/bedlevel.h"
+#include "../../module/planner.h"
+
+#if ENABLED(EEPROM_SETTINGS)
+  #include "../../module/configuration_store.h"
+#endif
+
 /**
  * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
  *
@@ -31,7 +43,7 @@
  *
  *   L[index]  Load UBL mesh from index (0 is default)
  */
-void gcode_M420() {
+void GcodeSuite::M420() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -64,10 +76,10 @@ void gcode_M420() {
       #endif
     }
 
-    // L to load a mesh from the EEPROM
+    // L or V display the map info
     if (parser.seen('L') || parser.seen('V')) {
       ubl.display_map(0);  // Currently only supports one map type
-      SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+      SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
       SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
     }
 
@@ -119,3 +131,5 @@ void gcode_M420() {
       SERIAL_ECHOLNPGM(MSG_OFF);
   #endif
 }
+
+#endif // HAS_LEVELING

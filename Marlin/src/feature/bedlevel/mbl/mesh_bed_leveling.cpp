@@ -20,13 +20,14 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(MESH_BED_LEVELING)
 
   #include "mesh_bed_leveling.h"
 
-  #include "../../module/motion.h"
+  #include "../../../module/motion.h"
+  #include "../../../feature/bedlevel/bedlevel.h"
 
   mesh_bed_leveling mbl;
 
@@ -108,6 +109,15 @@
     // Restore destination from stack
     COPY(destination, end);
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
+  }
+
+  void mbl_mesh_report() {
+    SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
+    SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
+    SERIAL_PROTOCOLLNPGM("\nMeasured points:");
+    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
+      [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
+    );
   }
 
 #endif // MESH_BED_LEVELING

@@ -64,13 +64,12 @@
 #include "../module/temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
-#include "../feature/ubl/ubl.h"
 #include "../gcode/parser.h"
 
 #include "../Marlin.h"
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "../feature/mbl/mesh_bed_leveling.h"
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 Planner planner;
@@ -107,12 +106,11 @@ float Planner::min_feedrate_mm_s,
       Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
       Planner::min_travel_feedrate_mm_s;
 
-#if HAS_ABL
+#if OLDSCHOOL_ABL
   bool Planner::abl_enabled = false; // Flag that auto bed leveling is enabled
-#endif
-
-#if ABL_PLANAR
-  matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
+  #if ABL_PLANAR
+    matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
+  #endif
 #endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -546,7 +544,7 @@ void Planner::check_axes_activity() {
       #endif // FADE
     #endif // UBL
 
-    #if HAS_ABL
+    #if OLDSCHOOL_ABL
       if (!abl_enabled) return;
     #endif
 
@@ -634,7 +632,7 @@ void Planner::check_axes_activity() {
 
     #endif
 
-    #if HAS_ABL
+    #if OLDSCHOOL_ABL
       if (!abl_enabled) return;
     #endif
 

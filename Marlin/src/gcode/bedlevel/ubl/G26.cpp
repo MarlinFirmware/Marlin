@@ -20,8 +20,17 @@
  *
  */
 
-void gcode_G26() {
+/**
+ * G26.cpp - Unified Bed Leveling
+ */
 
-  ubl.G26();
+#include "../../../inc/MarlinConfig.h"
 
-}
+#if ENABLED(UBL_G26_MESH_VALIDATION)
+
+#include "../../gcode.h"
+#include "../../../feature/bedlevel/ubl/ubl.h"
+
+void GcodeSuite::G26() { ubl.G26(); }
+
+#endif // UBL_G26_MESH_VALIDATION

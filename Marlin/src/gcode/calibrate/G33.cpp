@@ -20,10 +20,21 @@
  *
  */
 
-#include "common.h"
+#include "../../inc/MarlinConfig.h"
 
-#if HOTENDS > 1
-  #include "../control/tool_change.h"
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+
+#include "../gcode.h"
+#include "../../module/delta.h"
+#include "../../module/probe.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+#include "../../module/endstops.h"
+#include "../../module/tool_change.h"
+#include "../../lcd/ultralcd.h"
+
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 /**
@@ -54,7 +65,7 @@
  *   E   Engage the probe for each point
  */
 
-void print_signed_float(const char * const prefix, const float &f) {
+static void print_signed_float(const char * const prefix, const float &f) {
   SERIAL_PROTOCOLPGM("  ");
   serialprintPGM(prefix);
   SERIAL_PROTOCOLCHAR(':');
@@ -62,12 +73,12 @@ void print_signed_float(const char * const prefix, const float &f) {
   SERIAL_PROTOCOL_F(f, 2);
 }
 
-inline void print_G33_settings(const bool end_stops, const bool tower_angles){ // TODO echo these to LCD ???
+static void print_G33_settings(const bool end_stops, const bool tower_angles){ // TODO echo these to LCD ???
   SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
   if (end_stops) {
-    print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
-    print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
-    print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
+    print_signed_float(PSTR("  Ex"), delta_endstop_adj[A_AXIS]);
+    print_signed_float(PSTR("Ey"), delta_endstop_adj[B_AXIS]);
+    print_signed_float(PSTR("Ez"), delta_endstop_adj[C_AXIS]);
     SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
   }
   SERIAL_EOL();
@@ -79,7 +90,7 @@ inline void print_G33_settings(const bool end_stops, const bool tower_angles){ /
   }
 }
 
-void G33_cleanup(
+static void G33_cleanup(
   #if HOTENDS > 1
     const uint8_t old_tool_index
   #endif
@@ -94,7 +105,7 @@ void G33_cleanup(
   #endif
 }
 
-void gcode_G33() {
+void GcodeSuite::G33() {
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 1, 7)) {
@@ -110,7 +121,7 @@ void gcode_G33() {
 
   const float calibration_precision = parser.floatval('C');
   if (calibration_precision < 0) {
-    SERIAL_PROTOCOLLNPGM("?(C)alibration precision is implausible (>0).");
+    SERIAL_PROTOCOLLNPGM("?(C)alibration precision is implausible (>=0).");
     return;
   }
 
@@ -121,7 +132,6 @@ void gcode_G33() {
   }
 
   const bool towers_set           = parser.boolval('T', true),
-             stow_after_each      = parser.boolval('E'),
              _1p_calibration      = probe_points == 1,
              _4p_calibration      = probe_points == 2,
              _4p_towers_points    = _4p_calibration && towers_set,
@@ -133,18 +143,24 @@ void gcode_G33() {
              _7p_quadruple_circle = probe_points == 7,
              _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle,
              _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
+
+  #if DISABLED(PROBE_MANUALLY)
+    const bool stow_after_each    = parser.boolval('E');
+    const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
+                dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  #endif
+
   const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
-  const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
-              dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
+
   int8_t iterations = 0;
   float test_precision,
         zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
         zero_std_dev_old = zero_std_dev,
         zero_std_dev_min = zero_std_dev,
         e_old[XYZ] = {
-          endstop_adj[A_AXIS],
-          endstop_adj[B_AXIS],
-          endstop_adj[C_AXIS]
+          delta_endstop_adj[A_AXIS],
+          delta_endstop_adj[B_AXIS],
+          delta_endstop_adj[C_AXIS]
         },
         dr_old = delta_radius,
         zh_old = home_offset[Z_AXIS],
@@ -167,6 +183,7 @@ void gcode_G33() {
   SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
   stepper.synchronize();
+
   #if HAS_LEVELING
     reset_bed_level(); // After calibration bed-level data is no longer valid
   #endif
@@ -274,7 +291,7 @@ void gcode_G33() {
 
     if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
       if (zero_std_dev < zero_std_dev_min) {
-        COPY(e_old, endstop_adj);
+        COPY(e_old, delta_endstop_adj);
         dr_old = delta_radius;
         zh_old = home_offset[Z_AXIS];
         alpha_old = delta_tower_angle_trim[A_AXIS];
@@ -337,20 +354,20 @@ void gcode_G33() {
           break;
       }
 
-      LOOP_XYZ(axis) endstop_adj[axis] += e_delta[axis];
+      LOOP_XYZ(axis) delta_endstop_adj[axis] += e_delta[axis];
       delta_radius += r_delta;
       delta_tower_angle_trim[A_AXIS] += t_alpha;
       delta_tower_angle_trim[B_AXIS] += t_beta;
 
       // adjust delta_height and endstops by the max amount
-      const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
+      const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
       home_offset[Z_AXIS] -= z_temp;
-      LOOP_XYZ(i) endstop_adj[i] -= z_temp;
+      LOOP_XYZ(i) delta_endstop_adj[i] -= z_temp;
 
       recalc_delta_settings(delta_radius, delta_diagonal_rod);
     }
     else if (zero_std_dev >= test_precision) {   // step one back
-      COPY(endstop_adj, e_old);
+      COPY(delta_endstop_adj, e_old);
       delta_radius = dr_old;
       home_offset[Z_AXIS] = zh_old;
       delta_tower_angle_trim[A_AXIS] = alpha_old;
@@ -449,3 +466,5 @@ void gcode_G33() {
 
   G33_CLEANUP();
 }
+
+#endif // DELTA_AUTO_CALIBRATION
