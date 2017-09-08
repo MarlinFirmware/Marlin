@@ -205,6 +205,10 @@ MarlinSettings settings;
   extern void refresh_bed_level();
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "../gcode/feature/fwretract/fwretract.h"
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
@@ -492,24 +496,20 @@ void MarlinSettings::postprocess() {
 
     #if DISABLED(FWRETRACT)
       const bool autoretract_enabled = false;
-      const float retract_length = 3,
-                  retract_feedrate_mm_s = 45,
-                  retract_zlift = 0,
-                  retract_recover_length = 0,
-                  retract_recover_feedrate_mm_s = 0,
-                  swap_retract_length = 13,
-                  swap_retract_recover_length = 0,
-                  swap_retract_recover_feedrate_mm_s = 8;
+      const float autoretract_defaults[] = { 3, 45, 0, 0, 0, 13, 0, 8 };
+      EEPROM_WRITE(autoretract_enabled);
+      EEPROM_WRITE(autoretract_defaults);
+    #else
+      EEPROM_WRITE(fwretract.autoretract_enabled);
+      EEPROM_WRITE(fwretract.retract_length);
+      EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
+      EEPROM_WRITE(fwretract.retract_zlift);
+      EEPROM_WRITE(fwretract.retract_recover_length);
+      EEPROM_WRITE(fwretract.retract_recover_feedrate_mm_s);
+      EEPROM_WRITE(fwretract.swap_retract_length);
+      EEPROM_WRITE(fwretract.swap_retract_recover_length);
+      EEPROM_WRITE(fwretract.swap_retract_recover_feedrate_mm_s);
     #endif
-    EEPROM_WRITE(autoretract_enabled);
-    EEPROM_WRITE(retract_length);
-    EEPROM_WRITE(retract_feedrate_mm_s);
-    EEPROM_WRITE(retract_zlift);
-    EEPROM_WRITE(retract_recover_length);
-    EEPROM_WRITE(retract_recover_feedrate_mm_s);
-    EEPROM_WRITE(swap_retract_length);
-    EEPROM_WRITE(swap_retract_recover_length);
-    EEPROM_WRITE(swap_retract_recover_feedrate_mm_s);
 
     EEPROM_WRITE(volumetric_enabled);
 
@@ -883,15 +883,15 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(lcd_contrast);
 
       #if ENABLED(FWRETRACT)
-        EEPROM_READ(autoretract_enabled);
-        EEPROM_READ(retract_length);
-        EEPROM_READ(retract_feedrate_mm_s);
-        EEPROM_READ(retract_zlift);
-        EEPROM_READ(retract_recover_length);
-        EEPROM_READ(retract_recover_feedrate_mm_s);
-        EEPROM_READ(swap_retract_length);
-        EEPROM_READ(swap_retract_recover_length);
-        EEPROM_READ(swap_retract_recover_feedrate_mm_s);
+        EEPROM_READ(fwretract.autoretract_enabled);
+        EEPROM_READ(fwretract.retract_length);
+        EEPROM_READ(fwretract.retract_feedrate_mm_s);
+        EEPROM_READ(fwretract.retract_zlift);
+        EEPROM_READ(fwretract.retract_recover_length);
+        EEPROM_READ(fwretract.retract_recover_feedrate_mm_s);
+        EEPROM_READ(fwretract.swap_retract_length);
+        EEPROM_READ(fwretract.swap_retract_recover_length);
+        EEPROM_READ(fwretract.swap_retract_recover_feedrate_mm_s);
       #else
         EEPROM_READ(dummyb);
         for (uint8_t q=8; q--;) EEPROM_READ(dummy);
@@ -1256,16 +1256,8 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(FWRETRACT)
-    autoretract_enabled = false;
-    retract_length = RETRACT_LENGTH;
-    retract_feedrate_mm_s = RETRACT_FEEDRATE;
-    retract_zlift = RETRACT_ZLIFT;
-    retract_recover_length = RETRACT_RECOVER_LENGTH;
-    retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-    swap_retract_length = RETRACT_LENGTH_SWAP;
-    swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
-    swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
-  #endif // FWRETRACT
+    fwretract.reset();
+  #endif
 
   volumetric_enabled =
     #if ENABLED(VOLUMETRIC_DEFAULT_ON)
@@ -1716,26 +1708,26 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Retract: S<length> F<units/m> Z<lift>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M207 S", LINEAR_UNIT(retract_length));
-      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(swap_retract_length));
-      SERIAL_ECHOPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(retract_feedrate_mm_s)));
-      SERIAL_ECHOLNPAIR(" Z", LINEAR_UNIT(retract_zlift));
+      SERIAL_ECHOPAIR("  M207 S", LINEAR_UNIT(fwretract.retract_length));
+      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(fwretract.swap_retract_length));
+      SERIAL_ECHOPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_feedrate_mm_s)));
+      SERIAL_ECHOLNPAIR(" Z", LINEAR_UNIT(fwretract.retract_zlift));
 
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Recover: S<length> F<units/m>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M208 S", LINEAR_UNIT(retract_recover_length));
-      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(swap_retract_recover_length));
-      SERIAL_ECHOLNPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(retract_recover_feedrate_mm_s)));
+      SERIAL_ECHOPAIR("  M208 S", LINEAR_UNIT(fwretract.retract_recover_length));
+      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(fwretract.swap_retract_recover_length));
+      SERIAL_ECHOLNPAIR(" F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_recover_feedrate_mm_s)));
 
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M209 S", autoretract_enabled ? 1 : 0);
+      SERIAL_ECHOLNPAIR("  M209 S", fwretract.autoretract_enabled ? 1 : 0);
 
     #endif // FWRETRACT
 
