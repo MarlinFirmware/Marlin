@@ -32,6 +32,10 @@
 #include "../module/planner.h"
 #include "../Marlin.h"
 
+#if HAS_COLOR_LEDS
+  #include "../feature/leds/leds.h"
+#endif
+
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.

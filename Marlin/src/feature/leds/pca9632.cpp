@@ -35,7 +35,6 @@
 #define PCA9632_MODE2_VALUE   0b00010101 //(DIMMING, INVERT, CHANGE ON STOP,TOTEM)
 #define PCA9632_LEDOUT_VALUE  0b00101010
 
-
 /* Register addresses */
 #define PCA9632_MODE1       0x00
 #define PCA9632_MODE2       0x01
@@ -98,7 +97,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void PCA9632_SetColor(const byte r, const byte g, const byte b) {
+void pca9632_set_led_color(const byte r, const byte g, const byte b) {
   if (!PCA_init) {
     PCA_init = 1;
     Wire.begin();

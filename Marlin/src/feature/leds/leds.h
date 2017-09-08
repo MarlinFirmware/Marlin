@@ -21,26 +21,33 @@
  */
 
 /**
- * blinkm.cpp - Library for controlling a BlinkM over i2c
- * Created by Tim Koster, August 21 2013.
+ * Marlin general RGB LED support
  */
 
-#include "../../inc/MarlinConfig.h"
+#ifndef __LEDS_H__
+#define __LEDS_H__
+
+#if ENABLED(NEOPIXEL_RGBW_LED)
+  #include <Adafruit_NeoPixel.h>
+  #include "neopixel.h"
+#endif
 
 #if ENABLED(BLINKM)
+  #include "blinkm.h"
+#endif
 
-#include "blinkm.h"
+#if ENABLED(PCA9632)
+  #include "pca9632.h"
+#endif
 
-void blinkm_set_led_color(const byte r, const byte g, const byte b) {
-  Wire.begin();
-  Wire.beginTransmission(0x09);
-  Wire.write('o');                    //to disable ongoing script, only needs to be used once
-  Wire.write('n');
-  Wire.write(r);
-  Wire.write(g);
-  Wire.write(b);
-  Wire.endTransmission();
-}
+void set_led_color(
+  const uint8_t r, const uint8_t g, const uint8_t b
+  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
+    , const uint8_t w = 0
+    #if ENABLED(NEOPIXEL_RGBW_LED)
+      , bool isSequence = false
+    #endif
+  #endif
+);
 
-#endif // BLINKM
-
+#endif // __LEDS_H__
