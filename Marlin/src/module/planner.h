@@ -143,6 +143,8 @@ class Planner {
       static uint8_t last_extruder;             // Respond to extruder change
     #endif
 
+    static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
+
     static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
                  steps_to_mm[XYZE_N];
