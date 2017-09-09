@@ -134,8 +134,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 #endif
 
 static float saved_feedrate_mm_s;
-int16_t feedrate_percentage = 100, saved_feedrate_percentage,
-    flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
+int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
 bool volumetric_enabled;
