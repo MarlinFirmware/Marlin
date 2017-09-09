@@ -41,6 +41,11 @@ millis_t GcodeSuite::previous_cmd_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+  GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
+  uint8_t GcodeSuite::host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
+#endif
+
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -1068,3 +1073,37 @@ void GcodeSuite::process_next_command() {
 
   ok_to_send();
 }
+
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+
+  /**
+   * Output a "busy" message at regular intervals
+   * while the machine is not accepting commands.
+   */
+  void GcodeSuite::host_keepalive() {
+    const millis_t ms = millis();
+    static millis_t next_busy_signal_ms = 0;
+    if (host_keepalive_interval && busy_state != NOT_BUSY) {
+      if (PENDING(ms, next_busy_signal_ms)) return;
+      switch (busy_state) {
+        case IN_HANDLER:
+        case IN_PROCESS:
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
+          break;
+        case PAUSED_FOR_USER:
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
+          break;
+        case PAUSED_FOR_INPUT:
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
+          break;
+        default:
+          break;
+      }
+    }
+    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
+  }
+
+#endif // HOST_KEEPALIVE_FEATURE
