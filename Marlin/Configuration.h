@@ -58,7 +58,7 @@
 
 // Primary Extruder steps per mm (plugged in to E0 port on controller)
 // (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
-#define E0_STEPS      96.1261 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
+#define E0_STEPS      97.097 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
 //#define CHANGE_E0_DIRECTION   // If your extruder is going backwards, enable this.
 
 // Z-Probe type (must be none or one of them)
