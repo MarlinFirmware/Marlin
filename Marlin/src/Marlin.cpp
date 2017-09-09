@@ -166,8 +166,7 @@ static const float homing_feedrate_mm_s[] PROGMEM = {
 FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
 
 static float saved_feedrate_mm_s;
-int16_t feedrate_percentage = 100, saved_feedrate_percentage,
-    flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
+int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
 bool volumetric_enabled;

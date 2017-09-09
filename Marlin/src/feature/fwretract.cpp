@@ -33,6 +33,7 @@
 FWRetract fwretract; // Single instance
 
 #include "../module/motion.h"
+#include "../module/planner.h"
 
 bool FWRetract::autoretract_enabled,                 // M209 S - Autoretract switch
      FWRetract::retracted[EXTRUDERS] = { false };    // Which extruders are currently retracted
@@ -108,10 +109,10 @@ void FWRetract::retract(const bool retracting
   const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
 
   const float old_feedrate_mm_s = feedrate_mm_s;
-  const int16_t old_flow = flow_percentage[active_extruder];
+  const int16_t old_flow = planner.flow_percentage[active_extruder];
 
   // Don't apply flow multiplication to retract/recover
-  flow_percentage[active_extruder] = 100;
+  planner.flow_percentage[active_extruder] = 100;
 
   // The current position will be the destination for E and Z moves
   set_destination_to_current();
@@ -155,7 +156,7 @@ void FWRetract::retract(const bool retracting
   }
 
   // Restore flow and feedrate
-  flow_percentage[active_extruder] = old_flow;
+  planner.flow_percentage[active_extruder] = old_flow;
   feedrate_mm_s = old_feedrate_mm_s;
 
   // The active extruder is now retracted or recovered

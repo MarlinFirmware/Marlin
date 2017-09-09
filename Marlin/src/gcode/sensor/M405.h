@@ -45,5 +45,5 @@ void gcode_M405() {
   //SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
   //SERIAL_PROTOCOL(filament_width_meas);
   //SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
-  //SERIAL_PROTOCOL(flow_percentage[active_extruder]);
+  //SERIAL_PROTOCOL(planner.flow_percentage[active_extruder]);
 }
