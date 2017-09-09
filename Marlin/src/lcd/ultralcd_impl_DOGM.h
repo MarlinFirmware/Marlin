@@ -47,7 +47,10 @@
 #endif
 
 #include "dogm/dogm_bitmaps.h"
-#include "../libs/duration_t.h"
+
+#if ENABLED(SDSUPPORT)
+  #include "../libs/duration_t.h"
+#endif
 
 #include <U8glib.h>
 
