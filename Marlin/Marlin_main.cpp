@@ -2963,20 +2963,20 @@ static void homeaxis(const AxisEnum axis) {
  //mpcnc
 // Set a flag for X motor locking
   #if ENABLED(X_DUAL_ENDSTOPS)
-    if (axis == X_AXIS) stepper.set_homing_flag(true);
+    if (axis == X_AXIS) stepper.set_homing_flag_x(true);
   #endif
   //mpcnc
   
   //mpcnc
 // Set a flag for Y motor locking
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    if (axis == Y_AXIS) stepper.set_homing_flagY(true); //mpcnc
+    if (axis == Y_AXIS) stepper.set_homing_flag_y(true); //mpcnc
   #endif
   //mpcnc
   
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flagZ(true); //mpcnc
+    if (axis == Z_AXIS) stepper.set_homing_flag_z(true); //mpcnc
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -3036,7 +3036,7 @@ static void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adj);
 
       if (lockX1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
-      stepper.set_homing_flag(false);
+      stepper.set_homing_flag_x(false);
     } // X_AXIS
   #endif
   //mpcnc
@@ -3059,7 +3059,7 @@ static void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adj);
 
       if (lockY1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
-      stepper.set_homing_flag(false);
+      stepper.set_homing_flag_y(false);
     } // Y_AXIS
   #endif
   //mpcnc
@@ -3081,7 +3081,7 @@ static void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adj);
 
       if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-      stepper.set_homing_flag(false);
+      stepper.set_homing_flag_z(false);
     } // Z_AXIS
   #endif
 

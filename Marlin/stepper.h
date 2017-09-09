@@ -267,7 +267,7 @@ class Stepper {
 
 //mpcnc
 #if ENABLED(X_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_homing_flag_x(const bool state) { performing_homing = state; }
       static FORCE_INLINE void set_x_lock(const bool state) { locked_x_motor = state; }
       static FORCE_INLINE void set_x2_lock(const bool state) { locked_x2_motor = state; }
     #endif
@@ -275,14 +275,14 @@ class Stepper {
 
 //mpcnc
 #if ENABLED(Y_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flagY(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_homing_flag_y(const bool state) { performing_homing = state; }
       static FORCE_INLINE void set_y_lock(const bool state) { locked_y_motor = state; }
       static FORCE_INLINE void set_y2_lock(const bool state) { locked_y2_motor = state; }
     #endif
 //mpcnc
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flagZ(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_homing_flag_z(const bool state) { performing_homing = state; }
       static FORCE_INLINE void set_z_lock(const bool state) { locked_z_motor = state; }
       static FORCE_INLINE void set_z2_lock(const bool state) { locked_z2_motor = state; }
     #endif
