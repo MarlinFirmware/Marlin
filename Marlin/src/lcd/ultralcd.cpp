@@ -32,14 +32,14 @@
 #include "../module/stepper.h"
 #include "../module/motion.h"
 #include "../module/probe.h"
+#include "../module/printcounter.h"
 #include "../gcode/gcode.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
 
 #include "../Marlin.h"
 
-#if ENABLED(PRINTCOUNTER)
-  #include "../module/printcounter.h"
+#if ENABLED(PRINTCOUNTER) && ENABLED(LCD_INFO_MENU)
   #include "../libs/duration_t.h"
 #endif
 

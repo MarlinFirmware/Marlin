@@ -20,6 +20,10 @@
  *
  */
 
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(PRINTCOUNTER)
+
 #include "printcounter.h"
 
 #include "../Marlin.h"
@@ -95,7 +99,6 @@ void PrintCounter::saveStats() {
 
 void PrintCounter::showStats() {
   char buffer[21];
-  duration_t elapsed;
 
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
@@ -112,7 +115,7 @@ void PrintCounter::showStats() {
   SERIAL_EOL();
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
-  elapsed = this->data.printTime;
+  duration_t elapsed = this->data.printTime;
   elapsed.toString(buffer);
 
   SERIAL_ECHOPGM("Total time: ");
@@ -231,5 +234,14 @@ void PrintCounter::reset() {
       SERIAL_ECHOLNPGM("()");
     }
   }
-
 #endif
+
+
+PrintCounter print_job_timer = PrintCounter();
+
+#else
+
+#include "../libs/stopwatch.h"
+Stopwatch print_job_timer = Stopwatch();
+
+#endif // PRINTCOUNTER

@@ -27,8 +27,9 @@
 #include "tmc2130.h"
 #include "../Marlin.h"
 
-#include "../libs/duration_t.h"
 #include "../module/stepper_indirection.h"
+#include "../module/printcounter.h"
+#include "../libs/duration_t.h"
 
 #ifdef AUTOMATIC_CURRENT_CONTROL
   bool auto_current_control = 0;
