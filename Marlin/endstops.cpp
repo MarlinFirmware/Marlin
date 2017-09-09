@@ -475,11 +475,11 @@ void Endstops::update() {
 //      #endif
 //    }
 //  }
-if (X_MOVE_TEST) {
+  if (X_MOVE_TEST) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-     #if HAS_X_MIN
-     //mpcnc
-     #if ENABLED(X_DUAL_ENDSTOPS)
+      #if HAS_X_MIN
+      //mpcnc
+        #if ENABLED(X_DUAL_ENDSTOPS)
 
           UPDATE_ENDSTOP_BIT(X, MIN);
           #if HAS_X2_MIN
@@ -491,14 +491,17 @@ if (X_MOVE_TEST) {
           test_dual_x_endstops(X_MIN, X2_MIN);
 
         #else // !X_DUAL_ENDSTOPS
-        //mpcnc
-        UPDATE_ENDSTOP(X, MIN);
-      #endif
-      #endif
+          if (X_MIN_TEST) {
+            //mpcnc
+            UPDATE_ENDSTOP(X, MIN);
+          }
+        #endif // !X_DUAL_ENDSTOPS
+
+      #endif // HAS_X_MIN
     }
     else { // +direction
       #if HAS_X_MAX
-      #if ENABLED(X_DUAL_ENDSTOPS)
+        #if ENABLED(X_DUAL_ENDSTOPS)
 
           UPDATE_ENDSTOP_BIT(X, MAX);
           #if HAS_X2_MAX
@@ -509,18 +512,22 @@ if (X_MOVE_TEST) {
 
           test_dual_x_endstops(X_MAX, X2_MAX);
 
-          #else
-        UPDATE_ENDSTOP(X, MAX);
-      #endif
-      #endif
+        #else
+          if (X_MIN_TEST) {
+            UPDATE_ENDSTOP(X, MAX);
+          }
+        #endif // !X_DUAL_ENDSTOPS
+
+      #endif // HAS_X_MAX
     }
   }
+
   //mpcnc
- if (Y_MOVE_TEST) {
+  if (Y_MOVE_TEST) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-     #if HAS_Y_MIN
-     //mpcnc
-     #if ENABLED(Y_DUAL_ENDSTOPS)
+      #if HAS_Y_MIN
+        //mpcnc
+        #if ENABLED(Y_DUAL_ENDSTOPS)
 
           UPDATE_ENDSTOP_BIT(Y, MIN);
           #if HAS_Y2_MIN
@@ -532,14 +539,15 @@ if (X_MOVE_TEST) {
           test_dual_y_endstops(Y_MIN, Y2_MIN);
 
         #else // !Y_DUAL_ENDSTOPS
-        //mpcnc
-        UPDATE_ENDSTOP(Y, MIN);
-      #endif
-      #endif
+          //mpcnc
+          UPDATE_ENDSTOP(Y, MIN);
+        #endif // !Y_DUAL_ENDSTOPS
+
+      #endif // HAS_Y_MIN
     }
     else { // +direction
       #if HAS_Y_MAX
-      #if ENABLED(Y_DUAL_ENDSTOPS)
+        #if ENABLED(Y_DUAL_ENDSTOPS)
 
           UPDATE_ENDSTOP_BIT(Y, MAX);
           #if HAS_Y2_MAX
@@ -550,14 +558,13 @@ if (X_MOVE_TEST) {
 
           test_dual_y_endstops(Y_MAX, Y2_MAX);
 
-          #else
-        UPDATE_ENDSTOP(Y, MAX);
-      #endif
-      #endif
+        #else
+          UPDATE_ENDSTOP(Y, MAX);
+        #endif // !Y_DUAL_ENDSTOPS
+
+      #endif // HAS_Y_MAX
     }
   }
-
-
 
   if (Z_MOVE_TEST) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
