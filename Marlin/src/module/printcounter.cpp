@@ -20,6 +20,10 @@
  *
  */
 
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(PRINTCOUNTER)
+
 #include "printcounter.h"
 
 #include "../Marlin.h"
@@ -231,5 +235,14 @@ void PrintCounter::reset() {
       SERIAL_ECHOLNPGM("()");
     }
   }
-
 #endif
+
+
+PrintCounter print_job_timer = PrintCounter();
+
+#else
+
+#include "../libs/stopwatch.h"
+Stopwatch print_job_timer = Stopwatch();
+
+#endif // PRINTCOUNTER

@@ -35,11 +35,8 @@
 #include "core/utility.h"
 #include "core/serial.h"
 
-#if ENABLED(PRINTCOUNTER)
-  #include "module/printcounter.h"
-#else
-  #include "libs/stopwatch.h"
-#endif
+// PrintCounter or Stopwatch
+#include "module/printcounter.h"
 
 void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -270,13 +267,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
-#endif
-
-// Print job timer
-#if ENABLED(PRINTCOUNTER)
-  extern PrintCounter print_job_timer;
-#else
-  extern Stopwatch print_job_timer;
 #endif
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED

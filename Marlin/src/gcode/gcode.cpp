@@ -31,6 +31,7 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
+#include "../module/printcounter.h"
 #include "../core/serial.h"
 
 uint8_t GcodeSuite::target_extruder;
