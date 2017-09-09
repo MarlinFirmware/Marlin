@@ -287,14 +287,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   int lpq_len = 20;
 #endif
 
-#if ENABLED(HOST_KEEPALIVE_FEATURE)
-  MarlinBusyState busy_state = NOT_BUSY;
-  static millis_t next_busy_signal_ms = 0;
-  uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
-#else
-  #define host_keepalive() NOOP
-#endif
-
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
   uint8_t blockBufferIndexRef = 0;
@@ -1869,46 +1861,6 @@ void homeaxis(const AxisEnum axis) {
 
 #endif
 
-/**
- * ***************************************************************************
- * ***************************** G-CODE HANDLING *****************************
- * ***************************************************************************
- */
-
-#if ENABLED(HOST_KEEPALIVE_FEATURE)
-
-  /**
-   * Output a "busy" message at regular intervals
-   * while the machine is not accepting commands.
-   */
-  void host_keepalive() {
-    const millis_t ms = millis();
-    if (host_keepalive_interval && busy_state != NOT_BUSY) {
-      if (PENDING(ms, next_busy_signal_ms)) return;
-      switch (busy_state) {
-        case IN_HANDLER:
-        case IN_PROCESS:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
-          break;
-        case PAUSED_FOR_USER:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
-          break;
-        case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
-          break;
-        default:
-          break;
-      }
-    }
-    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
-  }
-
-#endif // HOST_KEEPALIVE_FEATURE
-
-
 /**************************************************
  ***************** GCode Handlers *****************
  **************************************************/
@@ -3005,7 +2957,9 @@ void idle(
 
   lcd_update();
 
-  host_keepalive();
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    gcode.host_keepalive();
+  #endif
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
     auto_report_temperatures();

@@ -27,11 +27,11 @@
  */
 void gcode_M113() {
   if (parser.seenval('S')) {
-    host_keepalive_interval = parser.value_byte();
-    NOMORE(host_keepalive_interval, 60);
+    gcode.host_keepalive_interval = parser.value_byte();
+    NOMORE(gcode.host_keepalive_interval, 60);
   }
   else {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("M113 S", (unsigned long)host_keepalive_interval);
+    SERIAL_ECHOLNPAIR("M113 S", (unsigned long)gcode.host_keepalive_interval);
   }
 }
