@@ -122,20 +122,6 @@ enum EndstopEnum {
 #endif
 
 /**
- * States for managing Marlin and host communication
- * Marlin sends messages if blocked or busy
- */
-#if ENABLED(HOST_KEEPALIVE_FEATURE)
-  enum MarlinBusyState {
-    NOT_BUSY,           // Not in a handler
-    IN_HANDLER,         // Processing a GCode
-    IN_PROCESS,         // Known to be blocking command input (as in G29)
-    PAUSED_FOR_USER,    // Blocking pending any input
-    PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-  };
-#endif
-
-/**
  * SD Card
  */
 enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };

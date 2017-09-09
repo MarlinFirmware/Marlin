@@ -263,6 +263,8 @@ public:
   static void get_destination_from_command();
   static void process_next_command();
 
+  static FORCE_INLINE void home_all_axes() { G28(true); }
+
   /**
    * Multi-stepper support for M92, M201, M203
    */
@@ -274,7 +276,28 @@ public:
     #define TARGET_EXTRUDER 0
   #endif
 
-  static FORCE_INLINE void home_all_axes() { G28(true); }
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    /**
+     * States for managing Marlin and host communication
+     * Marlin sends messages if blocked or busy
+     */
+    enum MarlinBusyState {
+      NOT_BUSY,           // Not in a handler
+      IN_HANDLER,         // Processing a GCode
+      IN_PROCESS,         // Known to be blocking command input (as in G29)
+      PAUSED_FOR_USER,    // Blocking pending any input
+      PAUSED_FOR_INPUT    // Blocking pending text input (concept)
+    };
+
+    static MarlinBusyState busy_state;
+    static uint8_t host_keepalive_interval;
+
+    static void host_keepalive();
+
+    #define KEEPALIVE_STATE(n) gcode.busy_state = gcode.n
+  #else
+    #define KEEPALIVE_STATE(n) NOOP
+  #endif
 
 private:
 
