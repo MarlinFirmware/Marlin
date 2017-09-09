@@ -288,7 +288,6 @@
  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 //    #define LCD_SCREEN_ROT_180
     
-//    #define SOFTWARE_SPI  // temp to see if it fixes the  "not found" error
     
     #undef  BEEPER_PIN
     #define BEEPER_PIN          37  // may change if cable changes
@@ -310,8 +309,8 @@
     #define DOGLCD_A0           59  // J3-8 & AUX-2
     #undef  LCD_PINS_D6         //63  // J5-3 & AUX-2
     #undef  LCD_PINS_D7          //6  // (SERVO1) J5-1 & SERVO connector
-    #define DOGLCD_SCK SCK_PIN 
-    #define DOGLCD_MOSI MOSI_PIN
+ //   #define DOGLCD_SCK SCK_PIN 
+ //   #define DOGLCD_MOSI MOSI_PIN
  
     #define STAT_LED_BLUE_PIN   63  // may change if cable changes
     #define STAT_LED_RED_PIN     6  // may change if cable changes
@@ -331,6 +330,11 @@
     //#define LCD_SCREEN_ROT_270
   #endif
 
+#define DOGLCD_SCK SCK_PIN 
+#define DOGLCD_MOSI MOSI_PIN 
+#define DOGLCD_CS           16 
+#define DOGLCD_A0           59
+  
 #endif // ULTRA_LCD
 
 //

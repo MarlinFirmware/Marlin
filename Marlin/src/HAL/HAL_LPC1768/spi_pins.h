@@ -36,7 +36,7 @@
 #define MOSI_PIN          51 //P0_18
 #define SS_PIN            53 //P1_23
 
-#if ENABLED(IS_REARM) && !ENABLED(LPC_SOFTWARE_SPI)   // signal LCDs that they need to use the hardware SPI
+#if (defined(IS_REARM) && !(defined(LPC_SOFTWARE_SPI)))   // signal LCDs that they need to use the hardware SPI
   #define SHARED_SPI
 #endif
 
