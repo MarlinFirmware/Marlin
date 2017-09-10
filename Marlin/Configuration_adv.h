@@ -265,13 +265,12 @@
 // Dual X Steppers
 // Uncomment this option to drive two X axis motors.
 // The next unused E driver will be assigned to the second X stepper.
-#define X_DUAL_STEPPER_DRIVERS // mpcnc
+//#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-
   // Set true if the two X motors need to rotate in opposite directions
-  #define INVERT_X2_VS_X_DIR true //mpcnc
+  #define INVERT_X2_VS_X_DIR true
 
-  #define X_DUAL_ENDSTOPS // mpcnc
+  //#define X_DUAL_ENDSTOPS // mpcnc
 
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X2_USE_ENDSTOP _XMAX_
@@ -282,13 +281,12 @@
 // Dual Y Steppers
 // Uncomment this option to drive two Y axis motors.
 // The next unused E driver will be assigned to the second Y stepper.
-#define Y_DUAL_STEPPER_DRIVERS //mpcnc
+//#define Y_DUAL_STEPPER_DRIVERS
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-
   // Set true if the two Y motors need to rotate in opposite directions
-  #define INVERT_Y2_VS_Y_DIR true //mpcnc
+  #define INVERT_Y2_VS_Y_DIR true
 
-  #define Y_DUAL_ENDSTOPS // mpcnc
+  //#define Y_DUAL_ENDSTOPS
 
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y2_USE_ENDSTOP _YMAX_
