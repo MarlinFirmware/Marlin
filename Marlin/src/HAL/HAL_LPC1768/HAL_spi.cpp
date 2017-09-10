@@ -307,7 +307,7 @@
                                    // kept getting undefined references to the SPI routines if
                                    // this was stand alone.  Including HAL_spi.cpp within this file
                                    // just resulted in other errors.
-
+#include "HAL_u8g_com_LPC1768_st7920_hw_spi.c"
 
 #endif // TARGET_LPC1768
 

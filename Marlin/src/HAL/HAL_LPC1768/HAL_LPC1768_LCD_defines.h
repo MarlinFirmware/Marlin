@@ -34,10 +34,13 @@
 // definitions of HAL specific com and device drivers.
 uint8_t u8g_com_LPC1768_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 uint8_t u8g_com_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+uint8_t u8g_com_LPC1768_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+
 
 // connect U8g com generic com names to the desired driver
-#define U8G_COM_HW_SPI u8g_com_LPC1768_hw_spi_fn  // use LP1768 specific hardware SPI routine
-#define U8G_COM_SW_SPI u8g_com_LPC1768_sw_spi_fn  // use LP1768 specific software SPI routine
+#define U8G_COM_HW_SPI u8g_com_LPC1768_hw_spi_fn  // use LPC1768 specific hardware SPI routine
+#define U8G_COM_SW_SPI u8g_com_LPC1768_sw_spi_fn  // use LPC1768 specific software SPI routine
+#define U8G_COM_ST7920_HW_SPI u8g_com_LPC1768_st7920_hw_spi_fn  // not fully tested
 
 // let these default for now
 #define U8G_COM_PARALLEL u8g_com_null_fn
@@ -45,6 +48,5 @@ uint8_t u8g_com_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
 #define U8G_COM_FAST_PARALLEL u8g_com_null_fn
 #define U8G_COM_SSD_I2C u8g_com_null_fn
 #define U8G_COM_UC_I2C u8g_com_null_fn
-#define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
 #define U8G_COM_ST7920_SW_SPI u8g_com_null_fn
 
