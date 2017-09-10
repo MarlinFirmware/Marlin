@@ -92,23 +92,34 @@
   #define ST7565_DELAY_3 CPU_ST7565_DELAY_3
 #endif
 
-#define ST7565_SND_BIT \
-  WRITE(ST7565_CLK_PIN, LOW);        ST7565_DELAY_1; \
-  WRITE(ST7565_DAT_PIN, val & 0x80); ST7565_DELAY_2; \
-  WRITE(ST7565_CLK_PIN, HIGH);       ST7565_DELAY_3; \
-  WRITE(ST7565_CLK_PIN, LOW);\
-  val <<= 1
 
-static void ST7565_SWSPI_SND_8BIT(uint8_t val) {
-  ST7565_SND_BIT; // 1
-  ST7565_SND_BIT; // 2
-  ST7565_SND_BIT; // 3
-  ST7565_SND_BIT; // 4
-  ST7565_SND_BIT; // 5
-  ST7565_SND_BIT; // 6
-  ST7565_SND_BIT; // 7
-  ST7565_SND_BIT; // 8
-}
+#if ENABLED(SHARED_SPI)  // Re-ARM requires that the LCD and the SD card share a single SPI
+
+  #define ST7565_WRITE_BYTE(a)                 { spiSend((uint8_t)a); U8G_DELAY; }
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {spiSend( *ptr++);} DELAY_10US; }
+
+#else
+  #define ST7565_SND_BIT \
+    WRITE(ST7565_CLK_PIN, LOW);        ST7565_DELAY_1; \
+    WRITE(ST7565_DAT_PIN, val & 0x80); ST7565_DELAY_2; \
+    WRITE(ST7565_CLK_PIN, HIGH);       ST7565_DELAY_3; \
+    WRITE(ST7565_CLK_PIN, LOW);\
+    val <<= 1
+
+  static void ST7565_SWSPI_SND_8BIT(uint8_t val) {
+    ST7565_SND_BIT; // 1
+    ST7565_SND_BIT; // 2
+    ST7565_SND_BIT; // 3
+    ST7565_SND_BIT; // 4
+    ST7565_SND_BIT; // 5
+    ST7565_SND_BIT; // 6
+    ST7565_SND_BIT; // 7
+    ST7565_SND_BIT; // 8
+  }
+
+  #define ST7565_WRITE_BYTE(a)                 { ST7565_SWSPI_SND_8BIT((uint8_t)a); U8G_DELAY; }
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {ST7565_SWSPI_SND_8BIT( *ptr++);} DELAY_10US; }
+#endif
 
 #if defined(DOGM_SPI_DELAY_US) && DOGM_SPI_DELAY_US > 0
   #define U8G_DELAY delayMicroseconds(DOGM_SPI_DELAY_US)
@@ -120,16 +131,24 @@ static void ST7565_SWSPI_SND_8BIT(uint8_t val) {
 #define ST7565_NCS()                         { WRITE(ST7565_CS_PIN,0); }
 #define ST7565_A0()                          { WRITE(ST7565_A0_PIN,1); U8G_DELAY; }
 #define ST7565_NA0()                         { WRITE(ST7565_A0_PIN,0); }
-#define ST7565_WRITE_BYTE(a)                 { ST7565_SWSPI_SND_8BIT((uint8_t)a); U8G_DELAY; }
-#define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {ST7565_SWSPI_SND_8BIT( *ptr++);} DELAY_10US; }
 
 
 uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   switch (msg) {
     case U8G_DEV_MSG_INIT:
-    { OUT_WRITE(ST7565_CS_PIN, LOW);
-      OUT_WRITE(ST7565_DAT_PIN, LOW);
-      OUT_WRITE(ST7565_CLK_PIN, LOW);
+    {
+      OUT_WRITE(ST7565_CS_PIN, LOW);
+      #if ENABLED(SHARED_SPI)
+        u8g_Delay(250);
+        spiBegin();
+        #ifndef SPI_SPEED
+          #define SPI_SPEED SPI_FULL_SPEED  // use same SPI speed as SD card
+        #endif
+        spiInit(SPI_SPEED);
+      #else
+        OUT_WRITE(ST7565_DAT_PIN, LOW);
+        OUT_WRITE(ST7565_CLK_PIN, LOW);
+      #endif
       OUT_WRITE(ST7565_A0_PIN, LOW);
 
       ST7565_CS();                      /* disable chip */
@@ -144,13 +163,13 @@ uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg
       ST7565_WRITE_BYTE(0x040);         /* Display start line for Displaytech 64128N */
 
       ST7565_WRITE_BYTE(0x028 | 0x04);  /* power control: turn on voltage converter */
-//    U8G_ESC_DLY(50);                  /* delay 50 ms - hangs after a reset if used */ 
+//    U8G_ESC_DLY(50);                  /* delay 50 ms - hangs after a reset if used */
 
       ST7565_WRITE_BYTE(0x028 | 0x06);  /* power control: turn on voltage regulator */
-//    U8G_ESC_DLY(50);                  /* delay 50 ms - hangs after a reset if used */ 
+//    U8G_ESC_DLY(50);                  /* delay 50 ms - hangs after a reset if used */
 
       ST7565_WRITE_BYTE(0x028 | 0x07);  /* power control: turn on voltage follower */
-//   U8G_ESC_DLY(50);                   /* delay 50 ms - hangs after a reset if used */ 
+//   U8G_ESC_DLY(50);                   /* delay 50 ms - hangs after a reset if used */
 
       ST7565_WRITE_BYTE(0x010);         /* Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N */
 
@@ -232,12 +251,12 @@ u8g_dev_t u8g_dev_st7565_64128n_2x_VIKI_sw_spi = { u8g_dev_st7565_64128n_2x_VIKI
 
 class U8GLIB_ST7565_64128n_2x_VIKI : public U8GLIB {
   public:
-  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t dummy) 
-    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi) 
+  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t dummy)
+    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi)
     {  }
-  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) 
-    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi) 
-    {  }  
+  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi)
+    {  }
 };
 
 

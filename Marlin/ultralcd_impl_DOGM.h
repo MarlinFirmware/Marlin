@@ -44,11 +44,10 @@
  */
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
-#include "ultralcd_st7565_u8glib_VIKI.h"
+//#include "ultralcd_st7565_u8glib_VIKI.h"
 #include "dogm_bitmaps.h"
 #include "utility.h"
 #include "duration_t.h"
-
 #include <U8glib.h>
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -160,7 +159,7 @@
   U8GLIB_ST7920_128X64_RRD u8g(0); // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
 #elif ENABLED(CARTESIO_UI)
   // The CartesioUI display
-  #if DOGLCD_MOSI != -1 && DOGLCD_SCK != -1
+  #if (defined(DOGLCD_MOSI) &&  DOGLCD_MOSI >= 0) &&  (defined(DOGLCD_SCK) &&  DOGLCD_SCK >= 0)
     // using SW-SPI
     //U8GLIB_DOGM128 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // 8 stripes
     U8GLIB_DOGM128_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
@@ -173,12 +172,16 @@
   //U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
   U8GLIB_LM6059_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
 #elif ENABLED(U8GLIB_ST7565_64128N)
-  // The MaKrPanel, Mini Viki, and Viki 2.0, ST7565 controller 
-//  U8GLIB_ST7565_64128n_2x_VIKI u8g(0);  // using SW-SPI DOGLCD_MOSI != -1 && DOGLCD_SCK 
-    U8GLIB_ST7565_64128n_2x_VIKI u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // using SW-SPI 
-    //U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
-    //U8GLIB_NHD_C12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes  HWSPI
-  
+  // The MaKrPanel, Mini Viki, and Viki 2.0, ST7565 controller
+  #if (defined(DOGLCD_MOSI) &&  DOGLCD_MOSI >= 0) &&  (defined(DOGLCD_SCK) &&  DOGLCD_SCK >= 0)
+    // using SW-SPI
+
+    //U8GLIB_ST7565_64128n_2x_VIKI u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // using SW-SPI
+    U8GLIB_64128N u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // using SW-SPI
+  #else
+    //U8GLIB_64128N u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
+    U8GLIB_64128N_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes  HWSPI
+  #endif
 #elif ENABLED(U8GLIB_SSD1306)
   // Generic support for SSD1306 OLED I2C LCDs
   //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes

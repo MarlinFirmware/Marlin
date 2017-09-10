@@ -27,6 +27,12 @@
 // Runtime pinmapping
 // ******************
 
+typedef struct  { int port, pin; } pin_data;
+typedef struct  { uint8_t port, pin, adc; } adc_pin_data;
+
+//struct pin_data { int port, pin; } ;
+//struct adc_pin_data { uint8_t port, pin, adc; } ;
+
 #define NUM_ANALOG_INPUTS 8
 
 const adc_pin_data adc_pin_map[] = {
