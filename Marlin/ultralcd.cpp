@@ -1077,6 +1077,137 @@ void kill_screen(const char* lcd_msg) {
   #endif // BABYSTEPPING
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(AUTO_BED_LEVELING_UBL_GFX)
+    const unsigned char cw_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0x07,0xf8,0x00, // 000001111111100000000000
+      0x0c,0x0c,0x00, // 000011000000110000000000
+      0x10,0x02,0x00, // 000100000000001000000000
+      0x20,0x01,0x00, // 001000000000000100000000
+      0x60,0x01,0x80, // 011000000000000100000000
+      0x40,0x00,0x80, // 010000000000000010000000
+      0x40,0x03,0xe0, // 010000000000000011100000
+      0x40,0x01,0xc0, // 010000000000000011000000
+      0x40,0x00,0x80, // 010000000000000010000000
+      0x40,0x00,0x00, // 010000000000000000000000
+      0x40,0x00,0x00, // 010000000000000000000000
+      0x60,0x00,0x00, // 011000000000000000000000
+      0x20,0x00,0x00, // 001000000000000000000000
+      0x10,0x00,0x00, // 000100000000000000000000
+      0x0c,0x0c,0x00, // 000011000000110000000000
+      0x07,0xf8,0x00  // 000001111111100000000000
+    };
+
+    const unsigned char ccw_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0x01,0xfe,0x00, // 000000011111111000000000
+      0x03,0x03,0x00, // 000000110000001100000000
+      0x04,0x00,0x80, // 000001000000000010000000
+      0x08,0x00,0x40, // 000010000000000001000000
+      0x18,0x00,0x60, // 000110000000000001100000
+      0x10,0x00,0x20, // 000100000000000000100000
+      0x7c,0x00,0x20, // 011111000000000000100000
+      0x38,0x00,0x20, // 001110000000000000100000
+      0x10,0x00,0x20, // 000100000000000000100000
+      0x00,0x00,0x20, // 000000000000000000100000
+      0x00,0x00,0x20, // 000000000000000000100000
+      0x00,0x00,0x60, // 000000000000000001100000
+      0x00,0x00,0x40, // 000000000000000001000000
+      0x00,0x00,0x80, // 000000000000000010000000
+      0x03,0x03,0x00, // 000000110000001100000000
+      0x01,0xfe,0x00  // 000000011111111000000000
+    };
+
+
+    const unsigned char up_arrow_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0x06,0x00, // 000001100000
+      0x0F,0x00, // 000011110000
+      0x1F,0x80, // 000111111000
+      0x3F,0xC0, // 001111111100
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00  // 000001100000
+    };
+
+    const unsigned char down_arrow_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x06,0x00, // 000001100000
+      0x3F,0xC0, // 001111111100
+      0x1F,0x80, // 000111111000
+      0x0F,0x00, // 000011110000
+      0x06,0x00  // 000001100000
+    };
+
+    const unsigned char offset_bedline_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0xFF,0xFF,0xFF // 111111111111111111111111
+    };
+
+    const unsigned char nozzle_ubl_bmp[] PROGMEM = { //AVR-GCC, WinAVR
+      0x7F,0x80, // 0111111110000000
+      0xFF,0xC0, // 1111111111000000
+      0xFF,0xC0, // 1111111111000000
+      0xFF,0xC0, // 1111111111000000
+      0x7F,0x80, // 0111111110000000
+      0x7F,0x80, // 0111111110000000
+      0xFF,0xC0, // 1111111111000000
+      0xFF,0xC0, // 1111111111000000
+      0xFF,0xC0, // 1111111111000000
+      0x3F,0x00, // 0011111100000000
+      0x1E,0x00, // 0001111000000000
+      0x0C,0x00  // 0000110000000000
+    };
+
+        void _lcd_ubl_zoffset_overlay(float zprobe_zoffset) {
+          // Determine whether the user is raising or lowering the nozzle.
+          static int dir = 0;
+          static float old_zprobe_zoffset = 0;
+          if(zprobe_zoffset != old_zprobe_zoffset) {
+            dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
+            old_zprobe_zoffset = zprobe_zoffset;
+          }
+
+          #if ENABLED(UBL_ZPROBE_GFX_REVERSE)
+            const unsigned char* rot_up   = ccw_ubl_bmp;
+            const unsigned char* rot_down = cw_ubl_bmp;
+          #else
+            const unsigned char* rot_up   = cw_ubl_bmp;
+            const unsigned char* rot_down = ccw_ubl_bmp;
+          #endif
+
+          #if ENABLED(USE_BIG_EDIT_FONT)
+            const int left   = 0;
+            const int right  = 45;
+            const int nozzle = 95;
+          #else
+            const int left   = 5;
+            const int right  = 90;
+            const int nozzle = 60;
+          #endif
+
+          // Draw a representation of the nozzle
+          if(PAGE_CONTAINS(3,16))  u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_ubl_bmp);
+          if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_ubl_bmp);
+
+          // Draw cw/ccw indicator and up/down arrows.
+          if(PAGE_CONTAINS(47,62)) {
+            u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+            u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_ubl_bmp);
+            u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_ubl_bmp);
+          }
+        }
+#endif
 
     float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places. So we keep a
                                                   // separate value that doesn't lose precision.
@@ -1096,7 +1227,9 @@ void kill_screen(const char* lcd_msg) {
         const int32_t rounded = (int32_t)(mesh_edit_value * 1000.0);
         mesh_edit_value = float(rounded - (rounded % 5L)) / 1000.0;
       }
-
+#if ENABLED(AUTO_BED_LEVELING_UBL_GFX)
+      _lcd_ubl_zoffset_overlay(mesh_edit_value);
+#endif
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
     }
