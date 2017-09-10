@@ -162,8 +162,25 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 //mpcnc
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE(v); }while(0)
-  #if ENABLED(X_DUAL_ENDSTOPS)
+  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #define X_APPLY_DIR(v,ALWAYS) \
+      if (extruder_duplication_enabled || ALWAYS) { \
+        X_DIR_WRITE(v); \
+        X2_DIR_WRITE(v); \
+      } \
+      else { \
+        if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+      }
+    #define X_APPLY_STEP(v,ALWAYS) \
+      if (extruder_duplication_enabled || ALWAYS) { \
+        X_STEP_WRITE(v); \
+        X2_STEP_WRITE(v); \
+      } \
+      else { \
+        if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+      }
+  #elif ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) \
     if (performing_homing) { \
       if (X_HOME_DIR < 0) { \
