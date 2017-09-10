@@ -541,6 +541,26 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+#if ENABLED(X_DUAL_ENDSTOPS)
+  float x_endstop_adj =
+    #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
+      X_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
+#endif
+
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  float y_endstop_adj =
+    #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+      Y_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
+#endif
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj =
     #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
@@ -2936,9 +2956,19 @@ static void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
 
+  // Set a flag for X motor locking
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) stepper.set_homing_flag_x(true);
+  #endif
+
+  // Set a flag for Y motor locking
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) stepper.set_homing_flag_y(true);
+  #endif
+
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+    if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -2980,6 +3010,48 @@ static void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) {
+      float adj = FABS(x_endstop_adj);
+      bool lockX1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockX1 = (x_endstop_adj > 0);
+      }
+      else
+        lockX1 = (x_endstop_adj < 0);
+
+      if (lockX1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockX1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
+      stepper.set_homing_flag_x(false);
+    } // X_AXIS
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) {
+      float adj = FABS(y_endstop_adj);
+      bool lockY1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockY1 = (y_endstop_adj > 0);
+      }
+      else
+        lockY1 = (y_endstop_adj < 0);
+
+      if (lockY1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockY1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
+      stepper.set_homing_flag_y(false);
+    } // Y_AXIS
+  #endif
+
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
       float adj = FABS(z_endstop_adj);
@@ -2997,7 +3069,7 @@ static void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adj);
 
       if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-      stepper.set_homing_flag(false);
+      stepper.set_homing_flag_z(false);
     } // Z_AXIS
   #endif
 
@@ -8373,14 +8445,26 @@ inline void gcode_M205() {
     }
   }
 
-#elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
+
+
+#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   inline void gcode_M666() {
-    if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      if (parser.seen('X')) x_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOLNPAIR("X Endstop Adjustment set to (mm):", x_endstop_adj);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      if (parser.seen('Y')) y_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOLNPAIR("Y Endstop Adjustment set to (mm):", y_endstop_adj);
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    #endif
   }
 
 #endif // !DELTA && Z_DUAL_ENDSTOPS
