@@ -541,7 +541,6 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
-//mpcnc
 #if ENABLED(X_DUAL_ENDSTOPS)
   float x_endstop_adj =
     #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
@@ -551,9 +550,7 @@ static uint8_t target_extruder;
     #endif
   ;
 #endif
-//mpcnc
 
-//mpcnc
 #if ENABLED(Y_DUAL_ENDSTOPS)
   float y_endstop_adj =
     #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
@@ -563,7 +560,6 @@ static uint8_t target_extruder;
     #endif
   ;
 #endif
-//mpcnc
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj =
@@ -2959,24 +2955,20 @@ static void homeaxis(const AxisEnum axis) {
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
-  
- //mpcnc
-// Set a flag for X motor locking
+
+  // Set a flag for X motor locking
   #if ENABLED(X_DUAL_ENDSTOPS)
     if (axis == X_AXIS) stepper.set_homing_flag_x(true);
   #endif
-  //mpcnc
-  
-  //mpcnc
-// Set a flag for Y motor locking
+
+  // Set a flag for Y motor locking
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    if (axis == Y_AXIS) stepper.set_homing_flag_y(true); //mpcnc
+    if (axis == Y_AXIS) stepper.set_homing_flag_y(true);
   #endif
-  //mpcnc
-  
+
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag_z(true); //mpcnc
+    if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -3018,8 +3010,7 @@ static void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
-//mpcnc
-#if ENABLED(X_DUAL_ENDSTOPS)
+  #if ENABLED(X_DUAL_ENDSTOPS)
     if (axis == X_AXIS) {
       float adj = FABS(x_endstop_adj);
       bool lockX1;
@@ -3039,10 +3030,8 @@ static void homeaxis(const AxisEnum axis) {
       stepper.set_homing_flag_x(false);
     } // X_AXIS
   #endif
-  //mpcnc
-  
-//mpcnc
-#if ENABLED(Y_DUAL_ENDSTOPS)
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
     if (axis == Y_AXIS) {
       float adj = FABS(y_endstop_adj);
       bool lockY1;
@@ -3062,8 +3051,7 @@ static void homeaxis(const AxisEnum axis) {
       stepper.set_homing_flag_y(false);
     } // Y_AXIS
   #endif
-  //mpcnc
-  
+
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
       float adj = FABS(z_endstop_adj);
