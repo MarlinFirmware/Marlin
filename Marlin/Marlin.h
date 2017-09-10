@@ -332,17 +332,14 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void set_z_fade_height(const float zfh);
 #endif
 
-//mpcnc
 #if ENABLED(X_DUAL_ENDSTOPS)
   extern float x_endstop_adj;
 #endif
-//mpcnc
 
-//mpcnc
 #if ENABLED(Y_DUAL_ENDSTOPS)
   extern float y_endstop_adj;
 #endif
-//mpcnc
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
