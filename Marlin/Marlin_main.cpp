@@ -10959,7 +10959,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+      #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         case 666: // M666: Set delta or dual endstop adjustment
           gcode_M666();
           break;
