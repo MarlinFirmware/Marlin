@@ -343,9 +343,7 @@
   #define ARRAY_BY_HOTENDS(...) ARRAY_N(HOTENDS, __VA_ARGS__)
   #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
-//mpcnc
-//mpcnc
-/**
+  /**
    * X_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -415,12 +413,10 @@
     #endif
   #endif
 
-  // Is an endstop plug used for the Y2 endstop or the bed probe?
-  //#define IS_X2_OR_PROBE(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
-  //mpcnc
-  
-//mpcnc
-/**
+  // Is an endstop plug used for the X2 endstop?
+  #define IS_X2_ENDSTOP(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
+
+  /**
    * Y_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(Y_DUAL_ENDSTOPS)
@@ -491,9 +487,8 @@
   #endif
 
   // Is an endstop plug used for the Y2 endstop or the bed probe?
-  //#define IS_Y2_OR_PROBE(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
-  //mpcnc
-  
+  #define IS_Y2_ENDSTOP(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
+
   /**
    * Z_DUAL_ENDSTOPS endstop reassignment
    */
@@ -656,36 +651,17 @@
   #define HAS_E4_MICROSTEPS (PIN_EXISTS(E4_MS1))
   #define HAS_SOLENOID_4    (PIN_EXISTS(SOL4))
 
- // Endstops and bed probe
- //mpcnc
- //mpcnc
- #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_OR_PROBE(X,MIN))
-  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_OR_PROBE(X,MAX))
-  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_X2_OR_PROBE(Y,MIN))
-  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_X2_OR_PROBE(Y,MAX))
-  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_X2_OR_PROBE(Z,MIN))
-  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_X2_OR_PROBE(Z,MAX))
+  // Endstops and bed probe
+  #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
+  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_ENDSTOP(X,MAX) && !IS_Y2_ENDSTOP(X,MAX) && !IS_Z2_OR_PROBE(X,MAX))
+  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_X2_ENDSTOP(Y,MIN) && !IS_Y2_ENDSTOP(Y,MIN) && !IS_Z2_OR_PROBE(Y,MIN))
+  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_X2_ENDSTOP(Y,MAX) && !IS_Y2_ENDSTOP(Y,MAX) && !IS_Z2_OR_PROBE(Y,MAX))
+  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_X2_ENDSTOP(Z,MIN) && !IS_Y2_ENDSTOP(Z,MIN) && !IS_Z2_OR_PROBE(Z,MIN))
+  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_X2_ENDSTOP(Z,MAX) && !IS_Y2_ENDSTOP(Z,MAX) && !IS_Z2_OR_PROBE(Z,MAX))
   #define HAS_X2_MIN (PIN_EXISTS(X2_MIN))
   #define HAS_X2_MAX (PIN_EXISTS(X2_MAX))
-  //mpcnc
-  
- //mpcnc
- #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_Y2_OR_PROBE(X,MIN))
-  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_Y2_OR_PROBE(X,MAX))
-  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_Y2_OR_PROBE(Y,MIN))
-  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_Y2_OR_PROBE(Y,MAX))
-  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_Y2_OR_PROBE(Z,MIN))
-  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_Y2_OR_PROBE(Z,MAX))
   #define HAS_Y2_MIN (PIN_EXISTS(Y2_MIN))
   #define HAS_Y2_MAX (PIN_EXISTS(Y2_MAX))
-  //mpcnc
-  
-  #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_Z2_OR_PROBE(X,MIN))
-  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_Z2_OR_PROBE(X,MAX))
-  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_Z2_OR_PROBE(Y,MIN))
-  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_Z2_OR_PROBE(Y,MAX))
-  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_Z2_OR_PROBE(Z,MIN))
-  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_Z2_OR_PROBE(Z,MAX))
   #define HAS_Z2_MIN (PIN_EXISTS(Z2_MIN))
   #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
   #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
