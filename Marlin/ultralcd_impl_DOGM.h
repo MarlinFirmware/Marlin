@@ -934,9 +934,9 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
     #if defined(SCROLL_LONG_FILE_NAMES)
-      static int        scroll_offset;
-      static int        scroll_max;
-      static int        scroll_row;
+      static int        filename_scroll_pos;
+      static int        filename_scroll_max;
+      static int        filename_scroll_row;
     #endif
 
     static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
@@ -951,12 +951,12 @@ static void lcd_implementation_status_screen() {
         filename = longFilename;
         #if defined(SCROLL_LONG_FILE_NAMES)
           if (isSelected) {
-            if(scroll_row != row) {
-              scroll_max    = max(0, strlen(longFilename) - n);
-              scroll_row    = row;
-              scroll_offset = 0;
+            if(filename_scroll_row != row) {
+              filename_scroll_max = max(0, strlen(longFilename) - n);
+              filename_scroll_row = row;
+              filename_scroll_pos = 0;
             }
-            filename += scroll_offset;
+            filename += filename_scroll_pos;
           }
         #endif
       }

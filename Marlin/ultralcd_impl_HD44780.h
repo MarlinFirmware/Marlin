@@ -1004,6 +1004,11 @@ static void lcd_implementation_status_screen() {
   }
 
   #if ENABLED(SDSUPPORT)
+    #if defined(SCROLL_LONG_FILE_NAMES)
+      static int        filename_scroll_pos;
+      static int        filename_scroll_max;
+      static int        filename_scroll_row;
+    #endif
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
@@ -1013,11 +1018,19 @@ static void lcd_implementation_status_screen() {
       lcd.print(sel ? '>' : ' ');
       if (longFilename[0]) {
         filename = longFilename;
-        longFilename[n] = '\0';
+        #if defined(SCROLL_LONG_FILE_NAMES)
+          if (isSelected) {
+            if(filename_scroll_row != row) {
+              filename_scroll_max = max(0, strlen(longFilename) - n);
+              filename_scroll_row = row;
+              filename_scroll_pos = 0;
+            }
+            filename += filename_scroll_pos;
+          }
+        #endif
       }
-      while ((c = *filename) && n > 0) {
-        n -= charset_mapper(c);
-        filename++;
+      for(const char *c = filename; *c && n > 0; c++) {
+        n -= charset_mapper(*c);
       }
       while (n--) lcd.write(' ');
       lcd.print(post_char);
