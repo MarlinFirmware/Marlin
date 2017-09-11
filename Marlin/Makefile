@@ -82,6 +82,13 @@ LIQUID_TWI2        ?= 0
 # this defines if Wire is needed
 WIRE               ?= 0
 
+# this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
+U8GLIB             ?= 1
+
+# this defines whether to add a workaround for the avr-gcc relocation bug
+#	  https://www.stix.id.au/wiki/AVR_relocation_truncations_workaround
+RELOC_WORKAROUND   ?= 1
+
 ############################################################################
 # Below here nothing should be changed...
 
@@ -270,6 +277,13 @@ ifeq ($(WIRE), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
 endif
+ifeq ($(NEOPIXEL), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Adafruit_NeoPixel
+endif
+ifeq ($(U8GLIB), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/utility
+endif
 
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
@@ -295,8 +309,11 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp \
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp endstops.cpp stopwatch.cpp utility.cpp \
-	printcounter.cpp nozzle.cpp serial.cpp
+	dac_mcp4728.cpp vector_3.cpp least_squares_fit.cpp endstops.cpp stopwatch.cpp utility.cpp \
+	printcounter.cpp nozzle.cpp serial.cpp gcode.cpp Max7219_Debug_LEDs.cpp
+ifeq ($(NEOPIXEL), 1)
+CXXSRC += Adafruit_NeoPixel.cpp
+endif
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
@@ -307,6 +324,15 @@ endif
 ifeq ($(WIRE), 1)
 SRC += twi.c
 CXXSRC += Wire.cpp
+endif
+
+ifeq ($(U8GLIB), 1)
+SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_data.c
+endif
+
+ifeq ($(RELOC_WORKAROUND), 1)
+LD_PREFIX=-nodefaultlibs
+LD_SUFFIX=-lm -lgcc -lc -lgcc
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct source files for that version
@@ -487,7 +513,7 @@ extcoff: $(TARGET).elf
 	# Link: create ELF output file from library.
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$(Pecho) "  CXX   $@"
-	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections,--relax -o $@ -L. $(OBJ) $(LDFLAGS)
+	$P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -Wl,--gc-sections,--relax -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CC    $<"

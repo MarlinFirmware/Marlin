@@ -1,4 +1,6 @@
----
+dist: trusty
+sudo: true
+  #
 language: c
   #
 notifications:
@@ -11,7 +13,7 @@ before_install:
   #
   # Publish the buildroot script folder
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
-  - ln -s ${TRAVIS_BUILD_DIR}/buildroot/bin/ ~/bin
+  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
   #
   # Start fb X server
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
@@ -50,6 +52,10 @@ install:
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
+  # Install: Adafruit Neopixel library
+  - git clone https://github.com/adafruit/Adafruit_NeoPixel.git
+  - sudo mv Adafruit_NeoPixel /usr/local/share/arduino/libraries/Adafruit_NeoPixel
+  #
 before_script:
   #
   # Change current working directory to the build dir
@@ -72,7 +78,8 @@ script:
   - build_marlin
   #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
-  #  plus a "Fix Mounted" Probe with Safe Homing and some arc options
+  # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
+  # linear bed leveling, M48, leveling debug, and firmware retraction.
   #
   - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
   - opt_set EXTRUDERS 2
@@ -80,13 +87,13 @@ script:
   - opt_set TEMP_SENSOR_1 1
   - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
-  - build_marlin
-  #
-  # ...with AUTO_BED_LEVELING_LINEAR, Z_MIN_PROBE_REPEATABILITY_TEST, and DEBUG_LEVELING_FEATURE
-  #
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
+  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_RGBW_LED
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE
+  - opt_enable_adv FWRETRACT
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
+  - opt_set_adv FANMUX0_PIN 53
   - build_marlin
   #
   # Test a simple build of AUTO_BED_LEVELING_UBL
@@ -108,8 +115,9 @@ script:
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - opt_set NUM_SERVOS 1
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
-  - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP
+  - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
   - build_marlin
   #
   # Test MESH_BED_LEVELING feature, with LCD

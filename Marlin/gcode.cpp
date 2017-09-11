@@ -46,7 +46,7 @@ char *GCodeParser::command_ptr,
 char GCodeParser::command_letter;
 int GCodeParser::codenum;
 #if USE_GCODE_SUBCODES
-  int GCodeParser::subcode;
+  uint8_t GCodeParser::subcode;
 #endif
 
 #if ENABLED(FASTER_GCODE_PARSER)

@@ -449,7 +449,7 @@
         HARDWARE_CHAR_OUT((char)d) ;
       }
       else if (seen_c3) {
-    switch(d) {
+        switch(d) {
           case 0x93u: d = 0x8Au; break; //Ó
           case 0xB3u: d = 0x8Bu; break; //ó
           d = '?';
@@ -555,6 +555,11 @@
     seen_c3 = seen_c4 = seen_c5 = false;
     return 1;
   }
+
+#elif ENABLED(MAPPER_C3C4C5_SK)
+
+  // TBD
+  #error "No mapping for Slovak at this time. Use MAPPER_NON."
 
 #else
 

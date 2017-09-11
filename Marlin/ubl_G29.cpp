@@ -467,8 +467,8 @@
                 g29_x_pos = X_HOME_POS;
                 g29_y_pos = Y_HOME_POS;
               #else // cartesian
-                g29_x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_MAX_POS : X_MIN_POS;
-                g29_y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_MAX_POS : Y_MIN_POS;
+                g29_x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_BED_SIZE : 0;
+                g29_y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_BED_SIZE : 0;
               #endif
             }
 
@@ -1132,15 +1132,10 @@
       SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
       err_flag = true;
     }
-    if (!WITHIN(RAW_X_POSITION(g29_x_pos), X_MIN_POS, X_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
-      err_flag = true;
-    }
 
-    if (!WITHIN(RAW_Y_POSITION(g29_y_pos), Y_MIN_POS, Y_MAX_POS)) {
-      SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
-      err_flag = true;
-    }
+    // If X or Y are not valid, use center of the bed values
+    if (!WITHIN(RAW_X_POSITION(g29_x_pos), X_MIN_BED, X_MAX_BED)) g29_x_pos = LOGICAL_X_POSITION(X_CENTER);
+    if (!WITHIN(RAW_Y_POSITION(g29_y_pos), Y_MIN_BED, Y_MAX_BED)) g29_y_pos = LOGICAL_Y_POSITION(Y_CENTER);
 
     if (err_flag) return UBL_ERR;
 
@@ -1533,7 +1528,6 @@
         while (ubl_lcd_clicked()) { // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
-            ubl_lcd_map_control = false;
             lcd_return_to_status();
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
             LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
