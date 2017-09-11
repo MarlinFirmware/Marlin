@@ -527,6 +527,9 @@
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 
+  // Enable this option to cause long filenames on the SD card menu to scroll.
+  //#define SCROLL_LONG_FILE_NAMES
+
   // This option allows you to abort SD printing when any endstop is triggered.
   // This feature must be enabled with "M540 S1" or from the LCD menu.
   // To have any effect, endstops must be enabled during SD printing.
@@ -564,9 +567,6 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
-
-  // Enable this option to cause long filenames on the SD card menu to scroll.
-  //#define SCROLL_LONG_FILE_NAMES
 #endif // DOGLCD
 
 // @section safety

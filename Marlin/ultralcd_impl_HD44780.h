@@ -1019,7 +1019,7 @@ static void lcd_implementation_status_screen() {
       if (longFilename[0]) {
         filename = longFilename;
         #if defined(SCROLL_LONG_FILE_NAMES)
-          if (isSelected) {
+          if (sel) {
             if(filename_scroll_row != row) {
               filename_scroll_max = max(0, strlen(longFilename) - n);
               filename_scroll_row = row;
