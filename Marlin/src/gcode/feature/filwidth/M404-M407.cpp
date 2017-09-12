@@ -20,10 +20,33 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+
+#include "../../../feature/filwidth.h"
+#include "../../../module/planner.h"
+#include "../../../module/temperature.h"
+#include "../../../Marlin.h"
+#include "../../gcode.h"
+
+/**
+ * M404: Display or set (in current units) the nominal filament width (3mm, 1.75mm ) W<3.0>
+ */
+void GcodeSuite::M404() {
+  if (parser.seen('W')) {
+    filament_width_nominal = parser.value_linear_units();
+  }
+  else {
+    SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
+    SERIAL_PROTOCOLLN(filament_width_nominal);
+  }
+}
+
 /**
  * M405: Turn on filament sensor for control
  */
-void gcode_M405() {
+void GcodeSuite::M405() {
   // This is technically a linear measurement, but since it's quantized to centimeters and is a different
   // unit than everything else, it uses parser.value_byte() instead of parser.value_linear_units().
   if (parser.seen('D')) {
@@ -47,3 +70,21 @@ void gcode_M405() {
   //SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
   //SERIAL_PROTOCOL(planner.flow_percentage[active_extruder]);
 }
+
+/**
+ * M406: Turn off filament sensor for control
+ */
+void GcodeSuite::M406() {
+  filament_sensor = false;
+  calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
+}
+
+/**
+ * M407: Get measured filament diameter on serial output
+ */
+void GcodeSuite::M407() {
+  SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
+  SERIAL_PROTOCOLLN(filament_width_meas);
+}
+
+#endif // FILAMENT_WIDTH_SENSOR

@@ -20,10 +20,16 @@
  *
  */
 
-/**
- * M406: Turn off filament sensor for control
- */
-void gcode_M406() {
-  filament_sensor = false;
-  calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
-}
+#ifndef __FILWIDTH_H__
+#define __FILWIDTH_H__
+
+#include "../inc/MarlinConfig.h"
+
+extern bool filament_sensor;                                  // M405/M406 turns filament sensor control ON/OFF.
+extern float filament_width_nominal,                          // Nominal filament width. Change with M404.
+             filament_width_meas;                             // Measured filament diameter
+extern uint8_t meas_delay_cm,                                 // Distance delay setting
+               measurement_delay[MAX_MEASUREMENT_DELAY + 1];  // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+extern int8_t filwidth_delay_index[2];                        // Indexes into ring buffer
+
+#endif // __FILWIDTH_H__
