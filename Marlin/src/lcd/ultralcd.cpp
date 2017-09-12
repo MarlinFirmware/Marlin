@@ -46,6 +46,10 @@
   #include "../libs/duration_t.h"
 #endif
 
+#if ENABLED(FILAMENT_LCD_DISPLAY)
+  #include "../feature/filwidth.h"
+#endif
+
 #if ENABLED(BLTOUCH)
   #include "../module/endstops.h"
 #endif

@@ -230,15 +230,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   ;
 #endif
 
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
-        filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
-  uint8_t meas_delay_cm = MEASUREMENT_DELAY_CM,                 // Distance delay setting
-          measurement_delay[MAX_MEASUREMENT_DELAY + 1];         // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
-  int8_t filwidth_delay_index[2] = { 0, -1 };                   // Indexes into ring buffer
-#endif
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   static bool filament_ran_out = false;
 #endif
@@ -2363,13 +2354,6 @@ void report_current_position() {
 
 #if HAS_BED_PROBE
   #include "gcode/probe/M401_M402.h"
-#endif
-
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #include "gcode/sensor/M404.h"
-  #include "gcode/sensor/M405.h"
-  #include "gcode/sensor/M406.h"
-  #include "gcode/sensor/M407.h"
 #endif
 
 void quickstop_stepper() {

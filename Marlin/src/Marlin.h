@@ -246,15 +246,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
 #endif
 
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
-  extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
-               filament_width_meas;    // Measured filament diameter
-  extern uint8_t meas_delay_cm,        // Delay distance
-                 measurement_delay[];  // Ring buffer to delay measurement
-  extern int8_t filwidth_delay_index[2]; // Ring buffer indexes. Used by planner, temperature, and main code
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif

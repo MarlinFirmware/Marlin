@@ -72,6 +72,10 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #include "../feature/filwidth.h"
+#endif
+
 Planner planner;
 
   // public:
