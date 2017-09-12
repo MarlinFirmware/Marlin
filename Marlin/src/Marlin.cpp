@@ -106,6 +106,8 @@
 
 #if ENABLED(DELTA)
   #include "module/delta.h"
+#elif IS_SCARA
+  #include "module/scara.h"
 #endif
 
 #if HAS_LEVELING
@@ -226,15 +228,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
       true
     #endif
   ;
-#endif
-
-#if IS_SCARA
-  // Float constants for SCARA calculations
-  const float L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
-              L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
-              L2_2 = sq(float(L2));
-
-  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -538,42 +531,10 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #endif
 
   #if ENABLED(MORGAN_SCARA)
-
-    /**
-     * Morgan SCARA homes XY at the same time
-     */
-    if (axis == X_AXIS || axis == Y_AXIS) {
-
-      float homeposition[XYZ];
-      LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos((AxisEnum)i), i);
-
-      // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
-      // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
-
-      /**
-       * Get Home position SCARA arm angles using inverse kinematics,
-       * and calculate homing offset using forward kinematics
-       */
-      inverse_kinematics(homeposition);
-      forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
-
-      // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
-      // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
-
-      current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
-
-      /**
-       * SCARA home positions are based on configuration since the actual
-       * limits are determined by the inverse kinematic transform.
-       */
-      soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
-      soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
-    }
-    else
-  #endif
-  {
+    scara_set_axis_is_at_home(axis);
+  #else
     current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis);
-  }
+  #endif
 
   /**
    * Z Probe Z Homing? Account for the probe's Z offset.
@@ -2304,9 +2265,7 @@ void report_current_position() {
   stepper.report_positions();
 
   #if IS_SCARA
-    SERIAL_PROTOCOLPAIR("SCARA Theta:", stepper.get_axis_position_degrees(A_AXIS));
-    SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
-    SERIAL_EOL();
+    scara_report_positions();
   #endif
 }
 
@@ -2593,87 +2552,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   }
 
 #endif // USE_CONTROLLER_FAN
-
-#if ENABLED(MORGAN_SCARA)
-
-  /**
-   * Morgan SCARA Forward Kinematics. Results in cartes[].
-   * Maths and first version by QHARLEY.
-   * Integrated into Marlin and slightly restructured by Joachim Cerny.
-   */
-  void forward_kinematics_SCARA(const float &a, const float &b) {
-
-    float a_sin = sin(RADIANS(a)) * L1,
-          a_cos = cos(RADIANS(a)) * L1,
-          b_sin = sin(RADIANS(b)) * L2,
-          b_cos = cos(RADIANS(b)) * L2;
-
-    cartes[X_AXIS] = a_cos + b_cos + SCARA_OFFSET_X;  //theta
-    cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
-
-    /*
-      SERIAL_ECHOPAIR("SCARA FK Angle a=", a);
-      SERIAL_ECHOPAIR(" b=", b);
-      SERIAL_ECHOPAIR(" a_sin=", a_sin);
-      SERIAL_ECHOPAIR(" a_cos=", a_cos);
-      SERIAL_ECHOPAIR(" b_sin=", b_sin);
-      SERIAL_ECHOLNPAIR(" b_cos=", b_cos);
-      SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
-      SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
-    //*/
-  }
-
-  /**
-   * Morgan SCARA Inverse Kinematics. Results in delta[].
-   *
-   * See http://forums.reprap.org/read.php?185,283327
-   *
-   * Maths and first version by QHARLEY.
-   * Integrated into Marlin and slightly restructured by Joachim Cerny.
-   */
-  void inverse_kinematics(const float logical[XYZ]) {
-
-    static float C2, S2, SK1, SK2, THETA, PSI;
-
-    float sx = RAW_X_POSITION(logical[X_AXIS]) - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
-          sy = RAW_Y_POSITION(logical[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
-
-    if (L1 == L2)
-      C2 = HYPOT2(sx, sy) / L1_2_2 - 1;
-    else
-      C2 = (HYPOT2(sx, sy) - (L1_2 + L2_2)) / (2.0 * L1 * L2);
-
-    S2 = SQRT(1 - sq(C2));
-
-    // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
-    SK1 = L1 + L2 * C2;
-
-    // Rotated Arm2 gives the distance from Arm1 to Arm2
-    SK2 = L2 * S2;
-
-    // Angle of Arm1 is the difference between Center-to-End angle and the Center-to-Elbow
-    THETA = ATAN2(SK1, SK2) - ATAN2(sx, sy);
-
-    // Angle of Arm2
-    PSI = ATAN2(S2, C2);
-
-    delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
-    delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-    delta[C_AXIS] = logical[Z_AXIS];
-
-    /*
-      DEBUG_POS("SCARA IK", logical);
-      DEBUG_POS("SCARA IK", delta);
-      SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
-      SERIAL_ECHOPAIR(",", sy);
-      SERIAL_ECHOPAIR(" C2=", C2);
-      SERIAL_ECHOPAIR(" S2=", S2);
-      SERIAL_ECHOPAIR(" Theta=", THETA);
-      SERIAL_ECHOLNPAIR(" Phi=", PHI);
-    //*/
-  }
-
-#endif // MORGAN_SCARA
 
 #if ENABLED(TEMP_STAT_LEDS)
 

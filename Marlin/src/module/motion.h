@@ -38,11 +38,17 @@
 //   #include "../module/delta.h"
 // #endif
 
+#if IS_SCARA
+  #include "../module/scara.h"
+#endif
+
 extern bool relative_mode;
 
-extern float current_position[XYZE], destination[XYZE];
+extern float current_position[XYZE],  // High-level current tool position
+             destination[XYZE];       // Destination for a move
 
-extern float cartes[XYZ]; // scratch space for the cartesian result
+// Scratch space for a cartesian result
+extern float cartes[XYZ];
 
 // Until kinematics.cpp is created, declare this here
 #if IS_KINEMATIC
@@ -175,10 +181,6 @@ void clamp_to_software_endstops(float target[XYZ]);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
-
-  #if IS_SCARA
-    extern const float L1, L2;
-  #endif
 
   inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
     #if ENABLED(DELTA)

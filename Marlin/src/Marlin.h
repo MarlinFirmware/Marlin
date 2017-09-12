@@ -204,12 +204,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
-#if IS_SCARA
-  extern float delta_segments_per_second;
-  void inverse_kinematics(const float logical[XYZ]);
-  void forward_kinematics_SCARA(const float &a, const float &b);
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   typedef struct { double A, B, D; } linear_fit;
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
