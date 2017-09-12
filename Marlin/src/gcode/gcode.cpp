@@ -102,11 +102,6 @@ void GcodeSuite::get_destination_from_command() {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G0_G1(
-  #if IS_SCARA
-    bool fast_move=false
-  #endif
-);
 extern void gcode_G2_G3(bool clockwise);
 extern void gcode_G4();
 extern void gcode_G5();
@@ -216,10 +211,6 @@ extern void gcode_M381();
 extern void gcode_M400();
 extern void gcode_M401();
 extern void gcode_M402();
-extern void gcode_M404();
-extern void gcode_M405();
-extern void gcode_M406();
-extern void gcode_M407();
 extern void gcode_M410();
 extern void gcode_M428();
 extern void gcode_M500();
@@ -871,16 +862,16 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
         case 404:  // M404: Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
-          gcode_M404();
+          M404();
           break;
         case 405:  // M405: Turn on filament sensor for control
-          gcode_M405();
+          M405();
           break;
         case 406:  // M406: Turn off filament sensor for control
-          gcode_M406();
+          M406();
           break;
         case 407:   // M407: Display measured filament diameter
-          gcode_M407();
+          M407();
           break;
       #endif // FILAMENT_WIDTH_SENSOR
 

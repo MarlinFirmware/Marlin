@@ -47,10 +47,6 @@
   #include "../feature/filwidth.h"
 #endif
 
-#if HAS_BED_PROBE
-  #include "../module/probe.h"
-#endif
-
 #if ENABLED(BLTOUCH)
   #include "../module/endstops.h"
 #endif

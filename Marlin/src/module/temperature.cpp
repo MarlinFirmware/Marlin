@@ -45,6 +45,10 @@
 
 #include "printcounter.h"
 
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #include "../feature/filwidth.h"
+#endif
+
 #ifdef K1 // Defined in Configuration.h in the PID settings
   #define K2 (1.0-K1)
 #endif
