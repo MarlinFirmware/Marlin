@@ -38,12 +38,6 @@
     #define LCD_CONTRAST_MIN 60
     #define LCD_CONTRAST_MAX 140
 
-  #elif ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
-
-    #define DOGLCD
-    #define ULTIPANEL
-    #define DEFAULT_LCD_CONTRAST 17
-
   #elif ENABLED(ANET_KEYPAD_LCD)
 
     #define REPRAPWORLD_KEYPAD
@@ -105,6 +99,34 @@
     #define U8GLIB_ST7920
     #define ULTIPANEL
 
+  #elif ENABLED(CR10_STOCKDISPLAY)
+
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_2_NOP
+    #endif
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_2_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_2_NOP
+    #endif
+
+  #elif ENABLED(MKS_12864OLED)
+
+    #define REPRAP_DISCOUNT_SMART_CONTROLLER
+    #define U8GLIB_SH1106
+
+  #elif ENABLED(MKS_MINI_12864)
+
+    #define MINIPANEL
+
+  #endif
+
+  #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
+    #define DOGLCD
+    #define ULTIPANEL
+    #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
@@ -114,7 +136,15 @@
   #endif
 
   #if ENABLED(PANEL_ONE) || ENABLED(U8GLIB_SH1106)
+
     #define ULTIMAKERCONTROLLER
+
+  #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
+
+    #define REPRAP_DISCOUNT_SMART_CONTROLLER
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
+
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI)
