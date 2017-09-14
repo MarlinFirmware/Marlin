@@ -1376,7 +1376,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // MakerLab Mini Panel with graphic
@@ -1387,7 +1387,7 @@
 // MKS Mini Panel with graphic
 // controller and SD support - https://www.aliexpress.com/item/3d-printer-Reprap-LCD-MKS-MINI12864LCD-mini-12864-smart-display-Reprapdiscount-controller-Full-Graphic-for-mother/32808856549.html?spm=a2g0s.9042311.0.0.T02Q88
 //
-#define MKS_MINIPANEL
+//#define MKS_MINIPANEL
 #if ENABLED(MKS_MINIPANEL)
  #define MINIPANEL
 #endif
