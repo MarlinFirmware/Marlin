@@ -258,6 +258,10 @@
 #include "libs/duration_t.h"
 #include "gcode/parser.h"
 
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #include "libs/buzzer.h"
+#endif
+
 #if HAS_ABL
   #include "libs/vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -269,10 +273,6 @@
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   #include "module/planner_bezier.h"
-#endif
-
-#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
-  #include "libs/buzzer.h"
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
@@ -493,16 +493,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   PrintCounter print_job_timer = PrintCounter();
 #else
   Stopwatch print_job_timer = Stopwatch();
-#endif
-
-// Buzzer - I2C on the LCD or a BEEPER_PIN
-#if ENABLED(LCD_USE_I2C_BUZZER)
-  #define BUZZ(d,f) lcd_buzz(d, f)
-#elif PIN_EXISTS(BEEPER)
-  Buzzer buzzer;
-  #define BUZZ(d,f) buzzer.tone(d, f)
-#else
-  #define BUZZ(d,f) NOOP
 #endif
 
 static uint8_t target_extruder;

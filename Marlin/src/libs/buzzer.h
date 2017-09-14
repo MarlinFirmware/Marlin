@@ -23,11 +23,14 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
-#include "types.h"
-#include "circularqueue.h"
-#include "temperature.h"
+#include "../inc/MarlinConfig.h"
 
-#include "MarlinConfig.h"
+// Make a buzzer and macro
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  // BUZZ() will be defined in ultralcd.h
+#elif PIN_EXISTS(BEEPER)
+
+#include "circularqueue.h"
 
 #define TONE_QUEUE_LENGTH 4
 
@@ -44,46 +47,44 @@ struct tone_t {
  * @brief Buzzer class
  */
 class Buzzer {
-  private:
-    struct state_t {
+  public:
+
+    typedef struct {
       tone_t   tone;
       uint32_t endtime;
-    } state;
+    } state_t;
+
+  private:
+    static state_t state;
 
   protected:
-    CircularQueue<tone_t, TONE_QUEUE_LENGTH> buffer;
+    static CircularQueue<tone_t, TONE_QUEUE_LENGTH> buffer;
 
     /**
      * @brief Inverts the sate of a digital PIN
      * @details This will invert the current state of an digital IO pin.
      */
-    void invert() {
-      TOGGLE(BEEPER_PIN);
-    }
+    FORCE_INLINE static void invert() { TOGGLE(BEEPER_PIN); }
 
     /**
      * @brief Turn off a digital PIN
      * @details Alias of digitalWrite(PIN, LOW) using FastIO
      */
-    void off() {
-      WRITE(BEEPER_PIN, LOW);
-    }
+    FORCE_INLINE static void off() { WRITE(BEEPER_PIN, LOW); }
 
     /**
      * @brief Turn on a digital PIN
      * @details Alias of digitalWrite(PIN, HIGH) using FastIO
      */
-    void on() {
-      WRITE(BEEPER_PIN, HIGH);
-    }
+    FORCE_INLINE static void on() { WRITE(BEEPER_PIN, HIGH); }
 
     /**
      * @brief Resets the state of the class
      * @details Brings the class state to a known one.
      */
-    void reset() {
-      this->off();
-      this->state.endtime = 0;
+    inline static void reset() {
+      off();
+      state.endtime = 0;
     }
 
   public:
@@ -92,7 +93,7 @@ class Buzzer {
      */
     Buzzer() {
       SET_OUTPUT(BEEPER_PIN);
-      this->reset();
+      reset();
     }
 
     /**
@@ -103,43 +104,24 @@ class Buzzer {
      * @param duration Duration of the tone in milliseconds
      * @param frequency Frequency of the tone in hertz
      */
-    void tone(const uint16_t &duration, const uint16_t &frequency = 0) {
-      while (buffer.isFull()) {
-        this->tick();
-        thermalManager.manage_heater();
-      }
-      tone_t tone = { duration, frequency };
-      this->buffer.enqueue(tone);
-    }
+    static void tone(const uint16_t duration, const uint16_t frequency=0);
 
     /**
-     * @brief Loop function
+     * @brief Tick function
      * @details This function should be called at loop, it will take care of
      *          playing the tones in the queue.
      */
-    virtual void tick() {
-      const millis_t now = millis();
-
-      if (!this->state.endtime) {
-        if (this->buffer.isEmpty()) return;
-
-        this->state.tone = this->buffer.dequeue();
-        this->state.endtime = now + this->state.tone.duration;
-
-        if (this->state.tone.frequency > 0) {
-          #if ENABLED(SPEAKER)
-            CRITICAL_SECTION_START;
-            ::tone(BEEPER_PIN, this->state.tone.frequency, this->state.tone.duration);
-            CRITICAL_SECTION_END;
-          #else
-            this->on();
-          #endif
-        }
-      }
-      else if (ELAPSED(now, this->state.endtime)) this->reset();
-    }
+    static void tick();
 };
 
-extern Buzzer buzzer;
+  // Provide a buzzer instance
+  extern Buzzer buzzer;
+  #define BUZZ(d,f) buzzer.tone(d, f)
+
+#else // No buzz capability
+
+  #define BUZZ(d,f) NOOP
+
+#endif
 
 #endif

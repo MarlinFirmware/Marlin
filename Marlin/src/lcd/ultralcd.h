@@ -56,7 +56,7 @@
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER
-    void lcd_buzz(long duration, uint16_t freq);
+    void lcd_buzz(const long duration, const uint16_t freq);
   #endif
 
   #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
