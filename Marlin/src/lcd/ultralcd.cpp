@@ -34,10 +34,6 @@
 
 #include "../Marlin.h"
 
-#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
-  #include "../libs/buzzer.h"
-#endif
-
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
   #include "../libs/duration_t.h"
@@ -57,6 +53,11 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+#endif
+
+// For i2c define BUZZ to use lcd_buzz
+#if DISABLED(LCD_USE_I2C_BUZZER)
+  #include "../libs/buzzer.h"
 #endif
 
 // Initialized by settings.load()
@@ -679,7 +680,7 @@ void kill_screen(const char* lcd_msg) {
    * Audio feedback for controller clicks
    *
    */
-  void lcd_buzz(long duration, uint16_t freq) {
+  void lcd_buzz(const long duration, const uint16_t freq) {
     #if ENABLED(LCD_USE_I2C_BUZZER)
       lcd.buzz(duration, freq);
     #elif PIN_EXISTS(BEEPER)
@@ -4803,11 +4804,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     void chirp_at_user() {
-      #if ENABLED(LCD_USE_I2C_BUZZER)
-        lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-      #elif PIN_EXISTS(BEEPER)
-        buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-      #endif
+      lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     }
 
     bool ubl_lcd_clicked() { return LCD_CLICKED; }
