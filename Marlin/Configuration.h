@@ -41,7 +41,9 @@
 
 ***********************************************************************/
 
-// Equipment options
+/**
+* Equipment options
+*/
 //#define LARGE_BED
 //#define SDSUPPORT
 #define CHANGE_Y_DIRECTION    // If your bed homes in the wrong direction front to back, enable this.
@@ -51,76 +53,104 @@
 //#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
                               // stock controller is a RepRap Discount Smart Controller)
 
-// Offset from endpoints to get nozzle to 0,0 (front/left of bed)
-// (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
+/**
+* Offset from endpoints to get nozzle to 0,0 (front/left of bed)
+* (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
+*/
 #define NOZZLE_X          -2
 #define NOZZLE_Y          -4
 
-// Primary Extruder steps per mm (plugged in to E0 port on controller)
-// (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+/**
+* Primary Extruder steps per mm (plugged in to E0 port on controller)
+* (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+*/
 #define E0_STEPS      97.097 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
 //#define CHANGE_E0_DIRECTION   // If your extruder is going backwards, enable this.
 
-// Z-Probe type (must be none or one of them)
-// If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
-// one of the other bed leveling types below.
+/**
+* Z-Probe type (must be none or one of them)
+* If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
+* one of the other bed leveling types below.
+*/
 #define BLTOUCH
 //#define SN04          // Green sensor
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
 
-// Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
-// Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
-// If you have a dual nozzle the offsets are calculated from the primary nozzle (the one plugged in to E0)
+/**
+* Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
+* Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
+* If you have a dual nozzle the offsets are calculated from the primary nozzle (the one plugged in to E0)
+*/
 #define SENSOR_LEFT        1
 #define SENSOR_RIGHT       0
 #define SENSOR_FRONT      36
 #define SENSOR_BEHIND      0
 
-// Margin around perimiter of bed for probing (will not probe outside this margin)
-#define BED_MARGIN         5
-
-// Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
+/**
+* Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
+*/
 //#define TRIPOINT
 //#define LINEAR
 //#define BILINEAR
 #define UBL
 //#define MANUAL // Do NOT use if you have a Z-Probe
-// Number of grid points in each direction
-// Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
+
+/**
+* Number of grid points in each direction
+* Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
+*/
 #define GRID_POINTS        10
 
-// Enable this to turn on support for a dual nozzle with two separate extruders
-// (primary nozzle plugged in to E0 port and secondary plugged in to E1 port)
+/**
+* Margin around perimiter of bed for probing (will not probe outside this margin)
+*/
+#define BED_MARGIN         5
+
+/**
+* Enable this to turn on support for a dual nozzle with two separate extruders
+* (primary nozzle plugged in to E0 port and secondary plugged in to E1 port)
+*/
 //#define DUAL_EXTRUDER
-// Offset for second nozzle from first nozzle
-// The X value is positive if the secondary nozzle is to the right of the primary and
-// negative if the secondary nozzle is to the left of the primary.
-// The Y value is positive if the secondary nozzle is behind the primary and
-// negative if the secondary nozzle is in front of the primary.
+
+/**
+* Offset for second nozzle from first nozzle
+* The X value is positive if the secondary nozzle is to the right of the primary and
+* negative if the secondary nozzle is to the left of the primary.
+* The Y value is positive if the secondary nozzle is behind the primary and
+* negative if the secondary nozzle is in front of the primary.
+*/
 #define EXTRUDER_E1_X 0
 #define EXTRUDER_E1_Y 0
-// Secondary Extruder steps per mm
-// (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+
+/** Secondary Extruder steps per mm
+* (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
+*/
 #define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
 //#define CHANGE_E1_DIRECTION   // If your secondary extruder is going backwards, enable this.
 
-// TEVO Tarantula Custom PID Settings - Stock Hotend
+/**
+* TEVO Tarantula Custom PID Settings - Stock Hotend
+*/
 #define  hot_Kp 11.20
 #define  hot_Ki 0.60
 #define  hot_Kd 52.53
 // FIND YOUR OWN: "M303 E0 C8 S200" to run autotune on the hotend at 200 degreesC for 8 cycles.
 // More info here: http://reprap.org/wiki/PID_Tuning
 
-// TEVO Tarantula Custom PID Settings - Stock Heatbed
+/**
+* TEVO Tarantula Custom PID Settings - Stock Heatbed
+*/
 #define  bed_Kp 841.21
 #define  bed_Ki 165.63
 #define  bed_Kd 1068.13
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 // More info here: http://reprap.org/wiki/PID_Tuning
 
-// Extra movement of Y axis (small bed only). Can help with probing more of the bed.
-// Set both to 0 (zero) if you have a large bed or do not have a Z-Probe.
+/**
+* Extra movement of Y axis. Can help with probing more of the bed.
+* Set both to 0 (zero) if you do not have a Z-Probe.
+*/
 #define XTRA_BED_FRONT    55 // Distance bed can move towards the front past Y = 200
 #define XTRA_BED_BACK     5  // Distance bed can move towards the back past Y = 0
 
