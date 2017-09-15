@@ -80,10 +80,17 @@
  * If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
  * one of the other bed leveling types below.
  */
-#define BLTOUCH
+//#define BLTOUCH
 //#define SN04          // Green sensor
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
+#define SERVO_PROBE   // Endstop switch on rotating arm. Set servo angles!
+
+/**
+ * Servo probe deploy and stow angles
+ */
+#define SERVO_DEPLOY    70
+#define SERVO_STOW      0
 
 /**
  * Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
@@ -99,10 +106,9 @@
  * Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
  */
 //#define TRIPOINT
-//#define LINEAR
+#define LINEAR
 //#define BILINEAR
-#define UBL
-//#define MANUAL // Do NOT use if you have a Z-Probe
+//#define UBL
 
 /**
  * Number of grid points in each direction
@@ -163,6 +169,8 @@
 #define XTRA_BED_BACK     5  // Distance bed can move towards the back past Y = 0
 
 /************************ END OF EASY CONFIG ***************************
+//======================================================================
+// DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING!!!!!!!
 //======================================================================
 
 /**
@@ -697,7 +705,7 @@
 //#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #if ENABLED(BLTOUCH) || ENABLED(INDUCTIVE_NC)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#elif ENABLED(SN04) || ENABLED(INDUCTIVE_NO)
+#elif ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -802,7 +810,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
@@ -839,7 +847,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if ENABLED(MANUAL)
+#if DISABLED(BLTOUCH) && DISABLED(SN04) && DISABLED(INDUCTIVE_NO) && DISABLED(INDUCTIVE_NC) && DISABLED(SERVO_PROBE)
   #define PROBE_MANUALLY
 #endif
 
@@ -854,8 +862,10 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-//#define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
-//#define Z_SERVO_ANGLES {70,0}  // Z Servo Deploy and Stow angles
+#if ENABLED(SERVO_PROBE)
+  #define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
+  #define Z_SERVO_ANGLES {SERVO_DEPLOY,SERVO_STOW}  // Z Servo Deploy and Stow angles
+#endif
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
@@ -944,7 +954,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ENABLED(BLTOUCH) || ENABLED(SN04)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1265,7 +1275,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
   #define Z_SAFE_HOMING
 #endif
 
@@ -1894,7 +1904,9 @@
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#if ENABLED(SERVO_PROBE)
+  #define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
+#endif
 
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
@@ -1904,7 +1916,9 @@
 // Servo deactivation
 //
 // With this option servos are powered only during movement, then turned off to prevent jitter.
-//#define DEACTIVATE_SERVOS_AFTER_MOVE
+#if ENABLED(SERVO_PROBE)
+  #define DEACTIVATE_SERVOS_AFTER_MOVE
+#endif
 
 /**
  * Filament Width Sensor
