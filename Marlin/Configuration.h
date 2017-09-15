@@ -50,8 +50,10 @@
 //#define CHANGE_X_DIRECTION    // If your X carriage homes in the wrong direction left to right, enable this.
 //#define CHANGE_Z_DIRECTION    // If your Z homes in the wrong direction bottom to top, enable this.
 //#define HOTEND_E3DV6        // Genuine E3D v6 hotend. Also enables Fan Soft PWM
-//#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The stock
+//#define FULL_GRAPHIC_SMART  // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The
                               // stock controller is a RepRap Discount Smart Controller)
+//#define DUAL_Z_STEPPER      // Enable this if you have dual Z stepper motors with the second stepper motor
+                              // connected to the next available E plug (usually E1)
 
 /**
  * Offset from endpoints to get nozzle to 0,0 (front/left of bed)

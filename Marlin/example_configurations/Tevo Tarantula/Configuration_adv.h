@@ -278,7 +278,9 @@
 // A single Z stepper driver is usually used to drive 2 stepper motors.
 // Uncomment this option to use a separate stepper driver for each Z axis motor.
 // The next unused E driver will be assigned to the second Z stepper.
-//#define Z_DUAL_STEPPER_DRIVERS
+#if ENABLED(DUAL_Z_STEPPER)
+  #define Z_DUAL_STEPPER_DRIVERS
+#endif
 
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
 
