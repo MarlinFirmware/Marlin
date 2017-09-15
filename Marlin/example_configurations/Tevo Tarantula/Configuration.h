@@ -54,7 +54,7 @@
  *
  * Warning: Does not respect endstops!
  */
-#define BABYSTEPPING
+//#define BABYSTEPPING
 
 /**
  * Primary Extruder steps per mm (plugged in to E0 port on controller)
