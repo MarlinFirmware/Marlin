@@ -20,7 +20,14 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(ARC_SUPPORT)
+
 #include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/planner.h"
+#include "../../module/temperature.h"
 
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
@@ -203,7 +210,7 @@ void plan_arc(
  *    G2 I10           ; CW circle centered at X+10
  *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
  */
-void gcode_G2_G3(bool clockwise) {
+void GcodeSuite::G2_G3(const bool clockwise) {
   if (IsRunning()) {
 
     #if ENABLED(SF_ARC_FIX)
@@ -211,7 +218,7 @@ void gcode_G2_G3(bool clockwise) {
       relative_mode = true;
     #endif
 
-    gcode.get_destination_from_command();
+    get_destination_from_command();
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;
@@ -254,7 +261,7 @@ void gcode_G2_G3(bool clockwise) {
 
       // Send the arc to the planner
       plan_arc(destination, arc_offset, clockwise);
-      gcode.refresh_cmd_timeout();
+      refresh_cmd_timeout();
     }
     else {
       // Bad arguments
@@ -263,3 +270,5 @@ void gcode_G2_G3(bool clockwise) {
     }
   }
 }
+
+#endif // ARC_SUPPORT
