@@ -20,10 +20,14 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../lcd/ultralcd.h"
+#include "../../Marlin.h"
+
 /**
  * M17: Enable power on all stepper motors
  */
-void gcode_M17() {
+void GcodeSuite::M17() {
   LCD_MESSAGEPGM(MSG_NO_MOVE);
   enable_all_steppers();
 }
