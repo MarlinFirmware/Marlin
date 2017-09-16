@@ -117,7 +117,6 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 extern void gcode_M18_M84();
-extern void gcode_M43();
 extern void gcode_M48();
 extern void gcode_M75();
 extern void gcode_M76();
@@ -435,10 +434,8 @@ void GcodeSuite::process_next_command() {
       case 42: M42(); break;      // M42: Change pin state
 
       #if ENABLED(PINS_DEBUGGING)
-        case 43: // M43: Read pin state
-          gcode_M43(); break;
+        case 43: M43(); break;    // M43: Read pin state
       #endif
-
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48: Z probe repeatability test
