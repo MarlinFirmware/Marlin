@@ -112,7 +112,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G12();
 extern void gcode_G17();
 extern void gcode_G18();
 extern void gcode_G19();
@@ -313,7 +312,7 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(NOZZLE_CLEAN_FEATURE)
         case 12:
-          gcode_G12(); // G12: Nozzle Clean
+          G12(); // G12: Nozzle Clean
           break;
       #endif // NOZZLE_CLEAN_FEATURE
 

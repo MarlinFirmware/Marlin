@@ -20,10 +20,20 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+
+#include "../../../libs/nozzle.h"
+
+#include "../../gcode.h"
+#include "../../parser.h"
+#include "../../../module/motion.h"
+
 /**
  * G12: Clean the nozzle
  */
-void gcode_G12() {
+void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
   if (axis_unhomed_error()) return;
 
@@ -34,3 +44,5 @@ void gcode_G12() {
 
   Nozzle::clean(pattern, strokes, radius, objects);
 }
+
+#endif // NOZZLE_CLEAN_FEATURE
