@@ -225,10 +225,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
  * ***************************************************************************
  */
 
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  void plan_cubic_move(const float offset[4]);
-#endif
-
 #if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current(uint8_t channel, float current);
   extern void digipot_i2c_init();
@@ -364,10 +360,6 @@ void suicide() {
 /**************************************************
  ***************** GCode Handlers *****************
  **************************************************/
-
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  #include "gcode/motion/G5.h"
-#endif
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   #include "gcode/feature/clean/G12.h"

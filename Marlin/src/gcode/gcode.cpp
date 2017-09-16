@@ -112,7 +112,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G5();
 extern void gcode_G12();
 extern void gcode_G17();
 extern void gcode_G18();
@@ -299,7 +298,7 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
         case 5: // G5: Cubic B_spline
-          gcode_G5();
+          G5();
           break;
       #endif // BEZIER_CURVE_SUPPORT
 
