@@ -20,7 +20,16 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(G38_PROBE_TARGET)
+
 #include "../gcode.h"
+
+#include "../../module/endstops.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+#include "../../module/probe.h"
 
 static bool G38_run_probe() {
 
@@ -88,9 +97,9 @@ static bool G38_run_probe() {
  *
  * Like G28 except uses Z min probe for all axes
  */
-void gcode_G38(bool is_38_2) {
+void GcodeSuite::G38(const bool is_38_2) {
   // Get X Y Z E F
-  gcode.get_destination_from_command();
+  get_destination_from_command();
 
   setup_for_endstop_or_probe_move();
 
@@ -108,3 +117,5 @@ void gcode_G38(bool is_38_2) {
 
   clean_up_after_endstop_or_probe_move();
 }
+
+#endif // G38_PROBE_TARGET

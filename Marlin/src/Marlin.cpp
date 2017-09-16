@@ -357,10 +357,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if ENABLED(G38_PROBE_TARGET)
-  #include "gcode/probe/G38.h"
-#endif
-
 #if HAS_MESH
   #include "gcode/probe/G42.h"
 #endif
