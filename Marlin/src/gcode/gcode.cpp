@@ -124,7 +124,6 @@ extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
-extern void gcode_M105();
 extern void gcode_M106();
 extern void gcode_M107();
 extern void gcode_M108();
@@ -493,7 +492,7 @@ void GcodeSuite::process_next_command() {
 
 
       case 105: // M105: Report current temperature
-        gcode_M105();
+        M105();
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 

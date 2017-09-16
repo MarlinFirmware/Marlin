@@ -374,8 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/temperature/M105.h"
-
 #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
 
   static uint8_t auto_report_temp_interval;
