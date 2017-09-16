@@ -169,7 +169,6 @@ static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
-bool volumetric_enabled;
 float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 
 #if HAS_WORKSPACE_OFFSET
@@ -3295,7 +3294,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 #endif // FILAMENT_RUNOUT_SENSOR
 
 float calculate_volumetric_multiplier(const float diameter) {
-  if (!volumetric_enabled || diameter == 0) return 1.0;
+  if (!parser.volumetric_enabled || diameter == 0) return 1.0;
   return 1.0 / (M_PI * sq(diameter * 0.5));
 }
 
