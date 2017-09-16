@@ -20,11 +20,14 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M105: Read hot end and bed temperature
  */
-void gcode_M105() {
-  if (gcode.get_target_extruder_from_command()) return;
+void GcodeSuite::M105() {
+  if (get_target_extruder_from_command()) return;
 
   #if HAS_TEMP_HOTEND || HAS_TEMP_BED
     SERIAL_PROTOCOLPGM(MSG_OK);
