@@ -31,11 +31,12 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
-#include "../module/printcounter.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
 #endif
+
+#include "../Marlin.h" // for idle()
 
 uint8_t GcodeSuite::target_extruder;
 millis_t GcodeSuite::previous_cmd_ms;
@@ -97,6 +98,15 @@ void GcodeSuite::get_destination_from_command() {
   #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
     gcode_get_mix();
   #endif
+}
+
+/**
+ * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
+ */
+void GcodeSuite::dwell(millis_t time) {
+  refresh_cmd_timeout();
+  time += previous_cmd_ms;
+  while (PENDING(millis(), time)) idle();
 }
 
 //

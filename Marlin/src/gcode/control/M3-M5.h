@@ -52,10 +52,10 @@
  */
 
 // Wait for spindle to come up to speed
-inline void delay_for_power_up() { dwell(SPINDLE_LASER_POWERUP_DELAY); }
+inline void delay_for_power_up() { gcode.dwell(SPINDLE_LASER_POWERUP_DELAY); }
 
 // Wait for spindle to stop turning
-inline void delay_for_power_down() { dwell(SPINDLE_LASER_POWERDOWN_DELAY); }
+inline void delay_for_power_down() { gcode.dwell(SPINDLE_LASER_POWERDOWN_DELAY); }
 
 /**
  * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line

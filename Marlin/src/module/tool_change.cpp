@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
+  #include "../gcode/gcode.h" // for dwell()
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3
@@ -74,7 +78,7 @@
       default: OUT_WRITE(SOL0_PIN, state); break;
     }
     #if PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
-      dwell(PARKING_EXTRUDER_SOLENOIDS_DELAY);
+      gcode.dwell(PARKING_EXTRUDER_SOLENOIDS_DELAY);
     #endif
   }
 
