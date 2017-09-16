@@ -375,7 +375,7 @@ private:
   #endif
 
   #if ENABLED(G38_PROBE_TARGET)
-    static void G38(bool is_38_2);
+    static void G38(const bool is_38_2);
   #endif
 
   #if HAS_MESH

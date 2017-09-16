@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G38(bool is_38_2);
 extern void gcode_G42();
 extern void gcode_G92();
 extern void gcode_M0_M1();
@@ -385,7 +384,7 @@ void GcodeSuite::process_next_command() {
       #if ENABLED(G38_PROBE_TARGET)
         case 38: // G38.2 & G38.3
           if (parser.subcode == 2 || parser.subcode == 3)
-            gcode_G38(parser.subcode == 2);
+            G38(parser.subcode == 2);
           break;
       #endif
 
