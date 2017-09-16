@@ -20,6 +20,15 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_BED_PROBE
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/probe.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
 /**
  * G30: Do a single Z probe at the current XY
  *
@@ -29,7 +38,7 @@
  *   Y   Probe Y position (default current Y)
  *   S0  Leave the probe deployed
  */
-void gcode_G30() {
+void GcodeSuite::G30() {
   const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
               ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
@@ -54,3 +63,5 @@ void gcode_G30() {
 
   report_current_position();
 }
+
+#endif // HAS_BED_PROBE

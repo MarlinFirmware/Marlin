@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G30();
 extern void gcode_G31();
 extern void gcode_G32();
 extern void gcode_G38(bool is_38_2);
@@ -362,7 +361,7 @@ void GcodeSuite::process_next_command() {
       #if HAS_BED_PROBE
 
         case 30: // G30 Single Z probe
-          gcode_G30();
+          G30();
           break;
 
         #if ENABLED(Z_PROBE_SLED)
