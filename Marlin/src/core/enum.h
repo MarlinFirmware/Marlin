@@ -148,12 +148,4 @@ enum LCDViewAction {
   };
 #endif
 
-/**
- * Workspace planes only apply to G2/G3 moves
- * (and "canned cycles" - not a current feature)
- */
-#if ENABLED(CNC_WORKSPACE_PLANES)
-  enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
-#endif
-
 #endif // __ENUM_H__

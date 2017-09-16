@@ -256,6 +256,15 @@ public:
 
   static bool axis_relative_modes[];
 
+  #if ENABLED(CNC_WORKSPACE_PLANES)
+    /**
+     * Workspace planes only apply to G2/G3 moves
+     * (and "canned cycles" - not a current feature)
+     */
+    enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
+    static WorkspacePlane workspace_plane;
+  #endif
+
   static millis_t previous_cmd_ms;
   FORCE_INLINE static void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
