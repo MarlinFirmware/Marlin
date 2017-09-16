@@ -112,7 +112,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G2_G3(bool clockwise);
 extern void gcode_G4();
 extern void gcode_G5();
 extern void gcode_G12();
@@ -290,7 +289,7 @@ void GcodeSuite::process_next_command() {
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
         case 2: // G2: CW ARC
         case 3: // G3: CCW ARC
-          gcode_G2_G3(parser.codenum == 2);
+          G2_G3(parser.codenum == 2);
           break;
       #endif
 
