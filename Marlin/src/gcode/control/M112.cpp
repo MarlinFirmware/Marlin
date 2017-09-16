@@ -20,14 +20,20 @@
  *
  */
 
-/**
- * M410: Quickstop - Abort all planned moves
- *
- * This will stop the carriages mid-move, so most likely they
- * will be out of sync with the stepper position after this.
- */
-void gcode_M410() {
+#include "../../inc/MarlinConfig.h"
 
-  quickstop_stepper();
+#if DISABLED(EMERGENCY_PARSER)
+
+#include "../gcode.h"
+#include "../../Marlin.h" // for kill
+
+/**
+ * M112: Emergency Stop
+ */
+void GcodeSuite::M112() {
+
+  kill(PSTR(MSG_KILLED));
 
 }
+
+#endif // !EMERGENCY_PARSER
