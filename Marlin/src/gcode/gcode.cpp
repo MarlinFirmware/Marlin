@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M17();
 extern void gcode_M18_M84();
 extern void gcode_M20();
 extern void gcode_M21();
@@ -422,7 +421,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       case 17: // M17: Enable all stepper motors
-        gcode_M17();
+        M17();
         break;
 
       #if ENABLED(SDSUPPORT)

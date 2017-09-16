@@ -357,8 +357,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#include "gcode/control/M17.h"
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   // For M125, M600, M24
   #include "gcode/feature/pause/common.h"
