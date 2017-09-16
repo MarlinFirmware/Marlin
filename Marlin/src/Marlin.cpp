@@ -357,10 +357,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if HAS_RESUME_CONTINUE
-  #include "gcode/lcd/M0_M1.h"
-#endif
-
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #include "gcode/control/M3-M5.h"
 #endif

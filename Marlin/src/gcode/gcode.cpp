@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M0_M1();
 extern void gcode_M3_M4(bool is_M3);
 extern void gcode_M5();
 extern void gcode_M17();
@@ -413,7 +412,7 @@ void GcodeSuite::process_next_command() {
       #if HAS_RESUME_CONTINUE
         case 0: // M0: Unconditional stop - Wait for user button press on LCD
         case 1: // M1: Conditional stop - Wait for user button press on LCD
-          gcode_M0_M1();
+          M0_M1();
           break;
       #endif // ULTIPANEL
 

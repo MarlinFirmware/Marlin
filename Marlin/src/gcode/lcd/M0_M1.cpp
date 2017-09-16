@@ -20,13 +20,24 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_RESUME_CONTINUE
+
 #include "../gcode.h"
+#include "../../module/stepper.h"
+
+#if ENABLED(ULTIPANEL)
+  #include "../../lcd/ultralcd.h"
+#endif
+
+#include "../../sd/cardreader.h"
 
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
  */
-void gcode_M0_M1() {
+void GcodeSuite::M0_M1() {
   const char * const args = parser.string_arg;
 
   millis_t ms = 0;
@@ -64,10 +75,10 @@ void gcode_M0_M1() {
   wait_for_user = true;
 
   stepper.synchronize();
-  gcode.refresh_cmd_timeout();
+  refresh_cmd_timeout();
 
   if (ms > 0) {
-    ms += gcode.previous_cmd_ms;  // wait until this time for a click
+    ms += previous_cmd_ms;  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
   else {
@@ -84,3 +95,5 @@ void gcode_M0_M1() {
   wait_for_user = false;
   KEEPALIVE_STATE(IN_HANDLER);
 }
+
+#endif // HAS_RESUME_CONTINUE
