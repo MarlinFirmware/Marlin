@@ -20,8 +20,12 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+
+#include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
-#include "../../gcode/gcode.h"
 
 void plan_cubic_move(const float offset[4]) {
   cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
@@ -39,10 +43,13 @@ void plan_cubic_move(const float offset[4]) {
  * parameters can be omitted and default to zero.
  */
 
+#include "../gcode.h"
+#include "../../Marlin.h" // for IsRunning()
+
 /**
  * G5: Cubic B-spline
  */
-void gcode_G5() {
+void GcodeSuite::G5() {
   if (IsRunning()) {
 
     #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -53,7 +60,7 @@ void gcode_G5() {
       }
     #endif
 
-    gcode.get_destination_from_command();
+    get_destination_from_command();
 
     const float offset[] = {
       parser.linearval('I'),
@@ -65,3 +72,5 @@ void gcode_G5() {
     plan_cubic_move(offset);
   }
 }
+
+#endif // BEZIER_CURVE_SUPPORT
