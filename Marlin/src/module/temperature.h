@@ -525,6 +525,10 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+      static void print_heaterstates();
+    #endif
+
   private:
 
     #if ENABLED(FAST_PWM_FAN)

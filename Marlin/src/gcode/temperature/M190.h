@@ -85,7 +85,7 @@ void gcode_M190() {
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
       next_temp_ms = now + 1000UL;
-      print_heaterstates();
+      thermalManager.print_heaterstates();
       #if TEMP_BED_RESIDENCY_TIME > 0
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms)
