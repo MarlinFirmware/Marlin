@@ -48,6 +48,10 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
   uint8_t GcodeSuite::host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
 #endif
 
+#if ENABLED(CNC_WORKSPACE_PLANES)
+  GcodeSuite::WorkspacePlane GcodeSuite::workspace_plane = PLANE_XY;
+#endif
+
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -112,9 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G17();
-extern void gcode_G18();
-extern void gcode_G19();
 extern void gcode_G20();
 extern void gcode_G21();
 extern void gcode_G27();
@@ -318,13 +319,13 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(CNC_WORKSPACE_PLANES)
         case 17: // G17: Select Plane XY
-          gcode_G17();
+          G17();
           break;
         case 18: // G18: Select Plane ZX
-          gcode_G18();
+          G18();
           break;
         case 19: // G19: Select Plane YZ
-          gcode_G19();
+          G19();
           break;
       #endif // CNC_WORKSPACE_PLANES
 
