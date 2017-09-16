@@ -461,15 +461,15 @@
 #if defined(MAX6675_SS) &&  MAX6675_SS >= 0
   REPORT_NAME_DIGITAL(MAX6675_SS, __LINE__ )
 #endif
-#if defined(MISO) &&  MISO >= 0
-  REPORT_NAME_DIGITAL(MISO, __LINE__ )
-#endif
+// #if defined(MISO) &&  MISO >= 0
+//   REPORT_NAME_DIGITAL(MISO, __LINE__ )
+// #endif
 #if PIN_EXISTS(MISO)
   REPORT_NAME_DIGITAL(MISO_PIN, __LINE__ )
 #endif
-#if defined(MOSI) &&  MOSI >= 0
-  REPORT_NAME_DIGITAL(MOSI, __LINE__ )
-#endif
+// #if defined(MOSI) &&  MOSI >= 0
+//   REPORT_NAME_DIGITAL(MOSI, __LINE__ )
+// #endif
 #if PIN_EXISTS(MOSI)
   REPORT_NAME_DIGITAL(MOSI_PIN, __LINE__ )
 #endif
@@ -521,9 +521,9 @@
 #if PIN_EXISTS(SAFETY_TRIGGERED)
   REPORT_NAME_DIGITAL(SAFETY_TRIGGERED_PIN, __LINE__ )
 #endif
-#if defined(SCK) &&  SCK >= 0
-  REPORT_NAME_DIGITAL(SCK, __LINE__ )
-#endif
+// #if defined(SCK) &&  SCK >= 0
+//   REPORT_NAME_DIGITAL(SCK, __LINE__ )
+// #endif
 #if PIN_EXISTS(SCK)
   REPORT_NAME_DIGITAL(SCK_PIN, __LINE__ )
 #endif
