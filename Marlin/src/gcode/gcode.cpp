@@ -116,8 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G20();
-extern void gcode_G21();
 extern void gcode_G27();
 extern void gcode_G30();
 extern void gcode_G31();
@@ -331,11 +329,11 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(INCH_MODE_SUPPORT)
         case 20: // G20: Inch Mode
-          gcode_G20();
+          G20();
           break;
 
         case 21: // G21: MM Mode
-          gcode_G21();
+          G21();
           break;
       #endif // INCH_MODE_SUPPORT
 
