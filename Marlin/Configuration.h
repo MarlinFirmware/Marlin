@@ -131,7 +131,8 @@
 #define EXTRUDER_E1_X 0
 #define EXTRUDER_E1_Y 0
 
-/** Secondary Extruder steps per mm
+/** 
+ * Secondary Extruder steps per mm
  * (how to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
  */
 #define E1_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate
