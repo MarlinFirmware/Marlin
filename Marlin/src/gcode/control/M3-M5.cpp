@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+#include "../gcode.h"
+#include "../../module/stepper.h"
+
 /**
  * M3: Spindle Clockwise
  * M4: Spindle Counter-clockwise
@@ -70,7 +77,7 @@ inline void ocr_val_mode() {
   analogWrite(SPINDLE_LASER_PWM_PIN, spindle_laser_power);
 }
 
-void gcode_M3_M4(bool is_M3) {
+void GcodeSuite::M3_M4(bool is_M3) {
 
   stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
   #if SPINDLE_DIR_CHANGE
@@ -118,10 +125,12 @@ void gcode_M3_M4(bool is_M3) {
 }
 
 /**
-* M5 turn off spindle
-*/
-void gcode_M5() {
+ * M5 turn off spindle
+ */
+void GcodeSuite::M5() {
   stepper.synchronize();
   WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
   delay_for_power_down();
 }
+
+#endif // SPINDLE_LASER_ENABLE

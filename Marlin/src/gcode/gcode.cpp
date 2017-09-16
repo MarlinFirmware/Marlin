@@ -116,8 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M3_M4(bool is_M3);
-extern void gcode_M5();
 extern void gcode_M17();
 extern void gcode_M18_M84();
 extern void gcode_M20();
@@ -417,16 +415,12 @@ void GcodeSuite::process_next_command() {
       #endif // ULTIPANEL
 
       #if ENABLED(SPINDLE_LASER_ENABLE)
-        case 3:
-          gcode_M3_M4(true);   // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
-          break;               // synchronizes with movement commands
-        case 4:
-          gcode_M3_M4(false);  // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
-          break;               // synchronizes with movement commands
-        case 5:
-          gcode_M5();     // M5 - turn spindle/laser off
-          break;          // synchronizes with movement commands
+        // These synchronize with movement commands...
+        case 3: M3_M4(true ); break;  // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
+        case 4: M3_M4(false); break;  // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
+        case 5: M5(); break;          // M5 - turn spindle/laser off
       #endif
+
       case 17: // M17: Enable all stepper motors
         gcode_M17();
         break;
