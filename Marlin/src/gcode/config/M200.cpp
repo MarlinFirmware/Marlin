@@ -37,8 +37,8 @@ void GcodeSuite::M200() {
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    volumetric_enabled = (parser.value_linear_units() != 0.0);
-    if (volumetric_enabled) {
+    parser.volumetric_enabled = (parser.value_linear_units() != 0.0);
+    if (parser.volumetric_enabled) {
       filament_size[target_extruder] = parser.value_linear_units();
       // make sure all extruders have some sane value for the filament size
       for (uint8_t i = 0; i < COUNT(filament_size); i++)

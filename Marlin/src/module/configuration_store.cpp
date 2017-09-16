@@ -137,7 +137,7 @@
  *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
- *  537  M200 D    volumetric_enabled               (bool)
+ *  537  M200 D    parser.volumetric_enabled        (bool)
  *  538  M200 T D  filament_size                    (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    20 bytes
@@ -185,9 +185,7 @@ MarlinSettings settings;
 #include "../core/language.h"
 #include "../Marlin.h"
 
-#if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
-  #include "../gcode/parser.h"
-#endif
+#include "../gcode/parser.h"
 
 #if HAS_BED_PROBE
   #include "../module/probe.h"
@@ -511,7 +509,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(fwretract.swap_retract_recover_feedrate_mm_s);
     #endif
 
-    EEPROM_WRITE(volumetric_enabled);
+    EEPROM_WRITE(parser.volumetric_enabled);
 
     // Save filament sizes
     for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
@@ -897,7 +895,7 @@ void MarlinSettings::postprocess() {
         for (uint8_t q=8; q--;) EEPROM_READ(dummy);
       #endif
 
-      EEPROM_READ(volumetric_enabled);
+      EEPROM_READ(parser.volumetric_enabled);
 
       for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
         EEPROM_READ(dummy);
@@ -1259,7 +1257,7 @@ void MarlinSettings::reset() {
     fwretract.reset();
   #endif
 
-  volumetric_enabled =
+  parser.volumetric_enabled =
     #if ENABLED(VOLUMETRIC_DEFAULT_ON)
       true
     #else
@@ -1350,7 +1348,7 @@ void MarlinSettings::reset() {
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
       #define LINEAR_UNIT(N) ((N) / parser.linear_unit_factor)
-      #define VOLUMETRIC_UNIT(N) ((N) / (volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
+      #define VOLUMETRIC_UNIT(N) ((N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
       SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM(" ; Units in ");
@@ -1387,7 +1385,7 @@ void MarlinSettings::reset() {
     if (!forReplay) {
       CONFIG_ECHO_START;
       SERIAL_ECHOPGM("Filament settings:");
-      if (volumetric_enabled)
+      if (parser.volumetric_enabled)
         SERIAL_EOL();
       else
         SERIAL_ECHOLNPGM(" Disabled");
@@ -1417,7 +1415,7 @@ void MarlinSettings::reset() {
       #endif // EXTRUDERS > 2
     #endif // EXTRUDERS > 1
 
-    if (!volumetric_enabled) {
+    if (!parser.volumetric_enabled) {
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPGM("  M200 D0");
     }
