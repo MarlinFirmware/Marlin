@@ -124,8 +124,6 @@ extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
-extern void gcode_M106();
-extern void gcode_M107();
 extern void gcode_M108();
 extern void gcode_M110();
 extern void gcode_M111();
@@ -509,13 +507,9 @@ void GcodeSuite::process_next_command() {
       #endif // HAS_TEMP_BED
 
       #if FAN_COUNT > 0
-        case 106: // M106: Fan On
-          gcode_M106();
-          break;
-        case 107: // M107: Fan Off
-          gcode_M107();
-          break;
-      #endif // FAN_COUNT > 0
+        case 106: M106(); break;  // M106: Fan On
+        case 107: M107(); break;  // M107: Fan Off
+      #endif
 
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         case 125: // M125: Store current position and move to filament change position

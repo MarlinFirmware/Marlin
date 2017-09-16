@@ -391,11 +391,6 @@ bool pin_is_protected(const int8_t pin) {
 
 #endif // AUTO_REPORT_TEMPERATURES && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
 
-#if FAN_COUNT > 0
-  #include "gcode/temperature/M106.h"
-  #include "gcode/temperature/M107.h"
-#endif
-
 #if DISABLED(EMERGENCY_PARSER)
   #include "gcode/control/M108.h"
   #include "gcode/control/M112.h"
