@@ -365,8 +365,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#include "gcode/motion/G4.h"
-
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   #include "gcode/motion/G5.h"
 #endif

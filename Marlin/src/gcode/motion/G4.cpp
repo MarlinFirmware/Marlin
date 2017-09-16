@@ -20,10 +20,14 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/stepper.h"
+#include "../../lcd/ultralcd.h"
+
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
  */
-void gcode_G4() {
+void GcodeSuite::G4() {
   millis_t dwell_ms = 0;
 
   if (parser.seenval('P')) dwell_ms = parser.value_millis(); // milliseconds to wait
@@ -33,5 +37,5 @@ void gcode_G4() {
 
   if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
-  gcode.dwell(dwell_ms);
+  dwell(dwell_ms);
 }
