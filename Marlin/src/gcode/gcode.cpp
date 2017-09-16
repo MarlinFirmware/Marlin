@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G42();
 extern void gcode_G92();
 extern void gcode_M0_M1();
 extern void gcode_M3_M4(bool is_M3);
@@ -400,9 +399,7 @@ void GcodeSuite::process_next_command() {
         break;
 
       #if HAS_MESH
-        case 42:
-          gcode_G42();
-          break;
+        case 42: G42(); break;        // G42: Coordinated move to a mesh point
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)

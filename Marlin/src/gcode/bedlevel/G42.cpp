@@ -20,10 +20,19 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_MESH
+
+#include "../gcode.h"
+#include "../../Marlin.h" // for IsRunning()
+#include "../../module/motion.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
 /**
  * G42: Move X & Y axes to mesh coordinates (I & J)
  */
-void gcode_G42() {
+void GcodeSuite::G42() {
   if (IsRunning()) {
     const bool hasI = parser.seenval('I');
     const int8_t ix = hasI ? parser.value_int() : 0;
@@ -65,3 +74,5 @@ void gcode_G42() {
     #endif
   }
 }
+
+#endif // HAS_MESH

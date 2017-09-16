@@ -357,10 +357,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if HAS_MESH
-  #include "gcode/probe/G42.h"
-#endif
-
 #include "gcode/geometry/G92.h"
 
 #if HAS_RESUME_CONTINUE
