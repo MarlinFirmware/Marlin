@@ -20,18 +20,20 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M33: Get the long full path of a file or folder
- *
- * Parameters:
- *   <dospath> Case-insensitive DOS-style path to a file or folder
- *
- * Example:
- *   M33 miscel~1/armchair/armcha~1.gco
- *
- * Output:
- *   /Miscellaneous/Armchair/Armchair.gcode
+ * M23: Open a file
  */
-void gcode_M33() {
-  card.printLongPath(parser.string_arg);
+void GcodeSuite::M23() {
+  // Simplify3D includes the size, so zero out all spaces (#7227)
+  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
+  card.openFile(parser.string_arg, true);
 }
+
+#endif // SDSUPPORT

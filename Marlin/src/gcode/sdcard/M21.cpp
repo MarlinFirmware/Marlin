@@ -20,25 +20,16 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M32: Select file and start SD Print
+ * M21: Init SD Card
  */
-void gcode_M32() {
-  if (IS_SD_PRINTING)
-    stepper.synchronize();
+void GcodeSuite::M21() { card.initsd(); }
 
-  char* namestartpos = parser.string_arg;
-  const bool call_procedure = parser.boolval('P');
-
-  if (card.cardOK) {
-    card.openFile(namestartpos, true, call_procedure);
-
-    if (parser.seenval('S'))
-      card.setIndex(parser.value_long());
-
-    card.startFileprint();
-
-    // Procedure calls count as normal print time.
-    if (!call_procedure) print_job_timer.start();
-  }
-}
+#endif // SDSUPPORT

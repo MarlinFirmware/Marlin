@@ -360,32 +360,7 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if ENABLED(SDSUPPORT)
-  #include "gcode/sdcard/M20.h"           // M20  - List SD card. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M21.h"           // M21  - Init SD card. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M22.h"           // M22  - Release SD card. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M23.h"           // M23  - Select SD file: "M23 /path/file.gco". (Requires SDSUPPORT)
-  #include "gcode/sdcard/M24.h"           // M24  - Start/resume SD print. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M25.h"           // M25  - Pause SD print. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M26.h"           // M26  - Set SD position in bytes: "M26 S12345". (Requires SDSUPPORT)
-  #include "gcode/sdcard/M27.h"           // M27  - Report SD print status. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M28.h"           // M28  - Start SD write: "M28 /path/file.gco". (Requires SDSUPPORT)
-  #include "gcode/sdcard/M29.h"           // M29  - Stop SD write. (Requires SDSUPPORT)
-  #include "gcode/sdcard/M30.h"           // M30  - Delete file from SD: "M30 /path/file.gco"
-#endif
-
 #include "gcode/stats/M31.h"              // M31: Get the time since the start of SD Print (or last M109)
-
-#if ENABLED(SDSUPPORT)
-  #include "gcode/sdcard/M32.h"
-  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-    #include "gcode/sdcard/M33.h"
-  #endif
-  #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
-    #include "gcode/sdcard/M34.h"
-  #endif
-  #include "gcode/sdcard/M928.h"
-#endif
 
 /**
  * Sensitive pin test for M42, M226

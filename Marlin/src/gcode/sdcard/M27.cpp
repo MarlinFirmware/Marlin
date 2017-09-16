@@ -20,10 +20,16 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M29: Stop SD Write
- * Processed in write to file routine above
+ * M27: Get SD Card status
  */
-void gcode_M29() {
-  // card.saving = false;
-}
+void GcodeSuite::M27() { card.getStatus(); }
+
+#endif // SDSUPPORT

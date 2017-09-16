@@ -20,11 +20,28 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+#include "../../module/printcounter.h"
+
+#if ENABLED(PARK_HEAD_ON_PAUSE)
+  #include "../queue.h"
+#endif
+
 /**
- * M23: Open a file
+ * M25: Pause SD Print
  */
-void gcode_M23() {
-  // Simplify3D includes the size, so zero out all spaces (#7227)
-  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
-  card.openFile(parser.string_arg, true);
+void GcodeSuite::M25() {
+  card.pauseSDPrint();
+  print_job_timer.pause();
+
+  #if ENABLED(PARK_HEAD_ON_PAUSE)
+    enqueue_and_echo_commands_P(PSTR("M125")); // Must be enqueued with pauseSDPrint set to be last in the buffer
+  #endif
 }
+
+#endif // SDSUPPORT
