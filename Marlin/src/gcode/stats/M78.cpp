@@ -20,7 +20,21 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PRINTCOUNTER)
+
+#include "../gcode.h"
+#include "../../module/printcounter.h"
+
 /**
- * M77: Stop print timer
+ * M78: Show print statistics
  */
-void gcode_M77() { print_job_timer.stop(); }
+void GcodeSuite::M78() {
+  if (parser.intval('S') == 78)   // "M78 S78" will reset the statistics
+    print_job_timer.initStats();
+  else
+    print_job_timer.showStats();
+}
+
+#endif // PRINTCOUNTER

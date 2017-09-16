@@ -20,7 +20,20 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/printcounter.h"
+
 /**
  * M75: Start print timer
  */
-void gcode_M75() { print_job_timer.start(); }
+void GcodeSuite::M75() { print_job_timer.start(); }
+
+/**
+ * M76: Pause print timer
+ */
+void GcodeSuite::M76() { print_job_timer.pause(); }
+
+/**
+ * M77: Stop print timer
+ */
+void GcodeSuite::M77() { print_job_timer.stop(); }

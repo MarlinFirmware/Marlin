@@ -370,14 +370,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/stats/M75.h"
-#include "gcode/stats/M76.h"
-#include "gcode/stats/M77.h"
-
-#if ENABLED(PRINTCOUNTER)
-  #include "gcode/stats/M78.h"
-#endif
-
 #include "gcode/temperature/M105.h"
 
 #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
