@@ -117,7 +117,6 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 extern void gcode_M18_M84();
-extern void gcode_M48();
 extern void gcode_M75();
 extern void gcode_M76();
 extern void gcode_M77();
@@ -438,10 +437,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-        case 48: // M48: Z probe repeatability test
-          gcode_M48();
-          break;
-      #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+        case 48: M48(); break;    // M48: Z probe repeatability test
+      #endif
 
       #if ENABLED(UBL_G26_MESH_VALIDATION)
         case 49: M49(); break;    // M49: Turn on or off G26 debug flag for verbose output
