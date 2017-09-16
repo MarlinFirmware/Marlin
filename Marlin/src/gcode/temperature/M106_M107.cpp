@@ -20,15 +20,32 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if FAN_COUNT > 0
+
+#include "../gcode.h"
+#include "../../Marlin.h" // for fanSpeeds — should move those to Planner
+
 /**
  * M106: Set Fan Speed
  *
  *  S<int>   Speed between 0-255
  *  P<index> Fan index, if more than one fan
  */
-void gcode_M106() {
+void GcodeSuite::M106() {
   uint16_t s = parser.ushortval('S', 255);
   NOMORE(s, 255);
   const uint8_t p = parser.byteval('P', 0);
   if (p < FAN_COUNT) fanSpeeds[p] = s;
 }
+
+/**
+ * M107: Fan Off
+ */
+void GcodeSuite::M107() {
+  const uint16_t p = parser.ushortval('P');
+  if (p < FAN_COUNT) fanSpeeds[p] = 0;
+}
+
+#endif // FAN_COUNT > 0
