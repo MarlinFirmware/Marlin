@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
-class SPI {
+class SPIclass {
   static SoftSPI<MisoPin, MosiPin, SckPin> softSPI;
   public:
     FORCE_INLINE static void init() { softSPI.begin(); }
@@ -38,7 +38,7 @@ class SPI {
 
 // Hardware SPI
 template<>
-class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
+class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
   public:
     FORCE_INLINE static void init() {
         OUT_WRITE(SCK_PIN, LOW);
