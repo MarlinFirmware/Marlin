@@ -20,13 +20,17 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../Marlin.h" // for pin_is_protected
+#include "../../inc/MarlinConfig.h"
+
 /**
  * M42: Change pin status via GCode
  *
  *  P<pin>  Pin number (LED if omitted)
  *  S<byte> Pin status from 0 - 255
  */
-void gcode_M42() {
+void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 

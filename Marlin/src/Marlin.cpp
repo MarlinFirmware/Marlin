@@ -363,14 +363,12 @@ void suicide() {
 /**
  * Sensitive pin test for M42, M226
  */
-static bool pin_is_protected(const int8_t pin) {
+bool pin_is_protected(const int8_t pin) {
   static const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#include "gcode/control/M42.h"
 
 #if ENABLED(PINS_DEBUGGING)
   #include "gcode/config/M43.h"

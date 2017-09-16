@@ -228,4 +228,6 @@ extern volatile bool wait_for_heatup;
 
 void calculate_volumetric_multipliers();
 
+bool pin_is_protected(const int8_t pin);
+
 #endif // __MARLIN_H__
