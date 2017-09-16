@@ -116,8 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G31();
-extern void gcode_G32();
 extern void gcode_G38(bool is_38_2);
 extern void gcode_G42();
 extern void gcode_G92();
@@ -367,11 +365,11 @@ void GcodeSuite::process_next_command() {
         #if ENABLED(Z_PROBE_SLED)
 
             case 31: // G31: dock the sled
-              gcode_G31();
+              G31();
               break;
 
             case 32: // G32: undock the sled
-              gcode_G32();
+              G32();
               break;
 
         #endif // Z_PROBE_SLED
