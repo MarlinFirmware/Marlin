@@ -129,6 +129,10 @@
   #include "feature/pause.h"
 #endif
 
+#if ENABLED(TEMP_STAT_LEDS)
+  #include "feature/leds/tempstat.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -656,37 +660,6 @@ void quickstop_stepper() {
   }
 
 #endif // USE_CONTROLLER_FAN
-
-#if ENABLED(TEMP_STAT_LEDS)
-
-  static bool red_led = false;
-  static millis_t next_status_led_update_ms = 0;
-
-  void handle_status_leds(void) {
-    if (ELAPSED(millis(), next_status_led_update_ms)) {
-      next_status_led_update_ms += 500; // Update every 0.5s
-      float max_temp = 0.0;
-      #if HAS_TEMP_BED
-        max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
-      #endif
-      HOTEND_LOOP()
-        max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
-      const bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
-      if (new_led != red_led) {
-        red_led = new_led;
-        #if PIN_EXISTS(STAT_LED_RED)
-          WRITE(STAT_LED_RED_PIN, new_led ? HIGH : LOW);
-          #if PIN_EXISTS(STAT_LED_BLUE)
-            WRITE(STAT_LED_BLUE_PIN, new_led ? LOW : HIGH);
-          #endif
-        #else
-          WRITE(STAT_LED_BLUE_PIN, new_led ? HIGH : LOW);
-        #endif
-      }
-    }
-  }
-
-#endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
