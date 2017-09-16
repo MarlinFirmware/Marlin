@@ -20,9 +20,18 @@
  *
  */
 
-#include "../gcode.h"
+#include "../../inc/MarlinConfig.h"
 
+#if ENABLED(PINS_DEBUGGING)
+
+#include "../gcode.h"
+#include "../../Marlin.h" // for pin_is_protected
 #include "../../pins/pinsDebug.h"
+#include "../../module/endstops.h"
+
+#if HAS_Z_SERVO_ENDSTOP
+  #include "../../module/probe.h"
+#endif
 
 inline void toggle_pins() {
   const bool I_flag = parser.boolval('I');
@@ -227,7 +236,7 @@ inline void servo_probe_test() {
  *  M43 S       - Servo probe test
  *                  P<index> - Probe index (optional - defaults to 0
  */
-void gcode_M43() {
+void GcodeSuite::M43() {
 
   if (parser.seen('T')) {   // must be first or else its "S" and "E" parameters will execute endstop or servo test
     toggle_pins();
@@ -311,3 +320,5 @@ void gcode_M43() {
   for (uint8_t pin = first_pin; pin <= last_pin; pin++)
     if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
 }
+
+#endif // PINS_DEBUGGING

@@ -370,10 +370,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(PINS_DEBUGGING)
-  #include "gcode/config/M43.h"
-#endif
-
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
   #include "gcode/calibrate/M48.h"
 #endif
