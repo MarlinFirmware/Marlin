@@ -357,10 +357,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if ENABLED(NOZZLE_PARK_FEATURE)
-  #include "gcode/feature/pause/G27.h"
-#endif
-
 #if HAS_BED_PROBE
   #include "gcode/probe/G30.h"
   #if ENABLED(Z_PROBE_SLED)
