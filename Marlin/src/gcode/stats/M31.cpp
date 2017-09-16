@@ -20,10 +20,16 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../core/serial.h"
+#include "../../module/printcounter.h"
+#include "../../libs/duration_t.h"
+#include "../../lcd/ultralcd.h"
+
 /**
  * M31: Get the time since the start of SD Print (or last M109)
  */
-void gcode_M31() {
+void GcodeSuite::M31() {
   char buffer[21];
   duration_t elapsed = print_job_timer.duration();
   elapsed.toString(buffer);
