@@ -374,23 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-
-  static uint8_t auto_report_temp_interval;
-  static millis_t next_temp_report_ms;
-
-  inline void auto_report_temperatures() {
-    if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
-      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-      thermalManager.print_heaterstates();
-      SERIAL_EOL();
-    }
-  }
-
-  #include "gcode/temperature/M155.h"
-
-#endif // AUTO_REPORT_TEMPERATURES && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-
 #if DISABLED(EMERGENCY_PARSER)
   #include "gcode/control/M108.h"
   #include "gcode/control/M112.h"
@@ -902,7 +885,7 @@ void idle(
   #endif
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    auto_report_temperatures();
+    thermalManager.auto_report_temperatures();
   #endif
 
   manage_inactivity(

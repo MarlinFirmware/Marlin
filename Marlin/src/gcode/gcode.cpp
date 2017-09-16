@@ -144,7 +144,6 @@ extern void gcode_M140();
 extern void gcode_M145();
 extern void gcode_M149();
 extern void gcode_M150();
-extern void gcode_M155();
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
@@ -495,9 +494,7 @@ void GcodeSuite::process_next_command() {
         return; // "ok" already printed
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-        case 155: // M155: Set temperature auto-report interval
-          gcode_M155();
-          break;
+        case 155: M155(); break;  // M155: Set temperature auto-report interval
       #endif
 
       #if HAS_TEMP_BED
