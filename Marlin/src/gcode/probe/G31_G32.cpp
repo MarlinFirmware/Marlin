@@ -20,12 +20,21 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(Z_PROBE_SLED)
+
+#include "../gcode.h"
+#include "../../module/probe.h"
+
 /**
  * G31: Deploy the Z probe
  */
-void gcode_G31() { DEPLOY_PROBE(); }
+void GcodeSuite::G31() { DEPLOY_PROBE(); }
 
 /**
  * G32: Stow the Z probe
  */
-void gcode_G32() { STOW_PROBE(); }
+void GcodeSuite::G32() { STOW_PROBE(); }
+
+#endif // Z_PROBE_SLED
