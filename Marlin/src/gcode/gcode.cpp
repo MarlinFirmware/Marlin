@@ -117,7 +117,6 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 extern void gcode_M18_M84();
-extern void gcode_M31();
 extern void gcode_M42();
 extern void gcode_M43();
 extern void gcode_M48();
@@ -432,8 +431,7 @@ void GcodeSuite::process_next_command() {
         case 928: M928(); break;  // M928: Start SD write
       #endif // SDSUPPORT
 
-      case 31: // M31: Report time since the start of SD print or last M109
-        gcode_M31(); break;
+      case 31: M31(); break;      // M31: Report time since the start of SD print or last M109
 
       case 42: // M42: Change pin state
         gcode_M42(); break;
