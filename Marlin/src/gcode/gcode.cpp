@@ -121,7 +121,6 @@ extern void gcode_M20();
 extern void gcode_M21();
 extern void gcode_M22();
 extern void gcode_M23();
-extern void gcode_M24();
 extern void gcode_M25();
 extern void gcode_M26();
 extern void gcode_M27();
@@ -212,7 +211,6 @@ extern void gcode_M501();
 extern void gcode_M502();
 extern void gcode_M503();
 extern void gcode_M540();
-extern void gcode_M600();
 extern void gcode_M605();
 extern void gcode_M665();
 extern void gcode_M666();
@@ -434,7 +432,7 @@ void GcodeSuite::process_next_command() {
         case 23: // M23: Select file
           gcode_M23(); break;
         case 24: // M24: Start SD print
-          gcode_M24(); break;
+          M24(); break;
         case 25: // M25: Pause SD print
           gcode_M25(); break;
         case 26: // M26: Set SD index
@@ -570,7 +568,7 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         case 125: // M125: Store current position and move to filament change position
-          gcode_M125(); break;
+          M125(); break;
       #endif
 
       #if ENABLED(BARICUDA)
@@ -911,7 +909,7 @@ void GcodeSuite::process_next_command() {
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
-          gcode_M600();
+          M600();
           break;
       #endif // ADVANCED_PAUSE_FEATURE
 

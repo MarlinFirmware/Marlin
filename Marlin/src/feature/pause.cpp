@@ -21,21 +21,34 @@
  */
 
 /**
- * feature/pause/common.h - Merge this with its G-codes in the refactor
+ * feature/pause.cpp - Pause feature support functions
+ * This may be combined with related G-codes if features are consolidated.
  */
 
-#ifndef PAUSE_COMMON_H
-#define PAUSE_COMMON_H
+#include "../inc/MarlinConfig.h"
 
-#if IS_KINEMATIC
-  #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
-#else
-  #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
+#if ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PARK_HEAD_ON_PAUSE)
+
+#include "../Marlin.h"
+#include "../gcode/gcode.h"
+#include "../module/motion.h"
+#include "../module/planner.h"
+#include "../module/stepper.h"
+#include "../module/printcounter.h"
+#include "../module/temperature.h"
+
+#if ENABLED(ULTIPANEL)
+  #include "../lcd/ultralcd.h"
 #endif
 
+#include "../libs/buzzer.h"
+
+// private:
+
 static float resume_position[XYZE];
-static bool move_away_flag = false;
+
 #if ENABLED(SDSUPPORT)
+  #include "../sd/cardreader.h"
   static bool sd_print_paused = false;
 #endif
 
@@ -74,8 +87,18 @@ static void ensure_safe_temperature() {
   }
 }
 
-static bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                        const float &unload_length = 0 , const int8_t max_beep_count = 0, const bool show_lcd = false
+// public:
+
+bool move_away_flag = false;
+
+#if IS_KINEMATIC
+  #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
+#else
+  #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
+#endif
+
+bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
+                        const float &unload_length/*=0*/ , const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
 ) {
   if (move_away_flag) return false; // already paused
 
@@ -172,7 +195,7 @@ static bool pause_print(const float &retract, const float &z_lift, const float &
   return true;
 }
 
-static void wait_for_filament_reload(const int8_t max_beep_count = 0) {
+void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
   // Wait for filament insert by user and press button
@@ -226,7 +249,7 @@ static void wait_for_filament_reload(const int8_t max_beep_count = 0) {
   KEEPALIVE_STATE(IN_HANDLER);
 }
 
-static void resume_print(const float &load_length = 0, const float &initial_extrude_length = 0, const int8_t max_beep_count = 0) {
+void resume_print(const float &load_length/*=0*/, const float &initial_extrude_length/*=0*/, const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
   if (!move_away_flag) return;
@@ -332,4 +355,4 @@ static void resume_print(const float &load_length = 0, const float &initial_extr
   move_away_flag = false;
 }
 
-#endif // PAUSE_COMMON_H
+#endif // ADVANCED_PAUSE_FEATURE || PARK_HEAD_ON_PAUSE

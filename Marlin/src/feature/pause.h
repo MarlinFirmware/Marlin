@@ -20,18 +20,22 @@
  *
  */
 
-#if ENABLED(PARK_HEAD_ON_PAUSE)
-  #include "../feature/pause/common.h"
-#endif
-
 /**
- * M24: Start or Resume SD Print
+ * feature/pause.h - Pause feature support functions
+ * This may be combined with related G-codes if features are consolidated.
  */
-void gcode_M24() {
-  #if ENABLED(PARK_HEAD_ON_PAUSE)
-    resume_print();
-  #endif
 
-  card.startFileprint();
-  print_job_timer.start();
-}
+#ifndef _PAUSE_H_
+#define _PAUSE_H_
+
+extern bool move_away_flag;
+
+bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
+                        const float &unload_length=0 , const int8_t max_beep_count=0, const bool show_lcd=false
+);
+
+void wait_for_filament_reload(const int8_t max_beep_count=0);
+
+void resume_print(const float &load_length=0, const float &initial_extrude_length=0, const int8_t max_beep_count=0);
+
+#endif // _PAUSE_H_

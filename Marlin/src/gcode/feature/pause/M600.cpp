@@ -20,7 +20,16 @@
  *
  */
 
-#include "common.h"
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+#include "../../../feature/pause.h"
+
+#include "../../gcode.h"
+#include "../../parser.h"
+
+#include "../../../module/printcounter.h"
 
 /**
  * M600: Pause for filament change
@@ -36,7 +45,7 @@
  *  Default values are used for omitted arguments.
  *
  */
-void gcode_M600() {
+void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
@@ -101,3 +110,5 @@ void gcode_M600() {
   // Resume the print job timer if it was running
   if (job_running) print_job_timer.start();
 }
+
+#endif // ADVANCED_PAUSE_FEATURE
