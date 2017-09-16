@@ -466,16 +466,14 @@ private:
 
   #if DISABLED(EMERGENCY_PARSER)
     static void M108();
+    static void M112();
+    static void M410();
   #endif
 
   static void M109();
 
   static void M110();
   static void M111();
-
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M112();
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     static void M113();
@@ -636,10 +634,6 @@ private:
     static void M405();
     static void M406();
     static void M407();
-  #endif
-
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M410();
   #endif
 
   #if HAS_LEVELING

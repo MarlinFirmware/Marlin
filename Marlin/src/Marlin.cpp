@@ -374,12 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if DISABLED(EMERGENCY_PARSER)
-  #include "gcode/control/M108.h"
-  #include "gcode/control/M112.h"
-  #include "gcode/control/M410.h"
-#endif
-
 #if HAS_TEMP_BED
   #include "gcode/temperature/M190.h"
 #endif
