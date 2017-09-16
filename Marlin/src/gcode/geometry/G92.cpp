@@ -20,10 +20,18 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+
+#if ENABLED(I2C_POSITION_ENCODERS)
+  #include "../../feature/I2CPositionEncoder.h"
+#endif
+
 /**
  * G92: Set current position to given X Y Z E
  */
-void gcode_G92() {
+void GcodeSuite::G92() {
   bool didXYZ = false,
        didE = parser.seenval('E');
 

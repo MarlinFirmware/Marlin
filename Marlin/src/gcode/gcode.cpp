@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G92();
 extern void gcode_M0_M1();
 extern void gcode_M3_M4(bool is_M3);
 extern void gcode_M5();
@@ -394,8 +393,8 @@ void GcodeSuite::process_next_command() {
         relative_mode = true;
         break;
 
-      case 92: // G92
-        gcode_G92();
+      case 92: // G92 - Set current axis position(s)
+        G92();
         break;
 
       #if HAS_MESH
