@@ -20,7 +20,21 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M28: Start SD Write
+ * M30 <filename>: Delete SD Card file
  */
-void gcode_M28() { card.openFile(parser.string_arg, false); }
+void GcodeSuite::M30() {
+  if (card.cardOK) {
+    card.closefile();
+    card.removeFile(parser.string_arg);
+  }
+}
+
+#endif // SDSUPPORT

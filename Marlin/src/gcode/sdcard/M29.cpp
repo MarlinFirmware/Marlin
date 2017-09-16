@@ -20,11 +20,19 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M20: List SD card to serial output
+ * M29: Stop SD Write
+ * Processed in write to file routine above
  */
-void gcode_M20() {
-  SERIAL_PROTOCOLLNPGM(MSG_BEGIN_FILE_LIST);
-  card.ls();
-  SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
+void GcodeSuite::M29() {
+  // card.saving = false;
 }
+
+#endif // SDSUPPORT

@@ -20,14 +20,18 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M34: Set SD Card Sorting Options
+ * M928: Start SD Write
  */
-void gcode_M34() {
-  if (parser.seen('S')) card.setSortOn(parser.value_bool());
-  if (parser.seenval('F')) {
-    const int v = parser.value_long();
-    card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);
-  }
-  //if (parser.seen('R')) card.setSortReverse(parser.value_bool());
+void GcodeSuite::M928() {
+  card.openLogFile(parser.string_arg);
 }
+
+#endif // SDSUPPORT

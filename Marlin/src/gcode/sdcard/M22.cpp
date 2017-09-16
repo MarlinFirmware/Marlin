@@ -20,14 +20,16 @@
  *
  */
 
-/**
- * M25: Pause SD Print
- */
-void gcode_M25() {
-  card.pauseSDPrint();
-  print_job_timer.pause();
+#include "../../inc/MarlinConfig.h"
 
-  #if ENABLED(PARK_HEAD_ON_PAUSE)
-    enqueue_and_echo_commands_P(PSTR("M125")); // Must be enqueued with pauseSDPrint set to be last in the buffer
-  #endif
-}
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
+/**
+ * M22: Release SD Card
+ */
+void GcodeSuite::M22() { card.release(); }
+
+#endif // SDSUPPORT

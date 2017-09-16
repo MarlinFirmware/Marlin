@@ -20,7 +20,27 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT) && ENABLED(LONG_FILENAME_HOST_SUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M22: Release SD Card
+ * M33: Get the long full path of a file or folder
+ *
+ * Parameters:
+ *   <dospath> Case-insensitive DOS-style path to a file or folder
+ *
+ * Example:
+ *   M33 miscel~1/armchair/armcha~1.gco
+ *
+ * Output:
+ *   /Miscellaneous/Armchair/Armchair.gcode
  */
-void gcode_M22() { card.release(); }
+void GcodeSuite::M33() {
+  card.printLongPath(parser.string_arg);
+}
+
+#endif // SDSUPPORT && LONG_FILENAME_HOST_SUPPORT

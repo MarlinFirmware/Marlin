@@ -20,7 +20,19 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M21: Init SD Card
+ * M26: Set SD Card file index
  */
-void gcode_M21() { card.initsd(); }
+void GcodeSuite::M26() {
+  if (card.cardOK && parser.seenval('S'))
+    card.setIndex(parser.value_long());
+}
+
+#endif // SDSUPPORT

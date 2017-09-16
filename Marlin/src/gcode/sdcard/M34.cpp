@@ -20,12 +20,23 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT) && ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+
 /**
- * M30 <filename>: Delete SD Card file
+ * M34: Set SD Card Sorting Options
  */
-void gcode_M30() {
-  if (card.cardOK) {
-    card.closefile();
-    card.removeFile(parser.string_arg);
+void GcodeSuite::M34() {
+  if (parser.seen('S')) card.setSortOn(parser.value_bool());
+  if (parser.seenval('F')) {
+    const int v = parser.value_long();
+    card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);
   }
+  //if (parser.seen('R')) card.setSortReverse(parser.value_bool());
 }
+
+#endif // SDSUPPORT && SDCARD_SORT_ALPHA && SDSORT_GCODE

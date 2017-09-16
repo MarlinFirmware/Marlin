@@ -20,10 +20,36 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+#include "../../module/stepper.h"
+#include "../../module/printcounter.h"
+
 /**
- * M26: Set SD Card file index
+ * M32: Select file and start SD Print
  */
-void gcode_M26() {
-  if (card.cardOK && parser.seenval('S'))
-    card.setIndex(parser.value_long());
+void GcodeSuite::M32() {
+  if (IS_SD_PRINTING)
+    stepper.synchronize();
+
+  char* namestartpos = parser.string_arg;
+  const bool call_procedure = parser.boolval('P');
+
+  if (card.cardOK) {
+    card.openFile(namestartpos, true, call_procedure);
+
+    if (parser.seenval('S'))
+      card.setIndex(parser.value_long());
+
+    card.startFileprint();
+
+    // Procedure calls count as normal print time.
+    if (!call_procedure) print_job_timer.start();
+  }
 }
+
+#endif // SDSUPPORT
