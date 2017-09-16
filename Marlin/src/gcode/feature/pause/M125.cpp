@@ -20,7 +20,13 @@
  *
  */
 
-#include "common.h"
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(PARK_HEAD_ON_PAUSE)
+
+#include "../../gcode.h"
+#include "../../parser.h"
+#include "../../../feature/pause.h"
 
 /**
  * M125: Store current position and move to filament change position.
@@ -37,7 +43,7 @@
  *    Y = override Y
  *    Z = override Z raise
  */
-void gcode_M125() {
+void GcodeSuite::M125() {
 
   // Initial retract before move to filament change position
   const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
@@ -87,3 +93,5 @@ void gcode_M125() {
     #endif
   }
 }
+
+#endif // PARK_HEAD_ON_PAUSE

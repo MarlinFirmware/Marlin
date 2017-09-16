@@ -125,6 +125,9 @@
   #include "feature/tmc2130.h"
 #endif
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+  #include "feature/pause.h"
+#endif
 
 bool Running = true;
 
@@ -357,11 +360,6 @@ void suicide() {
  ***************** GCode Handlers *****************
  **************************************************/
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  // For M125, M600, M24
-  #include "gcode/feature/pause/common.h"
-#endif
-
 #if ENABLED(SDSUPPORT)
   #include "gcode/sdcard/M20.h"           // M20  - List SD card. (Requires SDSUPPORT)
   #include "gcode/sdcard/M21.h"           // M21  - Init SD card. (Requires SDSUPPORT)
@@ -508,10 +506,6 @@ static bool pin_is_protected(const int8_t pin) {
 
 #include "gcode/control/M120_M121.h"
 
-#if ENABLED(PARK_HEAD_ON_PAUSE)
-  #include "gcode/feature/pause/M125.h"
-#endif
-
 #if HAS_COLOR_LEDS
   #include "gcode/feature/leds/M150.h"
 #endif
@@ -610,10 +604,6 @@ void quickstop_stepper() {
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #include "gcode/config/M540.h"
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "gcode/feature/pause/M600.h"
 #endif
 
 #if ENABLED(MK2_MULTIPLEXER)
