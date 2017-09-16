@@ -63,14 +63,6 @@
 #define NOZZLE_Y          -4
 
 /**
- * Enable this to provide a realtime control over the head position via the LCD menu system that works while printing.
- * Using it, one can tune the z-position while printing the first layer.
- *
- * Warning: Does not respect endstops!
- */
-//#define BABYSTEPPING
-
-/**
  * Primary Extruder steps per mm (plugged in to E0 port on controller)
  * (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
  */
@@ -79,14 +71,13 @@
 
 /**
  * Z-Probe type (must be none or one of them)
- * If you enable a Z-Probe, be sure to disable the MANUAL bed leveling type and select
- * one of the other bed leveling types below.
+ * If you do not have a Z-Probe, the MANUAL bed leveling type is enabled by default
  */
-//#define BLTOUCH
+#define BLTOUCH
 //#define SN04          // Green sensor
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
-#define SERVO_PROBE   // Endstop switch on rotating arm. Set servo angles!
+//#define SERVO_PROBE   // Endstop switch on rotating arm. Set servo angles!
 
 /**
  * Servo probe deploy and stow angles
@@ -108,9 +99,9 @@
  * Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
  */
 //#define TRIPOINT
-#define LINEAR
+//#define LINEAR
 //#define BILINEAR
-//#define UBL
+#define UBL
 
 /**
  * Number of grid points in each direction
@@ -124,10 +115,11 @@
 #define BED_MARGIN         5
 
 /**
- * Enable this to turn on support for a dual nozzle with two separate extruders
- * (primary nozzle plugged in to E0 port and secondary plugged in to E1 port)
+ * Enable this to turn on support for two extruders
  */
-//#define DUAL_EXTRUDER
+//#define DUAL_EXTRUDER // If not single nozzle, primary nozzle plugged in to E0 port
+                        // and secondary plugged in to E1 port.
+//#define SINGLENOZZLE  // Enable this if you are using a single mixing nozzle (requires DUAL_EXTRUDER)
 
 /**
  * Offset for second nozzle from first nozzle
@@ -162,6 +154,14 @@
 #define  bed_Kd 1068.13
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 // More info here: http://reprap.org/wiki/PID_Tuning
+
+/**
+ * Enable this to provide a realtime control over the head position via the LCD menu system that works while printing.
+ * Using it, one can tune the z-position while printing the first layer.
+ *
+ * Warning: Does not respect endstops!
+ */
+//#define BABYSTEPPING
 
 /**
  * Extra movement of Y axis. Can help with probing more of the bed.
@@ -389,7 +389,7 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-#if ENABLED(DUAL_EXTRUDER)
+#if ENABLED(DUAL_EXTRUDER) && DISABLED(SINGLENOZZLE)
   #define HOTEND_OFFSET_X {0.0, EXTRUDER_E1_X}  // (in mm) for each extruder, offset of the hotend on the X axis
   #define HOTEND_OFFSET_Y {0.0, EXTRUDER_E1_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
 #endif
@@ -470,7 +470,7 @@
 #else
   #define TEMP_SENSOR_0 1
 #endif
-#if ENABLED(DUAL_EXTRUDER)
+#if ENABLED(DUAL_EXTRUDER) && DISABLED(SINGLENOZZLE)
   #define TEMP_SENSOR_1 1
 #else
   #define TEMP_SENSOR_1 0
