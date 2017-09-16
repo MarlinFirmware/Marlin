@@ -33,5 +33,5 @@ void gcode_G4() {
 
   if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
-  dwell(dwell_ms);
+  gcode.dwell(dwell_ms);
 }

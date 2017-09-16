@@ -67,7 +67,7 @@ void gcode_M0_M1() {
   gcode.refresh_cmd_timeout();
 
   if (ms > 0) {
-    ms += previous_cmd_ms;  // wait until this time for a click
+    ms += gcode.previous_cmd_ms;  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
   else {
