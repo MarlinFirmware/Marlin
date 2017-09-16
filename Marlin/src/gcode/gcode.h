@@ -299,7 +299,7 @@ public:
     #define KEEPALIVE_STATE(n) NOOP
   #endif
 
-  void dwell(millis_t time);
+  static void dwell(millis_t time);
 
 private:
 

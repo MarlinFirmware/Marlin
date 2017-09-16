@@ -112,7 +112,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_G4();
 extern void gcode_G5();
 extern void gcode_G12();
 extern void gcode_G17();
@@ -295,7 +294,7 @@ void GcodeSuite::process_next_command() {
 
       // G4 Dwell
       case 4:
-        gcode_G4();
+        G4();
         break;
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
