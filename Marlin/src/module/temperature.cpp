@@ -2259,4 +2259,19 @@ void Temperature::isr() {
     #endif
   }
 
+  #if ENABLED(AUTO_REPORT_TEMPERATURES)
+
+    uint8_t Temperature::auto_report_temp_interval;
+    millis_t Temperature::next_temp_report_ms;
+
+    void Temperature::auto_report_temperatures() {
+      if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
+        next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+        print_heaterstates();
+        SERIAL_EOL();
+      }
+    }
+
+  #endif // AUTO_REPORT_TEMPERATURES
+
 #endif // HAS_TEMP_HOTEND || HAS_TEMP_BED
