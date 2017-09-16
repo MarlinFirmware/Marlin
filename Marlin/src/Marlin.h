@@ -300,10 +300,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern Stopwatch print_job_timer;
 #endif
 
-#if HAS_TEMP_HOTEND || HAS_TEMP_BED
-  void print_heaterstates();
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
   #if MIXING_VIRTUAL_TOOLS > 1
