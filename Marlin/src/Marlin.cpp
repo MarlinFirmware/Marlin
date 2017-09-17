@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(MORGAN_SCARA)
-  #include "gcode/scara/M360-M364.h"
-#endif
-
 #if ENABLED(EXT_SOLENOID)
   #include "gcode/control/M380_M381.h"
 #endif

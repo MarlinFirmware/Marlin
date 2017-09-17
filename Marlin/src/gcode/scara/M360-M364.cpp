@@ -20,7 +20,16 @@
  *
  */
 
-bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(MORGAN_SCARA)
+
+#include "../gcode.h"
+#include "../../module/scara.h"
+#include "../../module/motion.h"
+#include "../../Marlin.h" // for IsRunning()
+
+inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
   if (IsRunning()) {
     forward_kinematics_SCARA(delta_a, delta_b);
     destination[X_AXIS] = LOGICAL_X_POSITION(cartes[X_AXIS]);
@@ -35,7 +44,7 @@ bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
 /**
  * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
  */
-bool gcode_M360() {
+bool GcodeSuite::M360() {
   SERIAL_ECHOLNPGM(" Cal: Theta 0");
   return SCARA_move_to_cal(0, 120);
 }
@@ -43,7 +52,7 @@ bool gcode_M360() {
 /**
  * M361: SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
  */
-bool gcode_M361() {
+bool GcodeSuite::M361() {
   SERIAL_ECHOLNPGM(" Cal: Theta 90");
   return SCARA_move_to_cal(90, 130);
 }
@@ -51,7 +60,7 @@ bool gcode_M361() {
 /**
  * M362: SCARA calibration: Move to cal-position PsiA (0 deg calibration)
  */
-bool gcode_M362() {
+bool GcodeSuite::M362() {
   SERIAL_ECHOLNPGM(" Cal: Psi 0");
   return SCARA_move_to_cal(60, 180);
 }
@@ -59,7 +68,7 @@ bool gcode_M362() {
 /**
  * M363: SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
  */
-bool gcode_M363() {
+bool GcodeSuite::M363() {
   SERIAL_ECHOLNPGM(" Cal: Psi 90");
   return SCARA_move_to_cal(50, 90);
 }
@@ -67,7 +76,9 @@ bool gcode_M363() {
 /**
  * M364: SCARA calibration: Move to cal-position PsiC (90 deg to Theta calibration position)
  */
-bool gcode_M364() {
+bool GcodeSuite::M364() {
   SERIAL_ECHOLNPGM(" Cal: Theta-Psi 90");
   return SCARA_move_to_cal(45, 135);
 }
+
+#endif // MORGAN_SCARA
