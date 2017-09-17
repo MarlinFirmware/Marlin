@@ -117,8 +117,6 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 extern void gcode_M18_M84();
-extern void gcode_M82();
-extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
@@ -495,12 +493,9 @@ void GcodeSuite::process_next_command() {
 
       case 81: M81(); break;      // M81: Turn off Power, including Power Supply, if possible
 
-      case 82: // M82: Set E axis normal mode (same as other axes)
-        gcode_M82();
-        break;
-      case 83: // M83: Set E axis relative mode
-        gcode_M83();
-        break;
+      case 82: M82(); break;      // M82: Set E axis normal mode (same as other axes)
+      case 83: M83(); break;      // M83: Set E axis relative mode
+
       case 18: // M18 => M84
       case 84: // M84: Disable all steppers or set timeout
         gcode_M18_M84();
