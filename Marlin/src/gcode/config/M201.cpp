@@ -20,12 +20,15 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/planner.h"
+
 /**
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
  *
  *       With multiple extruders use T to specify which one.
  */
-void gcode_M201() {
+void GcodeSuite::M201() {
 
   GET_TARGET_EXTRUDER();
 

@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M201();
 extern void gcode_M203();
 extern void gcode_M204();
 extern void gcode_M205();
@@ -530,9 +529,9 @@ void GcodeSuite::process_next_command() {
       case 200: // M200: Set filament diameter, E to cubic units
         M200();
         break;
-      case 201: // M201: Set max acceleration for print moves (units/s^2)
-        gcode_M201();
-        break;
+
+      case 201: M201(); break;  // M201: Set max acceleration for print moves (units/s^2)
+
       #if 0 // Not used for Sprinter/grbl gen6
         case 202: // M202
           gcode_M202();
