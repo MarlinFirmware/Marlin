@@ -355,10 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_COLOR_LEDS
-  #include "gcode/feature/leds/M150.h"
-#endif
-
 #include "gcode/config/M201.h"
 
 #if 0 // Not used for Sprinter/grbl gen6
