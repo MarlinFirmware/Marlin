@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M302();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
@@ -587,10 +586,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
-        case 302: // M302: Allow cold extrudes (set the minimum extrude temperature)
-          gcode_M302();
-          break;
-      #endif // PREVENT_COLD_EXTRUSION
+        case 302: M302(); break;  // M302: Allow cold extrudes (set the minimum extrude temperature)
+      #endif
 
       case 303: // M303: PID autotune
         M303();
