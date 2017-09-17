@@ -20,10 +20,14 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../Marlin.h" // for pin_is_protected and idle()
+#include "../../module/stepper.h"
+
 /**
  * M226: Wait until the specified pin reaches the state required (M226 P<pin> S<state>)
  */
-void gcode_M226() {
+void GcodeSuite::M226() {
   if (parser.seen('P')) {
     const int pin_number = parser.value_int(),
               pin_state = parser.intval('S', -1); // required pin state - default is inverted

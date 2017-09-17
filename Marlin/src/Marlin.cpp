@@ -355,8 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/control/M226.h"
-
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "gcode/feature/i2c/M260_M261.h"
 #endif
