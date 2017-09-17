@@ -116,9 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M119();
-extern void gcode_M120();
-extern void gcode_M121();
 extern void gcode_M150();
 extern void gcode_M163();
 extern void gcode_M164();
@@ -499,15 +496,9 @@ void GcodeSuite::process_next_command() {
       case 117: M117(); break;    // M117: Set LCD message text, if possible
       case 118: M118(); break;    // M118: Display a message in the host console
 
-      case 119: // M119: Report endstop states
-        gcode_M119();
-        break;
-      case 120: // M120: Enable endstops
-        gcode_M120();
-        break;
-      case 121: // M121: Disable endstops
-        gcode_M121();
-        break;
+      case 119: M119(); break;    // M119: Report endstop states
+      case 120: M120(); break;    // M120: Enable endstops
+      case 121: M121(); break;    // M121: Disable endstops
 
       #if ENABLED(ULTIPANEL)
         case 145: M145(); break;  // M145: Set material heatup parameters

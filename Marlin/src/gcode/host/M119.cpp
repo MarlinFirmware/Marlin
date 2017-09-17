@@ -20,7 +20,14 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/endstops.h"
+
 /**
  * M119: Output endstop states to serial output
  */
-void gcode_M119() { endstops.M119(); }
+void GcodeSuite::M119() {
+
+  endstops.M119();
+
+}
