@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M250();
 extern void gcode_M302();
 extern void gcode_M350();
 extern void gcode_M351();
@@ -579,10 +578,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if HAS_LCD_CONTRAST
-        case 250: // M250: Set LCD contrast
-          gcode_M250();
-          break;
-      #endif // HAS_LCD_CONTRAST
+        case 250: M250(); break;  // M250: Set LCD contrast
+      #endif
 
       #if ENABLED(EXPERIMENTAL_I2CBUS)
         case 260: M260(); break;  // M260: Send data to an i2c slave
