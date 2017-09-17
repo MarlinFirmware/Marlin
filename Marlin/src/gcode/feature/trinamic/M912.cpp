@@ -20,7 +20,15 @@
  *
  */
 
-static void tmc2130_clear_otpw(TMC2130Stepper &st, const char name) {
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(HAVE_TMC2130)
+
+#include "../../gcode.h"
+#include "../../../feature/tmc2130.h"
+#include "../../../module/stepper_indirection.h"
+
+inline void tmc2130_clear_otpw(TMC2130Stepper &st, const char name) {
   st.clear_otpw();
   SERIAL_CHAR(name);
   SERIAL_ECHOLNPGM(" prewarn flag cleared");
@@ -29,7 +37,7 @@ static void tmc2130_clear_otpw(TMC2130Stepper &st, const char name) {
 /**
  * M912: Clear TMC2130 stepper driver overtemperature pre-warn flag held by the library
  */
-void gcode_M912() {
+void GcodeSuite::M912() {
   const bool clearX = parser.seen('X'), clearY = parser.seen('Y'), clearZ = parser.seen('Z'), clearE = parser.seen('E'),
            clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
   #if ENABLED(X_IS_TMC2130)
@@ -45,3 +53,5 @@ void gcode_M912() {
     if (clearE || clearAll) tmc2130_clear_otpw(stepperE0, 'E');
   #endif
 }
+
+#endif // HAVE_TMC2130

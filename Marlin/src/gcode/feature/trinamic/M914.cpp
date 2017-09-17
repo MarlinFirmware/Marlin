@@ -20,30 +20,36 @@
  *
  */
 
-static void tmc2130_report_otpw(TMC2130Stepper &st, const char name) {
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+
+#include "../../gcode.h"
+#include "../../../feature/tmc2130.h"
+#include "../../../module/stepper_indirection.h"
+
+inline void tmc2130_get_sgt(TMC2130Stepper &st, const char name) {
   SERIAL_CHAR(name);
-  SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
-  serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
-  SERIAL_EOL();
+  SERIAL_ECHOPGM(" driver homing sensitivity set to ");
+  SERIAL_ECHOLN(st.sgt());
+}
+inline void tmc2130_set_sgt(TMC2130Stepper &st, const char name, const int8_t sgt_val) {
+  st.sgt(sgt_val);
+  tmc2130_get_sgt(st, name);
 }
 
 /**
- * M911: Report TMC2130 stepper driver overtemperature pre-warn flag
- * The flag is held by the library and persist until manually cleared by M912
+ * M914: Set SENSORLESS_HOMING sensitivity.
  */
-void gcode_M911() {
-  const bool reportX = parser.seen('X'), reportY = parser.seen('Y'), reportZ = parser.seen('Z'), reportE = parser.seen('E'),
-           reportAll = (!reportX && !reportY && !reportZ && !reportE) || (reportX && reportY && reportZ && reportE);
+void GcodeSuite::M914() {
   #if ENABLED(X_IS_TMC2130)
-    if (reportX || reportAll) tmc2130_report_otpw(stepperX, 'X');
+    if (parser.seen(axis_codes[X_AXIS])) tmc2130_set_sgt(stepperX, 'X', parser.value_int());
+    else tmc2130_get_sgt(stepperX, 'X');
   #endif
   #if ENABLED(Y_IS_TMC2130)
-    if (reportY || reportAll) tmc2130_report_otpw(stepperY, 'Y');
-  #endif
-  #if ENABLED(Z_IS_TMC2130)
-    if (reportZ || reportAll) tmc2130_report_otpw(stepperZ, 'Z');
-  #endif
-  #if ENABLED(E0_IS_TMC2130)
-    if (reportE || reportAll) tmc2130_report_otpw(stepperE0, 'E');
+    if (parser.seen(axis_codes[Y_AXIS])) tmc2130_set_sgt(stepperY, 'Y', parser.value_int());
+    else tmc2130_get_sgt(stepperY, 'Y');
   #endif
 }
+
+#endif // HAVE_TMC2130 && SENSORLESS_HOMING
