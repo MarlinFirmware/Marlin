@@ -20,9 +20,15 @@
  *
  */
 
+#include "../inc/MarlinConfig.h"
+
 #if ENABLED(EXT_SOLENOID)
 
-void enable_solenoid(const uint8_t num) {
+#include "solenoid.h"
+
+#include "../module/motion.h" // for active_extruder
+
+inline void enable_solenoid(const uint8_t num) {
   switch (num) {
     case 0:
       OUT_WRITE(SOL0_PIN, HIGH);
@@ -70,24 +76,6 @@ void disable_all_solenoids() {
   #if HAS_SOLENOID_4 && EXTRUDERS > 4
     OUT_WRITE(SOL4_PIN, LOW);
   #endif
-}
-
-/**
- * M380: Enable solenoid on the active extruder
- */
-void gcode_M380() {
-
-  enable_solenoid_on_active_extruder();
-
-}
-
-/**
- * M381: Disable all solenoids
- */
-void gcode_M381() {
-
-  disable_all_solenoids();
-
 }
 
 #endif // EXT_SOLENOID

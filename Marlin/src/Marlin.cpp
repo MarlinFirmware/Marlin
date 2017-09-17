@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(EXT_SOLENOID)
-  #include "gcode/control/M380_M381.h"
-#endif
-
 #include "gcode/control/M400.h"
 
 #if HAS_BED_PROBE
