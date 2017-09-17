@@ -124,7 +124,6 @@ extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
-extern void gcode_M111();
 extern void gcode_M113();
 extern void gcode_M114();
 extern void gcode_M115();
@@ -449,9 +448,7 @@ void GcodeSuite::process_next_command() {
 
       case 110: M110(); break;    // M110: Set Current Line Number
 
-      case 111: // M111: Set debug level
-        gcode_M111();
-        break;
+      case 111: M111(); break;    // M111: Set debug level
 
       #if DISABLED(EMERGENCY_PARSER)
         case 108: M108(); break;  // M108: Cancel Waiting

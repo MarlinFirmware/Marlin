@@ -20,10 +20,12 @@
  *
  */
 
+#include "../gcode.h"
+
 /**
  * M111: Set the debug level
  */
-void gcode_M111() {
+void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
   const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
@@ -50,7 +52,7 @@ void gcode_M111() {
     for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_word(&debug_strings[i]));
+        serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));
       }
     }
   }
