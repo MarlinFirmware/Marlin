@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M240();
 extern void gcode_M250();
 extern void gcode_M302();
 extern void gcode_M350();
@@ -576,10 +575,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if defined(CHDK) || HAS_PHOTOGRAPH
-        case 240: // M240: Trigger a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
-          gcode_M240();
-          break;
-      #endif // CHDK || PHOTOGRAPH_PIN
+        case 240: M240(); break;  // M240: Trigger a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
+      #endif
 
       #if HAS_LCD_CONTRAST
         case 250: // M250: Set LCD contrast

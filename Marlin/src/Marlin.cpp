@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if defined(CHDK) || HAS_PHOTOGRAPH
-  #include "gcode/feature/camera/M240.h"
-#endif
-
 #if HAS_LCD_CONTRAST
   #include "gcode/lcd/M250.h"
 #endif
