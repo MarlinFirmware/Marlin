@@ -20,10 +20,12 @@
  *
  */
 
+#include "../gcode.h"
+
 /**
  * M111: Set the debug level
  */
-void gcode_M111() {
+void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
   const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
