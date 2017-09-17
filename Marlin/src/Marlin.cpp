@@ -359,8 +359,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/config/M92.h"
-
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   #include "gcode/calibrate/M100.h"
 #endif
