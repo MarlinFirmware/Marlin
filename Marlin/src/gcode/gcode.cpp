@@ -122,11 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern bool gcode_M360();
-extern bool gcode_M361();
-extern bool gcode_M362();
-extern bool gcode_M363();
-extern bool gcode_M364();
 extern void gcode_M380();
 extern void gcode_M381();
 extern void gcode_M400();
@@ -594,22 +589,12 @@ void GcodeSuite::process_next_command() {
         break;
 
       #if ENABLED(MORGAN_SCARA)
-        case 360:  // M360: SCARA Theta pos1
-          if (gcode_M360()) return;
-          break;
-        case 361:  // M361: SCARA Theta pos2
-          if (gcode_M361()) return;
-          break;
-        case 362:  // M362: SCARA Psi pos1
-          if (gcode_M362()) return;
-          break;
-        case 363:  // M363: SCARA Psi pos2
-          if (gcode_M363()) return;
-          break;
-        case 364:  // M364: SCARA Psi pos3 (90 deg to Theta)
-          if (gcode_M364()) return;
-          break;
-      #endif // SCARA
+        case 360: if (M360()) return; break;  // M360: SCARA Theta pos1
+        case 361: if (M361()) return; break;  // M361: SCARA Theta pos2
+        case 362: if (M362()) return; break;  // M362: SCARA Psi pos1
+        case 363: if (M363()) return; break;  // M363: SCARA Psi pos2
+        case 364: if (M364()) return; break;  // M364: SCARA Psi pos3 (90 deg to Theta)
+      #endif
 
       #if ENABLED(EXT_SOLENOID)
         case 380: // M380: Activate solenoid on active extruder
