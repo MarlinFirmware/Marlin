@@ -94,10 +94,6 @@
   #include "HAL/HAL_endstop_interrupts.h"
 #endif
 
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  void M100_dump_routine(const char * const title, const char *start, const char *end);
-#endif
-
 #if ENABLED(SDSUPPORT)
   CardReader card;
 #endif
@@ -358,10 +354,6 @@ bool pin_is_protected(const int8_t pin) {
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  #include "gcode/calibrate/M100.h"
-#endif
 
 #include "gcode/host/M114.h"
 #include "gcode/host/M115.h"
