@@ -20,6 +20,14 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(EXPERIMENTAL_I2CBUS)
+
+#include "../../gcode.h"
+
+#include "../../../Marlin.h" // for i2c
+
 /**
  * M260: Send data to a I2C slave device
  *
@@ -36,7 +44,7 @@
  *  M260 R1 ; Reset the buffer without sending data
  *
  */
-void gcode_M260() {
+void GcodeSuite::M260() {
   // Set the target address
   if (parser.seen('A')) i2c.address(parser.value_byte());
 
@@ -55,7 +63,7 @@ void gcode_M260() {
  *
  * Usage: M261 A<slave device address base 10> B<number of bytes>
  */
-void gcode_M261() {
+void GcodeSuite::M261() {
   if (parser.seen('A')) i2c.address(parser.value_byte());
 
   uint8_t bytes = parser.byteval('B', 1);
@@ -68,3 +76,5 @@ void gcode_M261() {
     SERIAL_ERRORLN("Bad i2c request");
   }
 }
+
+#endif
