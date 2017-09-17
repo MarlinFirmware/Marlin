@@ -122,10 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M500();
-extern void gcode_M501();
-extern void gcode_M502();
-extern void gcode_M503();
 extern void gcode_M540();
 extern void gcode_M605();
 extern void gcode_M702();
@@ -633,20 +629,11 @@ void GcodeSuite::process_next_command() {
         case 428: M428(); break;  // M428: Apply current_position to home_offset
       #endif
 
-      case 500: // M500: Store settings in EEPROM
-        gcode_M500();
-        break;
-      case 501: // M501: Read settings from EEPROM
-        gcode_M501();
-        break;
-      case 502: // M502: Revert to default settings
-        gcode_M502();
-        break;
-
+      case 500: M500(); break;    // M500: Store settings in EEPROM
+      case 501: M501(); break;    // M501: Read settings from EEPROM
+      case 502: M502(); break;    // M502: Revert to default settings
       #if DISABLED(DISABLE_M503)
-        case 503: // M503: print settings currently in memory
-          gcode_M503();
-          break;
+        case 503: M503(); break;  // M503: print settings currently in memory
       #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
