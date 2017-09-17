@@ -121,7 +121,6 @@ extern void gcode_M164();
 extern void gcode_M165();
 extern void gcode_M240();
 extern void gcode_M250();
-extern void gcode_M300();
 extern void gcode_M301();
 extern void gcode_M302();
 extern void gcode_M304();
@@ -567,10 +566,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if HAS_BUZZER
-        case 300: // M300: Play beep tone
-          gcode_M300();
-          break;
-      #endif // HAS_BUZZER
+        case 300: M300(); break;  // M300: Play beep tone
+      #endif
 
       #if ENABLED(PIDTEMP)
         case 301: // M301: Set hotend PID parameters

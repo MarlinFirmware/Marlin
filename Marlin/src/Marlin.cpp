@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_BUZZER
-  #include "gcode/lcd/M300.h"
-#endif
-
 #if ENABLED(PIDTEMP)
   #include "gcode/config/M301.h"
 #endif
