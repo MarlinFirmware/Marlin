@@ -20,6 +20,14 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(LIN_ADVANCE)
+
+#include "../../gcode.h"
+#include "../../../module/planner.h"
+#include "../../../module/stepper.h"
+
 /**
  * M900: Set and/or Get advance K factor and WH/D ratio
  *
@@ -27,7 +35,7 @@
  *  R<ratio>                   Set ratio directly (overrides WH/D)
  *  W<width> H<height> D<diam> Set ratio from WH/D
  */
-void gcode_M900() {
+void GcodeSuite::M900() {
   stepper.synchronize();
 
   const float newK = parser.floatval('K', -1);
@@ -39,7 +47,7 @@ void gcode_M900() {
                 newW = parser.floatval('W', -1),
                 newH = parser.floatval('H', -1);
     if (newD >= 0 && newW >= 0 && newH >= 0)
-      newR = newD ? (newW * newH) / (sq(newD * 0.5) * M_PI) : 0;
+      newR = newD ? (newW * newH) / CIRCLE_AREA(newD * 0.5) : 0;
   }
   if (newR >= 0) planner.advance_ed_ratio = newR;
 
@@ -50,3 +58,5 @@ void gcode_M900() {
   if (ratio) SERIAL_ECHO(ratio); else SERIAL_ECHOPGM("Auto");
   SERIAL_EOL();
 }
+
+#endif // LIN_ADVANCE

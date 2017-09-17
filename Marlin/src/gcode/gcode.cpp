@@ -122,7 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M900();
 extern void gcode_M906();
 extern void gcode_M911();
 extern void gcode_M912();
@@ -658,9 +657,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(LIN_ADVANCE)
-        case 900: // M900: Set advance K factor.
-          gcode_M900();
-          break;
+        case 900: M900(); break;  // M900: Set advance K factor.
       #endif
 
       #if ENABLED(HAVE_TMC2130)
