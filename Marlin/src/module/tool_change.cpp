@@ -34,6 +34,10 @@
   #include "../gcode/gcode.h" // for dwell()
 #endif
 
+#if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
+  #include "../feature/solenoid.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3

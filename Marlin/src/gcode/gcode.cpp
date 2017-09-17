@@ -122,8 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M380();
-extern void gcode_M381();
 extern void gcode_M400();
 extern void gcode_M401();
 extern void gcode_M402();
@@ -597,12 +595,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(EXT_SOLENOID)
-        case 380: // M380: Activate solenoid on active extruder
-          gcode_M380();
-          break;
-        case 381: // M381: Disable all solenoids
-          gcode_M381();
-          break;
+        case 380: M380(); break;  // M380: Activate solenoid on active extruder
+        case 381: M381(); break;  // M381: Disable all solenoids
       #endif
 
       case 400: // M400: Finish all moves
