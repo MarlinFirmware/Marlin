@@ -20,10 +20,17 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_SERVOS
+
+#include "../gcode.h"
+#include "../../Marlin.h" // for servo[]
+
 /**
  * M280: Get or set servo position. P<index> [S<angle>]
  */
-void gcode_M280() {
+void GcodeSuite::M280() {
   if (!parser.seen('P')) return;
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
@@ -41,3 +48,5 @@ void gcode_M280() {
     SERIAL_ECHOLNPGM(" out of range");
   }
 }
+
+#endif // HAS_SERVOS

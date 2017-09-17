@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_SERVOS
-  #include "gcode/control/M280.h"
-#endif
-
 #if HAS_BUZZER
   #include "gcode/lcd/M300.h"
 #endif
