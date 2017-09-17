@@ -458,7 +458,7 @@
 //#define LCD_INFO_MENU
 
 // Scroll a longer status message into view
-//#define STATUS_MESSAGE_SCROLLING
+#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -806,7 +806,7 @@
  * Requires an LCD display.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_X_POS 3                  // X position of hotend
   #define PAUSE_PARK_Y_POS 3                  // Y position of hotend
@@ -1251,7 +1251,7 @@
  *  - M206 and M428 are disabled.
  *  - G92 will revert to its behavior from Marlin 1.0.
  */
-//#define NO_WORKSPACE_OFFSETS
+#define NO_WORKSPACE_OFFSETS
 
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
