@@ -20,13 +20,21 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_BED_PROBE
+
+#include "../gcode.h"
+#include "../../module/probe.h"
+
 /**
  * M401: Engage Z Servo endstop if available
  */
-void gcode_M401() { DEPLOY_PROBE(); }
+void GcodeSuite::M401() { DEPLOY_PROBE(); }
 
 /**
  * M402: Retract Z Servo endstop if enabled
  */
-void gcode_M402() { STOW_PROBE(); }
+void GcodeSuite::M402() { STOW_PROBE(); }
 
+#endif // HAS_BED_PROBE

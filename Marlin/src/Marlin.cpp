@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_BED_PROBE
-  #include "gcode/probe/M401_M402.h"
-#endif
-
 void quickstop_stepper() {
   stepper.quick_stop();
   stepper.synchronize();
