@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PIDTEMP)
+
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M301: Set PID parameters P I D (and optionally C, L)
  *
@@ -32,7 +39,7 @@
  *   C[float] Kc term
  *   L[float] LPQ length
  */
-void gcode_M301() {
+void GcodeSuite::M301() {
 
   // multi-extruder PID patch: M301 updates or prints a single extruder's PID values
   // default behaviour (omitting E parameter) is to update for extruder 0 only
@@ -67,3 +74,5 @@ void gcode_M301() {
     SERIAL_ERRORLN(MSG_INVALID_EXTRUDER);
   }
 }
+
+#endif // PIDTEMP
