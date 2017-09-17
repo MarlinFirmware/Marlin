@@ -374,10 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_TEMP_BED
-  #include "gcode/temperature/M190.h"
-#endif
-
 #include "gcode/host/M110.h"
 
 #include "gcode/control/M111.h"
@@ -396,8 +392,6 @@ bool pin_is_protected(const int8_t pin) {
     #include "gcode/feature/baricuda/M129.h"
   #endif
 #endif
-
-#include "gcode/temperature/M140.h"
 
 #if ENABLED(ULTIPANEL)
   #include "gcode/lcd/M145.h"
