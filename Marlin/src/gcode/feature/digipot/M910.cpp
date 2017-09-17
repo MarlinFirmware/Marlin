@@ -20,8 +20,17 @@
  *
  */
 
-void gcode_M909() {
+#include "../../../inc/MarlinConfig.h"
 
-  dac_print_values();
+#if ENABLED(DAC_STEPPER_CURRENT)
+
+#include "../../gcode.h"
+#include "../../../feature/dac/stepper_dac.h"
+
+void GcodeSuite::M910() {
+
+  dac_commit_eeprom();
 
 }
+
+#endif // DAC_STEPPER_CURRENT

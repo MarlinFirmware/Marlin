@@ -20,10 +20,24 @@
  *
  */
 
+#include "../../gcode.h"
+
+#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+  #include "../../../module/stepper.h"
+#endif
+
+#if ENABLED(DIGIPOT_I2C)
+  #include "../../../feature/digipot/digipot.h"
+#endif
+
+#if ENABLED(DAC_STEPPER_CURRENT)
+  #include "../../../feature/dac/stepper_dac.h"
+#endif
+
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
-void gcode_M907() {
+void GcodeSuite::M907() {
   #if HAS_DIGIPOTSS
 
     LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.digipot_current(i, parser.value_int());

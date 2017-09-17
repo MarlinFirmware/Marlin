@@ -58,6 +58,10 @@
   #include "module/tool_change.h"
 #endif
 
+#if ENABLED(DIGIPOT_I2C)
+  #include "feature/digipot/digipot.h"
+#endif
+
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   #include "module/planner_bezier.h"
 #endif
@@ -206,11 +210,6 @@ millis_t max_inactive_time = 0,
  * ***************************************************************************
  */
 
-#if ENABLED(DIGIPOT_I2C)
-  extern void digipot_i2c_set_current(uint8_t channel, float current);
-  extern void digipot_i2c_init();
-#endif
-
 void setup_killpin() {
   #if HAS_KILL
     SET_INPUT_PULLUP(KILL_PIN);
@@ -358,16 +357,6 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
-
-#include "gcode/feature/digipot/M907.h"
-
-#if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
-  #include "gcode/feature/digipot/M908.h"
-  #if ENABLED(DAC_STEPPER_CURRENT) // As with Printrbot RevF
-    #include "gcode/feature/digipot/M909.h"
-    #include "gcode/feature/digipot/M910.h"
-  #endif
-#endif
 
 #if HAS_MICROSTEPS
   #include "gcode/control/M350.h"
