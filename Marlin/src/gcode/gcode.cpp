@@ -122,7 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M428();
 extern void gcode_M500();
 extern void gcode_M501();
 extern void gcode_M502();
@@ -631,9 +630,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if HAS_M206_COMMAND
-        case 428: // M428: Apply current_position to home_offset
-          gcode_M428();
-          break;
+        case 428: M428(); break;  // M428: Apply current_position to home_offset
       #endif
 
       case 500: // M500: Store settings in EEPROM
