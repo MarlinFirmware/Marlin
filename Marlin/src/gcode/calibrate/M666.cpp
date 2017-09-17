@@ -20,15 +20,24 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+
+#include "../gcode.h"
+
 #if ENABLED(DELTA)
+
+  #include "../../module/delta.h"
+  #include "../../module/motion.h"
 
   /**
    * M666: Set delta endstop adjustment
    */
-  void gcode_M666() {
+  void GcodeSuite::M666() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> gcode_M666");
+        SERIAL_ECHOLNPGM(">>> M666");
       }
     #endif
     LOOP_XYZ(i) {
@@ -44,7 +53,7 @@
     }
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("<<< gcode_M666");
+        SERIAL_ECHOLNPGM("<<< M666");
       }
     #endif
     // normalize endstops so all are <=0; set the residue to delta height
@@ -55,12 +64,16 @@
 
 #elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
 
+  #include "../../Marlin.h" // for z_endstop_adj
+
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
-  void gcode_M666() {
+  void GcodeSuite::M666() {
     if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
   }
 
 #endif
+
+#endif // DELTA || Z_DUAL_ENDSTOPS
