@@ -355,7 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/host/M114.h"
 #include "gcode/host/M115.h"
 
 #include "gcode/lcd/M117.h"
