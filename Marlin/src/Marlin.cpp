@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(PIDTEMP)
-  #include "gcode/config/M301.h"
-#endif
-
 #if ENABLED(PIDTEMPBED)
   #include "gcode/config/M304.h"
 #endif

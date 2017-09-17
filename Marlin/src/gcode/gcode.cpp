@@ -121,7 +121,6 @@ extern void gcode_M164();
 extern void gcode_M165();
 extern void gcode_M240();
 extern void gcode_M250();
-extern void gcode_M301();
 extern void gcode_M302();
 extern void gcode_M304();
 extern void gcode_M350();
@@ -570,10 +569,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(PIDTEMP)
-        case 301: // M301: Set hotend PID parameters
-          gcode_M301();
-          break;
-      #endif // PIDTEMP
+        case 301: M301(); break;  // M301: Set hotend PID parameters
+      #endif
 
       #if ENABLED(PIDTEMPBED)
         case 304: // M304: Set bed PID parameters
