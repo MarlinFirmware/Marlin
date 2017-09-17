@@ -177,16 +177,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   float z_endstop_adj;
 #endif
 
-#if HAS_POWER_SWITCH
-  bool powersupply_on =
-    #if ENABLED(PS_DEFAULT_OFF)
-      false
-    #else
-      true
-    #endif
-  ;
-#endif
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   static bool filament_ran_out = false;
 #endif
@@ -368,12 +358,6 @@ bool pin_is_protected(const int8_t pin) {
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#if HAS_POWER_SWITCH
-  #include "gcode/control/M80.h"
-#endif
-
-#include "gcode/control/M81.h"
 
 #include "gcode/units/M82_M83.h"
 

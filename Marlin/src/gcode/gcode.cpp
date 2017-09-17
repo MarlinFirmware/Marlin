@@ -117,8 +117,6 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 extern void gcode_M18_M84();
-extern void gcode_M80();
-extern void gcode_M81();
 extern void gcode_M82();
 extern void gcode_M83();
 extern void gcode_M85();
@@ -492,16 +490,10 @@ void GcodeSuite::process_next_command() {
       #endif // BARICUDA
 
       #if HAS_POWER_SWITCH
+        case 80: M80(); break;    // M80: Turn on Power Supply
+      #endif
 
-        case 80: // M80: Turn on Power Supply
-          gcode_M80();
-          break;
-
-      #endif // HAS_POWER_SWITCH
-
-      case 81: // M81: Turn off Power, including Power Supply, if possible
-        gcode_M81();
-        break;
+      case 81: M81(); break;      // M81: Turn off Power, including Power Supply, if possible
 
       case 82: // M82: Set E axis normal mode (same as other axes)
         gcode_M82();

@@ -20,12 +20,74 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/temperature.h"
+#include "../../module/stepper.h"
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(ULTIPANEL)
+  #include "../../lcd/ultralcd.h"
+#endif
+
+#if HAS_POWER_SWITCH
+
+  // Could be moved to a feature, but this is all the data
+  bool powersupply_on =
+    #if ENABLED(PS_DEFAULT_OFF)
+      false
+    #else
+      true
+    #endif
+  ;
+
+  #if ENABLED(HAVE_TMC2130)
+    #include "../../feature/tmc2130.h"
+  #endif
+
+  /**
+   * M80   : Turn on the Power Supply
+   * M80 S : Report the current state and exit
+   */
+  void GcodeSuite::M80() {
+
+    // S: Report the current power supply state and exit
+    if (parser.seen('S')) {
+      serialprintPGM(powersupply_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      return;
+    }
+
+    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
+
+    /**
+     * If you have a switch on suicide pin, this is useful
+     * if you want to start another print with suicide feature after
+     * a print without suicide...
+     */
+    #if HAS_SUICIDE
+      OUT_WRITE(SUICIDE_PIN, HIGH);
+    #endif
+
+    #if ENABLED(HAVE_TMC2130)
+      delay(100);
+      tmc2130_init(); // Settings only stick when the driver has power
+    #endif
+
+    powersupply_on = true;
+
+    #if ENABLED(ULTIPANEL)
+      LCD_MESSAGEPGM(WELCOME_MSG);
+    #endif
+  }
+
+#endif // HAS_POWER_SWITCH
+
 /**
  * M81: Turn off Power, including Power Supply, if there is one.
  *
  *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
  */
-void gcode_M81() {
+void GcodeSuite::M81() {
   thermalManager.disable_all_heaters();
   stepper.finish_and_disable();
 
