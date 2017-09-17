@@ -369,10 +369,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  #include "gcode/units/M149.h"
-#endif
-
 #if HAS_POWER_SWITCH
   #include "gcode/control/M80.h"
 #endif

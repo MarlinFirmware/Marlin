@@ -131,7 +131,6 @@ extern void gcode_M118();
 extern void gcode_M119();
 extern void gcode_M120();
 extern void gcode_M121();
-extern void gcode_M149();
 extern void gcode_M150();
 extern void gcode_M163();
 extern void gcode_M164();
@@ -547,9 +546,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-        case 149: // M149: Set temperature units
-          gcode_M149();
-          break;
+        case 149: M149(); break;  // M149: Set temperature units
       #endif
 
       #if HAS_COLOR_LEDS
