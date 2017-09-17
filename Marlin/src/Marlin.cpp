@@ -355,10 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/config/M203.h"
-#include "gcode/config/M204.h"
-#include "gcode/config/M205.h"
-
 #if HAS_M206_COMMAND
   #include "gcode/geometry/M206.h"
 #endif

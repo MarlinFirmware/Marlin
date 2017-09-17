@@ -20,6 +20,9 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/planner.h"
+
 /**
  * M204: Set Accelerations in units/sec^2 (M204 P1200 R3000 T3000)
  *
@@ -29,7 +32,7 @@
  *
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
-void gcode_M204() {
+void GcodeSuite::M204() {
   if (parser.seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
     planner.travel_acceleration = planner.acceleration = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
