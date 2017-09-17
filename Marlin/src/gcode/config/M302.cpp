@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M302: Allow cold extrudes, or set the minimum extrude temperature
  *
@@ -35,7 +42,7 @@
  *       M302 S170    ; only allow extrusion above 170
  *       M302 S170 P1 ; set min extrude temp to 170 but leave disabled
  */
-void gcode_M302() {
+void GcodeSuite::M302() {
   const bool seen_S = parser.seen('S');
   if (seen_S) {
     thermalManager.extrude_min_temp = parser.value_celsius();
@@ -52,3 +59,5 @@ void gcode_M302() {
     SERIAL_ECHOLNPGM("C)");
   }
 }
+
+#endif // PREVENT_COLD_EXTRUSION

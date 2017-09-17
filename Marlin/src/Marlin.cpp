@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-  #include "gcode/config/M302.h"
-#endif
-
 #if ENABLED(MORGAN_SCARA)
   #include "gcode/scara/M360-M364.h"
 #endif
