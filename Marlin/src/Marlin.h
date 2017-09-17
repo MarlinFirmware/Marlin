@@ -185,6 +185,9 @@ extern volatile bool wait_for_heatup;
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
 #endif
 
+// Inactivity shutdown timer
+extern millis_t max_inactive_time, stepper_inactive_time;
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif

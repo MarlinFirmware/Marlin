@@ -20,14 +20,19 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../Marlin.h" // for stepper_inactive_time
+#include "../../module/stepper.h"
+
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)
-  extern bool defer_return_to_status;
+  #include "../../feature/bedlevel/bedlevel.h"
+  #include "../../lcd/ultralcd.h"
 #endif
 
 /**
  * M18, M84: Disable stepper motors
  */
-void gcode_M18_M84() {
+void GcodeSuite::M18_M84() {
   if (parser.seenval('S')) {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }

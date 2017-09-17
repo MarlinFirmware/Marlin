@@ -116,8 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M18_M84();
-extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
 extern void gcode_M114();
@@ -497,12 +495,9 @@ void GcodeSuite::process_next_command() {
       case 83: M83(); break;      // M83: Set E axis relative mode
 
       case 18: // M18 => M84
-      case 84: // M84: Disable all steppers or set timeout
-        gcode_M18_M84();
-        break;
-      case 85: // M85: Set inactivity stepper shutdown timeout
-        gcode_M85();
-        break;
+      case 84: M18_M84(); break;  // M84: Disable all steppers or set timeout
+      case 85: M85(); break;      // M85: Set inactivity stepper shutdown timeout
+
       case 92: // M92: Set the steps-per-unit for one or more axes
         gcode_M92();
         break;

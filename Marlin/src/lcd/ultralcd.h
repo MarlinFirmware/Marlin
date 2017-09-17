@@ -80,6 +80,8 @@
 
   #if ENABLED(ULTIPANEL)
 
+    extern bool defer_return_to_status;
+
     // Function pointer to menu functions.
     typedef void (*screenFunc_t)();
 
