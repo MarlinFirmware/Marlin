@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M92();
 extern void gcode_M100();
 extern void gcode_M114();
 extern void gcode_M115();
@@ -498,9 +497,8 @@ void GcodeSuite::process_next_command() {
       case 84: M18_M84(); break;  // M84: Disable all steppers or set timeout
       case 85: M85(); break;      // M85: Set inactivity stepper shutdown timeout
 
-      case 92: // M92: Set the steps-per-unit for one or more axes
-        gcode_M92();
-        break;
+      case 92: M92(); break;      // M92: Set the steps-per-unit for one or more axes
+
       case 114: // M114: Report current position
         gcode_M114();
         break;
