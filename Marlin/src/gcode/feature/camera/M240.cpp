@@ -20,11 +20,17 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if defined(CHDK) || HAS_PHOTOGRAPH
+
+#include "../../gcode.h"
+
 /**
  * M240: Trigger a camera by emulating a Canon RC-1
  *       See http://www.doc-diy.net/photo/rc-1_hacked/
  */
-void gcode_M240() {
+void GcodeSuite::M240() {
   #ifdef CHDK
 
     OUT_WRITE(CHDK, HIGH);
@@ -51,3 +57,5 @@ void gcode_M240() {
 
   #endif
 }
+
+#endif // CHDK || HAS_PHOTOGRAPH
