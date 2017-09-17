@@ -20,7 +20,14 @@
  *
  */
 
-void gcode_M304() {
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PIDTEMPBED)
+
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
+void GcodeSuite::M304() {
   if (parser.seen('P')) thermalManager.bedKp = parser.value_float();
   if (parser.seen('I')) thermalManager.bedKi = scalePID_i(parser.value_float());
   if (parser.seen('D')) thermalManager.bedKd = scalePID_d(parser.value_float());
@@ -32,3 +39,5 @@ void gcode_M304() {
   SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.bedKi));
   SERIAL_ECHOLNPAIR(" d:", unscalePID_d(thermalManager.bedKd));
 }
+
+#endif // PIDTEMPBED
