@@ -92,7 +92,7 @@
  */
 #define SENSOR_LEFT        1
 #define SENSOR_RIGHT       0
-#define SENSOR_FRONT      36
+#define SENSOR_FRONT       36
 #define SENSOR_BEHIND      0
 
 /**
@@ -107,12 +107,12 @@
  * Number of grid points in each direction
  * Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
  */
-#define GRID_POINTS        10
+#define GRID_POINTS        15
 
 /**
  * Margin around perimiter of bed for probing (will not probe outside this margin)
  */
-#define BED_MARGIN         5
+#define BED_MARGIN         0
 
 /**
  * Enable this to turn on support for two extruders
@@ -165,10 +165,17 @@
 //#define BABYSTEPPING
 
 /**
+ * Extra movement of X axis. Can help with probing more of the bed.
+ * Set both to 0 (zero) if you do not have a Z-Probe.
+ */
+#define XTRA_BED_LEFT     0  // Distance nozzle can move towards the left past X = 0
+#define XTRA_BED_RIGHT    0  // Distance nozzle can move towards the right past X = 200
+
+/**
  * Extra movement of Y axis. Can help with probing more of the bed.
  * Set both to 0 (zero) if you do not have a Z-Probe.
  */
-#define XTRA_BED_FRONT    55 // Distance bed can move towards the front past Y = 200
+#define XTRA_BED_FRONT    55  // Distance bed can move towards the front past Y = 200
 #define XTRA_BED_BACK     5  // Distance bed can move towards the back past Y = 0
 
 /************************ END OF EASY CONFIG ***************************
@@ -1042,10 +1049,10 @@
 #endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
+#define X_MIN_POS 0 - XTRA_BED_LEFT
 #define Y_MIN_POS 0 - XTRA_BED_BACK
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
+#define X_MAX_POS X_BED_SIZE + XTRA_BED_RIGHT
 #define Y_MAX_POS Y_BED_SIZE + XTRA_BED_FRONT
 #define Z_MAX_POS 180
 
@@ -1145,8 +1152,20 @@
 #else
   #define PROBE_Y_BACK Y_BED_SIZE - BED_MARGIN - SENSOR_FRONT
 #endif
-#define PROBE_X_LEFT BED_MARGIN + SENSOR_RIGHT
-#define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
+#if XTRA_BED_LEFT > SENSOR_RIGHT
+  #define PROBE_X_LEFT BED_MARGIN + SENSOR_RIGHT - (XTRA_BED_LEFT - (XTRA_BED_LEFT - SENSOR_RIGHT))
+#elif XTRA_BED_LEFT > 0 && XTRA_BED_LEFT <= SENSOR_RIGHT
+  #define PROBE_X_LEFT BED_MARGIN + SENSOR_RIGHT - XTRA_BED_LEFT
+#else
+  #define PROBE_X_LEFT BED_MARGIN + SENSOR_RIGHT
+#endif
+#if XTRA_BED_RIGHT > SENSOR_LEFT
+  #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT + (XTRA_BED_RIGHT - (XTRA_BED_RIGHT - SENSOR_LEFT))
+#elif XTRA_BED_RIGHT > 0 && XTRA_BED_RIGHT <= SENSOR_LEFT
+  #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT + XTRA_BED_RIGHT
+#else
+  #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
+#endif
 #define PROBE_X_MIDDLE (X_BED_SIZE / 2)
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
