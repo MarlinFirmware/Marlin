@@ -95,6 +95,10 @@
   #include "HAL/HAL_endstop_interrupts.h"
 #endif
 
+#if ENABLED(HAVE_TMC2130)
+  #include "feature/tmc2130.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   CardReader card;
 #endif
@@ -112,10 +116,6 @@
 
 #if HAS_LEVELING
   #include "feature/bedlevel/bedlevel.h"
-#endif
-
-#if ENABLED(SENSORLESS_HOMING)
-  #include "feature/tmc2130.h"
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
@@ -358,19 +358,6 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
-
-#if ENABLED(HAVE_TMC2130)
-  #include "feature/tmc2130.h"
-  #include "gcode/feature/trinamic/M906.h"
-  #include "gcode/feature/trinamic/M911.h"
-  #include "gcode/feature/trinamic/M912.h"
-  #if ENABLED(HYBRID_THRESHOLD)
-    #include "gcode/feature/trinamic/M913.h"
-  #endif
-  #if ENABLED(SENSORLESS_HOMING)
-    #include "gcode/feature/trinamic/M914.h"
-  #endif
-#endif
 
 #include "gcode/feature/digipot/M907.h"
 

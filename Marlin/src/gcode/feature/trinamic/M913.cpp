@@ -20,12 +20,21 @@
  *
  */
 
-static void tmc2130_get_pwmthrs(TMC2130Stepper &st, const char name, const uint16_t spmm) {
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(HAVE_TMC2130) && ENABLED(HYBRID_THRESHOLD)
+
+#include "../../gcode.h"
+#include "../../../feature/tmc2130.h"
+#include "../../../module/planner.h"
+#include "../../../module/stepper_indirection.h"
+
+inline void tmc2130_get_pwmthrs(TMC2130Stepper &st, const char name, const uint16_t spmm) {
   SERIAL_CHAR(name);
   SERIAL_ECHOPGM(" stealthChop max speed set to ");
   SERIAL_ECHOLN(12650000UL * st.microsteps() / (256 * st.stealth_max_speed() * spmm));
 }
-static void tmc2130_set_pwmthrs(TMC2130Stepper &st, const char name, const int32_t thrs, const uint32_t spmm) {
+inline void tmc2130_set_pwmthrs(TMC2130Stepper &st, const char name, const int32_t thrs, const uint32_t spmm) {
   st.stealth_max_speed(12650000UL * st.microsteps() / (256 * thrs * spmm));
   tmc2130_get_pwmthrs(st, name, spmm);
 }
@@ -33,7 +42,7 @@ static void tmc2130_set_pwmthrs(TMC2130Stepper &st, const char name, const int32
 /**
  * M913: Set HYBRID_THRESHOLD speed.
  */
-void gcode_M913() {
+void GcodeSuite::M913() {
   uint16_t values[XYZE];
   LOOP_XYZE(i)
     values[i] = parser.intval(axis_codes[i]);
@@ -55,3 +64,5 @@ void gcode_M913() {
     else tmc2130_get_pwmthrs(stepperE0, 'E', planner.axis_steps_per_mm[E_AXIS]);
   #endif
 }
+
+#endif // HAVE_TMC2130 && HYBRID_THRESHOLD

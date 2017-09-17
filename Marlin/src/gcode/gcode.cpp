@@ -122,11 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M906();
-extern void gcode_M911();
-extern void gcode_M912();
-extern void gcode_M913();
-extern void gcode_M914();
 extern void gcode_M907();
 extern void gcode_M908();
 extern void gcode_M909();
@@ -660,12 +655,6 @@ void GcodeSuite::process_next_command() {
         case 900: M900(); break;  // M900: Set advance K factor.
       #endif
 
-      #if ENABLED(HAVE_TMC2130)
-        case 906: // M906: Set motor current in milliamps using axis codes X, Y, Z, E
-          gcode_M906();
-          break;
-      #endif
-
       case 907: // M907: Set digital trimpot motor current using axis codes.
         gcode_M907();
         break;
@@ -691,24 +680,14 @@ void GcodeSuite::process_next_command() {
       #endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
 
       #if ENABLED(HAVE_TMC2130)
-        case 911: // M911: Report TMC2130 prewarn triggered flags
-          gcode_M911();
-          break;
-
-        case 912: // M911: Clear TMC2130 prewarn triggered flags
-          gcode_M912();
-          break;
-
+        case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
+        case 911: M911(); break;    // M911: Report TMC2130 prewarn triggered flags
+        case 912: M912(); break;    // M912: Clear TMC2130 prewarn triggered flags
         #if ENABLED(HYBRID_THRESHOLD)
-          case 913: // M913: Set HYBRID_THRESHOLD speed.
-            gcode_M913();
-            break;
+          case 913: M913(); break;  // M913: Set HYBRID_THRESHOLD speed.
         #endif
-
         #if ENABLED(SENSORLESS_HOMING)
-          case 914: // M914: Set SENSORLESS_HOMING sensitivity.
-            gcode_M914();
-            break;
+          case 914: M914(); break;  // M914: Set SENSORLESS_HOMING sensitivity.
         #endif
       #endif
 

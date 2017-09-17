@@ -20,12 +20,20 @@
  *
  */
 
-static void tmc2130_get_current(TMC2130Stepper &st, const char name) {
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(HAVE_TMC2130)
+
+#include "../../gcode.h"
+#include "../../../feature/tmc2130.h"
+#include "../../../module/stepper_indirection.h"
+
+inline void tmc2130_get_current(TMC2130Stepper &st, const char name) {
   SERIAL_CHAR(name);
   SERIAL_ECHOPGM(" axis driver current: ");
   SERIAL_ECHOLN(st.getCurrent());
 }
-static void tmc2130_set_current(TMC2130Stepper &st, const char name, const int mA) {
+inline void tmc2130_set_current(TMC2130Stepper &st, const char name, const int mA) {
   st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
   tmc2130_get_current(st, name);
 }
@@ -37,7 +45,7 @@ static void tmc2130_set_current(TMC2130Stepper &st, const char name, const int m
  * S1: Enable automatic current control
  * S0: Disable
  */
-void gcode_M906() {
+void GcodeSuite::M906() {
   uint16_t values[XYZE];
   LOOP_XYZE(i)
     values[i] = parser.intval(axis_codes[i]);
@@ -63,3 +71,5 @@ void gcode_M906() {
     if (parser.seen('S')) auto_current_control = parser.value_bool();
   #endif
 }
+
+#endif // HAVE_TMC2130
