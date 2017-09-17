@@ -20,21 +20,19 @@
  *
  */
 
-inline void select_multiplexed_stepper(const uint8_t e) {
-  stepper.synchronize();
-  disable_e_steppers();
-  WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-  WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-  WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
-  safe_delay(100);
-}
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(MK2_MULTIPLEXER)
+
+#include "../../gcode.h"
+#include "../../../feature/snmm.h"
 
 /**
  * M702: Unload all extruders
  */
-void gcode_M702() {
+void GcodeSuite::M702() {
   for (uint8_t s = 0; s < E_STEPPERS; s++) {
-    select_multiplexed_stepper(e);
+    select_multiplexed_stepper(s);
     // TODO: standard unload filament function
     // MK2 firmware behavior:
     //  - Make sure temperature is high enough
@@ -48,3 +46,5 @@ void gcode_M702() {
   select_multiplexed_stepper(active_extruder);
   disable_e_steppers();
 }
+
+#endif // MK2_MULTIPLEXER

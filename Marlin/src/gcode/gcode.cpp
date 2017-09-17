@@ -123,7 +123,6 @@ extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
 extern void gcode_M605();
-extern void gcode_M702();
 extern void gcode_M900();
 extern void gcode_M906();
 extern void gcode_M911();
@@ -658,9 +657,7 @@ void GcodeSuite::process_next_command() {
       #endif // DUAL_X_CARRIAGE
 
       #if ENABLED(MK2_MULTIPLEXER)
-        case 702: // M702: Unload all extruders
-          gcode_M702();
-          break;
+        case 702: M702(); break;  // M702: Unload all extruders
       #endif
 
       #if ENABLED(LIN_ADVANCE)

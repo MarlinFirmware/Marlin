@@ -38,6 +38,10 @@
   #include "../feature/solenoid.h"
 #endif
 
+#if ENABLED(MK2_MULTIPLEXER)
+  #include "../feature/snmm.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3
