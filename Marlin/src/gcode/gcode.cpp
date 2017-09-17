@@ -119,8 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M350();
-extern void gcode_M351();
 extern void gcode_M355();
 extern void gcode_M999();
 extern void gcode_T(uint8_t tmp_extruder);
@@ -674,16 +672,9 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if HAS_MICROSTEPS
-
-        case 350: // M350: Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
-          gcode_M350();
-          break;
-
-        case 351: // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
-          gcode_M351();
-          break;
-
-      #endif // HAS_MICROSTEPS
+        case 350: M350(); break;    // M350: Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
+        case 351: M351(); break;    // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
+      #endif
 
       case 355: // M355 set case light brightness
         gcode_M355();

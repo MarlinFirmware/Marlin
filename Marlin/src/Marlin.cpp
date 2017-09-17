@@ -358,11 +358,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if HAS_MICROSTEPS
-  #include "gcode/control/M350.h"
-  #include "gcode/control/M351.h"
-#endif
-
 #include "gcode/feature/caselight/M355.h"
 
 #if ENABLED(MIXING_EXTRUDER)
