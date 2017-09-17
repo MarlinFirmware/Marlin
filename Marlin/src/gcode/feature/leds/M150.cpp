@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if HAS_COLOR_LEDS
+
+#include "../../gcode.h"
+#include "../../../feature/leds/leds.h"
+
 /**
  * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
  *
@@ -34,7 +41,7 @@
  *   M150 W          ; Turn LED white using a white LED
  *
  */
-void gcode_M150() {
+void GcodeSuite::M150() {
   set_led_color(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
@@ -44,3 +51,5 @@ void gcode_M150() {
     #endif
   );
 }
+
+#endif // HAS_COLOR_LEDS

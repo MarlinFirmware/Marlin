@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M150();
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
@@ -509,12 +508,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if HAS_COLOR_LEDS
-
-        case 150: // M150: Set Status LED Color
-          gcode_M150();
-          break;
-
-      #endif // HAS_COLOR_LEDS
+        case 150: M150(); break;  // M150: Set Status LED Color
+      #endif
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
