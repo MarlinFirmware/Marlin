@@ -502,8 +502,9 @@ private:
     #endif
   #endif
 
-  #if HAS_TEMP_BED
+  #if HAS_HEATER_BED && HAS_TEMP_BED
     static void M140();
+    static void M190();
   #endif
 
   #if ENABLED(ULTIPANEL)
@@ -530,10 +531,6 @@ private:
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();
     #endif
-  #endif
-
-  #if HAS_TEMP_BED
-    static void M190();
   #endif
 
   static void M200();

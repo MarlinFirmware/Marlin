@@ -138,14 +138,12 @@ extern void gcode_M126();
 extern void gcode_M127();
 extern void gcode_M128();
 extern void gcode_M129();
-extern void gcode_M140();
 extern void gcode_M145();
 extern void gcode_M149();
 extern void gcode_M150();
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M190();
 extern void gcode_M201();
 extern void gcode_M203();
 extern void gcode_M204();
@@ -470,10 +468,10 @@ void GcodeSuite::process_next_command() {
           break;
       #endif
 
-      case 140: // M140: Set bed temperature
-        gcode_M140();
-        break;
-
+      #if HAS_HEATER_BED && HAS_TEMP_BED
+        case 140: M140(); break;  // M140: Set bed temperature
+        case 190: M190(); break;  // M190: Wait for bed temperature to reach target
+      #endif
 
       case 105: // M105: Report current temperature
         M105();
@@ -483,12 +481,6 @@ void GcodeSuite::process_next_command() {
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
         case 155: M155(); break;  // M155: Set temperature auto-report interval
       #endif
-
-      #if HAS_TEMP_BED
-        case 190: // M190: Wait for bed temperature to reach target
-          gcode_M190();
-          break;
-      #endif // HAS_TEMP_BED
 
       #if FAN_COUNT > 0
         case 106: M106(); break;  // M106: Fan On

@@ -20,10 +20,19 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_HEATER_BED && HAS_TEMP_BED
+
+#include "../gcode.h"
+#include "../../module/temperature.h"
+
 /**
  * M140: Set bed temperature
  */
-void gcode_M140() {
+void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
   if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
 }
+
+#endif // HAS_HEATER_BED && HAS_TEMP_BED

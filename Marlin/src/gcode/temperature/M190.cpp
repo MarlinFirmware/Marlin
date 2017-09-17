@@ -20,7 +20,24 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_HEATER_BED && HAS_TEMP_BED
+
 #include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/temperature.h"
+#include "../../lcd/ultralcd.h"
+
+#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  #include "../../module/printcounter.h"
+#endif
+
+#if ENABLED(PRINTER_EVENT_LEDS)
+  #include "../../feature/leds/leds.h"
+#endif
+
+#include "../../Marlin.h" // for wait_for_heatup and idle()
 
 #ifndef MIN_COOLING_SLOPE_DEG_BED
   #define MIN_COOLING_SLOPE_DEG_BED 1.50
@@ -33,7 +50,7 @@
  * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
  */
-void gcode_M190() {
+void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
   LCD_MESSAGEPGM(MSG_BED_HEATING);
@@ -65,7 +82,7 @@ void gcode_M190() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
-  gcode.target_extruder = active_extruder; // for print_heaterstates
+  target_extruder = active_extruder; // for print_heaterstates
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     const float start_temp = thermalManager.degBed();
@@ -97,7 +114,7 @@ void gcode_M190() {
     }
 
     idle();
-    gcode.refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     const float temp = thermalManager.degBed();
 
@@ -149,3 +166,5 @@ void gcode_M190() {
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
 }
+
+#endif // HAS_HEATER_BED && HAS_TEMP_BED
