@@ -374,8 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/host/M110.h"
-
 #include "gcode/control/M111.h"
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

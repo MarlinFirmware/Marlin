@@ -124,7 +124,6 @@ extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
-extern void gcode_M110();
 extern void gcode_M111();
 extern void gcode_M113();
 extern void gcode_M114();
@@ -448,9 +447,7 @@ void GcodeSuite::process_next_command() {
       case 104: M104(); break;    // M104: Set hot end temperature
       case 109: M109(); break;    // M109: Wait for hotend temperature to reach target
 
-      case 110: // M110: Set Current Line Number
-        gcode_M110();
-        break;
+      case 110: M110(); break;    // M110: Set Current Line Number
 
       case 111: // M111: Set debug level
         gcode_M111();
