@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M355();
 extern void gcode_M999();
 extern void gcode_T(uint8_t tmp_extruder);
 
@@ -676,9 +675,7 @@ void GcodeSuite::process_next_command() {
         case 351: M351(); break;    // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
       #endif
 
-      case 355: // M355 set case light brightness
-        gcode_M355();
-        break;
+      case 355: M355(); break;      // M355: Set case light brightness
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800:

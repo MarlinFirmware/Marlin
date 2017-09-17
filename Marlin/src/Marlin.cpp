@@ -130,6 +130,10 @@
   #include "feature/leds/tempstat.h"
 #endif
 
+#if HAS_CASE_LIGHT
+  #include "feature/caselight.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -357,8 +361,6 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
-
-#include "gcode/feature/caselight/M355.h"
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "gcode/feature/mixing/M163.h"
@@ -859,8 +861,6 @@ void setup() {
   #endif
 
   #if HAS_CASE_LIGHT
-    case_light_on = CASE_LIGHT_DEFAULT_ON;
-    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
     update_case_light();
   #endif
 
