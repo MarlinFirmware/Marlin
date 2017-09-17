@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_LCD_CONTRAST
-  #include "gcode/lcd/M250.h"
-#endif
-
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   #include "gcode/config/M302.h"
 #endif
