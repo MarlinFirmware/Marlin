@@ -20,13 +20,15 @@
  *
  */
 
+#include "../gcode.h"
+
 /**
  * M118: Display a message in the host console.
  *
  *  A  Append '// ' for an action command, as in OctoPrint
  *  E  Have the host 'echo:' the text
  */
-void gcode_M118() {
+void GcodeSuite::M118() {
   if (parser.boolval('E')) SERIAL_ECHO_START();
   if (parser.boolval('A')) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(parser.string_arg);
