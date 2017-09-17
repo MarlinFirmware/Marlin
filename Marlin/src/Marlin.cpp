@@ -177,11 +177,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   float z_endstop_adj;
 #endif
 
-#if ENABLED(BARICUDA)
-  uint8_t baricuda_valve_pressure = 0,
-          baricuda_e_to_p_pressure = 0;
-#endif
-
 #if HAS_POWER_SWITCH
   bool powersupply_on =
     #if ENABLED(PS_DEFAULT_OFF)
@@ -373,17 +368,6 @@ bool pin_is_protected(const int8_t pin) {
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#if ENABLED(BARICUDA)
-  #if HAS_HEATER_1
-    #include "gcode/feature/baricuda/M126.h"
-    #include "gcode/feature/baricuda/M127.h"
-  #endif
-  #if HAS_HEATER_2
-    #include "gcode/feature/baricuda/M128.h"
-    #include "gcode/feature/baricuda/M129.h"
-  #endif
-#endif
 
 #if ENABLED(ULTIPANEL)
   #include "gcode/lcd/M145.h"

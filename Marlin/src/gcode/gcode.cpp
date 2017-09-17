@@ -131,10 +131,6 @@ extern void gcode_M118();
 extern void gcode_M119();
 extern void gcode_M120();
 extern void gcode_M121();
-extern void gcode_M126();
-extern void gcode_M127();
-extern void gcode_M128();
-extern void gcode_M129();
 extern void gcode_M145();
 extern void gcode_M149();
 extern void gcode_M150();
@@ -486,23 +482,15 @@ void GcodeSuite::process_next_command() {
       #if ENABLED(BARICUDA)
         // PWM for HEATER_1_PIN
         #if HAS_HEATER_1
-          case 126: // M126: valve open
-            gcode_M126();
-            break;
-          case 127: // M127: valve closed
-            gcode_M127();
-            break;
-        #endif // HAS_HEATER_1
+          case 126: M126(); break;  // M126: valve open
+          case 127: M127(); break;  // M127: valve closed
+        #endif
 
         // PWM for HEATER_2_PIN
         #if HAS_HEATER_2
-          case 128: // M128: valve open
-            gcode_M128();
-            break;
-          case 129: // M129: valve closed
-            gcode_M129();
-            break;
-        #endif // HAS_HEATER_2
+          case 128: M128(); break;  // M128: valve open
+          case 129: M129(); break;  // M129: valve closed
+        #endif
       #endif // BARICUDA
 
       #if HAS_POWER_SWITCH
