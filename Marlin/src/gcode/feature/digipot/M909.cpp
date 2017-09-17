@@ -20,20 +20,17 @@
  *
  */
 
-/**
- * M908: Control digital trimpot directly (M908 P<pin> S<current>)
- */
-void gcode_M908() {
-  #if HAS_DIGIPOTSS
-    stepper.digitalPotWrite(
-      parser.intval('P'),
-      parser.intval('S')
-    );
-  #endif
-  #ifdef DAC_STEPPER_CURRENT
-    dac_current_raw(
-      parser.byteval('P', -1),
-      parser.ushortval('S', 0)
-    );
-  #endif
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(DAC_STEPPER_CURRENT)
+
+#include "../../gcode.h"
+#include "../../../feature/dac/stepper_dac.h"
+
+void GcodeSuite::M909() {
+
+  dac_print_values();
+
 }
+
+#endif // DAC_STEPPER_CURRENT

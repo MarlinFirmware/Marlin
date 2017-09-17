@@ -20,11 +20,11 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DIGIPOT_I2C) && ENABLED(DIGIPOT_MCP4018)
 
-#include "../core/enum.h"
+#include "../../core/enum.h"
 #include "Stream.h"
 #include "utility/twi.h"
 #include <SlowSoftI2CMaster.h>  //https://github.com/stawel/SlowSoftI2CMaster
@@ -88,7 +88,7 @@ static void i2c_send(const uint8_t channel, const byte v) {
 }
 
 // This is for the MCP4018 I2C based digipot
-void digipot_i2c_set_current(uint8_t channel, float current) {
+void digipot_i2c_set_current(const uint8_t channel, const float current) {
   i2c_send(channel, current_to_wiper(min(max(current, 0.0f), float(DIGIPOT_A4988_MAX_CURRENT))));
 }
 

@@ -122,10 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M907();
-extern void gcode_M908();
-extern void gcode_M909();
-extern void gcode_M910();
 extern void gcode_M999();
 extern void gcode_T(uint8_t tmp_extruder);
 
@@ -655,29 +651,15 @@ void GcodeSuite::process_next_command() {
         case 900: M900(); break;  // M900: Set advance K factor.
       #endif
 
-      case 907: // M907: Set digital trimpot motor current using axis codes.
-        gcode_M907();
-        break;
+      case 907: M907(); break;      // M907: Set digital trimpot motor current using axis codes.
 
       #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
-
-        case 908: // M908: Control digital trimpot directly.
-          gcode_M908();
-          break;
-
+        case 908: M908(); break;    // M908: Control digital trimpot directly.
         #if ENABLED(DAC_STEPPER_CURRENT) // As with Printrbot RevF
-
-          case 909: // M909: Print digipot/DAC current value
-            gcode_M909();
-            break;
-
-          case 910: // M910: Commit digipot/DAC value to external EEPROM
-            gcode_M910();
-            break;
-
+          case 909: M909(); break;  // M909: Print digipot/DAC current value
+          case 910: M910(); break;  // M910: Commit digipot/DAC value to external EEPROM
         #endif
-
-      #endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
+      #endif
 
       #if ENABLED(HAVE_TMC2130)
         case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
