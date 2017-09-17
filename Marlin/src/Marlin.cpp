@@ -352,8 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/control/M400.h"
-
 #if HAS_BED_PROBE
   #include "gcode/probe/M401_M402.h"
 #endif

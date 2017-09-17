@@ -122,7 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M400();
 extern void gcode_M401();
 extern void gcode_M402();
 extern void gcode_M428();
@@ -599,9 +598,7 @@ void GcodeSuite::process_next_command() {
         case 381: M381(); break;  // M381: Disable all solenoids
       #endif
 
-      case 400: // M400: Finish all moves
-        gcode_M400();
-        break;
+      case 400: M400(); break;    // M400: Finish all moves
 
       #if HAS_BED_PROBE
         case 401: // M401: Deploy probe
