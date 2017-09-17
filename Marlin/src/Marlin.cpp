@@ -359,10 +359,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if ENABLED(LIN_ADVANCE)
-  #include "gcode/feature/advance/M900.h"
-#endif
-
 #if ENABLED(HAVE_TMC2130)
   #include "feature/tmc2130.h"
   #include "gcode/feature/trinamic/M906.h"
