@@ -131,7 +131,6 @@ extern void gcode_M118();
 extern void gcode_M119();
 extern void gcode_M120();
 extern void gcode_M121();
-extern void gcode_M145();
 extern void gcode_M149();
 extern void gcode_M150();
 extern void gcode_M163();
@@ -544,11 +543,7 @@ void GcodeSuite::process_next_command() {
         break;
 
       #if ENABLED(ULTIPANEL)
-
-        case 145: // M145: Set material heatup parameters
-          gcode_M145();
-          break;
-
+        case 145: M145(); break;  // M145: Set material heatup parameters
       #endif
 
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
