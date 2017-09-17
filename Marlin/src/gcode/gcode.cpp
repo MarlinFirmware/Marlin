@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M226();
 extern void gcode_M240();
 extern void gcode_M250();
 extern void gcode_M260();
@@ -564,9 +563,7 @@ void GcodeSuite::process_next_command() {
         M221();
         break;
 
-      case 226: // M226: Wait until a pin reaches a state
-        gcode_M226();
-        break;
+      case 226: M226(); break;    // M226: Wait until a pin reaches a state
 
       #if HAS_SERVOS
         case 280: // M280: Set servo position absolute
