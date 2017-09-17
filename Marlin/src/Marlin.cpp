@@ -359,13 +359,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#include "gcode/eeprom/M500.h"
-#include "gcode/eeprom/M501.h"
-#include "gcode/eeprom/M502.h"
-#if DISABLED(DISABLE_M503)
-  #include "gcode/eeprom/M503.h"
-#endif
-
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #include "gcode/config/M540.h"
 #endif

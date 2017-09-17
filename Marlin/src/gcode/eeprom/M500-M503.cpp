@@ -20,9 +20,38 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/configuration_store.h"
+#include "../../inc/MarlinConfig.h"
+
+/**
+ * M500: Store settings in EEPROM
+ */
+void GcodeSuite::M500() {
+  (void)settings.save();
+}
+
+/**
+ * M501: Read settings from EEPROM
+ */
+void GcodeSuite::M501() {
+  (void)settings.load();
+}
+
 /**
  * M502: Revert to default settings
  */
-void gcode_M502() {
+void GcodeSuite::M502() {
   (void)settings.reset();
 }
+
+#if DISABLED(DISABLE_M503)
+
+  /**
+   * M503: print settings currently in memory
+   */
+  void GcodeSuite::M503() {
+    (void)settings.report(!parser.boolval('S', true));
+  }
+
+#endif // !DISABLE_M503
