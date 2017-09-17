@@ -122,7 +122,6 @@ extern void gcode_M165();
 extern void gcode_M240();
 extern void gcode_M250();
 extern void gcode_M302();
-extern void gcode_M304();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
@@ -573,10 +572,8 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(PIDTEMPBED)
-        case 304: // M304: Set bed PID parameters
-          gcode_M304();
-          break;
-      #endif // PIDTEMPBED
+        case 304: M304(); break;  // M304: Set bed PID parameters
+      #endif
 
       #if defined(CHDK) || HAS_PHOTOGRAPH
         case 240: // M240: Trigger a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/

@@ -352,10 +352,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(PIDTEMPBED)
-  #include "gcode/config/M304.h"
-#endif
-
 #if defined(CHDK) || HAS_PHOTOGRAPH
   #include "gcode/feature/camera/M240.h"
 #endif
