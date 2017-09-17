@@ -20,9 +20,15 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/motion.h"
+
 /**
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
  */
-void gcode_M220() {
-  if (parser.seenval('S')) feedrate_percentage = parser.value_int();
+void GcodeSuite::M220() {
+
+  if (parser.seenval('S'))
+    feedrate_percentage = parser.value_int();
+
 }
