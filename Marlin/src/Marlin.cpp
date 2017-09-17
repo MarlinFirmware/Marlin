@@ -355,10 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
-  #include "gcode/calibrate/M666.h"
-#endif
-
 #include "gcode/control/M211.h"
 
 #include "gcode/config/M220.h"

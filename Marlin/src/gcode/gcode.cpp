@@ -151,7 +151,6 @@ extern void gcode_M502();
 extern void gcode_M503();
 extern void gcode_M540();
 extern void gcode_M605();
-extern void gcode_M666();
 extern void gcode_M702();
 extern void gcode_M900();
 extern void gcode_M906();
@@ -544,9 +543,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
-        case 666: // M666: Set delta or dual endstop adjustment
-          gcode_M666();
-          break;
+        case 666: M666(); break;  // M666: Set delta or dual endstop adjustment
       #endif
 
       #if ENABLED(FWRETRACT)
