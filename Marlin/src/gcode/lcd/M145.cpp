@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(ULTIPANEL)
+
+#include "../gcode.h"
+#include "../../lcd/ultralcd.h"
+
 /**
  * M145: Set the heatup state for a material in the LCD menu
  *
@@ -28,7 +35,7 @@
  *   B<bed temp>
  *   F<fan speed>
  */
-void gcode_M145() {
+void GcodeSuite::M145() {
   const uint8_t material = (uint8_t)parser.intval('S');
   if (material >= COUNT(lcd_preheat_hotend_temp)) {
     SERIAL_ERROR_START();
@@ -52,3 +59,5 @@ void gcode_M145() {
     #endif
   }
 }
+
+#endif // ULTIPANEL
