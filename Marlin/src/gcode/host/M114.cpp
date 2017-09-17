@@ -20,6 +20,12 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+
 #ifdef M114_DETAIL
 
   void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
@@ -99,7 +105,7 @@
 /**
  * M114: Report current position to host
  */
-void gcode_M114() {
+void GcodeSuite::M114() {
 
   #ifdef M114_DETAIL
     if (parser.seen('D')) {

@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M114();
 extern void gcode_M115();
 extern void gcode_M117();
 extern void gcode_M118();
@@ -496,9 +495,7 @@ void GcodeSuite::process_next_command() {
 
       case 92: M92(); break;      // M92: Set the steps-per-unit for one or more axes
 
-      case 114: // M114: Report current position
-        gcode_M114();
-        break;
+      case 114: M114(); break;    // M114: Report current position
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
