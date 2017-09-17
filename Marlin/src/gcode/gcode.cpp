@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M206();
 extern void gcode_M211();
 extern void gcode_M220();
 extern void gcode_M226();
@@ -538,9 +537,7 @@ void GcodeSuite::process_next_command() {
       case 205: M205(); break;    // M205: Set advanced settings
 
       #if HAS_M206_COMMAND
-        case 206: // M206: Set home offsets
-          gcode_M206();
-          break;
+        case 206: M206(); break;  // M206: Set home offsets
       #endif
 
       #if ENABLED(DELTA)
