@@ -207,10 +207,6 @@ extern volatile bool wait_for_heatup;
   #endif
 #endif
 
-#if ENABLED(BARICUDA)
-  extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif

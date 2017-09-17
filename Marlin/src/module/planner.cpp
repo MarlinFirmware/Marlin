@@ -76,6 +76,10 @@
   #include "../feature/filwidth.h"
 #endif
 
+#if ENABLED(BARICUDA)
+  #include "../feature/baricuda.h"
+#endif
+
 Planner planner;
 
   // public:

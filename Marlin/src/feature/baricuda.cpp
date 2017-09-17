@@ -20,11 +20,13 @@
  *
  */
 
-/**
- * M126: Heater 1 valve open
- */
-void gcode_M126() {
+#include "../inc/MarlinConfig.h"
 
-  baricuda_valve_pressure = parser.byteval('S', 255);
+#if ENABLED(BARICUDA)
 
-}
+#include "baricuda.h"
+
+uint8_t baricuda_valve_pressure = 0,
+        baricuda_e_to_p_pressure = 0;
+
+#endif // BARICUDA
