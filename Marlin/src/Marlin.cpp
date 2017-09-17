@@ -355,8 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/config/M201.h"
-
 #if 0 // Not used for Sprinter/grbl gen6
   #include "gcode/config/M202.h"
 #endif
