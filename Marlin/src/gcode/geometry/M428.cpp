@@ -20,6 +20,16 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_M206_COMMAND
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../lcd/ultralcd.h"
+#include "../../libs/buzzer.h"
+#include "../../Marlin.h" // for axis_homed
+
 /**
  * M428: Set home_offset based on the distance between the
  *       current_position and the nearest "reference point."
@@ -31,7 +41,7 @@
  *
  *       Use M206 to set these values directly.
  */
-void gcode_M428() {
+void GcodeSuite::M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
@@ -59,3 +69,5 @@ void gcode_M428() {
     BUZZ(100, 698);
   }
 }
+
+#endif // HAS_M206_COMMAND

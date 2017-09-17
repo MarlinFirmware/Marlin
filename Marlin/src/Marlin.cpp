@@ -359,10 +359,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if HAS_M206_COMMAND
-  #include "gcode/geometry/M428.h"
-#endif
-
 #include "gcode/eeprom/M500.h"
 #include "gcode/eeprom/M501.h"
 #include "gcode/eeprom/M502.h"
