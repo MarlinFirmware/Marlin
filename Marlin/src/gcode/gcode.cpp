@@ -121,7 +121,6 @@ extern void gcode_M164();
 extern void gcode_M165();
 extern void gcode_M240();
 extern void gcode_M250();
-extern void gcode_M280();
 extern void gcode_M300();
 extern void gcode_M301();
 extern void gcode_M302();
@@ -564,10 +563,8 @@ void GcodeSuite::process_next_command() {
       case 226: M226(); break;    // M226: Wait until a pin reaches a state
 
       #if HAS_SERVOS
-        case 280: // M280: Set servo position absolute
-          gcode_M280();
-          break;
-      #endif // HAS_SERVOS
+        case 280: M280(); break;  // M280: Set servo position absolute
+      #endif
 
       #if HAS_BUZZER
         case 300: // M300: Play beep tone
