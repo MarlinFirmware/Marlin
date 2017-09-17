@@ -355,10 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if HAS_M206_COMMAND
-  #include "gcode/geometry/M206.h"
-#endif
-
 #if IS_KINEMATIC
   #include "gcode/calibrate/M665.h"
 #endif

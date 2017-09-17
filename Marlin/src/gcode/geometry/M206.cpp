@@ -20,6 +20,13 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_M206_COMMAND
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
  *
@@ -27,7 +34,7 @@
  * ***              M206 for SCARA will remain enabled in 1.1.x for compatibility.
  * ***              In the 2.0 release, it will simply be disabled by default.
  */
-void gcode_M206() {
+void GcodeSuite::M206() {
   LOOP_XYZ(i)
     if (parser.seen(axis_codes[i]))
       set_home_offset((AxisEnum)i, parser.value_linear_units());
@@ -40,3 +47,5 @@ void gcode_M206() {
   SYNC_PLAN_POSITION_KINEMATIC();
   report_current_position();
 }
+
+#endif // HAS_M206_COMMAND
