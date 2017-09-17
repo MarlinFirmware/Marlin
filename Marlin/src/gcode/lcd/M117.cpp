@@ -20,10 +20,13 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../lcd/ultralcd.h"
+
 /**
  * M117: Set LCD Status Message
  */
-void gcode_M117() {
+void GcodeSuite::M117() {
 
   lcd_setstatus(parser.string_arg);
 
