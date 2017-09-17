@@ -84,6 +84,7 @@
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
+  TWIBus i2c;
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -96,10 +97,6 @@
 
 #if ENABLED(SDSUPPORT)
   CardReader card;
-#endif
-
-#if ENABLED(EXPERIMENTAL_I2CBUS)
-  TWIBus i2c;
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
@@ -354,10 +351,6 @@ bool pin_is_protected(const int8_t pin) {
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#if ENABLED(EXPERIMENTAL_I2CBUS)
-  #include "gcode/feature/i2c/M260_M261.h"
-#endif
 
 #if HAS_SERVOS
   #include "gcode/control/M280.h"

@@ -121,8 +121,6 @@ extern void gcode_M164();
 extern void gcode_M165();
 extern void gcode_M240();
 extern void gcode_M250();
-extern void gcode_M260();
-extern void gcode_M261();
 extern void gcode_M280();
 extern void gcode_M300();
 extern void gcode_M301();
@@ -602,16 +600,9 @@ void GcodeSuite::process_next_command() {
       #endif // HAS_LCD_CONTRAST
 
       #if ENABLED(EXPERIMENTAL_I2CBUS)
-
-        case 260: // M260: Send data to an i2c slave
-          gcode_M260();
-          break;
-
-        case 261: // M261: Request data from an i2c slave
-          gcode_M261();
-          break;
-
-      #endif // EXPERIMENTAL_I2CBUS
+        case 260: M260(); break;  // M260: Send data to an i2c slave
+        case 261: M261(); break;  // M261: Request data from an i2c slave
+      #endif
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: // M302: Allow cold extrudes (set the minimum extrude temperature)
