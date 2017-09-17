@@ -20,7 +20,16 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if IS_KINEMATIC
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+
 #if ENABLED(DELTA)
+
+  #include "../../module/delta.h"
 
   /**
    * M665: Set delta configurations
@@ -34,7 +43,7 @@
    *    Y = Beta (Tower 2) angle trim
    *    Z = Rotate A and B by this angle
    */
-  void gcode_M665() {
+  void GcodeSuite::M665() {
     if (parser.seen('H')) {
       home_offset[Z_AXIS] = parser.value_linear_units() - DELTA_HEIGHT;
       update_software_endstops(Z_AXIS);
@@ -54,6 +63,8 @@
 
 #elif IS_SCARA
 
+  #include "../../module/scara.h"
+
   /**
    * M665: Set SCARA settings
    *
@@ -66,7 +77,7 @@
    *   A, P, and X are all aliases for the shoulder angle
    *   B, T, and Y are all aliases for the elbow angle
    */
-  void gcode_M665() {
+  void GcodeSuite::M665() {
     if (parser.seen('S')) delta_segments_per_second = parser.value_float();
 
     const bool hasA = parser.seen('A'), hasP = parser.seen('P'), hasX = parser.seen('X');
@@ -91,3 +102,5 @@
   }
 
 #endif
+
+#endif // IS_KINEMATIC

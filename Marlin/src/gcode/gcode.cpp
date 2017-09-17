@@ -151,7 +151,6 @@ extern void gcode_M502();
 extern void gcode_M503();
 extern void gcode_M540();
 extern void gcode_M605();
-extern void gcode_M665();
 extern void gcode_M666();
 extern void gcode_M702();
 extern void gcode_M900();
@@ -541,9 +540,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(DELTA)
-        case 665: // M665: Set delta configurations
-          gcode_M665();
-          break;
+        case 665: M665(); break;  // M665: Set delta configurations
       #endif
 
       #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)

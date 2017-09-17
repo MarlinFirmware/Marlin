@@ -355,10 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if IS_KINEMATIC
-  #include "gcode/calibrate/M665.h"
-#endif
-
 #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
   #include "gcode/calibrate/M666.h"
 #endif
