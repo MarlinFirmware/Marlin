@@ -20,10 +20,13 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../inc/MarlinConfig.h"
+
 /**
  * M115: Capabilities string
  */
-void gcode_M115() {
+void GcodeSuite::M115() {
   SERIAL_PROTOCOLLNPGM(MSG_M115_REPORT);
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
