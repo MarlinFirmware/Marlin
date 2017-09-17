@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M100();
 extern void gcode_M114();
 extern void gcode_M115();
 extern void gcode_M117();
@@ -424,9 +423,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
-        case 100: // M100: Free Memory Report
-          gcode_M100();
-          break;
+        case 100: M100(); break;  // M100: Free Memory Report
       #endif
 
       case 104: M104(); break;    // M104: Set hot end temperature
