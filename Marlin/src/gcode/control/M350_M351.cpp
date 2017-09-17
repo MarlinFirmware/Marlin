@@ -20,11 +20,30 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_MICROSTEPS
+
+#include "../gcode.h"
+#include "../../module/stepper.h"
+
+/**
+ * M350: Set axis microstepping modes. S sets mode for all drivers.
+ *
+ * Warning: Steps-per-unit remains unchanged.
+ */
+void GcodeSuite::M350() {
+  if (parser.seen('S')) for (uint8_t i = 0; i <= 4; i++) stepper.microstep_mode(i, parser.value_byte());
+  LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.microstep_mode(i, parser.value_byte());
+  if (parser.seen('B')) stepper.microstep_mode(4, parser.value_byte());
+  stepper.microstep_readings();
+}
+
 /**
  * M351: Toggle MS1 MS2 pins directly with axis codes X Y Z E B
  *       S# determines MS1 or MS2, X# sets the pin high/low.
  */
-void gcode_M351() {
+void GcodeSuite::M351() {
   if (parser.seenval('S')) switch (parser.value_byte()) {
     case 1:
       LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) stepper.microstep_ms(i, parser.value_byte(), -1);
@@ -37,3 +56,5 @@ void gcode_M351() {
   }
   stepper.microstep_readings();
 }
+
+#endif // HAS_MICROSTEPS
