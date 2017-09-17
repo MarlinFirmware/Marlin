@@ -119,9 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M203();
-extern void gcode_M204();
-extern void gcode_M205();
 extern void gcode_M206();
 extern void gcode_M211();
 extern void gcode_M220();
@@ -536,15 +533,9 @@ void GcodeSuite::process_next_command() {
         case 202: M202(); break; // Not used for Sprinter/grbl gen6
       #endif
 
-      case 203: // M203: Set max feedrate (units/sec)
-        gcode_M203();
-        break;
-      case 204: // M204: Set acceleration
-        gcode_M204();
-        break;
-      case 205: // M205: Set advanced settings
-        gcode_M205();
-        break;
+      case 203: M203(); break;    // M203: Set max feedrate (units/sec)
+      case 204: M204(); break;    // M204: Set acceleration
+      case 205: M205(); break;    // M205: Set advanced settings
 
       #if HAS_M206_COMMAND
         case 206: // M206: Set home offsets

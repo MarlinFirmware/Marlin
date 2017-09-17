@@ -20,23 +20,21 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/planner.h"
+
 /**
- * M205: Set Advanced Settings
+ * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
  *
- *    S = Min Feed Rate (units/s)
- *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
- *    X = Max X Jerk (units/sec^2)
- *    Y = Max Y Jerk (units/sec^2)
- *    Z = Max Z Jerk (units/sec^2)
- *    E = Max E Jerk (units/sec^2)
+ *       With multiple extruders use T to specify which one.
  */
-void gcode_M205() {
-  if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('B')) planner.min_segment_time = parser.value_millis();
-  if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
-  if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
-  if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
-  if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+void GcodeSuite::M203() {
+
+  GET_TARGET_EXTRUDER();
+
+  LOOP_XYZE(i)
+    if (parser.seen(axis_codes[i])) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
+    }
 }
