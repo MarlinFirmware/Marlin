@@ -359,10 +359,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-  #include "gcode/config/M540.h"
-#endif
-
 #if ENABLED(MK2_MULTIPLEXER)
   #include "gcode/feature/snmm/M702.h"
 #endif

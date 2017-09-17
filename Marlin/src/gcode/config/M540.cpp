@@ -20,9 +20,21 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+
+#include "../gcode.h"
+#include "../../module/stepper.h"
+
 /**
  * M540: Set whether SD card print should abort on endstop hit (M540 S<0|1>)
  */
-void gcode_M540() {
-  if (parser.seen('S')) stepper.abort_on_endstop_hit = parser.value_bool();
+void GcodeSuite::M540() {
+
+  if (parser.seen('S'))
+    stepper.abort_on_endstop_hit = parser.value_bool();
+
 }
+
+#endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED

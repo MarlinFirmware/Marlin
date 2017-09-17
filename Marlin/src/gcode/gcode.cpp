@@ -122,7 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M540();
 extern void gcode_M605();
 extern void gcode_M702();
 extern void gcode_M900();
@@ -637,9 +636,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-        case 540: // M540: Set abort on endstop hit for SD printing
-          gcode_M540();
-          break;
+        case 540: M540(); break;  // M540: Set abort on endstop hit for SD printing
       #endif
 
       #if HAS_BED_PROBE
