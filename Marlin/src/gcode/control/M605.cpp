@@ -20,6 +20,14 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+
+#include "../gcode.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+
 #if ENABLED(DUAL_X_CARRIAGE)
 
   /**
@@ -34,7 +42,7 @@
    *
    *    Note: the X axis should be homed after changing dual x-carriage mode.
    */
-  void gcode_M605() {
+  void GcodeSuite::M605() {
     stepper.synchronize();
     if (parser.seen('S')) dual_x_carriage_mode = (DualXMode)parser.value_byte();
     switch (dual_x_carriage_mode) {
@@ -66,7 +74,7 @@
 
 #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 
-  void gcode_M605() {
+  void GcodeSuite::M605() {
     stepper.synchronize();
     extruder_duplication_enabled = parser.intval('S') == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START();
@@ -74,3 +82,5 @@
   }
 
 #endif // DUAL_NOZZLE_DUPLICATION_MODE
+
+#endif // DUAL_X_CARRIAGE || DUAL_NOZZLE_DUPLICATION_MODE

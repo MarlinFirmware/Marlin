@@ -359,10 +359,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  #include "gcode/control/M605.h"
-#endif
-
 #if ENABLED(LIN_ADVANCE)
   #include "gcode/feature/advance/M900.h"
 #endif
