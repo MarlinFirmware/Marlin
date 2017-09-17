@@ -20,10 +20,13 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/stepper.h"
+
 /**
  * M400: Finish all moves
  */
-void gcode_M400() {
+void GcodeSuite::M400() {
 
   stepper.synchronize();
 
