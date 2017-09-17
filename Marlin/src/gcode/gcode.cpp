@@ -124,7 +124,6 @@ extern void gcode_M83();
 extern void gcode_M85();
 extern void gcode_M92();
 extern void gcode_M100();
-extern void gcode_M113();
 extern void gcode_M114();
 extern void gcode_M115();
 extern void gcode_M117();
@@ -457,9 +456,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
-        case 113: // M113: Set Host Keepalive interval
-          gcode_M113();
-          break;
+        case 113: M113(); break; // M113: Set Host Keepalive interval
       #endif
 
       #if HAS_HEATER_BED && HAS_TEMP_BED

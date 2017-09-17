@@ -374,10 +374,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#if ENABLED(HOST_KEEPALIVE_FEATURE)
-  #include "gcode/host/M113.h"
-#endif
-
 #if ENABLED(BARICUDA)
   #if HAS_HEATER_1
     #include "gcode/feature/baricuda/M126.h"
