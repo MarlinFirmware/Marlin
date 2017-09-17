@@ -355,8 +355,6 @@ bool pin_is_protected(const int8_t pin) {
   return false;
 }
 
-#include "gcode/control/M211.h"
-
 #include "gcode/config/M220.h"
 
 #include "gcode/control/M226.h"

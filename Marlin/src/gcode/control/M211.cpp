@@ -20,12 +20,15 @@
  *
  */
 
+#include "../gcode.h"
+#include "../../module/motion.h"
+
 /**
  * M211: Enable, Disable, and/or Report software endstops
  *
  * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
-void gcode_M211() {
+void GcodeSuite::M211() {
   SERIAL_ECHO_START();
   #if HAS_SOFTWARE_ENDSTOPS
     if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();

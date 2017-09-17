@@ -119,7 +119,6 @@ void GcodeSuite::dwell(millis_t time) {
 extern void gcode_M163();
 extern void gcode_M164();
 extern void gcode_M165();
-extern void gcode_M211();
 extern void gcode_M220();
 extern void gcode_M226();
 extern void gcode_M240();
@@ -552,9 +551,7 @@ void GcodeSuite::process_next_command() {
         case 209: if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209(); break;  // M209: Turn Automatic Retract Detection on/off
       #endif
 
-      case 211: // M211: Enable, Disable, and/or Report software endstops
-        gcode_M211();
-        break;
+      case 211: M211(); break;    // M211: Enable, Disable, and/or Report software endstops
 
       #if HOTENDS > 1
         case 218: // M218: Set a tool offset
