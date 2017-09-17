@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M118();
 extern void gcode_M119();
 extern void gcode_M120();
 extern void gcode_M121();
@@ -498,9 +497,8 @@ void GcodeSuite::process_next_command() {
       case 115: M115(); break;    // M115: Report capabilities
 
       case 117: M117(); break;    // M117: Set LCD message text, if possible
-      case 118: // M118: Display a message in the host console
-        gcode_M118();
-        break;
+      case 118: M118(); break;    // M118: Display a message in the host console
+
       case 119: // M119: Report endstop states
         gcode_M119();
         break;
