@@ -20,11 +20,12 @@
  *
  */
 
-#include "../queue.h"
+#include "../gcode.h"
+#include "../queue.h" // for gcode_LastN
 
 /**
  * M110: Set Current Line Number
  */
-void gcode_M110() {
+void GcodeSuite::M110() {
   if (parser.seenval('N')) gcode_LastN = parser.value_long();
 }
