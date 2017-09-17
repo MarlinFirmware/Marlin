@@ -170,8 +170,8 @@ volatile bool wait_for_heatup = true;
 #endif
 
 // Inactivity shutdown
-static millis_t max_inactive_time = 0;
-static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
+millis_t max_inactive_time = 0,
+         stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj;
@@ -358,10 +358,6 @@ bool pin_is_protected(const int8_t pin) {
     if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
-
-#include "gcode/control/M18_M84.h"
-
-#include "gcode/control/M85.h"
 
 #include "gcode/config/M92.h"
 
