@@ -122,8 +122,6 @@ extern void gcode_M165();
 extern void gcode_M350();
 extern void gcode_M351();
 extern void gcode_M355();
-extern void gcode_M401();
-extern void gcode_M402();
 extern void gcode_M428();
 extern void gcode_M500();
 extern void gcode_M501();
@@ -601,13 +599,9 @@ void GcodeSuite::process_next_command() {
       case 400: M400(); break;    // M400: Finish all moves
 
       #if HAS_BED_PROBE
-        case 401: // M401: Deploy probe
-          gcode_M401();
-          break;
-        case 402: // M402: Stow probe
-          gcode_M402();
-          break;
-      #endif // HAS_BED_PROBE
+        case 401: M401(); break;  // M401: Deploy probe
+        case 402: M402(); break;  // M402: Stow probe
+      #endif
 
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
         case 404:  // M404: Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
