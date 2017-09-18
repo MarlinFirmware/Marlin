@@ -333,7 +333,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
               SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
               SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
               if (cycles > 2) {
-                Ku = (4.0 * d) / (M_PI * (max - min) * 0.5);
+                Ku = (4.0 * d) / (M_PI * (max - min) * 0.5); // i.e., CIRCLE_CIRC((max - min) * 0.25)
                 Tu = ((float)(t_low + t_high) * 0.001);
                 SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
                 SERIAL_PROTOCOLPAIR(MSG_TU, Tu);

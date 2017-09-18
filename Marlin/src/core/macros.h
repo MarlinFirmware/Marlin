@@ -102,6 +102,9 @@
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
+#define CIRCLE_AREA(R) (M_PI * sq(R))
+#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+
 #define SIGN(a) ((a>0)-(a<0))
 
 // Macros to contrain values
