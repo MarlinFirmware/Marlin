@@ -179,10 +179,6 @@ volatile bool wait_for_heatup = true;
 millis_t max_inactive_time = 0,
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
-#if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj;
-#endif
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   static bool filament_ran_out = false;
 #endif

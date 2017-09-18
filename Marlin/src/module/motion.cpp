@@ -1099,14 +1099,14 @@ void homeaxis(const AxisEnum axis) {
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
-      float adj = FABS(z_endstop_adj);
+      float adj = FABS(endstops.z_endstop_adj);
       bool lockZ1;
       if (axis_home_dir > 0) {
         adj = -adj;
-        lockZ1 = (z_endstop_adj > 0);
+        lockZ1 = (endstops.z_endstop_adj > 0);
       }
       else
-        lockZ1 = (z_endstop_adj < 0);
+        lockZ1 = (endstops.z_endstop_adj < 0);
 
       if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
 

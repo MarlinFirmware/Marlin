@@ -190,10 +190,6 @@ extern volatile bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if ENABLED(Z_DUAL_ENDSTOPS)
-  extern float z_endstop_adj;
-#endif
-
 #if HAS_SERVOS
   #include "HAL/servo.h"
   extern HAL_SERVO_LIB servo[NUM_SERVOS];

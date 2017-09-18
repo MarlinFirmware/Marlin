@@ -103,7 +103,7 @@
  *  ---  M665 Z    delta_tower_angle_trim[C]        (float) is always 0.0
  *
  * Z_DUAL_ENDSTOPS:                                 48 bytes
- *  348  M666 Z    z_endstop_adj                    (float)
+ *  348  M666 Z    endstops.z_endstop_adj           (float)
  *  ---            dummy data                       (float x11)
  *
  * ULTIPANEL:                                       6 bytes
@@ -426,7 +426,7 @@ void MarlinSettings::postprocess() {
       dummy = 0.0f;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
-      EEPROM_WRITE(z_endstop_adj);             // 1 float
+      EEPROM_WRITE(endstops.z_endstop_adj);    // 1 float
       dummy = 0.0f;
       for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
     #else
@@ -811,7 +811,7 @@ void MarlinSettings::postprocess() {
         dummy = 0.0f;
         for (uint8_t q=3; q--;) EEPROM_READ(dummy);
       #elif ENABLED(Z_DUAL_ENDSTOPS)
-        EEPROM_READ(z_endstop_adj);
+        EEPROM_READ(endstops.z_endstop_adj);    // 1 float
         dummy = 0.0f;
         for (uint8_t q=11; q--;) EEPROM_READ(dummy);
       #else
@@ -1203,7 +1203,7 @@ void MarlinSettings::reset() {
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
 
-    z_endstop_adj =
+    endstops.z_endstop_adj =
       #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
         Z_DUAL_ENDSTOPS_ADJUSTMENT
       #else
@@ -1621,7 +1621,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Z2 Endstop adjustment:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M666 Z", LINEAR_UNIT(z_endstop_adj));
+      SERIAL_ECHOLNPAIR("  M666 Z", LINEAR_UNIT(endstops.z_endstop_adj));
     #endif // DELTA
 
     #if ENABLED(ULTIPANEL)
