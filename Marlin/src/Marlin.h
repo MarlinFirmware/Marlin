@@ -223,13 +223,6 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   extern int lpq_len;
 #endif
 
-#if ENABLED(MIXING_EXTRUDER)
-  extern float mixing_factor[MIXING_STEPPERS];
-  #if MIXING_VIRTUAL_TOOLS > 1
-    extern float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
-  #endif
-#endif
-
 void calculate_volumetric_multipliers();
 
 bool pin_is_protected(const int8_t pin);

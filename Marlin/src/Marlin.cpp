@@ -62,6 +62,10 @@
   #include "feature/digipot/digipot.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "feature/mixing.h"
+#endif
+
 #if ENABLED(BEZIER_CURVE_SUPPORT)
   #include "module/planner_bezier.h"
 #endif
@@ -186,13 +190,6 @@ millis_t max_inactive_time = 0,
   AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
-#if ENABLED(MIXING_EXTRUDER)
-  float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
-  #if MIXING_VIRTUAL_TOOLS > 1
-    float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
-  #endif
-#endif
-
 #ifdef CHDK
   millis_t chdkHigh = 0;
   bool chdkActive = false;
@@ -302,45 +299,6 @@ void suicide() {
 
 #endif
 
-#if ENABLED(MIXING_EXTRUDER)
-
-  void normalize_mix() {
-    float mix_total = 0.0;
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
-    // Scale all values if they don't add up to ~1.0
-    if (!NEAR(mix_total, 1.0)) {
-      SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
-    }
-  }
-
-  #if ENABLED(DIRECT_MIXING_IN_G1)
-    // Get mixing parameters from the GCode
-    // The total "must" be 1.0 (but it will be normalized)
-    // If no mix factors are given, the old mix is preserved
-    void gcode_get_mix() {
-      const char* mixing_codes = "ABCDHI";
-      byte mix_bits = 0;
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-        if (parser.seenval(mixing_codes[i])) {
-          SBI(mix_bits, i);
-          float v = parser.value_float();
-          NOLESS(v, 0.0);
-          mixing_factor[i] = RECIPROCAL(v);
-        }
-      }
-      // If any mixing factors were included, clear the rest
-      // If none were included, preserve the last mix
-      if (mix_bits) {
-        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-          if (!TEST(mix_bits, i)) mixing_factor[i] = 0.0;
-        normalize_mix();
-      }
-    }
-  #endif
-
-#endif
-
 /**************************************************
  ***************** GCode Handlers *****************
  **************************************************/
@@ -361,16 +319,6 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
-
-#if ENABLED(MIXING_EXTRUDER)
-  #include "gcode/feature/mixing/M163.h"
-  #if MIXING_VIRTUAL_TOOLS > 1
-    #include "gcode/feature/mixing/M164.h"
-  #endif
-  #if ENABLED(DIRECT_MIXING_IN_G1)
-    #include "gcode/feature/mixing/M165.h"
-  #endif
-#endif
 
 #include "gcode/control/M999.h"
 
@@ -957,12 +905,7 @@ void setup() {
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    // Initialize mixing to 100% color 1
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = (i == 0) ? 1.0 : 0.0;
-    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+    mixing_tools_init();
   #endif
 
   #if ENABLED(BLTOUCH)

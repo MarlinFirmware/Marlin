@@ -80,6 +80,10 @@
   #include "../feature/baricuda.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 Planner planner;
 
   // public:

@@ -116,9 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M163();
-extern void gcode_M164();
-extern void gcode_M165();
 extern void gcode_M999();
 extern void gcode_T(uint8_t tmp_extruder);
 
@@ -462,18 +459,12 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(MIXING_EXTRUDER)
-        case 163: // M163: Set a component weight for mixing extruder
-          gcode_M163();
-          break;
+        case 163: M163(); break;    // M163: Set a component weight for mixing extruder
         #if MIXING_VIRTUAL_TOOLS > 1
-          case 164: // M164: Save current mix as a virtual extruder
-            gcode_M164();
-            break;
+          case 164: M164(); break;  // M164: Save current mix as a virtual extruder
         #endif
         #if ENABLED(DIRECT_MIXING_IN_G1)
-          case 165: // M165: Set multiple mix weights
-            gcode_M165();
-            break;
+          case 165: M165(); break;  // M165: Set multiple mix weights
         #endif
       #endif
 
