@@ -20,7 +20,11 @@
  *
  */
 
-#include "../queue.h"
+#include "../gcode.h"
+
+#include "../../lcd/ultralcd.h" // for lcd_reset_alert_level
+#include "../../Marlin.h"       // for Running
+#include "../queue.h"           // for flush_and_request_resend
 
 /**
  * M999: Restart after being stopped
@@ -32,7 +36,7 @@
  * existing command buffer.
  *
  */
-void gcode_M999() {
+void GcodeSuite::M999() {
   Running = true;
   lcd_reset_alert_level();
 
