@@ -76,7 +76,7 @@ void GcodeSuite::M405() {
  */
 void GcodeSuite::M406() {
   filament_sensor = false;
-  calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
+  planner.calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
 }
 
 /**

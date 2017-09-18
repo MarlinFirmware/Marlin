@@ -138,7 +138,7 @@
  *
  * Volumetric Extrusion:                            21 bytes
  *  537  M200 D    parser.volumetric_enabled        (bool)
- *  538  M200 T D  filament_size                    (float x5) (T0..3)
+ *  538  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    20 bytes
  *  558  M906 X    Stepper X current                (uint16_t)
@@ -224,7 +224,7 @@ void MarlinSettings::postprocess() {
     thermalManager.updatePID();
   #endif
 
-  calculate_volumetric_multipliers();
+  planner.calculate_volumetric_multipliers();
 
   #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
     // Software endstops depend on home_offset
@@ -509,7 +509,7 @@ void MarlinSettings::postprocess() {
 
     // Save filament sizes
     for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-      if (q < COUNT(filament_size)) dummy = filament_size[q];
+      if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
       EEPROM_WRITE(dummy);
     }
 
@@ -895,7 +895,7 @@ void MarlinSettings::postprocess() {
 
       for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
         EEPROM_READ(dummy);
-        if (q < COUNT(filament_size)) filament_size[q] = dummy;
+        if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
       }
 
       uint16_t val;
@@ -1260,8 +1260,8 @@ void MarlinSettings::reset() {
       false
     #endif
   ;
-  for (uint8_t q = 0; q < COUNT(filament_size); q++)
-    filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+  for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+    planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -1388,23 +1388,23 @@ void MarlinSettings::reset() {
     }
 
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
+    SERIAL_ECHOPAIR("  M200 D", planner.filament_size[0]);
     SERIAL_EOL();
     #if EXTRUDERS > 1
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+      SERIAL_ECHOPAIR("  M200 T1 D", planner.filament_size[1]);
       SERIAL_EOL();
       #if EXTRUDERS > 2
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
+        SERIAL_ECHOPAIR("  M200 T2 D", planner.filament_size[2]);
         SERIAL_EOL();
         #if EXTRUDERS > 3
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+          SERIAL_ECHOPAIR("  M200 T3 D", planner.filament_size[3]);
           SERIAL_EOL();
           #if EXTRUDERS > 4
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M200 T4 D", filament_size[4]);
+            SERIAL_ECHOPAIR("  M200 T4 D", planner.filament_size[4]);
             SERIAL_EOL();
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3

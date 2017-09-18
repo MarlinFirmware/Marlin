@@ -174,9 +174,6 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
-extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-
 extern bool axis_known_position[XYZ];
 extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
@@ -222,8 +219,6 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 #if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
 #endif
-
-void calculate_volumetric_multipliers();
 
 bool pin_is_protected(const int8_t pin);
 

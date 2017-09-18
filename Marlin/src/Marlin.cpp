@@ -159,9 +159,6 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
 
-// Initialized by settings.load()
-float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
-
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
   #if ENABLED(PROBING_FANS_OFF)
@@ -335,16 +332,6 @@ void quickstop_stepper() {
   }
 
 #endif // FILAMENT_RUNOUT_SENSOR
-
-float calculate_volumetric_multiplier(const float diameter) {
-  if (!parser.volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / (M_PI * sq(diameter * 0.5));
-}
-
-void calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++)
-    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
-}
 
 void enable_all_steppers() {
   enable_X();

@@ -124,7 +124,7 @@ void FWRetract::retract(const bool retracting
 
     // Retract by moving from a faux E position back to the current E position
     feedrate_mm_s = retract_feedrate_mm_s;
-    current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / volumetric_multiplier[active_extruder];
+    current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / planner.volumetric_multiplier[active_extruder];
     sync_plan_position_e();
     prepare_move_to_destination();
 
@@ -149,7 +149,7 @@ void FWRetract::retract(const bool retracting
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
     const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
-    current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
+    current_position[E_AXIS] -= move_e / planner.volumetric_multiplier[active_extruder];
     sync_plan_position_e();
 
     prepare_move_to_destination();  // Recover E
