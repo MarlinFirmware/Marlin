@@ -20,7 +20,12 @@
  *
  */
 
+#include "../gcode.h"
 #include "../../module/tool_change.h"
+
+#if ENABLED(DEBUG_LEVELING_FEATURE) || HOTENDS > 1
+  #include "../../module/motion.h"
+#endif
 
 /**
  * T0-T3: Switch tool, usually switching extruders
@@ -28,7 +33,7 @@
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
  */
-void gcode_T(uint8_t tmp_extruder) {
+void GcodeSuite::T(const uint8_t tmp_extruder) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {

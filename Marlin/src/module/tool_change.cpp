@@ -84,6 +84,15 @@
 
 #if ENABLED(PARKING_EXTRUDER)
 
+  void pe_magnet_init() {
+    for (uint8_t n = 0; n <= 1; ++n)
+      #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
+        pe_activate_magnet(n);
+      #else
+        pe_deactivate_magnet(n);
+      #endif
+  }
+
   void pe_set_magnet(const uint8_t extruder_num, const uint8_t state) {
     switch (extruder_num) {
       case 1: OUT_WRITE(SOL1_PIN, state); break;
