@@ -116,8 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_T(uint8_t tmp_extruder);
-
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   extern void M100_dump_routine(const char * const title, const char *start, const char *end);
 #endif
@@ -690,9 +688,7 @@ void GcodeSuite::process_next_command() {
     }
     break;
 
-    case 'T':
-      gcode_T(parser.codenum);
-      break;
+    case 'T': T(parser.codenum); break; // Tn: Tool Change
 
     default: parser.unknown_command_error();
   }

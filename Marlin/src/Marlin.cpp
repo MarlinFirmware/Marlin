@@ -54,10 +54,6 @@
   #include "libs/buzzer.h"
 #endif
 
-#if (ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH) || ENABLED(SWITCHING_NOZZLE)
-  #include "module/tool_change.h"
-#endif
-
 #if ENABLED(DIGIPOT_I2C)
   #include "feature/digipot/digipot.h"
 #endif
@@ -136,6 +132,10 @@
 
 #if HAS_CASE_LIGHT
   #include "feature/caselight.h"
+#endif
+
+#if (ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+  #include "module/tool_change.h"
 #endif
 
 bool Running = true;
@@ -319,8 +319,6 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
-
-#include "gcode/control/T.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
 
@@ -932,13 +930,7 @@ void setup() {
   #endif
 
   #if ENABLED(PARKING_EXTRUDER)
-    #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-      pe_activate_magnet(0);
-      pe_activate_magnet(1);
-    #else
-      pe_deactivate_magnet(0);
-      pe_deactivate_magnet(1);
-    #endif
+    pe_magnet_init();
   #endif
 }
 

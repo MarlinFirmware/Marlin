@@ -46,6 +46,8 @@
   inline void pe_activate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, PE_MAGNET_ON_STATE); }
   inline void pe_deactivate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, !PE_MAGNET_ON_STATE); }
 
+  void pe_magnet_init();
+
 #endif // PARKING_EXTRUDER
 
 /**
