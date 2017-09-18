@@ -22,6 +22,7 @@
 
 #include "../gcode.h"
 #include "../../Marlin.h"
+#include "../../module/planner.h"
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -37,13 +38,8 @@ void GcodeSuite::M200() {
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    parser.volumetric_enabled = (parser.value_linear_units() != 0.0);
-    if (parser.volumetric_enabled) {
-      filament_size[target_extruder] = parser.value_linear_units();
-      // make sure all extruders have some sane value for the filament size
-      for (uint8_t i = 0; i < COUNT(filament_size); i++)
-        if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    }
+    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
+      planner.set_filament_size(target_extruder, parser.value_linear_units());
   }
-  calculate_volumetric_multipliers();
+  planner.calculate_volumetric_multipliers();
 }

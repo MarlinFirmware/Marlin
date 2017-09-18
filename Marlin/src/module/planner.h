@@ -151,6 +151,10 @@ class Planner {
 
     static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
 
+    static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                 volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+                                                    // May be auto-adjusted by a filament width sensor
+
     static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
                  steps_to_mm[XYZE_N];
@@ -253,6 +257,16 @@ class Planner {
     static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+
+    // Update multipliers based on new diameter measurements
+    static void calculate_volumetric_multipliers();
+
+    FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
+      filament_size[e] = v;
+      // make sure all extruders have some sane value for the filament size
+      for (uint8_t i = 0; i < COUNT(filament_size); i++)
+        if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+    }
 
     #if PLANNER_LEVELING
 
