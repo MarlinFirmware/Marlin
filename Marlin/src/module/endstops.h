@@ -50,6 +50,7 @@ class Endstops {
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
+      static float z_endstop_adj;
       typedef uint16_t esbits_t;
     #else
       typedef byte esbits_t;

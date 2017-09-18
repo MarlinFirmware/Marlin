@@ -64,14 +64,14 @@
 
 #elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
 
-  #include "../../Marlin.h" // for z_endstop_adj
+  #include "../../module/endstops.h"
 
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   void GcodeSuite::M666() {
-    if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
+    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", endstops.z_endstop_adj);
   }
 
 #endif

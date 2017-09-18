@@ -54,6 +54,10 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
   volatile bool Endstops::z_probe_enabled = false;
 #endif
 
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  float Endstops::z_endstop_adj;
+#endif
+
 /**
  * Class and Instance Methods
  */
