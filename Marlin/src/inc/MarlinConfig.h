@@ -26,9 +26,9 @@
 #include "../core/boards.h"
 #include "../core/macros.h"
 #include "Version.h"
-#include "../config/Configuration.h"
+#include "../../Configuration.h"
 #include "Conditionals_LCD.h"
-#include "../config/Configuration_adv.h"
+#include "../../Configuration_adv.h"
 #include "../HAL/HAL.h"
 #include "../pins/pins.h"
 #if defined(ARDUINO_ARCH_AVR) && !defined(USBCON)

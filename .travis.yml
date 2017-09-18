@@ -41,10 +41,8 @@ before_script:
   #
 script:
   #
-  # Backup Configuration.h, Configuration_adv.h, and pins_RAMPS.h
+  # Backup pins_RAMPS.h
   #
-  - cp Marlin/src/config/Configuration.h Marlin/src/config/Configuration.h.backup
-  - cp Marlin/src/config/Configuration_adv.h Marlin/src/config/Configuration_adv.h.backup
   - cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
   #
   # Build with the default configurations
@@ -335,8 +333,8 @@ script:
   - export TEST_PLATFORM="-e teensy35"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_TEENSY35_36
-  - cp Marlin/src/config/Configuration.h Marlin/src/config/Configuration.h.backup
-  - cp Marlin/src/config/Configuration_adv.h Marlin/src/config/Configuration_adv.h.backup
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
   - cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
   #
   # Test Teensy3.5 with default config
