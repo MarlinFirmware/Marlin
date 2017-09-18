@@ -42,6 +42,10 @@
   #include "../feature/snmm.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3

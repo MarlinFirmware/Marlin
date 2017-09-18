@@ -20,17 +20,28 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(MIXING_EXTRUDER)
+
+#include "../../gcode.h"
+#include "../../../feature/mixing.h"
+
 /**
- * M165: Set multiple mix factors for a mixing extruder.
- *       Factors that are left out will be set to 0.
- *       All factors together must add up to 1.0.
+ * M163: Set a single mix factor for a mixing extruder
+ *       This is called "weight" by some systems.
  *
- *   A[factor] Mix factor for extruder stepper 1
- *   B[factor] Mix factor for extruder stepper 2
- *   C[factor] Mix factor for extruder stepper 3
- *   D[factor] Mix factor for extruder stepper 4
- *   H[factor] Mix factor for extruder stepper 5
- *   I[factor] Mix factor for extruder stepper 6
+ *   S[index]   The channel index to set
+ *   P[float]   The mix value
  *
  */
-void gcode_M165() { gcode_get_mix(); }
+void GcodeSuite::M163() {
+  const int mix_index = parser.intval('S');
+  if (mix_index < MIXING_STEPPERS) {
+    float mix_value = parser.floatval('P');
+    NOLESS(mix_value, 0.0);
+    mixing_factor[mix_index] = RECIPROCAL(mix_value);
+  }
+}
+
+#endif // MIXING_EXTRUDER

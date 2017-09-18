@@ -20,13 +20,20 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+
+#include "../../gcode.h"
+#include "../../../feature/mixing.h"
+
 /**
  * M164: Store the current mix factors as a virtual tool.
  *
  *   S[index]   The virtual tool to store
  *
  */
-void gcode_M164() {
+void GcodeSuite::M164() {
   const int tool_index = parser.intval('S');
   if (tool_index < MIXING_VIRTUAL_TOOLS) {
     normalize_mix();
@@ -34,3 +41,5 @@ void gcode_M164() {
       mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
   }
 }
+
+#endif // MIXING_EXTRUDER && MIXING_VIRTUAL_TOOLS > 1
