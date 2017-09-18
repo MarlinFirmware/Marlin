@@ -116,7 +116,6 @@ void GcodeSuite::dwell(millis_t time) {
 //
 // Placeholders for non-migrated codes
 //
-extern void gcode_M999();
 extern void gcode_T(uint8_t tmp_extruder);
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -687,9 +686,7 @@ void GcodeSuite::process_next_command() {
         case 869: M869(); break; // M869: Report axis error
       #endif
 
-      case 999: // M999: Restart after being Stopped
-        gcode_M999();
-        break;
+      case 999: M999(); break;  // M999: Restart after being Stopped
     }
     break;
 

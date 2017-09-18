@@ -320,8 +320,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#include "gcode/control/M999.h"
-
 #include "gcode/control/T.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
