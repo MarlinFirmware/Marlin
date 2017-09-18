@@ -69,18 +69,6 @@ typedef enum {
   TEMPUNIT_F
 } TempUnit;
 
-enum EndstopEnum {
-  X_MIN,
-  Y_MIN,
-  Z_MIN,
-  Z_MIN_PROBE,
-  X_MAX,
-  Y_MAX,
-  Z_MAX,
-  Z2_MIN,
-  Z2_MAX
-};
-
 #if ENABLED(EMERGENCY_PARSER)
   enum e_parser_state {
     state_RESET,

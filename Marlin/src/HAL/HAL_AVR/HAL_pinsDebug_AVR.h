@@ -30,8 +30,6 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
   sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
 }
 
-bool endstop_monitor_flag = false;
-
 #define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
                                // "-" left justify, "28" minimum width of name, pad with blanks
 

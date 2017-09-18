@@ -20,8 +20,6 @@
  *
  */
 
-bool endstop_monitor_flag = false;
-
 #define MAX_NAME_LENGTH  35    // one place to specify the format of all the sources of names
                                // "-" left justify, "35" minimum width of name, pad with blanks
 

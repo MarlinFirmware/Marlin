@@ -24,10 +24,23 @@
  *  endstops.h - manages endstops
  */
 
-#ifndef ENDSTOPS_H
-#define ENDSTOPS_H
+#ifndef __ENDSTOPS_H__
+#define __ENDSTOPS_H__
 
-#include "../core/enum.h"
+#include "../inc/MarlinConfig.h"
+#include <stdint.h>
+
+enum EndstopEnum {
+  X_MIN,
+  Y_MIN,
+  Z_MIN,
+  Z_MIN_PROBE,
+  X_MAX,
+  Y_MAX,
+  Z_MAX,
+  Z2_MIN,
+  Z2_MAX
+};
 
 class Endstops {
 
@@ -37,11 +50,12 @@ class Endstops {
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static uint16_t
+      typedef uint16_t esbits_t;
     #else
-      static byte
+      typedef byte esbits_t;
     #endif
-        current_endstop_bits, old_endstop_bits;
+
+    static esbits_t current_endstop_bits, old_endstop_bits;
 
     Endstops() {};
 
@@ -83,6 +97,19 @@ class Endstops {
       static void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
     #endif
 
+    // Debugging of endstops
+    #if ENABLED(PINS_DEBUGGING)
+      static bool monitor_flag;
+      static void monitor();
+      FORCE_INLINE static void run_monitor() {
+        if (!monitor_flag) return;
+        static uint8_t monitor_count = 16;  // offset this check from the others
+        monitor_count += _BV(1);            //  15 Hz
+        monitor_count &= 0x7F;
+        if (!monitor_count) monitor();      // report changes in endstop status
+      }
+    #endif
+
   private:
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -99,4 +126,4 @@ extern Endstops endstops;
 #endif
 
 
-#endif // ENDSTOPS_H
+#endif // __ENDSTOPS_H__
