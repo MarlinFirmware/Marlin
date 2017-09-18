@@ -138,6 +138,10 @@
   #include "module/tool_change.h"
 #endif
 
+#if ENABLED(USE_CONTROLLER_FAN)
+  #include "feature/controllerfan.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -320,46 +324,6 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if ENABLED(USE_CONTROLLER_FAN)
-
-  void controllerFan() {
-    static millis_t lastMotorOn = 0, // Last time a motor was turned on
-                    nextMotorCheck = 0; // Last time the state was checked
-    const millis_t ms = millis();
-    if (ELAPSED(ms, nextMotorCheck)) {
-      nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
-      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_amount_bed > 0
-          || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
-          #if E_STEPPERS > 1
-            || E1_ENABLE_READ == E_ENABLE_ON
-            #if HAS_X2_ENABLE
-              || X2_ENABLE_READ == X_ENABLE_ON
-            #endif
-            #if E_STEPPERS > 2
-              || E2_ENABLE_READ == E_ENABLE_ON
-              #if E_STEPPERS > 3
-                || E3_ENABLE_READ == E_ENABLE_ON
-                #if E_STEPPERS > 4
-                  || E4_ENABLE_READ == E_ENABLE_ON
-                #endif // E_STEPPERS > 4
-              #endif // E_STEPPERS > 3
-            #endif // E_STEPPERS > 2
-          #endif // E_STEPPERS > 1
-      ) {
-        lastMotorOn = ms; //... set time to NOW so the fan will turn on
-      }
-
-      // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-      uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-
-      // allows digital or PWM fan output to be used (see M42 handling)
-      WRITE(CONTROLLER_FAN_PIN, speed);
-      analogWrite(CONTROLLER_FAN_PIN, speed);
-    }
-  }
-
-#endif // USE_CONTROLLER_FAN
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
   void handle_filament_runout() {
@@ -510,7 +474,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    controllerFan(); // Check if fan should be turned on to cool stepper drivers down
+    controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
