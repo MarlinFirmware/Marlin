@@ -5583,7 +5583,7 @@ void home_all_axes() { gcode_G28(true); }
           float e_delta[XYZ] = { 0.0 }, r_delta = 0.0, t_alpha = 0.0, t_beta = 0.0;
           const float r_diff = delta_radius - delta_calibration_radius,
                       h_factor = 1.00 + 0.0002 * r_diff + 0.00004 * sq(r_diff),  //1.020 for r_diff = 20mm
-                      r_factor = -(1.96 + 0.005 * r_diff + 0.001 * sq(r_diff)),  //2.460 for r_diff = 20mm
+                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),  //-2.25 for r_diff = 20mm
                       a_factor = 0.625 + 0.0025 * r_diff + 0.0005 * sq(r_diff);  //0.875 for r_diff = 20mm
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z1000(I) ZP(1.00, I)
@@ -5591,9 +5591,9 @@ void home_all_axes() { gcode_G28(true); }
           #define Z0680(I) ZP(h_factor * 2.00 / 3.00, I)
           #define Z0340(I) ZP(h_factor / 3.00, I)
           #define Z0170(I) ZP(h_factor / 6.00, I)
-          #define Z2460(I) ZP(r_factor, I)
-          #define Z0820(I) ZP(r_factor / 3.00, I)
-          #define Z0410(I) ZP(r_factor / 6.00, I)
+          #define Z2250(I) ZP(r_factor, I)
+          #define Z0750(I) ZP(r_factor / 3.00, I)
+          #define Z0375(I) ZP(r_factor / 6.00, I)
           #define Z0875(I) ZP(a_factor, I)
           #define Z1750(I) ZP(a_factor * 2.00, I)
 
@@ -5612,13 +5612,13 @@ void home_all_axes() { gcode_G28(true); }
                 e_delta[X_AXIS] = Z1020(0) + Z0680(1) - Z0340(5) - Z0340(9);
                 e_delta[Y_AXIS] = Z1020(0) - Z0340(1) + Z0680(5) - Z0340(9);
                 e_delta[Z_AXIS] = Z1020(0) - Z0340(1) - Z0340(5) + Z0680(9);
-                r_delta         = Z2460(0) - Z0820(1) - Z0820(5) - Z0820(9);
+                r_delta         = Z2250(0) - Z0750(1) - Z0750(5) - Z0750(9);
               }
               else {
                 e_delta[X_AXIS] = Z1020(0) - Z0680(7) + Z0340(11) + Z0340(3);
                 e_delta[Y_AXIS] = Z1020(0) + Z0340(7) - Z0680(11) + Z0340(3);
                 e_delta[Z_AXIS] = Z1020(0) + Z0340(7) + Z0340(11) - Z0680(3);
-                r_delta         = Z2460(0) - Z0820(7) - Z0820(11) - Z0820(3);
+                r_delta         = Z2250(0) - Z0750(7) - Z0750(11) - Z0750(3);
               }
               break;
 
@@ -5626,7 +5626,7 @@ void home_all_axes() { gcode_G28(true); }
               e_delta[X_AXIS] = Z1020(0) + Z0340(1) - Z0170(5) - Z0170(9) - Z0340(7) + Z0170(11) + Z0170(3);
               e_delta[Y_AXIS] = Z1020(0) - Z0170(1) + Z0340(5) - Z0170(9) + Z0170(7) - Z0340(11) + Z0170(3);
               e_delta[Z_AXIS] = Z1020(0) - Z0170(1) - Z0170(5) + Z0340(9) + Z0170(7) + Z0170(11) - Z0340(3);
-              r_delta         = Z2460(0) - Z0410(1) - Z0410(5) - Z0410(9) - Z0410(7) - Z0410(11) - Z0410(3);
+              r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
 
               if (towers_set) {
                 t_alpha          = Z0875(1) - Z1750(5) + Z0875(9) + Z0875(7) - Z1750(11) + Z0875(3);
@@ -5634,7 +5634,7 @@ void home_all_axes() { gcode_G28(true); }
                 e_delta[X_AXIS] -= Z0170(1) + Z0170(5) + Z0170(9) - Z0170(7) - Z0170(11) - Z0170(3);
                 e_delta[Y_AXIS] -= Z0170(1) + Z0170(5) + Z0170(9) - Z0170(7) - Z0170(11) - Z0170(3);
                 e_delta[Z_AXIS] -= Z0170(1) + Z0170(5) + Z0170(9) - Z0170(7) - Z0170(11) - Z0170(3);
-                r_delta         -= Z0410(1) + Z0410(5) + Z0410(9) - Z0410(7) - Z0410(11) - Z0410(3);
+                r_delta         -= Z0375(1) + Z0375(5) + Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
               }
               break;
           }
