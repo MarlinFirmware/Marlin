@@ -46,6 +46,10 @@
   #include "../module/delta.h"
 #endif
 
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "planner.h"
+#endif
+
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_ENDSTOP

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <HAL_LPC1768/arduino.h>
+#include "arduino.h"
 
 // When the display powers up, it is configured as follows:
 //
