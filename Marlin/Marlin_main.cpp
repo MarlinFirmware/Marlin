@@ -5582,21 +5582,20 @@ void home_all_axes() { gcode_G28(true); }
 
           float e_delta[XYZ] = { 0.0 }, r_delta = 0.0, t_alpha = 0.0, t_beta = 0.0;
           const float r_diff = delta_radius - delta_calibration_radius,
-                      h_factor = 1.00 + r_diff * 0.001,                          //1.02 for r_diff = 20mm
-                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),  //2.25 for r_diff = 20mm
-                      a_factor = 100.0 / delta_calibration_radius;               //1.25 for cal_rd = 80mm
-
+                      h_factor = 1.00 + r_diff * 0.001,                          //1.020 for r_diff = 20mm
+                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),  //2.250 for r_diff = 20mm
+                      a_factor = 100.0 / delta_calibration_radius * 2.0 / 3.0;   //0.833 for cal_rd = 80mm
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z1000(I) ZP(1.00, I)
-          #define Z1050(I) ZP(h_factor, I)
-          #define Z0700(I) ZP(h_factor * 2.0 / 3.00, I)
-          #define Z0350(I) ZP(h_factor / 3.00, I)
-          #define Z0175(I) ZP(h_factor / 6.00, I)
+          #define Z1020(I) ZP(h_factor, I)
+          #define Z0680(I) ZP(h_factor * 2.00 / 3.00, I)
+          #define Z0340(I) ZP(h_factor / 3.00, I)
+          #define Z0170(I) ZP(h_factor / 6.00, I)
           #define Z2250(I) ZP(r_factor, I)
           #define Z0750(I) ZP(r_factor / 3.00, I)
           #define Z0375(I) ZP(r_factor / 6.00, I)
-          #define Z0444(I) ZP(a_factor * 4.0 / 9.0, I)
-          #define Z0888(I) ZP(a_factor * 8.0 / 9.0, I)
+          #define Z0833(I) ZP(a_factor, I)
+          #define Z1666(I) ZP(a_factor * 2.00, I)
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
@@ -5610,28 +5609,28 @@ void home_all_axes() { gcode_G28(true); }
 
             case 2:
               if (towers_set) {
-                e_delta[X_AXIS] = Z1050(0) + Z0700(1) - Z0350(5) - Z0350(9);
-                e_delta[Y_AXIS] = Z1050(0) - Z0350(1) + Z0700(5) - Z0350(9);
-                e_delta[Z_AXIS] = Z1050(0) - Z0350(1) - Z0350(5) + Z0700(9);
+                e_delta[X_AXIS] = Z1020(0) + Z0680(1) - Z0340(5) - Z0340(9);
+                e_delta[Y_AXIS] = Z1020(0) - Z0340(1) + Z0680(5) - Z0340(9);
+                e_delta[Z_AXIS] = Z1020(0) - Z0340(1) - Z0340(5) + Z0680(9);
                 r_delta         = Z2250(0) - Z0750(1) - Z0750(5) - Z0750(9);
               }
               else {
-                e_delta[X_AXIS] = Z1050(0) - Z0700(7) + Z0350(11) + Z0350(3);
-                e_delta[Y_AXIS] = Z1050(0) + Z0350(7) - Z0700(11) + Z0350(3);
-                e_delta[Z_AXIS] = Z1050(0) + Z0350(7) + Z0350(11) - Z0700(3);
+                e_delta[X_AXIS] = Z1020(0) - Z0680(7) + Z0340(11) + Z0340(3);
+                e_delta[Y_AXIS] = Z1020(0) + Z0340(7) - Z0680(11) + Z0340(3);
+                e_delta[Z_AXIS] = Z1020(0) + Z0340(7) + Z0340(11) - Z0680(3);
                 r_delta         = Z2250(0) - Z0750(7) - Z0750(11) - Z0750(3);
               }
               break;
 
             default:
-              e_delta[X_AXIS] = Z1050(0) + Z0350(1) - Z0175(5) - Z0175(9) - Z0350(7) + Z0175(11) + Z0175(3);
-              e_delta[Y_AXIS] = Z1050(0) - Z0175(1) + Z0350(5) - Z0175(9) + Z0175(7) - Z0350(11) + Z0175(3);
-              e_delta[Z_AXIS] = Z1050(0) - Z0175(1) - Z0175(5) + Z0350(9) + Z0175(7) + Z0175(11) - Z0350(3);
+              e_delta[X_AXIS] = Z1020(0) + Z0340(1) - Z0170(5) - Z0170(9) - Z0340(7) + Z0170(11) + Z0170(3);
+              e_delta[Y_AXIS] = Z1020(0) - Z0170(1) + Z0340(5) - Z0170(9) + Z0170(7) - Z0340(11) + Z0170(3);
+              e_delta[Z_AXIS] = Z1020(0) - Z0170(1) - Z0170(5) + Z0340(9) + Z0170(7) + Z0170(11) - Z0340(3);
               r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
 
               if (towers_set) {
-                t_alpha = Z0444(1) - Z0888(5) + Z0444(9) + Z0444(7) - Z0888(11) + Z0444(3);
-                t_beta  = Z0888(1) - Z0444(5) - Z0444(9) + Z0888(7) - Z0444(11) - Z0444(3);
+                t_alpha          = Z0833(1) - Z1666(5) + Z0833(9) + Z0833(7) - Z1666(11) + Z0833(3);
+                t_beta           = Z1666(1) - Z0833(5) - Z0833(9) + Z1666(7) - Z0833(11) - Z0833(3);
               }
               break;
           }
