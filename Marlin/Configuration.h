@@ -1378,6 +1378,11 @@
 //
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+
+// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
+
+//#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
+
 //
 // MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
