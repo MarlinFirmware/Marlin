@@ -103,7 +103,10 @@ void GcodeSuite::M81() {
 
   #if HAS_SUICIDE
     stepper.synchronize();
-    suicide();
+  #ifndef suicide()
+  #define suicide()
+  #endif
+suicide();
   #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
     powersupply_on = false;
