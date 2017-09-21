@@ -1972,7 +1972,7 @@ void Temperature::isr() {
 
     #if ENABLED(ADC_KEYPAD)
       case Prepare_ADC_KEY:
-        START_ADC(ADC_KEYPAD_PIN);
+        HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
       case Measure_ADC_KEY:
         if (ADCKey_count < 16) {
