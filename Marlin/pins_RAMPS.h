@@ -129,6 +129,21 @@
   #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
+/*---------------MKS OLED patch_4-----------------------*/
+#if defined (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
+
+#ifdef LCD_PINS_D5
+#undef LCD_PINS_D5
+#define LCD_PINS_D5 -1
+#endif
+#ifdef LCD_PINS_D6
+#undef LCD_PINS_D6
+#define LCD_PINS_D6 -1
+#endif
+#define LCD_PINS_RST  27
+#define LCD_PINS_DC   25
+#endif
+/*---------------MKS OLED patch_4-----------------------*/
 //
 // Augmentation for auto-assigning RAMPS plugs
 //

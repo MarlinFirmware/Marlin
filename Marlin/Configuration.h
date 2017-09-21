@@ -118,7 +118,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_MKS_BASE
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -1224,7 +1224,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
@@ -1234,14 +1234,14 @@
  */
 //#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
-//#define SPI_SPEED SPI_EIGHTH_SPEED
+#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
  * SD CARD: ENABLE CRC
  *
  * Use CRC checks and retries on the SD communication.
  */
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1376,7 +1376,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // MakerLab Mini Panel with graphic
@@ -1388,9 +1388,6 @@
 // controller and SD support - https://www.aliexpress.com/item/3d-printer-Reprap-LCD-MKS-MINI12864LCD-mini-12864-smart-display-Reprapdiscount-controller-Full-Graphic-for-mother/32808856549.html?spm=a2g0s.9042311.0.0.T02Q88
 //
 //#define MKS_MINIPANEL
-#if ENABLED(MKS_MINIPANEL)
- #define MINIPANEL
-#endif
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
@@ -1494,13 +1491,11 @@
 #endif
 
 //#define CR10_stockdisplay
-#if ENABLED(CR10_stockdisplay)
-	#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-	#define ST7920_DELAY_1 DELAY_2_NOP
-	#define ST7920_DELAY_2 DELAY_2_NOP
-	#define ST7920_DELAY_3 DELAY_2_NOP
-#endif
-	//
+
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
+#define MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER
+
+//
 // CONTROLLER TYPE: Shift register panels
 //
 // 2 wire Non-latching LCD SR from https://goo.gl/aJJ4sH
@@ -1668,5 +1663,4 @@
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
 #endif
-
 #endif // CONFIGURATION_H

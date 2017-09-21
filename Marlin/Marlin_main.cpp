@@ -13561,8 +13561,18 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
-}
 
+
+  /*---------------MKS OLED patch_3-----------------------*/
+#if defined (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
+  pinMode(LCD_PINS_DC, OUTPUT);   
+  pinMode(LCD_PINS_RST, OUTPUT);  
+  digitalWrite(LCD_PINS_RST  , LOW);
+  delay(1000);
+  digitalWrite(LCD_PINS_RST  , HIGH);
+#endif 
+/*---------------MKS OLED patch_3-----------------------*/
+} 
 /**
  * The main Marlin program loop
  *

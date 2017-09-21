@@ -108,7 +108,26 @@
     #define ULTIPANEL
     #define NEWPANEL
 
-  #endif
+  #elif ENABLED(CR10_stockdisplay)
+  
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #define ST7920_DELAY_1 DELAY_2_NOP
+    #define ST7920_DELAY_2 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_2_NOP
+
+  #elif ENABLED (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER) 
+  
+    #define U8GLIB_SH1106 
+    #define REPRAP_DISCOUNT_SMART_CONTROLLER 
+    #define NEWPANEL 
+    #define REVERSE_MENU_DIRECTION
+
+  #elif ENABLED(MKS_MINIPANEL)
+    
+    #define MINIPANEL
+        
+  #endif 
+
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
   #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
