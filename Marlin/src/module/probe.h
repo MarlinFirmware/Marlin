@@ -47,6 +47,14 @@ float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, cons
   void servo_probe_init();
 #endif
 
+#if QUIET_PROBING
+  void probing_pause(const bool p);
+#endif
+
+#if ENABLED(PROBING_FANS_OFF)
+  void fans_pause(const bool p);
+#endif
+
 #if ENABLED(BLTOUCH)
   void bltouch_command(int angle);
   bool set_bltouch_deployed(const bool deploy);
