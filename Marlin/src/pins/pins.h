@@ -262,7 +262,7 @@
   #include "pins_DUE3DOM_MINI.h"
 #elif MB(RADDS)
   #include "pins_RADDS.h"
-#elif MB(RAMPS_FD_V1)
+#elif MB(RAMPS_FD)
   #include "pins_RAMPS_FD.h"
 #elif MB(RAMPS_FD_V2)
   #include "pins_RAMPS_FD_V2.h"
@@ -298,9 +298,6 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"
-#elif MB(RAMPS_FD_V1) || MB(RAMPS_FD_V2)
-  #include "pins_RAMPS_FD_v1.h"
-
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
