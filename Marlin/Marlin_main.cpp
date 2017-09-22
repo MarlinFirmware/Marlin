@@ -5604,7 +5604,7 @@ void home_all_axes() { gcode_G28(true); }
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
-              LOOP_XYZ(i) e_delta[i] = Z1(0);
+              LOOP_XYZ(axis) e_delta[axis] = Z1(0);
               break;
 
             case 2:
