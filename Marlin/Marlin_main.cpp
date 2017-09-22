@@ -5640,10 +5640,10 @@ void home_all_axes() { gcode_G28(true); }
           delta_radius += r_delta;
           LOOP_XYZ(axis) delta_tower_angle_trim[axis] += t_delta[axis];
           
-          // normalise angles
-          float a_max = MAX3(delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[C_AXIS]),
-                a_min = MIN3(delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[C_AXIS]);
-          LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= (a_max + a_min)/2;
+          // normalise angles to least squares
+          float a_sum = 0.0;
+          LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
+          LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0;
           
           // adjust delta_height and endstops by the max amount
           const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
