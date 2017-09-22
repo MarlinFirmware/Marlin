@@ -5581,21 +5581,19 @@ void home_all_axes() { gcode_G28(true); }
           }
 
           float e_delta[XYZ] = { 0.0 }, r_delta = 0.0, t_alpha = 0.0, t_beta = 0.0;
-          const float r_diff = delta_radius - delta_calibration_radius,
-                      h_factor = 1.00 + r_diff * 0.001,                          //1.020 for r_diff = 20mm
-                      r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),  //2.250 for r_diff = 20mm
-                      a_factor = 100.0 / delta_calibration_radius * 2.0 / 3.0;   //0.833 for cal_rd = 80mm
+          float r_diff = delta_radius - delta_calibration_radius,
+                h_factor = (1.00 + r_diff * 0.001),                          //1.02 for r_diff = 20mm
+                r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
+                a_factor = (133.33 / delta_calibration_radius);              //1.66 for cal_rd = 80mm
+
           #define ZP(N,I) ((N) * z_at_pt[I])
-          #define Z1000(I) ZP(1.00, I)
-          #define Z1020(I) ZP(h_factor, I)
-          #define Z0680(I) ZP(h_factor * 2.00 / 3.00, I)
-          #define Z0340(I) ZP(h_factor / 3.00, I)
-          #define Z0170(I) ZP(h_factor / 6.00, I)
-          #define Z2250(I) ZP(r_factor, I)
-          #define Z0750(I) ZP(r_factor / 3.00, I)
-          #define Z0375(I) ZP(r_factor / 6.00, I)
-          #define Z0833(I) ZP(a_factor, I)
-          #define Z1666(I) ZP(a_factor * 2.00, I)
+          #define Z6(I) ZP(6, I)
+          #define Z4(I) ZP(4, I)
+          #define Z2(I) ZP(2, I)
+          #define Z1(I) ZP(1, I)
+          h_factor /= 6.00;
+          r_factor /= 6.00;
+          a_factor /= 2.00;
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
@@ -5604,33 +5602,33 @@ void home_all_axes() { gcode_G28(true); }
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
-              LOOP_XYZ(i) e_delta[i] = Z1000(0);
+              LOOP_XYZ(i) e_delta[i] = Z1(0);
               break;
 
             case 2:
               if (towers_set) {
-                e_delta[X_AXIS] = Z1020(0) + Z0680(1) - Z0340(5) - Z0340(9);
-                e_delta[Y_AXIS] = Z1020(0) - Z0340(1) + Z0680(5) - Z0340(9);
-                e_delta[Z_AXIS] = Z1020(0) - Z0340(1) - Z0340(5) + Z0680(9);
-                r_delta         = Z2250(0) - Z0750(1) - Z0750(5) - Z0750(9);
+                e_delta[X_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
+                e_delta[Y_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
+                e_delta[Z_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
+                r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
               else {
-                e_delta[X_AXIS] = Z1020(0) - Z0680(7) + Z0340(11) + Z0340(3);
-                e_delta[Y_AXIS] = Z1020(0) + Z0340(7) - Z0680(11) + Z0340(3);
-                e_delta[Z_AXIS] = Z1020(0) + Z0340(7) + Z0340(11) - Z0680(3);
-                r_delta         = Z2250(0) - Z0750(7) - Z0750(11) - Z0750(3);
+                e_delta[X_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
+                e_delta[Y_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
+                e_delta[Z_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
+                r_delta         = (Z6(0) - Z2(7) - Z2(11) - Z2(3)) * r_factor;
               }
               break;
 
             default:
-              e_delta[X_AXIS] = Z1020(0) + Z0340(1) - Z0170(5) - Z0170(9) - Z0340(7) + Z0170(11) + Z0170(3);
-              e_delta[Y_AXIS] = Z1020(0) - Z0170(1) + Z0340(5) - Z0170(9) + Z0170(7) - Z0340(11) + Z0170(3);
-              e_delta[Z_AXIS] = Z1020(0) - Z0170(1) - Z0170(5) + Z0340(9) + Z0170(7) + Z0170(11) - Z0340(3);
-              r_delta         = Z2250(0) - Z0375(1) - Z0375(5) - Z0375(9) - Z0375(7) - Z0375(11) - Z0375(3);
+              e_delta[X_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
+              e_delta[Y_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
+              e_delta[Z_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
+              r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) {
-                t_alpha          = Z0833(1) - Z1666(5) + Z0833(9) + Z0833(7) - Z1666(11) + Z0833(3);
-                t_beta           = Z1666(1) - Z0833(5) - Z0833(9) + Z1666(7) - Z0833(11) - Z0833(3);
+                t_alpha = (Z1(1) - Z2(5) + Z1(9) + Z1(7) - Z2(11) + Z1(3)) * a_factor;
+                t_beta  = (Z2(1) - Z1(5) - Z1(9) + Z2(7) - Z1(11) - Z1(3)) * a_factor;
               }
               break;
           }
