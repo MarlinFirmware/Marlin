@@ -24,9 +24,22 @@
  * AZTEEG_X3_PRO (Arduino Mega) pin assignments
  */
 
+#if HOTENDS > 5 || E_STEPPERS > 5
+  #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
+#endif
+
+#if ENABLED(CASE_LIGHT_ENABLE)  && !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN 44     // must define it here or else RAMPS will define it
+#endif
+
+
 #define BOARD_NAME "Azteeg X3 Pro"
 
 #include "pins_RAMPS.h"
+
+#ifndef __AVR_ATmega2560__
+  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
+#endif
 
 //
 // Servos
@@ -103,7 +116,9 @@
 #undef FAN_PIN
 #define FAN_PIN             6 // Part Cooling System
 
-#define CONTROLLERFAN_PIN   4 // Pin used for the fan to cool motherboard (-1 to disable)
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN 4 // Pin used for the fan to cool motherboard (-1 to disable)
+#endif
 
 // Fans/Water Pump to cool the hotend cool side.
 #define ORIG_E0_AUTO_FAN_PIN 5
@@ -119,8 +134,37 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN    49 // For easy adapter board
+  #define SD_DETECT_PIN    49   // For easy adapter board
+  #undef BEEPER_PIN
+  #define  BEEPER_PIN      12   // 33 isn't physically available to the LCD display
 #else
   #define STAT_LED_RED_PIN 32
   #define STAT_LED_BLUE_PIN 35
 #endif
+
+//
+// Misc. Functions
+//
+#if ENABLED(CASE_LIGHT_ENABLE)  && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
+  #undef DOGLCD_A0            // Steal pin 44 for the case light; if you have a Viki2 and have connected it
+  #define DOGLCD_A0        57 // following the Panucatt wiring diagram, you may need to tweak these pin assignments
+                              // as the wiring diagram uses pin 44 for DOGLCD_A0
+#endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3pro board
+#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_DIR_PIN
+
+#if ENABLED(SPINDLE_LASER_ENABLE)   // use EXP2 header
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #undef BTN_EN2
+    #define BTN_EN2             31  // need 7 for the spindle speed PWM
+  #endif
+  #define SPINDLE_LASER_PWM_PIN     7  // must have a hardware PWM
+  #define SPINDLE_LASER_ENABLE_PIN 20  // Pin should have a pullup!
+  #define SPINDLE_DIR_PIN          21
+#endif
+

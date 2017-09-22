@@ -34,23 +34,29 @@
  *    between X_AXIS and X Head movement, like CoreXY bots
  */
 enum AxisEnum {
-  NO_AXIS = -1,
-  X_AXIS  = 0,
-  A_AXIS  = 0,
-  Y_AXIS  = 1,
-  B_AXIS  = 1,
-  Z_AXIS  = 2,
-  C_AXIS  = 2,
-  E_AXIS  = 3,
-  X_HEAD  = 4,
-  Y_HEAD  = 5,
-  Z_HEAD  = 6,
-  ALL_AXES = 100
+  NO_AXIS   = -1,
+  X_AXIS    = 0,
+  A_AXIS    = 0,
+  Y_AXIS    = 1,
+  B_AXIS    = 1,
+  Z_AXIS    = 2,
+  C_AXIS    = 2,
+  E_AXIS    = 3,
+  X_HEAD    = 4,
+  Y_HEAD    = 5,
+  Z_HEAD    = 6,
+  ALL_AXES  = 100
 };
 
-#define LOOP_XYZ(VAR)  for (uint8_t VAR=X_AXIS; VAR<=Z_AXIS; VAR++)
-#define LOOP_XYZE(VAR) for (uint8_t VAR=X_AXIS; VAR<=E_AXIS; VAR++)
-#define LOOP_XYZE_N(VAR) for (uint8_t VAR=X_AXIS; VAR<XYZE_N; VAR++)
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=S; VAR<=N; VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=S; VAR<N; VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
+#define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
+#define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
+#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
 
 typedef enum {
   LINEARUNIT_MM,
@@ -75,6 +81,7 @@ enum DebugFlags {
   DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
   DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
   DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
   DEBUG_ALL           = 0xFF
 };
 
@@ -88,26 +95,6 @@ enum EndstopEnum {
   Z_MAX,
   Z2_MIN,
   Z2_MAX
-};
-
-/**
- * Temperature
- * Stages in the ISR loop
- */
-enum TempState {
-  PrepareTemp_0,
-  MeasureTemp_0,
-  PrepareTemp_BED,
-  MeasureTemp_BED,
-  PrepareTemp_1,
-  MeasureTemp_1,
-  PrepareTemp_2,
-  MeasureTemp_2,
-  PrepareTemp_3,
-  MeasureTemp_3,
-  Prepare_FILWIDTH,
-  Measure_FILWIDTH,
-  StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -127,23 +114,25 @@ enum TempState {
   };
 #endif
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-  enum FilamentChangeMenuResponse {
-    FILAMENT_CHANGE_RESPONSE_WAIT_FOR,
-    FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE,
-    FILAMENT_CHANGE_RESPONSE_RESUME_PRINT
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  enum AdvancedPauseMenuResponse {
+    ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
+    ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
+    ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
   };
 
   #if ENABLED(ULTIPANEL)
-    enum FilamentChangeMessage {
-      FILAMENT_CHANGE_MESSAGE_INIT,
-      FILAMENT_CHANGE_MESSAGE_UNLOAD,
-      FILAMENT_CHANGE_MESSAGE_INSERT,
-      FILAMENT_CHANGE_MESSAGE_LOAD,
-      FILAMENT_CHANGE_MESSAGE_EXTRUDE,
-      FILAMENT_CHANGE_MESSAGE_OPTION,
-      FILAMENT_CHANGE_MESSAGE_RESUME,
-      FILAMENT_CHANGE_MESSAGE_STATUS
+    enum AdvancedPauseMessage {
+      ADVANCED_PAUSE_MESSAGE_INIT,
+      ADVANCED_PAUSE_MESSAGE_UNLOAD,
+      ADVANCED_PAUSE_MESSAGE_INSERT,
+      ADVANCED_PAUSE_MESSAGE_LOAD,
+      ADVANCED_PAUSE_MESSAGE_EXTRUDE,
+      ADVANCED_PAUSE_MESSAGE_OPTION,
+      ADVANCED_PAUSE_MESSAGE_RESUME,
+      ADVANCED_PAUSE_MESSAGE_STATUS,
+      ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
+      ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
     };
   #endif
 #endif
@@ -159,23 +148,6 @@ enum TempState {
     IN_PROCESS,         // Known to be blocking command input (as in G29)
     PAUSED_FOR_USER,    // Blocking pending any input
     PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-  };
-#endif
-
-#if ENABLED(MESH_BED_LEVELING)
-  enum MeshLevelingState {
-    MeshReport,
-    MeshStart,
-    MeshNext,
-    MeshSet,
-    MeshSetZOffset,
-    MeshReset
-  };
-
-  enum MBLStatus {
-    MBL_STATUS_NONE = 0,
-    MBL_STATUS_HAS_MESH_BIT = 0,
-    MBL_STATUS_ACTIVE_BIT = 1
   };
 #endif
 
@@ -195,12 +167,23 @@ enum LCDViewAction {
   LCDVIEW_CALL_NO_REDRAW
 };
 
-#if ENABLED(DUAL_X_CARRIAGE)
+/**
+ * Dual X Carriage modes. A Dual Nozzle can also do duplication.
+ */
+#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   enum DualXMode {
-    DXC_FULL_CONTROL_MODE,
-    DXC_AUTO_PARK_MODE,
+    DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
+    DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
     DXC_DUPLICATION_MODE
   };
+#endif
+
+/**
+ * Workspace planes only apply to G2/G3 moves
+ * (and "canned cycles" - not a current feature)
+ */
+#if ENABLED(CNC_WORKSPACE_PLANES)
+  enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
 #endif
 
 #endif // __ENUM_H__

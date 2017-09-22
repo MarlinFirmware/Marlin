@@ -97,6 +97,7 @@
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12
+#define CASE_LIGHT_PIN      2
 
 //
 // LCD / Controller
@@ -120,3 +121,10 @@
   #define SD_DETECT_PIN   -1   // RAMPS doesn't use this
 
 #endif // ULTRA_LCD && NEWPANEL
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN     3  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN          11

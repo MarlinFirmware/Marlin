@@ -2,22 +2,19 @@
 #
 # mfnew
 #
-# Create a new branch based on RCBugFix or dev a given branch name
+# Create a new branch from the default target with the given name
 #
 
-MFINFO=$(mfinfo) || exit
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 TARG=${INFO[3]}
 
-if [[ ${INFO[4]} == "(no" ]]; then
-  echo "Branch is unavailable!"
-  exit 1
-fi
-
 case "$#" in
-  0 ) BRANCH=pr_for_$TARG-$(date +"%G-%d-%m|%H:%M:%S") ;;
+  0 ) BRANCH=pr_for_$TARG-$(date +"%G-%m-%d_%H.%M.%S") ;;
   1 ) BRANCH=$1 ;;
-  * ) echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1 ;;
 esac
 
-git checkout $TARG -b $BRANCH
+git fetch upstream
+git checkout upstream/$TARG -b $BRANCH

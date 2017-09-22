@@ -63,36 +63,36 @@ vector_3 vector_3::get_normal() {
   return normalized;
 }
 
-float vector_3::get_length() { return sqrt((x * x) + (y * y) + (z * z)); }
+float vector_3::get_length() { return SQRT(sq(x) + sq(y) + sq(z)); }
 
 void vector_3::normalize() {
-  float length = get_length();
-  x /= length;
-  y /= length;
-  z /= length;
+  const float inv_length = 1.0 / get_length();
+  x *= inv_length;
+  y *= inv_length;
+  z *= inv_length;
 }
 
 void vector_3::apply_rotation(matrix_3x3 matrix) {
-  float resultX = x * matrix.matrix[3 * 0 + 0] + y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0];
-  float resultY = x * matrix.matrix[3 * 0 + 1] + y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1];
-  float resultZ = x * matrix.matrix[3 * 0 + 2] + y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
+  const float resultX = x * matrix.matrix[3 * 0 + 0] + y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0],
+              resultY = x * matrix.matrix[3 * 0 + 1] + y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1],
+              resultZ = x * matrix.matrix[3 * 0 + 2] + y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
   x = resultX;
   y = resultY;
   z = resultZ;
 }
 
-void vector_3::debug(const char title[]) {
-  SERIAL_PROTOCOL(title);
+void vector_3::debug(const char * const title) {
+  serialprintPGM(title);
   SERIAL_PROTOCOLPGM(" x: ");
   SERIAL_PROTOCOL_F(x, 6);
   SERIAL_PROTOCOLPGM(" y: ");
   SERIAL_PROTOCOL_F(y, 6);
   SERIAL_PROTOCOLPGM(" z: ");
   SERIAL_PROTOCOL_F(z, 6);
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
-void apply_rotation_xyz(matrix_3x3 matrix, float& x, float& y, float& z) {
+void apply_rotation_xyz(matrix_3x3 matrix, float &x, float &y, float &z) {
   vector_3 vector = vector_3(x, y, z);
   vector.apply_rotation(matrix);
   x = vector.x;
@@ -101,14 +101,14 @@ void apply_rotation_xyz(matrix_3x3 matrix, float& x, float& y, float& z) {
 }
 
 matrix_3x3 matrix_3x3::create_from_rows(vector_3 row_0, vector_3 row_1, vector_3 row_2) {
-  //row_0.debug("row_0");
-  //row_1.debug("row_1");
-  //row_2.debug("row_2");
+  //row_0.debug(PSTR("row_0"));
+  //row_1.debug(PSTR("row_1"));
+  //row_2.debug(PSTR("row_2"));
   matrix_3x3 new_matrix;
   new_matrix.matrix[0] = row_0.x; new_matrix.matrix[1] = row_0.y; new_matrix.matrix[2] = row_0.z;
   new_matrix.matrix[3] = row_1.x; new_matrix.matrix[4] = row_1.y; new_matrix.matrix[5] = row_1.z;
   new_matrix.matrix[6] = row_2.x; new_matrix.matrix[7] = row_2.y; new_matrix.matrix[8] = row_2.z;
-  //new_matrix.debug("new_matrix");
+  //new_matrix.debug(PSTR("new_matrix"));
   return new_matrix;
 }
 
@@ -123,14 +123,14 @@ matrix_3x3 matrix_3x3::create_look_at(vector_3 target) {
   vector_3 x_row = vector_3(1, 0, -target.x / target.z).get_normal();
   vector_3 y_row = vector_3::cross(z_row, x_row).get_normal();
 
-  // x_row.debug("x_row");
-  // y_row.debug("y_row");
-  // z_row.debug("z_row");
+  // x_row.debug(PSTR("x_row"));
+  // y_row.debug(PSTR("y_row"));
+  // z_row.debug(PSTR("z_row"));
 
   // create the matrix already correctly transposed
   matrix_3x3 rot = matrix_3x3::create_from_rows(x_row, y_row, z_row);
 
-  // rot.debug("rot");
+  // rot.debug(PSTR("rot"));
   return rot;
 }
 
@@ -142,17 +142,17 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original) {
   return new_matrix;
 }
 
-void matrix_3x3::debug(const char title[]) {
-  SERIAL_PROTOCOLLN(title);
-  int count = 0;
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
+void matrix_3x3::debug(const char * const title) {
+  serialprintPGM(title);
+  uint8_t count = 0;
+  for (uint8_t i = 0; i < 3; i++) {
+    for (uint8_t j = 0; j < 3; j++) {
       if (matrix[count] >= 0.0) SERIAL_PROTOCOLCHAR('+');
       SERIAL_PROTOCOL_F(matrix[count], 6);
       SERIAL_PROTOCOLCHAR(' ');
       count++;
     }
-    SERIAL_EOL;
+    SERIAL_EOL();
   }
 }
 

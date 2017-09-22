@@ -12,102 +12,153 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.   See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.   If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * Teensylu 0.7 pin assignments (AT90USB1286)
- * Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
- * http://www.pjrc.com/teensy/teensyduino.html
- * See http://reprap.org/wiki/Printrboard for more info
+ *  Rev C  2 JUN 2017
+ *
+ *  Converted to Arduino pin numbering
  */
 
-#ifndef __AVR_AT90USB1286__
-  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
-#endif
+/**
+ *  There are two Arduino IDE extensions that are compatible with this board
+ *  and with the mainstream Marlin software.  All have been used with Arduino 1.6.12
+ *
+ *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
+ *
+ *    Installation instructions are at the above URL.  Don't bother loading the
+ *    libraries - they are not used with the Marlin software.
+ *
+ *  Printrboard - https://github.com/scwimbush/Printrboard-HID-Arduino-IDE-Support
+ *    This is basically Teensyduino but with a bootloader that can handle image sizes
+ *    larger than 64K.
+ *
+ *    Installation:
+ *
+ *       1. Go to the above URL, click on the "Clone or Download" button and then
+ *          click on "Download ZIP" button.
+ *       2. Unzip the file, find the "printrboard" directory and then copy it to the
+ *          hardware directory in Arduino.  The Arduino hardware directory will probably
+ *          be located in a path similar to this: C:\Program Files (x86)\Arduino\hardware.
+ *       3. Restart Arduino.
+ *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
+ *
+ *  Teensyduino is the most popular option. Printrboard is used if your board doesn't have
+ *  the Teensyduino bootloader on it.
+ */
 
-#if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
-  #error "These Teensylu assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
+/**
+ *  To burn the bootloader that comes with Printrboard:
+ *
+ *   1. Connect your programmer to the board.
+ *   2. In the Arduino IDE select "Printrboard" and then select the programmer.
+ *   3. In the Arduino IDE click on "burn bootloader". Don't worry about the "verify failed at 1F000" error message.
+ *   4. The programmer is no longer needed. Remove it.
+ */
+
+ /**
+  *  SILKSCREEN ERROR
+  *
+  *  The silkscreen for the endstops do NOT match the schematic.  The silkscreen SHOULD
+  *  read (from left to right) X-STOP, Y-STOP, Z-STOP & E-STOP.  The silkscreen actually
+  *  reads                     E-STOP, X-STOP, Y-STOP & Z-STOP.
+  *
+  *  The pin assignments in this file match the silkscreen.
+  */
+
+#if !defined(__AVR_AT90USB1286__) && !defined(__AVR_AT90USB1286P__)
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define BOARD_NAME         "Teensylu"
 
-#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
+
 //
-// Limit Switches
+// Limit Switch definitions that match the SCHEMATIC
 //
-#define X_STOP_PIN         13
-#define Y_STOP_PIN         14
-#define Z_STOP_PIN         15
+//#define X_STOP_PIN              25   // B5
+//#define Y_STOP_PIN              26   // B6
+//#define Z_STOP_PIN              27   // B7
+//#define E_STOP_PIN              36   // E4
+
+
+//
+// Limit Switch definitions that match the SILKSCREEN
+//
+#define X_STOP_PIN              26   // B6
+#define Y_STOP_PIN              27   // B7
+#define Z_STOP_PIN              36   // E4
+//#define E_STOP_PIN              25   // B5
 
 //
 // Steppers
 //
-#define X_STEP_PIN          0
-#define X_DIR_PIN           1
-#define X_ENABLE_PIN       39
+#define X_STEP_PIN              28   // A0
+#define X_DIR_PIN               29   // A1
+#define X_ENABLE_PIN            19   // E7
 
-#define Y_STEP_PIN          2
-#define Y_DIR_PIN           3
-#define Y_ENABLE_PIN       38
+#define Y_STEP_PIN              30   // A2
+#define Y_DIR_PIN               31   // A3
+#define Y_ENABLE_PIN            18   // E6
 
-#define Z_STEP_PIN          4
-#define Z_DIR_PIN           5
-#define Z_ENABLE_PIN       23
+#define Z_STEP_PIN              32   // A4
+#define Z_DIR_PIN               33   // A5
+#define Z_ENABLE_PIN            17   // C7
 
-#define E0_STEP_PIN         6
-#define E0_DIR_PIN          7
-#define E0_ENABLE_PIN      19
+#define E0_STEP_PIN             34   // A6
+#define E0_DIR_PIN              35   // A7
+#define E0_ENABLE_PIN           13   // C3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // Analog Input (Extruder)
-#define TEMP_BED_PIN        6   // Analog Input (Bed)
+#define TEMP_0_PIN               7   // Analog Input (Extruder)
+#define TEMP_BED_PIN             6   // Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       46
-#define HEATER_2_PIN       47
-#define HEATER_BED_PIN     20
+#define HEATER_0_PIN            15   // C5 PWM3B - Extruder
+#define HEATER_BED_PIN          14   // C4 PWM3C
 
-// If soft or fast PWM is off then use Teensyduino pin numbering, Marlin
-// fastio pin numbering otherwise
-#if ENABLED(FAN_SOFT_PWM) || ENABLED(FAST_PWM_FAN)
-  #define FAN_PIN          22
-#else
-  #define FAN_PIN          16
-#endif
+#define FAN_PIN                 16   // C6 PWM3A
 
 //
 // Misc. Functions
 //
-#define SDSS                8
+#define SDSS                    20   // B0 JP31-6
+#define CASE_LIGHT_PIN           0   // D0 IO-14  PWM0B
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
-  #define BEEPER_PIN       -1
+  #define BEEPER_PIN            -1
 
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1        27  // RX1 - fastio.h pin mapping 27
-    #define BTN_EN2        26  // TX1 - fastio.h pin mapping 26
-    #define BTN_ENC        43  // A3  - fastio.h pin mapping 43
-    #define SDSS           40  // use SD card on Panelolu2 (Teensyduino pin mapping)
-  #endif // LCD_I2C_PANELOLU2
+    #define BTN_EN1              3   // D3 IO-8
+    #define BTN_EN2              2   // D2 IO-10
+    #define BTN_ENC             41   // F3 IO-7
+    #define SDSS                38   // F0 IO-13 use SD card on Panelolu2
+  #endif
 
-  #define SD_DETECT_PIN    -1
+  #define SD_DETECT_PIN         -1
 
 #endif // ULTRA_LCD && NEWPANEL
 
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN    24   // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 39   // F1 IO-11 - Pin should have a pullup!
+#define SPINDLE_DIR_PIN          40   // F2 IO-9

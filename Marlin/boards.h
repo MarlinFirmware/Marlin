@@ -32,6 +32,7 @@
 #define BOARD_CNCONTROLS_11     111  // Cartesio CN Controls V11
 #define BOARD_CNCONTROLS_12     112  // Cartesio CN Controls V12
 #define BOARD_CHEAPTRONIC       2    // Cheaptronic v1.0
+#define BOARD_CHEAPTRONIC_V2    21   // Cheaptronic v2.0
 #define BOARD_SETHI             20   // Sethi 3D_1
 #define BOARD_MIGHTYBOARD_REVE  200  // Makerbot Mightyboard Revision E
 #define BOARD_RAMPS_OLD         3    // MEGA/RAMPS up to 1.2
@@ -53,14 +54,18 @@
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12   62   // Sanguinololu 1.2 and above
 #define BOARD_MELZI             63   // Melzi
+#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_CREALITY    89   // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
-#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_AZTEEG_X3         67   // Azteeg X3
 #define BOARD_AZTEEG_X3_PRO     68   // Azteeg X3 Pro
+#define BOARD_ANET_10           69   // Anet 1.0 (Melzi clone)
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
+#define BOARD_GT2560_REV_A      74   // Geeetech GT2560 Rev. A
+#define BOARD_GT2560_REV_A_PLUS 75   // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_3DRAG             77   // 3Drag Controller
 #define BOARD_K8200             78   // Velleman K8200 Controller (derived from 3Drag Controller)
 #define BOARD_K8400             79   // Velleman K8400 Controller (derived from 3Drag Controller)
@@ -70,7 +75,7 @@
 #define BOARD_PRINTRBOARD_REVF  811  // Printrboard Revision F (AT90USB1286)
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
-#define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
 #define BOARD_BRAINWAVE_PRO     85   // Brainwave Pro (AT90USB1286)
 #define BOARD_GEN3_PLUS         9    // Gen3+
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
@@ -83,7 +88,7 @@
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
 #define BOARD_MINIRAMBO         302  // Mini-Rambo
-#define BOARD_AJ4P              303  // AJ4P
+#define BOARD_SCOOVO_X9H        303  // abee Scoovo X9H
 #define BOARD_MEGACONTROLLER    310  // Mega controller
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
@@ -94,7 +99,8 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
+#define BOARD_ZRIB_V20          504  // zrib V2.0 control board (Chinese knock off RAMPS replica)
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
-#endif //__BOARDS_H
+#endif // __BOARDS_H

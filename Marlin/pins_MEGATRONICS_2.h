@@ -71,8 +71,8 @@
 #define E1_DIR_PIN         39
 #define E1_ENABLE_PIN      28
 
-#define E2_STEP_PIN        23
-#define E2_DIR_PIN         24
+#define E2_STEP_PIN        23 // ? schematic says 24
+#define E2_DIR_PIN         24 // ? schematic says 23
 #define E2_ENABLE_PIN      22
 
 //
@@ -112,6 +112,7 @@
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12
+#define CASE_LIGHT_PIN      2
 
 //
 // LCD / Controller
@@ -129,3 +130,16 @@
 #define BTN_EN1            61
 #define BTN_EN2            59
 #define BTN_ENC            43
+
+// Buttons that are attached using shift register of reprapworld keypad  v1.1
+#define SHIFT_CLK 63
+#define SHIFT_LD 42
+#define SHIFT_OUT 17
+#define SHIFT_EN 17
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN          3  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN      16  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN               11

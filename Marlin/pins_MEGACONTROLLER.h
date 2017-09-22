@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if E_STEPPERS > 2 || HOTENDS > 2
-  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "Mega Controller"
@@ -116,7 +116,9 @@
 #define FAN1_PIN           35
 #define FAN2_PIN           36
 
-#define CONTROLLERFAN_PIN  FAN2_PIN
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN FAN2_PIN
+#endif
 
 #define FAN_SOFT_PWM
 
@@ -125,6 +127,7 @@
 //
 #define SDSS               53
 #define LED_PIN            13
+#define CASE_LIGHT_PIN      2
 
 //
 // LCD / Controller
@@ -150,3 +153,10 @@
 
   #define SD_DETECT_PIN    49
 #endif // MINIPANEL
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  7  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN           8

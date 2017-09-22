@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -114,4 +114,4 @@ class Stopwatch {
     #endif
 };
 
-#endif //STOPWATCH_H
+#endif // STOPWATCH_H

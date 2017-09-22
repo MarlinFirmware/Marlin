@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define MEGATRONICS_31
+
 #if ENABLED(MEGATRONICS_31)
   #define BOARD_NAME       "Megatronics v3.1"
 #else
@@ -60,8 +62,6 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  19
 #endif
-
-#define SLED_PIN           -1
 
 //
 // Steppers
@@ -131,6 +131,7 @@
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12
+#define CASE_LIGHT_PIN     45   // Try the keypad connector
 
 //
 // LCD / Controller
@@ -142,18 +143,21 @@
 #define BTN_ENC            33
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-  #define LCD_PINS_RS      56 // CS chip select / SS chip slave select
-  #define LCD_PINS_ENABLE  51 // SID (MOSI)
-  #define LCD_PINS_D4      52 // SCK (CLK) clock
+
+  #define LCD_PINS_RS      56   // CS chip select / SS chip slave select
+  #define LCD_PINS_ENABLE  51   // SID (MOSI)
+  #define LCD_PINS_D4      52   // SCK (CLK) clock
   #define SD_DETECT_PIN    35
+
 #else
+
   #define LCD_PINS_RS      32
   #define LCD_PINS_ENABLE  31
   #define LCD_PINS_D4      14
   #define LCD_PINS_D5      30
   #define LCD_PINS_D6      39
   #define LCD_PINS_D7      15
-  
+
   #define SHIFT_CLK        43
   #define SHIFT_LD         35
   #define SHIFT_OUT        34
@@ -165,4 +169,28 @@
     #define SD_DETECT_PIN  -1
   #endif
 
+#endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#if DISABLED(REPRAPWORLD_KEYPAD)       // try to use the keypad connector first
+  #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENABLE_PIN 43  // Pin should have a pullup!
+  #define SPINDLE_DIR_PIN          42
+#elif EXTRUDERS <= 2
+  // Hijack the last extruder so that we can get the PWM signal off the Y breakout
+  // Move Y to the E2 plug. This makes dual Y steppers harder
+  #undef Y_ENABLE_PIN  //  4
+  #undef Y_STEP_PIN    //  5
+  #undef Y_DIR_PIN     // 17
+  #undef E2_ENABLE_PIN // 23
+  #undef E2_STEP_PIN   // 22
+  #undef E2_DIR_PIN    // 60
+  #define Y_ENABLE_PIN             23
+  #define Y_STEP_PIN               22
+  #define Y_DIR_PIN                60
+  #define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENABLE_PIN 17  // Pin should have a pullup!
+  #define SPINDLE_DIR_PIN           5
 #endif

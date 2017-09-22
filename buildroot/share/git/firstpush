@@ -1,3 +1,28 @@
 #!/usr/bin/env bash
+#
+# firstpush
+#
+# Push a branch to 'origin' and open the
+# commit log to watch Travis CI progress.
+#
 
-git push --set-upstream origin `git branch | grep \* | sed 's/\* //g'`
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo) || exit 1
+IFS=' ' read -a INFO <<< "$MFINFO"
+FORK=${INFO[1]}
+REPO=${INFO[2]}
+BRANCH=${INFO[5]}
+
+git push --set-upstream origin $BRANCH
+
+TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+URL="https://github.com/$FORK/$REPO/commits/$BRANCH"
+
+if [ -z "$TOOL" ]; then
+  echo "Can't find a tool to open the URL:"
+  echo $URL
+else
+  echo "Viewing commits on $BRANCH..."
+  "$TOOL" "$URL"
+fi

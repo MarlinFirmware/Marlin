@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,12 +21,53 @@
  */
 
 /**
+ *  Rev B  2 JUN 2017
+ *
+ *  Converted to Arduino pin numbering
+ */
+
+/**
+ *  There are two Arduino IDE extensions that are compatible with this board
+ *  and with the mainstream Marlin software.
+ *
+ *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
+ *
+ *    Installation instructions are at the above URL.  Don't bother loading the
+ *    libraries - they are not used with the Marlin software.
+ *
+ *  Printrboard - https://github.com/scwimbush/Printrboard-HID-Arduino-IDE-Support
+ *
+ *    Installation:
+ *
+ *       1. Go to the above URL, click on the "Clone or Download" button and then
+ *          click on "Download ZIP" button.
+ *       2. Unzip the file, find the "printrboard" directory and then copy it to the
+ *          hardware directory in Arduino.  The Arduino hardware directory will probably
+ *          be located in a path similar to this: C:\Program Files (x86)\Arduino\hardware.
+ *       3. Restart Arduino.
+ *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
+ *
+ *  Teensyduino is the most popular option. Printrboard is used if your board doesn't have
+ *  the Teensyduino bootloader on it.
+ */
+
+/**
+ *  To burn the bootloader that comes with Printrboard:
+ *
+ *   1. Connect your programmer to the board.
+ *   2. In the Arduino IDE select "Printrboard" and then select the programmer.
+ *   3. In the Arduino IDE click on "burn bootloader". Don't worry about the "verify failed at 1F000" error message.
+ *   4. The programmer is no longer needed. Remove it.
+ */
+
+/**
  * Teensy++ 2.0 Breadboard pin assignments (AT90USB1286)
  * Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
  * http://www.pjrc.com/teensy/teensyduino.html
  * See http://reprap.org/wiki/Printrboard for more info
  *
- * CLI build: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84 make
+ * CLI build: HARDWARE_MOTHERBOARD=84 make
  *
  *  DaveX plan for Teensylu/printrboard-type pinouts for a TeensyBreadboard:
  *  (ref teensylu & sprinter)
@@ -66,76 +107,78 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
-#endif
-
-#if DISABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS) // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
-  #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
-  // (or build from command line)
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define BOARD_NAME         "Teensy++2.0"
 
-#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN          2
-#define Y_STOP_PIN          3
-#define Z_STOP_PIN          4
+#define X_STOP_PIN          2   // D2
+#define Y_STOP_PIN          3   // D3
+#define Z_STOP_PIN          4   // D4
 
 //
 // Steppers
 //
-#define X_STEP_PIN         28 // 0 Marlin
-#define X_DIR_PIN          29 // 1 Marlin
-#define X_ENABLE_PIN       26
+#define X_STEP_PIN         28   // A0 Marlin
+#define X_DIR_PIN          29   // A1 Marlin
+#define X_ENABLE_PIN       26   // B6
 
-#define Y_STEP_PIN         30 // 2 Marlin
-#define Y_DIR_PIN          31 // 3
-#define Y_ENABLE_PIN       26 // Shared w/x
+#define Y_STEP_PIN         30   // A2 Marlin
+#define Y_DIR_PIN          31   // A3
+#define Y_ENABLE_PIN       26   // B6 Shared w/x
 
-#define Z_STEP_PIN         32 // 4
-#define Z_DIR_PIN          33 // 5
-#define Z_ENABLE_PIN       26 // Shared w/x
+#define Z_STEP_PIN         32   // A4
+#define Z_DIR_PIN          33   // A5
+#define Z_ENABLE_PIN       26   // B6 Shared w/x
 
-#define E0_STEP_PIN        34 // 6
-#define E0_DIR_PIN         35 // 7
-#define E0_ENABLE_PIN      26 // Shared w/x
+#define E0_STEP_PIN        34   // A6
+#define E0_DIR_PIN         35   // A7
+#define E0_ENABLE_PIN      26   // B6 Shared w/x
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // Analog Input (Extruder)
-#define TEMP_BED_PIN        6   // Analog Input (Bed)
+#define TEMP_0_PIN          7   // F7 Analog Input (Extruder)
+#define TEMP_BED_PIN        6   // F6 Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       15 // 21 // Extruder
-#define HEATER_BED_PIN     14 // 20 // Bed
-#define FAN_PIN            16 // 22 // Fan
+#define HEATER_0_PIN       15   // C5 PWM3B  Extruder
+#define HEATER_BED_PIN     14   // C4 PWM3C
+#define FAN_PIN            16   // C6 PWM3A  Fan
 
 //
 // Misc. Functions
 //
-#define SDSS               20 // 8
-#define LED_PIN             6
-#define PS_ON_PIN          27
+#define SDSS               20   // B0
+#define LED_PIN             6   // D6
+#define PS_ON_PIN          27   // B7
+#define CASE_LIGHT_PIN      1   // D1 PWM2B  MUST BE HARDWARE PWM
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTIPANEL)
-  #define LCD_PINS_RS         8
-  #define LCD_PINS_ENABLE     9
-  #define LCD_PINS_D4        10
-  #define LCD_PINS_D5        11
-  #define LCD_PINS_D6        12
-  #define LCD_PINS_D7        13
-  #define BTN_EN1            38
-  #define BTN_EN2            39
-  #define BTN_ENC            40
+  #define LCD_PINS_RS       8   // E0
+  #define LCD_PINS_ENABLE   9   // E1
+  #define LCD_PINS_D4      10   // C0
+  #define LCD_PINS_D5      11   // C1
+  #define LCD_PINS_D6      12   // C2
+  #define LCD_PINS_D7      13   // C3
+  #define BTN_EN1          38   // F0
+  #define BTN_EN2          39   // F1
+  #define BTN_ENC          40   // F2
 #endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_ENABLE_PIN  5  // D5  Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     0  // D0 PWM0B   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN           7  // D7

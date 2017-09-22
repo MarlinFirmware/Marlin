@@ -24,8 +24,8 @@
  *  Sainsmart 2-in-1 pin assignments
  */
 
-#if HOTENDS > 2
-  #error "Sainsmart 2-in-1 supports up to 2 hotends. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Sainsmart 2-in-1 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "Sainsmart"

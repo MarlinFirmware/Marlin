@@ -92,4 +92,11 @@ class Endstops {
 
 extern Endstops endstops;
 
+#if HAS_BED_PROBE
+  #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
+#else
+  #define ENDSTOPS_ENABLED  endstops.enabled
+#endif
+
+
 #endif // ENDSTOPS_H

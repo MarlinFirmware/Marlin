@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -42,8 +42,8 @@ void TWIBus::reset() {
 }
 
 void TWIBus::address(const uint8_t adr) {
-  if (adr < 8 || adr > 127) {
-    SERIAL_ECHO_START;
+  if (!WITHIN(adr, 8, 127)) {
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("Bad I2C address (8-127)");
   }
 
@@ -90,7 +90,7 @@ void TWIBus::send() {
 
 // static
 void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
-  SERIAL_ECHO_START;
+  SERIAL_ECHO_START();
   serialprintPGM(prefix);
   SERIAL_ECHOPAIR(": from:", adr);
   SERIAL_ECHOPAIR(" bytes:", bytes);
@@ -101,13 +101,13 @@ void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
 void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
   echoprefix(bytes, prefix, adr);
   while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 void TWIBus::echobuffer(const char prefix[], uint8_t adr) {
   echoprefix(this->buffer_s, prefix, adr);
   for (uint8_t i = 0; i < this->buffer_s; i++) SERIAL_CHAR(this->buffer[i]);
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 bool TWIBus::request(const uint8_t bytes) {
@@ -201,4 +201,4 @@ void TWIBus::flush() {
 
 #endif
 
-#endif //EXPERIMENTAL_I2CBUS
+#endif // EXPERIMENTAL_I2CBUS

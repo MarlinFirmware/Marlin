@@ -54,11 +54,11 @@ struct filepos_t {
 
 // use the gnu style oflag in open()
 /** open() oflag for reading */
-uint8_t const O_READ = 0X01;
+uint8_t const O_READ = 0x01;
 /** open() oflag - same as O_IN */
 uint8_t const O_RDONLY = O_READ;
 /** open() oflag for write */
-uint8_t const O_WRITE = 0X02;
+uint8_t const O_WRITE = 0x02;
 /** open() oflag - same as O_WRITE */
 uint8_t const O_WRONLY = O_WRITE;
 /** open() oflag for reading and writing */
@@ -66,17 +66,17 @@ uint8_t const O_RDWR = (O_READ | O_WRITE);
 /** open() oflag mask for access modes */
 uint8_t const O_ACCMODE = (O_READ | O_WRITE);
 /** The file offset shall be set to the end of the file prior to each write. */
-uint8_t const O_APPEND = 0X04;
+uint8_t const O_APPEND = 0x04;
 /** synchronous writes - call sync() after each write */
-uint8_t const O_SYNC = 0X08;
+uint8_t const O_SYNC = 0x08;
 /** truncate the file to zero length */
-uint8_t const O_TRUNC = 0X10;
+uint8_t const O_TRUNC = 0x10;
 /** set the initial position at the end of the file */
-uint8_t const O_AT_END = 0X20;
+uint8_t const O_AT_END = 0x20;
 /** create the file if nonexistent */
-uint8_t const O_CREAT = 0X40;
+uint8_t const O_CREAT = 0x40;
 /** If O_CREAT and O_EXCL are set, open() shall fail if the file exists */
-uint8_t const O_EXCL = 0X80;
+uint8_t const O_EXCL = 0x80;
 
 // SdBaseFile class static and const definitions
 // flags for ls()
@@ -141,7 +141,7 @@ static inline uint8_t FAT_MONTH(uint16_t fatDate) {
  * \return Extracted day [1,31]
  */
 static inline uint8_t FAT_DAY(uint16_t fatDate) {
-  return fatDate & 0X1F;
+  return fatDate & 0x1F;
 }
 /** time field for FAT directory entry
  * \param[in] hour [0,23]
@@ -167,7 +167,7 @@ static inline uint8_t FAT_HOUR(uint16_t fatTime) {
  * \return Extracted minute [0,59]
  */
 static inline uint8_t FAT_MINUTE(uint16_t fatTime) {
-  return (fatTime >> 5) & 0X3F;
+  return (fatTime >> 5) & 0x3F;
 }
 /** second part of FAT directory time field
  * Note second/2 is stored in packed time.
@@ -177,7 +177,7 @@ static inline uint8_t FAT_MINUTE(uint16_t fatTime) {
  * \return Extracted second [0,58]
  */
 static inline uint8_t FAT_SECOND(uint16_t fatTime) {
-  return 2 * (fatTime & 0X1F);
+  return 2 * (fatTime & 0x1F);
 }
 /** Default date for file timestamps is 1 Jan 2000 */
 uint16_t const FAT_DEFAULT_DATE = ((2000 - 1980) << 9) | (1 << 5) | 1;
@@ -338,10 +338,10 @@ class SdBaseFile {
   // data time callback function
   static void (*dateTime_)(uint16_t* date, uint16_t* time);
   // bits defined in flags_
-  // should be 0X0F
+  // should be 0x0F
   static uint8_t const F_OFLAG = (O_ACCMODE | O_APPEND | O_SYNC);
   // sync of directory entry required
-  static uint8_t const F_FILE_DIR_DIRTY = 0X80;
+  static uint8_t const F_FILE_DIR_DIRTY = 0x80;
 
   // private data
   uint8_t   flags_;         // See above for definition of flags_ bits
@@ -402,7 +402,7 @@ class SdBaseFile {
    * \param[in] dateTime The user's call back function.
    */
   static void dateTimeCallback(
-    void (*dateTime)(uint16_t& date, uint16_t& time)) {  // NOLINT
+    void (*dateTime)(uint16_t &date, uint16_t &time)) {  // NOLINT
     oldDateTime_ = dateTime;
     dateTime_ = dateTime ? oldToNew : 0;
   }
@@ -477,7 +477,7 @@ class SdBaseFile {
   //------------------------------------------------------------------------------
   // rest are private
  private:
-  static void (*oldDateTime_)(uint16_t& date, uint16_t& time);  // NOLINT
+  static void (*oldDateTime_)(uint16_t &date, uint16_t &time);  // NOLINT
   static void oldToNew(uint16_t* date, uint16_t* time) {
     uint16_t d;
     uint16_t t;

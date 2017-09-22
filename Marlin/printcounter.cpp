@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -108,7 +108,7 @@ void PrintCounter::showStats() {
   SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
     - ((this->isRunning() || this->isPaused()) ? 1 : 0));
 
-  SERIAL_EOL;
+  SERIAL_EOL();
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
   elapsed = this->data.printTime;
@@ -120,7 +120,7 @@ void PrintCounter::showStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
     SERIAL_ECHO(this->data.printTime);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
   #endif
 
   elapsed = this->data.longestPrint;
@@ -132,17 +132,17 @@ void PrintCounter::showStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
     SERIAL_ECHO(this->data.longestPrint);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
   #endif
 
-  SERIAL_EOL;
+  SERIAL_EOL();
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
   SERIAL_ECHOPGM("Filament used: ");
   SERIAL_ECHO(this->data.filamentUsed / 1000);
   SERIAL_ECHOPGM("m");
 
-  SERIAL_EOL;
+  SERIAL_EOL();
 }
 
 void PrintCounter::tick() {
@@ -188,7 +188,8 @@ bool PrintCounter::start() {
     }
     return true;
   }
-  else return false;
+
+  return false;
 }
 
 // @Override

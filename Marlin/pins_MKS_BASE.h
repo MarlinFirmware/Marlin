@@ -22,10 +22,12 @@
 
 /**
  * MKS BASE 1.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ *
+ * Rev B - Override pin definitions for CASE_LIGHT and M3/M4/M5 spindle control
  */
 
-#if HOTENDS > 2
-  #error "MKS BASE 1.0 supports up to 2 hotends. Comment this line to keep going."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "MKS BASE 1.0"
@@ -35,5 +37,14 @@
 //
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
+
+#define CASE_LIGHT_PIN            2
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+#define SPINDLE_LASER_PWM_PIN     2  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 15  // Pin should have a pullup!
+#define SPINDLE_DIR_PIN          19
 
 #include "pins_RAMPS.h"

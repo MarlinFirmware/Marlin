@@ -31,22 +31,43 @@
   #define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
 
   #if ENABLED(CARTESIO_UI)
+
     #define DOGLCD
     #define ULTIPANEL
     #define NEWPANEL
     #define DEFAULT_LCD_CONTRAST 90
     #define LCD_CONTRAST_MIN 60
     #define LCD_CONTRAST_MAX 140
-  #endif
 
-  #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
+  #elif ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
+
     #define DOGLCD
     #define ULTIPANEL
     #define NEWPANEL
     #define DEFAULT_LCD_CONTRAST 17
-  #endif
 
-  #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+  #elif ENABLED(ANET_KEYPAD_LCD)
+
+    #define REPRAPWORLD_KEYPAD
+    #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+    #define ADC_KEYPAD
+    #define ADC_KEY_NUM 8
+    #define ULTIPANEL
+    // this helps to implement ADC_KEYPAD menus
+    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define REVERSE_MENU_DIRECTION
+
+  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+  #elif ENABLED(BQ_LCD_SMART_CONTROLLER)
+
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #define LONG_FILENAME_HOST_SUPPORT
+
+  #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
@@ -65,12 +86,28 @@
       #define SD_DETECT_INVERTED
     #endif
 
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
+  #elif ENABLED(OLED_PANEL_TINYBOY2)
+
+    #define U8GLIB_SSD1306
+    #define ULTIPANEL
+    #define NEWPANEL
+    #define REVERSE_ENCODER_DIRECTION
+    #define REVERSE_MENU_DIRECTION
+
+  #elif ENABLED(RA_CONTROL_PANEL)
+
+    #define LCD_I2C_TYPE_PCA8574
+    #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+    #define ULTIPANEL
+    #define NEWPANEL
+
+  #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+
+    #define DOGLCD
+    #define U8GLIB_ST7920
+    #define ULTIPANEL
+    #define NEWPANEL
+
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
@@ -83,22 +120,7 @@
     #define ULTIMAKERCONTROLLER
   #endif
 
-  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
-
-    #ifndef LONG_FILENAME_HOST_SUPPORT
-      #define LONG_FILENAME_HOST_SUPPORT
-    #endif
-  #endif
-
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI)
     #define DOGLCD
     #define U8GLIB_ST7920
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -107,24 +129,16 @@
   #if ENABLED(ULTIMAKERCONTROLLER)              \
    || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
    || ENABLED(G3D_PANEL)                        \
-   || ENABLED(RIGIDBOT_PANEL)                   \
-   || ENABLED(REPRAPWORLD_KEYPAD)
+   || ENABLED(RIGIDBOT_PANEL)
     #define ULTIPANEL
     #define NEWPANEL
   #endif
 
-  #if ENABLED(RA_CONTROL_PANEL)
-    #define LCD_I2C_TYPE_PCA8574
-    #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-    #define ULTIPANEL
+  #if ENABLED(REPRAPWORLD_KEYPAD)
     #define NEWPANEL
-  #endif
-
-  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #define DOGLCD
-    #define U8GLIB_ST7920
-    #define ULTIPANEL
-    #define NEWPANEL
+    #if ENABLED(ULTIPANEL) && !defined(REPRAPWORLD_KEYPAD_MOVE_STEP)
+      #define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
+    #endif
   #endif
 
   /**
@@ -132,37 +146,35 @@
    */
 
   #if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
-    // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
-    // Make sure it is placed in the Arduino libraries directory.
+
+    // Note: This controller requires F.Malpartida's LiquidCrystal_I2C library
+    // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home
+
     #define LCD_I2C_TYPE_PCF8575
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
     #define ULTIPANEL
     #define NEWPANEL
-  #endif
 
-  // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
-  #if ENABLED(LCD_I2C_PANELOLU2)
+  #elif ENABLED(LCD_I2C_PANELOLU2)
+
+    // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
-
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
-
     #define ULTIPANEL
     #define NEWPANEL
-  #endif
 
-  // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
-  #if ENABLED(LCD_I2C_VIKI)
-    // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-    // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-    // Note: The pause/stop/resume LCD button pin should be connected to the Arduino
-    //       BTN_ENC pin (or set BTN_ENC to -1 if not used)
+  #elif ENABLED(LCD_I2C_VIKI)
+
+    /**
+     * Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+     *
+     * This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
+     * Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
+     * Note: The pause/stop/resume LCD button pin should be connected to the Arduino
+     *       BTN_ENC pin (or set BTN_ENC to -1 if not used)
+     */
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
@@ -176,6 +188,17 @@
     #endif
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 2
+    #endif
+  #endif
+
+  // Set encoder detents for well-known controllers
+  #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) || ENABLED(OLED_PANEL_TINYBOY2) \
+   || ENABLED(BQ_LCD_SMART_CONTROLLER) || ENABLED(LCD_I2C_PANELOLU2) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
   #endif
 
@@ -208,7 +231,7 @@
     #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 4
     #endif
-  #else //no panel but just LCD
+  #else // no panel but just LCD
     #if ENABLED(ULTRA_LCD)
       #ifndef LCD_WIDTH
         #define LCD_WIDTH 16
@@ -233,18 +256,22 @@
     #define LCD_STR_DEGREE      "\x09"
 
     #define LCD_STR_SPECIAL_MAX '\x09'
-    // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
+    // Maximum here is 0x1F because 0x20 is ' ' (space) and the normal charsets begin.
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+
+    // Symbol characters
+    #define LCD_STR_FILAM_DIA   "\xf8"
+    #define LCD_STR_FILAM_MUL   "\xa4"
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
-    #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
-    #define LCD_STR_DEGREE      "\x01"
-    #define LCD_STR_THERMOMETER "\x02"
-    #define LCD_STR_UPLEVEL     "\x03"
+    #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
+    #define LCD_DEGREE_CHAR      0x01
+    #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
+    #define LCD_UPLEVEL_CHAR     0x03
     #define LCD_STR_REFRESH     "\x04"
     #define LCD_STR_FOLDER      "\x05"
-    #define LCD_STR_FEEDRATE    "\x06"
-    #define LCD_STR_CLOCK       "\x07"
+    #define LCD_FEEDRATE_CHAR    0x06
+    #define LCD_CLOCK_CHAR       0x07
     #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
   #endif
 
@@ -274,8 +301,18 @@
     #endif
   #endif
 
-  #ifndef BOOTSCREEN_TIMEOUT
+  // Boot screens
+  #if DISABLED(ULTRA_LCD)
+    #undef SHOW_BOOTSCREEN
+  #elif !defined(BOOTSCREEN_TIMEOUT)
     #define BOOTSCREEN_TIMEOUT 2500
+  #endif
+
+  #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+
+  // MK2 Multiplexer forces SINGLENOZZLE to be enabled
+  #if ENABLED(MK2_MULTIPLEXER)
+    #define SINGLENOZZLE
   #endif
 
   /**
@@ -285,39 +322,38 @@
    *  EXTRUDERS    - Number of Selectable Tools
    *  HOTENDS      - Number of hotends, whether connected or separate
    *  E_STEPPERS   - Number of actual E stepper motors
+   *  E_MANUAL     - Number of E steppers for LCD move options
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
    *
    */
-  #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
-    #define HOTENDS      1
-    #define E_STEPPERS   EXTRUDERS
-    #define E_MANUAL     EXTRUDERS
-    #define TOOL_E_INDEX current_block->active_extruder
+  #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
+    #define HOTENDS       1
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
-  #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
-    #define HOTENDS      EXTRUDERS
-    #define E_STEPPERS   1
-    #define E_MANUAL     1
-    #define TOOL_E_INDEX 0
-    #ifndef HOTEND_OFFSET_Z
+  #else                                                         // Two hotends
+    #define HOTENDS       EXTRUDERS
+    #if ENABLED(SWITCHING_NOZZLE) && !defined(HOTEND_OFFSET_Z)
       #define HOTEND_OFFSET_Z { 0 }
     #endif
-  #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
-    #define HOTENDS      1
-    #define E_STEPPERS   MIXING_STEPPERS
-    #define E_MANUAL     1
-    #define TOOL_E_INDEX 0
-  #else                                 // One stepper, E axis, and hotend per tool
-    #define HOTENDS      EXTRUDERS
-    #define E_STEPPERS   EXTRUDERS
-    #define E_MANUAL     EXTRUDERS
-    #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // Unified E axis
+    #if ENABLED(MIXING_EXTRUDER)
+      #define E_STEPPERS  MIXING_STEPPERS
+    #else
+      #define E_STEPPERS  1                                     // One E stepper
+    #endif
+    #define E_MANUAL      1
+    #define TOOL_E_INDEX  0
+  #else
+    #define E_STEPPERS    EXTRUDERS
+    #define E_MANUAL      EXTRUDERS
+    #define TOOL_E_INDEX  current_block->active_extruder
   #endif
 
   /**
-   * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
+   * DISTINCT_E_FACTORS affects how some E factors are accessed
    */
   #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
     #define XYZE_N (XYZ + E_STEPPERS)
@@ -340,8 +376,13 @@
       #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
     #endif
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
-    #undef SERVO_DELAY
-    #define SERVO_DELAY 50
+    #if NUM_SERVOS == 1
+      #undef SERVO_DELAY
+      #define SERVO_DELAY { 50 }
+    #endif
+    #ifndef BLTOUCH_DELAY
+      #define BLTOUCH_DELAY 375
+    #endif
     #undef Z_SERVO_ANGLES
     #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
@@ -350,6 +391,10 @@
     #define BLTOUCH_SELFTEST 120
     #define BLTOUCH_RESET    160
     #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
+
+    // Always disable probe pin inverting for BLTouch
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
@@ -366,16 +411,27 @@
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
   /**
+   * UBL has its own manual probing, so this just causes trouble.
+   */
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #undef PROBE_MANUALLY
+  #endif
+
+  /**
    * Set a flag for any enabled probe
    */
-  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+  #define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE))
 
   /**
    * Clear probe pin settings when no probe is selected
    */
-  #if !PROBE_SELECTED
+  #if !PROBE_SELECTED || ENABLED(PROBE_MANUALLY)
     #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
     #undef Z_MIN_PROBE_ENDSTOP
   #endif
 
-#endif //CONDITIONALS_LCD_H
+  #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
+  #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
+  #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED))
+
+#endif // CONDITIONALS_LCD_H
