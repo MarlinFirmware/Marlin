@@ -5441,16 +5441,18 @@ void home_all_axes() { gcode_G28(true); }
             zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
             zero_std_dev_old = zero_std_dev,
             zero_std_dev_min = zero_std_dev,
-            e_old[XYZ] = {
+            e_old[ABC] = {
               endstop_adj[A_AXIS],
               endstop_adj[B_AXIS],
               endstop_adj[C_AXIS]
             },
             dr_old = delta_radius,
             zh_old = home_offset[Z_AXIS],
-            alpha_old = delta_tower_angle_trim[A_AXIS],
-            beta_old = delta_tower_angle_trim[B_AXIS],
-            gamma_old = delta_tower_angle_trim[C_AXIS];
+            ta_old[ABC] = {
+              delta_tower_angle_trim[A_AXIS],
+              delta_tower_angle_trim[B_AXIS],
+              delta_tower_angle_trim[C_AXIS]
+            };
 
       if (!_1p_calibration) {  // test if the outer radius is reachable
         const float circles = (_7p_quadruple_circle ? 1.5 :
@@ -5578,12 +5580,10 @@ void home_all_axes() { gcode_G28(true); }
             COPY(e_old, endstop_adj);
             dr_old = delta_radius;
             zh_old = home_offset[Z_AXIS];
-            alpha_old = delta_tower_angle_trim[A_AXIS];
-            beta_old = delta_tower_angle_trim[B_AXIS];
-            gamma_old = delta_tower_angle_trim[C_AXIS];
+            COPY(ta_old, delta_tower_angle_trim);
           }
 
-          float e_delta[XYZ] = { 0.0 }, r_delta = 0.0, t_alpha = 0.0, t_beta = 0.0, t_gamma = 0.0;
+          float e_delta[ABC] = { 0.0 }, r_delta = 0.0, t_delta[ABC] = { 0.0 };
           float r_diff = delta_radius - delta_calibration_radius,
                 h_factor = 1.00 + r_diff * 0.001,                            //1.02 for r_diff = 20mm
                 r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
@@ -5609,48 +5609,46 @@ void home_all_axes() { gcode_G28(true); }
 
             case 2:
               if (towers_set) {
-                e_delta[X_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
-                e_delta[Y_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
-                e_delta[Z_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
+                e_delta[A_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
+                e_delta[B_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
+                e_delta[C_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
                 r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
               else {
-                e_delta[X_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
-                e_delta[Y_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
-                e_delta[Z_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
+                e_delta[A_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
+                e_delta[B_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
+                e_delta[C_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
                 r_delta         = (Z6(0) - Z2(7) - Z2(11) - Z2(3)) * r_factor;
               }
               break;
 
             default:
-              e_delta[X_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
-              e_delta[Y_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
-              e_delta[Z_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
+              e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
+              e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
+              e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) {
-                t_alpha = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-                t_beta  = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-                t_gamma = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+                t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
               }
               break;
           }
 
           LOOP_XYZ(axis) endstop_adj[axis] += e_delta[axis];
           delta_radius += r_delta;
-          delta_tower_angle_trim[A_AXIS] += t_alpha;
-          delta_tower_angle_trim[B_AXIS] += t_beta;
-          delta_tower_angle_trim[C_AXIS] += t_gamma;
+          LOOP_XYZ(axis) delta_tower_angle_trim[axis] += t_delta[axis];
           
           // normalise angles
           float a_max = MAX3(delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[C_AXIS]),
                 a_min = MIN3(delta_tower_angle_trim[A_AXIS], delta_tower_angle_trim[B_AXIS], delta_tower_angle_trim[C_AXIS]);
-          LOOP_XYZ(i) delta_tower_angle_trim[i] -= (a_max + a_min)/2;
+          LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= (a_max + a_min)/2;
           
           // adjust delta_height and endstops by the max amount
           const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
           home_offset[Z_AXIS] -= z_temp;
-          LOOP_XYZ(i) endstop_adj[i] -= z_temp;
+          LOOP_XYZ(axis) endstop_adj[axis] -= z_temp;
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
@@ -5658,9 +5656,7 @@ void home_all_axes() { gcode_G28(true); }
           COPY(endstop_adj, e_old);
           delta_radius = dr_old;
           home_offset[Z_AXIS] = zh_old;
-          delta_tower_angle_trim[A_AXIS] = alpha_old;
-          delta_tower_angle_trim[B_AXIS] = beta_old;
-          delta_tower_angle_trim[C_AXIS] = gamma_old;
+          COPY(delta_tower_angle_trim, ta_old);
 
           recalc_delta_settings(delta_radius, delta_diagonal_rod);
         }
