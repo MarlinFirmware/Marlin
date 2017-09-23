@@ -5423,11 +5423,12 @@ void home_all_axes() { gcode_G28(true); }
 
       const bool towers_set           = parser.boolval('T', true),
                  stow_after_each      = parser.boolval('E'),
+                 _0p_calibration      = probe_points == 0,
                  _1p_calibration      = probe_points == 1,
                  _4p_calibration      = probe_points == 2,
                  _4p_towers_points    = _4p_calibration && towers_set,
                  _4p_opposite_points  = _4p_calibration && !towers_set,
-                 _7p_calibration      = probe_points >= 3 || probe_points == 0,
+                 _7p_calibration      = probe_points >= 3 || _0p_calibration,
                  _7p_half_circle      = probe_points == 3,
                  _7p_double_circle    = probe_points == 5,
                  _7p_triple_circle    = probe_points == 6,
