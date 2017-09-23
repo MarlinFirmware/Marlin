@@ -1,6 +1,8 @@
+import sys
+
 #dynamic build flags for generic compile options
 if __name__ == "__main__":
-  print " ".join([  "-std=gnu11",
+  args = " ".join([ "-std=gnu11",
                     "-std=gnu++11",
                     "-Os",
                     "-mcpu=cortex-m3",
@@ -10,19 +12,22 @@ if __name__ == "__main__":
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
 
-                    "-Wall",
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
 
-                    "-IMarlin/frameworks/CMSIS/LPC1768/include",
-                    "-IMarlin/frameworks/CMSIS/LPC1768/lib",
                     "-IMarlin/src/HAL",
+                    "-IMarlin/src/HAL/HAL_LPC1768/include",
 
                     "-MMD",
                     "-MP",
                     "-DTARGET_LPC1768",
                     "-DIS_REARM"
                   ])
+
+  for i in range(1, len(sys.argv)):
+    args += " " + sys.argv[i]
+
+  print args
 
 # extra script for linker options
 else:
@@ -46,6 +51,5 @@ else:
           "--specs=nano.specs",
           "--specs=nosys.specs",
           "-u_printf_float",
-          "-Wl,-TMarlin/frameworks/CMSIS/LPC1768/Re-ARM/LPC1768.ld,--gc-sections"
       ],
   )
