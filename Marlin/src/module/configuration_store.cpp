@@ -608,7 +608,9 @@ void MarlinSettings::postprocess() {
     #endif
 
     if (!eeprom_error) {
-      const int eeprom_size = eeprom_index;
+      #if ENABLED(EEPROM_CHITCHAT)
+        const int eeprom_size = eeprom_index;
+      #endif
 
       const uint16_t final_crc = working_crc;
 
