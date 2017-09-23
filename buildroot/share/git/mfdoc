@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# mfdoc
+#
+# Start Jekyll in watch mode to work on Marlin Documentation and preview locally
+#
+
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo "$@") || exit 1
+IFS=' ' read -a INFO <<< "$MFINFO"
+ORG=${INFO[0]}
+REPO=${INFO[2]}
+BRANCH=${INFO[5]}
+
+[[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
+
+opensite() {
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  URL="http://127.0.0.1:4000/"
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening preview site in the browser..."
+    "$TOOL" "$URL"
+  fi
+}
+
+echo "Previewing MarlinDocumentation..."
+
+# wait to open the url for about 8s
+( sleep 45; opensite ) &
+
+bundle exec jekyll serve --watch --incremental

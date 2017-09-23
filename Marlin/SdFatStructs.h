@@ -1,24 +1,33 @@
-/* Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino SdFat Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino SdFat Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino SdFat Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef SdFatStructs_h
 #define SdFatStructs_h
@@ -28,17 +37,17 @@
  * \file
  * \brief FAT file structures
  */
-/*
+/**
  * mostly from Microsoft document fatgen103.doc
  * http://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
  */
 //------------------------------------------------------------------------------
 /** Value for byte 510 of boot block or MBR */
-uint8_t const BOOTSIG0 = 0X55;
+uint8_t const BOOTSIG0 = 0x55;
 /** Value for byte 511 of boot block or MBR */
-uint8_t const BOOTSIG1 = 0XAA;
+uint8_t const BOOTSIG1 = 0xAA;
 /** Value for bootSignature field int FAT/FAT32 boot sector */
-uint8_t const EXTENDED_BOOT_SIG = 0X29;
+uint8_t const EXTENDED_BOOT_SIG = 0x29;
 //------------------------------------------------------------------------------
 /**
  * \struct partitionTable
@@ -50,14 +59,14 @@ uint8_t const EXTENDED_BOOT_SIG = 0X29;
 struct partitionTable {
           /**
            * Boot Indicator . Indicates whether the volume is the active
-           * partition.  Legal values include: 0X00. Do not use for booting.
-           * 0X80 Active partition.
+           * partition.  Legal values include: 0x00. Do not use for booting.
+           * 0x80 Active partition.
            */
   uint8_t  boot;
           /**
-            * Head part of Cylinder-head-sector address of the first block in
-            * the partition. Legal values are 0-255. Only used in old PC BIOS.
-            */
+           * Head part of Cylinder-head-sector address of the first block in
+           * the partition. Legal values are 0-255. Only used in old PC BIOS.
+           */
   uint8_t  beginHead;
           /**
            * Sector part of Cylinder-head-sector address of the first block in
@@ -117,9 +126,9 @@ struct masterBootRecord {
   uint16_t usuallyZero;
            /** Partition tables. */
   part_t   part[4];
-           /** First MBR signature byte. Must be 0X55 */
+           /** First MBR signature byte. Must be 0x55 */
   uint8_t  mbrSig0;
-           /** Second MBR signature byte. Must be 0XAA */
+           /** Second MBR signature byte. Must be 0xAA */
   uint8_t  mbrSig1;
 } PACKED;
 /** Type name for masterBootRecord */
@@ -225,7 +234,7 @@ struct fat_boot {
   uint8_t  driveNumber;
            /** used by Windows NT - should be zero for FAT */
   uint8_t  reserved1;
-           /** 0X29 if next three fields are valid */
+           /** 0x29 if next three fields are valid */
   uint8_t  bootSignature;
            /**
             * A random serial number created when formatting a disk,
@@ -245,9 +254,9 @@ struct fat_boot {
   char     fileSystemType[8];
            /** X86 boot code */
   uint8_t  bootCode[448];
-           /** must be 0X55 */
+           /** must be 0x55 */
   uint8_t  bootSectorSig0;
-           /** must be 0XAA */
+           /** must be 0xAA */
   uint8_t  bootSectorSig1;
 } PACKED;
 /** Type name for FAT Boot Sector */
@@ -337,10 +346,10 @@ struct fat32_boot {
            * Bits 0-3 -- Zero-based number of active FAT.
            *             Only valid if mirroring is disabled.
            * Bits 4-6 -- Reserved.
-           * Bit 7	-- 0 means the FAT is mirrored at runtime into all FATs.
-	         *        -- 1 means only one FAT is active; it is the one referenced
-	         *             in bits 0-3.
-           * Bits 8-15 	-- Reserved.
+           * Bit 7  -- 0 means the FAT is mirrored at runtime into all FATs.
+           *        -- 1 means only one FAT is active; it is the one referenced
+           *             in bits 0-3.
+           * Bits 8-15  -- Reserved.
            */
   uint16_t fat32Flags;
           /**
@@ -380,7 +389,7 @@ struct fat32_boot {
   uint8_t  driveNumber;
            /** used by Windows NT - should be zero for FAT */
   uint8_t  reserved1;
-           /** 0X29 if next three fields are valid */
+           /** 0x29 if next three fields are valid */
   uint8_t  bootSignature;
            /**
             * A random serial number created when formatting a disk,
@@ -399,9 +408,9 @@ struct fat32_boot {
   char     fileSystemType[8];
            /** X86 boot code */
   uint8_t  bootCode[420];
-           /** must be 0X55 */
+           /** must be 0x55 */
   uint8_t  bootSectorSig0;
-           /** must be 0XAA */
+           /** must be 0xAA */
   uint8_t  bootSectorSig1;
 } PACKED;
 /** Type name for FAT32 Boot Sector */
@@ -418,11 +427,11 @@ uint32_t const FSINFO_STRUCT_SIG = 0x61417272;
  *
  */
 struct fat32_fsinfo {
-           /** must be 0X52, 0X52, 0X61, 0X41 */
+           /** must be 0x52, 0x52, 0x61, 0x41 */
   uint32_t  leadSignature;
            /** must be zero */
   uint8_t  reserved1[480];
-           /** must be 0X72, 0X72, 0X41, 0X61 */
+           /** must be 0x72, 0x72, 0x41, 0x61 */
   uint32_t  structSignature;
           /**
            * Contains the last known free cluster count on the volume.
@@ -441,7 +450,7 @@ struct fat32_fsinfo {
   uint32_t nextFree;
            /** must be zero */
   uint8_t  reserved2[12];
-           /** must be 0X00, 0X00, 0X55, 0XAA */
+           /** must be 0x00, 0x00, 0x55, 0xAA */
   uint8_t  tailSignature[4];
 } PACKED;
 /** Type name for FAT32 FSINFO Sector */
@@ -449,48 +458,48 @@ typedef struct fat32_fsinfo fat32_fsinfo_t;
 //------------------------------------------------------------------------------
 // End Of Chain values for FAT entries
 /** FAT12 end of chain value used by Microsoft. */
-uint16_t const FAT12EOC = 0XFFF;
+uint16_t const FAT12EOC = 0xFFF;
 /** Minimum value for FAT12 EOC.  Use to test for EOC. */
-uint16_t const FAT12EOC_MIN = 0XFF8;
+uint16_t const FAT12EOC_MIN = 0xFF8;
 /** FAT16 end of chain value used by Microsoft. */
-uint16_t const FAT16EOC = 0XFFFF;
+uint16_t const FAT16EOC = 0xFFFF;
 /** Minimum value for FAT16 EOC.  Use to test for EOC. */
-uint16_t const FAT16EOC_MIN = 0XFFF8;
+uint16_t const FAT16EOC_MIN = 0xFFF8;
 /** FAT32 end of chain value used by Microsoft. */
-uint32_t const FAT32EOC = 0X0FFFFFFF;
+uint32_t const FAT32EOC = 0x0FFFFFFF;
 /** Minimum value for FAT32 EOC.  Use to test for EOC. */
-uint32_t const FAT32EOC_MIN = 0X0FFFFFF8;
+uint32_t const FAT32EOC_MIN = 0x0FFFFFF8;
 /** Mask a for FAT32 entry. Entries are 28 bits. */
-uint32_t const FAT32MASK = 0X0FFFFFFF;
+uint32_t const FAT32MASK = 0x0FFFFFFF;
 //------------------------------------------------------------------------------
 /**
  * \struct directoryEntry
  * \brief FAT short directory entry
  *
  * Short means short 8.3 name, not the entry size.
- *  
- * Date Format. A FAT directory entry date stamp is a 16-bit field that is 
+ *
+ * Date Format. A FAT directory entry date stamp is a 16-bit field that is
  * basically a date relative to the MS-DOS epoch of 01/01/1980. Here is the
- * format (bit 0 is the LSB of the 16-bit word, bit 15 is the MSB of the 
+ * format (bit 0 is the LSB of the 16-bit word, bit 15 is the MSB of the
  * 16-bit word):
- *   
- * Bits 9-15: Count of years from 1980, valid value range 0-127 
+ *
+ * Bits 9-15: Count of years from 1980, valid value range 0-127
  * inclusive (1980-2107).
- *   
+ *
  * Bits 5-8: Month of year, 1 = January, valid value range 1-12 inclusive.
  *
  * Bits 0-4: Day of month, valid value range 1-31 inclusive.
  *
  * Time Format. A FAT directory entry time stamp is a 16-bit field that has
- * a granularity of 2 seconds. Here is the format (bit 0 is the LSB of the 
+ * a granularity of 2 seconds. Here is the format (bit 0 is the LSB of the
  * 16-bit word, bit 15 is the MSB of the 16-bit word).
- *   
+ *
  * Bits 11-15: Hours, valid value range 0-23 inclusive.
- * 
+ *
  * Bits 5-10: Minutes, valid value range 0-59 inclusive.
- *      
+ *
  * Bits 0-4: 2-second count, valid value range 0-29 inclusive (0 - 58 seconds).
- *   
+ *
  * The valid time range is from Midnight 00:00:00 to 23:59:58.
  */
 struct directoryEntry {
@@ -514,7 +523,7 @@ struct directoryEntry {
   uint8_t  reservedNT;
           /**
            * The granularity of the seconds part of creationTime is 2 seconds
-           * so this field is a count of tenths of a second and its valid
+           * so this field is a count of tenths of a second and it's valid
            * value range is 0-199 inclusive. (WHG note - seems to be hundredths)
            */
   uint8_t  creationTimeTenths;
@@ -548,7 +557,7 @@ struct directoryEntry {
  *
  * directoryVFATEntries are found in the same list as normal directoryEntry.
  * But have the attribute field set to DIR_ATT_LONG_NAME.
- * 
+ *
  * Long filenames are saved in multiple directoryVFATEntries.
  * Each entry containing 13 UTF-16 characters.
  */
@@ -581,31 +590,31 @@ struct directoryVFATEntry {
 typedef struct directoryEntry dir_t;
 /** Type name for directoryVFATEntry */
 typedef struct directoryVFATEntry vfat_t;
-/** escape for name[0] = 0XE5 */
-uint8_t const DIR_NAME_0XE5 = 0X05;
+/** escape for name[0] = 0xE5 */
+uint8_t const DIR_NAME_0xE5 = 0x05;
 /** name[0] value for entry that is free after being "deleted" */
-uint8_t const DIR_NAME_DELETED = 0XE5;
+uint8_t const DIR_NAME_DELETED = 0xE5;
 /** name[0] value for entry that is free and no allocated entries follow */
-uint8_t const DIR_NAME_FREE = 0X00;
+uint8_t const DIR_NAME_FREE = 0x00;
 /** file is read-only */
-uint8_t const DIR_ATT_READ_ONLY = 0X01;
+uint8_t const DIR_ATT_READ_ONLY = 0x01;
 /** File should hidden in directory listings */
-uint8_t const DIR_ATT_HIDDEN = 0X02;
+uint8_t const DIR_ATT_HIDDEN = 0x02;
 /** Entry is for a system file */
-uint8_t const DIR_ATT_SYSTEM = 0X04;
+uint8_t const DIR_ATT_SYSTEM = 0x04;
 /** Directory entry contains the volume label */
-uint8_t const DIR_ATT_VOLUME_ID = 0X08;
+uint8_t const DIR_ATT_VOLUME_ID = 0x08;
 /** Entry is for a directory */
-uint8_t const DIR_ATT_DIRECTORY = 0X10;
+uint8_t const DIR_ATT_DIRECTORY = 0x10;
 /** Old DOS archive bit for backup support */
-uint8_t const DIR_ATT_ARCHIVE = 0X20;
+uint8_t const DIR_ATT_ARCHIVE = 0x20;
 /** Test value for long name entry.  Test is
   (d->attributes & DIR_ATT_LONG_NAME_MASK) == DIR_ATT_LONG_NAME. */
-uint8_t const DIR_ATT_LONG_NAME = 0X0F;
+uint8_t const DIR_ATT_LONG_NAME = 0x0F;
 /** Test mask for long name entry */
-uint8_t const DIR_ATT_LONG_NAME_MASK = 0X3F;
+uint8_t const DIR_ATT_LONG_NAME_MASK = 0x3F;
 /** defined attribute bits */
-uint8_t const DIR_ATT_DEFINED_BITS = 0X3F;
+uint8_t const DIR_ATT_DEFINED_BITS = 0x3F;
 /** Directory entry is part of a long name
  * \param[in] dir Pointer to a directory entry.
  *

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#
+# mfpr
+#
+# Make a PR of the current branch against RCBugFix or dev
+#
+
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo "$@") || exit 1
+IFS=' ' read -a INFO <<< "$MFINFO"
+ORG=${INFO[0]}
+FORK=${INFO[1]}
+REPO=${INFO[2]}
+TARG=${INFO[3]}
+BRANCH=${INFO[4]}
+OLDBRANCH=${INFO[5]}
+
+[[ $BRANCH == $TARG ]] && { echo "Can't create a PR from the PR Target ($BRANCH). Make a copy first." 1>&2 ; exit 1; }
+
+[[ $BRANCH != $OLDBRANCH ]] && { git checkout $BRANCH || exit 1; }
+
+# See if it's been pushed yet
+if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
+
+TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
+
+if [ -z "$TOOL" ]; then
+  echo "Can't find a tool to open the URL:"
+  echo $URL
+else
+  echo "Opening a New PR Form..."
+  "$TOOL" "$URL"
+fi
+
+[[ $BRANCH != $OLDBRANCH ]] && git checkout $OLDBRANCH
