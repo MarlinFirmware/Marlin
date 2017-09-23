@@ -215,7 +215,7 @@ void MarlinSettings::postprocess() {
   // Make sure delta kinematics are updated before refreshing the
   // planner position so the stepper counts will be set correctly.
   #if ENABLED(DELTA)
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
