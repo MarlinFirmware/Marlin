@@ -3093,7 +3093,7 @@ static void homeaxis(const AxisEnum axis) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("endstop_adj:");
       #endif
-      do_homing_move(axis, endstop_adj[axis] - 0.1);
+      do_homing_move(axis, endstop_adj[axis] - 0.1 * Z_HOME_DIR);
     }
 
   #else
@@ -8554,7 +8554,8 @@ inline void gcode_M205() {
     #endif
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
-        endstop_adj[i] = parser.value_linear_units();
+        if (parser.value_linear_units() * Z_HOME_DIR <= 0)         
+          endstop_adj[i] = parser.value_linear_units();
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPAIR("endstop_adj[", axis_codes[i]);
@@ -8568,10 +8569,6 @@ inline void gcode_M205() {
         SERIAL_ECHOLNPGM("<<< gcode_M666");
       }
     #endif
-    // normalize endstops so all are <=0; set the residue to delta height
-    const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
-    home_offset[Z_AXIS] -= z_temp;
-    LOOP_XYZ(i) endstop_adj[i] -= z_temp;
   }
 
 #elif IS_SCARA
