@@ -10097,15 +10097,14 @@ inline void gcode_M907() {
   #ifndef INVERT_CASE_LIGHT
     #define INVERT_CASE_LIGHT false
   #endif
-  int case_light_brightness;  // LCD routine wants INT
+  uint8_t case_light_brightness;  // LCD routine wants INT
   bool case_light_on;
 
   void update_case_light() {
     pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
-    uint8_t case_light_bright = (uint8_t)case_light_brightness;
     if (case_light_on) {
       if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
-        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
+        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness);
       }
       else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
     }
@@ -10139,7 +10138,7 @@ inline void gcode_M355() {
     }
     else {
       if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLN("Case light: on");
-      else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
+      else SERIAL_ECHOLNPAIR("Case light: ", (int)case_light_brightness);
     }
 
   #else
