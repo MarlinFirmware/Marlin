@@ -142,7 +142,7 @@
  * M140 - Set bed target temp. S<temp>
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
- * M150 - Set Status LED Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, or PCA9632)
+ * M150 - Set Status LED Color as R<red> U<green> B<blue> and <P>brightness. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, or PCA9632). Brightness is set for NEOPIXEL ONLY
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -8360,9 +8360,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
+   *       and Brightness       - Use P (for NEOPIXEL only)
    *
    * Always sets all 3 or 4 components. If a component is left out, set to 0.
-   *
+   *                                    If brightness is left out, no value changed
+   *       
    * Examples:
    *
    *   M150 R255       ; Turn LED red
@@ -8370,7 +8372,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
    *   M150 W          ; Turn LED white using a white LED
-   *
+   *   M150 P127       ; Set LED 50% brightness 
+   *   M150 P          ; Set LED full brightness 
    */
   inline void gcode_M150() {
     set_led_color(
@@ -8379,6 +8382,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+        #if ENABLED(NEOPIXEL_RGBW_LED)
+          , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+        #endif
       #endif
     );
   }
