@@ -42,4 +42,33 @@ void GcodeSuite::M207() {
   if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
 
+/**
+ * M208: Set firmware un-retraction values
+ *
+ *   S[+units]    retract_recover_length (in addition to M207 S*)
+ *   W[+units]    swap_retract_recover_length (multi-extruder)
+ *   F[units/min] retract_recover_feedrate_mm_s
+ *   R[units/min] swap_retract_recover_feedrate_mm_s
+ */
+void GcodeSuite::M208() {
+  if (parser.seen('S')) fwretract.retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+}
+
+/**
+ * M209: Enable automatic retract (M209 S1)
+ *   For slicers that don't support G10/11, reversed extrude-only
+ *   moves will be classified as retraction.
+ */
+void GcodeSuite::M209() {
+  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+    if (parser.seen('S')) {
+      fwretract.autoretract_enabled = parser.value_bool();
+      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
+    }
+  }
+}
+
 #endif // FWRETRACT

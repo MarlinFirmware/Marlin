@@ -22,16 +22,33 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if DISABLED(EMERGENCY_PARSER)
 
 #include "../gcode.h"
-#include "../../sd/cardreader.h"
+#include "../../Marlin.h" // for wait_for_heatup, kill, quickstop_stepper
 
 /**
- * M928: Start SD Write
+ * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
  */
-void GcodeSuite::M928() {
-  card.openLogFile(parser.string_arg);
+void GcodeSuite::M108() {
+  wait_for_heatup = false;
 }
 
-#endif // SDSUPPORT
+/**
+ * M112: Emergency Stop
+ */
+void GcodeSuite::M112() {
+  kill(PSTR(MSG_KILLED));
+}
+
+/**
+ * M410: Quickstop - Abort all planned moves
+ *
+ * This will stop the carriages mid-move, so most likely they
+ * will be out of sync with the stepper position after this.
+ */
+void GcodeSuite::M410() {
+  quickstop_stepper();
+}
+
+#endif // !EMERGENCY_PARSER
