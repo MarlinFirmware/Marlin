@@ -142,7 +142,7 @@
  * M140 - Set bed target temp. S<temp>
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
- * M150 - Set Status LED Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, or PCA9632)
+ * M150 - Set Status LED Color as R<red> U<green> B<blue> and <P>brightness. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, or PCA9632). Brightness is set for NEOPIXEL ONLY
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -979,8 +979,11 @@ void servo_init() {
 #if HAS_COLOR_LEDS
 
   #if ENABLED(NEOPIXEL_RGBW_LED)
-
-    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+    #if !ENABLED(NEOPIXEL_NOWHITE)
+      Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+    #else
+      Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+    #endif
 
     void set_neopixel_color(const uint32_t color) {
       for (uint16_t i = 0; i < pixels.numPixels(); ++i)
@@ -989,7 +992,7 @@ void servo_init() {
     }
 
     void setup_neopixel() {
-      pixels.setBrightness(255); // 0 - 255 range
+      pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
       pixels.begin();
       pixels.show(); // initialize to all off
 
@@ -1002,7 +1005,11 @@ void servo_init() {
         set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
         delay(2000);
       #endif
-      set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
+      #if !ENABLED(NEOPIXEL_NOWHITE)
+        set_neopixel_color(pixels.Color(0, 0, 0, 255));  // white
+      #else
+        set_neopixel_color(pixels.Color(255, 255, 255)); // white
+      #endif
     }
 
   #endif // NEOPIXEL_RGBW_LED
@@ -1012,6 +1019,7 @@ void servo_init() {
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , const uint8_t w = 0
         #if ENABLED(NEOPIXEL_RGBW_LED)
+          , const uint8_t p = 255
           , bool isSequence = false
         #endif
       #endif
@@ -1021,6 +1029,8 @@ void servo_init() {
 
       const uint32_t color = pixels.Color(r, g, b, w);
       static uint16_t nextLed = 0;
+
+      pixels.setBrightness(p);
 
       if (!isSequence)
         set_neopixel_color(color);
@@ -7549,9 +7559,14 @@ inline void gcode_M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue
+            set_led_color(255, 0, blue
             #if ENABLED(NEOPIXEL_RGBW_LED)
-              , 0, true
+              , 0, pixels.getBrightness()
+              #if ENABLED(NEOPIXEL_ISSEQ)
+                , true
+              #else
+                , false
+              #endif
             #endif
           );
         }
@@ -7590,7 +7605,11 @@ inline void gcode_M109() {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+        #if !ENABLED(NEOPIXEL_NOWHITE)
+          set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+        #else
+          set_led_color(255, 255, 255); // Set LEDs All On
+        #endif
       #else
         set_led_color(255, 255, 255); // Set LEDs All On
       #endif
@@ -7691,7 +7710,12 @@ inline void gcode_M109() {
             old_red = red;
             set_led_color(red, 0, 255
               #if ENABLED(NEOPIXEL_RGBW_LED)
-                , 0, true
+                , 0, pixels.getBrightness()
+                #if ENABLED(NEOPIXEL_ISSEQ)
+                  , true
+                #else
+                  , false
+                #endif
               #endif
             );
           }
@@ -8337,9 +8361,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
+   *       and Brightness       - Use P (for NEOPIXEL only)
    *
    * Always sets all 3 or 4 components. If a component is left out, set to 0.
-   *
+   *                                    If brightness is left out, no value changed
+   *       
    * Examples:
    *
    *   M150 R255       ; Turn LED red
@@ -8347,7 +8373,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
    *   M150 W          ; Turn LED white using a white LED
-   *
+   *   M150 P127       ; Set LED 50% brightness 
+   *   M150 P          ; Set LED full brightness 
    */
   inline void gcode_M150() {
     set_led_color(
@@ -8356,6 +8383,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+        #if ENABLED(NEOPIXEL_RGBW_LED)
+          , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+        #endif
       #endif
     );
   }
@@ -13609,4 +13639,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-

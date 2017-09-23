@@ -1576,7 +1576,12 @@
 #if ENABLED(NEOPIXEL_RGBW_LED)
   #define NEOPIXEL_PIN    4       // D4 (EXP2-5 on Printrboard)
   #define NEOPIXEL_PIXELS 3
-  //#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
+
+  #define NEOPIXEL_NOWHITE        // RGB olny - no White channel in LED strip e.g WS2812B
+  #define NEOPIXEL_BRIGHTNESS 255 // initial brightness
+  #define NEOPIXEL_ISSEQ          // sequence display for temperature change - LED by LED
+
+//#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
 #endif
 
 /**
