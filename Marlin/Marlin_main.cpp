@@ -7559,7 +7559,7 @@ inline void gcode_M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-            set_led_color(red, 0, 255
+            set_led_color(255, 0, blue
             #if ENABLED(NEOPIXEL_RGBW_LED)
               , 0, pixels.getBrightness()
               #if ENABLED(NEOPIXEL_ISSEQ)
@@ -7609,6 +7609,7 @@ inline void gcode_M109() {
           set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
         #else
           set_led_color(255, 255, 255); // Set LEDs All On
+        #endif
       #else
         set_led_color(255, 255, 255); // Set LEDs All On
       #endif
@@ -13638,4 +13639,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-
