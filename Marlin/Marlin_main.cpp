@@ -979,8 +979,11 @@ void servo_init() {
 #if HAS_COLOR_LEDS
 
   #if ENABLED(NEOPIXEL_RGBW_LED)
-
-    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+    #if !ENABLED(NEOPIXEL_NOWHITE)
+      Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+    #else
+      Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+    #endif
 
     void set_neopixel_color(const uint32_t color) {
       for (uint16_t i = 0; i < pixels.numPixels(); ++i)
@@ -989,7 +992,7 @@ void servo_init() {
     }
 
     void setup_neopixel() {
-      pixels.setBrightness(255); // 0 - 255 range
+      pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
       pixels.begin();
       pixels.show(); // initialize to all off
 
@@ -1002,7 +1005,11 @@ void servo_init() {
         set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
         delay(2000);
       #endif
-      set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
+      #if !ENABLED(NEOPIXEL_NOWHITE)
+        set_neopixel_color(pixels.Color(0, 0, 0, 255));  // white
+      #else
+        set_neopixel_color(pixels.Color(255, 255, 255)); // white
+      #endif
     }
 
   #endif // NEOPIXEL_RGBW_LED
@@ -1012,6 +1019,7 @@ void servo_init() {
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , const uint8_t w = 0
         #if ENABLED(NEOPIXEL_RGBW_LED)
+          , const uint8_t p = 255
           , bool isSequence = false
         #endif
       #endif
@@ -1021,6 +1029,8 @@ void servo_init() {
 
       const uint32_t color = pixels.Color(r, g, b, w);
       static uint16_t nextLed = 0;
+
+      pixels.setBrightness(p);
 
       if (!isSequence)
         set_neopixel_color(color);
@@ -7549,9 +7559,14 @@ inline void gcode_M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue
+            set_led_color(red, 0, 255
             #if ENABLED(NEOPIXEL_RGBW_LED)
-              , 0, true
+              , 0, pixels.getBrightness()
+              #if ENABLED(NEOPIXEL_ISSEQ)
+                , true
+              #else
+                , false
+              #endif
             #endif
           );
         }
@@ -7590,7 +7605,10 @@ inline void gcode_M109() {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
       #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+        #if !ENABLED(NEOPIXEL_NOWHITE)
+          set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+        #else
+          set_led_color(255, 255, 255); // Set LEDs All On
       #else
         set_led_color(255, 255, 255); // Set LEDs All On
       #endif
@@ -7691,7 +7709,12 @@ inline void gcode_M109() {
             old_red = red;
             set_led_color(red, 0, 255
               #if ENABLED(NEOPIXEL_RGBW_LED)
-                , 0, true
+                , 0, pixels.getBrightness()
+                #if ENABLED(NEOPIXEL_ISSEQ)
+                  , true
+                #else
+                  , false
+                #endif
               #endif
             );
           }
