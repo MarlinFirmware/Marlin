@@ -54,11 +54,8 @@
     if (parser.seen('B')) delta_calibration_radius       = parser.value_float();
     if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
-    if (parser.seen('Z')) { // rotate all 3 axis for Z = 0
-      delta_tower_angle_trim[A_AXIS] -= parser.value_float();
-      delta_tower_angle_trim[B_AXIS] -= parser.value_float();
-    }
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+    if (parser.seen('Z')) delta_tower_angle_trim[C_AXIS] = parser.value_float();
+    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
   }
 
 #elif IS_SCARA

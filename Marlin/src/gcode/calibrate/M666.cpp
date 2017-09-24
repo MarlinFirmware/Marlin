@@ -42,7 +42,8 @@
     #endif
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
-        delta_endstop_adj[i] = parser.value_linear_units();
+        const float v = parser.value_linear_units();
+        if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPAIR("delta_endstop_adj[", axis_codes[i]);
@@ -56,10 +57,6 @@
         SERIAL_ECHOLNPGM("<<< M666");
       }
     #endif
-    // normalize endstops so all are <=0; set the residue to delta height
-    const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-    home_offset[Z_AXIS] -= z_temp;
-    LOOP_XYZ(i) delta_endstop_adj[i] -= z_temp;
   }
 
 #elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
