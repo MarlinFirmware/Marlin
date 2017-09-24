@@ -32,7 +32,7 @@ extern float delta_endstop_adj[ABC],
              delta_diagonal_rod,
              delta_segments_per_second,
              delta_calibration_radius,
-             delta_tower_angle_trim[2];
+             delta_tower_angle_trim[ABC];
 
 extern float delta_tower[ABC][2],
              delta_diagonal_rod_2_tower[ABC],
@@ -42,7 +42,7 @@ extern float delta_tower[ABC][2],
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
-void recalc_delta_settings(float radius, float diagonal_rod);
+void recalc_delta_settings(const float radius, const float diagonal_rod, const float tower_angle_trim[ABC]);
 
 /**
  * Delta Inverse Kinematics

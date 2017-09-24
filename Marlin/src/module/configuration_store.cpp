@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V40"
+#define EEPROM_VERSION "V41"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V39 EEPROM Layout:
+ * V41 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -93,14 +93,14 @@
  *  329  G29 S     ubl.state.storage_slot           (int8_t)
  *
  * DELTA:                                           48 bytes
- *  348  M666 XYZ  delta_endstop_adj                      (float x3)
+ *  348  M666 XYZ  delta_endstop_adj                (float x3)
  *  360  M665 R    delta_radius                     (float)
  *  364  M665 L    delta_diagonal_rod               (float)
  *  368  M665 S    delta_segments_per_second        (float)
  *  372  M665 B    delta_calibration_radius         (float)
  *  376  M665 X    delta_tower_angle_trim[A]        (float)
  *  380  M665 Y    delta_tower_angle_trim[B]        (float)
- *  ---  M665 Z    delta_tower_angle_trim[C]        (float) is always 0.0
+ *  384  M665 Z    delta_tower_angle_trim[C]        (float)
  *
  * Z_DUAL_ENDSTOPS:                                 48 bytes
  *  348  M666 Z    endstops.z_endstop_adj           (float)
@@ -213,7 +213,7 @@ void MarlinSettings::postprocess() {
   // Make sure delta kinematics are updated before refreshing the
   // planner position so the stepper counts will be set correctly.
   #if ENABLED(DELTA)
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
@@ -415,16 +415,16 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
-    // 9 floats for DELTA / Z_DUAL_ENDSTOPS
+    // 10 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
-      EEPROM_WRITE(delta_endstop_adj);               // 3 floats
+      EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
       EEPROM_WRITE(delta_diagonal_rod);        // 1 float
       EEPROM_WRITE(delta_segments_per_second); // 1 float
       EEPROM_WRITE(delta_calibration_radius);  // 1 float
-      EEPROM_WRITE(delta_tower_angle_trim);    // 2 floats
+      EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
       dummy = 0.0f;
-      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 2; q--;) EEPROM_WRITE(dummy);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(endstops.z_endstop_adj);    // 1 float
       dummy = 0.0f;
@@ -804,14 +804,14 @@ void MarlinSettings::postprocess() {
       #endif // AUTO_BED_LEVELING_UBL
 
       #if ENABLED(DELTA)
-        EEPROM_READ(delta_endstop_adj);               // 3 floats
+        EEPROM_READ(delta_endstop_adj);         // 3 floats
         EEPROM_READ(delta_radius);              // 1 float
         EEPROM_READ(delta_diagonal_rod);        // 1 float
         EEPROM_READ(delta_segments_per_second); // 1 float
         EEPROM_READ(delta_calibration_radius);  // 1 float
-        EEPROM_READ(delta_tower_angle_trim);    // 2 floats
+        EEPROM_READ(delta_tower_angle_trim);    // 3 floats
         dummy = 0.0f;
-        for (uint8_t q=3; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=2; q--;) EEPROM_READ(dummy);
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(endstops.z_endstop_adj);    // 1 float
         dummy = 0.0f;
@@ -1199,8 +1199,7 @@ void MarlinSettings::reset() {
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
-    delta_tower_angle_trim[A_AXIS] = dta[A_AXIS] - dta[C_AXIS];
-    delta_tower_angle_trim[B_AXIS] = dta[B_AXIS] - dta[C_AXIS];
+    COPY(delta_tower_angle_trim, dta);
     home_offset[Z_AXIS] = 0;
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
@@ -1615,7 +1614,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" B", LINEAR_UNIT(delta_calibration_radius));
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(delta_tower_angle_trim[A_AXIS]));
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
-      SERIAL_ECHOPAIR(" Z", 0.00);
+      SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(delta_tower_angle_trim[C_AXIS]));
       SERIAL_EOL();
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       if (!forReplay) {

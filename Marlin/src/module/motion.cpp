@@ -1134,7 +1134,7 @@ void homeaxis(const AxisEnum axis) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("delta_endstop_adj:");
       #endif
-      do_homing_move(axis, delta_endstop_adj[axis] - 0.1);
+      do_homing_move(axis, delta_endstop_adj[axis] - 0.1 * Z_HOME_DIR);
     }
 
   #else
