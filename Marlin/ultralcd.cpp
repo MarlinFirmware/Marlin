@@ -1029,11 +1029,11 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        void _lcd_babystep_zoffset_overlay(float zprobe_zoffset) {
+        void _lcd_babystep_zoffset_overlay(const float zprobe_zoffset) {
           // Determine whether the user is raising or lowering the nozzle.
           static int dir = 0;
           static float old_zprobe_zoffset = 0;
-          if(zprobe_zoffset != old_zprobe_zoffset) {
+          if (zprobe_zoffset != old_zprobe_zoffset) {
             dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
             old_zprobe_zoffset = zprobe_zoffset;
           }
@@ -1047,21 +1047,21 @@ void kill_screen(const char* lcd_msg) {
           #endif
 
           #if ENABLED(USE_BIG_EDIT_FONT)
-            const int left   = 0;
-            const int right  = 45;
-            const int nozzle = 95;
+            const int left   = 0,
+                      right  = 45,
+                      nozzle = 95;
           #else
-            const int left   = 5;
-            const int right  = 90;
-            const int nozzle = 60;
+            const int left   = 5,
+                      right  = 90,
+                      nozzle = 60;
           #endif
 
           // Draw a representation of the nozzle
-          if(PAGE_CONTAINS(3,16))  u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_bmp);
-          if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+          if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
+          if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
 
           // Draw cw/ccw indicator and up/down arrows.
-          if(PAGE_CONTAINS(47,62)) {
+          if (PAGE_CONTAINS(47, 62)) {
             u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
             u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
             u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
