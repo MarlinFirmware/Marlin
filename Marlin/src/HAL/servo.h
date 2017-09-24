@@ -78,7 +78,7 @@
 #else
   #include <stdint.h>
 
-  #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAM)
+  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM)
     // we're good to go
   #else
     #error "This library only supports boards with an AVR or SAM3X processor."

@@ -45,7 +45,7 @@
 
 #include "stepper_indirection.h"
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
 

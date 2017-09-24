@@ -27,7 +27,7 @@
 
 //todo: HAL: breaks encapsulation
 // For AVR only, define a serial interface based on configuration
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #ifdef USBCON
     #include "HardwareSerial.h"
     #if ENABLED(BLUETOOTH)

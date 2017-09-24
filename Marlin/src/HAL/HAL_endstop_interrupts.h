@@ -34,7 +34,7 @@ FORCE_INLINE void endstop_ISR_worker( void ) {
 // One ISR for all EXT-Interrupts
 void endstop_ISR(void) { endstop_ISR_worker(); }
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
   #include "HAL_AVR/endstop_interrupts.h"
 

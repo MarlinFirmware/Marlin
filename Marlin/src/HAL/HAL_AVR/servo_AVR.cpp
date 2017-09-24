@@ -51,7 +51,7 @@
  *
  */
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -215,4 +215,4 @@ void finISR(timer16_Sequence_t timer) {
 
 #endif // HAS_SERVOS
 
-#endif // ARDUINO_ARCH_AVR
+#endif // __AVR__

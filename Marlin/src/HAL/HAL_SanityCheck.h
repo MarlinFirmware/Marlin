@@ -22,7 +22,7 @@
 
 #ifndef HAL_SANITYCHECK_H
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #include "HAL_DUE/SanityCheck_Due.h"

@@ -28,10 +28,10 @@
 /**
  * Description: HAL for AVR - SPI functions
  *
- * For ARDUINO_ARCH_AVR
+ * For __AVR__
  */
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
 // --------------------------------------------------------------------------
 // Includes
@@ -210,4 +210,4 @@ void spiBegin (void) {
 #endif  // SOFTWARE_SPI
 
 
-#endif // ARDUINO_ARCH_AVR
+#endif // __AVR__

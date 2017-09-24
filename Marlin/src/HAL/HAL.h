@@ -23,7 +23,7 @@
  *
  * Supports platforms :
  *    ARDUINO_ARCH_SAM : For Arduino Due and other boards based on Atmel SAM3X8E
- *    ARDUINO_ARCH_AVR : For all Atmel AVR boards
+ *    __AVR__ : For all Atmel AVR boards
  */
 
 #ifndef _HAL_H
@@ -77,7 +77,7 @@ void spiRead(uint8_t* buf, uint16_t nbyte);
 /** Write token and then write from 512 byte buffer to SPI (for SD card) */
 void spiSendBlock(uint8_t token, const uint8_t* buf);
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #include "HAL_AVR/HAL_AVR.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #define CPU_32_BIT

@@ -31,7 +31,7 @@
 #include "../../Configuration_adv.h"
 #include "../HAL/HAL.h"
 #include "../pins/pins.h"
-#if defined(ARDUINO_ARCH_AVR) && !defined(USBCON)
+#if defined(__AVR__) && !defined(USBCON)
   #define HardwareSerial_h // trick to disable the standard HWserial
 #endif
 #include "Conditionals_post.h"
