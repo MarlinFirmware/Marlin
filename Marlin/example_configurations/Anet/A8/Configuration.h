@@ -937,6 +937,9 @@
 
   #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
+  
+  #define AUTO_BED_LEVELING_UBL_GFX // Enable graphics showing direction on the UBL edit mesh screen
+  //#define UBL_ZPROBE_GFX_REVERSE  // Reverse the direction of the encoder wheel
 
 #elif ENABLED(MESH_BED_LEVELING)
 

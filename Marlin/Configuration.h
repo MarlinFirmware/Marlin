@@ -932,6 +932,8 @@
   //#define UBL_G26_MESH_VALIDATION // Enable G26 mesh validation
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
 
+  //#define ZPROBE_GFX_REVERSE      // Reverse the direction 
+  #define WANT_ZPROBE_GFX_OVERLAY   // Add graphics to UBL mesh edit as an overlay.
 #elif ENABLED(MESH_BED_LEVELING)
 
   //===========================================================================
