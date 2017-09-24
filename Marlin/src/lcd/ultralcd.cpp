@@ -1113,9 +1113,9 @@ void kill_screen(const char* lcd_msg) {
         }
         if (lcdDrawUpdate)
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
-					#if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-						_lcd_gfx_zoffset_overlay(zprobe_zoffset);
-					#endif
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+            _lcd_gfx_zoffset_overlay(zprobe_zoffset);
+          #endif
         }
 
     #else // !BABYSTEP_ZPROBE_OFFSET
