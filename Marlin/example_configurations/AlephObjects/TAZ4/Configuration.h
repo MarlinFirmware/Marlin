@@ -1598,6 +1598,9 @@
 #if ENABLED(NEOPIXEL_RGBW_LED)
   #define NEOPIXEL_PIN    4       // D4 (EXP2-5 on Printrboard)
   #define NEOPIXEL_PIXELS 3
+  #define NEOPIXEL_TYPE NEO_GRBW  // NEO_GRBW / NEO_GRB - four/three channel driver type (definned in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_ISSEQUENTIAL   // sequent display for temperature change - LED by LED
+  #define NEOPIXEL_BRIGHTNESS 255 // initial brightness 0-255
   //#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
 #endif
 
