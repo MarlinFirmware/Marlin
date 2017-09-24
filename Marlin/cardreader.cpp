@@ -532,7 +532,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || ELAPSED(millis(), next_autostart_ms)))
+  if (!force && (!autostart_stilltocheck || PENDING(millis(), next_autostart_ms)))
     return;
 
   autostart_stilltocheck = false;
