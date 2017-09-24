@@ -284,6 +284,12 @@
     #define LCD_STR_FOLDER      "\x05"
     #define LCD_FEEDRATE_CHAR    0x06
     #define LCD_CLOCK_CHAR       0x07
+    #define NOZZLE_CHAR					 0x08
+    #define OFFSET_BEDLINE_CHAR	 0x09
+    #define DOWN_ARROW_CHAR			 0x0a
+    #define UP_ARROW_CHAR				 0x0b
+    #define CW_CHAR							 0x0c
+    #define CCW_CHAR						 0x0d
     #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
   #endif
 

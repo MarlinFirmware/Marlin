@@ -305,6 +305,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
+  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !ENABLED(DOGLCD)
+  	#error "Need DOGLCD enabled for options BABYSTEP_ZPROBE_GFX_OVERLAY."
   #endif
 #endif
 
@@ -701,7 +703,9 @@ static_assert(1 >= 0
     static_assert(WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_2_Y can't be reached by the Z probe.");
     static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y can't be reached by the Z probe.");
   #endif
-
+  #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY) && !ENABLED(DOGLCD)
+  	#error "Need DOGLCD enabled for options MESH_EDIT_GFX_OVERLAY"
+  #endif
 #elif HAS_ABL
 
   /**

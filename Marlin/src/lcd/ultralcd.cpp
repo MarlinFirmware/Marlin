@@ -1009,7 +1009,65 @@ void kill_screen(const char* lcd_msg) {
       lcd_return_to_status();
     }
   #endif
+  
+  #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
+        void _lcd_gfx_zoffset_overlay(float zprobe_zoffset) {
+          // Determine whether the user is raising or lowering the nozzle.
+          static int dir = 0;
+          static float old_zprobe_zoffset = 0;
+          if(zprobe_zoffset != old_zprobe_zoffset) {
+            dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
+            old_zprobe_zoffset = zprobe_zoffset;
+          }
 
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE) || ENABLED(MESH_EDIT_GFX_OVERLAY_REVERSE)
+            const unsigned char* rot_up   = ccw_bmp;
+            const unsigned char* rot_down = cw_bmp;
+          #else
+            const unsigned char* rot_up   = cw_bmp;
+            const unsigned char* rot_down = ccw_bmp;
+          #endif
+
+          #if ENABLED(USE_BIG_EDIT_FONT)
+            const int left   = 0;
+            const int right  = 45;
+            const int nozzle = 95;
+          #else
+            const int left   = 5;
+            const int right  = 90;
+            const int nozzle = 60;
+          #endif
+					#if  ENABLED(DOGLCD)
+          	// Draw a representation of the nozzle
+	          //if(PAGE_CONTAINS(3,16))  
+	          u8g.drawBitmapP(nozzle + 6, 4 - (dir * 2),2,12,nozzle_bmp);
+  	        if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+
+    	      // Draw cw/ccw indicator and up/down arrows.
+      	    if(PAGE_CONTAINS(47,62)) {
+        	    u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+          	  u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+	            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+  	          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+    	      }
+					#else // DOGLCD
+					  //  this is needs work and testing..
+						lcd.setCursor(nozzle + 6, 4 - dir);
+						lcd.print((char)NOZZLE_CHAR);
+						lcd.setCursor(nozzle + 0, 20);
+						lcd.print((char)OFFSET_BEDLINE_CHAR);
+						lcd.setCursor(left + 0, 47);
+						lcd.print((char)CCW_CHAR);
+						lcd.setCursor(right + 0, 47);
+						lcd.print((char)CW_CHAR);
+						lcd.setCursor(right + 20, 48 - dir);
+						lcd.print((char)UP_ARROW_CHAR);
+						lcd.setCursor(left + 20, 49 - dir);
+						lcd.print((char)DOWN_ARROW_CHAR);
+					#endif
+        }
+  #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || ENABLE_MESH_EDIT_GFX_OVERLAY
+  
   #if ENABLED(BABYSTEPPING)
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
@@ -1024,7 +1082,7 @@ void kill_screen(const char* lcd_msg) {
       }
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(planner.steps_to_mm[axis] * babysteps_done));
-    }
+   }
 
     #if ENABLED(BABYSTEP_XY)
       void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
@@ -1056,7 +1114,10 @@ void kill_screen(const char* lcd_msg) {
         }
         if (lcdDrawUpdate)
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
-      }
+        	#if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+        		_lcd_gfx_zoffset_overlay(zprobe_zoffset);
+        	#endif
+        }
 
     #else // !BABYSTEP_ZPROBE_OFFSET
 
@@ -1088,10 +1149,13 @@ void kill_screen(const char* lcd_msg) {
         mesh_edit_value = float(rounded - (rounded % 5L)) / 1000.0;
       }
 
-      if (lcdDrawUpdate)
+      if (lcdDrawUpdate) {
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
+        #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
+          _lcd_gfx_zoffset_overlay(mesh_edit_value);
+        #endif   
+      }
     }
-
     void _lcd_mesh_edit_NOP() {
       defer_return_to_status = true;
     }

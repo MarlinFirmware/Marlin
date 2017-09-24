@@ -914,6 +914,9 @@
  */
 //#define DEBUG_LEVELING_FEATURE
 
+#define ENABLE_MESH_EDIT_GFX_OVERLAY  // enable a graphics overly while editing the mesh from auto-level
+//#define MESH_EDIT_GFX_OVERLAY_REVERSE //reverse direction of symbols used for mesh editing.
+
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
