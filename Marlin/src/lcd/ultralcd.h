@@ -219,7 +219,7 @@ void lcd_reset_status();
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
-    const byte cw_bmp[48] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char cw_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0x07,0xf8,0x00, // 000001111111100000000000
       0x0c,0x0c,0x00, // 000011000000110000000000
       0x10,0x02,0x00, // 000100000000001000000000
@@ -238,7 +238,7 @@ void lcd_reset_status();
       0x07,0xf8,0x00  // 000001111111100000000000
     };
 
-    const byte ccw_bmp[48] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char ccw_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0x01,0xfe,0x00, // 000000011111111000000000
       0x03,0x03,0x00, // 000000110000001100000000
       0x04,0x00,0x80, // 000001000000000010000000
@@ -258,7 +258,7 @@ void lcd_reset_status();
     };
 
 
-    const byte up_arrow_bmp[26] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char up_arrow_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0x06,0x00, // 000001100000
       0x0F,0x00, // 000011110000
       0x1F,0x80, // 000111111000
@@ -274,7 +274,7 @@ void lcd_reset_status();
       0x06,0x00  // 000001100000
     };
 
-    const byte down_arrow_bmp[26] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char down_arrow_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0x06,0x00, // 000001100000
       0x06,0x00, // 000001100000
       0x06,0x00, // 000001100000
@@ -290,11 +290,11 @@ void lcd_reset_status();
       0x06,0x00  // 000001100000
     };
 
-    const byte offset_bedline_bmp[3] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char offset_bedline_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0xFF,0xFF,0xFF // 111111111111111111111111
     };
 
-    const byte nozzle_bmp[24] PROGMEM = { //AVR-GCC, WinAVR
+    const unsigned char nozzle_bmp[] PROGMEM = { //AVR-GCC, WinAVR
       0x7F,0x80, // 0111111110000000
       0xFF,0xC0, // 1111111111000000
       0xFF,0xC0, // 1111111111000000
