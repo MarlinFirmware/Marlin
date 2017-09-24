@@ -1016,7 +1016,7 @@ void kill_screen(const char* lcd_msg) {
           static int dir = 0;
           static float old_zprobe_zoffset = 0;
           if(zprobe_zoffset != old_zprobe_zoffset) {
-            dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
+            dir = (zprobe_zoffset == old_zprobe_zoffset) ? 0 : (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
             old_zprobe_zoffset = zprobe_zoffset;
           }
 
@@ -1035,13 +1035,12 @@ void kill_screen(const char* lcd_msg) {
           #else
             const int left   = 5;
             const int right  = 90;
-            const int nozzle = 60;
+            const int nozzle = 55;
           #endif
 					#if  ENABLED(DOGLCD)
           	// Draw a representation of the nozzle
-	          //if(PAGE_CONTAINS(3,16))  
-	          u8g.drawBitmapP(nozzle + 6, 4 - (dir * 2),2,12,nozzle_bmp);
-  	        if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+	          if(PAGE_CONTAINS(3,16)) u8g.drawBitmapP(nozzle + 6, 15 - dir,2,12,nozzle_bmp);
+  	        if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,28,3,1,offset_bedline_bmp);
 
     	      // Draw cw/ccw indicator and up/down arrows.
       	    if(PAGE_CONTAINS(47,62)) {
@@ -1051,7 +1050,7 @@ void kill_screen(const char* lcd_msg) {
   	          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
     	      }
 					#else // DOGLCD
-					  //  this is needs work and testing..
+					  //  this needs work and testing..
 						lcd.setCursor(nozzle + 6, 4 - dir);
 						lcd.print((char)NOZZLE_CHAR);
 						lcd.setCursor(nozzle + 0, 20);

@@ -351,14 +351,6 @@ static void lcd_set_custom_characters(
   createChar_P(LCD_STR_THERMOMETER[0], thermometer);
   createChar_P(LCD_FEEDRATE_CHAR, feedrate);
   createChar_P(LCD_CLOCK_CHAR, clock);
-	#if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY) && !ENABLED(DOGLCD)
-		createChar_P(NOZZLE_CHAR, nozzle_bmp);
-		createChar_P(OFFSET_BEDLINE_CHAR, offset_bedline_bmp);
-		createChar_P(DOWN_ARROW_CHAR, down_arrow_bmp);
-		createChar_P(UP_ARROW_CHAR, up_arrow_bmp);
-		createChar_P(CW_CHAR, cw_bmp);
-		createChar_P(CCW_CHAR, ccw_bmp);
-	#endif
   #if ENABLED(SDSUPPORT)
     #if ENABLED(LCD_PROGRESS_BAR)
       static bool char_mode = false;
