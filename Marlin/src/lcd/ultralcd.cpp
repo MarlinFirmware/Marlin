@@ -1044,10 +1044,10 @@ void kill_screen(const char* lcd_msg) {
 
     	      // Draw cw/ccw indicator and up/down arrows.
       	    if(PAGE_CONTAINS(47,62)) {
-        	    u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
-          	  u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
-	            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
-  	          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+              u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+              u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+              u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+              u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
     	      }
           #else // DOGLCD
             //  this needs work and testing..
@@ -1111,12 +1111,13 @@ void kill_screen(const char* lcd_msg) {
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }
-        if (lcdDrawUpdate)
+        if (lcdDrawUpdate) {
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
             _lcd_gfx_zoffset_overlay(zprobe_zoffset);
           #endif
         }
+      }
 
     #else // !BABYSTEP_ZPROBE_OFFSET
 
