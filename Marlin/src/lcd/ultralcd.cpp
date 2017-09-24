@@ -1039,8 +1039,8 @@ void kill_screen(const char* lcd_msg) {
           #endif
 					#if  ENABLED(DOGLCD)
           	// Draw a representation of the nozzle
-	          if(PAGE_CONTAINS(3,16)) u8g.drawBitmapP(nozzle + 6, 15 - dir,2,12,nozzle_bmp);
-  	        if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,28,3,1,offset_bedline_bmp);
+            if(PAGE_CONTAINS(3,16)) u8g.drawBitmapP(nozzle + 6, 15 - dir,2,12,nozzle_bmp);
+            if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,28,3,1,offset_bedline_bmp);
 
     	      // Draw cw/ccw indicator and up/down arrows.
       	    if(PAGE_CONTAINS(47,62)) {
@@ -1049,21 +1049,21 @@ void kill_screen(const char* lcd_msg) {
 	            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
   	          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
     	      }
-					#else // DOGLCD
-					  //  this needs work and testing..
-						lcd.setCursor(nozzle + 6, 4 - dir);
-						lcd.print((char)NOZZLE_CHAR);
-						lcd.setCursor(nozzle + 0, 20);
-						lcd.print((char)OFFSET_BEDLINE_CHAR);
-						lcd.setCursor(left + 0, 47);
-						lcd.print((char)CCW_CHAR);
-						lcd.setCursor(right + 0, 47);
-						lcd.print((char)CW_CHAR);
-						lcd.setCursor(right + 20, 48 - dir);
-						lcd.print((char)UP_ARROW_CHAR);
-						lcd.setCursor(left + 20, 49 - dir);
-						lcd.print((char)DOWN_ARROW_CHAR);
-					#endif
+          #else // DOGLCD
+            //  this needs work and testing..
+            lcd.setCursor(nozzle + 6, 4 - dir);
+            lcd.print((char)NOZZLE_CHAR);
+            lcd.setCursor(nozzle + 0, 20);
+            lcd.print((char)OFFSET_BEDLINE_CHAR);
+            lcd.setCursor(left + 0, 47);
+            lcd.print((char)CCW_CHAR);
+            lcd.setCursor(right + 0, 47);
+            lcd.print((char)CW_CHAR);
+            lcd.setCursor(right + 20, 48 - dir);
+            lcd.print((char)UP_ARROW_CHAR);
+            lcd.setCursor(left + 20, 49 - dir);
+            lcd.print((char)DOWN_ARROW_CHAR);
+          #endif
         }
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || ENABLE_MESH_EDIT_GFX_OVERLAY
   
