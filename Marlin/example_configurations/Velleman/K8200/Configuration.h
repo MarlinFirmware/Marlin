@@ -787,6 +787,8 @@
 #define INVERT_E4_DIR true
 
 // @section homing
+//#define NO_MOTION_UNTIL_HOMED  // Inhibits movements if home is undone
+
 // K8200: it is usual to have clamps for the glass plate on the heatbed
 #define Z_HOMING_HEIGHT 4   // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                             // Be sure you have this distance over your Z_MAX_POS in case.
