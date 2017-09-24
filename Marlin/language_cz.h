@@ -24,7 +24,7 @@
  * Czech
  *
  * LCD Menu Messages
- * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
