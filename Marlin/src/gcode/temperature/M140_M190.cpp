@@ -25,8 +25,8 @@
 #if HAS_HEATER_BED && HAS_TEMP_BED
 
 #include "../gcode.h"
-#include "../../module/motion.h"
 #include "../../module/temperature.h"
+#include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -38,6 +38,14 @@
 #endif
 
 #include "../../Marlin.h" // for wait_for_heatup and idle()
+
+/**
+ * M140: Set bed temperature
+ */
+void GcodeSuite::M140() {
+  if (DEBUGGING(DRYRUN)) return;
+  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+}
 
 #ifndef MIN_COOLING_SLOPE_DEG_BED
   #define MIN_COOLING_SLOPE_DEG_BED 1.50

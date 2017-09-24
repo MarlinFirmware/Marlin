@@ -24,7 +24,7 @@
 
 #if HAS_CASE_LIGHT
 
-int case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+uint8_t case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
 bool case_light_on = CASE_LIGHT_DEFAULT_ON;
     
 #ifndef INVERT_CASE_LIGHT
@@ -33,7 +33,6 @@ bool case_light_on = CASE_LIGHT_DEFAULT_ON;
 
 void update_case_light() {
   SET_OUTPUT(CASE_LIGHT_PIN);
-  uint8_t case_light_bright = (uint8_t)case_light_brightness;
   if (case_light_on) {
     if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
       analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );

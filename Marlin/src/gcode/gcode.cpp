@@ -636,13 +636,14 @@ void GcodeSuite::process_next_command() {
         case 900: M900(); break;  // M900: Set advance K factor.
       #endif
 
-      case 907: M907(); break;      // M907: Set digital trimpot motor current using axis codes.
-
-      #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
-        case 908: M908(); break;    // M908: Control digital trimpot directly.
-        #if ENABLED(DAC_STEPPER_CURRENT) // As with Printrbot RevF
-          case 909: M909(); break;  // M909: Print digipot/DAC current value
-          case 910: M910(); break;  // M910: Commit digipot/DAC value to external EEPROM
+      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)
+        case 907: M907(); break;      // M907: Set digital trimpot motor current using axis codes.
+        #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+          case 908: M908(); break;    // M908: Control digital trimpot directly.
+          #if ENABLED(DAC_STEPPER_CURRENT) // As with Printrbot RevF
+            case 909: M909(); break;  // M909: Print digipot/DAC current value
+            case 910: M910(); break;  // M910: Commit digipot/DAC value to external EEPROM
+          #endif
         #endif
       #endif
 

@@ -44,4 +44,42 @@ void GcodeSuite::M163() {
   }
 }
 
+#if MIXING_VIRTUAL_TOOLS > 1
+
+  /**
+   * M164: Store the current mix factors as a virtual tool.
+   *
+   *   S[index]   The virtual tool to store
+   *
+   */
+  void GcodeSuite::M164() {
+    const int tool_index = parser.intval('S');
+    if (tool_index < MIXING_VIRTUAL_TOOLS) {
+      normalize_mix();
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+        mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
+    }
+  }
+
+#endif // MIXING_VIRTUAL_TOOLS > 1
+
+#if ENABLED(DIRECT_MIXING_IN_G1)
+
+  /**
+   * M165: Set multiple mix factors for a mixing extruder.
+   *       Factors that are left out will be set to 0.
+   *       All factors together must add up to 1.0.
+   *
+   *   A[factor] Mix factor for extruder stepper 1
+   *   B[factor] Mix factor for extruder stepper 2
+   *   C[factor] Mix factor for extruder stepper 3
+   *   D[factor] Mix factor for extruder stepper 4
+   *   H[factor] Mix factor for extruder stepper 5
+   *   I[factor] Mix factor for extruder stepper 6
+   *
+   */
+  void GcodeSuite::M165() { gcode_get_mix(); }
+
+#endif // DIRECT_MIXING_IN_G1
+
 #endif // MIXING_EXTRUDER

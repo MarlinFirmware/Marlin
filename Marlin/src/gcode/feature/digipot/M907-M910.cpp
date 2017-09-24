@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../inc/MarlinConfig.h"
+
+#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)
+
 #include "../../gcode.h"
 
 #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
@@ -73,3 +77,34 @@ void GcodeSuite::M907() {
     LOOP_XYZE(i) if (parser.seen(axis_codes[i])) dac_current_percent(i, parser.value_float());
   #endif
 }
+
+#if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+
+  /**
+   * M908: Control digital trimpot directly (M908 P<pin> S<current>)
+   */
+  void GcodeSuite::M908() {
+    #if HAS_DIGIPOTSS
+      stepper.digitalPotWrite(
+        parser.intval('P'),
+        parser.intval('S')
+      );
+    #endif
+    #if ENABLED(DAC_STEPPER_CURRENT)
+      dac_current_raw(
+        parser.byteval('P', -1),
+        parser.ushortval('S', 0)
+      );
+    #endif
+  }
+
+#endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
+
+#if ENABLED(DAC_STEPPER_CURRENT)
+
+  void GcodeSuite::M909() { dac_print_values(); }
+  void GcodeSuite::M910() { dac_commit_eeprom(); }
+
+#endif // DAC_STEPPER_CURRENT
+
+#endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT || HAS_MOTOR_CURRENT_PWM || DIGIPOT_I2C

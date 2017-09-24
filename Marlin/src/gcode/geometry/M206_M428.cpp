@@ -31,6 +31,27 @@
 #include "../../Marlin.h" // for axis_homed
 
 /**
+ * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
+ *
+ * *** @thinkyhead: I recommend deprecating M206 for SCARA in favor of M665.
+ * ***              M206 for SCARA will remain enabled in 1.1.x for compatibility.
+ * ***              In the 2.0 release, it will simply be disabled by default.
+ */
+void GcodeSuite::M206() {
+  LOOP_XYZ(i)
+    if (parser.seen(axis_codes[i]))
+      set_home_offset((AxisEnum)i, parser.value_linear_units());
+
+  #if ENABLED(MORGAN_SCARA)
+    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_linear_units()); // Theta
+    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_linear_units()); // Psi
+  #endif
+
+  SYNC_PLAN_POSITION_KINEMATIC();
+  report_current_position();
+}
+
+/**
  * M428: Set home_offset based on the distance between the
  *       current_position and the nearest "reference point."
  *       If an axis is past center its endstop position

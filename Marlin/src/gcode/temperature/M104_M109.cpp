@@ -22,6 +22,7 @@
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
+#include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../lcd/ultralcd.h"
 #include "../../Marlin.h"
@@ -30,13 +31,53 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE)
-  #include "../../module/motion.h"
-#endif
-
 #if HAS_COLOR_LEDS
   #include "../../feature/leds/leds.h"
 #endif
+
+/**
+ * M104: Set hot end temperature
+ */
+void GcodeSuite::M104() {
+  if (get_target_extruder_from_command()) return;
+  if (DEBUGGING(DRYRUN)) return;
+
+  const uint8_t e = target_extruder;
+
+  #if ENABLED(SINGLENOZZLE)
+    if (e != active_extruder) return;
+  #endif
+
+  if (parser.seenval('S')) {
+    const int16_t temp = parser.value_celsius();
+    thermalManager.setTargetHotend(temp, e);
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && e == 0)
+        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
+    #endif
+
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      /**
+       * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
+       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
+       * standby mode, for instance in a dual extruder setup, without affecting
+       * the running print timer.
+       */
+      if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
+        print_job_timer.stop();
+        LCD_MESSAGEPGM(WELCOME_MSG);
+      }
+    #endif
+
+    if (parser.value_celsius() > thermalManager.degHotend(e))
+      lcd_status_printf_P(0, PSTR("E%i %s"), e + 1, MSG_HEATING);
+  }
+
+  #if ENABLED(AUTOTEMP)
+    planner.autotemp_M104_M109();
+  #endif
+}
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.

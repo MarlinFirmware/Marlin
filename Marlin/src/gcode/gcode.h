@@ -706,13 +706,14 @@ private:
     #endif
   #endif
 
-  static void M907();
-
-  #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
-    static void M908();
-    #if ENABLED(DAC_STEPPER_CURRENT)
-      static void M909();
-      static void M910();
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)
+    static void M907();
+    #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+      static void M908();
+      #if ENABLED(DAC_STEPPER_CURRENT)
+        static void M909();
+        static void M910();
+      #endif
     #endif
   #endif
 

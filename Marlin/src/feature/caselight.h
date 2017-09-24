@@ -23,7 +23,7 @@
 #ifndef __CASELIGHT_H__
 #define __CASELIGHT_H__
 
-extern int case_light_brightness;  // LCD routine wants INT
+extern uint8_t case_light_brightness;
 extern bool case_light_on;
 
 void update_case_light();

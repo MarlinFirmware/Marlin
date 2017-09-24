@@ -20,36 +20,34 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
-
-#if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
-
-#include "../../gcode.h"
-
-#if HAS_DIGIPOTSS
-  #include "../../../module/stepper.h"
-#endif
-
-#if ENABLED(DAC_STEPPER_CURRENT)
-  #include "../../../feature/dac/stepper_dac.h"
-#endif
+#include "../gcode.h"
+#include "../../module/printcounter.h"
 
 /**
- * M908: Control digital trimpot directly (M908 P<pin> S<current>)
+ * M75: Start print timer
  */
-void GcodeSuite::M908() {
-  #if HAS_DIGIPOTSS
-    stepper.digitalPotWrite(
-      parser.intval('P'),
-      parser.intval('S')
-    );
-  #endif
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    dac_current_raw(
-      parser.byteval('P', -1),
-      parser.ushortval('S', 0)
-    );
-  #endif
+void GcodeSuite::M75() { print_job_timer.start(); }
+
+/**
+ * M76: Pause print timer
+ */
+void GcodeSuite::M76() { print_job_timer.pause(); }
+
+/**
+ * M77: Stop print timer
+ */
+void GcodeSuite::M77() { print_job_timer.stop(); }
+
+#if ENABLED(PRINTCOUNTER)
+
+/**
+ * M78: Show print statistics
+ */
+void GcodeSuite::M78() {
+  if (parser.intval('S') == 78)   // "M78 S78" will reset the statistics
+    print_job_timer.initStats();
+  else
+    print_job_timer.showStats();
 }
 
-#endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
+#endif // PRINTCOUNTER
