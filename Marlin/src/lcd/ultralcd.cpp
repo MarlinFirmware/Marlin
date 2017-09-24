@@ -1081,7 +1081,7 @@ void kill_screen(const char* lcd_msg) {
       }
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(planner.steps_to_mm[axis] * babysteps_done));
-   }
+    }
 
     #if ENABLED(BABYSTEP_XY)
       void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
