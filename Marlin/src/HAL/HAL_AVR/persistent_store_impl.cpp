@@ -1,4 +1,4 @@
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
 #include "../persistent_store_api.h"
 
@@ -52,4 +52,4 @@ void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
 }
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_AVR
+#endif // __AVR__

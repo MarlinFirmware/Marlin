@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -58,4 +58,4 @@ void watchdog_init() {
 #endif // WATCHDOG_RESET_MANUAL
 
 #endif // USE_WATCHDOG
-#endif // ARDUINO_ARCH_AVR
+#endif // __AVR__

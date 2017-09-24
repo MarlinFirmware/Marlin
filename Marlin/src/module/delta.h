@@ -63,7 +63,7 @@ void recalc_delta_settings(float radius, float diagonal_rod);
  *   (see above)
  */
 
-#if ENABLED(DELTA_FAST_SQRT) && defined(ARDUINO_ARCH_AVR)
+#if ENABLED(DELTA_FAST_SQRT) && defined(__AVR__)
   /**
    * Fast inverse sqrt from Quake III Arena
    * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root

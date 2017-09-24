@@ -23,11 +23,11 @@
 /**
  * Description: HAL for AVR
  *
- * For ARDUINO_ARCH_AVR
+ * For __AVR__
  */
 
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
 
 // --------------------------------------------------------------------------
 // Includes

@@ -1081,7 +1081,7 @@ void Temperature::init() {
   #endif
 
   // todo: HAL: fix abstraction
-  #ifdef ARDUINO_ARCH_AVR
+  #ifdef __AVR__
     // Use timer0 for temperature measurement
     // Interleave temperature interrupt with millies interrupt
     OCR0B = 128;

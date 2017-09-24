@@ -23,7 +23,7 @@
 #ifndef HAL_PINSDEBUG_H
 #define HAL_PINSDEBUG_H
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #include "HAL_AVR/pinsDebug_AVR_8_bit.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #include "HAL_DUE/HAL_pinsDebug_Due.h"

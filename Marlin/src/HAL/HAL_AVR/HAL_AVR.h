@@ -22,7 +22,7 @@
 /**
  * Description: HAL for AVR
  *
- * For ARDUINO_ARCH_AVR
+ * For __AVR__
  */
 
 

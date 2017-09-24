@@ -29,7 +29,7 @@
 #elif defined(IS_32BIT_TEENSY)
   #include "HAL_TEENSY35_36/spi_pins.h"
 
-#elif defined(ARDUINO_ARCH_AVR)
+#elif defined(__AVR__)
   #include "HAL_AVR/spi_pins.h"
 
 #elif defined(TARGET_LPC1768)

@@ -46,7 +46,7 @@
 
 #include "stepper.h"
 
-#ifdef ARDUINO_ARCH_AVR
+#ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
 
@@ -1139,7 +1139,7 @@ void Stepper::init() {
     E_AXIS_INIT(4);
   #endif
 
-  #ifdef ARDUINO_ARCH_AVR
+  #ifdef __AVR__
     // waveform generation = 0100 = CTC
     SET_WGM(1, CTC_OCRnA);
 
