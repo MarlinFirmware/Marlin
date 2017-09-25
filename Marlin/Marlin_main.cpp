@@ -5365,17 +5365,17 @@ void home_all_axes() { gcode_G28(true); }
     inline void print_G33_settings(const bool end_stops, const bool tower_angles){
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (end_stops) {
-        print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
-        print_signed_float(PSTR("Ey"), endstop_adj[B_AXIS]);
-        print_signed_float(PSTR("Ez"), endstop_adj[C_AXIS]);
+        print_signed_float(PSTR("   Ex"), endstop_adj[A_AXIS]);
+        print_signed_float(PSTR(" Ey"), endstop_adj[B_AXIS]);
+        print_signed_float(PSTR(" Ez"), endstop_adj[C_AXIS]);
         SERIAL_PROTOCOLPAIR("    Radius:", delta_radius);
       }
       SERIAL_EOL();
       if (tower_angles) {
         SERIAL_PROTOCOLPGM(".Tower angle :  ");
-        print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
-        print_signed_float(PSTR("Ty"), delta_tower_angle_trim[B_AXIS]);
-        print_signed_float(PSTR("Tz"), delta_tower_angle_trim[C_AXIS]);
+        print_signed_float(PSTR(" Tx"), delta_tower_angle_trim[A_AXIS]);
+        print_signed_float(PSTR(" Ty"), delta_tower_angle_trim[B_AXIS]);
+        print_signed_float(PSTR(" Tz"), delta_tower_angle_trim[C_AXIS]);
         SERIAL_EOL();
       }
     }
@@ -5521,7 +5521,7 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_0p_calibration){
-          if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
+          if (!_7p_half_circle && !_7p_triple_circle) { // probe center (P1=1, 2=1, 3=0, 4=1, 5=1, 6=0, 7=1)
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(0, 0);
             #else
@@ -5529,7 +5529,7 @@ void home_all_axes() { gcode_G28(true); }
               if (isnan(z_at_pt[0])) return G33_CLEANUP();
             #endif
           }
-          if (_7p_calibration) { // probe extra center points
+          if (_7p_calibration) { // probe extra center points (P1=0, 2=0, 3=3, 4=3, 5=6, 6=6, 7=6)
             for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
               const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
               #if ENABLED(PROBE_MANUALLY)
@@ -5541,7 +5541,7 @@ void home_all_axes() { gcode_G28(true); }
             }
             z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
           }
-          if (!_1p_calibration) {  // probe the radius
+          if (!_1p_calibration) {  // probe the radius points (P1=0, 2=3, 3=6, 4=12, 5=18, 6=30, 7=42)
             bool zig_zag = true;
             const uint8_t start = _4p_opposite_points ? 3 : 1,
                            step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
@@ -5564,16 +5564,12 @@ void home_all_axes() { gcode_G28(true); }
               z_at_pt[axis] /= (2 * offset_circles + 1);
             }
           }
-          if (_7p_intermed_points) // average intermediates to tower and opposites
-            for (uint8_t axis = 1; axis < 13; axis += 2)
-              z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
-
         }
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
         int16_t N = 1;
-        if (!_1p_calibration) // std dev from zero plane
-          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < 13; axis += (_4p_calibration ? 4 : 2)) {
+        if (!_1p_calibration) // std dev from zero plane (4p - 7p)
+          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < 13; axis += (_4p_calibration ? 4 : _7p_half_circle ? 2 : 1)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5581,7 +5577,7 @@ void home_all_axes() { gcode_G28(true); }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
-        // Solve matrices
+        // Solve matrices (see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
 
         if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
           if (zero_std_dev < zero_std_dev_min) {
@@ -5600,10 +5596,12 @@ void home_all_axes() { gcode_G28(true); }
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z6(I) ZP(6, I)
           #define Z4(I) ZP(4, I)
+          #define Z3(I) ZP(3, I)
           #define Z2(I) ZP(2, I)
           #define Z1(I) ZP(1, I)
           h_factor /= 6.00;
           r_factor /= 6.00;
+          a_factor /= 3.00;
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
@@ -5612,17 +5610,17 @@ void home_all_axes() { gcode_G28(true); }
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
-              LOOP_XYZ(axis) e_delta[axis] = Z1(0);
+              LOOP_XYZ(axis) e_delta[axis] = Z1(0); // 1 point calibration
               break;
 
             case 2:
-              if (towers_set) {
+              if (towers_set) { // 4 point calibration matrix
                 e_delta[A_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
                 r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
-              else {
+              else { // 4 point opposite calibration matrix
                 e_delta[A_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
@@ -5630,16 +5628,29 @@ void home_all_axes() { gcode_G28(true); }
               }
               break;
 
-            default:
+            case 3: // 7 point calibration matrix
               e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
               e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
               e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
+              if (towers_set) { // tower angle calibration matrix
+                t_delta[A_AXIS] = (       - Z3(5) + Z3(9)         - Z3(11) + Z3(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z3(1)         - Z3(9) + Z3(7)          - Z3(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z3(1) + Z3(5)         - Z3(7) + Z3(11)        ) * a_factor;
+              }
+              break;
+
+            default: (7 point + 7 point intermediate)/2 calibration matrix
+              e_delta[A_AXIS] = ((Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) + (Z6(0) + Z2(2) - Z2(6)          - Z2(8) + Z2(12)        )) / 2.0 * h_factor;
+              e_delta[B_AXIS] = ((Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) + (Z6(0)         + Z2(6) - Z2(10)         - Z2(12) + Z2(4))) / 2.0 * h_factor;
+              e_delta[C_AXIS] = ((Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) + (Z6(0) - Z2(2)         + Z2(10) + Z2(8)          - Z2(4))) / 2.0 * h_factor;
+              r_delta         = ((Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) + (Z6(0) - Z1(2) - Z1(6) - Z1(10) - Z1(8) - Z1(12) - Z1(4))) / 2.0 * r_factor;
+
               if (towers_set) {
-                t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-                t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-                t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+                t_delta[A_AXIS] = ((        - Z3(5) + Z3(9)         - Z3(11) + Z3(3)) + (  Z4(2) - Z4(6)          + Z4(8) - Z4(12)        )) / 2.0 * a_factor;
+                t_delta[B_AXIS] = ((  Z3(1)         - Z3(9) + Z3(7)          - Z3(3)) + (        + Z4(6) - Z4(10)         + Z4(12) - Z4(4))) / 2.0 * a_factor;
+                t_delta[C_AXIS] = ((- Z3(1) + Z3(5)         - Z3(7) + Z3(11)        ) + (- Z4(2)         + Z4(10) - Z4(8)          + Z4(4))) / 2.0 * a_factor;
               }
               break;
           }
@@ -5675,9 +5686,9 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOLPGM(".    ");
           print_signed_float(PSTR("c"), z_at_pt[0]);
           if (_4p_towers_points || _7p_calibration) {
-            print_signed_float(PSTR("   x"), z_at_pt[1]);
-            print_signed_float(PSTR(" y"), z_at_pt[5]);
-            print_signed_float(PSTR(" z"), z_at_pt[9]);
+            print_signed_float(PSTR("    x"), z_at_pt[1]);
+            print_signed_float(PSTR("  y"), z_at_pt[5]);
+            print_signed_float(PSTR("  z"), z_at_pt[9]);
           }
           if (!_4p_opposite_points) SERIAL_EOL();
           if ((_4p_opposite_points) || _7p_calibration) {
@@ -5685,16 +5696,30 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_CHAR('.');
               SERIAL_PROTOCOL_SP(13);
             }
-            print_signed_float(PSTR("  yz"), z_at_pt[7]);
-            print_signed_float(PSTR("zx"), z_at_pt[11]);
-            print_signed_float(PSTR("xy"), z_at_pt[3]);
+            print_signed_float(PSTR("   yz"), z_at_pt[7]);
+            print_signed_float(PSTR(" zx"), z_at_pt[11]);
+            print_signed_float(PSTR(" xy"), z_at_pt[3]);
+            SERIAL_EOL();
+          }
+          if (_7p_intermed_points){
+            SERIAL_CHAR('.');
+            SERIAL_PROTOCOL_SP(13);
+            print_signed_float(PSTR("  xxy"), z_at_pt[2]);
+            print_signed_float(PSTR("yyz"), z_at_pt[6]);
+            print_signed_float(PSTR("zzx"), z_at_pt[10]);            
+            SERIAL_EOL();
+            SERIAL_CHAR('.');
+            SERIAL_PROTOCOL_SP(13);
+            print_signed_float(PSTR("  xzx"), z_at_pt[12]);
+            print_signed_float(PSTR("yxy"), z_at_pt[8]);
+            print_signed_float(PSTR("zyz"), z_at_pt[4]);            
             SERIAL_EOL();
           }
         }
         if (verbose_level != 0) {                                    // !dry run
           if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
-            SERIAL_PROTOCOL_SP(36);
+            SERIAL_PROTOCOL_SP(39);
             #if DISABLED(PROBE_MANUALLY)
               if (zero_std_dev >= test_precision && !_1p_calibration)
                 SERIAL_PROTOCOLPGM("rolling back.");
@@ -5723,7 +5748,7 @@ void home_all_axes() { gcode_G28(true); }
             else
               sprintf_P(mess, PSTR("No convergence"));
             SERIAL_PROTOCOL(mess);
-            SERIAL_PROTOCOL_SP(36);
+            SERIAL_PROTOCOL_SP(39);
             SERIAL_PROTOCOLPGM("std dev:");
             SERIAL_PROTOCOL_F(zero_std_dev, 3);
             SERIAL_EOL();
@@ -5734,7 +5759,7 @@ void home_all_axes() { gcode_G28(true); }
         else {                                                       // dry run
           const char *enddryrun = PSTR("End DRY-RUN");
           serialprintPGM(enddryrun);
-          SERIAL_PROTOCOL_SP(39);
+          SERIAL_PROTOCOL_SP(42);
           SERIAL_PROTOCOLPGM("std dev:");
           SERIAL_PROTOCOL_F(zero_std_dev, 3);
           SERIAL_EOL();
