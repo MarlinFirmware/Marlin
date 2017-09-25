@@ -790,6 +790,12 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(LCD_WIDTH - 8, 1);
     _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
     lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
+    if (leveling_is_active())
+      lcd.write('_'); //leveling flag
+    else if (blink)
+      lcd.write(' ');
+    else
+      lcd.write('_');
 
   #endif // LCD_HEIGHT > 2
 
