@@ -5521,7 +5521,7 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
         if (!_0p_calibration){
-          if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
+          if (!_7p_half_circle && !_7p_triple_circle) { // probe center (P1=1, 2=1, 3=0, 4=1, 5=1, 6=0, 7=1)
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(0, 0);
             #else
@@ -5529,7 +5529,7 @@ void home_all_axes() { gcode_G28(true); }
               if (isnan(z_at_pt[0])) return G33_CLEANUP();
             #endif
           }
-          if (_7p_calibration) { // probe extra center points
+          if (_7p_calibration) { // probe extra center points (P1=0, 2=0, 3=3, 4=3, 5=6, 6=6, 7=6)
             for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
               const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
               #if ENABLED(PROBE_MANUALLY)
@@ -5541,7 +5541,7 @@ void home_all_axes() { gcode_G28(true); }
             }
             z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
           }
-          if (!_1p_calibration) {  // probe the radius
+          if (!_1p_calibration) {  // probe the radius points (P1=0, 2=3, 3=6, 4=12, 5=18, 6=30, 7=42)
             bool zig_zag = true;
             const uint8_t start = _4p_opposite_points ? 3 : 1,
                            step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
@@ -5561,18 +5561,20 @@ void home_all_axes() { gcode_G28(true); }
                 #endif
               }
               zig_zag = !zig_zag;
-              z_at_pt[axis] /= (2 * offset_circles + 1);
             }
           }
-          if (_7p_intermed_points) // average intermediates to tower and opposites
-            for (uint8_t axis = 1; axis < 13; axis += 2)
-              z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
-
+          if (_7p_intermed_points) // average intermediates to tower and opposites P4/=2, 5/=3, 6/=5, 7/=7
+            for (uint8_t axis = 1; axis < 13; axis += 2) {
+              z_at_pt[axis] = z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0;
+              z_at_pt[axis] /= (_7p_quadruple_circle ? 7 :
+                                _7p_triple_circle    ? 5 :
+                                _7p_double_circle    ? 3 : 2);
+            }
         }
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
         int16_t N = 1;
-        if (!_1p_calibration) // std dev from zero plane
+        if (!_1p_calibration) // std dev from zero plane (4p - 7p)
           for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < 13; axis += (_4p_calibration ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
@@ -5581,7 +5583,7 @@ void home_all_axes() { gcode_G28(true); }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
-        // Solve matrices
+        // Solve matrices (see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
 
         if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
           if (zero_std_dev < zero_std_dev_min) {
@@ -5612,17 +5614,17 @@ void home_all_axes() { gcode_G28(true); }
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
-              LOOP_XYZ(axis) e_delta[axis] = Z1(0);
+              LOOP_XYZ(axis) e_delta[axis] = Z1(0); // 1 point calibration
               break;
 
             case 2:
-              if (towers_set) {
+              if (towers_set) { // 4 point calibration matrix
                 e_delta[A_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
                 r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
-              else {
+              else { // 4 point opposite calibration matrix
                 e_delta[A_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
@@ -5630,13 +5632,13 @@ void home_all_axes() { gcode_G28(true); }
               }
               break;
 
-            default:
+            default: // 7 point calibration matrix
               e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
               e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
               e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
-              if (towers_set) {
+              if (towers_set) { // tower angle calibration matrix
                 t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
                 t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
                 t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
