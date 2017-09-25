@@ -5641,13 +5641,13 @@ void home_all_axes() { gcode_G28(true); }
               }
               break;
 
-            default: (7 point + 7 point intermediate)/2 calibration matrix
+            default: // (7 point + 7 point intermediate)/2 calibration matrix
               e_delta[A_AXIS] = ((Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) + (Z6(0) + Z2(2) - Z2(6)          - Z2(8) + Z2(12)        )) / 2.0 * h_factor;
               e_delta[B_AXIS] = ((Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) + (Z6(0)         + Z2(6) - Z2(10)         - Z2(12) + Z2(4))) / 2.0 * h_factor;
               e_delta[C_AXIS] = ((Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) + (Z6(0) - Z2(2)         + Z2(10) + Z2(8)          - Z2(4))) / 2.0 * h_factor;
               r_delta         = ((Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) + (Z6(0) - Z1(2) - Z1(6) - Z1(10) - Z1(8) - Z1(12) - Z1(4))) / 2.0 * r_factor;
 
-              if (towers_set) {
+              if (towers_set) { // (tower angle + tower angle intermediate)/2 calibration matrix
                 t_delta[A_AXIS] = ((        - Z3(5) + Z3(9)         - Z3(11) + Z3(3)) + (  Z4(2) - Z4(6)          + Z4(8) - Z4(12)        )) / 2.0 * a_factor;
                 t_delta[B_AXIS] = ((  Z3(1)         - Z3(9) + Z3(7)          - Z3(3)) + (        + Z4(6) - Z4(10)         + Z4(12) - Z4(4))) / 2.0 * a_factor;
                 t_delta[C_AXIS] = ((- Z3(1) + Z3(5)         - Z3(7) + Z3(11)        ) + (- Z4(2)         + Z4(10) - Z4(8)          + Z4(4))) / 2.0 * a_factor;
