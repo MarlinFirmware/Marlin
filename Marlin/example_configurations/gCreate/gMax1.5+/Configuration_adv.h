@@ -222,7 +222,7 @@
 
 /**
  * Part-Cooling Fan Multiplexer
- * 
+ *
  * This feature allows you to digitally multiplex the fan output.
  * The multiplexer is automatically switched at tool-change.
  * Set FANMUX[012]_PINs below for up to 2, 4, or 8 multiplexed fans.
@@ -510,7 +510,7 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
-    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256).
+    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
     #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
     #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
     #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
@@ -601,13 +601,15 @@
  */
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
+  //#define BABYSTEP_XY            // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false  // Change if Z babysteps should go the other way
   #define BABYSTEP_MULTIPLICATOR 1 // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET // Enable to combine M851 and Babystepping
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
+  //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_ZPROBE_GFX_REVERSE // Reverses the direction of the CW/CCW indicators
 #endif
 
 // @section extruder
@@ -1383,29 +1385,32 @@
 #endif // I2C_POSITION_ENCODERS
 
 /**
-  * Debug LED's using an 8x8 LED Matrix driven by a Max7219 chip.   Fully assembled versions are available on
-  * eBay for under $2.00 (including shipping) and only require 3 signal wires.
-  *
-  * Check out auctions similar to this: https://www.ebay.com/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=332349290049&_sacat=0
-  */
+ * MAX7219 Debug Matrix
+ *
+ * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip, which can be used as a status
+ * display. Requires 3 signal wires. Some useful debug options are included to demonstrate its usage.
+ *
+ * Fully assembled MAX7219 boards can be found on the internet for under $2(US).
+ * For example, see https://www.ebay.com/sch/i.html?_nkw=332349290049
+ */
 
 #define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
-  #define Max7219_clock   64  // 77 on Re-ARM       // Configuration of the 3 pins to control the display 
-  #define Max7219_data_in 57  // 78 on Re-ARM
-  #define Max7219_load    44  // 79 on Re-ARM
+  #define MAX7219_CLK_PIN   64  // 77 on Re-ARM       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   57  // 78 on Re-ARM
+  #define MAX7219_LOAD_PIN  44  // 79 on Re-ARM
 
-  /*
-   * These are sample debug features that can be turned on and configured for your use.
-   * The developer will need to manage the use of the various LED's in the 8x8 matrix to avoid conflicts.
+  /**
+   * Sample debug features
+   * If you add more debug displays, be careful to avoid conflicts!
    */
-  #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix from idle() routine if firmware is functioning
-  #define MAX7219_DEBUG_STEPPER_HEAD  3  // Display row position of stepper queue head on this line and the next line of LED matrix
-  #define MAX7219_DEBUG_STEPPER_TAIL  5  // Display row position of stepper queue tail on this line and the next line of LED matrix
+  #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix to show that the firmware is functioning
+  #define MAX7219_DEBUG_STEPPER_HEAD  3  // Show the stepper queue head position on this and the next LED matrix row
+  #define MAX7219_DEBUG_STEPPER_TAIL  5  // Show the stepper queue tail position on this and the next LED matrix row
 
-  #define MAX7219_DEBUG_STEPPER_QUEUE 0  // Display row position of stepper queue depth on this line and the next line of LED matrix
-                                         // If you have stuttering on your Delta printer, this option may help you understand how
-                                         // various tweaks you make to your configuration are affecting the printer.
+  #define MAX7219_DEBUG_STEPPER_QUEUE 0  // Show the current stepper queue depth on this and the next LED matrix row
+                                         // If you experience stuttering, reboots, etc. this option can reveal how
+                                         // tweaks made to the configuration are affecting the printer in real-time.
 #endif
 
 #endif // CONFIGURATION_ADV_H

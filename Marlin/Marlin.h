@@ -302,9 +302,9 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
                delta_diagonal_rod,
                delta_calibration_radius,
                delta_segments_per_second,
-               delta_tower_angle_trim[2],
+               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod);
+  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]);
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
@@ -422,7 +422,9 @@ void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+#define HAS_AXIS_UNHOMED_ERR (ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)))
+
+#if HAS_AXIS_UNHOMED_ERR
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 #endif
 

@@ -44,7 +44,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+// See also http://marlinfw.org/docs/development/lcd_language.html
 
 // Languages
 // an         Aragonese
@@ -160,6 +160,7 @@
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M355_NONE                   "No case light"
 #define MSG_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
+#define MSG_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
 #define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define MSG_ERR_PROTECTED_PIN               "Protected Pin"

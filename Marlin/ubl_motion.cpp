@@ -44,7 +44,7 @@
                endstop_adj[ABC];
 
   extern float delta_radius,
-               delta_tower_angle_trim[2],
+               delta_tower_angle_trim[ABC],
                delta_tower[ABC][2],
                delta_diagonal_rod,
                delta_calibration_radius,
