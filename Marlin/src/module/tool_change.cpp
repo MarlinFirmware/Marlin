@@ -46,6 +46,10 @@
   #include "../feature/mixing.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3
