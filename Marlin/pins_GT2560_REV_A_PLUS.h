@@ -29,4 +29,5 @@
 #undef BOARD_NAME
 #define BOARD_NAME  "GT2560 Rev.A+"
 
-#define SERVO0_PIN  11
+#define SERVO0_PIN  11 //If BLTouch is used, change to 32
+
