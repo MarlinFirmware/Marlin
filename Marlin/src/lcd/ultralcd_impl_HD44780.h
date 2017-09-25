@@ -351,7 +351,6 @@ static void lcd_set_custom_characters(
   createChar_P(LCD_STR_THERMOMETER[0], thermometer);
   createChar_P(LCD_FEEDRATE_CHAR, feedrate);
   createChar_P(LCD_CLOCK_CHAR, clock);
-
   #if ENABLED(SDSUPPORT)
     #if ENABLED(LCD_PROGRESS_BAR)
       static bool char_mode = false;
