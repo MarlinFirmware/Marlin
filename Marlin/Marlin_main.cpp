@@ -5561,12 +5561,15 @@ void home_all_axes() { gcode_G28(true); }
                 #endif
               }
               zig_zag = !zig_zag;
-              z_at_pt[axis] /= (2 * offset_circles + 1);
             }
           }
           if (_7p_intermed_points) // average intermediates to tower and opposites
-            for (uint8_t axis = 1; axis < 13; axis += 2)
-              z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
+            for (uint8_t axis = 1; axis < 13; axis += 2) {
+              z_at_pt[axis] = z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0;
+              z_at_pt[axis] /= (_7p_quadruple_circle ? 7 :
+                                _7p_triple_circle    ? 5 :
+                                _7p_double_circle    ? 3 : 2);
+            }
 
         }
         float S1 = z_at_pt[0],
@@ -5581,7 +5584,7 @@ void home_all_axes() { gcode_G28(true); }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
-        // Solve matrices
+        // Solve matrices (see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
 
         if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
           if (zero_std_dev < zero_std_dev_min) {
