@@ -5597,12 +5597,11 @@ void home_all_axes() { gcode_G28(true); }
           #define Z8(I) ZP(8, I)
           #define Z6(I) ZP(6, I)
           #define Z4(I) ZP(4, I)
-          #define Z3(I) ZP(3, I)
           #define Z2(I) ZP(2, I)
           #define Z1(I) ZP(1, I)
           h_factor /= 12.00;
           r_factor /= 12.00;
-          a_factor /= 6.00;
+          a_factor /= 12.00;
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
@@ -5636,22 +5635,22 @@ void home_all_axes() { gcode_G28(true); }
               r_delta         = (Z12(0) - Z2(1) - Z2(5) - Z2(9) - Z2(7) - Z2(11) - Z2(3)) * r_factor;
 
               if (towers_set) { // tower angle calibration matrix
-                t_delta[A_AXIS] = (       - Z6(5) + Z6(9)         - Z6(11) + Z6(3)) * a_factor;
-                t_delta[B_AXIS] = ( Z6(1)         - Z6(9) + Z6(7)          - Z6(3)) * a_factor;
-                t_delta[C_AXIS] = (-Z6(1) + Z6(5)         - Z6(7) + Z6(11)        ) * a_factor;
+                t_delta[A_AXIS] = (       - Z12(5) + Z12(9)         - Z12(11) + Z12(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z12(1)         - Z12(9) + Z12(7)          - Z12(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z12(1) + Z12(5)         - Z12(7) + Z12(11)        ) * a_factor;
               }
               break;
 
-            default: // 13 point calibration matrix
+            default: // 2*7 point calibration matrix
               e_delta[A_AXIS] = (Z12(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3) + Z2(2) - Z2(6)          - Z2(8) + Z2(12)        ) * h_factor;
               e_delta[B_AXIS] = (Z12(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)         + Z2(6) - Z2(10)         - Z2(12) + Z2(4)) * h_factor;
               e_delta[C_AXIS] = (Z12(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3) - Z2(2)         + Z2(10) + Z2(8)          - Z2(4)) * h_factor;
               r_delta         = (Z12(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3) - Z1(2) - Z1(6) - Z1(10) - Z1(8) - Z1(12) - Z1(4)) * r_factor;
 
-              if (towers_set) { // 13p tower angle calibration matrix
-                t_delta[A_AXIS] = (        - Z3(5) + Z3(9)         - Z3(11) + Z3(3) + Z4(2) - Z4(6)          + Z4(8) - Z4(12)        ) * a_factor;
-                t_delta[B_AXIS] = (  Z3(1)         - Z3(9) + Z3(7)          - Z3(3) +       + Z4(6) - Z4(10)         + Z4(12) - Z4(4)) * a_factor;
-                t_delta[C_AXIS] = (- Z3(1) + Z3(5)         - Z3(7) + Z3(11)         - Z4(2)         + Z4(10) - Z4(8)          + Z4(4)) * a_factor;
+              if (towers_set) { // 2*7 point tower angle calibration matrix
+                t_delta[A_AXIS] = (        - Z6(5) + Z6(9)         - Z6(11) + Z6(3) + Z8(2) - Z8(6)          + Z8(8) - Z8(12)        ) * a_factor;
+                t_delta[B_AXIS] = (  Z6(1)         - Z6(9) + Z6(7)          - Z6(3) +       + Z8(6) - Z8(10)         + Z8(12) - Z8(4)) * a_factor;
+                t_delta[C_AXIS] = (- Z6(1) + Z6(5)         - Z6(7) + Z6(11)         - Z8(2)         + Z8(10) - Z8(8)          + Z8(4)) * a_factor;
               }
               break;
           }
