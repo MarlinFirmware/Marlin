@@ -349,11 +349,8 @@
                            || isnan(ubl.z_values[0][0]))
 #endif
 
-#if ENABLED(RGB_LED)
+#if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
    #define LED_WHITE 255, 255, 255
-#endif
-#if ENABLED(RGBW_LED)
-  #define LED_WHITE 0, 0, 0, 255
 #endif
 #if ENABLED(NEOPIXEL_LED) 
   #if NEOPIXEL_TYPE==NEO_RGB || NEOPIXEL_TYPE==NEO_RBG || NEOPIXEL_TYPE==NEO_GRB || NEOPIXEL_TYPE==NEO_GBR || NEOPIXEL_TYPE==NEO_BRG || NEOPIXEL_TYPE==NEO_BGR
@@ -361,6 +358,9 @@
   #else
     #define LED_WHITE 0, 0, 0, 255
   #endif
+#endif
+#if ENABLED(RGBW_LED)
+  #define LED_WHITE 0, 0, 0, 255
 #endif
 
 
