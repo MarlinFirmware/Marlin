@@ -1538,16 +1538,23 @@
  * Adds the M150 command to set the LED (or LED strip) color.
  * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
  * luminance values can be set from 0 to 255.
+ * For Neopixel LED overall brightness parameters is also available 
  *
  * *** CAUTION ***
  *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
+ *  Neopixel LED if 5V powered, but linear 5V regulator on Arduino
+ *  cannot handle such current, separate 5V power supply must be used
  * *** CAUTION ***
+ *
+ * LED type. This options are mutualy exclusive. Uncomment only one.
  *
  */
 //#define RGB_LED
 //#define RGBW_LED
+//#define NEOPIXEL_LED
+
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
@@ -1556,14 +1563,13 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-//#define NEOPIXEL_RGBW_LED
-#if ENABLED(NEOPIXEL_RGBW_LED)
-  #define NEOPIXEL_PIN    4       // D4 (EXP2-5 on Printrboard)
-  #define NEOPIXEL_PIXELS 3
-  #define NEOPIXEL_TYPE NEO_GRBW  // NEO_GRBW / NEO_GRB - four/three channel driver type (definned in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_ISSEQUENTIAL   // sequent display for temperature change - LED by LED
-  #define NEOPIXEL_BRIGHTNESS 255 // initial brightness 0-255
-  //#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
+#if ENABLED(NEOPIXEL_LED)
+  #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+  #define NEOPIXEL_PIXELS 30       // Number of LEDs on strip
+  #define NEOPIXEL_TYPE NEO_GRBW   // NEO_GRBW / NEO_GRB - four/three channel driver type (definned in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_IS_SEQUENTIAL   // Sequent display for temperature change - LED by LED. Comment out for change all LED at time
+  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness 0-255
+//  #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
 #endif
 
 /**
