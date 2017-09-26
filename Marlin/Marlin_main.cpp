@@ -356,10 +356,11 @@
   #if ENABLED(NEOPIXEL_LED) || NEOPIXEL_TYPE==NEO_RGB || NEOPIXEL_TYPE==NEO_RBG || NEOPIXEL_TYPE==NEO_GRB || NEOPIXEL_TYPE==NEO_GBR || NEOPIXEL_TYPE==NEO_BRG || NEOPIXEL_TYPE==NEO_BGR
     #define LED_WHITE 255, 255, 255
   #endif
-  #if !DEFINED(LED_WHITE)
+  #if !defined(LED_WHITE)
     #define LED_WHITE 0, 0, 0, 255
   #endif
 #endif
+
 
 bool Running = true;
 
@@ -1014,15 +1015,7 @@ void servo_init() {
         set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
         delay(2000);
       #endif
-<<<<<<< HEAD
       set_neopixel_color(pixels.Color(LED_WHITE));       // white
-=======
-      #if NEOPIXEL_TYPE==NEO_RGB || NEOPIXEL_TYPE==NEO_RBG || NEOPIXEL_TYPE==NEO_GRB || NEOPIXEL_TYPE==NEO_GBR || NEOPIXEL_TYPE==NEO_BRG || NEOPIXEL_TYPE==NEO_BGR
-        set_neopixel_color(pixels.Color(255, 255, 255));    // white
-      #else
-        set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
-      #endif
->>>>>>> 1cf00c28e4352a1d93df0b8c0ebba40dc9cc85e9
     }
 
   #endif // NEOPIXEL_LED
@@ -7634,17 +7627,8 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-<<<<<<< HEAD
       #if ENABLED(NEOPIXEL_LED)
         set_neopixel_color(pixels.Color(LED_WHITE));
-=======
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-        #if NEOPIXEL_TYPE==NEO_RGB || NEOPIXEL_TYPE==NEO_RBG || NEOPIXEL_TYPE==NEO_GRB || NEOPIXEL_TYPE==NEO_GBR || NEOPIXEL_TYPE==NEO_BRG || NEOPIXEL_TYPE==NEO_BGR
-	  set_neopixel_color(pixels.Color(255, 255, 255));    // white
-        #else
-          set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
-        #endif
->>>>>>> 1cf00c28e4352a1d93df0b8c0ebba40dc9cc85e9
       #else
         set_led_color(LED_WHITE);
       #endif
