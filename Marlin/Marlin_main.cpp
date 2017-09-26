@@ -5433,7 +5433,7 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_double_circle    = probe_points == 5,
                  _7p_triple_circle    = probe_points == 6,
                  _7p_quadruple_circle = probe_points == 7,
-                 _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle,
+                 _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle;
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
       const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
                   dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
