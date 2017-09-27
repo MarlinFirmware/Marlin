@@ -5572,12 +5572,15 @@ void home_all_axes() { gcode_G28(true); }
               z_at_pt[axis] /= (2 * offset_circles + 1);
             }
           }
+          if (_7p_double_circle || _7p_tripple_circle) // add intermediates to 12p circle
+            for (uint8_t axis = 1; axis < 25; axis += 2)
+             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 22) % 24 + 1]) / 2.0);
         }
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
         int16_t N = 1;
-        if (!_1p_calibration) // std dev from zero plane
-          for (uint8_t axis = (_4p_opposite_points ? 5 : 1); axis < 25; axis += (_4p_calibration ? 8 : _7p_half_circle ? 4 : _7p_7p_calibration ? 2 : 1)) {
+        if (!_1p_calibration) // std dev from zero plane            
+          for (uint8_t axis = (_4p_opposite_points ? 5 : 1); axis < 25; axis += (_4p_calibration ? 8 : _7p_half_circle ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5653,10 +5656,6 @@ void home_all_axes() { gcode_G28(true); }
               break;
 
             default: // 2*7 point calibration matrix
-              if (_7p_double_circle || _7p_tripple_circle) // add intermediates to 12p circle
-                for (uint8_t axis = 1; axis < 25; axis += 2)
-                 z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 22) % 24 + 1]) / 2.0);
-            
               e_delta[A_AXIS] = (Z12(0)   +Z2(1) -Z1(9) -Z1(17)   -Z2(13) +Z1(21) +Z1(5)           +Z2(3) -Z2(11)           -Z2(15) +Z2(23)) * h_factor;
               e_delta[B_AXIS] = (Z12(0)   -Z1(1) +Z2(9) -Z1(17)   +Z1(13) -Z2(21) +Z1(5)   -Z2(19)        +Z2(11)    +Z2(7)         -Z2(23)) * h_factor;
               e_delta[C_AXIS] = (Z12(0)   -Z1(1) -Z1(9) +Z2(17)   +Z1(13) +Z1(21) -Z2(5)   +Z2(19) -Z2(3)            -Z2(7) +Z2(15)        ) * h_factor;
