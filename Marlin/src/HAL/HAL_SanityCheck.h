@@ -30,6 +30,8 @@
   #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
 #elif defined(TARGET_LPC1768)
   #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
+#elif defined(__STM32F1__)
+    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
 #else
   #error Unsupported Platform!
 #endif

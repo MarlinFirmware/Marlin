@@ -298,6 +298,8 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"
+#elif MB(STM32F1R)
+  #include "pins_STM32F1R.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

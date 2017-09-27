@@ -91,6 +91,10 @@ void spiSendBlock(uint8_t token, const uint8_t* buf);
   #define CPU_32_BIT
   #include "math_32bit.h"
   #include "HAL_LPC1768/HAL.h"
+#elif defined(__STM32F1__)
+  #define CPU_32_BIT
+  #include "math_32bit.h"
+  #include "HAL_STM32F1/HAL_Stm32f1.h"
 #else
   #error "Unsupported Platform!"
 #endif
