@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +21,32 @@
  *
  */
 
-#ifndef HAL_SANITYCHECK_H
+#ifdef __STM32F1__
 
-#ifdef __AVR__
-  #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
-#elif defined(ARDUINO_ARCH_SAM)
-  #include "HAL_DUE/SanityCheck_Due.h"
-#elif IS_32BIT_TEENSY
-  #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
-#elif defined(__STM32F1__)
-    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
-#else
-  #error Unsupported Platform!
-#endif
+#include "../../../src/inc/MarlinConfig.h"
 
-#endif
+#if HAS_SERVOS
+
+#include "HAL_Servo_Stm32f1.h"
+
+int8_t libServo::attach(const int pin) {
+  if (this->servoIndex >= MAX_SERVOS) return -1;
+  return Servo::attach(pin);
+}
+
+int8_t libServo::attach(const int pin, const int min, const int max) {
+  return Servo::attach(pin, min, max);
+}
+
+void libServo::move(const int value) {
+  if (this->attach(0) >= 0) {
+    this->write(value);
+    delay(SERVO_DELAY);
+    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
+      this->detach();
+    #endif
+  }
+}
+#endif // HAS_SERVOS
+
+#endif // __STM32F1__
