@@ -5432,9 +5432,10 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_half_circle      = probe_points == 3,
                  _7p_7p_calibration   = probe_points == 4 || probe_points == 5,
                  _7p_extra_center     = probe_points == 5 || probe_points == 8,
-                 _7p_no_center        = probe_points == 6 || probe_points == 9,
+                 _7p_no_center        = probe_points == 3 || probe_points == 6 || probe_points == 9,
                  _7p_double_circle    = probe_points >= 5 && probe_points <= 7,
                  _7p_tripple_circle   = probe_points >= 8,
+                 _7p_intermediate     = probe_points >= 6,
                  _7p_half_blast       = probe_points == 8,
                  _7p_full_blast       = probe_points == 9,
                  _7p_zigzag_1_2       = probe_points == 5 || probe_points == 9,
@@ -5523,7 +5524,7 @@ void home_all_axes() { gcode_G28(true); }
         // Probe the points
 
        if (!_0p_calibration) {
-         if (!_7p_half_circle && !_7p_no_center) { // probe the center (P1=1, 2=1, 3=0, 4=1, 5=1, 6=0, 7=1, 8=1, 9=0)
+         if (!_7p_no_center) { // probe the center (P1=1, 2=1, 3=0, 4=1, 5=1, 6=0, 7=1, 8=1, 9=0)
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(0, 0);
             #else
@@ -5572,9 +5573,9 @@ void home_all_axes() { gcode_G28(true); }
               z_at_pt[axis] /= (2 * offset_circles + 1);
             }
           }
-          if (_7p_double_circle || _7p_tripple_circle) // add intermediates to 12p circle
+          if (_7p_intermediate) // add intermediates to 12p circle
             for (uint8_t axis = 1; axis < 25; axis += 2)
-             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 22) % 24 + 1]) / 2.0);
+             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 22) % 24 + 1]) / 2.0) / 2.0;
         }
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
