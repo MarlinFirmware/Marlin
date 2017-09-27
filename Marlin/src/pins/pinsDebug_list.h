@@ -358,7 +358,7 @@
 #endif
 #if PIN_EXISTS(FAN)
   REPORT_NAME_DIGITAL(FAN_PIN, __LINE__ )
-#endif 
+#endif
 #if PIN_EXISTS(FAN1)
   REPORT_NAME_DIGITAL(FAN1_PIN, __LINE__ )
 #endif
