@@ -90,6 +90,7 @@
 // example configuration folder.
 //
 #define SHOW_CUSTOM_BOOTSCREEN
+
 // @section machine
 
 /**
