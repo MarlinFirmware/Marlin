@@ -182,12 +182,8 @@
     #define ST7920_DELAY_1 DELAY_0_NOP
     #define ST7920_DELAY_2 DELAY_1_NOP
     #define ST7920_DELAY_3 DELAY_2_NOP
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
+    #define STD_ENCODER_PULSES_PER_STEP 4
+    #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
 #endif  // ULTRA_LCD && NEWPANEL
 
