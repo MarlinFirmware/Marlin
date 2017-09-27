@@ -142,13 +142,13 @@ uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg
       ST7565_WRITE_BYTE(0x40);          // Display start line for Displaytech 64128N
 
       ST7565_WRITE_BYTE(0x28 | 0x04);   // power control: turn on voltage converter
-      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used 
+      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
       ST7565_WRITE_BYTE(0x28 | 0x06);   // power control: turn on voltage regulator
-      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used 
+      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
       ST7565_WRITE_BYTE(0x28 | 0x07);   // power control: turn on voltage follower
-      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used 
+      //U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
       ST7565_WRITE_BYTE(0x10);          // Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N
 
@@ -228,12 +228,12 @@ u8g_dev_t u8g_dev_st7565_64128n_2x_VIKI_sw_spi = { u8g_dev_st7565_64128n_2x_VIKI
 
 class U8GLIB_ST7565_64128n_2x_VIKI : public U8GLIB {
   public:
-  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t dummy) 
-    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi) 
+  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t dummy)
+    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi)
     {  }
-  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) 
-    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi) 
-    {  }  
+  U8GLIB_ST7565_64128n_2x_VIKI(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_st7565_64128n_2x_VIKI_sw_spi)
+    {  }
 };
 
 #pragma GCC reset_options

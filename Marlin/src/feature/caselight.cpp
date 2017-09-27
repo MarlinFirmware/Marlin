@@ -26,7 +26,7 @@
 
 uint8_t case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
 bool case_light_on = CASE_LIGHT_DEFAULT_ON;
-    
+
 #ifndef INVERT_CASE_LIGHT
   #define INVERT_CASE_LIGHT false
 #endif
