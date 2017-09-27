@@ -1,13 +1,13 @@
 /* File: startup_ARMCM3.s
- * Purpose: startup file for Cortex-M3/M4 devices. Should use with 
+ * Purpose: startup file for Cortex-M3/M4 devices. Should use with
  *   GNU Tools for ARM Embedded Processors
  * Version: V1.1
  * Date: 17 June 2011
- * 
+ *
  * Copyright (C) 2011 ARM Limited. All rights reserved.
- * ARM Limited (ARM) is supplying this software for use with Cortex-M3/M4 
- * processor based microcontrollers.  This file can be freely distributed 
- * within development tools that are supporting such ARM based processors. 
+ * ARM Limited (ARM) is supplying this software for use with Cortex-M3/M4
+ * processor based microcontrollers.  This file can be freely distributed
+ * within development tools that are supporting such ARM based processors.
  *
  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
  * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
@@ -20,12 +20,12 @@
 
 /* Memory Model
    The HEAP starts at the end of the DATA section and grows upward.
-   
+
    The STACK starts at the end of the RAM and grows downward.
-   
+
    The HEAP and stack STACK are only checked at compile time:
    (DATA_SIZE + HEAP_SIZE + STACK_SIZE) < RAM_SIZE
-   
+
    This is just a check for the bare minimum for the Heap+Stack area before
    aborting compilation, it is not the run time limit:
    Heap_Size + Stack_Size = 0x80 + 0x80 = 0x100
@@ -59,7 +59,7 @@ __HeapBase:
     .size __HeapBase, . - __HeapBase
 __HeapLimit:
     .size __HeapLimit, . - __HeapLimit
-    
+
     .section .isr_vector
     .align 2
     .globl __isr_vector
@@ -128,7 +128,7 @@ __isr_vector:
     .type    Reset_Handler, %function
 Reset_Handler:
 /*     Loop to copy data from read only memory to RAM. The ranges
- *      of copy from/to are specified by following symbols evaluated in 
+ *      of copy from/to are specified by following symbols evaluated in
  *      linker script.
  *      _etext: End of code section, i.e., begin of data sections to copy from.
  *      __data_start__/__data_end__: RAM address range that data should be
@@ -153,7 +153,7 @@ Reset_Handler:
     bx    r0
     .pool
     .size Reset_Handler, . - Reset_Handler
-    
+
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
@@ -166,7 +166,7 @@ Reset_Handler:
     b    .
     .size    \handler_name, . - \handler_name
     .endm
-    
+
     def_default_handler    NMI_Handler
     def_default_handler    HardFault_Handler
     def_default_handler    MemManage_Handler
@@ -177,7 +177,7 @@ Reset_Handler:
     def_default_handler    PendSV_Handler
     def_default_handler    SysTick_Handler
     def_default_handler    Default_Handler
-    
+
     def_default_handler     WDT_IRQHandler
     def_default_handler     TIMER0_IRQHandler
     def_default_handler     TIMER1_IRQHandler

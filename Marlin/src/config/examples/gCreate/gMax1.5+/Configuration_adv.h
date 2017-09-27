@@ -1392,9 +1392,9 @@
 
 #define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
-  #define MAX7219_CLK_PIN   64  // 77 on Re-ARM       // Configuration of the 3 pins to control the display 
-  #define MAX7219_DIN_PIN 57  // 78 on Re-ARM
-  #define MAX7219_LOAD_PIN    44  // 79 on Re-ARM
+  #define MAX7219_CLK_PIN   64  // 77 on Re-ARM       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   57  // 78 on Re-ARM
+  #define MAX7219_LOAD_PIN  44  // 79 on Re-ARM
 
   /**
    * Sample debug features

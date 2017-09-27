@@ -92,18 +92,18 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 
 // Time functions
 extern "C" {
-void delay(int milis);
+  void delay(const int milis);
 }
-void _delay_ms(int delay);
+void _delay_ms(const int delay);
 void delayMicroseconds(unsigned long);
 uint32_t millis();
 
 //IO functions
-void pinMode(int pin_number, int mode);
-void digitalWrite(int pin_number, int pin_status);
-bool digitalRead(int pin);
-void analogWrite(int pin_number, int pin_status);
-uint16_t analogRead(int adc_pin);
+void pinMode(uint8_t, uint8_t);
+void digitalWrite(uint8_t, uint8_t);
+int digitalRead(uint8_t);
+void analogWrite(uint8_t, int);
+int analogRead(uint8_t);
 
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);

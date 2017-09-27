@@ -8,9 +8,9 @@
  * Copyright (C) 2009-2011 ARM Limited. All rights reserved.
  *
  * @par
- * ARM Limited (ARM) is supplying this software for use with Cortex-M 
- * processor based microcontrollers.  This file can be freely distributed 
- * within development tools that are supporting such ARM based processors. 
+ * ARM Limited (ARM) is supplying this software for use with Cortex-M
+ * processor based microcontrollers.  This file can be freely distributed
+ * within development tools that are supporting such ARM based processors.
  *
  * @par
  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
@@ -26,7 +26,7 @@
 
 
 /* ###########################  Core Function Access  ########################### */
-/** \ingroup  CMSIS_Core_FunctionInterface   
+/** \ingroup  CMSIS_Core_FunctionInterface
     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
   @{
  */
@@ -182,7 +182,7 @@ static __INLINE void __set_PRIMASK(uint32_t priMask)
   register uint32_t __regPriMask         __ASM("primask");
   __regPriMask = (priMask);
 }
- 
+
 
 #if       (__CORTEX_M >= 0x03)
 
@@ -226,7 +226,7 @@ static __INLINE void __set_BASEPRI(uint32_t basePri)
   register uint32_t __regBasePri         __ASM("basepri");
   __regBasePri = (basePri & 0xff);
 }
- 
+
 
 /** \brief  Get Fault Mask
 
@@ -407,7 +407,7 @@ __attribute__( ( always_inline ) ) static __INLINE uint32_t __get_PSP(void)
   __ASM volatile ("MRS %0, psp\n"  : "=r" (result) );
   return(result);
 }
- 
+
 
 /** \brief  Set Process Stack Pointer
 
@@ -434,7 +434,7 @@ __attribute__( ( always_inline ) ) static __INLINE uint32_t __get_MSP(void)
   __ASM volatile ("MRS %0, msp\n" : "=r" (result) );
   return(result);
 }
- 
+
 
 /** \brief  Set Main Stack Pointer
 
@@ -473,7 +473,7 @@ __attribute__( ( always_inline ) ) static __INLINE void __set_PRIMASK(uint32_t p
 {
   __ASM volatile ("MSR primask, %0" : : "r" (priMask) );
 }
- 
+
 
 #if       (__CORTEX_M >= 0x03)
 
@@ -508,7 +508,7 @@ __attribute__( ( always_inline ) ) static __INLINE void __disable_fault_irq(void
 __attribute__( ( always_inline ) ) static __INLINE uint32_t __get_BASEPRI(void)
 {
   uint32_t result;
-  
+
   __ASM volatile ("MRS %0, basepri_max" : "=r" (result) );
   return(result);
 }
@@ -535,7 +535,7 @@ __attribute__( ( always_inline ) ) static __INLINE void __set_BASEPRI(uint32_t v
 __attribute__( ( always_inline ) ) static __INLINE uint32_t __get_FAULTMASK(void)
 {
   uint32_t result;
-  
+
   __ASM volatile ("MRS %0, faultmask" : "=r" (result) );
   return(result);
 }

@@ -89,11 +89,11 @@
     this->servoIndex = INVALID_SERVO;  // too many servos
   }
 
-  int8_t Servo::attach(int pin) {
+  int8_t Servo::attach(const int pin) {
     return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   }
 
-  int8_t Servo::attach(int pin, int min, int max) {
+  int8_t Servo::attach(const int pin, const int min, const int max) {
 
     if (this->servoIndex >= MAX_SERVOS) return -1;
 
@@ -113,7 +113,7 @@
     servo_info[this->servoIndex].Pin.isActive = false;
   }
 
-  void Servo::write(int value) {
+  void Servo::write(const int value) {
     if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
       value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
         // odd - this sets zero degrees to 544 and 180 degrees to 2400 microseconds but the literature says
@@ -122,7 +122,7 @@
     this->writeMicroseconds(value);
   }
 
-  void Servo::writeMicroseconds(int value) {
+  void Servo::writeMicroseconds(const int value) {
     // calculate and store the values for the given channel
     byte channel = this->servoIndex;
     if (channel < MAX_SERVOS) {  // ensure channel is valid
@@ -146,7 +146,7 @@
 
   bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
-  void Servo::move(int value) {
+  void Servo::move(const int value) {
     if (this->attach(0) >= 0) {    // notice the pin number is zero here
       this->write(value);
       delay(SERVO_DELAY);

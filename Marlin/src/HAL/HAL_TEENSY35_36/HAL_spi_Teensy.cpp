@@ -33,20 +33,20 @@ void spiBegin(void) {
 
 /** Configure SPI for specified SPI speed */
 void spiInit(uint8_t spiRate) {
-	// Use datarates Marlin uses
-	uint32_t clock;
-	switch (spiRate) {
-  case SPI_FULL_SPEED:		clock = 10000000;	break;
-  case SPI_HALF_SPEED:		clock =  5000000;	break;
-  case SPI_QUARTER_SPEED:	clock =  2500000;	break;
-  case SPI_EIGHTH_SPEED:	clock =  1250000;	break;
-  case SPI_SPEED_5:				clock =   625000;	break;
-  case SPI_SPEED_6:				clock =   312500;	break;
+  // Use datarates Marlin uses
+  uint32_t clock;
+  switch (spiRate) {
+  case SPI_FULL_SPEED:    clock = 10000000; break;
+  case SPI_HALF_SPEED:    clock =  5000000; break;
+  case SPI_QUARTER_SPEED: clock =  2500000; break;
+  case SPI_EIGHTH_SPEED:  clock =  1250000; break;
+  case SPI_SPEED_5:       clock =   625000; break;
+  case SPI_SPEED_6:       clock =   312500; break;
   default:
-		clock = 4000000; // Default from the SPI libarary
-	}
-	spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-	SPI.begin();
+    clock = 4000000; // Default from the SPI libarary
+  }
+  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  SPI.begin();
 }
 
 //------------------------------------------------------------------------------

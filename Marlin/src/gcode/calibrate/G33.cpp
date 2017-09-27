@@ -375,7 +375,7 @@ void GcodeSuite::G33() {
       float a_sum = 0.0;
       LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
       LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0;
-      
+
       // adjust delta_height and endstops by the max amount
       const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
       home_offset[Z_AXIS] -= z_temp;
