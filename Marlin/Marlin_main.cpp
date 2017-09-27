@@ -5703,8 +5703,8 @@ void home_all_axes() { gcode_G28(true); }
           print_signed_float(PSTR("c"), z_at_pt[0]);
           if (_4p_towers_points || _7p_calibration) {
             print_signed_float(PSTR("    x"), z_at_pt[1]);
-            print_signed_float(PSTR("  y"), z_at_pt[5]);
-            print_signed_float(PSTR("  z"), z_at_pt[9]);
+            print_signed_float(PSTR("  y"), z_at_pt[9]);
+            print_signed_float(PSTR("  z"), z_at_pt[17]);
           }
           if (!_4p_opposite_points) SERIAL_EOL();
           if ((_4p_opposite_points) || _7p_calibration) {
@@ -5712,23 +5712,23 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_CHAR('.');
               SERIAL_PROTOCOL_SP(13);
             }
-            print_signed_float(PSTR("   yz"), z_at_pt[7]);
-            print_signed_float(PSTR(" zx"), z_at_pt[11]);
-            print_signed_float(PSTR(" xy"), z_at_pt[3]);
+            print_signed_float(PSTR("   yz"), z_at_pt[13]);
+            print_signed_float(PSTR(" zx"), z_at_pt[21]);
+            print_signed_float(PSTR(" xy"), z_at_pt[5]);
             SERIAL_EOL();
           }
           if (_7p_calibration && !_7p_half_circle){
             SERIAL_CHAR('.');
             SERIAL_PROTOCOL_SP(13);
-            print_signed_float(PSTR("  xxy"), z_at_pt[2]);
-            print_signed_float(PSTR("yyz"), z_at_pt[6]);
-            print_signed_float(PSTR("zzx"), z_at_pt[10]);            
+            print_signed_float(PSTR("  xxy"), z_at_pt[3]);
+            print_signed_float(PSTR("yyz"), z_at_pt[11]);
+            print_signed_float(PSTR("zzx"), z_at_pt[19]);            
             SERIAL_EOL();
             SERIAL_CHAR('.');
             SERIAL_PROTOCOL_SP(13);
-            print_signed_float(PSTR("  xzx"), z_at_pt[12]);
-            print_signed_float(PSTR("yxy"), z_at_pt[8]);
-            print_signed_float(PSTR("zyz"), z_at_pt[4]);            
+            print_signed_float(PSTR("  xzx"), z_at_pt[23]);
+            print_signed_float(PSTR("yxy"), z_at_pt[7]);
+            print_signed_float(PSTR("zyz"), z_at_pt[15]);            
             SERIAL_EOL();
           }
         }
