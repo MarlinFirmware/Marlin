@@ -94,7 +94,7 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 extern "C" {
   void delay(const int milis);
 }
-void _delay_ms(int delay);
+void _delay_ms(const int delay);
 void delayMicroseconds(unsigned long);
 uint32_t millis();
 

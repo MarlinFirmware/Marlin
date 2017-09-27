@@ -393,7 +393,7 @@ static void pwm_details(uint8_t pin) {
       SERIAL_PROTOCOL_SP(10);
     #endif
   }
-  
+
   #define PRINT_PORT(p) print_port(p)
 
 #endif

@@ -88,7 +88,7 @@ static const DELAY_TABLE table[] =
 /* static */
 inline void SoftwareSerial::tunedDelay(uint32_t count) {
 
-	asm volatile(
+  asm volatile(
 
     "mov r3, %[loopsPerMicrosecond] \n\t" //load the initial loop counter
     "1: \n\t"
@@ -163,7 +163,7 @@ void SoftwareSerial::recv()
     // Read each of the 8 bits
     for (uint8_t i=8; i > 0; --i)
     {
-	  tunedDelay(_rx_delay_intrabit);
+    tunedDelay(_rx_delay_intrabit);
       d >>= 1;
       if (rx_pin_read())
         d |= 0x80;
@@ -184,9 +184,9 @@ void SoftwareSerial::recv()
     {
       _buffer_overflow = true;
     }
-	tunedDelay(_rx_delay_stopbit);
+  tunedDelay(_rx_delay_stopbit);
     // Re-enable interrupts when we're sure to be inside the stop bit
-	setRxIntMsk(true);//__enable_irq();//
+  setRxIntMsk(true);//__enable_irq();//
 
   }
 }
@@ -339,7 +339,7 @@ size_t SoftwareSerial::write(uint8_t b)
   uint16_t delay = _tx_delay;
 
   if(inv)
-	  b = ~b;
+    b = ~b;
 
   cli();  // turn off interrupts for a clean txmit
 
@@ -369,7 +369,7 @@ size_t SoftwareSerial::write(uint8_t b)
   else
     digitalWrite(_transmitPin, 1);
 
-	sei(); // turn interrupts back on
+  sei(); // turn interrupts back on
   tunedDelay(delay);
 
   return 1;

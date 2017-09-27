@@ -83,7 +83,7 @@
 
 //void cli(void);
 
-//void _delay_ms(int delay);
+//void _delay_ms(const int delay);
 
 inline void HAL_clear_reset_source(void) { MCUSR = 0; }
 inline uint8_t HAL_get_reset_source(void) { return MCUSR; }
