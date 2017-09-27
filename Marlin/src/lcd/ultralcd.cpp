@@ -871,6 +871,9 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
         lcd_completion_feedback();
       #endif
+      #if ENABLED(USER_SCRIPT_RETURN)
+        lcd_return_to_status();
+      #endif
     }
 
     #if defined(USER_DESC_1) && defined(USER_GCODE_1)
@@ -3031,7 +3034,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500")); // TODO: Add "Are You Sure?" step
+      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500\nM501")); // TODO: Add "Are You Sure?" step
     #endif
 
     END_MENU();

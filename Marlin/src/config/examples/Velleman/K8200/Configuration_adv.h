@@ -1283,6 +1283,9 @@
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
+  // Enable USER_SCRIPT_RETURN to return to the status screen after script is complete
+  //#define USER_SCRIPT_RETURN
+
   #define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
 
