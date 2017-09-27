@@ -239,12 +239,6 @@ void setup_powerhold() {
   #endif
 }
 
-void suicide() {
-  #if HAS_SUICIDE
-    OUT_WRITE(SUICIDE_PIN, LOW);
-  #endif
-}
-
 #if HAS_SERVOS
 
   HAL_SERVO_LIB servo[NUM_SERVOS];
@@ -612,7 +606,10 @@ void kill(const char* lcd_msg) {
     SET_INPUT(PS_ON_PIN);
   #endif
 
-  suicide();
+  #if HAS_SUICIDE
+    suicide();
+  #endif
+
   while (1) {
     #if ENABLED(USE_WATCHDOG)
       watchdog_reset();

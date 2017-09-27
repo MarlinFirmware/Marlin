@@ -218,4 +218,8 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 bool pin_is_protected(const int8_t pin);
 
+#if HAS_SUICIDE
+  inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
+#endif
+
 #endif // __MARLIN_H__
