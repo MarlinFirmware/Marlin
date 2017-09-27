@@ -113,7 +113,7 @@ void HAL_adc_enable_channel(int pin) {
   };
 }
 
-void HAL_adc_start_conversion(uint8_t adc_pin) {
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
   if (adc_pin >= (NUM_ANALOG_INPUTS) || adc_pin_map[adc_pin].port == 0xFF) {
     usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
     return;

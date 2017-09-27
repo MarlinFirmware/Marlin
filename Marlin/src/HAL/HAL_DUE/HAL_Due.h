@@ -150,7 +150,7 @@ inline void HAL_adc_init(void) {}//todo
 #define HAL_READ_ADC        HAL_adc_result
 
 
-void HAL_adc_start_conversion (uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 uint16_t HAL_adc_get_result(void);
 
