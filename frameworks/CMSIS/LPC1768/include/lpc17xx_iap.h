@@ -7,7 +7,7 @@
 * @version	1.0
 * @date		18. April. 2012
 * @author	NXP MCU SW Application Team
-* 
+*
 * Copyright(C) 2011, NXP Semiconductor
 * All rights reserved.
 *
@@ -112,7 +112,7 @@ typedef struct {
 /**
  * @}
  */
- 
+
 /* Public Functions ----------------------------------------------------------- */
 /** @defgroup IAP_Public_Functions IAP Public Functions
  * @{
@@ -128,7 +128,7 @@ IAP_STATUS_CODE CopyRAM2Flash(uint8_t * dest, uint8_t* source, IAP_WRITE_SIZE si
 IAP_STATUS_CODE EraseSector(uint32_t start_sec, uint32_t end_sec);
 /**  Blank check sectors */
 IAP_STATUS_CODE BlankCheckSector(uint32_t start_sec, uint32_t end_sec,
-                                 uint32_t *first_nblank_loc, 
+                                 uint32_t *first_nblank_loc,
 								 uint32_t *first_nblank_val);
 /**  Read part identification number */
 IAP_STATUS_CODE ReadPartID(uint32_t *partID);

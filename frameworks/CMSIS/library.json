@@ -1,9 +1,9 @@
 {
-  "name": "CMSIS-LPC1768", 
+  "name": "CMSIS-LPC1768",
   "version": "0.0.0",
-  "frameworks": [], 
+  "frameworks": [],
   "platforms": [
-      "nxplpc", 
+      "nxplpc",
       "ststm32"
   ],
   "description": "CMSIS library for LPC1768",

@@ -331,7 +331,7 @@ Status I2S_FreqConfig(LPC_I2S_TypeDef *I2Sx, uint32_t Freq, uint8_t TRMode) {
 	uint16_t dif;
 	uint16_t x_divide, y_divide;
 	uint16_t err, ErrorOptimal = 0xFFFF;
-	
+
 	uint32_t N;
 
 	CHECK_PARAM(PARAM_I2Sx(I2Sx));
@@ -360,7 +360,7 @@ Status I2S_FreqConfig(LPC_I2S_TypeDef *I2Sx, uint32_t Freq, uint8_t TRMode) {
 	 * The formula is:
 	 * 		I2S_MCLK = PCLK_I2S * (X/Y) / 2
      * In that, Y must be greater than or equal to X. X should divides evenly
-     * into Y. 
+     * into Y.
 	 * We have:
 	 * 		I2S_MCLK = Freq * channel*wordwidth * (I2STXBITRATE+1);
 	 * So: (X/Y) = (Freq * channel*wordwidth * (I2STXBITRATE+1))*2/PCLK_I2S
