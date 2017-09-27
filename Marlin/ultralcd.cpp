@@ -239,13 +239,7 @@ uint16_t max_display_update_time = 0;
   ////////////////////////////////////////////
 
   #ifndef ENCODER_FEEDRATE_DEADZONE
-    #define ENCODER_FEEDRATE_DEADZONE 10
-  #endif
-  #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM 5
-  #endif
-  #ifndef ENCODER_PULSES_PER_STEP
-    #define ENCODER_PULSES_PER_STEP 1
+    #define ENCODER_FEEDRATE_DEADZONE 6
   #endif
 
   /**
