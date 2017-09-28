@@ -96,6 +96,12 @@ script:
   - opt_set_adv FANMUX0_PIN 53
   - build_marlin
   #
+  # Test a probeles build of AUTO_BED_LEVELING_UBL
+  #
+  - restore_configs
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS G3D_PANEL
+  - build_marlin
+  #
   # Test a simple build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs

@@ -381,6 +381,7 @@
     }
 
     if (parser.seen('J')) {
+      #if HAS_BED_PROBE
       if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
         save_ubl_active_state_and_disable();
         tilt_mesh_based_on_probed_grid(parser.seen('T'));
@@ -413,6 +414,9 @@
         tilt_mesh_based_on_3pts(z1, z2, z3);
         restore_ubl_active_state_and_leave();
       }
+      #else
+      SERIAL_ECHO("UBL function not available due to missing Z-Probe.\n");
+      #endif // HAS_BED_PROBE
     }
 
     if (parser.seen('P')) {
@@ -431,6 +435,7 @@
           break;
 
         case 1:
+          #if HAS_BED_PROBE
           //
           // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
           //
@@ -446,6 +451,9 @@
           }
           probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                             parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          #else
+          SERIAL_ECHO("UBL function not available due to missing Z-Probe.\n");
+          #endif
           break;
 
         case 2: {
@@ -775,6 +783,7 @@
           z_values[x][y] += g29_constant;
   }
 
+  #if HAS_BED_PROBE
   /**
    * Probe all invalidated locations of the mesh that can be reached by the probe.
    * This attempts to fill in locations closest to the nozzle's start location first.
@@ -824,7 +833,9 @@
       constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)
     );
   }
+  #endif // HAS_BED_PROBE
 
+  #if HAS_BED_PROBE
   void unified_bed_leveling::tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3) {
     matrix_3x3 rotation;
     vector_3 v1 = vector_3( (UBL_PROBE_PT_1_X - UBL_PROBE_PT_2_X),
@@ -928,6 +939,7 @@
       }
     }
   }
+  #endif // HAS_BED_PROBE
 
   #if ENABLED(NEWPANEL)
     float unified_bed_leveling::measure_point_with_encoder() {
@@ -1625,6 +1637,7 @@
     }
   }
 
+  #if HAS_BED_PROBE
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {
     constexpr int16_t x_min = max(MIN_PROBE_X, UBL_MESH_MIN_X),
                       x_max = min(MAX_PROBE_X, UBL_MESH_MAX_X),
@@ -1769,6 +1782,7 @@
 
     if (do_ubl_mesh_map) display_map(g29_map_type);
   }
+  #endif // HAS_BED_PROBE
 
   #if ENABLED(UBL_G29_P31)
     void unified_bed_leveling::smart_fill_wlsf(const float &weight_factor) {
