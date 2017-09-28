@@ -806,7 +806,7 @@ void Stepper::isr() {
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+      HAL_TIMER_TYPE stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
                stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
       HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
