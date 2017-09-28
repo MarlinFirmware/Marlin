@@ -487,7 +487,7 @@ void GcodeSuite::process_next_command() {
         case 665: M665(); break;  // M665: Set delta configurations
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+      #if ENABLED(DELTA)  || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         case 666: M666(); break;  // M666: Set delta or dual endstop adjustment
       #endif
 

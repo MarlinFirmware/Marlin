@@ -1053,9 +1053,15 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
 
-  // Set a flag for Z motor locking
+  // Set a flag for motor locking
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) stepper.set_homing_flag_x(true);
+  #endif
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) stepper.set_homing_flag_y(true);
+  #endif
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+    if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1097,6 +1103,48 @@ void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) {
+      float adj = FABS(endstops.x_endstop_adj);
+      bool lockX1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockX1 = (endstops.x_endstop_adj > 0);
+      }
+      else
+        lockX1 = (endstops.x_endstop_adj < 0);
+
+      if (lockX1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockX1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
+      stepper.set_homing_flag_x(false);
+    } // X_AXIS
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) {
+      float adj = FABS(endstops.y_endstop_adj);
+      bool lockY1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockY1 = (endstops.y_endstop_adj > 0);
+      }
+      else
+        lockY1 = (endstops.y_endstop_adj < 0);
+
+      if (lockY1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockY1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
+      stepper.set_homing_flag_y(false);
+    } // Y_AXIS
+  #endif
+
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
       float adj = FABS(endstops.z_endstop_adj);
@@ -1114,7 +1162,7 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adj);
 
       if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-      stepper.set_homing_flag(false);
+      stepper.set_homing_flag_z(false);
     } // Z_AXIS
   #endif
 

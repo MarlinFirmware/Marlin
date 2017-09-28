@@ -257,6 +257,22 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
+// Dual Steppers
+//
+// This section will allow you to use extra E drivers to drive a second motor for X, Y, or Z axes.
+//
+// X_DUAL_STEPPER_DRIVERS setting will set that axis to use the second driver for a second motor.
+// INVERT_X2_VS_X_DIR will drive the second motor in the opposite direction.
+// X_DUAL_ENDSTOPS setting will allow each motor to have their own endstop, which can adjust for
+// racking. If you set this, you can also set which pin to use with X2_USE_ENDSTOP. M119 (endstops
+// report) will show the X2 endstop as well.
+//
+// X_DUAL_ENDSTOP_ADJUSTMENT: After homing both motors, this offset is applied to the X2 motor. if
+// you home the X axis, and then measure the error in X2, then you can either add that value in
+// here, or set it using the M666 X<value> command.
+//
+// The previous documentation also applies to the Y and Z variants.
+//
 // Dual X Steppers
 // Uncomment this option to drive two X axis motors.
 // The next unused E driver will be assigned to the second X stepper.
@@ -264,6 +280,13 @@
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   // Set true if the two X motors need to rotate in opposite directions
   #define INVERT_X2_VS_X_DIR true
+
+  //#define X_DUAL_ENDSTOPS
+
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    #define X2_USE_ENDSTOP _XMAX_
+    #define X_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
+  #endif
 #endif
 
 // Dual Y Steppers
@@ -273,6 +296,13 @@
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   // Set true if the two Y motors need to rotate in opposite directions
   #define INVERT_Y2_VS_Y_DIR true
+
+  //#define Y_DUAL_ENDSTOPS
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #define Y2_USE_ENDSTOP _YMAX_
+    #define Y_DUAL_ENDSTOPS_ADJUSTMENT  0  // use M666 command to determine/test this value
+  #endif
 #endif
 
 // A single Z stepper driver is usually used to drive 2 stepper motors.
@@ -282,19 +312,10 @@
 
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
 
-  // Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
-  // That way the machine is capable to align the bed during home, since both Z steppers are homed.
-  // There is also an implementation of M666 (software endstops adjustment) to this feature.
-  // After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
-  // One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
-  // If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
-  // Play a little bit with small adjustments (0.5mm) and check the behaviour.
-  // The M119 (endstops report) will start reporting the Z2 Endstop as well.
-
   //#define Z_DUAL_ENDSTOPS
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z2_USE_ENDSTOP _XMAX_
+    #define Z2_USE_ENDSTOP _ZMAX_
     #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // Use M666 to determine/test this value
   #endif
 
