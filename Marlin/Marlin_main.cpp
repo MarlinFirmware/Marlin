@@ -13041,9 +13041,6 @@ void disable_all_steppers() {
       #if ENABLED(E4_IS_TMC2130)
         automatic_current_control(stepperE4, "E4");
       #endif
-      #if ENABLED(E4_IS_TMC2130)
-        automatic_current_control(stepperE4);
-      #endif
     }
   }
 
