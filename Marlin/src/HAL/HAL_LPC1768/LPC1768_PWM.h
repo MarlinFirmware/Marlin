@@ -399,6 +399,16 @@ bool LPC1768_PWM_detach_pin(uint8_t pin) {
   return 1;
 }
 
+
+bool useable_hardware_PWM(uint8_t pin) {
+  COPY_ACTIVE_TABLE;  // copy active table into work table
+  for (uint8_t i = 0; i < NUM_PWMS; i++)         // see if it's already setup
+    if (work_table[i].logical_pin == pin && work_table[i].sequence) return true;
+  for (uint8_t i = 0; i < NUM_PWMS; i++)         // see if there is an empty slot
+    if (!work_table[i].sequence) return true;
+  return false;    // only get here if neither the above are true
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #define HAL_PWM_LPC1768_ISR  extern "C" void PWM1_IRQHandler(void)
