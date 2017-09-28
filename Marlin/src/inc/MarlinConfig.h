@@ -26,6 +26,7 @@
 #include "../core/boards.h"
 #include "../core/macros.h"
 #include "Version.h"
+#include "SPI.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
 #include "../../Configuration_adv.h"

@@ -23,7 +23,8 @@
 #ifndef SPI_PINS_LPC1768_H
 #define SPI_PINS_LPC1768_H
 
-#define SOFTWARE_SPI
+#define LPC_SOFTWARE_SPI
+
 /** onboard SD card */
 //#define SCK_PIN           P0_7
 //#define MISO_PIN          P0_8
@@ -34,4 +35,10 @@
 #define MISO_PIN          50 //P0_17
 #define MOSI_PIN          51 //P0_18
 #define SS_PIN            53 //P1_23
+#define SDSS              SS_PIN
+
+#if (defined(IS_REARM) && !(defined(LPC_SOFTWARE_SPI)))   // signal LCDs that they need to use the hardware SPI
+  #define SHARED_SPI
+#endif
+
 #endif /* SPI_PINS_LPC1768_H */

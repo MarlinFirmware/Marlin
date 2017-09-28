@@ -403,9 +403,6 @@
 #ifndef SDPOWER
   #define SDPOWER -1
 #endif
-#ifndef SDSS
-  #define SDSS -1
-#endif
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
