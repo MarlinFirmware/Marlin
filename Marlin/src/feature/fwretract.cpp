@@ -50,7 +50,7 @@ void FWRetract::reset() {
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
     #if EXTRUDERS > 1
-      bool retracted_swap[i] = false;
+      retracted_swap[i] = false;
     #endif
   }
 }
