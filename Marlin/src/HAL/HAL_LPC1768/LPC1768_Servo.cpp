@@ -113,7 +113,7 @@
     servo_info[this->servoIndex].Pin.isActive = false;
   }
 
-  void Servo::write(const int value) {
+  void Servo::write(int value) {
     if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
       value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
         // odd - this sets zero degrees to 544 and 180 degrees to 2400 microseconds but the literature says
@@ -122,7 +122,7 @@
     this->writeMicroseconds(value);
   }
 
-  void Servo::writeMicroseconds(const int value) {
+  void Servo::writeMicroseconds(int value) {
     // calculate and store the values for the given channel
     byte channel = this->servoIndex;
     if (channel < MAX_SERVOS) {  // ensure channel is valid
