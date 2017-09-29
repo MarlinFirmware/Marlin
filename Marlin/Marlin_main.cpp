@@ -5595,7 +5595,7 @@ void home_all_axes() { gcode_G28(true); }
           float r_diff = delta_radius - delta_calibration_radius,
                 h_factor = 1.00 + r_diff * 0.001,                            //1.02 for r_diff = 20mm
                 r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
-                a_factor = 66.66 / delta_calibration_radius;                 //0.83 for cal_rd = 80mm
+                a_factor = 80.0 / delta_calibration_radius;                  //1.00 for cal_rd = 80mm
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z6(I) ZP(6, I)
