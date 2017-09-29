@@ -5640,17 +5640,9 @@ void home_all_axes() { gcode_G28(true); }
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) { // tower angle calibration matrix
-                if (_7p_intermed_points) // correct for saddle shape (intermediate tower angle matrix)
-                  for (uint8_t axis = 1; axis < 13; axis += 2)
-                    z_at_pt[axis] -= (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 8.0;
-
                 t_delta[A_AXIS] = (       - Z1(5) + Z1(9)         - Z1(11) + Z1(3)) * a_factor;
                 t_delta[B_AXIS] = ( Z1(1)         - Z1(9) + Z1(7)          - Z1(3)) * a_factor;
                 t_delta[C_AXIS] = (-Z1(1) + Z1(5)         - Z1(7) + Z1(11)        ) * a_factor;
-
-                if (_7p_intermed_points) // uncorrect for saddle shape (to print uncorrected values)
-                  for (uint8_t axis = 1; axis < 13; axis += 2)
-                    z_at_pt[axis] += (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 8.0;
               }
               break;
           }
