@@ -5633,7 +5633,7 @@ void home_all_axes() { gcode_G28(true); }
               }
               break;
 
-            default: // 7 point calibration matrix / 7 point intermediate calibration matrix
+            default: // 7 point calibration matrix
               e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
               e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
               e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
