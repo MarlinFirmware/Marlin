@@ -34,20 +34,7 @@ FWRetract fwretract; // Single instance
 
 #include "../module/motion.h"
 #include "../module/planner.h"
-
-bool FWRetract::autoretract_enabled,                 // M209 S - Autoretract switch
-     FWRetract::retracted[EXTRUDERS] = { false };    // Which extruders are currently retracted
-float FWRetract::retract_length,                     // M207 S - G10 Retract length
-      FWRetract::retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-      FWRetract::retract_zlift,                      // M207 Z - G10 Retract hop size
-      FWRetract::retract_recover_length,             // M208 S - G11 Recover length
-      FWRetract::retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-      FWRetract::swap_retract_length,                // M207 W - G10 Swap Retract length
-      FWRetract::swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-      FWRetract::swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
-#if EXTRUDERS > 1
-  bool FWRetract::retracted_swap[EXTRUDERS] = { false }; // Which extruders are swap-retracted
-#endif
+#include "../module/stepper.h"
 
 void FWRetract::reset() {
   autoretract_enabled = false;
@@ -59,6 +46,13 @@ void FWRetract::reset() {
   swap_retract_length = RETRACT_LENGTH_SWAP;
   swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
   swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
+
+  for (uint8_t i = 0; i < EXTRUDERS; ++i) {
+    retracted[i] = false;
+    #if EXTRUDERS > 1
+      bool retracted_swap[i] = false;
+    #endif
+  }
 }
 
 /**
@@ -87,10 +81,11 @@ void FWRetract::retract(const bool retracting
   // Simply never allow two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
 
-  #if EXTRUDERS < 2
-    bool swapping = false;
+  #if EXTRUDERS > 1
+    if (!retracting) swapping = retracted_swap[active_extruder];
+  #else
+    const bool swapping = false;
   #endif
-  if (!retracting) swapping = retracted_swap[active_extruder];
 
   /* // debugging
     SERIAL_ECHOLNPAIR("retracting ", retracting);
@@ -105,6 +100,8 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
+
+  stepper.synchronize();  // Wait for buffered moves to complete
 
   const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
 
