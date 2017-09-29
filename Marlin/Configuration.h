@@ -523,7 +523,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160,178,800,860,845,859 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160,178,800,860,860,860 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -735,7 +735,7 @@
 // @section extruder
 
 #define DISABLE_E false // For all extruders
-#define DISABLE_INACTIVE_EXTRUDER true // Keep only the active extruder enabled.
+#define DISABLE_INACTIVE_EXTRUDER false // Keep only the active extruder enabled.
 
 // @section machine
 
@@ -750,7 +750,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR true
 #define INVERT_E2_DIR true
 #define INVERT_E3_DIR false
