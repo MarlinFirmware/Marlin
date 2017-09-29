@@ -30,6 +30,11 @@
 #include "../inc/MarlinConfig.h"
 
 class FWRetract {
+private:
+  #if EXTRUDERS > 1
+    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+  #endif
+
 public:
   static bool autoretract_enabled,                 // M209 S - Autoretract switch
               retracted[EXTRUDERS];                // Which extruders are currently retracted
@@ -42,22 +47,24 @@ public:
                swap_retract_recover_length,        // M208 W - G11 Swap Recover length
                swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 
-  #if EXTRUDERS > 1
-    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
-  #else
-    static bool constexpr retracted_swap[1] = { false };
-  #endif
-
-  FWRetract() {}
+  FWRetract() { reset(); }
 
   static void reset();
+
+  static void refresh_autoretract() {
+    for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+  }
+
+  static void enable_autoretract(const bool enable) {
+    autoretract_enabled = enable;
+    refresh_autoretract();
+  }
 
   static void retract(const bool retracting
     #if EXTRUDERS > 1
       , bool swapping = false
     #endif
   );
-
 };
 
 extern FWRetract fwretract;
