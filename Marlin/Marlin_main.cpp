@@ -5581,7 +5581,7 @@ void home_all_axes() { gcode_G28(true); }
         zero_std_dev_old = zero_std_dev;
         zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
-        // Solve matrices
+        // Solve matrices (see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
 
         if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
           if (zero_std_dev < zero_std_dev_min) {
@@ -5595,7 +5595,7 @@ void home_all_axes() { gcode_G28(true); }
           float r_diff = delta_radius - delta_calibration_radius,
                 h_factor = 1.00 + r_diff * 0.001,                            //1.02 for r_diff = 20mm
                 r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
-                a_factor = 66.66 / delta_calibration_radius;                 //0.83 for cal_rd = 80mm
+                a_factor = 80.0 / delta_calibration_radius;                  //1.00 for cal_rd = 80mm
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z6(I) ZP(6, I)
@@ -5610,19 +5610,22 @@ void home_all_axes() { gcode_G28(true); }
           #endif
 
           switch (probe_points) {
+            case 0:
+              break;
+
             case 1:
               test_precision = 0.00; // forced end
               LOOP_XYZ(axis) e_delta[axis] = Z1(0);
               break;
 
             case 2:
-              if (towers_set) {
+              if (towers_set) { // 4 point calibartion matrix
                 e_delta[A_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
                 r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
-              else {
+              else { // 4 point opposite calibration matrix
                 e_delta[A_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
                 e_delta[B_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
                 e_delta[C_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
@@ -5630,16 +5633,16 @@ void home_all_axes() { gcode_G28(true); }
               }
               break;
 
-            default:
+            default: // 7 point calibration matrix
               e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
               e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
               e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
-              if (towers_set) {
-                t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-                t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-                t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+              if (towers_set) { // tower angle calibration matrix
+                t_delta[A_AXIS] = (       - Z1(5) + Z1(9)         - Z1(11) + Z1(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z1(1)         - Z1(9) + Z1(7)          - Z1(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z1(1) + Z1(5)         - Z1(7) + Z1(11)        ) * a_factor;
               }
               break;
           }
