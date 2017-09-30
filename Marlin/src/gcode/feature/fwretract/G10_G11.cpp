@@ -34,7 +34,6 @@
 void GcodeSuite::G10() {
   #if EXTRUDERS > 1
     const bool rs = parser.boolval('S');
-    fwretract.retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
   #endif
   fwretract.retract(true
     #if EXTRUDERS > 1
