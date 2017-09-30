@@ -649,7 +649,8 @@ static_assert(1 >= 0
    */
   #if HAS_ABL
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      // Actually does not require
+      // UBL used to require the defination of a Z-Probe.   That requirement has been relaxed.  However, UBL will provide a 
+      // richer feature set if a Z-Probe is available.
       //#error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
     #else
       #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
