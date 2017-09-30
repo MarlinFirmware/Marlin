@@ -6384,6 +6384,13 @@ inline void gcode_M17() {
     #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
 
       float extrude_length = initial_extrude_length;
+      float dest_x = destination[X_AXIS];
+      float dest_y = destination[Y_AXIS];
+      float dest_z = destination[Z_AXIS];
+
+      destination[X_AXIS] = current_position[X_AXIS];
+      destination[Y_AXIS] = current_position[Y_AXIS];
+      destination[Z_AXIS] = current_position[Z_AXIS];
 
       do {
         if (extrude_length > 0) {
@@ -6407,6 +6414,11 @@ inline void gcode_M17() {
 
         // Keep looping if "Extrude More" was selected
       } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+              
+      destination[X_AXIS]=dest_x;
+      destination[Y_AXIS]=dest_y;
+      destination[Z_AXIS]=dest_z;
+      stepper.synchronize();       
 
     #endif
 
