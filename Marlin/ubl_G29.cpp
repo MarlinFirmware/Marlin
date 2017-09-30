@@ -382,40 +382,40 @@
 
     if (parser.seen('J')) {
       #if HAS_BED_PROBE
-      if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
-        save_ubl_active_state_and_disable();
-        tilt_mesh_based_on_probed_grid(parser.seen('T'));
-        restore_ubl_active_state_and_leave();
-      }
-      else { // grid_size == 0 : A 3-Point leveling has been requested
-        float z3, z2, z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level);
-        if (!isnan(z1)) {
-          z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level);
-          if (!isnan(z2))
-            z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+        if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
+          save_ubl_active_state_and_disable();
+          tilt_mesh_based_on_probed_grid(parser.seen('T'));
+          restore_ubl_active_state_and_leave();
         }
+        else { // grid_size == 0 : A 3-Point leveling has been requested
+          float z3, z2, z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level);
+          if (!isnan(z1)) {
+            z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level);
+            if (!isnan(z2))
+              z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+          }
 
-        if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
-          goto LEAVE;
+          if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
+            SERIAL_ERROR_START();
+            SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
+            goto LEAVE;
+          }
+
+          // Adjust z1, z2, z3 by the Mesh Height at these points. Just because they're non-zero
+          // doesn't mean the Mesh is tilted! (Compensate each probe point by what the Mesh says
+          // its height is.)
+
+          save_ubl_active_state_and_disable();
+          z1 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
+          z2 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
+          z3 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
+
+          do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
+          tilt_mesh_based_on_3pts(z1, z2, z3);
+          restore_ubl_active_state_and_leave();
         }
-
-        // Adjust z1, z2, z3 by the Mesh Height at these points. Just because they're non-zero
-        // doesn't mean the Mesh is tilted! (Compensate each probe point by what the Mesh says
-        // its height is.)
-
-        save_ubl_active_state_and_disable();
-        z1 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
-        z2 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
-        z3 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
-
-        do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
-        tilt_mesh_based_on_3pts(z1, z2, z3);
-        restore_ubl_active_state_and_leave();
-      }
       #else
-      SERIAL_ECHO("UBL function not available due to missing Z-Probe.\n");
+        SERIAL_ECHO("Action not available without Z-Probe\n");
       #endif // HAS_BED_PROBE
     }
 
@@ -436,23 +436,23 @@
 
         case 1:
           #if HAS_BED_PROBE
-          //
-          // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
-          //
-          if (!parser.seen('C')) {
-            invalidate();
-            SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.");
-          }
-          if (g29_verbose_level > 1) {
-            SERIAL_PROTOCOLPAIR("Probing Mesh Points Closest to (", g29_x_pos);
-            SERIAL_PROTOCOLCHAR(',');
-            SERIAL_PROTOCOL(g29_y_pos);
-            SERIAL_PROTOCOLLNPGM(").\n");
-          }
-          probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            parser.seen('T'), parser.seen('E'), parser.seen('U'));
+            //
+            // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
+            //
+            if (!parser.seen('C')) {
+              invalidate();
+              SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.");
+            }
+            if (g29_verbose_level > 1) {
+              SERIAL_PROTOCOLPAIR("Probing Mesh Points Closest to (", g29_x_pos);
+              SERIAL_PROTOCOLCHAR(',');
+              SERIAL_PROTOCOL(g29_y_pos);
+              SERIAL_PROTOCOLLNPGM(").\n");
+            }
+            probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
+                              parser.seen('T'), parser.seen('E'), parser.seen('U'));
           #else
-          SERIAL_ECHO("UBL function not available due to missing Z-Probe.\n");
+            SERIAL_ECHO("Action not available without Z-Probe.\n");
           #endif
           break;
 
