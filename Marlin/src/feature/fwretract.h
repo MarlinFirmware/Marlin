@@ -31,33 +31,39 @@
 
 class FWRetract {
 public:
-  static bool autoretract_enabled,                 // M209 S - Autoretract switch
-              retracted[EXTRUDERS];                // Which extruders are currently retracted
-  static float retract_length,                     // M207 S - G10 Retract length
-               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-               retract_zlift,                      // M207 Z - G10 Retract hop size
-               retract_recover_length,             // M208 S - G11 Recover length
-               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-               swap_retract_length,                // M207 W - G10 Swap Retract length
-               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
+  bool  autoretract_enabled;                // M209 S - Autoretract switch
+  float retract_length,                     // M207 S - G10 Retract length
+        retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
+        retract_zlift,                      // M207 Z - G10 Retract hop size
+        retract_recover_length,             // M208 S - G11 Recover length
+        retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
+        swap_retract_length,                // M207 W - G10 Swap Retract length
+        swap_retract_recover_length,        // M208 W - G11 Swap Recover length
+        swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 
-  #if EXTRUDERS > 1
-    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
-  #else
-    static bool constexpr retracted_swap[1] = { false };
-  #endif
+  FWRetract() { reset(); }
 
-  FWRetract() {}
+  void reset();
 
-  static void reset();
+  void enable_autoretract(bool enable) {
+    autoretract_enabled = enable;
+    for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+  }
 
-  static void retract(const bool retracting
+  bool is_retracted(uint8_t e) { return retracted[e]; }
+
+  void retract(const bool retracting
     #if EXTRUDERS > 1
       , bool swapping = false
     #endif
   );
 
+private:
+  bool retracted[EXTRUDERS];                // Which extruders are currently retracted
+
+  #if EXTRUDERS > 1
+    bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+  #endif
 };
 
 extern FWRetract fwretract;
