@@ -62,9 +62,9 @@ void delayMicroseconds(uint32_t us) {
     while (loops > 0) --loops;
   }
   else { // poll systick, more accurate through interrupts
-    int32_t start = SysTick->VAL;
-    int32_t load = SysTick->LOAD;
-    int32_t end = start - (load / 1000) * us;
+    uint32_t start = SysTick->VAL;
+    uint32_t load = SysTick->LOAD;
+    uint32_t end = start - (load / 1000) * us;
 
     if (end >> 31)
       while (!(SysTick->VAL > start && SysTick->VAL < (load + end))) __NOP();

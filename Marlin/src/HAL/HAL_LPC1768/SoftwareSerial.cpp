@@ -292,10 +292,10 @@ void SoftwareSerial::begin(long speed)
 
 void SoftwareSerial::setRxIntMsk(bool enable)
 {
-    if (enable)
-        GpioEnableInt(_receivePort,_receivePin,CHANGE);
-    else
-        GpioDisableInt(_receivePort,_receivePin);
+  if (enable)
+    GpioEnableInt(_receivePort,_receivePin,CHANGE);
+  else
+    GpioDisableInt(_receivePort,_receivePin);
 }
 
 void SoftwareSerial::end()

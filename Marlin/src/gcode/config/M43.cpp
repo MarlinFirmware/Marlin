@@ -141,15 +141,16 @@ inline void servo_probe_test() {
 
     SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
+    uint8_t i = 0;
     bool deploy_state, stow_state;
-    for (uint8_t i = 0; i < 4; i++) {
+    do {
       MOVE_SERVO(probe_index, z_servo_angle[0]); //deploy
       safe_delay(500);
       deploy_state = READ(PROBE_TEST_PIN);
       MOVE_SERVO(probe_index, z_servo_angle[1]); //stow
       safe_delay(500);
       stow_state = READ(PROBE_TEST_PIN);
-    }
+    } while (++i < 4);
     if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
     gcode.refresh_cmd_timeout();
@@ -167,7 +168,6 @@ inline void servo_probe_test() {
       #if ENABLED(BLTOUCH)
         SERIAL_PROTOCOLLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
       #endif
-
     }
     else {                                           // measure active signal length
       MOVE_SERVO(probe_index, z_servo_angle[0]);     // deploy

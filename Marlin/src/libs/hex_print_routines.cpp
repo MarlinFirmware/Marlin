@@ -21,41 +21,46 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../gcode/parser.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
 
   #include "hex_print_routines.h"
 
   #ifdef CPU_32_BIT
-    constexpr int byte_start = 0;
-    static char _hex[] = "0x0000";
-  #else
     constexpr int byte_start = 4;
     static char _hex[] = "0x00000000";
+  #else
+    constexpr int byte_start = 0;
+    static char _hex[] = "0x0000";
   #endif
 
   char* hex_byte(const uint8_t b) {
     _hex[byte_start + 4] = hex_nybble(b >> 4);
     _hex[byte_start + 5] = hex_nybble(b);
-    return &_hex[byte_start];
+    return &_hex[byte_start + 4];
   }
 
-  char* hex_word(const uint16_t w) {
+  inline void _hex_word(const uint16_t w) {
     _hex[byte_start + 2] = hex_nybble(w >> 12);
     _hex[byte_start + 3] = hex_nybble(w >> 8);
     _hex[byte_start + 4] = hex_nybble(w >> 4);
     _hex[byte_start + 5] = hex_nybble(w);
-    return &_hex[byte_start - 2];
+  }
+
+  char* hex_word(const uint16_t w) {
+    _hex_word(w);
+    return &_hex[byte_start + 2];
   }
 
   #ifdef CPU_32_BIT
-    char* hex_long(const uint32_t w) {
-      _hex[byte_start - 2] = hex_nybble(w >> 28);
-      _hex[byte_start - 1] = hex_nybble(w >> 24);
-      _hex[byte_start + 0] = hex_nybble(w >> 20);
-      _hex[byte_start + 1] = hex_nybble(w >> 16);
-      (void)hex_word((uint16_t)(w & 0xFFFF));
-      return &_hex[byte_start - 6];
+    char* hex_long(const uint32_t l) {
+      _hex[2] = hex_nybble(l >> 28);
+      _hex[3] = hex_nybble(l >> 24);
+      _hex[4] = hex_nybble(l >> 20);
+      _hex[5] = hex_nybble(l >> 16);
+      _hex_word((uint16_t)(l & 0xFFFF));
+      return &_hex[2];
     }
   #endif
 

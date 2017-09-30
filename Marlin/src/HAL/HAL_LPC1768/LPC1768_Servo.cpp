@@ -147,9 +147,11 @@
   bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
   void Servo::move(const int value) {
+    constexpr uint16_t servo_delay[] = SERVO_DELAY;
+    static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
     if (this->attach(0) >= 0) {    // notice the pin number is zero here
       this->write(value);
-      delay(SERVO_DELAY);
+      delay(servo_delay[this->servoIndex]);
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
         this->detach();
         LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal
