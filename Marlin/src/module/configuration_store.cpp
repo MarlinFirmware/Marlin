@@ -304,8 +304,11 @@ void MarlinSettings::postprocess() {
     EEPROM_START();
 
     eeprom_error = false;
-
+ #if ENABLED(FLASH_EEPROM_EMULATION)
+    EEPROM_SKIP(ver); // Flash doesn't allow rewriting without erase
+#else
     EEPROM_WRITE(ver);     // invalidate data first
+#endif
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
     working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
