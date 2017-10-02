@@ -167,10 +167,24 @@ void clean_up_after_endstop_or_probe_move();
 // Homing
 //
 
-#define NEED_UNHOMED_ERR (HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION))
+#define HAS_AXIS_UNHOMED_ERR (                                                     \
+         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
+      || ENABLED(Z_PROBE_SLED)                                                     \
+      || HAS_PROBING_PROCEDURE                                                     \
+      || HOTENDS > 1                                                               \
+      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
+      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
+      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
 
-#if NEED_UNHOMED_ERR
+#if HAS_AXIS_UNHOMED_ERR
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
+#endif
+
+#if ENABLED(NO_MOTION_BEFORE_HOMING)
+  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+#else
+  #define MOTION_CONDITIONS IsRunning()
 #endif
 
 void set_axis_is_at_home(const AxisEnum axis);

@@ -41,7 +41,7 @@ void GcodeSuite::G0_G1(
     bool fast_move/*=false*/
   #endif
 ) {
-  if (IsRunning()) {
+  if (MOTION_CONDITIONS) {
     get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)

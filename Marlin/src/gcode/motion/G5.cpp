@@ -50,7 +50,7 @@ void plan_cubic_move(const float offset[4]) {
  * G5: Cubic B-spline
  */
 void GcodeSuite::G5() {
-  if (IsRunning()) {
+  if (MOTION_CONDITIONS) {
 
     #if ENABLED(CNC_WORKSPACE_PLANES)
       if (workspace_plane != PLANE_XY) {
