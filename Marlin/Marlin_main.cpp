@@ -3195,6 +3195,8 @@ static void homeaxis(const AxisEnum axis) {
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
 
+    stepper.synchronize(); // Wait for all moves to finish
+
     if (retracting) {
       // Remember the Z height since G-code may include its own Z-hop
       // For best results turn off Z hop if G-code already includes it
@@ -3205,6 +3207,7 @@ static void homeaxis(const AxisEnum axis) {
       current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
+                
 
       // If a Z hop set,not yet been done && no double zlifting if hop_amount exists
       if (has_zhop && !hop_amount) {
