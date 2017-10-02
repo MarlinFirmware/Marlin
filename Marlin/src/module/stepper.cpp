@@ -323,7 +323,7 @@ void Stepper::isr() {
 
   HAL_TIMER_TYPE ocr_val;
 
-  #if defined(CPU_32_BIT)
+  #ifdef CPU_32_BIT
     #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
     #define OCR_VAL_TOLERANCE 500 * HAL_TICKS_PER_US           // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
   #else
@@ -335,7 +335,7 @@ void Stepper::isr() {
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
     DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #if !defined(CPU_32_BIT)
+    #ifndef CPU_32_BIT
       sei();
     #endif
   #endif

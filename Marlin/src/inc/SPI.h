@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 
-#if !defined(SPI_FULL_SPEED)
+#ifndef SPI_FULL_SPEED
 
 /**
  * SPI speed where 0 <= index <= 6
