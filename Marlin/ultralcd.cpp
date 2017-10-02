@@ -20,8 +20,11 @@
  *
  */
 
-#include "ultralcd.h"
+#include "MarlinConfig.h"
+
 #if ENABLED(ULTRA_LCD)
+
+#include "ultralcd.h"
 #include "Marlin.h"
 #include "language.h"
 #include "cardreader.h"
