@@ -268,6 +268,8 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     filament_change_beep(max_beep_count, true);
   #endif
 
+  set_destination_to_current();
+
   if (load_length != 0) {
     #if ENABLED(ULTIPANEL)
       // Show "insert filament"
