@@ -51,7 +51,7 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if NEED_UNHOMED_ERR && ENABLED(ULTRA_LCD)
+#if HAS_AXIS_UNHOMED_ERR && ENABLED(ULTRA_LCD)
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -820,7 +820,7 @@ void prepare_move_to_destination() {
   set_current_to_destination();
 }
 
-#if NEED_UNHOMED_ERR
+#if HAS_AXIS_UNHOMED_ERR
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
     #if ENABLED(HOME_AFTER_DEACTIVATE)
@@ -848,7 +848,7 @@ void prepare_move_to_destination() {
     return false;
   }
 
-#endif
+#endif // HAS_AXIS_UNHOMED_ERR
 
 /**
  * The homing feedrate may vary

@@ -88,7 +88,7 @@
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
 */
 
-#if !defined(__AVR_ATmega1284P__)
+#ifndef __AVR_ATmega1284P__
   #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 

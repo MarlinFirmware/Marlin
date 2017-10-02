@@ -276,7 +276,7 @@ inline void do_probe_raise(const float z_raise) {
     #endif
   }
 
-#endif
+#endif // Z_PROBE_ALLEN_KEY
 
 #if ENABLED(PROBING_FANS_OFF)
 
