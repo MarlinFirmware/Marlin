@@ -3159,9 +3159,9 @@ static void homeaxis(const AxisEnum axis) {
     static float hop_height,        // Remember where the Z height started
                  hop_amount = 0.0;  // Total amount lifted, for use in recover
 
-    // Simply never allow two retracts or recovers in a row
+    // Double G10 or G11 reject
     if (!swapping && (retracted[active_extruder]== retracting))  return;
-    // Allow G10S1 after G10
+    // Allow G10S1 after G10 + Double G10S1 reject
     if (swapping && (retracted_swap[active_extruder]== retracting))  return;
     
 
@@ -3206,37 +3206,30 @@ static void homeaxis(const AxisEnum axis) {
       sync_plan_position_e();
       prepare_move_to_destination();
 
-      // Is a Z hop set, and has the hop not yet been done? && no double zlifting if hop_amount exist
+      // If a Z hop set,not yet been done && no double zlifting if hop_amount exists
       if (has_zhop && !hop_amount) {
         hop_amount += retract_zlift; 
-        // user have to take care about max speed of zaxis without jerk and accelleration
-        // that can loose steps if too high
+        // Max feedrate zmoves
         float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
         feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
-        //
         current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
         SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
         prepare_move_to_destination();              // Raise up to the old current pos
-        feedrate_mm_s = temp_feedrate_mm_s  ; //feedrate restoration
+        feedrate_mm_s = temp_feedrate_mm_s  ;       //feedrate restoration
       }
     }
     else {
       // If a hop was done undo the hop 
-                                                        //if (hop_amount && NEAR(hop_height, destination[Z_AXIS])) {
       if (hop_amount) {
         current_position[Z_AXIS] += hop_amount;     // Pretend current pos is higher. Next move lowers Z.
-         // user have to take care about max speed of zaxis without jerk and accelleration
-        // that can loose steps if too high
         float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate  
         feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
-        //       
         SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
         prepare_move_to_destination();              // Lower to the old current pos
         hop_amount = 0.0;
         feedrate_mm_s = temp_feedrate_mm_s  ; // feedrate restoration
       }
 
-      // A retract multiplier has been added here to get faster swap recovery
       feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
       const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
@@ -3253,8 +3246,7 @@ static void homeaxis(const AxisEnum axis) {
     // The active extruder is now retracted or recovered
     retracted[active_extruder] = retracting;
 
-    // If swap retract/recover then update the retracted_swap flag too
-  
+    // If swap retract/recover then update the retracted_swap flag too  
     #if EXTRUDERS > 1
       if (swapping) {
         retracted_swap[active_extruder] = retracting;  }
