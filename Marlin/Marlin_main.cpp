@@ -1097,7 +1097,7 @@ inline void get_serial_commands() {
   int c;
   while (commands_in_queue < BUFSIZE && (c = MYSERIAL.read()) >= 0) {
 
-	char serial_char = c;
+    char serial_char = c;
 
     /**
      * If the character ends the line
@@ -13330,12 +13330,15 @@ void loop() {
           // M29 closes the file
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
-		#if ENABLED(SERIAL_STATS_DROPPED_RX)
-		  SERIAL_ECHOLNPAIR("Dropped bytes: ", MarlinSerial::dropped());
-		#endif
-		#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-		  SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MarlinSerial::rxMaxEnqueued());
-		#endif  
+
+          #if ENABLED(SERIAL_STATS_DROPPED_RX)
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+          #endif
+
+          #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+          #endif
+
           ok_to_send();
         }
         else {
