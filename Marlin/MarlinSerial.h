@@ -84,61 +84,32 @@
   #ifndef RX_BUFFER_SIZE
     #define RX_BUFFER_SIZE 128
   #endif
-  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
-	#error "XON/XOFF requires a 1024 or greater RX_BUFFER_SIZE for allowing reliable transfers without drops"
-  #endif
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
-  #if !IS_POWEROF2(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE < 2)
-    #error "RX_BUFFER_SIZE has to be a power of 2 and >= 2"
+
+  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+    #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
   #endif
-  #if TX_BUFFER_SIZE != 0 && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWEROF2(TX_BUFFER_SIZE))
-    #error "TX_BUFFER_SIZE has to be a power of 2 or 0"
+  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
+    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
   #endif
+  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+    #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
+  #endif
+
   #if RX_BUFFER_SIZE > 256
-	typedef uint16_t ring_buffer_pos_t;
+    typedef uint16_t ring_buffer_pos_t;
   #else
-	typedef uint8_t ring_buffer_pos_t;
-  #endif
-
-  struct ring_buffer_r {
-    unsigned char buffer[RX_BUFFER_SIZE];
-    volatile ring_buffer_pos_t head;
-    volatile ring_buffer_pos_t tail;
-  };
-
-  #if TX_BUFFER_SIZE > 0
-    struct ring_buffer_t {
-      unsigned char buffer[TX_BUFFER_SIZE];
-      volatile uint8_t head;
-      volatile uint8_t tail;
-    };
-  #endif
-
-  #if UART_PRESENT(SERIAL_PORT)
-    extern ring_buffer_r rx_buffer;
-    #if TX_BUFFER_SIZE > 0
-      extern ring_buffer_t tx_buffer;
-    #endif
-  #endif
-
-  #if ENABLED(SERIAL_XON_XOFF)
-	#define XON_XOFF_CHAR_SENT 	(uint8_t)0x80	/* XON / XOFF Character was sent */
-	#define XON_XOFF_CHAR_MASK  (uint8_t)0x1F	/* XON / XOFF character to send */
-	
-	extern uint8_t xon_xoff_state;
-
-	// XON / XOFF character definitions
-	#define XON_CHAR  (uint8_t)17
-	#define XOFF_CHAR (uint8_t)19
+    typedef uint8_t ring_buffer_pos_t;
   #endif
   
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-	extern uint8_t rx_dropped_bytes;
+    extern uint8_t rx_dropped_bytes;
   #endif
+
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-	extern ring_buffer_pos_t rx_max_enqueued;
+    extern ring_buffer_pos_t rx_max_enqueued;
   #endif  
   
   class MarlinSerial { //: public Stream
@@ -157,14 +128,15 @@
         static uint8_t availableForWrite(void);
         static void flushTX(void);
       #endif
-	  static void writeNoHandshake(uint8_t c);
+      static void writeNoHandshake(const uint8_t c);
 
-  #if ENABLED(SERIAL_STATS_DROPPED_RX)
-	  static uint32_t dropped() { return rx_dropped_bytes; }
-  #endif
-  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-	  static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
-  #endif  
+      #if ENABLED(SERIAL_STATS_DROPPED_RX)
+        FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }
+      #endif
+
+      #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+        FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
+      #endif  
 
     private:
       static void printNumber(unsigned long, const uint8_t);
