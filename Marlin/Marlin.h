@@ -422,7 +422,15 @@ void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
-#define HAS_AXIS_UNHOMED_ERR (ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)))
+#define HAS_AXIS_UNHOMED_ERR (                                                     \
+         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
+      || ENABLED(Z_PROBE_SLED)                                                     \
+      || HAS_PROBING_PROCEDURE                                                     \
+      || HOTENDS > 1                                                               \
+      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
+      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
+      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
 
 #if HAS_AXIS_UNHOMED_ERR
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
