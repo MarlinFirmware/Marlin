@@ -79,8 +79,8 @@ char* top_of_stack() {
 }
 
 // Count the number of test bytes at the specified location.
-inline int16_t count_test_bytes(const char * const ptr) {
-  for (uint16_t i = 0; i < 32000; i++)
+inline int32_t count_test_bytes(const char * const ptr) {
+  for (uint32_t i = 0; i < 32000; i++)
     if (((char) ptr[i]) != TEST_BYTE)
       return i - 1;
 
@@ -180,7 +180,7 @@ inline int check_for_free_memory_corruption(const char * const title) {
   int block_cnt = 0;
   for (int i = 0; i < n; i++) {
     if (ptr[i] == TEST_BYTE) {
-      int16_t j = count_test_bytes(ptr + i);
+      int32_t j = count_test_bytes(ptr + i);
       if (j > 8) {
         // SERIAL_ECHOPAIR("Found ", j);
         // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(ptr + i));
@@ -215,14 +215,14 @@ inline int check_for_free_memory_corruption(const char * const title) {
  *  Return the number of free bytes in the memory pool,
  *  with other vital statistics defining the pool.
  */
-inline void free_memory_pool_report(char * const ptr, const int16_t size) {
-  int16_t max_cnt = -1, block_cnt = 0;
+inline void free_memory_pool_report(char * const ptr, const int32_t size) {
+  int32_t max_cnt = -1, block_cnt = 0;
   char *max_addr = NULL;
   // Find the longest block of test bytes in the buffer
-  for (int16_t i = 0; i < size; i++) {
+  for (int32_t i = 0; i < size; i++) {
     char *addr = ptr + i;
     if (*addr == TEST_BYTE) {
-      const int16_t j = count_test_bytes(addr);
+      const int32_t j = count_test_bytes(addr);
       if (j > 8) {
         SERIAL_ECHOPAIR("Found ", j);
         SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
@@ -249,13 +249,13 @@ inline void free_memory_pool_report(char * const ptr, const int16_t size) {
    *  Corrupt <num> locations in the free memory pool and report the corrupt addresses.
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
-  inline void corrupt_free_memory(char *ptr, const uint16_t size) {
+  inline void corrupt_free_memory(char *ptr, const uint32_t size) {
     ptr += 8;
-    const uint16_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
+    const uint32_t near_top = top_of_stack() - ptr - 250, // -250 to avoid interrupt activity that's altered the stack.
                    j = near_top / (size + 1);
 
     SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-    for (uint16_t i = 1; i <= size; i++) {
+    for (uint32_t i = 1; i <= size; i++) {
       char * const addr = ptr + i * j;
       *addr = i;
       SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
@@ -268,7 +268,7 @@ inline void free_memory_pool_report(char * const ptr, const int16_t size) {
  * M100 I
  *  Init memory for the M100 tests. (Automatically applied on the first M100.)
  */
-inline void init_free_memory(char *ptr, int16_t size) {
+inline void init_free_memory(char *ptr, int32_t size) {
   SERIAL_ECHOLNPGM("Initializing free memory block.\n\n");
 
   size -= 250;    // -250 to avoid interrupt activity that's altered the stack.
@@ -284,7 +284,7 @@ inline void init_free_memory(char *ptr, int16_t size) {
   SERIAL_ECHO(size);
   SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
 
-  for (int16_t i = 0; i < size; i++) {
+  for (int32_t i = 0; i < size; i++) {
     if (ptr[i] != TEST_BYTE) {
       SERIAL_ECHOPAIR("? address : ", hex_address(ptr + i));
       SERIAL_ECHOLNPAIR("=", hex_byte(ptr[i]));

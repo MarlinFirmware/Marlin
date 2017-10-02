@@ -29,7 +29,7 @@
 #include "../Marlin.h"
 
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #include "../../libs/hex_print_routines.h"
+  #include "../libs/hex_print_routines.h"
 #endif
 
 // Must be declared for allocation and to satisfy the linker

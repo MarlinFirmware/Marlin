@@ -24,6 +24,10 @@
 
 #if ENABLED(MIXING_EXTRUDER)
 
+#if ENABLED(DIRECT_MIXING_IN_G1)
+  #include "../gcode/parser.h"
+#endif
+
 float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
 
 #if MIXING_VIRTUAL_TOOLS > 1

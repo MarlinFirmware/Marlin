@@ -52,21 +52,23 @@ static float resume_position[XYZE];
   static bool sd_print_paused = false;
 #endif
 
-static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
-  static millis_t next_buzz = 0;
-  static int8_t runout_beep = 0;
+#if HAS_BUZZER
+  static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
+    static millis_t next_buzz = 0;
+    static int8_t runout_beep = 0;
 
-  if (init) next_buzz = runout_beep = 0;
+    if (init) next_buzz = runout_beep = 0;
 
-  const millis_t ms = millis();
-  if (ELAPSED(ms, next_buzz)) {
-    if (max_beep_count < 0 || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
-      next_buzz = ms + ((max_beep_count < 0 || runout_beep < max_beep_count) ? 2500 : 400);
-      BUZZ(300, 2000);
-      runout_beep++;
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_buzz)) {
+      if (max_beep_count < 0 || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
+        next_buzz = ms + ((max_beep_count < 0 || runout_beep < max_beep_count) ? 2500 : 400);
+        BUZZ(300, 2000);
+        runout_beep++;
+      }
     }
   }
-}
+#endif
 
 static void ensure_safe_temperature() {
   bool heaters_heating = true;
