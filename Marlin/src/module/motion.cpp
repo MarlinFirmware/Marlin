@@ -769,7 +769,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           break;
       }
     }
-    return false;
+    return prepare_move_to_destination_cartesian();
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -811,7 +811,7 @@ void prepare_move_to_destination() {
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx() || prepare_move_to_destination_cartesian()
+      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
