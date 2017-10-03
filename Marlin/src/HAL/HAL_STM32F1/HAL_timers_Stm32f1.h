@@ -51,7 +51,6 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_NUM 2  // index of timer to use for temperature
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 
-
 #define HAL_TIMER_RATE         (F_CPU)  // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 36             // prescaler for setting stepper timer, 2Mhz
 #define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
