@@ -3,7 +3,7 @@
 Marlin 3D Printer Firmware
 Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-Copyright (c) 2017 Victor Perez 
+Copyright (c) 2017 Victor Perez
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
 #include "../HAL.h"
+#include <STM32ADC.h>
 
 //#include <Wire.h>
 
@@ -62,6 +63,47 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
+USBSerial SerialUSB;
+STM32ADC adc(ADC1);
+
+uint8 adc_pins[] = {
+  #if HAS_TEMP_0
+    TEMP_0_PIN,
+  #endif
+  #if HAS_TEMP_1
+    TEMP_1_PIN
+  #endif
+  #if HAS_TEMP_2
+    TEMP_2_PIN,
+  #endif
+  #if HAS_TEMP_3
+    TEMP_3_PIN,
+  #endif
+  #if HAS_TEMP_4
+    TEMP_4_PIN,
+  #endif
+  #if HAS_TEMP_BED
+    TEMP_BED_PIN,
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH_PIN,
+  #endif
+};
+
+enum TEMP_PINS
+{
+    TEMP_0,
+    TEMP_1,
+    TEMP_2,
+    TEMP_3,
+    TEMP_4,
+    TEMP_BED,
+    FILWIDTH
+};
+
+#define ADC_PIN_COUNT (sizeof(adc_pins)/sizeof(adc_pins[0]))
+uint16_t HAL_adc_results[ADC_PIN_COUNT];
+
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -129,9 +171,53 @@ static int freeMemory() {
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
+// Init the AD in continuous capture mode
+void HAL_adc_init(void)
+{
+  // configure the ADC
+  adc.calibrate();
+  adc.setSampleRate(ADC_SMPR_1_5); // ?
+  adc.setPins(adc_pins, ADC_PIN_COUNT);
+  adc.setDMA(HAL_adc_results, ADC_PIN_COUNT, (DMA_MINC_MODE | DMA_CIRC_MODE), NULL);
+  adc.setScanMode();
+  adc.setContinuous();
+  adc.startConversion();
+
+  // HACK - Not needed once the pin mapping/fastio stuff is done
+  for (int i = 0; i < ADC_PIN_COUNT; i++)
+  {
+    pinMode(adc_pins[i], INPUT_ANALOG);
+  }
+}
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {
-    HAL_adc_result = (analogRead(adc_pin) >> 2)& 0x3ff; // shift to get 10 bits only.
+    TEMP_PINS pin_index = TEMP_0;
+    if (adc_pin == TEMP_0_PIN){
+          pin_index = TEMP_0;
+    }
+
+    else if (adc_pin == TEMP_1_PIN) {
+          pin_index = TEMP_1;
+    }
+    else if (adc_pin == TEMP_2_PIN) {
+          pin_index = TEMP_2;
+    }
+    else if (adc_pin == TEMP_3_PIN) {
+          pin_index = TEMP_3;
+    }
+    else if (adc_pin == TEMP_4_PIN) {
+          pin_index = TEMP_4;
+    }
+    else if (adc_pin == TEMP_BED_PIN) {
+          pin_index = TEMP_BED;
+    }
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+    else if (adc_pin == FILWIDTH_PIN) {
+          pin_index = FILWIDTH;
+    }
+#endif
+
+    HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2)& 0x3ff; // shift to get 10 bits only.
 }
 
 uint16_t HAL_adc_get_result(void) {
