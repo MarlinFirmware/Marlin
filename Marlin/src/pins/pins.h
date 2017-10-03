@@ -45,7 +45,7 @@
   #define IS_RAMPS_EFF
 #elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF)
   #define IS_RAMPS_EEF
-#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF) 
+#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF)
   #define IS_RAMPS_SF
 #endif
 
@@ -300,6 +300,8 @@
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"
+#elif MB(MALYAN_M200)
+  #include "pins_MALYAN_M200.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

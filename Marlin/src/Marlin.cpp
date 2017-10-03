@@ -665,6 +665,13 @@ void setup() {
     Max7219_init();
   #endif
 
+  // DO NOT COMMIT!
+  // Set up for Re-init USB
+  pinMode(BOARD_USB_DISC_BIT, OUTPUT);
+  digitalWrite(BOARD_USB_DISC_BIT, LOW);
+  SerialUSB.end();
+  SerialUSB.begin();
+
   #ifdef DISABLE_JTAG
     // Disable JTAG on AT90USB chips to free up pins for IO
     MCUCR = 0x80;

@@ -124,7 +124,7 @@ void HAL_timer_enable_interrupt (uint8_t timer_num) {
         StepperTimer.attachInterrupt(STEP_TIMER_CHAN, stepTC_Handler);
         break;
     case TEMP_TIMER_NUM:
-        TempTimer.attachInterrupt(STEP_TIMER_CHAN, tempTC_Handler);
+        TempTimer.attachInterrupt(TEMP_TIMER_CHAN, tempTC_Handler);
         break;
     default:
         break;
@@ -137,7 +137,7 @@ void HAL_timer_disable_interrupt (uint8_t timer_num) {
         StepperTimer.detachInterrupt(STEP_TIMER_CHAN);
         break;
     case TEMP_TIMER_NUM:
-        TempTimer.detachInterrupt(STEP_TIMER_CHAN);
+        TempTimer.detachInterrupt(TEMP_TIMER_CHAN);
         break;
     default:
         break;
