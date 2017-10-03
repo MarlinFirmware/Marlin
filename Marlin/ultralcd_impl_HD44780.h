@@ -811,7 +811,7 @@ static void lcd_implementation_status_screen() {
     #if LCD_WIDTH >= 20 && ENABLED(SDSUPPORT)
 
       lcd.setCursor(7, 2);
-	  if (blink) {
+      if (blink) {
         lcd_printPGM(PSTR("Fs"));
         lcd.print(itostr3(fanSpeeds[0]));
         lcd.write(' ');
