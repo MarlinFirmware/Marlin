@@ -811,12 +811,23 @@ static void lcd_implementation_status_screen() {
     #if LCD_WIDTH >= 20 && ENABLED(SDSUPPORT)
 
       lcd.setCursor(7, 2);
-      lcd_printPGM(PSTR("SD"));
-      if (IS_SD_PRINTING)
-        lcd.print(itostr3(card.percentDone()));
-      else
-        lcd_printPGM(PSTR("---"));
-      lcd.write('%');
+      if (blink) {
+        lcd_printPGM(PSTR("Fs"));
+        lcd.print(itostr3(fanSpeeds[0]));
+        lcd.write(' ');
+      }
+      else {
+        if (IS_SD_PRINTING) {
+          lcd_printPGM(PSTR("SD"));
+          lcd.print(itostr3(card.percentDone()));
+          lcd.write('%');
+        }
+        else {
+          lcd_printPGM(PSTR("Ex"));
+          lcd.print(itostr3(flow_percentage[0]));
+          lcd.write('%');
+        }
+      }
 
     #endif // LCD_WIDTH >= 20 && SDSUPPORT
 
