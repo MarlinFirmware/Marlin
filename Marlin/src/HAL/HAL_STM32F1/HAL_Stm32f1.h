@@ -56,6 +56,8 @@
 // --------------------------------------------------------------------------
 
 #if SERIAL_PORT == -1
+extern USBSerial SerialUSB;
+
 #define MYSERIAL SerialUSB
 #elif SERIAL_PORT == 0
 #define MYSERIAL Serial

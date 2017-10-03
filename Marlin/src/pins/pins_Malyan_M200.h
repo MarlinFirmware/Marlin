@@ -67,7 +67,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         11   // Analog Input (HOTEND0 thermistor)
+#define TEMP_0_PIN         PA1   // Analog Input (HOTEND0 thermistor)
 #define TEMP_BED_PIN        0   // Analog Input (BED thermistor)
 
 //

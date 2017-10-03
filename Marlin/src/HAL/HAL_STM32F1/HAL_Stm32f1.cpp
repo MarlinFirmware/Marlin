@@ -182,12 +182,6 @@ void HAL_adc_init(void)
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();
-
-  // HACK - Not needed once the pin mapping/fastio stuff is done
-  for (int i = 0; i < ADC_PIN_COUNT; i++)
-  {
-    pinMode(adc_pins[i], INPUT_ANALOG);
-  }
 }
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {
