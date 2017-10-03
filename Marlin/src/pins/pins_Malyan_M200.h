@@ -30,6 +30,9 @@
 
 #define BOARD_NAME "MALYANM200"
 
+// ignore temp readings during develpment.
+#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 // Enable EEPROM Emulation for this board
 #define FLASH_EEPROM_EMULATION
 
@@ -65,13 +68,13 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN         11   // Analog Input (HOTEND0 thermistor)
-#define TEMP_BED_PIN        10   // Analog Input (BED thermistor)
+#define TEMP_BED_PIN        0   // Analog Input (BED thermistor)
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       13   //43 // HOTEND0 MOSFET
-#define HEATER_BED_PIN     13 // 42 // BED MOSFET
+#define HEATER_BED_PIN     0 // 42 // BED MOSFET
 
 // PINCHECK - Need to find pin assignment for these.
 // This board has only the controller fan and the extruder fan

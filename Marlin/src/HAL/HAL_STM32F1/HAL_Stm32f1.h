@@ -183,7 +183,7 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
-inline void HAL_adc_init(void) {}
+void HAL_adc_init(void);
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC        HAL_adc_result
