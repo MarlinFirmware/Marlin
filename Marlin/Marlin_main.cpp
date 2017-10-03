@@ -7434,14 +7434,30 @@ inline void gcode_M105() {
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
+   *  T<int>   Temporary Speed :
+   *           1=return to old ; 
+   *           2=Apply memorised Fanspeed
+   *           3-255= memorise Fanspeed 
+   *           Require T2 before T1 to memorise current speed 
    *  P<index> Fan index, if more than one fan
+   *  
    */
-  inline void gcode_M106() {
+
+   inline void gcode_M106() {    //steeve
     uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
+    uint16_t t = parser.ushortval('T', 0);
     const uint8_t p = parser.byteval('P', 0);
-    if (p < FAN_COUNT) fanSpeeds[p] = s;
-  }
+    
+    if (p < FAN_COUNT) {      
+    if(t>0) {
+            if (t>2){NOMORE(t, 255);new_fanSpeeds[p]=t; }
+            else if (t<2){fanSpeeds[p] = old_fanSpeeds[p];}
+                  else  {old_fanSpeeds[p] = fanSpeeds[p]; fanSpeeds[p] = new_fanSpeeds[p];}
+            return ;
+            }
+    
+    NOMORE(s, 255);fanSpeeds[p] = s;
+  }}
 
   /**
    * M107: Fan Off
