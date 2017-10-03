@@ -99,6 +99,9 @@
 #define CBI(n,b) (n &= ~_BV(b))
 #define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
 
+// Macro to check that a number if a power if 2
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
+
 // Macros for maths shortcuts
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
