@@ -106,6 +106,7 @@
 #define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
 
 #define SIGN(a) ((a>0)-(a<0))
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)

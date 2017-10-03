@@ -221,9 +221,9 @@ inline void get_serial_commands() {
   /**
    * Loop while serial characters are incoming and the queue is not full
    */
-  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
-
-    char serial_char = MYSERIAL.read();
+  int c;
+  while (commands_in_queue < BUFSIZE && (c = MYSERIAL.read()) >= 0) {
+    char serial_char = c;
 
     /**
      * If the character ends the line
@@ -323,12 +323,9 @@ inline void get_serial_commands() {
       // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0) {
-        // if we have one more character, copy it over
-        serial_char = MYSERIAL.read();
-        if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
-      }
-      // otherwise do nothing
+      // if we have one more character, copy it over
+      if ((c = MYSERIAL.read()) >= 0 && !serial_comment_mode)
+        serial_line_buffer[serial_count++] = serial_char;
     }
     else { // it's not a newline, carriage return or escape char
       if (serial_char == ';') serial_comment_mode = true;
@@ -448,6 +445,15 @@ void advance_command_queue() {
         // M29 closes the file
         card.closefile();
         SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+
+        #if ENABLED(SERIAL_STATS_DROPPED_RX)
+          SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+        #endif
+
+        #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+          SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+        #endif
+
         ok_to_send();
       }
       else {
