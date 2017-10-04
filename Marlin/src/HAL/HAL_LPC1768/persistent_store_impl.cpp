@@ -9,6 +9,9 @@
 #include "chanfs/diskio.h"
 #include "chanfs/ff.h"
 
+extern uint32_t MSC_Aquire_Lock();
+extern uint32_t MSC_Release_Lock();
+
 namespace HAL {
 namespace PersistentStore {
 
@@ -16,14 +19,20 @@ FATFS fat_fs;
 FIL eeprom_file;
 
 bool access_start() {
-  f_mount(&fat_fs, "", 1);
+  MSC_Aquire_Lock();
+  if(f_mount(&fat_fs, "", 1)){
+    MSC_Release_Lock();
+    return false;
+  }
   FRESULT res = f_open(&eeprom_file, "eeprom.dat", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+  if(res) MSC_Release_Lock();
   return (res == FR_OK);
 }
 
 bool access_finish() {
   f_close(&eeprom_file);
   f_unmount("");
+  MSC_Release_Lock();
   return true;
 }
 

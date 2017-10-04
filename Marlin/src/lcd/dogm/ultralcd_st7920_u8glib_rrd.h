@@ -23,7 +23,7 @@
 #ifndef ULCDST7920_H
 #define ULCDST7920_H
 
-#include <src/Marlin.h>
+#include "../../Marlin.h"
 
 #if ENABLED(U8GLIB_ST7920)
 

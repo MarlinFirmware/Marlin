@@ -100,6 +100,7 @@ public:
   }
 
   char read() {
+    if(receive_buffer.empty()) return -1;
     return (char)receive_buffer.read();
   }
 
@@ -117,6 +118,17 @@ public:
   }
 
   void flush() {
+    receive_buffer.clear();
+  }
+
+  uint8_t availableForWrite(void){
+    return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
+  }
+
+  void flushTX(void){
+    if(host_connected) {
+      while(transmit_buffer.available());
+    }
   }
 
   void printf(const char *format, ...) {
