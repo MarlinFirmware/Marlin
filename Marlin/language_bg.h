@@ -124,6 +124,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Смяна Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Възврат  V")
+#define MSG_CONTROL_RETRACT_SWAPF           _UxGT("Смяна Възврат V") // Need Translation
 #define MSG_AUTORETRACT                     _UxGT("Автоoткат")
 #define MSG_FILAMENTCHANGE                  _UxGT("Смяна нишка")
 #define MSG_INIT_SDCARD                     _UxGT("Иниц. SD-Карта")
