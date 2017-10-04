@@ -336,6 +336,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Cekejte prosim")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokracovani")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
+#define MSG_CONTROL_RETRACT_SWAPF             _UxGT("Swap V") // need translation
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Cekejte...")
