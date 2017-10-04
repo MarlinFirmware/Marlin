@@ -558,8 +558,102 @@
 
 #elif ENABLED(MAPPER_C3C4C5_SK)
 
-  // TBD
-  #error "No mapping for Slovak at this time. Use MAPPER_NON."
+  /**
+   * Á C3 81 = 80
+   * Ä C3 84 = 81
+   * É C3 89 = 82
+   * Í C3 8D = 83
+   * Ó C3 93 = 84
+   * Ô C3 94 = 85
+   * Ú C3 9A = 86
+   * Ý C3 9D = 87
+   * á C3 A1 = 88
+   * ä C3 A4 = 89
+   * é C3 A9 = 8A
+   * í C3 AD = 8B
+   * ó C3 B3 = 8C
+   * ô C3 B4 = 8D
+   * ú C3 BA = 8E
+   * ý C3 BD = 8F
+   * Č C4 8C = 90
+   * č C4 8D = 91
+   * Ď C4 8E = 92
+   * ď C4 8F = 93
+   * Ĺ C4 B9 = 94
+   * ĺ C4 BA = 95
+   * Ľ C4 BD = 96
+   * ľ C4 BE = 97
+   * Ň C5 87 = 98
+   * ň C5 88 = 99
+   * Ŕ C5 94 = 9A
+   * ŕ C5 95 = 9B
+   * Š C5 A0 = 9C
+   * š C5 A1 = 9D
+   * Ť C5 A4 = 9E
+   * ť C5 A5 = 9F
+   * Ž C5 BD = A0
+   * ž C5 BE = A1
+   */
+
+  char charset_mapper(const char c) {
+    static bool seen_c3 = false,
+                seen_c4 = false,
+                seen_c5 = false;
+    uint8_t d = c;
+    if (d >= 0x80u) { // UTF-8 handling
+           if (d == 0xC4u) { seen_c4 = true; return 0; }
+      else if (d == 0xC5u) { seen_c5 = true; return 0; }
+      else if (d == 0xC3u) { seen_c3 = true; return 0; }
+      else if (seen_c4) {
+        switch(d) {
+          case 0x8Cu ... 0x8Fu: d += 0x04u; break;  // ČčĎď
+          case 0xB9u ... 0xBAu: d -= 0x25u; break;  // Ĺĺ
+          case 0xBDu ... 0xBEu: d -= 0x27u; break;  // Ľľ
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c5) {
+        switch(d) {
+          case 0x87u ... 0x88u: d += 0x11u; break;  // Ňň
+          case 0x94u ... 0x95u: d += 0x06u; break;  // Ŕŕ
+          case 0xA0u ... 0xA1u: d -= 0x04u; break;  // Šš
+          case 0xA4u ... 0xA5u: d -= 0x06u; break;  // Ťť
+          case 0xBDu ... 0xBEu: d -= 0x1Du; break;  // Žž
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c3) {
+        switch(d) {
+          case 0x81u: d = 0x80u; break;  // Á
+          case 0x84u: d = 0x81u; break;  // Ä
+          case 0x89u: d = 0x82u; break;  // É
+          case 0x8Du: d = 0x83u; break;  // Í
+          case 0x93u: d = 0x84u; break;  // Ó
+          case 0x94u: d = 0x85u; break;  // Ô
+          case 0x9Au: d = 0x86u; break;  // Ú
+          case 0x9Du: d = 0x87u; break;  // Ý
+          case 0xA1u: d = 0x88u; break;  // á
+          case 0xA4u: d = 0x89u; break;  // ä
+          case 0xA9u: d = 0x8Au; break;  // é
+          case 0xADu: d = 0x8Bu; break;  // í
+          case 0xB3u: d = 0x8Cu; break;  // ó
+          case 0xB4u: d = 0x8Du; break;  // ô
+          case 0xBAu: d = 0x8Eu; break;  // ú
+          case 0xBDu: d = 0x8Fu; break;  // ý
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+
+    }
+    else {
+      HARDWARE_CHAR_OUT((char) c );
+    }
+    seen_c3 = seen_c4 = seen_c5 = false;
+    return 1;
+  }
 
 #else
 
