@@ -765,7 +765,16 @@
    */
   #if ENABLED(DELTA)
     #ifndef DELTA_CALIBRATION_RADIUS
-      #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
+      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS * 0.869)
+    #endif
+    #ifndef H_FACTOR
+      #define H_FACTOR 0.5
+    #endif
+    #ifndef R_FACTOR
+      #define R_FACTOR 0.5
+    #endif
+    #ifndef A_FACTOR
+      #define A_FACTOR 0.5
     #endif
     #ifndef DELTA_ENDSTOP_ADJ
       #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
