@@ -117,7 +117,8 @@
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
- * M106 - Fan on.
+ * M106 - Fan on: S0-255 : T3-255 / T2 / T1 Temporary set speed during printing
+ *        T1 return to previous / T2 apply extra speed / T3-255 set without applying
  * M107 - Fan off.
  * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
@@ -3157,19 +3158,21 @@ static void homeaxis(const AxisEnum axis) {
       , bool swapping = false
     #endif
   ) {
-
     static float hop_height,        // Remember where the Z height started
                  hop_amount = 0.0;  // Total amount lifted, for use in recover
 
-    // Simply never allow two retracts or recovers in a row
-    if (retracted[active_extruder] == retracting) return;
+    // Double G10 or G11 reject
+    if (!swapping && (retracted[active_extruder]== retracting))  return;
+    // Allow G10S1 after G10 + Double G10S1 reject
+    if (swapping && (retracted_swap[active_extruder]== retracting))  return;
+    
 
     #if EXTRUDERS < 2
       bool swapping = false;
     #endif
     if (!retracting) swapping = retracted_swap[active_extruder];
 
-    /* // debugging
+    /* debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
@@ -3181,7 +3184,7 @@ static void homeaxis(const AxisEnum axis) {
       }
       SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
       SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-    //*/
+    */
 
     const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
 
@@ -3206,25 +3209,32 @@ static void homeaxis(const AxisEnum axis) {
       current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
+                
 
-      // Is a Z hop set, and has the hop not yet been done?
-      if (has_zhop) {
-        hop_amount += retract_zlift;                // Carriage is raised for retraction hop
+      // If a Z hop set,not yet been done && no double zlifting if hop_amount exists
+      if (has_zhop && !hop_amount) {
+        hop_amount += retract_zlift; 
+        // Max feedrate zmoves
+        float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
+        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
         current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
         SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
         prepare_move_to_destination();              // Raise up to the old current pos
+        feedrate_mm_s = temp_feedrate_mm_s  ;       //feedrate restoration
       }
     }
     else {
-      // If a hop was done and Z hasn't changed, undo the Z hop
-      if (hop_amount && NEAR(hop_height, destination[Z_AXIS])) {
+      // If a hop was done undo the hop 
+      if (hop_amount) {
         current_position[Z_AXIS] += hop_amount;     // Pretend current pos is higher. Next move lowers Z.
+        float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate  
+        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
         SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
         prepare_move_to_destination();              // Lower to the old current pos
         hop_amount = 0.0;
+        feedrate_mm_s = temp_feedrate_mm_s  ; // feedrate restoration
       }
 
-      // A retract multiplier has been added here to get faster swap recovery
       feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
       const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
@@ -3241,12 +3251,13 @@ static void homeaxis(const AxisEnum axis) {
     // The active extruder is now retracted or recovered
     retracted[active_extruder] = retracting;
 
-    // If swap retract/recover then update the retracted_swap flag too
+    // If swap retract/recover then update the retracted_swap flag too  
     #if EXTRUDERS > 1
-      if (swapping) retracted_swap[active_extruder] = retracting;
+      if (swapping) {
+        retracted_swap[active_extruder] = retracting;  }
     #endif
 
-    /* // debugging
+     /* debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
@@ -3581,7 +3592,6 @@ inline void gcode_G4() {
   inline void gcode_G10() {
     #if EXTRUDERS > 1
       const bool rs = parser.boolval('S');
-      retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
     #endif
     retract(true
       #if EXTRUDERS > 1
