@@ -16,8 +16,25 @@ FATFS fat_fs;
 FIL eeprom_file;
 
 bool access_start() {
+  UINT file_size = 0;
+  UINT bytes_written = 0;
+  const char eeprom_zero = 0xFF;
   f_mount(&fat_fs, "", 1);
   FRESULT res = f_open(&eeprom_file, "eeprom.dat", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    if (res == FR_OK) {
+    file_size = f_size(&eeprom_file);
+  }
+  if (res == FR_OK) {
+    f_lseek(&eeprom_file, file_size);
+    while ((file_size < E2END) && (res == FR_OK)) {
+      res = f_write(&eeprom_file, &eeprom_zero, 1, &bytes_written);
+      file_size++;
+    }
+  }
+  if (res == FR_OK){
+    f_lseek(&eeprom_file, 0);
+    f_sync(&eeprom_file);
+  }
   return (res == FR_OK);
 }
 
