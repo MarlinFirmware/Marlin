@@ -632,7 +632,7 @@ static_assert(1 >= 0
   /**
    * Make sure Z raise values are set
    */
-  #if !defined(Z_CLEARANCE_DEPLOY_PROBE)
+  #ifndef Z_CLEARANCE_DEPLOY_PROBE
     #error "You must define Z_CLEARANCE_DEPLOY_PROBE in your configuration."
   #elif !defined(Z_CLEARANCE_BETWEEN_PROBES)
     #error "You must define Z_CLEARANCE_BETWEEN_PROBES in your configuration."

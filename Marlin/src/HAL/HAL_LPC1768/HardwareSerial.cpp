@@ -346,7 +346,6 @@ extern "C" {
 void UART0_IRQHandler (void)
 {
   uint8_t IIRValue, LSRValue;
-  uint8_t Dummy = Dummy;
 
   IIRValue = LPC_UART0->IIR;
 
@@ -354,59 +353,59 @@ void UART0_IRQHandler (void)
   IIRValue &= 0x07;			/* check bit 1~3, interrupt identification */
   if ( IIRValue == IIR_RLS )		/* Receive Line Status */
   {
-	LSRValue = LPC_UART0->LSR;
-	/* Receive Line Status */
-	if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
-	{
-	  /* There are errors or break interrupt */
-	  /* Read LSR will clear the interrupt */
-	  UART0Status = LSRValue;
-	  Dummy = LPC_UART0->RBR;		/* Dummy read on RX to clear
-							interrupt, then bail out */
-	  return;
-	}
-	if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
-	{
-	  /* If no error on RLS, normal ready, save into the data buffer. */
-	  /* Note: read RBR will clear the interrupt */
-		  if ((UART0RxQueueWritePos+1) % UARTRXQUEUESIZE != UART0RxQueueReadPos)
-		  {
-			  UART0Buffer[UART0RxQueueWritePos] = LPC_UART0->RBR;
-			  UART0RxQueueWritePos = (UART0RxQueueWritePos+1) % UARTRXQUEUESIZE;
-		  }
-		  else
-			  dummy = LPC_UART0->RBR;;
-	}
+    LSRValue = LPC_UART0->LSR;
+    /* Receive Line Status */
+    if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
+    {
+      /* There are errors or break interrupt */
+      /* Read LSR will clear the interrupt */
+      UART0Status = LSRValue;
+      dummy = LPC_UART0->RBR;		/* Dummy read on RX to clear
+                                   interrupt, then bail out */
+      return;
+    }
+    if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
+    {
+      /* If no error on RLS, normal ready, save into the data buffer. */
+      /* Note: read RBR will clear the interrupt */
+      if ((UART0RxQueueWritePos+1) % UARTRXQUEUESIZE != UART0RxQueueReadPos)
+      {
+        UART0Buffer[UART0RxQueueWritePos] = LPC_UART0->RBR;
+        UART0RxQueueWritePos = (UART0RxQueueWritePos+1) % UARTRXQUEUESIZE;
+      }
+      else
+        dummy = LPC_UART0->RBR;
+    }
   }
   else if ( IIRValue == IIR_RDA )	/* Receive Data Available */
   {
-	/* Receive Data Available */
+	  /* Receive Data Available */
 	  if ((UART0RxQueueWritePos+1) % UARTRXQUEUESIZE != UART0RxQueueReadPos)
 	  {
 		  UART0Buffer[UART0RxQueueWritePos] = LPC_UART0->RBR;
 		  UART0RxQueueWritePos = (UART0RxQueueWritePos+1) % UARTRXQUEUESIZE;
 	  }
 	  else
-		  dummy = LPC_UART1->RBR;;
+		  dummy = LPC_UART1->RBR;
   }
   else if ( IIRValue == IIR_CTI )	/* Character timeout indicator */
   {
-	/* Character Time-out indicator */
-	UART0Status |= 0x100;		/* Bit 9 as the CTI error */
+    /* Character Time-out indicator */
+    UART0Status |= 0x100;		/* Bit 9 as the CTI error */
   }
   else if ( IIRValue == IIR_THRE )	/* THRE, transmit holding register empty */
   {
-	/* THRE interrupt */
-	LSRValue = LPC_UART0->LSR;		/* Check status in the LSR to see if
-									valid data in U0THR or not */
-	if ( LSRValue & LSR_THRE )
-	{
-	  UART0TxEmpty = 1;
-	}
-	else
-	{
-	  UART0TxEmpty = 0;
-	}
+    /* THRE interrupt */
+    LSRValue = LPC_UART0->LSR;		/* Check status in the LSR to see if
+                                     valid data in U0THR or not */
+    if ( LSRValue & LSR_THRE )
+    {
+      UART0TxEmpty = 1;
+    }
+    else
+    {
+      UART0TxEmpty = 0;
+    }
   }
 }
 
@@ -422,7 +421,6 @@ void UART0_IRQHandler (void)
 void UART1_IRQHandler (void)
 {
   uint8_t IIRValue, LSRValue;
-  uint8_t Dummy = Dummy;
 
   IIRValue = LPC_UART1->IIR;
 
@@ -430,61 +428,60 @@ void UART1_IRQHandler (void)
   IIRValue &= 0x07;			/* check bit 1~3, interrupt identification */
   if ( IIRValue == IIR_RLS )		/* Receive Line Status */
   {
-	LSRValue = LPC_UART1->LSR;
-	/* Receive Line Status */
-	if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
-	{
-	  /* There are errors or break interrupt */
-	  /* Read LSR will clear the interrupt */
-	  UART1Status = LSRValue;
-	  Dummy = LPC_UART1->RBR;		/* Dummy read on RX to clear
-								interrupt, then bail out */
-	  return;
-	}
-	if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
-	{
-	  /* If no error on RLS, normal ready, save into the data buffer. */
-	  /* Note: read RBR will clear the interrupt */
-	  if ((UART1RxQueueWritePos+1) % UARTRXQUEUESIZE != UART1RxQueueReadPos)
-	  {
-		  UART1Buffer[UART1RxQueueWritePos] = LPC_UART1->RBR;
-		  UART1RxQueueWritePos =(UART1RxQueueWritePos+1) % UARTRXQUEUESIZE;
-	  }
-	  else
-		  dummy = LPC_UART1->RBR;;
-	}
+    LSRValue = LPC_UART1->LSR;
+    /* Receive Line Status */
+    if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
+    {
+      /* There are errors or break interrupt */
+      /* Read LSR will clear the interrupt */
+      UART1Status = LSRValue;
+      dummy = LPC_UART1->RBR;		/* Dummy read on RX to clear
+                                   interrupt, then bail out */
+      return;
+    }
+    if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
+    {
+      /* If no error on RLS, normal ready, save into the data buffer. */
+      /* Note: read RBR will clear the interrupt */
+      if ((UART1RxQueueWritePos+1) % UARTRXQUEUESIZE != UART1RxQueueReadPos)
+      {
+        UART1Buffer[UART1RxQueueWritePos] = LPC_UART1->RBR;
+        UART1RxQueueWritePos =(UART1RxQueueWritePos+1) % UARTRXQUEUESIZE;
+      }
+      else
+        dummy = LPC_UART1->RBR;
+    }
   }
   else if ( IIRValue == IIR_RDA )	/* Receive Data Available */
   {
-	/* Receive Data Available */
+	  /* Receive Data Available */
 	  if ((UART1RxQueueWritePos+1) % UARTRXQUEUESIZE != UART1RxQueueReadPos)
 	  {
 		  UART1Buffer[UART1RxQueueWritePos] = LPC_UART1->RBR;
 		  UART1RxQueueWritePos = (UART1RxQueueWritePos+1) % UARTRXQUEUESIZE;
 	  }
 	  else
-		  dummy = LPC_UART1->RBR;;
+		  dummy = LPC_UART1->RBR;
   }
   else if ( IIRValue == IIR_CTI )	/* Character timeout indicator */
   {
-	/* Character Time-out indicator */
-	UART1Status |= 0x100;		/* Bit 9 as the CTI error */
+    /* Character Time-out indicator */
+    UART1Status |= 0x100;		/* Bit 9 as the CTI error */
+    }
+    else if ( IIRValue == IIR_THRE )	/* THRE, transmit holding register empty */
+    {
+    /* THRE interrupt */
+    LSRValue = LPC_UART1->LSR;		/* Check status in the LSR to see if
+                                     valid data in U0THR or not */
+    if ( LSRValue & LSR_THRE )
+    {
+      UART1TxEmpty = 1;
+    }
+    else
+    {
+      UART1TxEmpty = 0;
+    }
   }
-  else if ( IIRValue == IIR_THRE )	/* THRE, transmit holding register empty */
-  {
-	/* THRE interrupt */
-	LSRValue = LPC_UART1->LSR;		/* Check status in the LSR to see if
-								valid data in U0THR or not */
-	if ( LSRValue & LSR_THRE )
-	{
-	  UART1TxEmpty = 1;
-	}
-	else
-	{
-	  UART1TxEmpty = 0;
-	}
-  }
-
 }
 /*****************************************************************************
 ** Function name:		UART2_IRQHandler
@@ -498,7 +495,6 @@ void UART1_IRQHandler (void)
 void UART2_IRQHandler (void)
 {
   uint8_t IIRValue, LSRValue;
-  uint8_t Dummy = Dummy;
 
   IIRValue = LPC_UART2->IIR;
 
@@ -506,57 +502,57 @@ void UART2_IRQHandler (void)
   IIRValue &= 0x07;			/* check bit 1~3, interrupt identification */
   if ( IIRValue == IIR_RLS )		/* Receive Line Status */
   {
-	LSRValue = LPC_UART2->LSR;
-	/* Receive Line Status */
-	if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
-	{
-	  /* There are errors or break interrupt */
-	  /* Read LSR will clear the interrupt */
-	  UART2Status = LSRValue;
-	  Dummy = LPC_UART2->RBR;		/* Dummy read on RX to clear
-							interrupt, then bail out */
-	  return;
-	}
-	if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
-	{
-	  /* If no error on RLS, normal ready, save into the data buffer. */
-	  /* Note: read RBR will clear the interrupt */
-		 if ((UART2RxQueueWritePos+1) % UARTRXQUEUESIZE != UART2RxQueueReadPos)
-		  {
-			  UART2Buffer[UART2RxQueueWritePos] = LPC_UART2->RBR;
-			  UART2RxQueueWritePos = (UART2RxQueueWritePos+1) % UARTRXQUEUESIZE;
-		  }
-	}
+    LSRValue = LPC_UART2->LSR;
+    /* Receive Line Status */
+    if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
+    {
+      /* There are errors or break interrupt */
+      /* Read LSR will clear the interrupt */
+      UART2Status = LSRValue;
+      dummy = LPC_UART2->RBR;		/* Dummy read on RX to clear
+                                   interrupt, then bail out */
+      return;
+    }
+    if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
+    {
+      /* If no error on RLS, normal ready, save into the data buffer. */
+      /* Note: read RBR will clear the interrupt */
+      if ((UART2RxQueueWritePos+1) % UARTRXQUEUESIZE != UART2RxQueueReadPos)
+      {
+        UART2Buffer[UART2RxQueueWritePos] = LPC_UART2->RBR;
+        UART2RxQueueWritePos = (UART2RxQueueWritePos+1) % UARTRXQUEUESIZE;
+      }
+    }
   }
   else if ( IIRValue == IIR_RDA )	/* Receive Data Available */
   {
-	/* Receive Data Available */
+	  /* Receive Data Available */
 	  if ((UART2RxQueueWritePos+1) % UARTRXQUEUESIZE != UART2RxQueueReadPos)
 	  {
 		  UART2Buffer[UART2RxQueueWritePos] = LPC_UART2->RBR;
 		  UART2RxQueueWritePos = (UART2RxQueueWritePos+1) % UARTRXQUEUESIZE;
 	  }
 	  else
-		  dummy = LPC_UART2->RBR;;
+		  dummy = LPC_UART2->RBR;
   }
   else if ( IIRValue == IIR_CTI )	/* Character timeout indicator */
   {
-	/* Character Time-out indicator */
-	UART2Status |= 0x100;		/* Bit 9 as the CTI error */
+    /* Character Time-out indicator */
+    UART2Status |= 0x100;		/* Bit 9 as the CTI error */
   }
   else if ( IIRValue == IIR_THRE )	/* THRE, transmit holding register empty */
   {
-	/* THRE interrupt */
-	LSRValue = LPC_UART2->LSR;		/* Check status in the LSR to see if
-									valid data in U0THR or not */
-	if ( LSRValue & LSR_THRE )
-	{
-	  UART2TxEmpty = 1;
-	}
-	else
-	{
-	  UART2TxEmpty = 0;
-	}
+    /* THRE interrupt */
+    LSRValue = LPC_UART2->LSR;		/* Check status in the LSR to see if
+                                     valid data in U0THR or not */
+    if ( LSRValue & LSR_THRE )
+    {
+      UART2TxEmpty = 1;
+    }
+    else
+    {
+      UART2TxEmpty = 0;
+    }
   }
 }
 /*****************************************************************************
@@ -571,7 +567,6 @@ void UART2_IRQHandler (void)
 void UART3_IRQHandler (void)
 {
   uint8_t IIRValue, LSRValue;
-  uint8_t Dummy = Dummy;
 
   IIRValue = LPC_UART3->IIR;
 
@@ -579,57 +574,57 @@ void UART3_IRQHandler (void)
   IIRValue &= 0x07;			/* check bit 1~3, interrupt identification */
   if ( IIRValue == IIR_RLS )		/* Receive Line Status */
   {
-	LSRValue = LPC_UART3->LSR;
-	/* Receive Line Status */
-	if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
-	{
-	  /* There are errors or break interrupt */
-	  /* Read LSR will clear the interrupt */
-	  UART3Status = LSRValue;
-	  Dummy = LPC_UART3->RBR;		/* Dummy read on RX to clear
-							interrupt, then bail out */
-	  return;
-	}
-	if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
-	{
-	  /* If no error on RLS, normal ready, save into the data buffer. */
-	  /* Note: read RBR will clear the interrupt */
-		 if ((UART3RxQueueWritePos+1) % UARTRXQUEUESIZE != UART3RxQueueReadPos)
-		  {
-			  UART3Buffer[UART3RxQueueWritePos] = LPC_UART3->RBR;
-			  UART3RxQueueWritePos = (UART3RxQueueWritePos+1) % UARTRXQUEUESIZE;
-		  }
-	}
+    LSRValue = LPC_UART3->LSR;
+    /* Receive Line Status */
+    if ( LSRValue & (LSR_OE|LSR_PE|LSR_FE|LSR_RXFE|LSR_BI) )
+    {
+      /* There are errors or break interrupt */
+      /* Read LSR will clear the interrupt */
+      UART3Status = LSRValue;
+      dummy = LPC_UART3->RBR;		/* Dummy read on RX to clear
+                                  interrupt, then bail out */
+      return;
+    }
+    if ( LSRValue & LSR_RDR )	/* Receive Data Ready */
+    {
+      /* If no error on RLS, normal ready, save into the data buffer. */
+      /* Note: read RBR will clear the interrupt */
+      if ((UART3RxQueueWritePos+1) % UARTRXQUEUESIZE != UART3RxQueueReadPos)
+        {
+          UART3Buffer[UART3RxQueueWritePos] = LPC_UART3->RBR;
+          UART3RxQueueWritePos = (UART3RxQueueWritePos+1) % UARTRXQUEUESIZE;
+        }
+    }
   }
   else if ( IIRValue == IIR_RDA )	/* Receive Data Available */
   {
-	/* Receive Data Available */
+	  /* Receive Data Available */
 	  if ((UART3RxQueueWritePos+1) % UARTRXQUEUESIZE != UART3RxQueueReadPos)
 	  {
 		  UART3Buffer[UART3RxQueueWritePos] = LPC_UART3->RBR;
 		  UART3RxQueueWritePos = (UART3RxQueueWritePos+1) % UARTRXQUEUESIZE;
 	  }
 	  else
-		  dummy = LPC_UART3->RBR;;
+		  dummy = LPC_UART3->RBR;
   }
   else if ( IIRValue == IIR_CTI )	/* Character timeout indicator */
   {
-	/* Character Time-out indicator */
-	UART3Status |= 0x100;		/* Bit 9 as the CTI error */
+    /* Character Time-out indicator */
+    UART3Status |= 0x100;		/* Bit 9 as the CTI error */
   }
   else if ( IIRValue == IIR_THRE )	/* THRE, transmit holding register empty */
   {
-	/* THRE interrupt */
-	LSRValue = LPC_UART3->LSR;		/* Check status in the LSR to see if
-									valid data in U0THR or not */
-	if ( LSRValue & LSR_THRE )
-	{
-	  UART3TxEmpty = 1;
-	}
-	else
-	{
-	  UART3TxEmpty = 0;
-	}
+    /* THRE interrupt */
+    LSRValue = LPC_UART3->LSR;		/* Check status in the LSR to see if
+                                     valid data in U0THR or not */
+    if ( LSRValue & LSR_THRE )
+    {
+      UART3TxEmpty = 1;
+    }
+    else
+    {
+      UART3TxEmpty = 0;
+    }
   }
 }
 

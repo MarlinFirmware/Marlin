@@ -46,7 +46,7 @@ void GcodeSuite::M355() {
     if (parser.seenval('P')) {
       ++args, case_light_brightness = parser.value_byte();
       case_light_arg_flag = false;
-    }  
+    }
     if (parser.seenval('S')) {
       ++args, case_light_on = parser.value_bool();
       case_light_arg_flag = true;

@@ -57,20 +57,9 @@ void delayMicroseconds(uint32_t us) {
     us = us % 1000;
   }
 
-  if (us < 5) { // burn cycles, time in interrupts will not be taken into account
-    loops = us * nop_factor;
-    while (loops > 0) --loops;
-  }
-  else { // poll systick, more accurate through interrupts
-    int32_t start = SysTick->VAL;
-    int32_t load = SysTick->LOAD;
-    int32_t end = start - (load / 1000) * us;
-
-    if (end >> 31)
-      while (!(SysTick->VAL > start && SysTick->VAL < (load + end))) __NOP();
-    else
-      while (SysTick->VAL > end) __NOP();
-  }
+  // burn cycles, time in interrupts will not be taken into account
+  loops = us * nop_factor;
+  while (loops > 0) --loops;
 }
 
 extern "C" void delay(const int msec) {

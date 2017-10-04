@@ -113,6 +113,7 @@ void HAL_adc_enable_channel(int pin) {
   };
 }
 
+uint8_t active_adc = 0;
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   if (adc_pin >= (NUM_ANALOG_INPUTS) || adc_pin_map[adc_pin].port == 0xFF) {
     usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
@@ -121,14 +122,52 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   LPC_ADC->ADCR &= ~0xFF;                       // Reset
   SBI(LPC_ADC->ADCR, adc_pin_map[adc_pin].adc); // Select Channel
   SBI(LPC_ADC->ADCR, 24);                       // Start conversion
+  active_adc = adc_pin;
 }
 
-bool HAL_adc_finished(void) { return LPC_ADC->ADGDR & ADC_DONE; }
+bool HAL_adc_finished(void) {
+  return LPC_ADC->ADGDR & ADC_DONE;
+}
+
+// possible config options if something similar is extended to more platforms.
+#define ADC_USE_MEDIAN_FILTER      // filter out erroneous readings
+#define ADC_USE_LOWPASS_FILTER     // filter out high frequency noise
+#define ADC_LOWPASS_K_VALUE 4      // how much to smooth out noise (1:8)
+
+struct MedianFilter {
+  uint16_t values[3];
+  uint8_t next_val;
+  MedianFilter() {
+    next_val = 0;
+    values[0] = values[1] = values[2] = 0;
+  }
+  uint16_t update(uint16_t value) {
+    values[next_val++] = value;
+    next_val = next_val % 3;
+    return max(min(values[0], values[1]), min(max(values[0], values[1]), values[2]));     //median
+  }
+};
+
+uint16_t lowpass_filter(uint16_t value) {
+  const uint8_t k_data_shift = ADC_LOWPASS_K_VALUE;
+  static uint32_t data_delay[NUM_ANALOG_INPUTS] = { 0 };
+  uint32_t &active_filter = data_delay[active_adc];
+  active_filter = active_filter - (active_filter >> k_data_shift) + value;
+  return (uint16_t)(active_filter >> k_data_shift);
+}
 
 uint16_t HAL_adc_get_result(void) {
   uint32_t data = LPC_ADC->ADGDR;
-  CBI(LPC_ADC->ADCR, 24);                       // Stop conversion
-  return (data & ADC_OVERRUN) ? 0 : (data >> 6) & 0x3FF; // 10bit
+  CBI(LPC_ADC->ADCR, 24);    // Stop conversion
+  if (data & ADC_OVERRUN) return 0;
+  #ifdef ADC_USE_MEDIAN_FILTER
+    static MedianFilter median_filter[NUM_ANALOG_INPUTS];
+    data = median_filter[active_adc].update((uint16_t)data);
+  #endif
+  #ifdef ADC_USE_LOWPASS_FILTER
+    data = lowpass_filter((uint16_t)data);
+  #endif
+  return ((data >> 6) & 0x3ff);    // 10bit
 }
 
 #define SBIT_CNTEN     0

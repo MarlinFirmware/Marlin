@@ -171,7 +171,7 @@
     UNUSED(response);
   }
 
-  static void spiSend(const uint8_t* buf, size_t n) {
+  void spiSend(const uint8_t* buf, size_t n) {
     uint8_t response;
     if (n == 0) return;
     for (uint16_t i = 0; i < n; i++) {

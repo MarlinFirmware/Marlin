@@ -36,6 +36,10 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
+#if ENABLED(DIRECT_MIXING_IN_G1)
+  #include "../feature/mixing.h"
+#endif
+
 #include "../Marlin.h" // for idle()
 
 uint8_t GcodeSuite::target_extruder;
