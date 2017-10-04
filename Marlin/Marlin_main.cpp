@@ -5748,7 +5748,7 @@ void home_all_axes() { gcode_G28(true); }
             S2 += sq(z_at_pt[axis]);
             N++;
           }
-        zero_std_dev = round(sqrt(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+        zero_std_dev = round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
 
         // Solve matrices (see: https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
 
