@@ -495,6 +495,29 @@
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7)
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
+
+    // set the factors according to the printer model and calibration radius
+    // get the factors from autocalibrate autotune G33 A1
+
+    // Flsun - calibration radius 73.5 (from auto tune)
+    #define H_FACTOR 1.03
+    #define R_FACTOR 1.11
+    #define A_FACTOR 1.15
+
+    // Kossel mini - calibration radius 73.5
+    //#define H_FACTOR 1.00
+    //#define R_FACTOR 1.00
+    //#define A_FACTOR 1.00
+
+    // Kossel pro - calibration radius ???
+    //#define H_FACTOR ???
+    //#define R_FACTOR ???
+    //#define A_FACTOR ???
+
+    // Kossel XL - calibration radius ???
+    //#define H_FACTOR ???
+    //#define R_FACTOR ???
+    //#define A_FACTOR ???
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
