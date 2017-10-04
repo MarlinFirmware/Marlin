@@ -26,6 +26,10 @@
 #include "../module/motion.h"
 #include "point_t.h"
 
+#if ENABLED(DELTA)
+  #include "../module/delta.h"
+#endif
+
 /**
   * @brief Stroke clean pattern
   * @details Wipes the nozzle back and forth in a linear movement

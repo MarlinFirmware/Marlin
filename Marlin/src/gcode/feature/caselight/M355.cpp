@@ -43,8 +43,14 @@
 void GcodeSuite::M355() {
   #if HAS_CASE_LIGHT
     uint8_t args = 0;
-    if (parser.seenval('P')) ++args, case_light_brightness = parser.value_byte();
-    if (parser.seenval('S')) ++args, case_light_on = parser.value_bool();
+    if (parser.seenval('P')) {
+      ++args, case_light_brightness = parser.value_byte();
+      case_light_arg_flag = false;
+    }
+    if (parser.seenval('S')) {
+      ++args, case_light_on = parser.value_bool();
+      case_light_arg_flag = true;
+    }
     if (args) update_case_light();
 
     // always report case light status

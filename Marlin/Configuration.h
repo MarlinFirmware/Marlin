@@ -91,6 +91,7 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
+
 // @section machine
 
 /**
@@ -100,15 +101,16 @@
  *
  * :[0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT -1
+#define SERIAL_PORT 0
 
 /**
  * This setting determines the communication speed of the printer.
  *
  * 250000 works in most cases, but you might try a lower speed if
  * you commonly experience drop-outs during host printing.
+ * You may try up to 1000000 to speed up SD file transfer.
  *
- * :[2400, 9600, 19200, 38400, 57600, 115200, 250000]
+ * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
 #define BAUDRATE 250000
 
@@ -181,7 +183,7 @@
  */
 //#define PARKING_EXTRUDER
 #if ENABLED(PARKING_EXTRUDER)
-  #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid not magnetized with applied voltage
+  #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid is NOT magnetized with applied voltage
   #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW  // LOW or HIGH pin signal energizes the coil
   #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // Delay (ms) for magnetic field. No delay if 0 or not defined.
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
@@ -282,7 +284,7 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 11
+#define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -759,6 +761,8 @@
 
 // @section homing
 
+//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
+
 //#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
@@ -955,8 +959,10 @@
 #if ENABLED(LCD_BED_LEVELING)
   #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-  #define LEVEL_BED_CORNERS   // Add an option to move between corners
 #endif
+
+// Add a menu item to move between bed corners for manual bed adjustment
+#define LEVEL_BED_CORNERS
 
 /**
  * Commands to execute at the end of G29 probing.
@@ -1230,8 +1236,9 @@
  * SD CARD: SPI SPEED
  *
  * Enable one of the following items for a slower SPI transfer speed.
- * This may be required to resolve "volume init" errors.
+ * This may be required to resolve "volume init" errors or LCD issues.
  */
+ 
 //#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
 //#define SPI_SPEED SPI_EIGHTH_SPEED

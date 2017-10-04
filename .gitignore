@@ -150,10 +150,13 @@ Marlin/*/*/*/*/readme.txt
 *.sln
 *.vcxproj
 *.vcxproj.filters
-src/Release/
-src/Debug/
-src/__vm/
-src/.vs/
+Release/
+Debug/
+__vm/
+.vs/
+
+#Visual Studio Code
+.vscode
 
 #Visual Studio Code
 .vscode

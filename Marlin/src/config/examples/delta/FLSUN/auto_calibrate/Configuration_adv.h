@@ -512,7 +512,7 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
-    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256).
+    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
     #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
     #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
     #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
@@ -610,13 +610,15 @@
  */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define BABYSTEP_XY            // Also enable X/Y Babystepping. Not supported on DELTA!
-  #define BABYSTEP_INVERT_Z false  // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 1 // Babysteps are very small. Increase for faster motion.
-  //#define BABYSTEP_ZPROBE_OFFSET // Enable to combine M851 and Babystepping
+  //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
+  #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
+  #define BABYSTEP_MULTIPLICATOR 100 // Babysteps are very small. Increase for faster motion.
+  //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
+  //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_ZPROBE_GFX_REVERSE // Reverses the direction of the CW/CCW indicators
 #endif
 
 // @section extruder
@@ -751,7 +753,7 @@
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-// Transfer Buffer Size
+// Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
 // To buffer a simple "ok" you need 4 bytes.
 // For ADVANCED_OK (M105) you need 32 bytes.
@@ -759,6 +761,28 @@
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
+
+// Host Receive Buffer Size
+// Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
+// To use flow control, set this buffer size to at least 1024 bytes.
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+//#define RX_BUFFER_SIZE 1024
+
+#if RX_BUFFER_SIZE >= 1024
+  // Enable to have the controller send XON/XOFF control characters to
+  // the host to signal the RX buffer is becoming full.
+  //#define SERIAL_XON_XOFF
+#endif
+
+#if ENABLED(SDSUPPORT)
+  // Enable this option to collect and display the maximum
+  // RX queue usage after transferring a file to SD.
+  //#define SERIAL_STATS_MAX_RX_QUEUED
+
+  // Enable this option to collect and display the number
+  // of dropped bytes after a file transfer to SD.
+  //#define SERIAL_STATS_DROPPED_RX
+#endif
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
@@ -1272,6 +1296,7 @@
 #if ENABLED(CUSTOM_USER_MENUS)
   #define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
+  //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"

@@ -21,13 +21,12 @@
  */
 
 /**
- * Test Re-ARM specific configuration values for errors at compile-time.
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
 /**
- * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
+ * Test Re-ARM specific configuration values for errors at compile-time.
  */
-
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
     #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."

@@ -91,7 +91,7 @@ uint8_t spiRec(uint32_t chan);
 
 void HAL_adc_init(void);
 void HAL_adc_enable_channel(int pin);
-void HAL_adc_start_conversion (uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
 
 #endif // _HAL_LPC1768_H

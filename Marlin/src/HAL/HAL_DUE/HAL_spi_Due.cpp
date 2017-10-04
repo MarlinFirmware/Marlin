@@ -199,11 +199,11 @@
       if(spiRate > 6) spiRate = 1;
 
       #if MB(ALLIGATOR)
-        // Set SPI mode 1, clock, select not active after transfer, with delay between transfers  
+        // Set SPI mode 1, clock, select not active after transfer, with delay between transfers
         SPI_ConfigureNPCS(SPI0, SPI_CHAN_DAC,
                           SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDueDividors[spiRate]) |
                           SPI_CSR_DLYBCT(1));
-        // Set SPI mode 0, clock, select not active after transfer, with delay between transfers 
+        // Set SPI mode 0, clock, select not active after transfer, with delay between transfers
         SPI_ConfigureNPCS(SPI0, SPI_CHAN_EEPROM1, SPI_CSR_NCPHA |
                           SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDueDividors[spiRate]) |
                           SPI_CSR_DLYBCT(1));

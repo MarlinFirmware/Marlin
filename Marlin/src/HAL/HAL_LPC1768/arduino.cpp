@@ -25,14 +25,15 @@
 #include <lpc17xx_pinsel.h>
 #include "HAL.h"
 #include "../../core/macros.h"
+#include "../../core/types.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable
 void sei(void) { __enable_irq(); }  // Enable
 
 // Time functions
-void _delay_ms(int delay_ms) {
-  delay (delay_ms);
+void _delay_ms(const int delay_ms) {
+  delay(delay_ms);
 }
 
 uint32_t millis() {
@@ -61,9 +62,9 @@ void delayMicroseconds(uint32_t us) {
     while (loops > 0) --loops;
   }
   else { // poll systick, more accurate through interrupts
-    int32_t start = SysTick->VAL;
-    int32_t load = SysTick->LOAD;
-    int32_t end = start - (load / 1000) * us;
+    uint32_t start = SysTick->VAL;
+    uint32_t load = SysTick->LOAD;
+    uint32_t end = start - (load / 1000) * us;
 
     if (end >> 31)
       while (!(SysTick->VAL > start && SysTick->VAL < (load + end))) __NOP();
@@ -72,16 +73,16 @@ void delayMicroseconds(uint32_t us) {
   }
 }
 
-extern "C" void delay(int msec) {
-   volatile int32_t end = _millis + msec;
-   SysTick->VAL = SysTick->LOAD; // reset systick counter so next systick is in exactly 1ms
-                                 // this could extend the time between systicks by upto 1ms
-   while (_millis < end) __WFE();
+extern "C" void delay(const int msec) {
+  volatile millis_t end = _millis + msec;
+  SysTick->VAL = SysTick->LOAD; // reset systick counter so next systick is in exactly 1ms
+                                // this could extend the time between systicks by upto 1ms
+  while PENDING(_millis, end) __WFE();
 }
 
 // IO functions
 // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
-void pinMode(int pin, int mode) {
+void pinMode(uint8_t pin, uint8_t mode) {
   if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
     return;
 
@@ -109,7 +110,7 @@ void pinMode(int pin, int mode) {
   }
 }
 
-void digitalWrite(int pin, int pin_status) {
+void digitalWrite(uint8_t pin, uint8_t pin_status) {
   if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
     return;
 
@@ -129,16 +130,14 @@ void digitalWrite(int pin, int pin_status) {
      */
 }
 
-bool digitalRead(int pin) {
+bool digitalRead(uint8_t pin) {
   if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF) {
     return false;
   }
   return LPC_GPIO(pin_map[pin].port)->FIOPIN & LPC_PIN(pin_map[pin].pin) ? 1 : 0;
 }
 
-
-
-void analogWrite(int pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
+void analogWrite(uint8_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
 
   extern bool LPC1768_PWM_attach_pin(uint8_t, uint32_t, uint32_t, uint8_t);
   extern bool LPC1768_PWM_write(uint8_t, uint32_t);
@@ -168,7 +167,7 @@ void analogWrite(int pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: 
 
 extern bool HAL_adc_finished();
 
-uint16_t analogRead(int adc_pin) {
+uint16_t analogRead(uint8_t adc_pin) {
   HAL_adc_start_conversion(adc_pin);
   while (!HAL_adc_finished());  // Wait for conversion to finish
   return HAL_adc_get_result();

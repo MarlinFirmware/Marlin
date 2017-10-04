@@ -17,18 +17,21 @@
 *
 */
 
+/**
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ */
 
 #ifndef SPI_PINS_H_
 #define SPI_PINS_H_
 
 /**
-* Define SPI Pins: SCK, MISO, MOSI, SS
-*
-* Available chip select pins for HW SPI are 4 10 52 77
-*/
-#define SCK_PIN           PA5
-#define MISO_PIN          PA6
-#define MOSI_PIN          PA7
-#define SS_PIN            PA4
+ * Define SPI Pins: SCK, MISO, MOSI, SS
+ *
+ * Available chip select pins for HW SPI are 4 10 52 77
+ */
+#define SCK_PIN   PA5
+#define MISO_PIN  PA6
+#define MOSI_PIN  PA7
+#define SS_PIN    PA4
 
-#endif /* SPI_PINS_H_ */
+#endif // SPI_PINS_H_

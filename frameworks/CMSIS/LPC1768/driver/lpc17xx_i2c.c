@@ -188,7 +188,7 @@ static uint32_t I2C_SendByte (LPC_I2C_TypeDef *I2Cx, uint8_t databyte)
 	{
 		return CodeStatus;
 	}
-	
+
 	/* Make sure start bit is not active */
 	if (I2Cx->I2CONSET & I2C_I2CONSET_STA)
 	{
@@ -216,7 +216,7 @@ static uint32_t I2C_SendByte (LPC_I2C_TypeDef *I2Cx, uint8_t databyte)
 static uint32_t I2C_GetByte (LPC_I2C_TypeDef *I2Cx, uint8_t *retdat, Bool ack)
 {
 	*retdat = (uint8_t) (I2Cx->I2DAT & I2C_I2DAT_BITMASK);
-	
+
 	if (ack == TRUE)
 	{
 		I2Cx->I2CONSET = I2C_I2CONSET_AA;
@@ -227,7 +227,7 @@ static uint32_t I2C_GetByte (LPC_I2C_TypeDef *I2Cx, uint8_t *retdat, Bool ack)
 	}
 
 	I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
-	
+
 	return (I2Cx->I2STAT & I2C_STAT_CODE_BITMASK);
 }
 
@@ -454,7 +454,7 @@ int32_t I2C_MasterHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_M
 	uint8_t *rxdat;
 	uint8_t tmp;
 	int32_t Ret = I2C_OK;
-	
+
 	//get buffer to send/receive
 	txdat = (uint8_t *) &TransferCfg->tx_data[TransferCfg->tx_count];
 	rxdat = (uint8_t *) &TransferCfg->rx_data[TransferCfg->rx_count];
@@ -481,11 +481,11 @@ int32_t I2C_MasterHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_M
 			break;
 		case I2C_I2STAT_M_TX_SLAW_ACK:
 		case I2C_I2STAT_M_TX_DAT_ACK:
-			
+
 			if(TransferCfg->tx_count < TransferCfg->tx_length)
 			{
 				I2C_SendByte(I2Cx, *txdat);
-				
+
 				txdat++;
 
 				TransferCfg->tx_count++;
@@ -497,7 +497,7 @@ int32_t I2C_MasterHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_M
 				I2C_Stop(I2Cx);
 
 				Ret = I2C_SEND_END;
-				
+
 			}
 			break;
 		case I2C_I2STAT_M_TX_DAT_NACK:
@@ -537,7 +537,7 @@ int32_t I2C_MasterHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_M
 			 {
 				Ret = I2C_RECV_END;
 			}
-			
+
 			break;
 		case I2C_I2STAT_M_RX_DAT_NACK:
 			I2C_GetByte(I2Cx, &tmp, FALSE);
@@ -559,7 +559,7 @@ int32_t I2C_MasterHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_M
 			I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 			break;
 	}
-	
+
 	return Ret;
 }
 
@@ -592,7 +592,7 @@ int32_t I2C_SlaveHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_S_
 	//get buffer to send/receive
 	txdat = (uint8_t *) &TransferCfg->tx_data[TransferCfg->tx_count];
 	rxdat = (uint8_t *) &TransferCfg->rx_data[TransferCfg->rx_count];
-	
+
 	switch (CodeStatus)
 	{
 		/* Reading phase -------------------------------------------------------- */
@@ -636,7 +636,7 @@ int32_t I2C_SlaveHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_S_
 				I2Cx->I2CONSET = I2C_I2CONSET_AA;
 				I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 			}
-			
+
 			break;
 		/* DATA has been received, Only the first data byte will be received with ACK. Additional
 				data will be received with NOT ACK. */
@@ -688,7 +688,7 @@ int32_t I2C_SlaveHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_S_
 			I2Cx->I2CONSET = I2C_I2CONSET_AA|I2C_I2CONSET_STA;
 			I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 			break;
-			
+
 		case I2C_I2STAT_S_TX_LAST_DAT_ACK:
 		/* Data has been transmitted, NACK has been received,
 		 * that means there's no more data to send, exit now */
@@ -729,7 +729,7 @@ int32_t I2C_SlaveHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_S_
 			I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 			Ret = I2C_STA_STO_RECV;
 			break;
-		
+
 		/* No status information */
 		case I2C_I2STAT_NO_INF:
 		/* Other status must be captured */
@@ -737,7 +737,7 @@ int32_t I2C_SlaveHanleStates(LPC_I2C_TypeDef  *I2Cx, uint32_t CodeStatus, I2C_S_
 			I2Cx->I2CONSET = I2C_I2CONSET_AA;
 			I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 			break;
-		
+
 	}
 
 	return Ret;
@@ -787,7 +787,7 @@ void I2C_MasterHandler(LPC_I2C_TypeDef  *I2Cx)
 	else if (Ret & I2C_SEND_END)
 	{
 		// If no need to wait for data from Slave
-		if(txrx_setup->rx_count >= (txrx_setup->rx_length)) 
+		if(txrx_setup->rx_count >= (txrx_setup->rx_length))
 		{
 			goto s_int_end;
 		}
@@ -799,7 +799,7 @@ void I2C_MasterHandler(LPC_I2C_TypeDef  *I2Cx)
 	       		return;
 		}
 	}
-	else if (Ret & I2C_RECV_END) 
+	else if (Ret & I2C_RECV_END)
 	{
 		goto s_int_end;
 	}
@@ -815,7 +815,7 @@ s_int_end:
 	I2Cx->I2CONCLR = I2C_I2CONCLR_AAC | I2C_I2CONCLR_SIC | I2C_I2CONCLR_STAC;
 
 	I2C_MasterComplete[i2cId] = TRUE;
-		
+
 }
 
 
@@ -874,7 +874,7 @@ handle_state:
 					goto s_int_end;
 				}
 			}
-		}	
+		}
 	}
 	else if(Ret &I2C_SEND_END)
 	{
@@ -937,7 +937,7 @@ retry:
 
 		// Start command
 		CodeStatus = I2C_Start(I2Cx);
-		
+
 		while(1)	// send data first and then receive data from Slave.
 		{
 			Ret = I2C_MasterHanleStates(I2Cx, CodeStatus, TransferCfg);
@@ -955,13 +955,13 @@ retry:
 			else if( (Ret & I2C_BYTE_SENT) ||
 					(Ret & I2C_BYTE_RECV))
 			{
-				// Wait for sending ends				
+				// Wait for sending ends
 				while (!(I2Cx->I2CONSET & I2C_I2CONSET_SI));
 			}
 			else if (Ret & I2C_SEND_END) // already send all data
 			{
 				// If no need to wait for data from Slave
-				if(TransferCfg->rx_count >= (TransferCfg->rx_length)) 
+				if(TransferCfg->rx_count >= (TransferCfg->rx_length))
 				{
 					break;
 				}
@@ -1037,7 +1037,7 @@ Status I2C_SlaveTransferData(LPC_I2C_TypeDef *I2Cx, I2C_S_SETUP_Type *TransferCf
 								I2C_TRANSFER_OPT_Type Opt)
 {
 	int32_t   Ret = I2C_OK;
-	
+
 	uint32_t CodeStatus;
 	uint32_t timeout;
 	int32_t time_en;
@@ -1052,7 +1052,7 @@ Status I2C_SlaveTransferData(LPC_I2C_TypeDef *I2Cx, I2C_S_SETUP_Type *TransferCf
 	{
 		/* Set AA bit to ACK command on I2C bus */
 		I2Cx->I2CONSET = I2C_I2CONSET_AA;
-		
+
 		/* Clear SI bit to be ready ... */
 		I2Cx->I2CONCLR = (I2C_I2CONCLR_SIC | I2C_I2CONCLR_STAC|I2C_I2CONCLR_STOC);
 

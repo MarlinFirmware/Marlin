@@ -27,6 +27,7 @@
 #include "../../gcode.h"
 #include "../../parser.h"
 #include "../../../feature/pause.h"
+#include "../../../module/motion.h"
 
 /**
  * M125: Store current position and move to filament change position.

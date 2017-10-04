@@ -84,6 +84,7 @@
 
     // Function pointer to menu functions.
     typedef void (*screenFunc_t)();
+    typedef void (*menuAction_t)();
 
     void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
 

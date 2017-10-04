@@ -38,6 +38,8 @@ public:
   //files auto[0-9].g on the sd card are performed in a row
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
 
+  int16_t write(const void* buf, const uint16_t& nbyte);
+  int16_t read(void* buf, const uint16_t& nbyte);
   void checkautostart(bool x);
   void openFile(char* name, bool read, bool push_current=false);
   void openLogFile(char* name);

@@ -22,10 +22,7 @@
  */
 
 /**
- * Description: HAL for stm32duino and compatible (STM32F1)
- * Implementation of EEPROM settings in SDCard
- *
- * For __STM32F1__
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
 #ifdef __STM32F1__
@@ -80,7 +77,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
 		HAL_STM32F1_eeprom_content [pos + i] = value[i];
 	}
 	crc16(crc, value, size);
-	pos = pos + size;
+	pos += size;
 	return true;
 }
 
@@ -89,11 +86,11 @@ void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
 		value[i] = HAL_STM32F1_eeprom_content [pos + i];
 	}
 	crc16(crc, value, size);
-	pos = pos + size;
+	pos += size;
 }
 
-}
-}
+} // PersistentStore::
+} // HAL::
 
 #endif // EEPROM_SETTINGS
 

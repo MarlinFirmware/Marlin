@@ -71,12 +71,12 @@ private:
   static SoftwareSerial *active_object;
 
   // private methods
-  void recv() __attribute__((__always_inline__));
+  void recv();
   uint32_t rx_pin_read();
-  void tx_pin_write(uint8_t pin_state) __attribute__((__always_inline__));
+  void tx_pin_write(uint8_t pin_state);
   void setTX(uint8_t transmitPin);
   void setRX(uint8_t receivePin);
-  void setRxIntMsk(bool enable) __attribute__((__always_inline__));
+  void setRxIntMsk(bool enable);
 
   // private static method for timing
   static inline void tunedDelay(uint32_t delay);

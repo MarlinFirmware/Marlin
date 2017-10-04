@@ -239,12 +239,6 @@ void setup_powerhold() {
   #endif
 }
 
-void suicide() {
-  #if HAS_SUICIDE
-    OUT_WRITE(SUICIDE_PIN, LOW);
-  #endif
-}
-
 #if HAS_SERVOS
 
   HAL_SERVO_LIB servo[NUM_SERVOS];
@@ -612,7 +606,10 @@ void kill(const char* lcd_msg) {
     SET_INPUT(PS_ON_PIN);
   #endif
 
-  suicide();
+  #if HAS_SUICIDE
+    suicide();
+  #endif
+
   while (1) {
     #if ENABLED(USE_WATCHDOG)
       watchdog_reset();
@@ -664,13 +661,6 @@ void setup() {
   #if ENABLED(MAX7219_DEBUG)
     Max7219_init();
   #endif
-
-  // DO NOT COMMIT!
-  // Set up for Re-init USB
-  pinMode(BOARD_USB_DISC_BIT, OUTPUT);
-  digitalWrite(BOARD_USB_DISC_BIT, LOW);
-  SerialUSB.end();
-  SerialUSB.begin();
 
   #ifdef DISABLE_JTAG
     // Disable JTAG on AT90USB chips to free up pins for IO

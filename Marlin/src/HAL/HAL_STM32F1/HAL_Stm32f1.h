@@ -1,41 +1,37 @@
 /**
-* Marlin 3D Printer Firmware
-*
-* Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-* Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-* Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
-* Copyright (c) 2017 Victor Perez
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Marlin 3D Printer Firmware
+ *
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ * Copyright (c) 2017 Victor Perez
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 /**
-* Description: HAL for Arduino Stm32f1 (libmaple based stm32duino.com)
-*
-* For Libmaple based STM32F1
-*/
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ */
 
 #ifndef _HAL_STM32F1_H
 #define _HAL_STM32F1_H
 
-#ifdef DEBUG_NONE
 #undef DEBUG_NONE
-#endif
 
 #ifndef vsnprintf_P
-#define vsnprintf_P vsnprintf
+  #define vsnprintf_P vsnprintf
 #endif
 
 // --------------------------------------------------------------------------
@@ -56,29 +52,25 @@
 // --------------------------------------------------------------------------
 
 #if SERIAL_PORT == -1
-extern USBSerial SerialUSB;
-
-#define MYSERIAL SerialUSB
+  #define MYSERIAL SerialUSB
 #elif SERIAL_PORT == 0
-#define MYSERIAL Serial
+  #define MYSERIAL Serial
 #elif SERIAL_PORT == 1
-#define MYSERIAL Serial1
+  #define MYSERIAL Serial1
 #elif SERIAL_PORT == 2
-#define MYSERIAL Serial2
+  #define MYSERIAL Serial2
 #elif SERIAL_PORT == 3
-#define MYSERIAL Serial3
+  #define MYSERIAL Serial3
 #endif
 
 #define _BV(bit) 	(1 << (bit))
 
-/*
-* todo: review this to return 1 for pins that are not analog input
-*
-*/
+/**
+ * TODO: review this to return 1 for pins that are not analog input
+ */
 #ifndef analogInputToDigitalPin
-#define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) (p)
 #endif
-
 
 #define CRITICAL_SECTION_START	noInterrupts();
 #define CRITICAL_SECTION_END    interrupts();
@@ -87,7 +79,7 @@ extern USBSerial SerialUSB;
 #define square(x) ((x)*(x))
 
 #ifndef strncpy_P
-#define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
 #endif
 
 // Fix bug in pgm_read_ptr
@@ -105,7 +97,6 @@ extern USBSerial SerialUSB;
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
-
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -133,11 +124,11 @@ void HAL_clear_reset_source (void);
 /** reset reason */
 uint8_t HAL_get_reset_source (void);
 
-void _delay_ms(int delay);
+void _delay_ms(const int delay);
 
 /*
 extern "C" {
-    int freeMemory(void);
+  int freeMemory(void);
 }
 */
 
@@ -153,6 +144,7 @@ static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
+
 // SPI: Extended functions which take a channel number (hardware SPI only)
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
@@ -163,8 +155,9 @@ uint8_t spiRec(uint32_t chan);
 
 
 // EEPROM
-/*
- * Todo: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
+
+/**
+ * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
  * Wire library should work for i2c eeproms.
  */
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
@@ -172,19 +165,16 @@ unsigned char eeprom_read_byte(unsigned char *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
-
 // ADC
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
 void HAL_adc_init(void);
 
-
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC        HAL_adc_result
 
-
-void HAL_adc_start_conversion (uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 uint16_t HAL_adc_get_result(void);
 
@@ -201,8 +191,5 @@ void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
 
 */
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
 
 #endif // _HAL_STM32F1_H

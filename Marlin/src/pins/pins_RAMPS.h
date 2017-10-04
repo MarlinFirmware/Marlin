@@ -46,8 +46,8 @@
 
 #if ENABLED(IS_REARM)
   #error "Oops!  use 'pins_RAMPS_RE_ARM.h' when Re-Arm is used."
-#endif 
- 
+#endif
+
 #if !ENABLED(IS_RAMPS_SMART) && !ENABLED(IS_RAMPS_DUO) && !ENABLED(IS_RAMPS4DUE) && !ENABLED(TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
     #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."

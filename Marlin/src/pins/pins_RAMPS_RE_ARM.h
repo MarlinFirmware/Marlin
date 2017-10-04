@@ -66,7 +66,7 @@
 #define Y_MAX_PIN          15  //10k pullup to 3.3V, 1K series
 #define Z_MIN_PIN          18  //10k pullup to 3.3V, 1K series
 #define Z_MAX_PIN          19  //10k pullup to 3.3V, 1K series
-//#define Z_probe_pin         1  // AUX-1
+//#define Z_PROBE_PIN         1  // AUX-1
 
 
 //
@@ -105,7 +105,7 @@
 #define TEMP_1_PIN         2  //A2 (T2) - D69 - TEMP_1_PIN
 #define TEMP_2_PIN         3  //A3 - D63 - J5-3 & AUX-2
 #define TEMP_3_PIN         4  //A4 - D37 - BUZZER_PIN
-#define TEMP_4_PIN         5  //A5 - D49 - SD_DETECT_PIN
+//#define TEMP_4_PIN         5  //A5 - D49 - SD_DETECT_PIN
 //#define ??               6  //A6 - D0  - RXD0 - J4-4 & AUX-1
 #define FILWIDTH_PIN       7  //A7 - D1  - TXD0 - J4-5 & AUX-1
 
@@ -248,12 +248,12 @@
   #define DOGLCD_CS           63  // J5-3 & AUX-2
 
 #ifdef ULTIPANEL
-  
+
   #define LCD_PINS_D5         71  // ENET_MDIO
   #define LCD_PINS_D6         73  // ENET_RX_ER
   #define LCD_PINS_D7         75  // ENET_RXD1
 #endif
- 
+
   #if ENABLED(NEWPANEL)
     #if ENABLED(REPRAPWORLD_KEYPAD)
       #define SHIFT_OUT         51  // (MOSI) J3-10 & AUX-3
@@ -267,32 +267,25 @@
     //#define SHIFT_EN            41  // J5-4 & AUX-4
   #endif
 
-  #if ENABLED(SDSUPPORT)
-    #define SDCARD_SORT_ALPHA           // Using SORT feature to keep one directory level in RAM
-                                        // When going up/down directory levels the SD card is
-                                        // accessed but the garbage/lines are removed when the
-                                        // LCD updates
+    #define SDCARD_SORT_ALPHA         // Using SORT feature to keep one directory level in RAM
+                                      // When going up/down directory levels the SD card is
+                                      // accessed but the garbage/lines are removed when the
+                                      // LCD updates
 
-    // SD Card Sorting options
-    #if ENABLED(SDCARD_SORT_ALPHA)
-      #define SDSORT_LIMIT       255    // Maximum number of sorted items (10-256).
-      #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
-      #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
-      #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
-      #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-      #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-      #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-    #endif
-  #endif
+    #define SDSORT_LIMIT       256    // Maximum number of sorted items (10-256). Costs 27 bytes each.
+    #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+    #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+    #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
 
  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 //    #define LCD_SCREEN_ROT_180
-    
-    #define SOFTWARE_SPI  // temp to see if it fixes the  "not found" error
-    
+
     #undef  BEEPER_PIN
     #define BEEPER_PIN          37  // may change if cable changes
-    
+
     #define BTN_EN1             31  // J3-2 & AUX-4
     #define BTN_EN2             33  // J3-4 & AUX-4
     #define BTN_ENC             35  // J3-3 & AUX-4
@@ -301,7 +294,7 @@
     #define KILL_PIN            41  // J5-4 & AUX-4
 
     #undef  DOGLCD_CS
-    #define DOGLCD_CS           16 
+    #define DOGLCD_CS           16
     #undef  LCD_BACKLIGHT_PIN   //16  // J3-7 & AUX-4 - only used on DOGLCD controllers
     #undef  LCD_PINS_ENABLE     //51  // (MOSI) J3-10 & AUX-3
     #undef  LCD_PINS_D4         //52  // (SCK)  J3-9 & AUX-3
@@ -309,10 +302,10 @@
     #undef  LCD_PINS_D5         //59  // J3-8 & AUX-2
     #define DOGLCD_A0           59  // J3-8 & AUX-2
     #undef  LCD_PINS_D6         //63  // J5-3 & AUX-2
-    #undef  LCD_PINS_D7          //6  // (SERVO1) J5-1 & SERVO connector
-    #define DOGLCD_SCK SCK_PIN 
+    #undef  LCD_PINS_D7         // 6  // (SERVO1) J5-1 & SERVO connector
+    #define DOGLCD_SCK SCK_PIN
     #define DOGLCD_MOSI MOSI_PIN
- 
+
     #define STAT_LED_BLUE_PIN   63  // may change if cable changes
     #define STAT_LED_RED_PIN     6  // may change if cable changes
   #endif
@@ -320,8 +313,8 @@
   //#define MOSI_PIN            51  // system defined J3-10 & AUX-3
   //#define SCK_PIN             52  // system defined J3-9 & AUX-3
   //#define SS_PIN              53  // system defined J3-5 & AUX-3 - sometimes called SDSS
-  
-  
+
+
   #if ENABLED(MINIPANEL)
     // GLCD features
     //#define LCD_CONTRAST   190
@@ -337,17 +330,17 @@
 // Ethernet pins
 //
 #ifndef ULTIPANEL
-#define ENET_MDIO   71  // J12-4
-#define ENET_RX_ER  73  // J12-6
-#define ENET_RXD1   75  // J12-8
+  #define ENET_MDIO   71  // J12-4
+  #define ENET_RX_ER  73  // J12-6
+  #define ENET_RXD1   75  // J12-8
 #endif
-#define ENET_MOC    70  // J12-3
-#define REF_CLK     72  // J12-5
-#define ENET_RXD0   74  // J12-7
-#define ENET_CRS    76  // J12-9
-#define ENET_TX_EN  77  // J12-10
-#define ENET_TXD0   78  // J12-11
-#define ENET_TXD1   79  // J12-12
+#define ENET_MOC      70  // J12-3
+#define REF_CLK       72  // J12-5
+#define ENET_RXD0     74  // J12-7
+#define ENET_CRS      76  // J12-9
+#define ENET_TX_EN    77  // J12-10
+#define ENET_TXD0     78  // J12-11
+#define ENET_TXD1     79  // J12-12
 
 /**
  *  PWMS

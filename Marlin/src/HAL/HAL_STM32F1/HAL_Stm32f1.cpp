@@ -1,31 +1,30 @@
-/* **************************************************************************
-
-Marlin 3D Printer Firmware
-Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-Copyright (c) 2017 Victor Perez
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
-
+<<<<<<< HEAD
+/**
+ * Marlin 3D Printer Firmware
+ *
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ * Copyright (c) 2017 Victor Perez
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 /**
-* Description: HAL for Arduino Stm32f1 (libmaple based stm32duino.com)
-*
-* For Libmaple based STM32F1
-*/
-
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ */
 
 #ifdef __STM32F1__
 
@@ -63,8 +62,6 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
-USBSerial SerialUSB;
-STM32ADC adc(ADC1);
 
 uint8 adc_pins[] = {
   #if HAS_TEMP_0
@@ -126,23 +123,23 @@ void sei(void) { interrupts(); }
 */
 
 void HAL_clear_reset_source(void) { }
-/* Todo: Check this and change or remove.
-* currently returns 1 that's equal to poweron reset.
-*/
-uint8_t HAL_get_reset_source (void) {
-    return 1;
-}
+<<<<<<< HEAD
 
-void _delay_ms(int delay_ms) {
-    delay (delay_ms);
-}
+/**
+ * TODO: Check this and change or remove.
+ * currently returns 1 that's equal to poweron reset.
+ */
+uint8_t HAL_get_reset_source(void) { return 1; }
+
+void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 extern "C" {
-    extern unsigned int _ebss; // end of bss section
+  extern unsigned int _ebss; // end of bss section
 }
 
-/* Todo: Change this to correct it for libmaple
-*/
+/**
+ * TODO: Change this to correct it for libmaple
+ */
 
 // return free memory between end of heap (or end bss) and whatever is current
 
@@ -155,19 +152,19 @@ extern char _lm_heap_end;
 #endif
 
 extern "C" {
-static int freeMemory() {
-  char top = 't';
-  return &top - reinterpret_cast<char*>(sbrk(0));
-}
-    int freeMemory() {
-
-        int free_memory;
-        int heap_end = (int)_sbrk(0);
-        free_memory = ((int)&free_memory) - ((int)heap_end);
-        return free_memory;
-    }
+  static int freeMemory() {
+    char top = 't';
+    return &top - reinterpret_cast<char*>(sbrk(0));
+  }
+  int freeMemory() {
+    int free_memory;
+    int heap_end = (int)_sbrk(0);
+    free_memory = ((int)&free_memory) - ((int)heap_end);
+    return free_memory;
+  }
 }
 */
+
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
@@ -185,37 +182,37 @@ void HAL_adc_init(void)
 }
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {
-    TEMP_PINS pin_index = TEMP_0;
-    if (adc_pin == TEMP_0_PIN){
-          pin_index = TEMP_0;
-    }
+  TEMP_PINS pin_index = TEMP_0;
+  if (adc_pin == TEMP_0_PIN){
+      pin_index = TEMP_0;
+  }
 
-    else if (adc_pin == TEMP_1_PIN) {
-          pin_index = TEMP_1;
-    }
-    else if (adc_pin == TEMP_2_PIN) {
-          pin_index = TEMP_2;
-    }
-    else if (adc_pin == TEMP_3_PIN) {
-          pin_index = TEMP_3;
-    }
-    else if (adc_pin == TEMP_4_PIN) {
-          pin_index = TEMP_4;
-    }
-    else if (adc_pin == TEMP_BED_PIN) {
-          pin_index = TEMP_BED;
-    }
+  else if (adc_pin == TEMP_1_PIN) {
+    pin_index = TEMP_1;
+  }
+  else if (adc_pin == TEMP_2_PIN) {
+    pin_index = TEMP_2;
+  }
+  else if (adc_pin == TEMP_3_PIN) {
+    pin_index = TEMP_3;
+  }
+  else if (adc_pin == TEMP_4_PIN) {
+    pin_index = TEMP_4;
+  }
+  else if (adc_pin == TEMP_BED_PIN) {
+    pin_index = TEMP_BED;
+  }
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    else if (adc_pin == FILWIDTH_PIN) {
-          pin_index = FILWIDTH;
-    }
+  else if (adc_pin == FILWIDTH_PIN) {
+    pin_index = FILWIDTH;
+  }
 #endif
 
-    HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2)& 0x3ff; // shift to get 10 bits only.
+  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2)& 0x3ff; // shift to get 10 bits only.
 }
 
 uint16_t HAL_adc_get_result(void) {
-    return HAL_adc_result;
+  return HAL_adc_result;
 }
 
 #endif // __STM32F1__

@@ -20,6 +20,10 @@
 *
 */
 
+/**
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ */
+
 #ifndef WATCHDOG_STM32F1_H
 #define WATCHDOG_STM32F1_H
 #include <libmaple/iwdg.h>
@@ -37,5 +41,4 @@ void watchdog_init();
 // first watchdog_init or STM32F1 will reset.
 inline void watchdog_reset() { iwdg_feed(); }
 
-
-#endif /* WATCHDOG_STM32F1_H */
+#endif // WATCHDOG_STM32F1_H

@@ -24,7 +24,6 @@
     #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
 #endif
 
-
 /**
  * 21017 Victor Perez Marlin for stm32f1 test
  */
@@ -32,17 +31,14 @@
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 #define BOARD_NAME "Marlin for STM32"
 
-
-
 #define LARGE_FLASH true
 
-// ignore temp readings during develpment.
+// Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-/*
- * Steppers PINS
- */
-
+//
+// Steppers
+//
 #define X_STEP_PIN         PC0
 #define X_DIR_PIN          PC1
 #define X_ENABLE_PIN       PA8
@@ -54,7 +50,6 @@
 #define Y_ENABLE_PIN       PA8
 #define Y_MIN_PIN          -1
 #define Y_MAX_PIN          PB4
-
 
 #define Z_STEP_PIN         PC4
 #define Z_DIR_PIN          PC5
@@ -73,8 +68,9 @@
 #define E0_STEP_PIN        PC6
 #define E0_DIR_PIN         PC7
 #define E0_ENABLE_PIN      PA8
-/*
- * Todo: Currently using same Enable pin to all steppers.
+
+/**
+ * TODO: Currently using same Enable pin to all steppers.
  */
 
 #define E1_STEP_PIN        PC8
@@ -85,41 +81,40 @@
 #define E2_DIR_PIN         PC11
 #define E2_ENABLE_PIN      PA8
 
-/*
- * SD Card pins
- */
+//
+// Misc. Functions
+//
 #define SDPOWER            -1
 #define SDSS               PA4
 #define LED_PIN            PD2
- 
-#define FAN_PIN            -1 // (Sprinter config)
 
 #define PS_ON_PIN          -1
-  
 #define KILL_PIN           -1
 
-/*
- * Heater control pins
- */
-#define HEATER_BED_PIN     PA3    // BED
-#define HEATER_BED2_PIN    -1    // BED2
-#define HEATER_BED3_PIN    -1    // BED3
-
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN       PB0   // EXTRUDER 1
 #define HEATER_1_PIN       PB1
 #define HEATER_2_PIN       -1
- 
-/*
- * Temp sensor pins
- */
+
+#define HEATER_BED_PIN     PA3   // BED
+#define HEATER_BED2_PIN    -1    // BED2
+#define HEATER_BED3_PIN    -1    // BED3
+
+#define FAN_PIN            -1 // (Sprinter config)
+
+//
+// Temperature Sensors
+//
 #define TEMP_BED_PIN       PA0   // ANALOG NUMBERING
 #define TEMP_0_PIN         PA1   // ANALOG NUMBERING
 #define TEMP_1_PIN         PA2   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
-/*
- * LCD pins
- */
+//
+// LCD Pins
+//
 #if ENABLED(ULTRA_LCD)
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -281,29 +276,6 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-
-
-
-/*
- * Servo pins
- */
-#ifdef NUM_SERVOS
-  #define SERVO0_PIN         41
-
-  #if NUM_SERVOS > 1
-    #define SERVO1_PIN         42
-  #endif
-
-  #if NUM_SERVOS > 2
-    #define SERVO2_PIN         43
-  #endif
-
-  #if NUM_SERVOS > 3
-    #define SERVO3_PIN         44
-  #endif
-#endif
-
 
 #define U_MIN_PIN          -1
 #define V_MIN_PIN          -1

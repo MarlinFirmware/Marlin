@@ -46,6 +46,10 @@
   #include "../feature/mixing.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3
@@ -282,8 +286,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
-            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-            float z_raise = 0;
+            float z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
@@ -306,7 +309,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 SERIAL_ECHOLNPGM("Starting Autopark");
                 if (DEBUGGING(LEVELING)) DEBUG_POS("current position:", current_position);
               #endif
-              z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
               current_position[Z_AXIS] += z_raise;
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 SERIAL_ECHOLNPGM("(1) Raise Z-Axis ");

@@ -1744,8 +1744,8 @@ void Temperature::isr() {
 
     // Macros for Slow PWM timer logic
     #define _SLOW_PWM_ROUTINE(NR, src) \
-      soft_pwm_ ##NR = src; \
-      if (soft_pwm_ ##NR > 0) { \
+      soft_pwm_count_ ##NR = src; \
+      if (soft_pwm_count_ ##NR > 0) { \
         if (state_timer_heater_ ##NR == 0) { \
           if (state_heater_ ##NR == 0) state_timer_heater_ ##NR = MIN_STATE_TIME; \
           state_heater_ ##NR = 1; \
@@ -1762,7 +1762,7 @@ void Temperature::isr() {
     #define SLOW_PWM_ROUTINE(n) _SLOW_PWM_ROUTINE(n, soft_pwm_amount[n])
 
     #define PWM_OFF_ROUTINE(NR) \
-      if (soft_pwm_ ##NR < slow_pwm_count) { \
+      if (soft_pwm_count_ ##NR < slow_pwm_count) { \
         if (state_timer_heater_ ##NR == 0) { \
           if (state_heater_ ##NR == 1) state_timer_heater_ ##NR = MIN_STATE_TIME; \
           state_heater_ ##NR = 0; \
@@ -1972,7 +1972,7 @@ void Temperature::isr() {
 
     #if ENABLED(ADC_KEYPAD)
       case Prepare_ADC_KEY:
-        START_ADC(ADC_KEYPAD_PIN);
+        HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
       case Measure_ADC_KEY:
         if (ADCKey_count < 16) {
@@ -2064,13 +2064,10 @@ void Temperature::isr() {
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
       const int curTodo = babystepsTodo[axis]; // get rid of volatile for performance
-      if (curTodo > 0) {
-        stepper.babystep((AxisEnum)axis, /*fwd*/true);
-        babystepsTodo[axis]--;
-      }
-      else if (curTodo < 0) {
-        stepper.babystep((AxisEnum)axis, /*fwd*/false);
-        babystepsTodo[axis]++;
+      if (curTodo) {
+        stepper.babystep((AxisEnum)axis, curTodo > 0);
+        if (curTodo > 0) babystepsTodo[axis]--;
+                    else babystepsTodo[axis]++;
       }
     }
   #endif // BABYSTEPPING

@@ -1,5 +1,5 @@
 /* **************************************************************************
- 
+
  Marlin 3D Printer Firmware
  Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
@@ -122,7 +122,7 @@ void HAL_adc_init();
 
 #define HAL_ANALOG_SELECT(pin) NOOP;
 
-void HAL_adc_start_conversion(uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 uint16_t HAL_adc_get_result(void);
 

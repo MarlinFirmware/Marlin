@@ -20,7 +20,11 @@
 *
 */
 
-#if defined(__STM32F1__)
+/**
+ * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ */
+
+#ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -30,21 +34,20 @@
 #include "watchdog_Stm32f1.h"
 
 void watchdogSetup(void) {
-    // do whatever. don't remove this function.
+  // do whatever. don't remove this function.
 }
 
 /**
-*  @brief  Initialized the independent hardware watchdog.
-*  
-*  @return No return
-*  
-*  @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
-*/
-
+ * @brief  Initialized the independent hardware watchdog.
+ *
+ * @return No return
+ *
+ * @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
+ */
 void watchdog_init(void) {
-    //iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+  //iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
 }
 
 #endif // USE_WATCHDOG
 
-#endif
+#endif // __STM32F1__

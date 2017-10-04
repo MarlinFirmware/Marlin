@@ -30,6 +30,10 @@
   #include "../../lcd/ultralcd.h"
 #endif
 
+#if HAS_SUICIDE
+  #include "../../Marlin.h"
+#endif
+
 #if HAS_POWER_SWITCH
 
   // Could be moved to a feature, but this is all the data

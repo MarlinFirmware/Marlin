@@ -212,7 +212,7 @@ uint16_t max_display_update_time = 0;
   void _menu_action_back();
   void menu_action_submenu(screenFunc_t data);
   void menu_action_gcode(const char* pgcode);
-  void menu_action_function(screenFunc_t data);
+  void menu_action_function(menuAction_t data);
 
   #define DECLARE_MENU_EDIT_TYPE(_type, _name) \
     bool _menu_edit_ ## _name(); \
@@ -246,16 +246,6 @@ uint16_t max_display_update_time = 0;
   ////////////////////////////////////////////
   //////////// Menu System Macros ////////////
   ////////////////////////////////////////////
-
-  #ifndef ENCODER_FEEDRATE_DEADZONE
-    #define ENCODER_FEEDRATE_DEADZONE 10
-  #endif
-  #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM 5
-  #endif
-  #ifndef ENCODER_PULSES_PER_STEP
-    #define ENCODER_PULSES_PER_STEP 1
-  #endif
 
   /**
    * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -881,6 +871,9 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
         lcd_completion_feedback();
       #endif
+      #if ENABLED(USER_SCRIPT_RETURN)
+        lcd_return_to_status();
+      #endif
     }
 
     #if defined(USER_DESC_1) && defined(USER_GCODE_1)
@@ -1027,13 +1020,53 @@ void kill_screen(const char* lcd_msg) {
     }
 
     #if ENABLED(BABYSTEP_XY)
-      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
-      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
+      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
       void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+
+      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+
+        void _lcd_babystep_zoffset_overlay(const float in_zoffset) {
+          // Determine whether the user is raising or lowering the nozzle.
+          int8_t dir = 0;
+          static float old_zprobe_zoffset = 0;
+          if (in_zoffset != old_zprobe_zoffset) {
+            dir = (in_zoffset > old_zprobe_zoffset) ? 1 : -1;
+            old_zprobe_zoffset = in_zoffset;
+          }
+
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
+            const unsigned char *rot_up   = ccw_bmp;
+            const unsigned char *rot_down = cw_bmp;
+          #else
+            const unsigned char *rot_up   = cw_bmp;
+            const unsigned char *rot_down = ccw_bmp;
+          #endif
+
+          #if ENABLED(USE_BIG_EDIT_FONT)
+            const int left = 0, right = 45, nozzle = 95;
+          #else
+            const int left = 5, right = 90, nozzle = 60;
+          #endif
+
+          // Draw a representation of the nozzle
+          if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
+          if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
+
+          // Draw cw/ccw indicator and up/down arrows.
+          if (PAGE_CONTAINS(47,62)) {
+            u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+            u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+            u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+          }
+        }
+
+      #endif // BABYSTEP_ZPROBE_GFX_OVERLAY
 
       void lcd_babystep_zoffset() {
         if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
@@ -1054,13 +1087,17 @@ void kill_screen(const char* lcd_msg) {
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }
-        if (lcdDrawUpdate)
+        if (lcdDrawUpdate) {
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+            _lcd_babystep_zoffset_overlay(zprobe_zoffset);
+          #endif
+        }
       }
 
     #else // !BABYSTEP_ZPROBE_OFFSET
 
-      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
       void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
 
     #endif // !BABYSTEP_ZPROBE_OFFSET
@@ -2656,7 +2693,6 @@ void kill_screen(const char* lcd_msg) {
     void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
-      float Tz = 0.00;
       MENU_ITEM_EDIT(float52, MSG_DELTA_DIAG_ROG, &delta_diagonal_rod, DELTA_DIAGONAL_ROD - 5.0, DELTA_DIAGONAL_ROD + 5.0);
       _delta_height = DELTA_HEIGHT + home_offset[Z_AXIS];
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_HEIGHT, &_delta_height, _delta_height - 10.0, _delta_height + 10.0, _lcd_set_delta_height);
@@ -2714,9 +2750,13 @@ void kill_screen(const char* lcd_msg) {
       , int8_t eindex=-1
     #endif
   ) {
-    #if E_MANUAL > 1
-      if (axis == E_AXIS) manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
+    #if ENABLED(DUAL_X_CARRIAGE) || E_MANUAL > 1
+      #if E_MANUAL > 1
+        if (axis == E_AXIS)
+      #endif
+          manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
+
     manual_move_start_time = millis() + (move_menu_scale < 0.99 ? 0UL : 250UL); // delay for bigger moves
     manual_move_axis = (int8_t)axis;
   }
@@ -2892,19 +2932,19 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if IS_KINEMATIC
+  #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
     #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-    #if ENABLED(DELTA)
-      #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
-      void lcd_lower_z_to_clip_height() {
-        line_to_z(delta_clip_start_height);
-        lcd_synchronize();
-      }
-    #else
-      #define _MOVE_XY_ALLOWED true
-    #endif
   #else
     #define _MOVE_XYZ_ALLOWED true
+  #endif
+
+  #if ENABLED(DELTA)
+    #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
+    void lcd_lower_z_to_clip_height() {
+      line_to_z(delta_clip_start_height);
+      lcd_synchronize();
+    }
+  #else
     #define _MOVE_XY_ALLOWED true
   #endif
 
@@ -2927,7 +2967,7 @@ void kill_screen(const char* lcd_msg) {
     else
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
-    #if ENABLED(SWITCHING_EXTRUDER)
+    #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
         MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
       else
@@ -2967,6 +3007,23 @@ void kill_screen(const char* lcd_msg) {
     lcd_completion_feedback();
   }
 
+  #if ENABLED(EEPROM_SETTINGS)
+
+    static void lcd_init_eeprom() {
+      lcd_factory_settings();
+      settings.save();
+      lcd_goto_previous_menu();
+    }
+
+    static void lcd_init_eeprom_confirm() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
+      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
+      END_MENU();
+    }
+
+  #endif
+
   void lcd_control_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
@@ -2997,7 +3054,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500")); // TODO: Add "Are You Sure?" step
+      MENU_ITEM(submenu, MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
     #endif
 
     END_MENU();
@@ -3503,7 +3560,7 @@ void kill_screen(const char* lcd_msg) {
     void lcd_control_retract_menu() {
       START_MENU();
       MENU_BACK(MSG_CONTROL);
-      MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &fwretract.retract_length, 0, 100);
       #if EXTRUDERS > 1
         MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);

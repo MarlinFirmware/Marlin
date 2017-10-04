@@ -24,7 +24,7 @@
  * Originally from Arduino Sd2Card Library
  * Copyright (C) 2009 by William Greiman
  */
- 
+
 /**
  * Description: HAL for AVR - SPI functions
  *

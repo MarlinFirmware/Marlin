@@ -89,11 +89,11 @@
     this->servoIndex = INVALID_SERVO;  // too many servos
   }
 
-  int8_t Servo::attach(int pin) {
+  int8_t Servo::attach(const int pin) {
     return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   }
 
-  int8_t Servo::attach(int pin, int min, int max) {
+  int8_t Servo::attach(const int pin, const int min, const int max) {
 
     if (this->servoIndex >= MAX_SERVOS) return -1;
 
@@ -146,10 +146,12 @@
 
   bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
-  void Servo::move(int value) {
+  void Servo::move(const int value) {
+    constexpr uint16_t servo_delay[] = SERVO_DELAY;
+    static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
     if (this->attach(0) >= 0) {    // notice the pin number is zero here
       this->write(value);
-      delay(SERVO_DELAY);
+      delay(servo_delay[this->servoIndex]);
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
         this->detach();
         LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal

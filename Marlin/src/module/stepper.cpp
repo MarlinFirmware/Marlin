@@ -135,9 +135,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
    * This fix isn't perfect and may lose steps - but better than locking up completely
    * in future the planner should slow down if advance stepping rate would be too high
    */
-  FORCE_INLINE uint16_t adv_rate(const int steps, const uint16_t timer, const uint8_t loops) {
+  FORCE_INLINE HAL_TIMER_TYPE adv_rate(const int steps, const HAL_TIMER_TYPE timer, const uint8_t loops) {
     if (steps) {
-      const uint16_t rate = (timer * loops) / abs(steps);
+      const HAL_TIMER_TYPE rate = (timer * loops) / abs(steps);
       //return constrain(rate, 1, ADV_NEVER - 1)
       return rate ? rate : 1;
     }
@@ -323,51 +323,61 @@ void Stepper::isr() {
 
   HAL_TIMER_TYPE ocr_val;
 
-  #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
-  #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
+  #ifdef CPU_32_BIT
+    #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
+    #define OCR_VAL_TOLERANCE 500 * HAL_TICKS_PER_US           // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
+  #else
+    #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
+    #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
+  #endif
 
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
     DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #if !defined(CPU_32_BIT)
+    #ifndef CPU_32_BIT
       sei();
     #endif
   #endif
 
-  #define _SPLIT(L) (ocr_val = (HAL_TIMER_TYPE)L)
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) || defined(CPU_32_BIT)
-    #define SPLIT(L) _SPLIT(L)
-  #else                 // sample endstops in between step pulses
-    static uint32_t step_remaining = 0;
-    #define SPLIT(L) do { \
-      _SPLIT(L); \
-      if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
-        const uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
-        ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
-        step_remaining = (uint16_t)L - ocr_val; \
-      } \
-    }while(0)
+  static uint32_t step_remaining = 0;  // SPLIT function always runs.  This allows 16 bit timers to be
+                                       // used to generate the stepper ISR.
+  #define SPLIT(L) do { \
+    if (L > ENDSTOP_NOMINAL_OCR_VAL) { \
+      const uint32_t remainder = (uint32_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+      ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
+      step_remaining = (uint32_t)L - ocr_val; \
+    } \
+    else \
+      ocr_val = L;\
+  }while(0)
 
-    if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
+  if (step_remaining) {
+    if (ENDSTOPS_ENABLED)
       endstops.update();
-      if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
-        step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
-        ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
-      }
-      else {
-        ocr_val = step_remaining;
-        step_remaining = 0;  //  last one before the ISR that does the step
-      }
-
-      _NEXT_ISR(ocr_val);
-
-      NOLESS(OCR1A, TCNT1 + 16);
-
-      HAL_ENABLE_ISRs(); // re-enable ISRs
-      return;
+    if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
+      step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
+      ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
     }
+    else {
+      ocr_val = step_remaining;
+      step_remaining = 0;  //  last one before the ISR that does the step
+    }
+
+    _NEXT_ISR(ocr_val);
+
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    #ifdef CPU_32_BIT
+      HAL_timer_set_count(STEP_TIMER_NUM, ocr_val);
+    #else
+      NOLESS(OCR1A, TCNT1 + 16);
+    #endif
+    HAL_ENABLE_ISRs(); // re-enable ISRs
   #endif
+
+    return;
+  }
+
 
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
@@ -748,7 +758,6 @@ void Stepper::isr() {
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
-
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -806,8 +815,8 @@ void Stepper::isr() {
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
-               stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+      HAL_TIMER_TYPE stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+                     stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
       HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
       NOLESS(OCR1A, TCNT1 + 16);
@@ -832,7 +841,6 @@ void Stepper::isr() {
   // Timer interrupt for E. e_steps is set in the main routine;
 
   void Stepper::advance_isr() {
-
     nextAdvanceISR = eISR_Rate;
 
     #if ENABLED(MK2_MULTIPLEXER)
