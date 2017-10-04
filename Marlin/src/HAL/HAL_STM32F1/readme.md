@@ -22,6 +22,7 @@ Add the following 3 lines:
 
 ### Main developers:
 Victorpv
+xC0000005
 
 
 ### Most up to date repository for this HAL:
