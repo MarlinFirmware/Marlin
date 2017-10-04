@@ -60,12 +60,12 @@
   #endif
 
   #if ENABLED(SERIAL_XON_XOFF)
-    uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
     constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80;  // XON / XOFF Character was sent
     constexpr uint8_t XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
     // XON / XOFF character definitions
     constexpr uint8_t XON_CHAR  = 17;
     constexpr uint8_t XOFF_CHAR = 19;
+    uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
   #endif
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
