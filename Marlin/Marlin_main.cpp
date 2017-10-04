@@ -52,6 +52,8 @@
  * G4   - Dwell S<seconds> or P<milliseconds>
  * G5   - Cubic B-spline with XYZE destination and IJPQ offsets
  * G10  - Retract filament according to settings of M207 (Requires FWRETRACT)
+ *        G10S1 for ToolChange long retractation 
+ *        Zlift feedrate according to setting of M203 (Feedrate limits)
  * G11  - Retract recover filament according to settings of M208 (Requires FWRETRACT)
  * G12  - Clean tool (Requires NOZZLE_CLEAN_FEATURE)
  * G17  - Select Plane XY (Requires CNC_WORKSPACE_PLANES)
