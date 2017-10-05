@@ -129,7 +129,7 @@
   #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-#if ENABLED(MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
+#if ENABLED(MKS_12864OLED)
   #define LCD_PINS_D5 -1
   #define LCD_PINS_D6 -1
   #define LCD_PINS_RST  27
@@ -379,7 +379,7 @@
       #define DOGLCD_A0         27
       #define LCD_BACKLIGHT_PIN 33
     #elif ENABLED(MINIPANEL)
-      #if ENABLED(MKS_MINIPANEL)
+      #if ENABLED(MKS_MINI_12864)
         #define BEEPER_PIN        37 
         // Pins for DOGM SPI LCD Support
         #define DOGLCD_A0         27 

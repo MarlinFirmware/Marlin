@@ -13561,7 +13561,7 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
-#if defined (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
+#if defined (MKS_12864OLED)
   SET_OUTPUT(LCD_PINS_DC);   
   SET_OUTPUT(LCD_PINS_RST);  
   WRITE(LCD_PINS_RST, LOW);

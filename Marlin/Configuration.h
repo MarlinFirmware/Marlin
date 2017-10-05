@@ -1498,19 +1498,35 @@
 //
 //#define OLED_PANEL_TINYBOY2
 
+//
 // Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
-
+//
+// https://www.aliexpress.com/item/Micromake-Makeboard-3D-Printer-Parts-3D-Printer-Mini-Display-1602-Mini-Controller-Compatible-with-Ramps-1/32765887917.html
+// 2 line display.  
+//
 //#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
 
-// MKS Mini Panel with graphic
-// controller and SD support - https://www.aliexpress.com/item/3d-printer-Reprap-LCD-MKS-MINI12864LCD-mini-12864-smart-display-Reprapdiscount-controller-Full-Graphic-for-mother/32808856549.html?spm=a2g0s.9042311.0.0.T02Q88
 //
-//#define MKS_MINIPANEL
+// MKS Mini Panel with graphic controller and SD support 
+//
+//http://reprap.org/wiki/MKS_MINI_12864
+//
+//#define MKS_MINI_12864
+
+//
+// Factory display for Creality CR-10 
+//
+// this is a ramps-compatible version for CR-10 owners who want to replace the Creality board, but retain the display
+// 
 //#define CR10_STOCKDISPLAY
 
 // MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
-#define MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER
-
+//
+//http://reprap.org/wiki/MKS_12864OLED
+//
+// Tiny, but very sharp OLED display
+//
+//#define MKS_12864OLED
 
 //=============================================================================
 //=============================== Extra Features ==============================
