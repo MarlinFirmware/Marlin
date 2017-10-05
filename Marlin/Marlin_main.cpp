@@ -5805,23 +5805,23 @@ void home_all_axes() { gcode_G28(true); }
 
             case 2:
               if (towers_set) {
-                e_delta[A_AXIS] = (Z3(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
-                e_delta[B_AXIS] = (Z3(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
-                e_delta[C_AXIS] = (Z3(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
+                e_delta[A_AXIS] = (Z6(0) + Z4(1) - Z2(5) - Z2(9)) * h_factor;
+                e_delta[B_AXIS] = (Z6(0) - Z2(1) + Z4(5) - Z2(9)) * h_factor;
+                e_delta[C_AXIS] = (Z6(0) - Z2(1) - Z2(5) + Z4(9)) * h_factor;
                 r_delta         = (Z6(0) - Z2(1) - Z2(5) - Z2(9)) * r_factor;
               }
               else {
-                e_delta[A_AXIS] = (Z3(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
-                e_delta[B_AXIS] = (Z3(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
-                e_delta[C_AXIS] = (Z3(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
+                e_delta[A_AXIS] = (Z6(0) - Z4(7) + Z2(11) + Z2(3)) * h_factor;
+                e_delta[B_AXIS] = (Z6(0) + Z2(7) - Z4(11) + Z2(3)) * h_factor;
+                e_delta[C_AXIS] = (Z6(0) + Z2(7) + Z2(11) - Z4(3)) * h_factor;
                 r_delta         = (Z6(0) - Z2(7) - Z2(11) - Z2(3)) * r_factor;
               }
               break;
 
             default:
-              e_delta[A_AXIS] = (Z3(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
-              e_delta[B_AXIS] = (Z3(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
-              e_delta[C_AXIS] = (Z3(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
+              e_delta[A_AXIS] = (Z6(0) + Z2(1) - Z1(5) - Z1(9) - Z2(7) + Z1(11) + Z1(3)) * h_factor;
+              e_delta[B_AXIS] = (Z6(0) - Z1(1) + Z2(5) - Z1(9) + Z1(7) - Z2(11) + Z1(3)) * h_factor;
+              e_delta[C_AXIS] = (Z6(0) - Z1(1) - Z1(5) + Z2(9) + Z1(7) + Z1(11) - Z2(3)) * h_factor;
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) {
