@@ -1667,4 +1667,5 @@
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
 #endif
+
 #endif // CONFIGURATION_H
