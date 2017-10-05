@@ -1502,6 +1502,7 @@
 // Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
 //
 // https://www.aliexpress.com/item/Micromake-Makeboard-3D-Printer-Parts-3D-Printer-Mini-Display-1602-Mini-Controller-Compatible-with-Ramps-1/32765887917.html
+//
 // 2 line display.  
 //
 //#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
@@ -1510,6 +1511,9 @@
 // MKS Mini Panel with graphic controller and SD support 
 //
 //http://reprap.org/wiki/MKS_MINI_12864
+//
+// Be aware that MKS/makebase/makeboard install the EXP1 and EXP1 headers reversed on all their products.  
+// Flipping the socket housing or cutting the cable's key may be needed when mixing brands.
 //
 //#define MKS_MINI_12864
 
