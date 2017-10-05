@@ -5785,9 +5785,9 @@ void home_all_axes() { gcode_G28(true); }
           #define Z3(I) ZP(3, I)
           #define Z2(I) ZP(2, I)
           #define Z1(I) ZP(1, I)
-          h_factor /= 6.00;
-          r_factor /= 6.00;
-          a_factor /= 3.00;
+          h_factor /= (iterations == 1 ?  8.0 : 6.00); //slow down on 1st iteration
+          r_factor /= (iterations == 1 ? 12.0 : 6.00);
+          a_factor /= (iterations == 1 ? 12.0 : 3.00);
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
