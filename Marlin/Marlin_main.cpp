@@ -5377,7 +5377,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOL_F(f, 2);
     }
 
-    inline void print_G33_settings(const bool end_stops, const bool tower_angles){
+    void print_G33_settings(const bool end_stops, const bool tower_angles){
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (end_stops) {
         print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
@@ -5395,6 +5395,27 @@ void home_all_axes() { gcode_G28(true); }
       }
     }
 
+    void print_G33_results(const float z_at_pt[13], const bool tower_points, const bool opposite_points){
+      SERIAL_PROTOCOLPGM(".    ");
+      print_signed_float(PSTR("c"), z_at_pt[0]);
+      if (tower_points) {
+        print_signed_float(PSTR("   x"), z_at_pt[1]);
+        print_signed_float(PSTR(" y"), z_at_pt[5]);
+        print_signed_float(PSTR(" z"), z_at_pt[9]);
+      }
+      if (tower_points && opposite_points) {
+        SERIAL_EOL();
+        SERIAL_CHAR('.');
+        SERIAL_PROTOCOL_SP(13);
+      }
+      if (opposite_points) {
+        print_signed_float(PSTR("  yz"), z_at_pt[7]);
+        print_signed_float(PSTR("zx"), z_at_pt[11]);
+        print_signed_float(PSTR("xy"), z_at_pt[3]);
+      }
+      SERIAL_EOL();
+    }
+
     void G33_cleanup(
       #if HOTENDS > 1
         const uint8_t old_tool_index
@@ -5410,6 +5431,75 @@ void home_all_axes() { gcode_G28(true); }
       #endif
     }
 
+    void probe_G33_points(float z_at_pt[13], const int8_t probe_points, const bool towers_set, const bool stow_after_each){
+      const bool _0p_calibration      = probe_points == 0,
+                 _1p_calibration      = probe_points == 1,
+                 _4p_calibration      = probe_points == 2,
+                 _4p_opposite_points  = _4p_calibration && !towers_set,
+                 _7p_calibration      = probe_points >= 3 || probe_points == 0,
+                 _7p_half_circle      = probe_points == 3,
+                 _7p_double_circle    = probe_points == 5,
+                 _7p_triple_circle    = probe_points == 6,
+                 _7p_quadruple_circle = probe_points == 7,
+                 _7p_multi_circle     = probe_points >= 5;
+      const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
+                  dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
+
+      #if HOTENDS > 1
+        const uint8_t old_tool_index = active_extruder;
+        #define G33_CLEANUP() G33_cleanup(old_tool_index)
+      #else
+        #define G33_CLEANUP() G33_cleanup()
+      #endif
+
+      for (int8_t i=0; i<13; i++) z_at_pt[i] = 0.0;
+      if (!_0p_calibration) {
+        if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
+          #if ENABLED(PROBE_MANUALLY)
+            z_at_pt[0] += lcd_probe_pt(0, 0);
+          #else
+            z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
+            if (isnan(z_at_pt[0])) return G33_CLEANUP();
+          #endif
+        }
+        if (_7p_calibration) { // probe extra center points
+          for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
+            const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
+            #if ENABLED(PROBE_MANUALLY)
+              z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
+            #else
+              z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+              if (isnan(z_at_pt[0])) return G33_CLEANUP();
+            #endif
+          }
+          z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
+        }
+        if (!_1p_calibration) {  // probe the radius
+          bool zig_zag = true;
+          const uint8_t start = _4p_opposite_points ? 3 : 1,
+                         step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
+          for (uint8_t axis = start; axis < 13; axis += step) {
+            const float zigadd = (zig_zag ? 0.5 : 0.0),
+                        offset_circles = _7p_quadruple_circle ? zigadd + 1.0 :
+                                         _7p_triple_circle    ? zigadd + 0.5 :
+                                         _7p_double_circle    ? zigadd : 0;
+            for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
+              const float a = RADIANS(180 + 30 * axis),
+                          r = delta_calibration_radius * (1 + circles * (zig_zag ? 0.1 : -0.1));
+              #if ENABLED(PROBE_MANUALLY)
+                z_at_pt[axis] += lcd_probe_pt(cos(a) * r, sin(a) * r);
+              #else
+                z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
+                if (isnan(z_at_pt[axis])) return G33_CLEANUP();
+              #endif
+            }
+            zig_zag = !zig_zag;
+            z_at_pt[axis] /= (2 * offset_circles + 1);
+          }
+        }
+      }
+    }
+    
     inline void gcode_G33() {
 
       const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
@@ -5430,9 +5520,9 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      const int8_t force_iterations = parser.intval('F', 1);
-      if (!WITHIN(force_iterations, 1, 30)) {
-        SERIAL_PROTOCOLLNPGM("?(F)orce iteration is implausible (1-30).");
+      const int8_t force_iterations = parser.intval('F', 0);
+      if (!WITHIN(force_iterations, 0, 30)) {
+        SERIAL_PROTOCOLLNPGM("?(F)orce iteration is implausible (0-30).");
         return;
       }
 
@@ -5448,11 +5538,8 @@ void home_all_axes() { gcode_G28(true); }
                  _7p_double_circle    = probe_points == 5,
                  _7p_triple_circle    = probe_points == 6,
                  _7p_quadruple_circle = probe_points == 7,
-                 _7p_multi_circle     = probe_points >= 5,
                  _7p_intermed_points  = probe_points >= 4;
       const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
-      const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
-                  dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
       int8_t iterations = 0;
       float test_precision,
             zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
@@ -5526,51 +5613,8 @@ void home_all_axes() { gcode_G28(true); }
 
         // Probe the points
 
-        if (!_0p_calibration){
-          if (!_7p_half_circle && !_7p_triple_circle) { // probe the center
-            #if ENABLED(PROBE_MANUALLY)
-              z_at_pt[0] += lcd_probe_pt(0, 0);
-            #else
-              z_at_pt[0] += probe_pt(dx, dy, stow_after_each, 1, false);
-              if (isnan(z_at_pt[0])) return G33_CLEANUP();
-            #endif
-          }
-          if (_7p_calibration) { // probe extra center points
-            for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
-              const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
-              #if ENABLED(PROBE_MANUALLY)
-                z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
-              #else
-                z_at_pt[0] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-                if (isnan(z_at_pt[0])) return G33_CLEANUP();
-              #endif
-            }
-            z_at_pt[0] /= float(_7p_double_circle ? 7 : probe_points);
-          }
-          if (!_1p_calibration) {  // probe the radius
-            bool zig_zag = true;
-            const uint8_t start = _4p_opposite_points ? 3 : 1,
-                           step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
-            for (uint8_t axis = start; axis < 13; axis += step) {
-              const float zigadd = (zig_zag ? 0.5 : 0.0),
-                          offset_circles = _7p_quadruple_circle ? zigadd + 1.0 :
-                                           _7p_triple_circle    ? zigadd + 0.5 :
-                                           _7p_double_circle    ? zigadd : 0;
-              for (float circles = -offset_circles ; circles <= offset_circles; circles++) {
-                const float a = RADIANS(180 + 30 * axis),
-                            r = delta_calibration_radius * (1 + circles * (zig_zag ? 0.1 : -0.1));
-                #if ENABLED(PROBE_MANUALLY)
-                  z_at_pt[axis] += lcd_probe_pt(cos(a) * r, sin(a) * r);
-                #else
-                  z_at_pt[axis] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-                  if (isnan(z_at_pt[axis])) return G33_CLEANUP();
-                #endif
-              }
-              zig_zag = !zig_zag;
-              z_at_pt[axis] /= (2 * offset_circles + 1);
-            }
-          }
-        }
+        probe_G33_points(z_at_pt, probe_points, towers_set, stow_after_each);
+
         if (_7p_intermed_points) // average intermediates to tower and opposites
           for (uint8_t axis = 1; axis < 13; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
@@ -5683,26 +5727,9 @@ void home_all_axes() { gcode_G28(true); }
 
         // print report
 
-        if (verbose_level != 1) {
-          SERIAL_PROTOCOLPGM(".    ");
-          print_signed_float(PSTR("c"), z_at_pt[0]);
-          if (_4p_towers_points || _7p_calibration) {
-            print_signed_float(PSTR("   x"), z_at_pt[1]);
-            print_signed_float(PSTR(" y"), z_at_pt[5]);
-            print_signed_float(PSTR(" z"), z_at_pt[9]);
-          }
-          if (!_4p_opposite_points) SERIAL_EOL();
-          if ((_4p_opposite_points) || _7p_calibration) {
-            if (_7p_calibration) {
-              SERIAL_CHAR('.');
-              SERIAL_PROTOCOL_SP(13);
-            }
-            print_signed_float(PSTR("  yz"), z_at_pt[7]);
-            print_signed_float(PSTR("zx"), z_at_pt[11]);
-            print_signed_float(PSTR("xy"), z_at_pt[3]);
-            SERIAL_EOL();
-          }
-        }
+        if (verbose_level != 1)
+          print_G33_results(z_at_pt, _4p_towers_points || _7p_calibration, _4p_opposite_points || _7p_calibration);
+
         if (verbose_level != 0) {                                    // !dry run
           if ((zero_std_dev >= test_precision && iterations > force_iterations) || zero_std_dev <= calibration_precision) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
