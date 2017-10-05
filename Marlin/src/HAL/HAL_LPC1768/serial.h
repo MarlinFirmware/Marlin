@@ -56,12 +56,10 @@ public:
     return buffer_size - available();
   }
   T read() volatile {
-    if(index_write != index_read) {
-      T val = buffer[buffer_mask & index_read];
-      ++index_read;
-      return val;
-    }
-    return T(0);
+    if((buffer_mask & index_read) == (buffer_mask & index_write)) return T(-1);
+    T val = buffer[buffer_mask & index_read];
+    ++index_read;
+    return val;
   }
   bool write( T value) volatile {
     uint32_t next_head = buffer_mask & (index_write + 1);
@@ -73,10 +71,10 @@ public:
     return false;
   }
   bool empty() volatile {
-    return index_read == index_write;
+    return (buffer_mask & index_read) == (buffer_mask & index_write);
   }
   bool full() volatile {
-    return index_read == index_write + 1;
+    return index_read == buffer_mask & (index_write + 1);
   }
   void clear() volatile {
     index_read = index_write = 0;
@@ -100,7 +98,6 @@ public:
   }
 
   char read() {
-    if(receive_buffer.empty()) return -1;
     return (char)receive_buffer.read();
   }
 
@@ -110,7 +107,7 @@ public:
   }
 
   operator bool() {
-    return true;
+    return host_connected;
   }
 
   uint16_t available() {
