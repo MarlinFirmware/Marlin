@@ -226,7 +226,7 @@ void GcodeSuite::M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      set_led_color(LED_WHITE); // white
+      set_led_color(255, 255, 255); // white
     #endif
   }
 
