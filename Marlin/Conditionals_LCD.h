@@ -108,24 +108,26 @@
     #define ULTIPANEL
     #define NEWPANEL
 
-  #elif ENABLED(CR10_stockdisplay)
+  #elif ENABLED(CR10_STOCKDISPLAY)
   
-    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #ifndef ST7920_DELAY_1
     #define ST7920_DELAY_1 DELAY_2_NOP
+  #endif
+  #ifndef ST7920_DELAY_2
     #define ST7920_DELAY_2 DELAY_2_NOP
+  #endif
+  #ifndef ST7920_DELAY_3
     #define ST7920_DELAY_3 DELAY_2_NOP
-
+  #endif
   #elif ENABLED (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER) 
   
     #define U8GLIB_SH1106 
     #define REPRAP_DISCOUNT_SMART_CONTROLLER 
     #define NEWPANEL 
-    #define REVERSE_MENU_DIRECTION
 
   #elif ENABLED(MKS_MINIPANEL)
-    
     #define MINIPANEL
-        
   #endif 
 
 

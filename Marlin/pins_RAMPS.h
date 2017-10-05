@@ -129,21 +129,12 @@
   #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-/*---------------MKS OLED patch_4-----------------------*/
-#if defined (MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
-
-#ifdef LCD_PINS_D5
-#undef LCD_PINS_D5
-#define LCD_PINS_D5 -1
+#if ENABLED(MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER)
+  #define LCD_PINS_D5 -1
+  #define LCD_PINS_D6 -1
+  #define LCD_PINS_RST  27
+  #define LCD_PINS_DC   25
 #endif
-#ifdef LCD_PINS_D6
-#undef LCD_PINS_D6
-#define LCD_PINS_D6 -1
-#endif
-#define LCD_PINS_RST  27
-#define LCD_PINS_DC   25
-#endif
-/*---------------MKS OLED patch_4-----------------------*/
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
@@ -273,15 +264,15 @@
     #define LCD_PINS_D6         44
     #define LCD_PINS_D7         64
   #else
-#if ENABLED(CR10_stockdisplay)
-    #define LCD_PINS_RS         27 //16
-    #define LCD_PINS_ENABLE     29 //17
-    #define LCD_PINS_D4         25 //23
-    #define LCD_PINS_D5         -1 //25
-    #define LCD_PINS_D6         -1 //27
-    #define LCD_PINS_D7         -1 //29
+#if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS         27
+    #define LCD_PINS_ENABLE     29
+    #define LCD_PINS_D4         25 
+    #define LCD_PINS_D5         -1
+    #define LCD_PINS_D6         -1
+    #define LCD_PINS_D7         -1
     #if DISABLED(NEWPANEL)
-      #define BEEPER_PIN        37 //33
+      #define BEEPER_PIN        37
       // Buttons are attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK 38
@@ -314,16 +305,15 @@
 
       #define BEEPER_PIN        37
 
-#if ENABLED(CR10_stockdisplay)
-      #define BTN_EN1           17 //31
-      #define BTN_EN2           23 //33
-      #define BTN_ENC           35 //35
-#else
-      #define BTN_EN1           31
-      #define BTN_EN2           33
-      #define BTN_ENC           35
-#endif
-
+      #if ENABLED(CR10_STOCKDISPLAY)
+        #define BTN_EN1           17 //31
+        #define BTN_EN2           23 //33
+        #define BTN_ENC           35 //35
+      #else
+        #define BTN_EN1           31
+        #define BTN_EN2           33
+        #define BTN_ENC           35
+      #endif
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
@@ -390,10 +380,10 @@
       #define LCD_BACKLIGHT_PIN 33
     #elif ENABLED(MINIPANEL)
       #if ENABLED(MKS_MINIPANEL)
-        #define BEEPER_PIN        37 //42
+        #define BEEPER_PIN        37 
         // Pins for DOGM SPI LCD Support
-        #define DOGLCD_A0         27 //44
-        #define DOGLCD_CS         25 //66
+        #define DOGLCD_A0         27 
+        #define DOGLCD_CS         25 
         // GLCD features
         //#define LCD_CONTRAST   190
         // Uncomment screen orientation
@@ -401,11 +391,10 @@
         //#define LCD_SCREEN_ROT_180
         //#define LCD_SCREEN_ROT_270
         // The encoder and click button
-        #define BTN_EN1           31 //40
-        #define BTN_EN2           33 //63
-        #define BTN_ENC           35 //59
-
-      #else
+        #define BTN_EN1           31
+        #define BTN_EN2           33
+        #define BTN_ENC           35
+     #else
         #define BEEPER_PIN        42
         // Pins for DOGM SPI LCD Support
         #define DOGLCD_A0         44
@@ -461,4 +450,4 @@
     #endif
   #endif // NEWPANEL
 
- #endif // ULTRA_LCD
+#endif // ULTRA_LCD
