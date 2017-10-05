@@ -771,8 +771,8 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 300
-#define Y_BED_SIZE 300
+#define X_BED_SIZE 200
+#define Y_BED_SIZE 200
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1224,7 +1224,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-#define SDSUPPORT
+//#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
@@ -1234,14 +1234,14 @@
  */
 //#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
-#define SPI_SPEED SPI_EIGHTH_SPEED
+//#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
  * SD CARD: ENABLE CRC
  *
  * Use CRC checks and retries on the SD communication.
  */
-#define SD_CHECK_AND_RETRY
+//#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1364,10 +1364,6 @@
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
-// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
-
-//#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
-
 //
 // GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
@@ -1387,11 +1383,6 @@
 // controller and SD support - http://reprap.org/wiki/Mini_panel
 //
 //#define MINIPANEL
-
-// MKS Mini Panel with graphic
-// controller and SD support - https://www.aliexpress.com/item/3d-printer-Reprap-LCD-MKS-MINI12864LCD-mini-12864-smart-display-Reprapdiscount-controller-Full-Graphic-for-mother/32808856549.html?spm=a2g0s.9042311.0.0.T02Q88
-//
-//#define MKS_MINIPANEL
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
@@ -1494,11 +1485,6 @@
   #define U8GLIB_SH1106
 #endif
 
-//#define CR10_STOCKDISPLAY
-
-// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
-#define MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER
-
 //
 // CONTROLLER TYPE: Shift register panels
 //
@@ -1511,6 +1497,20 @@
 // TinyBoy2 128x64 OLED / Encoder Panel
 //
 //#define OLED_PANEL_TINYBOY2
+
+// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
+
+//#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
+
+// MKS Mini Panel with graphic
+// controller and SD support - https://www.aliexpress.com/item/3d-printer-Reprap-LCD-MKS-MINI12864LCD-mini-12864-smart-display-Reprapdiscount-controller-Full-Graphic-for-mother/32808856549.html?spm=a2g0s.9042311.0.0.T02Q88
+//
+//#define MKS_MINIPANEL
+//#define CR10_STOCKDISPLAY
+
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
+#define MKS_OLED13_128x64_FULL_GRAPHICS_CONTROLLER
+
 
 //=============================================================================
 //=============================== Extra Features ==============================
