@@ -21,7 +21,7 @@
 
 ### The stm32 core needs a modification in the file util.h to avoid conflict with Marlin macros for Debug.
 Since only 1 file needs change in the stm32duino core, it's preferable over making changes to Marlin.
-This does not affect stm32duino/libmaple functionality in any way, since those #defines are only using within this one file, and we undefine them after they are used
+This does not affect stm32duino/libmaple functionality in any way, since those #defines are only usied within this one file, and we undefine them after they are used
 
 
 After these lines:
