@@ -5500,6 +5500,118 @@ void home_all_axes() { gcode_G28(true); }
       }
     }
     
+    void G33_auto_tune(){  //(see: https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation)
+      float z_at_pt[13] = { 0.0 }, z_at_pt_base[13] = { 0.0 }, z_temp,
+            h_fac = 0.0, r_fac = 0.0, a_fac = 0.0;
+
+      #define ZP(N,I) ((N) * z_at_pt[I])
+      #define Z06(I)  ZP(6, I)
+      #define Z03(I)  ZP(3, I)
+      #define Z02(I)  ZP(2, I)
+      #define Z01(I)  ZP(1, I)
+      #define Z34(I) ZP(4/3, I)
+
+      SERIAL_PROTOCOLPGM("Setting baseline for AUTO TUNE");
+      SERIAL_EOL();
+      probe_G33_points(z_at_pt_base, 3, true, false);
+      print_G33_results(z_at_pt_base, true, true);
+
+      LOOP_XYZ(axis) {
+        SERIAL_PROTOCOLPGM("Tuning end_stop ");
+        SERIAL_PROTOCOL(int(axis));
+        SERIAL_EOL();
+        endstop_adj[axis] -= 1.0;
+        if (!home_delta())
+          return;
+        endstops.not_homing();
+        probe_G33_points(z_at_pt, 3, true, false);
+        for (int8_t i=0; i<13; i++) z_at_pt[i] -= z_at_pt_base[i];
+        print_G33_results(z_at_pt, true, true);
+        endstop_adj[axis] += 1.0;
+        switch (axis) {
+          case A_AXIS :
+          h_fac += 4.0 / (Z02(0) +Z01(1)                         +Z34(11) +Z34(3)); //displacement by X-tower end-stop
+          break;
+          case B_AXIS :
+          h_fac += 4.0 / (Z02(0)         +Z01(5)         +Z34(7)          +Z34(3)); //displacement by X-tower end-stop
+          break;
+          case C_AXIS :
+          h_fac += 4.0 / (Z02(0)                 +Z01(9) +Z34(7) +Z34(11)        ); //displacement by X-tower end-stop
+          break;
+        }
+      }
+      h_fac /= 3.0;
+      h_fac *= 0.75; // normalize to 1.0 for Kossel mini
+
+      for (int8_t zig_zag = -1; zig_zag < 2; zig_zag += 2) {
+        SERIAL_PROTOCOLPGM("Tuning delta radius ");
+        SERIAL_PROTOCOL(zig_zag);
+        SERIAL_EOL();
+        delta_radius += 1.0 * zig_zag;
+        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        if (!home_delta())
+          return;
+        endstops.not_homing();
+        probe_G33_points(z_at_pt, 3, true, false);
+        for (int8_t i=0; i<13; i++) z_at_pt[i] -= z_at_pt_base[i];
+        print_G33_results(z_at_pt, true, true);
+        delta_radius -= 1.0 * zig_zag;
+        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        r_fac -= zig_zag * 6.0 / (Z03(1) +Z03(5) +Z03(9) +Z03(7) +Z03(11) +Z03(3)); //displacement by delta radius          
+      }
+      r_fac /= 2.0;
+      r_fac *= 2.0; // normalize to 2.25 for Kossel mini
+
+      LOOP_XYZ(axis) {
+        SERIAL_PROTOCOLPGM("Tuning tower angle ");
+        SERIAL_PROTOCOL(int(axis));
+        SERIAL_EOL();
+        delta_tower_angle_trim[axis] += 1.0;
+        endstop_adj[(axis+1) % 3] -= 1.0/4.5;
+        endstop_adj[(axis+2) % 3] += 1.0/4.5;
+        z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
+        home_offset[Z_AXIS] -= z_temp;
+        LOOP_XYZ(axis) endstop_adj[axis] -= z_temp;
+        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        if (!home_delta())
+          return;
+        endstops.not_homing();
+        probe_G33_points(z_at_pt, 3, true, false);
+        for (int8_t i=0; i<13; i++) z_at_pt[i] -= z_at_pt_base[i];
+        print_G33_results(z_at_pt, true, true);
+        delta_tower_angle_trim[axis] -= 1.0;
+        endstop_adj[(axis+1) % 3] += 1.0/4.5;
+        endstop_adj[(axis+2) % 3] -= 1.0/4.5;
+        z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
+        home_offset[Z_AXIS] -= z_temp;
+        LOOP_XYZ(axis) endstop_adj[axis] -= z_temp;
+        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        switch (axis) {
+          case A_AXIS :
+          a_fac += 4.0 / (       Z06(5) -Z06(9)         +Z06(11) -Z06(3)); //displacement by alfa tower angle
+          break;
+          case B_AXIS :
+          a_fac += 4.0 / (-Z06(1)       +Z06(9) -Z06(7)          +Z06(3)); //displacement by beta tower angle
+          break;
+          case C_AXIS :
+          a_fac += 4.0 / (Z06(1) -Z06(5)        +Z06(7) -Z06(11)        ); //displacement by gamma tower angle
+          break;
+        }
+      }
+      a_fac /= 3.0;
+      a_fac *= 0.5; // normalize to 0.55 for Kossel mini
+
+      if (!home_delta())
+        return;
+      endstops.not_homing();
+      print_signed_float(PSTR( "H_FACTOR: "), h_fac);
+      print_signed_float(PSTR(" R_FACTOR: "), r_fac);
+      print_signed_float(PSTR(" A_FACTOR: "), a_fac);
+      SERIAL_EOL();
+      SERIAL_PROTOCOLPGM("Copy these values to Configuration.h");
+      SERIAL_EOL();
+    }
+
     inline void gcode_G33() {
 
       const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
@@ -5527,6 +5639,7 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       const bool towers_set           = parser.boolval('T', true),
+                 auto_tune            = parser.boolval('A'),
                  stow_after_each      = parser.boolval('E'),
                  _0p_calibration      = probe_points == 0,
                  _1p_calibration      = probe_points == 1,
@@ -5594,6 +5707,16 @@ void home_all_axes() { gcode_G28(true); }
         endstops.not_homing();
       }
 
+      if (auto_tune) {
+        #if ENABLED(PROBE_MANUALLY)
+          SERIAL_PROTOCOLLNPGM("A probe is needed for auto-tune");
+        #else
+          G33_auto_tune();
+        #endif
+        G33_CLEANUP();
+        return;
+      }
+      
       // print settings
 
       const char *checkingac = PSTR("Checking... AC"); // TODO: Make translatable string
@@ -5643,9 +5766,18 @@ void home_all_axes() { gcode_G28(true); }
 
           float e_delta[ABC] = { 0.0 }, r_delta = 0.0, t_delta[ABC] = { 0.0 };
           float r_diff = delta_radius - delta_calibration_radius,
-                h_factor = 1.00 + r_diff * 0.001,                            //1.02 for r_diff = 20mm
-                r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
-                a_factor = 44.44 / delta_calibration_radius;                 //0.55 for cal_rd = 80mm
+                h_factor = 1.00 + r_diff * 0.001,                            //1.03 for r_diff = 27mm
+                r_factor = -(1.4 + 0.005 * r_diff + 0.001 * sq(r_diff)),     //2.26 for r_diff = 27mm
+                a_factor = 40.0 / delta_calibration_radius;                  //0.54 for cal_rd = 73.5mm
+          #ifdef H_FACTOR
+            h_factor = H_FACTOR;
+          #endif
+          #ifdef R_FACTOR
+            r_factor = -R_FACTOR;
+          #endif
+          #ifdef A_FACTOR
+            a_factor = A_FACTOR;
+          #endif
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z6(I) ZP(6, I)
@@ -5696,6 +5828,9 @@ void home_all_axes() { gcode_G28(true); }
                 t_delta[A_AXIS] = (       - Z3(5) + Z3(9)         - Z3(11) + Z3(3)) * a_factor;
                 t_delta[B_AXIS] = ( Z3(1)         - Z3(9) + Z3(7)          - Z3(3)) * a_factor;
                 t_delta[C_AXIS] = (-Z3(1) + Z3(5)         - Z3(7) + Z3(11)        ) * a_factor;
+                e_delta[A_AXIS] += (t_delta[B_AXIS] - t_delta[C_AXIS])/4.5;
+                e_delta[B_AXIS] += (t_delta[C_AXIS] - t_delta[A_AXIS])/4.5;
+                e_delta[C_AXIS] += (t_delta[A_AXIS] - t_delta[B_AXIS])/4.5;
               }
               break;
           }

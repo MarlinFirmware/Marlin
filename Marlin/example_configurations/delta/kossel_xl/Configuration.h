@@ -490,6 +490,13 @@
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7)
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
+    
+    // uncomment and get the factors from autocalibrate-autotune G33 A1
+    // leave comments to calculate defaults
+    //#define H_FACTOR 1.03
+    //#define R_FACTOR 2.26
+    //#define A_FACTOR 0.54
+
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
