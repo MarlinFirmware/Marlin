@@ -31,7 +31,7 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if HAS_COLOR_LEDS
+#if ENABLED(PRINTER_EVENT_LEDS)
   #include "../../feature/leds/leds.h"
 #endif
 
