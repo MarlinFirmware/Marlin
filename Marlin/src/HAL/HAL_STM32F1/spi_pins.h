@@ -27,7 +27,7 @@
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
- * Available chip select pins for HW SPI are 4 10 52 77
+ * Any PIN can be used for Chip Select (SS)
  */
 #define SCK_PIN   PA5
 #define MISO_PIN  PA6

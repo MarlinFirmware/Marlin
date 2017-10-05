@@ -129,10 +129,7 @@
 #define BOARD_RAMPS_14_RE_ARM_EEF      1746   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_14_RE_ARM_SF       1748   // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
 #define BOARD_STM32F1R         1800  // STM3R Libmaple based stm32f1 controller
-<<<<<<< HEAD
-=======
 #define BOARD_MALYAN_M200         1801  // STM32C8T6 Libmaple based stm32f1 controller
->>>>>>> refs/remotes/origin/bugfix-2.0.x
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

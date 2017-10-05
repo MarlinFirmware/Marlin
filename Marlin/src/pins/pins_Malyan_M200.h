@@ -47,8 +47,8 @@
 //
 // Steppers
 //
-#define X_STEP_PIN          29
-#define X_DIR_PIN           28
+#define X_STEP_PIN         29
+#define X_DIR_PIN          28
 #define X_ENABLE_PIN       27
 
 #define Y_STEP_PIN         29 //40
@@ -68,7 +68,7 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN         PA1   // Analog Input (HOTEND0 thermistor)
-#define TEMP_BED_PIN        0   // Analog Input (BED thermistor)
+#define TEMP_BED_PIN       0   // Analog Input (BED thermistor)
 
 //
 // Heaters / Fans
@@ -79,5 +79,5 @@
 // PINCHECK - Need to find pin assignment for these.
 // This board has only the controller fan and the extruder fan
 //#define FAN_PIN            -1 // FAN1 header on board - PRINT FAN
-#define FAN1_PIN            -1 // FAN2 header on board - CONTROLLER FAN
+#define FAN1_PIN           -1 // FAN2 header on board - CONTROLLER FAN
 #define FAN2_PIN           -1 // FAN3 header on board - EXTRUDER0 FAN

@@ -300,11 +300,8 @@
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"
-<<<<<<< HEAD
-=======
 #elif MB(MALYAN_M200)
   #include "pins_MALYAN_M200.h"
->>>>>>> refs/remotes/origin/bugfix-2.0.x
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

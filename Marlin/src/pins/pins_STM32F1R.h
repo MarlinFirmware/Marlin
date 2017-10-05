@@ -33,6 +33,9 @@
 
 #define LARGE_FLASH true
 
+// Enable I2C_EEPROM for testing
+#define I2C_EEPROM
+
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
@@ -102,7 +105,7 @@
 #define HEATER_BED2_PIN    -1    // BED2
 #define HEATER_BED3_PIN    -1    // BED3
 
-#define FAN_PIN            -1 // (Sprinter config)
+#define FAN_PIN            PB1
 
 //
 // Temperature Sensors

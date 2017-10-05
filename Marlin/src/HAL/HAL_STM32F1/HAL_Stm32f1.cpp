@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * Marlin 3D Printer Firmware
  *
@@ -123,8 +122,6 @@ void sei(void) { interrupts(); }
 */
 
 void HAL_clear_reset_source(void) { }
-<<<<<<< HEAD
-
 /**
  * TODO: Check this and change or remove.
  * currently returns 1 that's equal to poweron reset.
