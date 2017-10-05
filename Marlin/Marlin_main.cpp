@@ -5377,7 +5377,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOL_F(f, 2);
     }
 
-    inline void print_G33_settings(const bool end_stops, const bool tower_angles){
+    void print_G33_settings(const bool end_stops, const bool tower_angles){
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (end_stops) {
         print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
@@ -5517,20 +5517,11 @@ void home_all_axes() { gcode_G28(true); }
 
       print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
 
-      #if DISABLED(PROBE_MANUALLY)
-        if (!_0p_calibration) {
-          const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
-          if (isnan(measured_z)) return G33_CLEANUP();
-          home_offset[Z_AXIS] -= measured_z;
-        }
-      #endif
-
       do {
 
         float z_at_pt[13] = { 0.0 };
 
         test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
-        if (_0p_calibration) test_precision = 0.00;
         iterations++;
 
         // Probe the points
@@ -5598,7 +5589,7 @@ void home_all_axes() { gcode_G28(true); }
 
         // Solve matrices
 
-        if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
+        if ((zero_std_dev < test_precision || iterations <= force_iterations) && zero_std_dev > calibration_precision) {
           if (zero_std_dev < zero_std_dev_min) {
             COPY(e_old, endstop_adj);
             dr_old = delta_radius;
@@ -5617,14 +5608,19 @@ void home_all_axes() { gcode_G28(true); }
           #define Z4(I) ZP(4, I)
           #define Z2(I) ZP(2, I)
           #define Z1(I) ZP(1, I)
-          h_factor /= 6.00;
-          r_factor /= 6.00;
+          h_factor /= (iterations == 1 ? 12.0 : 6.00); //slow down on 1st iteration
+          r_factor /= (iterations == 1 ? 12.0 : 6.00);
+          a_factor /= (iterations == 1 ? 12.0 : 2.00);
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
           #endif
 
           switch (probe_points) {
+            case 0:
+              test_precision = 0.00; // forced end
+              break;
+
             case 1:
               test_precision = 0.00; // forced end
               LOOP_XYZ(axis) e_delta[axis] = Z1(0);
@@ -5652,9 +5648,12 @@ void home_all_axes() { gcode_G28(true); }
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) {
-                t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-                t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-                t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+                t_delta[A_AXIS] = (       - Z2(5) + Z2(9)         - Z2(11) + Z2(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z2(1)         - Z2(9) + Z2(7)          - Z2(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z2(1) + Z2(5)         - Z2(7) + Z2(11)        ) * a_factor;
+                e_delta[A_AXIS] += (t_delta[B_AXIS] - t_delta[C_AXIS])/4.5;
+                e_delta[B_AXIS] += (t_delta[C_AXIS] - t_delta[A_AXIS])/4.5;
+                e_delta[C_AXIS] += (t_delta[A_AXIS] - t_delta[B_AXIS])/4.5;
               }
               break;
           }
@@ -5707,7 +5706,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         if (verbose_level != 0) {                                    // !dry run
-          if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations) {  // end iterations
+          if ((zero_std_dev >= test_precision && iterations > force_iterations) || zero_std_dev <= calibration_precision) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
             SERIAL_PROTOCOL_SP(36);
             #if DISABLED(PROBE_MANUALLY)
@@ -5769,7 +5768,7 @@ void home_all_axes() { gcode_G28(true); }
         endstops.not_homing();
 
       }
-      while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
+      while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
       G33_CLEANUP();
     }
