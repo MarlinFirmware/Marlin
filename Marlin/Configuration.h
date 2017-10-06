@@ -1512,8 +1512,6 @@
 //
 //http://reprap.org/wiki/MKS_MINI_12864
 //
-// Be aware that MKS/makebase/makeboard install the 8 pin EXP1 and EXP2 headers reversed on all their products.  
-// Flipping the socket housing or cutting the cable's key may be needed when mixing brands.
 //
 //#define MKS_MINI_12864
 
