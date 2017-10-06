@@ -148,7 +148,6 @@
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Swap DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet F")
-#define MSG_CONTROL_RETRACT_SWAPF           _UxGT("Swap V") // Need Translation
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambear filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Encetan. tarcheta")
