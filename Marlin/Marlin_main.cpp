@@ -3209,13 +3209,12 @@ static void homeaxis(const AxisEnum axis) {
       if (has_zhop && !hop_amount) {
         hop_amount += retract_zlift; 
       // User have to take care about max speed of Z_Axis that can loose steps if too high
-        float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
+        float temp_feedrate_mm_s=feedrate_mm_s;            // backup the current feedrate 
         feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
-        //
-        current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
-        SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-        prepare_move_to_destination();              // Raise up to the old current pos
-        feedrate_mm_s = temp_feedrate_mm_s  ;       //feedrate restoration
+        current_position[Z_AXIS] -= retract_zlift;         // Pretend current pos is lower. Next move raises Z.
+        SYNC_PLAN_POSITION_KINEMATIC();                    // Set the planner to the new position
+        prepare_move_to_destination();                     // Raise up to the old current pos
+        feedrate_mm_s = temp_feedrate_mm_s  ;              //feedrate restoration
       }
     }
     else {
