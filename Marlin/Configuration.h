@@ -1500,7 +1500,6 @@
 
 //
 // Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
-//
 // https://www.aliexpress.com/item/Micromake-Makeboard-3D-Printer-Parts-3D-Printer-Mini-Display-1602-Mini-Controller-Compatible-with-Ramps-1/32765887917.html
 //
 // 2 line display.  
@@ -1509,22 +1508,22 @@
 
 //
 // MKS Mini Panel with graphic controller and SD support 
-//
-//http://reprap.org/wiki/MKS_MINI_12864
+// http://reprap.org/wiki/MKS_MINI_12864
 //
 //
 //#define MKS_MINI_12864
 
 //
 // Factory display for Creality CR-10 
+// https://www.aliexpress.com/item/Universal-LCD-12864-3D-Printer-Display-Screen-With-Encoder-For-CR-10-CR-7-Model/32833148327.html
 //
-// this is a ramps-compatible version for CR-10 owners who want to replace the Creality board, but retain the display
+// this is a ramps-compatible version for CR-10 owners who want to replace the Melzi Creality board, but retain the display
 // 
 //#define CR10_STOCKDISPLAY
 
-// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
 //
-//http://reprap.org/wiki/MKS_12864OLED
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER 
+// http://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
 //
