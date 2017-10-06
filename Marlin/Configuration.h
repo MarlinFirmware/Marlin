@@ -1517,7 +1517,7 @@
 // Factory display for Creality CR-10 
 // https://www.aliexpress.com/item/Universal-LCD-12864-3D-Printer-Display-Screen-With-Encoder-For-CR-10-CR-7-Model/32833148327.html
 //
-// this is a ramps-compatible version for CR-10 owners who want to replace the Melzi Creality board, but retain the display
+// this is a a RAMPS-compaitible version, but with a single 10-pin connector instead of 2, for CR-10 owners who want to replace the Melzi Creality board, but retain the display
 // 
 //#define CR10_STOCKDISPLAY
 
