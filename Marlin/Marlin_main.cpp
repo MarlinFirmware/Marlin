@@ -3182,7 +3182,8 @@ static void homeaxis(const AxisEnum axis) {
       }
       SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
       SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-    //*/ 
+    //*/
+              
     const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
     const float old_feedrate_mm_s = feedrate_mm_s;
     const int16_t old_flow = flow_percentage[active_extruder];
