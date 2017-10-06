@@ -163,7 +163,7 @@
         #ifndef MAPPER_ONE_TO_ONE
           HARDWARE_CHAR_OUT(pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
         #else
-          HARDWARE_CHAR_OUT(0x80u + (utf_hi_char << 6) + d) ;
+          HARDWARE_CHAR_OUT(0x80u + (utf_hi_char << 6) + d);
         #endif
       }
       else {
@@ -203,7 +203,7 @@
           case 0xB1u: d = 0xFDu; break;
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c5) {
         switch(d) {
@@ -211,7 +211,7 @@
           case 0x9Fu: d = 0xFEu; break;
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c2) {
         d &= 0x3Fu;
@@ -436,7 +436,7 @@
           case 0x98u ... 0x99u: d -= 20; break; //Ę i ę
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c5) {
         switch(d) {
@@ -445,7 +445,7 @@
           case 0xB9u ... 0xBCu: d -= 0x2Bu; break; //Ź - ż
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c3) {
         switch(d) {
@@ -453,7 +453,7 @@
           case 0xB3u: d = 0x8Bu; break; //ó
           d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
 
     }
@@ -514,7 +514,7 @@
           case 0x9Au ... 0x9Bu: d -= 10; break; // Ěě
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c5) {
         switch(d) {
@@ -526,7 +526,7 @@
           case 0xBDu ... 0xBEu: d -= 0x21u; break;  // Žž
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c3) {
         switch(d) {
@@ -544,7 +544,7 @@
           case 0xBDu: d = 0x8Bu; break;  // ý
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
 
     }
@@ -610,7 +610,7 @@
           case 0xBDu ... 0xBEu: d -= 0x27u; break;  // Ľľ
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c5) {
         switch(d) {
@@ -621,7 +621,7 @@
           case 0xBDu ... 0xBEu: d -= 0x1Du; break;  // Žž
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
       else if (seen_c3) {
         switch(d) {
@@ -643,7 +643,7 @@
           case 0xBDu: d = 0x8Fu; break;  // ý
           default: d = '?';
         }
-        HARDWARE_CHAR_OUT(d) ;
+        HARDWARE_CHAR_OUT(d);
       }
 
     }
