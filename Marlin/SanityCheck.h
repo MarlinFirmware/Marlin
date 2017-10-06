@@ -1154,8 +1154,8 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(MKS_12864OLED)
-     + 1
-   #endif
+    + 1
+  #endif
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER) 
     + 1
   #endif
