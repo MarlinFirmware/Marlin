@@ -132,7 +132,7 @@
 #if ENABLED(MKS_12864OLED)
   #define LCD_PINS_D5 -1
   #define LCD_PINS_D6 -1
-  #define LCD_PINS_RST  27
+  #define LCD_PINS_RS  27
   #define LCD_PINS_DC   25
 #endif
 //

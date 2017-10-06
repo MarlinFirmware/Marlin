@@ -13561,6 +13561,7 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
+  /*
 #if defined (MKS_12864OLED)
   SET_OUTPUT(LCD_PINS_DC);   
   SET_OUTPUT(LCD_PINS_RST);  
@@ -13568,6 +13569,7 @@ void setup() {
   delay(1000);
   WRITE(LCD_PINS_RST, HIGH);
 #endif 
+*/
 } 
 /**
  * The main Marlin program loop
