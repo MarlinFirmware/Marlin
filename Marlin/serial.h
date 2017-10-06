@@ -57,8 +57,8 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOPGM(x)              SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
-#define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
-#define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
+#define SERIAL_ECHOPAIR(pre,value)     SERIAL_PROTOCOLPAIR(pre, value)
+#define SERIAL_ECHOLNPAIR(pre,value)   SERIAL_PROTOCOLLNPAIR(pre, value)
 #define SERIAL_ECHO_F(x,y)             SERIAL_PROTOCOL_F(x,y)
 
 #define SERIAL_ERROR_START()           (serialprintPGM(errormagic))
@@ -68,10 +68,10 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
 
 // These macros compensate for float imprecision
-#define SERIAL_PROTOCOLPAIR_F(name, value)    SERIAL_PROTOCOLPAIR(name, FIXFLOAT(value))
-#define SERIAL_PROTOCOLLNPAIR_F(name, value)  SERIAL_PROTOCOLLNPAIR(name, FIXFLOAT(value))
-#define SERIAL_ECHOPAIR_F(name,value)         SERIAL_ECHOPAIR(name, FIXFLOAT(value))
-#define SERIAL_ECHOLNPAIR_F(name, value)      SERIAL_ECHOLNPAIR(name, FIXFLOAT(value))
+#define SERIAL_PROTOCOLPAIR_F(pre, value)    SERIAL_PROTOCOLPAIR(pre, FIXFLOAT(value))
+#define SERIAL_PROTOCOLLNPAIR_F(pre, value)  SERIAL_PROTOCOLLNPAIR(pre, FIXFLOAT(value))
+#define SERIAL_ECHOPAIR_F(pre,value)         SERIAL_ECHOPAIR(pre, FIXFLOAT(value))
+#define SERIAL_ECHOLNPAIR_F(pre, value)      SERIAL_ECHOLNPAIR(pre, FIXFLOAT(value))
 
 void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);

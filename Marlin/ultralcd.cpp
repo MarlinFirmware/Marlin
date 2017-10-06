@@ -20,8 +20,11 @@
  *
  */
 
-#include "ultralcd.h"
+#include "MarlinConfig.h"
+
 #if ENABLED(ULTRA_LCD)
+
+#include "ultralcd.h"
 #include "Marlin.h"
 #include "language.h"
 #include "cardreader.h"
@@ -134,6 +137,7 @@ uint16_t max_display_update_time = 0;
 
   // Function pointer to menu functions.
   typedef void (*screenFunc_t)();
+  typedef void (*menuAction_t)();
 
   #if HAS_POWER_SWITCH
     extern bool powersupply_on;
@@ -203,7 +207,7 @@ uint16_t max_display_update_time = 0;
   void _menu_action_back();
   void menu_action_submenu(screenFunc_t data);
   void menu_action_gcode(const char* pgcode);
-  void menu_action_function(screenFunc_t data);
+  void menu_action_function(menuAction_t data);
 
   #define DECLARE_MENU_EDIT_TYPE(_type, _name) \
     bool _menu_edit_ ## _name(); \
@@ -239,13 +243,7 @@ uint16_t max_display_update_time = 0;
   ////////////////////////////////////////////
 
   #ifndef ENCODER_FEEDRATE_DEADZONE
-    #define ENCODER_FEEDRATE_DEADZONE 10
-  #endif
-  #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM 5
-  #endif
-  #ifndef ENCODER_PULSES_PER_STEP
-    #define ENCODER_PULSES_PER_STEP 1
+    #define ENCODER_FEEDRATE_DEADZONE 6
   #endif
 
   /**
@@ -874,6 +872,9 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
         lcd_completion_feedback();
       #endif
+      #if ENABLED(USER_SCRIPT_RETURN)
+        lcd_return_to_status();
+      #endif
     }
 
     #if defined(USER_DESC_1) && defined(USER_GCODE_1)
@@ -1020,8 +1021,8 @@ void kill_screen(const char* lcd_msg) {
     }
 
     #if ENABLED(BABYSTEP_XY)
-      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
-      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+      void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
+      void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
       void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
@@ -1029,11 +1030,11 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        void _lcd_babystep_zoffset_overlay(float zprobe_zoffset) {
+        void _lcd_babystep_zoffset_overlay(const float zprobe_zoffset) {
           // Determine whether the user is raising or lowering the nozzle.
           static int dir = 0;
           static float old_zprobe_zoffset = 0;
-          if(zprobe_zoffset != old_zprobe_zoffset) {
+          if (zprobe_zoffset != old_zprobe_zoffset) {
             dir = (zprobe_zoffset > old_zprobe_zoffset) ? 1 : -1;
             old_zprobe_zoffset = zprobe_zoffset;
           }
@@ -1047,21 +1048,21 @@ void kill_screen(const char* lcd_msg) {
           #endif
 
           #if ENABLED(USE_BIG_EDIT_FONT)
-            const int left   = 0;
-            const int right  = 45;
-            const int nozzle = 95;
+            const int left   = 0,
+                      right  = 45,
+                      nozzle = 95;
           #else
-            const int left   = 5;
-            const int right  = 90;
-            const int nozzle = 60;
+            const int left   = 5,
+                      right  = 90,
+                      nozzle = 60;
           #endif
 
           // Draw a representation of the nozzle
-          if(PAGE_CONTAINS(3,16))  u8g.drawBitmapP(nozzle + 6, 4 - dir,2,12,nozzle_bmp);
-          if(PAGE_CONTAINS(20,20)) u8g.drawBitmapP(nozzle + 0,20,3,1,offset_bedline_bmp);
+          if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
+          if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
 
           // Draw cw/ccw indicator and up/down arrows.
-          if(PAGE_CONTAINS(47,62)) {
+          if (PAGE_CONTAINS(47, 62)) {
             u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
             u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
             u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
@@ -1099,7 +1100,7 @@ void kill_screen(const char* lcd_msg) {
 
     #else // !BABYSTEP_ZPROBE_OFFSET
 
-      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
       void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
 
     #endif // !BABYSTEP_ZPROBE_OFFSET
@@ -2751,8 +2752,11 @@ void kill_screen(const char* lcd_msg) {
       , int8_t eindex=-1
     #endif
   ) {
-    #if E_MANUAL > 1
-      if (axis == E_AXIS) manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
+    #if ENABLED(DUAL_X_CARRIAGE) || E_MANUAL > 1
+      #if E_MANUAL > 1
+        if (axis == E_AXIS)
+      #endif
+          manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
     manual_move_start_time = millis() + (move_menu_scale < 0.99 ? 0UL : 250UL); // delay for bigger moves
     manual_move_axis = (int8_t)axis;
@@ -2929,19 +2933,19 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if IS_KINEMATIC
+  #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
     #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-    #if ENABLED(DELTA)
-      #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
-      void lcd_lower_z_to_clip_height() {
-        line_to_z(delta_clip_start_height);
-        lcd_synchronize();
-      }
-    #else
-      #define _MOVE_XY_ALLOWED true
-    #endif
   #else
     #define _MOVE_XYZ_ALLOWED true
+  #endif
+
+  #if ENABLED(DELTA)
+    #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
+    void lcd_lower_z_to_clip_height() {
+      line_to_z(delta_clip_start_height);
+      lcd_synchronize();
+    }
+  #else
     #define _MOVE_XY_ALLOWED true
   #endif
 
@@ -2964,7 +2968,7 @@ void kill_screen(const char* lcd_msg) {
     else
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
-    #if ENABLED(SWITCHING_EXTRUDER)
+    #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
         MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
       else
@@ -3004,6 +3008,23 @@ void kill_screen(const char* lcd_msg) {
     lcd_completion_feedback();
   }
 
+  #if ENABLED(EEPROM_SETTINGS)
+
+    static void lcd_init_eeprom() {
+      lcd_factory_settings();
+      settings.save();
+      lcd_goto_previous_menu();
+    }
+
+    static void lcd_init_eeprom_confirm() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
+      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
+      END_MENU();
+    }
+
+  #endif
+
   void lcd_control_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
@@ -3034,7 +3055,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(gcode, MSG_INIT_EEPROM, PSTR("M502\nM500\nM501")); // TODO: Add "Are You Sure?" step
+      MENU_ITEM(submenu, MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
     #endif
 
     END_MENU();

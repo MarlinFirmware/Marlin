@@ -107,8 +107,9 @@
  *
  * 250000 works in most cases, but you might try a lower speed if
  * you commonly experience drop-outs during host printing.
+ * You may try up to 1000000 to speed up SD file transfer.
  *
- * :[2400, 9600, 19200, 38400, 57600, 115200, 250000]
+ * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
 #define BAUDRATE 250000
 
@@ -761,6 +762,8 @@
 #define INVERT_E4_DIR false
 
 // @section homing
+
+//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
 #define Z_HOMING_HEIGHT 2    // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.

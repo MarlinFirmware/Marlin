@@ -1098,9 +1098,10 @@ inline void get_serial_commands() {
   /**
    * Loop while serial characters are incoming and the queue is not full
    */
-  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
+  int c;
+  while (commands_in_queue < BUFSIZE && (c = MYSERIAL.read()) >= 0) {
 
-    char serial_char = MYSERIAL.read();
+    char serial_char = c;
 
     /**
      * If the character ends the line
@@ -1200,9 +1201,9 @@ inline void get_serial_commands() {
       // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0) {
+      if ((c = MYSERIAL.read()) >= 0) {
         // if we have one more character, copy it over
-        serial_char = MYSERIAL.read();
+        serial_char = c;
         if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
       }
       // otherwise do nothing
@@ -1822,7 +1823,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION)
+#if HAS_AXIS_UNHOMED_ERR
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
     #if ENABLED(HOME_AFTER_DEACTIVATE)
@@ -1850,7 +1851,7 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-#endif
+#endif // HAS_AXIS_UNHOMED_ERR
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -2053,7 +2054,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
 
-#endif
+#endif // Z_PROBE_ALLEN_KEY
 
 #if ENABLED(PROBING_FANS_OFF)
 
@@ -3193,6 +3194,8 @@ static void homeaxis(const AxisEnum axis) {
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
 
+    stepper.synchronize(); // Wait for all moves to finish
+
     if (retracting) {
       // Remember the Z height since G-code may include its own Z-hop
       // For best results turn off Z hop if G-code already includes it
@@ -3381,6 +3384,10 @@ inline void gcode_G0_G1(
     bool fast_move=false
   #endif
 ) {
+  #if ENABLED(NO_MOTION_BEFORE_HOMING)
+    if (axis_unhomed_error()) return;
+  #endif
+
   if (IsRunning()) {
     gcode_get_destination(); // For X Y Z E F
 
@@ -3436,6 +3443,10 @@ inline void gcode_G0_G1(
 #if ENABLED(ARC_SUPPORT)
 
   inline void gcode_G2_G3(bool clockwise) {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
 
       #if ENABLED(SF_ARC_FIX)
@@ -3533,6 +3544,10 @@ inline void gcode_G4() {
    * G5: Cubic B-spline
    */
   inline void gcode_G5() {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
 
       #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -5660,7 +5675,7 @@ void home_all_axes() { gcode_G28(true); }
           float a_sum = 0.0;
           LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
           LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0;
-          
+
           // adjust delta_height and endstops by the max amount
           const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
           home_offset[Z_AXIS] -= z_temp;
@@ -5860,6 +5875,10 @@ void home_all_axes() { gcode_G28(true); }
    * G42: Move X & Y axes to mesh coordinates (I & J)
    */
   inline void gcode_G42() {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
       const bool hasI = parser.seenval('I');
       const int8_t ix = hasI ? parser.value_int() : 0;
@@ -6350,6 +6369,8 @@ inline void gcode_M17() {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
     #endif
+
+    set_destination_to_current();
 
     if (load_length != 0) {
       #if ENABLED(ULTIPANEL)
@@ -8562,7 +8583,7 @@ inline void gcode_M205() {
     #endif
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
-        if (parser.value_linear_units() * Z_HOME_DIR <= 0)         
+        if (parser.value_linear_units() * Z_HOME_DIR <= 0)
           endstop_adj[i] = parser.value_linear_units();
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -12449,7 +12470,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           break;
       }
     }
-    return false;
+    return prepare_move_to_destination_cartesian();
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -12491,7 +12512,7 @@ void prepare_move_to_destination() {
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx() || prepare_move_to_destination_cartesian()
+      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
@@ -13020,9 +13041,6 @@ void disable_all_steppers() {
       #endif
       #if ENABLED(E4_IS_TMC2130)
         automatic_current_control(stepperE4, "E4");
-      #endif
-      #if ENABLED(E4_IS_TMC2130)
-        automatic_current_control(stepperE4);
       #endif
     }
   }
@@ -13593,6 +13611,15 @@ void loop() {
           // M29 closes the file
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+
+          #if ENABLED(SERIAL_STATS_DROPPED_RX)
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+          #endif
+
+          #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+          #endif
+
           ok_to_send();
         }
         else {
