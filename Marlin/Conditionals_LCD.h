@@ -111,10 +111,17 @@
   #elif ENABLED(CR10_STOCKDISPLAY)
   
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-    #define ST7920_DELAY_1 DELAY_2_NOP
-    #define ST7920_DELAY_2 DELAY_2_NOP
-    #define ST7920_DELAY_3 DELAY_2_NOP
-    #elif ENABLED (MKS_12864OLED) 
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_2_NOP
+    #endif
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_2_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_2_NOP
+    #endif
+  
+  #elif ENABLED (MKS_12864OLED) 
   
     #define U8GLIB_SH1106 
     #define REPRAP_DISCOUNT_SMART_CONTROLLER 
