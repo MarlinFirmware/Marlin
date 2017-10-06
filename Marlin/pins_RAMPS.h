@@ -306,9 +306,9 @@
       #define BEEPER_PIN        37
 
       #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1           17 //31
-        #define BTN_EN2           23 //33
-        #define BTN_ENC           35 //35
+        #define BTN_EN1           17
+        #define BTN_EN2           23
+        #define BTN_ENC           35
       #else
         #define BTN_EN1           31
         #define BTN_EN2           33
