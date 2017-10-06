@@ -117,8 +117,7 @@
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
- * M106 - Fan on: S0-255 : T3-255 / T2 / T1 Temporary set speed during printing
- *        T1 return / T2 apply / T3-255 set without applying
+ * M106 - Fan on.
  * M107 - Fan off.
  * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
