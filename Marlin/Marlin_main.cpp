@@ -3212,20 +3212,20 @@ static void homeaxis(const AxisEnum axis) {
         //
         current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
         SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-        prepare_move_to_destination(); 
-        feedrate_mm_s = temp_feedrate_mm_s  ; //feedrate restoration
+        prepare_move_to_destination();              // Raise up to the old current pos
+        feedrate_mm_s = temp_feedrate_mm_s  ;       //feedrate restoration
       }
     }
     else {
-      // If a hop was done undo the hop 
+      // If a hop was done undo the hop
       if (hop_amount) {
-        current_position[Z_AXIS] += hop_amount;     // Pretend current pos is higher. Next move lowers Z.
-        float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate  
+        current_position[Z_AXIS] += hop_amount;            // Pretend current pos is higher. Next move lowers Z.
+        float temp_feedrate_mm_s=feedrate_mm_s;            // backup the current feedrate  
         feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max            
-        SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-        prepare_move_to_destination();              // Lower to the old current pos
+        SYNC_PLAN_POSITION_KINEMATIC();                    // Set the planner to the new position
+        prepare_move_to_destination();                     // Lower to the old current pos
         hop_amount = 0.0;
-        feedrate_mm_s = temp_feedrate_mm_s  ; // feedrate restoration
+        feedrate_mm_s = temp_feedrate_mm_s  ;              // feedrate restoration
       }
       // A retract multiplier has been added here to get faster swap recovery
       feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
