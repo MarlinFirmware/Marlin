@@ -3580,6 +3580,8 @@ inline void gcode_G4() {
 
   /**
    * G10 - Retract filament according to settings of M207
+   * G10S1 for ToolChange long retractation 
+   * Zlift feedrate according to setting of M203 (Feedrate limits)  
    */
   inline void gcode_G10() {
     #if EXTRUDERS > 1
