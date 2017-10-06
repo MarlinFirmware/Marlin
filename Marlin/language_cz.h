@@ -226,7 +226,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
-#define MSG_CONTROL_RETRACT_SWAPF           _UxGT("Swap V") // need translation
+#define MSG_CONTROL_RETRACT_SWAPF           _UxGT("Swap V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Vymenit filament")
 #define MSG_INIT_SDCARD                     _UxGT("Nacist SD kartu")
