@@ -103,15 +103,15 @@
   #else
     typedef uint8_t ring_buffer_pos_t;
   #endif
-  
+
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     extern uint8_t rx_dropped_bytes;
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     extern ring_buffer_pos_t rx_max_enqueued;
-  #endif  
-  
+  #endif
+
   class MarlinSerial { //: public Stream
 
     public:
@@ -136,7 +136,7 @@
 
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
         FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
-      #endif  
+      #endif
 
     private:
       static void printNumber(unsigned long, const uint8_t);
