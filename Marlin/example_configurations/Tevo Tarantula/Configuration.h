@@ -59,7 +59,6 @@
 
 /**
  * Z-Probe type (must be none or one of them)
- * If you do not have a Z-Probe, the MANUAL bed leveling type is enabled by default
  */
 //#define BLTOUCH
 //#define SN04          // Green sensor
@@ -90,6 +89,7 @@
 //#define LINEAR
 //#define BILINEAR
 //#define UBL
+#define MANUAL
 
 /**
  * Number of grid points in each direction
@@ -845,7 +845,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if DISABLED(BLTOUCH) && DISABLED(SN04) && DISABLED(INDUCTIVE_NO) && DISABLED(INDUCTIVE_NC) && DISABLED(SERVO_PROBE)
+#if ENABLED(MANUAL)
   #define PROBE_MANUALLY
 #endif
 
@@ -868,7 +868,6 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
 #if ENABLED(BLTOUCH)
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 #endif
