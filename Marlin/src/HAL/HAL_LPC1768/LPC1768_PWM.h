@@ -431,7 +431,7 @@ HAL_PWM_LPC1768_ISR {
     ISR_table = active_table;                    // MR0 means new values could have been loaded so set everything
     if (PWM_table_swap) LPC_PWM1->MCR = LPC1768_PWM_interrupt_mask; // enable new PWM individual channel interrupts
 
-    for (uint8_t i = 0; (i < NUM_PWMS) ; i++) {
+    for (uint8_t i = 0; i < NUM_PWMS; i++) {
       if(ISR_table[i].active_flag && !((ISR_table[i].logical_pin ==  11) ||
                                        (ISR_table[i].logical_pin ==  4) ||
                                        (ISR_table[i].logical_pin ==  6)))
