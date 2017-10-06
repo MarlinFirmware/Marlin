@@ -1507,7 +1507,7 @@
 //#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
 
 //
-// MKS Mini Panel with graphic controller and SD support 
+// MKS MINI12864 with graphic controller and SD support 
 // http://reprap.org/wiki/MKS_MINI_12864
 //
 //
