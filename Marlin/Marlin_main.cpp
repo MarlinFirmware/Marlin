@@ -3137,7 +3137,7 @@ static void homeaxis(const AxisEnum axis) {
 } // homeaxis()
 
 #if ENABLED(FWRETRACT)
-  /*
+  /**
    * Retract or recover according to firmware settings
    *
    * This function handles retract/recover moves for G10 and G11,
@@ -3168,7 +3168,7 @@ static void homeaxis(const AxisEnum axis) {
     #endif
     if (!retracting) swapping = retracted_swap[active_extruder];
 
-    /* debugging
+     /* // debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
@@ -3180,7 +3180,7 @@ static void homeaxis(const AxisEnum axis) {
       }
       SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
       SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-     */
+    //*/ 
     const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
     const float old_feedrate_mm_s = feedrate_mm_s;
     const int16_t old_flow = flow_percentage[active_extruder];
@@ -3246,7 +3246,7 @@ static void homeaxis(const AxisEnum axis) {
         retracted_swap[active_extruder] = retracting;  }
     #endif
 
-     /* debugging
+     /* // debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
@@ -3254,11 +3254,11 @@ static void homeaxis(const AxisEnum axis) {
         SERIAL_ECHOPAIR("retracted[", i);
         SERIAL_ECHOLNPAIR("] ", retracted[i]);
         SERIAL_ECHOPAIR("retracted_swap[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
       }
       SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
       SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-      */
+    //*/
 
   } // retract()
 
