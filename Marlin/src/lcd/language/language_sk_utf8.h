@@ -34,12 +34,8 @@
 #ifndef LANGUAGE_SK_UTF_H
 #define LANGUAGE_SK_UTF_H
 
-#define MAPPER_NON
-#define DISPLAY_CHARSET_ISO10646_1
-
-// TBD
-//#define MAPPER_C3C4C5_SK
-//#define DISPLAY_CHARSET_ISO10646_SK
+#define MAPPER_C3C4C5_SK
+#define DISPLAY_CHARSET_ISO10646_SK
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspať")

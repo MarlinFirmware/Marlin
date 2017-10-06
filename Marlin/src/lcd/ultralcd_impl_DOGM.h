@@ -38,6 +38,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+/**
+ * Implementation of the LCD display routines for a DOGM128 graphic display.
+ * These are common LCD 128x64 pixel graphic displays.
+ */
 #include "ultralcd.h"
 
 #if ENABLED(U8GLIB_ST7565_64128N)
@@ -104,6 +108,9 @@
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_CZ)
     #include "dogm/dogm_font_data_ISO10646_CZ.h"
     #define FONT_MENU_NAME ISO10646_CZ
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_SK)
+    #include "dogm/dogm_font_data_ISO10646_SK.h"
+    #define FONT_MENU_NAME ISO10646_SK
   #else // fall-back
     #include "dogm/dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
