@@ -107,6 +107,34 @@ static void G33_cleanup(
   #endif
 }
 
+/**
+ * G33 - Delta '1-4-7-point' Auto-Calibration
+ *       Calibrate height, endstops, delta radius, and tower angles.
+ *
+ * Parameters:
+ *
+ *   Pn  Number of probe points:
+ *
+ *      P0     No probe. Normalize only.
+ *      P1     Probe center and set height only.
+ *      P2     Probe center and towers. Set height, endstops, and delta radius.
+ *      P3     Probe all positions: center, towers and opposite towers. Set all.
+ *      P4-P7  Probe all positions at different locations and average them.
+ *
+ *   T0  Don't calibrate tower angle corrections
+ *
+ *   Cn.nn Calibration precision; when omitted calibrates to maximum precision
+ *
+ *   Fn  Force to run at least n iterations and takes the best result
+ *
+ *   Vn  Verbose level:
+ *
+ *      V0  Dry-run mode. Report settings and probe results. No calibration.
+ *      V1  Report settings
+ *      V2  Report settings and probe results
+ *
+ *   E   Engage the probe for each point
+ */
 void GcodeSuite::G33() {
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
@@ -134,6 +162,7 @@ void GcodeSuite::G33() {
   }
 
   const bool towers_set           = parser.boolval('T', true),
+             stow_after_each      = parser.boolval('E'),
              _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1,
              _4p_calibration      = probe_points == 2,
@@ -146,15 +175,9 @@ void GcodeSuite::G33() {
              _7p_quadruple_circle = probe_points == 7,
              _7p_multi_circle     = _7p_double_circle || _7p_triple_circle || _7p_quadruple_circle,
              _7p_intermed_points  = _7p_calibration && !_7p_half_circle;
-
-  #if DISABLED(PROBE_MANUALLY)
-    const bool stow_after_each    = parser.boolval('E');
-    const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
-                dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
-  #endif
-
   const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
-
+  const float dx = (X_PROBE_OFFSET_FROM_EXTRUDER),
+              dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
   int8_t iterations = 0;
   float test_precision,
         zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
@@ -189,7 +212,6 @@ void GcodeSuite::G33() {
   SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
   stepper.synchronize();
-
   #if HAS_LEVELING
     reset_bed_level(); // After calibration bed-level data is no longer valid
   #endif
@@ -220,19 +242,11 @@ void GcodeSuite::G33() {
 
   print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
 
-  #if DISABLED(PROBE_MANUALLY)
-    if (!_0p_calibration) {
-      const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
-      if (isnan(measured_z)) return G33_CLEANUP();
-      home_offset[Z_AXIS] -= measured_z;
-    }
-  #endif
-
   do {
 
     float z_at_pt[13] = { 0.0 };
 
-    test_precision = _0p_calibration ? 0.00 : zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
+    test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
 
     iterations++;
 
@@ -301,7 +315,7 @@ void GcodeSuite::G33() {
 
     // Solve matrices
 
-    if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
+    if ((zero_std_dev < test_precision || iterations <= force_iterations) && zero_std_dev > calibration_precision) {
       if (zero_std_dev < zero_std_dev_min) {
         COPY(e_old, delta_endstop_adj);
         dr_old = delta_radius;
@@ -311,9 +325,9 @@ void GcodeSuite::G33() {
 
       float e_delta[ABC] = { 0.0 }, r_delta = 0.0, t_delta[ABC] = { 0.0 };
       const float r_diff = delta_radius - delta_calibration_radius,
-                  h_factor = (1.00 + r_diff * 0.001) / 6.0,                        //1.02 / 6 for r_diff = 20mm
-                  r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)) / 6.0,  //2.25 / 6 for r_diff = 20mm
-                  a_factor = 66.66 / delta_calibration_radius;                     //1.25 for cal_rd = 80mm
+                  h_factor = (1.00 + r_diff * 0.001) / 6.0,                                       // 1.02 for r_diff = 20mm
+                  r_factor = (-(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff))) / 6.0,               // 2.25 for r_diff = 20mm
+                  a_factor = (66.66 / delta_calibration_radius) / (iterations == 1 ? 16.0 : 2.0); // 0.83 for cal_rd = 80mm
 
       #define ZP(N,I) ((N) * z_at_pt[I])
       #define Z6(I) ZP(6, I)
@@ -326,8 +340,16 @@ void GcodeSuite::G33() {
       #endif
 
       switch (probe_points) {
+        case 0:
+          #if DISABLED(PROBE_MANUALLY)
+            test_precision = 0.00; // forced end
+          #endif
+          break;
+
         case 1:
-          test_precision = 0.00; // forced end
+          #if DISABLED(PROBE_MANUALLY)
+            test_precision = 0.00; // forced end
+          #endif
           LOOP_XYZ(axis) e_delta[axis] = Z1(0);
           break;
 
@@ -353,9 +375,12 @@ void GcodeSuite::G33() {
           r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
           if (towers_set) {
-            t_delta[A_AXIS] = (            - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-            t_delta[B_AXIS] = (      Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-            t_delta[C_AXIS] = (     -Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+            t_delta[A_AXIS] = (       - Z2(5) + Z2(9)         - Z2(11) + Z2(3)) * a_factor;
+            t_delta[B_AXIS] = ( Z2(1)         - Z2(9) + Z2(7)          - Z2(3)) * a_factor;
+            t_delta[C_AXIS] = (-Z2(1) + Z2(5)         - Z2(7) + Z2(11)        ) * a_factor;
+            e_delta[A_AXIS] += (t_delta[B_AXIS] - t_delta[C_AXIS]) / 4.5;
+            e_delta[B_AXIS] += (t_delta[C_AXIS] - t_delta[A_AXIS]) / 4.5;
+            e_delta[C_AXIS] += (t_delta[A_AXIS] - t_delta[B_AXIS]) / 4.5;
           }
           break;
       }
@@ -407,7 +432,7 @@ void GcodeSuite::G33() {
       }
     }
     if (verbose_level != 0) {                                    // !dry run
-      if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations) {  // end iterations
+      if ((zero_std_dev >= test_precision && iterations > force_iterations) || zero_std_dev <= calibration_precision) {  // end iterations
         SERIAL_PROTOCOLPGM("Calibration OK");
         SERIAL_PROTOCOL_SP(36);
         #if DISABLED(PROBE_MANUALLY)
@@ -469,7 +494,7 @@ void GcodeSuite::G33() {
     endstops.not_homing();
 
   }
-  while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
+  while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
   G33_CLEANUP();
 }
