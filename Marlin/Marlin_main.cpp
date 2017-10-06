@@ -3205,8 +3205,7 @@ static void homeaxis(const AxisEnum axis) {
       // Is a Z hop set, and has the hop not yet been done? && no double zlifting if hop_amount exist
       if (has_zhop && !hop_amount) {
         hop_amount += retract_zlift; 
-        // user have to take care about max speed of zaxis without jerk and accelleration
-        // that can loose steps if too high
+      // User have to take care about max speed of Z_Axis that can loose steps if too high
         float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
         feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
         //
@@ -7444,7 +7443,7 @@ inline void gcode_M105() {
    *  
    */
 
-   inline void gcode_M106() {
+  inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
     uint16_t t = parser.ushortval('T', 0);
     const uint8_t p = parser.byteval('P', 0);
