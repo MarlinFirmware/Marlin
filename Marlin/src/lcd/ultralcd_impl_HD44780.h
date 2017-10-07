@@ -990,7 +990,6 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
-      char c;
       uint8_t n = LCD_WIDTH - concat;
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
@@ -998,7 +997,7 @@ static void lcd_implementation_status_screen() {
         filename = longFilename;
         longFilename[n] = '\0';
       }
-      while ((c = *filename) && n > 0) {
+      while (char c = *filename) {
         n -= charset_mapper(c);
         filename++;
       }
