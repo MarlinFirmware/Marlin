@@ -7434,18 +7434,13 @@ inline void gcode_M105() {
    *
    *  S<int>   Speed between 0-255
    *  P<index> Fan index, if more than one fan
-   *  
    */
-
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
-    uint16_t t = parser.ushortval('T', 0);
+    NOMORE(s, 255);
     const uint8_t p = parser.byteval('P', 0);
-    
-    if (p < FAN_COUNT) {     
-      NOMORE(s, 255);fanSpeeds[p] = s;
-    }
-  }
+    if (p < FAN_COUNT) fanSpeeds[p] = s;
+}
 
   /**
    * M107: Fan Off
