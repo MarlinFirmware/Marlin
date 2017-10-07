@@ -61,7 +61,9 @@
     #define ADC_KEYPAD
     #define ADC_KEY_NUM 8
     #define ULTIPANEL
+
     // this helps to implement ADC_KEYPAD menus
+    #define ENCODER_PULSES_PER_STEP 1
     #define ENCODER_STEPS_PER_MENU_ITEM 1
     #define REVERSE_MENU_DIRECTION
 
