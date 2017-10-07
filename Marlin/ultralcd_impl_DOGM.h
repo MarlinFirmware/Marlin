@@ -918,14 +918,15 @@ static void lcd_implementation_status_screen() {
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
+      char c;
       if (longFilename[0]) {
         filename = longFilename;
-        longFilename[n] = '\0';
+        longFilename[n] = '\0'; // cutoff at screen edge
       }
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
 
-      while (char c = *filename) {
+      while ((c = *filename) && n > 0) {
         n -= lcd_print_and_count(c);
         filename++;
       }
