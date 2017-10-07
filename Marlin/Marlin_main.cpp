@@ -7440,7 +7440,7 @@ inline void gcode_M105() {
     NOMORE(s, 255);
     const uint8_t p = parser.byteval('P', 0);
     if (p < FAN_COUNT) fanSpeeds[p] = s;
-}
+  }
 
   /**
    * M107: Fan Off
