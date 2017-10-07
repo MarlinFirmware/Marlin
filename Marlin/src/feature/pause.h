@@ -29,6 +29,9 @@
 #define _PAUSE_H_
 
 extern bool move_away_flag;
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  extern bool filament_ran_out;
+#endif
 
 bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
                         const float &unload_length=0 , const int8_t max_beep_count=0, const bool show_lcd=false
