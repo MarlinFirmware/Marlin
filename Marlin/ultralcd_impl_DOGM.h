@@ -420,10 +420,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       u8g.print('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[axis])
-          u8g.print(' ');
-        else
+      #if DISABLED(HOME_AFTER_DEACTIVATE)
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          if (!axis_known_position[axis])
+            u8g.print(' ');
+          else
+        #endif
       #endif
       lcd_printPGM(pstr);
     }
