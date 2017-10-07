@@ -101,9 +101,9 @@ uint32_t millis();
 //IO functions
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);
-int digitalRead(uint8_t);
+bool digitalRead(uint8_t);
 void analogWrite(uint8_t, int);
-int analogRead(uint8_t);
+uint16_t analogRead(uint8_t);
 
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);

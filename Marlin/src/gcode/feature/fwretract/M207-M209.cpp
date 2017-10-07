@@ -65,8 +65,7 @@ void GcodeSuite::M208() {
 void GcodeSuite::M209() {
   if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
     if (parser.seen('S')) {
-      fwretract.autoretract_enabled = parser.value_bool();
-      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
+      fwretract.enable_autoretract(parser.value_bool());
     }
   }
 }

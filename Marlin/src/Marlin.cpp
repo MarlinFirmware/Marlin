@@ -681,7 +681,8 @@ void setup() {
   #endif
 
   MYSERIAL.begin(BAUDRATE);
-  while(!MYSERIAL);
+  uint32_t serial_connect_timeout = millis() + 1000;
+  while(!MYSERIAL && PENDING(millis(), serial_connect_timeout));
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 

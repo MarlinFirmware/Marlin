@@ -247,6 +247,10 @@ void MarlinSettings::postprocess() {
   #if HAS_MOTOR_CURRENT_PWM
     stepper.refresh_motor_power();
   #endif
+
+  #if ENABLED(FWRETRACT)
+    fwretract.refresh_autoretract();
+  #endif
 }
 
 #if ENABLED(EEPROM_SETTINGS)

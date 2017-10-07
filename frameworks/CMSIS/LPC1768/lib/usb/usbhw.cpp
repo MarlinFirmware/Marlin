@@ -153,6 +153,7 @@ void USB_Init (void) {
   while ((LPC_USB->USBClkSt & 0x1A) != 0x1A);
 
   NVIC_EnableIRQ(USB_IRQn);               /* enable USB interrupt */
+  NVIC_SetPriority(USB_IRQn, NVIC_EncodePriority(0, 5, 0));
 
   USB_Reset();
   USB_SetAddress(0);

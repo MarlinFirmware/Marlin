@@ -26,6 +26,7 @@ extern "C" {
 #include "usbhw.h"
 #include "usbcore.h"
 #include "mscuser.h"
+#include "lpc17xx_wdt.h"
 
 #include "../chanfs/diskio.h"
 #include <debug_frmwrk.h>
@@ -44,13 +45,71 @@ uint8_t  BulkStage;               /* Bulk Stage */
 uint8_t  BulkBuf[MSC_MAX_PACKET]; /* Bulk In/Out Buffer */
 uint8_t  block_cache[MSC_BLOCK_SIZE];
 uint8_t  BulkLen;                 /* Bulk In/Out Length */
+Sense sense_data;
 
 MSC_CBW CBW;                   /* Command Block Wrapper */
 MSC_CSW CSW;                   /* Command Status Wrapper */
-uint8_t media_lock = 0;
+volatile uint8_t media_lock = 0;
+volatile bool device_wants_lock = false;
+
+#define NO_LOCK 0
+#define HOST_LOCK 1
+#define DEVICE_LOCK 2
+
+extern uint32_t millis();
+extern void _delay_ms(int delay);
+
+uint32_t MSC_Aquire_Lock() {
+  NVIC_DisableIRQ(USB_IRQn);
+  device_wants_lock = true;
+  uint32_t end_millis = millis() + 1000;
+  if(media_lock == HOST_LOCK) {
+    NVIC_EnableIRQ(USB_IRQn);
+    while(media_lock == HOST_LOCK) {
+      if(((long)(end_millis - (millis())) < 0)) {
+        _DBG("No signal from Host, Assume success\n");
+        break;
+      }
+      WDT_Feed();
+    }
+  }
+  NVIC_DisableIRQ(USB_IRQn);
+  media_lock = DEVICE_LOCK;
+  NVIC_EnableIRQ(USB_IRQn);
+  _DBG("Device MSC Lock\n");
+  device_wants_lock = false;
+  return 0;
+}
+
+uint32_t MSC_Release_Lock() {
+  if(media_lock != DEVICE_LOCK) {
+    return 0; // Didn't have lock
+  }
+  media_lock = NO_LOCK;
+  if(disk_status(0) != STA_NOINIT) disk_ioctl(0, GET_SECTOR_COUNT, (void *)(&MSC_BlockCount));
+  _DBG("Device MSC Unlock\n");
+  NVIC_DisableIRQ(USB_IRQn);
+  sense_data.set(Sense_KEY::UNIT_ATTENTION, Sense_ASC::MEDIA_CHANGED);
+  NVIC_EnableIRQ(USB_IRQn);
+  return 0;   // Released
+}
 
 uint32_t MSC_SD_Lock() {
-  media_lock = CBW.CB[4]; //0x1 - lock, 0x0 - unlock
+  if(media_lock == DEVICE_LOCK || (device_wants_lock && CBW.CB[4])) {
+    CSW.bStatus = CSW_CMD_FAILED;
+    sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::LOGICAL_UNIT_NOT_READY, Sense_ASCQ::DEVICE_IS_BUSY);
+    MSC_SetCSW();
+    _DBG("Device has Lock (or is waiting for lock) cannot Lock..\n");
+    return 1;
+  }
+
+  if(CBW.CB[4]) {
+    media_lock = HOST_LOCK;
+    _DBG("OS MSC Lock\n");
+  } else {
+    media_lock = NO_LOCK;
+    _DBG("OS MSC Unlock\n");
+  }
   // logical_unit = CBW.CB[1] & 0xE0;
   CSW.bStatus = CSW_CMD_PASSED;
   MSC_SetCSW();
@@ -78,20 +137,28 @@ void MSC_StartStopUnit() {
   switch (CBW.CB[4] & 0x03) {
     case STARTSTOP_EJECT:
       MSC_SD_Release(0);
+      media_lock = NO_LOCK;
+      _DBG("OS Media Ejected UNLOCK\n");
       break;
     case STARTSTOP_LOAD:
       if(MSC_BlockCount == 0) {
         if(MSC_SD_Init(0) != 0) {
           CSW.bStatus = CSW_CMD_FAILED;
+          sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::MEDIUM_NOT_PRESENT, Sense_ASCQ::MANUAL_INTERVENTION_REQUIRED);
           MSC_SetCSW();
           return;
         }
       }
+      media_lock = HOST_LOCK;
+      _DBG("OS Media Mount LOCKED\n");
       break;
     default:
-      _DBG("MSC_StartStopUnit unknown startstopunit sub command\n");
+      _DBG("MSC_StartStopUnit unknown startstopunit sub command: ");
+      _DBH(CBW.CB[4] & 0x03);
+      _DBG("\n");
   }
   CSW.bStatus = CSW_CMD_PASSED;
+  sense_data.reset();
   MSC_SetCSW();
 }
 
@@ -122,6 +189,18 @@ uint32_t MSC_GetMaxLUN (void) {
 }
 
 
+bool host_get_lock(void) {
+  if(media_lock != DEVICE_LOCK && !device_wants_lock) {
+    media_lock = HOST_LOCK;
+    return true;
+  } else {
+    CSW.bStatus = CSW_CMD_FAILED;
+    sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::LOGICAL_UNIT_NOT_READY, Sense_ASCQ::DEVICE_IS_BUSY);
+    MSC_SetCSW();
+    return false;
+  }
+}
+
 /*
  *  MSC Memory Read Callback
  *   Called automatically on Memory Read Event
@@ -130,6 +209,12 @@ uint32_t MSC_GetMaxLUN (void) {
  */
 
 void MSC_MemoryRead (void) {
+  if(!host_get_lock()) {
+     _DBG("Auto Lock Fail Permission Denied Device has Lock\n");
+     return;
+  }
+  WDT_Feed();
+
   uint32_t n = (length > MSC_MAX_PACKET) ? MSC_MAX_PACKET : length;
 
   if (lba > MSC_BlockCount) {
@@ -158,6 +243,7 @@ void MSC_MemoryRead (void) {
 
   if (BulkStage != MSC_BS_DATA_IN) {
     CSW.bStatus = CSW_CMD_PASSED;
+    sense_data.reset();
   }
 }
 
@@ -170,6 +256,11 @@ void MSC_MemoryRead (void) {
  */
 
 void MSC_MemoryWrite (void) {
+  if(!host_get_lock()) {
+     _DBG("Auto Lock Fail Permission Denied Device has Lock\n");
+     return;
+  }
+  WDT_Feed();
 
   for (uint32_t n = 0; n < BulkLen; n++) {
     block_cache[block_offset + n] = BulkBuf[n];
@@ -192,6 +283,7 @@ void MSC_MemoryWrite (void) {
 
   if ((length == 0) || (BulkStage == MSC_BS_CSW)) {
     CSW.bStatus = CSW_CMD_PASSED;
+    sense_data.reset();
     MSC_SetCSW();
   }
 }
@@ -205,6 +297,11 @@ void MSC_MemoryWrite (void) {
  */
 
 void MSC_MemoryVerify (void) {
+  if(!host_get_lock()) {
+     _DBG("Auto Lock Fail Permission Denied Device has Lock\n");
+     return;
+  }
+  WDT_Feed();
 
   if(!block_offset) {
     disk_read(0, block_cache, lba, 1);
@@ -222,7 +319,13 @@ void MSC_MemoryVerify (void) {
   CSW.dDataResidue -= BulkLen;
 
   if ((length == 0) || (BulkStage == MSC_BS_CSW)) {
-    CSW.bStatus = (MemOK) ? CSW_CMD_PASSED : CSW_CMD_FAILED;
+    if(MemOK) {
+      CSW.bStatus = CSW_CMD_PASSED;
+      sense_data.reset();
+    } else {
+      CSW.bStatus = CSW_CMD_FAILED;
+      sense_data.set(Sense_KEY::MEDIUM_ERROR);
+    }
     MSC_SetCSW();
   }
 }
@@ -321,10 +424,15 @@ void MSC_TestUnitReady (void) {
     }
   }
 
-  if(MSC_BlockCount > 0) {
+  if(device_wants_lock) {
+    sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::MEDIUM_NOT_PRESENT, Sense_ASCQ::REASON_UNKNOWN);
+    CSW.bStatus = CSW_CMD_FAILED;
+  } else if(MSC_BlockCount > 0) {
+    sense_data.reset();
     CSW.bStatus = CSW_CMD_PASSED;
   } else {
     CSW.bStatus = CSW_CMD_FAILED;
+    sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::MEDIUM_NOT_PRESENT, Sense_ASCQ::LOADABLE);
   }
 
   MSC_SetCSW();
@@ -341,9 +449,13 @@ void MSC_RequestSense (void) {
 
   if (!DataInFormat()) return;
 
+  if(media_lock == DEVICE_LOCK || device_wants_lock) {
+    sense_data.set(Sense_KEY::NOT_READY, Sense_ASC::MEDIUM_NOT_PRESENT, Sense_ASCQ::REASON_UNKNOWN);
+  }
+
   BulkBuf[ 0] = 0x70;          /* Response Code */
   BulkBuf[ 1] = 0x00;
-  BulkBuf[ 2] = static_cast<uint8_t>(Sense_KEY::ILLEGAL_REQUEST);
+  BulkBuf[ 2] = static_cast<uint8_t>(sense_data.key);
   BulkBuf[ 3] = 0x00;
   BulkBuf[ 4] = 0x00;
   BulkBuf[ 5] = 0x00;
@@ -354,17 +466,17 @@ void MSC_RequestSense (void) {
   BulkBuf[ 9] = 0x00;
   BulkBuf[10] = 0x00;
   BulkBuf[11] = 0x00;
-  BulkBuf[12] = static_cast<uint8_t>(Sense_ASC::CANNOT_READ_MEDIUM);
-  BulkBuf[13] = static_cast<uint8_t>(Sense_ASCQ::UNKNOWN_FORMAT);
+  BulkBuf[12] = static_cast<uint8_t>(sense_data.asc);
+  BulkBuf[13] = static_cast<uint8_t>(sense_data.ascq);
   BulkBuf[14] = 0x00;
   BulkBuf[15] = 0x00;
   BulkBuf[16] = 0x00;
   BulkBuf[17] = 0x00;
 
-  if (MSC_BlockCount == 0) {
-    BulkBuf[ 2] = static_cast<uint8_t>(Sense_KEY::NOT_READY);
-    BulkBuf[12] = static_cast<uint8_t>(Sense_ASC::MEDIUM_NOT_PRESENT);
-    BulkBuf[13] = static_cast<uint8_t>(Sense_ASCQ::LOADABLE);
+  if(sense_data.has_sense()){
+    _DBG("Sent Response to SenseRequest: ");
+    _DBH(static_cast<uint8_t>(sense_data.key));
+    _DBG("\n");
   }
 
   BulkLen = 18;
@@ -422,10 +534,6 @@ void MSC_Inquiry (void) {
   BulkBuf[33] = '.';
   BulkBuf[34] = '0';
   BulkBuf[35] = ' ';
-
-  if(MSC_BlockCount == 0) {
-    BulkBuf[0] = 0x20; // Direct Access Device usually available but not currently
-  }
 
   BulkLen = 36;
   DataInTransfer();
@@ -553,8 +661,9 @@ void MSC_GetCBW (void) {
     CSW.dDataResidue = CBW.dDataLength;
     if ((CBW.bLUN != 0) || (CBW.bCBLength < 1) || CBW.bCBLength > 16) {
 fail: CSW.bStatus = CSW_CMD_FAILED;
+      sense_data.set(Sense_KEY::ILLEGAL_REQUEST);
       MSC_SetCSW();
-      _DBG("Failed SCSI OP code ");
+      _DBG("Unsupported SCSI OP code ");
       _DBH(CBW.CB[0]);
       _DBG("\n");
     } else {
@@ -627,6 +736,20 @@ fail: CSW.bStatus = CSW_CMD_FAILED;
             }
           }
           break;
+        case 0x35: // SCSI_SYNCHRONIZECACHE10
+          _DBG("SCSI_SYNCHRONIZECACHE10 Unsupported\n");
+          CSW.bStatus = CSW_CMD_FAILED;
+          sense_data.set(Sense_KEY::ILLEGAL_REQUEST);
+          MSC_SetCSW();
+          break;
+        case 0x9E: // SCSI_SERVICEACTIONIN16
+          _DBG("ServiceAction(16) Action: ");
+          _DBH(CBW.CB[1]);
+          _DBG(" Unsupported\n");
+          CSW.bStatus = CSW_CMD_FAILED;
+          sense_data.set(Sense_KEY::ILLEGAL_REQUEST);
+          MSC_SetCSW();
+          break;
         default:
           goto fail;
       }
@@ -647,7 +770,6 @@ fail: CSW.bStatus = CSW_CMD_FAILED;
  */
 
 void MSC_SetCSW (void) {
-
   CSW.dSignature = MSC_CSW_Signature;
   USB_WriteEP(MSC_EP_IN, (uint8_t *)&CSW, sizeof(CSW));
   BulkStage = MSC_BS_CSW;
@@ -661,7 +783,6 @@ void MSC_SetCSW (void) {
  */
 
 void MSC_BulkIn (void) {
-
   switch (BulkStage) {
     case MSC_BS_DATA_IN:
       switch (CBW.CB[0]) {
@@ -691,7 +812,6 @@ void MSC_BulkIn (void) {
  */
 
 void MSC_BulkOut (void) {
-
   BulkLen = (uint8_t)USB_ReadEP(MSC_EP_OUT, BulkBuf);
   switch (BulkStage) {
     case MSC_BS_CBW:

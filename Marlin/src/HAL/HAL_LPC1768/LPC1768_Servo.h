@@ -42,9 +42,9 @@
       int8_t attach(const int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
       int8_t attach(const int pin, const int min, const int max); // as above but also sets min and max values for writes.
       void detach();
-      void write(const int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-      void writeMicroseconds(const int value); // write pulse width in microseconds
-      void move(const int value);              // attach the servo, then move to value
+      void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+      void writeMicroseconds(int value); // write pulse width in microseconds
+      void move(const int value);        // attach the servo, then move to value
                                          // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
                                          // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
       int read();                        // returns current pulse width as an angle between 0 and 180 degrees

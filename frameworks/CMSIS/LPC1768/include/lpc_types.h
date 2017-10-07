@@ -134,7 +134,7 @@ typedef int32_t(*PFI)();
 
 /* NULL pointer */
 #ifndef NULL
-#define NULL ((void*) 0)
+  #define NULL ((void*) 0)
 #endif
 
 /* Number of elements in an array */
@@ -145,11 +145,11 @@ typedef int32_t(*PFI)();
 /* External data/function define */
 #define EXTERN extern
 
-#if !defined(MAX)
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#ifndef MAX
+  #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
-#if !defined(MIN)
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#ifndef MIN
+  #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 /**
