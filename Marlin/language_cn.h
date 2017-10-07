@@ -140,6 +140,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER         "UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    "S UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
+#define MSG_CONTROL_RETRACT_SWAPF           "Swap V"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Change filament"
 #define MSG_INIT_SDCARD                     "Init. SD card"
