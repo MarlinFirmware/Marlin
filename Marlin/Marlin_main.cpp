@@ -7447,6 +7447,7 @@ inline void gcode_M105() {
    */
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
+    uint16_t t = parser.ushortval('T', 0);
     const uint8_t p = parser.byteval('P', 0);
     if (p < FAN_COUNT)
       if(t>0){
