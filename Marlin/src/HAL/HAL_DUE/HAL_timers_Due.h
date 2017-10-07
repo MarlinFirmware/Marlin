@@ -49,7 +49,7 @@
 #define HAL_TIMER_RATE         ((F_CPU) / 2.0)  // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
+#define HAL_TICKS_PER_US       (((F_CPU) / 2) / 1000000) // stepper timer ticks per us, can not be of type double
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
