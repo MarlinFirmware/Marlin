@@ -3242,7 +3242,7 @@ static void homeaxis(const AxisEnum axis) {
         retracted_swap[active_extruder] = retracting;  }
     #endif
 
-     /* // debugging
+    /* // debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
