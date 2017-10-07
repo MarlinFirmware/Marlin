@@ -6247,12 +6247,19 @@ inline void gcode_M17() {
       // Initial retract before move to filament change position
       set_destination_to_current();
       destination[E_AXIS] += retract;
+      ////////////////////////////////////////
+      // RUNPLAN DON'T CARE about OTHER axes
+      ////////////////////////////////////////            
       RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+      ////////////////////////////////////////   
       stepper.synchronize();
     }
 
     // Lift Z axis
     if (z_lift > 0)
+      ////////////////////////////////////////
+      // BUT HERE ALL AXES ARE MOVED and Current_E must be updated or BUG !
+      ////////////////////////////////////////          
       do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
 
     // Move XY axes to filament exchange position
