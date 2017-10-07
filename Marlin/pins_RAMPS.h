@@ -129,6 +129,12 @@
   #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
+#if ENABLED(MKS_12864OLED)
+  #define LCD_PINS_D5 -1
+  #define LCD_PINS_D6 -1
+  #define LCD_PINS_RS  27
+  #define LCD_PINS_DC   25
+#endif
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
@@ -258,6 +264,23 @@
     #define LCD_PINS_D6         44
     #define LCD_PINS_D7         64
   #else
+#if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS         27
+    #define LCD_PINS_ENABLE     29
+    #define LCD_PINS_D4         25 
+    #define LCD_PINS_D5         -1
+    #define LCD_PINS_D6         -1
+    #define LCD_PINS_D7         -1
+    #if DISABLED(NEWPANEL)
+      #define BEEPER_PIN        37
+      // Buttons are attached to a shift register
+      // Not wired yet
+      //#define SHIFT_CLK 38
+      //#define SHIFT_LD 42
+      //#define SHIFT_OUT 40
+      //#define SHIFT_EN 17
+    #endif
+	#else
     #define LCD_PINS_RS         16
     #define LCD_PINS_ENABLE     17
     #define LCD_PINS_D4         23
@@ -273,6 +296,7 @@
       //#define SHIFT_OUT 40
       //#define SHIFT_EN 17
     #endif
+	#endif
   #endif
 
   #if ENABLED(NEWPANEL)
@@ -281,10 +305,15 @@
 
       #define BEEPER_PIN        37
 
-      #define BTN_EN1           31
-      #define BTN_EN2           33
-      #define BTN_ENC           35
-
+      #if ENABLED(CR10_STOCKDISPLAY)
+        #define BTN_EN1           17
+        #define BTN_EN2           23
+        #define BTN_ENC           35
+      #else
+        #define BTN_EN1           31
+        #define BTN_EN2           33
+        #define BTN_ENC           35
+      #endif
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
@@ -354,10 +383,6 @@
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0         44
       #define DOGLCD_CS         66
-      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
-      #define SDSS              53
-
-      #define KILL_PIN          64
       // GLCD features
       //#define LCD_CONTRAST   190
       // Uncomment screen orientation
@@ -369,6 +394,29 @@
       #define BTN_EN2           63
       #define BTN_ENC           59
       // not connected to a pin
+      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
+      #define SDSS              53
+      #define KILL_PIN          64
+      #define SD_DETECT_PIN     49
+    #elif ENABLED(MKS_MINI_12864)
+      #define BEEPER_PIN        37 
+      // Pins for DOGM SPI LCD Support
+      #define DOGLCD_A0         27 
+      #define DOGLCD_CS         25 
+      // GLCD features
+      //#define LCD_CONTRAST   190
+      // Uncomment screen orientation
+      //#define LCD_SCREEN_ROT_90
+      //#define LCD_SCREEN_ROT_180
+      //#define LCD_SCREEN_ROT_270
+      // The encoder and click button
+      #define BTN_EN1           31
+      #define BTN_EN2           33
+      #define BTN_ENC           35
+      // not connected to a pin
+      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
+      #define SDSS              53
+      #define KILL_PIN          64
       #define SD_DETECT_PIN     49
 
     #else
