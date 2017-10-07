@@ -3167,7 +3167,7 @@ static void homeaxis(const AxisEnum axis) {
     #endif
     if (!retracting) swapping = retracted_swap[active_extruder];
 
-     /* // debugging
+    /* // debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
       SERIAL_ECHOLNPAIR("swapping ", swapping);
       SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
@@ -3188,8 +3188,7 @@ static void homeaxis(const AxisEnum axis) {
     flow_percentage[active_extruder] = 100;
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
-    stepper.synchronize(); // Wait for all moves to finish
-
+    
     if (retracting) {
       // Remember the Z height since G-code may include its own Z-hop
       // For best results turn off Z hop if G-code already includes it
