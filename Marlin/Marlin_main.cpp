@@ -7429,7 +7429,7 @@ inline void gcode_M105() {
 
 #if FAN_COUNT > 0
 
-  /*
+  /**
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
