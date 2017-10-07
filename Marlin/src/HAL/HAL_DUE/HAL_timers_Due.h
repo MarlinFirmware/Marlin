@@ -46,7 +46,7 @@
 #define STEP_TIMER_NUM 3  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 4  // index of timer to use for temperature
 
-#define HAL_TIMER_RATE         ((F_CPU) / 2.0)  // frequency of timers peripherals
+#define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
