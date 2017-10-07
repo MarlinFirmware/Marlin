@@ -59,7 +59,7 @@
 #endif
 
 void set_led_color(
-  const uint8_t r, const uint8_t g, const uint8_t b , const uint8_t w = 0 , const uint8_t p = 255
+  const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w = 0, const uint8_t p = 255
 );
 
 #endif // __LEDS_H__

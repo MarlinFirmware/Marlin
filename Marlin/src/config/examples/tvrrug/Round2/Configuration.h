@@ -1541,7 +1541,7 @@
 //#define PCA9632
 
 /**
- * RGB LED / LED Strip Control
+* RGB LED / LED Strip Control
  *
  * Enable support for an RGB LED connected to 5V digital pins, or
  * an RGB Strip connected to MOSFETs controlled by digital pins.
@@ -1565,8 +1565,6 @@
 
 //#define RGB_LED
 //#define RGBW_LED
-//#define NEOPIXEL_LED
-
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
@@ -1575,11 +1573,12 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
+//#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
   #define NEOPIXEL_PIXELS 10       // Number of LEDs on strip
-  #define NEOPIXEL_TYPE NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (definned in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_IS_SEQUENTIAL   // Sequent display for temperature change - LED by LED. Comment out for change all LED at time
+  #define NEOPIXEL_TYPE NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Comment out for all LEDs to change at once.
   #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness 0-255
 //  #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
 #endif
