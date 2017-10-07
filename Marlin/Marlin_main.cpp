@@ -7444,9 +7444,16 @@ inline void gcode_M105() {
    */
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
     const uint8_t p = parser.byteval('P', 0);
-    if (p < FAN_COUNT) fanSpeeds[p] = s;
+    if (p < FAN_COUNT)
+      if(t>0){
+        if (t>2){NOMORE(t, 255);new_fanSpeeds[p]=t; }
+        else if (t<2){fanSpeeds[p] = old_fanSpeeds[p];}
+             else  {old_fanSpeeds[p] = fanSpeeds[p]; fanSpeeds[p] = new_fanSpeeds[p];}
+       return ;
+    }
+      NOMORE(s, 255);
+      fanSpeeds[p] = s;
   }
 
   /**
