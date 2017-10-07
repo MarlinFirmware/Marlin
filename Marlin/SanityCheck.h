@@ -959,28 +959,28 @@ static_assert(1 >= 0
           #error "TEMP_4_PIN not defined for this board."
         #endif
       #elif TEMP_SENSOR_4 != 0
-        #error "TEMP_SENSOR_4 shouldn't be set with only 4 extruders."
+        #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
       #endif
     #elif TEMP_SENSOR_3 != 0
-      #error "TEMP_SENSOR_3 shouldn't be set with only 3 extruders."
+      #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_4 != 0
-      #error "TEMP_SENSOR_4 shouldn't be set with only 3 extruders."
+      #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
     #endif
   #elif TEMP_SENSOR_2 != 0
-    #error "TEMP_SENSOR_2 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_3 != 0
-    #error "TEMP_SENSOR_3 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_3 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_4 != 0
-    #error "TEMP_SENSOR_4 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  #error "TEMP_SENSOR_1 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_2 != 0
-  #error "TEMP_SENSOR_2 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_2 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_3 != 0
-  #error "TEMP_SENSOR_3 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_3 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_4 != 0
-  #error "TEMP_SENSOR_4 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
