@@ -224,7 +224,7 @@ inline void servo_probe_test() {
  *                  - Machine continues to operate
  *                  - Reports changes to endstops
  *                  - Toggles LED_PIN when an endstop changes
- *                  - Can not reliably catch the 5mS pulse from BLTouch type probes
+ *                  - Cannot reliably catch the 5mS pulse from BLTouch type probes
  *
  *  M43 T       - Toggle pin(s) and report which pin is being toggled
  *                  S<pin>  - Start Pin number.   If not given, will default to 0

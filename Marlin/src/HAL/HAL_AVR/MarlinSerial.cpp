@@ -496,7 +496,7 @@
     }
 
     void MarlinSerial::writeNoHandshake(const uint8_t c) {
-      while (!TEST(M_UCSRxA, M_UDREx)) ;
+      while (!TEST(M_UCSRxA, M_UDREx)) { /* nada */ }
       M_UDRx = c;
     }
 

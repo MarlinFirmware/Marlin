@@ -207,7 +207,7 @@
     /**
      * Hidden options for developer
      */
-    // Double stepping start from STEP_DOUBLER_FREQUENCY + 1, quad stepping start from STEP_DOUBLER_FREQUENCY * 2 + 1
+    // Double stepping starts at STEP_DOUBLER_FREQUENCY + 1, quad stepping starts at STEP_DOUBLER_FREQUENCY * 2 + 1
     #ifndef STEP_DOUBLER_FREQUENCY
       #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
         #define STEP_DOUBLER_FREQUENCY 60000 // Hz

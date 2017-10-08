@@ -323,10 +323,9 @@ class Stepper {
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
-        timer = (uint32_t)(HAL_STEPPER_TIMER_RATE) / step_rate;
-        if (timer < (HAL_STEPPER_TIMER_RATE / (STEP_DOUBLER_FREQUENCY * 2))) { // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
-          timer = (HAL_STEPPER_TIMER_RATE / (STEP_DOUBLER_FREQUENCY * 2));
-        }
+        constexpr uint32_t MIN_TIME_PER_STEP = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
+        timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
+        NOLESS(timer, MIN_TIME_PER_STEP); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
       #else
         NOLESS(step_rate, F_CPU / 500000);
         step_rate -= F_CPU / 500000; // Correct for minimal speed
