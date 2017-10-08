@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,31 +17,13 @@
  *
  */
 
-#ifndef HAL_SANITYCHECK_H
 
-#ifdef __AVR__
-  #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
+#ifndef SPI_PINS_H_
+#define SPI_PINS_H_
 
-  #elif defined(ARDUINO_ARCH_SAM)
-    #include "HAL_DUE/SanityCheck_Due.h"
+#define SS_PIN            15
+#define SCK_PIN           14
+#define MISO_PIN          12
+#define MOSI_PIN          13
 
-  #elif IS_32BIT_TEENSY
-    #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
-
-  #elif defined(TARGET_LPC1768)
-    #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
-
-  #elif defined(__STM32F1__)
-    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
-
-  #elif defined(STM32F7)
-    #include "HAL_STM32F7/SanityCheck_STM32F7.h"
-
-  #elif defined(ARDUINO_ARCH_ESP32)
-    #include "HAL_ESP/SanityCheck_ESP32.h"
-
-#else
-  #error Unsupported Platform!
-#endif
-
-#endif
+#endif /* SPI_PINS_H_ */

@@ -20,31 +20,25 @@
  *
  */
 
-#ifndef HAL_SANITYCHECK_H
+// #ifdef ARDUINO_ARCH_ESP826
 
-#ifdef __AVR__
-  #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
+// #if OPTION_ENABLED(USE_WATCHDOG)
 
-  #elif defined(ARDUINO_ARCH_SAM)
-    #include "HAL_DUE/SanityCheck_Due.h"
+  #include "watchdog_ESP.h"
+  #include "../HAL.h"
 
-  #elif IS_32BIT_TEENSY
-    #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
+  void watchdogSetup(void) {
+    // do whatever. don't remove this function.
+    // Serial.write("disabled watchdog1");
+  }
 
-  #elif defined(TARGET_LPC1768)
-    #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
+  void watchdog_init(void) {
+    // Serial.println("ESP WDT\n");
+    // watchdogEnable(4000);
+    // Serial.write("disabled watchdog");
+    // ESP.wdtDisable();
+  }
 
-  #elif defined(__STM32F1__)
-    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
+// #endif // USE_WATCHDOG
 
-  #elif defined(STM32F7)
-    #include "HAL_STM32F7/SanityCheck_STM32F7.h"
-
-  #elif defined(ARDUINO_ARCH_ESP32)
-    #include "HAL_ESP/SanityCheck_ESP32.h"
-
-#else
-  #error Unsupported Platform!
-#endif
-
-#endif
+// #endif

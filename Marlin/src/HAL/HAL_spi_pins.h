@@ -41,6 +41,9 @@
 #elif defined(STM32F7)
   #include "HAL_STM32F7/spi_pins.h"
 
+#elif defined(ARDUINO_ARCH_ESP32)
+  #include "HAL_ESP/spi_pins.h"
+
 #else
   #error "Unsupported Platform!"
 #endif

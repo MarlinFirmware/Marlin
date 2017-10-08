@@ -20,31 +20,16 @@
  *
  */
 
-#ifndef HAL_SANITYCHECK_H
+#ifndef WATCHDOG_ESP_H
+#define WATCHDOG_ESP_H
 
-#ifdef __AVR__
-  #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
+// Initialize watchdog with a 4 second interrupt time
+void watchdog_init();
 
-  #elif defined(ARDUINO_ARCH_SAM)
-    #include "HAL_DUE/SanityCheck_Due.h"
+// Reset watchdog. MUST be called at least every 4 seconds after the
+// first watchdog_init or AVR will go into emergency procedures.
+inline void watchdog_reset() {
+  // ESP.wdtFeed();
+};
 
-  #elif IS_32BIT_TEENSY
-    #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
-
-  #elif defined(TARGET_LPC1768)
-    #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
-
-  #elif defined(__STM32F1__)
-    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
-
-  #elif defined(STM32F7)
-    #include "HAL_STM32F7/SanityCheck_STM32F7.h"
-
-  #elif defined(ARDUINO_ARCH_ESP32)
-    #include "HAL_ESP/SanityCheck_ESP32.h"
-
-#else
-  #error Unsupported Platform!
-#endif
-
-#endif
+#endif /* WATCHDOG_ESP_H */

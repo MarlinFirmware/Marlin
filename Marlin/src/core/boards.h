@@ -210,6 +210,8 @@
 //
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
+// ESPRESSIF
+#define BOARD_ESP32            1900
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
