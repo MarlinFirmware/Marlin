@@ -597,12 +597,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       lcd.write('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
           lcd.write(' ');
         else
       #endif
-      lcd_printPGM(pstr);
+          lcd_printPGM(pstr);
     }
   }
 }
@@ -987,7 +987,6 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
-      char c;
       uint8_t n = LCD_WIDTH - concat;
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
@@ -995,7 +994,7 @@ static void lcd_implementation_status_screen() {
         filename = longFilename;
         longFilename[n] = '\0';
       }
-      while ((c = *filename) && n > 0) {
+      while (char c = *filename) {
         n -= charset_mapper(c);
         filename++;
       }
