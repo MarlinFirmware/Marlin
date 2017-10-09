@@ -73,11 +73,17 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Test a simple build of AUTO_BED_LEVELING_UBL
+  # Test a probeless build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT BLTOUCH EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_ZPROBE_OFFSET
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS G3D_PANEL
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # ...and with a probe
+  #
+  - opt_enable BLTOUCH
+  - opt_enable_adv BABYSTEP_ZPROBE_OFFSET
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test a Sled Z Probe
