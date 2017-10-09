@@ -101,6 +101,8 @@
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
 #define BOARD_ZRIB_V20          504  // zrib V2.0 control board (Chinese knock off RAMPS replica)
+#define BOARD_SILVER_GATE       25   // Silvergate v1.0
+
 //ARM 32
 #define BOARD_DUE3DOM          1411  // DUE3DOM for Arduino DUE
 #define BOARD_DUE3DOM_MINI     1412  // DUE3DOM MINI for Arduino DUE

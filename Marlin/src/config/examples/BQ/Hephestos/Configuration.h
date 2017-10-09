@@ -1495,6 +1495,11 @@
 //
 //#define OLED_PANEL_TINYBOY2
 
+// Silvergate GLCD controller
+// http://github.com/android444/Silvergate
+//
+//#define SILVER_GATE_GLCD_CONTROLLER
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
