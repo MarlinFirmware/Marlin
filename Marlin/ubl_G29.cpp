@@ -1129,7 +1129,7 @@
       const int pv = parser.value_int();
       #if !HAS_BED_PROBE
         if (pv == 1) {
-          SERIAL_ECHO("G29 P1 requires a probe.\n");
+          SERIAL_PROTOCOLLNPGM("G29 P1 requires a probe.\n");
           err_flag = true;
         }
         else
