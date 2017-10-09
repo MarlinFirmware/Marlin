@@ -13583,6 +13583,12 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
+  #if ENABLED(MKS_12864OLED)
+    SET_OUTPUT(LCD_PINS_DC);
+    OUT_WRITE(LCD_PINS_RS, LOW);
+    delay(1000);
+    WRITE(LCD_PINS_RS, HIGH);
+  #endif
 }
 
 /**
