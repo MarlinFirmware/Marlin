@@ -575,13 +575,6 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
-
-  // VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    #define DOGLCD_SCK SCK_PIN
-    #define DOGLCD_MOSI MOSI_PIN
-  #endif
-
 #endif // DOGLCD
 
 // @section safety
@@ -608,7 +601,7 @@
  */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
+  //#define BABYSTEP_XY            // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
   #define BABYSTEP_MULTIPLICATOR 100 // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping

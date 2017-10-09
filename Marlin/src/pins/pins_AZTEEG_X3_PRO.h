@@ -138,7 +138,7 @@
   #undef BEEPER_PIN
   #define  BEEPER_PIN      12   // 33 isn't physically available to the LCD display
 #else
-  #define STAT_LED_RED_PIN 32
+  #define STAT_LED_RED_PIN  32
   #define STAT_LED_BLUE_PIN 35
 #endif
 
