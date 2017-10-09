@@ -91,12 +91,15 @@
                     g29_phase_value,
                     g29_repetition_cnt,
                     g29_storage_slot,
-                    g29_map_type,
-                    g29_grid_size;
+                    g29_map_type;
       static bool   g29_c_flag, g29_x_flag, g29_y_flag;
       static float  g29_x_pos, g29_y_pos,
                     g29_card_thickness,
                     g29_constant;
+
+      #if HAS_BED_PROBE
+        static int  g29_grid_size;
+      #endif
 
       #if ENABLED(UBL_G26_MESH_VALIDATION)
         static float   g26_extrusion_multiplier,

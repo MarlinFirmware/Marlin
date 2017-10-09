@@ -96,11 +96,16 @@ script:
   - opt_set_adv FANMUX0_PIN 53
   - build_marlin
   #
-  # Test a simple build of AUTO_BED_LEVELING_UBL
+  # Test a probeless build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS G3D_PANEL
   - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
+  - build_marlin
+  #
+  # And with a probe...
+  #
+  - opt_enable FIX_MOUNTED_PROBE
   - build_marlin
   #
   # Test a Sled Z Probe
