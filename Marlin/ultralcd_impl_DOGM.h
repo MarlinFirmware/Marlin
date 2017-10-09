@@ -182,15 +182,14 @@
   // Generic support for SSD1306 OLED I2C LCDs
   //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
   U8GLIB_SSD1306_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
+#elif ENABLED(MKS_12864OLED)
+  // MKS 128x64 (SH1106) OLED I2C LCD
+  U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);      // 8 stripes
+  //U8GLIB_SH1106_128X64_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
 #elif ENABLED(U8GLIB_SH1106)
-  #if ENABLED(MKS_12864OLED)
- //   U8GLIB_SH1106_128X64 u8g(23, 17, 16, 25); // SW SPI Com: SCK = 23, MOSI = 17, CS = 16, A0 = 25
-    U8GLIB_SH1106_128X64 u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS, LCD_PINS_DC);
-  #else
   // Generic support for SH1106 OLED I2C LCDs
   //U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
-  U8GLIB_SH1106_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes 
-  #endif
+  U8GLIB_SH1106_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
 #elif ENABLED(MINIPANEL)
   // The MINIPanel display
   //U8GLIB_MINI12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
@@ -425,12 +424,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       u8g.print('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
           u8g.print(' ');
         else
       #endif
-      lcd_printPGM(pstr);
+          lcd_printPGM(pstr);
     }
   }
 }
@@ -925,7 +924,7 @@ static void lcd_implementation_status_screen() {
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
       if (longFilename[0]) {
         filename = longFilename;
-        longFilename[n] = '\0';
+        longFilename[n] = '\0'; // cutoff at screen edge
       }
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);

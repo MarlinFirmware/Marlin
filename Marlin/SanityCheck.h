@@ -959,28 +959,28 @@ static_assert(1 >= 0
           #error "TEMP_4_PIN not defined for this board."
         #endif
       #elif TEMP_SENSOR_4 != 0
-        #error "TEMP_SENSOR_4 shouldn't be set with only 4 extruders."
+        #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
       #endif
     #elif TEMP_SENSOR_3 != 0
-      #error "TEMP_SENSOR_3 shouldn't be set with only 3 extruders."
+      #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_4 != 0
-      #error "TEMP_SENSOR_4 shouldn't be set with only 3 extruders."
+      #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
     #endif
   #elif TEMP_SENSOR_2 != 0
-    #error "TEMP_SENSOR_2 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_3 != 0
-    #error "TEMP_SENSOR_3 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_3 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_4 != 0
-    #error "TEMP_SENSOR_4 shouldn't be set with only 2 extruders."
+    #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  #error "TEMP_SENSOR_1 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_2 != 0
-  #error "TEMP_SENSOR_2 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_2 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_3 != 0
-  #error "TEMP_SENSOR_3 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_3 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_4 != 0
-  #error "TEMP_SENSOR_4 shouldn't be set with only 1 extruder."
+  #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
@@ -1146,20 +1146,32 @@ static_assert(1 >= 0
  */
 static_assert(1 >= 0
   #if ENABLED(ULTIMAKERCONTROLLER) \
-      && DISABLED(SAV_3DGLCD) && DISABLED(miniVIKI) && DISABLED(VIKI2) \
-      && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && DISABLED(PANEL_ONE) && DISABLED(MKS_12864OLED)
+      && DISABLED(SAV_3DGLCD) \
+      && DISABLED(miniVIKI) \
+      && DISABLED(VIKI2) \
+      && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+      && DISABLED(PANEL_ONE) \
+      && DISABLED(MKS_12864OLED)
     + 1
   #endif
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(LCD_FOR_MELZI) && DISABLED(MKS_12864OLED)
+  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
+      && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
+      && DISABLED(LCD_FOR_MELZI) \
+      && DISABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
+      && DISABLED(MKS_12864OLED)
+    + 1
+  #endif
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
+      && DISABLED(BQ_LCD_SMART_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(LCD_FOR_MELZI)
     + 1
   #endif
   #if ENABLED(MKS_12864OLED)
     + 1
   #endif
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER) 
-    + 1
-  #endif
-  #if ENABLED(LCD_FOR_MELZI)
+  #if ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
     + 1
   #endif
   #if ENABLED(CARTESIO_UI)
@@ -1186,10 +1198,15 @@ static_assert(1 >= 0
   #if ENABLED(G3D_PANEL)
     + 1
   #endif
-  #if ENABLED(MINIPANEL)
+  #if ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)
     + 1
   #endif
-  #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI) && DISABLED(ANET_KEYPAD_LCD)
+  #if ENABLED(MKS_MINI_12864)
+    + 1
+  #endif
+  #if ENABLED(REPRAPWORLD_KEYPAD) \
+      && DISABLED(CARTESIO_UI) \
+      && DISABLED(ANET_KEYPAD_LCD)
     + 1
   #endif
   #if ENABLED(RIGIDBOT_PANEL)
