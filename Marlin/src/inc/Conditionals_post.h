@@ -857,6 +857,18 @@
   #endif
 
   /**
+   * VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
+   */
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #ifndef DOGLCD_SCK
+      #define DOGLCD_SCK  SCK_PIN
+    #endif
+    #ifndef DOGLCD_MOSI
+      #define DOGLCD_MOSI MOSI_PIN
+    #endif
+  #endif
+
+  /**
    * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
    */
   #ifndef Z_HOMING_HEIGHT
