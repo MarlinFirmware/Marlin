@@ -108,7 +108,7 @@ long Stepper::counter_X = 0,
 
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
-#if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE)
 
   constexpr HAL_TIMER_TYPE ADV_NEVER = HAL_TIMER_TYPE_MAX;
 
@@ -116,18 +116,10 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::nextAdvanceISR = ADV_NEVER,
          Stepper::eISR_Rate = ADV_NEVER;
 
-  #if ENABLED(LIN_ADVANCE)
-    volatile int Stepper::e_steps[E_STEPPERS];
-    int Stepper::final_estep_rate,
-        Stepper::current_estep_rate[E_STEPPERS],
-        Stepper::current_adv_steps[E_STEPPERS];
-  #else
-    long Stepper::e_steps[E_STEPPERS],
-         Stepper::final_advance = 0,
-         Stepper::old_advance = 0,
-         Stepper::advance_rate,
-         Stepper::advance;
-  #endif
+  volatile int Stepper::e_steps[E_STEPPERS];
+  int Stepper::final_estep_rate,
+      Stepper::current_estep_rate[E_STEPPERS],
+      Stepper::current_adv_steps[E_STEPPERS];
 
   /**
    * See https://github.com/MarlinFirmware/Marlin/issues/5699#issuecomment-309264382
@@ -144,7 +136,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
     return ADV_NEVER;
   }
 
-#endif // ADVANCE || LIN_ADVANCE
+#endif // LIN_ADVANCE
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
 
@@ -277,7 +269,7 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE)
     if (motor_direction(E_AXIS)) {
       REV_E_DIR();
       count_direction[E_AXIS] = -1;
@@ -286,7 +278,7 @@ void Stepper::set_directions() {
       NORM_E_DIR();
       count_direction[E_AXIS] = 1;
     }
-  #endif // !ADVANCE && !LIN_ADVANCE
+  #endif // !LIN_ADVANCE
 }
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -312,7 +304,7 @@ void Stepper::set_directions() {
 
 HAL_STEP_TIMER_ISR {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();
   #else
     Stepper::isr();
@@ -326,7 +318,7 @@ void Stepper::isr() {
   #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE 500 * HAL_TICKS_PER_US           // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
 
-  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE)
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
     DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -361,7 +353,7 @@ void Stepper::isr() {
 
     _NEXT_ISR(ocr_val);
 
-  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       HAL_timer_set_count(STEP_TIMER_NUM, ocr_val);
     #else
@@ -416,10 +408,6 @@ void Stepper::isr() {
           return;
         }
       #endif
-
-      // #if ENABLED(ADVANCE)
-      //   e_steps[TOOL_E_INDEX] = 0;
-      // #endif
     }
     else {
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
@@ -465,33 +453,7 @@ void Stepper::isr() {
         }
       #endif
 
-    #elif ENABLED(ADVANCE)
-
-      // Always count the unified E axis
-      counter_E += current_block->steps[E_AXIS];
-      if (counter_E > 0) {
-        counter_E -= current_block->step_event_count;
-        #if DISABLED(MIXING_EXTRUDER)
-          // Don't step E here for mixing extruder
-          motor_direction(E_AXIS) ? --e_steps[TOOL_E_INDEX] : ++e_steps[TOOL_E_INDEX];
-        #endif
-      }
-
-      #if ENABLED(MIXING_EXTRUDER)
-
-        // Step mixing steppers proportionally
-        const bool dir = motor_direction(E_AXIS);
-        MIXING_STEPPERS_LOOP(j) {
-          counter_m[j] += current_block->steps[E_AXIS];
-          if (counter_m[j] > 0) {
-            counter_m[j] -= current_block->mix_event_count[j];
-            dir ? --e_steps[j] : ++e_steps[j];
-          }
-        }
-
-      #endif // MIXING_EXTRUDER
-
-    #endif // ADVANCE or LIN_ADVANCE
+    #endif // LIN_ADVANCE
 
     #define _COUNTER(AXIS) counter_## AXIS
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
@@ -552,7 +514,7 @@ void Stepper::isr() {
     #else
       #define _CYCLE_APPROX_6 _CYCLE_APPROX_5
     #endif
-    #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         #define _CYCLE_APPROX_7 _CYCLE_APPROX_6 + (MIXING_STEPPERS) * 6
       #else
@@ -588,7 +550,7 @@ void Stepper::isr() {
     #endif
 
     // For non-advance use linear interpolation for E also
-    #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         // Keep updating the single E axis
         counter_E += current_block->steps[E_AXIS];
@@ -602,7 +564,7 @@ void Stepper::isr() {
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
       #endif
-    #endif // !ADVANCE && !LIN_ADVANCE
+    #endif // !LIN_ADVANCE
 
     // For minimum pulse time wait before stopping pulses
     #if EXTRA_CYCLES_XYZE > 20
@@ -622,7 +584,7 @@ void Stepper::isr() {
       PULSE_STOP(Z);
     #endif
 
-    #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         // Always step the single E axis
         if (counter_E > 0) {
@@ -638,7 +600,7 @@ void Stepper::isr() {
       #else // !MIXING_EXTRUDER
         PULSE_STOP(E);
       #endif
-    #endif // !ADVANCE && !LIN_ADVANCE
+    #endif // !LIN_ADVANCE
 
     if (++step_events_completed >= current_block->step_event_count) {
       all_steps_done = true;
@@ -655,6 +617,7 @@ void Stepper::isr() {
   } // steps_loop
 
   #if ENABLED(LIN_ADVANCE)
+
     if (current_block->use_advance_lead) {
       const int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
       current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
@@ -666,13 +629,11 @@ void Stepper::isr() {
         // For most extruders, advance the single E stepper
         e_steps[TOOL_E_INDEX] += delta_adv_steps;
       #endif
-   }
-  #endif
-
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    }
     // If we have esteps to execute, fire the next advance_isr "now"
     if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
-  #endif
+
+  #endif // LIN_ADVANCE
 
   // Calculate new timer value
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
@@ -705,33 +666,9 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-
-    #elif ENABLED(ADVANCE)
-
-      advance += advance_rate * step_loops;
-      //NOLESS(advance, current_block->advance);
-
-      const long advance_whole = advance >> 8,
-                 advance_factor = advance_whole - old_advance;
-
-      // Do E steps + advance steps
-      #if ENABLED(MIXING_EXTRUDER)
-        // ...for mixing steppers proportionally
-        MIXING_STEPPERS_LOOP(j)
-          e_steps[j] += advance_factor * current_block->step_event_count / current_block->mix_event_count[j];
-      #else
-        // ...for the active extruder
-        e_steps[TOOL_E_INDEX] += advance_factor;
-      #endif
-
-      old_advance = advance_whole;
-
-    #endif // ADVANCE or LIN_ADVANCE
-
-    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      // TODO: HAL
       eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
-    #endif
+
+    #endif // LIN_ADVANCE
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
     HAL_TIMER_TYPE step_rate;
@@ -765,30 +702,9 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-
-    #elif ENABLED(ADVANCE)
-
-      advance -= advance_rate * step_loops;
-      NOLESS(advance, final_advance);
-
-      // Do E steps + advance steps
-      const long advance_whole = advance >> 8,
-                 advance_factor = advance_whole - old_advance;
-
-      #if ENABLED(MIXING_EXTRUDER)
-        MIXING_STEPPERS_LOOP(j)
-          e_steps[j] += advance_factor * current_block->step_event_count / current_block->mix_event_count[j];
-      #else
-        e_steps[TOOL_E_INDEX] += advance_factor;
-      #endif
-
-      old_advance = advance_whole;
-
-    #endif // ADVANCE or LIN_ADVANCE
-
-    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
-    #endif
+
+    #endif // LIN_ADVANCE
   }
   else {
 
@@ -807,7 +723,7 @@ void Stepper::isr() {
     step_loops = step_loops_nominal;
   }
 
-  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
       HAL_TIMER_TYPE stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
@@ -823,12 +739,12 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
-  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE)
     HAL_ENABLE_ISRs(); // re-enable ISRs
   #endif
 }
 
-#if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE)
 
   #define CYCLES_EATEN_E (E_STEPPERS * 5)
   #define EXTRA_CYCLES_E (STEP_PULSE_CYCLES - (CYCLES_EATEN_E))
@@ -968,7 +884,7 @@ void Stepper::isr() {
     HAL_ENABLE_ISRs();
   }
 
-#endif // ADVANCE or LIN_ADVANCE
+#endif // LIN_ADVANCE
 
 void Stepper::init() {
 
@@ -1166,12 +1082,10 @@ void Stepper::init() {
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE)
     for (uint8_t i = 0; i < COUNT(e_steps); i++) e_steps[i] = 0;
-    #if ENABLED(LIN_ADVANCE)
-      ZERO(current_adv_steps);
-    #endif
-  #endif // ADVANCE || LIN_ADVANCE
+    ZERO(current_adv_steps);
+  #endif
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();

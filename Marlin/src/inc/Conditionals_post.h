@@ -209,7 +209,7 @@
      */
     // Double stepping starts at STEP_DOUBLER_FREQUENCY + 1, quad stepping starts at STEP_DOUBLER_FREQUENCY * 2 + 1
     #ifndef STEP_DOUBLER_FREQUENCY
-      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+      #if ENABLED(LIN_ADVANCE)
         #define STEP_DOUBLER_FREQUENCY 60000 // Hz
       #else
         #define STEP_DOUBLER_FREQUENCY 80000 // Hz
@@ -260,13 +260,8 @@
   #endif
 
   /**
-   * Advance calculated values
+   * Override here because this is set in Configuration_adv.h
    */
-  #if ENABLED(ADVANCE)
-    #define EXTRUSION_AREA CIRCLE_CIRC(0.5 * D_FILAMENT)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS_N] / (EXTRUSION_AREA))
-  #endif
-
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
     #undef SD_DETECT_INVERTED
   #endif
