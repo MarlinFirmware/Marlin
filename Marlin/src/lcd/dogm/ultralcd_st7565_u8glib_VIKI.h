@@ -26,7 +26,7 @@
 #include <src/Marlin.h>
 
 #if ENABLED(U8GLIB_ST7565_64128N)
-
+#if ( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(DOGLCD_MOSI) &&  DOGLCD_MOSI >= 0) &&  (defined(DOGLCD_SCK) &&  DOGLCD_SCK >= 0))
 
 #define ST7565_CLK_PIN  DOGLCD_SCK
 #define ST7565_DAT_PIN  DOGLCD_MOSI
@@ -171,7 +171,6 @@ uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg
       ST7565_WRITE_BYTE(0x028 | 0x07);  /* power control: turn on voltage follower */
 //   U8G_ESC_DLY(50);                   /* delay 50 ms - hangs after a reset if used */
 
-
       ST7565_WRITE_BYTE(0x010);         /* Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N */
 
       ST7565_WRITE_BYTE(0x0a6);         /* display normal, bit val 0: LCD pixel off. */
@@ -264,5 +263,6 @@ class U8GLIB_ST7565_64128n_2x_VIKI : public U8GLIB {
 
 #pragma GCC reset_options
 
+#endif //#if ( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(DOGLCD_MOSI) &&  DOGLCD_MOSI >= 0) &&  (defined(DOGLCD_SCK) &&  DOGLCD_SCK >= 0))
 #endif // U8GLIB_ST7565
 #endif // ULCDST7565_H

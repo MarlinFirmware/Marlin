@@ -301,5 +301,14 @@
   }
 #endif // ENABLED(LPC_SOFTWARE_SPI)
 
+
+  #define WITHIN_HAL_SPI  // flag to make sure the following file is only compile from within HAL_spi.h
+
+  #include "HAL_u8g_com_LPC1768_hw_spi.c"  //easiest way to get all the linkages to work.
+                                     // kept getting undefined references to the SPI routines if
+                                     // this was stand alone.  Including HAL_spi.cpp within this file
+                                     // just resulted in other errors.
+  #include "HAL_u8g_com_LPC1768_st7920_hw_spi.c"
+
 #endif // TARGET_LPC1768
 

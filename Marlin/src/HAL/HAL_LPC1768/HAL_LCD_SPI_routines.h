@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,14 +20,32 @@
  *
  */
 
-#ifndef __HAL_PINMAPPING_H__
-#define __HAL_PINMAPPING_H__
-#include "src/core/macros.h"
+/**
+ * Low level pin manipulation routines - used by all the drivers.
+ *
+ * These are based on the LPC1768 pinMode, digitalRead & digitalWrite routines.
+ *
+ * Couldn't just call exact copies because the overhead killed the LCD update speed
+ * With an intermediate level the softspi was running in the 10-20kHz range which
+ * resulted in using about about 25% of the CPU's time.
+ */
 
-#if defined(IS_REARM)
-  #include "pinmap_re_arm.h"
-#else
-  #error "HAL: LPC1768: No defined pin-mapping"
+
+
+#ifdef __cplusplus
+    extern "C" {
 #endif
 
-#endif // __HAL_PINMAPPING_H__
+void u8g_SetPinOutput(uint8_t internal_pin_number);
+
+void u8g_SetPinInput(uint8_t internal_pin_number);
+
+void u8g_SetPinLevel(uint8_t  pin, uint8_t  pin_status);
+
+uint8_t u8g_GetPinLevel(uint8_t pin);
+
+#ifdef __cplusplus
+  }
+#endif
+
+

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,14 +20,22 @@
  *
  */
 
-#ifndef __HAL_PINMAPPING_H__
-#define __HAL_PINMAPPING_H__
-#include "src/core/macros.h"
+/**
+* class declarations for new devices
+*/
 
-#if defined(IS_REARM)
-  #include "pinmap_re_arm.h"
-#else
-  #error "HAL: LPC1768: No defined pin-mapping"
-#endif
 
-#endif // __HAL_PINMAPPING_H__
+class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
+  public:
+    U8GLIB_SH1106_128X64_2X_I2C_2_WIRE(uint8_t options = U8G_I2C_OPT_NONE) 
+    : U8GLIB(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options)
+    {  }
+};
+
+class U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE : public U8GLIB {
+  public:
+    U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE(uint8_t options = U8G_I2C_OPT_NONE) 
+    : U8GLIB(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options)
+    {  }
+};
+

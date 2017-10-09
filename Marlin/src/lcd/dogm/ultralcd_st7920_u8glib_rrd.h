@@ -23,9 +23,10 @@
 #ifndef ULCDST7920_H
 #define ULCDST7920_H
 
-#include "../../Marlin.h"
+#include <src/Marlin.h>
 
 #if ENABLED(U8GLIB_ST7920)
+#if ( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(LCD_PINS_D4) &&  LCD_PINS_D4 >= 0) &&  (defined(LCD_PINS_ENABLE) &&  LCD_PINS_ENABLE >= 0))
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
@@ -219,5 +220,6 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB {
 
 #pragma GCC reset_options
 
+#endif //( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(LCD_PINS_D4) &&  LCD_PINS_D4 >= 0) &&  (defined(LCD_PINS_ENABLE) &&  LCD_PINS_ENABLE >= 0))
 #endif // U8GLIB_ST7920
 #endif // ULCDST7920_H
