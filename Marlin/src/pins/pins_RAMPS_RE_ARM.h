@@ -247,12 +247,11 @@
   #define DOGLCD_A0           59  // J3-8 & AUX-2
   #define DOGLCD_CS           63  // J5-3 & AUX-2
 
-#ifdef ULTIPANEL
-
-  #define LCD_PINS_D5         71  // ENET_MDIO
-  #define LCD_PINS_D6         73  // ENET_RX_ER
-  #define LCD_PINS_D7         75  // ENET_RXD1
-#endif
+  #ifdef ULTIPANEL
+    #define LCD_PINS_D5       71  // ENET_MDIO
+    #define LCD_PINS_D6       73  // ENET_RX_ER
+    #define LCD_PINS_D7       75  // ENET_RXD1
+  #endif
 
   #if ENABLED(NEWPANEL)
     #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -267,21 +266,21 @@
     //#define SHIFT_EN            41  // J5-4 & AUX-4
   #endif
 
-    #define SDCARD_SORT_ALPHA         // Using SORT feature to keep one directory level in RAM
-                                      // When going up/down directory levels the SD card is
-                                      // accessed but the garbage/lines are removed when the
-                                      // LCD updates
+  #define SDCARD_SORT_ALPHA         // Using SORT feature to keep one directory level in RAM
+                                    // When going up/down directory levels the SD card is
+                                    // accessed but the garbage/lines are removed when the
+                                    // LCD updates
 
-    #define SDSORT_LIMIT       256    // Maximum number of sorted items (10-256). Costs 27 bytes each.
-    #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
-    #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
-    #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
-    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+  #define SDSORT_LIMIT       256    // Maximum number of sorted items (10-256). Costs 27 bytes each.
+  #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+  #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+  #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
+  #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+  #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+  #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
 
- #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-//    #define LCD_SCREEN_ROT_180
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    // #define LCD_SCREEN_ROT_180
 
     #undef  BEEPER_PIN
     #define BEEPER_PIN          37  // may change if cable changes
@@ -309,11 +308,11 @@
     #define STAT_LED_BLUE_PIN   63  // may change if cable changes
     #define STAT_LED_RED_PIN     6  // may change if cable changes
   #endif
+
   //#define MISO_PIN            50  // system defined J3-10 & AUX-3
   //#define MOSI_PIN            51  // system defined J3-10 & AUX-3
   //#define SCK_PIN             52  // system defined J3-9 & AUX-3
   //#define SS_PIN              53  // system defined J3-5 & AUX-3 - sometimes called SDSS
-
 
   #if ENABLED(MINIPANEL)
     // GLCD features
