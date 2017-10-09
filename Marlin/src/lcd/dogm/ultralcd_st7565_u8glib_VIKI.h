@@ -27,16 +27,10 @@
 
 #if ENABLED(U8GLIB_ST7565_64128N)
 
-
 #define ST7565_CLK_PIN  DOGLCD_SCK
 #define ST7565_DAT_PIN  DOGLCD_MOSI
 #define ST7565_CS_PIN   DOGLCD_CS
 #define ST7565_A0_PIN   DOGLCD_A0
-
-
-
-
-
 
 #include <U8glib.h>
 
