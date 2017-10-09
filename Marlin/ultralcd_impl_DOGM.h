@@ -43,7 +43,15 @@
  * These are common LCD 128x64 pixel graphic displays.
  */
 #include "ultralcd.h"
-#include "ultralcd_st7920_u8glib_rrd.h"
+
+#if ENABLED(U8GLIB_ST7920)
+  #include "ultralcd_st7920_u8glib_rrd.h"
+#endif
+
+#if ENABLED(U8GLIB_ST7565_64128N)
+  #include "ultralcd_st7565_u8glib_VIKI.h"
+#endif
+
 #include "dogm_bitmaps.h"
 #include "utility.h"
 #include "duration_t.h"
@@ -100,6 +108,9 @@
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_CZ)
     #include "dogm_font_data_ISO10646_CZ.h"
     #define FONT_MENU_NAME ISO10646_CZ
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_SK)
+    #include "dogm_font_data_ISO10646_SK.h"
+    #define FONT_MENU_NAME ISO10646_SK
   #else // fall-back
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
@@ -171,14 +182,19 @@
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   //U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
   U8GLIB_LM6059_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
-#elif ENABLED(MAKRPANEL) || ENABLED(VIKI2) || ENABLED(miniVIKI)
+#elif ENABLED(U8GLIB_ST7565_64128N)
   // The MaKrPanel, Mini Viki, and Viki 2.0, ST7565 controller as well
-  //U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
-  U8GLIB_NHD_C12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
+  // U8GLIB_ST7565_64128n_2x_VIKI u8g(0);  // using SW-SPI DOGLCD_MOSI != -1 && DOGLCD_SCK
+  U8GLIB_ST7565_64128n_2x_VIKI u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // using SW-SPI
+  //U8GLIB_NHD_C12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes  HWSPI
 #elif ENABLED(U8GLIB_SSD1306)
   // Generic support for SSD1306 OLED I2C LCDs
   //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
   U8GLIB_SSD1306_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
+#elif ENABLED(MKS_12864OLED)
+  // MKS 128x64 (SH1106) OLED I2C LCD
+  U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);      // 8 stripes
+  //U8GLIB_SH1106_128X64_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
 #elif ENABLED(U8GLIB_SH1106)
   // Generic support for SH1106 OLED I2C LCDs
   //U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
@@ -417,12 +433,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       u8g.print('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
           u8g.print(' ');
         else
       #endif
-      lcd_printPGM(pstr);
+          lcd_printPGM(pstr);
     }
   }
 }
@@ -917,7 +933,7 @@ static void lcd_implementation_status_screen() {
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
       if (longFilename[0]) {
         filename = longFilename;
-        longFilename[n] = '\0';
+        longFilename[n] = '\0'; // cutoff at screen edge
       }
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);

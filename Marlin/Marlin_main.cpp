@@ -1098,9 +1098,10 @@ inline void get_serial_commands() {
   /**
    * Loop while serial characters are incoming and the queue is not full
    */
-  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
+  int c;
+  while (commands_in_queue < BUFSIZE && (c = MYSERIAL.read()) >= 0) {
 
-    char serial_char = MYSERIAL.read();
+    char serial_char = c;
 
     /**
      * If the character ends the line
@@ -1200,9 +1201,9 @@ inline void get_serial_commands() {
       // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0) {
+      if ((c = MYSERIAL.read()) >= 0) {
         // if we have one more character, copy it over
-        serial_char = MYSERIAL.read();
+        serial_char = c;
         if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
       }
       // otherwise do nothing
@@ -1850,7 +1851,7 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-#endif
+#endif // HAS_AXIS_UNHOMED_ERR
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -2053,7 +2054,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
 
-#endif
+#endif // Z_PROBE_ALLEN_KEY
 
 #if ENABLED(PROBING_FANS_OFF)
 
@@ -3193,6 +3194,8 @@ static void homeaxis(const AxisEnum axis) {
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
 
+    stepper.synchronize(); // Wait for all moves to finish
+
     if (retracting) {
       // Remember the Z height since G-code may include its own Z-hop
       // For best results turn off Z hop if G-code already includes it
@@ -3381,6 +3384,10 @@ inline void gcode_G0_G1(
     bool fast_move=false
   #endif
 ) {
+  #if ENABLED(NO_MOTION_BEFORE_HOMING)
+    if (axis_unhomed_error()) return;
+  #endif
+
   if (IsRunning()) {
     gcode_get_destination(); // For X Y Z E F
 
@@ -3436,6 +3443,10 @@ inline void gcode_G0_G1(
 #if ENABLED(ARC_SUPPORT)
 
   inline void gcode_G2_G3(bool clockwise) {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
 
       #if ENABLED(SF_ARC_FIX)
@@ -3533,6 +3544,10 @@ inline void gcode_G4() {
    * G5: Cubic B-spline
    */
   inline void gcode_G5() {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
 
       #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -5362,7 +5377,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOL_F(f, 2);
     }
 
-    inline void print_G33_settings(const bool end_stops, const bool tower_angles){
+    void print_G33_settings(const bool end_stops, const bool tower_angles) {
       SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
       if (end_stops) {
         print_signed_float(PSTR("  Ex"), endstop_adj[A_AXIS]);
@@ -5502,20 +5517,11 @@ void home_all_axes() { gcode_G28(true); }
 
       print_G33_settings(!_1p_calibration, _7p_calibration && towers_set);
 
-      #if DISABLED(PROBE_MANUALLY)
-        if (!_0p_calibration) {
-          const float measured_z = probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
-          if (isnan(measured_z)) return G33_CLEANUP();
-          home_offset[Z_AXIS] -= measured_z;
-        }
-      #endif
-
       do {
 
         float z_at_pt[13] = { 0.0 };
 
         test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
-        if (_0p_calibration) test_precision = 0.00;
         iterations++;
 
         // Probe the points
@@ -5583,7 +5589,7 @@ void home_all_axes() { gcode_G28(true); }
 
         // Solve matrices
 
-        if ((zero_std_dev < test_precision && zero_std_dev > calibration_precision) || iterations <= force_iterations) {
+        if ((zero_std_dev < test_precision || iterations <= force_iterations) && zero_std_dev > calibration_precision) {
           if (zero_std_dev < zero_std_dev_min) {
             COPY(e_old, endstop_adj);
             dr_old = delta_radius;
@@ -5592,26 +5598,33 @@ void home_all_axes() { gcode_G28(true); }
           }
 
           float e_delta[ABC] = { 0.0 }, r_delta = 0.0, t_delta[ABC] = { 0.0 };
-          float r_diff = delta_radius - delta_calibration_radius,
-                h_factor = 1.00 + r_diff * 0.001,                            //1.02 for r_diff = 20mm
-                r_factor = -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    //2.25 for r_diff = 20mm
-                a_factor = 66.66 / delta_calibration_radius;                 //0.83 for cal_rd = 80mm
+
+          const float r_diff = delta_radius - delta_calibration_radius,
+                      h_factor = (1.00 + r_diff * 0.001) / 6.0,                                       // 1.02 for r_diff = 20mm
+                      r_factor = (-(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff))) / 6.0,               // 2.25 for r_diff = 20mm
+                      a_factor = (66.66 / delta_calibration_radius) / (iterations == 1 ? 16.0 : 2.0); // 0.83 for cal_rd = 80mm  (Slow down on 1st iteration)
 
           #define ZP(N,I) ((N) * z_at_pt[I])
           #define Z6(I) ZP(6, I)
           #define Z4(I) ZP(4, I)
           #define Z2(I) ZP(2, I)
           #define Z1(I) ZP(1, I)
-          h_factor /= 6.00;
-          r_factor /= 6.00;
 
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
           #endif
 
           switch (probe_points) {
+            case 0:
+              #if DISABLED(PROBE_MANUALLY)
+                test_precision = 0.00; // forced end
+              #endif
+              break;
+
             case 1:
-              test_precision = 0.00; // forced end
+              #if DISABLED(PROBE_MANUALLY)
+                test_precision = 0.00; // forced end
+              #endif
               LOOP_XYZ(axis) e_delta[axis] = Z1(0);
               break;
 
@@ -5637,9 +5650,12 @@ void home_all_axes() { gcode_G28(true); }
               r_delta         = (Z6(0) - Z1(1) - Z1(5) - Z1(9) - Z1(7) - Z1(11) - Z1(3)) * r_factor;
 
               if (towers_set) {
-                t_delta[A_AXIS] = (       - Z2(5) + Z1(9)         - Z2(11) + Z1(3)) * a_factor;
-                t_delta[B_AXIS] = ( Z2(1)         - Z1(9) + Z2(7)          - Z1(3)) * a_factor;
-                t_delta[C_AXIS] = (-Z2(1) + Z1(5)         - Z2(7) + Z1(11)        ) * a_factor;
+                t_delta[A_AXIS] = (       - Z2(5) + Z2(9)         - Z2(11) + Z2(3)) * a_factor;
+                t_delta[B_AXIS] = ( Z2(1)         - Z2(9) + Z2(7)          - Z2(3)) * a_factor;
+                t_delta[C_AXIS] = (-Z2(1) + Z2(5)         - Z2(7) + Z2(11)        ) * a_factor;
+                e_delta[A_AXIS] += (t_delta[B_AXIS] - t_delta[C_AXIS]) / 4.5;
+                e_delta[B_AXIS] += (t_delta[C_AXIS] - t_delta[A_AXIS]) / 4.5;
+                e_delta[C_AXIS] += (t_delta[A_AXIS] - t_delta[B_AXIS]) / 4.5;
               }
               break;
           }
@@ -5660,7 +5676,7 @@ void home_all_axes() { gcode_G28(true); }
           float a_sum = 0.0;
           LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
           LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0;
-          
+
           // adjust delta_height and endstops by the max amount
           const float z_temp = MAX3(endstop_adj[A_AXIS], endstop_adj[B_AXIS], endstop_adj[C_AXIS]);
           home_offset[Z_AXIS] -= z_temp;
@@ -5692,7 +5708,7 @@ void home_all_axes() { gcode_G28(true); }
           }
         }
         if (verbose_level != 0) {                                    // !dry run
-          if ((zero_std_dev >= test_precision || zero_std_dev <= calibration_precision) && iterations > force_iterations) {  // end iterations
+          if ((zero_std_dev >= test_precision && iterations > force_iterations) || zero_std_dev <= calibration_precision) {  // end iterations
             SERIAL_PROTOCOLPGM("Calibration OK");
             SERIAL_PROTOCOL_SP(36);
             #if DISABLED(PROBE_MANUALLY)
@@ -5754,7 +5770,7 @@ void home_all_axes() { gcode_G28(true); }
         endstops.not_homing();
 
       }
-      while ((zero_std_dev < test_precision && zero_std_dev > calibration_precision && iterations < 31) || iterations <= force_iterations);
+      while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
       G33_CLEANUP();
     }
@@ -5860,6 +5876,10 @@ void home_all_axes() { gcode_G28(true); }
    * G42: Move X & Y axes to mesh coordinates (I & J)
    */
   inline void gcode_G42() {
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (axis_unhomed_error()) return;
+    #endif
+
     if (IsRunning()) {
       const bool hasI = parser.seenval('I');
       const int8_t ix = hasI ? parser.value_int() : 0;
@@ -6350,6 +6370,8 @@ inline void gcode_M17() {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
     #endif
+
+    set_destination_to_current();
 
     if (load_length != 0) {
       #if ENABLED(ULTIPANEL)
@@ -8562,7 +8584,7 @@ inline void gcode_M205() {
     #endif
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
-        if (parser.value_linear_units() * Z_HOME_DIR <= 0)         
+        if (parser.value_linear_units() * Z_HOME_DIR <= 0)
           endstop_adj[i] = parser.value_linear_units();
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -12449,7 +12471,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           break;
       }
     }
-    return false;
+    return prepare_move_to_destination_cartesian();
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -12491,7 +12513,7 @@ void prepare_move_to_destination() {
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx() || prepare_move_to_destination_cartesian()
+      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
@@ -13020,9 +13042,6 @@ void disable_all_steppers() {
       #endif
       #if ENABLED(E4_IS_TMC2130)
         automatic_current_control(stepperE4, "E4");
-      #endif
-      #if ENABLED(E4_IS_TMC2130)
-        automatic_current_control(stepperE4);
       #endif
     }
   }
@@ -13564,6 +13583,12 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
+  #if ENABLED(MKS_12864OLED)
+    SET_OUTPUT(LCD_PINS_DC);
+    OUT_WRITE(LCD_PINS_RS, LOW);
+    delay(1000);
+    WRITE(LCD_PINS_RS, HIGH);
+  #endif
 }
 
 /**
@@ -13593,6 +13618,15 @@ void loop() {
           // M29 closes the file
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+
+          #if ENABLED(SERIAL_STATS_DROPPED_RX)
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+          #endif
+
+          #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+          #endif
+
           ok_to_send();
         }
         else {
