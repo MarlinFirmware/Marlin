@@ -1,28 +1,23 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
-
-
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * For ARDUINO_ARCH_SAM
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -32,6 +27,7 @@
 // --------------------------------------------------------------------------
 
 #include "../HAL.h"
+#include <rom/rtc.h>
 
 // --------------------------------------------------------------------------
 // Externals
@@ -71,40 +67,18 @@ int HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
-// disable interrupts
-//void cli() { noInterrupts(); }
-// enable interrupts
-//void sei() { interrupts(); }
-
 void HAL_clear_reset_source(void) { }
 
 uint8_t HAL_get_reset_source (void) {
-  return 0;
-  // switch ((RSTC->RSTC_SR >> 8) & 7) {
-  //   case 0: return RST_POWER_ON; break;
-  //   case 1: return RST_BACKUP; break;
-  //   case 2: return RST_WATCHDOG; break;
-  //   case 3: return RST_SOFTWARE; break;
-  //   case 4: return RST_EXTERNAL; break;
-  //   default:
-  //     return 0;
-  // }
+  return rtc_get_reset_reason(1);
 }
 
 void _delay_ms(int delay_ms) {
-	//todo: port for Due?
-	delay (delay_ms);
-}
-
-extern "C" {
-  extern unsigned int _ebss; // end of bss section
+	delay(delay_ms);
 }
 
 // return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
-  // int free_memory, heap_end = (int)_sbrk(0);
-  // return (int)&free_memory - (heap_end ? heap_end : (int)&_ebss);
-  // return 0;
   return ESP.getFreeHeap();
 }
 
@@ -112,13 +86,14 @@ int freeMemory() {
 // ADC
 // --------------------------------------------------------------------------
 
-void HAL_adc_start_conversion (uint8_t adc_pin) {
-	HAL_adc_result = analogRead(adc_pin) >> 2; // TODO: ESP32 is 12bits, AVR is 10, works mostly but break the thermistor tables
+void HAL_adc_init() {
+  analogReadResolution(10); // ESP32 has 12bits ADC but current tables are designed for 10 bits.
 }
-//
-// uint16_t HAL_adc_get_result(void) {
-// 	// nop
-// 	return HAL_adc_result;
-// }
 
-#endif // ARDUINO_ARCH_SAM
+void HAL_adc_start_conversion (uint8_t adc_pin) {
+  int r = analogRead(adc_pin);
+  Serial.printf("adc_pint %d adc results %d\n", adc_pin, r);
+  HAL_adc_result = r >> 2;
+}
+
+#endif // ARDUINO_ARCH_ESP32

@@ -52,8 +52,8 @@
   #include "math_32bit.h"
   #include "HAL_STM32F7/HAL_STM32F7.h"
 #elif defined(ARDUINO_ARCH_ESP32)
-  #include "HAL_ESP/HAL_ESP.h"
   #include "math_32bit.h"
+  #include "HAL_ESP32/HAL_ESP32.h"
 #else
   #error "Unsupported Platform!"
 #endif

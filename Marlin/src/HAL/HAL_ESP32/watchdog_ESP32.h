@@ -20,25 +20,13 @@
  *
  */
 
-// #ifdef ARDUINO_ARCH_ESP826
+#ifndef WATCHDOG_ESP32_H
+#define WATCHDOG_ESP32_H
 
-// #if OPTION_ENABLED(USE_WATCHDOG)
+// Initialize watchdog with a 4 second interrupt time
+void watchdog_init();
 
-  #include "watchdog_ESP.h"
-  #include "../HAL.h"
+// Reset watchdog.
+inline void watchdog_reset() {};
 
-  void watchdogSetup(void) {
-    // do whatever. don't remove this function.
-    // Serial.write("disabled watchdog1");
-  }
-
-  void watchdog_init(void) {
-    // Serial.println("ESP WDT\n");
-    // watchdogEnable(4000);
-    // Serial.write("disabled watchdog");
-    // ESP.wdtDisable();
-  }
-
-// #endif // USE_WATCHDOG
-
-// #endif
+#endif /* WATCHDOG_ESP32_H */

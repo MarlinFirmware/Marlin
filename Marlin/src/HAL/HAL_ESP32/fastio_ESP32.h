@@ -20,29 +20,14 @@
  *
  */
 
-/**
-  This code contributed by Triffid_Hunter and modified by Kliment
-  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-*/
-
-/**
- * Description: Fast IO functions for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
- */
-
-#ifndef	_FASTIO_ESP_H
-#define	_FASTIO_ESP_H
+#ifndef	_FASTIO_ESP32_H
+#define	_FASTIO_ESP32_H
 
 /**
   utility functions
 */
 
-/**
-  magic I/O routines
-  now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
-*/
-
+// MCP23017 registers
 #define IODIRA    0x00
 #define IODIRB    0x01
 #define IPOLA     0x02
@@ -78,25 +63,25 @@ void set_i2c_pin(uint8_t pin, uint8_t val);
 //
 #define _SET_INPUT(IO)      (IO) & 0x80 ? set_i2c_pin_mode((IO)&0x7f, INPUT) : pinMode(IO, INPUT)
 
-/// set pin as output
+// set pin as output
 #define _SET_OUTPUT(IO)     (IO) & 0x80 ? set_i2c_pin_mode((IO)&0x7f, OUTPUT) : pinMode(IO, OUTPUT)
 
-/// set pin as input with pullup mode
+// set pin as input with pullup mode
 #define _PULLUP(IO, v)      (IO) & 0x80 ? set_i2c_pin_pullup((IO)&0x7f, v) : pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
-/// Read a pin wrapper
+// Read a pin wrapper
 #define READ(IO)            (IO) & 0x80 ? get_i2c_pin((IO)&0x7f) : digitalRead(IO)
 
-/// Write to a pin wrapper
+// Write to a pin wrapper
 #define WRITE(IO, v)        (IO) & 0x80 ? set_i2c_pin((IO)&0x7f, v) : digitalWrite(IO, v)
 
-/// set pin as input wrapper
+// set pin as input wrapper
 #define SET_INPUT(IO)  _SET_INPUT(IO)
 
-/// set pin as input with pullup wrapper
+// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
 
-/// set pin as output wrapper
+// set pin as output wrapper
 #define SET_OUTPUT(IO)  do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
 
 /**
@@ -118,4 +103,4 @@ pins
 */
 
 
-#endif	/* _FASTIO_ESP_H */
+#endif	/* _FASTIO_ESP32_H */

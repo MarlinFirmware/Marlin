@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +20,8 @@
  *
  */
 
-#ifndef _HAL_TIMERS_ESP_H
-#define _HAL_TIMERS_ESP_H
+#ifndef _HAL_TIMERS_ESP32_H
+#define _HAL_TIMERS_ESP32_H
 
 // --------------------------------------------------------------------------
 // Includes
@@ -92,4 +93,4 @@ void HAL_timer_enable_interrupt(uint8_t timer_num);
 void HAL_timer_disable_interrupt(uint8_t timer_num);
 void HAL_timer_isr_prologue(uint8_t timer_num);
 
-#endif // _HAL_TIMERS_DUE_H
+#endif // _HAL_TIMERS_ESP32_H

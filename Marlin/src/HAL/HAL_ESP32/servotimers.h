@@ -19,17 +19,3 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef WATCHDOG_ESP_H
-#define WATCHDOG_ESP_H
-
-// Initialize watchdog with a 4 second interrupt time
-void watchdog_init();
-
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or AVR will go into emergency procedures.
-inline void watchdog_reset() {
-  // ESP.wdtFeed();
-};
-
-#endif /* WATCHDOG_ESP_H */

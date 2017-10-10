@@ -41,7 +41,7 @@
     #include "HAL_STM32F7/SanityCheck_STM32F7.h"
 
   #elif defined(ARDUINO_ARCH_ESP32)
-    #include "HAL_ESP/SanityCheck_ESP32.h"
+    #include "HAL_ESP32/SanityCheck_ESP32.h"
 
 #else
   #error Unsupported Platform!

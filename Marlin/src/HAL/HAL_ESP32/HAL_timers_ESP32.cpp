@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,6 @@
  *
  */
 
-/**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
- */
-
 #ifdef ARDUINO_ARCH_ESP32
 
 // --------------------------------------------------------------------------
@@ -34,7 +28,7 @@
 
 #include "../HAL.h"
 
-#include "HAL_timers_ESP.h"
+#include "HAL_timers_ESP32.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -75,19 +69,16 @@ hw_timer_t *timers[NUM_HARDWARE_TIMERS];
 
 /**
  * Enable and initialize the timer
- * @param timer_num [description]
- * @param frequency [description]
+ * @param timer_num timer number to initialize
+ * @param frequency frequency of the timer
  */
 void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
-  if (timer_num == TEMP_TIMER_NUM) { return; }
-
   switch (timer_num) {
     case STEP_TIMER_NUM:
       timers[timer_num] = timerBegin(timer_num, STEP_TIMER_PRESCALE, true);
       timerAttachInterrupt(timers[timer_num], &stepTC_Handler, true);
       timerAlarmWrite(timers[timer_num], STEP_TIMER_RATE / frequency, false);
       timerAlarmEnable(timers[timer_num]);
-      // timerStart(timers[timer_num]);
       break;
     case TEMP_TIMER_NUM:
       timers[timer_num] = timerBegin(timer_num, TEMP_TIMER_PRESCALE, true);
@@ -101,63 +92,53 @@ void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
 /**
  * Set the upper value of the timer, when the timer reaches this upper value the
  * interrupt should be triggered and the counter reset
- * @param timer_num [description]
- * @param count     [description]
+ * @param timer_num timer number to set the count to
+ * @param count     threshold at which the interrupt is triggered
  */
 void HAL_timer_set_count(uint8_t timer_num, HAL_TIMER_TYPE count) {
-  if (timer_num == TEMP_TIMER_NUM) { return; }
-
-  // timerWrite(timers[timer_num], count);
   timerAlarmWrite(timers[timer_num], count, false);
 }
 
 /**
  * Get the current upper value of the timer
- * @param  timer_num [description]
- * @return           [description]
+ * @param  timer_num timer number to get the count from
+ * @return           the timer current threshold for the alarm to be triggered
  */
 HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num) {
-  if (timer_num == TEMP_TIMER_NUM) { return 0; }
-
   return timerAlarmRead(timers[timer_num]);
 }
 
 /**
  * Get the current counter value between 0 and the maximum count (HAL_timer_set_count)
- * @param  timer_num [description]
- * @return           [description]
+ * @param  timer_num timer number to get the current count
+ * @return           the current counter of the alarm
  */
 HAL_TIMER_TYPE HAL_timer_get_current_count(uint8_t timer_num) {
-  if (timer_num == TEMP_TIMER_NUM) { return 0; }
-
   return timerRead(timers[timer_num]);
 }
 
 /**
  * Enable timer interrupt on the timer
- * @param timer_num [description]
+ * @param timer_num timer number to enable interrupts on
  */
 void HAL_timer_enable_interrupt (uint8_t timer_num) {
-  if (timer_num == TEMP_TIMER_NUM) { return; }
-
   timerAlarmEnable(timers[timer_num]);
-  // Serial.printf("Enabling interrupt on %d\n", timer_num);
 }
 
 /**
  * Disable timer interrupt on the timer
- * @param timer_num [description]
+ * @param timer_num timer number to disable interrupts on
  */
 void HAL_timer_disable_interrupt (uint8_t timer_num) {
-  if (timer_num == TEMP_TIMER_NUM) { return; }
-
   timerAlarmDisable(timers[timer_num]);
-  // Serial.printf("Disabling interrupt on %d\n", timer_num);
 }
 
+/**
+ * Function executed before the ISR
+ * @param timer_num timer number which was triggered
+ */
 void HAL_timer_isr_prologue(uint8_t timer_num) {
   timerWrite(timers[timer_num], 0);
-  // Serial.printf("timer %d started %d\n", timer_num, timerStarted(timers[timer_num]));
 }
 
 #endif // ARDUINO_ARCH_ESP32

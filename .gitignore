@@ -169,4 +169,5 @@ CMakeListsPrivate.txt
 #CLion
 cmake-build-*
 
+#Symlink from ino to cpp
 Marlin/Marlin.cpp
