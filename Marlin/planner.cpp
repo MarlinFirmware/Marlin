@@ -211,10 +211,6 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
     block->final_rate = final_rate;
-    #if ENABLED(ADVANCE)
-      block->initial_advance = block->advance * sq(entry_factor);
-      block->final_advance = block->advance * sq(exit_factor);
-    #endif
   }
   CRITICAL_SECTION_END;
 }
@@ -1405,27 +1401,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         * axis_steps_per_mm[E_AXIS_N] * 256.0
       );
 
-  #elif ENABLED(ADVANCE)
-
-    // Calculate advance rate
-    if (esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])) {
-      const long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
-      const float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(current_speed[E_AXIS], EXTRUSION_AREA) * 256;
-      block->advance = advance;
-      block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
-    }
-    else
-      block->advance_rate = block->advance = 0;
-
-    /**
-     SERIAL_ECHO_START();
-     SERIAL_ECHOPGM("advance :");
-     SERIAL_ECHO(block->advance/256.0);
-     SERIAL_ECHOPGM("advance rate :");
-     SERIAL_ECHOLN(block->advance_rate/256.0);
-     */
-
-  #endif // ADVANCE or LIN_ADVANCE
+  #endif // LIN_ADVANCE
 
   calculate_trapezoid_for_block(block, block->entry_speed / block->nominal_speed, safe_speed / block->nominal_speed);
 
