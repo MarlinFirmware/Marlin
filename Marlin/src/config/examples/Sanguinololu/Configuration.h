@@ -1611,7 +1611,7 @@
 //#define PCA9632
 
 /**
- * RGB LED / LED Strip Control
+* RGB LED / LED Strip Control
  *
  * Enable support for an RGB LED connected to 5V digital pins, or
  * an RGB Strip connected to MOSFETs controlled by digital pins.
@@ -1619,29 +1619,38 @@
  * Adds the M150 command to set the LED (or LED strip) color.
  * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
  * luminance values can be set from 0 to 255.
+ * For Neopixel LED overall brightness parameters is also available
  *
  * *** CAUTION ***
  *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
+ *  Neopixel LED is 5V powered, but linear 5V regulator on Arduino
+ *  cannot handle the current, separate 5V power supply must be used
  * *** CAUTION ***
  *
+ * LED type. This options are mutualy exclusive. Uncomment only one.
+ *
  */
-#define RGB_LED
+
+//#define RGB_LED
 //#define RGBW_LED
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-  #define RGB_LED_R_PIN 11
-  #define RGB_LED_G_PIN 10
-  #define RGB_LED_B_PIN 17
+  #define RGB_LED_R_PIN 34
+  #define RGB_LED_G_PIN 43
+  #define RGB_LED_B_PIN 35
   #define RGB_LED_W_PIN -1
 #endif
 
 // Support for Adafruit Neopixel LED driver
-//#define NEOPIXEL_RGBW_LED
-#if ENABLED(NEOPIXEL_RGBW_LED)
-  #define NEOPIXEL_PIN    4       // D4 (EXP2-5 on Printrboard)
-  #define NEOPIXEL_PIXELS 3
-  //#define NEOPIXEL_STARTUP_TEST // Cycle through colors at startup
+//#define NEOPIXEL_LED
+#if ENABLED(NEOPIXEL_LED)
+  #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+  #define NEOPIXEL_PIXELS 10       // Number of LEDs on strip
+  #define NEOPIXEL_TYPE NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Comment out for all LEDs to change at once.
+  #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness 0-255
+//  #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
 #endif
 
 /**
@@ -1655,7 +1664,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 

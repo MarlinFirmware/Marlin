@@ -132,11 +132,7 @@ void GcodeSuite::M190() {
         const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
         if (red != old_red) {
           old_red = red;
-          set_led_color(red, 0, 255
-            #if ENABLED(NEOPIXEL_RGBW_LED)
-              , 0, true
-            #endif
-          );
+          set_led_color(red, 0, 255);
         }
       }
     #endif

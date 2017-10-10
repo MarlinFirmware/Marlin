@@ -31,18 +31,15 @@
 #include "leds.h"
 
 void set_led_color(
-  const uint8_t r, const uint8_t g, const uint8_t b
-  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-    , const uint8_t w
-    #if ENABLED(NEOPIXEL_RGBW_LED)
-      , bool isSequence
-    #endif
-  #endif
+  const uint8_t r, const uint8_t g, const uint8_t b , const uint8_t w , const uint8_t p
 ) {
 
-  #if ENABLED(NEOPIXEL_RGBW_LED)
-    if (neopixel_set_led_color(r, g, b, w, isSequence))
-      return;
+  #if ENABLED(NEOPIXEL_LED)
+    if ((w==255) || ((r==255) && (g==255) && (b==255)))
+      neopixel_set_led_color(LED_WHITE, p);
+    else
+      neopixel_set_led_color(r, g, b, w, p);
+    return;
   #endif
 
   #if ENABLED(BLINKM)
