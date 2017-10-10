@@ -227,13 +227,8 @@
   #define MICROSTEP16 HIGH,HIGH
 
   /**
-   * Advance calculated values
+   * Override here because this is set in Configuration_adv.h
    */
-  #if ENABLED(ADVANCE)
-    #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS_N] / (EXTRUSION_AREA))
-  #endif
-
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
     #undef SD_DETECT_INVERTED
   #endif

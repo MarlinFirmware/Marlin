@@ -208,6 +208,10 @@
   #error "CONTROLLERFAN_PIN is now CONTROLLER_FAN_PIN, enabled with USE_CONTROLLER_FAN. Please update your Configuration_adv.h."
 #elif defined(MIN_RETRACT)
   #error "MIN_RETRACT is now MIN_AUTORETRACT and MAX_AUTORETRACT. Please update your Configuration_adv.h."
+#elif defined(ADVANCE)
+  #error "ADVANCE was removed in Marlin 1.1.6. Please use LIN_ADVANCE."
+#elif defined(NEOPIXEL_RGBW_LED)
+  #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
 #endif
 
 /**
@@ -301,7 +305,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
-  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) &&  ENABLED(MESH_BED_LEVELING)
+  #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && ENABLED(MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
@@ -647,12 +651,8 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if HAS_ABL
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
-    #else
-      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
-    #endif
+  #if HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
 #endif
@@ -814,13 +814,6 @@ static_assert(1 >= 0
     #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif // DISABLE_[XYZ]
-
-/**
- * Advance Extrusion
- */
-#if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
-  #error "You can enable ADVANCE or LIN_ADVANCE, but not both."
-#endif
 
 /**
  * Filament Width Sensor
@@ -1108,12 +1101,12 @@ static_assert(1 >= 0
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #endif
-#elif ENABLED(NEOPIXEL_RGBW_LED)
+#elif ENABLED(NEOPIXEL_LED)
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
-    #error "NEOPIXEL_RGBW_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
+    #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
-#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_RGBW_LED)
-  #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_RGBW_LED."
+#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_LED)
+  #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_LED."
 #endif
 
 /**
@@ -1138,6 +1131,7 @@ static_assert(1 >= 0
  * Note: BQ_LCD_SMART_CONTROLLER => REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  *       REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER => REPRAP_DISCOUNT_SMART_CONTROLLER
  *       SAV_3DGLCD => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
+ *       MKS_12864OLED => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
@@ -1145,17 +1139,32 @@ static_assert(1 >= 0
  */
 static_assert(1 >= 0
   #if ENABLED(ULTIMAKERCONTROLLER) \
-      && DISABLED(SAV_3DGLCD) && DISABLED(miniVIKI) && DISABLED(VIKI2) \
-      && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && DISABLED(PANEL_ONE)
+      && DISABLED(SAV_3DGLCD) \
+      && DISABLED(miniVIKI) \
+      && DISABLED(VIKI2) \
+      && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+      && DISABLED(PANEL_ONE) \
+      && DISABLED(MKS_12864OLED)
     + 1
   #endif
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(LCD_FOR_MELZI)
+  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
+      && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
+      && DISABLED(LCD_FOR_MELZI) \
+      && DISABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
+      && DISABLED(MKS_12864OLED)
     + 1
   #endif
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
+      && DISABLED(BQ_LCD_SMART_CONTROLLER)
     + 1
   #endif
   #if ENABLED(LCD_FOR_MELZI)
+    + 1
+  #endif
+  #if ENABLED(MKS_12864OLED)
+    + 1
+  #endif
+  #if ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
     + 1
   #endif
   #if ENABLED(CARTESIO_UI)
@@ -1182,10 +1191,15 @@ static_assert(1 >= 0
   #if ENABLED(G3D_PANEL)
     + 1
   #endif
-  #if ENABLED(MINIPANEL)
+  #if ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)
     + 1
   #endif
-  #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI) && DISABLED(ANET_KEYPAD_LCD)
+  #if ENABLED(MKS_MINI_12864)
+    + 1
+  #endif
+  #if ENABLED(REPRAPWORLD_KEYPAD) \
+      && DISABLED(CARTESIO_UI) \
+      && DISABLED(ANET_KEYPAD_LCD)
     + 1
   #endif
   #if ENABLED(RIGIDBOT_PANEL)

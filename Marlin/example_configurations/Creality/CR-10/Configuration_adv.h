@@ -614,20 +614,6 @@
 
 // @section extruder
 
-// extruder advance constant (s2/mm3)
-//
-// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K * cubic mm per second ^ 2
-//
-// Hooke's law says:    force = k * distance
-// Bernoulli's principle says:  v ^ 2 / 2 + g . h + pressure / density = constant
-// so: v ^ 2 is proportional to number of steps we advance the extruder
-//#define ADVANCE
-
-#if ENABLED(ADVANCE)
-  #define EXTRUDER_ADVANCE_K .0
-  #define D_FILAMENT 2.85
-#endif
-
 /**
  * Implementation of linear pressure control
  *
@@ -744,7 +730,7 @@
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-// Transfer Buffer Size
+// Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
 // To buffer a simple "ok" you need 4 bytes.
 // For ADVANCED_OK (M105) you need 32 bytes.
@@ -752,6 +738,28 @@
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
+
+// Host Receive Buffer Size
+// Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
+// To use flow control, set this buffer size to at least 1024 bytes.
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+//#define RX_BUFFER_SIZE 1024
+
+#if RX_BUFFER_SIZE >= 1024
+  // Enable to have the controller send XON/XOFF control characters to
+  // the host to signal the RX buffer is becoming full.
+  //#define SERIAL_XON_XOFF
+#endif
+
+#if ENABLED(SDSUPPORT)
+  // Enable this option to collect and display the maximum
+  // RX queue usage after transferring a file to SD.
+  //#define SERIAL_STATS_MAX_RX_QUEUED
+
+  // Enable this option to collect and display the number
+  // of dropped bytes after a file transfer to SD.
+  //#define SERIAL_STATS_DROPPED_RX
+#endif
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
