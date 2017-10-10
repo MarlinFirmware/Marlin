@@ -140,14 +140,11 @@
 //#define SINGLENOZZLE
 
 /**
- * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
+ * Průša MK2 Multi-Material Multiplexer, and variants.
  *
  * This device allows one stepper driver on a control board to drive
  * two to eight stepper motors, one at a time, in a manner suitable
  * for extruders.
- *
- * This option only allows the multiplexer to switch on tool-change.
- * Additional options to configure custom E moves are pending.
  */
 //#define MK2_MULTIPLEXER
 #if ENABLED(MK2_MULTIPLEXER)

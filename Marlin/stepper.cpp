@@ -213,6 +213,27 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 #endif
 
+#if ENABLED(MK2_MULTIPLEXER)
+
+  FORCE_INLINE void select_multiplexed_stepper(const uint8_t e) {
+    static int8_t prev_stepper = -1;
+
+    if (e != prev_stepper) {
+      WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+      #if PIN_EXISTS(E_MUX1)
+        WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+      #endif
+      #if PIN_EXISTS(E_MUX2)
+        WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
+      #endif
+      safe_delay(100);
+
+      prev_stepper = e;
+    }
+  }
+
+#endif // MK2_MULTIPLEXER
+
 // intRes = longIn1 * longIn2 >> 24
 // uses:
 // r26 to store 0
@@ -459,6 +480,10 @@ void Stepper::isr() {
       // #if ENABLED(ADVANCE)
       //   e_steps[TOOL_E_INDEX] = 0;
       // #endif
+
+      #if ENABLED(MK2_MULTIPLEXER)
+        select_multiplexed_stepper(current_block->active_extruder);
+      #endif
     }
     else {
       _NEXT_ISR(2000); // Run at slow speed - 1 KHz

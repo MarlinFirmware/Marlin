@@ -353,11 +353,6 @@
 
   #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
-  // MK2 Multiplexer forces SINGLENOZZLE to be enabled
-  #if ENABLED(MK2_MULTIPLEXER)
-    #define SINGLENOZZLE
-  #endif
-
   /**
    * Extruders have some combination of stepper motors and hotends
    * so we separate these concepts into the defines:
