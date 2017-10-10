@@ -21,18 +21,14 @@
  */
 
 /**
- * Neopixel support
+ * feature/runout.h - Runout sensor support
  */
 
-#ifndef __NEOPIXEL_H__
-#define __NEOPIXEL_H__
+#ifndef _RUNOUT_H_
+#define _RUNOUT_H_
 
-#include <Adafruit_NeoPixel.h>
-#include <stdint.h>
+extern bool filament_ran_out;
 
-void setup_neopixel();
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+void handle_filament_runout();
 
-extern Adafruit_NeoPixel pixels;
-
-#endif // __NEOPIXEL_H__
+#endif // _RUNOUT_H_

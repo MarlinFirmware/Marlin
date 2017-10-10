@@ -208,6 +208,10 @@
   #error "CONTROLLERFAN_PIN is now CONTROLLER_FAN_PIN, enabled with USE_CONTROLLER_FAN. Please update your Configuration_adv.h."
 #elif defined(MIN_RETRACT)
   #error "MIN_RETRACT is now MIN_AUTORETRACT and MAX_AUTORETRACT. Please update your Configuration_adv.h."
+#elif defined(ADVANCE)
+  #error "ADVANCE was removed in Marlin 1.1.6. Please use LIN_ADVANCE."
+#elif defined(NEOPIXEL_RGBW_LED)
+  #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
 #endif
 
 /**
@@ -647,9 +651,7 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
-  #elif HAS_ABL
+  #if HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
     #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
@@ -812,13 +814,6 @@ static_assert(1 >= 0
     #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif // DISABLE_[XYZ]
-
-/**
- * Advance Extrusion
- */
-#if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
-  #error "You can enable ADVANCE or LIN_ADVANCE, but not both."
-#endif
 
 /**
  * Filament Width Sensor
@@ -1107,12 +1102,12 @@ static_assert(1 >= 0
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #endif
-#elif ENABLED(NEOPIXEL_RGBW_LED)
+#elif ENABLED(NEOPIXEL_LED)
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
-    #error "NEOPIXEL_RGBW_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
+    #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
-#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_RGBW_LED)
-  #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_RGBW_LED."
+#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_LED)
+  #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_LED."
 #endif
 
 /**

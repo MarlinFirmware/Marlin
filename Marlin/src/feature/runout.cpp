@@ -21,18 +21,24 @@
  */
 
 /**
- * Neopixel support
+ * feature/runout.cpp - Runout sensor support
  */
 
-#ifndef __NEOPIXEL_H__
-#define __NEOPIXEL_H__
+#include "../inc/MarlinConfig.h"
 
-#include <Adafruit_NeoPixel.h>
-#include <stdint.h>
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-void setup_neopixel();
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+#include "../module/stepper.h"
+#include "../gcode/queue.h"
 
-extern Adafruit_NeoPixel pixels;
+bool filament_ran_out = false;
 
-#endif // __NEOPIXEL_H__
+void handle_filament_runout() {
+  if (!filament_ran_out) {
+    filament_ran_out = true;
+    enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+    stepper.synchronize();
+  }
+}
+
+#endif // FILAMENT_RUNOUT_SENSOR

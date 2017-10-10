@@ -37,6 +37,10 @@
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../feature/runout.h"
+#endif
+
 #if ENABLED(ULTIPANEL)
   #include "../lcd/ultralcd.h"
 #endif
