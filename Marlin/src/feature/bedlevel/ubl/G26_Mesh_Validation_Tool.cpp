@@ -135,17 +135,6 @@
   extern char lcd_status_message[];
 #endif
 
-// Remove this if all is well with Teensy compile:
-#if 0
-#if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
-  inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
-  inline void set_current_to_destination() { COPY(current_position, destination); }
-#else
-  extern void sync_plan_position_e();
-  extern void set_current_to_destination();
-#endif
-#endif
-
 #if ENABLED(NEWPANEL)
   void lcd_setstatusPGM(const char* const message, const int8_t level);
   void chirp_at_user();
