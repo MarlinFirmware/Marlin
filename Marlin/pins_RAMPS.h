@@ -116,6 +116,35 @@
 #define E1_CS_PIN          44
 
 //
+// TMC2208 stepper drivers
+//
+#define X_SERIAL_TX_PIN    59
+#define X_SERIAL_RX_PIN    63
+#define X2_SERIAL_TX_PIN   -1
+#define X2_SERIAL_RX_PIN   -1
+
+#define Y_SERIAL_TX_PIN    64
+#define Y_SERIAL_RX_PIN    40
+#define Y2_SERIAL_TX_PIN   -1
+#define Y2_SERIAL_RX_PIN   -1
+
+#define Z_SERIAL_TX_PIN    44
+#define Z_SERIAL_RX_PIN    42
+#define Z2_SERIAL_TX_PIN   -1
+#define Z2_SERIAL_RX_PIN   -1
+
+#define E0_SERIAL_TX_PIN   66
+#define E0_SERIAL_RX_PIN   65
+#define E1_SERIAL_TX_PIN   -1
+#define E1_SERIAL_RX_PIN   -1
+#define E2_SERIAL_TX_PIN   -1
+#define E2_SERIAL_RX_PIN   -1
+#define E3_SERIAL_TX_PIN   -1
+#define E3_SERIAL_RX_PIN   -1
+#define E4_SERIAL_TX_PIN   -1
+#define E4_SERIAL_RX_PIN   -1
+
+//
 // Temperature Sensors
 //
 #define TEMP_0_PIN         13   // Analog Input

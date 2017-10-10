@@ -244,6 +244,108 @@
   }
 #endif // HAVE_TMC2130
 
+//
+// TMC2208 Driver objects and inits
+//
+#if ENABLED(HAVE_TMC2208)
+
+  #include <SoftwareSerial.h>
+  #include <TMC2208Stepper.h>
+
+  #define _TMC2208_DEFINE(ST) SoftwareSerial stepper##ST##_serial = SoftwareSerial(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN); \
+                                 TMC2208Stepper stepper##ST(&stepper##ST##_serial, ST##_SERIAL_RX_PIN > -1)
+
+  // Stepper objects of TMC2208 steppers used
+  #if ENABLED(X_IS_TMC2208)
+    _TMC2208_DEFINE(X);
+  #endif
+  #if ENABLED(X2_IS_TMC2208)
+    _TMC2208_DEFINE(X2);
+  #endif
+  #if ENABLED(Y_IS_TMC2208)
+    _TMC2208_DEFINE(Y);
+  #endif
+  #if ENABLED(Y2_IS_TMC2208)
+    _TMC2208_DEFINE(Y2);
+  #endif
+  #if ENABLED(Z_IS_TMC2208)
+    _TMC2208_DEFINE(Z);
+  #endif
+  #if ENABLED(Z2_IS_TMC2208)
+    _TMC2208_DEFINE(Z2);
+  #endif
+  #if ENABLED(E0_IS_TMC2208)
+    _TMC2208_DEFINE(E0);
+  #endif
+  #if ENABLED(E1_IS_TMC2208)
+    _TMC2208_DEFINE(E1);
+  #endif
+  #if ENABLED(E2_IS_TMC2208)
+    _TMC2208_DEFINE(E2);
+  #endif
+  #if ENABLED(E3_IS_TMC2208)
+    _TMC2208_DEFINE(E3);
+  #endif
+  #if ENABLED(E4_IS_TMC2208)
+    _TMC2208_DEFINE(E4);
+  #endif
+
+  // Use internal reference voltage for current calculations. This is the default.
+  // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+  void tmc2208_init(TMC2208Stepper &st, const uint16_t microsteps) {
+    st.pdn_disable(true); // Use UART
+    st.mstep_reg_select(true); // Select microsteps with UART
+    st.I_scale_analog(false);
+    st.rms_current(st.getCurrent(), HOLD_MULTIPLIER, R_SENSE);
+    st.microsteps(microsteps);
+    st.tbl(0b10); // Blank time = 24
+    st.toff(0b10); // Off time = 2
+    st.intpol(INTERPOLATE);
+    #if DISABLED(STEALTHCHOP)
+      st.en_spreadCycle(true);
+    #endif
+  }
+
+  #define _TMC2208_INIT(ST) stepper##ST##_serial.begin(250000); tmc2208_init(stepper##ST, ST##_MICROSTEPS)
+
+  void tmc2208_init() {
+    #if ENABLED(X_IS_TMC2208)
+      _TMC2208_INIT(X);
+    #endif
+    #if ENABLED(X2_IS_TMC2208)
+      _TMC2208_INIT(X2);
+    #endif
+    #if ENABLED(Y_IS_TMC2208)
+      _TMC2208_INIT(Y);
+    #endif
+    #if ENABLED(Y2_IS_TMC2208)
+      _TMC2208_INIT(Y2);
+    #endif
+    #if ENABLED(Z_IS_TMC2208)
+      _TMC2208_INIT(Z);
+    #endif
+    #if ENABLED(Z2_IS_TMC2208)
+      _TMC2208_INIT(Z2);
+    #endif
+    #if ENABLED(E0_IS_TMC2208)
+      _TMC2208_INIT(E0);
+    #endif
+    #if ENABLED(E1_IS_TMC2208)
+      { constexpr int extruder = 1; _TMC2208_INIT(E1, steps_per_mm[E_AXIS_N]); }
+    #endif
+    #if ENABLED(E2_IS_TMC2208)
+      { constexpr int extruder = 2; _TMC2208_INIT(E2, steps_per_mm[E_AXIS_N]); }
+    #endif
+    #if ENABLED(E3_IS_TMC2208)
+      { constexpr int extruder = 3; _TMC2208_INIT(E3, steps_per_mm[E_AXIS_N]); }
+    #endif
+    #if ENABLED(E4_IS_TMC2208)
+      { constexpr int extruder = 4; _TMC2208_INIT(E4, steps_per_mm[E_AXIS_N]); }
+    #endif
+
+    TMC2208_ADV()
+  }
+#endif // HAVE_TMC2208
 
 //
 // L6470 Driver objects and inits
