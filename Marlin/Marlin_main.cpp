@@ -7258,6 +7258,14 @@ inline void gcode_M42() {
 
 #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
 
+/**M73: Set LCD Progress Bar Percentage */ 
+#if ENABLED(LCD_PROGRESS_BAR) 
+  inline void gcode_M73() { 
+  #include "ultralcd_impl_HD44780.h" 
+    ultralcd_impl_HD44780::lcd_draw_progress_bar(parser.seen('P') ? (parser.has_value() ? parser.intval('P') : 0) : 0); 
+  }
+#endif
+
 /**
  * M75: Start print timer
  */
@@ -11106,6 +11114,13 @@ void process_next_command() {
           gcode_M49();
           break;
       #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+
+      #if ENABLED(LCD_PROGRESS_BAR)
+        #include "ultralcd_impl_HD44780.h"
+        case 73: // M73: Set Progress Bar Percentage 
+          gcode_M73(); 
+          break; 
+      #endif
 
       case 75: // M75: Start print timer
         gcode_M75(); break;
