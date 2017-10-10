@@ -142,7 +142,7 @@
  * M140 - Set bed target temp. S<temp>
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
- * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
+ * M150 - Set Status LED Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, or PCA9632)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -283,7 +283,7 @@
   #include "Max7219_Debug_LEDs.h"
 #endif
 
-#if ENABLED(NEOPIXEL_LED)
+#if ENABLED(NEOPIXEL_RGBW_LED)
   #include <Adafruit_NeoPixel.h>
 #endif
 
@@ -347,20 +347,6 @@
                            && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
                            && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
                            || isnan(ubl.z_values[0][0]))
-#endif
-
-#if ENABLED(NEOPIXEL_LED) 
-  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
-    #define NEO_WHITE 255, 255, 255
-  #else
-    #define NEO_WHITE 0, 0, 0, 255
-  #endif
-#endif
-
-#if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
-  #define LED_WHITE 255, 255, 255
-#elif ENABLED(RGBW_LED)
-  #define LED_WHITE 0, 0, 0, 255
 #endif
 
 bool Running = true;
@@ -992,9 +978,9 @@ void servo_init() {
 
 #if HAS_COLOR_LEDS
 
-  #if ENABLED(NEOPIXEL_LED)
+  #if ENABLED(NEOPIXEL_RGBW_LED)
 
-    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
+    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
 
     void set_neopixel_color(const uint32_t color) {
       for (uint16_t i = 0; i < pixels.numPixels(); ++i)
@@ -1003,7 +989,7 @@ void servo_init() {
     }
 
     void setup_neopixel() {
-      pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
+      pixels.setBrightness(255); // 0 - 255 range
       pixels.begin();
       pixels.show(); // initialize to all off
 
@@ -1016,28 +1002,26 @@ void servo_init() {
         set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
         delay(2000);
       #endif
-      set_neopixel_color(pixels.Color(NEO_WHITE));       // white
+      set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
     }
 
-  #endif // NEOPIXEL_LED
+  #endif // NEOPIXEL_RGBW_LED
 
   void set_led_color(
     const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , const uint8_t w = 0
-        #if ENABLED(NEOPIXEL_LED)
-          , const uint8_t p = NEOPIXEL_BRIGHTNESS
+        #if ENABLED(NEOPIXEL_RGBW_LED)
           , bool isSequence = false
         #endif
       #endif
   ) {
 
-    #if ENABLED(NEOPIXEL_LED)
+    #if ENABLED(NEOPIXEL_RGBW_LED)
 
       const uint32_t color = pixels.Color(r, g, b, w);
       static uint16_t nextLed = 0;
 
-      pixels.setBrightness(p);
       if (!isSequence)
         set_neopixel_color(color);
       else {
@@ -4427,7 +4411,9 @@ void home_all_axes() { gcode_G28(true); }
    *  B  Set the Back limit of the probing grid
    *  L  Set the Left limit of the probing grid
    *  R  Set the Right limit of the probing grid
-   *
+   *  
+   *  D  Set a square (DxD mm^2) probing grid centered on the probing area
+   *  
    * Parameters with DEBUG_LEVELING_FEATURE only:
    *
    *  C  Make a totally fake grid with no actual probing.
@@ -4672,11 +4658,21 @@ void home_all_axes() { gcode_G28(true); }
 
         xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
-        left_probe_bed_position = (int)parser.linearval('L', LOGICAL_X_POSITION(LEFT_PROBE_BED_POSITION));
-        right_probe_bed_position = (int)parser.linearval('R', LOGICAL_X_POSITION(RIGHT_PROBE_BED_POSITION));
-        front_probe_bed_position = (int)parser.linearval('F', LOGICAL_Y_POSITION(FRONT_PROBE_BED_POSITION));
-        back_probe_bed_position = (int)parser.linearval('B', LOGICAL_Y_POSITION(BACK_PROBE_BED_POSITION));
-
+        if (parser.seen('D')){
+          int dimens = (int)parser.linearval('D');
+          left_probe_bed_position = (MAX_PROBE_X+MIN_PROBE_X-dimens)/2;
+          right_probe_bed_position = (MAX_PROBE_X+MIN_PROBE_X+dimens)/2;
+          front_probe_bed_position = (MAX_PROBE_Y+MIN_PROBE_Y-dimens)/2;
+          back_probe_bed_position = (MAX_PROBE_Y+MIN_PROBE_Y+dimens)/2;
+        } 
+        else
+        {
+          left_probe_bed_position = (int)parser.linearval('L', LOGICAL_X_POSITION(LEFT_PROBE_BED_POSITION));
+          right_probe_bed_position = (int)parser.linearval('R', LOGICAL_X_POSITION(RIGHT_PROBE_BED_POSITION));
+          front_probe_bed_position = (int)parser.linearval('F', LOGICAL_Y_POSITION(FRONT_PROBE_BED_POSITION));
+          back_probe_bed_position = (int)parser.linearval('B', LOGICAL_Y_POSITION(BACK_PROBE_BED_POSITION));
+        }
+          
         const bool left_out_l = left_probe_bed_position < LOGICAL_X_POSITION(MIN_PROBE_X),
                    left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
                    right_out_r = right_probe_bed_position > LOGICAL_X_POSITION(MAX_PROBE_X),
@@ -7606,13 +7602,9 @@ inline void gcode_M109() {
         if (blue != old_blue) {
           old_blue = blue;
           set_led_color(255, 0, blue
-          #if ENABLED(NEOPIXEL_LED)
-            , 0
-            , pixels.getBrightness()
-            #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-              , true
+            #if ENABLED(NEOPIXEL_RGBW_LED)
+              , 0, true
             #endif
-          #endif
           );
         }
       }
@@ -7649,11 +7641,10 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632) || ENABLED(RGBW_LED)
-        set_led_color(LED_WHITE);
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        set_neopixel_color(pixels.Color(NEO_WHITE));
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
+        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
+      #else
+        set_led_color(255, 255, 255); // Set LEDs All On
       #endif
     #endif
   }
@@ -7751,11 +7742,8 @@ inline void gcode_M109() {
           if (red != old_red) {
             old_red = red;
             set_led_color(red, 0, 255
-              #if ENABLED(NEOPIXEL_LED)
-                , 0, pixels.getBrightness()
-                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                  , true
-                #endif
+              #if ENABLED(NEOPIXEL_RGBW_LED)
+                , 0, true
               #endif
             );
           }
@@ -8402,10 +8390,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
-   *       and Brightness       - Use P (for NEOPIXEL only)
    *
    * Always sets all 3 or 4 components. If a component is left out, set to 0.
-   *                                    If brightness is left out, no value changed
    *
    * Examples:
    *
@@ -8414,19 +8400,15 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
    *   M150 W          ; Turn LED white using a white LED
-   *   M150 P127       ; Set LED 50% brightness
-   *   M150 P          ; Set LED full brightness
+   *
    */
   inline void gcode_M150() {
     set_led_color(
       parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
         , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-        #if ENABLED(NEOPIXEL_LED)
-          , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
-        #endif
       #endif
     );
   }
@@ -13522,7 +13504,7 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(NEOPIXEL_LED)
+  #if ENABLED(NEOPIXEL_RGBW_LED)
     SET_OUTPUT(NEOPIXEL_PIN);
     setup_neopixel();
   #endif
@@ -13612,12 +13594,6 @@ void setup() {
       pe_deactivate_magnet(0);
       pe_deactivate_magnet(1);
     #endif
-  #endif
-  #if ENABLED(MKS_12864OLED)
-    SET_OUTPUT(LCD_PINS_DC);
-    OUT_WRITE(LCD_PINS_RS, LOW);
-    delay(1000);
-    WRITE(LCD_PINS_RS, HIGH);
   #endif
 }
 
