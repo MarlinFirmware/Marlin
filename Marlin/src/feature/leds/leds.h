@@ -27,7 +27,7 @@
 #ifndef __LEDS_H__
 #define __LEDS_H__
 
-#if ENABLED(NEOPIXEL_RGBW_LED)
+#if ENABLED(NEOPIXEL_LED)
   #include <Adafruit_NeoPixel.h>
   #include "neopixel.h"
 #endif
@@ -40,14 +40,28 @@
   #include "pca9632.h"
 #endif
 
-void set_led_color(
-  const uint8_t r, const uint8_t g, const uint8_t b
-  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-    , const uint8_t w = 0
-    #if ENABLED(NEOPIXEL_RGBW_LED)
-      , bool isSequence = false
-    #endif
+#if ENABLED(NEOPIXEL_LED) 
+  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
+    #define NEO_WHITE 255, 255, 255
+  #else
+    #define NEO_WHITE 0, 0, 0, 255
   #endif
+#endif
+
+#if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
+  #define LED_WHITE 255, 255, 255
+#elif ENABLED(RGBW_LED)
+  #define LED_WHITE 0, 0, 0, 255
+#endif
+
+#if ENABLED(NEOPIXEL_LED)
+  #define LED_BRIGHTNESS pixels.getBrightness()
+#else
+  #define LED_BRIGHTNESS 255
+#endif
+
+void set_led_color(
+  const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w = 0, const uint8_t p = 255
 );
 
 #endif // __LEDS_H__

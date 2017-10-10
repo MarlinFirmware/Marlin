@@ -31,7 +31,7 @@
 #include <stdint.h>
 
 void setup_neopixel();
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const bool isSequence);
+bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 
 extern Adafruit_NeoPixel pixels;
 
