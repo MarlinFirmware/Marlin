@@ -3188,7 +3188,7 @@ static void homeaxis(const AxisEnum axis) {
     flow_percentage[active_extruder] = 100;
     // The current position will be the destination for E and Z moves
     set_destination_to_current();
-    
+
     if (retracting) {
       // Remember the Z height since G-code may include its own Z-hop
       // For best results turn off Z hop if G-code already includes it
