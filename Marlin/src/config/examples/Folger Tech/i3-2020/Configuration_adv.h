@@ -436,6 +436,20 @@
 
 // Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
+
+#if (defined(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A))  //default to settings in pins_XXXX.h files
+  #define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for first DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_B 0x2D  // unshifted slave address for second DIGIPOT
+#endif
+/**
+ *  common slave addresses
+ *
+ *  board              A   (A shifted)   B   (B shifted)  IC
+ *  Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
+ *  AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
+ *  MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
+ */
+
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
 // Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS

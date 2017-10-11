@@ -140,3 +140,6 @@
 // Misc. Functions
 //
 #define SDSS               20   // B0
+
+//DIGIPOTS slave addresses
+#define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)
