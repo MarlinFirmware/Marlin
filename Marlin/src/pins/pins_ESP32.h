@@ -19,9 +19,10 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          19
-#define Y_MIN_PIN          18
-#define Z_MIN_PIN          5
+#define ENDSTOP_INTERRUPTS_PIN 19
+#define X_MIN_PIN          143
+#define Y_MIN_PIN          142
+#define Z_MIN_PIN          141
 
 //
 // Z Probe (when not Z_MIN_PIN)

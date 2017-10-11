@@ -43,33 +43,7 @@
  */
 
 void setup_endstop_interrupts(void) {
-  #if HAS_X_MAX
-    attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE); // assign it
-  #endif
-  #if HAS_X_MIN
-    attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Y_MAX
-    attachInterrupt(digitalPinToInterrupt(Y_MAX_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Y_MIN
-    attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Z_MAX
-    attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Z_MIN
-     attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Z2_MAX
-    attachInterrupt(digitalPinToInterrupt(Z2_MAX_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Z2_MIN
-    attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
-  #endif
-  #if HAS_Z_MIN_PROBE_PIN
-    attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
-  #endif
+  attachInterrupt(ENDSTOP_INTERRUPTS_PIN, endstop_ISR, CHANGE);
 }
 
 #endif //_ENDSTOP_INTERRUPTS_H_
