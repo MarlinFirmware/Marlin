@@ -31,8 +31,6 @@
 
 // Settings for the I2C based DIGIPOT (MCP4018) based on WT150
 
-#define DIGIPOT_I2C_ADDRESS             0x2F
-
 #define DIGIPOT_A4988_Rsx               0.250
 #define DIGIPOT_A4988_Vrefmax           1.666
 #define DIGIPOT_A4988_MAX_VALUE         127
@@ -81,7 +79,7 @@ static SlowSoftI2CMaster pots[DIGIPOT_I2C_NUM_CHANNELS] = {
 
 static void i2c_send(const uint8_t channel, const byte v) {
   if (WITHIN(channel, 0, DIGIPOT_I2C_NUM_CHANNELS - 1)) {
-    pots[channel].i2c_start(((DIGIPOT_I2C_ADDRESS) << 1) | I2C_WRITE);
+    pots[channel].i2c_start(((DIGIPOT_I2C_ADDRESS_A) << 1) | I2C_WRITE);
     pots[channel].i2c_write(v);
     pots[channel].i2c_stop();
   }
