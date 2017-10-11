@@ -63,7 +63,7 @@
 #endif
 
 #if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-  #include "../config/_Bootscreen.h"
+  #include "../../_Bootscreen.h"
 #endif
 
 // Only Western languages support big / small fonts
