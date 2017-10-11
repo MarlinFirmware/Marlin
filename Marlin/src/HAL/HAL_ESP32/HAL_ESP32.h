@@ -42,7 +42,7 @@
 // --------------------------------------------------------------------------
 
 /** result of last ADC conversion */
-extern int HAL_adc_result;
+extern uint16_t HAL_adc_result;
 
 // --------------------------------------------------------------------------
 // Public functions

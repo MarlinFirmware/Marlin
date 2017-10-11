@@ -49,7 +49,7 @@
 // Public Variables
 // --------------------------------------------------------------------------
 
-int HAL_adc_result;
+uint16_t HAL_adc_result;
 
 // --------------------------------------------------------------------------
 // Private Variables
@@ -74,7 +74,7 @@ uint8_t HAL_get_reset_source (void) {
 }
 
 void _delay_ms(int delay_ms) {
-	delay(delay_ms);
+  delay(delay_ms);
 }
 
 // return free memory between end of heap (or end bss) and whatever is current
@@ -87,13 +87,11 @@ int freeMemory() {
 // --------------------------------------------------------------------------
 
 void HAL_adc_init() {
-  analogReadResolution(10); // ESP32 has 12bits ADC but current tables are designed for 10 bits.
+  analogReadResolution(10); // ESP32 has 12bits ADC but current tables are designed for 10 bits and current code only store samples in a short
 }
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {
-  int r = analogRead(adc_pin);
-  Serial.printf("adc_pint %d adc results %d\n", adc_pin, r);
-  HAL_adc_result = r >> 2;
+  HAL_adc_result = analogRead(adc_pin);
 }
 
 #endif // ARDUINO_ARCH_ESP32
