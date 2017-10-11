@@ -63,18 +63,38 @@ static uint8_t LEDs[8] = { 0 };
 
 void Max7219_PutByte(uint8_t data) {
   for (uint8_t i = 8; i--;) {
-    WRITE(MAX7219_CLK_PIN, LOW);       // tick
-    WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-    WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+    #ifdef CPU_32_BIT                    // The 32-bit processors are so fast, a small delay in the code is needed
+                                         // to let the signal wires stabilize.
+      WRITE(MAX7219_CLK_PIN, LOW);       // tick
+      delayMicroseconds(5);
+      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+      delayMicroseconds(5);
+      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+      delayMicroseconds(5);
+    #else
+      WRITE(MAX7219_CLK_PIN, LOW);       // tick
+      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+    #endif
+
     data <<= 1;
   }
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
+  #ifdef CPU_32_BIT              // The 32-bit processors are so fast, a small delay in the code is needed
+    delayMicroseconds(5);        // to let the signal wires stabilize.
+  #endif
   Max7219_PutByte(reg);          // specify register
   Max7219_PutByte(data);         // put data
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
   WRITE(MAX7219_LOAD_PIN, HIGH);
 }
 
@@ -135,6 +155,7 @@ void Max7219_init() {
   SET_OUTPUT(MAX7219_CLK_PIN);
 
   OUT_WRITE(MAX7219_LOAD_PIN, HIGH);
+  delay(1);
 
   //initiation of the max 7219
   Max7219(max7219_reg_scanLimit, 0x07);
@@ -187,9 +208,13 @@ void Max7219_init() {
 void Max7219_idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static int debug_cnt = 0;
-    if (debug_cnt++ > 100) {
-      Max7219_LED_Toggle(7, 7);
-      debug_cnt = 0;
+    #ifdef CPU_32_BIT  
+      if (debug_cnt++ > 400) {
+    #else
+      if (debug_cnt++ > 100) {
+    #endif
+        Max7219_LED_Toggle(7, 7);
+        debug_cnt = 0;
     }
   #endif
 

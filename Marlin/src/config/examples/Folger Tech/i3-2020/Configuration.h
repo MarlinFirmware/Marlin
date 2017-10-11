@@ -119,12 +119,13 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB   // For people switching over to the Panucatt Re-ARM board
+//#define MOTHERBOARD BOARD_RAMPS_14_EFB          // For unmodified printers using Atmega-2560 and RAMPS boards.
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "FT-2020"
+#define CUSTOM_MACHINE_NAME "FT-2020 v2"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -777,15 +778,15 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 207
-#define Y_BED_SIZE 182
+//#define X_BED_SIZE 207    // For now...  use the old method of X_MIN_POS and X_MAX_POS to set X size
+//#define Y_BED_SIZE 182    // For now...  use the old method of Y_MIN_POS and Y_MAX_POS to set Y size
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 6
 #define Y_MIN_POS 3
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
+#define X_MAX_POS 207
+#define Y_MAX_POS 182
 #define Z_MAX_POS 175
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
@@ -1037,7 +1038,7 @@
 //
 // M100 Free Memory Watcher
 //
-#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
+//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
 
 //
 // G20/G21 Inch mode support
