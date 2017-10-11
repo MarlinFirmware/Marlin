@@ -39,26 +39,28 @@
 
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
-
 #include "HAL_timers_Due.h"
+
 
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
-
 #if SERIAL_PORT == -1
   #define MYSERIAL SerialUSB
 #elif SERIAL_PORT == 0
-  #define MYSERIAL Serial
+  #define MYSERIAL customizedSerial
 #elif SERIAL_PORT == 1
-  #define MYSERIAL Serial1
+  #define MYSERIAL customizedSerial
 #elif SERIAL_PORT == 2
-  #define MYSERIAL Serial2
+  #define MYSERIAL customizedSerial
 #elif SERIAL_PORT == 3
-  #define MYSERIAL Serial3
+  #define MYSERIAL customizedSerial
 #endif
 
 #define _BV(bit) (1 << (bit))
+
+// We need the previous define before the include, or compilation bombs...
+#include "MarlinSerial_Due.h"
 
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)

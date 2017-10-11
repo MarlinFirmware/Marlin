@@ -81,7 +81,10 @@ void sei(void) { interrupts(); }
 
 void HAL_clear_reset_source(void) { }
 
+#include "InterruptVectors_Due.h"
+
 uint8_t HAL_get_reset_source (void) {
+	
   switch ((RSTC->RSTC_SR >> 8) & 7) {
     case 0: return RST_POWER_ON; break;
     case 1: return RST_BACKUP; break;
