@@ -58,7 +58,7 @@ const adc_pin_data adc_pin_map[] = {
                                       p == 0  ? 6: \
                                       p == 1  ? 7: -1)
 
-#define NUM_DIGITAL_PINS 80
+#define NUM_DIGITAL_PINS 84
 
 #define VALID_PIN(r)  (r <   0 ? 0 :\
                        r ==  7 ? 0 :\
@@ -220,10 +220,11 @@ const pin_data pin_map[] = { // pin map for variable pin function
   {1,4},        //  DIO77                   J12-10            ENET_TX_EN
   {1,0},        //  DIO78                   J12-11            ENET_TXD0
   {1,1},        //  DIO79                   J12-12            ENET_TXD1
-//  {0,6},        //  DIO80  SD-CS            on board SD card
-//  {0,7},        //  DIO81  SD-SCK           on board SD card
-//  {0,8},        //  DIO82  SD-MISO          on board SD card
-//  {0,9},        //  DIO83  SD-MOSI          on board SD card
+  {0,14},       //  DIO80                   MKS-SBASE	J7-6 & EXP1-5	  
+  {0,7},        //  DIO81  SD-SCK           MKS-SBASE	on board SD card and EXP2-2
+  {0,8},        //  DIO82  SD-MISO          MKS-SBASE	on board SD card and EXP2-1
+  {0,9},        //  DIO83  SD-MOSI          MKS-SBASE 	n board SD card and EXP2-6
+//  {0,6},        //  DIO84  SD-CS            on board SD card
 
 };
 
@@ -417,19 +418,31 @@ const pin_data pin_map[] = { // pin map for variable pin function
 //#define J12-12                    79  //             ENET_TXD1
 #define DIO79_PORT 1
 #define DIO79_PIN 1
-/**
-//#define SD-CS                     80  //             on board SD card
+//#define J7-6                      80  //             MKS-SBASE	J7-6
 #define DIO80_PORT 0
-#define DIO80_PIN 6
-//#define SD-SCK                    81  //            on board SD card
+#define DIO80_PIN 14
+//#define EXP2-2                    81  //             MKS-SBASE 	on board SD card and EXP2
 #define DIO81_PORT 0
-#define DIO81_PIN 7
-//#define SD-MISO                   82  //           on board SD card
+#define DIO81_PIN  7
+//#define EXP2-1                    82  //             MKS-SBASE 	on board SD card and EXP2
 #define DIO82_PORT 0
-#define DIO82_PIN 8
-//#define SD-MOSI                   83  //           on board SD card
+#define DIO82_PIN  8
+//#define EXP2-6                    83  //             MKS-SBASE 	on board SD card and EXP2
 #define DIO83_PORT 0
-#define DIO83_PIN 9
+#define DIO83_PIN  9
+/**
+//#define SD-CS                     81  //             on board SD card
+#define DIO81_PORT 0
+#define DIO81_PIN 6
+//#define SD-SCK                    82  //            on board SD card
+#define DIO82_PORT 0
+#define DIO82_PIN 7
+//#define SD-MISO                   83  //           on board SD card
+#define DIO83_PORT 0
+#define DIO83_PIN 8
+//#define SD-MOSI                   84  //           on board SD card
+#define DIO84_PORT 0
+#define DIO84_PIN 9
 */
 
 #endif //__PINMAP_RE_ARM_H__
