@@ -32,6 +32,7 @@
 
 #ifndef BOARD_NAME
   #define BOARD_NAME "MKS SBASE"
+  #define DEFAULT_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
 #endif
 
 #define LARGE_FLASH true
@@ -148,13 +149,6 @@
 #define E_MUX2_PIN          80   // J7-6
 
 
-
-/**
- * LCD / Controller
- *
- * All controllers can use J3 and J5 on the Re-ARM board.  Custom cabling will be required.
- */
-
 /**
  * Smart LCD adapter
  *
@@ -168,44 +162,32 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD)		// 
 
-  #define BEEPER_PIN          49  // 
+  #define BEEPER_PIN          49  // EXP1.1
 
-  #define BTN_EN1             33  // 
-  #define BTN_EN2             31  // 
-  #define BTN_ENC             37  // 
+  #define BTN_ENC             37  // EXP1.2 
+  #define BTN_EN1             31  // EXP2.5
+  #define BTN_EN2             33  // EXP2.3
+  
+  #define SD_DETECT_PIN       57  // EXP2.7
+  #define KILL_PIN            -1  // Not connected
+  #define LCD_PINS_RS         16  // EXP1.4
+  #define LCD_SDSS            58  // EXP2.4
+  #define LCD_BACKLIGHT_PIN   -1  // Not connected
+  #define LCD_PINS_ENABLE     51  // EXP1.3
+  #define LCD_PINS_D4         80  // EXP1.5
 
-  #define SD_DETECT_PIN       57  // 
-  #define KILL_PIN            -1  // 
-  #define LCD_PINS_RS         16  // 
-  #define LCD_SDSS            58  // 
-  #define LCD_BACKLIGHT_PIN   -1  // 
-  #define LCD_PINS_ENABLE     51  // 
-  #define LCD_PINS_D4         52  // 
-
-  #define DOGLCD_A0           -1  // 
-  #define DOGLCD_CS           -1  // 
+  #define DOGLCD_A0           -1  // Not connected
+  #define DOGLCD_CS           -1  // Not connected
 
 #ifdef ULTIPANEL
   
-  #define LCD_PINS_D5         -1  // ENET_MDIO
-  #define LCD_PINS_D6         -1  // ENET_RX_ER
-  #define LCD_PINS_D7         -1  // ENET_RXD1
+  #define LCD_PINS_D5         -1  // EXP1.6 Not connected
+  #define LCD_PINS_D6         -1  // EXP1.7 Not connected
+  #define LCD_PINS_D7         -1  // EXP1.8 Not connected
 #endif
  
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define SHIFT_OUT         51  // (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK         52  // (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD          49  // not 5V tolerant   J3-1 & AUX-3
-    #endif
-  #else
-    //#define SHIFT_CLK           31  // J3-2 & AUX-4
-    //#define SHIFT_LD            33  // J3-4 & AUX-4
-    //#define SHIFT_OUT           35  // J3-3 & AUX-4
-    //#define SHIFT_EN            41  // J5-4 & AUX-4
-  #endif
 
   #if ENABLED(SDSUPPORT)
     #define SDCARD_SORT_ALPHA           // Using SORT feature to keep one directory level in RAM
@@ -263,27 +245,6 @@
  *  PWM1.6   DIO10   RAMPS_D10_PIN
  */
 
-/**
- *  The following pins are NOT available in a Re-ARM system
- *  7
- *  17
- *  22
- *  23
- *  25
- *  27
- *  29
- *  32
- *  39
- *  40
- *  42
- *  43
- *  44
- *  45
- *  47
- *  64
- *  65
- *  66
- */
 
  /**
   * special pins
