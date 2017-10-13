@@ -456,7 +456,7 @@ void MarlinSettings::postprocess() {
       #else
         EEPROM_WRITE(dummy);
       #endif
-      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
     #else
       dummy = 0.0f;
       for (uint8_t q = 12; q--;) EEPROM_WRITE(dummy);
@@ -860,7 +860,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy);
         #endif
 
-        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=9; q--;) EEPROM_READ(dummy);
       #else
         dummy = 0.0f;
         for (uint8_t q=12; q--;) EEPROM_READ(dummy);
