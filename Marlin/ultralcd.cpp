@@ -1089,7 +1089,7 @@ void kill_screen(const char* lcd_msg) {
           const float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
-            if (planner.abl_enabled)
+            if (planner.leveling_active)
               thermalManager.babystep_axis(Z_AXIS, babystep_increment);
 
             zprobe_zoffset = new_zoffset;
@@ -1791,7 +1791,7 @@ void kill_screen(const char* lcd_msg) {
 
             _lcd_after_probing();
 
-            mbl.set_has_mesh(true);
+            mbl.has_mesh = true;
             mesh_probing_done();
 
           #endif
@@ -1937,12 +1937,11 @@ void kill_screen(const char* lcd_msg) {
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
       else if (leveling_is_valid()) {
-        _level_state = LEVELING_IS_ACTIVE();
+        _level_state = planner.leveling_active;
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
       }
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        set_z_fade_height(planner.z_fade_height);
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &planner.z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
 
