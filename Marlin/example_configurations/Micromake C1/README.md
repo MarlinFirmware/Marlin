@@ -1,18 +1,16 @@
 # Micromake C1
 
-<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
-
 ## Bugfix Branch
 
 __Not for production use. Use with caution!__
 
 This branch is used to accumulate patches to the latest 1.1.x release version. Periodically this branch will form the basis for the next minor 1.1.x release.
 
-Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.1.)
+Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
 ## What it is ?
 
-###In the folder "Naked"
+### In the folder "Naked"
 These configuration files are for Micromake C1 printers without mod :
   - English LCD 2X16 Characters
   - Motors 16 STEPS
@@ -20,7 +18,7 @@ These configuration files are for Micromake C1 printers without mod :
   - no probe ect
   - like a Micromake C1 standard ...
 
-###In the folder "metalsearch's C1"
+### In the folder "metalsearch's C1"
 These configuration files are for Micromake C1 printers with :
   - 128 STEPS configured with jumper on the motherboard (all open for 128 Steps).
   - Capatitive Probe ( Adjust offset/placement in your convenience )
