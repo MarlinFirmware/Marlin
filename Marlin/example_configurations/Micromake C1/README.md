@@ -11,18 +11,18 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 ## What it is ?
 
 ### In the folder "Naked"
-These configuration files are for Micromake C1 printers without mod :
+These configuration files are for Micromake C1 printers without mods :
   - English LCD 2X16 Characters
   - Motors 16 STEPS
   - no heat bed
   - no probe ect
-  - like a Micromake C1 standard ...
+  - like a Micromake C1 standard shipped by the manufacturer.
 
 ### In the folder "metalsearch's C1"
 These configuration files are for Micromake C1 printers with :
   - 128 STEPS configured with jumper on the motherboard (all open for 128 Steps).
   - Capatitive Probe ( Adjust offset/placement in your convenience )
-  - French language with no accent for Japanese LCD limit.
+  - French language with no accent for Japanese LCD.
 
 ## License
 
