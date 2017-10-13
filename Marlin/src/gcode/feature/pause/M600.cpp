@@ -27,6 +27,7 @@
 #include "../../../feature/pause.h"
 
 #include "../../gcode.h"
+#include "../../../module/motion.h"
 #include "../../parser.h"
 
 #include "../../../module/printcounter.h"
