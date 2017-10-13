@@ -490,14 +490,14 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #if ENABLED(DELTA)
       #define ADJUST_DELTA(V) \
-        if (planner.abl_enabled) { \
+        if (LEVELING_IS_ACTIVE()) { \
           const float zadj = bilinear_z_offset(V); \
           delta[A_AXIS] += zadj; \
           delta[B_AXIS] += zadj; \
           delta[C_AXIS] += zadj; \
         }
     #else
-      #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
+      #define ADJUST_DELTA(V) if (LEVELING_IS_ACTIVE()) { delta[Z_AXIS] += bilinear_z_offset(V); }
     #endif
   #else
     #define ADJUST_DELTA(V) NOOP

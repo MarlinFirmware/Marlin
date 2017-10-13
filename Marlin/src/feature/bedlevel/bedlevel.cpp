@@ -55,18 +55,6 @@ bool leveling_is_valid() {
   ;
 }
 
-bool leveling_is_active() {
-  return
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.active()
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.state.active
-    #else // OLDSCHOOL_ABL
-      planner.abl_enabled
-    #endif
-  ;
-}
-
 /**
  * Turn bed leveling on or off, fixing the current
  * position as-needed.
@@ -82,7 +70,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     constexpr bool can_change = true;
   #endif
 
-  if (can_change && enable != leveling_is_active()) {
+  if (can_change && enable != LEVELING_IS_ACTIVE()) {
 
     #if ENABLED(MESH_BED_LEVELING)
 
@@ -143,7 +131,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
   void set_z_fade_height(const float zfh) {
 
-    const bool level_active = leveling_is_active();
+    const bool level_active = LEVELING_IS_ACTIVE();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 

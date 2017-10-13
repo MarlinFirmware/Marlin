@@ -247,7 +247,7 @@ void GcodeSuite::G29() {
       abl_probe_index = -1;
     #endif
 
-    abl_should_enable = leveling_is_active();
+    abl_should_enable = LEVELING_IS_ACTIVE();
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -964,7 +964,7 @@ void GcodeSuite::G29() {
 
   KEEPALIVE_STATE(IN_HANDLER);
 
-  if (planner.abl_enabled)
+  if (LEVELING_IS_ACTIVE())
     SYNC_PLAN_POSITION_KINEMATIC();
 }
 

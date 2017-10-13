@@ -112,7 +112,7 @@ void GcodeSuite::M420() {
     if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
   #endif
 
-  const bool new_status = leveling_is_active();
+  const bool new_status = LEVELING_IS_ACTIVE();
 
   if (to_enable && !new_status) {
     SERIAL_ERROR_START();

@@ -92,7 +92,7 @@ void GcodeSuite::G29() {
   switch (state) {
     case MeshReport:
       if (leveling_is_valid()) {
-        SERIAL_PROTOCOLLNPAIR("State: ", leveling_is_active() ? MSG_ON : MSG_OFF);
+        SERIAL_PROTOCOLLNPAIR("State: ", LEVELING_IS_ACTIVE() ? MSG_ON : MSG_OFF);
         mbl_mesh_report();
       }
       else

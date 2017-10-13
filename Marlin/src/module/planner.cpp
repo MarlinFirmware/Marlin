@@ -555,8 +555,9 @@ void Planner::calculate_volumetric_multipliers() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
+    if (!LEVELING_IS_ACTIVE()) return;
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
         if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
@@ -565,10 +566,6 @@ void Planner::calculate_volumetric_multipliers() {
         lz += ubl.get_z_correction(lx, ly);
       #endif // FADE
     #endif // UBL
-
-    #if OLDSCHOOL_ABL
-      if (!abl_enabled) return;
-    #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_UBL)
       static float z_fade_factor = 1.0, last_raw_lz = -999.0;
@@ -586,12 +583,11 @@ void Planner::calculate_volumetric_multipliers() {
 
     #if ENABLED(MESH_BED_LEVELING)
 
-      if (mbl.active())
-        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            , z_fade_factor
-          #endif
-          );
+      lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          , z_fade_factor
+        #endif
+        );
 
     #elif ABL_PLANAR
 
@@ -654,9 +650,7 @@ void Planner::calculate_volumetric_multipliers() {
 
     #endif
 
-    #if OLDSCHOOL_ABL
-      if (!abl_enabled) return;
-    #endif
+    if (!LEVELING_IS_ACTIVE()) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (z_fade_height && RAW_Z_POSITION(logical[Z_AXIS]) >= z_fade_height) return;
@@ -664,14 +658,12 @@ void Planner::calculate_volumetric_multipliers() {
 
     #if ENABLED(MESH_BED_LEVELING)
 
-      if (mbl.active()) {
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
-          logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
-        #else
-          logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
-        #endif
-      }
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
+        logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+      #else
+        logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+      #endif
 
     #elif ABL_PLANAR
 

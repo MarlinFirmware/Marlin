@@ -679,7 +679,7 @@ void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
     #endif
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      if (!no_babystep && leveling_is_active())
+      if (!no_babystep && LEVELING_IS_ACTIVE())
         thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
     #else
       UNUSED(no_babystep);

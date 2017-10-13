@@ -40,9 +40,18 @@
 #endif
 
 bool leveling_is_valid();
-bool leveling_is_active();
 void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
+
+#if ENABLED(MESH_BED_LEVELING)
+  #define LEVELING_IS_ACTIVE() (mbl.active())
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define LEVELING_IS_ACTIVE() (ubl.state.active)
+#elif HAS_ABL
+  #define LEVELING_IS_ACTIVE() (planner.abl_enabled)
+#else
+  #define LEVELING_IS_ACTIVE() (false)
+#endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   void set_z_fade_height(const float zfh);
