@@ -78,7 +78,6 @@
 
   typedef struct {
     bool active = false;
-    float z_offset = 0.0;
     int8_t storage_slot = -1;
   } ubl_state;
 
@@ -158,7 +157,7 @@
       static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16], bool);
       static void reset();
       static void invalidate();
-      static void set_all_mesh_points_to_value(float);
+      static void set_all_mesh_points_to_value(const float);
       static bool sanity_check();
 
       static void G29() _O0;                          // O0 for no optimization
@@ -310,7 +309,7 @@
             strcpy(lcd_status_message, "get_z_correction() indexes out of range.");
             lcd_quick_feedback();
           #endif
-          return NAN; // this used to return state.z_offset
+          return NAN;
         }
 
         const float z1 = calc_z0(RAW_X_POSITION(lx0),
@@ -359,7 +358,7 @@
             }
           #endif
         }
-        return z0; // there used to be a +state.z_offset on this line
+        return z0;
       }
 
       /**
