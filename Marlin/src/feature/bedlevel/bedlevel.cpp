@@ -139,6 +139,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
     planner.z_fade_height = zfh;
     planner.inverse_z_fade_height = RECIPROCAL(zfh);
+    planner.force_fade_recalc();
 
     if (level_active) {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
