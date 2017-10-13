@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V41"
+#define EEPROM_VERSION "V42"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V41 EEPROM Layout:
+ * V42 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -89,8 +89,7 @@
  *
  * AUTO_BED_LEVELING_UBL:                           6 bytes
  *  324  G29 A     ubl.state.active                 (bool)
- *  325  G29 Z     ubl.state.z_offset               (float)
- *  329  G29 S     ubl.state.storage_slot           (int8_t)
+ *  325  G29 S     ubl.state.storage_slot           (int8_t)
  *
  * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -437,14 +436,11 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       EEPROM_WRITE(ubl.state.active);
-      EEPROM_WRITE(ubl.state.z_offset);
       EEPROM_WRITE(ubl.state.storage_slot);
     #else
       const bool ubl_active = false;
-      dummy = 0.0f;
       const int8_t storage_slot = -1;
       EEPROM_WRITE(ubl_active);
-      EEPROM_WRITE(dummy);
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
@@ -829,12 +825,10 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         EEPROM_READ(ubl.state.active);
-        EEPROM_READ(ubl.state.z_offset);
         EEPROM_READ(ubl.state.storage_slot);
       #else
         uint8_t dummyui8;
         EEPROM_READ(dummyb);
-        EEPROM_READ(dummy);
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
 
@@ -1609,13 +1603,7 @@ void MarlinSettings::reset() {
       if (!forReplay) {
         SERIAL_EOL();
         ubl.report_state();
-
         SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.state.storage_slot);
-
-        SERIAL_ECHOPGM("z_offset: ");
-        SERIAL_ECHO_F(ubl.state.z_offset, 6);
-        SERIAL_EOL();
-
         SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
         SERIAL_ECHOLNPGM(" meshes.\n");
       }

@@ -153,7 +153,7 @@
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
         // a reasonable correction would be.
 
-        planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + state.z_offset, end[E_AXIS], feed_rate, extruder);
+        planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
         set_current_to_destination();
 
         if (g26_debug_flag)
@@ -197,7 +197,7 @@
        */
       if (isnan(z0)) z0 = 0.0;
 
-      planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0 + state.z_offset, end[E_AXIS], feed_rate, extruder);
+      planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
@@ -302,7 +302,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+          planner._buffer_line(x, y, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -367,7 +367,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+          planner._buffer_line(x, y, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -430,7 +430,7 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        planner._buffer_line(x, next_mesh_line_y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+        planner._buffer_line(x, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
         current_yi += dyi;
         yi_cnt--;
       }
@@ -459,7 +459,7 @@
           z_position = end[Z_AXIS];
         }
 
-        planner._buffer_line(next_mesh_line_x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+        planner._buffer_line(next_mesh_line_x, y, z_position + z0, e_position, feed_rate, extruder);
         current_xi += dxi;
         xi_cnt--;
       }
@@ -605,8 +605,6 @@
 
       if (!state.active || above_fade_height) {   // no mesh leveling
 
-        const float z_offset = state.active ? state.z_offset : 0.0;
-
         do {
 
           if (--segments) {     // not the last segment
@@ -621,7 +619,7 @@
             seg_le = ltarget[E_AXIS];
           }
 
-          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz + z_offset, seg_le, feedrate );
+          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz, seg_le, feedrate );
 
         } while (segments);
 
@@ -697,8 +695,6 @@
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
             z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
           #endif
-
-          z_cxcy += state.z_offset;                 // add fixed mesh offset from G29 Z
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
             seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
