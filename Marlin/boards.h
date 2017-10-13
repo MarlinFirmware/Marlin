@@ -100,7 +100,7 @@
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
 #define BOARD_ZRIB_V20          504  // zrib V2.0 control board (Chinese knock off RAMPS replica)
-
+#define BOARD_MAKEBOARD_MINI    888  // MakeBoard Mini v2.1.2 is a control board selling by MicroMake
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif // __BOARDS_H
