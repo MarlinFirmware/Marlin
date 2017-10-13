@@ -1145,9 +1145,9 @@ static void lcd_implementation_status_screen() {
       return ret_val;
     }
 
-    coordinate pixel_location(uint8_t x, uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void lcd_implementation_ubl_plot(uint8_t x, uint8_t inverted_y) {
+    void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12
