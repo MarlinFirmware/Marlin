@@ -122,8 +122,8 @@ float Planner::min_feedrate_mm_s,
       Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
       Planner::min_travel_feedrate_mm_s;
 
-#if OLDSCHOOL_ABL
-  bool Planner::abl_enabled = false; // Flag that auto bed leveling is enabled
+#if HAS_LEVELING
+  bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
   #if ABL_PLANAR
     matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
   #endif
@@ -556,7 +556,7 @@ void Planner::calculate_volumetric_multipliers() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
-    if (!LEVELING_IS_ACTIVE()) return;
+    if (!planner.leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float fade_scaling_factor = fade_scaling_factor_for_z(lz);
@@ -601,48 +601,41 @@ void Planner::calculate_volumetric_multipliers() {
 
   void Planner::unapply_leveling(float logical[XYZ]) {
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-
-      if (ubl.state.active) {
-
-        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
-                    z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
-                    z_virtual = z_physical - z_correct;
-              float z_logical = LOGICAL_Z_POSITION(z_virtual);
-
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-
-          // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
-          // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
-          //  then L=P-M(1-L/H)
-          //    so L=P-M+ML/H
-          //    so L-ML/H=P-M
-          //    so L(1-M/H)=P-M
-          //    so L=(P-M)/(1-M/H) for L<H
-
-          if (planner.z_fade_height) {
-            if (z_logical >= planner.z_fade_height)
-              z_logical = LOGICAL_Z_POSITION(z_physical);
-            else
-              z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
-          }
-
-        #endif // ENABLE_LEVELING_FADE_HEIGHT
-
-        logical[Z_AXIS] = z_logical;
-      }
-
-      return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
-
-    #endif
-
-    if (!LEVELING_IS_ACTIVE()) return;
+    if (!planner.leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (z_fade_height && RAW_Z_POSITION(logical[Z_AXIS]) >= z_fade_height) return;
     #endif
 
-    #if ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+      const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
+                  z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
+                  z_virtual = z_physical - z_correct;
+            float z_logical = LOGICAL_Z_POSITION(z_virtual);
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+        // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
+        // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
+        //  then L=P-M(1-L/H)
+        //    so L=P-M+ML/H
+        //    so L-ML/H=P-M
+        //    so L(1-M/H)=P-M
+        //    so L=(P-M)/(1-M/H) for L<H
+
+        if (planner.z_fade_height) {
+          if (z_logical >= planner.z_fade_height)
+            z_logical = LOGICAL_Z_POSITION(z_physical);
+          else
+            z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
+        }
+
+      #endif // ENABLE_LEVELING_FADE_HEIGHT
+
+      logical[Z_AXIS] = z_logical;
+
+    #elif ENABLED(MESH_BED_LEVELING)
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);

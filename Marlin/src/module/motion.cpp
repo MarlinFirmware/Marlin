@@ -490,14 +490,14 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #if ENABLED(DELTA)
       #define ADJUST_DELTA(V) \
-        if (LEVELING_IS_ACTIVE()) { \
+        if (planner.leveling_active) { \
           const float zadj = bilinear_z_offset(V); \
           delta[A_AXIS] += zadj; \
           delta[B_AXIS] += zadj; \
           delta[C_AXIS] += zadj; \
         }
     #else
-      #define ADJUST_DELTA(V) if (LEVELING_IS_ACTIVE()) { delta[Z_AXIS] += bilinear_z_offset(V); }
+      #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
     #endif
   #else
     #define ADJUST_DELTA(V) NOOP
@@ -630,41 +630,30 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
   /**
    * Prepare a linear move in a Cartesian setup.
-   * If Mesh Bed Leveling is enabled, perform a mesh move.
+   * Bed Leveling will be applied to the move if enabled.
    *
-   * Returns true if the caller didn't update current_position.
+   * Returns true if current_position[] was set to destination[]
    */
   inline bool prepare_move_to_destination_cartesian() {
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
       const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      if (ubl.state.active) { // direct use of ubl.state.active for speed
-        ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
-        return true;
-      }
-      else
-        line_to_destination(fr_scaled);
-    #else
-      // Do not use feedrate_percentage for E or Z only moves
-      if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS])
-        line_to_destination();
-      else {
-        const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-        #if ENABLED(MESH_BED_LEVELING)
-          if (mbl.active()) { // direct used of mbl.active() for speed
+      #if HAS_MESH
+        if (planner.leveling_active) {
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
+          #elif ENABLED(MESH_BED_LEVELING)
             mesh_line_to_destination(fr_scaled);
-            return true;
-          }
-          else
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          if (planner.abl_enabled) { // direct use of abl_enabled for speed
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             bilinear_line_to_destination(fr_scaled);
-            return true;
-          }
-          else
-        #endif
-            line_to_destination(fr_scaled);
-      }
-    #endif
+          #endif
+          return true;
+        }
+      #endif // HAS_MESH
+      line_to_destination(fr_scaled);
+    }
+    else
+      line_to_destination();
+
     return false;
   }
 
@@ -699,6 +688,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
   /**
    * Prepare a linear move in a dual X axis setup
+   *
+   * Return true if current_position[] was set to destination[]
    */
   inline bool prepare_move_to_destination_dualx() {
     if (active_extruder_parked) {

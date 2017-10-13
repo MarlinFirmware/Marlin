@@ -1170,7 +1170,7 @@
 
       return;
     }
-    ubl_state_at_invocation = state.active;
+    ubl_state_at_invocation = planner.leveling_active;
     set_bed_leveling_enabled(false);
   }
 

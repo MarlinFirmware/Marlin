@@ -119,7 +119,7 @@ void GcodeSuite::M48() {
   // Disable bed level correction in M48 because we want the raw data when we probe
 
   #if HAS_LEVELING
-    const bool was_enabled = LEVELING_IS_ACTIVE();
+    const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 

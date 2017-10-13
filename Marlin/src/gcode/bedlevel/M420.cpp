@@ -105,14 +105,13 @@ void GcodeSuite::M420() {
   }
 
   const bool to_enable = parser.boolval('S');
-  if (parser.seen('S'))
-    set_bed_leveling_enabled(to_enable);
+  if (parser.seen('S')) set_bed_leveling_enabled(to_enable);
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
   #endif
 
-  const bool new_status = LEVELING_IS_ACTIVE();
+  const bool new_status = planner.leveling_active;
 
   if (to_enable && !new_status) {
     SERIAL_ERROR_START();
