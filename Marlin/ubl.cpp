@@ -84,7 +84,6 @@
 
   void unified_bed_leveling::reset() {
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
     state.storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       planner.z_fade_height = 10.0;
@@ -95,11 +94,10 @@
 
   void unified_bed_leveling::invalidate() {
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
     set_all_mesh_points_to_value(NAN);
   }
 
-  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+  void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = value;

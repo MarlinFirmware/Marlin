@@ -533,9 +533,9 @@ void Planner::check_axes_activity() {
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
         if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
+        lz += ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
       #else // no fade
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly);
+        lz += ubl.get_z_correction(lx, ly);
       #endif // FADE
     #endif // UBL
 
@@ -598,22 +598,22 @@ void Planner::check_axes_activity() {
 
         const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
                     z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
-                    z_virtual = z_physical - ubl.state.z_offset - z_correct;
+                    z_virtual = z_physical - z_correct;
               float z_logical = LOGICAL_Z_POSITION(z_virtual);
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-          // for P=physical_z, L=logical_z, M=mesh_z, O=z_offset, H=fade_height,
-          // Given P=L+O+M(1-L/H) (faded mesh correction formula for L<H)
-          //  then L=P-O-M(1-L/H)
-          //    so L=P-O-M+ML/H
-          //    so L-ML/H=P-O-M
-          //    so L(1-M/H)=P-O-M
-          //    so L=(P-O-M)/(1-M/H) for L<H
+          // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
+          // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
+          //  then L=P-M(1-L/H)
+          //    so L=P-M+ML/H
+          //    so L-ML/H=P-M
+          //    so L(1-M/H)=P-M
+          //    so L=(P-M)/(1-M/H) for L<H
 
           if (planner.z_fade_height) {
             if (z_logical >= planner.z_fade_height)
-              z_logical = LOGICAL_Z_POSITION(z_physical - ubl.state.z_offset);
+              z_logical = LOGICAL_Z_POSITION(z_physical);
             else
               z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
           }

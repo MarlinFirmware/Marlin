@@ -669,65 +669,6 @@
     if (parser.seen('T'))
       display_map(parser.has_value() ? parser.value_int() : 0);
 
-    /**
-     * This code may not be needed...  Prepare for its removal...
-     *
-     */
-    #if 0
-    if (parser.seen('Z')) {
-      if (parser.has_value())
-        state.z_offset = parser.value_float();   // do the simple case. Just lock in the specified value
-      else {
-        save_ubl_active_state_and_disable();
-        //float measured_z = probe_pt(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
-
-        has_control_of_lcd_panel = true;     // Grab the LCD Hardware
-        float measured_z = 1.5;
-        do_blocking_move_to_z(measured_z);  // Get close to the bed, but leave some space so we don't damage anything
-                                            // The user is not going to be locking in a new Z-Offset very often so
-                                            // it won't be that painful to spin the Encoder Wheel for 1.5mm
-        lcd_refresh();
-        lcd_z_offset_edit_setup(measured_z);
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-
-        do {
-          measured_z = lcd_z_offset_edit();
-          idle();
-          do_blocking_move_to_z(measured_z);
-        } while (!ubl_lcd_clicked());
-
-        has_control_of_lcd_panel = true;   // There is a race condition for the encoder click.
-                                               // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                               // or here. So, until we are done looking for a long encoder press,
-                                               // we need to take control of the panel
-
-        KEEPALIVE_STATE(IN_HANDLER);
-
-        lcd_return_to_status();
-
-        const millis_t nxt = millis() + 1500UL;
-        while (ubl_lcd_clicked()) { // debounce and watch for abort
-          idle();
-          if (ELAPSED(millis(), nxt)) {
-            SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
-            do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            LCD_MESSAGEPGM(MSG_UBL_Z_OFFSET_STOPPED);
-            restore_ubl_active_state_and_leave();
-            goto LEAVE;
-          }
-        }
-        has_control_of_lcd_panel = false;
-        safe_delay(20); // We don't want any switch noise.
-
-        state.z_offset = measured_z;
-
-        lcd_refresh();
-        restore_ubl_active_state_and_leave();
-      }
-    }
-    #endif
-
     LEAVE:
 
     #if ENABLED(NEWPANEL)
