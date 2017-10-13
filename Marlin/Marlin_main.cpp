@@ -2471,18 +2471,6 @@ static void clean_up_after_endstop_or_probe_move() {
     ;
   }
 
-  bool leveling_is_active() {
-    return
-      #if ENABLED(MESH_BED_LEVELING)
-        mbl.active()
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.state.active
-      #else
-        planner.abl_enabled
-      #endif
-    ;
-  }
-
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2498,7 +2486,7 @@ static void clean_up_after_endstop_or_probe_move() {
       constexpr bool can_change = true;
     #endif
 
-    if (can_change && enable != leveling_is_active()) {
+    if (can_change && enable != LEVELING_IS_ACTIVE()) {
 
       #if ENABLED(MESH_BED_LEVELING)
 
@@ -2559,7 +2547,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_z_fade_height(const float zfh) {
 
-      const bool level_active = leveling_is_active();
+      const bool level_active = LEVELING_IS_ACTIVE();
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -3771,7 +3759,7 @@ inline void gcode_G4() {
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         SERIAL_ECHOPGM("UBL");
       #endif
-      if (leveling_is_active()) {
+      if (LEVELING_IS_ACTIVE()) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ABL_PLANAR
           const float diff[XYZ] = {
@@ -3802,7 +3790,7 @@ inline void gcode_G4() {
     #elif ENABLED(MESH_BED_LEVELING)
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
-      if (leveling_is_active()) {
+      if (LEVELING_IS_ACTIVE()) {
         float lz = current_position[Z_AXIS];
         planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
         SERIAL_ECHOLNPGM(" (enabled)");
@@ -3971,7 +3959,7 @@ inline void gcode_G28(const bool always_home_all) {
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool ubl_state_at_entry = leveling_is_active();
+      const bool ubl_state_at_entry = LEVELING_IS_ACTIVE();
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -4261,7 +4249,7 @@ void home_all_axes() { gcode_G28(true); }
     switch (state) {
       case MeshReport:
         if (leveling_is_valid()) {
-          SERIAL_PROTOCOLLNPAIR("State: ", leveling_is_active() ? MSG_ON : MSG_OFF);
+          SERIAL_PROTOCOLLNPAIR("State: ", LEVELING_IS_ACTIVE() ? MSG_ON : MSG_OFF);
           mbl_mesh_report();
         }
         else
@@ -4580,7 +4568,7 @@ void home_all_axes() { gcode_G28(true); }
         abl_probe_index = -1;
       #endif
 
-      abl_should_enable = leveling_is_active();
+      abl_should_enable = LEVELING_IS_ACTIVE();
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -7077,7 +7065,7 @@ inline void gcode_M42() {
     // Disable bed level correction in M48 because we want the raw data when we probe
 
     #if HAS_LEVELING
-      const bool was_enabled = leveling_is_active();
+      const bool was_enabled = LEVELING_IS_ACTIVE();
       set_bed_leveling_enabled(false);
     #endif
 
@@ -9413,7 +9401,7 @@ void quickstop_stepper() {
       if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
     #endif
 
-    const bool new_status = leveling_is_active();
+    const bool new_status = LEVELING_IS_ACTIVE();
 
     if (to_enable && !new_status) {
       SERIAL_ERROR_START();
@@ -9644,7 +9632,7 @@ inline void gcode_M502() {
       #endif
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!no_babystep && leveling_is_active())
+        if (!no_babystep && LEVELING_IS_ACTIVE())
           thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
       #else
         UNUSED(no_babystep);
@@ -10691,7 +10679,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             #if ENABLED(MESH_BED_LEVELING)
 
-              if (leveling_is_active()) {
+              if (LEVELING_IS_ACTIVE()) {
                 #if ENABLED(DEBUG_LEVELING_FEATURE)
                   if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
                 #endif

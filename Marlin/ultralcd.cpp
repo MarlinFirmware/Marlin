@@ -50,6 +50,11 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
   bool ubl_lcd_map_control = false;
+#elif HAS_ABL
+  #include "planner.h"
+#elif ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+  extern void mesh_probing_done();
 #endif
 
 // Initialized by settings.load()
@@ -192,11 +197,6 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
     void lcd_delta_calibrate_menu();
-  #endif
-
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    #include "mesh_bed_leveling.h"
-    extern void mesh_probing_done();
   #endif
 
   ////////////////////////////////////////////
@@ -1937,7 +1937,7 @@ void kill_screen(const char* lcd_msg) {
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
       else if (leveling_is_valid()) {
-        _level_state = leveling_is_active();
+        _level_state = LEVELING_IS_ACTIVE();
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
       }
 

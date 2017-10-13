@@ -792,7 +792,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
     #if HAS_LEVELING
-      lcd.write(leveling_is_active() || blink ? '_' : ' ');
+      lcd.write(LEVELING_IS_ACTIVE() || blink ? '_' : ' ');
     #endif
 
   #endif // LCD_HEIGHT > 2

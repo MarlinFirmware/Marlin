@@ -468,6 +468,16 @@ class Planner {
 
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
 
+#if ENABLED(MESH_BED_LEVELING)
+  #define LEVELING_IS_ACTIVE() (mesh_bed_leveling::active())
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define LEVELING_IS_ACTIVE() (unified_bed_leveling::state.active)
+#elif HAS_ABL
+  #define LEVELING_IS_ACTIVE() (Planner::abl_enabled)
+#else
+  #define LEVELING_IS_ACTIVE() (false)
+#endif
+
 extern Planner planner;
 
 #endif // PLANNER_H

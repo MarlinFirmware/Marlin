@@ -1594,7 +1594,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM(":");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", LEVELING_IS_ACTIVE() ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", planner.z_fade_height);
       #endif
@@ -1615,7 +1615,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Auto Bed Leveling:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", LEVELING_IS_ACTIVE() ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
