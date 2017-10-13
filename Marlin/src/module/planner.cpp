@@ -131,7 +131,8 @@ float Planner::min_feedrate_mm_s,
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   float Planner::z_fade_height, // Initialized by settings.load()
-        Planner::inverse_z_fade_height;
+        Planner::inverse_z_fade_height,
+        Planner::last_raw_lz;
 #endif
 
 #if ENABLED(AUTOTEMP)
@@ -557,39 +558,28 @@ void Planner::calculate_volumetric_multipliers() {
 
     if (!LEVELING_IS_ACTIVE()) return;
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
-        if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
-        lz += ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
-      #else // no fade
-        lz += ubl.get_z_correction(lx, ly);
-      #endif // FADE
-    #endif // UBL
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_UBL)
-      static float z_fade_factor = 1.0, last_raw_lz = -999.0;
-      if (z_fade_height) {
-        const float raw_lz = RAW_Z_POSITION(lz);
-        if (raw_lz >= z_fade_height) return;
-        if (last_raw_lz != raw_lz) {
-          last_raw_lz = raw_lz;
-          z_fade_factor = 1.0 - raw_lz * inverse_z_fade_height;
-        }
-      }
-      else
-        z_fade_factor = 1.0;
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      const float fade_scaling_factor = fade_scaling_factor_for_z(lz);
+      if (!fade_scaling_factor) return;
+    #else
+      constexpr float fade_scaling_factor = 1.0;
     #endif
 
-    #if ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+      lz += ubl.get_z_correction(lx, ly) * fade_scaling_factor;
+
+    #elif ENABLED(MESH_BED_LEVELING)
 
       lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          , z_fade_factor
+          , fade_scaling_factor
         #endif
-        );
+      );
 
     #elif ABL_PLANAR
+
+      UNUSED(fade_scaling_factor);
 
       float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
             dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
@@ -604,11 +594,7 @@ void Planner::calculate_volumetric_multipliers() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       float tmp[XYZ] = { lx, ly, 0 };
-      lz += bilinear_z_offset(tmp)
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          * z_fade_factor
-        #endif
-      ;
+      lz += bilinear_z_offset(tmp) * fade_scaling_factor;
 
     #endif
   }

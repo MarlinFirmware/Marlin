@@ -134,20 +134,16 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     const bool level_active = LEVELING_IS_ACTIVE();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
+      if (level_active) set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
+    #endif
 
-      if (level_active)
-        set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
-      if (level_active)
+    planner.z_fade_height = zfh;
+    planner.inverse_z_fade_height = RECIPROCAL(zfh);
+
+    if (level_active) {
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
         set_bed_leveling_enabled(true);  // turn back on after changing fade height
-
-    #else
-
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
-
-      if (level_active) {
+      #else
         set_current_from_steppers_for_axis(
           #if ABL_PLANAR
             ALL_AXES
@@ -155,8 +151,8 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
             Z_AXIS
           #endif
         );
-      }
-    #endif
+      #endif
+    }
   }
 
 #endif // ENABLE_LEVELING_FADE_HEIGHT

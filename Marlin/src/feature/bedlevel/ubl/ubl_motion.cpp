@@ -173,7 +173,7 @@
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
       const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
+      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
        * If part of the Mesh is undefined, it will show up as NAN
@@ -259,7 +259,7 @@
 
         float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi);
 
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        z0 *= planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -324,7 +324,7 @@
 
         float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi);
 
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        z0 *= planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -397,7 +397,7 @@
         // Yes!  Crossing a Y Mesh Line next
         float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi);
 
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        z0 *= planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -425,7 +425,7 @@
         // Yes!  Crossing a X Mesh Line next
         float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag);
 
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        z0 *= planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -616,7 +616,7 @@
       // Otherwise perform per-segment leveling
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+        const float fade_scaling_factor = planner.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
       #endif
 
       // increment to first segment destination

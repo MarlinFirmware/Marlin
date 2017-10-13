@@ -263,6 +263,38 @@ class Planner {
         if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
     }
 
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+      /**
+       * Get the Z leveling fade factor based on the given Z height,
+       * re-calculating only when needed.
+       *
+       *  Returns 1.0 if planner.z_fade_height is 0.0.
+       *  Returns 0.0 if Z is past the specified 'Fade Height'.
+       */
+      inline static float fade_scaling_factor_for_z(const float &lz) {
+        static float z_fade_factor = 1.0, last_raw_lz = -999.0;
+        if (z_fade_height) {
+          const float raw_lz = RAW_Z_POSITION(lz);
+          if (raw_lz >= z_fade_height) return 0.0;
+          if (last_raw_lz != raw_lz) {
+            last_raw_lz = raw_lz;
+            z_fade_factor = 1.0 - raw_lz * inverse_z_fade_height;
+          }
+          return z_fade_factor;
+        }
+        return 1.0;
+      }
+
+    #else
+
+      FORCE_INLINE static float fade_scaling_factor_for_z(const float &lz) {
+        UNUSED(lz);
+        return 1.0;
+      }
+
+    #endif
+
     #if PLANNER_LEVELING
 
       #define ARG_X float lx
