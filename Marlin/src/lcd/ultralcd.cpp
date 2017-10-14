@@ -2847,6 +2847,7 @@ void kill_screen(const char* lcd_msg) {
           {
             min = soft_endstop_min[axis];
           }
+        #endif
         #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
           if (Z_AXIS == axis)
           {
@@ -2864,6 +2865,7 @@ void kill_screen(const char* lcd_msg) {
           {
             max = soft_endstop_max[axis];
           }
+        #endif
         #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
           if (Z_AXIS == axis)
           {
