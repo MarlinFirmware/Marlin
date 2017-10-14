@@ -7446,7 +7446,7 @@ inline void gcode_M105() {
    *           Require T2 before T1 to memorise current speed
    *  P<index> Fan index, if more than one fan
    */
-  inline void gcode_M106() {    
+  inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
     const uint8_t p = parser.byteval('P', 0);
     if (p < FAN_COUNT) {
