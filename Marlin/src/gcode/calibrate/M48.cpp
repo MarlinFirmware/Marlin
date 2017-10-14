@@ -32,6 +32,10 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../../module/planner.h"
+#endif
+
 /**
  * M48: Z probe repeatability measurement function.
  *
@@ -115,7 +119,7 @@ void GcodeSuite::M48() {
   // Disable bed level correction in M48 because we want the raw data when we probe
 
   #if HAS_LEVELING
-    const bool was_enabled = leveling_is_active();
+    const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 

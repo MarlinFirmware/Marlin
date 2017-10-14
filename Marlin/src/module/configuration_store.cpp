@@ -68,7 +68,7 @@
  *  219            z_fade_height                    (float)
  *
  * MESH_BED_LEVELING:                               43 bytes
- *  223  M420 S    from mbl.status                  (bool)
+ *  223  M420 S    planner.leveling_active         (bool)
  *  224            mbl.z_offset                     (float)
  *  228            GRID_MAX_POINTS_X                (uint8_t)
  *  229            GRID_MAX_POINTS_Y                (uint8_t)
@@ -88,8 +88,8 @@
  *  316            z_values[][]                     (float x9, up to float x256) +988
  *
  * AUTO_BED_LEVELING_UBL:                           2 bytes
- *  324  G29 A     ubl.state.active                 (bool)
- *  325  G29 S     ubl.state.storage_slot           (int8_t)
+ *  324  G29 A     planner.leveling_active          (bool)
+ *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
  * DELTA:                                           48 bytes
  *  344  M666 XYZ  delta_endstop_adj                (float x3)
@@ -202,6 +202,10 @@ MarlinSettings settings;
   #include "../feature/fwretract.h"
 #endif
 
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  float new_z_fade_height;
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
@@ -231,7 +235,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(planner.z_fade_height);
+    set_z_fade_height(new_z_fade_height);
   #endif
 
   #if HAS_BED_PROBE
@@ -329,7 +333,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float zfh = planner.z_fade_height;
     #else
-      const float zfh = 10.0;
+      const float zfh = 0.0;
     #endif
     EEPROM_WRITE(zfh);
 
@@ -343,7 +347,7 @@ void MarlinSettings::postprocess() {
         sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
         "MBL Z array is the wrong size."
       );
-      const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
+      const bool leveling_is_on = mbl.has_mesh;
       const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
       EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(mbl.z_offset);
@@ -406,8 +410,8 @@ void MarlinSettings::postprocess() {
     #endif // AUTO_BED_LEVELING_BILINEAR
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      EEPROM_WRITE(ubl.state.active);
-      EEPROM_WRITE(ubl.state.storage_slot);
+      EEPROM_WRITE(planner.leveling_active);
+      EEPROM_WRITE(ubl.storage_slot);
     #else
       const bool ubl_active = false;
       const int8_t storage_slot = -1;
@@ -630,8 +634,8 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
-      if (ubl.state.storage_slot >= 0)
-        store_mesh(ubl.state.storage_slot);
+      if (ubl.storage_slot >= 0)
+        store_mesh(ubl.storage_slot);
     #endif
     EEPROM_FINISH();
     return !eeprom_error;
@@ -720,7 +724,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        EEPROM_READ(planner.z_fade_height);
+        EEPROM_READ(new_z_fade_height);
       #else
         EEPROM_READ(dummy);
       #endif
@@ -737,7 +741,7 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(mesh_num_y);
 
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.status = leveling_is_on ? _BV(MBL_STATUS_HAS_MESH_BIT) : 0;
+        mbl.has_mesh = leveling_is_on;
         mbl.z_offset = dummy;
         if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
           // EEPROM data fits the current mesh
@@ -793,8 +797,8 @@ void MarlinSettings::postprocess() {
         }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        EEPROM_READ(ubl.state.active);
-        EEPROM_READ(ubl.state.storage_slot);
+        EEPROM_READ(planner.leveling_active);
+        EEPROM_READ(ubl.storage_slot);
       #else
         uint8_t dummyui8;
         EEPROM_READ(dummyb);
@@ -1011,10 +1015,10 @@ void MarlinSettings::postprocess() {
           ubl.reset();
         }
 
-        if (ubl.state.storage_slot >= 0) {
-          load_mesh(ubl.state.storage_slot);
+        if (ubl.storage_slot >= 0) {
+          load_mesh(ubl.storage_slot);
           #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
+            SERIAL_ECHOPAIR("Mesh ", ubl.storage_slot);
             SERIAL_ECHOLNPGM(" loaded from storage.");
           #endif
         }
@@ -1156,7 +1160,7 @@ void MarlinSettings::reset() {
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    planner.z_fade_height = 0.0;
+    new_z_fade_height = 0.0;
   #endif
 
   #if HAS_HOME_OFFSET
@@ -1556,9 +1560,9 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM(":");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOPAIR(" Z", planner.z_fade_height);
+        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif
       SERIAL_EOL();
 
@@ -1566,7 +1570,7 @@ void MarlinSettings::reset() {
         SERIAL_EOL();
         ubl.report_state();
 
-        SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.state.storage_slot);
+        SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
         SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
         SERIAL_ECHOLNPGM(" meshes.\n");
       }
@@ -1578,7 +1582,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Auto Bed Leveling:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_active() ? 1 : 0);
+      SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
       #endif

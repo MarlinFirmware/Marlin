@@ -51,7 +51,7 @@
   void unified_bed_leveling::report_state() {
     echo_name();
     SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
-    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    if (!planner.leveling_active) SERIAL_PROTOCOLPGM("in");
     SERIAL_PROTOCOLLNPGM("active.");
     safe_delay(50);
   }
@@ -65,10 +65,9 @@
     safe_delay(10);
   }
 
-  ubl_state unified_bed_leveling::state;
+  int8_t unified_bed_leveling::storage_slot;
 
-  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        unified_bed_leveling::last_specified_z;
+  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
@@ -91,12 +90,11 @@
 
   void unified_bed_leveling::reset() {
     set_bed_leveling_enabled(false);
-    state.storage_slot = -1;
+    storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      planner.z_fade_height = 10.0;
+      planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
-    last_specified_z = -999.9;
   }
 
   void unified_bed_leveling::invalidate() {

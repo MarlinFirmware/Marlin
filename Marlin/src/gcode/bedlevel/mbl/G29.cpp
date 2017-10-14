@@ -42,7 +42,7 @@
 void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
 void mesh_probing_done() {
-  mbl.set_has_mesh(true);
+  mbl.has_mesh = true;
   gcode.home_all_axes();
   set_bed_leveling_enabled(true);
   #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -92,7 +92,7 @@ void GcodeSuite::G29() {
   switch (state) {
     case MeshReport:
       if (leveling_is_valid()) {
-        SERIAL_PROTOCOLLNPAIR("State: ", leveling_is_active() ? MSG_ON : MSG_OFF);
+        SERIAL_PROTOCOLLNPAIR("State: ", planner.leveling_active ? MSG_ON : MSG_OFF);
         mbl_mesh_report();
       }
       else
