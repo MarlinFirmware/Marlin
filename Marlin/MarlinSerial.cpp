@@ -175,12 +175,12 @@
     // If the character is to be stored at the index just before the tail
     // (such that the head would advance to the current tail), the buffer is
     // critical, so don't write the character or advance the head.
+    const char c = M_UDRx;
     if (i != rx_buffer.tail) {
-      rx_buffer.buffer[h] = M_UDRx;
+      rx_buffer.buffer[h] = c;
       rx_buffer.head = i;
     }
     else {
-      (void)M_UDRx;
       #if ENABLED(SERIAL_STATS_DROPPED_RX)
         if (!++rx_dropped_bytes) ++rx_dropped_bytes;
       #endif
