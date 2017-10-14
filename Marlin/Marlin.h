@@ -357,7 +357,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern int16_t fanSpeeds[FAN_COUNT];
   #if ENABLED(EXTRA_FANSPEED)      
     extern int16_t old_fanSpeeds[FAN_COUNT];
-    extern int16_t new_fanSpeeds[FAN_COUNT]; //steeve 
+    extern int16_t new_fanSpeeds[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
     extern bool fans_paused;
