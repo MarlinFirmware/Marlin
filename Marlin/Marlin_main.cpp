@@ -4357,7 +4357,7 @@ void home_all_axes() { gcode_G28(true); }
     report_current_position();
   }
 
-#elif HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+#elif OLDSCHOOL_ABL
 
   #if ABL_GRID
     #if ENABLED(PROBE_Y_FIRST)
@@ -5281,7 +5281,7 @@ void home_all_axes() { gcode_G28(true); }
       SYNC_PLAN_POSITION_KINEMATIC();
   }
 
-#endif // HAS_ABL && !AUTO_BED_LEVELING_UBL
+#endif // OLDSCHOOL_ABL
 
 #if HAS_BED_PROBE
 
@@ -5869,7 +5869,7 @@ void home_all_axes() { gcode_G28(true); }
 
 #endif // G38_PROBE_TARGET
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
+#if HAS_MESH
 
   /**
    * G42: Move X & Y axes to mesh coordinates (I & J)
@@ -5921,7 +5921,7 @@ void home_all_axes() { gcode_G28(true); }
     }
   }
 
-#endif // AUTO_BED_LEVELING_UBL
+#endif // HAS_MESH
 
 /**
  * G92: Set current position to given X Y Z E
@@ -10989,7 +10989,7 @@ void process_next_command() {
         gcode_G92();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
+      #if HAS_MESH
         case 42:
           gcode_G42();
           break;
@@ -11474,7 +11474,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      #if HAS_MESH
         case 421: // M421: Set a Mesh Bed Leveling Z coordinate
           gcode_M421();
           break;
@@ -12377,7 +12377,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   inline bool prepare_move_to_destination_cartesian() {
     if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
       const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      #if HAS_LEVELING
+      #if HAS_MESH
         if (planner.leveling_active) {
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
@@ -12388,7 +12388,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           #endif
           return true;
         }
-      #endif // HAS_LEVELING
+      #endif // HAS_MESH
       line_to_destination(fr_scaled);
     }
     else
