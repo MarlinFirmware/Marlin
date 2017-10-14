@@ -2093,7 +2093,8 @@ void Temperature::isr() {
   } // temp_count >= OVERSAMPLENR
 
   // Go to the next state, up to SensorsReady
-  adc_sensor_state = (ADCSensorState)((int(adc_sensor_state) + 1) % int(StartupDelay));
+  adc_sensor_state = (ADCSensorState)(int(adc_sensor_state) + 1);
+  if (adc_sensor_state > SensorsReady) adc_sensor_state = (ADCSensorState)0;
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {

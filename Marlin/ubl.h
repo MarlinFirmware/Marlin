@@ -76,15 +76,8 @@
   #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
   #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
-  typedef struct {
-    bool active = false;
-    int8_t storage_slot = -1;
-  } ubl_state;
-
   class unified_bed_leveling {
     private:
-
-      static float last_specified_z;
 
       static int    g29_verbose_level,
                     g29_phase_value,
@@ -167,7 +160,7 @@
         static void G26();
       #endif
 
-      static ubl_state state;
+      static int8_t storage_slot;
 
       static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
@@ -360,31 +353,6 @@
         }
         return z0;
       }
-
-      /**
-       * This function sets the Z leveling fade factor based on the given Z height,
-       * only re-calculating when necessary.
-       *
-       *  Returns 1.0 if planner.z_fade_height is 0.0.
-       *  Returns 0.0 if Z is past the specified 'Fade Height'.
-       */
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        static inline float fade_scaling_factor_for_z(const float &lz) {
-          if (planner.z_fade_height == 0.0) return 1.0;
-          static float fade_scaling_factor = 1.0;
-          const float rz = RAW_Z_POSITION(lz);
-          if (last_specified_z != rz) {
-            last_specified_z = rz;
-            fade_scaling_factor =
-              rz < planner.z_fade_height
-                ? 1.0 - (rz * planner.inverse_z_fade_height)
-                : 0.0;
-          }
-          return fade_scaling_factor;
-        }
-      #else
-        FORCE_INLINE static float fade_scaling_factor_for_z(const float &lz) { return 1.0; }
-      #endif
 
       FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) {
         return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : UBL_MESH_MIN_X + i * (MESH_X_DIST);

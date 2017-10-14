@@ -154,15 +154,14 @@ class Planner {
                  max_jerk[XYZE],       // The largest speed change requiring no acceleration
                  min_travel_feedrate_mm_s;
 
-    #if HAS_ABL
-      static bool abl_enabled;              // Flag that bed leveling is enabled
+    #if HAS_LEVELING
+      static bool leveling_active;          // Flag that bed leveling is enabled
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
       #endif
-    #endif
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      static float z_fade_height, inverse_z_fade_height;
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        static float z_fade_height, inverse_z_fade_height;
+      #endif
     #endif
 
     #if ENABLED(LIN_ADVANCE)
@@ -191,6 +190,10 @@ class Planner {
      * Limit where 64bit math is necessary for acceleration calculation
      */
     static uint32_t cutoff_long;
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      static float last_raw_lz;
+    #endif
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
@@ -242,6 +245,52 @@ class Planner {
     static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+      /**
+       * Get the Z leveling fade factor based on the given Z height,
+       * re-calculating only when needed.
+       *
+       *  Returns 1.0 if planner.z_fade_height is 0.0.
+       *  Returns 0.0 if Z is past the specified 'Fade Height'.
+       */
+      inline static float fade_scaling_factor_for_z(const float &lz) {
+        static float z_fade_factor = 1.0;
+        if (z_fade_height) {
+          const float raw_lz = RAW_Z_POSITION(lz);
+          if (raw_lz >= z_fade_height) return 0.0;
+          if (last_raw_lz != raw_lz) {
+            last_raw_lz = raw_lz;
+            z_fade_factor = 1.0 - raw_lz * inverse_z_fade_height;
+          }
+          return z_fade_factor;
+        }
+        return 1.0;
+      }
+
+      FORCE_INLINE static void force_fade_recalc() { last_raw_lz = -999.999; }
+
+      FORCE_INLINE static void set_z_fade_height(const float &zfh) {
+        z_fade_height = zfh > 0 ? zfh : 0;
+        inverse_z_fade_height = RECIPROCAL(z_fade_height);
+        force_fade_recalc();
+      }
+
+      FORCE_INLINE static bool leveling_active_at_z(const float &lz) {
+        return !z_fade_height || RAW_Z_POSITION(lz) < z_fade_height;
+      }
+
+    #else
+
+      FORCE_INLINE static float fade_scaling_factor_for_z(const float &lz) {
+        UNUSED(lz);
+        return 1.0;
+      }
+
+      FORCE_INLINE static bool leveling_active_at_z(const float &lz) { return true; }
+
+    #endif
 
     #if PLANNER_LEVELING
 
