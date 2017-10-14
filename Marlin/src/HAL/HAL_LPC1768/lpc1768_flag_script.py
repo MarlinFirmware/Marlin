@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 
 #dynamic build flags for generic compile options
@@ -27,7 +28,7 @@ if __name__ == "__main__":
   for i in range(1, len(sys.argv)):
     args += " " + sys.argv[i]
 
-  print args
+  print(args)
 
 # extra script for linker options
 else:
