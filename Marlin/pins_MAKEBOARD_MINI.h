@@ -1,17 +1,35 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
     
-  UNDER Developpement
+  UNDER Development
   
-  MAKEBOARD is a chinese motherboard selling by Micromake
-  I have a 3D printer Micromake C1 witch use a MAKEBOARD Mini motherboard.
-  I've seen, Micromake / MAKEBOARD use a file RAMPS_14_EFB altered for Marlin Firmware 1.0.x. I decided to make an update for the Marlin community and for the owners of Micromake C1.  
-  So I decided to update the firmware Micromake C1 and this in the rules defined here
-  http://marlinfw.org/docs/development/boards.html
-  http://marlinfw.org/docs/development/getting_started_pull_requests.html
-  and also to the coding style of existing Marlin motherboards.
+  MAKEBOARD is a Chinese motherboard sold by Micromake
+  I have a 3D printer Micromake C1 which uses a MAKEBOARD Mini motherboard.
+  I've seen Micromake/MAKEBOARD use a file RAMPS_14_EFB altered for Marlin Firmware 1.0.x.
+  I decided to make an update for the Marlin community and for the owners of Micromake C1.
  
   Bests Regards
-  
   Metalsearch@gmail.com / French Coder
   
  */
