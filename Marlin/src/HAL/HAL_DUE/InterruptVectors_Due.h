@@ -32,19 +32,19 @@
  */
 
 #ifndef INTERRUPTVECTORS_DUE_H
-#define INTERRUPTVECTORS_DUE_H
+  #define INTERRUPTVECTORS_DUE_H
 
-#include "../../inc/MarlinConfig.h"
+  #include "../../inc/MarlinConfig.h"
 
-#ifdef ARDUINO_ARCH_SAM 
+  #ifdef ARDUINO_ARCH_SAM 
 
-/* The type of an ISR handler */
-typedef void (*pfnISR_Handler)(void);
+    /* The type of an ISR handler */
+    typedef void (*pfnISR_Handler)(void);
 
-/**
- * Installs a new interrupt vector handler for the given irq, and returns the old one
- */
-pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler);
+    /**
+     * Installs a new interrupt vector handler for the given irq, and returns the old one
+     */
+    pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler);
 
-#endif
+  #endif
 #endif
