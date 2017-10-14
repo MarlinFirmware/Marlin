@@ -1282,13 +1282,13 @@ void kill_screen(const char* lcd_msg) {
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
         #if ENABLED(EXTRA_FANSPEED)      
-          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED, &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
         #if ENABLED(EXTRA_FANSPEED)      
-          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED, &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
@@ -3208,13 +3208,13 @@ void kill_screen(const char* lcd_msg) {
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
         #if ENABLED(EXTRA_FANSPEED)      
-          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED, &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
       #if ENABLED(EXTRA_FANSPEED)      
-          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED, &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
