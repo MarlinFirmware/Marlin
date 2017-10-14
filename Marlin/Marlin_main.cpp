@@ -11719,27 +11719,30 @@ void ok_to_send() {
    * Constrain the given coordinates to the software endstops.
    */
 
-  // NOTE: This makes no sense for delta beds other than Z-axis.
-  //       For delta the X/Y would need to be clamped at
-  //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
-  //       now enforces is_position_reachable for X/Y regardless
-  //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
-  //       redundant here.
-
+  /**
+   * Constrain the given coordinates to the software endstops.
+   *
+   * NOTE: This will only apply to Z on DELTA and SCARA. XY is
+   *       constrained to a circle on these kinematic systems.
+   */
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
-      #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
-      #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
     #endif
   }

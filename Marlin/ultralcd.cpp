@@ -2845,17 +2845,35 @@ void kill_screen(const char* lcd_msg) {
       float min = current_position[axis] - 1000,
             max = current_position[axis] + 1000;
 
-      #if HAS_SOFTWARE_ENDSTOPS
-        // Limit to software endstops, if enabled
-        if (soft_endstops_enabled) {
-          #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-            min = soft_endstop_min[axis];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-            max = soft_endstop_max[axis];
-          #endif
+      // Limit to software endstops, if enabled
+      #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+        if (soft_endstops_enabled) switch (axis) {
+          case X_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+              min = soft_endstop_min[X_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+              max = soft_endstop_max[X_AXIS];
+            #endif
+            break;
+          case Y_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+              min = soft_endstop_min[Y_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+              max = soft_endstop_max[Y_AXIS];
+            #endif
+            break;
+          case Z_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+              min = soft_endstop_min[Z_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+              max = soft_endstop_max[Z_AXIS];
+            #endif
+            break;
         }
-      #endif
+      #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
 
       // Delta limits XY based on the current offset from center
       // This assumes the center is 0,0
