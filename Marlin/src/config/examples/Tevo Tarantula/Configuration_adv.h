@@ -32,7 +32,7 @@
  */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H_VERSION 010100
+#define CONFIGURATION_ADV_H_VERSION 020000
 
 // @section temperature
 
@@ -438,6 +438,20 @@
 
 // Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
+
+#if (defined(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A))  //default to settings in pins_XXXX.h files
+  #define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for first DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_B 0x2D  // unshifted slave address for second DIGIPOT
+#endif
+/**
+ *  common slave addresses
+ *
+ *  board              A   (A shifted)   B   (B shifted)  IC
+ *  Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
+ *  AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
+ *  MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
+ */
+
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
 // Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
@@ -850,7 +864,9 @@
   #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
-  #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
+  #if ENABLED(SDSUPPORT)
+    #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
+  #endif
   #define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 
