@@ -295,13 +295,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                                     + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
                *  Steps:
-               *    1. raise Z-Axis to have enough clearance
-               *    2. move to park poition of old extruder
-               *    3. disengage magnetc field, wait for delay
-               *    4. move near new extruder
-               *    5. engage magnetic field for new extruder
-               *    6. move to parking incl. offset of new extruder
-               *    7. lower Z-Axis
+               *    1. Raise Z-Axis to give enough clearance
+               *    2. Move to park position of old extruder
+               *    3. Disengage magnetic field, wait for delay
+               *    4. Move near new extruder
+               *    5. Engage magnetic field for new extruder
+               *    6. Move to parking incl. offset of new extruder
+               *    7. Lower Z-Axis
                */
 
               // STEP 1

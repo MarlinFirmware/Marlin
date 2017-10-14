@@ -137,7 +137,7 @@ void GcodeSuite::G29() {
     const uint8_t old_debug_flags = marlin_debug_flags;
     if (query) marlin_debug_flags |= DEBUG_LEVELING;
     if (DEBUGGING(LEVELING)) {
-      DEBUG_POS(">>> gcode_G29", current_position);
+      DEBUG_POS(">>> G29", current_position);
       log_machine_info();
     }
     marlin_debug_flags = old_debug_flags;
@@ -957,7 +957,7 @@ void GcodeSuite::G29() {
   if (!faux) clean_up_after_endstop_or_probe_move();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G29");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
   #endif
 
   report_current_position();
