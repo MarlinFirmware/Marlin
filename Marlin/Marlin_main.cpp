@@ -7448,7 +7448,6 @@ inline void gcode_M105() {
    *           2=Apply memorised Fanspeed
    *           3-255= memorise Fanspeed 
    *           Require T2 before T1 to memorise current speed
-   
    */
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
