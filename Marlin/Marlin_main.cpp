@@ -7439,7 +7439,9 @@ inline void gcode_M105() {
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
-   *  T<int>   Temporary Speed :
+   *
+   * With EXTRA_FAN_SPEED enabled:
+   *  T<int>   Temporary Speed : 
    *           1=return to old ; 
    *           2=Apply memorised Fanspeed
    *           3-255= memorise Fanspeed 
