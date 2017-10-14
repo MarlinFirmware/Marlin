@@ -515,6 +515,25 @@
   #endif
 
   /**
+   * Set the software endstops fine settings
+   */
+  #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
+    #define MIN_SOFTWARE_ENDSTOP_Z
+    #if DISABLED(DELTA)
+      #define MIN_SOFTWARE_ENDSTOP_X
+      #define MIN_SOFTWARE_ENDSTOP_Y
+    #endif
+  #endif
+
+  #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+    #define MAX_SOFTWARE_ENDSTOP_Z
+    #if DISABLED(DELTA)
+      #define MAX_SOFTWARE_ENDSTOP_X
+      #define MAX_SOFTWARE_ENDSTOP_Y
+    #endif
+  #endif
+
+  /**
    * Shorthand for pin tests, used wherever needed
    */
 
