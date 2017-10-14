@@ -51,7 +51,7 @@ void GcodeSuite::M420() {
     if (parser.seen('L')) {
 
       #if ENABLED(EEPROM_SETTINGS)
-        const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.state.storage_slot;
+        const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.storage_slot;
         const int16_t a = settings.calc_num_meshes();
 
         if (!a) {
@@ -66,7 +66,7 @@ void GcodeSuite::M420() {
         }
 
         settings.load_mesh(storage_slot);
-        ubl.state.storage_slot = storage_slot;
+        ubl.storage_slot = storage_slot;
 
       #else
 
@@ -80,7 +80,7 @@ void GcodeSuite::M420() {
     if (parser.seen('L') || parser.seen('V')) {
       ubl.display_map(0);  // Currently only supports one map type
       SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
-      SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
+      SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
     }
 
   #endif // AUTO_BED_LEVELING_UBL
@@ -105,14 +105,13 @@ void GcodeSuite::M420() {
   }
 
   const bool to_enable = parser.boolval('S');
-  if (parser.seen('S'))
-    set_bed_leveling_enabled(to_enable);
+  if (parser.seen('S')) set_bed_leveling_enabled(to_enable);
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
   #endif
 
-  const bool new_status = leveling_is_active();
+  const bool new_status = planner.leveling_active;
 
   if (to_enable && !new_status) {
     SERIAL_ERROR_START();
