@@ -70,15 +70,8 @@ extern uint8_t ubl_cnt;
 #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
-typedef struct {
-  bool active = false;
-  int8_t storage_slot = -1;
-} ubl_state;
-
 class unified_bed_leveling {
   private:
-
-    static float last_specified_z;
 
     static int    g29_verbose_level,
                   g29_phase_value,
@@ -161,7 +154,7 @@ class unified_bed_leveling {
       static void G26();
     #endif
 
-    static ubl_state state;
+    static int8_t storage_slot;
 
     static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
