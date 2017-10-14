@@ -45,7 +45,7 @@
  */
 
 #if ENABLED(IS_REARM)
-  #error "Oops!  use 'pins_RAMPS_RE_ARM.h' when Re-Arm is used."
+  #error "Oops!  Use 'BOARD_RAMPS_RE_ARM' to build for Re-ARM."
 #endif
 
 #if !ENABLED(IS_RAMPS_SMART) && !ENABLED(IS_RAMPS_DUO) && !ENABLED(IS_RAMPS4DUE) && !ENABLED(TARGET_LPC1768)
