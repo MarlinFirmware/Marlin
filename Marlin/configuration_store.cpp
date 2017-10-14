@@ -89,7 +89,7 @@
  *
  * AUTO_BED_LEVELING_UBL:                           6 bytes
  *  324  G29 A     planner.leveling_active          (bool)
- *  325  G29 S     ubl.state.storage_slot           (int8_t)
+ *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
  * DELTA:                                           48 bytes
  *  348  M666 XYZ  endstop_adj                      (float x3)
@@ -440,7 +440,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       EEPROM_WRITE(planner.leveling_active);
-      EEPROM_WRITE(ubl.state.storage_slot);
+      EEPROM_WRITE(ubl.storage_slot);
     #else
       const bool ubl_active = false;
       const int8_t storage_slot = -1;
@@ -665,8 +665,8 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
-      if (ubl.state.storage_slot >= 0)
-        store_mesh(ubl.state.storage_slot);
+      if (ubl.storage_slot >= 0)
+        store_mesh(ubl.storage_slot);
     #endif
 
     return !eeprom_error;
@@ -829,7 +829,7 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         EEPROM_READ(planner.leveling_active);
-        EEPROM_READ(ubl.state.storage_slot);
+        EEPROM_READ(ubl.storage_slot);
       #else
         uint8_t dummyui8;
         EEPROM_READ(dummyb);
@@ -1046,10 +1046,10 @@ void MarlinSettings::postprocess() {
           ubl.reset();
         }
 
-        if (ubl.state.storage_slot >= 0) {
-          load_mesh(ubl.state.storage_slot);
+        if (ubl.storage_slot >= 0) {
+          load_mesh(ubl.storage_slot);
           #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHOPAIR("Mesh ", ubl.state.storage_slot);
+            SERIAL_ECHOPAIR("Mesh ", ubl.storage_slot);
             SERIAL_ECHOLNPGM(" loaded from storage.");
           #endif
         }
@@ -1624,7 +1624,7 @@ void MarlinSettings::reset() {
         if (!forReplay) {
           SERIAL_EOL();
           ubl.report_state();
-          SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.state.storage_slot);
+          SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
           SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
           SERIAL_ECHOLNPGM(" meshes.\n");
         }

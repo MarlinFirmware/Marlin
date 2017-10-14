@@ -61,7 +61,7 @@
     safe_delay(10);
   }
 
-  ubl_state unified_bed_leveling::state;
+  int8_t unified_bed_leveling::storage_slot;
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
@@ -82,7 +82,7 @@
 
   void unified_bed_leveling::reset() {
     set_bed_leveling_enabled(false);
-    state.storage_slot = -1;
+    storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       planner.set_z_fade_height(10.0);
     #endif

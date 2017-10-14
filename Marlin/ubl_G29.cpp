@@ -423,8 +423,8 @@
     #endif // HAS_BED_PROBE
 
     if (parser.seen('P')) {
-      if (WITHIN(g29_phase_value, 0, 1) && state.storage_slot == -1) {
-        state.storage_slot = 0;
+      if (WITHIN(g29_phase_value, 0, 1) && storage_slot == -1) {
+        storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
       }
 
@@ -603,7 +603,7 @@
     //
 
     if (parser.seen('L')) {     // Load Current Mesh Data
-      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
+      g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
       int16_t a = settings.calc_num_meshes();
 
@@ -619,7 +619,7 @@
       }
 
       settings.load_mesh(g29_storage_slot);
-      state.storage_slot = g29_storage_slot;
+      storage_slot = g29_storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.");
     }
@@ -629,7 +629,7 @@
     //
 
     if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
-      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
+      g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
       if (g29_storage_slot == -1) {                     // Special case, we are going to 'Export' the mesh to the
         SERIAL_ECHOLNPGM("G29 I 999");              // host in a form it can be reconstructed on a different machine
@@ -661,7 +661,7 @@
       }
 
       settings.store_mesh(g29_storage_slot);
-      state.storage_slot = g29_storage_slot;
+      storage_slot = g29_storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.");
     }
@@ -1190,10 +1190,10 @@
   void unified_bed_leveling::g29_what_command() {
     report_state();
 
-    if (state.storage_slot == -1)
+    if (storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
     else {
-      SERIAL_PROTOCOLPAIR("Mesh ", state.storage_slot);
+      SERIAL_PROTOCOLPAIR("Mesh ", storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL();

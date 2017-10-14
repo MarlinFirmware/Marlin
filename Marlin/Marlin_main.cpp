@@ -9335,7 +9335,7 @@ void quickstop_stepper() {
       if (parser.seen('L')) {
 
         #if ENABLED(EEPROM_SETTINGS)
-          const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.state.storage_slot;
+          const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.storage_slot;
           const int16_t a = settings.calc_num_meshes();
 
           if (!a) {
@@ -9350,7 +9350,7 @@ void quickstop_stepper() {
           }
 
           settings.load_mesh(storage_slot);
-          ubl.state.storage_slot = storage_slot;
+          ubl.storage_slot = storage_slot;
 
         #else
 
@@ -9364,7 +9364,7 @@ void quickstop_stepper() {
       if (parser.seen('L') || parser.seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
+        SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
 
     #endif // AUTO_BED_LEVELING_UBL
