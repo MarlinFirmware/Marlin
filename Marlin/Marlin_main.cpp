@@ -7439,7 +7439,6 @@ inline void gcode_M105() {
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
-   *
    *  P<index> Fan index, if more than one fan* 
    *
    * With EXTRA_FAN_SPEED enabled:
