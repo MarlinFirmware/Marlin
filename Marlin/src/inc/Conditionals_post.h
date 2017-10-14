@@ -793,7 +793,17 @@
   #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
 
   /**
-   * Delta radius/rod trimmers/angle trimmers
+   * Only constrain Z on DELTA / SCARA machines
+   */
+  #if IS_KINEMATIC
+    #undef MIN_SOFTWARE_ENDSTOP_X
+    #undef MIN_SOFTWARE_ENDSTOP_Y
+    #undef MAX_SOFTWARE_ENDSTOP_X
+    #undef MAX_SOFTWARE_ENDSTOP_Y
+  #endif
+
+  /**
+   * Delta endstops, radius/rod trimmers, angle trimmers
    */
   #if ENABLED(DELTA)
     #ifndef DELTA_CALIBRATION_RADIUS
