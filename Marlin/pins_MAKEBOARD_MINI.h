@@ -21,26 +21,24 @@
  */
 
 /**
-    
-  UNDER Development
-  
-  MAKEBOARD is a Chinese motherboard sold by Micromake
-  I have a 3D printer Micromake C1 which uses a MAKEBOARD Mini motherboard.
-  I've seen Micromake/MAKEBOARD use a file RAMPS_14_EFB altered for Marlin Firmware 1.0.x.
-  I decided to make an update for the Marlin community and for the owners of Micromake C1.
- 
-  Bests Regards
-  Metalsearch@gmail.com / French Coder
-  
+ * UNDER Development
+ *
+ * MAKEBOARD is a Chinese motherboard sold by Micromake
+ * I have a Micromake C1 3D printer which uses a MAKEBOARD Mini motherboard.
+ * I've seen Micromake/MAKEBOARD use a RAMPS_14_EFB file altered for Marlin Firmware 1.0.x.
+ * I decided to make an update for the Marlin community and for the owners of Micromake C1.
+ *
+ * Bests Regards
+ * Metalsearch@gmail.com / French Coder
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-// Two models :  Pro or Mini but just Mini support for the moment
+// Two models: Pro or Mini but just Mini support for the moment
 #ifndef BOARD_NAME
-   #define BOARD_NAME "MAKEBOARD Mini"
+  #define BOARD_NAME "MAKEBOARD Mini"
 #endif
 
 #define LARGE_FLASH true
@@ -274,5 +272,5 @@
 #endif
 
 #ifndef KILL_PIN
-  //  #define KILL_PIN     -1
+  //#define KILL_PIN     -1
 #endif
