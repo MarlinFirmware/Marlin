@@ -34,18 +34,12 @@ enum MeshLevelingState {
   MeshReset
 };
 
-enum MBLStatus {
-  MBL_STATUS_NONE = 0,
-  MBL_STATUS_HAS_MESH_BIT = 0,
-  MBL_STATUS_ACTIVE_BIT = 1
-};
-
 #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_POINTS_Y - 1))
 
 class mesh_bed_leveling {
 public:
-  static uint8_t status; // Has Mesh and Is Active bits
+  static bool has_mesh;
   static float z_offset,
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                index_to_xpos[GRID_MAX_POINTS_X],
@@ -56,11 +50,6 @@ public:
   static void reset();
 
   static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
-
-  static bool active()                       { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
-  static void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
-  static bool has_mesh()                     { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
-  static void set_has_mesh(const bool onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
 
   static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
     px = index % (GRID_MAX_POINTS_X);
