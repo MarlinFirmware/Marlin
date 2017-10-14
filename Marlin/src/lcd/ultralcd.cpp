@@ -2834,17 +2834,45 @@ void kill_screen(const char* lcd_msg) {
       float min = current_position[axis] - 1000,
             max = current_position[axis] + 1000;
 
-      #if HAS_SOFTWARE_ENDSTOPS
-        // Limit to software endstops, if enabled
-        if (soft_endstops_enabled) {
-          #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
+      // Limit to software endstops, if enabled
+      if (soft_endstops_enabled) {
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+          if (X_AXIS == axis)
+          {
             min = soft_endstop_min[axis];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+          }
+        #endif
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+          if (Y_AXIS == axis)
+          {
+            min = soft_endstop_min[axis];
+          }
+        #endif
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+          if (Z_AXIS == axis)
+          {
+            min = soft_endstop_min[axis];
+          }
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+          if (X_AXIS == axis)
+          {
             max = soft_endstop_max[axis];
-          #endif
-        }
-      #endif
+          }
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          if (Y_AXIS == axis)
+          {
+            max = soft_endstop_max[axis];
+          }
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+          if (Z_AXIS == axis)
+          {
+            max = soft_endstop_max[axis];
+          }
+        #endif
+      }
 
       // Delta limits XY based on the current offset from center
       // This assumes the center is 0,0
