@@ -7440,13 +7440,15 @@ inline void gcode_M105() {
    *
    *  S<int>   Speed between 0-255
    *
+   *  P<index> Fan index, if more than one fan* 
+   *
    * With EXTRA_FAN_SPEED enabled:
    *  T<int>   Temporary Speed : 
    *           1=return to old ; 
    *           2=Apply memorised Fanspeed
    *           3-255= memorise Fanspeed 
    *           Require T2 before T1 to memorise current speed
-   *  P<index> Fan index, if more than one fan
+   
    */
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
