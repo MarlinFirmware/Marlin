@@ -1277,7 +1277,7 @@ void kill_screen(const char* lcd_msg) {
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
        #if ENABLED(EXTRA_FANSPEED)      
           MENU_MULTIPLIER_ITEM_EDIT(int3,MSG_EXTRA_FAN_SPEED, &new_fanSpeeds[0], 3, 255);
-        #endif
+       #endif
       #endif
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
