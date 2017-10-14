@@ -826,7 +826,7 @@
  * Apply new /recover old fan speed value
  * T1 return to previous / T2 apply extra speed / T3-255 set without applying
  */
-//#define EXTRA_FAN_SPEED
+#define EXTRA_FAN_SPEED
 
 /**
  * Advanced Pause
