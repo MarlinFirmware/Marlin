@@ -186,7 +186,7 @@
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
       const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
+      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
        * If part of the Mesh is undefined, it will show up as NAN
@@ -270,9 +270,8 @@
          */
         const float x = inf_m_flag ? start[X_AXIS] : (next_mesh_line_y - c) / m;
 
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -335,9 +334,8 @@
         const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_xpos(current_xi)),
                     y = m * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
 
-        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -408,9 +406,8 @@
 
       if (left_flag == (x > next_mesh_line_x)) { // Check if we hit the Y line first
         // Yes!  Crossing a Y Mesh Line next
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -436,9 +433,8 @@
       }
       else {
         // Yes!  Crossing a X Mesh Line next
-        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -603,7 +599,7 @@
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
 
-      if (!state.active || above_fade_height) {   // no mesh leveling
+      if (!planner.leveling_active || !planner.leveling_active_at_z(ltarget[Z_AXIS])) {   // no mesh leveling
 
         do {
 
@@ -629,7 +625,9 @@
       // Otherwise perform per-segment leveling
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+        const float fade_scaling_factor = planner.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+      #else
+        constexpr float fade_scaling_factor = 1.0;
       #endif
 
       // increment to first segment destination
@@ -661,7 +659,7 @@
               z_x0y1 = z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
               z_x1y1 = z_values[cell_xi+1][cell_yi+1];  // z at upper right corner
 
-        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating state.active (G29 A)
+        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
         if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
         if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
         if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
@@ -690,11 +688,7 @@
 
         for(;;) {  // for all segments within this mesh cell
 
-          float z_cxcy = z_cxy0 + z_cxym * cy;      // interpolated mesh z height along cx at cy
-
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
-          #endif
+          float z_cxcy = (z_cxy0 + z_cxym * cy) * fade_scaling_factor; // interpolated mesh z height along cx at cy, scaled for fade
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
             seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);

@@ -323,7 +323,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if HAS_LEVELING
   bool leveling_is_valid();
-  bool leveling_is_active();
   void set_bed_leveling_enabled(const bool enable=true);
   void reset_bed_level();
 #endif

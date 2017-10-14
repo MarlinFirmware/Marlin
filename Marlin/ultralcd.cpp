@@ -50,6 +50,11 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
   bool ubl_lcd_map_control = false;
+#elif HAS_ABL
+  #include "planner.h"
+#elif ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+  extern void mesh_probing_done();
 #endif
 
 // Initialized by settings.load()
@@ -192,11 +197,6 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
     void lcd_delta_calibrate_menu();
-  #endif
-
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    #include "mesh_bed_leveling.h"
-    extern void mesh_probing_done();
   #endif
 
   ////////////////////////////////////////////
@@ -1089,7 +1089,7 @@ void kill_screen(const char* lcd_msg) {
           const float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
-            if (planner.abl_enabled)
+            if (planner.leveling_active)
               thermalManager.babystep_axis(Z_AXIS, babystep_increment);
 
             zprobe_zoffset = new_zoffset;
@@ -1791,7 +1791,7 @@ void kill_screen(const char* lcd_msg) {
 
             _lcd_after_probing();
 
-            mbl.set_has_mesh(true);
+            mbl.has_mesh = true;
             mesh_probing_done();
 
           #endif
@@ -1909,11 +1909,12 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_commands_P(PSTR("G28"));
     }
 
-    static bool _level_state;
-    void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(_level_state); }
+    static bool new_level_state;
+    void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(new_level_state); }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      void _lcd_set_z_fade_height() { set_z_fade_height(planner.z_fade_height); }
+      static float new_z_fade_height;
+      void _lcd_set_z_fade_height() { set_z_fade_height(new_z_fade_height); }
     #endif
 
     /**
@@ -1936,14 +1937,11 @@ void kill_screen(const char* lcd_msg) {
 
       if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
         MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-      else if (leveling_is_valid()) {
-        _level_state = leveling_is_active();
-        MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &_level_state, _lcd_toggle_bed_leveling);
-      }
+      else if (leveling_is_valid())
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        set_z_fade_height(planner.z_fade_height);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &planner.z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
 
       //
@@ -1972,6 +1970,16 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       #endif
       END_MENU();
+    }
+
+    void _lcd_goto_bed_leveling() {
+      currentScreen = lcd_bed_leveling;
+      #if ENABLED(LCD_BED_LEVELING)
+        new_level_state = planner.leveling_active;
+      #endif
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        new_z_fade_height = planner.z_fade_height;
+      #endif
     }
 
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2542,7 +2550,13 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-      MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
+          MENU_ITEM(submenu, MSG_BED_LEVELING,
+            #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+              _lcd_goto_bed_leveling
+            #else
+              lcd_bed_leveling
+            #endif
+          );
     #else
       #if PLANNER_LEVELING
         MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
