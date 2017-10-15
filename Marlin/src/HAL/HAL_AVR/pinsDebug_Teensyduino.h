@@ -20,6 +20,9 @@
  *
  */
 
+#ifndef _PINSDEBUG_TEENSYSUINO_H_
+#define _PINSDEBUG_TEENSYSUINO_H_
+
 //
 //  some of the pin mapping functions of the Teensduino extension to the Arduino IDE
 //  do not function the same as the other Arduino extensions
@@ -108,3 +111,5 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
                                              // disable the PWMs so we can use it as is
 
 // portModeRegister(pin) is OK
+
+#endif // _PINSDEBUG_TEENSYSUINO_H_

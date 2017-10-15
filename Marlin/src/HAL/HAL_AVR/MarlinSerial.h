@@ -29,8 +29,8 @@
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
  */
 
-#ifndef MARLINSERIAL_H
-#define MARLINSERIAL_H
+#ifndef _MARLINSERIAL_H_
+#define _MARLINSERIAL_H_
 
 #include "../../inc/MarlinConfig.h"
 
@@ -181,4 +181,4 @@
   extern HardwareSerial bluetoothSerial;
 #endif
 
-#endif // MARLINSERIAL_H
+#endif // _MARLINSERIAL_H_

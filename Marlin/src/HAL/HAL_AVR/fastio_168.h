@@ -28,8 +28,8 @@
  *   Marlin   08 09 10 11 12 13 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
  */
 
-#ifndef _FASTIO_168
-#define _FASTIO_168
+#ifndef _FASTIO_168_H_
+#define _FASTIO_168_H_
 
 #include "fastio_AVR.h"
 
@@ -359,4 +359,4 @@
 #define PD7_DDR     DDRD
 #define PD7_PWM     NULL
 
-#endif // _FASTIO_168
+#endif // _FASTIO_168_H_
