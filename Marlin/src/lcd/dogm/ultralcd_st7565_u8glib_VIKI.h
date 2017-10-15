@@ -23,7 +23,7 @@
 #ifndef ULCDST7565_H
 #define ULCDST7565_H
 
-#include <src/Marlin.h>
+#include "../../Marlin.h"
 
 #if ENABLED(U8GLIB_ST7565_64128N)
 

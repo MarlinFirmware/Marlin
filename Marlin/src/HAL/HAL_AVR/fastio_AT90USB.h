@@ -29,8 +29,8 @@
  *            The pins 46 and 47 are not supported by Teensyduino, but are supported below as E2 and E3
  */
 
-#ifndef _FASTIO_AT90USB
-#define _FASTIO_AT90USB
+#ifndef _FASTIO_AT90USB_H_
+#define _FASTIO_AT90USB_H_
 
 #include "fastio_AVR.h"
 
@@ -699,4 +699,4 @@
 #define TIMER3B 4
 #define TIMER3C 3
 
-#endif // _FASTIO_AT90USB
+#endif // _FASTIO_AT90USB_H_
