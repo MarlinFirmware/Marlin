@@ -535,7 +535,7 @@ static void lcd_implementation_status_screen() {
     // SD Card Symbol
     //
 
-    if (PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
+    if (card.isFileOpen() && PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
       // Upper box
       u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
       // Right edge
@@ -559,7 +559,11 @@ static void lcd_implementation_status_screen() {
         PROGRESS_BAR_WIDTH, 4 - (TALL_FONT_CORRECTION)
       );
 
-    if (IS_SD_PRINTING) {
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      const uint8_t progress_bar_percent = card.percentDone();
+    #endif
+
+    if (progress_bar_percent > 1) {
 
       //
       // Progress bar solid part
@@ -568,7 +572,7 @@ static void lcd_implementation_status_screen() {
       if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2 - (TALL_FONT_CORRECTION)
         );
 
       //
@@ -579,7 +583,7 @@ static void lcd_implementation_status_screen() {
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
           u8g.setPrintPos(55, 48);
-          u8g.print(itostr3(card.percentDone()));
+          u8g.print(itostr3(progress_bar_percent));
           u8g.print('%');
         }
       #endif

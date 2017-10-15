@@ -6022,7 +6022,7 @@ inline void gcode_G92() {
       #if ENABLED(ULTIPANEL)
         if (lcd_detected()) {
           while (wait_for_user) idle();
-          IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
+          print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
         }
       #else
         while (wait_for_user) idle();
@@ -7241,6 +7241,24 @@ inline void gcode_M42() {
 
 #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
 
+#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  /**
+   * M73: Set percentage complete (for display on LCD)
+   *
+   * Example:
+   *   M73 P25 ; Set progress to 25%
+   *
+   * Notes:
+   *   This has no effect during an SD print job
+   */
+  inline void gcode_M73() {
+    if (!IS_SD_PRINTING && parser.seen('P')) {
+      progress_bar_percent = parser.value_byte();
+      NOMORE(progress_bar_percent, 100);
+    }
+  }
+#endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY
+
 /**
  * M75: Start print timer
  */
@@ -8247,6 +8265,13 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
+    #endif
+
+    // BUILD_PERCENT (M73)
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:0");
     #endif
 
     // SOFTWARE_POWER (M80, M81)
@@ -11090,6 +11115,11 @@ void process_next_command() {
           break;
       #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
 
+      #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        case 73: // M73: Set print progress percentage
+          gcode_M73(); break;
+      #endif
+
       case 75: // M75: Start print timer
         gcode_M75(); break;
       case 76: // M76: Pause print timer
@@ -11719,27 +11749,30 @@ void ok_to_send() {
    * Constrain the given coordinates to the software endstops.
    */
 
-  // NOTE: This makes no sense for delta beds other than Z-axis.
-  //       For delta the X/Y would need to be clamped at
-  //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
-  //       now enforces is_position_reachable for X/Y regardless
-  //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
-  //       redundant here.
-
+  /**
+   * Constrain the given coordinates to the software endstops.
+   *
+   * NOTE: This will only apply to Z on DELTA and SCARA. XY is
+   *       constrained to a circle on these kinematic systems.
+   */
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
-      #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
-      #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
     #endif
   }

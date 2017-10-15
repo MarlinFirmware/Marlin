@@ -60,6 +60,10 @@
 // Initialized by settings.load()
 int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+  uint8_t progress_bar_percent;
+#endif
+
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t previous_lcd_status_ms = 0;
 #endif
@@ -603,36 +607,52 @@ void lcd_status_screen() {
   #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
-    millis_t ms = millis();
-    #if DISABLED(PROGRESS_MSG_ONCE)
-      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)) {
-        progress_bar_ms = ms;
-      }
+
+    //
+    // HD44780 implements the following message blinking and
+    // message expiration because Status Line and Progress Bar
+    // share the same line on the display.
+    //
+
+    // Set current percentage from SD when actively printing
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      if (IS_SD_PRINTING)
+        progress_bar_percent = card.percentDone();
     #endif
+
+    millis_t ms = millis();
+
+    // If the message will blink rather than expire...
+    #if DISABLED(PROGRESS_MSG_ONCE)
+      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
+        progress_bar_ms = ms;
+    #endif
+
     #if PROGRESS_MSG_EXPIRE > 0
+
       // Handle message expire
       if (expire_status_ms > 0) {
-        #if ENABLED(SDSUPPORT)
-          if (card.isFileOpen()) {
-            // Expire the message when printing is active
-            if (IS_SD_PRINTING) {
-              if (ELAPSED(ms, expire_status_ms)) {
-                lcd_status_message[0] = '\0';
-                expire_status_ms = 0;
-              }
-            }
-            else {
-              expire_status_ms += LCD_UPDATE_INTERVAL;
-            }
-          }
-          else {
+
+        #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+          const uint8_t progress_bar_percent = card.percentDone();
+        #endif
+
+        // Expire the message if a job is active and the bar has ticks
+        if (progress_bar_percent > 2 && !print_job_timer.isPaused()) {
+          if (ELAPSED(ms, expire_status_ms)) {
+            lcd_status_message[0] = '\0';
             expire_status_ms = 0;
           }
-        #else
-          expire_status_ms = 0;
-        #endif // SDSUPPORT
+        }
+        else {
+          // Defer message expiration before bar appears
+          // and during any pause (not just SD)
+          expire_status_ms += LCD_UPDATE_INTERVAL;
+        }
       }
-    #endif
+
+    #endif // PROGRESS_MSG_EXPIRE
+
   #endif // LCD_PROGRESS_BAR
 
   #if ENABLED(ULTIPANEL)
@@ -2845,17 +2865,35 @@ void kill_screen(const char* lcd_msg) {
       float min = current_position[axis] - 1000,
             max = current_position[axis] + 1000;
 
-      #if HAS_SOFTWARE_ENDSTOPS
-        // Limit to software endstops, if enabled
-        if (soft_endstops_enabled) {
-          #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-            min = soft_endstop_min[axis];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-            max = soft_endstop_max[axis];
-          #endif
+      // Limit to software endstops, if enabled
+      #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+        if (soft_endstops_enabled) switch (axis) {
+          case X_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+              min = soft_endstop_min[X_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+              max = soft_endstop_max[X_AXIS];
+            #endif
+            break;
+          case Y_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+              min = soft_endstop_min[Y_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+              max = soft_endstop_max[Y_AXIS];
+            #endif
+            break;
+          case Z_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+              min = soft_endstop_min[Z_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+              max = soft_endstop_max[Z_AXIS];
+            #endif
+            break;
         }
-      #endif
+      #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
 
       // Delta limits XY based on the current offset from center
       // This assumes the center is 0,0
