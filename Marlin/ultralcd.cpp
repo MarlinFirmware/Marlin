@@ -60,6 +60,10 @@
 // Initialized by settings.load()
 int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+  uint8_t progress_bar_percent;
+#endif
+
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t previous_lcd_status_ms = 0;
 #endif
@@ -603,36 +607,52 @@ void lcd_status_screen() {
   #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
-    millis_t ms = millis();
-    #if DISABLED(PROGRESS_MSG_ONCE)
-      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)) {
-        progress_bar_ms = ms;
-      }
+
+    //
+    // HD44780 implements the following message blinking and
+    // message expiration because Status Line and Progress Bar
+    // share the same line on the display.
+    //
+
+    // Set current percentage from SD when actively printing
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      if (IS_SD_PRINTING)
+        progress_bar_percent = card.percentDone();
     #endif
+
+    millis_t ms = millis();
+
+    // If the message will blink rather than expire...
+    #if DISABLED(PROGRESS_MSG_ONCE)
+      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
+        progress_bar_ms = ms;
+    #endif
+
     #if PROGRESS_MSG_EXPIRE > 0
+
       // Handle message expire
       if (expire_status_ms > 0) {
-        #if ENABLED(SDSUPPORT)
-          if (card.isFileOpen()) {
-            // Expire the message when printing is active
-            if (IS_SD_PRINTING) {
-              if (ELAPSED(ms, expire_status_ms)) {
-                lcd_status_message[0] = '\0';
-                expire_status_ms = 0;
-              }
-            }
-            else {
-              expire_status_ms += LCD_UPDATE_INTERVAL;
-            }
-          }
-          else {
+
+        #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+          const uint8_t progress_bar_percent = card.percentDone();
+        #endif
+
+        // Expire the message if a job is active and the bar has ticks
+        if (progress_bar_percent > 2 && !print_job_timer.isPaused()) {
+          if (ELAPSED(ms, expire_status_ms)) {
+            lcd_status_message[0] = '\0';
             expire_status_ms = 0;
           }
-        #else
-          expire_status_ms = 0;
-        #endif // SDSUPPORT
+        }
+        else {
+          // Defer message expiration before bar appears
+          // and during any pause (not just SD)
+          expire_status_ms += LCD_UPDATE_INTERVAL;
+        }
       }
-    #endif
+
+    #endif // PROGRESS_MSG_EXPIRE
+
   #endif // LCD_PROGRESS_BAR
 
   #if ENABLED(ULTIPANEL)

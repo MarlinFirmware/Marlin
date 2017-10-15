@@ -168,6 +168,10 @@
     #define LCD_CLICKED false
   #endif
 
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+    extern uint8_t progress_bar_percent;
+  #endif
+
 #else // no LCD
 
   inline void lcd_update() {}
