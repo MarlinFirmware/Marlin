@@ -437,6 +437,10 @@ private:
     static void M49();
   #endif
 
+  #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    static void M73();
+  #endif
+
   static void M75();
   static void M76();
   static void M77();
