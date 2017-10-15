@@ -20,14 +20,12 @@
  *
  */
 
+#ifndef _SANITYCHECK_AVR_8_BIT_H_
+#define _SANITYCHECK_AVR_8_BIT_H_
+
 /**
  * Test AVR specific configuration values for errors at compile-time.
  */
-
-/**
- * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
- */
-
 
 /**
  * Digipot requirement
@@ -39,12 +37,9 @@
   #endif
 #endif
 
-
-
 /**
  * Sanity checks for Spindle / Laser
  */
-
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
     #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
@@ -100,3 +95,5 @@
     #endif
   #endif
 #endif // SPINDLE_LASER_ENABLE
+
+#endif // _SANITYCHECK_AVR_8_BIT_H_
