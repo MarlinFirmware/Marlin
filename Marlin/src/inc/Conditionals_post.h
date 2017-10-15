@@ -28,6 +28,13 @@
 #ifndef CONDITIONALS_POST_H
 #define CONDITIONALS_POST_H
 
+  #define AVR_ATmega2560_FAMILY_PLUS_70 ( \
+       MB(BQ_ZUM_MEGA_3D)                 \
+    || MB(MIGHTYBOARD_REVE)               \
+    || MB(MINIRAMBO)                      \
+    || MB(SCOOVO_X9H)                     \
+  )
+
   #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
   #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
   #define IS_CARTESIAN !IS_KINEMATIC

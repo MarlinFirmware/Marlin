@@ -27,10 +27,7 @@
 #ifndef _PINSDEBUG_AVR_8_BIT_
 #define _PINSDEBUG_AVR_8_BIT_
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 (MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D \
-|| MOTHERBOARD == BOARD_MIGHTYBOARD_REVE \
-|| MOTHERBOARD == BOARD_MINIRAMBO \
-|| MOTHERBOARD == BOARD_SCOOVO_X9H)
+#include "../../inc/MarlinConfig.h"
 
 #if AVR_AT90USB1286_FAMILY
   // Working with Teensyduino extension so need to re-define some things

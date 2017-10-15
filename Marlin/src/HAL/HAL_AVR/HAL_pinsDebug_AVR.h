@@ -23,6 +23,8 @@
 #ifndef _HAL_PINSDEBUG_AVR_H_
 #define _HAL_PINSDEBUG_AVR_H_
 
+#include "../../inc/MarlinConfig.h"
+
 void HAL_print_analog_pin(char buffer[], int8_t pin) {
   sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
 }
@@ -110,11 +112,6 @@ const PinInfo pin_array[] PROGMEM = {
   #line 102
 
 };
-
-#define AVR_ATmega2560_FAMILY_PLUS_70 (MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D \
-|| MOTHERBOARD == BOARD_MIGHTYBOARD_REVE \
-|| MOTHERBOARD == BOARD_MINIRAMBO \
-|| MOTHERBOARD == BOARD_SCOOVO_X9H)
 
 #if AVR_AT90USB1286_FAMILY
   // Working with Teensyduino extension so need to re-define some things
