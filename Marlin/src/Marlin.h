@@ -223,3 +223,4 @@ bool pin_is_protected(const int8_t pin);
 #endif
 
 #endif // __MARLIN_H__
+  
