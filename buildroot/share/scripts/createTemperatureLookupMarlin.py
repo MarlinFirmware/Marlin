@@ -136,8 +136,7 @@ def main(argv):
     print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
     print "// Theoretical limits of termistor: %.2f to %.2f degC" % (low_bound, up_bound)
     print
-    print "#define NUMTEMPS %s" % (len(temps))
-    print "const short temptable[NUMTEMPS][2] PROGMEM = {"
+    print "const short temptable[][2] PROGMEM = {"
 
     for temp in temps:
         adc = t.adc(temp)
