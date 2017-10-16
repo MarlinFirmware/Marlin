@@ -83,6 +83,10 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
   uint8_t status_scroll_pos = 0;
 #endif
 
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  uint8_t progress_bar_percent;
+#endif
+
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
   #include <U8glib.h>
@@ -604,36 +608,52 @@ void lcd_status_screen() {
   #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
-    millis_t ms = millis();
-    #if DISABLED(PROGRESS_MSG_ONCE)
-      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)) {
-        progress_bar_ms = ms;
-      }
+
+    //
+    // HD44780 implements the following message blinking and
+    // message expiration because Status Line and Progress Bar
+    // share the same line on the display.
+    //
+
+    // Set current percentage from SD when actively printing
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      if (IS_SD_PRINTING)
+        progress_bar_percent = card.percentDone();
     #endif
+
+    millis_t ms = millis();
+
+    // If the message will blink rather than expire...
+    #if DISABLED(PROGRESS_MSG_ONCE)
+      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
+        progress_bar_ms = ms;
+    #endif
+
     #if PROGRESS_MSG_EXPIRE > 0
+
       // Handle message expire
       if (expire_status_ms > 0) {
-        #if ENABLED(SDSUPPORT)
-          if (card.isFileOpen()) {
-            // Expire the message when printing is active
-            if (IS_SD_PRINTING) {
-              if (ELAPSED(ms, expire_status_ms)) {
-                lcd_status_message[0] = '\0';
-                expire_status_ms = 0;
-              }
-            }
-            else {
-              expire_status_ms += LCD_UPDATE_INTERVAL;
-            }
-          }
-          else {
+
+        #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+          const uint8_t progress_bar_percent = card.percentDone();
+        #endif
+
+        // Expire the message if a job is active and the bar has ticks
+        if (progress_bar_percent > 2 && !print_job_timer.isPaused()) {
+          if (ELAPSED(ms, expire_status_ms)) {
+            lcd_status_message[0] = '\0';
             expire_status_ms = 0;
           }
-        #else
-          expire_status_ms = 0;
-        #endif // SDSUPPORT
+        }
+        else {
+          // Defer message expiration before bar appears
+          // and during any pause (not just SD)
+          expire_status_ms += LCD_UPDATE_INTERVAL;
+        }
       }
-    #endif
+
+    #endif // PROGRESS_MSG_EXPIRE
+
   #endif // LCD_PROGRESS_BAR
 
   #if ENABLED(ULTIPANEL)
@@ -1218,6 +1238,15 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
+  // First Fan Speed title in "Tune" and "Control>Temperature" menus
+  #if FAN_COUNT > 0 && HAS_FAN0
+    #if FAN_COUNT > 1
+      #define FAN_SPEED_1_SUFFIX " 1"
+    #else
+      #define FAN_SPEED_1_SUFFIX ""
+    #endif
+  #endif
+
   /**
    *
    * "Tune" submenu
@@ -1273,18 +1302,22 @@ void kill_screen(const char* lcd_msg) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        #if FAN_COUNT > 1
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
-        #else
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
         #endif
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
       #endif
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+        #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+        #endif
       #endif
     #endif // FAN_COUNT > 0
 
@@ -2860,7 +2893,7 @@ void kill_screen(const char* lcd_msg) {
             #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
               max = soft_endstop_max[Z_AXIS];
             #endif
-            break;
+          default: break;
         }
       #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
 
@@ -3285,18 +3318,22 @@ void kill_screen(const char* lcd_msg) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        #if FAN_COUNT > 1
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
-        #else
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
         #endif
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
       #endif
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+        #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+        #endif
       #endif
     #endif // FAN_COUNT > 0
 
