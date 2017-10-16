@@ -210,8 +210,10 @@
 //
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
-// ESPRESSIF
-#define BOARD_ESP32            1900
+//
+// 32-bit Non-ARM-based boards
+//
+#define BOARD_ESP32            1900  // Espressif ESP32 (Tensilica Xtensa LX6)
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
