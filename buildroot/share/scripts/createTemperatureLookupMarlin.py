@@ -134,7 +134,7 @@ def main(argv):
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
     print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
-    print "// Theoretical limits of termistor: %.2f to %.2f degC" % (low_bound, up_bound)
+    print "// Theoretical limits of thermistor: %.2f to %.2f degC" % (low_bound, up_bound)
     print
     print "const short temptable[][2] PROGMEM = {"
 
