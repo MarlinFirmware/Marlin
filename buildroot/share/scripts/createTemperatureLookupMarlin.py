@@ -7,7 +7,7 @@ http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 The main use is for Arduino programs that read data from the circuit board described here:
 http://reprap.org/wiki/Temperature_Sensor_v2.0
 
-Usage: python createTemperatureLookup.py [options]
+Usage: python createTemperatureLookupMarlin.py [options]
 
 Options:
   -h, --help        show this help
