@@ -7441,7 +7441,7 @@ inline void gcode_M105() {
    *  S<int>   Speed between 0-255
    *  P<index> Fan index, if more than one fan* 
    *
-   * With EXTRA_FAN_SPEED enabled:
+   * With EXTRA_FANSPEED enabled:
    *  T<int>   Temporary Speed : 
    *           1=return to old ; 
    *           2=Apply memorised Fanspeed
