@@ -6250,12 +6250,19 @@ inline void gcode_M17() {
       // Initial retract before move to filament change position
       set_destination_to_current();
       destination[E_AXIS] += retract;
+      ////////////////////////////////////////
+      // RUNPLAN DON'T CARE about OTHER axes
+      ////////////////////////////////////////            
       RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+      ////////////////////////////////////////   
       stepper.synchronize();
     }
 
     // Lift Z axis
     if (z_lift > 0)
+      ////////////////////////////////////////
+      // BUT HERE ALL AXES ARE MOVED and Current_E must be updated or BUG !
+      ////////////////////////////////////////          
       do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
 
     // Move XY axes to filament exchange position
@@ -7456,6 +7463,11 @@ inline void gcode_M105() {
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
+   *  T<int>   Temporary Speed :
+   *           1=return to old ; 
+   *           2=Apply memorised Fanspeed
+   *           3-255= memorise Fanspeed 
+   *           Require T2 before T1 to memorise current speed
    *  P<index> Fan index, if more than one fan
    *
    * With EXTRA_FAN_SPEED enabled:
