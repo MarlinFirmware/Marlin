@@ -759,9 +759,7 @@ static_assert(1 >= 0
     static_assert(WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_2_Y can't be reached by the Z probe.");
     static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y can't be reached by the Z probe.");
   #endif
-  #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY) && !ENABLED(DOGLCD)
-    #error "ENABLE_MESH_EDIT_GFX_OVERLAY requires a DOGLCD."
-  #endif
+
 #elif HAS_ABL
 
   /**
