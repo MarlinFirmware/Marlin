@@ -166,10 +166,6 @@ void kill(const char*);
 
 void quickstop_stepper();
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void handle_filament_runout();
-#endif
-
 extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
@@ -202,6 +198,10 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
+  #if ENABLED(EXTRA_FAN_SPEED)
+    extern int16_t old_fanSpeeds[FAN_COUNT],
+                   new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];
@@ -223,4 +223,3 @@ bool pin_is_protected(const int8_t pin);
 #endif
 
 #endif // __MARLIN_H__
-  
