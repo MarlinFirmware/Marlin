@@ -2093,18 +2093,16 @@ void Temperature::isr() {
   } // temp_count >= OVERSAMPLENR
 
   // Go to the next state, up to SensorsReady
-  adc_sensor_state = (ADCSensorState)((int(adc_sensor_state) + 1) % int(StartupDelay));
+  adc_sensor_state = (ADCSensorState)(int(adc_sensor_state) + 1);
+  if (adc_sensor_state > SensorsReady) adc_sensor_state = (ADCSensorState)0;
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
       const int curTodo = babystepsTodo[axis]; // get rid of volatile for performance
-      if (curTodo > 0) {
-        stepper.babystep((AxisEnum)axis, /*fwd*/true);
-        babystepsTodo[axis]--;
-      }
-      else if (curTodo < 0) {
-        stepper.babystep((AxisEnum)axis, /*fwd*/false);
-        babystepsTodo[axis]++;
+      if (curTodo) {
+        stepper.babystep((AxisEnum)axis, curTodo > 0);
+        if (curTodo > 0) babystepsTodo[axis]--;
+                    else babystepsTodo[axis]++;
       }
     }
   #endif // BABYSTEPPING

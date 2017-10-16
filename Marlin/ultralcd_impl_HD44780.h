@@ -200,9 +200,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 #include "utf_mapper.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
-  static millis_t progress_bar_ms = 0;
+  static millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
   #if PROGRESS_MSG_EXPIRE > 0
-    static millis_t expire_status_ms = 0;
+    static millis_t expire_status_ms = 0;  // millis at which to expire the status message
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
@@ -597,12 +597,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       lcd.write('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
           lcd.write(' ');
         else
       #endif
-      lcd_printPGM(pstr);
+          lcd_printPGM(pstr);
     }
   }
 }
@@ -791,6 +791,10 @@ static void lcd_implementation_status_screen() {
     _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
     lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
+    #if HAS_LEVELING
+      lcd.write(planner.leveling_active || blink ? '_' : ' ');
+    #endif
+
   #endif // LCD_HEIGHT > 2
 
   //
@@ -837,10 +841,11 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])) {
-      const uint8_t percent = card.percentDone();
-      if (percent) return lcd_draw_progress_bar(percent);
-    }
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      const uint8_t progress_bar_percent = card.percentDone();
+    #endif
+    if (progress_bar_percent > 2 && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
+      return lcd_draw_progress_bar(progress_bar_percent);
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
@@ -964,32 +969,8 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM(data);
   }
 
-  #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
-    inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
-      lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _strFunc(*(data))); \
-    } \
-    inline void lcd_implementation_drawmenu_setting_edit_callback_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
-      lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _strFunc(*(data))); \
-    } \
-    inline void lcd_implementation_drawmenu_setting_edit_accessor_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type (*pget)(), void (*pset)(_type), ...) { \
-      lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _strFunc(pget())); \
-    } \
-    typedef void _name##_void
-
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float32, ftostr32);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float43, ftostr43sign);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float5, ftostr5rj);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float51, ftostr51sign);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52sign);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float62, ftostr62rj);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint32_t, long5, ftostr5rj);
-
-  #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-  #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-  #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _src)
+  #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
     lcd.setCursor(1, 1);
@@ -1012,15 +993,14 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
-      char c;
       uint8_t n = LCD_WIDTH - concat;
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
       if (longFilename[0]) {
         filename = longFilename;
-        #if defined(SCROLL_LONG_FILE_NAMES)
+        #if ENABLED(SCROLL_LONG_FILE_NAMES)
           if (sel) {
-            if(filename_scroll_row != row) {
+            if (filename_scroll_row != row) {
               filename_scroll_max = max(0, strlen(longFilename) - n);
               filename_scroll_row = row;
               filename_scroll_pos = 0;
@@ -1029,9 +1009,7 @@ static void lcd_implementation_status_screen() {
           }
         #endif
       }
-      for(const char *c = filename; *c && n > 0; c++) {
-        n -= charset_mapper(*c);
-      }
+      for (const char *c = filename; *c && n > 0; ++c) n -= charset_mapper(*c);
       while (n--) lcd.write(' ');
       lcd.print(post_char);
     }
@@ -1179,9 +1157,9 @@ static void lcd_implementation_status_screen() {
       return ret_val;
     }
 
-    coordinate pixel_location(uint8_t x, uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void lcd_implementation_ubl_plot(uint8_t x, uint8_t inverted_y) {
+    void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12
