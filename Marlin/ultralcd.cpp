@@ -1241,6 +1241,15 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
+  // First Fan Speed title in "Tune" and "Control>Temperature" menus
+  #if FAN_COUNT > 0 && HAS_FAN0
+    #if FAN_COUNT > 1
+      #define FAN_SPEED_1_SUFFIX " 1"
+    #else
+      #define FAN_SPEED_1_SUFFIX ""
+    #endif
+  #endif
+
   /**
    *
    * "Tune" submenu
@@ -1296,18 +1305,22 @@ void kill_screen(const char* lcd_msg) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        #if FAN_COUNT > 1
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
-        #else
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
-        #endif
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+       #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
+       #endif
       #endif
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+        #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+        #endif
       #endif
     #endif // FAN_COUNT > 0
 
@@ -3317,18 +3330,22 @@ void kill_screen(const char* lcd_msg) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        #if FAN_COUNT > 1
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
-        #else
-          #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
         #endif
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
       #endif
       #if HAS_FAN1
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+        #endif
       #endif
       #if HAS_FAN2
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+        #endif
       #endif
     #endif // FAN_COUNT > 0
 
