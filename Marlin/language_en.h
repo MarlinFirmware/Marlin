@@ -398,6 +398,9 @@
 #ifndef MSG_FAN_SPEED
   #define MSG_FAN_SPEED                       _UxGT("Fan speed")
 #endif
+#ifndef MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra fan speed")
+#endif
 #ifndef MSG_FLOW
   #define MSG_FLOW                            _UxGT("Flow")
 #endif

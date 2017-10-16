@@ -117,8 +117,8 @@
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
- * M106 - Fan on.
- * M107 - Fan off.
+ * M106 - Set print fan speed.
+ * M107 - Print fan off.
  * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
@@ -479,6 +479,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(EXTRA_FAN_SPEED)
+    int16_t old_fanSpeeds[FAN_COUNT],
+            new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
@@ -7453,12 +7457,39 @@ inline void gcode_M105() {
    *
    *  S<int>   Speed between 0-255
    *  P<index> Fan index, if more than one fan
+   *
+   * With EXTRA_FAN_SPEED enabled:
+   *
+   *  T<int>   Restore/Use/Set Temporary Speed:
+   *           1     = Restore previous speed after T2
+   *           2     = Use temporary speed set with T3-255
+   *           3-255 = Set the speed for use with T2
    */
   inline void gcode_M106() {
-    uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
-    const uint8_t p = parser.byteval('P', 0);
-    if (p < FAN_COUNT) fanSpeeds[p] = s;
+    const uint8_t p = parser.byteval('P');
+    if (p < FAN_COUNT) {
+      #if ENABLED(EXTRA_FAN_SPEED)
+        const int16_t t = parser.intval('T');
+        NOMORE(t, 255);
+        if (t > 0) {
+          switch (t) {
+            case 1:
+              fanSpeeds[p] = old_fanSpeeds[p];
+              break;
+            case 2:
+              old_fanSpeeds[p] = fanSpeeds[p];
+              fanSpeeds[p] = new_fanSpeeds[p];
+              break;
+            default:
+              new_fanSpeeds[p] = t;
+              break;
+          }
+          return;
+        }
+      #endif // EXTRA_FAN_SPEED
+      const uint16_t s = parser.ushortval('S', 255);
+      fanSpeeds[p] = min(s, 255);
+    }
   }
 
   /**
