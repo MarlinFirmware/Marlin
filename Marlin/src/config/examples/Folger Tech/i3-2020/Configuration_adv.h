@@ -534,7 +534,7 @@
   #endif
 
   // Show a progress bar on HD44780 LCDs for SD printing
-  #define LCD_PROGRESS_BAR
+  //#define LCD_PROGRESS_BAR
 
   #if ENABLED(LCD_PROGRESS_BAR)
     // Amount of time (ms) to show the bar
@@ -592,6 +592,7 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
+
 #endif // DOGLCD
 
 // @section safety
@@ -620,7 +621,7 @@
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 100 // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR 16  // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
@@ -1313,8 +1314,8 @@
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  //#define USER_DESC_5 "Home & Info"
-  //#define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 /**
@@ -1423,15 +1424,20 @@
 //#define MAX7219_DIN_PIN   57  // on RAMPS
 //#define MAX7219_LOAD_PIN  44  // on RAMPS
 
-  #define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
-  #define MAX7219_DIN_PIN   78 // on Re-ARM
-  #define MAX7219_LOAD_PIN  79 // on Re-ARM
+//#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
+//#define MAX7219_DIN_PIN   78 // on Re-ARM
+//#define MAX7219_LOAD_PIN  79 // on Re-ARM
+
+  #define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   34 // for RAMPS E1
+  #define MAX7219_LOAD_PIN  36 // for RAMPS E1
 
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
    */
   #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix to show that the firmware is functioning
+
   #define MAX7219_DEBUG_STEPPER_HEAD  3  // Show the stepper queue head position on this and the next LED matrix row
   #define MAX7219_DEBUG_STEPPER_TAIL  5  // Show the stepper queue tail position on this and the next LED matrix row
 
