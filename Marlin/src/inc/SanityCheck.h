@@ -1155,6 +1155,7 @@ static_assert(1 >= 0
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
+ *       AZSMZ_12864 => ULTIMAKERCONTROLLER
  *       PANEL_ONE => ULTIMAKERCONTROLLER
  */
 static_assert(1 >= 0
@@ -1163,6 +1164,7 @@ static_assert(1 >= 0
       && DISABLED(miniVIKI) \
       && DISABLED(VIKI2) \
       && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+      && DISABLED(AZSMZ_12864) \
       && DISABLED(PANEL_ONE) \
       && DISABLED(MKS_12864OLED)
     + 1
@@ -1206,6 +1208,9 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(AZSMZ_12864)
     + 1
   #endif
   #if ENABLED(G3D_PANEL)

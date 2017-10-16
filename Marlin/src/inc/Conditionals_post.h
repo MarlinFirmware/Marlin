@@ -869,9 +869,9 @@
   #endif
 
   /**
-   * VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
+   * VIKI2, miniVIKI, and AZSMZ_12864 require DOGLCD_SCK and DOGLCD_MOSI to be defined.
    */
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(AZSMZ_12864)
     #ifndef DOGLCD_SCK
       #define DOGLCD_SCK  SCK_PIN
     #endif
