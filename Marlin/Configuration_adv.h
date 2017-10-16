@@ -811,6 +811,13 @@
 #endif
 
 /**
+ * Extra Fan Speed
+ * Apply new /recover old fan speed value
+ * T1 return to previous / T2 apply extra speed / T3-255 set without applying
+ */
+#define EXTRA_FANSPEED
+
+/**
  * Advanced Pause
  * Experimental feature for filament change support and for parking the nozzle when paused.
  * Adds the GCode M600 for initiating filament change.

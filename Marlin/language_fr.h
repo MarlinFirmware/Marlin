@@ -150,6 +150,7 @@
 #define MSG_NOZZLE                          _UxGT("Buse")
 #define MSG_BED                             _UxGT("Lit")
 #define MSG_FAN_SPEED                       _UxGT("Vitesse ventil.")
+#define MSG_EXTRA_FANSPEED                 _UxGT("Extra Fan speed")
 #define MSG_FLOW                            _UxGT("Flux")
 #define MSG_CONTROL                         _UxGT("Controler")
 #define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")

@@ -479,6 +479,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(EXTRA_FANSPEED)      
+    int16_t old_fanSpeeds[FAN_COUNT];
+    int16_t new_fanSpeeds[FAN_COUNT]; 
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
@@ -7452,14 +7456,31 @@ inline void gcode_M105() {
    * M106: Set Fan Speed
    *
    *  S<int>   Speed between 0-255
-   *  P<index> Fan index, if more than one fan
+   *  P<index> Fan index, if more than one fan* 
+   *
+   * With EXTRA_FANSPEED enabled:
+   *  T<int>   Temporary Speed : 
+   *           1=return to old ; 
+   *           2=Apply memorised Fanspeed
+   *           3-255= memorise Fanspeed 
+   *           Require T2 before T1 to memorise current speed
    */
   inline void gcode_M106() {
     uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
     const uint8_t p = parser.byteval('P', 0);
-    if (p < FAN_COUNT) fanSpeeds[p] = s;
-  }
+    if (p < FAN_COUNT) {
+    #if ENABLED(EXTRA_FANSPEED)      
+      uint16_t t = parser.ushortval('T', 0);
+      if(t>0) {
+              if (t>2){NOMORE(t, 255);new_fanSpeeds[p]=t; }
+              else if (t<2){fanSpeeds[p] = old_fanSpeeds[p];}
+                    else  {old_fanSpeeds[p] = fanSpeeds[p]; fanSpeeds[p] = new_fanSpeeds[p];}
+              return ;
+              }
+    #endif
+    NOMORE(s, 255);fanSpeeds[p] = s;
+    }
+   }
 
   /**
    * M107: Fan Off

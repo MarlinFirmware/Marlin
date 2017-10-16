@@ -386,6 +386,9 @@
 #ifndef MSG_SPEED
   #define MSG_SPEED                           _UxGT("Speed")
 #endif
+#ifndef MSG_EXTRA_FANSPEED
+  #define MSG_EXTRA_FANSPEED                 _UxGT("Extra Fan speed")
+#endif
 #ifndef MSG_BED_Z
   #define MSG_BED_Z                           _UxGT("Bed Z")
 #endif
