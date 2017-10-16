@@ -13720,6 +13720,6 @@ void loop() {
     }
   }
   endstops.report_state();
-  idle();
+  idle(); 
 }
 
