@@ -34,6 +34,8 @@
 #ifndef _FASTIO_DUE_H
 #define _FASTIO_DUE_H
 
+#include "../../core/boards.h"
+
 /**
   utility functions
 */
@@ -404,31 +406,81 @@ pins
 #define DIO91_PIN 15
 #define DIO91_WPORT PIOB
 
-#define DIO92_PIN 5
-#define DIO92_WPORT PIOA
+#if MB(ARCHIM2)
+  #define DIO92_PIN 11
+  #define DIO92_WPORT PIOC
 
-#define DIO93_PIN 12
-#define DIO93_WPORT PIOB
+  #define DIO93_PIN 2
+  #define DIO93_WPORT PIOB
 
-#define DIO94_PIN 22
-#define DIO94_WPORT PIOB
+  #define DIO94_PIN 1
+  #define DIO94_WPORT PIOB
 
-#define DIO95_PIN 23
-#define DIO95_WPORT PIOB
+  #define DIO95_PIN 0
+  #define DIO95_WPORT PIOB
 
-#define DIO96_PIN 24
-#define DIO96_WPORT PIOB
+  #define DIO96_PIN 10
+  #define DIO96_WPORT PIOC
 
-#define DIO97_PIN 20
-#define DIO97_WPORT PIOC
+  #define DIO97_PIN 24
+  #define DIO97_WPORT PIOB
 
-#define DIO98_PIN 27
-#define DIO98_WPORT PIOC
+  #define DIO98_PIN 7
+  #define DIO98_WPORT PIOB
 
-#define DIO99_PIN 10
-#define DIO99_WPORT PIOC
+  #define DIO99_PIN 6
+  #define DIO99_WPORT PIOB
 
-#define DIO100_PIN 11
-#define DIO100_WPORT PIOC
+  #define DIO100_PIN 8
+  #define DIO100_WPORT PIOB
+
+  #define DIO101_PIN 5
+  #define DIO101_WPORT PIOB
+
+  #define DIO102_PIN 4
+  #define DIO102_WPORT PIOB
+
+  #define DIO103_PIN 3
+  #define DIO103_WPORT PIOB
+
+  #define DIO104_PIN 20
+  #define DIO104_WPORT PIOC
+
+  #define DIO105_PIN 22
+  #define DIO105_WPORT PIOB
+
+  #define DIO106_PIN 27
+  #define DIO106_WPORT PIOC
+
+  #define DIO107_PIN 10
+  #define DIO107_WPORT PIOB
+#else
+  #define DIO92_PIN 5
+  #define DIO92_WPORT PIOA
+
+  #define DIO93_PIN 12
+  #define DIO93_WPORT PIOB
+
+  #define DIO94_PIN 22
+  #define DIO94_WPORT PIOB
+
+  #define DIO95_PIN 23
+  #define DIO95_WPORT PIOB
+
+  #define DIO96_PIN 24
+  #define DIO96_WPORT PIOB
+
+  #define DIO97_PIN 20
+  #define DIO97_WPORT PIOC
+
+  #define DIO98_PIN 27
+  #define DIO98_WPORT PIOC
+
+  #define DIO99_PIN 10
+  #define DIO99_WPORT PIOC
+
+  #define DIO100_PIN 11
+  #define DIO100_WPORT PIOC
+#endif
 
 #endif // _FASTIO_DUE_H
