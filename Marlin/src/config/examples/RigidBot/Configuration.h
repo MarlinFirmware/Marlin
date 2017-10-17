@@ -1552,6 +1552,12 @@
 //
 //#define MKS_12864OLED
 
+//
+// AZSMZ 12864 LCD with SD
+// https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
+//
+//#define AZSMZ_12864
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
