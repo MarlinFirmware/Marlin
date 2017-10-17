@@ -86,7 +86,7 @@ extern const char errormagic[];
 
 void HAL_adc_enable_channel(int pin) {
   if (!WITHIN(pin, 0, NUM_ANALOG_INPUTS - 1)) {
-    usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, pin);
+    MYSERIAL.printf("%sINVALID ANALOG PORT:%d\n", errormagic, pin);
     kill(MSG_KILLED);
   }
 
@@ -116,7 +116,7 @@ void HAL_adc_enable_channel(int pin) {
 uint8_t active_adc = 0;
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   if (adc_pin >= (NUM_ANALOG_INPUTS) || adc_pin_map[adc_pin].port == 0xFF) {
-    usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
+    MYSERIAL.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
     return;
   }
   LPC_ADC->ADCR &= ~0xFF;                       // Reset

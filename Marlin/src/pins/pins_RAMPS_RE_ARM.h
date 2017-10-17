@@ -43,6 +43,10 @@
   #define BOARD_NAME "Re-ARM RAMPS 1.4"
 #endif
 
+// Force use of the USB Serial Port Emulation
+#undef SERIAL_PORT
+#define SERIAL_PORT -1
+
 #define LARGE_FLASH true
 
 // unused

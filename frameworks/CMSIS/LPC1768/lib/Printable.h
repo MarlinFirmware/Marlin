@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef Printable_h
-#define Printable_h
+#ifndef CMSIS_Printable_h
+#define CMSIS_Printable_h
 
 #include <stdlib.h>
 #include <inttypes.h>
