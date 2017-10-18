@@ -1119,7 +1119,7 @@ void MarlinSettings::postprocess() {
         status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
-        if (status != sizeof(ubl.z_values))
+        if (status)
           SERIAL_PROTOCOL("?Unable to load mesh data.\n");
 
         #if ENABLED(EEPROM_CHITCHAT)
