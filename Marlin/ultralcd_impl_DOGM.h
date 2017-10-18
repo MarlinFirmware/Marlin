@@ -926,6 +926,11 @@ static void lcd_implementation_status_screen() {
   }
 
   #if ENABLED(SDSUPPORT)
+    #if defined(SCROLL_LONG_FILE_NAMES)
+      static int        filename_scroll_pos;
+      static int        filename_scroll_max;
+      static int        filename_scroll_row;
+    #endif
 
     static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
       UNUSED(pstr);
@@ -937,14 +942,24 @@ static void lcd_implementation_status_screen() {
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
       if (longFilename[0]) {
         filename = longFilename;
-        longFilename[n] = '\0'; // cutoff at screen edge
+        #if ENABLED(SCROLL_LONG_FILE_NAMES)
+          if (isSelected) {
+            if (filename_scroll_row != row) {
+              filename_scroll_max = max(0, strlen(longFilename) - n);
+              filename_scroll_row = row;
+              filename_scroll_pos = 0;
+            }
+            filename += filename_scroll_pos;
+          }
+        #else
+          longFilename[n] = '\0'; // cutoff at screen edge
+        #endif
       }
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
 
-      while (char c = *filename) {
-        n -= lcd_print_and_count(c);
-        filename++;
+      for(const char *c = filename; *c && n > 0; c++) {
+        n -= lcd_print_and_count(*c);
       }
       while (n--) u8g.print(' ');
     }

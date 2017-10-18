@@ -304,6 +304,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Scroll long file names in SD card
+ */
+#if ENABLED(SCROLL_LONG_FILE_NAMES)
+  #if DISABLED(SDSUPPORT)
+    #error "SCROLL_LONG_FILE_NAMES requires SDSUPPORT."
+  #endif
+#endif
+
+/**
  * I2C Position Encoders
  */
 #if ENABLED(I2C_POSITION_ENCODERS)
