@@ -5296,7 +5296,7 @@ void home_all_axes() { gcode_G28(true); }
    *
    *   X   Probe X position (default current X)
    *   Y   Probe Y position (default current Y)
-   *   S0  Leave the probe deployed
+   *   E   Engage the probe for each probe
    */
   inline void gcode_G30() {
     const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
@@ -5311,7 +5311,7 @@ void home_all_axes() { gcode_G28(true); }
 
     setup_for_endstop_or_probe_move();
 
-    const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
+    const float measured_z = probe_pt(xpos, ypos, parser.boolval('E'), 1);
 
     if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -5439,7 +5439,7 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      const bool towers_set           = parser.boolval('T', true),
+      const bool towers_set           = !parser.boolval('T'),
                  stow_after_each      = parser.boolval('E'),
                  _0p_calibration      = probe_points == 0,
                  _1p_calibration      = probe_points == 1,
@@ -9644,7 +9644,7 @@ inline void gcode_M502() {
    * M503: print settings currently in memory
    */
   inline void gcode_M503() {
-    (void)settings.report(!parser.boolval('S', true));
+    (void)settings.report(parser.boolval('S'));
   }
 #endif
 
