@@ -30,8 +30,8 @@
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
 #include "../../Configuration_adv.h"
-#include "../pins/pins.h"
 #include "../HAL/HAL.h"
+#include "../pins/pins.h"
 #if defined(__AVR__) && !defined(USBCON)
   #define HardwareSerial_h // trick to disable the standard HWserial
 #endif

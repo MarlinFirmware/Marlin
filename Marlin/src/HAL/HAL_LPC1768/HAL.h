@@ -43,8 +43,6 @@ uint8_t _getc();
 
 extern "C" volatile uint32_t _millis;
 
-#define USBCON
-
 //arduino: Print.h
 #define DEC 10
 #define HEX 16
