@@ -632,12 +632,12 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOLNPGM(")");
       #endif
     }
+    EEPROM_FINISH();
 
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
       if (ubl.storage_slot >= 0)
         store_mesh(ubl.storage_slot);
     #endif
-    EEPROM_FINISH();
     return !eeprom_error;
   }
 
@@ -1073,14 +1073,21 @@ void MarlinSettings::postprocess() {
         }
 
         uint16_t crc = 0;
+        bool status;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
 
-        HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        HAL::PersistentStore::access_start();
+        status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        HAL::PersistentStore::access_finish();
+
+        if (status)
+          SERIAL_PROTOCOL("?Unable to save mesh data.\n");
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
         #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
+          if (!status)
+            SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
         #endif
 
       #else
@@ -1106,13 +1113,20 @@ void MarlinSettings::postprocess() {
         uint16_t crc = 0;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
         uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
-        HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        uint16_t status;
 
-        // Compare crc with crc from MAT, or read from end
+        HAL::PersistentStore::access_start();
+        status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        HAL::PersistentStore::access_finish();
+
+        if (status != sizeof(ubl.z_values))
+          SERIAL_PROTOCOL("?Unable to load mesh data.\n");
 
         #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
+          else
+            SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
         #endif
+        EEPROM_FINISH();
 
       #else
 
