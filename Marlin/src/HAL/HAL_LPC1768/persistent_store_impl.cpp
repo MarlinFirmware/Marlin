@@ -53,7 +53,8 @@ bool access_finish() {
   return true;
 }
 
-// File function return code (FRESULT)
+// File function return code (FRESULT)   This goes away soon.   But it is helpful right now to see
+// the different errors the read_data() and write_data() functions are seeing.
 //
 //typedef enum {
 //	FR_OK = 0,			/* (0) Succeeded */
@@ -83,9 +84,9 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   UINT bytes_written = 0;
   s = f_lseek(&eeprom_file, pos);
   if ( s ) {
-   SERIAL_PROTOCOLPAIR(" write_data(", pos);
-   SERIAL_PROTOCOLPAIR(",", (int) value);
-   SERIAL_PROTOCOLPAIR(",", (int) size);
+   SERIAL_PROTOCOLPAIR(" write_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
+   SERIAL_PROTOCOLPAIR(",", (int) value);            // right now to see errors that are happening in the 
+   SERIAL_PROTOCOLPAIR(",", (int) size);             // read_data() and write_data() functions
    SERIAL_PROTOCOL("...)\n");
    SERIAL_PROTOCOLPAIR(" f_lseek()=", (int) s);
    SERIAL_PROTOCOL("\n");
@@ -93,9 +94,9 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   }
   s = f_write(&eeprom_file, (void *)value, size, &bytes_written);
   if ( s ) {
-   SERIAL_PROTOCOLPAIR(" write_data(", pos);
-   SERIAL_PROTOCOLPAIR(",", (int) value);
-   SERIAL_PROTOCOLPAIR(",", (int) size);
+   SERIAL_PROTOCOLPAIR(" write_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
+   SERIAL_PROTOCOLPAIR(",", (int) value);            // right now to see errors that are happening in the 
+   SERIAL_PROTOCOLPAIR(",", (int) size);             // read_data() and write_data() functions
    SERIAL_PROTOCOL("...)\n");
    SERIAL_PROTOCOLPAIR(" f_write()=", (int) s);
    SERIAL_PROTOCOL("\n");
@@ -114,9 +115,9 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
   FRESULT s;
   s = f_lseek(&eeprom_file, pos);
   if ( s ) {
-   SERIAL_PROTOCOLPAIR(" read_data(", pos);
-   SERIAL_PROTOCOLPAIR(",", (int) value);
-   SERIAL_PROTOCOLPAIR(",", (int) size);
+   SERIAL_PROTOCOLPAIR(" read_data(", pos);          // This extra chit-chat goes away soon.  But it is helpful
+   SERIAL_PROTOCOLPAIR(",", (int) value);            // right now to see errors that are happening in the 
+   SERIAL_PROTOCOLPAIR(",", (int) size);             // read_data() and write_data() functions
    SERIAL_PROTOCOL("...)\n");
    SERIAL_PROTOCOLPAIR(" f_lseek()=", (int) s);
    SERIAL_PROTOCOL("\n");
@@ -124,9 +125,9 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
   }
   s = f_read(&eeprom_file, (void *)value, size, &bytes_read);
   if ( s ) {
-   SERIAL_PROTOCOLPAIR(" read_data(", pos);
-   SERIAL_PROTOCOLPAIR(",", (int) value);
-   SERIAL_PROTOCOLPAIR(",", (int) size);
+   SERIAL_PROTOCOLPAIR(" read_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
+   SERIAL_PROTOCOLPAIR(",", (int) value);           // right now to see errors that are happening in the 
+   SERIAL_PROTOCOLPAIR(",", (int) size);            // read_data() and write_data() functions
    SERIAL_PROTOCOL("...)\n");
    SERIAL_PROTOCOLPAIR(" f_write()=", (int) s);
    SERIAL_PROTOCOL("\n");
