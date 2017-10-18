@@ -161,7 +161,7 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool towers_set           = parser.boolval('T', true),
+  const bool towers_set           = !parser.boolval('T'),
              stow_after_each      = parser.boolval('E'),
              _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1,
