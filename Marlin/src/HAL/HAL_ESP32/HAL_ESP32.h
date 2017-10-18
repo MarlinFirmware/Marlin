@@ -58,6 +58,8 @@ void _delay_ms(int delay);
 
 int freeMemory(void);
 
+void analogWrite(int pin, int value);
+
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
 unsigned char eeprom_read_byte(unsigned char *pos);

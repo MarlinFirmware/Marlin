@@ -94,4 +94,17 @@ void HAL_adc_start_conversion (uint8_t adc_pin) {
   HAL_adc_result = analogRead(adc_pin);
 }
 
+int pin_to_channel[40] = {};
+int cnt_channel = 1;
+void analogWrite(int pin, int value) {
+  if (pin_to_channel[pin] == 0) {
+    ledcAttachPin(pin, cnt_channel);
+    ledcSetup(cnt_channel, 490, 8);
+    ledcWrite(cnt_channel, value);
+
+    pin_to_channel[pin] = cnt_channel++;
+  }
+
+  ledcWrite(pin_to_channel[pin], value);
+}
 #endif // ARDUINO_ARCH_ESP32
