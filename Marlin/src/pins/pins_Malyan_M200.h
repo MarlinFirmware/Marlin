@@ -30,41 +30,38 @@
 
 #define BOARD_NAME "MALYANM200"
 
-// ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-
 // Enable EEPROM Emulation for this board
+// This setting should probably be in configuration.h
+// but it is literally the only board which uses it.
 #define FLASH_EEPROM_EMULATION
 
 #define SDSS SS_PIN
 
-// PINCHECK - Looking at traces, these seem to be right
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PA4
+#define X_MIN_PIN          PB4
 #define Y_MIN_PIN          PA15
 #define Z_MIN_PIN          PB5
 
 //
 // Steppers
 //
+// X & Y enable are the same
 #define X_STEP_PIN         PB14
 #define X_DIR_PIN          PB15
 #define X_ENABLE_PIN       PA8
 
-// PINCHECK - Y Enable hangs the board when set to output.
 #define Y_STEP_PIN         PB12
 #define Y_DIR_PIN          PB13
-#define Y_ENABLE_PIN       -1 //PA9
+#define Y_ENABLE_PIN       PA8
 
 #define Z_STEP_PIN         PB10
 #define Z_DIR_PIN          PB2
 #define Z_ENABLE_PIN       PB11
 
-// PINCHECK - E0 DIIR is unknown
 #define E0_STEP_PIN        PB0
-#define E0_DIR_PIN         PB3
+#define E0_DIR_PIN         PC13
 #define E0_ENABLE_PIN      PB1
 
 //
@@ -76,8 +73,8 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PB7 // HOTEND0 MOSFET
-#define HEATER_BED_PIN     PB6 // BED MOSFET
+#define HEATER_0_PIN       PB6 // HOTEND0 MOSFET
+#define HEATER_BED_PIN     PB7 // BED MOSFET
 
 // This board has only the controller fan and the extruder fan
 // If someone hacks to put a direct power fan on the controller, PB3 could
