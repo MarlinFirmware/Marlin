@@ -37,12 +37,36 @@
  #ifndef _ENDSTOP_INTERRUPTS_H_
  #define _ENDSTOP_INTERRUPTS_H_
 
-/**
- *  Endstop interrupts for Due based targets.
- *  On Due, all pins support external interrupt capability.
- */
-
 void setup_endstop_interrupts(void) {
+  pinMode(ENDSTOP_INTERRUPTS_PIN, INPUT);
+
+  uint8_t pinmask = 0;
+  #if HAS_X_MAX
+    pinmask |= 1 << GET_PIN(X_MAX_PIN);
+  #endif
+  #if HAS_X_MIN
+    pinmask |= 1 << GET_PIN(X_MIN_PIN);
+  #endif
+  #if HAS_Y_MAX
+    pinmask |= 1 << GET_PIN(Y_MAX_PIN);
+  #endif
+  #if HAS_Y_MIN
+    pinmask |= 1 << GET_PIN(Y_MIN_PIN);
+  #endif
+  #if HAS_Z_MAX
+    pinmask |= 1 << GET_PIN(Z_MAX_PIN);
+  #endif
+  #if HAS_Z_MIN
+    pinmask |= 1 << GET_PIN(Z_MIN_PIN);
+  #endif
+  #if HAS_Z_MIN_PROBE_PIN
+    pinmask |= 1 << GET_PIN(Z_MIN_PROBE_PIN);
+  #endif
+
+  // This assumes that all the endstops are on the same port
+  set_i2c_register(GET_REGISTER(ENDSTOP_INTERRUPTS_PIN, GPINTENA), pinmask);
+  get_i2c_register(GET_REGISTER(X_MIN_PIN, GPIOA));
+  
   attachInterrupt(ENDSTOP_INTERRUPTS_PIN, endstop_ISR, CHANGE);
 }
 

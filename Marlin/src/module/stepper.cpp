@@ -420,7 +420,7 @@ void Stepper::isr() {
       step_events_completed = 0;
 
       #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-        e_hit = 2; // Needed for the case an endstop is already triggered before the new move begins.
+        // e_hit = 2; // Needed for the case an endstop is already triggered before the new move begins.
                    // No 'change' can be detected.
       #endif
 

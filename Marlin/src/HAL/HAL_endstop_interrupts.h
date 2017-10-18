@@ -28,7 +28,8 @@ volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be test
 
 // This is what is really done inside the interrupts.
 FORCE_INLINE void endstop_ISR_worker( void ) {
-  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
+  e_hit = 1;
+  get_i2c_register(GPIOB); // force clear register
 }
 
 // One ISR for all EXT-Interrupts

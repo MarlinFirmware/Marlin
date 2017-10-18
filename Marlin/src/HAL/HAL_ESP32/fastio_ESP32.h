@@ -53,8 +53,10 @@
 #define GPIOX_I2C_ADDR 0x20
 
 #define GET_REGISTER(IO, reg) ((IO & 0x7F) < 8 ? reg : reg+1)
-#define GET_PIN(IO) ((IO & 0x7F) < 8 ? IO : IO-8)
+#define GET_PIN(IO) ((IO & 0x7F) < 8 ? (IO&0x7F) : (IO&0x7F)-8)
 
+uint8_t get_i2c_register(uint8_t reg);
+void set_i2c_register(uint8_t reg, uint8_t val);
 void set_i2c_pin_mode(uint8_t pin, uint8_t mode);
 void set_i2c_pin_pullup(uint8_t pin, bool pullup);
 uint8_t get_i2c_pin(uint8_t pin);
@@ -70,7 +72,8 @@ void set_i2c_pin(uint8_t pin, uint8_t val);
 #define _PULLUP(IO, v)      (IO) & 0x80 ? set_i2c_pin_pullup((IO)&0x7f, v) : pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
 // Read a pin wrapper
-#define READ(IO)            (IO) & 0x80 ? get_i2c_pin((IO)&0x7f) : digitalRead(IO)
+#define _READ(IO)            (IO) & 0x80 ? get_i2c_pin((IO)&0x7f) : digitalRead(IO)
+#define READ(IO)             (_READ(IO) ? HIGH : LOW)
 
 // Write to a pin wrapper
 #define WRITE(IO, v)        (IO) & 0x80 ? set_i2c_pin((IO)&0x7f, v) : digitalWrite(IO, v)

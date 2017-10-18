@@ -312,6 +312,11 @@ void Endstops::M119() {
 // Check endstops - Called from ISR!
 void Endstops::update() {
 
+  // Skip if there is no current block
+  if (stepper.current_block == NULL) {
+    return;
+  }
+
   #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
   #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
