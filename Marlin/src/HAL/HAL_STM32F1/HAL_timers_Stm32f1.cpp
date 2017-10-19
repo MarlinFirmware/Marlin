@@ -138,7 +138,7 @@ void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
       TempTimer.setPrescaleFactor(TEMP_TIMER_PRESCALE);
       TempTimer.setOverflow(0xFFFF);
       TempTimer.setCompare (TEMP_TIMER_CHAN, min(HAL_TIMER_TYPE_MAX, ((F_CPU / TEMP_TIMER_PRESCALE) / frequency)));
-      TempTimer.attachInterrupt(STEP_TIMER_CHAN, tempTC_Handler);
+      TempTimer.attachInterrupt(TEMP_TIMER_CHAN, tempTC_Handler);
       TempTimer.refresh();
       TempTimer.resume();
       break;
