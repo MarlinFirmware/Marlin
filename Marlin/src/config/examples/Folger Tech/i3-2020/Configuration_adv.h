@@ -1338,7 +1338,6 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
  * Otherwise, adjust according to your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.5
 
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser

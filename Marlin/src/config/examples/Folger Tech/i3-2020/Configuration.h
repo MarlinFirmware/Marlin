@@ -125,7 +125,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "FT-2020 v3"
+#define CUSTOM_MACHINE_NAME "FT-2020 v4"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -1677,7 +1677,7 @@
 // Servo deactivation
 //
 // With this option servos are powered only during movement, then turned off to prevent jitter.
-#define DEACTIVATE_SERVOS_AFTER_MOVE
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 /**
  * Filament Width Sensor
