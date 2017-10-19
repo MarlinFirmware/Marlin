@@ -8970,7 +8970,7 @@ inline void gcode_M226() {
         if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
           float offs = parser.value_axis_units(a);
           constrain(offs, -2, 2);
-          #if HAS_BED_PROBE && ENABLED(BABYSTEP_ZPROBE_OFFSET)
+          #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
             if (a == Z_AXIS) {
               zprobe_zoffset += offs;
               refresh_zprobe_zoffset(true); // 'true' to not babystep
@@ -8982,7 +8982,7 @@ inline void gcode_M226() {
       if (parser.seenval('Z') || parser.seenval('S')) {
         float offs = parser.value_axis_units(Z_AXIS);
         constrain(offs, -2, 2);
-        #if HAS_BED_PROBE && ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           zprobe_zoffset += offs;
           refresh_zprobe_zoffset(); // This will babystep the axis
         #else
