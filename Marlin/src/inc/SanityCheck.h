@@ -26,6 +26,9 @@
  * Test configuration values for errors at compile-time.
  */
 
+#ifndef _SANITYCHECK_H_
+#define _SANITYCHECK_H_
+
 /**
  * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
@@ -1361,5 +1364,6 @@ static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has to
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
 
-
 #include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
+
+#endif // _SANITYCHECK_H_
