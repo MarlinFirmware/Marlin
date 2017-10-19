@@ -78,15 +78,16 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
 	}
 	crc16(crc, value, size);
 	pos += size;
-	return true;
+	return false;
 }
 
-void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
+bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
 	for (int i = 0; i < size; i++) {
 		value[i] = HAL_STM32F1_eeprom_content [pos + i];
 	}
 	crc16(crc, value, size);
 	pos += size;
+        return false;
 }
 
 } // PersistentStore::

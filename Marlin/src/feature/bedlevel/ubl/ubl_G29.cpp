@@ -668,7 +668,7 @@
     }
 
     if (parser.seen('T'))
-      display_map(parser.has_value() ? parser.value_int() : 0);
+      display_map(g29_map_type);
 
     LEAVE:
 
