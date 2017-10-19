@@ -46,8 +46,6 @@
 
 #define SDPOWER            -1
 
-#define SDSS               -1 // D77 PA28 CS0 SPIFLASH
-
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define Z_PROBE_PIN        -1
@@ -67,7 +65,7 @@
 #define TEMP_2_PIN          8 // D8 PB17 THERM AN4
 
 #ifdef Z_PROBE_SLED
-  #define SLED_PIN         -1
+  #define SOL1_PIN         -1
 #endif
 
 #ifdef ULTRA_LCD

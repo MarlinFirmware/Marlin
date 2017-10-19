@@ -615,7 +615,7 @@
 
 // The hardware watchdog should reset the microcontroller disabling all outputs,
 // in case the firmware gets stuck and doesn't do temperature regulation.
-#define USE_WATCHDOG
+//#define USE_WATCHDOG
 
 #if ENABLED(USE_WATCHDOG)
   // If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
@@ -967,7 +967,7 @@
  * the hardware SPI interface on your board and define the required CS pins
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  */
-//#define HAVE_TMC2130
+#define HAVE_TMC2130
 
 #if ENABLED(HAVE_TMC2130)
 
@@ -988,17 +988,17 @@
    * Stepper driver settings
    */
 
-  #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
+  #define R_SENSE           0.22  // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #define X_CURRENT         800  // rms current in mA. Multiply by 1.41 for peak current.
+  #define X_CURRENT          900  // rms current in mA. Multiply by 1.41 for peak current.
   #define X_MICROSTEPS        16  // 0..256
 
-  #define Y_CURRENT         800
+  #define Y_CURRENT          900
   #define Y_MICROSTEPS        16
 
-  #define Z_CURRENT         800
+  #define Z_CURRENT          900
   #define Z_MICROSTEPS        16
 
   //#define X2_CURRENT      1000
@@ -1010,8 +1010,8 @@
   //#define Z2_CURRENT      1000
   //#define Z2_MICROSTEPS     16
 
-  #define E0_CURRENT      800
-  #define E0_MICROSTEPS     16
+  #define E0_CURRENT         900
+  #define E0_MICROSTEPS       16
 
   //#define E1_CURRENT      1000
   //#define E1_MICROSTEPS     16
