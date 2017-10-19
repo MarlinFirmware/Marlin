@@ -8965,8 +8965,14 @@ inline void gcode_M226() {
    * M290: Z Babystepping
    */
   inline void gcode_M290() {
-    if (parser.seenval('Z') || parser.seenval('S'))
-      thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
+    #if ENABLED(BABYSTEP_XY)
+      for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
+        if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S')))
+          thermalManager.babystep_axis(a, parser.value_axis_units(a) * planner.axis_steps_per_mm[a]);
+    #else
+      if (parser.seenval('Z') || parser.seenval('S'))
+        thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
+    #endif
   }
 
 #endif // BABYSTEPPING
