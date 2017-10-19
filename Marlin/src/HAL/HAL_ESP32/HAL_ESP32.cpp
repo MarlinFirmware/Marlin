@@ -87,7 +87,6 @@ int freeMemory() {
 // --------------------------------------------------------------------------
 
 void HAL_adc_init() {
-  analogReadResolution(10); // ESP32 has 12bits ADC but current tables are designed for 10 bits and current code only store samples in a short
 }
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {

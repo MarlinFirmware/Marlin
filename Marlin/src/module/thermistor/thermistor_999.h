@@ -22,11 +22,23 @@
 
 // User-defined table 2
 // Dummy Thermistor table.. It will ALWAYS read a fixed value.
-#ifndef DUMMY_THERMISTOR_999_VALUE
-  #define DUMMY_THERMISTOR_999_VALUE 25
-#endif
 
 const short temptable_999[][2] PROGMEM = {
-  { OV(   1), DUMMY_THERMISTOR_999_VALUE },
-  { OV(1023), DUMMY_THERMISTOR_999_VALUE }
+  {  OV( 290), 250 },
+  {  OV( 352), 240 },
+  {  OV( 432), 230 },
+  {  OV( 528), 220 },
+  {  OV( 644), 210 },
+  {  OV( 756), 200 },
+  {  OV( 899), 190 },
+  {  OV(1072), 180 },
+  {  OV(1244), 170 },
+  {  OV(1460), 160 },
+  {  OV(1896), 140 },
+  {  OV(2320), 120 },
+  {  OV(2750), 100 },
+  {  OV(3185),  80 },
+  {  OV(3600),  60 },
+  {  OV(3950),  40 },
+  {  OV(4095),  28 }
 };
