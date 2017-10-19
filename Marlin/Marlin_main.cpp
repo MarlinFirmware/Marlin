@@ -173,7 +173,7 @@
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
- * M290 - Z Babystepping (Requires BABYSTEPPING)
+ * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -8962,7 +8962,7 @@ inline void gcode_M226() {
 #if ENABLED(BABYSTEPPING)
 
   /**
-   * M290: Z Babystepping
+   * M290: Babystepping
    */
   inline void gcode_M290() {
     #if ENABLED(BABYSTEP_XY)
@@ -11451,7 +11451,7 @@ void process_next_command() {
       #endif // HAS_SERVOS
 
       #if ENABLED(BABYSTEPPING)
-        case 290: // M290: Z Babystepping
+        case 290: // M290: Babystepping
           gcode_M290();
           break;
       #endif // BABYSTEPPING
