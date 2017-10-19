@@ -301,6 +301,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
     #endif
   #endif
+
+  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if SDSORT_CACHE_VFATS < 2
+      #error "SDSORT_CACHE_VFATS must be 2 or greater!"
+    #elif SDSORT_CACHE_VFATS > MAX_VFAT_ENTRIES
+      #undef SDSORT_CACHE_VFATS
+      #define SDSORT_CACHE_VFATS MAX_VFAT_ENTRIES
+      #warning "SDSORT_CACHE_VFATS was reduced to MAX_VFAT_ENTRIES!"
+    #endif
+  #endif
 #endif
 
 /**
