@@ -11443,13 +11443,13 @@ void process_next_command() {
           gcode_M280();
           break;
       #endif // HAS_SERVOS
-	  
+
       #if ENABLED(BABYSTEPPING)
         case 290: // M290: Z Babystepping
           gcode_M290();
           break;
       #endif // BABYSTEPPING
-	  
+
       #if HAS_BUZZER
         case 300: // M300: Play beep tone
           gcode_M300();
