@@ -414,7 +414,7 @@
           z2 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
           z3 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
 
-          do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
+          do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
           tilt_mesh_based_on_3pts(z1, z2, z3);
           restore_ubl_active_state_and_leave();
         }
@@ -773,8 +773,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_X, UBL_MESH_MAX_X),
-        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)
+        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_X, MESH_MAX_X),
+        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -908,7 +908,7 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to_z(in_height);
-      do_blocking_move_to_xy(0.5 * (UBL_MESH_MAX_X - (UBL_MESH_MIN_X)), 0.5 * (UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)));
+      do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
         //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
       stepper.synchronize();
 
@@ -1215,11 +1215,11 @@
       SERIAL_EOL();
     #endif
 
-    SERIAL_ECHOLNPAIR("UBL_MESH_MIN_X  " STRINGIFY(UBL_MESH_MIN_X) "=", UBL_MESH_MIN_X);
-    SERIAL_ECHOLNPAIR("UBL_MESH_MIN_Y  " STRINGIFY(UBL_MESH_MIN_Y) "=", UBL_MESH_MIN_Y);
+    SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X);
+    SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y);
     safe_delay(25);
-    SERIAL_ECHOLNPAIR("UBL_MESH_MAX_X  " STRINGIFY(UBL_MESH_MAX_X) "=", UBL_MESH_MAX_X);
-    SERIAL_ECHOLNPAIR("UBL_MESH_MAX_Y  " STRINGIFY(UBL_MESH_MAX_Y) "=", UBL_MESH_MAX_Y);
+    SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X);
+    SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);
     safe_delay(25);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
@@ -1597,10 +1597,10 @@
   #if HAS_BED_PROBE
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map) {
-      constexpr int16_t x_min = max(MIN_PROBE_X, UBL_MESH_MIN_X),
-                        x_max = min(MAX_PROBE_X, UBL_MESH_MAX_X),
-                        y_min = max(MIN_PROBE_Y, UBL_MESH_MIN_Y),
-                        y_max = min(MAX_PROBE_Y, UBL_MESH_MAX_Y);
+      constexpr int16_t x_min = max(MIN_PROBE_X, MESH_MIN_X),
+                        x_max = min(MAX_PROBE_X, MESH_MAX_X),
+                        y_min = max(MIN_PROBE_Y, MESH_MIN_Y),
+                        y_max = min(MAX_PROBE_Y, MESH_MAX_Y);
 
       const float dx = float(x_max - x_min) / (g29_grid_size - 1.0),
                   dy = float(y_max - y_min) / (g29_grid_size - 1.0);
