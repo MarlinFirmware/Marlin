@@ -173,7 +173,7 @@
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
- * M290 - Babystepping Z
+ * M290 - Z Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -8961,12 +8961,13 @@ inline void gcode_M226() {
 
 #if ENABLED(BABYSTEPPING)
 
-/**
- * M290: Baby stepping Z
- */
-inline void gcode_M290() {
-  if (parser.seenval('S')) thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
-}
+  /**
+   * M290: Z Babystepping
+   */
+  inline void gcode_M290() {
+    if (parser.seenval('Z') || parser.seenval('S'))
+      thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
+  }
 
 #endif // BABYSTEPPING
 
@@ -11423,7 +11424,7 @@ void process_next_command() {
         case 218: // M218: Set a tool offset
           gcode_M218();
           break;
-      #endif
+      #endif // HOTENDS > 1
 
       case 220: // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
         gcode_M220();
@@ -11443,11 +11444,11 @@ void process_next_command() {
           break;
       #endif // HAS_SERVOS
 	  
-	  #if ENABLED(BABYSTEPPING)
-		case 290: // M290: Baby stepping Z
-		  gcode_M290();
+      #if ENABLED(BABYSTEPPING)
+        case 290: // M290: Z Babystepping
+          gcode_M290();
           break;
-	  #endif // BABYSTEPPING
+      #endif // BABYSTEPPING
 	  
       #if HAS_BUZZER
         case 300: // M300: Play beep tone
