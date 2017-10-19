@@ -21,7 +21,7 @@ FIL eeprom_file;
 bool access_start() {
   UINT file_size = 0,
        bytes_written = 0;
-  const char eeprom_zero = 0xFF;
+  const char eeprom_erase_value = 0xFF;
   MSC_Aquire_Lock();
   if (f_mount(&fat_fs, "", 1)) {
     MSC_Release_Lock();
@@ -35,7 +35,7 @@ bool access_start() {
   if (res == FR_OK) {
     f_lseek(&eeprom_file, file_size);
     while (file_size <= E2END && res == FR_OK) {
-      res = f_write(&eeprom_file, &eeprom_zero, 1, &bytes_written);
+      res = f_write(&eeprom_file, &eeprom_erase_value, 1, &bytes_written);
       file_size++;
     }
   }
