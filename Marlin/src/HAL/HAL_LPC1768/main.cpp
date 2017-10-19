@@ -24,6 +24,7 @@ extern "C" {
 #include <chanfs/ff.h>
 }
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 #include "fastio.h"
 #include "HAL_timers.h"
@@ -32,7 +33,6 @@ extern "C" {
 #include "arduino.h"
 #include "serial.h"
 #include "LPC1768_PWM.h"
-#include "../../inc/MarlinConfig.h"
 
 static __INLINE uint32_t SysTick_Config(uint32_t ticks) {
   if (ticks > SysTick_LOAD_RELOAD_Msk)
