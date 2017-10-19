@@ -988,18 +988,37 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
-      uint8_t n = LCD_WIDTH - concat;
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
+
+      uint8_t n = LCD_WIDTH - concat;
+      const char *outstr = longFilename[0] ? longFilename : filename;
       if (longFilename[0]) {
-        filename = longFilename;
-        longFilename[n] = '\0';
+        #if ENABLED(SCROLL_LONG_FILENAMES)
+          if (sel) {
+            uint8_t name_hash = row;
+            for (uint8_t l = FILENAME_LENGTH; l--;)
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+            if (filename_scroll_hash != name_hash) {                            // If the hash changed...
+              filename_scroll_hash = name_hash;                                 // Save the new hash
+              filename_scroll_max = max(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_pos = 0;                                          // Reset scroll to the start
+              lcd_status_update_delay = 8;                                      // Don't scroll right away
+            }
+            outstr += filename_scroll_pos;
+          }
+        #else
+          longFilename[n] = '\0'; // cutoff at screen edge
+        #endif
       }
-      while (char c = *filename) {
+
+      char c;
+      while (n && (c = *outstr)) {
         n -= charset_mapper(c);
-        filename++;
+        ++outstr;
       }
-      while (n--) lcd.write(' ');
+      while (n) { --n; lcd.write(' '); }
+
       lcd.print(post_char);
     }
 
