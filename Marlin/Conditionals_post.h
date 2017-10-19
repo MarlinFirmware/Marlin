@@ -856,17 +856,10 @@
     #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
   #else
     // Boundaries for Cartesian probing based on set limits
-    #if ENABLED(BED_CENTER_AT_0_0)
-      #define MIN_PROBE_X (max(X_PROBE_OFFSET_FROM_EXTRUDER, 0) - (X_BED_SIZE) / 2)
-      #define MIN_PROBE_Y (max(Y_PROBE_OFFSET_FROM_EXTRUDER, 0) - (Y_BED_SIZE) / 2)
-      #define MAX_PROBE_X (min(X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE) - (X_BED_SIZE) / 2)
-      #define MAX_PROBE_Y (min(Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE) - (Y_BED_SIZE) / 2)
-    #else
-      #define MIN_PROBE_X (max(X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER, 0))
-      #define MIN_PROBE_Y (max(Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, 0))
-      #define MAX_PROBE_X (min(X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER, X_BED_SIZE))
-      #define MAX_PROBE_Y (min(Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_BED_SIZE))
-    #endif
+    #define MIN_PROBE_X (max(X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER, X_MIN_BED))
+    #define MIN_PROBE_Y (max(Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_MIN_BED))
+    #define MAX_PROBE_X (min(X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER, X_MAX_BED))
+    #define MAX_PROBE_Y (min(Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER, Y_MAX_BED))
   #endif
 
   // Stepper pulse duration, in cycles
