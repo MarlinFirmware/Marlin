@@ -21,10 +21,10 @@
  */
 
 /**
- * French for HD44780 display - no accented characters
- * original is was renamed language_fr_utf8.h according to wiki
+ * French
+ *
  * LCD Menu Messages
- * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
 #ifndef LANGUAGE_FR_H
@@ -32,270 +32,6 @@
 
 #define MAPPER_NON
 
-<<<<<<< HEAD
-#define WELCOME_MSG                         MACHINE_NAME " prete."
-#define MSG_BACK                            "Retour"
-#define MSG_SD_INSERTED                     "Carte inseree"
-#define MSG_SD_REMOVED                      "Carte retiree"
-#define MSG_LCD_ENDSTOPS                    "Butees" // Max length 8 characters
-#define MSG_MAIN                            "Menu principal"
-#define MSG_AUTOSTART                       "Demarrage auto"
-#define MSG_DISABLE_STEPPERS                "Arreter moteurs"
-#define MSG_DEBUG_MENU                      "Menu debug"
-#define MSG_PROGRESS_BAR_TEST               "Test barre progress."
-#define MSG_AUTO_HOME                       "Origine auto."
-#define MSG_AUTO_HOME_X                     "Origine X Auto."
-#define MSG_AUTO_HOME_Y                     "Origine Y Auto."
-#define MSG_AUTO_HOME_Z                     "Origine Z Auto."
-#define MSG_LEVEL_BED_HOMING                "Origine XYZ"
-#define MSG_LEVEL_BED_WAITING               "Clic pour commencer"
-#define MSG_LEVEL_BED_NEXT_POINT            "Point suivant"
-#define MSG_LEVEL_BED_DONE                  "Mise a niveau OK!"
-#define MSG_Z_FADE_HEIGHT                   "Adoucir hauteur"
-#define MSG_SET_HOME_OFFSETS                "Regl. decal. origine"
-#define MSG_HOME_OFFSETS_APPLIED            "Decalages appliques"
-#define MSG_SET_ORIGIN                      "Regler origine"
-#define MSG_PREHEAT_1                       "Prechauffage PLA"
-#define MSG_PREHEAT_1_N                     "Prechauff. PLA "
-#define MSG_PREHEAT_1_ALL                   "Prech. PLA Tout"
-#define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 " fini"
-#define MSG_PREHEAT_1_BEDONLY               "Prech. PLA lit"
-#define MSG_PREHEAT_1_SETTINGS              "Regl. prech. PLA"
-#define MSG_PREHEAT_2                       "Prechauffage ABS"
-#define MSG_PREHEAT_2_N                     "Prechauff. ABS "
-#define MSG_PREHEAT_2_ALL                   "Prech. ABS Tout"
-#define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 " fini"
-#define MSG_PREHEAT_2_BEDONLY               "Prech. ABS lit"
-#define MSG_PREHEAT_2_SETTINGS              "Regl. prech. ABS"
-#define MSG_COOLDOWN                        "Refroidir"
-#define MSG_SWITCH_PS_ON                    "Allumer alim."
-#define MSG_SWITCH_PS_OFF                   "eteindre alim."
-#define MSG_EXTRUDE                         "extrusion"
-#define MSG_RETRACT                         "Retraction"
-#define MSG_MOVE_AXIS                       "Deplacer un axe"
-#define MSG_BED_LEVELING                    "Regl. Niv. lit"
-#define MSG_LEVEL_BED                       "Regl. Niv. lit"
-#define MSG_EDITING_STOPPED                 "Arret edit. maillage"
-#define MSG_USER_MENU                       "Commandes perso"
-
-#define MSG_UBL_DOING_G29                   "G29 en cours"
-#define MSG_UBL_UNHOMED                     "Origine XYZ d'abord"
-#define MSG_UBL_TOOLS                       "Outils UBL"
-#define MSG_UBL_LEVEL_BED                   "Niveau lit unifie"
-#define MSG_UBL_MANUAL_MESH                 "Maillage manuel"
-#define MSG_UBL_BC_INSERT                   "Poser cale & mesurer"
-#define MSG_UBL_BC_INSERT2                  "Mesure"
-#define MSG_UBL_BC_REMOVE                   "oter et mesurer lit"
-#define MSG_UBL_MOVING_TO_NEXT              "Aller au suivant"
-#define MSG_UBL_ACTIVATE_MESH               "Activer l'UBL"
-#define MSG_UBL_DEACTIVATE_MESH             "Desactiver l'UBL"
-#define MSG_UBL_SET_BED_TEMP                "Temperature lit"
-#define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
-#define MSG_UBL_SET_HOTEND_TEMP             "Temperature buse"
-#define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
-#define MSG_UBL_EDIT_CUSTOM_MESH            "Editer maille perso"
-#define MSG_UBL_FINE_TUNE_MESH              "Reglage fin maille"
-#define MSG_UBL_DONE_EDITING_MESH           "Termier maille"
-#define MSG_UBL_BUILD_CUSTOM_MESH           "Creer maille perso"
-#define MSG_UBL_BUILD_MESH_MENU             "Creer maille"
-#define MSG_UBL_BUILD_PLA_MESH              "Creer maille PLA"
-#define MSG_UBL_BUILD_ABS_MESH              "Creer maille ABS"
-#define MSG_UBL_BUILD_COLD_MESH             "Creer maille froide"
-#define MSG_UBL_MESH_HEIGHT_ADJUST          "Ajuster haut. maille"
-#define MSG_UBL_MESH_HEIGHT_AMOUNT          "Hauteur"
-#define MSG_UBL_VALIDATE_MESH_MENU          "Valider maille"
-#define MSG_UBL_VALIDATE_PLA_MESH           "Valider maille PLA"
-#define MSG_UBL_VALIDATE_ABS_MESH           "Valider maille ABS"
-#define MSG_UBL_VALIDATE_CUSTOM_MESH        "Valider maille perso"
-#define MSG_UBL_CONTINUE_MESH               "Continuer maille"
-#define MSG_UBL_MESH_LEVELING               "Niveau par maille"
-#define MSG_UBL_3POINT_MESH_LEVELING        "Niveau a 3 points"
-#define MSG_UBL_GRID_MESH_LEVELING          "Niveau grille"
-#define MSG_UBL_MESH_LEVEL                  "Maille de niveau"
-#define MSG_UBL_SIDE_POINTS                 "Point lateral"
-#define MSG_UBL_MAP_TYPE                    "Type de carte"
-#define MSG_UBL_OUTPUT_MAP                  "Voir maille"
-#define MSG_UBL_OUTPUT_MAP_HOST             "Voir pour hote"
-#define MSG_UBL_OUTPUT_MAP_CSV              "Voir pour CSV"
-#define MSG_UBL_OUTPUT_MAP_BACKUP           "Off Printer Backup"
-#define MSG_UBL_INFO_UBL                    "Voir info UBL"
-#define MSG_UBL_EDIT_MESH_MENU              "Modifier maille"
-#define MSG_UBL_FILLIN_AMOUNT               "Taux de remplissage"
-#define MSG_UBL_MANUAL_FILLIN               "Remplissage manuel"
-#define MSG_UBL_SMART_FILLIN                "Remplissage auto"
-#define MSG_UBL_FILLIN_MESH                 "Maille remplissage"
-#define MSG_UBL_INVALIDATE_ALL              "Annuler tout"
-#define MSG_UBL_INVALIDATE_CLOSEST          "Annuler le plus pres"
-#define MSG_UBL_FINE_TUNE_ALL               "Reglage fin (tous)"
-#define MSG_UBL_FINE_TUNE_CLOSEST           "Reglage fin (proche)"
-#define MSG_UBL_STORAGE_MESH_MENU           "Stockage maille"
-#define MSG_UBL_STORAGE_SLOT                "Slot memoire"
-#define MSG_UBL_LOAD_MESH                   "Charger maille"
-#define MSG_UBL_SAVE_MESH                   "Sauver maille"
-#define MSG_UBL_SAVE_ERROR                  "Err: Enreg. UBL"
-#define MSG_UBL_RESTORE_ERROR               "Err: Ouvrir UBL"
-#define MSG_UBL_Z_OFFSET_STOPPED            "Offset Z arrete"
-
-
-#define MSG_MOVING                          "Deplacement..."
-#define MSG_FREE_XY                         "Debloquer XY"
-#define MSG_MOVE_X                          "Depl. X"
-#define MSG_MOVE_Y                          "Depl. Y"
-#define MSG_MOVE_Z                          "Depl. Z"
-#define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_01MM                       "Depl. 0.1mm"
-#define MSG_MOVE_1MM                        "Depl. 1mm"
-#define MSG_MOVE_10MM                       "Depl. 10mm"
-#define MSG_SPEED                           " Vitesse"
-#define MSG_BED_Z                           "Lit Z"
-#define MSG_NOZZLE                          "Buse"
-#define MSG_BED                             "Lit"
-#define MSG_FAN_SPEED                       "Vitesse ventil."
-#define MSG_FLOW                            "Flux"
-#define MSG_CONTROL                         "Controler"
-#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
-#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
-#define MSG_FACTOR                          LCD_STR_THERMOMETER " Facteur"
-#define MSG_AUTOTEMP                        "Temp. Auto."
-#define MSG_ON                              "Marche "
-#define MSG_OFF                             "Arret"
-#define MSG_PID_P                           "PID-P"
-#define MSG_PID_I                           "PID-I"
-#define MSG_PID_D                           "PID-D"
-#define MSG_PID_C                           "PID-C"
-#define MSG_SELECT                          "Selectionner"
-#define MSG_ACC                             "Acceleration"
-#define MSG_JERK                            "Jerk"
-#define MSG_VX_JERK                         "Vx-jerk"
-#define MSG_VY_JERK                         "Vy-jerk"
-#define MSG_VZ_JERK                         "Vz-jerk"
-#define MSG_VE_JERK                         "Ve-jerk"
-#define MSG_VELOCITY                        "Velocite"
-#define MSG_VMAX                            "Vmax"
-#define MSG_VMIN                            "Vmin"
-#define MSG_VTRAV_MIN                       "Vdepl min"
-#define MSG_ACCELERATION                    "Acceleration"
-#define MSG_AMAX                            "Amax "
-#define MSG_A_RETRACT                       "A-retract"
-#define MSG_A_TRAVEL                        "A-Depl."
-#define MSG_STEPS_PER_MM                    "Pas/mm"
-#define MSG_XSTEPS                          "Xpas/mm"
-#define MSG_YSTEPS                          "Ypas/mm"
-#define MSG_ZSTEPS                          "Zpas/mm"
-#define MSG_ESTEPS                          "Epas/mm"
-#define MSG_E1STEPS                         "E1pas/mm"
-#define MSG_E2STEPS                         "E2pas/mm"
-#define MSG_E3STEPS                         "E3pas/mm"
-#define MSG_E4STEPS                         "E4pas/mm"
-#define MSG_E5STEPS                         "E5pas/mm"
-#define MSG_TEMPERATURE                     "Temperature"
-#define MSG_MOTION                          "Mouvement"
-#define MSG_FILAMENT                        "Filament"
-#define MSG_VOLUMETRIC_ENABLED              "E en mm3"
-#define MSG_FILAMENT_DIAM                   "Diam. Fil."
-#define MSG_ADVANCE_K                       "Advance K"
-#define MSG_CONTRAST                        "Contraste LCD"
-#define MSG_STORE_EEPROM                    "Sauver config"
-#define MSG_LOAD_EEPROM                     "Lire config"
-#define MSG_RESTORE_FAILSAFE                "Restaurer defauts"
-#define MSG_INIT_EEPROM                     "Initialiser EEPROM"
-#define MSG_REFRESH                         "Actualiser"
-#define MSG_WATCH                           "Surveiller"
-#define MSG_PREPARE                         "Preparer"
-#define MSG_TUNE                            "Regler"
-#define MSG_PAUSE_PRINT                     "Interrompre impr."
-#define MSG_RESUME_PRINT                    "Reprendre impr."
-#define MSG_STOP_PRINT                      "Arreter impr."
-#define MSG_CARD_MENU                       "Impr. depuis SD"
-#define MSG_NO_CARD                         "Pas de carte"
-#define MSG_DWELL                           "Repos..."
-#define MSG_USERWAIT                        "Atten. de l'util."
-#define MSG_PRINT_PAUSED                    "Impr. en pause"
-#define MSG_RESUMING                        "Repri. de l'impr."
-#define MSG_PRINT_ABORTED                   "Impr. Annulee"
-#define MSG_NO_MOVE                         "Moteurs bloques."
-#define MSG_KILLED                          "MORT."
-#define MSG_STOPPED                         "STOPPe."
-#define MSG_CONTROL_RETRACT                 "Retraction mm"
-#define MSG_CONTROL_RETRACT_SWAP            "Ech. Retr. mm"
-#define MSG_CONTROL_RETRACTF                "Retraction V"
-#define MSG_CONTROL_RETRACT_ZLIFT           "Saut Z mm"
-#define MSG_CONTROL_RETRACT_RECOVER         "UnRet mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Ech. UnRet mm"
-#define MSG_CONTROL_RETRACT_RECOVERF        "UnRet V"
-#define MSG_AUTORETRACT                     "Retract. Auto."
-#define MSG_FILAMENTCHANGE                  "Changer filament"
-#define MSG_INIT_SDCARD                     "Init. la carte SD"
-#define MSG_CNG_SDCARD                      "Changer de carte"
-#define MSG_ZPROBE_OUT                      "Z sonde exte. lit"
-#define MSG_BLTOUCH                         "BLTouch"
-#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
-#define MSG_BLTOUCH_RESET                   "RaZ BLTouch"
-#define MSG_BLTOUCH_DEPLOY                  "Deployer BLTouch"
-#define MSG_BLTOUCH_STOW                    "Ranger BLTouch"
-#define MSG_HOME                            "Origine"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "Premier"
-#define MSG_ZPROBE_ZOFFSET                  "Decalage Z"
-#define MSG_BABYSTEP_X                      "Babystep X"
-#define MSG_BABYSTEP_Y                      "Babystep Y"
-#define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Butee abandon"
-#define MSG_HEATING_FAILED_LCD              "Erreur de chauffe"
-#define MSG_ERR_REDUNDANT_TEMP              "Err: TEMP. REDONDANT"
-#define MSG_THERMAL_RUNAWAY                 "EMBALLEMENT THERM."
-#define MSG_ERR_MAXTEMP                     "Err: TEMP. MAX"
-#define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
-#define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX LIT"
-#define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN LIT"
-#define MSG_ERR_Z_HOMING                    "G28 Z interdit"
-
-#define MSG_HALTED                          "IMPR. STOPPeE"
-#define MSG_PLEASE_RESET                    "RaZ. SVP"
-#define MSG_SHORT_DAY                       "j" // One character only
-#define MSG_SHORT_HOUR                      "h" // One character only
-#define MSG_SHORT_MINUTE                    "m" // One character only
-
-#define MSG_HEATING                         "En chauffe..."
-#define MSG_HEATING_COMPLETE                "Chauffe terminee"
-#define MSG_BED_HEATING                     "Lit en chauffe.."
-#define MSG_BED_DONE                        "Chauffe lit terminee"
-#define MSG_DELTA_CALIBRATE                 "Calibration Delta"
-#define MSG_DELTA_CALIBRATE_X               "Calibrer X"
-#define MSG_DELTA_CALIBRATE_Y               "Calibrer Y"
-#define MSG_DELTA_CALIBRATE_Z               "Calibrer Z"
-#define MSG_DELTA_CALIBRATE_CENTER          "Calibrer centre"
-#define MSG_DELTA_AUTO_CALIBRATE            "Calibration Auto"
-#define MSG_DELTA_HEIGHT_CALIBRATE          "Hauteur Delta"
-
-#define MSG_INFO_MENU                       "Infos imprimante"
-#define MSG_INFO_PRINTER_MENU               "Infos imprimante"
-#define MSG_3POINT_LEVELING                 "Niveau a 3 points"
-#define MSG_LINEAR_LEVELING                 "Niveau lineaire"
-#define MSG_BILINEAR_LEVELING               "Niveau bilineaire"
-#define MSG_UBL_LEVELING                    "Niveau lit unifie"
-#define MSG_MESH_LEVELING                   "Niveau maillage"
-#define MSG_INFO_STATS_MENU                 "Stats. imprimante"
-#define MSG_INFO_BOARD_MENU                 "Infos carte"
-#define MSG_INFO_THERMISTOR_MENU            "Thermistors"
-#define MSG_INFO_EXTRUDERS                  "Extrudeurs"
-#define MSG_INFO_BAUDRATE                   "Baud"
-#define MSG_INFO_PROTOCOL                   "Protocole"
-#define MSG_CASE_LIGHT                      "Lumiere caisson"
-#define MSG_CASE_LIGHT_BRIGHTNESS           "Luminosite"
-
-#if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              "Nbre impressions"
-  #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-  #define MSG_INFO_PRINT_TIME               "Tps impr. total"
-  #define MSG_INFO_PRINT_LONGEST            "Impr. la + longue"
-  #define MSG_INFO_PRINT_FILAMENT           "Total filament"
-#else
-  #define MSG_INFO_PRINT_COUNT              "Impressions"
-  #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-  #define MSG_INFO_PRINT_TIME               "Total"
-  #define MSG_INFO_PRINT_LONGEST            "+ long"
-  #define MSG_INFO_PRINT_FILAMENT           "Filament"
-=======
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prete.")
 #define MSG_BACK                            _UxGT("Retour")
 #define MSG_SD_INSERTED                     _UxGT("Carte inseree")
@@ -558,53 +294,24 @@
   #define MSG_INFO_PRINT_TIME               _UxGT("Total")
   #define MSG_INFO_PRINT_LONGEST            _UxGT("+ long")
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Filament")
->>>>>>> upstream/bugfix-1.1.x
 #endif
 
-#define MSG_INFO_MIN_TEMP                   "Temp Min"
-#define MSG_INFO_MAX_TEMP                   "Temp Max"
-#define MSG_INFO_PSU                        "Alimentation"
-#define MSG_DRIVE_STRENGTH                  "Puiss. moteur "
-#define MSG_DAC_PERCENT                     "Driver %"
-#define MSG_DAC_EEPROM_WRITE                "DAC EEPROM sauv."
+#define MSG_INFO_MIN_TEMP                   _UxGT("Temp Min")
+#define MSG_INFO_MAX_TEMP                   _UxGT("Temp Max")
+#define MSG_INFO_PSU                        _UxGT("Alimentation")
+#define MSG_DRIVE_STRENGTH                  _UxGT("Puiss. moteur ")
+#define MSG_DAC_PERCENT                     _UxGT("Driver %")
+#define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM sauv.")
 
-#define MSG_FILAMENT_CHANGE_HEADER          "PRINT PAUSED"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   "RESUME OPTIONS:"
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "+ extrusion"
-#define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Reprendre impr."
-#define MSG_FILAMENT_CHANGE_MINTEMP         "La temp. minimum est "
-#define MSG_FILAMENT_CHANGE_NOZZLE          "  Buse: "
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
+#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("+ extrusion")
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Reprendre impr.")
+#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("La temp. minimum est ")
+#define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Buse: ")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
-<<<<<<< HEAD
-  #define MSG_FILAMENT_CHANGE_INIT_1        "Attente Demarrage"
-  #define MSG_FILAMENT_CHANGE_INIT_2        "du filament"
-  #define MSG_FILAMENT_CHANGE_INIT_3        "changer"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "attente de"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2      "decharger filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_1      "inserer filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2      "et app. bouton"
-  #define MSG_FILAMENT_CHANGE_INSERT_3      "pour continuer..."
-  #define MSG_FILAMENT_CHANGE_HEAT_1        "Presser le bouton..."
-  #define MSG_FILAMENT_CHANGE_HEAT_2        "Pr chauffer la buse"
-  #define MSG_FILAMENT_CHANGE_HEATING_1     "Buse en chauffe"
-  #define MSG_FILAMENT_CHANGE_HEATING_2     "Patientez SVP..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1        "attente de"
-  #define MSG_FILAMENT_CHANGE_LOAD_2        "chargement filament"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "attente de"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     "extrusion filament"
-  #define MSG_FILAMENT_CHANGE_RESUME_1      "attente impression"
-  #define MSG_FILAMENT_CHANGE_RESUME_2      "pour reprendre"
-#else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1        "Patientez..."
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Ejection..."
-  #define MSG_FILAMENT_CHANGE_INSERT_1      "Inserer et clic"
-  #define MSG_FILAMENT_CHANGE_LOAD_1        "Chargement..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "Extrusion..."
-  #define MSG_FILAMENT_CHANGE_RESUME_1      "Reprise..."
-=======
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Attente Demarrage")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("du filament")
   #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("changer")
@@ -631,7 +338,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Chargement...")
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Extrusion...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Reprise...")
->>>>>>> upstream/bugfix-1.1.x
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_FR_H

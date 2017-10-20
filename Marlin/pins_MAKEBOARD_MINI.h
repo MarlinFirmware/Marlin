@@ -29,6 +29,8 @@
 #undef Y_MIN_PIN
 #undef Z_MIN_PIN
 
+// No Max EndStop on Micromake C1
+
 #undef X_MAX_PIN
 #undef Y_MAX_PIN
 #undef Z_MAX_PIN
@@ -39,7 +41,3 @@
 #define X_MIN_PIN           2
 #define Y_MIN_PIN          15
 #define Z_MIN_PIN          19
-// No max endstop on Micromake C1 but this values on original file Configuration (without comment)
-//#define X_MAX_PIN           2
-//#define Y_MAX_PIN          15
-//#define Z_MAX_PIN          19
