@@ -49,7 +49,7 @@ void GcodeSuite::M421() {
              hasQ = !hasZ && parser.seen('Q');
 
   if (hasC) {
-    const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+    const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL);
     ix = location.x_index;
     iy = location.y_index;
   }
