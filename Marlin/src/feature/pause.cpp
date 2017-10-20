@@ -143,7 +143,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   // Save current position
   stepper.synchronize();
   COPY(resume_position, current_position);
-
+  set_current_to_destination();            // Reset all old destinations to current
   if (retract) {
     // Initial retract before move to filament change position
     set_destination_to_current();
