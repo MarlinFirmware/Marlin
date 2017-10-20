@@ -323,7 +323,6 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if HAS_LEVELING
   bool leveling_is_valid();
-  bool leveling_is_active();
   void set_bed_leveling_enabled(const bool enable=true);
   void reset_bed_level();
 #endif
@@ -355,6 +354,10 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
+  #if ENABLED(EXTRA_FAN_SPEED)
+    extern int16_t old_fanSpeeds[FAN_COUNT],
+                   new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];

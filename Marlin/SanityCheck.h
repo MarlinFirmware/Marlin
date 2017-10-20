@@ -255,6 +255,25 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   "Movement bounds ([XY]_MIN_POS, [XY]_MAX_POS) are too narrow to contain [XY]_BED_SIZE.");
 
 /**
+ * Granular software endstops (Marlin >= 1.1.7)
+ */
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) && DISABLED(MIN_SOFTWARE_ENDSTOP_Z)
+  #if IS_KINEMATIC
+    #error "MIN_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MIN_SOFTWARE_ENDSTOP_Z."
+  #elif DISABLED(MIN_SOFTWARE_ENDSTOP_X) && DISABLED(MIN_SOFTWARE_ENDSTOP_Y)
+    #error "MIN_SOFTWARE_ENDSTOPS requires at least one of the MIN_SOFTWARE_ENDSTOP_[XYZ] options."
+  #endif
+#endif
+
+#if ENABLED(MAX_SOFTWARE_ENDSTOPS) && DISABLED(MAX_SOFTWARE_ENDSTOP_Z)
+  #if IS_KINEMATIC
+    #error "MAX_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MAX_SOFTWARE_ENDSTOP_Z."
+  #elif DISABLED(MAX_SOFTWARE_ENDSTOP_X) && DISABLED(MAX_SOFTWARE_ENDSTOP_Y)
+    #error "MAX_SOFTWARE_ENDSTOPS requires at least one of the MAX_SOFTWARE_ENDSTOP_[XYZ] options."
+  #endif
+#endif
+
+/**
  * Progress Bar
  */
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -651,7 +670,7 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if OLDSCHOOL_ABL
     #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 

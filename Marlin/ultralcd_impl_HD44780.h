@@ -200,9 +200,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 #include "utf_mapper.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
-  static millis_t progress_bar_ms = 0;
+  static millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
   #if PROGRESS_MSG_EXPIRE > 0
-    static millis_t expire_status_ms = 0;
+    static millis_t expire_status_ms = 0;  // millis at which to expire the status message
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
@@ -792,7 +792,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
     #if HAS_LEVELING
-      lcd.write(leveling_is_active() || blink ? '_' : ' ');
+      lcd.write(planner.leveling_active || blink ? '_' : ' ');
     #endif
 
   #endif // LCD_HEIGHT > 2
@@ -841,10 +841,11 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])) {
-      const uint8_t percent = card.percentDone();
-      if (percent) return lcd_draw_progress_bar(percent);
-    }
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      const uint8_t progress_bar_percent = card.percentDone();
+    #endif
+    if (progress_bar_percent > 2 && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
+      return lcd_draw_progress_bar(progress_bar_percent);
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
@@ -1145,9 +1146,9 @@ static void lcd_implementation_status_screen() {
       return ret_val;
     }
 
-    coordinate pixel_location(uint8_t x, uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void lcd_implementation_ubl_plot(uint8_t x, uint8_t inverted_y) {
+    void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12

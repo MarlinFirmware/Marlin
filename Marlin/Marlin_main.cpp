@@ -117,8 +117,8 @@
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
- * M106 - Fan on.
- * M107 - Fan off.
+ * M106 - Set print fan speed.
+ * M107 - Print fan off.
  * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
@@ -479,6 +479,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(EXTRA_FAN_SPEED)
+    int16_t old_fanSpeeds[FAN_COUNT],
+            new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
@@ -544,14 +548,14 @@ static uint8_t target_extruder;
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   #if ENABLED(DELTA)
     #define ADJUST_DELTA(V) \
-      if (planner.abl_enabled) { \
+      if (planner.leveling_active) { \
         const float zadj = bilinear_z_offset(V); \
         delta[A_AXIS] += zadj; \
         delta[B_AXIS] += zadj; \
         delta[C_AXIS] += zadj; \
       }
   #else
-    #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
+    #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
   #endif
 #elif IS_KINEMATIC
   #define ADJUST_DELTA(V) NOOP
@@ -2460,25 +2464,13 @@ static void clean_up_after_endstop_or_probe_move() {
   bool leveling_is_valid() {
     return
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.has_mesh()
+        mbl.has_mesh
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         !!bilinear_grid_spacing[X_AXIS]
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         true
       #else // 3POINT, LINEAR
         true
-      #endif
-    ;
-  }
-
-  bool leveling_is_active() {
-    return
-      #if ENABLED(MESH_BED_LEVELING)
-        mbl.active()
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.state.active
-      #else
-        planner.abl_enabled
       #endif
     ;
   }
@@ -2498,7 +2490,7 @@ static void clean_up_after_endstop_or_probe_move() {
       constexpr bool can_change = true;
     #endif
 
-    if (can_change && enable != leveling_is_active()) {
+    if (can_change && enable != planner.leveling_active) {
 
       #if ENABLED(MESH_BED_LEVELING)
 
@@ -2506,23 +2498,23 @@ static void clean_up_after_endstop_or_probe_move() {
           planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
 
         const bool enabling = enable && leveling_is_valid();
-        mbl.set_active(enabling);
+        planner.leveling_active = enabling;
         if (enabling) planner.unapply_leveling(current_position);
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         #if PLANNER_LEVELING
-          if (ubl.state.active) {                       // leveling from on to off
+          if (planner.leveling_active) {                       // leveling from on to off
             // change unleveled current_position to physical current_position without moving steppers.
             planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-            ubl.state.active = false;                   // disable only AFTER calling apply_leveling
+            planner.leveling_active = false;                   // disable only AFTER calling apply_leveling
           }
           else {                                        // leveling from off to on
-            ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
+            planner.leveling_active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
             // change physical current_position to unleveled current_position without moving steppers.
             planner.unapply_leveling(current_position);
           }
         #else
-          ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
+          planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
         #endif
 
       #else // ABL
@@ -2534,7 +2526,7 @@ static void clean_up_after_endstop_or_probe_move() {
         #endif
 
         // Enable or disable leveling compensation in the planner
-        planner.abl_enabled = enable;
+        planner.leveling_active = enable;
 
         if (!enable)
           // When disabling just get the current position from the steppers.
@@ -2559,23 +2551,18 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_z_fade_height(const float zfh) {
 
-      const bool level_active = leveling_is_active();
+      const bool level_active = planner.leveling_active;
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
+        if (level_active) set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
+      #endif
 
-        if (level_active)
-          set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-        planner.z_fade_height = zfh;
-        planner.inverse_z_fade_height = RECIPROCAL(zfh);
-        if (level_active)
+      planner.set_z_fade_height(zfh);
+
+      if (level_active) {
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
-
-      #else
-
-        planner.z_fade_height = zfh;
-        planner.inverse_z_fade_height = RECIPROCAL(zfh);
-
-        if (level_active) {
+        #else
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -2583,8 +2570,8 @@ static void clean_up_after_endstop_or_probe_move() {
               Z_AXIS
             #endif
           );
-        }
-      #endif
+        #endif
+      }
     }
 
   #endif // LEVELING_FADE_HEIGHT
@@ -2597,7 +2584,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(MESH_BED_LEVELING)
       if (leveling_is_valid()) {
         mbl.reset();
-        mbl.set_has_mesh(false);
+        mbl.has_mesh = false;
       }
     #else
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3771,7 +3758,7 @@ inline void gcode_G4() {
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         SERIAL_ECHOPGM("UBL");
       #endif
-      if (leveling_is_active()) {
+      if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ABL_PLANAR
           const float diff[XYZ] = {
@@ -3802,7 +3789,7 @@ inline void gcode_G4() {
     #elif ENABLED(MESH_BED_LEVELING)
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
-      if (leveling_is_active()) {
+      if (planner.leveling_active) {
         float lz = current_position[Z_AXIS];
         planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
         SERIAL_ECHOLNPGM(" (enabled)");
@@ -3971,7 +3958,7 @@ inline void gcode_G28(const bool always_home_all) {
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool ubl_state_at_entry = leveling_is_active();
+      const bool ubl_state_at_entry = planner.leveling_active;
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -4211,7 +4198,7 @@ void home_all_axes() { gcode_G28(true); }
   }
 
   void mesh_probing_done() {
-    mbl.set_has_mesh(true);
+    mbl.has_mesh = true;
     home_all_axes();
     set_bed_leveling_enabled(true);
     #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -4261,7 +4248,7 @@ void home_all_axes() { gcode_G28(true); }
     switch (state) {
       case MeshReport:
         if (leveling_is_valid()) {
-          SERIAL_PROTOCOLLNPAIR("State: ", leveling_is_active() ? MSG_ON : MSG_OFF);
+          SERIAL_PROTOCOLLNPAIR("State: ", planner.leveling_active ? MSG_ON : MSG_OFF);
           mbl_mesh_report();
         }
         else
@@ -4374,7 +4361,7 @@ void home_all_axes() { gcode_G28(true); }
     report_current_position();
   }
 
-#elif HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+#elif OLDSCHOOL_ABL
 
   #if ABL_GRID
     #if ENABLED(PROBE_Y_FIRST)
@@ -4580,7 +4567,7 @@ void home_all_axes() { gcode_G28(true); }
         abl_probe_index = -1;
       #endif
 
-      abl_should_enable = leveling_is_active();
+      abl_should_enable = planner.leveling_active;
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -4720,7 +4707,7 @@ void home_all_axes() { gcode_G28(true); }
       stepper.synchronize();
 
       // Disable auto bed leveling during G29
-      planner.abl_enabled = false;
+      planner.leveling_active = false;
 
       if (!dryrun) {
         // Re-orient the current position without leveling
@@ -4734,7 +4721,7 @@ void home_all_axes() { gcode_G28(true); }
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
         if (DEPLOY_PROBE()) {
-          planner.abl_enabled = abl_should_enable;
+          planner.leveling_active = abl_should_enable;
           return;
         }
       #endif
@@ -4753,7 +4740,7 @@ void home_all_axes() { gcode_G28(true); }
         ) {
           if (dryrun) {
             // Before reset bed level, re-enable to correct the position
-            planner.abl_enabled = abl_should_enable;
+            planner.leveling_active = abl_should_enable;
           }
           // Reset grid to 0.0 or "not probed". (Also disables ABL)
           reset_bed_level();
@@ -4798,7 +4785,7 @@ void home_all_axes() { gcode_G28(true); }
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
         #endif
-        planner.abl_enabled = abl_should_enable;
+        planner.leveling_active = abl_should_enable;
         g29_in_progress = false;
         #if ENABLED(LCD_BED_LEVELING)
           lcd_wait_for_move = false;
@@ -4999,7 +4986,7 @@ void home_all_axes() { gcode_G28(true); }
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
             if (isnan(measured_z)) {
-              planner.abl_enabled = abl_should_enable;
+              planner.leveling_active = abl_should_enable;
               break;
             }
 
@@ -5035,7 +5022,7 @@ void home_all_axes() { gcode_G28(true); }
           yProbe = LOGICAL_Y_POSITION(points[i].y);
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
           if (isnan(measured_z)) {
-            planner.abl_enabled = abl_should_enable;
+            planner.leveling_active = abl_should_enable;
             break;
           }
           points[i].z = measured_z;
@@ -5058,7 +5045,7 @@ void home_all_axes() { gcode_G28(true); }
 
       // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
       if (STOW_PROBE()) {
-        planner.abl_enabled = abl_should_enable;
+        planner.leveling_active = abl_should_enable;
         measured_z = NAN;
       }
     }
@@ -5226,9 +5213,9 @@ void home_all_axes() { gcode_G28(true); }
           float converted[XYZ];
           COPY(converted, current_position);
 
-          planner.abl_enabled = true;
+          planner.leveling_active = true;
           planner.unapply_leveling(converted); // use conversion machinery
-          planner.abl_enabled = false;
+          planner.leveling_active = false;
 
           // Use the last measured distance to the bed, if possible
           if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -5280,7 +5267,7 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       // Auto Bed Leveling is complete! Enable if possible.
-      planner.abl_enabled = dryrun ? abl_should_enable : true;
+      planner.leveling_active = dryrun ? abl_should_enable : true;
     } // !isnan(measured_z)
 
     // Restore state after probing
@@ -5294,11 +5281,11 @@ void home_all_axes() { gcode_G28(true); }
 
     KEEPALIVE_STATE(IN_HANDLER);
 
-    if (planner.abl_enabled)
+    if (planner.leveling_active)
       SYNC_PLAN_POSITION_KINEMATIC();
   }
 
-#endif // HAS_ABL && !AUTO_BED_LEVELING_UBL
+#endif // OLDSCHOOL_ABL
 
 #if HAS_BED_PROBE
 
@@ -5309,7 +5296,7 @@ void home_all_axes() { gcode_G28(true); }
    *
    *   X   Probe X position (default current X)
    *   Y   Probe Y position (default current Y)
-   *   S0  Leave the probe deployed
+   *   E   Engage the probe for each probe
    */
   inline void gcode_G30() {
     const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
@@ -5324,7 +5311,7 @@ void home_all_axes() { gcode_G28(true); }
 
     setup_for_endstop_or_probe_move();
 
-    const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
+    const float measured_z = probe_pt(xpos, ypos, parser.boolval('E'), 1);
 
     if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -5452,7 +5439,7 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      const bool towers_set           = parser.boolval('T', true),
+      const bool towers_set           = !parser.boolval('T'),
                  stow_after_each      = parser.boolval('E'),
                  _0p_calibration      = probe_points == 0,
                  _1p_calibration      = probe_points == 1,
@@ -5886,7 +5873,7 @@ void home_all_axes() { gcode_G28(true); }
 
 #endif // G38_PROBE_TARGET
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
+#if HAS_MESH
 
   /**
    * G42: Move X & Y axes to mesh coordinates (I & J)
@@ -5938,7 +5925,7 @@ void home_all_axes() { gcode_G28(true); }
     }
   }
 
-#endif // AUTO_BED_LEVELING_UBL
+#endif // HAS_MESH
 
 /**
  * G92: Set current position to given X Y Z E
@@ -6039,7 +6026,7 @@ inline void gcode_G92() {
       #if ENABLED(ULTIPANEL)
         if (lcd_detected()) {
           while (wait_for_user) idle();
-          IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
+          print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
         }
       #else
         while (wait_for_user) idle();
@@ -7077,7 +7064,7 @@ inline void gcode_M42() {
     // Disable bed level correction in M48 because we want the raw data when we probe
 
     #if HAS_LEVELING
-      const bool was_enabled = leveling_is_active();
+      const bool was_enabled = planner.leveling_active;
       set_bed_leveling_enabled(false);
     #endif
 
@@ -7257,6 +7244,24 @@ inline void gcode_M42() {
   }
 
 #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+
+#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  /**
+   * M73: Set percentage complete (for display on LCD)
+   *
+   * Example:
+   *   M73 P25 ; Set progress to 25%
+   *
+   * Notes:
+   *   This has no effect during an SD print job
+   */
+  inline void gcode_M73() {
+    if (!IS_SD_PRINTING && parser.seen('P')) {
+      progress_bar_percent = parser.value_byte();
+      NOMORE(progress_bar_percent, 100);
+    }
+  }
+#endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY
 
 /**
  * M75: Start print timer
@@ -7452,12 +7457,39 @@ inline void gcode_M105() {
    *
    *  S<int>   Speed between 0-255
    *  P<index> Fan index, if more than one fan
+   *
+   * With EXTRA_FAN_SPEED enabled:
+   *
+   *  T<int>   Restore/Use/Set Temporary Speed:
+   *           1     = Restore previous speed after T2
+   *           2     = Use temporary speed set with T3-255
+   *           3-255 = Set the speed for use with T2
    */
   inline void gcode_M106() {
-    uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
-    const uint8_t p = parser.byteval('P', 0);
-    if (p < FAN_COUNT) fanSpeeds[p] = s;
+    const uint8_t p = parser.byteval('P');
+    if (p < FAN_COUNT) {
+      #if ENABLED(EXTRA_FAN_SPEED)
+        const int16_t t = parser.intval('T');
+        NOMORE(t, 255);
+        if (t > 0) {
+          switch (t) {
+            case 1:
+              fanSpeeds[p] = old_fanSpeeds[p];
+              break;
+            case 2:
+              old_fanSpeeds[p] = fanSpeeds[p];
+              fanSpeeds[p] = new_fanSpeeds[p];
+              break;
+            default:
+              new_fanSpeeds[p] = t;
+              break;
+          }
+          return;
+        }
+      #endif // EXTRA_FAN_SPEED
+      const uint16_t s = parser.ushortval('S', 255);
+      fanSpeeds[p] = min(s, 255);
+    }
   }
 
   /**
@@ -8264,6 +8296,13 @@ inline void gcode_M115() {
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
     #else
       SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
+    #endif
+
+    // BUILD_PERCENT (M73)
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:0");
     #endif
 
     // SOFTWARE_POWER (M80, M81)
@@ -9352,7 +9391,7 @@ void quickstop_stepper() {
       if (parser.seen('L')) {
 
         #if ENABLED(EEPROM_SETTINGS)
-          const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.state.storage_slot;
+          const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.storage_slot;
           const int16_t a = settings.calc_num_meshes();
 
           if (!a) {
@@ -9367,7 +9406,7 @@ void quickstop_stepper() {
           }
 
           settings.load_mesh(storage_slot);
-          ubl.state.storage_slot = storage_slot;
+          ubl.storage_slot = storage_slot;
 
         #else
 
@@ -9381,7 +9420,7 @@ void quickstop_stepper() {
       if (parser.seen('L') || parser.seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
-        SERIAL_ECHOLNPAIR("ubl.state.storage_slot = ", ubl.state.storage_slot);
+        SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
 
     #endif // AUTO_BED_LEVELING_UBL
@@ -9413,7 +9452,7 @@ void quickstop_stepper() {
       if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
     #endif
 
-    const bool new_status = leveling_is_active();
+    const bool new_status = planner.leveling_active;
 
     if (to_enable && !new_status) {
       SERIAL_ERROR_START();
@@ -9605,7 +9644,7 @@ inline void gcode_M502() {
    * M503: print settings currently in memory
    */
   inline void gcode_M503() {
-    (void)settings.report(!parser.boolval('S', true));
+    (void)settings.report(parser.boolval('S'));
   }
 #endif
 
@@ -9644,7 +9683,7 @@ inline void gcode_M502() {
       #endif
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!no_babystep && leveling_is_active())
+        if (!no_babystep && planner.leveling_active)
           thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
       #else
         UNUSED(no_babystep);
@@ -10521,13 +10560,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                                     + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
                *  Steps:
-               *    1. raise Z-Axis to have enough clearance
-               *    2. move to park poition of old extruder
-               *    3. disengage magnetc field, wait for delay
-               *    4. move near new extruder
-               *    5. engage magnetic field for new extruder
-               *    6. move to parking incl. offset of new extruder
-               *    7. lower Z-Axis
+               *    1. Raise Z-Axis to give enough clearance
+               *    2. Move to park position of old extruder
+               *    3. Disengage magnetic field, wait for delay
+               *    4. Move near new extruder
+               *    5. Engage magnetic field for new extruder
+               *    6. Move to parking incl. offset of new extruder
+               *    7. Lower Z-Axis
                */
 
               // STEP 1
@@ -10691,7 +10730,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             #if ENABLED(MESH_BED_LEVELING)
 
-              if (leveling_is_active()) {
+              if (planner.leveling_active) {
                 #if ENABLED(DEBUG_LEVELING_FEATURE)
                   if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
                 #endif
@@ -10809,7 +10848,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
  */
-inline void gcode_T(uint8_t tmp_extruder) {
+inline void gcode_T(const uint8_t tmp_extruder) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -11006,7 +11045,7 @@ void process_next_command() {
         gcode_G92();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING)
+      #if HAS_MESH
         case 42:
           gcode_G42();
           break;
@@ -11106,6 +11145,11 @@ void process_next_command() {
           gcode_M49();
           break;
       #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+
+      #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        case 73: // M73: Set print progress percentage
+          gcode_M73(); break;
+      #endif
 
       case 75: // M75: Start print timer
         gcode_M75(); break;
@@ -11491,7 +11535,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      #if HAS_MESH
         case 421: // M421: Set a Mesh Bed Leveling Z coordinate
           gcode_M421();
           break;
@@ -11736,27 +11780,30 @@ void ok_to_send() {
    * Constrain the given coordinates to the software endstops.
    */
 
-  // NOTE: This makes no sense for delta beds other than Z-axis.
-  //       For delta the X/Y would need to be clamped at
-  //       DELTA_PRINTABLE_RADIUS from center of bed, but delta
-  //       now enforces is_position_reachable for X/Y regardless
-  //       of HAS_SOFTWARE_ENDSTOPS, so that enforcement would be
-  //       redundant here.
-
+  /**
+   * Constrain the given coordinates to the software endstops.
+   *
+   * NOTE: This will only apply to Z on DELTA and SCARA. XY is
+   *       constrained to a circle on these kinematic systems.
+   */
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
-      #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #endif
+    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-      #if DISABLED(DELTA)
-        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
-      #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+    #endif
+    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
     #endif
   }
@@ -12389,39 +12436,28 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a linear move in a Cartesian setup.
    * If Mesh Bed Leveling is enabled, perform a mesh move.
    *
-   * Returns true if the caller didn't update current_position.
+   * Returns true if current_position[] was set to destination[]
    */
   inline bool prepare_move_to_destination_cartesian() {
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
       const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      if (ubl.state.active) { // direct use of ubl.state.active for speed
-        ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
-        return true;
-      }
-      else
-        line_to_destination(fr_scaled);
-    #else
-      // Do not use feedrate_percentage for E or Z only moves
-      if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS])
-        line_to_destination();
-      else {
-        const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-        #if ENABLED(MESH_BED_LEVELING)
-          if (mbl.active()) { // direct used of mbl.active() for speed
+      #if HAS_MESH
+        if (planner.leveling_active) {
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
+          #elif ENABLED(MESH_BED_LEVELING)
             mesh_line_to_destination(fr_scaled);
-            return true;
-          }
-          else
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          if (planner.abl_enabled) { // direct use of abl_enabled for speed
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             bilinear_line_to_destination(fr_scaled);
-            return true;
-          }
-          else
-        #endif
-            line_to_destination(fr_scaled);
-      }
-    #endif
+          #endif
+          return true;
+        }
+      #endif // HAS_MESH
+      line_to_destination(fr_scaled);
+    }
+    else
+      line_to_destination();
+
     return false;
   }
 
@@ -12539,7 +12575,7 @@ void prepare_move_to_destination() {
 
   if (
     #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
-      ubl.prepare_segmented_line_to(destination, feedrate_mm_s)
+      ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #elif ENABLED(DUAL_X_CARRIAGE)
