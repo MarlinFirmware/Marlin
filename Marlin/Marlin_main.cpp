@@ -6258,13 +6258,13 @@ inline void gcode_M17() {
     // Save current position
     stepper.synchronize();
     COPY(resume_position, current_position);
-
+    set_current_to_destination();            // Reset all old destinations to current
     if (retract) {
       // Initial retract before move to filament change position
-      set_destination_to_current();
       destination[E_AXIS] += retract;
       RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
       stepper.synchronize();
+     set_destination_to_current(); // apply actual position to the current
     }
 
     // Lift Z axis
@@ -6283,7 +6283,7 @@ inline void gcode_M17() {
       }
 
       // Unload filament
-      set_destination_to_current();
+      set_current_to_destination();// Reset all old destinations to current
       destination[E_AXIS] += unload_length;
       RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
       stepper.synchronize();
