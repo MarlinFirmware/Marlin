@@ -1628,8 +1628,8 @@ inline void line_to_destination(const float fr_mm_s) {
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
-inline void set_current_to_destination() { COPY(current_position, destination); }
-inline void set_destination_to_current() { COPY(destination, current_position); }
+inline void set_current_to_destination() { COPY( destination,current_position); }
+inline void set_destination_to_current() { COPY( current_position,destination); }
 
 #if IS_KINEMATIC
   /**
