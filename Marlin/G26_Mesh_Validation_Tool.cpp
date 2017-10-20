@@ -137,7 +137,7 @@
   void set_destination_to_current();
   void prepare_move_to_destination();
   inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
-  inline void set_current_to_destination() { COPY(current_position, destination); }
+  inline void set_current_to_destination() { COPY( destination,current_position); }
   #if ENABLED(NEWPANEL)
     void lcd_setstatusPGM(const char* const message, const int8_t level);
     void chirp_at_user();
