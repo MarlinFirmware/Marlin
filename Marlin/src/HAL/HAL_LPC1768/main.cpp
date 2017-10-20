@@ -94,6 +94,9 @@ int main(void) {
 
   MYSERIAL.begin(BAUDRATE);
   MYSERIAL.printf("\n\nLPC1768 (%dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+  #if TX_BUFFER_SIZE > 0
+    MYSERIAL.flushTX();
+  #endif
 
   HAL_timer_init();
 

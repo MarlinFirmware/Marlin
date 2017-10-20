@@ -22,10 +22,9 @@
 
 #ifdef TARGET_LPC1768
 
+#include "../../inc/MarlinConfig.h"
+
 #include <lpc17xx_pinsel.h>
-#include "HAL.h"
-#include "../../core/macros.h"
-#include "../../core/types.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable

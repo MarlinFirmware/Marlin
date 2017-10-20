@@ -35,8 +35,7 @@ http://arduiniana.org.
 // Includes
 //
 //#include <WInterrupts.h>
-#include "../../core/macros.h"
-#include "../HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include <stdint.h>
 #include <stdarg.h>
 #include "arduino.h"

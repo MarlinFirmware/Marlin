@@ -236,6 +236,24 @@
 #endif
 
 /**
+ * Serial
+ */
+#ifndef USBCON
+  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+    #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
+  #endif
+
+  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
+    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
+  #endif
+
+  // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+    #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
+  #endif
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(X_DUAL_STEPPER_DRIVERS) && ENABLED(DUAL_X_CARRIAGE)

@@ -20,10 +20,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../core/macros.h"
-#include "../HAL.h"
-
-#include <stdint.h>
+#include "../../inc/MarlinConfig.h"
 
 extern "C" {
   //#include <lpc17xx_adc.h>

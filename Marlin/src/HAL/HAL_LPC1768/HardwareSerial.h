@@ -34,20 +34,27 @@ extern "C" {
 
 class HardwareSerial : public Stream {
 private:
-  static const size_t UARTRXQUEUESIZE = 256;
-
   LPC_UART_TypeDef *UARTx;
 
   uint32_t Status;
-  uint8_t RxBuffer[UARTRXQUEUESIZE];
+  uint8_t RxBuffer[RX_BUFFER_SIZE];
   uint32_t RxQueueWritePos;
   uint32_t RxQueueReadPos;
+  #if TX_BUFFER_SIZE > 0
+    uint8_t TxBuffer[TX_BUFFER_SIZE];
+    uint32_t TxQueueWritePos;
+    uint32_t TxQueueReadPos;
+  #endif
 
 public:
-  HardwareSerial(LPC_UART_TypeDef *UARTx) :
-    UARTx(UARTx),
-    RxQueueWritePos(0),
-    RxQueueReadPos(0)
+  HardwareSerial(LPC_UART_TypeDef *UARTx)
+    : UARTx(UARTx)
+    , RxQueueWritePos(0)
+    , RxQueueReadPos(0)
+    #if TX_BUFFER_SIZE > 0
+      , TxQueueWritePos(0)
+      , TxQueueReadPos(0)
+    #endif
   {
   }
 
@@ -55,6 +62,9 @@ public:
   int peek();
   int read();
   size_t write(uint8_t send);
+  #if TX_BUFFER_SIZE > 0
+    void flushTX();
+  #endif
   int available();
   void flush();
   void printf(const char *format, ...);
