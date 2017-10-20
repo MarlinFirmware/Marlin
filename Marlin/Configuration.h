@@ -71,18 +71,23 @@
 
 /**
  * Z-Probe type (must be none or one of them)
+ * If a Z-Probe type is selected, a Bed Leveling type other than MANUAL must be selected.
  */
-#define BLTOUCH
+#define BLTOUCH         // ANTClabs BLTouch sensor (might also work with clones)
 //#define SN04          // Green sensor
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
 //#define SERVO_PROBE   // Endstop switch on rotating arm. Set servo angles!
 
 /**
- * Servo probe deploy and stow angles
+ * Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
+ * Must choose one of these other than MANUAL if a Z-Probe type is selected.
  */
-#define SERVO_DEPLOY    70
-#define SERVO_STOW      0
+//#define TRIPOINT
+//#define LINEAR
+//#define BILINEAR
+#define UBL
+//#define MANUAL
 
 /**
  * Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
@@ -95,15 +100,6 @@
 #define SENSOR_BEHIND      0
 
 /**
- * Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
- */
-//#define TRIPOINT
-//#define LINEAR
-//#define BILINEAR
-#define UBL
-//#define MANUAL
-
-/**
  * Number of grid points in each direction
  * Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
  */
@@ -113,6 +109,12 @@
  * Margin around perimiter of bed for probing (will not probe outside this margin)
  */
 #define BED_MARGIN         0
+
+/**
+ * Servo probe deploy and stow angles
+ */
+#define SERVO_DEPLOY    70
+#define SERVO_STOW      0
 
 /**
  * Enable this to turn on support for two extruders
@@ -1029,7 +1031,7 @@
 
 // @section homing
 
-#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
+//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
 #define Z_HOMING_HEIGHT 5  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
