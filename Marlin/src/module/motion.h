@@ -106,8 +106,8 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
 void report_current_position();
 
-inline void set_current_to_destination() { COPY(current_position, destination); }
-inline void set_destination_to_current() { COPY(destination, current_position); }
+inline void set_current_to_destination() { COPY( destination,current_position); }
+inline void set_destination_to_current() { COPY( current_position,destination); }
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
