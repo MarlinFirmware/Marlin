@@ -137,13 +137,13 @@ void GcodeSuite::M48() {
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
         const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
-        float angle = random(0.0, 360.0);
+        float angle = random(0, 360);
         const float radius = random(
           #if ENABLED(DELTA)
-            0.1250000000 * (DELTA_PROBEABLE_RADIUS),
-            0.3333333333 * (DELTA_PROBEABLE_RADIUS)
+            (int) (0.1250000000 * (DELTA_PROBEABLE_RADIUS)),
+            (int) (0.3333333333 * (DELTA_PROBEABLE_RADIUS))
           #else
-            5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
+            (int) 5.0, (int) (0.125 * min(X_BED_SIZE, Y_BED_SIZE))
           #endif
         );
 

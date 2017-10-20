@@ -143,7 +143,7 @@
 // Private functions
 
 static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16];
-float g26_e_axis_feedrate = 0.020,
+float g26_e_axis_feedrate = 0.025,
       random_deviation = 0.0;
 
 static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
