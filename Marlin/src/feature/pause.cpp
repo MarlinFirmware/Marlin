@@ -150,6 +150,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     destination[E_AXIS] += retract;
     RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
     stepper.synchronize();
+    set_destination_to_current(); // apply actual position value after move
   }
 
   // Lift Z axis
@@ -168,7 +169,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     }
 
     // Unload filament
-    set_destination_to_current();
+    set_destination_to_current();// apply actual position value after move
     destination[E_AXIS] += unload_length;
     RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     stepper.synchronize();
