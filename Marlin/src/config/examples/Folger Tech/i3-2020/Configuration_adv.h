@@ -534,7 +534,7 @@
   #endif
 
   // Show a progress bar on HD44780 LCDs for SD printing
-  #define LCD_PROGRESS_BAR
+  //#define LCD_PROGRESS_BAR
 
   #if ENABLED(LCD_PROGRESS_BAR)
     // Amount of time (ms) to show the bar
@@ -592,6 +592,7 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
+
 #endif // DOGLCD
 
 // @section safety
@@ -620,7 +621,7 @@
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 100 // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR 16  // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
@@ -673,19 +674,71 @@
 
 // @section leveling
 
+#if ENABLED(DELTA) && !defined(DELTA_PROBEABLE_RADIUS)
+  #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+#elif IS_SCARA && !defined(SCARA_PRINTABLE_RADIUS)
+  #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
+#endif
+
 // Default mesh area is an area with an inset margin on the print area.
 // Below are the macros that are used to define the borders for the mesh area,
 // made available here for specialized needs, ie dual extruder setup.
 #if ENABLED(MESH_BED_LEVELING)
-  #define MESH_MIN_X MESH_INSET
-  #define MESH_MAX_X (X_BED_SIZE - (MESH_INSET))
-  #define MESH_MIN_Y MESH_INSET
-  #define MESH_MAX_Y (Y_BED_SIZE - (MESH_INSET))
+  #if ENABLED(DELTA)
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
+    #define MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
+    #define MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
+    #define MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
+  #elif IS_SCARA
+    #define MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
+    #define MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
+    #define MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
+    #define MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
+  #else
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define MESH_MIN_X (max(MESH_INSET, 0) - (X_BED_SIZE) / 2)
+      #define MESH_MIN_Y (max(MESH_INSET, 0) - (Y_BED_SIZE) / 2)
+      #define MESH_MAX_X (min(X_BED_SIZE - (MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define MESH_MAX_Y (min(Y_BED_SIZE - (MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define MESH_MIN_X (max(X_MIN_POS + MESH_INSET, 0))
+      #define MESH_MIN_Y (max(Y_MIN_POS + MESH_INSET, 0))
+      #define MESH_MAX_X (min(X_MAX_POS - (MESH_INSET), X_BED_SIZE))
+      #define MESH_MAX_Y (min(Y_MAX_POS - (MESH_INSET), Y_BED_SIZE))
+    #endif
+  #endif
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #define UBL_MESH_MIN_X UBL_MESH_INSET
-  #define UBL_MESH_MAX_X (X_BED_SIZE - (UBL_MESH_INSET))
-  #define UBL_MESH_MIN_Y UBL_MESH_INSET
-  #define UBL_MESH_MAX_Y (Y_BED_SIZE - (UBL_MESH_INSET))
+  #if ENABLED(DELTA)
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define UBL_MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
+    #define UBL_MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
+  #elif IS_SCARA
+    #define UBL_MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
+    #define UBL_MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
+  #else
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define UBL_MESH_MIN_X (max(UBL_MESH_INSET, 0) - (X_BED_SIZE) / 2)
+      #define UBL_MESH_MIN_Y (max(UBL_MESH_INSET, 0) - (Y_BED_SIZE) / 2)
+      #define UBL_MESH_MAX_X (min(X_BED_SIZE - (UBL_MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define UBL_MESH_MAX_Y (min(Y_BED_SIZE - (UBL_MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define UBL_MESH_MIN_X (max(X_MIN_POS + UBL_MESH_INSET, 0))
+      #define UBL_MESH_MIN_Y (max(Y_MIN_POS + UBL_MESH_INSET, 0))
+      #define UBL_MESH_MAX_X (min(X_MAX_POS - (UBL_MESH_INSET), X_BED_SIZE))
+      #define UBL_MESH_MAX_Y (min(Y_MAX_POS - (UBL_MESH_INSET), Y_BED_SIZE))
+    #endif
+  #endif
 
   // If this is defined, the currently active mesh will be saved in the
   // current slot on M500.
@@ -823,6 +876,15 @@
   #define RETRACT_RECOVER_FEEDRATE 8      // Default feedrate for recovering from retraction (mm/s)
   #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // Default feedrate for recovering from swap retraction (mm/s)
 #endif
+
+/**
+ * Extra Fan Speed
+ * Adds a secondary fan speed for each print-cooling fan.
+ *   'M106 P<fan> T3-255' : Set a secondary speed for <fan>
+ *   'M106 P<fan> T2'     : Use the set secondary speed
+ *   'M106 P<fan> T1'     : Restore the previous fan speed
+ */
+//#define EXTRA_FAN_SPEED
 
 /**
  * Advanced Pause
@@ -1276,7 +1338,7 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
  * Otherwise, adjust according to your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.5
+#define PROPORTIONAL_FONT_RATIO 2.2
 
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser
@@ -1304,8 +1366,8 @@
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  //#define USER_DESC_5 "Home & Info"
-  //#define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 /**
@@ -1414,15 +1476,20 @@
 //#define MAX7219_DIN_PIN   57  // on RAMPS
 //#define MAX7219_LOAD_PIN  44  // on RAMPS
 
-  #define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
-  #define MAX7219_DIN_PIN   78 // on Re-ARM
-  #define MAX7219_LOAD_PIN  79 // on Re-ARM
+//#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
+//#define MAX7219_DIN_PIN   78 // on Re-ARM
+//#define MAX7219_LOAD_PIN  79 // on Re-ARM
+
+  #define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   34 // for RAMPS E1
+  #define MAX7219_LOAD_PIN  36 // for RAMPS E1
 
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
    */
   #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix to show that the firmware is functioning
+
   #define MAX7219_DEBUG_STEPPER_HEAD  3  // Show the stepper queue head position on this and the next LED matrix row
   #define MAX7219_DEBUG_STEPPER_TAIL  5  // Show the stepper queue tail position on this and the next LED matrix row
 

@@ -441,7 +441,7 @@ class Temperature {
 
     #if ENABLED(BABYSTEPPING)
 
-      static void babystep_axis(const AxisEnum axis, const int distance) {
+      static void babystep_axis(const AxisEnum axis, const int16_t distance) {
         if (axis_known_position[axis]) {
           #if IS_CORE
             #if ENABLED(BABYSTEP_XY)

@@ -40,12 +40,14 @@
  * void Max7219_PutByte(uint8_t data);
  * void Max7219(uint8_t reg, uint8_t data);
  * void Max7219_LED_Set(uint8_t row, uint8_t col, bool on);
- * void Max7219_LED_On(uint8_t row, uint8_t col);
- * void Max7219_LED_Off(uint8_t row, uint8_t col);
+ * void Max7219_LED_On(uint8_t col, uint8_t row);
+ * void Max7219_LED_Off(uint8_t col, uint8_t row);
  * void Max7219_LED_Toggle(uint8_t row, uint8_t col);
  * void Max7219_Clear_Row(uint8_t row);
  * void Max7219_Clear_Column(uint8_t col);
  * void Max7219_Set_Row(uint8_t row, uint8_t val);
+ * void Max7219_Set_2_Rows(uint8_t row, uint16_t val);
+ * void Max7219_Set_4_Rows(uint8_t row, uint32_t val);
  * void Max7219_Set_Column(uint8_t col, uint8_t val);
  * void Max7219_idle_tasks();
  */

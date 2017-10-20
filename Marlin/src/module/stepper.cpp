@@ -1341,6 +1341,7 @@ void Stepper::report_positions() {
       _ENABLE(AXIS);                                        \
       _SAVE_START;                                          \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
+      _PULSE_WAIT;                                          \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true);     \
       _PULSE_WAIT;                                          \
       _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true);      \
