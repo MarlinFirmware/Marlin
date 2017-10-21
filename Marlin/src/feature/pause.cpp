@@ -146,7 +146,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
 
   if (retract) {
     // Initial retract before move to filament change position
-    set_destination_to_current();
+    set_destination_from_current();
     destination[E_AXIS] += retract;
     RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
     stepper.synchronize();
@@ -168,7 +168,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     }
 
     // Unload filament
-    set_destination_to_current();
+    set_destination_from_current();
     destination[E_AXIS] += unload_length;
     RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     stepper.synchronize();
@@ -272,7 +272,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     filament_change_beep(max_beep_count, true);
   #endif
 
-  set_destination_to_current();
+  set_destination_from_current();
 
   if (load_length != 0) {
     #if ENABLED(ULTIPANEL)

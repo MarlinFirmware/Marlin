@@ -47,7 +47,7 @@ void mesh_probing_done() {
   set_bed_leveling_enabled(true);
   #if ENABLED(MESH_G28_REST_ORIGIN)
     current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
-    set_destination_to_current();
+    set_destination_from_current();
     line_to_destination(homing_feedrate(Z_AXIS));
     stepper.synchronize();
   #endif

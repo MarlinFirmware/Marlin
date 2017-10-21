@@ -194,7 +194,7 @@ void GcodeSuite::G28(const bool always_home_all) {
                homeZ = always_home_all || parser.seen('Z'),
                home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
-    set_destination_to_current();
+    set_destination_from_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
