@@ -2794,7 +2794,7 @@ void kill_screen(const char* lcd_msg) {
   #if IS_KINEMATIC
     extern float feedrate_mm_s;
     extern float destination[XYZE];
-    void set_destination_to_current();
+    void set_destination_from_current();
     void prepare_move_to_destination();
   #endif
 
@@ -2819,7 +2819,7 @@ void kill_screen(const char* lcd_msg) {
         #endif
 
         // Set movement on a single axis
-        set_destination_to_current();
+        set_destination_from_current();
         destination[manual_move_axis] += manual_move_offset;
 
         // Reset for the next move
@@ -2831,7 +2831,7 @@ void kill_screen(const char* lcd_msg) {
         // previous invocation is being blocked. Modifications to manual_move_offset shouldn't be made while
         // processing_manual_move is true or the planner will get out of sync.
         processing_manual_move = true;
-        prepare_move_to_destination(); // will call set_current_to_destination
+        prepare_move_to_destination(); // will call set_current_from_destination()
         processing_manual_move = false;
 
         feedrate_mm_s = old_feedrate;

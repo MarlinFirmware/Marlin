@@ -350,7 +350,7 @@
                            || isnan(ubl.z_values[0][0]))
 #endif
 
-#if ENABLED(NEOPIXEL_LED) 
+#if ENABLED(NEOPIXEL_LED)
   #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
     #define NEO_WHITE 255, 255, 255
   #else
@@ -379,7 +379,7 @@ float current_position[XYZE] = { 0.0 };
 /**
  * Cartesian Destination
  *   A temporary position, usually applied to 'current_position'.
- *   Set with 'gcode_get_destination' or 'set_destination_to_current'.
+ *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
  *   'line_to_destination' sets 'current_position' to 'destination'.
  */
 float destination[XYZE] = { 0.0 };
@@ -1633,8 +1633,8 @@ inline void line_to_destination(const float fr_mm_s) {
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
-inline void set_current_to_destination() { COPY(current_position, destination); }
-inline void set_destination_to_current() { COPY(destination, current_position); }
+inline void set_current_from_destination() { COPY(current_position, destination); }
+inline void set_destination_from_current() { COPY(destination, current_position); }
 
 #if IS_KINEMATIC
   /**
@@ -1660,7 +1660,7 @@ inline void set_destination_to_current() { COPY(destination, current_position); 
       planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     #endif
 
-    set_current_to_destination();
+    set_current_from_destination();
   }
 #endif // IS_KINEMATIC
 
@@ -1681,10 +1681,10 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-    set_destination_to_current();          // sync destination at the start
+    set_destination_from_current();          // sync destination at the start
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_to_current", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_from_current", destination);
     #endif
 
     // when in the danger zone
@@ -1693,7 +1693,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
         destination[X_AXIS] = lx;           // move directly (uninterpolated)
         destination[Y_AXIS] = ly;
         destination[Z_AXIS] = lz;
-        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_from_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         #endif
@@ -1701,7 +1701,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
       }
       else {
         destination[Z_AXIS] = delta_clip_start_height;
-        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_from_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
         #endif
@@ -1710,7 +1710,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     if (lz > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = lz;
-      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_from_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
@@ -1718,14 +1718,14 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     destination[X_AXIS] = lx;
     destination[Y_AXIS] = ly;
-    prepare_move_to_destination();         // set_current_to_destination
+    prepare_move_to_destination();         // set_current_from_destination
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
     #endif
 
     if (lz < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = lz;
-      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_from_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
       #endif
@@ -1735,7 +1735,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     if (!position_is_reachable_xy(lx, ly)) return;
 
-    set_destination_to_current();
+    set_destination_from_current();
 
     // If Z needs to raise, do it before moving XY
     if (destination[Z_AXIS] < lz) {
@@ -3196,7 +3196,7 @@ static void homeaxis(const AxisEnum axis) {
     flow_percentage[active_extruder] = 100;
 
     // The current position will be the destination for E and Z moves
-    set_destination_to_current();
+    set_destination_from_current();
 
     stepper.synchronize(); // Wait for all moves to finish
 
@@ -3996,7 +3996,7 @@ inline void gcode_G28(const bool always_home_all) {
                homeZ = always_home_all || parser.seen('Z'),
                home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
-    set_destination_to_current();
+    set_destination_from_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
@@ -4204,7 +4204,7 @@ void home_all_axes() { gcode_G28(true); }
     set_bed_leveling_enabled(true);
     #if ENABLED(MESH_G28_REST_ORIGIN)
       current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
-      set_destination_to_current();
+      set_destination_from_current();
       line_to_destination(homing_feedrate(Z_AXIS));
       stepper.synchronize();
     #endif
@@ -5818,7 +5818,7 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ENABLED(PROBE_DOUBLE_TOUCH)
         // Move away by the retract distance
-        set_destination_to_current();
+        set_destination_from_current();
         LOOP_XYZ(i) destination[i] += retract_mm[i];
         endstops.enable(false);
         prepare_move_to_destination();
@@ -5906,7 +5906,7 @@ void home_all_axes() { gcode_G28(true); }
         #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
       #endif
 
-      set_destination_to_current();
+      set_destination_from_current();
       if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
       if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
       if (parser.boolval('P')) {
@@ -6249,7 +6249,7 @@ inline void gcode_M17() {
 
     if (retract) {
       // Initial retract before move to filament change position
-      set_destination_to_current();
+      set_destination_from_current();
       destination[E_AXIS] += retract;
       RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
       stepper.synchronize();
@@ -6271,7 +6271,7 @@ inline void gcode_M17() {
       }
 
       // Unload filament
-      set_destination_to_current();
+      set_destination_from_current();
       destination[E_AXIS] += unload_length;
       RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
       stepper.synchronize();
@@ -6375,7 +6375,7 @@ inline void gcode_M17() {
       filament_change_beep(max_beep_count, true);
     #endif
 
-    set_destination_to_current();
+    set_destination_from_current();
 
     if (load_length != 0) {
       #if ENABLED(ULTIPANEL)
@@ -10476,7 +10476,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         }
 
         // Save current position to destination, for use later
-        set_destination_to_current();
+        set_destination_from_current();
 
         #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -12240,7 +12240,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -12267,7 +12267,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     else {
       // Already split on a border
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -12303,7 +12303,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -12330,7 +12330,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     else {
       // Already split on a border
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -12521,7 +12521,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
             if (delayed_move_time != 0xFFFFFFFFUL) {
-              set_current_to_destination();
+              set_current_from_destination();
               NOLESS(raised_parked_position[Z_AXIS], destination[Z_AXIS]);
               delayed_move_time = millis();
               return true;
@@ -12627,7 +12627,7 @@ void prepare_move_to_destination() {
     #endif
   ) return;
 
-  set_current_to_destination();
+  set_current_from_destination();
 }
 
 #if ENABLED(ARC_SUPPORT)
@@ -12784,7 +12784,7 @@ void prepare_move_to_destination() {
     // As far as the parser is concerned, the position is now == target. In reality the
     // motion control system might still be processing the action and the real tool position
     // in any intermediate location.
-    set_current_to_destination();
+    set_current_from_destination();
   } // plan_arc
 
 #endif // ARC_SUPPORT
@@ -12797,7 +12797,7 @@ void prepare_move_to_destination() {
     // As far as the parser is concerned, the position is now == destination. In reality the
     // motion control system might still be processing the action and the real tool position
     // in any intermediate location.
-    set_current_to_destination();
+    set_current_from_destination();
   }
 
 #endif // BEZIER_CURVE_SUPPORT
@@ -13321,7 +13321,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (delayed_move_time && ELAPSED(ms, delayed_move_time + 1000UL) && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      set_destination_to_current();
+      set_destination_from_current();
       prepare_move_to_destination();
     }
   #endif
