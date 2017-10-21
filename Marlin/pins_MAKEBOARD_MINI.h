@@ -25,19 +25,15 @@
 #undef BOARD_NAME
 #define BOARD_NAME "MAKEBOARD_MINI"
 
+//
+// Only 3 Limit Switch plugs on Micromake C1
+//
 #undef X_MIN_PIN
 #undef Y_MIN_PIN
 #undef Z_MIN_PIN
-
-// No Max EndStop on Micromake C1
-
 #undef X_MAX_PIN
 #undef Y_MAX_PIN
 #undef Z_MAX_PIN
-
-//
-// Limit Switches
-//
-#define X_MIN_PIN           2
-#define Y_MIN_PIN          15
-#define Z_MIN_PIN          19
+#define X_STOP_PIN          2
+#define Y_STOP_PIN         15
+#define Z_STOP_PIN         19
