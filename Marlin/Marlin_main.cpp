@@ -173,6 +173,7 @@
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
+ * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -8958,6 +8959,41 @@ inline void gcode_M226() {
 
 #endif // HAS_SERVOS
 
+#if ENABLED(BABYSTEPPING)
+
+  /**
+   * M290: Babystepping
+   */
+  inline void gcode_M290() {
+    #if ENABLED(BABYSTEP_XY)
+      for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
+        if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
+          float offs = parser.value_axis_units(a);
+          constrain(offs, -2, 2);
+          #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+            if (a == Z_AXIS) {
+              zprobe_zoffset += offs;
+              refresh_zprobe_zoffset(true); // 'true' to not babystep
+            }
+          #endif
+          thermalManager.babystep_axis(a, offs * planner.axis_steps_per_mm[a]);
+        }
+    #else
+      if (parser.seenval('Z') || parser.seenval('S')) {
+        float offs = parser.value_axis_units(Z_AXIS);
+        constrain(offs, -2, 2);
+        #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+          zprobe_zoffset += offs;
+          refresh_zprobe_zoffset(); // This will babystep the axis
+        #else
+          thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
+        #endif
+      }
+    #endif
+  }
+
+#endif // BABYSTEPPING
+
 #if HAS_BUZZER
 
   /**
@@ -11411,7 +11447,7 @@ void process_next_command() {
         case 218: // M218: Set a tool offset
           gcode_M218();
           break;
-      #endif
+      #endif // HOTENDS > 1
 
       case 220: // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
         gcode_M220();
@@ -11430,6 +11466,12 @@ void process_next_command() {
           gcode_M280();
           break;
       #endif // HAS_SERVOS
+
+      #if ENABLED(BABYSTEPPING)
+        case 290: // M290: Babystepping
+          gcode_M290();
+          break;
+      #endif // BABYSTEPPING
 
       #if HAS_BUZZER
         case 300: // M300: Play beep tone
