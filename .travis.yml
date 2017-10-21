@@ -252,7 +252,7 @@ script:
   #
   - restore_configs
   - opt_enable G3D_PANEL SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
   - opt_set_adv SDSORT_GCODE true
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
@@ -263,7 +263,7 @@ script:
   #
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
   - build_marlin
   #
   # REPRAPWORLD_KEYPAD
