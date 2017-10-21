@@ -704,7 +704,7 @@ void CardReader::updir() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][LONG_FILENAME_LENGTH];
+          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.
@@ -743,7 +743,12 @@ void CardReader::updir() {
               #endif
             #else
               // Copy filenames into the static array
-              strcpy(sortnames[i], LONGEST_FILENAME);
+              #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
+                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+                sortnames[i][SORTED_LONGNAME_MAXLEN - 1] = '\0';
+              #else
+                strcpy(sortnames[i], SORTED_LONGNAME_MAXLEN);
+              #endif
               #if ENABLED(SDSORT_CACHE_NAMES)
                 strcpy(sortshort[i], filename);
               #endif
@@ -834,12 +839,21 @@ void CardReader::updir() {
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortnames[0] = strdup(LONGEST_FILENAME); // malloc
-            sortshort = new char*[1];
-            sortshort[0] = strdup(filename);         // malloc
+            #if ENABLED(SDSORT_CACHE_NAMES)
+              sortshort = new char*[1];
+              sortshort[0] = strdup(filename);       // malloc
+            #endif
             isDir = new uint8_t[1];
           #else
-            strcpy(sortnames[0], LONGEST_FILENAME);
-            strcpy(sortshort[0], filename);
+            #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
+              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+              sortnames[0][SORTED_LONGNAME_MAXLEN - 1] = '\0';
+            #else
+              strcpy(sortnames[0], SORTED_LONGNAME_MAXLEN);
+            #endif
+            #if ENABLED(SDSORT_CACHE_NAMES)
+              strcpy(sortshort[0], filename);
+            #endif
           #endif
           isDir[0] = filenameIsDir ? 0x01 : 0x00;
         #endif
