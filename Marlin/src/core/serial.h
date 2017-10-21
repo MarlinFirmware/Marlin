@@ -58,7 +58,7 @@ enum DebugFlags {
 #endif
 
 #ifdef ARDUINO_ARCH_SAM
-	// To pull the Serial port definitions and overrides
+  // To pull the Serial port definitions and overrides
   #include "../HAL/HAL_DUE/MarlinSerial_Due.h"
 #endif
 
