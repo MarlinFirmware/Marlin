@@ -108,6 +108,12 @@ private:
       uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
+    #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+      #define SORTED_LONGNAME_MAXLEN ((SDSORT_CACHE_VFATS) * (FILENAME_LENGTH) + 1)
+    #else
+      #define SORTED_LONGNAME_MAXLEN LONG_FILENAME_LENGTH
+    #endif
+
     // Cache filenames to speed up SD menus.
     #if ENABLED(SDSORT_USES_RAM)
 
@@ -117,10 +123,10 @@ private:
           char **sortshort, **sortnames;
         #else
           char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-          char sortnames[SDSORT_LIMIT][LONG_FILENAME_LENGTH];
+          char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
         #endif
       #elif DISABLED(SDSORT_USES_STACK)
-        char sortnames[SDSORT_LIMIT][LONG_FILENAME_LENGTH];
+        char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
       #endif
 
       // Folder sorting uses an isDir array when caching items.
