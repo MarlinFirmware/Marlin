@@ -115,7 +115,7 @@
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560
 #elif MB(MAKEBOARD_MINI)
-  #include "pins_MAKEBOARD_MINI.h"  // ATmega2560
+  #include "pins_MAKEBOARD_MINI.h"    // ATmega2560
 
 //
 // Other ATmega1280, ATmega2560
