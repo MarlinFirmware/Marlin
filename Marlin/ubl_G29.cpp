@@ -810,7 +810,7 @@
       uint16_t max_iterations = GRID_MAX_POINTS;
       memset(z_values, 0, sizeof(z_values));
 
-      for (uint8_t round = 0; round < grid_count; round++) {
+      for (uint8_t round = 1; round <= grid_count; round++) {
         do {
           #if ENABLED(NEWPANEL)
             if (ubl_lcd_clicked()) {
