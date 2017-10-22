@@ -306,6 +306,9 @@
 
   void unified_bed_leveling::G29() {
 
+    int probe_count = 1;
+    int grid_count = 1;
+
     if (!settings.calc_num_meshes()) {
       SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
       SERIAL_PROTOCOLLNPGM("with M502, M500, M501 in that order.\n");
@@ -453,8 +456,14 @@
               SERIAL_PROTOCOL(g29_y_pos);
               SERIAL_PROTOCOLLNPGM(").\n");
             }
+            if (parser.seen('M')) {
+              probe_count = parser.intval('M');
+            }
+            if (parser.seen('N')) {
+              grid_count = parser.intval('N');
+            }
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                              parser.seen('T'), parser.seen('E'), parser.seen('U'));
+                              parser.seen('T'), parser.seen('E'), parser.seen('U'), probe_count, grid_count);
             break;
 
         #endif // HAS_BED_PROBE
@@ -791,7 +800,7 @@
      * Probe all invalidated locations of the mesh that can be reached by the probe.
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
-    void unified_bed_leveling::probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
+    void unified_bed_leveling::probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far, int probe_count, int grid_count) {
       mesh_index_pair location;
 
       has_control_of_lcd_panel = true;
@@ -799,35 +808,43 @@
       DEPLOY_PROBE();
 
       uint16_t max_iterations = GRID_MAX_POINTS;
+      memset(z_values, 0, sizeof(z_values));
 
-      do {
-        #if ENABLED(NEWPANEL)
-          if (ubl_lcd_clicked()) {
-            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
-            lcd_quick_feedback();
-            STOW_PROBE();
-            while (ubl_lcd_clicked()) idle();
-            has_control_of_lcd_panel = false;
-            restore_ubl_active_state_and_leave();
-            safe_delay(50);  // Debounce the Encoder wheel
-            return;
+      for (uint8_t round = 1; round <= grid_count; round++) {
+        do {
+          #if ENABLED(NEWPANEL)
+            if (ubl_lcd_clicked()) {
+              SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+              lcd_quick_feedback();
+              STOW_PROBE();
+              while (ubl_lcd_clicked()) idle();
+              has_control_of_lcd_panel = false;
+              restore_ubl_active_state_and_leave();
+              safe_delay(50);  // Debounce the Encoder wheel
+              return;
+            }
+          #endif
+
+          location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
+
+          if (location.x_index >= 0) {    // mesh point found and is reachable by probe
+            const float rawx = mesh_index_to_xpos(location.x_index),
+                        rawy = mesh_index_to_ypos(location.y_index);
+
+            float measured_z = 0;
+            for (uint8_t i = 0; i < probe_count; i++) {
+              measured_z += probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level); // TODO: Needs error handling
+            }
+            z_values[location.x_index][location.y_index] += measured_z / (float)probe_count;
+            if (round >= grid_count) {
+              z_values[location.x_index][location.y_index] /= (float)grid_count;
+            }
           }
-        #endif
 
-        location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
+          if (do_ubl_mesh_map) display_map(g29_map_type);
 
-        if (location.x_index >= 0) {    // mesh point found and is reachable by probe
-          const float rawx = mesh_index_to_xpos(location.x_index),
-                      rawy = mesh_index_to_ypos(location.y_index);
-
-          const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level); // TODO: Needs error handling
-          z_values[location.x_index][location.y_index] = measured_z;
-        }
-
-        if (do_ubl_mesh_map) display_map(g29_map_type);
-
-      } while (location.x_index >= 0 && --max_iterations);
-
+        } while (location.x_index >= 0 && --max_iterations);
+      }
       STOW_PROBE();
       restore_ubl_active_state_and_leave();
 
