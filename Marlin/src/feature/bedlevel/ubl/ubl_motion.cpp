@@ -39,9 +39,9 @@
   extern float destination[XYZE];
 
   #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
-    inline void set_current_to_destination() { COPY(current_position, destination); }
+    inline void set_current_from_destination() { COPY(current_position, destination); }
   #else
-    extern void set_current_to_destination();
+    extern void set_current_from_destination();
   #endif
 
   static void debug_echo_axis(const AxisEnum axis) {
@@ -141,7 +141,7 @@
         // a reasonable correction would be.
 
         planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
-        set_current_to_destination();
+        set_current_from_destination();
 
         if (g26_debug_flag)
           debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination()"));
@@ -189,7 +189,7 @@
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -301,7 +301,7 @@
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -362,7 +362,7 @@
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -456,7 +456,7 @@
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
 
-    set_current_to_destination();
+    set_current_from_destination();
   }
 
   #if UBL_DELTA
@@ -598,7 +598,7 @@
 
         } while (segments);
 
-        return false; // moved but did not set_current_to_destination();
+        return false; // moved but did not set_current_from_destination();
       }
 
       // Otherwise perform per-segment leveling
@@ -681,7 +681,7 @@
           ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz + z_cxcy, seg_le, feedrate );
 
           if (segments == 0 )                       // done with last segment
-            return false;                           // did not set_current_to_destination()
+            return false;                           // did not set_current_from_destination()
 
           seg_rx += seg_dx;
           seg_ry += seg_dy;

@@ -82,7 +82,7 @@ float current_position[XYZE] = { 0.0 };
 /**
  * Cartesian Destination
  *   A temporary position, usually applied to 'current_position'.
- *   Set with 'get_destination_from_command' or 'set_destination_to_current'.
+ *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
  *   'line_to_destination' sets 'current_position' to 'destination'.
  */
 float destination[XYZE] = { 0.0 };
@@ -279,7 +279,7 @@ void line_to_destination(const float fr_mm_s) {
       planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     #endif
 
-    set_current_to_destination();
+    set_current_from_destination();
   }
 
 #endif // IS_KINEMATIC
@@ -301,10 +301,10 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-    set_destination_to_current();          // sync destination at the start
+    set_destination_from_current();          // sync destination at the start
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_to_current", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_from_current", destination);
     #endif
 
     // when in the danger zone
@@ -313,7 +313,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
         destination[X_AXIS] = lx;           // move directly (uninterpolated)
         destination[Y_AXIS] = ly;
         destination[Z_AXIS] = lz;
-        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         #endif
@@ -321,7 +321,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
       }
       else {
         destination[Z_AXIS] = delta_clip_start_height;
-        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
         #endif
@@ -330,7 +330,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     if (lz > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = lz;
-      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_from_destination()
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
@@ -338,14 +338,14 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     destination[X_AXIS] = lx;
     destination[Y_AXIS] = ly;
-    prepare_move_to_destination();         // set_current_to_destination
+    prepare_move_to_destination();         // set_current_from_destination()
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
     #endif
 
     if (lz < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = lz;
-      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_from_destination()
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
       #endif
@@ -355,7 +355,7 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     if (!position_is_reachable_xy(lx, ly)) return;
 
-    set_destination_to_current();
+    set_destination_from_current();
 
     // If Z needs to raise, do it before moving XY
     if (destination[Z_AXIS] < lz) {
@@ -701,7 +701,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
             if (delayed_move_time != 0xFFFFFFFFUL) {
-              set_current_to_destination();
+              set_current_from_destination();
               NOLESS(raised_parked_position[Z_AXIS], destination[Z_AXIS]);
               delayed_move_time = millis();
               return true;
@@ -807,7 +807,7 @@ void prepare_move_to_destination() {
     #endif
   ) return;
 
-  set_current_to_destination();
+  set_current_from_destination();
 }
 
 #if HAS_AXIS_UNHOMED_ERR
