@@ -844,15 +844,14 @@
           if (do_ubl_mesh_map) display_map(g29_map_type);
 
         } while (location.x_index >= 0 && --max_iterations);
-
-        STOW_PROBE();
-        restore_ubl_active_state_and_leave();
-
-        do_blocking_move_to_xy(
-          constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_X, UBL_MESH_MAX_X),
-          constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)
-        );
       }
+      STOW_PROBE();
+      restore_ubl_active_state_and_leave();
+
+      do_blocking_move_to_xy(
+        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_X, UBL_MESH_MAX_X),
+        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), UBL_MESH_MIN_Y, UBL_MESH_MAX_Y)
+      );
     }
 
     void unified_bed_leveling::tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3) {
