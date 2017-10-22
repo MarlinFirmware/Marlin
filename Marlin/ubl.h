@@ -122,7 +122,7 @@
       static bool g29_parameter_parsing();
       static void find_mean_mesh_height();
       static void shift_mesh_height();
-      static void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
+      static void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest, int probe_count, int grid_count);
       static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
       static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
