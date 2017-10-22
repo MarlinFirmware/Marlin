@@ -787,8 +787,19 @@
 
 // If enabled, axes won't move below MIN_POS in response to movement commands.
 #define MIN_SOFTWARE_ENDSTOPS
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS)
+  #define SOFT_ENDSTOPS_MIN_X
+  #define SOFT_ENDSTOPS_MIN_Y
+  #define SOFT_ENDSTOPS_MIN_Z
+#endif
+
 // If enabled, axes won't move above MAX_POS in response to movement commands.
 #define MAX_SOFTWARE_ENDSTOPS
+#if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+  #define SOFT_ENDSTOPS_MAX_X
+  #define SOFT_ENDSTOPS_MAX_Y
+  #define SOFT_ENDSTOPS_MAX_Z
+#endif
 
 /**
  * Filament Runout Sensor
@@ -1588,7 +1599,7 @@
  * Adds the M150 command to set the LED (or LED strip) color.
  * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
  * luminance values can be set from 0 to 255.
- * For Neopixel LED overall brightness parameters is also available 
+ * For Neopixel LED overall brightness parameters is also available
  *
  * *** CAUTION ***
  *  LED Strips require a MOFSET Chip between PWM lines and LEDs,

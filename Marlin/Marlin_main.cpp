@@ -473,6 +473,40 @@ float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 // Software Endstops are based on the configured limits.
 #if HAS_SOFTWARE_ENDSTOPS
   bool soft_endstops_enabled = true;
+    bool soft_endstops_min_enabled[XYZ] = {
+    #if ENABLED(SOFT_ENDSTOPS_MIN_X)
+      true,
+    #else
+      false,
+    #endif
+    #if ENABLED(SOFT_ENDSTOPS_MIN_Y)
+      true,
+    #else
+      false,
+    #endif
+    #if ENABLED(SOFT_ENDSTOPS_MIN_Z)
+      true
+    #else
+      false
+    #endif
+    };
+    bool soft_endstops_max_enabled[XYZ] = {
+    #if ENABLED(SOFT_ENDSTOPS_MAX_X)
+      true,
+    #else
+      false,
+    #endif 
+    #if ENABLED(SOFT_ENDSTOPS_MAX_Y)
+      true,
+    #else
+      false,
+    #endif  
+    #if ENABLED(SOFT_ENDSTOPS_MAX_Z)
+      true
+    #else
+      false
+    #endif  
+  };
 #endif
 float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
@@ -11745,20 +11779,28 @@ void ok_to_send() {
 
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
       #if DISABLED(DELTA)
-        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+        if (soft_endstops_min_enabled[X_AXIS]) {
+          NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+        }
+        if (soft_endstops_min_enabled[Y_AXIS]) {
+          NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+        }
       #endif
-      NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+      if (soft_endstops_min_enabled[Z_AXIS]) {
+        NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
+      }
       #if DISABLED(DELTA)
-        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+        if (soft_endstops_max_enabled[X_AXIS]) {
+          NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+        }
+        if (soft_endstops_max_enabled[Y_AXIS]) {
+          NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+        }
       #endif
-      NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
-    #endif
+      if (soft_endstops_max_enabled[Z_AXIS]) {
+        NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+      }
   }
 
 #endif
