@@ -24,8 +24,9 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
+#include "../../../module/tool_change.h"
 #include "../../../feature/pause.h"
-
+#include "../../../module/temperature.h"//steeve
 #include "../../gcode.h"
 #include "../../../module/motion.h"
 #include "../../parser.h"
@@ -43,11 +44,29 @@
  *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
  *
+ * M600: Next tool after filament runout or M600
+ *  Usefull to finish spools without human intervention
+ *  T[bool]     - Enable/disable Next Tool Change on M600 - until the last extruder is reached
+ *
  *  Default values are used for omitted arguments.
  *
  */
 void GcodeSuite::M600() {
 
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL) //steeve  
+    // M600 T0/T1 Enable/Disable  
+    extern bool runout_next_tool_enabled;
+    extern bool run_next_sensor_armed ;
+	const int runout_next_tool_enabled_tmp = parser.intval('T',2);             
+    if (runout_next_tool_enabled_tmp<2){
+	  // Activate or deactivate if next extruder available
+	  if (active_extruder < (EXTRUDERS-1))runout_next_tool_enabled=runout_next_tool_enabled_tmp ;
+	  // Deactivate in all case if no next extruders available
+	  else runout_next_tool_enabled=false; 
+	  return ;  
+    }      
+  #endif
+	
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
     if (axis_unhomed_error()) home_all_axes();
@@ -71,27 +90,44 @@ void GcodeSuite::M600() {
   const float x_pos = parser.linearval('X', 0
     #ifdef PAUSE_PARK_X_POS
       + PAUSE_PARK_X_POS
+	#else
+      + current_position[X_AXIS]
     #endif
   );
   const float y_pos = parser.linearval('Y', 0
     #ifdef PAUSE_PARK_Y_POS
       + PAUSE_PARK_Y_POS
-    #endif
+	#else
+      + current_position[Y_AXIS]
+    #endif	
   );
-
   // Unload filament
-  const float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
-    #if defined(FILAMENT_CHANGE_UNLOAD_LENGTH) && FILAMENT_CHANGE_UNLOAD_LENGTH > 0
-      - (FILAMENT_CHANGE_UNLOAD_LENGTH)
-    #endif
-  ;
-
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+      float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
+      #ifdef FILAMENT_CHANGE_UNLOAD_LENGTH
+        - FILAMENT_CHANGE_UNLOAD_LENGTH ;
+      if (runout_next_tool_enabled) unload_length = -RUNOUT_NEXT_TOOL_UNLOAD_LENGTH;
+      #endif 
+  #else
+      const float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
+      #ifdef FILAMENT_CHANGE_UNLOAD_LENGTH
+        - FILAMENT_CHANGE_UNLOAD_LENGTH;    
+      #endif 
+  #endif//end load filament
+ 
   // Load filament
-  const float load_length = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+    float load_length = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
     #ifdef FILAMENT_CHANGE_LOAD_LENGTH
-      + FILAMENT_CHANGE_LOAD_LENGTH
-    #endif
-  ;
+	+ FILAMENT_CHANGE_LOAD_LENGTH ;
+    if (runout_next_tool_enabled) load_length = RUNOUT_NEXT_TOOL_LOAD_LENGTH;
+    #endif 
+  #else    
+  const float load_length = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+  #ifdef FILAMENT_CHANGE_LOAD_LENGTH
+	+ FILAMENT_CHANGE_LOAD_LENGTH ;
+  #endif    
+  #endif //end load filament
 
   const int beep_count = parser.intval('B',
     #ifdef FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
@@ -103,10 +139,32 @@ void GcodeSuite::M600() {
 
   const bool job_running = print_job_timer.isRunning();
 
-  if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
-    wait_for_filament_reload(beep_count);
-    resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
-  }
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+    // Next tool 
+    if (runout_next_tool_enabled  ) {
+      pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, false);
+	  
+	  // Heat the new , cold the old if no single nozzle   
+	  //active_extruder++;
+	  thermalManager.setTargetHotend(thermalManager.target_temperature[active_extruder], active_extruder+1);
+      thermalManager.setTargetHotend(0, active_extruder);		  
+	  tool_change(active_extruder+1, 0, false);// changing tool now
+      	
+      resume_print(load_length, RUNOUT_NEXT_TOOL_EXTRUDE_LENGTH, beep_count);
+      if (active_extruder >= (EXTRUDERS-1))runout_next_tool_enabled=false ;
+	  run_next_sensor_armed = false ;
+    }//end next tool
+    else 
+     if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+     wait_for_filament_reload(beep_count);
+     resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);       
+    }      
+  #else 
+        if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+        wait_for_filament_reload(beep_count);
+        resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+        } 
+  #endif
 
   // Resume the print job timer if it was running
   if (job_running) print_job_timer.start();
