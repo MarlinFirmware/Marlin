@@ -163,6 +163,11 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)//steeve
+  bool runout_next_tool_enabled = false ;
+	bool run_next_sensor_armed = true ;
+#endif
+
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
   #if ENABLED(EXTRA_FAN_SPEEDS)

@@ -30,6 +30,7 @@
 #if ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PARK_HEAD_ON_PAUSE)
 
 #include "../Marlin.h"
+#include "../module/tool_change.h"
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
@@ -67,7 +68,7 @@ static float resume_position[XYZE];
     if (ELAPSED(ms, next_buzz)) {
       if (max_beep_count < 0 || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
         next_buzz = ms + ((max_beep_count < 0 || runout_beep < max_beep_count) ? 2500 : 400);
-        BUZZ(300, 2000);
+        //BUZZ(300, 2000);//steeve
         runout_beep++;
       }
     }
@@ -108,19 +109,6 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
 ) {
   if (move_away_flag) return false; // already paused
 
-  if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (!thermalManager.allow_cold_extrude &&
-          thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
-        return false;
-      }
-    #endif
-
-    ensure_safe_temperature(); // wait for extruder to heat up before unloading
-  }
-
   // Indicate that the printer is paused
   move_away_flag = true;
 
@@ -139,25 +127,37 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
     #endif
   }
-
-  // Save current position
-  stepper.synchronize();
-  COPY(resume_position, current_position);
-
-  if (retract) {
-    // Initial retract before move to filament change position
-    set_destination_from_current();
-    destination[E_AXIS] += retract;
-    RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+    // Save current position
     stepper.synchronize();
+    COPY(resume_position, current_position); // store original position 
+   
+  if (retract) {
+    // Initial retract before move to filament change position 
+    set_destination_from_current();          // Reset all old destinations to current
+	destination[E_AXIS] += retract;
+	RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+	stepper.synchronize();
+	set_current_from_destination();          // update of the current position
   }
-
-  // Lift Z axis
-  if (z_lift > 0)
+  // Lift Z axis  
+  if (z_lift > 0)    
     do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
 
   // Move XY axes to filament exchange position
   do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
+  
+  if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
+     // wait for extruder to heat up before unloading
+	#if ENABLED(PREVENT_COLD_EXTRUSION)
+      if (!thermalManager.allow_cold_extrude &&
+          thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
+        SERIAL_ERROR_START();
+        SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
+        return false;
+      }
+	  ensure_safe_temperature();
+    #endif
+  }
 
   if (unload_length != 0) {
     if (show_lcd) {
@@ -168,11 +168,13 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     }
 
     // Unload filament
+	stepper.synchronize();
     set_destination_from_current();
     destination[E_AXIS] += unload_length;
     RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     stepper.synchronize();
-  }
+	set_current_from_destination();
+	}
 
   if (show_lcd) {
     #if ENABLED(ULTIPANEL)
@@ -256,36 +258,72 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
 }
 
 void resume_print(const float &load_length/*=0*/, const float &initial_extrude_length/*=0*/, const int8_t max_beep_count/*=0*/) {
-  bool nozzle_timed_out = false;
-
   if (!move_away_flag) return;
-
+  bool nozzle_timed_out = false;
+  bool runout_change_tool_disabled=true ;//steeve  
+  
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	extern bool runout_next_tool_enabled;
+    runout_change_tool_disabled= !runout_next_tool_enabled ; // only if next tool option enabled in lcd or gcode //steeve
+    // Move XY axes because tool change offsets 
+    //set_current_from_destination();
+	//stepper.synchronize();
+    do_blocking_move_to_xy(
+    current_position[X_AXIS] + hotend_offset[X_AXIS][active_extruder],
+	current_position[Y_AXIS] + hotend_offset[Y_AXIS][active_extruder],
+	PAUSE_PARK_XY_FEEDRATE);
+	set_destination_from_current();
+  #endif
   // Re-enable the heaters if they timed out
   HOTEND_LOOP() {
     nozzle_timed_out |= thermalManager.is_heater_idle(e);
     thermalManager.reset_heater_idle_timer(e);
   }
 
+  // if (nozzle_timed_out) 
   if (nozzle_timed_out) ensure_safe_temperature();
+  // Stop blowing while heating
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	#if (RUNOUT_NEXT_TOOL_FAN < FAN_COUNT)
+	  extern int16_t fanSpeeds[RUNOUT_NEXT_TOOL_FAN];
+	  int16_t fansp=fanSpeeds[RUNOUT_NEXT_TOOL_FAN];
+	  fanSpeeds[RUNOUT_NEXT_TOOL_FAN]=0 ;
+	#endif
+  #endif
+
+  // heating/ensure temp of the next extruder
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	if (runout_next_tool_enabled){
+	ensure_safe_temperature();
+	lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    }
+  #endif 
+  
 
   #if HAS_BUZZER
     filament_change_beep(max_beep_count, true);
   #endif
-
-  set_destination_from_current();
-
+  // Start blowing
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	#if (RUNOUT_NEXT_TOOL_FANSPEED >0 && RUNOUT_NEXT_TOOL_FAN < FAN_COUNT)
+	  fansp=fanSpeeds[RUNOUT_NEXT_TOOL_FAN];
+	  fanSpeeds[RUNOUT_NEXT_TOOL_FAN]=RUNOUT_NEXT_TOOL_FANSPEED ;
+	#endif
+  #endif
+  
+   
   if (load_length != 0) {
     #if ENABLED(ULTIPANEL)
       // Show "insert filament"
       if (nozzle_timed_out)
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+        if (runout_change_tool_disabled)lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);//steeve
     #endif
 
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
+    if (runout_change_tool_disabled) KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = runout_change_tool_disabled;    // LCD click or M108 will clear this
     while (wait_for_user && nozzle_timed_out) {
       #if HAS_BUZZER
-        filament_change_beep(max_beep_count);
+        if (runout_change_tool_disabled) filament_change_beep(max_beep_count);
       #endif
       idle(true);
     }
@@ -293,10 +331,11 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 
     #if ENABLED(ULTIPANEL)
       // Show "load" message
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD);
+      if (runout_change_tool_disabled)lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD); //only disabled for automatic tool change on M600/runout//steeve
     #endif
 
     // Load filament
+	set_destination_from_current();
     destination[E_AXIS] += load_length;
     RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
     stepper.synchronize();
@@ -306,51 +345,89 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 
     float extrude_length = initial_extrude_length;
 
-    do {
-      if (extrude_length > 0) {
-        // "Wait for filament extrude"
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
+    if (runout_change_tool_disabled){ 
+        
+	  do {
+	    if (extrude_length > 0) {
+		// "Wait for filament extrude"
+		if (runout_change_tool_disabled) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE); 
+		// Extrude filament to get into hotend
+		destination[E_AXIS] += extrude_length;
+		RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+		stepper.synchronize();
+	    }
+		// Show "Extrude More" / "Resume" menu and wait for reply
+		KEEPALIVE_STATE(PAUSED_FOR_USER);
+		wait_for_user = false;
+		lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+	    while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+		KEEPALIVE_STATE(IN_HANDLER);
+		extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+		// Keep looping if "Extrude More" was selected
+	  } 
+	  while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+	  //stepper.synchronize();
+	  //set_current_from_destination();
+	}
 
-        // Extrude filament to get into hotend
-        destination[E_AXIS] += extrude_length;
-        RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-        stepper.synchronize();
-      }
-
-      // Show "Extrude More" / "Resume" menu and wait for reply
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = false;
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-      while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-      KEEPALIVE_STATE(IN_HANDLER);
-
-      extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
-
-      // Keep looping if "Extrude More" was selected
-    } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
-
+    else {// Extrude filament to get into hotend
+      destination[E_AXIS] += extrude_length;
+      RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+      //stepper.synchronize();
+      //set_current_from_destination(); 
+	}
+	stepper.synchronize();
+	set_current_from_destination();	
   #endif
 
   #if ENABLED(ULTIPANEL)
     // "Wait for print to resume"
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
+    if (runout_change_tool_disabled)lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
   #endif
-
-  // Set extruder to saved position
+	
+  /* // Set extruder to saved position
+  destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
+  planner.set_e_position_mm(current_position[E_AXIS]); */
+  
+  // Stop blowing after extrusion
+  #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	#if (RUNOUT_NEXT_TOOL_FANSPEED >0 && RUNOUT_NEXT_TOOL_FAN < FAN_COUNT)
+      delay( RUNOUT_NEXT_TOOL_DWELL_AFTER_EXTRUDE);
+      fanSpeeds[RUNOUT_NEXT_TOOL_FAN]=fansp;
+    #endif 
+  #endif
+  // Retractation before return to print
+  #ifdef PAUSE_PARK_RETRACT_LENGTH
+    set_destination_from_current();
+	destination[E_AXIS] -= PAUSE_PARK_RETRACT_LENGTH;
+	RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+	stepper.synchronize();
+	set_current_from_destination();
+  #endif
+  // Move XY to starting position, then Z
+     do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
+     do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
+	 
+  // Retractation for return to print
+  #ifdef PAUSE_PARK_RETRACT_LENGTH
+    set_destination_from_current();
+	destination[E_AXIS] += PAUSE_PARK_RETRACT_LENGTH;
+	RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
+	stepper.synchronize();
+	set_current_from_destination();
+  #endif
+  
+  //Set extruder to saved position
   destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
   planner.set_e_position_mm(current_position[E_AXIS]);
-
-  // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
-  do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
-
+  
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     filament_ran_out = false;
   #endif
 
   #if ENABLED(ULTIPANEL)
     // Show status screen
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    if (runout_change_tool_disabled)lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -359,7 +436,8 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
       sd_print_paused = false;
     }
   #endif
-
+ 
+	 
   move_away_flag = false;
 }
 
