@@ -3663,7 +3663,14 @@ void kill_screen(const char* lcd_msg) {
   void lcd_control_filament_menu() {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
-
+    
+    #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)//steeve
+      extern bool runout_next_tool_enabled  ;
+	    extern bool run_next_sensor_armed ;
+      MENU_ITEM_EDIT(bool, "Extr. change", &runout_next_tool_enabled);
+	    MENU_ITEM_EDIT(bool, "Sensor Actif", &run_next_sensor_armed);
+    #endif
+    
     #if ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
     #endif
