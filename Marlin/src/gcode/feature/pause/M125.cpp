@@ -83,6 +83,11 @@ void GcodeSuite::M125() {
   #endif
 
   if (pause_print(retract, z_lift, x_pos, y_pos)) {
+    #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+	    extern bool runout_next_tool_enabled;
+      bool runout_next_tool_disabling = runout_next_tool_enabled;
+	    runout_next_tool_enabled = false;//Runout Next Tool OFF
+    #endif 
     #if DISABLED(SDSUPPORT)
       // Wait for lcd click or M108
       wait_for_filament_reload();
