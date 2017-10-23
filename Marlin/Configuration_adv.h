@@ -945,8 +945,6 @@
  * Retract/Recover for the travel when go back to the print  
  *
  * Requires 2 extruders min
- * If 1 Runout switch ,after the tool swap , you have to rearm manually to have the next extruder protected 
- * If 2 runout switches on 2 differents pins the second extruder have runout activated 
  * Can rearm switch state by lcd after filament engaged in the sensor
  * If M600 after the runout swap , normal M600 run if no extruders available
   */
