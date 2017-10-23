@@ -143,15 +143,16 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   // Save current position
   stepper.synchronize();
   COPY(resume_position, current_position);
-
+  
   if (retract) {
     // Initial retract before move to filament change position
-    set_destination_from_current();
+    set_destination_from_current();  // initialise destinations before RunPlan
     destination[E_AXIS] += retract;
     RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
     stepper.synchronize();
+    set_current_from_destination(); // updating current after RunPlan Moves/before DoblockMo
   }
-
+ 
   // Lift Z axis
   if (z_lift > 0)
     do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
