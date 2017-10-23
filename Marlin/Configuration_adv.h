@@ -930,6 +930,37 @@
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
   //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
+
+/**
+ * Runout Next Tool
+ *
+ * Experimental feature for tool change after filament runout.
+ * M600: Next tool after filament runout or M600
+ *  T[bool]     - Enable/disable Next Tool Change on M600 - until the last extruder is reached*
+ *  LCD menu 
+ *
+ * Finish a spool and begin another by swapping extruders to the next without human intervention
+ * Apply Fanspeed and dwell to cold purged filament for a sure return to print without dirty nozzle
+ * Heat the other hotend with same temp , and use same tool change procedure
+ * Retract/Recover for the travel when go back to the print  
+ *
+ * Requires 2 extruders min
+ * If 1 Runout switch ,after the tool swap , you have to rearm manually to have the next extruder protected 
+ * If 2 runout switches on 2 differents pins the second extruder have runout activated 
+ * Can rearm switch state by lcd after filament engaged in the sensor
+ * If M600 after the runout swap , normal M600 run if no extruders available
+  */
+  #if EXTRUDERS > 1 && ENABLED(FILAMENT_RUNOUT_SENSOR)// Add a sanity check please
+    #define FILAMENT_RUNOUT_NEXT_TOOL //steeve
+      #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)
+      #define RUNOUT_NEXT_TOOL_UNLOAD_LENGTH       RETRACT_LENGTH_SWAP // Don't eject filament because print continue
+      #define RUNOUT_NEXT_TOOL_LOAD_LENGTH         RETRACT_LENGTH_SWAP // Same as FWRETRACT if enabled
+      #define RUNOUT_NEXT_TOOL_EXTRUDE_LENGTH      20                  //Purge length
+      #define RUNOUT_NEXT_TOOL_FANSPEED            120                 //Blowing to cold the purged filament
+      #define RUNOUT_NEXT_TOOL_FAN                 0
+      #define RUNOUT_NEXT_TOOL_DWELL_AFTER_EXTRUDE 4*1000              //Time to cold the purged filament
+    #endif 
+  #endif
 #endif
 
 // @section tmc
