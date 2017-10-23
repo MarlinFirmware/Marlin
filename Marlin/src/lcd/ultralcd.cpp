@@ -3666,9 +3666,9 @@ void kill_screen(const char* lcd_msg) {
     
     #if ENABLED(FILAMENT_RUNOUT_NEXT_TOOL)//steeve
       extern bool runout_next_tool_enabled  ;
-	    extern bool run_next_sensor_armed ;
+      extern bool run_next_sensor_armed ;
       MENU_ITEM_EDIT(bool, "Extr. change", &runout_next_tool_enabled);
-	    MENU_ITEM_EDIT(bool, "Sensor Actif", &run_next_sensor_armed);
+      MENU_ITEM_EDIT(bool, "Sensor Actif", &run_next_sensor_armed);
     #endif
     
     #if ENABLED(LIN_ADVANCE)
