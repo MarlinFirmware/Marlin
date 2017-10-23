@@ -44,7 +44,7 @@
  *         7 | 11
  */
 
-#if ENABLED(IS_REARM)
+#if ENABLED(TARGET_LPC1768)
   #error "Oops!  Use 'BOARD_RAMPS_RE_ARM' to build for Re-ARM."
 #endif
 

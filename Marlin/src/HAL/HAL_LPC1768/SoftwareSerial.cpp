@@ -41,7 +41,6 @@ http://arduiniana.org.
 #include <stdarg.h>
 #include "arduino.h"
 #include "pinmapping.h"
-#include "pinmap_re_arm.h"
 #include "fastio.h"
 #include "SoftwareSerial.h"
 
@@ -254,8 +253,8 @@ void SoftwareSerial::setRX(uint8_t rx)
   //if (!_inverse_logic)
   // digitalWrite(rx, HIGH);
   _receivePin = rx;
-  _receivePort = pin_map[rx].port;
-  _receivePortPin = pin_map[rx].pin;
+  _receivePort = LPC1768_PIN_PORT(rx);
+  _receivePortPin = LPC1768_PIN_PIN(rx);
 /*  GPIO_T * rxPort = digitalPinToPort(rx);
   _receivePortRegister = portInputRegister(rxPort);
   _receiveBitMask = digitalPinToBitMask(rx);*/

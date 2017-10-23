@@ -197,9 +197,9 @@ bool LPC1768_PWM_attach_pin(uint8_t pin, uint32_t min = 1, uint32_t max = (LPC_P
 
   work_table[slot].logical_pin = pin;  // init slot
   work_table[slot].PWM_mask = 0;  // real value set by PWM_write
-  work_table[slot].set_register = PIN_IS_INVERTED(pin) ? &LPC_GPIO(pin_map[pin].port)->FIOCLR : &LPC_GPIO(pin_map[pin].port)->FIOSET;
-  work_table[slot].clr_register = PIN_IS_INVERTED(pin) ? &LPC_GPIO(pin_map[pin].port)->FIOSET : &LPC_GPIO(pin_map[pin].port)->FIOCLR;
-  work_table[slot].write_mask = LPC_PIN(pin_map[pin].pin);
+  work_table[slot].set_register = PIN_IS_INVERTED(pin) ? &LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOCLR : &LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOSET;
+  work_table[slot].clr_register = PIN_IS_INVERTED(pin) ? &LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOSET : &LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOCLR;
+  work_table[slot].write_mask = LPC_PIN(LPC1768_PIN_PIN(pin));
   work_table[slot].microseconds = MICRO_MAX;
   work_table[slot].min = min;
   work_table[slot].max = MIN(max, LPC_PWM1_MR0 - MR0_MARGIN);

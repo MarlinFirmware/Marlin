@@ -269,7 +269,7 @@ void GcodeSuite::M43() {
   if (parser.boolval('W')) {
     SERIAL_PROTOCOLLNPGM("Watching pins");
     uint8_t pin_state[last_pin - first_pin + 1];
-    for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+    for (uint8_t pin = first_pin; pin <= last_pin; pin++) {
       if (!VALID_PIN(pin)) continue;
       if (pin_is_protected(pin) && !ignore_protection) continue;
       pinMode(pin, INPUT_PULLUP);
@@ -288,7 +288,7 @@ void GcodeSuite::M43() {
     #endif
 
     for (;;) {
-      for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+      for (uint8_t pin = first_pin; pin <= last_pin; pin++) {
         if (!VALID_PIN(pin)) continue;
         if (pin_is_protected(pin) && !ignore_protection) continue;
         const byte val =

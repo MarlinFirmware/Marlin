@@ -55,8 +55,8 @@ void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) 
     __initialize();
     ++enabled;
   }
-  uint8_t myport = pin_map[pin].port,
-          mypin = pin_map[pin].pin;
+  uint8_t myport = LPC1768_PIN_PORT(pin),
+          mypin = LPC1768_PIN_PIN(pin);
 
   if (myport == 0)
     callbacksP0[mypin] = callback;
@@ -70,8 +70,8 @@ void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) 
 void detachInterrupt(const uint32_t pin) {
   if (!INTERRUPT_PIN(pin)) return;
 
-  const uint8_t myport = pin_map[pin].port,
-                mypin = pin_map[pin].pin;
+  const uint8_t myport = LPC1768_PIN_PORT(pin),
+                mypin = LPC1768_PIN_PIN(pin);
 
   // Disable interrupt
   GpioDisableInt(myport, mypin);

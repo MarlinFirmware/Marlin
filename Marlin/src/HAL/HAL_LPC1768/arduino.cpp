@@ -72,25 +72,25 @@ extern "C" void delay(const int msec) {
 // IO functions
 // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode(uint8_t pin, uint8_t mode) {
-  if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
+  if (!VALID_PIN(pin))
     return;
 
-  PINSEL_CFG_Type config = { pin_map[pin].port,
-                             pin_map[pin].pin,
+  PINSEL_CFG_Type config = { LPC1768_PIN_PORT(pin),
+                             LPC1768_PIN_PIN(pin),
                              PINSEL_FUNC_0,
                              PINSEL_PINMODE_TRISTATE,
                              PINSEL_PINMODE_NORMAL };
   switch(mode) {
   case INPUT:
-    LPC_GPIO(pin_map[pin].port)->FIODIR &= ~LPC_PIN(pin_map[pin].pin);
+    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
     PINSEL_ConfigPin(&config);
     break;
   case OUTPUT:
-    LPC_GPIO(pin_map[pin].port)->FIODIR |=  LPC_PIN(pin_map[pin].pin);
+    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
     PINSEL_ConfigPin(&config);
     break;
   case INPUT_PULLUP:
-    LPC_GPIO(pin_map[pin].port)->FIODIR &= ~LPC_PIN(pin_map[pin].pin);
+    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
     config.Pinmode = PINSEL_PINMODE_PULLUP;
     PINSEL_ConfigPin(&config);
     break;
@@ -100,13 +100,13 @@ void pinMode(uint8_t pin, uint8_t mode) {
 }
 
 void digitalWrite(uint8_t pin, uint8_t pin_status) {
-  if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
+  if (!VALID_PIN(pin))
     return;
 
   if (pin_status)
-    LPC_GPIO(pin_map[pin].port)->FIOSET = LPC_PIN(pin_map[pin].pin);
+    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOSET = LPC_PIN(LPC1768_PIN_PIN(pin));
   else
-    LPC_GPIO(pin_map[pin].port)->FIOCLR = LPC_PIN(pin_map[pin].pin);
+    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOCLR = LPC_PIN(LPC1768_PIN_PIN(pin));
 
   pinMode(pin, OUTPUT);  // Set pin mode on every write (Arduino version does this)
 
@@ -120,10 +120,10 @@ void digitalWrite(uint8_t pin, uint8_t pin_status) {
 }
 
 bool digitalRead(uint8_t pin) {
-  if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF) {
+  if (!VALID_PIN(pin)) {
     return false;
   }
-  return LPC_GPIO(pin_map[pin].port)->FIOPIN & LPC_PIN(pin_map[pin].pin) ? 1 : 0;
+  return LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
 }
 
 void analogWrite(uint8_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
@@ -135,7 +135,7 @@ void analogWrite(uint8_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 2
 
   static bool out_of_PWM_slots = false;
 
-  if (!WITHIN(pin, 0, NUM_DIGITAL_PINS - 1) || pin_map[pin].port == 0xFF)
+  if (!VALID_PIN(pin))
     return;
 
   uint value = MAX(MIN(pwm_value, 255), 0);

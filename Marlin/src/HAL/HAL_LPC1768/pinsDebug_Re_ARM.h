@@ -30,11 +30,11 @@ int8_t pin_Re_ARM_pin;
 
 void get_pin_info(int8_t pin) {
 
-if (pin == 7) return;
+  if (!VALID_PIN(pin)) return;
   pin_Re_ARM_analog = 0;
   pin_Re_ARM_pin = pin;
-  int8_t pin_port = pin_map[pin].port;
-  int8_t pin_port_pin = pin_map[pin].pin;
+  int8_t pin_port = LPC1768_PIN_PORT(pin);
+  int8_t pin_port_pin = LPC1768_PIN_PIN(pin);
   // active ADC function/mode/code values for PINSEL registers
   int8_t ADC_pin_mode = pin_port == 0 && pin_port_pin == 2  ? 2 :
                         pin_port == 0 && pin_port_pin == 3  ? 2 :
@@ -54,7 +54,7 @@ if (pin == 7) return;
   uint8_t pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
   uint8_t pin_mode = (uint8_t) ((*pinsel_reg >> pinsel_start_bit) & 0x3);
   uint32_t * FIO_reg[5] PROGMEM = {(uint32_t*) 0x2009C000,(uint32_t*)  0x2009C020,(uint32_t*)  0x2009C040,(uint32_t*)  0x2009C060,(uint32_t*)  0x2009C080};
-  pin_Re_ARM_output = (*FIO_reg[pin_map[pin].port] >> pin_map[pin].pin) & 1; //input/output state except if active ADC
+  pin_Re_ARM_output = (*FIO_reg[LPC1768_PIN_PORT(pin)] >> LPC1768_PIN_PIN(pin)) & 1; //input/output state except if active ADC
 
   if (pin_mode) {  // if function/mode/code value not 0 then could be an active analog channel
     if (ADC_pin_mode == pin_mode) {  // found an active analog pin
