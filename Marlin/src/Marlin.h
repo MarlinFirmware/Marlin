@@ -216,7 +216,7 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   extern int lpq_len;
 #endif
 
-bool pin_is_protected(const int8_t pin);
+bool pin_is_protected(const HAL_PIN_TYPE pin);
 
 #if HAS_SUICIDE
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }

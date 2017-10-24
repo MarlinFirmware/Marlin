@@ -84,14 +84,16 @@ void HAL_adc_init(void) {
 extern void kill(const char*);
 extern const char errormagic[];
 
-void HAL_adc_enable_channel(int pin) {
-  if (!WITHIN(pin, 0, NUM_ANALOG_INPUTS - 1)) {
-    usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, pin);
+void HAL_adc_enable_channel(int ch) {
+  HAL_PIN_TYPE pin = analogInputToDigitalPin(ch);
+
+  if (pin == -1) {
+    usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
     kill(MSG_KILLED);
   }
 
-  int8_t pin_port = adc_pin_map[pin].port,
-         pin_port_pin = adc_pin_map[pin].pin,
+  int8_t pin_port = LPC1768_PIN_PORT(pin),
+         pin_port_pin = LPC1768_PIN_PORT(pin),
          pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
   uint8_t pin_sel_register = (pin_port == 0 && pin_port_pin <= 15) ? 0 :
                               pin_port == 0                        ? 1 :
@@ -114,15 +116,16 @@ void HAL_adc_enable_channel(int pin) {
 }
 
 uint8_t active_adc = 0;
-void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  if (adc_pin >= (NUM_ANALOG_INPUTS) || adc_pin_map[adc_pin].port == 0xFF) {
-    usb_serial.printf("HAL: HAL_adc_start_conversion: no pinmap for %d\n", adc_pin);
+void HAL_adc_start_conversion(const uint8_t ch) {
+  if (analogInputToDigitalPin(ch) == -1) {
+    usb_serial.printf("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
     return;
   }
-  LPC_ADC->ADCR &= ~0xFF;                       // Reset
-  SBI(LPC_ADC->ADCR, adc_pin_map[adc_pin].adc); // Select Channel
-  SBI(LPC_ADC->ADCR, 24);                       // Start conversion
-  active_adc = adc_pin;
+
+  LPC_ADC->ADCR &= ~0xFF; // Reset
+  SBI(LPC_ADC->ADCR, ch); // Select Channel
+  SBI(LPC_ADC->ADCR, 24); // Start conversion
+  active_adc = ch;
 }
 
 bool HAL_adc_finished(void) {

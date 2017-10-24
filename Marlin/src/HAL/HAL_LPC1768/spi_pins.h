@@ -26,15 +26,15 @@
 #define LPC_SOFTWARE_SPI
 
 /** onboard SD card */
-//#define SCK_PIN           LPC1768_PIN(0,  7)
-//#define MISO_PIN          LPC1768_PIN(0,  8)
-//#define MOSI_PIN          LPC1768_PIN(0,  9)
-//#define SS_PIN            LPC1768_PIN(0,  6)
+//#define SCK_PIN           P0_7
+//#define MISO_PIN          P0_8
+//#define MOSI_PIN          P0_9
+//#define SS_PIN            P0_6
 /** external */
-#define SCK_PIN           LPC1768_PIN(0, 15)
-#define MISO_PIN          LPC1768_PIN(0, 17)
-#define MOSI_PIN          LPC1768_PIN(0, 18)
-#define SS_PIN            LPC1768_PIN(1, 23)
+#define SCK_PIN           P0_15
+#define MISO_PIN          P0_17
+#define MOSI_PIN          P0_18
+#define SS_PIN            P1_23
 #define SDSS              SS_PIN
 
 #if (defined(TARGET_LPC1768) && !(defined(LPC_SOFTWARE_SPI)))   // signal LCDs that they need to use the hardware SPI

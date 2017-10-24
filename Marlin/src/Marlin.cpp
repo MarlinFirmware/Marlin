@@ -297,10 +297,13 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
-bool pin_is_protected(const int8_t pin) {
-  static const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
-  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
+bool pin_is_protected(const HAL_PIN_TYPE pin) {
+  static const HAL_PIN_TYPE sensitive_pins[] PROGMEM = SENSITIVE_PINS;
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
+    HAL_PIN_TYPE sensitive_pin;
+    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(HAL_PIN_TYPE));
+    if (pin == sensitive_pin) return true;
+  }
   return false;
 }
 

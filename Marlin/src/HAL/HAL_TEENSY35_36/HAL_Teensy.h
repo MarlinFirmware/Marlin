@@ -64,6 +64,8 @@
 
 #define HAL_SERVO_LIB libServo
 
+#define HAL_PIN_TYPE int8_t
+
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif

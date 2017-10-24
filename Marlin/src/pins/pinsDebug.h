@@ -68,7 +68,7 @@
 
 typedef struct {
   const char * const name;
-  uint8_t pin;
+  HAL_PIN_TYPE pin;
   bool is_digital;
 } PinInfo;
 
@@ -109,13 +109,12 @@ static void print_input_or_output(const bool isout) {
 
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
+inline void report_pin_state_extended(HAL_PIN_TYPE pin, bool ignore, bool extended = false, const char *start_string = "") {
   char buffer[30];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
   for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
-      GET_PIN_INFO(pin);
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through

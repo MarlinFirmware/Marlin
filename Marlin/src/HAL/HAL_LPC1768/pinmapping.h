@@ -24,16 +24,132 @@
 #define __HAL_PINMAPPING_H__
 #include "../../core/macros.h"
 
-struct pin_data { uint8_t port, pin; };
-struct adc_pin_data { uint8_t port, pin, adc; };
+#define HAL_PIN_TYPE int16_t
 
-#define LPC1768_PIN(port, pin) (((port & 0x7) << 5) | (pin & 0x1F))
-#define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0x7))
-#define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0x1F))
+const uint8_t PIN_FEATURE_INTERRUPT = 1 << 0;
+const uint8_t PIN_FEATURE_PWM = 1 << 1;
+constexpr uint8_t PIN_FEATURE_ADC(int8_t chan) { return (((chan + 1) & 0b1111) << 2); }
+
+constexpr HAL_PIN_TYPE LPC1768_PIN(uint8_t port, uint8_t pin, uint8_t feat = 0) {
+  return (((HAL_PIN_TYPE)feat << 8) | (((HAL_PIN_TYPE)port & 0x7) << 5) | ((HAL_PIN_TYPE)pin & 0x1F));
+}
+
+constexpr uint8_t LPC1768_PIN_PORT(HAL_PIN_TYPE pin) { return ((uint8_t)((pin >> 5) & 0b111)); }
+constexpr uint8_t LPC1768_PIN_PIN(HAL_PIN_TYPE pin) { return ((uint8_t)(pin & 0b11111)); }
+constexpr bool LPC1768_PIN_INTERRUPT(HAL_PIN_TYPE pin) { return (((pin >> 8) & PIN_FEATURE_INTERRUPT) != 0); }
+constexpr bool LPC1768_PIN_PWM(HAL_PIN_TYPE pin) { return (((pin >> 8) & PIN_FEATURE_PWM) != 0); }
+constexpr int8_t LPC1768_PIN_ADC(HAL_PIN_TYPE pin) { return (int8_t)((pin >> 8) & 0b1111) - 1; }
 
 // ******************
 // Runtime pinmapping
 // ******************
+const HAL_PIN_TYPE P0_0  = LPC1768_PIN(0,  0, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_1  = LPC1768_PIN(0,  1, PIN_FEATURE_INTERRUPT);
+#if SERIAL_PORT != 0
+  const HAL_PIN_TYPE P0_2  = LPC1768_PIN(0,  2, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(7));
+  const HAL_PIN_TYPE P0_3  = LPC1768_PIN(0,  3, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(6));
+#endif
+const HAL_PIN_TYPE P0_4  = LPC1768_PIN(0,  4, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_5  = LPC1768_PIN(0,  5, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_6  = LPC1768_PIN(0,  6);
+const HAL_PIN_TYPE P0_7  = LPC1768_PIN(0,  7, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_8  = LPC1768_PIN(0,  8, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_9  = LPC1768_PIN(0,  9, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_10 = LPC1768_PIN(0, 10, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_11 = LPC1768_PIN(0, 11, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_12 = LPC1768_PIN(0, 12, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_13 = LPC1768_PIN(0, 13);
+const HAL_PIN_TYPE P0_14 = LPC1768_PIN(0, 14, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_15 = LPC1768_PIN(0, 15, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_16 = LPC1768_PIN(0, 16, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_17 = LPC1768_PIN(0, 17, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_18 = LPC1768_PIN(0, 18, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_19 = LPC1768_PIN(0, 19, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_20 = LPC1768_PIN(0, 20, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_21 = LPC1768_PIN(0, 21, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_22 = LPC1768_PIN(0, 22, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_23 = LPC1768_PIN(0, 23, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(0));
+const HAL_PIN_TYPE P0_24 = LPC1768_PIN(0, 24, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(1));
+const HAL_PIN_TYPE P0_25 = LPC1768_PIN(0, 25, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(2));
+const HAL_PIN_TYPE P0_26 = LPC1768_PIN(0, 26, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(3));
+const HAL_PIN_TYPE P0_27 = LPC1768_PIN(0, 27, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_28 = LPC1768_PIN(0, 28, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P0_29 = LPC1768_PIN(0, 29);
+const HAL_PIN_TYPE P0_30 = LPC1768_PIN(0, 30);
+const HAL_PIN_TYPE P1_0  = LPC1768_PIN(1,  0);
+const HAL_PIN_TYPE P1_1  = LPC1768_PIN(1,  1);
+const HAL_PIN_TYPE P1_2  = LPC1768_PIN(1,  2);
+const HAL_PIN_TYPE P1_3  = LPC1768_PIN(1,  3);
+const HAL_PIN_TYPE P1_4  = LPC1768_PIN(1,  4);
+const HAL_PIN_TYPE P1_5  = LPC1768_PIN(1,  5);
+const HAL_PIN_TYPE P1_6  = LPC1768_PIN(1,  6);
+const HAL_PIN_TYPE P1_7  = LPC1768_PIN(1,  7);
+const HAL_PIN_TYPE P1_8  = LPC1768_PIN(1,  8);
+const HAL_PIN_TYPE P1_9  = LPC1768_PIN(1,  9);
+const HAL_PIN_TYPE P1_10 = LPC1768_PIN(1, 10);
+const HAL_PIN_TYPE P1_11 = LPC1768_PIN(1, 11);
+const HAL_PIN_TYPE P1_12 = LPC1768_PIN(1, 12);
+const HAL_PIN_TYPE P1_13 = LPC1768_PIN(1, 13);
+const HAL_PIN_TYPE P1_14 = LPC1768_PIN(1, 14);
+const HAL_PIN_TYPE P1_15 = LPC1768_PIN(1, 15);
+const HAL_PIN_TYPE P1_16 = LPC1768_PIN(1, 16);
+const HAL_PIN_TYPE P1_17 = LPC1768_PIN(1, 17);
+const HAL_PIN_TYPE P1_18 = LPC1768_PIN(1, 18, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_19 = LPC1768_PIN(1, 19);
+const HAL_PIN_TYPE P1_20 = LPC1768_PIN(1, 20, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_21 = LPC1768_PIN(1, 21, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_22 = LPC1768_PIN(1, 22);
+const HAL_PIN_TYPE P1_23 = LPC1768_PIN(1, 23, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_24 = LPC1768_PIN(1, 24, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_25 = LPC1768_PIN(1, 25);
+const HAL_PIN_TYPE P1_26 = LPC1768_PIN(1, 26, PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P1_27 = LPC1768_PIN(1, 27);
+const HAL_PIN_TYPE P1_28 = LPC1768_PIN(1, 28);
+const HAL_PIN_TYPE P1_29 = LPC1768_PIN(1, 29);
+const HAL_PIN_TYPE P1_30 = LPC1768_PIN(1, 30, PIN_FEATURE_ADC(4));
+const HAL_PIN_TYPE P1_31 = LPC1768_PIN(1, 31, PIN_FEATURE_ADC(5));
+const HAL_PIN_TYPE P2_0  = LPC1768_PIN(2,  0, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_1  = LPC1768_PIN(2,  1, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_2  = LPC1768_PIN(2,  2, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_3  = LPC1768_PIN(2,  3, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_4  = LPC1768_PIN(2,  4, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_5  = LPC1768_PIN(2,  5, PIN_FEATURE_INTERRUPT | PIN_FEATURE_PWM);
+const HAL_PIN_TYPE P2_6  = LPC1768_PIN(2,  6, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P2_7  = LPC1768_PIN(2,  7, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P2_8  = LPC1768_PIN(2,  8, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P2_9  = LPC1768_PIN(2,  9);
+const HAL_PIN_TYPE P2_10 = LPC1768_PIN(2, 10);
+const HAL_PIN_TYPE P2_11 = LPC1768_PIN(2, 11, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P2_12 = LPC1768_PIN(2, 12);
+const HAL_PIN_TYPE P2_13 = LPC1768_PIN(2, 13, PIN_FEATURE_INTERRUPT);
+const HAL_PIN_TYPE P3_25 = LPC1768_PIN(3, 25);
+const HAL_PIN_TYPE P3_26 = LPC1768_PIN(3, 26);
+const HAL_PIN_TYPE P4_28 = LPC1768_PIN(4, 28);
+const HAL_PIN_TYPE P4_29 = LPC1768_PIN(4, 29);
+
+// This is large enough to encompass from 0.0 through 4.29
+#define NUM_DIGITAL_PINS 158
+
+constexpr bool VALID_PIN(HAL_PIN_TYPE p) {
+  return (    
+    #if SERIAL_PORT == 0
+      (LPC1768_PIN_PORT(p) == 0 && (LPC1768_PIN_PIN(p) == 2 || LPC1768_PIN_PIN(p) == 3)) ? false :
+    #endif
+    (LPC1768_PIN_PORT(p) == 0 && LPC1768_PIN_PIN(p) <= 30) ? true :
+    (LPC1768_PIN_PORT(p) == 1 && LPC1768_PIN_PIN(p) <= 31) ? true :
+    (LPC1768_PIN_PORT(p) == 2 && LPC1768_PIN_PIN(p) <= 13) ? true :
+    (LPC1768_PIN_PORT(p) == 3 && LPC1768_PIN_PIN(p) >= 25 && LPC1768_PIN_PIN(p) <= 26) ? true :
+    (LPC1768_PIN_PORT(p) == 4 && LPC1768_PIN_PIN(p) >= 28 && LPC1768_PIN_PIN(p) <= 29) ? true :
+    false);
+}
+
+constexpr bool PWM_PIN(HAL_PIN_TYPE p) {
+  return (VALID_PIN(p) && LPC1768_PIN_PWM(p));
+}
+
+constexpr bool INTERRUPT_PIN(HAL_PIN_TYPE p) {
+  return (VALID_PIN(p) && LPC1768_PIN_INTERRUPT(p));
+}
 
 #if SERIAL_PORT == 0
   #define NUM_ANALOG_INPUTS 6
@@ -41,116 +157,22 @@ struct adc_pin_data { uint8_t port, pin, adc; };
   #define NUM_ANALOG_INPUTS 8
 #endif
 
-const adc_pin_data adc_pin_map[] = {
-  {0, 23, 0},         //A0 (T0) - D67 - TEMP_0_PIN
-  {0, 24, 1},         //A1 (T1) - D68 - TEMP_BED_PIN
-  {0, 25, 2},         //A2 (T2) - D69 - TEMP_1_PIN
-  {0, 26, 3},         //A3 - D63
-  {1, 30, 4},         //A4 - D37 - BUZZER_PIN
-  {1, 31, 5},         //A5 - D49 - SD_DETECT_PIN
-  #if SERIAL_PORT != 0
-    {0,  3, 6},       //A6 - D0  - RXD0
-    {0,  2, 7}        //A7 - D1  - TXD0
-  #endif
-};
-
-constexpr FORCE_INLINE int8_t analogInputToDigitalPin(int8_t p) {
-  return (p == 0 ? LPC1768_PIN(0, 23):
-          p == 1 ? LPC1768_PIN(0, 24):
-          p == 2 ? LPC1768_PIN(0, 25):
-          p == 3 ? LPC1768_PIN(0, 26):
-          p == 4 ? LPC1768_PIN(1, 30):
-          p == 5 ? LPC1768_PIN(1, 31):
+constexpr HAL_PIN_TYPE analogInputToDigitalPin(int8_t p) {
+  return (p == 0 ? P0_23:
+          p == 1 ? P0_24:
+          p == 2 ? P0_25:
+          p == 3 ? P0_26:
+          p == 4 ? P1_30:
+          p == 5 ? P1_31:
           #if SERIAL_PORT != 0
-            p == 6 ?  LPC1768_PIN(0,  3):
-            p == 7 ?  LPC1768_PIN(0,  2):
+            p == 6 ? P0_3:
+            p == 7 ? P0_2:
           #endif
           -1);
 }
 
-constexpr FORCE_INLINE int8_t DIGITAL_PIN_TO_ANALOG_PIN(int8_t p) {
-  return (p == LPC1768_PIN(0, 23) ? 0:
-          p == LPC1768_PIN(0, 24) ? 1:
-          p == LPC1768_PIN(0, 25) ? 2:
-          p == LPC1768_PIN(0, 26) ? 3:
-          p == LPC1768_PIN(1, 30) ? 4:
-          p == LPC1768_PIN(1, 31) ? 5:
-          #if SERIAL_PORT != 0
-            p == LPC1768_PIN(0,  3)  ? 6:
-            p == LPC1768_PIN(0,  2)  ? 7:
-          #endif
-          -1);
+constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(HAL_PIN_TYPE p) {
+  return (VALID_PIN(p) && LPC1768_PIN_ADC(p));
 }
-
-// This is large enough to encompass from 0.0 through 4.29
-#define NUM_DIGITAL_PINS 158
-
-constexpr FORCE_INLINE uint8_t VALID_PIN(int8_t r) {
-  return (    
-    #if SERIAL_PORT == 0
-      (LPC1768_PIN_PORT(r) == 0 && (LPC1768_PIN_PIN(r) == 2 || LPC1768_PIN_PIN(r) == 3)) ? 0 :
-    #endif
-    (LPC1768_PIN_PORT(r) == 0 && LPC1768_PIN_PIN(r) <= 30) ? 1 :
-    (LPC1768_PIN_PORT(r) == 1 && LPC1768_PIN_PIN(r) <= 31) ? 1 :
-    (LPC1768_PIN_PORT(r) == 2 && LPC1768_PIN_PIN(r) <= 13) ? 1 :
-    (LPC1768_PIN_PORT(r) == 3 && LPC1768_PIN_PIN(r) >= 25 && LPC1768_PIN_PIN(r) <= 26) ? 1 :
-    (LPC1768_PIN_PORT(r) == 4 && LPC1768_PIN_PIN(r) >= 28 && LPC1768_PIN_PIN(r) <= 29) ? 1 :
-    0);
-}
-
-#define PWM_PIN(r) (r == LPC1768_PIN(1, 18) ? 1 :\
-                  r == LPC1768_PIN(1, 20) ? 1 :\
-                  r == LPC1768_PIN(1, 21) ? 1 :\
-                  r == LPC1768_PIN(1, 23) ? 1 :\
-                  r == LPC1768_PIN(1, 24) ? 1 :\
-                  r == LPC1768_PIN(1, 26) ? 1 :\
-                  r == LPC1768_PIN(2,  0) ? 1 :\
-                  r == LPC1768_PIN(2,  1) ? 1 :\
-                  r == LPC1768_PIN(2,  2) ? 1 :\
-                  r == LPC1768_PIN(2,  3) ? 1 :\
-                  r == LPC1768_PIN(2,  4) ? 1 :\
-                  r == LPC1768_PIN(2,  5) ? 1 : 0)
-
-#define NUM_INTERRUPT_PINS 34
-
-#define INTERRUPT_PIN(r) (r == LPC1768_PIN(0,  0) ? 1 :\
-                        r == LPC1768_PIN(0,  1) ? 1 :\
-                        r == LPC1768_PIN(0,  2) ? 1 :\
-                        r == LPC1768_PIN(0,  3) ? 1 :\
-                        r == LPC1768_PIN(0,  4) ? 1 :\
-                        r == LPC1768_PIN(0,  5) ? 1 :\
-                        r == LPC1768_PIN(0, 10) ? 1 :\
-                        r == LPC1768_PIN(0, 11) ? 1 :\
-                        r == LPC1768_PIN(2, 12) ? 1 :\
-                        r == LPC1768_PIN(0, 15) ? 1 :\
-                        r == LPC1768_PIN(0, 16) ? 1 :\
-                        r == LPC1768_PIN(0, 17) ? 1 :\
-                        r == LPC1768_PIN(0, 18) ? 1 :\
-                        r == LPC1768_PIN(0, 19) ? 1 :\
-                        r == LPC1768_PIN(0, 20) ? 1 :\
-                        r == LPC1768_PIN(0, 21) ? 1 :\
-                        r == LPC1768_PIN(0, 22) ? 1 :\
-                        r == LPC1768_PIN(0, 23) ? 1 :\
-                        r == LPC1768_PIN(0, 24) ? 1 :\
-                        r == LPC1768_PIN(0, 25) ? 1 :\
-                        r == LPC1768_PIN(0, 26) ? 1 :\
-                        r == LPC1768_PIN(0, 27) ? 1 :\
-                        r == LPC1768_PIN(0, 28) ? 1 :\
-                        r == LPC1768_PIN(2,  0) ? 1 :\
-                        r == LPC1768_PIN(2,  1) ? 1 :\
-                        r == LPC1768_PIN(2,  2) ? 1 :\
-                        r == LPC1768_PIN(2,  3) ? 1 :\
-                        r == LPC1768_PIN(2,  4) ? 1 :\
-                        r == LPC1768_PIN(2,  5) ? 1 :\
-                        r == LPC1768_PIN(2,  6) ? 1 :\
-                        r == LPC1768_PIN(2,  7) ? 1 :\
-                        r == LPC1768_PIN(2,  8) ? 1 :\
-                        r == LPC1768_PIN(2, 11) ? 1 :\
-                        r == LPC1768_PIN(2, 13) ? 1 : 0)
-                        /*Internal SD Card */
-                        /* r == LPC1768_PIN(0, 14) ? 1 :\
-                           r == LPC1768_PIN(0,  7) ? 1 :\
-                           r == LPC1768_PIN(0,  8) ? 1 :\
-                           r == LPC1768_PIN(0,  9) ? 1 :\ */
-
+                           
 #endif // __HAL_PINMAPPING_H__

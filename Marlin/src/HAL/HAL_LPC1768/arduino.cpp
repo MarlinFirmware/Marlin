@@ -26,6 +26,7 @@
 #include "HAL.h"
 #include "../../core/macros.h"
 #include "../../core/types.h"
+#include "LPC1768_PWM.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable
@@ -71,7 +72,7 @@ extern "C" void delay(const int msec) {
 
 // IO functions
 // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
-void pinMode(uint8_t pin, uint8_t mode) {
+void pinMode(HAL_PIN_TYPE pin, uint8_t mode) {
   if (!VALID_PIN(pin))
     return;
 
@@ -99,7 +100,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
   }
 }
 
-void digitalWrite(uint8_t pin, uint8_t pin_status) {
+void digitalWrite(HAL_PIN_TYPE pin, uint8_t pin_status) {
   if (!VALID_PIN(pin))
     return;
 
@@ -119,18 +120,14 @@ void digitalWrite(uint8_t pin, uint8_t pin_status) {
      */
 }
 
-bool digitalRead(uint8_t pin) {
+bool digitalRead(HAL_PIN_TYPE pin) {
   if (!VALID_PIN(pin)) {
     return false;
   }
   return LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
 }
 
-void analogWrite(uint8_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
-
-  extern bool LPC1768_PWM_attach_pin(uint8_t, uint32_t, uint32_t, uint8_t);
-  extern bool LPC1768_PWM_write(uint8_t, uint32_t);
-  extern bool LPC1768_PWM_detach_pin(uint8_t);
+void analogWrite(HAL_PIN_TYPE pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
   #define MR0_MARGIN 200       // if channel value too close to MR0 the system locks up
 
   static bool out_of_PWM_slots = false;
@@ -156,7 +153,7 @@ void analogWrite(uint8_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 2
 
 extern bool HAL_adc_finished();
 
-uint16_t analogRead(uint8_t adc_pin) {
+uint16_t analogRead(HAL_PIN_TYPE adc_pin) {
   HAL_adc_start_conversion(adc_pin);
   while (!HAL_adc_finished());  // Wait for conversion to finish
   return HAL_adc_get_result();

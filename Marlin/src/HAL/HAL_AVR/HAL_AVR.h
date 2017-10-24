@@ -69,6 +69,8 @@
 #define HAL_TIMER_TYPE uint16_t
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
+#define HAL_PIN_TYPE int8_t
+
 #define HAL_SERVO_LIB Servo
 
 // --------------------------------------------------------------------------

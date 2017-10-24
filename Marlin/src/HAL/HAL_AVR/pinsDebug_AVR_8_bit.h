@@ -397,6 +397,4 @@ static void pwm_details(uint8_t pin) {
 
 #endif
 
-#define GET_PIN_INFO(pin) do{}while(0)
-
 #endif // _PINSDEBUG_AVR_8_BIT_

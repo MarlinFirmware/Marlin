@@ -21,29 +21,27 @@
  */
 
 /**
- * Support routines for Re-ARM board
+ * Support routines for LPC1768
 */
 
-bool pin_Re_ARM_output;
-bool pin_Re_ARM_analog;
-int8_t pin_Re_ARM_pin;
+// active ADC function/mode/code values for PINSEL registers
+int8_t ADC_pin_mode(HAL_PIN_TYPE pin) {
+  uint8_t pin_port = LPC1768_PIN_PORT(pin);
+  uint8_t pin_port_pin = LPC1768_PIN_PIN(pin);
+  return (pin_port == 0 && pin_port_pin == 2  ? 2 :
+          pin_port == 0 && pin_port_pin == 3  ? 2 :
+          pin_port == 0 && pin_port_pin == 23 ? 1 :
+          pin_port == 0 && pin_port_pin == 24 ? 1 :
+          pin_port == 0 && pin_port_pin == 25 ? 1 :
+          pin_port == 0 && pin_port_pin == 26 ? 1 :
+          pin_port == 1 && pin_port_pin == 30 ? 3 :
+          pin_port == 1 && pin_port_pin == 31 ? 3 : -1);
+}
 
-void get_pin_info(int8_t pin) {
-
-  if (!VALID_PIN(pin)) return;
-  pin_Re_ARM_analog = 0;
-  pin_Re_ARM_pin = pin;
-  int8_t pin_port = LPC1768_PIN_PORT(pin);
-  int8_t pin_port_pin = LPC1768_PIN_PIN(pin);
-  // active ADC function/mode/code values for PINSEL registers
-  int8_t ADC_pin_mode = pin_port == 0 && pin_port_pin == 2  ? 2 :
-                        pin_port == 0 && pin_port_pin == 3  ? 2 :
-                        pin_port == 0 && pin_port_pin == 23 ? 1 :
-                        pin_port == 0 && pin_port_pin == 24 ? 1 :
-                        pin_port == 0 && pin_port_pin == 25 ? 1 :
-                        pin_port == 0 && pin_port_pin == 26 ? 1 :
-                        pin_port == 1 && pin_port_pin == 30 ? 3 :
-                        pin_port == 1 && pin_port_pin == 31 ? 3 : -1;
+int8_t get_pin_mode(HAL_PIN_TYPE pin) {
+  if (!VALID_PIN(pin)) return -1;
+  uint8_t pin_port = LPC1768_PIN_PORT(pin);
+  uint8_t pin_port_pin = LPC1768_PIN_PIN(pin);
   //get appropriate PINSEL register
   volatile uint32_t * pinsel_reg = (pin_port == 0 && pin_port_pin <= 15) ? &LPC_PINCON->PINSEL0 :
                                    (pin_port == 0)                       ? &LPC_PINCON->PINSEL1 :
@@ -52,16 +50,22 @@ void get_pin_info(int8_t pin) {
                                     pin_port == 2                        ? &LPC_PINCON->PINSEL4 :
                                     pin_port == 3                        ? &LPC_PINCON->PINSEL7 : &LPC_PINCON->PINSEL9;
   uint8_t pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
-  uint8_t pin_mode = (uint8_t) ((*pinsel_reg >> pinsel_start_bit) & 0x3);
-  uint32_t * FIO_reg[5] PROGMEM = {(uint32_t*) 0x2009C000,(uint32_t*)  0x2009C020,(uint32_t*)  0x2009C040,(uint32_t*)  0x2009C060,(uint32_t*)  0x2009C080};
-  pin_Re_ARM_output = (*FIO_reg[LPC1768_PIN_PORT(pin)] >> LPC1768_PIN_PIN(pin)) & 1; //input/output state except if active ADC
+  int8_t pin_mode = (int8_t) ((*pinsel_reg >> pinsel_start_bit) & 0x3);
+  return pin_mode;
+}
 
-  if (pin_mode) {  // if function/mode/code value not 0 then could be an active analog channel
-    if (ADC_pin_mode == pin_mode) {  // found an active analog pin
-      pin_Re_ARM_output = 0;
-      pin_Re_ARM_analog = 1;
-    }
-  }
+bool GET_PINMODE(HAL_PIN_TYPE pin) {
+  int8_t pin_mode = get_pin_mode(pin);
+  if (pin_mode == -1 || (pin_mode && pin_mode == ADC_pin_mode(pin))) // found an invalid pin or active analog pin
+    return false;
+
+  uint32_t * FIO_reg[5] PROGMEM = {(uint32_t*) 0x2009C000,(uint32_t*)  0x2009C020,(uint32_t*)  0x2009C040,(uint32_t*)  0x2009C060,(uint32_t*)  0x2009C080};
+  return ((*FIO_reg[LPC1768_PIN_PORT(pin)] >> LPC1768_PIN_PIN(pin) & 1) != 0); //input/output state
+}
+
+bool GET_ARRAY_IS_DIGITAL(HAL_PIN_TYPE pin) {
+  int8_t pin_mode = get_pin_mode(pin);
+  return (pin_mode != -1 && (!get_pin_mode(pin) || pin_mode != ADC_pin_mode(pin)));
 }
 
 /**
@@ -70,9 +74,7 @@ void get_pin_info(int8_t pin) {
 
 #define pwm_details(pin) pin = pin    // do nothing  // print PWM details
 #define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
-#define GET_PIN_INFO(pin) get_pin_info(pin)
 #define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
-#define GET_PINMODE(pin) pin_Re_ARM_output
 #define digitalRead_mod(p)  digitalRead(p)
 #define digitalPinToPort_DEBUG(p)  0
 #define digitalPinToBitMask_DEBUG(pin) 0
@@ -81,4 +83,3 @@ void get_pin_info(int8_t pin) {
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 //  #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, NAME_FORMAT(MAX_NAME_LENGTH) , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-35s") , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-#define GET_ARRAY_IS_DIGITAL(x)  !pin_Re_ARM_analog

@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "../pinmapping.h"
+
 #define LOW          0x00
 #define HIGH         0x01
 #define CHANGE       0x02
@@ -83,6 +85,7 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 #define pgm_read_word(addr)       pgm_read_word_near(addr)
 #define pgm_read_dword(addr)      pgm_read_dword_near(addr)
 
+#define memcpy_P memcpy
 #define sprintf_P sprintf
 #define strstr_P strstr
 #define strncpy_P strncpy
@@ -99,11 +102,11 @@ void delayMicroseconds(unsigned long);
 uint32_t millis();
 
 //IO functions
-void pinMode(uint8_t, uint8_t);
-void digitalWrite(uint8_t, uint8_t);
-bool digitalRead(uint8_t);
-void analogWrite(uint8_t, int);
-uint16_t analogRead(uint8_t);
+void pinMode(HAL_PIN_TYPE, uint8_t);
+void digitalWrite(HAL_PIN_TYPE, uint8_t);
+bool digitalRead(HAL_PIN_TYPE);
+void analogWrite(HAL_PIN_TYPE, int);
+uint16_t analogRead(HAL_PIN_TYPE);
 
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
