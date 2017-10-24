@@ -710,10 +710,10 @@ static void lcd_implementation_status_screen() {
 
       lcd.setCursor(8, 0);
       #if HOTENDS > 1
-        lcd.print((CHAR)LCD_STR_THERMOMETER[0]);
+        lcd.print((char)LCD_STR_THERMOMETER[0]);
         _draw_heater_status(1, -1, blink);
       #else
-        lcd.print((CHAR)LCD_BEDTEMP_CHAR);
+        lcd.print((char)LCD_BEDTEMP_CHAR);
         _draw_heater_status(-1, -1, blink);
       #endif
 
