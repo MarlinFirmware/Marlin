@@ -167,6 +167,8 @@ uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
 void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
 
+#define GET_PIN_MAP_PIN(index) index
+#define HAL_SENSITIVE_PINS
 
 // --------------------------------------------------------------------------
 //

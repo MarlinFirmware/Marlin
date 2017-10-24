@@ -155,4 +155,7 @@ inline void HAL_adc_init(void) {
 
 #define HAL_READ_ADC ADC
 
+#define GET_PIN_MAP_PIN(index) index
+#define HAL_SENSITIVE_PINS 0, 1
+
 #endif // _HAL_AVR_H_

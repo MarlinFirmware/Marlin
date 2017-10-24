@@ -194,4 +194,7 @@ void HAL_enable_AdcFreerun(void);
 
 */
 
+#define GET_PIN_MAP_PIN(index) index
+#define HAL_SENSITIVE_PINS
+
 #endif // _HAL_STM32F1_H

@@ -45,10 +45,8 @@ constexpr int8_t LPC1768_PIN_ADC(HAL_PIN_TYPE pin) { return (int8_t)((pin >> 8) 
 // ******************
 const HAL_PIN_TYPE P0_0  = LPC1768_PIN(0,  0, PIN_FEATURE_INTERRUPT);
 const HAL_PIN_TYPE P0_1  = LPC1768_PIN(0,  1, PIN_FEATURE_INTERRUPT);
-#if SERIAL_PORT != 0
-  const HAL_PIN_TYPE P0_2  = LPC1768_PIN(0,  2, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(7));
-  const HAL_PIN_TYPE P0_3  = LPC1768_PIN(0,  3, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(6));
-#endif
+const HAL_PIN_TYPE P0_2  = LPC1768_PIN(0,  2, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(7));
+const HAL_PIN_TYPE P0_3  = LPC1768_PIN(0,  3, PIN_FEATURE_INTERRUPT | PIN_FEATURE_ADC(6));
 const HAL_PIN_TYPE P0_4  = LPC1768_PIN(0,  4, PIN_FEATURE_INTERRUPT);
 const HAL_PIN_TYPE P0_5  = LPC1768_PIN(0,  5, PIN_FEATURE_INTERRUPT);
 const HAL_PIN_TYPE P0_6  = LPC1768_PIN(0,  6);
@@ -127,20 +125,101 @@ const HAL_PIN_TYPE P3_26 = LPC1768_PIN(3, 26);
 const HAL_PIN_TYPE P4_28 = LPC1768_PIN(4, 28);
 const HAL_PIN_TYPE P4_29 = LPC1768_PIN(4, 29);
 
-// This is large enough to encompass from 0.0 through 4.29
-#define NUM_DIGITAL_PINS 158
+const HAL_PIN_TYPE pin_map[] = {
+  P0_0,
+  P0_1,
+  P0_2,
+  P0_3,
+  P0_4,
+  P0_5,
+  P0_6,
+  P0_7,
+  P0_8,
+  P0_9,
+  P0_10,
+  P0_11,
+  P0_12,
+  P0_13,
+  P0_14,
+  P0_15,
+  P0_16,
+  P0_17,
+  P0_18,
+  P0_19,
+  P0_20,
+  P0_21,
+  P0_22,
+  P0_23,
+  P0_24,
+  P0_25,
+  P0_26,
+  P0_27,
+  P0_28,
+  P0_29,
+  P0_30,
+  P1_0,
+  P1_1,
+  P1_2,
+  P1_3,
+  P1_4,
+  P1_5,
+  P1_6,
+  P1_7,
+  P1_8,
+  P1_9,
+  P1_10,
+  P1_11,
+  P1_12,
+  P1_13,
+  P1_14,
+  P1_15,
+  P1_16,
+  P1_17,
+  P1_18,
+  P1_19,
+  P1_20,
+  P1_21,
+  P1_22,
+  P1_23,
+  P1_24,
+  P1_25,
+  P1_26,
+  P1_27,
+  P1_28,
+  P1_29,
+  P1_30,
+  P1_31,
+  P2_0,
+  P2_1,
+  P2_2,
+  P2_3,
+  P2_4,
+  P2_5,
+  P2_6,
+  P2_7,
+  P2_8,
+  P2_9,
+  P2_10,
+  P2_11,
+  P2_12,
+  P2_13,
+  P3_25,
+  P3_26,
+  P4_28,
+  P4_29
+};
+
+#define NUM_DIGITAL_PINS COUNT(pin_map)
+
+#define GET_PIN_MAP_PIN(index) pin_map[index]
 
 constexpr bool VALID_PIN(HAL_PIN_TYPE p) {
-  return (    
-    #if SERIAL_PORT == 0
-      (LPC1768_PIN_PORT(p) == 0 && (LPC1768_PIN_PIN(p) == 2 || LPC1768_PIN_PIN(p) == 3)) ? false :
-    #endif
-    (LPC1768_PIN_PORT(p) == 0 && LPC1768_PIN_PIN(p) <= 30) ? true :
-    (LPC1768_PIN_PORT(p) == 1 && LPC1768_PIN_PIN(p) <= 31) ? true :
-    (LPC1768_PIN_PORT(p) == 2 && LPC1768_PIN_PIN(p) <= 13) ? true :
-    (LPC1768_PIN_PORT(p) == 3 && LPC1768_PIN_PIN(p) >= 25 && LPC1768_PIN_PIN(p) <= 26) ? true :
-    (LPC1768_PIN_PORT(p) == 4 && LPC1768_PIN_PIN(p) >= 28 && LPC1768_PIN_PIN(p) <= 29) ? true :
-    false);
+  return ((LPC1768_PIN_PORT(p) == 0 && LPC1768_PIN_PIN(p) <= 30) ? true :
+          (LPC1768_PIN_PORT(p) == 1 && LPC1768_PIN_PIN(p) <= 31) ? true :
+          (LPC1768_PIN_PORT(p) == 2 && LPC1768_PIN_PIN(p) <= 13) ? true :
+          (LPC1768_PIN_PORT(p) == 3 && LPC1768_PIN_PIN(p) >= 25 && LPC1768_PIN_PIN(p) <= 26) ? true :
+          (LPC1768_PIN_PORT(p) == 4 && LPC1768_PIN_PIN(p) >= 28 && LPC1768_PIN_PIN(p) <= 29) ? true :
+          false);
 }
 
 constexpr bool PWM_PIN(HAL_PIN_TYPE p) {
@@ -151,11 +230,7 @@ constexpr bool INTERRUPT_PIN(HAL_PIN_TYPE p) {
   return (VALID_PIN(p) && LPC1768_PIN_INTERRUPT(p));
 }
 
-#if SERIAL_PORT == 0
-  #define NUM_ANALOG_INPUTS 6
-#else
-  #define NUM_ANALOG_INPUTS 8
-#endif
+#define NUM_ANALOG_INPUTS 8
 
 constexpr HAL_PIN_TYPE analogInputToDigitalPin(int8_t p) {
   return (p == 0 ? P0_23:
@@ -164,15 +239,20 @@ constexpr HAL_PIN_TYPE analogInputToDigitalPin(int8_t p) {
           p == 3 ? P0_26:
           p == 4 ? P1_30:
           p == 5 ? P1_31:
-          #if SERIAL_PORT != 0
-            p == 6 ? P0_3:
-            p == 7 ? P0_2:
-          #endif
+          p == 6 ? P0_3:
+          p == 7 ? P0_2:
           -1);
 }
 
-constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(HAL_PIN_TYPE p) {
-  return (VALID_PIN(p) && LPC1768_PIN_ADC(p));
+FORCE_INLINE int8_t DIGITAL_PIN_TO_ANALOG_PIN(HAL_PIN_TYPE p) {
+  if (!VALID_PIN(p))
+    return -1;
+
+  return LPC1768_PIN_ADC(p);
 }
+
+// P0.6 thru P0.9 are for the onboard SD card
+// P0.29 and P0.30 are for the USB port
+#define HAL_SENSITIVE_PINS P0_6, P0_7, P0_8, P0_9, P0_29, P0_30
                            
 #endif // __HAL_PINMAPPING_H__

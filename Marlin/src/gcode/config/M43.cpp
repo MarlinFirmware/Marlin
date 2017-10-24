@@ -40,7 +40,8 @@ inline void toggle_pins() {
             end = parser.intval('E', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
-  for (uint8_t pin = start; pin <= end; pin++) {
+  for (uint8_t i = start; i <= end; i++) {
+    HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
     //report_pin_state_extended(pin, I_flag, false);
     if (!VALID_PIN(pin)) continue;
     if (!I_flag && pin_is_protected(pin)) {
@@ -269,7 +270,8 @@ void GcodeSuite::M43() {
   if (parser.boolval('W')) {
     SERIAL_PROTOCOLLNPGM("Watching pins");
     uint8_t pin_state[last_pin - first_pin + 1];
-    for (uint8_t pin = first_pin; pin <= last_pin; pin++) {
+    for (uint8_t i = first_pin; i <= last_pin; i++) {
+      HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
       if (!VALID_PIN(pin)) continue;
       if (pin_is_protected(pin) && !ignore_protection) continue;
       pinMode(pin, INPUT_PULLUP);
@@ -279,7 +281,7 @@ void GcodeSuite::M43() {
           pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
         else
       //*/
-          pin_state[pin - first_pin] = digitalRead(pin);
+          pin_state[i - first_pin] = digitalRead(pin);
     }
 
     #if HAS_RESUME_CONTINUE
@@ -288,7 +290,8 @@ void GcodeSuite::M43() {
     #endif
 
     for (;;) {
-      for (uint8_t pin = first_pin; pin <= last_pin; pin++) {
+      for (uint8_t i = first_pin; i <= last_pin; i++) {
+        HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
         if (!VALID_PIN(pin)) continue;
         if (pin_is_protected(pin) && !ignore_protection) continue;
         const byte val =
@@ -298,9 +301,9 @@ void GcodeSuite::M43() {
               :
           //*/
             digitalRead(pin);
-        if (val != pin_state[pin - first_pin]) {
+        if (val != pin_state[i - first_pin]) {
           report_pin_state_extended(pin, ignore_protection, false);
-          pin_state[pin - first_pin] = val;
+          pin_state[i - first_pin] = val;
         }
       }
 
@@ -317,8 +320,10 @@ void GcodeSuite::M43() {
   }
 
   // Report current state of selected pin(s)
-  for (uint8_t pin = first_pin; pin <= last_pin; pin++)
+  for (uint8_t i = first_pin; i <= last_pin; i++) {
+    HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
     if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
+  }
 }
 
 #endif // PINS_DEBUGGING

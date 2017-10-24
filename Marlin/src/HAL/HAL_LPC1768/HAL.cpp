@@ -93,7 +93,7 @@ void HAL_adc_enable_channel(int ch) {
   }
 
   int8_t pin_port = LPC1768_PIN_PORT(pin),
-         pin_port_pin = LPC1768_PIN_PORT(pin),
+         pin_port_pin = LPC1768_PIN_PIN(pin),
          pinsel_start_bit = pin_port_pin > 15 ? 2 * (pin_port_pin - 16) : 2 * pin_port_pin;
   uint8_t pin_sel_register = (pin_port == 0 && pin_port_pin <= 15) ? 0 :
                               pin_port == 0                        ? 1 :
