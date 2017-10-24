@@ -96,7 +96,6 @@ static void ensure_safe_temperature() {
 void do_pause_e_move(const float &length, const float fr) {
   current_position[E_AXIS] += length;
   set_destination_from_current();
-  RUNPLAN(fr); // Uses destination[], doesn't update current_position[]
   #if IS_KINEMATIC
     planner.buffer_line_kinematic(destination, fr, active_extruder);
   #else
