@@ -220,7 +220,7 @@ const pin_data pin_map[] = { // pin map for variable pin function
   {1,4},        //  DIO77                   J12-10            ENET_TX_EN
   {1,0},        //  DIO78                   J12-11            ENET_TXD0
   {1,1},        //  DIO79                   J12-12            ENET_TXD1
-  {0,14},       //  DIO80                   MKS-SBASE	J7-6 & EXP1-5	  
+  {0,14},       //  DIO80                   MKS-SBASE	J7-6 & EXP1-5
   {0,7},        //  DIO81  SD-SCK           MKS-SBASE	on board SD card and EXP2-2
   {0,8},        //  DIO82  SD-MISO          MKS-SBASE	on board SD card and EXP2-1
   {0,9},        //  DIO83  SD-MOSI          MKS-SBASE 	n board SD card and EXP2-6
