@@ -64,6 +64,8 @@ extern uint8_t marlin_debug_flags;
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
+#define SERIAL_START do { for (int i = 0; i < WAIT_FOR_SERIAL_STARTUP; i++) { if(!MYSERIAL) { watchdog_reset(); delay(1000);} } } while (0)
+
 #define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
 #define SERIAL_EOL() SERIAL_CHAR('\n')
 

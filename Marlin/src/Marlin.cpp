@@ -681,7 +681,11 @@ void setup() {
   #endif
 
   MYSERIAL.begin(BAUDRATE);
-  while(!MYSERIAL);
+
+  #if ENABLED(WAIT_FOR_SERIAL_STARTUP)
+    SERIAL_START;
+  #endif
+
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
