@@ -96,11 +96,6 @@ typedef struct {
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
     uint32_t abs_adv_steps_multiplier8; // Factorised by 2^8 to avoid float
-  #elif ENABLED(ADVANCE)
-    int32_t advance_rate;
-    volatile int32_t initial_advance;
-    volatile int32_t final_advance;
-    float advance;
   #endif
 
   // Fields used by the motion planner to manage acceleration
@@ -121,7 +116,7 @@ typedef struct {
   #endif
 
   #if ENABLED(BARICUDA)
-    uint32_t valve_pressure, e_to_p_pressure;
+    uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
   uint32_t segment_time;

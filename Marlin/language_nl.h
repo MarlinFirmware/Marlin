@@ -24,7 +24,7 @@
  * Dutch
  *
  * LCD Menu Messages
- * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
 #ifndef LANGUAGE_NL_H
@@ -220,7 +220,7 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
-#define MSG_INFO_PSU                        _UxGT("Power Supply")  //accepted English term in Dutch
+#define MSG_INFO_PSU                        _UxGT("PSU")  //accepted English term in Dutch
 
 #define MSG_DRIVE_STRENGTH                  _UxGT("Motorstroom")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")  //accepted English term in Dutch

@@ -95,6 +95,8 @@ uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
 millis_t Planner::min_segment_time;
+
+// Initialized by settings.load()
 float Planner::min_feedrate_mm_s,
       Planner::acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
       Planner::retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
@@ -111,7 +113,7 @@ float Planner::min_feedrate_mm_s,
 #endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float Planner::z_fade_height,
+  float Planner::z_fade_height, // Initialized by settings.load()
         Planner::inverse_z_fade_height;
 #endif
 
@@ -143,8 +145,8 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_k = LIN_ADVANCE_K,
-        Planner::advance_ed_ratio = LIN_ADVANCE_E_D_RATIO,
+  float Planner::extruder_advance_k, // Initialized by settings.load()
+        Planner::advance_ed_ratio,   // Initialized by settings.load()
         Planner::position_float[NUM_AXIS] = { 0 };
 #endif
 
@@ -209,10 +211,6 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
     block->final_rate = final_rate;
-    #if ENABLED(ADVANCE)
-      block->initial_advance = block->advance * sq(entry_factor);
-      block->final_advance = block->advance * sq(exit_factor);
-    #endif
   }
   CRITICAL_SECTION_END;
 }
@@ -409,10 +407,10 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      unsigned char tail_valve_pressure = baricuda_valve_pressure;
+      uint8_t tail_valve_pressure = baricuda_valve_pressure;
     #endif
     #if HAS_HEATER_2
-      unsigned char tail_e_to_p_pressure = baricuda_e_to_p_pressure;
+      uint8_t tail_e_to_p_pressure = baricuda_e_to_p_pressure;
     #endif
   #endif
 
@@ -1403,27 +1401,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         * axis_steps_per_mm[E_AXIS_N] * 256.0
       );
 
-  #elif ENABLED(ADVANCE)
-
-    // Calculate advance rate
-    if (esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])) {
-      const long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
-      const float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(current_speed[E_AXIS], EXTRUSION_AREA) * 256;
-      block->advance = advance;
-      block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
-    }
-    else
-      block->advance_rate = block->advance = 0;
-
-    /**
-     SERIAL_ECHO_START();
-     SERIAL_ECHOPGM("advance :");
-     SERIAL_ECHO(block->advance/256.0);
-     SERIAL_ECHOPGM("advance rate :");
-     SERIAL_ECHOLN(block->advance_rate/256.0);
-     */
-
-  #endif // ADVANCE or LIN_ADVANCE
+  #endif // LIN_ADVANCE
 
   calculate_trapezoid_for_block(block, block->entry_speed / block->nominal_speed, safe_speed / block->nominal_speed);
 

@@ -302,9 +302,9 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
                delta_diagonal_rod,
                delta_calibration_radius,
                delta_segments_per_second,
-               delta_tower_angle_trim[2],
+               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod);
+  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]);
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
@@ -362,8 +362,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int baricuda_valve_pressure;
-  extern int baricuda_e_to_p_pressure;
+  extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -384,10 +383,15 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 #endif
 
 #if ENABLED(FWRETRACT)
-  extern bool autoretract_enabled;
-  extern bool retracted[EXTRUDERS]; // extruder[n].retracted
-  extern float retract_length, retract_length_swap, retract_feedrate_mm_s, retract_zlift;
-  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate_mm_s;
+  extern bool autoretract_enabled;                 // M209 S - Autoretract switch
+  extern float retract_length,                     // M207 S - G10 Retract length
+               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
+               retract_zlift,                      // M207 Z - G10 Retract hop size
+               retract_recover_length,             // M208 S - G11 Recover length
+               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
+               swap_retract_length,                // M207 W - G10 Swap Retract length
+               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
+               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 #endif
 
 // Print job timer
@@ -418,7 +422,17 @@ void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+#define HAS_AXIS_UNHOMED_ERR (                                                     \
+         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
+      || ENABLED(Z_PROBE_SLED)                                                     \
+      || HAS_PROBING_PROCEDURE                                                     \
+      || HOTENDS > 1                                                               \
+      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
+      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
+      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
+
+#if HAS_AXIS_UNHOMED_ERR
   bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 #endif
 

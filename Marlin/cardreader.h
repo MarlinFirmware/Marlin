@@ -120,10 +120,10 @@ private:
           char **sortshort, **sortnames;
         #else
           char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-          char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+          char sortnames[SDSORT_LIMIT][LONG_FILENAME_LENGTH];
         #endif
       #elif DISABLED(SDSORT_USES_STACK)
-        char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+        char sortnames[SDSORT_LIMIT][LONG_FILENAME_LENGTH];
       #endif
 
       // Folder sorting uses an isDir array when caching items.
@@ -167,6 +167,7 @@ private:
 extern CardReader card;
 
 #define IS_SD_PRINTING (card.sdprinting)
+#define IS_SD_FILE_OPEN (card.isFileOpen())
 
 #if PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
@@ -182,6 +183,7 @@ extern CardReader card;
 #else
 
 #define IS_SD_PRINTING (false)
+#define IS_SD_FILE_OPEN (false)
 
 #endif // SDSUPPORT
 

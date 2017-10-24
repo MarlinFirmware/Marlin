@@ -24,7 +24,7 @@
  * Greek
  *
  * LCD Menu Messages
- * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
 #ifndef LANGUAGE_EL_H
@@ -199,7 +199,7 @@
 #endif
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
-#define MSG_INFO_PSU                        _UxGT("Power Supply")
+#define MSG_INFO_PSU                        _UxGT("PSU")
 
 #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("CHANGE FILAMENT")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude more")

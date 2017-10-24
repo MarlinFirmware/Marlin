@@ -114,6 +114,9 @@ Marlin/Debug/
 Marlin/__vm/
 Marlin/.vs/
 
+#VScode
+.vscode
+
 #cmake
 Marlin/CMakeLists.txt
 /buildroot/

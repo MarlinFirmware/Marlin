@@ -272,7 +272,10 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 static void err_is_counter()     { SERIAL_PROTOCOLPGM("   non-standard PWM mode"); }
 static void err_is_interrupt()   { SERIAL_PROTOCOLPGM("   compare interrupt enabled"); }
 static void err_prob_interrupt() { SERIAL_PROTOCOLPGM("   overflow interrupt enabled"); }
-static void print_is_also_tied() { SERIAL_PROTOCOLPGM(" is also tied to this pin"); SERIAL_PROTOCOL_SP(14); }
+
+#if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
+  static void print_is_also_tied() { SERIAL_PROTOCOLPGM(" is also tied to this pin"); SERIAL_PROTOCOL_SP(14); }
+#endif
 
 void com_print(uint8_t N, uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
