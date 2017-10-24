@@ -777,7 +777,7 @@
 #define X_BED_SIZE 200
 #define Y_BED_SIZE 200
 
-// Travel limits (mm) after homing, corresponding to endstop positions.
+// Travel limits (mm) after homing. Setting MIN_POS values to a negative value allows the head to move behind the home coordinates.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
