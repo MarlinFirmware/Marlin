@@ -93,15 +93,21 @@ static void ensure_safe_temperature() {
   }
 }
 
+void do_pause_e_move(const float &length, const float fr) {
+  current_position[E_AXIS] += length;
+  set_destination_from_current();
+  RUNPLAN(fr); // Uses destination[], doesn't update current_position[]
+  #if IS_KINEMATIC
+    planner.buffer_line_kinematic(destination, fr, active_extruder);
+  #else
+    line_to_destination(fr);
+  #endif
+  stepper.synchronize();
+}
+
 // public:
 
 bool move_away_flag = false;
-
-#if IS_KINEMATIC
-  #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
-#else
-  #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
-#endif
 
 bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
                         const float &unload_length/*=0*/ , const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
@@ -140,19 +146,12 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     #endif
   }
 
-  // Save current position
   stepper.synchronize();
-  COPY(resume_position, current_position);
-  
-  if (retract) {
-    // Initial retract before move to filament change position
-    set_destination_from_current();  // initialise destinations before RunPlan
-    destination[E_AXIS] += retract;
-    RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
-    stepper.synchronize();
-    set_current_from_destination(); // updating current after RunPlan Moves/before DoblockMo
-  }
- 
+  COPY(resume_position, current_position); // Save current position for later
+
+  // Initial retract before move to filament change position
+  if (retract) do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+
   // Lift Z axis
   if (z_lift > 0)
     do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
@@ -169,10 +168,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
     }
 
     // Unload filament
-    set_destination_from_current();
-    destination[E_AXIS] += unload_length;
-    RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
-    stepper.synchronize();
+    do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
   }
 
   if (show_lcd) {
@@ -273,8 +269,6 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     filament_change_beep(max_beep_count, true);
   #endif
 
-  set_destination_from_current();
-
   if (load_length != 0) {
     #if ENABLED(ULTIPANEL)
       // Show "insert filament"
@@ -298,9 +292,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     #endif
 
     // Load filament
-    destination[E_AXIS] += load_length;
-    RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
-    stepper.synchronize();
+    do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
   }
 
   #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
@@ -313,9 +305,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
 
         // Extrude filament to get into hotend
-        destination[E_AXIS] += extrude_length;
-        RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-        stepper.synchronize();
+        do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
       }
 
       // Show "Extrude More" / "Resume" menu and wait for reply
@@ -338,8 +328,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   #endif
 
   // Set extruder to saved position
-  destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
-  planner.set_e_position_mm(current_position[E_AXIS]);
+  planner.set_e_position_mm((current_position[E_AXIS] = resume_position[E_AXIS]));
 
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
@@ -350,7 +339,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   #endif
 
   #if ENABLED(ULTIPANEL)
-    // Show status screen
+    // Show pause status screen
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif
 
