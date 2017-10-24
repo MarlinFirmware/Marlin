@@ -43,12 +43,6 @@
 #define D58               58
 */
 
-
-//
-// Servos
-//
-
-    
 //
 // Limit Switches
 //
@@ -58,8 +52,6 @@
 #define Y_MAX_PIN          15  //10k pullup to 3.3V, 1K series
 #define Z_MIN_PIN          19  //The original Mks Sbase DIO19 has a 10k pullup to 3.3V or 5V, 1K series, so when using a Zprobe we must use DIO41 (J8 P1.22)
 #define Z_MAX_PIN          18  //10k pullup to 3.3V, 1K series
-
-
 
 //
 // Steppers
@@ -84,35 +76,32 @@
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 
-
 #define X2_STEP_PIN        36
 #define X2_DIR_PIN         34
 #define X2_ENABLE_PIN      30
 
-
 //
 // Temperature Sensors
-//  3.3V max when defined as an analog input
+// 3.3V max when defined as an analog input
 //
 
-
-#define TEMP_0_PIN          0  //A0 (TH1)
-#define TEMP_BED_PIN        1  //A1 (TH2)
-#define TEMP_1_PIN          2  //A2 (TH3)
-#define TEMP_2_PIN          3  //A3 (TH4)
+#define TEMP_0_PIN          0  // A0 (TH1)
+#define TEMP_BED_PIN        1  // A1 (TH2)
+#define TEMP_1_PIN          2  // A2 (TH3)
+#define TEMP_2_PIN          3  // A3 (TH4)
 
 
 //
 // Heaters / Fans
 //
 
-#define HEATER_BED_PIN      10
+#define HEATER_BED_PIN     10
 #define HEATER_0_PIN        8
-#define HEATER_1_PIN        59
+#define HEATER_1_PIN       59
 #define FAN_PIN             9
 
 
-#define PS_ON_PIN           69
+#define PS_ON_PIN          69
 
 
 //
@@ -122,9 +111,9 @@
 // 5V
 // NC
 // GND
-#define PIN_P0_17			50
-#define PIN_P0_16			16
-#define PIN_P0_14			80 
+#define PIN_P0_17          50
+#define PIN_P0_16          16
+#define PIN_P0_14          80
 
 
 //
@@ -132,21 +121,19 @@
 //
 
 // GND
-#define PIN_P1_22			41
-#define PIN_P1_23			53
-#define PIN_P2_12			12
-#define PIN_P2_11			35
-#define PIN_P4_28			13
-
+#define PIN_P1_22          41
+#define PIN_P1_23          53
+#define PIN_P2_12          12
+#define PIN_P2_11          35
+#define PIN_P4_28          13
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 
-
-#define E_MUX0_PIN          50   // J7-4
-#define E_MUX1_PIN          16   // J7-5
-#define E_MUX2_PIN          80   // J7-6
+#define E_MUX0_PIN         50   // J7-4
+#define E_MUX1_PIN         16   // J7-5
+#define E_MUX2_PIN         80   // J7-6
 
 
 /**
@@ -162,72 +149,38 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
-#if ENABLED(ULTRA_LCD)		// 
-
-  #define BEEPER_PIN          49  // EXP1.1
-
-  #define BTN_ENC             37  // EXP1.2 
-  #define BTN_EN1             31  // EXP2.5
-  #define BTN_EN2             33  // EXP2.3
-  
-  #define SD_DETECT_PIN       57  // EXP2.7
-  #define KILL_PIN            -1  // Not connected
-  #define LCD_PINS_RS         16  // EXP1.4
-  #define LCD_SDSS            58  // EXP2.4
-  #define LCD_BACKLIGHT_PIN   -1  // Not connected
-  #define LCD_PINS_ENABLE     51  // EXP1.3
-  #define LCD_PINS_D4         80  // EXP1.5
-
-  #define DOGLCD_A0           -1  // Not connected
-  #define DOGLCD_CS           -1  // Not connected
-
-#ifdef ULTIPANEL
-  
-  #define LCD_PINS_D5         -1  // EXP1.6 Not connected
-  #define LCD_PINS_D6         -1  // EXP1.7 Not connected
-  #define LCD_PINS_D7         -1  // EXP1.8 Not connected
-#endif
- 
-
-  #if ENABLED(SDSUPPORT)
-    #define SDCARD_SORT_ALPHA           // Using SORT feature to keep one directory level in RAM
-                                        // When going up/down directory levels the SD card is
-                                        // accessed but the garbage/lines are removed when the
-                                        // LCD updates
-
-    // SD Card Sorting options
-    #if ENABLED(SDCARD_SORT_ALPHA)
-      #define SDSORT_LIMIT       255    // Maximum number of sorted items (10-256).
-      #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
-      #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
-      #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
-      #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-      #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-      #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-    #endif
-  #endif
+#if ENABLED(ULTRA_LCD)
+  #define BEEPER_PIN       49  // EXP1.1
+  #define BTN_ENC          37  // EXP1.2
+  #define BTN_EN1          31  // EXP2.5
+  #define BTN_EN2          33  // EXP2.3
+  #define SD_DETECT_PIN    57  // EXP2.7
+  #define LCD_PINS_RS      16  // EXP1.4
+  #define LCD_SDSS         58  // EXP2.4
+  #define LCD_PINS_ENABLE  51  // EXP1.3
+  #define LCD_PINS_D4      80  // EXP1.5
 #endif // ULTRA_LCD
 
 //
 // Ethernet pins
 //
 #ifndef ULTIPANEL
-#define ENET_MDIO   71  // J12-4
-#define ENET_RX_ER  73  // J12-6
-#define ENET_RXD1   75  // J12-8
+  #define ENET_MDIO        71  // J12-4
+  #define ENET_RX_ER       73  // J12-6
+  #define ENET_RXD1        75  // J12-8
 #endif
-#define ENET_MOC    70  // J12-3
-#define REF_CLK     72  // J12-5
-#define ENET_RXD0   74  // J12-7
-#define ENET_CRS    76  // J12-9
-#define ENET_TX_EN  77  // J12-10
-#define ENET_TXD0   78  // J12-11
-#define ENET_TXD1   79  // J12-12
+#define ENET_MOC           70  // J12-3
+#define REF_CLK            72  // J12-5
+#define ENET_RXD0          74  // J12-7
+#define ENET_CRS           76  // J12-9
+#define ENET_TX_EN         77  // J12-10
+#define ENET_TXD0          78  // J12-11
+#define ENET_TXD1          79  // J12-12
 
 /**
- *  PWMS
+ *  PWMs
  *
- *  There are 6 PWMS.  Each PWM can be assigned to one of two pins.
+ *  There are 6 PWMs.  Each PWM can be assigned to one of two pins.
  *
  *  SERVO2 does NOT have a PWM assigned to it.
  *
@@ -245,12 +198,11 @@
  *  PWM1.6   DIO10   RAMPS_D10_PIN
  */
 
-
  /**
-  * special pins
+  * Special pins
   *   D37 - not 5V tolerant
   *   D49 - not 5V tolerant
   *   D57 - open collector
   *   D58 - open collector
   *
- */
+  */
