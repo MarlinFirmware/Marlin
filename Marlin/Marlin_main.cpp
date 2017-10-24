@@ -6157,12 +6157,6 @@ inline void gcode_M17() {
   enable_all_steppers();
 }
 
-#if IS_KINEMATIC
-  #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
-#else
-  #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   static float resume_position[XYZE];
@@ -6206,6 +6200,23 @@ inline void gcode_M17() {
     }
   }
 
+  #if IS_KINEMATIC
+    #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
+  #else
+    #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
+  #endif
+
+  void do_pause_e_move(const float &length, const float fr) {
+    current_position[E_AXIS] += length;
+    set_destination_from_current();
+    #if IS_KINEMATIC
+      planner.buffer_line_kinematic(destination, fr, active_extruder);
+    #else
+      line_to_destination(fr);
+    #endif
+    stepper.synchronize();
+  }
+
   static bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
                           const float &unload_length = 0 , const int8_t max_beep_count = 0, const bool show_lcd = false
   ) {
@@ -6247,13 +6258,8 @@ inline void gcode_M17() {
     stepper.synchronize();
     COPY(resume_position, current_position);
 
-    if (retract) {
-      // Initial retract before move to filament change position
-      set_destination_from_current();
-      destination[E_AXIS] += retract;
-      RUNPLAN(PAUSE_PARK_RETRACT_FEEDRATE);
-      stepper.synchronize();
-    }
+    // Initial retract before move to filament change position
+    if (retract) do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
     // Lift Z axis
     if (z_lift > 0)
@@ -6271,10 +6277,7 @@ inline void gcode_M17() {
       }
 
       // Unload filament
-      set_destination_from_current();
-      destination[E_AXIS] += unload_length;
-      RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
-      stepper.synchronize();
+      do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     }
 
     if (show_lcd) {
@@ -6400,9 +6403,7 @@ inline void gcode_M17() {
       #endif
 
       // Load filament
-      destination[E_AXIS] += load_length;
-      RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
-      stepper.synchronize();
+      do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
     }
 
     #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
@@ -6415,9 +6416,7 @@ inline void gcode_M17() {
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
 
           // Extrude filament to get into hotend
-          destination[E_AXIS] += extrude_length;
-          RUNPLAN(ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-          stepper.synchronize();
+          do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
         }
 
         // Show "Extrude More" / "Resume" menu and wait for reply
