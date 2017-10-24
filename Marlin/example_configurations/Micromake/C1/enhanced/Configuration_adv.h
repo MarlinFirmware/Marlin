@@ -251,7 +251,7 @@
 
 // If you want endstops to stay on (by default) even when not homing
 // enable this option. Override at any time with M120, M121.
-//#define ENDSTOPS_ALWAYS_ON_DEFAULT
+#define ENDSTOPS_ALWAYS_ON_DEFAULT
 
 // @section extras
 
@@ -348,9 +348,9 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 1
+#define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
@@ -431,7 +431,7 @@
  *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
 //#define PWM_MOTOR_CURRENT { 1300, 1300, 1250 }          // Values in milliamps
-#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+//#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 }    // Default drive percent - X, Y, Z, E axis
 
 // Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
@@ -475,12 +475,15 @@
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
   #define SD_DETECT_INVERTED
 
-  #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
+  #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
+
   #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
-  #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
-  // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
-  // using:
+  // Reverse SD sort to show "more recent" files first, according to the card's FAT.
+  // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
+  #define SDCARD_RATHERRECENTFIRST
+
+  // Add an option in the menu to run all auto#.g files
   //#define MENU_ADDAUTOSTART
 
   /**
@@ -670,69 +673,15 @@
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
 #endif
 
-// Default mesh area is an area with an inset margin on the print area.
-// Below are the macros that are used to define the borders for the mesh area,
-// made available here for specialized needs, ie dual extruder setup.
-#if ENABLED(MESH_BED_LEVELING)
-  #if ENABLED(DELTA)
-    // Probing points may be verified at compile time within the radius
-    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
-    // so that may be added to SanityCheck.h in the future.
-    #define MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
-    #define MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
-    #define MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
-    #define MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
-  #elif IS_SCARA
-    #define MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
-    #define MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
-    #define MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
-    #define MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
-  #else
-    // Boundaries for Cartesian probing based on set limits
-    #if ENABLED(BED_CENTER_AT_0_0)
-      #define MESH_MIN_X (max(MESH_INSET, 0) - (X_BED_SIZE) / 2)
-      #define MESH_MIN_Y (max(MESH_INSET, 0) - (Y_BED_SIZE) / 2)
-      #define MESH_MAX_X (min(X_BED_SIZE - (MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
-      #define MESH_MAX_Y (min(Y_BED_SIZE - (MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
-    #else
-      #define MESH_MIN_X (max(X_MIN_POS + MESH_INSET, 0))
-      #define MESH_MIN_Y (max(Y_MIN_POS + MESH_INSET, 0))
-      #define MESH_MAX_X (min(X_MAX_POS - (MESH_INSET), X_BED_SIZE))
-      #define MESH_MAX_Y (min(Y_MAX_POS - (MESH_INSET), Y_BED_SIZE))
-    #endif
-  #endif
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #if ENABLED(DELTA)
-    // Probing points may be verified at compile time within the radius
-    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
-    // so that may be added to SanityCheck.h in the future.
-    #define UBL_MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
-    #define UBL_MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
-    #define UBL_MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
-    #define UBL_MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
-  #elif IS_SCARA
-    #define UBL_MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
-    #define UBL_MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
-    #define UBL_MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
-    #define UBL_MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
-  #else
-    // Boundaries for Cartesian probing based on set limits
-    #if ENABLED(BED_CENTER_AT_0_0)
-      #define UBL_MESH_MIN_X (max(UBL_MESH_INSET, 0) - (X_BED_SIZE) / 2)
-      #define UBL_MESH_MIN_Y (max(UBL_MESH_INSET, 0) - (Y_BED_SIZE) / 2)
-      #define UBL_MESH_MAX_X (min(X_BED_SIZE - (UBL_MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
-      #define UBL_MESH_MAX_Y (min(Y_BED_SIZE - (UBL_MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
-    #else
-      #define UBL_MESH_MIN_X (max(X_MIN_POS + UBL_MESH_INSET, 0))
-      #define UBL_MESH_MIN_Y (max(Y_MIN_POS + UBL_MESH_INSET, 0))
-      #define UBL_MESH_MAX_X (min(X_MAX_POS - (UBL_MESH_INSET), X_BED_SIZE))
-      #define UBL_MESH_MAX_Y (min(Y_MAX_POS - (UBL_MESH_INSET), Y_BED_SIZE))
-    #endif
-  #endif
+#if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL)
+  // Override the mesh area if the automatic (max) area is too large
+  //#define MESH_MIN_X MESH_INSET
+  //#define MESH_MIN_Y MESH_INSET
+  //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
+  //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
 
-  // If this is defined, the currently active mesh will be saved in the
-  // current slot on M500.
-  #define UBL_SAVE_ACTIVE_ON_M500
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define UBL_SAVE_ACTIVE_ON_M500 // Save the currently active mesh in the current slot on M500
 #endif
 
 // @section extras
@@ -1307,12 +1256,12 @@
 /**
  * Auto-report temperatures with M155 S<seconds>
  */
-//#define AUTO_REPORT_TEMPERATURES
+#define AUTO_REPORT_TEMPERATURES
 
 /**
  * Include capabilities in M115 output
  */
-//#define EXTENDED_CAPABILITIES_REPORT
+#define EXTENDED_CAPABILITIES_REPORT
 
 /**
  * Volumetric extrusion default state

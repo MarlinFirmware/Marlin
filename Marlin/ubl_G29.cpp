@@ -423,8 +423,8 @@
     #endif // HAS_BED_PROBE
 
     if (parser.seen('P')) {
-      if (WITHIN(g29_phase_value, 0, 1) && state.storage_slot == -1) {
-        state.storage_slot = 0;
+      if (WITHIN(g29_phase_value, 0, 1) && storage_slot == -1) {
+        storage_slot = 0;
         SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
       }
 
@@ -603,7 +603,7 @@
     //
 
     if (parser.seen('L')) {     // Load Current Mesh Data
-      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
+      g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
       int16_t a = settings.calc_num_meshes();
 
@@ -619,7 +619,7 @@
       }
 
       settings.load_mesh(g29_storage_slot);
-      state.storage_slot = g29_storage_slot;
+      storage_slot = g29_storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.");
     }
@@ -629,7 +629,7 @@
     //
 
     if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
-      g29_storage_slot = parser.has_value() ? parser.value_int() : state.storage_slot;
+      g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
       if (g29_storage_slot == -1) {                     // Special case, we are going to 'Export' the mesh to the
         SERIAL_ECHOLNPGM("G29 I 999");              // host in a form it can be reconstructed on a different machine
@@ -661,72 +661,13 @@
       }
 
       settings.store_mesh(g29_storage_slot);
-      state.storage_slot = g29_storage_slot;
+      storage_slot = g29_storage_slot;
 
       SERIAL_PROTOCOLLNPGM("Done.");
     }
 
     if (parser.seen('T'))
       display_map(parser.has_value() ? parser.value_int() : 0);
-
-    /**
-     * This code may not be needed...  Prepare for its removal...
-     *
-     */
-    #if 0
-    if (parser.seen('Z')) {
-      if (parser.has_value())
-        state.z_offset = parser.value_float();   // do the simple case. Just lock in the specified value
-      else {
-        save_ubl_active_state_and_disable();
-        //float measured_z = probe_pt(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
-
-        has_control_of_lcd_panel = true;     // Grab the LCD Hardware
-        float measured_z = 1.5;
-        do_blocking_move_to_z(measured_z);  // Get close to the bed, but leave some space so we don't damage anything
-                                            // The user is not going to be locking in a new Z-Offset very often so
-                                            // it won't be that painful to spin the Encoder Wheel for 1.5mm
-        lcd_refresh();
-        lcd_z_offset_edit_setup(measured_z);
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-
-        do {
-          measured_z = lcd_z_offset_edit();
-          idle();
-          do_blocking_move_to_z(measured_z);
-        } while (!ubl_lcd_clicked());
-
-        has_control_of_lcd_panel = true;   // There is a race condition for the encoder click.
-                                               // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                               // or here. So, until we are done looking for a long encoder press,
-                                               // we need to take control of the panel
-
-        KEEPALIVE_STATE(IN_HANDLER);
-
-        lcd_return_to_status();
-
-        const millis_t nxt = millis() + 1500UL;
-        while (ubl_lcd_clicked()) { // debounce and watch for abort
-          idle();
-          if (ELAPSED(millis(), nxt)) {
-            SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
-            do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-            LCD_MESSAGEPGM(MSG_UBL_Z_OFFSET_STOPPED);
-            restore_ubl_active_state_and_leave();
-            goto LEAVE;
-          }
-        }
-        has_control_of_lcd_panel = false;
-        safe_delay(20); // We don't want any switch noise.
-
-        state.z_offset = measured_z;
-
-        lcd_refresh();
-        restore_ubl_active_state_and_leave();
-      }
-    }
-    #endif
 
     LEAVE:
 
@@ -1224,7 +1165,7 @@
 
       return;
     }
-    ubl_state_at_invocation = state.active;
+    ubl_state_at_invocation = planner.leveling_active;
     set_bed_leveling_enabled(false);
   }
 
@@ -1249,10 +1190,10 @@
   void unified_bed_leveling::g29_what_command() {
     report_state();
 
-    if (state.storage_slot == -1)
+    if (storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
     else {
-      SERIAL_PROTOCOLPAIR("Mesh ", state.storage_slot);
+      SERIAL_PROTOCOLPAIR("Mesh ", storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL();

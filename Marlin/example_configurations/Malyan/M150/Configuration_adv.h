@@ -517,6 +517,8 @@
     #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
     #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
     #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+    #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
+                                      // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
   #endif
 
   // Show a progress bar on HD44780 LCDs for SD printing
@@ -537,6 +539,9 @@
 
   // This allows hosts to request long names for files and folders with M33
   #define LONG_FILENAME_HOST_SUPPORT
+
+  // Enable this option to scroll long filenames in the SD card menu
+  //#define SCROLL_LONG_FILENAMES
 
   // This option allows you to abort SD printing when any endstop is triggered.
   // This feature must be enabled with "M540 S1" or from the LCD menu.
@@ -656,19 +661,71 @@
 
 // @section leveling
 
+#if ENABLED(DELTA) && !defined(DELTA_PROBEABLE_RADIUS)
+  #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+#elif IS_SCARA && !defined(SCARA_PRINTABLE_RADIUS)
+  #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
+#endif
+
 // Default mesh area is an area with an inset margin on the print area.
 // Below are the macros that are used to define the borders for the mesh area,
 // made available here for specialized needs, ie dual extruder setup.
 #if ENABLED(MESH_BED_LEVELING)
-  #define MESH_MIN_X MESH_INSET
-  #define MESH_MAX_X (X_BED_SIZE - (MESH_INSET))
-  #define MESH_MIN_Y MESH_INSET
-  #define MESH_MAX_Y (Y_BED_SIZE - (MESH_INSET))
+  #if ENABLED(DELTA)
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
+    #define MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + MESH_INSET)
+    #define MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
+    #define MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (MESH_INSET))
+  #elif IS_SCARA
+    #define MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
+    #define MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MESH_INSET)
+    #define MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
+    #define MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MESH_INSET))
+  #else
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define MESH_MIN_X (max(MESH_INSET, 0) - (X_BED_SIZE) / 2)
+      #define MESH_MIN_Y (max(MESH_INSET, 0) - (Y_BED_SIZE) / 2)
+      #define MESH_MAX_X (min(X_BED_SIZE - (MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define MESH_MAX_Y (min(Y_BED_SIZE - (MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define MESH_MIN_X (max(X_MIN_POS + MESH_INSET, 0))
+      #define MESH_MIN_Y (max(Y_MIN_POS + MESH_INSET, 0))
+      #define MESH_MAX_X (min(X_MAX_POS - (MESH_INSET), X_BED_SIZE))
+      #define MESH_MAX_Y (min(Y_MAX_POS - (MESH_INSET), Y_BED_SIZE))
+    #endif
+  #endif
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #define UBL_MESH_MIN_X UBL_MESH_INSET
-  #define UBL_MESH_MAX_X (X_BED_SIZE - (UBL_MESH_INSET))
-  #define UBL_MESH_MIN_Y UBL_MESH_INSET
-  #define UBL_MESH_MAX_Y (Y_BED_SIZE - (UBL_MESH_INSET))
+  #if ENABLED(DELTA)
+    // Probing points may be verified at compile time within the radius
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // so that may be added to SanityCheck.h in the future.
+    #define UBL_MESH_MIN_X (X_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MIN_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MAX_X (X_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
+    #define UBL_MESH_MAX_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS - (UBL_MESH_INSET))
+  #elif IS_SCARA
+    #define UBL_MESH_MIN_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MIN_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + UBL_MESH_INSET)
+    #define UBL_MESH_MAX_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
+    #define UBL_MESH_MAX_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (UBL_MESH_INSET))
+  #else
+    // Boundaries for Cartesian probing based on set limits
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define UBL_MESH_MIN_X (max(UBL_MESH_INSET, 0) - (X_BED_SIZE) / 2)
+      #define UBL_MESH_MIN_Y (max(UBL_MESH_INSET, 0) - (Y_BED_SIZE) / 2)
+      #define UBL_MESH_MAX_X (min(X_BED_SIZE - (UBL_MESH_INSET), X_BED_SIZE) - (X_BED_SIZE) / 2)
+      #define UBL_MESH_MAX_Y (min(Y_BED_SIZE - (UBL_MESH_INSET), Y_BED_SIZE) - (Y_BED_SIZE) / 2)
+    #else
+      #define UBL_MESH_MIN_X (max(X_MIN_POS + UBL_MESH_INSET, 0))
+      #define UBL_MESH_MIN_Y (max(Y_MIN_POS + UBL_MESH_INSET, 0))
+      #define UBL_MESH_MAX_X (min(X_MAX_POS - (UBL_MESH_INSET), X_BED_SIZE))
+      #define UBL_MESH_MAX_Y (min(Y_MAX_POS - (UBL_MESH_INSET), Y_BED_SIZE))
+    #endif
+  #endif
 
   // If this is defined, the currently active mesh will be saved in the
   // current slot on M500.
@@ -806,6 +863,15 @@
   #define RETRACT_RECOVER_FEEDRATE 8      // Default feedrate for recovering from retraction (mm/s)
   #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // Default feedrate for recovering from swap retraction (mm/s)
 #endif
+
+/**
+ * Extra Fan Speed
+ * Adds a secondary fan speed for each print-cooling fan.
+ *   'M106 P<fan> T3-255' : Set a secondary speed for <fan>
+ *   'M106 P<fan> T2'     : Use the set secondary speed
+ *   'M106 P<fan> T1'     : Restore the previous fan speed
+ */
+//#define EXTRA_FAN_SPEED
 
 /**
  * Advanced Pause

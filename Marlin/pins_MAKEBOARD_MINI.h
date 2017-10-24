@@ -20,31 +20,20 @@
  *
  */
 
-#include "mesh_bed_leveling.h"
+#include "pins_RAMPS.h"
 
-#if ENABLED(MESH_BED_LEVELING)
+#undef BOARD_NAME
+#define BOARD_NAME "MAKEBOARD_MINI"
 
-  mesh_bed_leveling mbl;
-
-  bool mesh_bed_leveling::has_mesh;
-
-  float mesh_bed_leveling::z_offset,
-        mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
-        mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
-
-  mesh_bed_leveling::mesh_bed_leveling() {
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
-      index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
-      index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
-    reset();
-  }
-
-  void mesh_bed_leveling::reset() {
-    has_mesh = false;
-    z_offset = 0;
-    ZERO(z_values);
-  }
-
-#endif // MESH_BED_LEVELING
+//
+// Only 3 Limit Switch plugs on Micromake C1
+//
+#undef X_MIN_PIN
+#undef Y_MIN_PIN
+#undef Z_MIN_PIN
+#undef X_MAX_PIN
+#undef Y_MAX_PIN
+#undef Z_MAX_PIN
+#define X_STOP_PIN          2
+#define Y_STOP_PIN         15
+#define Z_STOP_PIN         19
