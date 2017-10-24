@@ -29,6 +29,10 @@
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
 
+#if DISABLED(SDSUPPORT)
+  #include "../../../module/printcounter.h"
+#endif
+
 /**
  * M125: Store current position and move to filament change position.
  *       Called on pause (by M25) to prevent material leaking onto the

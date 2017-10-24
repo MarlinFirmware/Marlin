@@ -18,8 +18,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../core/macros.h"
-#include "../HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "arduino.h"
 #include "pinmapping.h"
 //#include "HAL_timers.h"
