@@ -200,9 +200,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 #include "utf_mapper.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
-  static millis_t progress_bar_ms = 0;
+  static millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
   #if PROGRESS_MSG_EXPIRE > 0
-    static millis_t expire_status_ms = 0;
+    static millis_t expire_status_ms = 0;  // millis at which to expire the status message
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
@@ -792,7 +792,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
 
     #if HAS_LEVELING
-      lcd.write(leveling_is_active() || blink ? '_' : ' ');
+      lcd.write(planner.leveling_active || blink ? '_' : ' ');
     #endif
 
   #endif // LCD_HEIGHT > 2
@@ -841,10 +841,11 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])) {
-      const uint8_t percent = card.percentDone();
-      if (percent) return lcd_draw_progress_bar(percent);
-    }
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      const uint8_t progress_bar_percent = card.percentDone();
+    #endif
+    if (progress_bar_percent > 2 && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
+      return lcd_draw_progress_bar(progress_bar_percent);
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
@@ -987,18 +988,37 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
-      uint8_t n = LCD_WIDTH - concat;
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
+
+      uint8_t n = LCD_WIDTH - concat;
+      const char *outstr = longFilename[0] ? longFilename : filename;
       if (longFilename[0]) {
-        filename = longFilename;
-        longFilename[n] = '\0';
+        #if ENABLED(SCROLL_LONG_FILENAMES)
+          if (sel) {
+            uint8_t name_hash = row;
+            for (uint8_t l = FILENAME_LENGTH; l--;)
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+            if (filename_scroll_hash != name_hash) {                            // If the hash changed...
+              filename_scroll_hash = name_hash;                                 // Save the new hash
+              filename_scroll_max = max(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_pos = 0;                                          // Reset scroll to the start
+              lcd_status_update_delay = 8;                                      // Don't scroll right away
+            }
+            outstr += filename_scroll_pos;
+          }
+        #else
+          longFilename[n] = '\0'; // cutoff at screen edge
+        #endif
       }
-      while (char c = *filename) {
+
+      char c;
+      while (n && (c = *outstr)) {
         n -= charset_mapper(c);
-        filename++;
+        ++outstr;
       }
-      while (n--) lcd.write(' ');
+      while (n) { --n; lcd.write(' '); }
+
       lcd.print(post_char);
     }
 
@@ -1145,9 +1165,9 @@ static void lcd_implementation_status_screen() {
       return ret_val;
     }
 
-    coordinate pixel_location(uint8_t x, uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void lcd_implementation_ubl_plot(uint8_t x, uint8_t inverted_y) {
+    void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12

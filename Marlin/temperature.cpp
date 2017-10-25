@@ -381,7 +381,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           }
         }
       }
-      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #define MAX_OVERSHOOT_PID_AUTOTUNE 40
       if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         return;
@@ -2093,7 +2093,8 @@ void Temperature::isr() {
   } // temp_count >= OVERSAMPLENR
 
   // Go to the next state, up to SensorsReady
-  adc_sensor_state = (ADCSensorState)((int(adc_sensor_state) + 1) % int(StartupDelay));
+  adc_sensor_state = (ADCSensorState)(int(adc_sensor_state) + 1);
+  if (adc_sensor_state > SensorsReady) adc_sensor_state = (ADCSensorState)0;
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
