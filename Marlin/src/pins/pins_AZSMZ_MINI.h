@@ -76,18 +76,18 @@
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          0  //A0 (TH1)
-#define TEMP_BED_PIN        1  //A1 (TH2)
-#define TEMP_1_PIN          2  //A2 (TH3)
+#define TEMP_0_PIN          0  // A0 (TH1)
+#define TEMP_BED_PIN        1  // A1 (TH2)
+#define TEMP_1_PIN          2  // A2 (TH3)
 
 //
 // Heaters / Fans
 //
 // EFB
-#define HEATER_BED_PIN      10
 #define HEATER_0_PIN        8
+#define HEATER_BED_PIN     10
 #define FAN_PIN             9
-#define FAN1_PIN            63
+#define FAN1_PIN           63
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN       37
@@ -103,21 +103,21 @@
 //
 // Ethernet pins
 //
-#define ENET_MDIO     71
-#define ENET_RX_ER    73
-#define ENET_RXD1     75
-#define ENET_MOC      70
-#define REF_CLK       72
-#define ENET_RXD0     74
-#define ENET_CRS      76
-#define ENET_TX_EN    77
-#define ENET_TXD0     78
-#define ENET_TXD1     79
+#define ENET_MDIO          71
+#define ENET_RX_ER         73
+#define ENET_RXD1          75
+#define ENET_MOC           70
+#define REF_CLK            72
+#define ENET_RXD0          74
+#define ENET_CRS           76
+#define ENET_TX_EN         77
+#define ENET_TXD0          78
+#define ENET_TXD1          79
 
 /**
- *  PWMS
+ *  PWMs
  *
- *  There are 6 PWMS.  Each PWM can be assigned to one of two pins.
+ *  There are 6 PWMs.  Each PWM can be assigned to one of two pins.
  *
  *  SERVO2 does NOT have a PWM assigned to it.
  *
@@ -135,12 +135,11 @@
  *  PWM1.6   DIO10   RAMPS_D10_PIN
  */
 
-
  /**
-  * special pins
+  * Special pins
   *   D37 - not 5V tolerant
   *   D49 - not 5V tolerant
   *   D57 - open collector
   *   D58 - open collector
   *
- */
+  */
