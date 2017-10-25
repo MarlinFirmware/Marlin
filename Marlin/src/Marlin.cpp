@@ -789,7 +789,6 @@ void setup() {
   #endif
 
   #if ENABLED(NEOPIXEL_LED)
-    SET_OUTPUT(NEOPIXEL_PIN);
     setup_neopixel();
   #endif
 

@@ -190,7 +190,14 @@ void GcodeSuite::M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue);
+          set_led_color(255, 0, blue
+            #if ENABLED(NEOPIXEL_LED)
+              , 0, pixels.getBrightness()
+              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                , true
+              #endif
+            #endif
+          );
         }
       }
     #endif
