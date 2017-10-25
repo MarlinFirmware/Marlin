@@ -645,8 +645,8 @@
         // in top of loop and again re-find same adjacent cell and use it, just less efficient
         // for mesh inset area.
 
-        int8_t cell_xi = (seg_rx - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
-               cell_yi = (seg_ry - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_X_DIST));
+        int8_t cell_xi = (seg_rx - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
+               cell_yi = (seg_ry - (MESH_MIN_Y)) * (1.0 / (MESH_X_DIST));
 
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);

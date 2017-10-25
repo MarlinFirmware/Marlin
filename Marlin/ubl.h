@@ -73,8 +73,8 @@
     void lcd_quick_feedback();
   #endif
 
-  #define MESH_X_DIST (float(UBL_MESH_MAX_X - (UBL_MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
-  #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
+  #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
+  #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
   class unified_bed_leveling {
     private:
@@ -167,25 +167,25 @@
       // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
       // until determinism prevails
       constexpr static float _mesh_index_to_xpos[16] PROGMEM = {
-                                UBL_MESH_MIN_X +  0 * (MESH_X_DIST), UBL_MESH_MIN_X +  1 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X +  2 * (MESH_X_DIST), UBL_MESH_MIN_X +  3 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X +  4 * (MESH_X_DIST), UBL_MESH_MIN_X +  5 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X +  6 * (MESH_X_DIST), UBL_MESH_MIN_X +  7 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X +  8 * (MESH_X_DIST), UBL_MESH_MIN_X +  9 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X + 10 * (MESH_X_DIST), UBL_MESH_MIN_X + 11 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X + 12 * (MESH_X_DIST), UBL_MESH_MIN_X + 13 * (MESH_X_DIST),
-                                UBL_MESH_MIN_X + 14 * (MESH_X_DIST), UBL_MESH_MIN_X + 15 * (MESH_X_DIST)
+                                MESH_MIN_X +  0 * (MESH_X_DIST), MESH_MIN_X +  1 * (MESH_X_DIST),
+                                MESH_MIN_X +  2 * (MESH_X_DIST), MESH_MIN_X +  3 * (MESH_X_DIST),
+                                MESH_MIN_X +  4 * (MESH_X_DIST), MESH_MIN_X +  5 * (MESH_X_DIST),
+                                MESH_MIN_X +  6 * (MESH_X_DIST), MESH_MIN_X +  7 * (MESH_X_DIST),
+                                MESH_MIN_X +  8 * (MESH_X_DIST), MESH_MIN_X +  9 * (MESH_X_DIST),
+                                MESH_MIN_X + 10 * (MESH_X_DIST), MESH_MIN_X + 11 * (MESH_X_DIST),
+                                MESH_MIN_X + 12 * (MESH_X_DIST), MESH_MIN_X + 13 * (MESH_X_DIST),
+                                MESH_MIN_X + 14 * (MESH_X_DIST), MESH_MIN_X + 15 * (MESH_X_DIST)
                               };
 
       constexpr static float _mesh_index_to_ypos[16] PROGMEM = {
-                                UBL_MESH_MIN_Y +  0 * (MESH_Y_DIST), UBL_MESH_MIN_Y +  1 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y +  2 * (MESH_Y_DIST), UBL_MESH_MIN_Y +  3 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y +  4 * (MESH_Y_DIST), UBL_MESH_MIN_Y +  5 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y +  6 * (MESH_Y_DIST), UBL_MESH_MIN_Y +  7 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y +  8 * (MESH_Y_DIST), UBL_MESH_MIN_Y +  9 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y + 10 * (MESH_Y_DIST), UBL_MESH_MIN_Y + 11 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y + 12 * (MESH_Y_DIST), UBL_MESH_MIN_Y + 13 * (MESH_Y_DIST),
-                                UBL_MESH_MIN_Y + 14 * (MESH_Y_DIST), UBL_MESH_MIN_Y + 15 * (MESH_Y_DIST)
+                                MESH_MIN_Y +  0 * (MESH_Y_DIST), MESH_MIN_Y +  1 * (MESH_Y_DIST),
+                                MESH_MIN_Y +  2 * (MESH_Y_DIST), MESH_MIN_Y +  3 * (MESH_Y_DIST),
+                                MESH_MIN_Y +  4 * (MESH_Y_DIST), MESH_MIN_Y +  5 * (MESH_Y_DIST),
+                                MESH_MIN_Y +  6 * (MESH_Y_DIST), MESH_MIN_Y +  7 * (MESH_Y_DIST),
+                                MESH_MIN_Y +  8 * (MESH_Y_DIST), MESH_MIN_Y +  9 * (MESH_Y_DIST),
+                                MESH_MIN_Y + 10 * (MESH_Y_DIST), MESH_MIN_Y + 11 * (MESH_Y_DIST),
+                                MESH_MIN_Y + 12 * (MESH_Y_DIST), MESH_MIN_Y + 13 * (MESH_Y_DIST),
+                                MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                               };
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
@@ -197,14 +197,14 @@
       FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
       static int8_t get_cell_index_x(const float &x) {
-        const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
+        const int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
         return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
       }                                                     // position. But with this defined this way, it is possible
                                                             // to extrapolate off of this point even further out. Probably
                                                             // that is OK because something else should be keeping that from
                                                             // happening and should not be worried about at this level.
       static int8_t get_cell_index_y(const float &y) {
-        const int8_t cy = (y - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+        const int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
         return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
       }                                                     // position. But with this defined this way, it is possible
                                                             // to extrapolate off of this point even further out. Probably
@@ -212,12 +212,12 @@
                                                             // happening and should not be worried about at this level.
 
       static int8_t find_closest_x_index(const float &x) {
-        const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
+        const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
         return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
       }
 
       static int8_t find_closest_y_index(const float &y) {
-        const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
+        const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
         return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
       }
 
@@ -355,11 +355,11 @@
       }
 
       FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) {
-        return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : UBL_MESH_MIN_X + i * (MESH_X_DIST);
+        return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
       }
 
       FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) {
-        return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
+        return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
       }
 
       static bool prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate);

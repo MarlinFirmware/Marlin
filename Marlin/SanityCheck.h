@@ -212,6 +212,10 @@
   #error "ADVANCE was removed in Marlin 1.1.6. Please use LIN_ADVANCE."
 #elif defined(NEOPIXEL_RGBW_LED)
   #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
+#elif defined(UBL_MESH_INSET)
+  #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
+#elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X)  || defined(UBL_MESH_MAX_Y)
+  #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
 #endif
 
 /**
