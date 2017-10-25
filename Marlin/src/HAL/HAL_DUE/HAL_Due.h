@@ -29,10 +29,6 @@
 #ifndef _HAL_DUE_H
 #define _HAL_DUE_H
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
 #include "Arduino.h"
@@ -41,10 +37,10 @@
 #include "watchdog_Due.h"
 #include "HAL_timers_Due.h"
 
-
-// --------------------------------------------------------------------------
+//
 // Defines
-// --------------------------------------------------------------------------
+//
+
 #if SERIAL_PORT == -1
   #define MYSERIAL SerialUSB
 #elif SERIAL_PORT == 0
@@ -94,55 +90,43 @@
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
+extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
+void cli(void);                     // Disable interrupts
+void sei(void);                     // Enable interrupts
 
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-/** result of last ADC conversion */
-extern uint16_t HAL_adc_result;
-
-// --------------------------------------------------------------------------
-// Public functions
-// --------------------------------------------------------------------------
-
-// Disable interrupts
-void cli(void);
-
-// Enable interrupts
-void sei(void);
-
-/** clear reset reason */
-void HAL_clear_reset_source (void);
-
-/** reset reason */
-uint8_t HAL_get_reset_source (void);
+void HAL_clear_reset_source(void);  // clear reset reason
+uint8_t HAL_get_reset_source(void); // get reset reason
 
 void _delay_ms(const int delay);
 
 int freeMemory(void);
 
-// SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
+/**
+ * SPI: Extended functions taking a channel number (hardware SPI only)
+ */
+
+// Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
+
+// Write buffer to specified SPI channel
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
+
+// Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);
 
+/**
+ * EEPROM
+ */
 
-// EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
 unsigned char eeprom_read_byte(unsigned char *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
-
-// ADC
+/**
+ * ADC
+ */
 
 #define HAL_ANALOG_SELECT(pin)
 
@@ -151,27 +135,14 @@ inline void HAL_adc_init(void) {}//todo
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC        HAL_adc_result
 
-
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-
 uint16_t HAL_adc_get_result(void);
-
-//
 uint16_t HAL_getAdcReading(uint8_t chan);
-
 void HAL_startAdcConversion(uint8_t chan);
 uint8_t HAL_pinToAdcChannel(int pin);
-
 uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
 //uint16_t HAL_getAdcSuperSample(uint8_t chan);
-
 void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
 
-
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
-
 #endif // _HAL_DUE_H
-
