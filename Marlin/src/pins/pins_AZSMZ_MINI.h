@@ -1,6 +1,5 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
@@ -141,5 +140,4 @@
   *   D49 - not 5V tolerant
   *   D57 - open collector
   *   D58 - open collector
-  *
   */
