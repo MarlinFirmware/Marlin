@@ -24,7 +24,10 @@
 #define __SERIAL_H__
 
 #include "../inc/MarlinConfig.h"
-#include "../libs/vector_3.h"
+
+#if HAS_ABL && ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../libs/vector_3.h"
+#endif
 
 /**
  * Define debug bit-masks
