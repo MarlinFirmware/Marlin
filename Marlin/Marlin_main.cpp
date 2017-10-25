@@ -1013,13 +1013,13 @@ void servo_init() {
       pixels.show(); // initialize to all off
 
       #if ENABLED(NEOPIXEL_STARTUP_TEST)
-        ssafe_delay(2000);
+        safe_delay(2000);
         set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-        ssafe_delay(2000);
+        safe_delay(2000);
         set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-        ssafe_delay(2000);
+        safe_delay(2000);
         set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-        ssafe_delay(2000);
+        safe_delay(2000);
       #endif
       set_neopixel_color(pixels.Color(NEO_WHITE));       // white
     }
