@@ -416,7 +416,7 @@ void GcodeSuite::G33() {
                            _7p_triple_circle    ? 1.0 :
                            _7p_double_circle    ? 0.5 : 0),
                 r = (1 + circles * 0.1) * delta_calibration_radius;
-    for (uint8_t axis = 1; axis < COUNT(z_at_pt); ++axis) {
+    for (uint8_t axis = 1; axis <= 12; ++axis) {
       const float a = RADIANS(180 + 30 * axis);
       if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
         SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
