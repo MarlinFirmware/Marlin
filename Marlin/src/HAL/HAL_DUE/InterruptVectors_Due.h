@@ -21,12 +21,16 @@
  */
 
 /**
- * InterruptVectors_Due.h - This module relocates the Interrupt vector table to SRAM,
- *  allowing to register new interrupt handlers at runtime. Specially valuable and needed
- * because Arduino runtime allocates some interrupt handlers that we NEED to override to
- * properly support extended functionality, as for example, USB host or USB device (MSD, MTP)
- * and custom serial port handlers, and we don't actually want to modify and/or recompile the
- * Arduino runtime. We just want to run as much as possible on Stock Arduino
+ * InterruptVectors_Due.h
+ *
+ * Copyright (c) 2017 Eduardo José Tagle. All right reserved
+ *
+ * This module relocates the Interrupt vector table to SRAM, allowing new
+ * interrupt handlers to be added at runtime. This is required because the
+ * Arduino runtime steals interrupt handlers that Marlin MUST use to support
+ * extended functionality such as USB hosts and USB devices (MSD, MTP) and
+ * custom serial port handlers. Rather than modifying and/or recompiling the
+ * Arduino runtime, We just want to run as much as possible on Stock Arduino.
  *
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  */
@@ -36,15 +40,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#ifdef ARDUINO_ARCH_SAM 
+#ifdef ARDUINO_ARCH_SAM
 
-  /* The type of an ISR handler */
-  typedef void (*pfnISR_Handler)(void);
+// ISR handler type
+typedef void (*pfnISR_Handler)(void);
 
-  /**
-   * Installs a new interrupt vector handler for the given irq, and returns the old one
-   */
-  pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler);
+// Install a new interrupt vector handler for the given irq, returning the old one
+pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler);
 
-#endif
-#endif
+#endif // ARDUINO_ARCH_SAM
+#endif // INTERRUPTVECTORS_DUE_H
