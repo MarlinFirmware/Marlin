@@ -24,6 +24,9 @@
  * Polish for HD44780 display - no accented characters
  */
 
+#ifndef LANGUAGE_PL_HD44780_H
+#define LANGUAGE_PL_HD44780_H
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta wlozona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunieta")
@@ -263,3 +266,5 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
+
+#endif  // LANGUAGE_PL_HD44780_H
