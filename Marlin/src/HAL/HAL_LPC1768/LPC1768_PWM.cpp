@@ -70,7 +70,7 @@
 
 typedef struct {            // holds all data needed to control/init one of the PWM channels
     uint8_t             sequence;       // 0: available slot, 1 - 6: PWM channel assigned to that slot
-    HAL_PIN_TYPE        pin;
+    pin_t               pin;
     uint16_t            PWM_mask;       // MASK TO CHECK/WRITE THE IR REGISTER
     volatile uint32_t*  set_register;
     volatile uint32_t*  clr_register;
@@ -179,7 +179,7 @@ bool PWM_table_swap = false;  // flag to tell the ISR that the tables have been 
 bool PWM_MR0_wait = false;  // flag to ensure don't delay MR0 interrupt
 
 
-bool LPC1768_PWM_attach_pin(HAL_PIN_TYPE pin, uint32_t min /* = 1 */, uint32_t max /* = (LPC_PWM1_MR0 - MR0_MARGIN) */, uint8_t servo_index /* = 0xff */) {
+bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min /* = 1 */, uint32_t max /* = (LPC_PWM1_MR0 - MR0_MARGIN) */, uint8_t servo_index /* = 0xff */) {
   while (PWM_table_swap) delay(5);  // don't do anything until the previous change has been implemented by the ISR
   COPY_ACTIVE_TABLE;  // copy active table into work table
   uint8_t slot = 0;
@@ -225,7 +225,7 @@ bool LPC1768_PWM_attach_pin(HAL_PIN_TYPE pin, uint32_t min /* = 1 */, uint32_t m
 typedef struct {                        // status of PWM1 channel
     uint8_t map_used;                   // 0 - this MR register not used/assigned
     uint8_t map_PWM_INT;                // 0 - available for interrupts, 1 - in use by PWM
-    HAL_PIN_TYPE map_PWM_PIN;           // pin for this PwM1 controlled pin / port
+    pin_t map_PWM_PIN;                  // pin for this PwM1 controlled pin / port
     volatile uint32_t* MR_register;     // address of the MR register for this PWM1 channel
     uint32_t PCR_bit;                   // PCR register bit to enable PWM1 control of this pin
     uint32_t PINSEL3_bits;              // PINSEL3 register bits to set pin mode to PWM1 control
@@ -311,7 +311,7 @@ void LPC1768_PWM_update(void) {
 }
 
 
-bool LPC1768_PWM_write(HAL_PIN_TYPE pin, uint32_t value) {
+bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
   while (PWM_table_swap) delay(5);  // don't do anything until the previous change has been implemented by the ISR
   COPY_ACTIVE_TABLE;  // copy active table into work table
   uint8_t slot = 0xFF;
@@ -351,7 +351,7 @@ bool LPC1768_PWM_write(HAL_PIN_TYPE pin, uint32_t value) {
 }
 
 
-bool LPC1768_PWM_detach_pin(HAL_PIN_TYPE pin) {
+bool LPC1768_PWM_detach_pin(pin_t pin) {
   while (PWM_table_swap) delay(5);  // don't do anything until the previous change has been implemented by the ISR
   COPY_ACTIVE_TABLE;  // copy active table into work table
   uint8_t slot = 0xFF;
@@ -396,7 +396,7 @@ bool LPC1768_PWM_detach_pin(HAL_PIN_TYPE pin) {
 }
 
 
-bool useable_hardware_PWM(HAL_PIN_TYPE pin) {
+bool useable_hardware_PWM(pin_t pin) {
   COPY_ACTIVE_TABLE;  // copy active table into work table
   for (uint8_t i = 0; i < NUM_PWMS; i++)         // see if it's already setup
     if (work_table[i].pin == pin && work_table[i].sequence) return true;

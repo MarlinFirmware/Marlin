@@ -41,7 +41,7 @@ inline void toggle_pins() {
             wait = parser.intval('W', 500);
 
   for (uint8_t i = start; i <= end; i++) {
-    HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
+    pin_t pin = GET_PIN_MAP_PIN(i);
     //report_pin_state_extended(pin, I_flag, false);
     if (!VALID_PIN(pin)) continue;
     if (!I_flag && pin_is_protected(pin)) {
@@ -271,7 +271,7 @@ void GcodeSuite::M43() {
     SERIAL_PROTOCOLLNPGM("Watching pins");
     uint8_t pin_state[last_pin - first_pin + 1];
     for (uint8_t i = first_pin; i <= last_pin; i++) {
-      HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
+      pin_t pin = GET_PIN_MAP_PIN(i);
       if (!VALID_PIN(pin)) continue;
       if (pin_is_protected(pin) && !ignore_protection) continue;
       pinMode(pin, INPUT_PULLUP);
@@ -291,7 +291,7 @@ void GcodeSuite::M43() {
 
     for (;;) {
       for (uint8_t i = first_pin; i <= last_pin; i++) {
-        HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
+        pin_t pin = GET_PIN_MAP_PIN(i);
         if (!VALID_PIN(pin)) continue;
         if (pin_is_protected(pin) && !ignore_protection) continue;
         const byte val =
@@ -321,7 +321,7 @@ void GcodeSuite::M43() {
 
   // Report current state of selected pin(s)
   for (uint8_t i = first_pin; i <= last_pin; i++) {
-    HAL_PIN_TYPE pin = GET_PIN_MAP_PIN(i);
+    pin_t pin = GET_PIN_MAP_PIN(i);
     if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
   }
 }

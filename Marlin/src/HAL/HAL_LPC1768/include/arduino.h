@@ -102,11 +102,11 @@ void delayMicroseconds(unsigned long);
 uint32_t millis();
 
 //IO functions
-void pinMode(HAL_PIN_TYPE, uint8_t);
-void digitalWrite(HAL_PIN_TYPE, uint8_t);
-bool digitalRead(HAL_PIN_TYPE);
-void analogWrite(HAL_PIN_TYPE, int);
-uint16_t analogRead(HAL_PIN_TYPE);
+void pinMode(pin_t, uint8_t);
+void digitalWrite(pin_t, uint8_t);
+bool digitalRead(pin_t);
+void analogWrite(pin_t, int);
+uint16_t analogRead(pin_t);
 
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);

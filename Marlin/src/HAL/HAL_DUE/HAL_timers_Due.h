@@ -40,7 +40,7 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define HAL_TIMER_TYPE uint32_t
+typedef uint32_t timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
 #define STEP_TIMER_NUM 3  // index of timer to use for stepper
@@ -92,7 +92,7 @@ static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC = count;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
+static FORCE_INLINE timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC;
 }

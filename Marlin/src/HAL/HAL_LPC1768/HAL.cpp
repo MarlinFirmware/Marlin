@@ -85,7 +85,7 @@ extern void kill(const char*);
 extern const char errormagic[];
 
 void HAL_adc_enable_channel(int ch) {
-  HAL_PIN_TYPE pin = analogInputToDigitalPin(ch);
+  pin_t pin = analogInputToDigitalPin(ch);
 
   if (pin == -1) {
     usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);

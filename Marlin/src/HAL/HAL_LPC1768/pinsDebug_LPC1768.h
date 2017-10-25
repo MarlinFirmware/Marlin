@@ -25,7 +25,7 @@
 */
 
 // active ADC function/mode/code values for PINSEL registers
-int8_t ADC_pin_mode(HAL_PIN_TYPE pin) {
+int8_t ADC_pin_mode(pin_t pin) {
   uint8_t pin_port = LPC1768_PIN_PORT(pin);
   uint8_t pin_port_pin = LPC1768_PIN_PIN(pin);
   return (pin_port == 0 && pin_port_pin == 2  ? 2 :
@@ -38,7 +38,7 @@ int8_t ADC_pin_mode(HAL_PIN_TYPE pin) {
           pin_port == 1 && pin_port_pin == 31 ? 3 : -1);
 }
 
-int8_t get_pin_mode(HAL_PIN_TYPE pin) {
+int8_t get_pin_mode(pin_t pin) {
   if (!VALID_PIN(pin)) return -1;
   uint8_t pin_port = LPC1768_PIN_PORT(pin);
   uint8_t pin_port_pin = LPC1768_PIN_PIN(pin);
@@ -54,7 +54,7 @@ int8_t get_pin_mode(HAL_PIN_TYPE pin) {
   return pin_mode;
 }
 
-bool GET_PINMODE(HAL_PIN_TYPE pin) {
+bool GET_PINMODE(pin_t pin) {
   int8_t pin_mode = get_pin_mode(pin);
   if (pin_mode == -1 || (pin_mode && pin_mode == ADC_pin_mode(pin))) // found an invalid pin or active analog pin
     return false;
@@ -63,7 +63,7 @@ bool GET_PINMODE(HAL_PIN_TYPE pin) {
   return ((*FIO_reg[LPC1768_PIN_PORT(pin)] >> LPC1768_PIN_PIN(pin) & 1) != 0); //input/output state
 }
 
-bool GET_ARRAY_IS_DIGITAL(HAL_PIN_TYPE pin) {
+bool GET_ARRAY_IS_DIGITAL(pin_t pin) {
   int8_t pin_mode = get_pin_mode(pin);
   return (pin_mode != -1 && (!get_pin_mode(pin) || pin_mode != ADC_pin_mode(pin)));
 }
@@ -83,92 +83,3 @@ bool GET_ARRAY_IS_DIGITAL(HAL_PIN_TYPE pin) {
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 //  #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, NAME_FORMAT(MAX_NAME_LENGTH) , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-35s") , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-
-// Pin map for M43
-const HAL_PIN_TYPE pin_map[] = {
-  P0_0,
-  P0_1,
-  P0_2,
-  P0_3,
-  P0_4,
-  P0_5,
-  P0_6,
-  P0_7,
-  P0_8,
-  P0_9,
-  P0_10,
-  P0_11,
-  P0_12,
-  P0_13,
-  P0_14,
-  P0_15,
-  P0_16,
-  P0_17,
-  P0_18,
-  P0_19,
-  P0_20,
-  P0_21,
-  P0_22,
-  P0_23,
-  P0_24,
-  P0_25,
-  P0_26,
-  P0_27,
-  P0_28,
-  P0_29,
-  P0_30,
-  P1_0,
-  P1_1,
-  P1_2,
-  P1_3,
-  P1_4,
-  P1_5,
-  P1_6,
-  P1_7,
-  P1_8,
-  P1_9,
-  P1_10,
-  P1_11,
-  P1_12,
-  P1_13,
-  P1_14,
-  P1_15,
-  P1_16,
-  P1_17,
-  P1_18,
-  P1_19,
-  P1_20,
-  P1_21,
-  P1_22,
-  P1_23,
-  P1_24,
-  P1_25,
-  P1_26,
-  P1_27,
-  P1_28,
-  P1_29,
-  P1_30,
-  P1_31,
-  P2_0,
-  P2_1,
-  P2_2,
-  P2_3,
-  P2_4,
-  P2_5,
-  P2_6,
-  P2_7,
-  P2_8,
-  P2_9,
-  P2_10,
-  P2_11,
-  P2_12,
-  P2_13,
-  P3_25,
-  P3_26,
-  P4_28,
-  P4_29
-};
-
-#define NUM_DIGITAL_PINS COUNT(pin_map)
-
-#define GET_PIN_MAP_PIN(index) pin_map[index]

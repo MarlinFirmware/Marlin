@@ -110,9 +110,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(LIN_ADVANCE)
 
-  constexpr HAL_TIMER_TYPE ADV_NEVER = HAL_TIMER_TYPE_MAX;
+  constexpr timer_t ADV_NEVER = HAL_TIMER_TYPE_MAX;
 
-  HAL_TIMER_TYPE Stepper::nextMainISR = 0,
+  timer_t Stepper::nextMainISR = 0,
          Stepper::nextAdvanceISR = ADV_NEVER,
          Stepper::eISR_Rate = ADV_NEVER;
 
@@ -127,9 +127,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
    * This fix isn't perfect and may lose steps - but better than locking up completely
    * in future the planner should slow down if advance stepping rate would be too high
    */
-  FORCE_INLINE HAL_TIMER_TYPE adv_rate(const int steps, const HAL_TIMER_TYPE timer, const uint8_t loops) {
+  FORCE_INLINE timer_t adv_rate(const int steps, const timer_t timer, const uint8_t loops) {
     if (steps) {
-      const HAL_TIMER_TYPE rate = (timer * loops) / abs(steps);
+      const timer_t rate = (timer * loops) / abs(steps);
       //return constrain(rate, 1, ADV_NEVER - 1)
       return rate ? rate : 1;
     }
@@ -147,9 +147,9 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
   long Stepper::counter_m[MIXING_STEPPERS];
 #endif
 
-HAL_TIMER_TYPE Stepper::acc_step_rate; // needed for deceleration start point
+timer_t Stepper::acc_step_rate; // needed for deceleration start point
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
-HAL_TIMER_TYPE Stepper::OCR1A_nominal;
+timer_t Stepper::OCR1A_nominal;
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
@@ -313,7 +313,7 @@ HAL_STEP_TIMER_ISR {
 
 void Stepper::isr() {
 
-  HAL_TIMER_TYPE ocr_val;
+  timer_t ocr_val;
 
   #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE 500 * HAL_TICKS_PER_US           // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
@@ -649,7 +649,7 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    const HAL_TIMER_TYPE timer = calc_timer(acc_step_rate);
+    const timer_t timer = calc_timer(acc_step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -671,7 +671,7 @@ void Stepper::isr() {
     #endif // LIN_ADVANCE
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
-    HAL_TIMER_TYPE step_rate;
+    timer_t step_rate;
     #ifdef CPU_32_BIT
       MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
     #else
@@ -686,7 +686,7 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    const HAL_TIMER_TYPE timer = calc_timer(step_rate);
+    const timer_t timer = calc_timer(step_rate);
 
     SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
@@ -726,7 +726,7 @@ void Stepper::isr() {
   #if DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      HAL_TIMER_TYPE stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+      timer_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
                      stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
       HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else

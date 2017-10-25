@@ -69,9 +69,9 @@
 #define MR0_MARGIN 200       // if channel value too close to MR0 the system locks up
 
 void LPC1768_PWM_init(void);
-bool LPC1768_PWM_attach_pin(HAL_PIN_TYPE pin, uint32_t min = 1, uint32_t max = (LPC_PWM1_MR0 - MR0_MARGIN), uint8_t servo_index = 0xff);
+bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min = 1, uint32_t max = (LPC_PWM1_MR0 - MR0_MARGIN), uint8_t servo_index = 0xff);
 void LPC1768_PWM_update_map_MR(void);
 void LPC1768_PWM_update(void);
-bool LPC1768_PWM_write(HAL_PIN_TYPE pin, uint32_t value);
-bool LPC1768_PWM_detach_pin(HAL_PIN_TYPE pin);
-bool useable_hardware_PWM(HAL_PIN_TYPE pin);
+bool LPC1768_PWM_write(pin_t pin, uint32_t value);
+bool LPC1768_PWM_detach_pin(pin_t pin);
+bool useable_hardware_PWM(pin_t pin);

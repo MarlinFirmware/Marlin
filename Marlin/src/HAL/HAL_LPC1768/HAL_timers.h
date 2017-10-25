@@ -40,7 +40,7 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define HAL_TIMER_TYPE uint32_t
+typedef uint32_t timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
@@ -77,7 +77,7 @@
 void HAL_timer_init(void);
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const HAL_TIMER_TYPE count) {
+static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const timer_t count) {
   switch (timer_num) {
     case 0:
       LPC_TIM0->MR0 = count;
@@ -92,7 +92,7 @@ static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const HAL_
   }
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
+static FORCE_INLINE timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->MR0;
     case 1: return LPC_TIM1->MR0;
@@ -100,7 +100,7 @@ static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) 
   return 0;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_current_count(const uint8_t timer_num) {
+static FORCE_INLINE timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->TC;
     case 1: return LPC_TIM1->TC;

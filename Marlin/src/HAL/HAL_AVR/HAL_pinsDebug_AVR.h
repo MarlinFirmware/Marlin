@@ -82,7 +82,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
 
 typedef struct {
   const char * const name;
-  HAL_PIN_TYPE pin;
+  pin_t pin;
   bool is_digital;
 } PinInfo;
 
@@ -457,7 +457,7 @@ static void print_input_or_output(const bool isout) {
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(HAL_PIN_TYPE pin, bool ignore, bool extended = false, const char *start_string = "") {
+inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = false, const char *start_string = "") {
   uint8_t temp_char;
   char *name_mem_pointer, buffer[30];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
