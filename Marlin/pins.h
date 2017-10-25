@@ -91,7 +91,7 @@
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"            // ATmega1280, ATmega2560
 #elif MB(MKS_GEN_L)
-  #include "pins_MKS_GEN_L.h"            // ATmega1280, ATmega2560
+  #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560 (MKS_13)
 #elif MB(FELIX2)
