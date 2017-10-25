@@ -320,7 +320,7 @@ static float probe_G33_points(float z_at_pt[13], const int8_t probe_points, cons
     SERIAL_EOL();
   }
 
-#endif // PROBE_MANUALLY
+#endif // !PROBE_MANUALLY
 
 /**
  * G33 - Delta '1-4-7-point' Auto-Calibration
