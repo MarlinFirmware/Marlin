@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 /**
  * InterruptVectors_Due.cpp - This module relocates the Interrupt vector table to SRAM,
  *  allowing to register new interrupt handlers at runtime. Specially valuable and needed
@@ -30,66 +30,64 @@
  *
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  */
-#ifdef ARDUINO_ARCH_SAM 
+#ifdef ARDUINO_ARCH_SAM
 
 #include "HAL_Due.h"
 #include "InterruptVectors_Due.h"
 
-/* The relocated Exception/Interrupt Table - Must be aligned to 128bytes, 
+/* The relocated Exception/Interrupt Table - Must be aligned to 128bytes,
    as bits 0-6 on VTOR register are reserved and must be set to 0 */
 __attribute__ ((aligned(128)))
 static DeviceVectors ram_tab = { NULL };
 
-/** 
+/**
  * This function checks if the exception/interrupt table is already in SRAM or not.
- * If it is not, then it copies the ROM table to the SRAM and relocates the table 
+ * If it is not, then it copies the ROM table to the SRAM and relocates the table
  * by reprogramming the NVIC registers
  */
-static pfnISR_Handler* get_relocated_table_addr(void) 
-{
+static pfnISR_Handler* get_relocated_table_addr(void) {
   // Get the address of the interrupt/exception table
   uint32_t isrtab = SCB->VTOR;
-  
+
   // If already relocated, we are done!
   if (isrtab >= IRAM0_ADDR)
-    return (pfnISR_Handler*) isrtab;
+    return (pfnISR_Handler*)isrtab;
 
   // Get the address of the table stored in FLASH
-  const pfnISR_Handler* romtab = (const pfnISR_Handler*) isrtab;
+  const pfnISR_Handler* romtab = (const pfnISR_Handler*)isrtab;
 
   // Copy it to SRAM
   memcpy(&ram_tab, romtab, sizeof(ram_tab));
-  
+
   // Disable global interrupts
   CRITICAL_SECTION_START;
 
   // Set the vector table base address to the SRAM copy
-  SCB->VTOR = (uint32_t) (&ram_tab);
+  SCB->VTOR = (uint32_t)(&ram_tab);
 
   // Reenable interrupts
   CRITICAL_SECTION_END;
 
   // Return the address of the table
-  return (pfnISR_Handler*) (&ram_tab);
+  return (pfnISR_Handler*)(&ram_tab);
 }
 
-pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler)
-{
+pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler) {
   // Get the address of the relocated table
-  pfnISR_Handler* isrtab = get_relocated_table_addr();
-  
+  const pfnISR_Handler *isrtab = get_relocated_table_addr();
+
   // Disable global interrupts
   CRITICAL_SECTION_START;
 
   // Get the original handler
   pfnISR_Handler oldHandler = isrtab[irq + 16];
-  
+
   // Install the new one
   isrtab[irq + 16] = newHandler;
-  
+
   // Reenable interrupts
   CRITICAL_SECTION_END;
-  
+
   // Return the original one
   return oldHandler;
 }
