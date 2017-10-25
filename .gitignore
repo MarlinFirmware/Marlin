@@ -169,4 +169,3 @@ CMakeListsPrivate.txt
 
 #CLion
 cmake-build-*
-.vscode/c_cpp_properties.json
