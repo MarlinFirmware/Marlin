@@ -44,25 +44,12 @@ void setup_neopixel() {
   pixels.show(); // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-//    delay(1000);
-//    #if ENABLED(USE_WATCHDOG)
-//      watchdog_reset();
-//    #endif
     set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
     delay(1000);
-//    #if ENABLED(USE_WATCHDOG)
-//      watchdog_reset();
-//    #endif
     set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
     delay(1000);
-//    #if ENABLED(USE_WATCHDOG)
-//      watchdog_reset();
-//    #endif
     set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
     delay(1000);
-//    #if ENABLED(USE_WATCHDOG)
-//      watchdog_reset();
-//    #endif
   #endif
   set_neopixel_color(pixels.Color(NEO_WHITE));    // white
 }
