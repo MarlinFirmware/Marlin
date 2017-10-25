@@ -25,7 +25,7 @@
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  * Based on MarlinSerial for AVR, copyright (c) 2006 Nicholas Zambetti.  All right reserved.
  */
-#ifdef ARDUINO_ARCH_SAM 
+#ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
 
@@ -35,7 +35,7 @@
 
 // Based on selected port, use the proper configuration
 #if SERIAL_PORT == 0
-  #define HWUART UART 
+  #define HWUART UART
   #define HWUART_IRQ UART_IRQn
   #define HWUART_IRQ_ID ID_UART
 #elif SERIAL_PORT == 1
@@ -81,11 +81,11 @@ ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
   // Validate that RX buffer size is at least 4096 bytes- According to several experiments, on
   // the original Arduino Due that uses a ATmega16U2 as USB to serial bridge, due to the introduced
   // latencies, at least 2959 bytes of RX buffering (when transmitting at 250kbits/s) are required
-  // to avoid overflows. 
+  // to avoid overflows.
 
   #if RX_BUFFER_SIZE < 4096
     #error Arduino DUE requires at least 4096 bytes of RX buffer to avoid buffer overflows when using XON/XOFF handshake
-  #endif 
+  #endif
 #endif
 
 #if ENABLED(SERIAL_STATS_DROPPED_RX)
@@ -191,13 +191,13 @@ ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
 #endif // EMERGENCY_PARSER
 
 FORCE_INLINE void store_rxd_char() {
-  
+
   const ring_buffer_pos_t h = rx_buffer.head,
-              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+                          i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
 
     // Read the character
   const uint8_t c = HWUART->UART_RHR;
-  
+
   // If the character is to be stored at the index just before the tail
   // (such that the head would advance to the current tail), the buffer is
   // critical, so don't write the character or advance the head.
@@ -205,11 +205,9 @@ FORCE_INLINE void store_rxd_char() {
     rx_buffer.buffer[h] = c;
     rx_buffer.head = i;
   }
-  else {
-    #if ENABLED(SERIAL_STATS_DROPPED_RX)
-      if (!++rx_dropped_bytes) ++rx_dropped_bytes;
-    #endif
-  }
+  #if ENABLED(SERIAL_STATS_DROPPED_RX)
+    else if (!++rx_dropped_bytes) ++rx_dropped_bytes;
+  #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
   // calculate count of bytes stored into the RX buffer
@@ -237,10 +235,10 @@ FORCE_INLINE void store_rxd_char() {
       // shortcut helps significantly improve the effective datarate
       // at high (>500kbit/s) bitrates, where interrupt overhead
       // becomes a slowdown.
-      if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY) != 0) {
+      if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
         // Send an XOFF character
         HWUART->UART_THR = XOFF_CHAR;
-        
+
         // And remember it was sent
         xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
       }
@@ -283,11 +281,11 @@ FORCE_INLINE void store_rxd_char() {
       }
       else
     #endif
-    { // Send the next byte
-      const uint8_t t = tx_buffer.tail, c = tx_buffer.buffer[t];
-      tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
-      HWUART->UART_THR = c;
-    }
+      { // Send the next byte
+        const uint8_t t = tx_buffer.tail, c = tx_buffer.buffer[t];
+        tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
+        HWUART->UART_THR = c;
+      }
 
     // Disable interrupts if the buffer is empty
     if (tx_buffer.head == tx_buffer.tail)
@@ -296,27 +294,25 @@ FORCE_INLINE void store_rxd_char() {
 
 #endif // TX_BUFFER_SIZE
 
-static void UART_ISR(void) { 
+static void UART_ISR(void) {
   uint32_t status = HWUART->UART_SR;
 
   // Did we receive data?
-  if ((status & UART_SR_RXRDY) != 0)
-    store_rxd_char(); 
+  if (status & UART_SR_RXRDY)
+    store_rxd_char();
 
-  #if TX_BUFFER_SIZE > 0  
+  #if TX_BUFFER_SIZE > 0
     // Do we have something to send, and TX interrupts are enabled (meaning something to send) ?
-    if ((status & UART_SR_TXRDY) != 0 && (HWUART->UART_IMR & UART_IMR_TXRDY) != 0)
+    if ((status & UART_SR_TXRDY) && (HWUART->UART_IMR & UART_IMR_TXRDY))
       _tx_thr_empty_irq();
   #endif
 
   // Acknowledge errors
-  if ((status & UART_SR_OVRE) != 0 || (status & UART_SR_FRAME) != 0)
-  {
+  if ((status & UART_SR_OVRE) || (status & UART_SR_FRAME)) {
     // TODO: error reporting outside ISR
     HWUART->UART_CR = UART_CR_RSTSTA;
-  } 
+  }
 }
-
 
 // Public Methods
 
@@ -326,7 +322,7 @@ void MarlinSerial::begin(const long baud_setting) {
   NVIC_DisableIRQ( HWUART_IRQ );
 
   // Disable clock
-  pmc_disable_periph_clk( HWUART_IRQ_ID ); 
+  pmc_disable_periph_clk( HWUART_IRQ_ID );
 
   // Configure PMC
   pmc_enable_periph_clk( HWUART_IRQ_ID );
@@ -354,8 +350,8 @@ void MarlinSerial::begin(const long baud_setting) {
   NVIC_EnableIRQ(HWUART_IRQ);
 
   // Enable receiver and transmitter
-  HWUART->UART_CR = UART_CR_RXEN | UART_CR_TXEN; 
-  
+  HWUART->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
+
   #if TX_BUFFER_SIZE > 0
     _written = false;
   #endif
@@ -365,11 +361,11 @@ void MarlinSerial::end() {
   // Disable UART interrupt in NVIC
   NVIC_DisableIRQ( HWUART_IRQ );
 
-  pmc_disable_periph_clk( HWUART_IRQ_ID ); 
+  pmc_disable_periph_clk( HWUART_IRQ_ID );
 }
 
 void MarlinSerial::checkRx(void) {
-  if ((HWUART->UART_SR & UART_SR_RXRDY) != 0) {
+  if (HWUART->UART_SR & UART_SR_RXRDY) {
     CRITICAL_SECTION_START;
     store_rxd_char();
     CRITICAL_SECTION_END;
@@ -464,7 +460,7 @@ void MarlinSerial::flush(void) {
     // to the data register and be done. This shortcut helps
     // significantly improve the effective datarate at high (>
     // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
-    if (emty && (HWUART->UART_SR & UART_SR_TXRDY) != 0) {
+    if (emty && (HWUART->UART_SR & UART_SR_TXRDY)) {
       CRITICAL_SECTION_START;
         HWUART->UART_THR = c;
         HWUART->UART_IER = UART_IER_TXRDY;
@@ -481,13 +477,13 @@ void MarlinSerial::flush(void) {
         // register empty flag ourselves. If it is set, pretend an
         // interrupt has happened and call the handler to free up
         // space for us.
-        if ((HWUART->UART_SR & UART_SR_TXRDY) != 0)
+        if (HWUART->UART_SR & UART_SR_TXRDY)
           _tx_thr_empty_irq();
       }
       else {
         // nop, the interrupt handler will free up space for us
       }
-      sw_barrier();   
+      sw_barrier();
     }
 
     tx_buffer.buffer[tx_buffer.head] = c;
@@ -505,9 +501,9 @@ void MarlinSerial::flush(void) {
     if (!_written)
       return;
 
-    while ((HWUART->UART_IMR & UART_IMR_TXRDY) != 0 || !(HWUART->UART_SR & UART_SR_TXEMPTY)) {
+    while ((HWUART->UART_IMR & UART_IMR_TXRDY) || !(HWUART->UART_SR & UART_SR_TXEMPTY)) {
       if (__get_PRIMASK())
-        if ((HWUART->UART_SR & UART_SR_TXRDY) != 0)
+        if ((HWUART->UART_SR & UART_SR_TXRDY))
           _tx_thr_empty_irq();
       sw_barrier();
     }
