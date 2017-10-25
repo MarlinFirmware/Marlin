@@ -889,20 +889,18 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
+
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
+      _lcd_synchronize();
+      safe_delay(50);
+      _lcd_synchronize();
+      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
+      drawing_screen = screen_changed = true;
+      lcd_goto_screen(lcd_sdcard_menu, saved_encoderPosition);
+      lcd_update();
+    #endif
   }
-  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-
-  lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
-  _lcd_synchronize();
-  safe_delay(50);
-  _lcd_synchronize();
-
-  lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
-  drawing_screen = true;
-  screen_changed = true;
-  lcd_goto_screen(lcd_sdcard_menu, saved_encoderPosition);
-  lcd_update();
- #endif
 }
 
 #endif // SDSUPPORT
