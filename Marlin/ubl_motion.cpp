@@ -41,7 +41,7 @@
 #if ENABLED(DELTA)
 
   extern float delta[ABC];
-  
+
   extern float delta_endstop_adj[ABC],
                delta_radius,
                delta_tower_angle_trim[ABC],
