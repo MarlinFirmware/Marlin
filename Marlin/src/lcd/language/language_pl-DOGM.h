@@ -24,6 +24,9 @@
  * Polish for DOGM display - includes accented characters
  */
 
+#ifndef LANGUAGE_PL_DOGM_H
+#define LANGUAGE_PL_DOGM_H
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta włożona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunięta")
@@ -238,3 +241,5 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
+
+#endif  // LANGUAGE_PL_DOGM_H
