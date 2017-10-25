@@ -40,7 +40,7 @@
                                   || defined(LANGUAGE_FR_H) \
                                   || defined(LANGUAGE_GL_H) \
                                   || defined(LANGUAGE_NL_H) \
-                                  || defined(LANGUAGE_PL_H) \
+                                  || defined(LANGUAGE_PL_HD44780_H) \
                                   || defined(LANGUAGE_PT_H) \
                                   || defined(LANGUAGE_PT_BR_H))
 
