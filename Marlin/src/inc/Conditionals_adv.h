@@ -20,30 +20,23 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+/**
+ * Conditionals_adv.h
+ * Defines that depend on advanced onfiguration.
+ */
 
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "Version.h"
-#include "../HAL/SPI.h"
-#include "../../Configuration.h"
-#include "Conditionals_LCD.h"
-#include "../../Configuration_adv.h"
-#include "Conditionals_adv.h"
-#include "../HAL/HAL.h"
-#include "../pins/pins.h"
-#if defined(__AVR__) && !defined(USBCON)
-  #define HardwareSerial_h // trick to disable the standard HWserial
-#endif
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
+#ifndef CONDITIONALS_ADV_H
+#define CONDITIONALS_ADV_H
 
-// Include all core headers
-#include "../core/enum.h"
-#include "../core/language.h"
-#include "../core/types.h"
-#include "../core/utility.h"
-#include "../core/serial.h"
+  #ifndef USBCON
+    // Define constants and variables for buffering incoming serial data.
+    // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+    #ifndef RX_BUFFER_SIZE
+      #define RX_BUFFER_SIZE 128
+    #endif
+    #ifndef TX_BUFFER_SIZE
+      #define TX_BUFFER_SIZE 32
+    #endif
+  #endif
 
-#endif // MARLIN_CONFIG_H
+#endif // CONDITIONALS_ADV_H

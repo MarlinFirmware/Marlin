@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef _VERSION_H_
+#define _VERSION_H_
+
+#include "MarlinConfig.h"
+
 /**
  * This file is the standard Marlin version identifier file, all fields can be
  * overriden by the ones defined on _Version.h by using the Configuration.h
@@ -48,7 +53,7 @@
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2017-07-27 12:00"
+  #define STRING_DISTRIBUTION_DATE "2017-10-19 12:00"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -92,3 +97,5 @@
   #define WEBSITE_URL "http://marlinfw.org"
 
 #endif // USE_AUTOMATIC_VERSIONING
+
+#endif // _VERSION_H_

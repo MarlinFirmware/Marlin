@@ -129,7 +129,7 @@ void FWRetract::retract(const bool retracting
   planner.flow_percentage[active_extruder] = 100;
 
   // The current position will be the destination for E and Z moves
-  set_destination_to_current();
+  set_destination_from_current();
 
   stepper.synchronize();  // Wait for buffered moves to complete
 
