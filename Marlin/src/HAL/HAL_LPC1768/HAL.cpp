@@ -20,10 +20,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../core/macros.h"
-#include "../HAL.h"
-
-#include <stdint.h>
+#include "../../inc/MarlinConfig.h"
 
 extern "C" {
   //#include <lpc17xx_adc.h>
@@ -88,7 +85,7 @@ void HAL_adc_enable_channel(int ch) {
   pin_t pin = analogInputToDigitalPin(ch);
 
   if (pin == -1) {
-    usb_serial.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
+    MYSERIAL.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
     kill(MSG_KILLED);
   }
 
@@ -118,7 +115,7 @@ void HAL_adc_enable_channel(int ch) {
 uint8_t active_adc = 0;
 void HAL_adc_start_conversion(const uint8_t ch) {
   if (analogInputToDigitalPin(ch) == -1) {
-    usb_serial.printf("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
+    MYSERIAL.printf("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
     return;
   }
 

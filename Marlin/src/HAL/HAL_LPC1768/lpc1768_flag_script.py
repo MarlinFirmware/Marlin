@@ -12,6 +12,7 @@ if __name__ == "__main__":
                     "-ffreestanding",
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
+                    "-fno-strict-aliasing",
 
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
