@@ -3752,9 +3752,23 @@ void kill_screen(const char* lcd_msg) {
      * "Print from SD" submenu
      *
      */
-    void lcd_sdcard_menu() {
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      uint32_t saved_encoderPosition = 0;
+      static millis_t last_sdcard_time = 0;
+    #endif
+
+void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
-      if (!lcdDrawUpdate && !lcd_clicked) return; // nothing to do (so don't thrash the SD card)
+  
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        const millis_t ms = millis();
+        if (last_sdcard_time+5000 < ms) {            // if the printer has been busy printing, lcd_sdcard_menu() should not 
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;        // have been active for 5 seconds.  In this case, restore the previous
+          encoderPosition = saved_encoderPosition;   // encoderPosition to the last selected item.
+        }
+        last_sdcard_time = ms;
+      #endif
+      
       const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
@@ -4403,6 +4417,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(SDSUPPORT)
 
     void menu_action_sdfile(const char* filename, char* longFilename) {
+      saved_encoderPosition = encoderPosition;  // Save which file was selected for later use
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
       lcd_return_to_status();
@@ -4710,7 +4725,7 @@ void lcd_update() {
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
     #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)))
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time) || (currentScreen == lcd_sdcard_menu)))
     #else
       if (lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time)))
     #endif
@@ -4762,6 +4777,13 @@ void lcd_update() {
 
     #if ENABLED(ULTIPANEL)
 
+      // if SD_REPRINT_LAST_SELECTED_FILE is active, we suppress time outs from the
+      // void lcd_sdcard_menu() routine.  The LCD Panel should not be timing out after
+      // a print when waiting for the user to select the same print again.
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        if (currentScreen != lcd_sdcard_menu)
+      #endif
+  
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
