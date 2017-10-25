@@ -143,7 +143,7 @@ static float probe_G33_points(float z_at_pt[13], const int8_t probe_points, cons
     }
 
     if (_7p_calibration) { // probe extra center points
-      for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
+      for (int8_t axis = _7p_multi_circle ? COUNT(z_at_pt) - 2 : COUNT(z_at_pt) - 4; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
         const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
         #if ENABLED(PROBE_MANUALLY)
           z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
@@ -416,7 +416,7 @@ void GcodeSuite::G33() {
                            _7p_triple_circle    ? 1.0 :
                            _7p_double_circle    ? 0.5 : 0),
                 r = (1 + circles * 0.1) * delta_calibration_radius;
-    for (uint8_t axis = 1; axis <= 12; ++axis) {
+    for (uint8_t axis = 1; axis < COUNT(z_at_pt); ++axis) {
       const float a = RADIANS(180 + 30 * axis);
       if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
         SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
@@ -496,13 +496,13 @@ void GcodeSuite::G33() {
                     #else
                       (1.00 + r_diff * 0.001),                          // 1.02 for r_diff = 20mm
                     #endif
-                    r_factor = 1 / 6.0 *
+                  r_factor = 1 / 6.0 *
                     #ifdef R_FACTOR
                       -(R_FACTOR),                                      // Set in Configuration.h
                     #else
                       -(1.75 + 0.005 * r_diff + 0.001 * sq(r_diff)),    // 2.25 for r_diff = 20mm
                     #endif
-                    a_factor = 1 / 6.0 *
+                  a_factor = 1 / 6.0 *
                     #ifdef A_FACTOR
                       (A_FACTOR);                                       // Set in Configuration.h
                     #else
