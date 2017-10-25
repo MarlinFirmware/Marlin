@@ -124,14 +124,14 @@
 #define BOARD_RAMPS4DUE_EEF    1546  // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF     1548  // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
 #define BOARD_ALLIGATOR        1602  // Alligator Board R2
-#define BOARD_RAMPS_14_RE_ARM_EFB      1743   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan, Bed)
-#define BOARD_RAMPS_14_RE_ARM_EEB      1744   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Bed)
-#define BOARD_RAMPS_14_RE_ARM_EFF      1745   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan0, Fan1)
-#define BOARD_RAMPS_14_RE_ARM_EEF      1746   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
-#define BOARD_RAMPS_14_RE_ARM_SF       1748   // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
-#define BOARD_STM32F1R         		   1800   // STM3R Libmaple based stm32f1 controller
-#define BOARD_MKS_SBASE        		   1850   // MKS-Sbase (Power outputs: Hotend0, Hotend1, Bed, Fan)
-
+#define BOARD_RAMPS_14_RE_ARM_EFB 1743   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_14_RE_ARM_EEB 1744   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_14_RE_ARM_EFF 1745   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_14_RE_ARM_EEF 1746   // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
+#define BOARD_RAMPS_14_RE_ARM_SF  1748   // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
+#define BOARD_MKS_SBASE           1750   // MKS-Sbase (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_AZSMZ_MINI          1751   // AZSMZ Mini
+#define BOARD_STM32F1R         1800   // STM3R Libmaple based STM32F1 controller
 
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)

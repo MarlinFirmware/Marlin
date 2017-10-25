@@ -154,6 +154,7 @@ Release/
 Debug/
 __vm/
 .vs/
+vc-fileutils.settings
 
 #Visual Studio Code
 .vscode
