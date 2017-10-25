@@ -40,14 +40,6 @@
   #include "pca9632.h"
 #endif
 
-#if ENABLED(NEOPIXEL_LED) 
-  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
-    #define NEO_WHITE 255, 255, 255
-  #else
-    #define NEO_WHITE 0, 0, 0, 255
-  #endif
-#endif
-
 #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
   #define LED_WHITE 255, 255, 255
 #elif ENABLED(RGBW_LED)
@@ -63,5 +55,7 @@
 void set_led_color(
   const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w = 0, const uint8_t p = 255
 );
+
+void set_led_white();
 
 #endif // __LEDS_H__

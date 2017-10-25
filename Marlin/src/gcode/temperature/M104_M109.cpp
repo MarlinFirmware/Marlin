@@ -226,12 +226,7 @@ void GcodeSuite::M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632) || ENABLED(RGBW_LED)
-        set_led_color(LED_WHITE);
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        set_neopixel_color(pixels.Color(NEO_WHITE));
-      #endif
+      set_led_white();
     #endif
   }
 
