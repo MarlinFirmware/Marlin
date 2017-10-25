@@ -44,17 +44,18 @@
 
 #ifdef _DBGFWK
 /* Debug framework */
+static Bool debug_frmwrk_initialized = FALSE;
 
-void (*_db_msg)(LPC_UART_TypeDef *UARTx, const void *s);
-void (*_db_msg_)(LPC_UART_TypeDef *UARTx, const void *s);
-void (*_db_char)(LPC_UART_TypeDef *UARTx, uint8_t ch);
-void (*_db_dec)(LPC_UART_TypeDef *UARTx, uint8_t decn);
-void (*_db_dec_16)(LPC_UART_TypeDef *UARTx, uint16_t decn);
-void (*_db_dec_32)(LPC_UART_TypeDef *UARTx, uint32_t decn);
-void (*_db_hex)(LPC_UART_TypeDef *UARTx, uint8_t hexn);
-void (*_db_hex_16)(LPC_UART_TypeDef *UARTx, uint16_t hexn);
-void (*_db_hex_32)(LPC_UART_TypeDef *UARTx, uint32_t hexn);
-uint8_t (*_db_get_char)(LPC_UART_TypeDef *UARTx);
+void (*_db_msg)(LPC_UART_TypeDef *UARTx, const void *s) = UARTPuts;
+void (*_db_msg_)(LPC_UART_TypeDef *UARTx, const void *s) = UARTPuts_;
+void (*_db_char)(LPC_UART_TypeDef *UARTx, uint8_t ch) = UARTPutChar;
+void (*_db_dec)(LPC_UART_TypeDef *UARTx, uint8_t decn) = UARTPutHex;
+void (*_db_dec_16)(LPC_UART_TypeDef *UARTx, uint16_t decn) = UARTPutHex16;
+void (*_db_dec_32)(LPC_UART_TypeDef *UARTx, uint32_t decn) = UARTPutHex32;
+void (*_db_hex)(LPC_UART_TypeDef *UARTx, uint8_t hexn) = UARTPutDec;
+void (*_db_hex_16)(LPC_UART_TypeDef *UARTx, uint16_t hexn) = UARTPutDec16;
+void (*_db_hex_32)(LPC_UART_TypeDef *UARTx, uint32_t hexn) = UARTPutDec32;
+uint8_t (*_db_get_char)(LPC_UART_TypeDef *UARTx) = UARTGetChar;
 
 
 /*********************************************************************//**
@@ -65,7 +66,8 @@ uint8_t (*_db_get_char)(LPC_UART_TypeDef *UARTx);
  **********************************************************************/
 void UARTPutChar (LPC_UART_TypeDef *UARTx, uint8_t ch)
 {
-	UART_Send(UARTx, &ch, 1, BLOCKING);
+  if (debug_frmwrk_initialized)
+	  UART_Send(UARTx, &ch, 1, BLOCKING);
 }
 
 
@@ -76,8 +78,11 @@ void UARTPutChar (LPC_UART_TypeDef *UARTx, uint8_t ch)
  **********************************************************************/
 uint8_t UARTGetChar (LPC_UART_TypeDef *UARTx)
 {
-	uint8_t tmp = 0;
-	UART_Receive(UARTx, &tmp, 1, BLOCKING);
+  uint8_t tmp = 0;
+  
+  if (debug_frmwrk_initialized)
+    UART_Receive(UARTx, &tmp, 1, BLOCKING);
+    
 	return(tmp);
 }
 
@@ -90,7 +95,10 @@ uint8_t UARTGetChar (LPC_UART_TypeDef *UARTx)
  **********************************************************************/
 void UARTPuts(LPC_UART_TypeDef *UARTx, const void *str)
 {
-	uint8_t *s = (uint8_t *) str;
+  uint8_t *s = (uint8_t *) str;
+  
+  if (!debug_frmwrk_initialized)
+    return;
 
 	while (*s)
 	{
@@ -107,6 +115,9 @@ void UARTPuts(LPC_UART_TypeDef *UARTx, const void *str)
  **********************************************************************/
 void UARTPuts_(LPC_UART_TypeDef *UARTx, const void *str)
 {
+  if (!debug_frmwrk_initialized)
+    return;
+
 	UARTPuts (UARTx, str);
 	UARTPuts (UARTx, "\n\r");
 }
@@ -120,6 +131,9 @@ void UARTPuts_(LPC_UART_TypeDef *UARTx, const void *str)
  **********************************************************************/
 void UARTPutDec(LPC_UART_TypeDef *UARTx, uint8_t decnum)
 {
+  if (!debug_frmwrk_initialized)
+    return;
+
 	uint8_t c1=decnum%10;
 	uint8_t c2=(decnum/10)%10;
 	uint8_t c3=(decnum/100)%10;
@@ -135,7 +149,10 @@ void UARTPutDec(LPC_UART_TypeDef *UARTx, uint8_t decnum)
  * @return		None
  **********************************************************************/
 void UARTPutDec16(LPC_UART_TypeDef *UARTx, uint16_t decnum)
-{
+{  
+  if (!debug_frmwrk_initialized)
+    return;
+
 	uint8_t c1=decnum%10;
 	uint8_t c2=(decnum/10)%10;
 	uint8_t c3=(decnum/100)%10;
@@ -156,6 +173,9 @@ void UARTPutDec16(LPC_UART_TypeDef *UARTx, uint16_t decnum)
  **********************************************************************/
 void UARTPutDec32(LPC_UART_TypeDef *UARTx, uint32_t decnum)
 {
+  if (!debug_frmwrk_initialized)
+    return;
+
 	uint8_t c1=decnum%10;
 	uint8_t c2=(decnum/10)%10;
 	uint8_t c3=(decnum/100)%10;
@@ -187,6 +207,9 @@ void UARTPutDec32(LPC_UART_TypeDef *UARTx, uint32_t decnum)
 void UARTPutHex (LPC_UART_TypeDef *UARTx, uint8_t hexnum)
 {
 	uint8_t nibble, i;
+  
+  if (!debug_frmwrk_initialized)
+    return;
 
 	UARTPuts(UARTx, "0x");
 	i = 1;
@@ -206,6 +229,9 @@ void UARTPutHex (LPC_UART_TypeDef *UARTx, uint8_t hexnum)
 void UARTPutHex16 (LPC_UART_TypeDef *UARTx, uint16_t hexnum)
 {
 	uint8_t nibble, i;
+  
+  if (!debug_frmwrk_initialized)
+    return;
 
 	UARTPuts(UARTx, "0x");
 	i = 3;
@@ -223,7 +249,10 @@ void UARTPutHex16 (LPC_UART_TypeDef *UARTx, uint16_t hexnum)
  **********************************************************************/
 void UARTPutHex32 (LPC_UART_TypeDef *UARTx, uint32_t hexnum)
 {
-	uint8_t nibble, i;
+  uint8_t nibble, i;
+  
+  if (!debug_frmwrk_initialized)
+    return;
 
 	UARTPuts(UARTx, "0x");
 	i = 7;
@@ -305,16 +334,7 @@ void debug_frmwrk_init(void)
 	// Enable UART Transmit
 	UART_TxCmd((LPC_UART_TypeDef *)DEBUG_UART_PORT, ENABLE);
 
-	_db_msg	= UARTPuts;
-	_db_msg_ = UARTPuts_;
-	_db_char = UARTPutChar;
-	_db_hex = UARTPutHex;
-	_db_hex_16 = UARTPutHex16;
-	_db_hex_32 = UARTPutHex32;
-	_db_dec = UARTPutDec;
-	_db_dec_16 = UARTPutDec16;
-	_db_dec_32 = UARTPutDec32;
-	_db_get_char = UARTGetChar;
+  debug_frmwrk_initialized = TRUE;
 }
 #endif /*_DBGFWK */
 

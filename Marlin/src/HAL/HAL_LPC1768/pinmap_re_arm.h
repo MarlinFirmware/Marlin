@@ -27,7 +27,11 @@
 // Runtime pinmapping
 // ******************
 
-#define NUM_ANALOG_INPUTS 8
+#if SERIAL_PORT == 0
+  #define NUM_ANALOG_INPUTS 6
+#else
+  #define NUM_ANALOG_INPUTS 8
+#endif
 
 const adc_pin_data adc_pin_map[] = {
   {0, 23, 0},         //A0 (T0) - D67 - TEMP_0_PIN
@@ -36,27 +40,39 @@ const adc_pin_data adc_pin_map[] = {
   {0, 26, 3},         //A3 - D63
   {1, 30, 4},         //A4 - D37 - BUZZER_PIN
   {1, 31, 5},         //A5 - D49 - SD_DETECT_PIN
-  {0,  3, 6},         //A6 - D0  - RXD0
-  {0,  2, 7}          //A7 - D1  - TXD0
+  #if SERIAL_PORT != 0
+    {0,  3, 6},       //A6 - D0  - RXD0
+    {0,  2, 7}        //A7 - D1  - TXD0
+  #endif
 };
 
-#define analogInputToDigitalPin(p) (p == 0 ? 67: \
-                                    p == 1 ? 68: \
-                                    p == 2 ? 69: \
-                                    p == 3 ? 63: \
-                                    p == 4 ? 37: \
-                                    p == 5 ? 49: \
-                                    p == 6 ?  0: \
-                                    p == 7 ?  1: -1)
+constexpr FORCE_INLINE int8_t analogInputToDigitalPin(int8_t p) {
+  return (p == 0 ? 67:
+          p == 1 ? 68:
+          p == 2 ? 69:
+          p == 3 ? 63:
+          p == 4 ? 37:
+          p == 5 ? 49:
+          #if SERIAL_PORT != 0
+            p == 6 ?  0:
+            p == 7 ?  1:
+          #endif
+          -1);
+}
 
-#define DIGITAL_PIN_TO_ANALOG_PIN(p) (p == 67 ? 0: \
-                                      p == 68 ? 1: \
-                                      p == 69 ? 2: \
-                                      p == 63 ? 3: \
-                                      p == 37 ? 4: \
-                                      p == 49 ? 5: \
-                                      p == 0  ? 6: \
-                                      p == 1  ? 7: -1)
+constexpr FORCE_INLINE int8_t DIGITAL_PIN_TO_ANALOG_PIN(int8_t p) {
+  return (p == 67 ? 0:
+          p == 68 ? 1:
+          p == 69 ? 2:
+          p == 63 ? 3:
+          p == 37 ? 4:
+          p == 49 ? 5:
+          #if SERIAL_PORT != 0
+            p == 0  ? 6:
+            p == 1  ? 7:
+          #endif
+          -1);
+}
 
 #define NUM_DIGITAL_PINS 84
 
@@ -220,7 +236,7 @@ const pin_data pin_map[] = { // pin map for variable pin function
   {1,4},        //  DIO77                   J12-10            ENET_TX_EN
   {1,0},        //  DIO78                   J12-11            ENET_TXD0
   {1,1},        //  DIO79                   J12-12            ENET_TXD1
-  {0,14},       //  DIO80                   MKS-SBASE	J7-6 & EXP1-5	  
+  {0,14},       //  DIO80                   MKS-SBASE	J7-6 & EXP1-5
   {0,7},        //  DIO81  SD-SCK           MKS-SBASE	on board SD card and EXP2-2
   {0,8},        //  DIO82  SD-MISO          MKS-SBASE	on board SD card and EXP2-1
   {0,9},        //  DIO83  SD-MOSI          MKS-SBASE 	n board SD card and EXP2-6

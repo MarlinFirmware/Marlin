@@ -41,9 +41,7 @@ void _printf (const  char *format, ...);
 void _putc(uint8_t c);
 uint8_t _getc();
 
-extern volatile uint32_t _millis;
-
-#define USBCON
+extern "C" volatile uint32_t _millis;
 
 //arduino: Print.h
 #define DEC 10
@@ -60,7 +58,7 @@ extern volatile uint32_t _millis;
 #include "watchdog.h"
 #include "serial.h"
 #include "HAL_timers.h"
-
+#include "HardwareSerial.h"
 
 #define ST7920_DELAY_1 DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP
 #define ST7920_DELAY_2 DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP
@@ -68,7 +66,18 @@ extern volatile uint32_t _millis;
 
 //Serial override
 extern HalSerial usb_serial;
-#define MYSERIAL usb_serial
+
+#if SERIAL_PORT == -1
+  #define MYSERIAL usb_serial
+#elif SERIAL_PORT == 0
+  #define MYSERIAL Serial
+#elif SERIAL_PORT == 1
+  #define MYSERIAL Serial1
+#elif SERIAL_PORT == 2
+  #define MYSERIAL Serial2
+#elif SERIAL_PORT == 3
+  #define MYSERIAL Serial3
+#endif
 
 #define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq();
 #define CRITICAL_SECTION_END    if (!primask) __enable_irq();

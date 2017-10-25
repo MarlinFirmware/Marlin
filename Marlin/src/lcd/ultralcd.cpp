@@ -1057,47 +1057,47 @@ void kill_screen(const char* lcd_msg) {
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
 
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
 
-      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-
-        void _lcd_babystep_zoffset_overlay(const float in_zoffset) {
-          // Determine whether the user is raising or lowering the nozzle.
-          int8_t dir = 0;
-          static float old_zprobe_zoffset = 0;
-          if (in_zoffset != old_zprobe_zoffset) {
-            dir = (in_zoffset > old_zprobe_zoffset) ? 1 : -1;
-            old_zprobe_zoffset = in_zoffset;
-          }
-
-          #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
-            const unsigned char *rot_up   = ccw_bmp;
-            const unsigned char *rot_down = cw_bmp;
-          #else
-            const unsigned char *rot_up   = cw_bmp;
-            const unsigned char *rot_down = ccw_bmp;
-          #endif
-
-          #if ENABLED(USE_BIG_EDIT_FONT)
-            const int left = 0, right = 45, nozzle = 95;
-          #else
-            const int left = 5, right = 90, nozzle = 60;
-          #endif
-
-          // Draw a representation of the nozzle
-          if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
-          if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
-
-          // Draw cw/ccw indicator and up/down arrows.
-          if (PAGE_CONTAINS(47,62)) {
-            u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
-            u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
-            u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
-            u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
-          }
+      void _lcd_zoffset_overlay_gfx(const float in_zoffset) {
+        // Determine whether the user is raising or lowering the nozzle.
+        int8_t dir = 0;
+        static float old_zprobe_zoffset = 0;
+        if (in_zoffset != old_zprobe_zoffset) {
+          dir = (in_zoffset > old_zprobe_zoffset) ? 1 : (in_zoffset == 0) ? 0 : -1;
+          old_zprobe_zoffset = in_zoffset;
         }
 
-      #endif // BABYSTEP_ZPROBE_GFX_OVERLAY
+        #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
+          const unsigned char *rot_up   = ccw_bmp;
+          const unsigned char *rot_down = cw_bmp;
+        #else
+          const unsigned char *rot_up   = cw_bmp;
+          const unsigned char *rot_down = ccw_bmp;
+        #endif
+
+        #if ENABLED(USE_BIG_EDIT_FONT)
+          const int left = 0, right = 45, nozzle = 95;
+        #else
+          const int left = 5, right = 90, nozzle = 60;
+        #endif
+
+        // Draw a representation of the nozzle
+        if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
+        if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
+
+        // Draw cw/ccw indicator and up/down arrows.
+        if (PAGE_CONTAINS(47,62)) {
+          u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+          u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+          u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+        }
+      }
+
+    #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || ENABLE_MESH_EDIT_GFX_OVERLAY
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       void lcd_babystep_zoffset() {
         if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
@@ -1121,7 +1121,7 @@ void kill_screen(const char* lcd_msg) {
         if (lcdDrawUpdate) {
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-            _lcd_babystep_zoffset_overlay(zprobe_zoffset);
+            _lcd_zoffset_overlay_gfx(zprobe_zoffset);
           #endif
         }
       }
@@ -1158,6 +1158,9 @@ void kill_screen(const char* lcd_msg) {
 
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
+        #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
+          _lcd_zoffset_overlay_gfx(mesh_edit_value);
+        #endif
     }
 
     void _lcd_mesh_edit_NOP() {
@@ -2810,7 +2813,7 @@ void kill_screen(const char* lcd_msg) {
         #endif
 
         // Set movement on a single axis
-        set_destination_to_current();
+        set_destination_from_current();
         destination[manual_move_axis] += manual_move_offset;
 
         // Reset for the next move
@@ -2819,7 +2822,7 @@ void kill_screen(const char* lcd_msg) {
 
         // Set a blocking flag so no new moves can be added until all segments are done
         processing_manual_move = true;
-        prepare_move_to_destination(); // will call set_current_to_destination
+        prepare_move_to_destination(); // will call set_current_from_destination()
         processing_manual_move = false;
 
         feedrate_mm_s = old_feedrate;

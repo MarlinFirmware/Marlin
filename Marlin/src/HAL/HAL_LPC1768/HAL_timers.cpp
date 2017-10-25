@@ -28,7 +28,7 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "HAL_timers.h"
 
 void HAL_timer_init(void) {

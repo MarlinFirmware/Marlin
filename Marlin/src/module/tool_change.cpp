@@ -176,7 +176,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         }
 
         // Save current position to destination, for use later
-        set_destination_to_current();
+        set_destination_from_current();
 
         #if ENABLED(DUAL_X_CARRIAGE)
 
