@@ -106,7 +106,6 @@ void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 
