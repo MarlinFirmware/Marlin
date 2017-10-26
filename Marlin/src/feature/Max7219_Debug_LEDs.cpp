@@ -328,14 +328,11 @@ void Max7219_idle_tasks() {
 #endif
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
-    static int debug_cnt = 0;
-    #ifdef CPU_32_BIT
-      if (debug_cnt++ > 1000) {
-    #else
-      if (debug_cnt++ > 100) {
-    #endif
+    static millis_t next_blink = 0;
+
+    if (ELAPSED(millis(), next_blink)) {
         Max7219_LED_Toggle(7, 7);
-        debug_cnt = 0;
+        next_blink = millis() + 750;
     }
   #endif
 
