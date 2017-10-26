@@ -20,19 +20,31 @@
  *
  */
 
-#ifndef HAL_PINSDEBUG_H
-#define HAL_PINSDEBUG_H
+#ifdef TARGET_LPC1768
 
-#ifdef __AVR__
-  #include "HAL_AVR/pinsDebug_AVR_8_bit.h"
-#elif defined(ARDUINO_ARCH_SAM)
-  #include "HAL_DUE/HAL_pinsDebug_Due.h"
-#elif IS_32BIT_TEENSY
-  #include "HAL_TEENSY35_36/HAL_pinsDebug_Teensy.h"
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/pinsDebug_LPC1768.h"
-#else
-  #error Unsupported Platform!
-#endif
+#include "../../inc/MarlinConfig.h"
+#include "../../gcode/parser.h"
 
-#endif // HAL_PINSDEBUG_H
+int16_t GET_PIN_MAP_INDEX(pin_t pin) {
+  const uint8_t pin_port = LPC1768_PIN_PORT(pin),
+                pin_pin = LPC1768_PIN_PIN(pin);
+  for (size_t i = 0; i < NUM_DIGITAL_PINS; ++i)
+    if (LPC1768_PIN_PORT(pin_map[i]) == pin_port && LPC1768_PIN_PIN(pin_map[i]) == pin_pin)
+      return i;
+
+  return -1;
+}
+
+int16_t PARSED_PIN_INDEX(char code, int16_t dval) {
+  if (parser.seenval(code)) {
+    int port, pin;
+    if (sscanf(parser.strval(code), "%d.%d", &port, &pin) == 2)
+      for (size_t i = 0; i < NUM_DIGITAL_PINS; ++i)
+        if (LPC1768_PIN_PORT(pin_map[i]) == port && LPC1768_PIN_PIN(pin_map[i]) == pin)
+          return i;
+  }
+
+  return dval;
+}
+
+#endif // TARGET_LPC1768

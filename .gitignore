@@ -158,6 +158,7 @@ vc-fileutils.settings
 
 #Visual Studio Code
 .vscode
+.vscode/c_cpp_properties.json
 
 #cmake
 CMakeLists.txt
