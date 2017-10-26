@@ -39,6 +39,7 @@ void set_neopixel_color(const uint32_t color) {
 }
 
 void setup_neopixel() {
+  SET_OUTPUT(NEOPIXEL_PIN);
   pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
   pixels.begin();
   pixels.show(); // initialize to all off
@@ -52,22 +53,7 @@ void setup_neopixel() {
     set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
     delay(2000);
   #endif
-  set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
-}
-
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {
-  const uint32_t color = pixels.Color(r, g, b, w);
-  pixels.setBrightness(p);
-  #if !ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-    set_neopixel_color(color);
-    return false;
-  #else
-    static uint16_t nextLed = 0;
-    pixels.setPixelColor(nextLed, color);
-    pixels.show();
-    if (++nextLed >= pixels.numPixels()) nextLed = 0;
-    return true;
-  #endif
+  set_neopixel_color(pixels.Color(NEO_WHITE));       // white
 }
 
 #endif // NEOPIXEL_LED
