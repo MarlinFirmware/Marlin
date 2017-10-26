@@ -75,10 +75,6 @@
 #define E1_DIR_PIN         P2_13
 #define E1_ENABLE_PIN      P4_29
 
-#define X2_STEP_PIN        P2_8
-#define X2_DIR_PIN         P2_13
-#define X2_ENABLE_PIN      P4_29
-
 //
 // Temperature Sensors
 // 3.3V max when defined as an analog input
@@ -130,9 +126,11 @@
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 
-#define E_MUX0_PIN         P0_17   // J7-4
-#define E_MUX1_PIN         P0_16   // J7-5
-#define E_MUX2_PIN         P0_14   // J7-6
+#if ENABLED(MK2_MULTIPLEXER)
+  #define E_MUX0_PIN         P0_17   // J7-4
+  #define E_MUX1_PIN         P0_16   // J7-5
+  #define E_MUX2_PIN         P0_15   // J7-6
+#endif
 
 
 /**
