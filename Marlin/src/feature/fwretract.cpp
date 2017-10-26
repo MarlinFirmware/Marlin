@@ -156,16 +156,18 @@ void FWRetract::retract(const bool retracting
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (hop_amount) {
-      float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
-      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
       current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
       SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
+      float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
+      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
       prepare_move_to_destination();              // Raise up to the old current pos
+      hop_amount = 0.0;
       feedrate_mm_s = temp_feedrate_mm_s  ; //feedrate restoration
     }
 
     // A retract multiplier has been added here to get faster swap recovery
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
+    
     const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
     current_position[E_AXIS] -= move_e / planner.volumetric_multiplier[active_extruder];
     sync_plan_position_e();
