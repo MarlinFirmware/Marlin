@@ -45,11 +45,11 @@ void setup_neopixel() {
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
     set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-    delay(1000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-    delay(1000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-    delay(1000);
+    safe_delay(1000);
   #endif
   set_neopixel_color(pixels.Color(NEO_WHITE));    // white
 }
