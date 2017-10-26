@@ -2095,7 +2095,7 @@ void Temperature::isr() {
         #endif
       ;
       if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
-      if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
+      // if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
     #endif
 
   } // temp_count >= OVERSAMPLENR
