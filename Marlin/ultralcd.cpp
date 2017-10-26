@@ -3754,19 +3754,18 @@ void kill_screen(const char* lcd_msg) {
      */
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       uint32_t saved_encoderPosition = 0;
-      static millis_t last_sdcard_time = 0;
+      static millis_t assume_print_finished = millis() + 5000;
     #endif
 
 void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
   
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        const millis_t ms = millis();
-        if (last_sdcard_time+5000 < ms) {            // if the printer has been busy printing, lcd_sdcard_menu() should not 
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;        // have been active for 5 seconds.  In this case, restore the previous
-          encoderPosition = saved_encoderPosition;   // encoderPosition to the last selected item.
+        if (ELAPSED(millis(), assume_print_finished+5000)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;                // have been active for 5 seconds.  In this case, restore the previous
+          encoderPosition = saved_encoderPosition;           // encoderPosition to the last selected item.
         }
-        last_sdcard_time = ms;
+        assume_print_finished = millis();
       #endif
       
       const uint16_t fileCnt = card.getnrfilenames();
