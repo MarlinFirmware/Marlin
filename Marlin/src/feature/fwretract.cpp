@@ -166,7 +166,6 @@ void FWRetract::retract(const bool retracting
 
     // A retract multiplier has been added here to get faster swap recovery
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
-
     const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
     current_position[E_AXIS] -= move_e / planner.volumetric_multiplier[active_extruder];
     sync_plan_position_e();
