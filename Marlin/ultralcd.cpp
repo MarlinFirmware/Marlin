@@ -3761,9 +3761,9 @@ void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
   
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        if (ELAPSED(millis(), assume_print_finished+5000)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;                // have been active for 5 seconds.  In this case, restore the previous
-          encoderPosition = saved_encoderPosition;           // encoderPosition to the last selected item.
+        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
+          encoderPosition = saved_encoderPosition;      // encoderPosition to the last selected item.
         }
         assume_print_finished = millis();
       #endif
