@@ -3752,9 +3752,24 @@ void kill_screen(const char* lcd_msg) {
      * "Print from SD" submenu
      *
      */
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      uint32_t saved_encoderPosition = 0;
+      static millis_t assume_print_finished = 0;
+    #endif
+
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
-      if (!lcdDrawUpdate && !lcd_clicked) return; // nothing to do (so don't thrash the SD card)
+  
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
+          encoderPosition = saved_encoderPosition;      // encoderPosition to the last selected item.
+          assume_print_finished = millis() + 5000;
+        }
+        saved_encoderPosition = encoderPosition;
+        defer_return_to_status = true;
+      #endif
+      
       const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
@@ -4403,6 +4418,9 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(SDSUPPORT)
 
     void menu_action_sdfile(const char* filename, char* longFilename) {
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        saved_encoderPosition = encoderPosition;  // Save which file was selected for later use
+      #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
       lcd_return_to_status();
@@ -4710,7 +4728,11 @@ void lcd_update() {
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
     #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)))
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)
+      #if ENABLED(SDSUPPORT)
+        || (currentScreen == lcd_sdcard_menu)
+      #endif
+      ))
     #else
       if (lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time)))
     #endif
@@ -4764,7 +4786,12 @@ void lcd_update() {
 
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
+        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+          if (currentScreen != lcd_sdcard_menu)                // lcd_sdcard_menu() does not time out if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;  // When the printer finishes a file, it will wait with the file selected for 
+        #else                                                  // a re-print.
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #endif
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
 
