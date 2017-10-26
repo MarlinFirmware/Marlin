@@ -102,6 +102,11 @@ void FWRetract::retract(const bool retracting
 
   #if EXTRUDERS > 1
     if (!retracting) swapping = retracted_swap[active_extruder];
+    #if EXTRUDERS > 1
+  // Allow G10S1 after G10 'Priority for common sense'
+  if (swapping && (retracted_swap[active_extruder]== retracting))  return;
+  // G11 priority to recover the long retract if activated ' common sense '
+  if (!retracting) swapping = retracted_swap[active_extruder];
   #else
     const bool swapping = false;
   #endif
@@ -121,16 +126,10 @@ void FWRetract::retract(const bool retracting
   //*/
 
   const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
-
   const float old_feedrate_mm_s = feedrate_mm_s;
-  const int16_t old_flow = planner.flow_percentage[active_extruder];
-
-  // Don't apply flow multiplication to retract/recover
-  planner.flow_percentage[active_extruder] = 100;
 
   // The current position will be the destination for E and Z moves
   set_destination_from_current();
-
   stepper.synchronize();  // Wait for buffered moves to complete
 
   if (retracting) {
@@ -145,20 +144,27 @@ void FWRetract::retract(const bool retracting
     prepare_move_to_destination();
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (has_zhop) {
-      hop_amount += retract_zlift;                // Carriage is raised for retraction hop
+    // No double zlifting 
+    // Feedrate to the max
+    if (has_zhop && !hop_amount) {
+      hop_amount += retract_zlift;  	  // Carriage is raised for retraction hop
+      float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
+      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
       current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
       SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
       prepare_move_to_destination();              // Raise up to the old current pos
+      feedrate_mm_s = temp_feedrate_mm_s  ; //feedrate restoration
     }
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
-    if (hop_amount && NEAR(hop_height, destination[Z_AXIS])) {
-      current_position[Z_AXIS] += hop_amount;     // Pretend current pos is higher. Next move lowers Z.
+    if (hop_amount) {
+      float temp_feedrate_mm_s=feedrate_mm_s; // backup the current feedrate 
+      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS]; // Z feedrate to max
+	    current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
       SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-      prepare_move_to_destination();              // Lower to the old current pos
-      hop_amount = 0.0;
+      prepare_move_to_destination();              // Raise up to the old current pos
+      feedrate_mm_s = temp_feedrate_mm_s  ; //feedrate restoration
     }
 
     // A retract multiplier has been added here to get faster swap recovery
@@ -171,8 +177,7 @@ void FWRetract::retract(const bool retracting
     prepare_move_to_destination();  // Recover E
   }
 
-  // Restore flow and feedrate
-  planner.flow_percentage[active_extruder] = old_flow;
+  // Restore feedrate  
   feedrate_mm_s = old_feedrate_mm_s;
 
   // The active extruder is now retracted or recovered
