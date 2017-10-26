@@ -4728,7 +4728,11 @@ void lcd_update() {
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
     #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time) || (currentScreen == lcd_sdcard_menu)))
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)
+      #if ENABLED(SDSUPPORT)
+        || (currentScreen == lcd_sdcard_menu)
+      #endif
+      ))
     #else
       if (lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time)))
     #endif
