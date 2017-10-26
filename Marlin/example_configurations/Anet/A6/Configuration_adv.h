@@ -553,6 +553,13 @@
   // To have any effect, endstops must be enabled during SD printing.
   //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
+  // This option allows you to easily reprint the same SD Card file as
+  // was last printed.  At the end of a print, the LCD Menu will jump
+  // straight to the file previously selected.  A single click of the encoder
+  // wheel will restart the print.  Another file or LCD option can be
+  // selected by using the encoder wheel to navigate through the menu structure.
+  //#define SD_REPRINT_LAST_SELECTED_FILE
+
 #endif // SDSUPPORT
 
 /**
