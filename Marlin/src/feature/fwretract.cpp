@@ -99,7 +99,6 @@ void FWRetract::retract(const bool retracting
 
   // Simply never allow two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
-
   #if EXTRUDERS > 1
   // Allow G10S1 after G10 'Priority for common sense'
   if (swapping && (retracted_swap[active_extruder]== retracting))  return;
