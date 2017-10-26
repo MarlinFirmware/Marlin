@@ -4417,7 +4417,9 @@ void lcd_sdcard_menu() {
   #if ENABLED(SDSUPPORT)
 
     void menu_action_sdfile(const char* filename, char* longFilename) {
-      saved_encoderPosition = encoderPosition;  // Save which file was selected for later use
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        saved_encoderPosition = encoderPosition;  // Save which file was selected for later use
+      #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
       lcd_return_to_status();
