@@ -210,6 +210,9 @@ const pin_t pin_map[] = {
 
 #define NUM_DIGITAL_PINS COUNT(pin_map)
 
-#define GET_PIN_MAP_PIN(index) pin_map[index]
+#define GET_PIN_MAP_PIN(i) (WITHIN(i, 0, (int)NUM_DIGITAL_PINS - 1) ? pin_map[i] : -1)
+
+int16_t GET_PIN_MAP_INDEX(pin_t pin);
+int16_t PARSED_PIN_INDEX(char code, int16_t dval = 0);
                            
 #endif // __HAL_PINMAPPING_H__

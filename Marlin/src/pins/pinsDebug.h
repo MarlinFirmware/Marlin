@@ -118,8 +118,9 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
-        sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);     // digital pin number
+        sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
         SERIAL_ECHO(buffer);
+        PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (IS_ANALOG(pin)) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
@@ -179,8 +180,9 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
   } // end of for loop
 
   if (!found) {
-    sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);
+    sprintf_P(buffer, PSTR("%sPIN: "), start_string);
     SERIAL_ECHO(buffer);
+    PRINT_PIN(pin);
     PRINT_PORT(pin);
     if (IS_ANALOG(pin)) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number

@@ -36,8 +36,8 @@
 inline void toggle_pins() {
   const bool I_flag = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
-            start = parser.intval('S'),
-            end = parser.intval('E', NUM_DIGITAL_PINS - 1),
+            start = PARSED_PIN_INDEX('S', 0),
+            end = PARSED_PIN_INDEX('E', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
   for (uint8_t i = start; i <= end; i++) {
@@ -259,7 +259,7 @@ void GcodeSuite::M43() {
   }
 
   // Get the range of pins to test or watch
-  const uint8_t first_pin = parser.byteval('P'),
+  const uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
                 last_pin = parser.seenval('P') ? first_pin : NUM_DIGITAL_PINS - 1;
 
   if (first_pin > last_pin) return;

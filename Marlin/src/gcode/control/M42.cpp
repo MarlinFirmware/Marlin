@@ -34,7 +34,7 @@ void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  const int pin_number = parser.intval('P', LED_PIN);
+  int pin_number = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
   if (pin_number < 0) return;
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_number);

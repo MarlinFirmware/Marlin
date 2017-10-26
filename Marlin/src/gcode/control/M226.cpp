@@ -29,7 +29,7 @@
  */
 void GcodeSuite::M226() {
   if (parser.seen('P')) {
-    const int pin_number = parser.value_int(),
+    const int pin_number = PARSED_PIN_INDEX('P', 0),
               pin_state = parser.intval('S', -1); // required pin state - default is inverted
     const pin_t pin = GET_PIN_MAP_PIN(pin_number);
 

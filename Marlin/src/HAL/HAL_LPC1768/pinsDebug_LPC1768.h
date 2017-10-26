@@ -83,3 +83,4 @@ bool GET_ARRAY_IS_DIGITAL(pin_t pin) {
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 //  #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, NAME_FORMAT(MAX_NAME_LENGTH) , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-35s") , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%d.%02d "), LPC1768_PIN_PORT(p), LPC1768_PIN_PIN(p)); SERIAL_ECHO(buffer);} while (0)
