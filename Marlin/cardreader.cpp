@@ -860,6 +860,15 @@ void CardReader::updir() {
 
 #endif // SDCARD_SORT_ALPHA
 
+#if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+  typedef void (*screenFunc_t)();
+  extern void lcd_sdcard_menu();
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
+  extern uint32_t saved_encoderPosition;
+  extern bool screen_changed, drawing_screen, defer_return_to_status;
+  void _lcd_synchronize();  // Not declared in any LCD header file.  Probably, that should be changed.
+#endif
+
 void CardReader::printingHasFinished() {
   stepper.synchronize();
   file.close();
@@ -878,6 +887,18 @@ void CardReader::printingHasFinished() {
       enqueue_and_echo_commands_P(PSTR("M31"));
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
+    #endif
+
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
+      _lcd_synchronize();
+      safe_delay(50);
+      _lcd_synchronize();
+      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
+      drawing_screen = screen_changed = true;
+      lcd_goto_screen(lcd_sdcard_menu, saved_encoderPosition);
+      defer_return_to_status = true;
+      lcd_update();
     #endif
   }
 }
