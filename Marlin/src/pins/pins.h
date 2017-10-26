@@ -302,8 +302,10 @@
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"
-  #elif MB(MKS_SBASE)
+#elif MB(MKS_SBASE)
   #include "pins_MKS_SBASE.h"
+#elif MB(AZSMZ_MINI)
+  #include "pins_AZSMZ_MINI.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
