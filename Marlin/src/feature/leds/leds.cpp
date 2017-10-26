@@ -35,11 +35,10 @@ void set_led_color(
 ) {
 
   #if ENABLED(NEOPIXEL_LED)
-    if (w == 255 || (r == 255 && g == 255 && b == 255))
+    if ((w==255) || ((r==255) && (g==255) && (b==255)))
       neopixel_set_led_color(NEO_WHITE, p);
     else
       neopixel_set_led_color(r, g, b, w, p);
-    return;
   #endif
 
   #if ENABLED(BLINKM)
@@ -64,6 +63,24 @@ void set_led_color(
 
   #if ENABLED(PCA9632)
     pca9632_set_led_color(r, g, b); // Update I2C LED driver
+  #endif
+};
+
+void set_led_white(){
+  #if ENABLED(NEOPIXEL_LED)
+    neopixel_set_led_color(NEO_WHITE, 255);
+  #endif
+  #if ENABLED(RGB_LED)
+    WRITE(RGB_LED_R_PIN, 255 ? HIGH : LOW);
+    WRITE(RGB_LED_G_PIN, 255 ? HIGH : LOW);
+    WRITE(RGB_LED_B_PIN, 255 ? HIGH : LOW);
+    analogWrite(RGB_LED_R_PIN, 255);
+    analogWrite(RGB_LED_G_PIN, 255);
+    analogWrite(RGB_LED_B_PIN, 255);
+  #endif
+  #if ENABLED(RGBW_LED)
+    WRITE(RGB_LED_W_PIN, 255 ? HIGH : LOW);
+    analogWrite(RGB_LED_W_PIN, 255);
   #endif
 }
 

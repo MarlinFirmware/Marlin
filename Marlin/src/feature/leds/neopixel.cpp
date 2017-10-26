@@ -44,15 +44,14 @@ void setup_neopixel() {
   pixels.show(); // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-    delay(2000);
     set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-    delay(2000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-    delay(2000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-    delay(2000);
+    safe_delay(1000);
   #endif
-  set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
+  set_neopixel_color(pixels.Color(NEO_WHITE));    // white
 }
 
 bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {

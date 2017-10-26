@@ -30,6 +30,14 @@
 #include <Adafruit_NeoPixel.h>
 #include <stdint.h>
 
+#if ENABLED(NEOPIXEL_LED) 
+  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
+    #define NEO_WHITE 255, 255, 255, 0
+  #else
+    #define NEO_WHITE 0, 0, 0, 255
+  #endif
+#endif
+
 void setup_neopixel();
 bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 

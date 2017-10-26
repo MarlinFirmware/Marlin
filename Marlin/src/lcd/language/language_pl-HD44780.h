@@ -263,3 +263,5 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
+
+#define MSG_USER_MENU                       _UxGT("Wlasne Polecenia")
