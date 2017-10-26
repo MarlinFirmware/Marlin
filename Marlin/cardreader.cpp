@@ -865,7 +865,7 @@ void CardReader::updir() {
   extern void lcd_sdcard_menu();
   extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
   extern uint32_t saved_encoderPosition;
-  extern bool screen_changed, drawing_screen;
+  extern bool screen_changed, drawing_screen, defer_return_to_status;
 #endif
 
 void _lcd_synchronize();  // Not declared in any LCD header file.  Probably, that should be changed.
@@ -898,6 +898,7 @@ void CardReader::printingHasFinished() {
       lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
       drawing_screen = screen_changed = true;
       lcd_goto_screen(lcd_sdcard_menu, saved_encoderPosition);
+      defer_return_to_status = true;
       lcd_update();
     #endif
   }

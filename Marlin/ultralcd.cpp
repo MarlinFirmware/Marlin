@@ -3754,7 +3754,7 @@ void kill_screen(const char* lcd_msg) {
      */
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       uint32_t saved_encoderPosition = 0;
-      static millis_t assume_print_finished = millis() + 5000;
+      static millis_t assume_print_finished = 0;
     #endif
 
 void lcd_sdcard_menu() {
@@ -3764,8 +3764,10 @@ void lcd_sdcard_menu() {
         if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
           lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
           encoderPosition = saved_encoderPosition;      // encoderPosition to the last selected item.
+          assume_print_finished = millis() + 5000;
         }
-        assume_print_finished = millis();
+        saved_encoderPosition = encoderPosition;
+        defer_return_to_status = true;
       #endif
       
       const uint16_t fileCnt = card.getnrfilenames();
@@ -4777,17 +4779,14 @@ void lcd_update() {
     }
 
     #if ENABLED(ULTIPANEL)
-
-      // if SD_REPRINT_LAST_SELECTED_FILE is active, we suppress time outs from the
-      // void lcd_sdcard_menu() routine.  The LCD Panel should not be timing out after
-      // a print when waiting for the user to select the same print again.
-      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        if (currentScreen != lcd_sdcard_menu)
-      #endif
-  
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+          if (currentScreen != lcd_sdcard_menu)                // lcd_sdcard_menu() does not time out if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;  // When the printer finishes a file, it will wait with the file selected for 
+        #else                                                  // a re-print.
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #endif
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
 
