@@ -525,6 +525,10 @@ void GcodeSuite::process_next_command() {
         case 280: M280(); break;  // M280: Set servo position absolute
       #endif
 
+      #if ENABLED(BABYSTEPPING)
+        case 290: M290(); break;  // M290: Babystepping
+      #endif
+
       #if HAS_BUZZER
         case 300: M300(); break;  // M300: Play beep tone
       #endif
