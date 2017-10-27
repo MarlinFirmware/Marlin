@@ -25,9 +25,8 @@
  * MKS SBASE pin assignments
  */
 
-//#if !defined(TARGET_LPC1768)
-#if DISABLED(IS_REARM)
-  #error "Oops!  Make sure you have Re-Arm selected."
+#ifndef TARGET_LPC1768
+  #error "Oops!  Make sure you have LPC1768 selected."
 #endif
 
 #ifndef BOARD_NAME
@@ -39,46 +38,42 @@
 
 // unused
 /*
-#define D57               57
-#define D58               58
+#define PIN_P0_27         P0_27
+#define PIN_P0_28         P0_28
 */
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN           3  //10k pullup to 3.3V, 1K series
-#define X_MAX_PIN           2  //10k pullup to 3.3V, 1K series
-#define Y_MIN_PIN          14  //10k pullup to 3.3V, 1K series
-#define Y_MAX_PIN          15  //10k pullup to 3.3V, 1K series
-#define Z_MIN_PIN          19  //The original Mks Sbase DIO19 has a 10k pullup to 3.3V or 5V, 1K series, so when using a Zprobe we must use DIO41 (J8 P1.22)
-#define Z_MAX_PIN          18  //10k pullup to 3.3V, 1K series
+#define X_MIN_PIN          P1_24  //10k pullup to 3.3V, 1K series
+#define X_MAX_PIN          P1_25  //10k pullup to 3.3V, 1K series
+#define Y_MIN_PIN          P1_26  //10k pullup to 3.3V, 1K series
+#define Y_MAX_PIN          P1_27  //10k pullup to 3.3V, 1K series
+#define Z_MIN_PIN          P1_28  //The original Mks Sbase DIO19 has a 10k pullup to 3.3V or 5V, 1K series, so when using a Zprobe we must use DIO41 (J8 P1.22)
+#define Z_MAX_PIN          P1_29  //10k pullup to 3.3V, 1K series
 
 //
 // Steppers
 //
-#define X_STEP_PIN         26
-#define X_DIR_PIN          28
-#define X_ENABLE_PIN       24
+#define X_STEP_PIN         P2_0
+#define X_DIR_PIN          P0_5
+#define X_ENABLE_PIN       P0_4
 
-#define Y_STEP_PIN         54
-#define Y_DIR_PIN          55
-#define Y_ENABLE_PIN       38
+#define Y_STEP_PIN         P2_1
+#define Y_DIR_PIN          P0_11
+#define Y_ENABLE_PIN       P0_10
 
-#define Z_STEP_PIN         60
-#define Z_DIR_PIN          61
-#define Z_ENABLE_PIN       56
+#define Z_STEP_PIN         P2_2
+#define Z_DIR_PIN          P0_20
+#define Z_ENABLE_PIN       P0_19
 
-#define E0_STEP_PIN        46
-#define E0_DIR_PIN         48
-#define E0_ENABLE_PIN      62
+#define E0_STEP_PIN        P2_3
+#define E0_DIR_PIN         P0_22
+#define E0_ENABLE_PIN      P0_21
 
-#define E1_STEP_PIN        36
-#define E1_DIR_PIN         34
-#define E1_ENABLE_PIN      30
-
-#define X2_STEP_PIN        36
-#define X2_DIR_PIN         34
-#define X2_ENABLE_PIN      30
+#define E1_STEP_PIN        P2_8
+#define E1_DIR_PIN         P2_13
+#define E1_ENABLE_PIN      P4_29
 
 //
 // Temperature Sensors
@@ -95,13 +90,13 @@
 // Heaters / Fans
 //
 
-#define HEATER_BED_PIN     10
-#define HEATER_0_PIN        8
-#define HEATER_1_PIN       59
-#define FAN_PIN             9
+#define HEATER_BED_PIN     P2_5
+#define HEATER_0_PIN       P2_7
+#define HEATER_1_PIN       P2_6
+#define FAN_PIN            P2_4
 
 
-#define PS_ON_PIN          69
+#define PS_ON_PIN          P0_25
 
 
 //
@@ -111,9 +106,9 @@
 // 5V
 // NC
 // GND
-#define PIN_P0_17          50
-#define PIN_P0_16          16
-#define PIN_P0_14          80
+#define PIN_P0_17          P0_17
+#define PIN_P0_16          P0_16
+#define PIN_P0_14          P0_14
 
 
 //
@@ -121,19 +116,21 @@
 //
 
 // GND
-#define PIN_P1_22          41
-#define PIN_P1_23          53
-#define PIN_P2_12          12
-#define PIN_P2_11          35
-#define PIN_P4_28          13
+#define PIN_P1_22          P1_22
+#define PIN_P1_23          P1_23
+#define PIN_P2_12          P2_12
+#define PIN_P2_11          P2_11
+#define PIN_P4_28          P4_28
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 
-#define E_MUX0_PIN         50   // J7-4
-#define E_MUX1_PIN         16   // J7-5
-#define E_MUX2_PIN         80   // J7-6
+#if ENABLED(MK2_MULTIPLEXER)
+  #define E_MUX0_PIN         P0_17   // J7-4
+  #define E_MUX1_PIN         P0_16   // J7-5
+  #define E_MUX2_PIN         P0_15   // J7-6
+#endif
 
 
 /**
@@ -150,32 +147,32 @@
  */
 
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN       49  // EXP1.1
-  #define BTN_ENC          37  // EXP1.2
-  #define BTN_EN1          31  // EXP2.5
-  #define BTN_EN2          33  // EXP2.3
-  #define SD_DETECT_PIN    57  // EXP2.7
-  #define LCD_PINS_RS      16  // EXP1.4
-  #define LCD_SDSS         58  // EXP2.4
-  #define LCD_PINS_ENABLE  51  // EXP1.3
-  #define LCD_PINS_D4      80  // EXP1.5
+  #define BEEPER_PIN       P1_31  // EXP1.1
+  #define BTN_ENC          P1_30  // EXP1.2
+  #define BTN_EN1          P3_26  // EXP2.5
+  #define BTN_EN2          P3_25  // EXP2.3
+  #define SD_DETECT_PIN    P0_27  // EXP2.7
+  #define LCD_PINS_RS      P0_16  // EXP1.4
+  #define LCD_SDSS         P0_28  // EXP2.4
+  #define LCD_PINS_ENABLE  P0_18  // EXP1.3
+  #define LCD_PINS_D4      P0_14  // EXP1.5
 #endif // ULTRA_LCD
 
 //
 // Ethernet pins
 //
 #ifndef ULTIPANEL
-  #define ENET_MDIO        71  // J12-4
-  #define ENET_RX_ER       73  // J12-6
-  #define ENET_RXD1        75  // J12-8
+  #define ENET_MDIO        P1_17  // J12-4
+  #define ENET_RX_ER       P1_14  // J12-6
+  #define ENET_RXD1        P1_10  // J12-8
 #endif
-#define ENET_MOC           70  // J12-3
-#define REF_CLK            72  // J12-5
-#define ENET_RXD0          74  // J12-7
-#define ENET_CRS           76  // J12-9
-#define ENET_TX_EN         77  // J12-10
-#define ENET_TXD0          78  // J12-11
-#define ENET_TXD1          79  // J12-12
+#define ENET_MOC           P1_16  // J12-3
+#define REF_CLK            P1_15  // J12-5
+#define ENET_RXD0          P1_9   // J12-7
+#define ENET_CRS           P1_8   // J12-9
+#define ENET_TX_EN         P1_4   // J12-10
+#define ENET_TXD0          P1_0   // J12-11
+#define ENET_TXD1          P1_1   // J12-12
 
 /**
  *  PWMs
@@ -184,25 +181,25 @@
  *
  *  SERVO2 does NOT have a PWM assigned to it.
  *
- *  PWM1.1   DIO4    SERVO3_PIN       FIL_RUNOUT_PIN   5V output, PWM
- *  PWM1.1   DIO26   E0_STEP_PIN
- *  PWM1.2   DIO11   SERVO0_PIN
- *  PWM1.2   DIO54   X_STEP_PIN
- *  PWM1.3   DIO6    SERVO1_PIN       J5-1
- *  PWM1.3   DIO60   Y_STEP_PIN
- *  PWM1.4   DIO53   SDSS(SSEL0)      J3-5  AUX-3
- *  PWM1.4   DIO46   Z_STEP_PIN
- *  PWM1.5   DIO3    X_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.5   DIO9    RAMPS_D9_PIN
- *  PWM1.6   DIO14   Y_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.6   DIO10   RAMPS_D10_PIN
+ *  PWM1.1   P1_18   SERVO3_PIN       FIL_RUNOUT_PIN   5V output, PWM
+ *  PWM1.1   P2_0    E0_STEP_PIN
+ *  PWM1.2   P1_20   SERVO0_PIN
+ *  PWM1.2   P2_1    X_STEP_PIN
+ *  PWM1.3   P1_21   SERVO1_PIN       J5-1
+ *  PWM1.3   P2_2    Y_STEP_PIN
+ *  PWM1.4   P1_23   SDSS(SSEL0)      J3-5  AUX-3
+ *  PWM1.4   P2_3    Z_STEP_PIN
+ *  PWM1.5   P1_24   X_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
+ *  PWM1.5   P2_4    RAMPS_D9_PIN
+ *  PWM1.6   P1_26   Y_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
+ *  PWM1.6   P2_5    RAMPS_D10_PIN
  */
 
  /**
   * Special pins
-  *   D37 - not 5V tolerant
-  *   D49 - not 5V tolerant
-  *   D57 - open collector
-  *   D58 - open collector
+  *   P1_30 - not 5V tolerant
+  *   P1_31 - not 5V tolerant
+  *   P0_27 - open collector
+  *   P0_28 - open collector
   *
   */

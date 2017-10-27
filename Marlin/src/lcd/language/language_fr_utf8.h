@@ -27,8 +27,8 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_FR_H
-#define LANGUAGE_FR_H
+#ifndef LANGUAGE_FR_UTF_H
+#define LANGUAGE_FR_UTF_H
 
 #define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
@@ -341,4 +341,4 @@
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Reprise...")
 #endif // LCD_HEIGHT < 4
 
-#endif // LANGUAGE_FR_H
+#endif // LANGUAGE_FR_UTF_H

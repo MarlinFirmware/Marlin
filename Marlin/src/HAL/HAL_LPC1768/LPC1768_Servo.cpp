@@ -64,12 +64,9 @@
 
 #if HAS_SERVOS && defined(TARGET_LPC1768)
 
+  #include "LPC1768_PWM.h"
   #include "LPC1768_Servo.h"
   #include "servo_private.h"
-
-  extern bool LPC1768_PWM_attach_pin(uint8_t, uint32_t, uint32_t, uint8_t);
-  extern bool LPC1768_PWM_write(uint8_t, uint32_t);
-  extern bool LPC1768_PWM_detach_pin(uint8_t);
 
   ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
   uint8_t ServoCount = 0;                              // the total number of attached servos

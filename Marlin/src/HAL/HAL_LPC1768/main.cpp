@@ -100,7 +100,6 @@ int main(void) {
 
   HAL_timer_init();
 
-  extern void LPC1768_PWM_init();
   LPC1768_PWM_init();
 
   setup();
