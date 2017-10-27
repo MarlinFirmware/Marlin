@@ -3162,16 +3162,20 @@ static void homeaxis(const AxisEnum axis) {
     #endif
   ) {
 
-    static float hop_height,        // Remember where the Z height started
-                 hop_amount = 0.0;  // Total amount lifted, for use in recover
+    static float hop_amount = 0.0;  // Total amount lifted, for use in recover
 
-    // Simply never allow two retracts or recovers in a row
+    // Prevent two retracts or recovers in a row
     if (retracted[active_extruder] == retracting) return;
 
-    #if EXTRUDERS < 2
-      bool swapping = false;
+    // Prevent two swap-retract or recovers in a row
+    #if EXTRUDERS > 1
+      // Allow G10 S1 only after G10
+      if (swapping && retracted_swap[active_extruder] == retracting) return;
+      // G11 priority to recover the long retract if activated
+      if (!retracting) swapping = retracted_swap[active_extruder];
+    #else
+      const bool swapping = false;
     #endif
-    if (!retracting) swapping = retracted_swap[active_extruder];
 
     /* // debugging
       SERIAL_ECHOLNPAIR("retracting ", retracting);
@@ -3188,64 +3192,55 @@ static void homeaxis(const AxisEnum axis) {
     //*/
 
     const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
-
     const float old_feedrate_mm_s = feedrate_mm_s;
-    const int16_t old_flow = flow_percentage[active_extruder];
-
-    // Don't apply flow multiplication to retract/recover
-    flow_percentage[active_extruder] = 100;
 
     // The current position will be the destination for E and Z moves
     set_destination_from_current();
+    stepper.synchronize();  // Wait for buffered moves to complete
 
-    stepper.synchronize(); // Wait for all moves to finish
+    const float renormalize = 100.0 / flow_percentage[active_extruder] / volumetric_multiplier[active_extruder];
 
     if (retracting) {
-      // Remember the Z height since G-code may include its own Z-hop
-      // For best results turn off Z hop if G-code already includes it
-      hop_height = destination[Z_AXIS];
-
       // Retract by moving from a faux E position back to the current E position
       feedrate_mm_s = retract_feedrate_mm_s;
-      current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) / volumetric_multiplier[active_extruder];
+      current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) * renormalize;
       sync_plan_position_e();
       prepare_move_to_destination();
 
       // Is a Z hop set, and has the hop not yet been done?
-      if (has_zhop) {
-        hop_amount += retract_zlift;                // Carriage is raised for retraction hop
-        current_position[Z_AXIS] -= retract_zlift;  // Pretend current pos is lower. Next move raises Z.
-        SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-        prepare_move_to_destination();              // Raise up to the old current pos
+      if (has_zhop && !hop_amount) {
+        hop_amount += retract_zlift;                        // Carriage is raised for retraction hop
+        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
+        current_position[Z_AXIS] -= retract_zlift;          // Pretend current pos is lower. Next move raises Z.
+        SYNC_PLAN_POSITION_KINEMATIC();                     // Set the planner to the new position
+        prepare_move_to_destination();                      // Raise up to the old current pos
+        feedrate_mm_s = retract_feedrate_mm_s;              // Restore feedrate
       }
     }
     else {
       // If a hop was done and Z hasn't changed, undo the Z hop
-      if (hop_amount && NEAR(hop_height, destination[Z_AXIS])) {
-        current_position[Z_AXIS] += hop_amount;     // Pretend current pos is higher. Next move lowers Z.
-        SYNC_PLAN_POSITION_KINEMATIC();             // Set the planner to the new position
-        prepare_move_to_destination();              // Lower to the old current pos
-        hop_amount = 0.0;
+      if (hop_amount) {
+        current_position[Z_AXIS] -= retract_zlift;          // Pretend current pos is lower. Next move raises Z.
+        SYNC_PLAN_POSITION_KINEMATIC();                     // Set the planner to the new position
+        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
+        prepare_move_to_destination();                      // Raise up to the old current pos
+        hop_amount = 0.0;                                   // Clear hop
       }
 
       // A retract multiplier has been added here to get faster swap recovery
       feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
       const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
-      current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
+      current_position[E_AXIS] -= move_e * renormalize;
       sync_plan_position_e();
-
-      prepare_move_to_destination();  // Recover E
+      prepare_move_to_destination();                        // Recover E
     }
 
-    // Restore flow and feedrate
-    flow_percentage[active_extruder] = old_flow;
-    feedrate_mm_s = old_feedrate_mm_s;
+    feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
 
-    // The active extruder is now retracted or recovered
-    retracted[active_extruder] = retracting;
+    retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
-    // If swap retract/recover then update the retracted_swap flag too
+    // If swap retract/recover update the retracted_swap flag too
     #if EXTRUDERS > 1
       if (swapping) retracted_swap[active_extruder] = retracting;
     #endif
@@ -3264,7 +3259,7 @@ static void homeaxis(const AxisEnum axis) {
       SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
     //*/
 
-  } // retract()
+  }
 
 #endif // FWRETRACT
 
