@@ -134,6 +134,9 @@
 #define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
+#ifdef MAX_VFAT_ENTRIES
+  #undef MAX_VFAT_ENTRIES
+#endif  
 #if ENABLED(SCROLL_LONG_FILENAMES)
   #define MAX_VFAT_ENTRIES (5)
 #else
