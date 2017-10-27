@@ -92,7 +92,7 @@
  *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
  * DELTA:                                           48 bytes
- *  348  M666 XYZ  endstop_adj                      (float x3)
+ *  348  M666 XYZ  delta_endstop_adj                (float x3)
  *  360  M665 R    delta_radius                     (float)
  *  364  M665 L    delta_diagonal_rod               (float)
  *  368  M665 S    delta_segments_per_second        (float)
@@ -450,7 +450,7 @@ void MarlinSettings::postprocess() {
 
     // 10 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
-      EEPROM_WRITE(endstop_adj);               // 3 floats
+      EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
       EEPROM_WRITE(delta_diagonal_rod);        // 1 float
       EEPROM_WRITE(delta_segments_per_second); // 1 float
@@ -837,7 +837,7 @@ void MarlinSettings::postprocess() {
       #endif // AUTO_BED_LEVELING_UBL
 
       #if ENABLED(DELTA)
-        EEPROM_READ(endstop_adj);               // 3 floats
+        EEPROM_READ(delta_endstop_adj);         // 3 floats
         EEPROM_READ(delta_radius);              // 1 float
         EEPROM_READ(delta_diagonal_rod);        // 1 float
         EEPROM_READ(delta_segments_per_second); // 1 float
@@ -1226,7 +1226,7 @@ void MarlinSettings::reset() {
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
                 dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
-    COPY(endstop_adj, adj);
+    COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
@@ -1639,9 +1639,9 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Endstop adjustment:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M666 X", LINEAR_UNIT(endstop_adj[X_AXIS]));
-      SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(endstop_adj[Y_AXIS]));
-      SERIAL_ECHOLNPAIR(" Z", LINEAR_UNIT(endstop_adj[Z_AXIS]));
+      SERIAL_ECHOPAIR("  M666 X", LINEAR_UNIT(delta_endstop_adj[X_AXIS]));
+      SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_endstop_adj[Y_AXIS]));
+      SERIAL_ECHOLNPAIR(" Z", LINEAR_UNIT(delta_endstop_adj[Z_AXIS]));
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");

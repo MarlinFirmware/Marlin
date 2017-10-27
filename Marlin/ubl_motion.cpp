@@ -40,10 +40,10 @@
 
 #if ENABLED(DELTA)
 
-  extern float delta[ABC],
-               endstop_adj[ABC];
+  extern float delta[ABC];
 
-  extern float delta_radius,
+  extern float delta_endstop_adj[ABC],
+               delta_radius,
                delta_tower_angle_trim[ABC],
                delta_tower[ABC][2],
                delta_diagonal_rod,
