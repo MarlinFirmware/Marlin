@@ -2067,8 +2067,14 @@ void Temperature::isr() {
 
     for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
       const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
-      if (rawtemp > maxttemp_raw[e] * tdir && target_temperature[e] > 0) max_temp_error(e);
-      if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && target_temperature[e] > 0) {
+      bool heater_on = 
+        # if ENABLED(PIDTEMP)
+          soft_pwm_amount[e] > 0;
+        # else
+          target_temperature[e] > 0;
+        # endif
+      if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
+      if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && heater_on) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
           if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
@@ -2086,8 +2092,14 @@ void Temperature::isr() {
       #else
         #define GEBED >=
       #endif
-      if (current_temperature_bed_raw GEBED bed_maxttemp_raw && target_temperature_bed > 0) max_temp_error(-1);
-      if (bed_minttemp_raw GEBED current_temperature_bed_raw && target_temperature_bed > 0) min_temp_error(-1);
+      bool bed_on = 
+        # if ENABLED(PIDTEMPBED)
+          soft_pwm_amount_bed > 0;
+        # else
+          target_temperature_bed > 0;
+        # endif
+      if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
+      if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
     #endif
 
   } // temp_count >= OVERSAMPLENR
