@@ -22,20 +22,20 @@
  */
 
 /**
- *  structurs for 2560 family boards that use morre than 70 pins
+ * Structures for 2560 family boards that use more than 70 pins
  */
 
 #ifndef _PINSDEBUG_PLUS_70_H_
 #define _PINSDEBUG_PLUS_70_H_
 
 #undef NUM_DIGITAL_PINS
-#if MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D
+#if MB(BQ_ZUM_MEGA_3D)
   #define NUM_DIGITAL_PINS            85
-#elif MOTHERBOARD == BOARD_MIGHTYBOARD_REVE
+#elif MB(MIGHTYBOARD_REVE)
   #define NUM_DIGITAL_PINS            80
-#elif MOTHERBOARD == BOARD_MINIRAMBO
+#elif MB(MINIRAMBO)
   #define NUM_DIGITAL_PINS            85
-#elif MOTHERBOARD == BOARD_SCOOVO_X9H
+#elif MB(SCOOVO_X9H)
   #define NUM_DIGITAL_PINS            85
 #endif
 
