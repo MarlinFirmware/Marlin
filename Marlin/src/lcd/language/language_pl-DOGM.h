@@ -43,6 +43,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Następny punkt")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Wypoziomowano!")
+#define MSG_USER_MENU                       _UxGT("Własne Polecenia")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
 #define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
