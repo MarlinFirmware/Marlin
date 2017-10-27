@@ -111,7 +111,7 @@
  *  396  M145 S0 B lcd_preheat_bed_temp             (int x2)
  *  400  M145 S0 F lcd_preheat_fan_speed            (int x2)
  *
- * PIDTEMP:                                         81 bytes
+ * PIDTEMP:                                         82 bytes
  *  404  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
  *  420  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
  *  436  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
