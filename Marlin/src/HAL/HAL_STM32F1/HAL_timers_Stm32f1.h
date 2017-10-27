@@ -43,7 +43,7 @@
  */
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define HAL_TIMER_TYPE uint16_t
+typedef uint16_t timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
 #define STEP_TIMER_NUM 5  // index of timer to use for stepper
@@ -126,8 +126,8 @@ static FORCE_INLINE void HAL_timer_set_count (uint8_t timer_num, uint32_t count)
   }
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num) {
-  HAL_TIMER_TYPE temp;
+static FORCE_INLINE timer_t HAL_timer_get_count (uint8_t timer_num) {
+  timer_t temp;
   switch (timer_num) {
   case STEP_TIMER_NUM:
     temp = StepperTimer.getCompare(STEP_TIMER_CHAN);
@@ -142,8 +142,8 @@ static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num) {
   return temp;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_current_count(uint8_t timer_num) {
-  HAL_TIMER_TYPE temp;
+static FORCE_INLINE timer_t HAL_timer_get_current_count(uint8_t timer_num) {
+  timer_t temp;
   switch (timer_num) {
   case STEP_TIMER_NUM:
     temp = StepperTimer.getCount();

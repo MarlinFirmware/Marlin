@@ -45,15 +45,15 @@ bool useable_hardware_PWM(uint8_t pin);
 #define LPC_PIN(pin)            (1UL << pin)
 #define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
 
-#define SET_DIR_INPUT(IO)       (LPC_GPIO(DIO ## IO ## _PORT)->FIODIR &= ~LPC_PIN(DIO ## IO ##_PIN))
-#define SET_DIR_OUTPUT(IO)      (LPC_GPIO(DIO ## IO ## _PORT)->FIODIR |=  LPC_PIN(DIO ## IO ##_PIN))
+#define SET_DIR_INPUT(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(IO)))
+#define SET_DIR_OUTPUT(IO)      (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(IO)))
 
-#define SET_MODE(IO, mode)      (pin_mode((DIO ## IO ## _PORT, DIO ## IO ## _PIN), mode))
+#define SET_MODE(IO, mode)      (pin_mode((LPC1768_PIN_PORT(IO), LPC1768_PIN_PIN(IO)), mode))
 
-#define WRITE_PIN_SET(IO)       (LPC_GPIO(DIO ## IO ## _PORT)->FIOSET = LPC_PIN(DIO ## IO ##_PIN))
-#define WRITE_PIN_CLR(IO)       (LPC_GPIO(DIO ## IO ## _PORT)->FIOCLR = LPC_PIN(DIO ## IO ##_PIN))
+#define WRITE_PIN_SET(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOSET = LPC_PIN(LPC1768_PIN_PIN(IO)))
+#define WRITE_PIN_CLR(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOCLR = LPC_PIN(LPC1768_PIN_PIN(IO)))
 
-#define READ_PIN(IO)            ((LPC_GPIO(DIO ## IO ## _PORT)->FIOPIN & LPC_PIN(DIO ## IO ##_PIN)) ? 1 : 0)
+#define READ_PIN(IO)            ((LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(IO))) ? 1 : 0)
 #define WRITE_PIN(IO, v)        ((v) ? WRITE_PIN_SET(IO) : WRITE_PIN_CLR(IO))
 
 /**

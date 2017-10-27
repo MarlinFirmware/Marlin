@@ -25,7 +25,7 @@
 
 
 
-#if defined(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
 
   #ifdef __cplusplus
     extern "C" {

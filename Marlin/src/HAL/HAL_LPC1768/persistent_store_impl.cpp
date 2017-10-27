@@ -50,7 +50,8 @@ bool access_start() {
   if (res) MSC_Release_Lock();
 
   if (res == FR_OK) {
-    uint16_t bytes_written, file_size = f_size(&eeprom_file);
+    UINT bytes_written;
+    FSIZE_t file_size = f_size(&eeprom_file);
     f_lseek(&eeprom_file, file_size);
     while (file_size <= E2END && res == FR_OK) {
       res = f_write(&eeprom_file, &eeprom_erase_value, 1, &bytes_written);
@@ -99,7 +100,7 @@ bool access_finish() {
 
 bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   FRESULT s;
-  uint16_t bytes_written = 0;
+  UINT bytes_written = 0;
 
   s = f_lseek(&eeprom_file, pos);
   if (s) {
@@ -128,7 +129,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
 }
 
 bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
-  uint16_t bytes_read = 0;
+  UINT bytes_read = 0;
   FRESULT s;
   s = f_lseek(&eeprom_file, pos);
   if ( s ) {

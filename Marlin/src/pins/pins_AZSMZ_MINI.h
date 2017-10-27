@@ -39,7 +39,7 @@
 // Servos
 //
 #define SERVO0_PIN         53
-    
+
 //
 // Limit Switches
 //

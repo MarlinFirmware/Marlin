@@ -61,7 +61,7 @@ script:
   - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
-  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_RGBW_LED
+  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
   #
@@ -435,4 +435,15 @@ script:
   - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
   - pins_set RAMPS X_MAX_PIN -1
   - opt_set_adv Z2_MAX_PIN 2
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+
+  #############################
+  # LPC1768 default config test
+  #############################
+
+  - export TEST_PLATFORM="-e LPC1768"
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

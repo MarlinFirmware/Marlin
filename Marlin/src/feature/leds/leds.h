@@ -27,6 +27,8 @@
 #ifndef __LEDS_H__
 #define __LEDS_H__
 
+#include "../../inc/MarlinConfig.h"
+
 #if ENABLED(NEOPIXEL_LED)
   #include <Adafruit_NeoPixel.h>
   #include "neopixel.h"
@@ -38,14 +40,6 @@
 
 #if ENABLED(PCA9632)
   #include "pca9632.h"
-#endif
-
-#if ENABLED(NEOPIXEL_LED) 
-  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
-    #define NEO_WHITE 255, 255, 255
-  #else
-    #define NEO_WHITE 0, 0, 0, 255
-  #endif
 #endif
 
 #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
@@ -61,7 +55,14 @@
 #endif
 
 void set_led_color(
-  const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w = 0, const uint8_t p = 255
+  const uint8_t r, const uint8_t g, const uint8_t b
+    #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      , const uint8_t w = 0
+      #if ENABLED(NEOPIXEL_LED)
+        , const uint8_t p = NEOPIXEL_BRIGHTNESS
+        , const bool isSequence = false
+      #endif
+    #endif
 );
 
 #endif // __LEDS_H__

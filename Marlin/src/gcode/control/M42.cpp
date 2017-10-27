@@ -34,21 +34,22 @@ void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  const int pin_number = parser.intval('P', LED_PIN);
+  int pin_number = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
   if (pin_number < 0) return;
 
-  if (pin_is_protected(pin_number)) {
+  const pin_t pin = GET_PIN_MAP_PIN(pin_number);
+  if (pin_is_protected(pin)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
     return;
   }
 
-  pinMode(pin_number, OUTPUT);
-  digitalWrite(pin_number, pin_status);
-  analogWrite(pin_number, pin_status);
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, pin_status);
+  analogWrite(pin, pin_status);
 
   #if FAN_COUNT > 0
-    switch (pin_number) {
+    switch (pin) {
       #if HAS_FAN0
         case FAN_PIN: fanSpeeds[0] = pin_status; break;
       #endif

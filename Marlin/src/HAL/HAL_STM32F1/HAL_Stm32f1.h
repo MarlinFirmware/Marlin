@@ -98,6 +98,8 @@
 // Types
 // --------------------------------------------------------------------------
 
+typedef int8_t pin_t;
+
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
@@ -191,5 +193,9 @@ void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
 
 */
+
+#define GET_PIN_MAP_PIN(index) index
+#define GET_PIN_MAP_INDEX(pin) pin
+#define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #endif // _HAL_STM32F1_H

@@ -68,7 +68,7 @@
 
 typedef struct {
   const char * const name;
-  uint8_t pin;
+  pin_t pin;
   bool is_digital;
 } PinInfo;
 
@@ -109,18 +109,18 @@ static void print_input_or_output(const bool isout) {
 
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
+inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = false, const char *start_string = "") {
   char buffer[30];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
   for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
-      GET_PIN_INFO(pin);
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
-        sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);     // digital pin number
+        sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
         SERIAL_ECHO(buffer);
+        PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (IS_ANALOG(pin)) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
@@ -180,8 +180,9 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
   } // end of for loop
 
   if (!found) {
-    sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);
+    sprintf_P(buffer, PSTR("%sPIN: "), start_string);
     SERIAL_ECHO(buffer);
+    PRINT_PIN(pin);
     PRINT_PORT(pin);
     if (IS_ANALOG(pin)) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number

@@ -615,7 +615,10 @@
   #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVERF
-  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet V")
+#endif
+#ifndef MSG_CONTROL_RETRACT_RECOVER_SWAPF
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #endif
 #ifndef MSG_AUTORETRACT
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
