@@ -3749,9 +3749,9 @@ void kill_screen(const char* lcd_msg) {
 
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
-  
+
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
+        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not
           lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
           encoderPosition = saved_encoderPosition;      // encoderPosition to the last selected item.
           assume_print_finished = millis() + 5000;
@@ -3759,7 +3759,7 @@ void kill_screen(const char* lcd_msg) {
         saved_encoderPosition = encoderPosition;
         defer_return_to_status = true;
       #endif
-      
+
       const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
@@ -4780,7 +4780,7 @@ void lcd_update() {
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
           if (currentScreen != lcd_sdcard_menu)                // lcd_sdcard_menu() does not time out if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;  // When the printer finishes a file, it will wait with the file selected for 
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;  // When the printer finishes a file, it will wait with the file selected for
         #else                                                  // a re-print.
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         #endif

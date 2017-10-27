@@ -329,23 +329,22 @@ void Max7219_idle_tasks() {
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static millis_t next_blink = 0;
-
     if (ELAPSED(millis(), next_blink)) {
-        Max7219_LED_Toggle(7, 7);
-        next_blink = millis() + 750;
+      Max7219_LED_Toggle(7, 7);
+      next_blink = millis() + 750;
     }
   #endif
 
   #ifdef MAX7219_DEBUG_STEPPER_HEAD
     static int16_t last_head_cnt=0;
     if (last_head_cnt != head) {
-      if ( last_head_cnt < 8)
+      if (last_head_cnt < 8)
         Max7219_LED_Off( last_head_cnt, MAX7219_DEBUG_STEPPER_HEAD);
       else
         Max7219_LED_Off( last_head_cnt-8, MAX7219_DEBUG_STEPPER_HEAD+1);
 
       last_head_cnt = head;
-      if ( head < 8)
+      if (head < 8)
         Max7219_LED_On(head, MAX7219_DEBUG_STEPPER_HEAD);
       else
         Max7219_LED_On(head-8, MAX7219_DEBUG_STEPPER_HEAD+1);
@@ -355,13 +354,13 @@ void Max7219_idle_tasks() {
   #ifdef MAX7219_DEBUG_STEPPER_TAIL
     static int16_t last_tail_cnt=0;
     if (last_tail_cnt != tail) {
-      if ( last_tail_cnt < 8)
+      if (last_tail_cnt < 8)
         Max7219_LED_Off( last_tail_cnt, MAX7219_DEBUG_STEPPER_TAIL);
       else
         Max7219_LED_Off( last_tail_cnt-8, MAX7219_DEBUG_STEPPER_TAIL+1);
 
       last_tail_cnt = tail;
-      if ( tail < 8)
+      if (tail < 8)
         Max7219_LED_On(tail, MAX7219_DEBUG_STEPPER_TAIL);
       else
         Max7219_LED_On(tail-8, MAX7219_DEBUG_STEPPER_TAIL+1);
@@ -381,10 +380,10 @@ void Max7219_idle_tasks() {
                     en = max(current_depth, last_depth);
       if (current_depth < last_depth)
         for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
-            Max7219_LED_Off(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+          Max7219_LED_Off(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
       else
-          for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
-            Max7219_LED_On(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+        for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
+          Max7219_LED_On(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
 
       last_depth = current_depth;
     }
