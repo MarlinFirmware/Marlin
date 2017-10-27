@@ -257,22 +257,24 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
-// Dual Steppers
-//
-// This section will allow you to use extra E drivers to drive a second motor for X, Y, or Z axes.
-//
-// X_DUAL_STEPPER_DRIVERS setting will set that axis to use the second driver for a second motor.
-// INVERT_X2_VS_X_DIR will drive the second motor in the opposite direction.
-// X_DUAL_ENDSTOPS setting will allow each motor to have their own endstop, which can adjust for
-// racking. If you set this, you can also set which pin to use with X2_USE_ENDSTOP. M119 (endstops
-// report) will show the X2 endstop as well.
-//
-// X_DUAL_ENDSTOP_ADJUSTMENT: After homing both motors, this offset is applied to the X2 motor. if
-// you home the X axis, and then measure the error in X2, then you can either add that value in
-// here, or set it using the M666 X<value> command.
-//
-// The previous documentation also applies to the Y and Z variants.
-//
+/**
+ * Dual Steppers
+ *
+ * This section will allow you to use extra E drivers to drive a second motor for X, Y, or Z axes.
+ *
+ * X_DUAL_STEPPER_DRIVERS setting will set that axis to use the second driver for a second motor.
+ * INVERT_X2_VS_X_DIR will drive the second motor in the opposite direction.
+ * X_DUAL_ENDSTOPS setting will allow each motor to have their own endstop, which can adjust for
+ * racking. If you set this, you can also set which pin to use with X2_USE_ENDSTOP. M119 (endstops
+ * report) will show the X2 endstop as well.
+ *
+ * X_DUAL_ENDSTOP_ADJUSTMENT: After homing both motors, this offset is applied to the X2 motor. if
+ * you home the X axis, and then measure the error in X2, then you can either add that value in
+ * here, or set it using the M666 X<value> command.
+ *
+ * The previous documentation also applies to the Y and Z variants.
+ **/
+
 // Dual X Steppers
 // Uncomment this option to drive two X axis motors.
 // The next unused E driver will be assigned to the second X stepper.
