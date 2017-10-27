@@ -15,7 +15,7 @@
   a work in progress. Email me if you have any questions, suggestions,
   or if you encounter problems when using Easy Config.
 
-    This is a Marlin 1.1.x configuration file. I will update this as
+    This is a Marlin 2.0.x configuration file. I will update this as
   new versions of Marlin are released.
 
     NOTE: Sanity check should still work and should not show any errors.
@@ -1352,7 +1352,7 @@
 //
 // M100 Free Memory Watcher
 //
-//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
+//#define M100_FREE_MEMORY_WATCHER    // Add M100 (Free Memory Watcher) to debug memory usage
 
 //
 // G20/G21 Inch mode support
@@ -1927,7 +1927,7 @@
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
  *  NOTE: A separate 5V power supply is required! The Neopixel LED needs
- *  more current than the Arduino 5V linear regulator can produce. 
+ *  more current than the Arduino 5V linear regulator can produce.
  * *** CAUTION ***
  *
  * LED Type. Enable only one of the following two options.

@@ -568,10 +568,19 @@
   // Enable this option to scroll long filenames in the SD card menu
   //#define SCROLL_LONG_FILENAMES
 
-  // This option allows you to abort SD printing when any endstop is triggered.
-  // This feature must be enabled with "M540 S1" or from the LCD menu.
-  // To have any effect, endstops must be enabled during SD printing.
+  /**
+   * This option allows you to abort SD printing when any endstop is triggered.
+   * This feature must be enabled with "M540 S1" or from the LCD menu.
+   * To have any effect, endstops must be enabled during SD printing.
+   */
   //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+
+  /**
+   * This option makes it easier to print the same SD Card file again.
+   * On print completion the LCD Menu will open with the file selected.
+   * You can just click to start the print, or navigate elsewhere.
+   */
+  //#define SD_REPRINT_LAST_SELECTED_FILE
 
 #endif // SDSUPPORT
 
@@ -878,9 +887,7 @@
   #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
-  #if ENABLED(SDSUPPORT)
-    #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
-  #endif
+  #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
   #define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 
