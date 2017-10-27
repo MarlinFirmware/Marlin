@@ -93,14 +93,14 @@ Timer_clock4: Prescaler 128 -> 656.25kHz
  * TODO: Calculate Timer prescale value, so we get the 32bit to adjust
  */
 
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
+void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       StepperTimer.pause();
       StepperTimer.setCount(0);
       StepperTimer.setPrescaleFactor(STEPPER_TIMER_PRESCALE);
       StepperTimer.setOverflow(0xFFFF);
-      StepperTimer.setCompare (STEP_TIMER_CHAN, (HAL_STEPPER_TIMER_RATE / frequency));
+      StepperTimer.setCompare(STEP_TIMER_CHAN, uint32_t(HAL_STEPPER_TIMER_RATE) / frequency);
       StepperTimer.refresh();
       StepperTimer.resume();
       break;
@@ -109,14 +109,14 @@ void HAL_timer_start (uint8_t timer_num, uint32_t frequency) {
       TempTimer.setCount(0);
       TempTimer.setPrescaleFactor(TEMP_TIMER_PRESCALE);
       TempTimer.setOverflow(0xFFFF);
-      TempTimer.setCompare (TEMP_TIMER_CHAN, ((F_CPU / TEMP_TIMER_PRESCALE) / frequency));
+      TempTimer.setCompare(TEMP_TIMER_CHAN, (F_CPU) / (TEMP_TIMER_PRESCALE) / frequency);
       TempTimer.refresh();
       TempTimer.resume();
       break;
   }
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num) {
+void HAL_timer_enable_interrupt(uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       StepperTimer.attachInterrupt(STEP_TIMER_CHAN, stepTC_Handler);
@@ -129,7 +129,7 @@ void HAL_timer_enable_interrupt (uint8_t timer_num) {
   }
 }
 
-void HAL_timer_disable_interrupt (uint8_t timer_num) {
+void HAL_timer_disable_interrupt(uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       StepperTimer.detachInterrupt(STEP_TIMER_CHAN);

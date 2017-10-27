@@ -181,7 +181,7 @@ void plan_arc(
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
   // in any intermediate location.
-  set_current_to_destination();
+  set_current_from_destination();
 } // plan_arc
 
 /**

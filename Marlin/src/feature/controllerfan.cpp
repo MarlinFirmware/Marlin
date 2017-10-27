@@ -24,6 +24,9 @@
 
 #if ENABLED(USE_CONTROLLER_FAN)
 
+#include "../module/stepper_indirection.h"
+#include "../module/temperature.h"
+
 void controllerfan_update() {
   static millis_t lastMotorOn = 0, // Last time a motor was turned on
                   nextMotorCheck = 0; // Last time the state was checked

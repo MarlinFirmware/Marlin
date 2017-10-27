@@ -10,7 +10,7 @@ namespace PersistentStore {
 bool access_start();
 bool access_finish();
 bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc);
-void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc);
+bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc);
 
 } // PersistentStore
 } // HAL

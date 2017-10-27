@@ -24,11 +24,10 @@
  * PWM print routines for Atmel 8 bit AVR CPUs
  */
 
+#ifndef _PINSDEBUG_AVR_8_BIT_
+#define _PINSDEBUG_AVR_8_BIT_
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 (MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D \
-|| MOTHERBOARD == BOARD_MIGHTYBOARD_REVE \
-|| MOTHERBOARD == BOARD_MINIRAMBO \
-|| MOTHERBOARD == BOARD_SCOOVO_X9H)
+#include "../../inc/MarlinConfig.h"
 
 #if AVR_AT90USB1286_FAMILY
   // Working with Teensyduino extension so need to re-define some things
@@ -398,4 +397,6 @@ static void pwm_details(uint8_t pin) {
 
 #endif
 
-#define GET_PIN_INFO(pin) do{}while(0)
+#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
+
+#endif // _PINSDEBUG_AVR_8_BIT_

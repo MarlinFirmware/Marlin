@@ -192,6 +192,10 @@
   // Generic support for SSD1306 OLED I2C LCDs
   //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
   U8GLIB_SSD1306_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
+#elif ENABLED(MKS_12864OLED)
+  // MKS 128x64 (SH1106) OLED I2C LCD
+  U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);      // 8 stripes
+  //U8GLIB_SH1106_128X64_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
 #elif ENABLED(U8GLIB_SH1106)
   // Generic support for SH1106 OLED I2C LCDs
   //U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);  // 8 stripes
@@ -430,12 +434,12 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     if (!axis_homed[axis])
       u8g.print('?');
     else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
           u8g.print(' ');
         else
       #endif
-      lcd_printPGM(pstr);
+          lcd_printPGM(pstr);
     }
   }
 }
@@ -532,7 +536,7 @@ static void lcd_implementation_status_screen() {
     // SD Card Symbol
     //
 
-    if (PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
+    if (card.isFileOpen() && PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
       // Upper box
       u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
       // Right edge
@@ -556,7 +560,11 @@ static void lcd_implementation_status_screen() {
         PROGRESS_BAR_WIDTH, 4 - (TALL_FONT_CORRECTION)
       );
 
-    if (IS_SD_PRINTING) {
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      const uint8_t progress_bar_percent = card.percentDone();
+    #endif
+
+    if (progress_bar_percent > 1) {
 
       //
       // Progress bar solid part
@@ -565,7 +573,7 @@ static void lcd_implementation_status_screen() {
       if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2 - (TALL_FONT_CORRECTION)
         );
 
       //
@@ -576,7 +584,7 @@ static void lcd_implementation_status_screen() {
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
           u8g.setPrintPos(55, 48);
-          u8g.print(itostr3(card.percentDone()));
+          u8g.print(itostr3(progress_bar_percent));
           u8g.print('%');
         }
       #endif
@@ -927,20 +935,36 @@ static void lcd_implementation_status_screen() {
 
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
-      uint8_t n = LCD_WIDTH - (START_COL) - 1;
-      char c;
+      constexpr uint8_t maxlen = LCD_WIDTH - (START_COL) - 1;
+      const char *outstr = longFilename[0] ? longFilename : filename;
       if (longFilename[0]) {
-        filename = longFilename;
-        longFilename[n] = '\0'; // cutoff at screen edge
+        #if ENABLED(SCROLL_LONG_FILENAMES)
+          if (isSelected) {
+            uint8_t name_hash = row;
+            for (uint8_t l = FILENAME_LENGTH; l--;)
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+            if (filename_scroll_hash != name_hash) {                            // If the hash changed...
+              filename_scroll_hash = name_hash;                                 // Save the new hash
+              filename_scroll_max = max(0, lcd_strlen(longFilename) - maxlen);  // Update the scroll limit
+              filename_scroll_pos = 0;                                          // Reset scroll to the start
+              lcd_status_update_delay = 8;                                      // Don't scroll right away
+            }
+            outstr += filename_scroll_pos;
+          }
+        #else
+          longFilename[maxlen] = '\0'; // cutoff at screen edge
+        #endif
       }
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
 
-      while ((c = *filename) && n > 0) {
+      char c;
+      uint8_t n = maxlen;
+      while (n && (c = *outstr)) {
         n -= lcd_print_and_count(c);
-        filename++;
+        ++outstr;
       }
-      while (n--) u8g.print(' ');
+      while (n) { --n; u8g.print(' '); }
     }
 
     #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)

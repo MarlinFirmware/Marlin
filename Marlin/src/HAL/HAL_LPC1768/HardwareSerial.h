@@ -28,53 +28,50 @@
 #include <Stream.h>
 
 extern "C" {
-  #include <debug_frmwrk.h>
-  //#include <lpc17xx_uart.h>
+  #include <lpc17xx_uart.h>
+  #include "lpc17xx_pinsel.h"
 }
-
-#define IER_RBR   0x01
-#define IER_THRE  0x02
-#define IER_RLS   0x04
-
-#define IIR_PEND  0x01
-#define IIR_RLS   0x03
-#define IIR_RDA   0x02
-#define IIR_CTI   0x06
-#define IIR_THRE  0x01
-
-#define LSR_RDR   0x01
-#define LSR_OE    0x02
-#define LSR_PE    0x04
-#define LSR_FE    0x08
-#define LSR_BI    0x10
-#define LSR_THRE  0x20
-#define LSR_TEMT  0x40
-#define LSR_RXFE  0x80
-
-#define UARTRXQUEUESIZE   0x10
 
 class HardwareSerial : public Stream {
 private:
-uint8_t PortNum;
-uint32_t baudrate;
+  LPC_UART_TypeDef *UARTx;
+
+  uint32_t Status;
+  uint8_t RxBuffer[RX_BUFFER_SIZE];
+  uint32_t RxQueueWritePos;
+  uint32_t RxQueueReadPos;
+  #if TX_BUFFER_SIZE > 0
+    uint8_t TxBuffer[TX_BUFFER_SIZE];
+    uint32_t TxQueueWritePos;
+    uint32_t TxQueueReadPos;
+  #endif
 
 public:
-  HardwareSerial(uint32_t uart) :
-    PortNum(uart)
-    {
-    }
+  HardwareSerial(LPC_UART_TypeDef *UARTx)
+    : UARTx(UARTx)
+    , RxQueueWritePos(0)
+    , RxQueueReadPos(0)
+    #if TX_BUFFER_SIZE > 0
+      , TxQueueWritePos(0)
+      , TxQueueReadPos(0)
+    #endif
+  {
+  }
 
   void begin(uint32_t baudrate);
+  int peek();
   int read();
   size_t write(uint8_t send);
+  #if TX_BUFFER_SIZE > 0
+    void flushTX();
+  #endif
   int available();
   void flush();
   void printf(const char *format, ...);
-  int peek() {
-    return 0;
-  };
 
   operator bool() { return true; }
+
+  void IRQHandler();
 
   void print(const char value[])              { printf("%s" , value); }
   void print(char value, int = 0)             { printf("%c" , value); }
@@ -100,9 +97,9 @@ public:
 
 };
 
-//extern HardwareSerial Serial0;
-//extern HardwareSerial Serial1;
-//extern HardwareSerial Serial2;
+extern HardwareSerial Serial;
+extern HardwareSerial Serial1;
+extern HardwareSerial Serial2;
 extern HardwareSerial Serial3;
 
 #endif // MARLIN_SRC_HAL_HAL_SERIAL_H_

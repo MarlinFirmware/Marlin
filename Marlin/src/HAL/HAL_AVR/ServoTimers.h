@@ -21,7 +21,7 @@
  */
 
 /*
-  Servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+  ServoTimers.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
   Copyright (c) 2009 Michael Margolis.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -39,7 +39,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/*
+#ifndef _SERVOTIMERS_H_
+#define _SERVOTIMERS_H_
+
+/**
  * Defines for 16 bit timers used with  Servo library
  *
  * If _useTimerX is defined then TimerX is a 16 bit timer on the current board
@@ -88,3 +91,5 @@ typedef enum {
   #endif
   _Nbr_16timers
 } timer16_Sequence_t;
+
+#endif // _SERVOTIMERS_H_

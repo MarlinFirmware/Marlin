@@ -28,27 +28,27 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "HAL_timers.h"
 
 void HAL_timer_init(void) {
   SBI(LPC_SC->PCONP, 1);  // power on timer0
-  LPC_TIM0->PR = ((HAL_TIMER_RATE / HAL_STEPPER_TIMER_RATE) - 1); // Use prescaler to set frequency if needed
+  LPC_TIM0->PR = (HAL_TIMER_RATE) / (HAL_STEPPER_TIMER_RATE) - 1; // Use prescaler to set frequency if needed
 
   SBI(LPC_SC->PCONP, 2);  // power on timer1
-  LPC_TIM1->PR = ((HAL_TIMER_RATE / 1000000) - 1);
+  LPC_TIM1->PR = (HAL_TIMER_RATE) / 1000000 - 1;
 }
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
     case 0:
       LPC_TIM0->MCR = 3;              // Match on MR0, reset on MR0
-      LPC_TIM0->MR0 = (uint32_t)(HAL_STEPPER_TIMER_RATE / frequency); // Match value (period) to set frequency
+      LPC_TIM0->MR0 = uint32_t(HAL_STEPPER_TIMER_RATE) / frequency; // Match value (period) to set frequency
       LPC_TIM0->TCR = _BV(0);       // enable
       break;
     case 1:
       LPC_TIM1->MCR = 3;
-      LPC_TIM1->MR0 = (uint32_t)(HAL_TEMP_TIMER_RATE / frequency);;
+      LPC_TIM1->MR0 = uint32_t(HAL_TEMP_TIMER_RATE) / frequency;
       LPC_TIM1->TCR = _BV(0);
       break;
     default: break;

@@ -25,8 +25,8 @@
  *  structurs for 2560 family boards that use morre than 70 pins
  */
 
-#ifndef __PINSDEBUG_PLUS_70_H__
-#define __PINSDEBUG_PLUS_70_H__
+#ifndef _PINSDEBUG_PLUS_70_H_
+#define _PINSDEBUG_PLUS_70_H_
 
 #undef NUM_DIGITAL_PINS
 #if MOTHERBOARD == BOARD_BQ_ZUM_MEGA_3D
@@ -338,4 +338,4 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM_plus_70[] = {
  */
 
 
-#endif // __PINSDEBUG_PLUS_70_H__
+#endif // _PINSDEBUG_PLUS_70_H_

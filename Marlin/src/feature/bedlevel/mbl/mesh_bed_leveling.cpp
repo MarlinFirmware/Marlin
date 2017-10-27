@@ -31,7 +31,7 @@
 
   mesh_bed_leveling mbl;
 
-  uint8_t mesh_bed_leveling::status;
+  bool mesh_bed_leveling::has_mesh;
 
   float mesh_bed_leveling::z_offset,
         mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
@@ -47,7 +47,7 @@
   }
 
   void mesh_bed_leveling::reset() {
-    status = MBL_STATUS_NONE;
+    has_mesh = false;
     z_offset = 0;
     ZERO(z_values);
   }
@@ -69,7 +69,7 @@
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -96,7 +96,7 @@
     else {
       // Already split on a border
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 

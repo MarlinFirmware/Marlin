@@ -40,13 +40,13 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define HAL_TIMER_TYPE uint32_t
+typedef uint32_t timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
 #define STEP_TIMER_NUM 3  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 4  // index of timer to use for temperature
 
-#define HAL_TIMER_RATE         ((F_CPU) / 2.0)  // frequency of timers peripherals
+#define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
@@ -92,7 +92,7 @@ static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC = count;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
+static FORCE_INLINE timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC;
 }

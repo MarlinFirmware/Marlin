@@ -61,7 +61,7 @@ script:
   - opt_set TEMP_SENSOR_BED 1
   - opt_enable PIDTEMPBED Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
-  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_RGBW_LED
+  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
   #
@@ -73,11 +73,17 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Test a simple build of AUTO_BED_LEVELING_UBL
+  # Test a probeless build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT BLTOUCH EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_ZPROBE_OFFSET
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS G3D_PANEL
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # ...and with a probe
+  #
+  - opt_enable BLTOUCH
+  - opt_enable_adv BABYSTEP_ZPROBE_OFFSET
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test a Sled Z Probe
@@ -224,7 +230,7 @@ script:
   #
   - restore_configs
   - opt_enable G3D_PANEL SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
   - opt_set_adv SDSORT_GCODE true
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
@@ -235,7 +241,7 @@ script:
   #
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # REPRAPWORLD_KEYPAD
@@ -429,4 +435,15 @@ script:
   - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
   - pins_set RAMPS X_MAX_PIN -1
   - opt_set_adv Z2_MAX_PIN 2
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+
+  #############################
+  # LPC1768 default config test
+  #############################
+
+  - export TEST_PLATFORM="-e LPC1768"
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

@@ -135,17 +135,6 @@
   extern char lcd_status_message[];
 #endif
 
-// Remove this if all is well with Teensy compile:
-#if 0
-#if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
-  inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
-  inline void set_current_to_destination() { COPY(current_position, destination); }
-#else
-  extern void sync_plan_position_e();
-  extern void set_current_to_destination();
-#endif
-#endif
-
 #if ENABLED(NEWPANEL)
   void lcd_setstatusPGM(const char* const message, const int8_t level);
   void chirp_at_user();
@@ -154,7 +143,7 @@
 // Private functions
 
 static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16];
-float g26_e_axis_feedrate = 0.020,
+float g26_e_axis_feedrate = 0.025,
       random_deviation = 0.0;
 
 static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
@@ -233,7 +222,7 @@ void unified_bed_leveling::G26() {
   if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     stepper.synchronize();
-    set_current_to_destination();
+    set_current_from_destination();
   }
 
   if (turn_on_heaters()) goto LEAVE;
@@ -258,7 +247,7 @@ void unified_bed_leveling::G26() {
   ZERO(vertical_mesh_line_flags);
 
   // Move nozzle to the specified height for the first layer
-  set_destination_to_current();
+  set_destination_from_current();
   destination[Z_AXIS] = g26_layer_height;
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
@@ -542,7 +531,7 @@ void unified_bed_leveling::move_to(const float &x, const float &y, const float &
     G26_line_to_destination(feed_value);
 
     stepper.synchronize();
-    set_destination_to_current();
+    set_destination_from_current();
   }
 
   // Check if X or Y is involved in the movement.
@@ -558,7 +547,7 @@ void unified_bed_leveling::move_to(const float &x, const float &y, const float &
   G26_line_to_destination(feed_value);
 
   stepper.synchronize();
-  set_destination_to_current();
+  set_destination_from_current();
 
 }
 
@@ -840,7 +829,7 @@ bool unified_bed_leveling::prime_nozzle() {
       lcd_setstatusPGM(PSTR("User-Controlled Prime"), 99);
       chirp_at_user();
 
-      set_destination_to_current();
+      set_destination_from_current();
 
       recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
@@ -857,7 +846,7 @@ bool unified_bed_leveling::prime_nozzle() {
                                   // but because the planner has a buffer, we won't be able
                                   // to stop as quickly. So we put up with the less smooth
                                   // action to give the user a more responsive 'Stop'.
-        set_destination_to_current();
+        set_destination_from_current();
         idle();
       }
 
@@ -881,11 +870,11 @@ bool unified_bed_leveling::prime_nozzle() {
       lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
       lcd_quick_feedback();
     #endif
-    set_destination_to_current();
+    set_destination_from_current();
     destination[E_AXIS] += g26_prime_length;
     G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
     stepper.synchronize();
-    set_destination_to_current();
+    set_destination_from_current();
     retract_filament(destination);
   }
 

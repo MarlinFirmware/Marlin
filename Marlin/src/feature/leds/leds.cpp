@@ -32,17 +32,30 @@
 
 void set_led_color(
   const uint8_t r, const uint8_t g, const uint8_t b
-  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-    , const uint8_t w
-    #if ENABLED(NEOPIXEL_RGBW_LED)
-      , bool isSequence
+    #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      , const uint8_t w // = 0
+      #if ENABLED(NEOPIXEL_LED)
+        , const uint8_t p // = NEOPIXEL_BRIGHTNESS
+        , const bool isSequence // = false
+      #endif
     #endif
-  #endif
 ) {
 
-  #if ENABLED(NEOPIXEL_RGBW_LED)
-    if (neopixel_set_led_color(r, g, b, w, isSequence))
+  #if ENABLED(NEOPIXEL_LED)
+
+    const uint32_t color = pixels.Color(r, g, b, w);
+    static uint16_t nextLed = 0;
+
+    pixels.setBrightness(p);
+    if (!isSequence)
+      set_neopixel_color(color);
+    else {
+      pixels.setPixelColor(nextLed, color);
+      pixels.show();
+      if (++nextLed >= pixels.numPixels()) nextLed = 0;
       return;
+    }
+
   #endif
 
   #if ENABLED(BLINKM)

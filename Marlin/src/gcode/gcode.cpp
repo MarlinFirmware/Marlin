@@ -354,6 +354,10 @@ void GcodeSuite::process_next_command() {
         case 49: M49(); break;    // M49: Turn on or off G26 debug flag for verbose output
       #endif
 
+      #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        case 73: M73(); break;    // M73: Set progress percentage (for display on LCD)
+      #endif
+
       case 75: M75(); break;      // M75: Start print timer
       case 76: M76(); break;      // M76: Pause print timer
       case 77: M77(); break;      // M77: Stop print timer
@@ -519,6 +523,10 @@ void GcodeSuite::process_next_command() {
 
       #if HAS_SERVOS
         case 280: M280(); break;  // M280: Set servo position absolute
+      #endif
+
+      #if ENABLED(BABYSTEPPING)
+        case 290: M290(); break;  // M290: Babystepping
       #endif
 
       #if HAS_BUZZER

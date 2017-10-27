@@ -26,10 +26,11 @@
 #include "../core/boards.h"
 #include "../core/macros.h"
 #include "Version.h"
-#include "SPI.h"
+#include "../HAL/SPI.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
 #include "../../Configuration_adv.h"
+#include "Conditionals_adv.h"
 #include "../HAL/HAL.h"
 #include "../pins/pins.h"
 #if defined(__AVR__) && !defined(USBCON)
