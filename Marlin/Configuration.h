@@ -27,7 +27,7 @@
   a work in progress. Email me if you have any questions, suggestions,
   or if you encounter problems when using Easy Config.
 
-    This is a Marlin 1.1.x configuration file. I will update this as
+    This is a Marlin 2.0.x configuration file. I will update this as
   new versions of Marlin are released.
 
     NOTE: Sanity check should still work and should not show any errors.
