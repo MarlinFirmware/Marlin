@@ -36,7 +36,7 @@
  *
  *   X   Probe X position (default current X)
  *   Y   Probe Y position (default current Y)
- *   S0  Leave the probe deployed
+ *   E   Engage the probe for each probe
  */
 void GcodeSuite::G30() {
   const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
@@ -51,7 +51,7 @@ void GcodeSuite::G30() {
 
   setup_for_endstop_or_probe_move();
 
-  const float measured_z = probe_pt(xpos, ypos, parser.boolval('S', true), 1);
+  const float measured_z = probe_pt(xpos, ypos, parser.boolval('E'), 1);
 
   if (!isnan(measured_z)) {
     SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));

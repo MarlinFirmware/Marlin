@@ -63,6 +63,10 @@
     void dontExpireStatus();
   #endif
 
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    extern uint8_t progress_bar_percent;
+  #endif
+
   #if ENABLED(ADC_KEYPAD)
     uint8_t get_ADC_keyValue();
   #endif

@@ -26,6 +26,9 @@
  * Test configuration values for errors at compile-time.
  */
 
+#ifndef _SANITYCHECK_H_
+#define _SANITYCHECK_H_
+
 /**
  * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
@@ -212,6 +215,10 @@
   #error "ADVANCE was removed in Marlin 1.1.6. Please use LIN_ADVANCE."
 #elif defined(NEOPIXEL_RGBW_LED)
   #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
+#elif defined(UBL_MESH_INSET)
+  #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
+#elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X)  || defined(UBL_MESH_MAX_Y)
+  #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
 #endif
 
 /**
@@ -236,6 +243,24 @@
 #endif
 
 /**
+ * Serial
+ */
+#ifndef USBCON
+  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+    #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
+  #endif
+
+  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
+    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
+  #endif
+
+  // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+    #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
+  #endif
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(X_DUAL_STEPPER_DRIVERS) && ENABLED(DUAL_X_CARRIAGE)
@@ -253,6 +278,25 @@
  */
 static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   "Movement bounds ([XY]_MIN_POS, [XY]_MAX_POS) are too narrow to contain [XY]_BED_SIZE.");
+
+/**
+ * Granular software endstops (Marlin >= 1.1.7)
+ */
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) && DISABLED(MIN_SOFTWARE_ENDSTOP_Z)
+  #if IS_KINEMATIC
+    #error "MIN_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MIN_SOFTWARE_ENDSTOP_Z."
+  #elif DISABLED(MIN_SOFTWARE_ENDSTOP_X) && DISABLED(MIN_SOFTWARE_ENDSTOP_Y)
+    #error "MIN_SOFTWARE_ENDSTOPS requires at least one of the MIN_SOFTWARE_ENDSTOP_[XYZ] options."
+  #endif
+#endif
+
+#if ENABLED(MAX_SOFTWARE_ENDSTOPS) && DISABLED(MAX_SOFTWARE_ENDSTOP_Z)
+  #if IS_KINEMATIC
+    #error "MAX_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MAX_SOFTWARE_ENDSTOP_Z."
+  #elif DISABLED(MAX_SOFTWARE_ENDSTOP_X) && DISABLED(MAX_SOFTWARE_ENDSTOP_Y)
+    #error "MAX_SOFTWARE_ENDSTOPS requires at least one of the MAX_SOFTWARE_ENDSTOP_[XYZ] options."
+  #endif
+#endif
 
 /**
  * Progress Bar
@@ -282,6 +326,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
     #endif
   #endif
+
+  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if SDSORT_CACHE_VFATS < 2
+      #error "SDSORT_CACHE_VFATS must be 2 or greater!"
+    #elif SDSORT_CACHE_VFATS > MAX_VFAT_ENTRIES
+      #undef SDSORT_CACHE_VFATS
+      #define SDSORT_CACHE_VFATS MAX_VFAT_ENTRIES
+      #warning "SDSORT_CACHE_VFATS was reduced to MAX_VFAT_ENTRIES!"
+    #endif
+  #endif
 #endif
 
 /**
@@ -299,9 +353,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if DISABLED(ULTRA_LCD) && DISABLED(I2C_POSITION_ENCODERS)
-    #error "BABYSTEPPING requires an LCD controller."
-  #elif ENABLED(SCARA)
+  #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
@@ -651,7 +703,7 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
+  #if OLDSCHOOL_ABL
     #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
@@ -707,7 +759,9 @@ static_assert(1 >= 0
     static_assert(WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_2_Y can't be reached by the Z probe.");
     static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y can't be reached by the Z probe.");
   #endif
-
+  #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY) && !ENABLED(DOGLCD)
+    #error "ENABLE_MESH_EDIT_GFX_OVERLAY requires a DOGLCD."
+  #endif
 #elif HAS_ABL
 
   /**
@@ -1106,7 +1160,7 @@ static_assert(1 >= 0
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
-#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_LED)
+#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632)
   #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_LED."
 #endif
 
@@ -1136,6 +1190,7 @@ static_assert(1 >= 0
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
+ *       AZSMZ_12864 => ULTIMAKERCONTROLLER
  *       PANEL_ONE => ULTIMAKERCONTROLLER
  */
 static_assert(1 >= 0
@@ -1144,6 +1199,7 @@ static_assert(1 >= 0
       && DISABLED(miniVIKI) \
       && DISABLED(VIKI2) \
       && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+      && DISABLED(AZSMZ_12864) \
       && DISABLED(PANEL_ONE) \
       && DISABLED(MKS_12864OLED)
     + 1
@@ -1187,6 +1243,9 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(AZSMZ_12864)
     + 1
   #endif
   #if ENABLED(G3D_PANEL)
@@ -1325,5 +1384,6 @@ static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has to
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");
 
-
 #include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
+
+#endif // _SANITYCHECK_H_

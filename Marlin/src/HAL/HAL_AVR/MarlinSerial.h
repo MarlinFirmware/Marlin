@@ -29,8 +29,8 @@
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
  */
 
-#ifndef MARLINSERIAL_H
-#define MARLINSERIAL_H
+#ifndef _MARLINSERIAL_H_
+#define _MARLINSERIAL_H_
 
 #include "../../inc/MarlinConfig.h"
 
@@ -78,30 +78,9 @@
 #define BYTE 0
 
 #ifndef USBCON
-  // Define constants and variables for buffering incoming serial data.  We're
-  // using a ring buffer (I think), in which rx_buffer_head is the index of the
-  // location to which to write the next incoming character and rx_buffer_tail
-  // is the index of the location from which to read.
-  // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
-  #ifndef RX_BUFFER_SIZE
-    #define RX_BUFFER_SIZE 128
-  #endif
-  #ifndef TX_BUFFER_SIZE
-    #define TX_BUFFER_SIZE 32
-  #endif
-
-  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
-    #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
-  #endif
-
-  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
-    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
-  #endif
-
-  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
-    #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
-  #endif
-
+  // We're using a ring buffer (I think), in which rx_buffer_head is the index of the
+  // location to which to write the next incoming character and rx_buffer_tail is the
+  // index of the location from which to read.
   #if RX_BUFFER_SIZE > 256
     typedef uint16_t ring_buffer_pos_t;
   #else
@@ -181,4 +160,4 @@
   extern HardwareSerial bluetoothSerial;
 #endif
 
-#endif // MARLINSERIAL_H
+#endif // _MARLINSERIAL_H_

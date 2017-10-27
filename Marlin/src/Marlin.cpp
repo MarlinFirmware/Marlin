@@ -165,6 +165,10 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  #if ENABLED(EXTRA_FAN_SPEEDS)
+    int16_t old_fanSpeeds[FAN_COUNT],
+            new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
@@ -293,10 +297,13 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
-bool pin_is_protected(const int8_t pin) {
-  static const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
-  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
+bool pin_is_protected(const pin_t pin) {
+  static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
+    pin_t sensitive_pin;
+    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
+    if (pin == sensitive_pin) return true;
+  }
   return false;
 }
 
@@ -498,7 +505,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (delayed_move_time && ELAPSED(ms, delayed_move_time + 1000UL) && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      set_destination_to_current();
+      set_destination_from_current();
       prepare_move_to_destination();
     }
   #endif
@@ -785,7 +792,6 @@ void setup() {
   #endif
 
   #if ENABLED(NEOPIXEL_LED)
-    SET_OUTPUT(NEOPIXEL_PIN);
     setup_neopixel();
   #endif
 

@@ -7,7 +7,7 @@ http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 The main use is for Arduino programs that read data from the circuit board described here:
 http://reprap.org/wiki/Temperature_Sensor_v2.0
 
-Usage: python createTemperatureLookup.py [options]
+Usage: python createTemperatureLookupMarlin.py [options]
 
 Options:
   -h, --help        show this help
@@ -134,10 +134,9 @@ def main(argv):
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
     print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
-    print "// Theoretical limits of termistor: %.2f to %.2f degC" % (low_bound, up_bound)
+    print "// Theoretical limits of thermistor: %.2f to %.2f degC" % (low_bound, up_bound)
     print
-    print "#define NUMTEMPS %s" % (len(temps))
-    print "const short temptable[NUMTEMPS][2] PROGMEM = {"
+    print "const short temptable[][2] PROGMEM = {"
 
     for temp in temps:
         adc = t.adc(temp)

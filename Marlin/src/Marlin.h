@@ -198,6 +198,10 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
+  #if ENABLED(EXTRA_FAN_SPEEDS)
+    extern int16_t old_fanSpeeds[FAN_COUNT],
+                   new_fanSpeeds[FAN_COUNT];
+  #endif
   #if ENABLED(PROBING_FANS_OFF)
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];
@@ -212,7 +216,7 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   extern int lpq_len;
 #endif
 
-bool pin_is_protected(const int8_t pin);
+bool pin_is_protected(const pin_t pin);
 
 #if HAS_SUICIDE
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }

@@ -378,7 +378,7 @@ float bilinear_z_offset(const float logical[XYZ]) {
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -405,7 +405,7 @@ float bilinear_z_offset(const float logical[XYZ]) {
     else {
       // Already split on a border
       line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 

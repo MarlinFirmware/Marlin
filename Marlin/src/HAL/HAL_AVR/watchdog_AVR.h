@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WATCHDOG_AVR_H
-#define WATCHDOG_AVR_H
+#ifndef _WATCHDOG_AVR_H_
+#define _WATCHDOG_AVR_H_
 
 #include <avr/wdt.h>
 
@@ -32,4 +32,4 @@ void watchdog_init();
 // first watchdog_init or AVR will go into emergency procedures.
 inline void watchdog_reset() { wdt_reset(); }
 
-#endif // WATCHDOG_AVR_H
+#endif // _WATCHDOG_AVR_H_

@@ -154,12 +154,11 @@ Release/
 Debug/
 __vm/
 .vs/
+vc-fileutils.settings
 
 #Visual Studio Code
 .vscode
-
-#Visual Studio Code
-.vscode
+.vscode/c_cpp_properties.json
 
 #cmake
 CMakeLists.txt

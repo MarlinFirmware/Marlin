@@ -29,16 +29,17 @@
  */
 void GcodeSuite::M226() {
   if (parser.seen('P')) {
-    const int pin_number = parser.value_int(),
+    const int pin_number = PARSED_PIN_INDEX('P', 0),
               pin_state = parser.intval('S', -1); // required pin state - default is inverted
+    const pin_t pin = GET_PIN_MAP_PIN(pin_number);
 
-    if (WITHIN(pin_state, -1, 1) && pin_number > -1 && !pin_is_protected(pin_number)) {
+    if (WITHIN(pin_state, -1, 1) && pin > -1 && !pin_is_protected(pin)) {
 
       int target = LOW;
 
       stepper.synchronize();
 
-      pinMode(pin_number, INPUT);
+      pinMode(pin, INPUT);
       switch (pin_state) {
         case 1:
           target = HIGH;
@@ -47,12 +48,12 @@ void GcodeSuite::M226() {
           target = LOW;
           break;
         case -1:
-          target = !digitalRead(pin_number);
+          target = !digitalRead(pin);
           break;
       }
 
-      while (digitalRead(pin_number) != target) idle();
+      while (digitalRead(pin) != target) idle();
 
-    } // pin_state -1 0 1 && pin_number > -1
+    } // pin_state -1 0 1 && pin > -1
   } // parser.seen('P')
 }

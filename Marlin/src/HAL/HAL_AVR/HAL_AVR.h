@@ -26,8 +26,8 @@
  */
 
 
-#ifndef _HAL_AVR_H
-#define _HAL_AVR_H
+#ifndef _HAL_AVR_H_
+#define _HAL_AVR_H_
 
 // --------------------------------------------------------------------------
 // Includes
@@ -66,8 +66,10 @@
 // Types
 // --------------------------------------------------------------------------
 
-#define HAL_TIMER_TYPE uint16_t
+typedef uint16_t timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
+
+typedef int8_t pin_t;
 
 #define HAL_SERVO_LIB Servo
 
@@ -153,9 +155,10 @@ inline void HAL_adc_init(void) {
 
 #define HAL_READ_ADC ADC
 
+#define GET_PIN_MAP_PIN(index) index
+#define GET_PIN_MAP_INDEX(pin) pin
+#define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
+#define HAL_SENSITIVE_PINS 0, 1
 
-#endif // _HAL_AVR_H
+#endif // _HAL_AVR_H_

@@ -181,7 +181,7 @@ class Sd2Card {
    * \return true for success or false for failure.
    */
   bool init(uint8_t sckRateID = SPI_FULL_SPEED,
-            uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
+            pin_t chipSelectPin = SD_CHIP_SELECT_PIN);
   bool readBlock(uint32_t block, uint8_t* dst);
   /**
    * Read a card's CID register. The CID contains card identification
@@ -220,7 +220,7 @@ class Sd2Card {
   bool writeStop();
  private:
   //----------------------------------------------------------------------------
-  uint8_t chipSelectPin_;
+  pin_t chipSelectPin_;
   uint8_t errorCode_;
   uint8_t spiRate_;
   uint8_t status_;

@@ -64,7 +64,7 @@ static bool G38_run_probe() {
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
       // Move away by the retract distance
-      set_destination_to_current();
+      set_destination_from_current();
       LOOP_XYZ(i) destination[i] += retract_mm[i];
       endstops.enable(false);
       prepare_move_to_destination();
