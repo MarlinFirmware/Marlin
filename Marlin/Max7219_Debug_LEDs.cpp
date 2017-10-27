@@ -21,266 +21,374 @@
  */
 
 /**
- * This module is normally not enabled.  It can be enabled to facilitate
- * the display of extra debug information during code development.
- * It assumes the existance of a Max7219 LED Matrix.   A suitable
- * device can be obtained on eBay similar to this: http://www.ebay.com/itm/191781645249
- * for under $2.00 including shipping.
+ * This module is off by default, but can be enabled to facilitate the display of
+ * extra debug information during code development. It assumes the existence of a
+ * Max7219 LED Matrix. A suitable device can be obtained on eBay similar to this:
+ * http://www.ebay.com/itm/191781645249 for under $2.00 including shipping.
  *
- * Just connect up +5v and Gnd to give it power.  And then 3 wires declared in the 
- * #define's below.  Actual pin assignments can be changed in MAX7219_DEBUG section 
- * of configuration_adv.h
+ * Just connect up +5v and GND to give it power, then connect up the pins assigned
+ * in Configuration_adv.h. For example, on the Re-ARM you could use:
  *
- *   #define Max7219_clock   77
- *   #define Max7219_data_in 78
- *   #define Max7219_load    79
+ *   #define MAX7219_CLK_PIN   77
+ *   #define MAX7219_DIN_PIN   78
+ *   #define MAX7219_LOAD_PIN  79
  *
- * First call Max7219_init() and then there are a number of support functions available
- * to control the LED's in the 8x8 grid.
+ * Max7219_init() is called automatically at startup, and then there are a number of
+ * support functions available to control the LEDs in the 8x8 grid.
  *
  * void Max7219_init();
  * void Max7219_PutByte(uint8_t data);
  * void Max7219(uint8_t reg, uint8_t data);
- * void Max7219_LED_On( int8_t row, int8_t col);
- * void Max7219_LED_Off( int8_t row, int8_t col);
- * void Max7219_LED_Toggle( int8_t row, int8_t col);
- * void Max7219_Clear_Row( int8_t row);
- * void Max7219_Clear_Column( int8_t col);
+ * void Max7219_LED_On(uint8_t col, uint8_t row);
+ * void Max7219_LED_Off(uint8_t col, uint8_t row);
+ * void Max7219_LED_Toggle(uint8_t col, uint8_t row);
+ * void Max7219_Clear_Row(uint8_t row);
+ * void Max7219_Clear_Column(uint8_t col);
+ * void Max7219_Set_Row(uint8_t row, uint8_t val);
+ * void Max7219_Set_2_Rows(uint8_t row, uint16_t val);
+ * void Max7219_Set_4_Rows(uint8_t row, uint32_t val);
+ * void Max7219_Set_Column(uint8_t col, uint8_t val);
+ * void Max7219_idle_tasks();
  */
 
-
-#include "Marlin.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(MAX7219_DEBUG)
-  #include "planner.h"
-  #include "stepper.h"
-  #include "Max7219_Debug_LEDs.h"
 
-  static uint8_t LEDs[8] = {0};
+#include "Max7219_Debug_LEDs.h"
 
-  void Max7219_PutByte(uint8_t data) {
-    uint8_t i = 8;
-      while(i > 0) {
-        digitalWrite( Max7219_clock, LOW);    // tick
-        if (data & 0x80)                      // check bit
-          digitalWrite(Max7219_data_in,HIGH); // send 1
-        else
-          digitalWrite(Max7219_data_in,LOW);  // send 0
-        digitalWrite(Max7219_clock, HIGH);    // tock
-        data = data << 0x01;
-        --i;                                  // move to lesser bit
-      }
-    }
+#include "planner.h"
+#include "stepper.h"
+#include "Marlin.h"
 
-  void Max7219( uint8_t reg, uint8_t data) {
-    digitalWrite(Max7219_load, LOW);  // begin
-    Max7219_PutByte(reg);             // specify register
-    Max7219_PutByte(data);            // put data
-    digitalWrite(Max7219_load, LOW);  // and tell the chip to load the data
-    digitalWrite(Max7219_load,HIGH);
+static uint8_t LEDs[8] = { 0 };
+
+void Max7219_PutByte(uint8_t data) {
+  CRITICAL_SECTION_START
+  for (uint8_t i = 8; i--;) {
+    #ifdef CPU_32_BIT                    // The 32-bit processors are so fast, a small delay in the code is needed
+      delayMicroseconds(5);              // to let the signal wires stabilize.
+      WRITE(MAX7219_CLK_PIN, LOW);       // tick
+      delayMicroseconds(5);
+      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+      delayMicroseconds(5);
+      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+      delayMicroseconds(5);
+    #else
+      WRITE(MAX7219_CLK_PIN, LOW);       // tick
+      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+    #endif
+
+    data <<= 1;
   }
+  CRITICAL_SECTION_END
+}
 
-  void Max7219_LED_On( int8_t row, int8_t col) {
-    int x_index;
-    if ( row>=8 || row<0 || col>=8 || col<0)
-      return;
-    if ( LEDs[row] & (0x01<<col) ) // if LED is already on, just leave
-      return;
+void Max7219(const uint8_t reg, const uint8_t data) {
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
+  CRITICAL_SECTION_START
+  WRITE(MAX7219_LOAD_PIN, LOW);  // begin
+  #ifdef CPU_32_BIT              // The 32-bit processors are so fast, a small delay in the code is needed
+    delayMicroseconds(5);        // to let the signal wires stabilize.
+  #endif
+  Max7219_PutByte(reg);          // specify register
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
+  Max7219_PutByte(data);         // put data
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
+  WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
+  WRITE(MAX7219_LOAD_PIN, HIGH);
+  CRITICAL_SECTION_END
+  #ifdef CPU_32_BIT
+    delayMicroseconds(5);
+  #endif
+}
 
-    LEDs[row] |= (0x01<<col);
-    x_index = 7-row;
-    Max7219( x_index+1, LEDs[row] );
+void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on) {
+  if (row > 7 || col > 7) {
+    int r,c;
+    r = row;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_LED_Set(",r);
+    SERIAL_ECHOPAIR(",",c);
+    SERIAL_ECHO(")\n");
+    return;
   }
+  if (TEST(LEDs[row], col) == on) return; // if LED is already on/off, leave alone
+  if (on) SBI(LEDs[row], col); else CBI(LEDs[row], col);
+  Max7219(8 - row, LEDs[row]);
+}
 
-  void Max7219_LED_Off( int8_t row, int8_t col) {
-    int x_index;
-    if ( row>=8 || row<0 || col>=8 || col<0)
-      return;
-    if ( !(LEDs[row] & (0x01<<col)) ) // if LED is already off, just leave
-      return;
-
-    LEDs[row] ^= (0x01<<col);
-    x_index = 7-row;
-    Max7219( x_index+1, LEDs[row] );
+void Max7219_LED_On(const uint8_t col, const uint8_t row) {
+  if (row > 7 || col > 7) {
+    int r,c;
+    r = row;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_LED_On(",c);
+    SERIAL_ECHOPAIR(",",r);
+    SERIAL_ECHO(")\n");
+    return;
   }
+  Max7219_LED_Set(col, row, true);
+}
 
-  void Max7219_LED_Toggle( int8_t row, int8_t col) {
-    if ( row>=8 || row<0 || col>=8 || col<0)
-      return;
-    if ( (LEDs[row] & (0x01<<col)) )
-      Max7219_LED_Off( row, col);
-    else
-      Max7219_LED_On( row, col);
+void Max7219_LED_Off(const uint8_t col, const uint8_t row) {
+  if (row > 7 || col > 7) {
+    int r,c;
+    r = row;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_LED_Off(",r);
+    SERIAL_ECHOPAIR(",",c);
+    SERIAL_ECHO(")\n");
+    return;
   }
+  Max7219_LED_Set(col, row, false);
+}
 
-  void Max7219_Clear_Column( int8_t col) {
-    int x_index;
-    if ( col>=8 || col<0 )
-      return;
-    LEDs[col] = 0;
-    x_index = 7-col;
-    Max7219( x_index+1, LEDs[col] );
+void Max7219_LED_Toggle(const uint8_t col, const uint8_t row) {
+  if (row > 7 || col > 7) {
+    int r,c;
+    r = row;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_LED_Toggle(",r);
+    SERIAL_ECHOPAIR(",",c);
+    SERIAL_ECHO(")\n");
+    return;
   }
+  if (TEST(LEDs[row], col))
+    Max7219_LED_Off(col, row);
+  else
+    Max7219_LED_On(col, row);
+}
 
-  void Max7219_Clear_Row( int8_t row) {
+void Max7219_Clear_Column(const uint8_t col) {
+  if (col > 7) {
     int c;
-    if ( row>=8 || row<0 )
-      return;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_Clear_Column(",c);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  LEDs[col] = 0;
+  Max7219(8 - col, LEDs[col]);
+}
 
-    for(c=0; c<8; c++)
-      Max7219_LED_Off( c, row);
+void Max7219_Clear_Row(const uint8_t row) {
+  if (row > 7) {
+    int r;
+    r = row;
+    SERIAL_ECHOPAIR("??? Max7219_Clear_Row(",r);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  for (uint8_t c = 0; c <= 7; c++)
+    Max7219_LED_Off(c, row);
+}
+
+void Max7219_Set_Row(const uint8_t row, const uint8_t val) {
+  if (row > 7 || val>255) {
+    int r, v;
+    r = row;
+    v = val;
+    SERIAL_ECHOPAIR("??? Max7219_Set_Row(",r);
+    SERIAL_ECHOPAIR(",",v);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  for (uint8_t b = 0; b <= 7; b++)
+    if (TEST(val, b))
+      Max7219_LED_On(7 - b, row);
+    else
+      Max7219_LED_Off(7 - b, row);
+}
+
+void Max7219_Set_2_Rows(const uint8_t row, const uint16_t val) {
+  if (row > 6 || val>65535) {
+    int r, v;
+    r = row;
+    v = val;
+    SERIAL_ECHOPAIR("??? Max7219_Set_2_Rows(",r);
+    SERIAL_ECHOPAIR(",",v);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  Max7219_Set_Row(row+1, (val & 0xff00) >> 8 );
+  Max7219_Set_Row(row+0, (val & 0xff));
+}
+
+void Max7219_Set_4_Rows(const uint8_t row, const uint32_t val) {
+  if (row > 4 ) {
+    int r;
+    long v;
+    r = row;
+    v = val;
+    SERIAL_ECHOPAIR("??? Max7219_Set_4_Rows(",r);
+    SERIAL_ECHOPAIR(",",v);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  Max7219_Set_Row(row+3, (val & 0xff000000) >> 24);
+  Max7219_Set_Row(row+2, (val & 0xff0000) >> 16);
+  Max7219_Set_Row(row+1, (val & 0xff00) >> 8);
+  Max7219_Set_Row(row+0, (val & 0xff));
+}
+
+void Max7219_Set_Column(const uint8_t col, const uint8_t val) {
+  if (val > 255 || col > 7) {
+    int v,c;
+    v = val;
+    c = col;
+    SERIAL_ECHOPAIR("??? Max7219_Column(",c);
+    SERIAL_ECHOPAIR(",",v);
+    SERIAL_ECHO(")\n");
+    return;
+  }
+  LEDs[col] = val;
+  Max7219(8 - col, LEDs[col]);
+}
+
+void Max7219_init() {
+  uint8_t i, x, y;
+
+  SET_OUTPUT(MAX7219_DIN_PIN);
+  SET_OUTPUT(MAX7219_CLK_PIN);
+
+  OUT_WRITE(MAX7219_LOAD_PIN, HIGH);
+  delay(1);
+
+  //initiation of the max 7219
+  Max7219(max7219_reg_scanLimit, 0x07);
+  Max7219(max7219_reg_decodeMode, 0x00);  // using an led matrix (not digits)
+  Max7219(max7219_reg_shutdown, 0x01);    // not in shutdown mode
+  Max7219(max7219_reg_displayTest, 0x00); // no display test
+  Max7219(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
+                                               // range: 0x00 to 0x0F
+  for (i = 0; i <= 7; i++) {      // empty registers, turn all LEDs off
+    LEDs[i] = 0x00;
+    Max7219(i + 1, 0);
   }
 
-  void Max7219_Set_Row( int8_t row, uint8_t val) {
-    int b;
+  for (x = 0; x <= 7; x++)        // Do an aesthetically pleasing pattern to fully test
+    for (y = 0; y <= 7; y++) {    // the Max7219 module and LEDs. First, turn them
+      Max7219_LED_On(x, y);       // all on.
+      delay(3);
+    }
 
-    if ( row<0 || row>7 )
-      return;
+  for (x = 0; x <= 7; x++)        // Now, turn them all off.
+    for (y = 0; y <= 7; y++) {
+      Max7219_LED_Off(x, y);
+      delay(3);                   // delay() is OK here. Max7219_init() is only called from
+    }                             // setup() and nothing is running yet.
 
-    if ( val<0 || val>255 )
-      return;
+  delay(150);
 
-    for(b=0; b<8; b++)
-      if ( val & (0x01 << b) )
-        Max7219_LED_On( 7-b, row);
+  for (x = 8; x--;)               // Now, do the same thing from the opposite direction
+    for (y = 0; y <= 7; y++) {
+      Max7219_LED_On(x, y);
+      delay(2);
+    }
+
+  for (x = 8; x--;)
+    for (y = 0; y <= 7; y++) {
+      Max7219_LED_Off(x, y);
+      delay(2);
+    }
+}
+
+/**
+* These are sample debug features to demonstrate the usage of the 8x8 LED Matrix for debug purposes.
+* There is very little CPU burden added to the system by displaying information within the idle()
+* task.
+*
+* But with that said, if your debugging can be facilitated by making calls into the library from
+* other places in the code, feel free to do it.  The CPU burden for a few calls to toggle an LED
+* or clear a row is not very significant.
+*/
+void Max7219_idle_tasks() {
+#if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
+  CRITICAL_SECTION_START
+  #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_QUEUE
+    uint8_t head;
+    head = planner.block_buffer_head;
+  #endif
+  #if MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
+    uint8_t tail;
+    tail = planner.block_buffer_tail;
+  #endif
+  CRITICAL_SECTION_END
+#endif
+
+  #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
+    static millis_t next_blink = 0;
+
+    if (ELAPSED(millis(), next_blink)) {
+        Max7219_LED_Toggle(7, 7);
+        next_blink = millis() + 750;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_STEPPER_HEAD
+    static int16_t last_head_cnt=0;
+    if (last_head_cnt != head) {
+      if ( last_head_cnt < 8)
+        Max7219_LED_Off( last_head_cnt, MAX7219_DEBUG_STEPPER_HEAD);
       else
-        Max7219_LED_Off( 7-b, row);
-  }
+        Max7219_LED_Off( last_head_cnt-8, MAX7219_DEBUG_STEPPER_HEAD+1);
 
-  void Max7219_Set_Column( int8_t col, uint8_t val) {
-    int x_index;
-
-    if ( col>=8 || col<0 )
-      return;
-
-    if ( val<0 || val>255 )
-      return;
-
-    LEDs[col] = val;
-    x_index = 7-col;
-    Max7219( x_index+1, LEDs[col] );
-  }
-
-
-  void Max7219_init() {
-    int i, x, y;
-
-    pinMode(Max7219_data_in, OUTPUT);
-    pinMode(Max7219_clock,   OUTPUT);
-    pinMode(Max7219_load,    OUTPUT);
-
-    digitalWrite(Max7219_load, HIGH);
-
-    //initiation of the max 7219
-    Max7219(max7219_reg_scanLimit, 0x07);
-    Max7219(max7219_reg_decodeMode, 0x00);  // using an led matrix (not digits)
-    Max7219(max7219_reg_shutdown, 0x01);    // not in shutdown mode
-    Max7219(max7219_reg_displayTest, 0x00); // no display test
-    Max7219(max7219_reg_intensity, 0x01 & 0x0f); // the first 0x0f is the value you can set
-                                                 // range: 0x00 to 0x0f
-    for (i=0; i<8; i++) {       // empty registers, turn all LEDs off
-      LEDs[i] = 0x00;
-      Max7219(i+1,0);
-    }
-
-    for(x=0; x<8; x++)  {       // Do an austetically pleasing pattern to fully test
-      for(y=0; y<8; y++) {      // the Max7219 module and LED's.   First, turn them
-        Max7219_LED_On( x, y);  // all on.
-        delay(3);
-      }
-    }
-    for(x=0; x<8; x++)  {       // Now, turn them all off.
-      for(y=0; y<8; y++) {
-        Max7219_LED_Off( x, y);
-        delay(3);               // delay() is OK here.  Max7219_init() is only called from
-      }                         // setup() and nothing is running yet.
-    }
-
-    delay(150);
-
-    for(x=7; x>=0; x--)  {     // Now, do the same thing from the opposite direction
-      for(y=0; y<8; y++) {
-        Max7219_LED_On( x, y);
-        delay(2);
-      }
-    }
-
-    for(x=7; x>=0; x--)  {
-      for(y=0; y<8; y++) {
-        Max7219_LED_Off( x, y);
-        delay(2);
-      }
-      }
-    }
-
-/*
- * These are sample debug features to demonstrate the usage of the 8x8 LED Matrix for debug purposes.
- * There is very little CPU burden added to the system by displaying information within the idle()
- * task.
- *
- * But with that said, if your debugging can be facilitated by making calls into the library from
- * other places in the code, feel free to do it.  The CPU burden for a few calls to toggle an LED
- * or clear a row is not very significant.
- */
-  void Max7219_idle_tasks() {
-    #ifdef MAX7219_DEBUG_PRINTER_ALIVE
-      static int debug_cnt=0;
-      if (debug_cnt++ > 100) {
-        Max7219_LED_Toggle(7,7);
-        debug_cnt = 0;
-      }
-    #endif
-
-    #ifdef MAX7219_DEBUG_STEPPER_HEAD
-      Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_HEAD);
-      Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_HEAD+1);
-      if ( planner.block_buffer_head < 8)
-        Max7219_LED_On( planner.block_buffer_head, MAX7219_DEBUG_STEPPER_HEAD);
+      last_head_cnt = head;
+      if ( head < 8)
+        Max7219_LED_On(head, MAX7219_DEBUG_STEPPER_HEAD);
       else
-        Max7219_LED_On( planner.block_buffer_head-8, MAX7219_DEBUG_STEPPER_HEAD+1);
-    #endif
+        Max7219_LED_On(head-8, MAX7219_DEBUG_STEPPER_HEAD+1);
+    }
+  #endif
 
-    #ifdef MAX7219_DEBUG_STEPPER_TAIL
-      Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_TAIL);
-      Max7219_Clear_Row(MAX7219_DEBUG_STEPPER_TAIL+1);
-      if ( planner.block_buffer_tail < 8)
-        Max7219_LED_On( planner.block_buffer_tail, MAX7219_DEBUG_STEPPER_TAIL );
+  #ifdef MAX7219_DEBUG_STEPPER_TAIL
+    static int16_t last_tail_cnt=0;
+    if (last_tail_cnt != tail) {
+      if ( last_tail_cnt < 8)
+        Max7219_LED_Off( last_tail_cnt, MAX7219_DEBUG_STEPPER_TAIL);
       else
-        Max7219_LED_On( planner.block_buffer_tail-8, MAX7219_DEBUG_STEPPER_TAIL+1 );
-    #endif
+        Max7219_LED_Off( last_tail_cnt-8, MAX7219_DEBUG_STEPPER_TAIL+1);
 
-    #ifdef MAX7219_DEBUG_STEPPER_QUEUE
-      static int16_t last_depth=0, current_depth;
-      uint8_t i;
-      current_depth = planner.block_buffer_head - planner.block_buffer_tail;
-      if (current_depth != last_depth) {  // usually, no update will be needed.
+      last_tail_cnt = tail;
+      if ( tail < 8)
+        Max7219_LED_On(tail, MAX7219_DEBUG_STEPPER_TAIL);
+      else
+        Max7219_LED_On(tail-8, MAX7219_DEBUG_STEPPER_TAIL+1);
+    }
+  #endif
 
-        if ( current_depth < 0 )
-          current_depth += BLOCK_BUFFER_SIZE;
+  #ifdef MAX7219_DEBUG_STEPPER_QUEUE
+    static int16_t last_depth = 0;
+    int16_t current_depth = head - tail;
+    if (current_depth != last_depth) {  // usually, no update will be needed.
+      if (current_depth < 0) current_depth += BLOCK_BUFFER_SIZE;
+      NOMORE(current_depth, BLOCK_BUFFER_SIZE);
+      NOMORE(current_depth, 16);        // if the BLOCK_BUFFER_SIZE is greater than 16, two lines
+                                        // of LEDs is enough to see if the buffer is draining
 
-        if ( current_depth >= BLOCK_BUFFER_SIZE )
-          current_depth = BLOCK_BUFFER_SIZE;
+      const uint8_t st = min(current_depth, last_depth),
+                    en = max(current_depth, last_depth);
+      if (current_depth < last_depth)
+        for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
+            Max7219_LED_Off(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+      else
+          for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
+            Max7219_LED_On(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
 
-        if ( current_depth > 16 )         // if the BLOCK_BUFFER_SIZE is greater than 16 two lines
-          current_depth = 16;             // of LED's is enough to see if the buffer is draining
+      last_depth = current_depth;
+    }
+  #endif
+}
 
-        if ( current_depth < last_depth )
-          for(i=current_depth; i<=last_depth; i++) {   // clear the highest order LED's
-            if ( i & 1)
-              Max7219_LED_Off(i>>1, MAX7219_DEBUG_STEPPER_QUEUE+1);
-            else
-              Max7219_LED_Off(i>>1, MAX7219_DEBUG_STEPPER_QUEUE+0);
-          }
-        else
-          for(i=last_depth; i<=current_depth; i++) {   // light up the highest order LED's
-            if ( i & 1)
-              Max7219_LED_On(i>>1, MAX7219_DEBUG_STEPPER_QUEUE+1);
-            else
-              Max7219_LED_On(i>>1, MAX7219_DEBUG_STEPPER_QUEUE+0);
-          }
-        last_depth = current_depth;
-      }
-    #endif
-  }
-#endif //MAX7219_DEBUG
-
+#endif // MAX7219_DEBUG

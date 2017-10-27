@@ -21,65 +21,70 @@
  */
 
 /**
- * This module is normally not enabled and does not generate any code.   But it
- * can be enabled to facilitate the display of extra debug information during
- * code development.   It assumes the existance of a Max7219 LED Matrix.   You
- * can get one on eBay similar to this: http://www.ebay.com/itm/191781645249
- * for under $2.00 including shipping.
+ * This module is off by default, but can be enabled to facilitate the display of
+ * extra debug information during code development. It assumes the existence of a
+ * Max7219 LED Matrix. A suitable device can be obtained on eBay similar to this:
+ * http://www.ebay.com/itm/191781645249 for under $2.00 including shipping.
  *
- * Just connect up +5v and Gnd to give it power.  And then 3 wires declared in the 
- * #define's below.  Actual pin assignments can be changed in MAX7219_DEBUG section 
- * of configuration_adv.h
+ * Just connect up +5v and GND to give it power, then connect up the pins assigned
+ * in Configuration_adv.h. For example, on the Re-ARM you could use:
  *
- * You first call Max7219_init() and then you have 3 support functions available
- * to control the LED's in the 8x8 grid.
+ *   #define MAX7219_CLK_PIN   77
+ *   #define MAX7219_DIN_PIN   78
+ *   #define MAX7219_LOAD_PIN  79
+ *
+ * Max7219_init() is called automatically at startup, and then there are a number of
+ * support functions available to control the LEDs in the 8x8 grid.
  *
  * void Max7219_init();
  * void Max7219_PutByte(uint8_t data);
  * void Max7219(uint8_t reg, uint8_t data);
- * void Max7219_LED_On( int8_t row, int8_t col);
- * void Max7219_LED_Off( int8_t row, int8_t col);
- * void Max7219_LED_Toggle( int8_t row, int8_t col);
- * void Max7219_Clear_Row( int8_t row);
- * void Max7219_Clear_Column( int8_t col);
- * void Max7219_Set_Row( int8_t row, int8_t val);
- * void Max7219_Set_Column( int8_t column, int8_t val);
+ * void Max7219_LED_Set(uint8_t row, uint8_t col, bool on);
+ * void Max7219_LED_On(uint8_t col, uint8_t row);
+ * void Max7219_LED_Off(uint8_t col, uint8_t row);
+ * void Max7219_LED_Toggle(uint8_t row, uint8_t col);
+ * void Max7219_Clear_Row(uint8_t row);
+ * void Max7219_Clear_Column(uint8_t col);
+ * void Max7219_Set_Row(uint8_t row, uint8_t val);
+ * void Max7219_Set_2_Rows(uint8_t row, uint16_t val);
+ * void Max7219_Set_4_Rows(uint8_t row, uint32_t val);
+ * void Max7219_Set_Column(uint8_t col, uint8_t val);
  * void Max7219_idle_tasks();
  */
 
+#ifndef __MAX7219_DEBUG_LEDS_H__
+#define __MAX7219_DEBUG_LEDS_H__
 
-#if ENABLED(MAX7219_DEBUG)
-  //
-  // define max7219 registers
-  //
-  #define max7219_reg_noop        0x00
-  #define max7219_reg_digit0      0x01
-  #define max7219_reg_digit1      0x02
-  #define max7219_reg_digit2      0x03
-  #define max7219_reg_digit3      0x04
-  #define max7219_reg_digit4      0x05
-  #define max7219_reg_digit5      0x06
-  #define max7219_reg_digit6      0x07
-  #define max7219_reg_digit7      0x08
+//
+// define max7219 registers
+//
+#define max7219_reg_noop        0x00
+#define max7219_reg_digit0      0x01
+#define max7219_reg_digit1      0x02
+#define max7219_reg_digit2      0x03
+#define max7219_reg_digit3      0x04
+#define max7219_reg_digit4      0x05
+#define max7219_reg_digit5      0x06
+#define max7219_reg_digit6      0x07
+#define max7219_reg_digit7      0x08
 
-  #define max7219_reg_intensity   0x0a
-  #define max7219_reg_displayTest 0x0f
-  #define max7219_reg_decodeMode  0x09
-  #define max7219_reg_scanLimit   0x0b
-  #define max7219_reg_shutdown    0x0c
+#define max7219_reg_intensity   0x0A
+#define max7219_reg_displayTest 0x0F
+#define max7219_reg_decodeMode  0x09
+#define max7219_reg_scanLimit   0x0B
+#define max7219_reg_shutdown    0x0C
 
+void Max7219_init();
+void Max7219_PutByte(uint8_t data);
+void Max7219(const uint8_t reg, const uint8_t data);
+void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on);
+void Max7219_LED_On(const uint8_t row, const uint8_t col);
+void Max7219_LED_Off(const uint8_t row, const uint8_t col);
+void Max7219_LED_Toggle(const uint8_t row, const uint8_t col);
+void Max7219_Clear_Row(const uint8_t row);
+void Max7219_Clear_Column(const uint8_t col);
+void Max7219_Set_Row(const uint8_t row, const uint8_t val);
+void Max7219_Set_Column(const uint8_t col, const uint8_t val);
+void Max7219_idle_tasks();
 
-  void Max7219_init();
-  void Max7219_PutByte(uint8_t data);
-  void Max7219(uint8_t reg, uint8_t data);
-  void Max7219_LED_On( int8_t row, int8_t col);
-  void Max7219_LED_Off( int8_t row, int8_t col);
-  void Max7219_LED_Toggle( int8_t row, int8_t col);
-  void Max7219_Clear_Row( int8_t row);
-  void Max7219_Clear_Column( int8_t col);
-  void Max7219_Set_Row( int8_t row, uint8_t val);
-  void Max7219_Set_Column( int8_t col, uint8_t val);
-  void Max7219_idle_tasks();
-#endif
-
-
+#endif // __MAX7219_DEBUG_LEDS_H__
