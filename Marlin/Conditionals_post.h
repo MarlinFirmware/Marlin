@@ -379,28 +379,19 @@
   #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
   /**
+   * Define values for these different endstop locations.
+   */
+  #define _XMIN_ 100
+  #define _YMIN_ 200
+  #define _ZMIN_ 300
+  #define _XMAX_ 101
+  #define _YMAX_ 201
+  #define _ZMAX_ 301
+
+  /**
    * X_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(X_DUAL_ENDSTOPS)
-    #define _XMIN_ 100
-    #define _YMIN_ 200
-    #define _ZMIN_ 300
-    #define _XMAX_ 101
-    #define _YMAX_ 201
-    #define _ZMAX_ 301
-    #if X2_USE_ENDSTOP == _XMIN_
-      #define USE_XMIN_PLUG
-    #elif X2_USE_ENDSTOP == _XMAX_
-      #define USE_XMAX_PLUG
-    #elif X2_USE_ENDSTOP == _YMIN_
-      #define USE_YMIN_PLUG
-    #elif X2_USE_ENDSTOP == _YMAX_
-      #define USE_YMAX_PLUG
-    #elif X2_USE_ENDSTOP == _ZMIN_
-      #define USE_ZMIN_PLUG
-    #elif X2_USE_ENDSTOP == _ZMAX_
-      #define USE_ZMAX_PLUG
-    #endif
     #if X_HOME_DIR > 0
       #if X2_USE_ENDSTOP == _XMIN_
         #define X2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -455,25 +446,6 @@
    * Y_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    #define _XMIN_ 100
-    #define _YMIN_ 200
-    #define _ZMIN_ 300
-    #define _XMAX_ 101
-    #define _YMAX_ 201
-    #define _ZMAX_ 301
-    #if Y2_USE_ENDSTOP == _XMIN_
-      #define USE_XMIN_PLUG
-    #elif Y2_USE_ENDSTOP == _XMAX_
-      #define USE_XMAX_PLUG
-    #elif Y2_USE_ENDSTOP == _YMIN_
-      #define USE_YMIN_PLUG
-    #elif Y2_USE_ENDSTOP == _YMAX_
-      #define USE_YMAX_PLUG
-    #elif Y2_USE_ENDSTOP == _ZMIN_
-      #define USE_ZMIN_PLUG
-    #elif Y2_USE_ENDSTOP == _ZMAX_
-      #define USE_ZMAX_PLUG
-    #endif
     #if Y_HOME_DIR > 0
       #if Y2_USE_ENDSTOP == _XMIN_
         #define Y2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -528,25 +500,6 @@
    * Z_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define _XMIN_ 100
-    #define _YMIN_ 200
-    #define _ZMIN_ 300
-    #define _XMAX_ 101
-    #define _YMAX_ 201
-    #define _ZMAX_ 301
-    #if Z2_USE_ENDSTOP == _XMIN_
-      #define USE_XMIN_PLUG
-    #elif Z2_USE_ENDSTOP == _XMAX_
-      #define USE_XMAX_PLUG
-    #elif Z2_USE_ENDSTOP == _YMIN_
-      #define USE_YMIN_PLUG
-    #elif Z2_USE_ENDSTOP == _YMAX_
-      #define USE_YMAX_PLUG
-    #elif Z2_USE_ENDSTOP == _ZMIN_
-      #define USE_ZMIN_PLUG
-    #elif Z2_USE_ENDSTOP == _ZMAX_
-      #define USE_ZMAX_PLUG
-    #endif
     #if Z_HOME_DIR > 0
       #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
