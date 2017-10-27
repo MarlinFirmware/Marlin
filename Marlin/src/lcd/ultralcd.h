@@ -223,4 +223,8 @@ void lcd_reset_status();
   #define BUZZ(d,f) lcd_buzz(d, f)
 #endif
 
+#if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+  void lcd_reselect_last_file();
+#endif
+
 #endif // ULTRALCD_H
