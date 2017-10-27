@@ -38,7 +38,7 @@ constexpr uint8_t LPC1768_PIN_PORT(const pin_t pin) { return ((uint8_t)((pin >> 
 constexpr uint8_t LPC1768_PIN_PIN(const pin_t pin) { return ((uint8_t)(pin & 0b11111)); }
 constexpr bool LPC1768_PIN_INTERRUPT(const pin_t pin) { return (((pin >> 8) & PIN_FEATURE_INTERRUPT) != 0); }
 constexpr bool LPC1768_PIN_PWM(const pin_t pin) { return (((pin >> 8) & PIN_FEATURE_PWM) != 0); }
-constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 8) & 0b1111) - 1; }
+constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) & 0b1111) - 1; }
 
 // ******************
 // Runtime pinmapping
