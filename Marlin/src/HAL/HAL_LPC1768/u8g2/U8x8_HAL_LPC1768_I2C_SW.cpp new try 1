@@ -1,0 +1,359 @@
+/*  based on U8G2 code
+
+  u8x8_byte.c 
+  
+  Universal 8bit Graphics Library (https://github.com/olikraus/u8g2/)
+
+  Copyright (c) 2016, olikraus@gmail.com
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, this list 
+    of conditions and the following disclaimer.
+    
+  * Redistributions in binary form must reproduce the above copyright notice, this 
+    list of conditions and the following disclaimer in the documentation and/or other 
+    materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
+  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
+  
+  
+*/
+
+/*
+  software i2c,
+  ignores ACK response (which is anyway not provided by some displays)
+  also does not allow reading from the device
+*/
+
+#if defined (TARGET_LPC1768)
+
+
+#include <clib/u8x8.h>
+
+#include <HAL_LPC1768/LPC1768_pins.h>
+#include <lpc17xx_pinsel.h>
+
+#define LPC_PORT_OFFSET         (0x0020)
+#define LPC_PIN(pin)            (1UL << pin)
+#define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
+
+void delayMicroseconds(uint32_t us);
+
+#define LCD_I2C_ADDRESS u8x8->pins[U8X8_PIN_CS1]
+
+#define LCD_I2C_RATE u8x8->pins[U8X8_PIN_CS2]
+static uint8_t I2C_speed; // 3 - 400KHz, 13 - 100KHz
+#define SPEED_400KHz 3
+#define SPEED_100KHz 13
+
+
+/*  defined in another file
+void u8x8_HAL_SetPin_SW_I2C(u8x8_t *u8x8, uint8_t clock, uint8_t data, uint8_t speed, uint8_t address, uint8_t reset)
+{
+  u8x8_SetPin(u8x8, U8X8_PIN_I2C_CLOCK, clock);
+  u8x8_SetPin(u8x8, U8X8_PIN_I2C_DATA, data);
+  u8x8_SetPin(u8x8, U8X8_PIN_CS1, address);
+  u8x8_SetPin(u8x8, U8X8_PIN_CS2, speed);
+  u8x8_SetPin(u8x8, U8X8_PIN_RESET, reset);
+}
+*/  
+
+uint8_t SDA_pin, SDA_port, SCL_pin, SCL_port;
+
+static void LPC1768_i2c_start(u8x8_t *u8x8)
+{
+  /* send the start condition, both lines go from 1 to 0 */
+ 
+  LPC_GPIO(SDA_port)->FIOCLR = LPC_PIN(SDA_pin);
+  LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+  delayMicroseconds(2);  
+  LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+  delayMicroseconds(2);
+  LPC_GPIO(SDA_port)->FIOSET = LPC_PIN(SDA_pin);
+  delayMicroseconds(2);
+  LPC_GPIO(SDA_port)->FIOCLR = LPC_PIN(SDA_pin);
+  delayMicroseconds(2);
+  LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+}
+
+
+static void LPC1768_i2c_write_byte(u8x8_t *u8x8, uint8_t b)   
+{
+  uint8_t val = b;
+  
+  for (uint8_t i = 0; i < 9; i++) {  // 1 extra bit for the ack/nak
+  
+    if (val & 0x80 || i == 8) 
+      for (uint8_t j = 0; j < I2C_speed; j++) {
+        LPC_GPIO(SDA_port)->FIOSET = LPC_PIN(SDA_pin);
+        LPC_GPIO(SDA_port)->FIOSET = LPC_PIN(SDA_pin);
+        LPC_GPIO(SDA_port)->FIOSET = LPC_PIN(SDA_pin);
+      }    
+    else 
+      for (uint8_t j = 0; j < I2C_speed; j++) {
+        LPC_GPIO(SDA_port)->FIOCLR = LPC_PIN(SDA_pin);
+        LPC_GPIO(SDA_port)->FIOCLR = LPC_PIN(SDA_pin);
+      }
+    
+    for (uint8_t j = 0; j < I2C_speed; j++) {
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin); 
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    }  
+     
+    for (uint8_t j = 0; j < I2C_speed; j++) {
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+    }
+    val = val << 1; 
+  }
+}     
+    
+/*    800KHz / 400KHz
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+    LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+
+    if (!I2C_speed) {
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOSET = LPC_PIN(SCL_pin);
+      
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+      LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);      
+    }  
+     
+
+    LPC_GPIO(SCL_port)->FIOCLR = LPC_PIN(SCL_pin);
+    
+    val = val << 1;
+  }
+
+} 
+*/     
+
+  
+uint8_t u8x8_HAL_LPC1768_sw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
+{
+  uint8_t *data;
+ 
+  switch(msg)
+  {
+    case U8X8_MSG_BYTE_SEND:
+      data = (uint8_t *)arg_ptr;
+      
+      while( arg_int > 0 )
+      {
+        LPC1768_i2c_write_byte(u8x8, *data);
+        data++;
+        arg_int--;
+      }
+      
+      break;
+   
+    case U8X8_MSG_BYTE_INIT:
+      I2C_speed = LCD_I2C_RATE  ?  SPEED_400KHz : SPEED_100KHz;
+      int SDA = u8x8->pins[U8X8_PIN_I2C_DATA];
+      int SCL = u8x8->pins[U8X8_PIN_I2C_CLOCK];
+      SDA_pin = PIN_LPC1768_PIN(SDA);
+      SDA_port = PORT_LPC1768_PIN(SDA);
+      SCL_pin = PIN_LPC1768_PIN(SCL);
+      SCL_port = PORT_LPC1768_PIN(SCL);
+      LPC1768_i2c_write_byte(u8x8, 0);
+      break;
+      
+    case U8X8_MSG_BYTE_SET_DC:
+      break;
+      
+    case U8X8_MSG_BYTE_START_TRANSFER:
+      LPC1768_i2c_start(u8x8);
+      LPC1768_i2c_write_byte(u8x8, LCD_I2C_ADDRESS << 1);
+      break;
+      
+    case U8X8_MSG_BYTE_END_TRANSFER:
+      break;
+      
+    default:
+      return 0;
+  }
+  return 1;
+}
+
+#endif  // TARGET_LPC1768

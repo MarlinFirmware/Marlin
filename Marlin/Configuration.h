@@ -74,7 +74,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR CUSTOM_MACHINE_NAME  // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -119,12 +119,14 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+//  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+//  #define MOTHERBOARD BOARD_TEENSY35_36  
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "u8g2 rebase 1c"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -854,7 +856,7 @@
  * - AUTO_BED_LEVELING_UBL (Unified Bed Leveling)
  *   A comprehensive bed leveling system combining the features and benefits
  *   of other systems. UBL also includes integrated Mesh Generation, Mesh
- *   Validation and Mesh Editing systems.
+ *   Validation and Mesh Editing systems. 
  *
  * - MESH_BED_LEVELING
  *   Probe a grid manually
@@ -875,7 +877,6 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 //#define DEBUG_LEVELING_FEATURE
-//#define ENABLE_MESH_EDIT_GFX_OVERLAY  // enable a graphics overly while editing the mesh from auto-level
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -1336,6 +1337,15 @@
 // Enable one of the following options to specify your controller.
 //
 
+/**
+ * Speed for SPI type LCDs (only for ARM chips)
+ * Same speed definitions as for SD card
+ */
+//#define LCD_SPI_SPEED  SPI_FULL_SPEED  // 4 - 8MHz
+//#define LCD_SPI_SPEED  SPI_HALF_SPEED 
+//#define LCD_SPI_SPEED  SPI_QUARTER_SPEED 
+//#define LCD_SPI_SPEED  SPI_EIGHTH_SPEED 
+#define LCD_SPI_SPEED  SPI_SPEED_6    // 250KHz
 //
 // ULTIMAKER Controller.
 //
@@ -1369,7 +1379,7 @@
 // Viki 2.0 or mini Viki with Graphic LCD
 // http://panucatt.com
 //
-//#define VIKI2
+#define VIKI2
 //#define miniVIKI
 
 //
@@ -1487,6 +1497,10 @@
 //
 //#define LCD_I2C_PANELOLU2
 
+
+// I2C speed and address for SSD1306 and SH1106 based LCDs (only for ARM chips)
+#define LCD_I2C_SPEED  1    // 0: 100KHz,  1: 400KHz
+#define LCD_I2C_ADDRESS 0x3c  // unshifted address (0x2C shifted is 0x58, 0x3C shifted is 0x78)
 //
 // Panucatt VIKI LCD with status LEDs,
 // integrated click & L/R/U/D buttons, separate encoder inputs.
@@ -1611,17 +1625,17 @@
  * Adds the M150 command to set the LED (or LED strip) color.
  * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
  * luminance values can be set from 0 to 255.
- * For Neopixel LED an overall brightness parameter is also available.
+ * For Neopixel LED overall brightness parameters is also available
  *
  * *** CAUTION ***
  *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
- *  NOTE: A separate 5V power supply is required! The Neopixel LED needs
- *  more current than the Arduino 5V linear regulator can produce.
+ *  Neopixel LED is 5V powered, but linear 5V regulator on Arduino
+ *  cannot handle the current, separate 5V power supply must be used
  * *** CAUTION ***
  *
- * LED Type. Enable only one of the following two options.
+ * LED type. This options are mutualy exclusive. Uncomment only one.
  *
  */
 
@@ -1637,10 +1651,10 @@
 // Support for Adafruit Neopixel LED driver
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (definned in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip
-  #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+  #define NEOPIXEL_PIXELS 30       // Number of LEDs on strip
+  #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Comment out for all LEDs to change at once.
   #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness 0-255
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 #endif
@@ -1660,18 +1674,18 @@
   #define PRINTER_EVENT_LEDS
 #endif
 
-/**
- * R/C SERVO support
- * Sponsored by TrinityLabs, Reworked by codexmas
- */
+/*********************************************************************\
+* R/C SERVO support
+* Sponsored by TrinityLabs, Reworked by codexmas
+**********************************************************************/
 
-/**
- * Number of servos
- *
- * For some servo-related options NUM_SERVOS will be set automatically.
- * Set this manually if there are extra servos needing manual control.
- * Leave undefined or set to 0 to entirely disable the servo subsystem.
- */
+// Number of servos
+//
+// If you select a configuration below, this will receive a default value and does not need to be set manually
+// set it manually if you have more servos than extruders and wish to manually control some
+// leaving it undefined or defining as 0 will disable the servo subsystem
+// If unsure, leave commented / disabled
+//
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.

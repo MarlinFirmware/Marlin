@@ -92,8 +92,8 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
 #endif
 
 #if ENABLED(DOGLCD)
-  #include "ultralcd_impl_DOGM.h"
-  #include <U8glib.h>
+    #include <U8g2lib.h>
+    #include "ultralcd_impl_DOGM.h"
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
@@ -716,10 +716,10 @@ void kill_screen(const char* lcd_msg) {
   lcd_init();
   lcd_setalertstatusPGM(lcd_msg);
   #if ENABLED(DOGLCD)
-    u8g.firstPage();
+    u8g2.firstPage();
     do {
       lcd_kill_screen();
-    } while (u8g.nextPage());
+    } while (u8g2.nextPage());
   #else
     lcd_kill_screen();
   #endif
@@ -1057,47 +1057,50 @@ void kill_screen(const char* lcd_msg) {
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
 
-    #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-      void _lcd_zoffset_overlay_gfx(const float in_zoffset) {
-        // Determine whether the user is raising or lowering the nozzle.
-        int8_t dir = 0;
-        static float old_zprobe_zoffset = 0;
-        if (in_zoffset != old_zprobe_zoffset) {
-          dir = (in_zoffset > old_zprobe_zoffset) ? 1 : (in_zoffset == 0) ? 0 : -1;
-          old_zprobe_zoffset = in_zoffset;
-        }
+      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
 
-        #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
-          const unsigned char *rot_up   = ccw_bmp;
-          const unsigned char *rot_down = cw_bmp;
-        #else
-          const unsigned char *rot_up   = cw_bmp;
-          const unsigned char *rot_down = ccw_bmp;
-        #endif
+        void _lcd_babystep_zoffset_overlay(const float in_zoffset) {
+          // Determine whether the user is raising or lowering the nozzle.
+          int8_t dir = 0;
+          static float old_zprobe_zoffset = 0;
+          if (in_zoffset != old_zprobe_zoffset) {
+            dir = (in_zoffset > old_zprobe_zoffset) ? 1 : -1;
+            old_zprobe_zoffset = in_zoffset;
+          }
 
-        #if ENABLED(USE_BIG_EDIT_FONT)
-          const int left = 0, right = 45, nozzle = 95;
-        #else
-          const int left = 5, right = 90, nozzle = 60;
-        #endif
+          #if ENABLED(BABYSTEP_ZPROBE_GFX_REVERSE)
+            const unsigned char *rot_up   = ccw_bmp;
+            const unsigned char *rot_down = cw_bmp;
+          #else
+            const unsigned char *rot_up   = cw_bmp;
+            const unsigned char *rot_down = ccw_bmp;
+          #endif
 
         // Draw a representation of the nozzle
-        if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
-        if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
+        if (PAGE_CONTAINS(3, 16))  u8g2.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
+        if (PAGE_CONTAINS(20, 20)) u8g2.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
 
         // Draw cw/ccw indicator and up/down arrows.
         if (PAGE_CONTAINS(47,62)) {
-          u8g.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
-          u8g.drawBitmapP(right + 0, 47, 3, 16, rot_up);
-          u8g.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
-          u8g.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
+          u8g2.drawBitmapP(left  + 0, 47, 3, 16, rot_down);
+          u8g2.drawBitmapP(right + 0, 47, 3, 16, rot_up);
+          u8g2.drawBitmapP(right + 20, 48 - dir, 2, 13, up_arrow_bmp);
+          u8g2.drawBitmapP(left  + 20, 49 - dir, 2, 13, down_arrow_bmp);
         }
       }
 
-    #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || ENABLE_MESH_EDIT_GFX_OVERLAY
+          // Draw cw/ccw indicator and up/down arrows.
+          if (PAGE_CONTAINS(47,62)) {
+            u8g2.drawBitmap(left  + 0, 47, 3, 16, PSTR(rot_down));
+            u8g2.drawBitmap(right + 0, 47, 3, 16, PSTR(rot_up));
+            u8g2.drawBitmap(right + 20, 48 - dir, 2, 13, PSTR(up_arrow_bmp));
+            u8g2.drawBitmap(left  + 20, 49 - dir, 2, 13, PSTR(down_arrow_bmp));
+          }
+        }
 
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      #endif // BABYSTEP_ZPROBE_GFX_OVERLAY
 
       void lcd_babystep_zoffset() {
         if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
@@ -1121,7 +1124,7 @@ void kill_screen(const char* lcd_msg) {
         if (lcdDrawUpdate) {
           lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-            _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+            _lcd_babystep_zoffset_overlay(zprobe_zoffset);
           #endif
         }
       }
@@ -1158,9 +1161,6 @@ void kill_screen(const char* lcd_msg) {
 
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
-        #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY)
-          _lcd_zoffset_overlay_gfx(mesh_edit_value);
-        #endif
     }
 
     void _lcd_mesh_edit_NOP() {
@@ -4628,6 +4628,8 @@ void lcd_update() {
     #endif
     ) {
 
+
+
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -4761,13 +4763,18 @@ void lcd_update() {
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         if (!drawing_screen) {
-          u8g.firstPage();
+#if defined(TARGET_LPC1768)
+digitalWrite(75, !digitalRead(75));  //re-arm
+#else
+digitalWrite(29, !digitalRead(29));  //2560
+#endif          
+          u8g2.firstPage();
           drawing_screen = 1;
         }
         lcd_setFont(FONT_MENU);
-        u8g.setColorIndex(1);
+
         CURRENTSCREEN();
-        if (drawing_screen && (drawing_screen = u8g.nextPage())) {
+        if (drawing_screen && (drawing_screen = u8g2.nextPage())) {
           NOLESS(max_display_update_time, millis() - ms);
           return;
         }
@@ -4899,7 +4906,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
   void set_lcd_contrast(const uint16_t value) {
     lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g.setContrast(lcd_contrast);
+    u8g2.setContrast(lcd_contrast);
   }
 
 #endif

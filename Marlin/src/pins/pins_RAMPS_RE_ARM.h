@@ -241,9 +241,11 @@
   #define DOGLCD_CS           P0_26  // J5-3 & AUX-2
 
   #ifdef ULTIPANEL
+
     #define LCD_PINS_D5       P1_17  // ENET_MDIO
     #define LCD_PINS_D6       P1_14  // ENET_RX_ER
     #define LCD_PINS_D7       P1_10  // ENET_RXD1
+
   #endif
 
   #if ENABLED(NEWPANEL)
@@ -258,6 +260,7 @@
     //#define SHIFT_OUT           P2_11  // J3-3 & AUX-4
     //#define SHIFT_EN            P1_22  // J5-4 & AUX-4
   #endif
+
 
   #if ENABLED(VIKI2) || ENABLED(miniVIKI)
     // #define LCD_SCREEN_ROT_180

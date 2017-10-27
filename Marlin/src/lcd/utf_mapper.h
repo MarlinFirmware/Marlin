@@ -26,7 +26,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(DOGLCD)
-  #define HARDWARE_CHAR_OUT(C) u8g.print((char)(C))
+  #define HARDWARE_CHAR_OUT(C) u8g2.print((char)(C))
 #else
   #define HARDWARE_CHAR_OUT(C) lcd.write((char)(C))
 #endif
