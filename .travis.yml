@@ -204,7 +204,7 @@ script:
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - pins_set RAMPS X_MAX_PIN -1
-  - opt_set_adv Z2_MAX_PIN 2
+  - opt_add_adv Z2_MAX_PIN 2
   - build_marlin
   #
   # Enable COREXY
