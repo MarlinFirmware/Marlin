@@ -29,8 +29,6 @@
 
 #include "thermistor/thermistors.h"
 
-#include "../inc/MarlinConfig.h"
-
 #if ENABLED(BABYSTEPPING)
   extern bool axis_known_position[XYZ];
 #endif
