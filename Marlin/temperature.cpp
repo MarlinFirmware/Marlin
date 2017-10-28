@@ -269,7 +269,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
     // PID Tuning loop
     while (wait_for_heatup) {
 
-      millis_t ms = millis();
+      const millis_t ms = millis();
 
       if (temp_meas_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
@@ -384,20 +384,22 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       #define MAX_OVERSHOOT_PID_AUTOTUNE 20
       if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
+        disable_all_heaters();
         return;
       }
       // Every 2 seconds...
-      if (ELAPSED(ms, temp_ms + 2000UL)) {
+      if (ELAPSED(ms, temp_ms)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
           print_heaterstates();
           SERIAL_EOL();
         #endif
 
-        temp_ms = ms;
+        temp_ms = ms + 2000UL;
       } // every 2 seconds
-      // Over 2 minutes?
+      // Timeout after 20 minutes since the last undershoot/overshoot cycle
       if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
+        disable_all_heaters();
         return;
       }
       if (cycles > ncycles) {
@@ -2067,7 +2069,7 @@ void Temperature::isr() {
 
     for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
       const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
-      bool heater_on = 
+      bool heater_on =
         # if ENABLED(PIDTEMP)
           soft_pwm_amount[e] > 0;
         # else
@@ -2092,7 +2094,7 @@ void Temperature::isr() {
       #else
         #define GEBED >=
       #endif
-      bool bed_on = 
+      bool bed_on =
         # if ENABLED(PIDTEMPBED)
           soft_pwm_amount_bed > 0;
         # else
