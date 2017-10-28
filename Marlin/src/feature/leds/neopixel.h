@@ -27,11 +27,22 @@
 #ifndef __NEOPIXEL_H__
 #define __NEOPIXEL_H__
 
+#include "../../inc/MarlinConfig.h"
+
 #include <Adafruit_NeoPixel.h>
 #include <stdint.h>
 
+#define NEOPIXEL_IS_RGB  (NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR)
+#define NEOPIXEL_IS_RGBW !NEOPIXEL_IS_RGB
+
+#if NEOPIXEL_IS_RGB
+  #define NEO_WHITE 255, 255, 255
+#else
+  #define NEO_WHITE 0, 0, 0, 255
+#endif
+
 void setup_neopixel();
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+void set_neopixel_color(const uint32_t color);
 
 extern Adafruit_NeoPixel pixels;
 

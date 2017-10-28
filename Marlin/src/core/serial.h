@@ -25,6 +25,25 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if HAS_ABL && ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../libs/vector_3.h"
+#endif
+
+/**
+ * Define debug bit-masks
+ */
+enum DebugFlags {
+  DEBUG_NONE          = 0,
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
+  DEBUG_ALL           = 0xFF
+};
+
 //todo: HAL: breaks encapsulation
 // For AVR only, define a serial interface based on configuration
 #ifdef __AVR__
@@ -41,22 +60,10 @@
   #endif
 #endif
 
-#include "../libs/vector_3.h"
-
-/**
- * Define debug bit-masks
- */
-enum DebugFlags {
-  DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
-  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
-  DEBUG_ERRORS        = _BV(2), ///< Not implemented
-  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
-  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
-  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
-  DEBUG_ALL           = 0xFF
-};
+#ifdef ARDUINO_ARCH_SAM
+  // To pull the Serial port definitions and overrides
+  #include "../HAL/HAL_DUE/MarlinSerial_Due.h"
+#endif
 
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -106,7 +113,6 @@ void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 

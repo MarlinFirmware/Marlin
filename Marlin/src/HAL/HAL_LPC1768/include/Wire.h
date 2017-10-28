@@ -21,7 +21,7 @@
 
 // Modified for use with the mcp4451 digipot routine
 
-#if defined(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
 
 #ifndef TwoWire_h
 #define TwoWire_h

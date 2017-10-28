@@ -49,9 +49,13 @@ void GcodeSuite::M150() {
   set_led_color(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : LED_BRIGHTNESS
+    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+    #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+      #if ENABLED(NEOPIXEL_LED)
+        , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+      #endif
+    #endif
   );
 }
 

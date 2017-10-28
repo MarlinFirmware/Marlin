@@ -102,7 +102,7 @@ void HardwareSerial::begin(uint32_t baudrate) {
 
 	// Initialize eripheral with given to corresponding parameter
   UART_Init(UARTx, &UARTConfigStruct);
-  
+
   // Enable and reset the TX and RX FIFOs
   UART_FIFOConfigStructInit(&FIFOConfig);
   UART_FIFOConfig(UARTx, &FIFOConfig);
@@ -113,7 +113,7 @@ void HardwareSerial::begin(uint32_t baudrate) {
   // Configure Interrupts
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
   UART_IntConfig(UARTx, UART_INTCFG_RLS, ENABLE);
-  
+
   if (UARTx == LPC_UART0)
     NVIC_EnableIRQ(UART0_IRQn);
   else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1)
@@ -135,13 +135,13 @@ int HardwareSerial::peek() {
   /* Temporarily lock out UART receive interrupts during this read so the UART receive
      interrupt won't cause problems with the index values */
   UART_IntConfig(UARTx, UART_INTCFG_RBR, DISABLE);
-  
+
   if (RxQueueReadPos != RxQueueWritePos)
     byte = RxBuffer[RxQueueReadPos];
 
   /* Re-enable UART interrupts */
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
-  
+
   return byte;
 }
 
@@ -151,7 +151,7 @@ int HardwareSerial::read() {
   /* Temporarily lock out UART receive interrupts during this read so the UART receive
      interrupt won't cause problems with the index values */
   UART_IntConfig(UARTx, UART_INTCFG_RBR, DISABLE);
-  
+
   if (RxQueueReadPos != RxQueueWritePos) {
     byte = RxBuffer[RxQueueReadPos];
     RxQueueReadPos = (RxQueueReadPos + 1) % RX_BUFFER_SIZE;
@@ -159,7 +159,7 @@ int HardwareSerial::read() {
 
   /* Re-enable UART interrupts */
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
-  
+
   return byte;
 }
 
@@ -170,7 +170,7 @@ size_t HardwareSerial::write(uint8_t send) {
 
     /* If the Tx Buffer is full, wait for space to clear */
     if ((TxQueueWritePos+1) % TX_BUFFER_SIZE == TxQueueReadPos) flushTX();
-  
+
     /* Temporarily lock out UART transmit interrupts during this read so the UART transmit interrupt won't
        cause problems with the index values */
     UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
@@ -180,7 +180,7 @@ size_t HardwareSerial::write(uint8_t send) {
       fifolvl = *(reinterpret_cast<volatile uint32_t *>(&((LPC_UART1_TypeDef *) UARTx)->FIFOLVL));
     else
       fifolvl = *(reinterpret_cast<volatile uint32_t *>(&UARTx->FIFOLVL));
-  
+
     /* If the queue is empty and there's space in the FIFO, immediately send the byte */
     if (TxQueueWritePos == TxQueueReadPos && fifolvl < UART_TX_FIFO_SIZE) {
       bytes = UART_Send(UARTx, &send, 1, BLOCKING);
@@ -191,10 +191,10 @@ size_t HardwareSerial::write(uint8_t send) {
       TxQueueWritePos = (TxQueueWritePos+1) % TX_BUFFER_SIZE;
       bytes++;
     }
-  
+
     /* Re-enable the TX Interrupt */
     UART_IntConfig(UARTx, UART_INTCFG_THRE, ENABLE);
-  
+
     return bytes;
   #else
     return UART_Send(UARTx, &send, 1, BLOCKING);
@@ -251,7 +251,7 @@ void HardwareSerial::IRQHandler() {
       return;
     }
   }
-  
+
   if ( IIRValue == UART_IIR_INTID_RDA )	/* Receive Data Available */
   {
     /* Clear the FIFO */
@@ -278,7 +278,7 @@ void HardwareSerial::IRQHandler() {
 
       /* Wait for FIFO buffer empty */
       while (UART_CheckBusy(UARTx) == SET);
-    
+
       /* Transfer up to UART_TX_FIFO_SIZE bytes of data */
       for (int i = 0; i < UART_TX_FIFO_SIZE && TxQueueWritePos != TxQueueReadPos; i++) {
         /* Move a piece of data into the transmit FIFO */
@@ -287,7 +287,7 @@ void HardwareSerial::IRQHandler() {
         else
           break;
       }
-    
+
       /* If there is no more data to send, disable the transmit interrupt - else enable it or keep it enabled */
       if (TxQueueWritePos == TxQueueReadPos)
         UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
