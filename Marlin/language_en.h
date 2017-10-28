@@ -24,6 +24,7 @@
  * English
  *
  * LCD Menu Messages
+ 
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
@@ -131,6 +132,24 @@
 #endif
 #ifndef MSG_PREHEAT_2_SETTINGS
   #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
+#endif
+#ifndef MSG_PREHEAT_3
+  #define MSG_PREHEAT_3                       _UxGT("Preheat PETG")
+#endif
+#ifndef MSG_PREHEAT_3_N
+  #define MSG_PREHEAT_3_N                     MSG_PREHEAT_3 _UxGT(" ")
+#endif
+#ifndef MSG_PREHEAT_3_ALL
+  #define MSG_PREHEAT_3_ALL                   MSG_PREHEAT_3 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_3_END
+  #define MSG_PREHEAT_3_END                   MSG_PREHEAT_3 _UxGT(" End")
+#endif
+#ifndef MSG_PREHEAT_3_BEDONLY
+  #define MSG_PREHEAT_3_BEDONLY               MSG_PREHEAT_3 _UxGT(" Bed")
+#endif
+#ifndef MSG_PREHEAT_3_SETTINGS
+  #define MSG_PREHEAT_3_SETTINGS              MSG_PREHEAT_3 _UxGT(" conf")
 #endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
@@ -373,6 +392,12 @@
 #endif
 #ifndef MSG_MOVE_E
   #define MSG_MOVE_E                          _UxGT("Extruder")
+#endif
+#ifndef MSG_MOVE_0001MM
+  #define MSG_MOVE_0001MM                       _UxGT("Move 0.001mm")
+#endif
+#ifndef MSG_MOVE_001MM
+  #define MSG_MOVE_001MM                       _UxGT("Move 0.01mm")
 #endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
