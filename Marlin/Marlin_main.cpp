@@ -5433,7 +5433,7 @@ void home_all_axes() { gcode_G28(true); }
                     dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
       #endif
 
-      for (uint8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] = 0.0;
+      for (uint8_t i = 0; i <= 12; i++) z_at_pt[i] = 0.0;
     
       if (!_0p_calibration) {
     
@@ -5446,7 +5446,7 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         if (_7p_calibration) { // probe extra center points
-          for (int8_t axis = _7p_multi_circle ? COUNT(z_at_pt) - 2 : COUNT(z_at_pt) - 4; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
+          for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
             const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
@@ -5461,7 +5461,7 @@ void home_all_axes() { gcode_G28(true); }
           bool zig_zag = true;
           const uint8_t start = _4p_opposite_points ? 3 : 1,
                         step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
-          for (uint8_t axis = start; axis < COUNT(z_at_pt); axis += step) {
+          for (uint8_t axis = start; axis <= 12; axis += step) {
             const float zigadd = (zig_zag ? 0.5 : 0.0),
                         offset_circles = _7p_quadruple_circle ? zigadd + 1.0 :
                                          _7p_triple_circle    ? zigadd + 0.5 :
@@ -5481,14 +5481,14 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         if (_7p_intermed_points) // average intermediates to tower and opposites
-          for (uint8_t axis = 1; axis < COUNT(z_at_pt); axis += 2)
+          for (uint8_t axis = 1; axis <= 12; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
         int16_t N = 1;
         if (!_1p_calibration) // std dev from zero plane
-          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < COUNT(z_at_pt); axis += (_4p_calibration ? 4 : 2)) {
+          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis <= 12; axis += (_4p_calibration ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5530,7 +5530,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
           delta_endstop_adj[axis] += 1.0;
           switch (axis) {
@@ -5560,7 +5560,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOL(zig_zag == -1 ? "-" : "+");
           SERIAL_EOL();
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
           delta_radius -= 1.0 * zig_zag;
           recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
@@ -5587,7 +5587,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
 
           delta_tower_angle_trim[axis] -= 1.0;
