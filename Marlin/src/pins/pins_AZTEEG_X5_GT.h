@@ -90,6 +90,10 @@
 #define FAN_PIN            P0_26
 #define FAN1_PIN           P1_22
 
+//
+// Display
+//
+
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
     #define BEEPER_PIN        P1_30
     #define DOGLCD_A0         P2_6
@@ -107,3 +111,7 @@
     #define STAT_LED_BLUE_PIN P1_21
 #endif
 
+//
+// Servo
+//
+#define SERVO0_PIN        P1_23
