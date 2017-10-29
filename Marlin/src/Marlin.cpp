@@ -122,11 +122,11 @@
   #include "feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+#if ENABLED(SMART_PAUSE) && ENABLED(PAUSE_STEPPER_ON )
   #include "feature/pause.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
   #include "feature/runout.h"
 #endif
 
@@ -218,15 +218,40 @@ void setup_killpin() {
   #endif
 }
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
 
-  void setup_filrunoutpin() {
+  void setup_filrunoutpin() { 
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
-      SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+        SET_INPUT_PULLUP(FIL_RUNOUT_0_PIN);
+	  #if FIL_RUNOUT_1_PIN > -1
+	    SET_INPUT_PULLUP(FIL_RUNOUT_1_PIN);
+	  #endif
+	  #if FIL_RUNOUT_2_PIN > -1
+	    SET_INPUT_PULLUP(FIL_RUNOUT_2_PIN);  
+      #endif
+      #if FIL_RUNOUT_3_PIN > -1
+	    SET_INPUT_PULLUP(FIL_RUNOUT_3_PIN);     
+	  #endif
+	  #if FIL_RUNOUT_4_PIN > -1
+	    SET_INPUT_PULLUP(FIL_RUNOUT_4_PIN);     
+      #endif
+	
     #else
-      SET_INPUT(FIL_RUNOUT_PIN);
+        SET_INPUT(FIL_RUNOUT_0_PIN);
+      #if FIL_RUNOUT_2_PIN > -1
+	    SET_INPUT(FIL_RUNOUT_1_PIN);
+	  #endif
+	  #if FIL_RUNOUT_3_PIN > -1
+	    SET_INPUT(FIL_RUNOUT_2_PIN);  
+      #endif
+      #if FIL_RUNOUT_4_PIN > -1
+	    SET_INPUT(FIL_RUNOUT_3_PIN);     
+	  #endif
+	  #if FIL_RUNOUT_PIN_5 > -1
+	    SET_INPUT(FIL_RUNOUT_4_PIN);     
     #endif
-  }
+  #endif  
+}
 
 #endif
 
@@ -354,11 +379,35 @@ void disable_all_steppers() {
  */
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
-      handle_filament_runout();
-  #endif
-
+  #if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
+    #if DISABLED(FILAMENT_RUNOUT_MULTI_PIN)
+	  // Only one sensor for all extruders
+	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
+	    if((READ(FIL_RUNOUT_0_PIN)== FIL_RUNOUT_INVERTING)) 
+	     handle_filament_runout();  
+	    }
+    #else
+	  // Read only the sensor of the active extruder 
+	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
+	    switch (active_extruder){
+	       case 0: if((READ(FIL_RUNOUT_0_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	    #if FIL_RUNOUT_1_PIN > -1
+	       case 1: if((READ(FIL_RUNOUT_1_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	    #endif
+		#if FIL_RUNOUT_2_PIN > -1
+	       case 2: if((READ(FIL_RUNOUT_2_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	    #endif
+		#if FIL_RUNOUT_3_PIN > -1
+	       case 3: if((READ(FIL_RUNOUT_3_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	    #endif
+		#if FIL_RUNOUT_4_PIN > -1
+	       case 4: if((READ(FIL_RUNOUT_4_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	    #endif
+	    } 
+	  handle_filament_runout();
+      }  
+	#endif  
+ 
   if (commands_in_queue < BUFSIZE) get_available_commands();
 
   const millis_t ms = millis();
