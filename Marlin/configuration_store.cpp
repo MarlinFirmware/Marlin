@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V42"
+#define EEPROM_VERSION "V43"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V42 EEPROM Layout:
+ * V43 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -87,82 +87,83 @@
  *  312  G29 L F   bilinear_start                   (int x2)
  *  316            z_values[][]                     (float x9, up to float x256) +988
  *
- * AUTO_BED_LEVELING_UBL:                           6 bytes
+ * AUTO_BED_LEVELING_UBL:                           2 bytes
  *  324  G29 A     planner.leveling_active          (bool)
  *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
- * DELTA:                                           48 bytes
- *  348  M666 XYZ  delta_endstop_adj                (float x3)
- *  360  M665 R    delta_radius                     (float)
- *  364  M665 L    delta_diagonal_rod               (float)
- *  368  M665 S    delta_segments_per_second        (float)
- *  372  M665 B    delta_calibration_radius         (float)
- *  376  M665 X    delta_tower_angle_trim[A]        (float)
- *  380  M665 Y    delta_tower_angle_trim[B]        (float)
- *  384  M665 Z    delta_tower_angle_trim[C]        (float)
+ * DELTA:                                           40 bytes
+ *  352  M666 XYZ  delta_endstop_adj                (float x3)
+ *  364  M665 R    delta_radius                     (float)
+ *  368  M665 L    delta_diagonal_rod               (float)
+ *  372  M665 S    delta_segments_per_second        (float)
+ *  376  M665 B    delta_calibration_radius         (float)
+ *  380  M665 X    delta_tower_angle_trim[A]        (float)
+ *  384  M665 Y    delta_tower_angle_trim[B]        (float)
+ *  388  M665 Z    delta_tower_angle_trim[C]        (float)
  *
- * Z_DUAL_ENDSTOPS:                                 48 bytes
- *  348  M666 Z    z_endstop_adj                    (float)
- *  ---            dummy data                       (float x11)
+ * [XYZ]_DUAL_ENDSTOPS:                             12 bytes
+ *  352  M666 X    x_endstop_adj                    (float)
+ *  356  M666 Y    y_endstop_adj                    (float)
+ *  360  M666 Z    z_endstop_adj                    (float)
  *
  * ULTIPANEL:                                       6 bytes
- *  396  M145 S0 H lcd_preheat_hotend_temp          (int x2)
- *  400  M145 S0 B lcd_preheat_bed_temp             (int x2)
- *  404  M145 S0 F lcd_preheat_fan_speed            (int x2)
+ *  392  M145 S0 H lcd_preheat_hotend_temp          (int x2)
+ *  396  M145 S0 B lcd_preheat_bed_temp             (int x2)
+ *  400  M145 S0 F lcd_preheat_fan_speed            (int x2)
  *
- * PIDTEMP:                                         66 bytes
- *  408  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
- *  424  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
- *  440  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
- *  456  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  472  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  488  M301 L        lpq_len                      (int)
+ * PIDTEMP:                                         82 bytes
+ *  404  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
+ *  420  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
+ *  436  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
+ *  452  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  468  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  484  M301 L        lpq_len                      (int)
  *
  * PIDTEMPBED:                                      12 bytes
- *  490  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
+ *  486  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  502  M250 C    lcd_contrast                     (uint16_t)
+ *  498  M250 C    lcd_contrast                     (uint16_t)
  *
  * FWRETRACT:                                       33 bytes
- *  504  M209 S    autoretract_enabled              (bool)
- *  505  M207 S    retract_length                   (float)
- *  509  M207 F    retract_feedrate_mm_s            (float)
- *  513  M207 Z    retract_zlift                    (float)
- *  517  M208 S    retract_recover_length           (float)
- *  521  M208 F    retract_recover_feedrate_mm_s    (float)
- *  525  M207 W    swap_retract_length              (float)
- *  529  M208 W    swap_retract_recover_length      (float)
- *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
+ *  500  M209 S    autoretract_enabled              (bool)
+ *  501  M207 S    retract_length                   (float)
+ *  505  M207 F    retract_feedrate_mm_s            (float)
+ *  509  M207 Z    retract_zlift                    (float)
+ *  513  M208 S    retract_recover_length           (float)
+ *  517  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  521  M207 W    swap_retract_length              (float)
+ *  525  M208 W    swap_retract_recover_length      (float)
+ *  529  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
- *  537  M200 D    volumetric_enabled               (bool)
- *  538  M200 T D  filament_size                    (float x5) (T0..3)
+ *  533  M200 D    volumetric_enabled               (bool)
+ *  534  M200 T D  filament_size                    (float x5) (T0..3)
  *
- * HAVE_TMC2130:                                    20 bytes
- *  558  M906 X    Stepper X current                (uint16_t)
- *  560  M906 Y    Stepper Y current                (uint16_t)
- *  562  M906 Z    Stepper Z current                (uint16_t)
- *  564  M906 X2   Stepper X2 current               (uint16_t)
- *  566  M906 Y2   Stepper Y2 current               (uint16_t)
- *  568  M906 Z2   Stepper Z2 current               (uint16_t)
- *  570  M906 E0   Stepper E0 current               (uint16_t)
- *  572  M906 E1   Stepper E1 current               (uint16_t)
- *  574  M906 E2   Stepper E2 current               (uint16_t)
- *  576  M906 E3   Stepper E3 current               (uint16_t)
- *  580  M906 E4   Stepper E4 current               (uint16_t)
+ * HAVE_TMC2130:                                    22 bytes
+ *  554  M906 X    Stepper X current                (uint16_t)
+ *  556  M906 Y    Stepper Y current                (uint16_t)
+ *  558  M906 Z    Stepper Z current                (uint16_t)
+ *  560  M906 X2   Stepper X2 current               (uint16_t)
+ *  562  M906 Y2   Stepper Y2 current               (uint16_t)
+ *  564  M906 Z2   Stepper Z2 current               (uint16_t)
+ *  566  M906 E0   Stepper E0 current               (uint16_t)
+ *  568  M906 E1   Stepper E1 current               (uint16_t)
+ *  570  M906 E2   Stepper E2 current               (uint16_t)
+ *  572  M906 E3   Stepper E3 current               (uint16_t)
+ *  574  M906 E4   Stepper E4 current               (uint16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
- *  584  M900 K    extruder_advance_k               (float)
- *  588  M900 WHD  advance_ed_ratio                 (float)
+ *  576  M900 K    extruder_advance_k               (float)
+ *  580  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  592  M907 X    Stepper XY current               (uint32_t)
- *  596  M907 Z    Stepper Z current                (uint32_t)
- *  600  M907 E    Stepper E current                (uint32_t)
+ *  584  M907 X    Stepper XY current               (uint32_t)
+ *  588  M907 Z    Stepper Z current                (uint32_t)
+ *  592  M907 E    Stepper E current                (uint32_t)
  *
- *  604                                Minimum end-point
- * 1925 (604 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  596                                Minimum end-point
+ * 1917 (596 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -209,8 +210,8 @@ MarlinSettings settings;
 #endif
 
 /**
- * Post-process after Retrieve or Reset
- */
+* Post-process after Retrieve or Reset
+*/
 void MarlinSettings::postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -448,7 +449,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
-    // 10 floats for DELTA / Z_DUAL_ENDSTOPS
+    // 10 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
       EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
@@ -456,15 +457,33 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_segments_per_second); // 1 float
       EEPROM_WRITE(delta_calibration_radius);  // 1 float
       EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
+
+    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+      // Write dual endstops in X, Y, Z order. Unused = 0.0
       dummy = 0.0f;
-      for (uint8_t q = 2; q--;) EEPROM_WRITE(dummy);
-    #elif ENABLED(Z_DUAL_ENDSTOPS)
-      EEPROM_WRITE(z_endstop_adj);             // 1 float
-      dummy = 0.0f;
-      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        EEPROM_WRITE(x_endstop_adj);             // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        EEPROM_WRITE(y_endstop_adj);             // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        EEPROM_WRITE(z_endstop_adj);             // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+
+      for (uint8_t q = 7; q--;) EEPROM_WRITE(dummy);
+
     #else
       dummy = 0.0f;
-      for (uint8_t q = 12; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 10; q--;) EEPROM_WRITE(dummy);
     #endif
 
     #if DISABLED(ULTIPANEL)
@@ -845,13 +864,31 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(delta_tower_angle_trim);    // 3 floats
         dummy = 0.0f;
         for (uint8_t q=2; q--;) EEPROM_READ(dummy);
-      #elif ENABLED(Z_DUAL_ENDSTOPS)
-        EEPROM_READ(z_endstop_adj);
-        dummy = 0.0f;
-        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
+
+      #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+
+        #if ENABLED(X_DUAL_ENDSTOPS)
+          EEPROM_READ(x_endstop_adj);             // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+        #if ENABLED(Y_DUAL_ENDSTOPS)
+          EEPROM_READ(y_endstop_adj);             // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+        #if ENABLED(Z_DUAL_ENDSTOPS)
+          EEPROM_READ(z_endstop_adj);             // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+
+        for (uint8_t q=7; q--;) EEPROM_READ(dummy);
+
       #else
-        dummy = 0.0f;
-        for (uint8_t q=12; q--;) EEPROM_READ(dummy);
+
+        for (uint8_t q=10; q--;) EEPROM_READ(dummy);
+
       #endif
 
       #if DISABLED(ULTIPANEL)
@@ -1234,15 +1271,35 @@ void MarlinSettings::reset() {
     COPY(delta_tower_angle_trim, dta);
     home_offset[Z_AXIS] = 0;
 
-  #elif ENABLED(Z_DUAL_ENDSTOPS)
+  #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
-    z_endstop_adj =
-      #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
-        Z_DUAL_ENDSTOPS_ADJUSTMENT
-      #else
-        0
-      #endif
-    ;
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      x_endstop_adj = (
+        #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
+          X_DUAL_ENDSTOPS_ADJUSTMENT
+        #else
+          0
+        #endif
+      );
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      y_endstop_adj = (
+        #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+          Y_DUAL_ENDSTOPS_ADJUSTMENT
+        #else
+          0
+        #endif
+      );
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      z_endstop_adj = (
+        #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
+          Z_DUAL_ENDSTOPS_ADJUSTMENT
+        #else
+          0
+        #endif
+      );
+    #endif
 
   #endif
 
@@ -1656,13 +1713,24 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
       SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(delta_tower_angle_trim[C_AXIS]));
       SERIAL_EOL();
-    #elif ENABLED(Z_DUAL_ENDSTOPS)
+
+    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Z2 Endstop adjustment:");
+        SERIAL_ECHOLNPGM("Endstop adjustment:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M666 Z", LINEAR_UNIT(z_endstop_adj));
+      SERIAL_ECHOPGM("  M666");
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" X", LINEAR_UNIT(x_endstop_adj));
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(y_endstop_adj));
+      #endif
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(z_endstop_adj));
+      #endif
+      SERIAL_EOL();
     #endif // DELTA
 
     #if ENABLED(ULTIPANEL)
