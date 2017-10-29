@@ -396,7 +396,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
         temp_ms = ms + 2000UL;
       } // every 2 seconds
       // Timeout after 20 minutes since the last undershoot/overshoot cycle
-      if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
+      if (((ms - t1) + (ms - t2)) > (20L * 60L * 1000L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         break;
       }
