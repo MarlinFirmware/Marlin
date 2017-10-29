@@ -467,12 +467,12 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 12; q--;) EEPROM_WRITE(dummy);
     #endif
 
-     #if DISABLED(ULTIPANEL)
+    #if DISABLED(ULTIPANEL)
       constexpr int lcd_preheat_hotend_temp[3] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND },
                     lcd_preheat_bed_temp[3] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED, PREHEAT_3_TEMP_BED },
                     lcd_preheat_fan_speed[3] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED , PREHEAT_3_FAN_SPEED};  //Was [2]
-	#endif
-   
+    #endif
+  
     EEPROM_WRITE(lcd_preheat_hotend_temp);
     EEPROM_WRITE(lcd_preheat_bed_temp);
     EEPROM_WRITE(lcd_preheat_fan_speed);
