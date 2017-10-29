@@ -20,8 +20,8 @@
  *
  */
 
-#define MAX_NAME_LENGTH  35    // one place to specify the format of all the sources of names
-                               // "-" left justify, "35" minimum width of name, pad with blanks
+#define MAX_NAME_LENGTH  39    // one place to specify the format of all the sources of names
+                               // "-" left justify, "39" minimum width of name, pad with blanks
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
@@ -110,7 +110,7 @@ static void print_input_or_output(const bool isout) {
 
 // pretty report with PWM info
 inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = false, const char *start_string = "") {
-  char buffer[30];   // for the sprintf statements
+  char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
   for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
@@ -151,7 +151,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
             else
           #endif
           {
-            if (!GET_ARRAY_IS_DIGITAL(x)) {
+            if (!GET_ARRAY_IS_DIGITAL(pin)) {
               sprintf_P(buffer, PSTR("Analog in = %5d"), analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
               SERIAL_ECHO(buffer);
             }
