@@ -384,8 +384,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       #define MAX_OVERSHOOT_PID_AUTOTUNE 20
       if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
-        disable_all_heaters();
-        return;
+        break;
       }
       // Every 2 seconds...
       if (ELAPSED(ms, temp_ms)) {
@@ -399,8 +398,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       // Timeout after 20 minutes since the last undershoot/overshoot cycle
       if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
-        disable_all_heaters();
-        return;
+        break;
       }
       if (cycles > ncycles) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
@@ -449,7 +447,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       }
       lcd_update();
     }
-    if (!wait_for_heatup) disable_all_heaters();
+    disable_all_heaters();
   }
 
 #endif // HAS_PID_HEATING
