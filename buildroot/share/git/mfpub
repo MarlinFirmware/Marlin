@@ -45,6 +45,9 @@ git clean -d -f
 # Push 'master' to the fork and make a proper PR...
 if [[ $BRANCH == "master" ]]; then
 
+  # Don't lose upstream changes!
+  mfup
+
   # Allow working directly with the main fork
   echo
   echo -n "Pushing to origin/master... "
