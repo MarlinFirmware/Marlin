@@ -893,46 +893,67 @@
 
 /**
  * Advanced Pause
- * Experimental feature for filament change support and for parking the nozzle when paused.
- * Adds the GCode M600 for initiating filament change.
- * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
+ *  M600/Runout script : Filament change feature.
+ *  M125 to pause printing.
+ *    Park the nozzle
+ *    Apply Fanspeed and dwell to cooled purged filament
+ *    Retract/Recover before/after travel
+ *    Requires : LCD display + FILAMENT_RUNOUT_SCRIPT .
+ * 
+ * Spool_Swap 
+ *  Tool change after filament runout.
+ *  M600: T[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
+ *    Finish a spool and begin another by swapping to next extruder automaticly 
+ *    Copy Temp + Flow + Fwretract
+ *    Requires (2 extruders + 2 runout sensors ) at min
+ *    
+ *    Normal M600 run after max swap reached
  *
- * Requires an LCD display.
- * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #define PAUSE_PARK_X_POS 3                  // X position of hotend
-  #define PAUSE_PARK_Y_POS 3                  // Y position of hotend
-  #define PAUSE_PARK_Z_ADD 10                 // Z addition of hotend (lift)
-  #define PAUSE_PARK_XY_FEEDRATE 100          // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define PAUSE_PARK_Z_FEEDRATE 5             // Z axis feedrate in mm/s (not used for delta printers)
-  #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
-  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
-                                              // It is a short retract used immediately after print interrupt before move to filament exchange position
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
-                                              // Longer length for bowden printers to unload filament from whole bowden tube,
-                                              // shorter length for printers without bowden to unload filament from extruder only,
-                                              // 0 to disable unloading for manual unloading
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
-                                              // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
-                                              // Short or zero length for printers without bowden where loading is not used
-  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude filament length in mm after filament is loaded over the hotend,
-                                              // 0 to disable for manual extrusion
-                                              // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
-                                              // or until outcoming filament color is not clear for filament color change
-  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle if user doesn't change filament within this time limit in seconds
-  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
-  #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
-                                              // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
-  //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
-  //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
+#define SMART_PAUSE
+#if ENABLED(SMART_PAUSE) 
+  //Move settings
+  #define PAUSE_X_POS         X_MAX_POS // Not defined = Current X position = Only Y move
+  //#define PAUSE_Y_POS         3 // Not defined = Current Y position = Only X move
+  #define PAUSE_Z_ADD        2 // Z addition of hotend (lift)
+  #define PAUSE_XY_F        100 // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define PAUSE_Z_F          12 // Z axis feedrate in mm/s (not used for delta printers)
+  //Extrusion settings
+  #define PAUSE_RET_F        RETRACT_FEEDRATE // Initial retract feedrate in mm/s
+  #define PAUSE_RET           2 // Initial retract in mm
+  #define PAUSE_UNLOAD       70 // 0  for manual unloading
+  #define PAUSE_UNLOAD_F     50 // Unload filament feedrate in mm/s - filament unloading can be fast
+  #define PAUSE_LOAD         70 // Load filament length over hotend in mm
+  #define PAUSE_LOAD_F       15 // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define PAUSE_EXTRUDE_F   6.6 // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define PAUSE_EXTRUDE      20 // Purge/load - 0 to disable for manual extrusion
+  //Blowing
+  #define PAUSE_FANSPEED    120//Blowing to cold the purged filament
+  #define PAUSE_FAN           0
+  #define PAUSE_DWELL    4*1000 //Time to cold the purged filament#if ENABLED(SINGLENOZZLE)
+  // Spool_Swap
+  #define PAUSE_SPOOL_SWAP 
+  #if ENABLED(PAUSE_SPOOL_SWAP)
+    #define SPOOL_SWAP_UNLOAD   RETRACT_LENGTH_SWAP // Don't eject filament because print continue
+    #define SPOOL_SWAP_LOAD     RETRACT_LENGTH_SWAP // Same as FWRETRACT if enabled
+    #define SPOOL_SWAP_EXTRUDE  20 //Purge length
+  #endif 
+  //Miscillaneous 
+  #define PAUSE_TIMEOUT     120 // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define PAUSE_BEEPS         1 // Number of alert beeps before printer goes quiet
+  #define PAUSE_STEPPER_ON      // Enable to have stepper motors hold position during filament change
+  #define PARK_HEAD_ON_PAUSE    // Go to filament change position on pause, return to print position on resume
+  #define PAUSE_HOME_BEFORE     // Ensure homing has been completed prior to parking for filament change
+  
+  #if ENABLED(SINGLENOZZLE)
+    #define PAUSE_UNLOAD      100 // 0  for manual unloading
+    #define PAUSE_UNLOAD_F     50 // Unload filament feedrate in mm/s - filament unloading can be fast
+    #define PAUSE_LOAD        100 // Load filament length over hotend in mm
+    #define PAUSE_LOAD_F       15 // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+    #define PAUSE_EXTRUDE_F   6.6 // Extrude filament feedrate in mm/s - must be slower than load feedrate
+    #define PAUSE_EXTRUDE      50 // Purge/load - 0 to disable for manual extrusion
+  #endif  
 #endif
-
-// @section tmc
 
 /**
  * Enable this section if you have TMC26X motor drivers.
