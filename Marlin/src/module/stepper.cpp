@@ -83,7 +83,7 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
   bool Stepper::abort_on_endstop_hit = false;
 #endif
 
-#if ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::performing_homing = false;
 #endif
 
@@ -95,6 +95,16 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 
 uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
 uint16_t Stepper::cleaning_buffer_counter = 0;
+
+#if ENABLED(X_DUAL_ENDSTOPS)
+  bool Stepper::locked_x_motor = false;
+  bool Stepper::locked_x2_motor = false;
+#endif
+
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  bool Stepper::locked_y_motor = false;
+  bool Stepper::locked_y2_motor = false;
+#endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::locked_z_motor = false;
@@ -156,7 +166,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
   #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
-#elif ENABLED(DUAL_X_CARRIAGE)
+#if ENABLED(DUAL_X_CARRIAGE)
   #define X_APPLY_DIR(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
       X_DIR_WRITE(v); \
@@ -173,6 +183,25 @@ volatile long Stepper::endstops_trigsteps[XYZ];
     else { \
       if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
+  #elif ENABLED(X_DUAL_ENDSTOPS)
+    #define X_APPLY_STEP(v,Q) \
+    if (performing_homing) { \
+      if (X_HOME_DIR < 0) { \
+        if (!(TEST(endstops.old_endstop_bits, X_MIN) && (count_direction[X_AXIS] < 0)) && !locked_x_motor) X_STEP_WRITE(v); \
+        if (!(TEST(endstops.old_endstop_bits, X2_MIN) && (count_direction[X_AXIS] < 0)) && !locked_x2_motor) X2_STEP_WRITE(v); \
+      } \
+      else { \
+        if (!(TEST(endstops.old_endstop_bits, X_MAX) && (count_direction[X_AXIS] > 0)) && !locked_x_motor) X_STEP_WRITE(v); \
+        if (!(TEST(endstops.old_endstop_bits, X2_MAX) && (count_direction[X_AXIS] > 0)) && !locked_x2_motor) X2_STEP_WRITE(v); \
+      } \
+    } \
+    else { \
+      X_STEP_WRITE(v); \
+      X2_STEP_WRITE(v); \
+    }
+  #else
+    #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
+  #endif
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
@@ -180,7 +209,25 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
-  #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #define Y_APPLY_STEP(v,Q) \
+    if (performing_homing) { \
+      if (Y_HOME_DIR < 0) { \
+        if (!(TEST(endstops.old_endstop_bits, Y_MIN) && (count_direction[Y_AXIS] < 0)) && !locked_y_motor) Y_STEP_WRITE(v); \
+        if (!(TEST(endstops.old_endstop_bits, Y2_MIN) && (count_direction[Y_AXIS] < 0)) && !locked_y2_motor) Y2_STEP_WRITE(v); \
+      } \
+      else { \
+        if (!(TEST(endstops.old_endstop_bits, Y_MAX) && (count_direction[Y_AXIS] > 0)) && !locked_y_motor) Y_STEP_WRITE(v); \
+        if (!(TEST(endstops.old_endstop_bits, Y2_MAX) && (count_direction[Y_AXIS] > 0)) && !locked_y2_motor) Y2_STEP_WRITE(v); \
+      } \
+    } \
+    else { \
+      Y_STEP_WRITE(v); \
+      Y2_STEP_WRITE(v); \
+    }
+  #else
+    #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
+  #endif
 #else
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)

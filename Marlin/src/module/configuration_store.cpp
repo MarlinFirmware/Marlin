@@ -101,6 +101,12 @@
  *  380  M665 Y    delta_tower_angle_trim[B]        (float)
  *  384  M665 Z    delta_tower_angle_trim[C]        (float)
  *
+ * X_DUAL_ENDSTOPS:                                 48 bytes
+ *  348  M666 X    endstops.x_endstop_adj           (float)
+ *  ---            dummy data                       (float x11)
+ * Y_DUAL_ENDSTOPS:                                 48 bytes
+ *  348  M666 Y    endstops.y_endstop_adj           (float)
+ *  ---            dummy data                       (float x11)
  * Z_DUAL_ENDSTOPS:                                 48 bytes
  *  348  M666 Z    endstops.z_endstop_adj           (float)
  *  ---            dummy data                       (float x11)
@@ -429,10 +435,28 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
       dummy = 0.0f;
       for (uint8_t q = 2; q--;) EEPROM_WRITE(dummy);
-    #elif ENABLED(Z_DUAL_ENDSTOPS)
-      EEPROM_WRITE(endstops.z_endstop_adj);    // 1 float
+    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    // If you've got any dual endstops, then write them x,y,z, replacing any missing ones with
+      // dummy.
       dummy = 0.0f;
-      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        EEPROM_WRITE(endstops.x_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        EEPROM_WRITE(endstops.y_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        EEPROM_WRITE(endstops.z_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummy);
+      #endif
+      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
     #else
       dummy = 0.0f;
       for (uint8_t q = 12; q--;) EEPROM_WRITE(dummy);
@@ -814,10 +838,27 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(delta_tower_angle_trim);    // 3 floats
         dummy = 0.0f;
         for (uint8_t q=2; q--;) EEPROM_READ(dummy);
-      #elif ENABLED(Z_DUAL_ENDSTOPS)
-        EEPROM_READ(endstops.z_endstop_adj);    // 1 float
+      #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         dummy = 0.0f;
-        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
+        #if ENABLED(X_DUAL_ENDSTOPS)
+          EEPROM_READ(endstops.x_endstop_adj);  // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+
+        #if ENABLED(Y_DUAL_ENDSTOPS)
+          EEPROM_READ(endstops.y_endstop_adj);  // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+
+        #if ENABLED(Z_DUAL_ENDSTOPS)
+          EEPROM_READ(endstops.z_endstop_adj); // 1 float
+        #else
+          EEPROM_READ(dummy);
+        #endif
+
+        for (uint8_t q=9; q--;) EEPROM_READ(dummy);
       #else
         dummy = 0.0f;
         for (uint8_t q=12; q--;) EEPROM_READ(dummy);
@@ -1217,6 +1258,26 @@ void MarlinSettings::reset() {
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
     COPY(delta_tower_angle_trim, dta);
     home_offset[Z_AXIS] = 0;
+
+  #elif ENABLED(X_DUAL_ENDSTOPS)
+
+    endstops.x_endstop_adj =
+      #ifdef X_DUAL_ENDSTOPS_ADJUSTMENT
+        X_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
+
+  #elif ENABLED(Y_DUAL_ENDSTOPS)
+
+    endstops.y_endstop_adj =
+      #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+        Y_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
 
   #elif ENABLED(Z_DUAL_ENDSTOPS)
 
@@ -1627,13 +1688,25 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS]));
       SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(delta_tower_angle_trim[C_AXIS]));
       SERIAL_EOL();
-    #elif ENABLED(Z_DUAL_ENDSTOPS)
+    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Z2 Endstop adjustment:");
+        SERIAL_ECHOLNPGM("Endstop adjustment:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M666 Z", LINEAR_UNIT(endstops.z_endstop_adj));
+      SERIAL_ECHOLNPGM("  M666");
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" X", LINEAR_UNIT(endstops.x_endstop_adj));
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(endstops.y_endstop_adj));
+      #endif
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(endstops.z_endstop_adj));
+      #endif
+      SERIAL_EOL();
     #endif // DELTA
 
     #if ENABLED(ULTIPANEL)

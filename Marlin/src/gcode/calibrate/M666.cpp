@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(DELTA)  || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
 #include "../gcode.h"
 
@@ -59,16 +59,26 @@
     #endif
   }
 
-#elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
+#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)// !DELTA && ENABLED(DUAL_ENDSTOPS)
 
   #include "../../module/endstops.h"
 
   /**
-   * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
+   * M666: For Dual Endstop setup, set * axis offset to the *2 axis.
    */
   void GcodeSuite::M666() {
-    if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", endstops.z_endstop_adj);
+    #if ENABLED(X_DUAL_ENDSTOPS)
+     if (parser.seen('X')) endstops.x_endstop_adj = parser.value_linear_units();
+     SERIAL_ECHOLNPAIR("X Endstop Adjustment set to (mm):", endstops.x_endstop_adj);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+     if (parser.seen('Y')) endstops.y_endstop_adj = parser.value_linear_units();
+     SERIAL_ECHOLNPAIR("Y Endstop Adjustment set to (mm):", endstops.y_endstop_adj);
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+     if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
+     SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", endstops.z_endstop_adj);
+    #endif
   }
 
 #endif
