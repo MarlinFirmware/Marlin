@@ -626,6 +626,12 @@
 #ifndef MSG_FILAMENTCHANGE
   #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")
 #endif
+#ifndef MSG_SWAP_SPOOL_ON
+  #define MSG_SWAP_SPOOL_ON                   _UxGT("Swap Spool ON")
+#endif	  
+#ifndef MSG_SWAP_SPOOL_ON
+  #define MSG_SWAP_SPOOL_STOP                 _UxGT("Stop after Extr")
+#endif  
 #ifndef MSG_INIT_SDCARD
   #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
 #endif
