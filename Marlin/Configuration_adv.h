@@ -856,6 +856,7 @@
  * 
  * Spool_Swap 
  *  Tool change after filament runout.
+ *  SingleNozzle strongly RECOMMENDED , 'no offset to set is better '
  *  M600: T[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
  *    Finish a spool and begin another by swapping to next extruder automaticly 
  *    Copy Temp + Flow + Fwretract
