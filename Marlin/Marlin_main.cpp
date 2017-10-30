@@ -204,6 +204,7 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M852 - Set XY skew correction factor.
  * M860 - Report the position of position encoder modules.
  * M861 - Report the status of position encoder modules.
  * M862 - Perform an axis continuity test for position encoder modules.
@@ -9676,8 +9677,30 @@ inline void gcode_M502() {
 
     SERIAL_EOL();
   }
-
+  
 #endif // HAS_BED_PROBE
+
+#if ENABLED(XY_SKEW_CORRECTION)
+
+  inline void gcode_M852() {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM(MSG_XY_SKEW_FACTOR " ");
+    if (parser.seen('F')) {
+      const float value = parser.value_linear_units();
+      if (WITHIN(value, XY_SKEW_FACTOR_MIN, XY_SKEW_FACTOR_MAX)) {
+        planner.xy_skew_factor = value;
+        SERIAL_ECHO(planner.xy_skew_factor);
+      }
+      else
+        SERIAL_ECHOPGM(MSG_XYSKEW_MIN " " STRINGIFY(XY_SKEW_FACTOR_MIN) " " MSG_XYSKEW_MAX " " STRINGIFY(XY_SKEW_FACTOR_MAX));
+    }
+    else
+      SERIAL_ECHOPAIR(": ", planner.xy_skew_factor);
+
+    SERIAL_EOL();
+  }
+
+#endif //XY_SKEW_CORRECTION
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -11530,6 +11553,12 @@ void process_next_command() {
           gcode_M851();
           break;
       #endif // HAS_BED_PROBE
+	  
+	  #if ENABLED(XY_SKEW_CORRECTION)
+        case 852: // M852: Set XY Skew factor
+          gcode_M852();
+          break;
+      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change

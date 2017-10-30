@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V41"
+#define EEPROM_VERSION "V42"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -162,8 +162,11 @@
  *  596  M907 Z    Stepper Z current                (uint32_t)
  *  600  M907 E    Stepper E current                (uint32_t)
  *
- *  604                                Minimum end-point
- * 1925 (604 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  BED_SKEW_CORRECTION:                             8 bytes
+ *  604  M852      xy_skew_factor                   (float)
+ *
+ *  608                                Minimum end-point
+ * 1929 (608 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -643,6 +646,13 @@ void MarlinSettings::postprocess() {
       const uint32_t dummyui32 = 0;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
     #endif
+	
+	#if ENABLED(XY_SKEW_CORRECTION)
+      EEPROM_WRITE(planner.xy_skew_factor);
+    #else
+      const float dummyskew = 0.0f;
+      EEPROM_WRITE(dummyskew);
+    #endif
 
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
@@ -1003,6 +1013,13 @@ void MarlinSettings::postprocess() {
         uint32_t dummyui32;
         for (uint8_t q = 3; q--;) EEPROM_READ(dummyui32);
       #endif
+	  
+	  #if ENABLED(XY_SKEW_CORRECTION)
+        EEPROM_READ(planner.xy_skew_factor);
+      #else
+        float dummyskew;
+        EEPROM_READ(dummyskew);
+      #endif
 
       if (working_crc == stored_crc) {
         postprocess();
@@ -1360,6 +1377,10 @@ void MarlinSettings::reset() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     ubl.reset();
+  #endif
+
+  #if ENABLED(XY_SKEW_CORRECTION)
+    planner.xy_skew_factor = XY_SKEW_FACTOR;
   #endif
 
   postprocess();
@@ -1778,6 +1799,18 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
+    #endif
+	
+    /**
+     * Bed Skew
+     */
+    #if ENABLED(XY_SKEW_CORRECTION)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("XY Skew Factor:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHOLNPAIR("  M852 F", LINEAR_UNIT(planner.xy_skew_factor));
     #endif
 
     /**

@@ -168,6 +168,10 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float extruder_advance_k, advance_ed_ratio;
     #endif
+	
+	#if ENABLED(XY_SKEW_CORRECTION)
+      static float xy_skew_factor;
+    #endif
 
   private:
 
@@ -256,6 +260,7 @@ class Planner {
       static void apply_leveling(float &lx, float &ly, float &lz);
       static void apply_leveling(float logical[XYZ]) { apply_leveling(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS]); }
       static void unapply_leveling(float logical[XYZ]);
+	    static void unapply_leveling_old(float logical[XYZ]);
 
     #else
 

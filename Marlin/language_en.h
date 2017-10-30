@@ -653,6 +653,9 @@
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")
 #endif
+#ifndef MSG_XY_SKEW_FACTOR
+  #define MSG_XY_SKEW_FACTOR                  _UxGT("XY Skew Factor")
+#endif
 #ifndef MSG_BABYSTEP_X
   #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #endif

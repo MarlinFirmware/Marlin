@@ -747,6 +747,14 @@
   #endif
 
   /**
+   * XY Skew
+   */
+  #if ENABLED(XY_SKEW_CORRECTION)
+    #define XY_SKEW_FACTOR_MIN -1
+    #define XY_SKEW_FACTOR_MAX 1
+  #endif
+  
+  /**
    * Heater & Fan Pausing
    */
   #if FAN_COUNT == 0
