@@ -174,25 +174,6 @@
 #define ENET_TXD0          P1_0   // J12-11
 #define ENET_TXD1          P1_1   // J12-12
 
-
-#if (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && !defined(SDCARD_SORT_ALPHA)) // needed because of shared SPI
-  #define SDCARD_SORT_ALPHA         // Using SORT feature to keep one directory level in RAM
-                                    // When going up/down directory levels the SD card is
-                                    // accessed but the garbage/lines are removed when the
-                                    // LCD updates
-
-  #define SDSORT_LIMIT       256    // Maximum number of sorted items (10-256). Costs 27 bytes each.
-  #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
-  #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
-  #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
-  #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-  #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-  #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-  #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
-                                    // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
-  #define MAX_VFAT_ENTRIES SDSORT_CACHE_VFATS
-#endif
-
 /**
  *  PWMs
  *
