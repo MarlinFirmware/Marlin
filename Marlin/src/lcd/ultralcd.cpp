@@ -3775,16 +3775,6 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
 
-      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        static millis_t assume_print_finished = 0;
-        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
-          encoderPosition = last_sdfile_encoderPosition;      // encoderPosition to the last selected item.
-          assume_print_finished = millis() + 5000;
-        }
-        last_sdfile_encoderPosition = encoderPosition;   // needed as a workaround for the 5s timer
-      #endif
-
       const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
@@ -4744,18 +4734,13 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    if (
-      #if ENABLED(DOGLCD)
-        (lcdDrawUpdate || drawing_screen) && (
-          !bbr2 || (bbr2 > max_display_update_time)
-          #if ENABLED(SDSUPPORT)
-            || currentScreen == lcd_sdcard_menu
-          #endif
-        )
-      #else
-        lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time))
-      #endif
-    ) {
+    #if ENABLED(DOGLCD)
+      #define IS_DRAWING drawing_screen
+    #else
+      #define IS_DRAWING false
+    #endif
+
+    if ((lcdDrawUpdate || IS_DRAWING) && (!bbr2 || bbr2 > max_display_update_time)) {
       #if ENABLED(DOGLCD)
         if (!drawing_screen)
       #endif
