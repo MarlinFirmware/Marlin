@@ -119,7 +119,7 @@ typedef struct {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  uint32_t segment_time;
+  uint32_t segment_time_us;
 
 } block_t;
 
@@ -144,9 +144,9 @@ class Planner {
                  axis_steps_per_mm[XYZE_N],
                  steps_to_mm[XYZE_N];
     static uint32_t max_acceleration_steps_per_s2[XYZE_N],
-                    max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
+                    max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override
 
-    static millis_t min_segment_time;
+    static uint32_t min_segment_time_us; // Use 'M205 B<µs>' to override
     static float min_feedrate_mm_s,
                  acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
                  retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
@@ -204,11 +204,11 @@ class Planner {
 
     #ifdef XY_FREQUENCY_LIMIT
       // Used for the frequency limit
-      #define MAX_FREQ_TIME long(1000000.0/XY_FREQUENCY_LIMIT)
+      #define MAX_FREQ_TIME_US (uint32_t)(1000000.0 / XY_FREQUENCY_LIMIT)
       // Old direction bits. Used for speed calculations
       static unsigned char old_direction_bits;
       // Segment times (in µs). Used for speed calculations
-      static long axis_segment_time[2][3];
+      static uint32_t axis_segment_time_us[2][3];
     #endif
 
     #if ENABLED(LIN_ADVANCE)
@@ -419,7 +419,7 @@ class Planner {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
         #if ENABLED(ULTRA_LCD)
-          block_buffer_runtime_us -= block->segment_time; //We can't be sure how long an active block will take, so don't count it.
+          block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;

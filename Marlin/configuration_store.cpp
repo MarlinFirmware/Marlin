@@ -56,7 +56,7 @@
  *  163  M204 T    planner.travel_acceleration      (float)
  *  167  M205 S    planner.min_feedrate_mm_s        (float)
  *  171  M205 T    planner.min_travel_feedrate_mm_s (float)
- *  175  M205 B    planner.min_segment_time         (ulong)
+ *  175  M205 B    planner.min_segment_time_us      (ulong)
  *  179  M205 X    planner.max_jerk[X_AXIS]         (float)
  *  183  M205 Y    planner.max_jerk[Y_AXIS]         (float)
  *  187  M205 Z    planner.max_jerk[Z_AXIS]         (float)
@@ -335,7 +335,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.travel_acceleration);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
-    EEPROM_WRITE(planner.min_segment_time);
+    EEPROM_WRITE(planner.min_segment_time_us);
     EEPROM_WRITE(planner.max_jerk);
     #if !HAS_HOME_OFFSET
       const float home_offset[XYZ] = { 0 };
@@ -749,7 +749,7 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
-      EEPROM_READ(planner.min_segment_time);
+      EEPROM_READ(planner.min_segment_time_us);
       EEPROM_READ(planner.max_jerk);
 
       #if !HAS_HOME_OFFSET
@@ -1219,7 +1219,7 @@ void MarlinSettings::reset() {
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.min_segment_time = DEFAULT_MINSEGMENTTIME;
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
@@ -1585,12 +1585,12 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> B<min_segment_time_ms> X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> B<min_segment_time_us> X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M205 S", LINEAR_UNIT(planner.min_feedrate_mm_s));
     SERIAL_ECHOPAIR(" T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
-    SERIAL_ECHOPAIR(" B", planner.min_segment_time);
+    SERIAL_ECHOPAIR(" B", planner.min_segment_time_us);
     SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
     SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
     SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));

@@ -94,7 +94,7 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
-millis_t Planner::min_segment_time;
+uint32_t Planner::min_segment_time_us;
 
 // Initialized by settings.load()
 float Planner::min_feedrate_mm_s,
@@ -140,7 +140,7 @@ float Planner::previous_speed[NUM_AXIS],
   // Old direction bits. Used for speed calculations
   unsigned char Planner::old_direction_bits = 0;
   // Segment times (in µs). Used for speed calculations
-  long Planner::axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
+  uint32_t Planner::axis_segment_time_us[2][3] = { { MAX_FREQ_TIME_US + 1, 0, 0 }, { MAX_FREQ_TIME_US + 1, 0, 0 } };
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -1036,15 +1036,15 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    unsigned long segment_time = LROUND(1000000.0 / inverse_mm_s);
+    uint32_t segment_time_us = LROUND(1000000.0 / inverse_mm_s);
   #endif
   #if ENABLED(SLOWDOWN)
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
-      if (segment_time < min_segment_time) {
+      if (segment_time_us < min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        inverse_mm_s = 1000000.0 / (segment_time + LROUND(2 * (min_segment_time - segment_time) / moves_queued));
+        inverse_mm_s = 1000000.0 / (segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued));
         #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
-          segment_time = LROUND(1000000.0 / inverse_mm_s);
+          segment_time_us = LROUND(1000000.0 / inverse_mm_s);
         #endif
       }
     }
@@ -1052,7 +1052,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(ULTRA_LCD)
     CRITICAL_SECTION_START
-      block_buffer_runtime_us += segment_time;
+      block_buffer_runtime_us += segment_time_us;
     CRITICAL_SECTION_END
   #endif
 
@@ -1109,34 +1109,34 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // Check and limit the xy direction change frequency
     const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
     old_direction_bits = block->direction_bits;
-    segment_time = LROUND((float)segment_time / speed_factor);
+    segment_time_us = LROUND((float)segment_time_us / speed_factor);
 
-    long xs0 = axis_segment_time[X_AXIS][0],
-         xs1 = axis_segment_time[X_AXIS][1],
-         xs2 = axis_segment_time[X_AXIS][2],
-         ys0 = axis_segment_time[Y_AXIS][0],
-         ys1 = axis_segment_time[Y_AXIS][1],
-         ys2 = axis_segment_time[Y_AXIS][2];
+    uint32_t xs0 = axis_segment_time_us[X_AXIS][0],
+             xs1 = axis_segment_time_us[X_AXIS][1],
+             xs2 = axis_segment_time_us[X_AXIS][2],
+             ys0 = axis_segment_time_us[Y_AXIS][0],
+             ys1 = axis_segment_time_us[Y_AXIS][1],
+             ys2 = axis_segment_time_us[Y_AXIS][2];
 
     if (TEST(direction_change, X_AXIS)) {
-      xs2 = axis_segment_time[X_AXIS][2] = xs1;
-      xs1 = axis_segment_time[X_AXIS][1] = xs0;
+      xs2 = axis_segment_time_us[X_AXIS][2] = xs1;
+      xs1 = axis_segment_time_us[X_AXIS][1] = xs0;
       xs0 = 0;
     }
-    xs0 = axis_segment_time[X_AXIS][0] = xs0 + segment_time;
+    xs0 = axis_segment_time_us[X_AXIS][0] = xs0 + segment_time_us;
 
     if (TEST(direction_change, Y_AXIS)) {
-      ys2 = axis_segment_time[Y_AXIS][2] = axis_segment_time[Y_AXIS][1];
-      ys1 = axis_segment_time[Y_AXIS][1] = axis_segment_time[Y_AXIS][0];
+      ys2 = axis_segment_time_us[Y_AXIS][2] = axis_segment_time_us[Y_AXIS][1];
+      ys1 = axis_segment_time_us[Y_AXIS][1] = axis_segment_time_us[Y_AXIS][0];
       ys0 = 0;
     }
-    ys0 = axis_segment_time[Y_AXIS][0] = ys0 + segment_time;
+    ys0 = axis_segment_time_us[Y_AXIS][0] = ys0 + segment_time_us;
 
-    const long max_x_segment_time = MAX3(xs0, xs1, xs2),
-               max_y_segment_time = MAX3(ys0, ys1, ys2),
-               min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
-    if (min_xy_segment_time < MAX_FREQ_TIME) {
-      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
+    const uint32_t max_x_segment_time = MAX3(xs0, xs1, xs2),
+                   max_y_segment_time = MAX3(ys0, ys1, ys2),
+                   min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
+    if (min_xy_segment_time < MAX_FREQ_TIME_US) {
+      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
       NOMORE(speed_factor, low_sf);
     }
   #endif // XY_FREQUENCY_LIMIT
