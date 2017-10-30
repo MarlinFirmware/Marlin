@@ -306,6 +306,8 @@
   #include "pins_MKS_SBASE.h"
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"
+#elif MB(AZTEEG_X5_GT)
+  #include "pins_AZTEEG_X5_GT.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
