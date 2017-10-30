@@ -1053,4 +1053,11 @@
     #endif
   #endif
 
+  // Number of VFAT entries used. Each entry has 13 UTF-16 characters
+  #if ENABLED(SCROLL_LONG_FILENAMES)
+    #define MAX_VFAT_ENTRIES (5)
+  #else
+    #define MAX_VFAT_ENTRIES (2)
+  #endif
+
 #endif // CONDITIONALS_POST_H
