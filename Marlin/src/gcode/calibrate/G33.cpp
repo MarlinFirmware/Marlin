@@ -184,10 +184,8 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       if (_7p_intermed_points)
         LOOP_CAL_PT(axis, __A, _7P_STEP) {
 /*
-          // average intermediate points to towers and opposites
-          // only required with 12 calibartion point array (_7P_STEP = 2)
-          z_at_pt[round(axis - 1 + NPP - 1) % NPP + 1] += z_at_pt[round(axis)] / 2.0;
-          z_at_pt[round(axis) % NPP + 1] += z_at_pt[round(axis)] / 2.0;
+          // average intermediate points to towers and opposites - only required with _7P_STEP = 2
+          z_at_pt[round(axis)] += (z_at_pt[round(axis + 1)] + z_at_pt[(round(axis + NPP - 2) % NPP + 1]) / 2.0);
 */
           z_at_pt[round(axis)] *= steps;
         }
