@@ -1001,6 +1001,42 @@
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
 
+//===========================================================================
+//=============================== Bed Skew ==============================
+//===========================================================================
+// @section bedskew
+/**
+ *	Using X axis as reference to fix the skew of bed the following steps must be done
+ * 		1. print a test square (example https://www.thingiverse.com/thing:2563185)
+		2. measure length of diagonal AC->D1
+ *		2. measure length of diagonal BD->D2
+ *		3. measure length AD->X1
+ *		4. compute side AB->Y1=sqrt(2*D1^2+2*D2^2-4*AD^2)/2
+ *		5. compute Xskew_angle=PI/2-ACOS(((D1^2-Y1^2-X1^2)/(2*Y1*X1)))
+ *		6. set XY_SKEW_XFACTOR=tan(Xskew_angle)
+ *
+ *    Y
+ *    ^
+ *    |          B----X2----C
+ *    |         / \      / /
+ *    |        /  D2  /   /
+ *    |       Y1    /    Y2
+ *    |      /   D1 \   /
+ *    |     / /      \ /
+ *    |    A----X1----D
+ *    |
+ *    +----------------------------> X   
+ 
+ 
+*/
+
+//uncomment to enable skew compensation
+//#define XY_SKEW_CORRECTION
+
+#if ENABLED(XY_SKEW_CORRECTION)
+  #define XY_SKEW_FACTOR 0.0
+#endif
+
 //=============================================================================
 //============================= Additional Features ===========================
 //=============================================================================

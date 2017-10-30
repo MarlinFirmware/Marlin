@@ -117,6 +117,10 @@ float Planner::min_feedrate_mm_s,
         Planner::inverse_z_fade_height;
 #endif
 
+#if ENABLED(XY_SKEW_CORRECTION)
+  float Planner::xy_skew_factor; // Initialized by settings.load()
+#endif
+
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
@@ -528,6 +532,22 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
+	#if ENABLED(XY_SKEW_CORRECTION)
+		/*SERIAL_ECHOPAIR("X(logic): ", lx);
+		SERIAL_ECHOPAIR(" X(real): ", RAW_X_POSITION(lx));
+		
+		SERIAL_ECHOPAIR(" ===> Y(logic): ", ly);
+		SERIAL_ECHOLNPAIR(" Y(real): ", RAW_Y_POSITION(ly));*/
+		
+		if(lx > X_MIN_POS && lx <= X_MAX_POS && ly >= Y_MIN_POS && ly <= Y_MAX_POS) {
+			float templx = lx - (ly * planner.xy_skew_factor);
+			if(templx >= X_MIN_POS && templx <= X_MAX_POS) {
+				lx = templx;
+				//SERIAL_ECHOLNPAIR(" X(skewed): ", lx);
+			}
+		}
+	#endif
+	
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       if (!ubl.state.active) return;
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -590,8 +610,8 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-  void Planner::unapply_leveling(float logical[XYZ]) {
-
+  void Planner::unapply_leveling_old(float logical[XYZ]) {
+	
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
       if (ubl.state.active) {
@@ -671,6 +691,22 @@ void Planner::check_axes_activity() {
 
     #endif
   }
+  
+  void Planner::unapply_leveling(float logical[XYZ]) {
+	  
+	  planner.unapply_leveling_old(logical);
+	  
+	  #if ENABLED(XY_SKEW_CORRECTION)
+	  	if(logical[X_AXIS] > X_MIN_POS && logical[X_AXIS] <= X_MAX_POS && logical[Y_AXIS] >= Y_MIN_POS && logical[Y_AXIS] <= Y_MAX_POS) {
+  			//float skew_offset = max(abs(planner.xy_skew_factor * Y_MIN_POS), abs(planner.xy_skew_factor * Y_MAX_POS));
+  			float templx = logical[X_AXIS] /*- skew_offset*/ + (logical[Y_AXIS] * planner.xy_skew_factor);
+  			if(templx >= X_MIN_POS && templx <= X_MAX_POS) {
+  				logical[X_AXIS] = templx;
+  				SERIAL_ECHOLNPAIR(" X(unskewed): ", logical[X_AXIS]);
+  			}
+		  }
+	  #endif
+   }
 
 #endif // PLANNER_LEVELING
 
