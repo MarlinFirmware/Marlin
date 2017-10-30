@@ -389,22 +389,21 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 	  // Read only the sensor of the active extruder 
 	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
 	    switch (active_extruder){
-	       case 0: if((READ(FIL_RUNOUT_0_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	       case 0: if((READ(FIL_RUNOUT_0_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
 	       #if FIL_RUNOUT_SENSORS > 1
-	       case 1: if((READ(FIL_RUNOUT_1_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	       case 1: if((READ(FIL_RUNOUT_1_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
 	       #endif
 		#if FIL_RUNOUT_SENSORS > 2
-	       case 2: if((READ(FIL_RUNOUT_2_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	       case 2: if((READ(FIL_RUNOUT_2_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
 	       #endif
 		#if FIL_RUNOUT_SENSORS > 3
-	       case 3: if((READ(FIL_RUNOUT_3_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	       case 3: if((READ(FIL_RUNOUT_3_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
 	       #endif
 		#if FIL_RUNOUT_SENSORS > 4
-	       case 4: if((READ(FIL_RUNOUT_4_PIN)== FIL_RUNOUT_INVERTING)) break ;
+	       case 4: if((READ(FIL_RUNOUT_4_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
 	       #endif
 	    } 
-	  handle_filament_runout();
-      }  
+	  }  
 	#endif  
  
   if (commands_in_queue < BUFSIZE) get_available_commands();
