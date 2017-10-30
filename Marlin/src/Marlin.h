@@ -198,7 +198,7 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
-  #if ENABLED(EXTRA_FAN_SPEEDS)
+  #if ENABLED(EXTRA_FAN_SPEED)
     extern int16_t old_fanSpeeds[FAN_COUNT],
                    new_fanSpeeds[FAN_COUNT];
   #endif
