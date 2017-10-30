@@ -156,8 +156,10 @@ void GcodeSuite::M600() {
 		
       pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, false);
 	  
-	  // Restore flow 
-	  planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
+	  #if ENABLED(SPOOL_SWAP_FLOW)
+	    // Same flow after tool change 'for same nozzle size '
+	    planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
+	  #endif
 	  // Changing tool now
 	  tool_change(active_extruder+1, 0, false); 
 	  
