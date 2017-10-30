@@ -4745,16 +4745,18 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)
-      #if ENABLED(SDSUPPORT)
-        || (currentScreen == lcd_sdcard_menu)
+    if (
+      #if ENABLED(DOGLCD)
+        (lcdDrawUpdate || drawing_screen) && (
+          !bbr2 || (bbr2 > max_display_update_time)
+          #if ENABLED(SDSUPPORT)
+            || currentScreen == lcd_sdcard_menu
+          #endif
+        )
+      #else
+        lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time))
       #endif
-      ))
-    #else
-      if (lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time)))
-    #endif
-    {
+    ) {
       #if ENABLED(DOGLCD)
         if (!drawing_screen)
       #endif
