@@ -2910,6 +2910,7 @@ void kill_screen(const char* lcd_msg) {
               max = soft_endstop_max[Z_AXIS];
             #endif
             break;
+          default: break;
         }
       #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
 
