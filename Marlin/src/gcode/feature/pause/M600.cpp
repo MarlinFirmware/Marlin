@@ -58,8 +58,6 @@
 void GcodeSuite::M600() {
 	
   #if ENABLED(PAUSE_SPOOL_SWAP) 
-    //extern bool swap_spool_enabled;
-	//extern int16_t swap_spool_stop;
 	const int swap_spool_tmp = parser.intval('T',(FIL_RUNOUT_SENSORS));             
     
 	// M600 T0/T1/2/3/4 Enable/Disable     
