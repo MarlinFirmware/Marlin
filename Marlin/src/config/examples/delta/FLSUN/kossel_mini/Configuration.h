@@ -497,7 +497,7 @@
     // set the default number of probe points : n*n (1 -> 7)
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
 
-    // Enable and set these values based on results of 'G33 A1'
+    // Enable and set these values based on results of 'G33 A'
     //#define H_FACTOR 1.01
     //#define R_FACTOR 2.61
     //#define A_FACTOR 0.87
@@ -505,7 +505,7 @@
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
-    // Set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS*0.869 for non-eccentric probes
+    // Set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS for non-eccentric probes
     #define DELTA_CALIBRATION_RADIUS 73.5 // mm
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.025
