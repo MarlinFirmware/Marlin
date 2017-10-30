@@ -161,14 +161,14 @@ void GcodeSuite::M600() {
 	  // Changing tool now
 	  tool_change(active_extruder+1, 0, false); 
 	  
-	  // FwRetract statut reset
+	  // FwRetract statut 
 	  #if ENABLED(FWRETRACT)
 	    fwretract.retracted[active_extruder]=fwretract.retracted[active_extruder-1];
-		fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
+	    fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
 	  #endif
 	  
-	  #if HOTENDS>1
-	    // Heat the new , cold the old if no single nozzle   
+	  #if HOTENDS>1   //If no single nozzle  
+ 	    // Heat the new , cold the old  
 	    thermalManager.setTargetHotend(thermalManager.target_temperature[active_extruder-1], active_extruder);
 	    thermalManager.setTargetHotend(0, active_extruder-1);
 	  #endif
