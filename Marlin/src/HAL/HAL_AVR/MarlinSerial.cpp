@@ -84,7 +84,7 @@
     // Currently looking for: M108, M112, M410
     // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
 
-    FORCE_INLINE void emergency_parser(const unsigned char c) {
+    FORCE_INLINE void emergency_parser(const uint8_t c) {
 
       static e_parser_state state = state_RESET;
 
@@ -169,13 +169,16 @@
   #endif // EMERGENCY_PARSER
 
   FORCE_INLINE void store_rxd_char() {
+
     const ring_buffer_pos_t h = rx_buffer.head,
                             i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+    // Read the character
+    const uint8_t c = M_UDRx;
 
     // If the character is to be stored at the index just before the tail
     // (such that the head would advance to the current tail), the buffer is
     // critical, so don't write the character or advance the head.
-    const char c = M_UDRx;
     if (i != rx_buffer.tail) {
       rx_buffer.buffer[h] = c;
       rx_buffer.head = i;
@@ -194,6 +197,7 @@
     #endif
 
     #if ENABLED(SERIAL_XON_XOFF)
+
       // for high speed transfers, we can use XON/XOFF protocol to do
       // software handshake and avoid overruns.
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {

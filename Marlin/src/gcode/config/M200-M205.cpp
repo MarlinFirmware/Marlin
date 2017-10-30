@@ -121,7 +121,7 @@ void GcodeSuite::M204() {
 void GcodeSuite::M205() {
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('B')) planner.min_segment_time = parser.value_millis();
+  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
   if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();

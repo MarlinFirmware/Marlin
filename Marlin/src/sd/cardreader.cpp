@@ -747,7 +747,7 @@ void CardReader::updir() {
                 strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
                 sortnames[i][SORTED_LONGNAME_MAXLEN - 1] = '\0';
               #else
-                strcpy(sortnames[i], SORTED_LONGNAME_MAXLEN);
+                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
               #endif
               #if ENABLED(SDSORT_CACHE_NAMES)
                 strcpy(sortshort[i], filename);
@@ -849,7 +849,7 @@ void CardReader::updir() {
               strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
               sortnames[0][SORTED_LONGNAME_MAXLEN - 1] = '\0';
             #else
-              strcpy(sortnames[0], SORTED_LONGNAME_MAXLEN);
+              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
             #endif
             #if ENABLED(SDSORT_CACHE_NAMES)
               strcpy(sortshort[0], filename);
@@ -892,15 +892,6 @@ uint16_t CardReader::get_num_Files() {
   ;
 }
 
-#if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-  typedef void (*screenFunc_t)();
-  extern void lcd_sdcard_menu();
-  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
-  extern uint32_t saved_encoderPosition;
-  extern bool screen_changed, drawing_screen, defer_return_to_status;
-  void _lcd_synchronize();  // Not declared in any LCD header file.  Probably, that should be changed.
-#endif
-
 void CardReader::printingHasFinished() {
   stepper.synchronize();
   file.close();
@@ -922,15 +913,7 @@ void CardReader::printingHasFinished() {
     #endif
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
-      _lcd_synchronize();
-      safe_delay(50);
-      _lcd_synchronize();
-      lcdDrawUpdate  = LCDVIEW_CALL_REDRAW_NEXT;
-      drawing_screen = screen_changed = true;
-      lcd_goto_screen(lcd_sdcard_menu, saved_encoderPosition);
-      defer_return_to_status = true;
-      lcd_update();
+      lcd_reselect_last_file();
     #endif
   }
 }

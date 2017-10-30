@@ -24,18 +24,32 @@
  * Support routines for LPC1768
 */
 
+/**
+ * translation of routines & variables used by pinsDebug.h
+ */
+
+#define pwm_details(pin) pin = pin    // do nothing  // print PWM details
+#define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
+#define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
+#define digitalRead_mod(p)  digitalRead(p)
+#define digitalPinToPort_DEBUG(p)  0
+#define digitalPinToBitMask_DEBUG(pin) 0
+#define PRINT_PORT(p) SERIAL_ECHO_SP(10);
+#define GET_ARRAY_PIN(p) pin_array[p].pin
+#define NAME_FORMAT(p) PSTR("%-##p##s")
+#define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%d.%02d"), LPC1768_PIN_PORT(p), LPC1768_PIN_PIN(p)); SERIAL_ECHO(buffer);} while (0)
+
 // active ADC function/mode/code values for PINSEL registers
-int8_t ADC_pin_mode(pin_t pin) {
-  uint8_t pin_port = LPC1768_PIN_PORT(pin);
-  uint8_t pin_port_pin = LPC1768_PIN_PIN(pin);
-  return (pin_port == 0 && pin_port_pin == 2  ? 2 :
-          pin_port == 0 && pin_port_pin == 3  ? 2 :
-          pin_port == 0 && pin_port_pin == 23 ? 1 :
-          pin_port == 0 && pin_port_pin == 24 ? 1 :
-          pin_port == 0 && pin_port_pin == 25 ? 1 :
-          pin_port == 0 && pin_port_pin == 26 ? 1 :
-          pin_port == 1 && pin_port_pin == 30 ? 3 :
-          pin_port == 1 && pin_port_pin == 31 ? 3 : -1);
+constexpr int8_t ADC_pin_mode(pin_t pin) {
+  return (LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 2  ? 2 :
+          LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 3  ? 2 :
+          LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 23 ? 1 :
+          LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 24 ? 1 :
+          LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 25 ? 1 :
+          LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 26 ? 1 :
+          LPC1768_PIN_PORT(pin) == 1 && LPC1768_PIN_PIN(pin) == 30 ? 3 :
+          LPC1768_PIN_PORT(pin) == 1 && LPC1768_PIN_PIN(pin) == 31 ? 3 : -1);
 }
 
 int8_t get_pin_mode(pin_t pin) {
@@ -56,7 +70,7 @@ int8_t get_pin_mode(pin_t pin) {
 
 bool GET_PINMODE(pin_t pin) {
   int8_t pin_mode = get_pin_mode(pin);
-  if (pin_mode == -1 || (pin_mode && pin_mode == ADC_pin_mode(pin))) // found an invalid pin or active analog pin
+  if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // found an invalid pin or active analog pin
     return false;
 
   uint32_t * FIO_reg[5] PROGMEM = {(uint32_t*) 0x2009C000,(uint32_t*)  0x2009C020,(uint32_t*)  0x2009C040,(uint32_t*)  0x2009C060,(uint32_t*)  0x2009C080};
@@ -64,23 +78,5 @@ bool GET_PINMODE(pin_t pin) {
 }
 
 bool GET_ARRAY_IS_DIGITAL(pin_t pin) {
-  int8_t pin_mode = get_pin_mode(pin);
-  return (pin_mode != -1 && (!get_pin_mode(pin) || pin_mode != ADC_pin_mode(pin)));
+  return (!IS_ANALOG(pin) || get_pin_mode(pin) != ADC_pin_mode(pin));
 }
-
-/**
- * translation of routines & variables used by pinsDebug.h
- */
-
-#define pwm_details(pin) pin = pin    // do nothing  // print PWM details
-#define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
-#define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
-#define digitalRead_mod(p)  digitalRead(p)
-#define digitalPinToPort_DEBUG(p)  0
-#define digitalPinToBitMask_DEBUG(pin) 0
-#define PRINT_PORT(p) SERIAL_ECHO_SP(10);
-#define GET_ARRAY_PIN(p) pin_array[p].pin
-#define NAME_FORMAT(p) PSTR("%-##p##s")
-//  #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, NAME_FORMAT(MAX_NAME_LENGTH) , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-#define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-35s") , pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%d.%02d "), LPC1768_PIN_PORT(p), LPC1768_PIN_PIN(p)); SERIAL_ECHO(buffer);} while (0)

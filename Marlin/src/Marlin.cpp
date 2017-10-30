@@ -165,7 +165,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
-  #if ENABLED(EXTRA_FAN_SPEEDS)
+  #if ENABLED(EXTRA_FAN_SPEED)
     int16_t old_fanSpeeds[FAN_COUNT],
             new_fanSpeeds[FAN_COUNT];
   #endif

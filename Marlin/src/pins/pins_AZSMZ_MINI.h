@@ -24,9 +24,8 @@
  * AZSMZ MINI pin assignments
  */
 
-//#if !defined(TARGET_LPC1768)
-#if DISABLED(IS_REARM)
-  #error "Oops!  Make sure you have Re-Arm selected."
+#ifndef TARGET_LPC1768
+  #error "Oops!  Make sure you have LPC1768 selected."
 #endif
 
 #ifndef BOARD_NAME
@@ -38,38 +37,38 @@
 //
 // Servos
 //
-#define SERVO0_PIN         53
+#define SERVO0_PIN         P1_23
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN           3
-#define Y_MIN_PIN          14
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define X_MIN_PIN          P1_24
+#define Y_MIN_PIN          P1_26
+#define Z_MIN_PIN          P1_28
+#define Z_MAX_PIN          P1_29
 
 //
 // Steppers
 //
-#define X_STEP_PIN         26
-#define X_DIR_PIN          28
-#define X_ENABLE_PIN       24
+#define X_STEP_PIN         P2_0
+#define X_DIR_PIN          P0_5
+#define X_ENABLE_PIN       P0_4
 
-#define Y_STEP_PIN         54
-#define Y_DIR_PIN          55
-#define Y_ENABLE_PIN       38
+#define Y_STEP_PIN         P2_1
+#define Y_DIR_PIN          P0_11
+#define Y_ENABLE_PIN       P0_10
 
-#define Z_STEP_PIN         60
-#define Z_DIR_PIN          61
-#define Z_ENABLE_PIN       56
+#define Z_STEP_PIN         P2_2
+#define Z_DIR_PIN          P0_20
+#define Z_ENABLE_PIN       P0_19
 
-#define E0_STEP_PIN        46
-#define E0_DIR_PIN         48
-#define E0_ENABLE_PIN      62
+#define E0_STEP_PIN        P2_3
+#define E0_DIR_PIN         P0_22
+#define E0_ENABLE_PIN      P0_21
 
-#define E1_STEP_PIN        36
-#define E1_DIR_PIN         34
-#define E1_ENABLE_PIN      30
+#define E1_STEP_PIN        P2_8
+#define E1_DIR_PIN         P2_13
+#define E1_ENABLE_PIN      P4_29
 
 //
 // Temperature Sensors
@@ -83,35 +82,54 @@
 // Heaters / Fans
 //
 // EFB
-#define HEATER_0_PIN        8
-#define HEATER_BED_PIN     10
-#define FAN_PIN             9
-#define FAN1_PIN           63
+#define HEATER_0_PIN       P2_4
+#define HEATER_BED_PIN     P2_5
+#define FAN_PIN            P2_7
+#define FAN1_PIN           P0_26
 
 #if ENABLED(AZSMZ_12864)
-  #define BEEPER_PIN       37
-  #define DOGLCD_A0        59
-  #define DOGLCD_CS        41
-  #define BTN_EN1          13
-  #define BTN_EN2          15
-  #define BTN_ENC          31
-  #define LCD_SDSS         16
-  #define SD_DETECT_PIN    33
+  #define BEEPER_PIN       P1_30
+  #define DOGLCD_A0        P2_6
+  #define DOGLCD_CS        P1_22
+  #define BTN_EN1          P4_28
+  #define BTN_EN2          P1_27
+  #define BTN_ENC          P3_26
+  #define LCD_SDSS         P0_16
+  #define SD_DETECT_PIN    P3_25
 #endif
 
 //
 // Ethernet pins
 //
-#define ENET_MDIO          71
-#define ENET_RX_ER         73
-#define ENET_RXD1          75
-#define ENET_MOC           70
-#define REF_CLK            72
-#define ENET_RXD0          74
-#define ENET_CRS           76
-#define ENET_TX_EN         77
-#define ENET_TXD0          78
-#define ENET_TXD1          79
+#define ENET_MDIO          P1_17
+#define ENET_RX_ER         P1_14
+#define ENET_RXD1          P1_10
+#define ENET_MOC           P1_16
+#define REF_CLK            P1_15
+#define ENET_RXD0          P1_9
+#define ENET_CRS           P1_8
+#define ENET_TX_EN         P1_4
+#define ENET_TXD0          P1_0
+#define ENET_TXD1          P1_1
+
+
+#if (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && !defined(SDCARD_SORT_ALPHA)) // needed because of shared SPI
+  #define SDCARD_SORT_ALPHA         // Using SORT feature to keep one directory level in RAM
+                                    // When going up/down directory levels the SD card is
+                                    // accessed but the garbage/lines are removed when the
+                                    // LCD updates
+
+  #define SDSORT_LIMIT       256    // Maximum number of sorted items (10-256). Costs 27 bytes each.
+  #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+  #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+  #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
+  #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+  #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+  #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+  #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
+                                    // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+  #define MAX_VFAT_ENTRIES SDSORT_CACHE_VFATS
+#endif
 
 /**
  *  PWMs

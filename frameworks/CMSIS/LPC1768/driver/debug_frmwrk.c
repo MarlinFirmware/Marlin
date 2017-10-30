@@ -1,11 +1,11 @@
 /**********************************************************************
-* $Id$		debug_frmwrk.c				2010-05-21
-*//**
-* @file		debug_frmwrk.c
-* @brief	Contains some utilities that used for debugging through UART
-* @version	2.0
-* @date		21. May. 2010
-* @author	NXP MCU SW Application Team
+* $Id$    debug_frmwrk.c        2010-05-21
+*
+* @file   debug_frmwrk.c
+* @brief  Contains some utilities that used for debugging through UART
+* @version  2.0
+* @date   21. May. 2010
+* @author NXP MCU SW Application Team
 *
 * Copyright(C) 2010, NXP Semiconductor
 * All rights reserved.
@@ -37,12 +37,13 @@
  * otherwise the default FW library configuration file must be included instead
  */
 #ifdef __BUILD_WITH_EXAMPLE__
-#include "lpc17xx_libcfg.h"
+  #include "lpc17xx_libcfg.h"
 #else
-#include "lpc17xx_libcfg_default.h"
-#endif /* __BUILD_WITH_EXAMPLE__ */
+  #include "lpc17xx_libcfg_default.h"
+#endif
 
 #ifdef _DBGFWK
+
 /* Debug framework */
 static Bool debug_frmwrk_initialized = FALSE;
 
@@ -59,284 +60,247 @@ uint8_t (*_db_get_char)(LPC_UART_TypeDef *UARTx) = UARTGetChar;
 
 
 /*********************************************************************//**
- * @brief		Puts a character to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	ch		Character to put
- * @return		None
+ * @brief   Puts a character to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] ch    Character to put
+ * @return    None
  **********************************************************************/
-void UARTPutChar (LPC_UART_TypeDef *UARTx, uint8_t ch)
-{
+void UARTPutChar(LPC_UART_TypeDef *UARTx, uint8_t ch) {
   if (debug_frmwrk_initialized)
-	  UART_Send(UARTx, &ch, 1, BLOCKING);
+    UART_Send(UARTx, &ch, 1, BLOCKING);
 }
 
-
 /*********************************************************************//**
- * @brief		Get a character to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @return		character value that returned
+ * @brief   Get a character to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @return    character value that returned
  **********************************************************************/
-uint8_t UARTGetChar (LPC_UART_TypeDef *UARTx)
-{
+uint8_t UARTGetChar(LPC_UART_TypeDef *UARTx) {
   uint8_t tmp = 0;
-  
+
   if (debug_frmwrk_initialized)
     UART_Receive(UARTx, &tmp, 1, BLOCKING);
-    
-	return(tmp);
-}
 
-
-/*********************************************************************//**
- * @brief		Puts a string to UART port
- * @param[in]	UARTx 	Pointer to UART peripheral
- * @param[in]	str 	string to put
- * @return		None
- **********************************************************************/
-void UARTPuts(LPC_UART_TypeDef *UARTx, const void *str)
-{
-  uint8_t *s = (uint8_t *) str;
-  
-  if (!debug_frmwrk_initialized)
-    return;
-
-	while (*s)
-	{
-		UARTPutChar(UARTx, *s++);
-	}
-}
-
-
-/*********************************************************************//**
- * @brief		Puts a string to UART port and print new line
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	str		String to put
- * @return		None
- **********************************************************************/
-void UARTPuts_(LPC_UART_TypeDef *UARTx, const void *str)
-{
-  if (!debug_frmwrk_initialized)
-    return;
-
-	UARTPuts (UARTx, str);
-	UARTPuts (UARTx, "\n\r");
-}
-
-
-/*********************************************************************//**
- * @brief		Puts a decimal number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	decnum	Decimal number (8-bit long)
- * @return		None
- **********************************************************************/
-void UARTPutDec(LPC_UART_TypeDef *UARTx, uint8_t decnum)
-{
-  if (!debug_frmwrk_initialized)
-    return;
-
-	uint8_t c1=decnum%10;
-	uint8_t c2=(decnum/10)%10;
-	uint8_t c3=(decnum/100)%10;
-	UARTPutChar(UARTx, '0'+c3);
-	UARTPutChar(UARTx, '0'+c2);
-	UARTPutChar(UARTx, '0'+c1);
+  return(tmp);
 }
 
 /*********************************************************************//**
- * @brief		Puts a decimal number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	decnum	Decimal number (8-bit long)
- * @return		None
+ * @brief   Puts a string to UART port
+ * @param[in] UARTx   Pointer to UART peripheral
+ * @param[in] str   string to put
+ * @return    None
  **********************************************************************/
-void UARTPutDec16(LPC_UART_TypeDef *UARTx, uint16_t decnum)
-{  
-  if (!debug_frmwrk_initialized)
-    return;
+void UARTPuts(LPC_UART_TypeDef *UARTx, const void *str) {
+  if (!debug_frmwrk_initialized) return;
 
-	uint8_t c1=decnum%10;
-	uint8_t c2=(decnum/10)%10;
-	uint8_t c3=(decnum/100)%10;
-	uint8_t c4=(decnum/1000)%10;
-	uint8_t c5=(decnum/10000)%10;
-	UARTPutChar(UARTx, '0'+c5);
-	UARTPutChar(UARTx, '0'+c4);
-	UARTPutChar(UARTx, '0'+c3);
-	UARTPutChar(UARTx, '0'+c2);
-	UARTPutChar(UARTx, '0'+c1);
+  uint8_t *s = (uint8_t*)str;
+  while (*s) UARTPutChar(UARTx, *s++);
 }
 
 /*********************************************************************//**
- * @brief		Puts a decimal number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	decnum	Decimal number (8-bit long)
- * @return		None
+ * @brief   Puts a string to UART port and print new line
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] str   String to put
+ * @return    None
  **********************************************************************/
-void UARTPutDec32(LPC_UART_TypeDef *UARTx, uint32_t decnum)
-{
-  if (!debug_frmwrk_initialized)
-    return;
+void UARTPuts_(LPC_UART_TypeDef *UARTx, const void *str) {
+  if (!debug_frmwrk_initialized) return;
 
-	uint8_t c1=decnum%10;
-	uint8_t c2=(decnum/10)%10;
-	uint8_t c3=(decnum/100)%10;
-	uint8_t c4=(decnum/1000)%10;
-	uint8_t c5=(decnum/10000)%10;
-	uint8_t c6=(decnum/100000)%10;
-	uint8_t c7=(decnum/1000000)%10;
-	uint8_t c8=(decnum/10000000)%10;
-	uint8_t c9=(decnum/100000000)%10;
-	uint8_t c10=(decnum/1000000000)%10;
-	UARTPutChar(UARTx, '0'+c10);
-	UARTPutChar(UARTx, '0'+c9);
-	UARTPutChar(UARTx, '0'+c8);
-	UARTPutChar(UARTx, '0'+c7);
-	UARTPutChar(UARTx, '0'+c6);
-	UARTPutChar(UARTx, '0'+c5);
-	UARTPutChar(UARTx, '0'+c4);
-	UARTPutChar(UARTx, '0'+c3);
-	UARTPutChar(UARTx, '0'+c2);
-	UARTPutChar(UARTx, '0'+c1);
+  UARTPuts (UARTx, str);
+  UARTPuts (UARTx, "\n\r");
 }
 
 /*********************************************************************//**
- * @brief		Puts a hex number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	hexnum	Hex number (8-bit long)
- * @return		None
+ * @brief   Puts a decimal number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] decnum  Decimal number (8-bit long)
+ * @return    None
  **********************************************************************/
-void UARTPutHex (LPC_UART_TypeDef *UARTx, uint8_t hexnum)
-{
-	uint8_t nibble, i;
-  
-  if (!debug_frmwrk_initialized)
-    return;
+void UARTPutDec(LPC_UART_TypeDef *UARTx, uint8_t decnum) {
+  if (!debug_frmwrk_initialized) return;
 
-	UARTPuts(UARTx, "0x");
-	i = 1;
-	do {
-		nibble = (hexnum >> (4*i)) & 0x0F;
-		UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
-	} while (i--);
-}
-
-
-/*********************************************************************//**
- * @brief		Puts a hex number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	hexnum	Hex number (16-bit long)
- * @return		None
- **********************************************************************/
-void UARTPutHex16 (LPC_UART_TypeDef *UARTx, uint16_t hexnum)
-{
-	uint8_t nibble, i;
-  
-  if (!debug_frmwrk_initialized)
-    return;
-
-	UARTPuts(UARTx, "0x");
-	i = 3;
-	do {
-		nibble = (hexnum >> (4*i)) & 0x0F;
-		UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
-	} while (i--);
+  uint8_t c1 = decnum%10;
+  uint8_t c2 = (decnum /             10) % 10;
+  uint8_t c3 = (decnum /            100) % 10;
+  UARTPutChar(UARTx, '0'+c3);
+  UARTPutChar(UARTx, '0'+c2);
+  UARTPutChar(UARTx, '0'+c1);
 }
 
 /*********************************************************************//**
- * @brief		Puts a hex number to UART port
- * @param[in]	UARTx	Pointer to UART peripheral
- * @param[in]	hexnum	Hex number (32-bit long)
- * @return		None
+ * @brief   Puts a decimal number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] decnum  Decimal number (8-bit long)
+ * @return    None
  **********************************************************************/
-void UARTPutHex32 (LPC_UART_TypeDef *UARTx, uint32_t hexnum)
-{
-  uint8_t nibble, i;
-  
-  if (!debug_frmwrk_initialized)
-    return;
+void UARTPutDec16(LPC_UART_TypeDef *UARTx, uint16_t decnum) {
+  if (!debug_frmwrk_initialized) return;
 
-	UARTPuts(UARTx, "0x");
-	i = 7;
-	do {
-		nibble = (hexnum >> (4*i)) & 0x0F;
-		UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
-	} while (i--);
+  uint8_t c1 = decnum%10;
+  uint8_t c2 = (decnum /             10) % 10;
+  uint8_t c3 = (decnum /            100) % 10;
+  uint8_t c4 = (decnum /           1000) % 10;
+  uint8_t c5 = (decnum /          10000) % 10;
+  UARTPutChar(UARTx, '0'+c5);
+  UARTPutChar(UARTx, '0'+c4);
+  UARTPutChar(UARTx, '0'+c3);
+  UARTPutChar(UARTx, '0'+c2);
+  UARTPutChar(UARTx, '0'+c1);
 }
 
-///*********************************************************************//**
-// * @brief		print function that supports format as same as printf()
-// * 				function of <stdio.h> library
-// * @param[in]	None
-// * @return		None
-// **********************************************************************/
-//void  _printf (const  char *format, ...)
-//{
-//    static  char  buffer[512 + 1];
-//            va_list     vArgs;
-//            char	*tmp;
-//    va_start(vArgs, format);
-//    vsprintf((char *)buffer, (char const *)format, vArgs);
-//    va_end(vArgs);
+/*********************************************************************//**
+ * @brief   Puts a decimal number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] decnum  Decimal number (8-bit long)
+ * @return    None
+ **********************************************************************/
+void UARTPutDec32(LPC_UART_TypeDef *UARTx, uint32_t decnum) {
+  if (!debug_frmwrk_initialized) return;
+
+  const uint8_t  c1 =  decnum               % 10,
+                 c2 = (decnum /         10) % 10,
+                 c3 = (decnum /        100) % 10,
+                 c4 = (decnum /       1000) % 10,
+                 c5 = (decnum /      10000) % 10,
+                 c6 = (decnum /     100000) % 10,
+                 c7 = (decnum /    1000000) % 10,
+                 c8 = (decnum /   10000000) % 10,
+                 c9 = (decnum /  100000000) % 10,
+                c10 = (decnum / 1000000000) % 10;
+  UARTPutChar(UARTx, '0' + c10);
+  UARTPutChar(UARTx, '0' +  c9);
+  UARTPutChar(UARTx, '0' +  c8);
+  UARTPutChar(UARTx, '0' +  c7);
+  UARTPutChar(UARTx, '0' +  c6);
+  UARTPutChar(UARTx, '0' +  c5);
+  UARTPutChar(UARTx, '0' +  c4);
+  UARTPutChar(UARTx, '0' +  c3);
+  UARTPutChar(UARTx, '0' +  c2);
+  UARTPutChar(UARTx, '0' +  c1);
+}
+
+/*********************************************************************//**
+ * @brief   Puts a hex number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] hexnum  Hex number (8-bit long)
+ * @return    None
+ **********************************************************************/
+void UARTPutHex(LPC_UART_TypeDef *UARTx, uint8_t hexnum) {
+  if (!debug_frmwrk_initialized) return;
+
+  UARTPuts(UARTx, "0x");
+  uint8_t nibble, i = 1;
+  do {
+    nibble = (hexnum >> (4 * i)) & 0x0F;
+    UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
+  } while (i--);
+}
+
+/*********************************************************************//**
+ * @brief   Puts a hex number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] hexnum  Hex number (16-bit long)
+ * @return    None
+ **********************************************************************/
+void UARTPutHex16(LPC_UART_TypeDef *UARTx, uint16_t hexnum) {
+  if (!debug_frmwrk_initialized) return;
+
+  UARTPuts(UARTx, "0x");
+  uint8_t nibble, i = 3;
+  do {
+    nibble = (hexnum >> (4 * i)) & 0x0F;
+    UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
+  } while (i--);
+}
+
+/*********************************************************************//**
+ * @brief   Puts a hex number to UART port
+ * @param[in] UARTx Pointer to UART peripheral
+ * @param[in] hexnum  Hex number (32-bit long)
+ * @return    None
+ **********************************************************************/
+void UARTPutHex32(LPC_UART_TypeDef *UARTx, uint32_t hexnum) {
+  if (!debug_frmwrk_initialized) return;
+
+  UARTPuts(UARTx, "0x");
+  uint8_t nibble, i = 7;
+  do {
+    nibble = (hexnum >> (4 * i)) & 0x0F;
+    UARTPutChar(UARTx, (nibble > 9) ? ('A' + nibble - 10) : ('0' + nibble));
+  } while (i--);
+}
+
+/*********************************************************************//**
+ * @brief   print function that supports format as same as printf()
+ *        function of <stdio.h> library
+ * @param[in] None
+ * @return    None
+ **********************************************************************/
+//void  _printf (const  char *format, ...) {
+//  static  char  buffer[512 + 1];
+//          va_list     vArgs;
+//          char  *tmp;
+//  va_start(vArgs, format);
+//  vsprintf((char *)buffer, (char const *)format, vArgs);
+//  va_end(vArgs);
 //
-//    _DBG(buffer);
+//  _DBG(buffer);
 //}
 
 /*********************************************************************//**
- * @brief		Initialize Debug frame work through initializing UART port
- * @param[in]	None
- * @return		None
+ * @brief   Initialize Debug frame work through initializing UART port
+ * @param[in] None
+ * @return    None
  **********************************************************************/
-void debug_frmwrk_init(void)
-{
-	UART_CFG_Type UARTConfigStruct;
-	PINSEL_CFG_Type PinCfg;
+void debug_frmwrk_init(void) {
+  UART_CFG_Type UARTConfigStruct;
+  PINSEL_CFG_Type PinCfg;
 
-#if (USED_UART_DEBUG_PORT==0)
-	/*
-	 * Initialize UART0 pin connect
-	 */
-	PinCfg.Funcnum = 1;
-	PinCfg.OpenDrain = 0;
-	PinCfg.Pinmode = 0;
-	PinCfg.Pinnum = 2;
-	PinCfg.Portnum = 0;
-	PINSEL_ConfigPin(&PinCfg);
-	PinCfg.Pinnum = 3;
-	PINSEL_ConfigPin(&PinCfg);
+  #if (USED_UART_DEBUG_PORT==0)
+    /*
+     * Initialize UART0 pin connect
+     */
+    PinCfg.Funcnum = 1;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = 2;
+    PinCfg.Portnum = 0;
+    PINSEL_ConfigPin(&PinCfg);
+    PinCfg.Pinnum = 3;
+    PINSEL_ConfigPin(&PinCfg);
 
-#elif (USED_UART_DEBUG_PORT==1)
-	/*
-	 * Initialize UART1 pin connect
-	 */
-	PinCfg.Funcnum = 1;
-	PinCfg.OpenDrain = 0;
-	PinCfg.Pinmode = 0;
-	PinCfg.Pinnum = 15;
-	PinCfg.Portnum = 0;
-	PINSEL_ConfigPin(&PinCfg);
-	PinCfg.Pinnum = 16;
-	PINSEL_ConfigPin(&PinCfg);
-#endif
+  #elif (USED_UART_DEBUG_PORT==1)
+    /*
+     * Initialize UART1 pin connect
+     */
+    PinCfg.Funcnum = 1;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = 15;
+    PinCfg.Portnum = 0;
+    PINSEL_ConfigPin(&PinCfg);
+    PinCfg.Pinnum = 16;
+    PINSEL_ConfigPin(&PinCfg);
+  #endif
 
-	/* Initialize UART Configuration parameter structure to default state:
-	 * Baudrate = 9600bps
-	 * 8 data bit
-	 * 1 Stop bit
-	 * None parity
-	 */
-	UART_ConfigStructInit(&UARTConfigStruct);
+  /* Initialize UART Configuration parameter structure to default state:
+   * Baudrate = 9600bps
+   * 8 data bit
+   * 1 Stop bit
+   * None parity
+   */
+  UART_ConfigStructInit(&UARTConfigStruct);
 
-	// Re-configure baudrate to 115200bps
-	UARTConfigStruct.Baud_rate = 115200;
+  // Re-configure baudrate to 115200bps
+  UARTConfigStruct.Baud_rate = 115200;
 
-	// Initialize DEBUG_UART_PORT peripheral with given to corresponding parameter
-	UART_Init((LPC_UART_TypeDef *)DEBUG_UART_PORT, &UARTConfigStruct);
+  // Initialize DEBUG_UART_PORT peripheral with given to corresponding parameter
+  UART_Init((LPC_UART_TypeDef *)DEBUG_UART_PORT, &UARTConfigStruct);
 
-	// Enable UART Transmit
-	UART_TxCmd((LPC_UART_TypeDef *)DEBUG_UART_PORT, ENABLE);
+  // Enable UART Transmit
+  UART_TxCmd((LPC_UART_TypeDef *)DEBUG_UART_PORT, ENABLE);
 
   debug_frmwrk_initialized = TRUE;
 }
-#endif /*_DBGFWK */
 
-
-/* --------------------------------- End Of File ------------------------------ */
+#endif // _DBGFWK
