@@ -46,7 +46,12 @@
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
-#define STEP_TIMER_NUM 4  // index of timer to use for stepper
+#ifdef MCU_STM32F103CB  || defined(MCU_STM32F103C8)
+  #define STEP_TIMER_NUM 4 // For C8/CB boards, use timer 4
+#else
+  #define STEP_TIMER_NUM 5 // for other boards, five is fine.
+#endif
+
 #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 #define TEMP_TIMER_NUM 2  // index of timer to use for temperature
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
