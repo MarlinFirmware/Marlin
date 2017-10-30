@@ -390,18 +390,18 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
 	    switch (active_extruder){
 	       case 0: if((READ(FIL_RUNOUT_0_PIN)== FIL_RUNOUT_INVERTING)) break ;
-	    #if FIL_RUNOUT_1_PIN > -1
+	       #if FIL_RUNOUT_SENSORS > 1
 	       case 1: if((READ(FIL_RUNOUT_1_PIN)== FIL_RUNOUT_INVERTING)) break ;
-	    #endif
-		#if FIL_RUNOUT_2_PIN > -1
+	       #endif
+		#if FIL_RUNOUT_SENSORS > 2
 	       case 2: if((READ(FIL_RUNOUT_2_PIN)== FIL_RUNOUT_INVERTING)) break ;
-	    #endif
-		#if FIL_RUNOUT_3_PIN > -1
+	       #endif
+		#if FIL_RUNOUT_SENSORS > 3
 	       case 3: if((READ(FIL_RUNOUT_3_PIN)== FIL_RUNOUT_INVERTING)) break ;
-	    #endif
-		#if FIL_RUNOUT_4_PIN > -1
+	       #endif
+		#if FIL_RUNOUT_SENSORS > 4
 	       case 4: if((READ(FIL_RUNOUT_4_PIN)== FIL_RUNOUT_INVERTING)) break ;
-	    #endif
+	       #endif
 	    } 
 	  handle_filament_runout();
       }  
