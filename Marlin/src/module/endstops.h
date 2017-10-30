@@ -38,6 +38,10 @@ enum EndstopEnum {
   X_MAX,
   Y_MAX,
   Z_MAX,
+  X2_MIN,
+  X2_MAX,
+  Y2_MIN,
+  Y2_MAX,
   Z2_MIN,
   Z2_MAX
 };
@@ -49,8 +53,16 @@ class Endstops {
     static bool enabled, enabled_globally;
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      static float x_endstop_adj;
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static float y_endstop_adj;
+    #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static float z_endstop_adj;
+    #endif
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       typedef uint16_t esbits_t;
     #else
       typedef byte esbits_t;
@@ -113,6 +125,12 @@ class Endstops {
 
   private:
 
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      static void test_dual_x_endstops(const EndstopEnum es1, const EndstopEnum es2);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static void test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2);
+    #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static void test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2);
     #endif
