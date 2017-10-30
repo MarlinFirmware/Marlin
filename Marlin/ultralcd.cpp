@@ -3755,24 +3755,39 @@ void kill_screen(const char* lcd_msg) {
      * "Print from SD" submenu
      *
      */
+
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-      uint32_t saved_encoderPosition = 0;
-      static millis_t assume_print_finished = 0;
+      uint32_t last_sdfile_encoderPosition = 0;
+
+      void lcd_reselect_last_file() {
+        // Some of this is a hack to force the screen update to work.
+        // TODO: Fix the real issue that causes this!
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+        _lcd_synchronize();
+        safe_delay(50);
+        _lcd_synchronize();
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+        drawing_screen = screen_changed = true;
+        lcd_goto_screen(lcd_sdcard_menu, last_sdfile_encoderPosition);
+        defer_return_to_status = true;
+        lcd_update();
+      }
     #endif
 
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
-  
+
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not 
+        static millis_t assume_print_finished = 0;
+        if (ELAPSED(millis(), assume_print_finished)) { // if the printer has been busy printing, lcd_sdcard_menu() should not
           lcdDrawUpdate = LCDVIEW_REDRAW_NOW;           // have been active for 5 seconds.  In this case, restore the previous
-          encoderPosition = saved_encoderPosition;      // encoderPosition to the last selected item.
+          encoderPosition = last_sdfile_encoderPosition;      // encoderPosition to the last selected item.
           assume_print_finished = millis() + 5000;
         }
-        saved_encoderPosition = encoderPosition;
-        defer_return_to_status = true;
+        last_sdfile_encoderPosition = encoderPosition;   // needed as a workaround for the 5s timer
+        //defer_return_to_status = true;           // already done in lcd_reselect_last_file
       #endif
-      
+
       const uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_BACK(MSG_MAIN);
@@ -4422,7 +4437,7 @@ void kill_screen(const char* lcd_msg) {
 
     void menu_action_sdfile(const char* filename, char* longFilename) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        saved_encoderPosition = encoderPosition;  // Save which file was selected for later use
+        last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
       #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
