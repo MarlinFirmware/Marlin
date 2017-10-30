@@ -182,9 +182,9 @@ void clean_up_after_endstop_or_probe_move();
 #endif
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+  #define MOTION_CONDITIONS(...) (IsRunning() && !axis_unhomed_error(__VA_ARGS__))
 #else
-  #define MOTION_CONDITIONS IsRunning()
+  #define MOTION_CONDITIONS(...) IsRunning()
 #endif
 
 void set_axis_is_at_home(const AxisEnum axis);
