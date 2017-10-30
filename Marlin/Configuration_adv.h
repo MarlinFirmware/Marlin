@@ -892,8 +892,7 @@
     #define SPOOL_SWAP_UNLOAD   RETRACT_LENGTH_SWAP // Don't eject filament because print continue
     #define SPOOL_SWAP_LOAD     RETRACT_LENGTH_SWAP // Same as FWRETRACT if enabled
     #define SPOOL_SWAP_EXTRUDE  20 //Purge length
-    #define SPOOL_SWAP_FLOW     //apply same flow after tool change ' for same nozzle size for ex '
-  #endif 
+    #define SPOOL_SWAP_FLOW     //apply same flow 'SingleNozzle for ex'
   //Miscillaneous 
   #define PAUSE_TIMEOUT     120 // Turn off nozzle if user doesn't change filament within this time limit in seconds
   #define PAUSE_BEEPS         1 // Number of alert beeps before printer goes quiet
