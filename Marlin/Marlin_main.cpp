@@ -5491,7 +5491,6 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         if (!_1p_calibration) {  // probe the radius
-          bool zig_zag = true;
           const uint8_t start  = _4p_opposite_points ? _AB : __A;
           const float   steps   = _7p_6_intermediates ? _7P_STEP / 7.0 : //  7r * 6 + 7c = 49
                                   _7p_4_intermediates ? _7P_STEP / 5.0 : //  5r * 6 + 6c = 36
