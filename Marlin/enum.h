@@ -72,7 +72,7 @@ enum CalEnum {
 };
 
 #define LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N) 
-#define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN; VAR-=N)
+#define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN+0.9999; VAR-=N)
 
 typedef enum {
   LINEARUNIT_MM,
