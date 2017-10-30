@@ -233,6 +233,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+float current_z_before_offset = 0.0;
 float add_homing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
@@ -252,7 +253,7 @@ float zprobe_zoffset;
 #endif
 float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
 #if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
-  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
+  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y, EXTRUDER_OFFSET_Z
 #endif
 };
 #endif
@@ -3836,6 +3837,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         current_position[Y_AXIS] = current_position[Y_AXIS] -
                      extruder_offset[Y_AXIS][active_extruder] +
                      extruder_offset[Y_AXIS][tmp_extruder];
+        current_z_before_offset = current_position[Z_AXIS];
         current_position[Z_AXIS] = current_position[Z_AXIS] -
                      extruder_offset[Z_AXIS][active_extruder] +
                      extruder_offset[Z_AXIS][tmp_extruder];
@@ -4138,8 +4140,12 @@ for (int s = 1; s <= steps; s++) {
       plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
           current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+      //plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+          //current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_z_before_offset,
           current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+      destination[Z_AXIS] = current_z_before_offset;
+      current_position[Z_AXIS] = current_z_before_offset;
       active_extruder_parked = false;
     }
   }
