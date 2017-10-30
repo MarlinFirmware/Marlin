@@ -379,7 +379,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   
   // Retractation Recovery
   #ifdef PAUSE_RET
-   do_pause_e_move(PAUSE_RET, PAUSE_RET_F);
+   do_pause_e_move(PAUSE_RET, PAUSE_LOAD_F);
   #endif
 
   //Set extruder to saved position
