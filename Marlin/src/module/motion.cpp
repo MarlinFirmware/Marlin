@@ -454,28 +454,41 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   // Software Endstops are based on the configured limits.
   bool soft_endstops_enabled = true;
 
+  #if IS_KINEMATIC
+    float soft_endstop_radius, soft_endstop_radius_2;
+  #endif
+
   /**
    * Constrain the given coordinates to the software endstops.
    *
-   * NOTE: This will only apply to Z on DELTA and SCARA. XY is
-   *       constrained to a circle on these kinematic systems.
+   * For DELTA/SCARA the XY constraint is based on the smallest
+   * radius within the set software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-    #endif
-    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #if IS_KINEMATIC
+      const float dist_2 = HYPOT2(target[X_AXIS], target[Y_AXIS]);
+      if (dist_2 > soft_endstop_radius_2) {
+        const float ratio = soft_endstop_radius / SQRT(dist_2); // 200 / 300 = 0.66
+        target[X_AXIS] *= ratio;
+        target[Y_AXIS] *= ratio;
+      }
+    #else
+      #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+      #endif
+      #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      #endif
+      #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+      #endif
+      #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      #endif
     #endif
     #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
     #endif
     #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
@@ -1259,8 +1272,17 @@ void homeaxis(const AxisEnum axis) {
     #endif
 
     #if ENABLED(DELTA)
-      if (axis == Z_AXIS)
-        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+      switch(axis) {
+        case X_AXIS:
+        case Y_AXIS:
+          // Get a minimum radius for clamping
+          soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+          soft_endstop_radius_2 = sq(soft_endstop_radius);
+          break;
+        case Z_AXIS:
+          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+        default: break;
+      }
     #endif
   }
 
