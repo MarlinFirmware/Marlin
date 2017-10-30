@@ -222,35 +222,34 @@ if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
 
   void setup_filrunoutpin() { 
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
-        SET_INPUT_PULLUP(FIL_RUNOUT_0_PIN);
-	  #if FIL_RUNOUT_1_PIN > -1
-	    SET_INPUT_PULLUP(FIL_RUNOUT_1_PIN);
-	  #endif
-	  #if FIL_RUNOUT_2_PIN > -1
-	    SET_INPUT_PULLUP(FIL_RUNOUT_2_PIN);  
+      SET_INPUT_PULLUP(FIL_RUNOUT_0_PIN);
+      #if FIL_RUNOUT_SENSORS > 1
+      SET_INPUT_PULLUP(FIL_RUNOUT_1_PIN);
       #endif
-      #if FIL_RUNOUT_3_PIN > -1
-	    SET_INPUT_PULLUP(FIL_RUNOUT_3_PIN);     
-	  #endif
-	  #if FIL_RUNOUT_4_PIN > -1
-	    SET_INPUT_PULLUP(FIL_RUNOUT_4_PIN);     
+      #if FIL_RUNOUT_SENSORS > 2
+      SET_INPUT_PULLUP(FIL_RUNOUT_2_PIN);  
       #endif
-	
+      #if FIL_RUNOUT_SENSORS > 3
+      SET_INPUT_PULLUP(FIL_RUNOUT_3_PIN);     
+      #endif
+      #if FIL_RUNOUT_SENSORS > 4
+      SET_INPUT_PULLUP(FIL_RUNOUT_4_PIN);     
+      #endif	
     #else
-        SET_INPUT(FIL_RUNOUT_0_PIN);
-      #if FIL_RUNOUT_2_PIN > -1
-	    SET_INPUT(FIL_RUNOUT_1_PIN);
-	  #endif
-	  #if FIL_RUNOUT_3_PIN > -1
-	    SET_INPUT(FIL_RUNOUT_2_PIN);  
+      SET_INPUT(FIL_RUNOUT_0_PIN);
+      #if FIL_RUNOUT_SENSORS > 1
+        SET_INPUT(FIL_RUNOUT_1_PIN);
       #endif
-      #if FIL_RUNOUT_4_PIN > -1
-	    SET_INPUT(FIL_RUNOUT_3_PIN);     
-	  #endif
-	  #if FIL_RUNOUT_PIN_5 > -1
-	    SET_INPUT(FIL_RUNOUT_4_PIN);     
-    #endif
-  #endif  
+      #if FIL_RUNOUT_SENSORS > 2
+        SET_INPUT(FIL_RUNOUT_2_PIN);  
+      #endif
+      #if FIL_RUNOUT_SENSORS > 3
+        SET_INPUT(FIL_RUNOUT_3_PIN);     
+      #endif
+      #if FIL_RUNOUT_SENSORS > 4
+        SET_INPUT(FIL_RUNOUT_4_PIN);     
+       #endif
+    #endif  
 }
 
 #endif
