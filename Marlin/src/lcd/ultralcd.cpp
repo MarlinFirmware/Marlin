@@ -3783,7 +3783,6 @@ void kill_screen(const char* lcd_msg) {
           assume_print_finished = millis() + 5000;
         }
         last_sdfile_encoderPosition = encoderPosition;   // needed as a workaround for the 5s timer
-        //defer_return_to_status = true;           // already done in lcd_reselect_last_file
       #endif
 
       const uint16_t fileCnt = card.getnrfilenames();
@@ -4806,12 +4805,7 @@ void lcd_update() {
 
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
-        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-          if (currentScreen != lcd_sdcard_menu)                // lcd_sdcard_menu() does not time out if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;  // When the printer finishes a file, it will wait with the file selected for
-        #else                                                  // a re-print.
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        #endif
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
 
