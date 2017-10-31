@@ -88,8 +88,8 @@
 #define HEATER_BED_PIN      8// BED
 #define TEMP_BED_PIN        6// ANALOG NUMBERING
 
-#ifdef DOGLCD
-  #ifdef U8GLIB_ST7920       //SPI GLCD 12864 ST7920 
+#if ENABLED(DOGLCD)
+  #if ENABLED(U8GLIB_ST7920)       // SPI GLCD 12864 ST7920 
     #define LCD_PINS_RS     30
     #define LCD_PINS_ENABLE 20
     #define LCD_PINS_D4     25
