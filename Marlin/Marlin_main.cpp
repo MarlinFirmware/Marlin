@@ -3412,8 +3412,7 @@ inline void gcode_G0_G1(
   #endif
 ) {
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    const bool cartesianInvolved = (parser.seen('X') || parser.seen('Y') || parser.seen('Z'));
-    if (axis_unhomed_error(cartesianInvolved, cartesianInvolved, cartesianInvolved)) return;
+    if ((parser.seen('X') || parser.seen('Y') || parser.seen('Z')) && axis_unhomed_error()) return;
   #endif
 
   if (IsRunning()) {
