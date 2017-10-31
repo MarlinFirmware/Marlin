@@ -384,7 +384,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     #elif  PAUSE_EXTRUDE_F
       do_pause_e_move(PAUSE_RET, PAUSE_EXTRUDE_F); 
     #else 
-      do_pause_e_move(PAUSE_RET, 5); 
+      do_pause_e_move(PAUSE_RET, 15); 
     #endif
   #endif
 	
