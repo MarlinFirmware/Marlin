@@ -33,6 +33,12 @@
 
 extern float destination[XYZE];
 
+#if ENABLED(NO_MOTION_BEFORE_HOMING)
+  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+#else
+  #define G0_G1_CONDITION true
+#endif
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -41,7 +47,7 @@ void GcodeSuite::G0_G1(
     bool fast_move/*=false*/
   #endif
 ) {
-  if (MOTION_CONDITIONS) {
+  if (IsRunning() && G0_G1_CONDITION) {
     get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)

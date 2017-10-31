@@ -3775,9 +3775,8 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
 
-      const uint16_t fileCnt = card.get_num_Files();  // Only access SD card if sort not active
-                                                      // This minimizes garbage on RepRap Discount Full Graphics Smart Controller
-                                                      // when using the Re-ARM card.
+      const uint16_t fileCnt = card.get_num_Files();
+
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
