@@ -378,7 +378,9 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_Z_F);
   
   // Retractation Recovery
-  #ifdef PAUSE_RET
+  #if ENABLED(FWRETRACT)
+    do_pause_e_move(PAUSE_RET, RETRACT_RECOVER_FEEDRATE);    
+  #else
    do_pause_e_move(PAUSE_RET, PAUSE_EXTRUDE_F);
   #endif
 
