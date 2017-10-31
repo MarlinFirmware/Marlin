@@ -5508,16 +5508,20 @@ void home_all_axes() { gcode_G28(true); }
               float z_temp = probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
             #endif
             // split probe point to neighbouring calibration points
-            z_at_pt[round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * (1 - interpol);
-            z_at_pt[round(axis - interpol) % NPP + 1] += z_temp * interpol;
+            z_at_pt[round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+            z_at_pt[round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
           }
           if (_7p_intermed_points)
             LOOP_CAL_PT(axis, __A, _7P_STEP) {
 /*
-              // average intermediate points to towers and opposites - only required with _7P_STEP = 2
-              z_at_pt[round(axis)] += (z_at_pt[round(axis + 1)] + z_at_pt[(round(axis + NPP - 2) % NPP + 1]) / 2.0);
+            // average intermediate points to towers and opposites - only required with _7P_STEP >= 2
+              for (int8_t i = 1; i < round(_7P_STEP); i++) {
+                const float interpol = i * (1.0 / _7P_STEP);
+                z_at_pt[round(axis)] += (z_at_pt[round(axis + NPP - i - 1) % NPP + 1]
+                                        + z_at_pt[round(axis + i)]) * sq(cos(RADIANS(interpol * 90)));
+              }
 */
-              z_at_pt[round(axis)] *= steps;
+              z_at_pt[round(axis)] /= _7P_STEP / steps;
             }
         }
 
