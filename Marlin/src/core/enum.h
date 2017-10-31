@@ -58,22 +58,6 @@ enum AxisEnum {
 #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
 
-enum CalEnum {
-  _7P_STEP = 1,              // 7-point step - to change number of calibration points
-  _4P_STEP = _7P_STEP * 2,   // 4-point step
-  CEN      = 0,              // the 7 main calibration points - add definitions if needed
-  __A      = 1,
-  _AB      = __A + _7P_STEP,
-  __B      = _AB + _7P_STEP,
-  _BC      = __B + _7P_STEP,
-  __C      = _BC + _7P_STEP,
-  _CA      = __C + _7P_STEP,
-  NPP      = _7P_STEP * 6    // number of calibration points on the radius
-};
-
-#define LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N) 
-#define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN+0.9999; VAR-=N)
-
 typedef enum {
   LINEARUNIT_MM,
   LINEARUNIT_INCH
