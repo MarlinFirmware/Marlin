@@ -167,6 +167,8 @@
 
 #elif MB(MINITRONICS)
   #include "pins_MINITRONICS.h"       // ATmega1281
+#elif MB(SILVER_GATE)
+  #include "pins_SILVER_GATE.h"       // ATmega2561
 
 //
 // Sanguinololu and Derivatives - ATmega644P, ATmega1284P
