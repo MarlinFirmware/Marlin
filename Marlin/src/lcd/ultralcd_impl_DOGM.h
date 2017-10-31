@@ -278,6 +278,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
+  bool show_bootscreen = true;
+
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
     void lcd_custom_bootscreen() {
@@ -293,8 +295,6 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   #endif // SHOW_CUSTOM_BOOTSCREEN
 
   void lcd_bootscreen() {
-
-    static bool show_bootscreen = true;
 
     if (show_bootscreen) {
       show_bootscreen = false;
@@ -353,11 +353,13 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
-    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-      lcd_custom_bootscreen();
-    #else
-      lcd_bootscreen();
-    #endif
+    if (show_bootscreen) {
+      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+        lcd_custom_bootscreen();
+      #else
+        lcd_bootscreen();
+      #endif
+    }
   #endif
 }
 
