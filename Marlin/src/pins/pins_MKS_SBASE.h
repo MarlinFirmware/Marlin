@@ -127,8 +127,9 @@
 //
 
 #if ENABLED(MK2_MULTIPLEXER)
-  #define E_MUX0_PIN         P0_17   // J7-4
-  #define E_MUX1_PIN         P0_16   // J7-5
+  #define E_MUX0_PIN         P1_23   // J8-3
+  #define E_MUX1_PIN         P2_12   // J8-4
+  #define E_MUX2_PIN         P2_11   // J8-5
 #endif
 
 
