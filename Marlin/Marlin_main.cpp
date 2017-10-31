@@ -3416,7 +3416,7 @@ void gcode_get_destination() {
  **************************************************/
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+  #define G0_G1_CONDITION ((!parser.seen('X') && !parser.seen('Y') && !parser.seen('Z')) || !axis_unhomed_error(!axis_homed[X_AXIS], !axis_homed[Y_AXIS], !axis_homed[Z_AXIS]))
 #else
   #define G0_G1_CONDITION true
 #endif
