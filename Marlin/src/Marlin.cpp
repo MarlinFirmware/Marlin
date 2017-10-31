@@ -218,7 +218,7 @@ void setup_killpin() {
   #endif
 }
 
-if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
+#if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
 
   void setup_filrunoutpin() { 
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
@@ -248,7 +248,7 @@ if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
       #endif
       #if FIL_RUNOUT_SENSORS > 4
         SET_INPUT(FIL_RUNOUT_4_PIN);     
-       #endif
+      #endif
     #endif  
 }
 
