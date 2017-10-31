@@ -3415,6 +3415,12 @@ void gcode_get_destination() {
  ***************** GCode Handlers *****************
  **************************************************/
 
+#if ENABLED(NO_MOTION_BEFORE_HOMING)
+  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+#else
+  #define G0_G1_CONDITION true
+#endif
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -3423,11 +3429,7 @@ inline void gcode_G0_G1(
     bool fast_move=false
   #endif
 ) {
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    if (axis_unhomed_error()) return;
-  #endif
-
-  if (IsRunning()) {
+  if (IsRunning() && G0_G1_CONDITION) {
     gcode_get_destination(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
