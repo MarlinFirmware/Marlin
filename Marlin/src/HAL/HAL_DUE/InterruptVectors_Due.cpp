@@ -74,7 +74,7 @@ static pfnISR_Handler* get_relocated_table_addr(void) {
 
 pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler) {
   // Get the address of the relocated table
-  const pfnISR_Handler *isrtab = get_relocated_table_addr();
+  pfnISR_Handler *isrtab = get_relocated_table_addr();
 
   // Disable global interrupts
   CRITICAL_SECTION_START;
