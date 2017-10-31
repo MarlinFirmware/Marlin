@@ -60,11 +60,6 @@
 
 #define FAN_PIN             5
 
-#if ENABLED(SILVER_GATE_GLCD_CONTROLLER) 
-  #define KILL_PIN         21
-  #define HOME_PIN         28
-#endif
-
 #define HEATER_0_PIN        7
 
 #define E0_AUTO_FAN_PIN     3
@@ -85,6 +80,10 @@
     #define BTN_EN2        22
     #define BTN_ENC        24
     #define LCD_BACKLIGHT_PIN  6
+    #if ENABLED(SILVER_GATE_GLCD_CONTROLLER) 
+      #define KILL_PIN     21
+      #define HOME_PIN     28
+    #endif
   #endif
 #endif
 
