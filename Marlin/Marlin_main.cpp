@@ -3412,7 +3412,7 @@ inline void gcode_G0_G1(
   #endif
 ) {
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    if ((parser.seen('X') || parser.seen('Y') || parser.seen('Z')) && axis_unhomed_error()) return;
+    if (axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))) return;
   #endif
 
   if (IsRunning()) {
