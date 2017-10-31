@@ -34,8 +34,6 @@
 #ifndef _FASTIO_DUE_H
 #define _FASTIO_DUE_H
 
-#include "../../core/boards.h"
-
 /**
   utility functions
 */
@@ -406,7 +404,7 @@ pins
 #define DIO91_PIN 15
 #define DIO91_WPORT PIOB
 
-#if MB(ARCHIM2)
+#if ARDUINO_SAM_ARCHIM
   #define DIO92_PIN 11
   #define DIO92_WPORT PIOC
 
