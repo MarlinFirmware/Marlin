@@ -5368,6 +5368,26 @@ void home_all_axes() { gcode_G28(true); }
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
 
+    constexpr uint8_t _7P_STEP = 1,              // 7-point step - to change number of calibration points
+                      _4P_STEP = _7P_STEP * 2,   // 4-point step
+                      NPP      = _7P_STEP * 6;   // number of calibration points on the radius
+    enum CalEnum {                               // the 7 main calibration points - add definitions if needed
+      CEN      = 0,
+      __A      = 1,
+      _AB      = __A + _7P_STEP,
+      __B      = _AB + _7P_STEP,
+      _BC      = __B + _7P_STEP,
+      __C      = _BC + _7P_STEP,
+      _CA      = __C + _7P_STEP,
+    };
+    
+    #define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N) 
+    #define F_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N) 
+    #define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN+0.9999; VAR-=N)
+    #define LOOP_CAL_ALL(VAR) LOOP_CAL_PT(VAR, CEN, 1)
+    #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
+    #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
+
     static void print_signed_float(const char * const prefix, const float &f) {
       SERIAL_PROTOCOLPGM("  ");
       serialprintPGM(prefix);
@@ -5462,8 +5482,7 @@ void home_all_axes() { gcode_G28(true); }
                     dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
       #endif
 
-          z_at_pt[CEN] = 0.0;
-          LOOP_CAL_PT(axis, __A, _7P_STEP) z_at_pt[round(axis)] = 0.0;
+          LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
     
       if (!_0p_calibration) {
     
@@ -5512,16 +5531,16 @@ void home_all_axes() { gcode_G28(true); }
             z_at_pt[round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
           }
           if (_7p_intermed_points)
-            LOOP_CAL_PT(axis, __A, _7P_STEP) {
+            LOOP_CAL_RAD(axis) {
 /*
             // average intermediate points to towers and opposites - only required with _7P_STEP >= 2
-              for (int8_t i = 1; i < round(_7P_STEP); i++) {
+              for (int8_t i = 1; i < _7P_STEP; i++) {
                 const float interpol = i * (1.0 / _7P_STEP);
-                z_at_pt[round(axis)] += (z_at_pt[round(axis + NPP - i - 1) % NPP + 1]
-                                        + z_at_pt[round(axis + i)]) * sq(cos(RADIANS(interpol * 90)));
+                z_at_pt[axis] += (z_at_pt[(axis + NPP - i - 1) % NPP + 1]
+                                 + z_at_pt[axis + i]) * sq(cos(RADIANS(interpol * 90)));
               }
 */
-              z_at_pt[round(axis)] /= _7P_STEP / steps;
+              z_at_pt[axis] /= _7P_STEP  / steps;
             }
         }
 
@@ -5530,11 +5549,9 @@ void home_all_axes() { gcode_G28(true); }
               S2 = sq(z_at_pt[CEN]);
         int16_t N = 1;
         if (!_1p_calibration) { // std dev from zero plane
-          const uint8_t start = _4p_opposite_points ? _AB : __A,
-                        steps = _4p_calibration ? _4P_STEP : _7P_STEP;
-          LOOP_CAL_PT(axis, start, steps) {
-            S1 += z_at_pt[round(axis)];
-            S2 += sq(z_at_pt[round(axis)]);
+          LOOP_CAL_ACT(axis, _4p_calibration, _4p_opposite_points) {
+            S1 += z_at_pt[axis];
+            S2 += sq(z_at_pt[axis]);
             N++;
           }
           return round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
@@ -5575,8 +5592,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          z_at_pt[CEN] -= z_at_pt_base[CEN];
-          LOOP_CAL_PT(axis, __A, _7P_STEP) z_at_pt[round(axis)] -= z_at_pt_base[round(axis)];
+          LOOP_CAL_ALL(axis) z_at_pt[axis] -= z_at_pt_base[axis];
           print_G33_results(z_at_pt, true, true);
           delta_endstop_adj[axis] += 1.0;
           switch (axis) {
@@ -5606,8 +5622,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOL(zig_zag == -1 ? "-" : "+");
           SERIAL_EOL();
           probe_G33_points(z_at_pt, 3, true, false);
-          z_at_pt[CEN] -= z_at_pt_base[CEN];
-          LOOP_CAL_PT(axis, __A, _7P_STEP) z_at_pt[round(axis)] -= z_at_pt_base[round(axis)];
+          LOOP_CAL_ALL(axis) z_at_pt[axis] -= z_at_pt_base[axis];
           print_G33_results(z_at_pt, true, true);
           delta_radius -= 1.0 * zig_zag;
           recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
@@ -5634,8 +5649,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          z_at_pt[CEN] -= z_at_pt_base[CEN];
-          LOOP_CAL_PT(axis, __A, _7P_STEP) z_at_pt[round(axis)] -= z_at_pt_base[round(axis)];
+          LOOP_CAL_ALL(axis) z_at_pt[axis] -= z_at_pt_base[axis];
           print_G33_results(z_at_pt, true, true);
 
           delta_tower_angle_trim[axis] -= 1.0;
@@ -5760,7 +5774,7 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
 
       if (!_1p_calibration && !_0p_calibration) {  // test if the outer radius is reachable
-        LOOP_CAL_PT(axis, __A, _7P_STEP) {
+        LOOP_CAL_RAD(axis) {
           const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                       r = delta_calibration_radius;
           if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
