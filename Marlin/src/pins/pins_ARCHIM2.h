@@ -1,6 +1,16 @@
 /****************************************************************************************
 * ARCHIM2 pin assignment (pins_ARCHIM2.h)
 *
+* The Archim2 board requires Arduino Archim addons installed.
+* Add the following URL to Arduino IDE's Additional Board Manager URLs
+* https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
+* In the Arduino IDE Board Manager search for Archim and install the package.
+* Change your target board to "Archim".
+*
+* Further information is provided by UltiMachine
+* https://github.com/ultimachine/Archim/wiki/Archim-v2.0
+* https://github.com/ultimachine/Archim/wiki
+*
 ****************************************************************************************/
 #if MOTHERBOARD == BOARD_ARCHIM2
 #ifndef __SAM3X8E__
