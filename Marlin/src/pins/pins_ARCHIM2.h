@@ -126,7 +126,7 @@
     #define LCD_PINS_D6    68   // D68 PA1_CANRX0
     #define LCD_PINS_D7    34   // D34 PC2_PWML0
 
-    #define SDCARDDETECT    2   // D2  PB25_TIOA0
+    #define SD_DETECT_PIN   2   // D2  PB25_TIOA0
     #define SDSS           87   // D87 PA29 CS
 
     // Buttons on AUX-2
