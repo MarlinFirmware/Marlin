@@ -1300,9 +1300,6 @@
 
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
-
-  #define USER_DESC_6 "Preheat for PETG"
-  #define USER_GCODE_6 "M140 S" STRINGIFY(PREHEAT_3_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND)
 #endif
 
 /**
