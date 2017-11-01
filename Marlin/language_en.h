@@ -257,6 +257,9 @@
 #ifndef MSG_UBL_BUILD_ABS_MESH
   #define MSG_UBL_BUILD_ABS_MESH              _UxGT("Build ABS Mesh")
 #endif
+#ifndef MSG_UBL_BUILD_PETG_MESH
+  #define MSG_UBL_BUILD_PETG_MESH              _UxGT("Build PETG Mesh")
+#endif
 #ifndef MSG_UBL_BUILD_COLD_MESH
   #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Build Cold Mesh")
 #endif

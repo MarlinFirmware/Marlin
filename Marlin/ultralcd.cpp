@@ -1452,6 +1452,7 @@ void kill_screen(const char* lcd_msg) {
       #if HOTENDS > 3
         void lcd_preheat_m1_e3_only() { _lcd_preheat(3, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
         void lcd_preheat_m2_e3_only() { _lcd_preheat(3, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
+        void lcd_preheat_m3_e3_only() { _lcd_preheat(3, lcd_preheat_hotend_temp[2], -1, lcd_preheat_fan_speed[2]); }
         #if TEMP_SENSOR_BED != 0
           void lcd_preheat_m1_e3() { _lcd_preheat(3, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
           void lcd_preheat_m2_e3() { _lcd_preheat(3, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
@@ -2341,7 +2342,7 @@ void kill_screen(const char* lcd_msg) {
           "G29 P1\n"
           "M104 S0"
         ));
-          MENU_ITEM(gcode, MSG_UBL_BUILD_PETG_MESH, PSTR(
+        MENU_ITEM(gcode, MSG_UBL_BUILD_PETG_MESH, PSTR(
           "G28\n"
           "M109 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND) "\n"
           "G29 P1\n"
