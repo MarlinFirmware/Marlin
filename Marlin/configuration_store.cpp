@@ -723,11 +723,15 @@ void MarlinSettings::postprocess() {
       float dummy = 0;
       bool dummyb;
 
-      working_crc = 0; //clear before reading first "real data"
+      working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       // Number of esteppers may change
       uint8_t esteppers;
       EEPROM_READ(esteppers);
+
+      //
+      // Planner Motion
+      //
 
       // Get only the number of E stepper parameters previously stored
       // Any steppers added later are set to their defaults
@@ -752,6 +756,10 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.min_segment_time_us);
       EEPROM_READ(planner.max_jerk);
 
+      //
+      // Home Offset (M206)
+      //
+
       #if !HAS_HOME_OFFSET
         float home_offset[XYZ];
       #endif
@@ -762,6 +770,10 @@ void MarlinSettings::postprocess() {
         home_offset[Y_AXIS] = 0.0;
         home_offset[Z_AXIS] -= DELTA_HEIGHT;
       #endif
+
+      //
+      // Hotend Offsets, if any
+      //
 
       #if HOTENDS > 1
         // Skip hotend 0 which must be 0
@@ -846,6 +858,10 @@ void MarlinSettings::postprocess() {
           for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
         }
 
+      //
+      // Unified Bed Leveling active state
+      //
+
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         EEPROM_READ(planner.leveling_active);
         EEPROM_READ(ubl.storage_slot);
@@ -854,6 +870,10 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyb);
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
+
+      //
+      // DELTA Geometry or Dual Endstops offsets
+      //
 
       #if ENABLED(DELTA)
         EEPROM_READ(delta_endstop_adj);         // 3 floats
@@ -891,18 +911,25 @@ void MarlinSettings::postprocess() {
 
       #endif
 
+      //
+      // LCD Preheat settings
+      //
+
       #if DISABLED(ULTIPANEL)
         int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
       #endif
-
-      EEPROM_READ(lcd_preheat_hotend_temp);
-      EEPROM_READ(lcd_preheat_bed_temp);
-      EEPROM_READ(lcd_preheat_fan_speed);
+      EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
+      EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
+      EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
 
       //EEPROM_ASSERT(
       //  WITHIN(lcd_preheat_fan_speed, 0, 255),
       //  "lcd_preheat_fan_speed out of range"
       //);
+
+      //
+      // Hotend PID
+      //
 
       #if ENABLED(PIDTEMP)
         for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
@@ -927,10 +954,18 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
       #endif // !PIDTEMP
 
+      //
+      // PID Extrusion Scaling
+      //
+
       #if DISABLED(PID_EXTRUSION_SCALING)
         int lpq_len;
       #endif
       EEPROM_READ(lpq_len);
+
+      //
+      // Heated Bed PID
+      //
 
       #if ENABLED(PIDTEMPBED)
         EEPROM_READ(dummy); // bedKp
@@ -943,10 +978,18 @@ void MarlinSettings::postprocess() {
         for (uint8_t q=3; q--;) EEPROM_READ(dummy); // bedKp, bedKi, bedKd
       #endif
 
+      //
+      // LCD Contrast
+      //
+
       #if !HAS_LCD_CONTRAST
         uint16_t lcd_contrast;
       #endif
       EEPROM_READ(lcd_contrast);
+
+      //
+      // Firmware Retraction
+      //
 
       #if ENABLED(FWRETRACT)
         EEPROM_READ(autoretract_enabled);
@@ -963,12 +1006,19 @@ void MarlinSettings::postprocess() {
         for (uint8_t q=8; q--;) EEPROM_READ(dummy);
       #endif
 
-      EEPROM_READ(volumetric_enabled);
+      //
+      // Volumetric & Filament Size
+      //
 
+      EEPROM_READ(volumetric_enabled);
       for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
         EEPROM_READ(dummy);
         if (q < COUNT(filament_size)) filament_size[q] = dummy;
       }
+
+      //
+      // TMC2130 Stepper Current
+      //
 
       uint16_t val;
       #if ENABLED(HAVE_TMC2130)
@@ -1017,7 +1067,7 @@ void MarlinSettings::postprocess() {
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
-        for (uint8_t q = 0; q < 11; q++) EEPROM_READ(val);
+        for (uint8_t q = 11; --q;) EEPROM_READ(val);
       #endif
 
       //
@@ -1031,6 +1081,10 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummy);
         EEPROM_READ(dummy);
       #endif
+
+      //
+      // Motor Current PWM
+      //
 
       #if HAS_MOTOR_CURRENT_PWM
         for (uint8_t q = 3; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
