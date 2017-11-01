@@ -278,6 +278,9 @@
 #ifndef MSG_UBL_VALIDATE_ABS_MESH
   #define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Validate ABS Mesh")
 #endif
+#ifndef MSG_UBL_VALIDATE_PETG_MESH
+  #define MSG_UBL_VALIDATE_PETG_MESH           _UxGT("Validate PETG Mesh")
+#endif
 #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
   #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
 #endif
