@@ -2321,7 +2321,7 @@ void kill_screen(const char* lcd_msg) {
           "M104 S0\n"
           "M140 S0"
         ));
-          MENU_ITEM(gcode, MSG_UBL_BUILD_PETG_MESH, PSTR(
+		MENU_ITEM(gcode, MSG_UBL_BUILD_PETG_MESH, PSTR(
           "G28\n"
           "M190 S" STRINGIFY(PREHEAT_3_TEMP_BED) "\n"
           "M109 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND) "\n"
