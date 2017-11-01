@@ -130,7 +130,6 @@
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define MSG_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
-#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
 #define MSG_FILE_PRINTED                    "Done printing file"
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"

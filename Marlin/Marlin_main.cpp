@@ -1138,18 +1138,17 @@ inline void get_serial_commands() {
      */
     if (serial_char == '\n' || serial_char == '\r') {
 
-      serial_comment_mode = false; // end of line == end of comment
+      serial_comment_mode = false;                      // end of line == end of comment
 
-      if (!serial_count) continue; // skip empty lines
+      if (!serial_count) continue;                      // Skip empty lines
 
-      serial_line_buffer[serial_count] = 0; // terminate string
-      serial_count = 0; //reset buffer
+      serial_line_buffer[serial_count] = 0;             // Terminate string
+      serial_count = 0;                                 // Reset buffer
 
       char* command = serial_line_buffer;
 
-      while (*command == ' ') command++; // skip any leading spaces
-      char *npos = (*command == 'N') ? command : NULL, // Require the N parameter to start the line
-           *apos = strchr(command, '*');
+      while (*command == ' ') command++;                // Skip leading spaces
+      char *npos = (*command == 'N') ? command : NULL;  // Require the N parameter to start the line
 
       if (npos) {
 
@@ -1167,15 +1166,14 @@ inline void get_serial_commands() {
           return;
         }
 
+        char *apos = strrchr(command, '*');
         if (apos) {
-          byte checksum = 0, count = 0;
-          while (command[count] != '*') checksum ^= command[count++];
-
+          uint8_t checksum = 0, count = uint8_t(apos - command);
+          while (count) checksum ^= command[--count];
           if (strtol(apos + 1, NULL, 10) != checksum) {
             gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
             return;
           }
-          // if no errors, continue parsing
         }
         else {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
@@ -1183,11 +1181,6 @@ inline void get_serial_commands() {
         }
 
         gcode_LastN = gcode_N;
-        // if no errors, continue parsing
-      }
-      else if (apos) { // No '*' without 'N'
-        gcode_line_error(PSTR(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM), false);
-        return;
       }
 
       // Movement commands alert when stopped
