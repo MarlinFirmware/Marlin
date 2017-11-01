@@ -1251,7 +1251,7 @@ void MarlinSettings::reset() {
   #if ENABLED(ULTIPANEL)
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-	//lcd_preheat_hotend_temp[2] = PREHEAT_3_TEMP_HOTEND;
+	lcd_preheat_hotend_temp[2] = 200;
 	
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
     lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
