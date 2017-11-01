@@ -290,6 +290,14 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void update_software_endstops(const AxisEnum axis);
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  #define MAX_COORDINATE_SYSTEMS 9
+  extern float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+  bool select_coordinate_system(const int8_t _new);
+#endif
+
+void report_current_position();
+
 #if IS_KINEMATIC
   extern float delta[ABC];
   void inverse_kinematics(const float raw[XYZ]);

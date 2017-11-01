@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V43"
+#define EEPROM_VERSION "V44"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V43 EEPROM Layout:
+ * V44 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -162,8 +162,11 @@
  *  588  M907 Z    Stepper Z current                (uint32_t)
  *  592  M907 E    Stepper E current                (uint32_t)
  *
- *  596                                Minimum end-point
- * 1917 (596 + 36 + 9 + 288 + 988)     Maximum end-point
+ * CNC_COORDINATE_SYSTEMS                           108 bytes
+ *  596  G54-G59.3 coordinate_system                (float x 27)
+ *
+ *  704                                Minimum end-point
+ * 2025 (704 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -209,6 +212,10 @@ MarlinSettings settings;
   float new_z_fade_height;
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  bool position_changed;
+#endif
+
 /**
 * Post-process after Retrieve or Reset
 */
@@ -252,6 +259,13 @@ void MarlinSettings::postprocess() {
 
   #if HAS_MOTOR_CURRENT_PWM
     stepper.refresh_motor_power();
+  #endif
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    if (position_changed) {
+      report_current_position();
+      position_changed = false;
+    }
   #endif
 }
 
@@ -661,6 +675,13 @@ void MarlinSettings::postprocess() {
     #else
       const uint32_t dummyui32 = 0;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
+    #endif
+
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      EEPROM_WRITE(coordinate_system); // 27 floats
+    #else
+      dummy = 0.0f;
+      for (uint8_t q = 27; q--;) EEPROM_WRITE(dummy);
     #endif
 
     if (!eeprom_error) {
@@ -1091,6 +1112,17 @@ void MarlinSettings::postprocess() {
       #else
         uint32_t dummyui32;
         for (uint8_t q = 3; q--;) EEPROM_READ(dummyui32);
+      #endif
+
+      //
+      // CNC Coordinate System
+      //
+
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        position_changed = select_coordinate_system(-1); // Go back to machine space
+        EEPROM_READ(coordinate_system);                  // 27 floats
+      #else
+        for (uint8_t q = 27; q--;) EEPROM_READ(dummy);
       #endif
 
       if (working_crc == stored_crc) {

@@ -364,6 +364,11 @@
   #define LED_WHITE 0, 0, 0, 255
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  int8_t active_coordinate_system = -1; // machine space
+  float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+#endif
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -745,6 +750,7 @@ void stop();
 
 void get_available_commands();
 void process_next_command();
+void process_parsed_command();
 void prepare_move_to_destination();
 
 void get_cartesian_from_steppers();
@@ -3672,6 +3678,73 @@ inline void gcode_G4() {
 
 #endif // CNC_WORKSPACE_PLANES
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+
+  /**
+   * Select a coordinate system and update the current position.
+   * System index -1 is used to specify machine-native.
+   */
+  bool select_coordinate_system(const int8_t _new) {
+    if (active_coordinate_system == _new) return false;
+    float old_offset[XYZ] = { 0 }, new_offset[XYZ] = { 0 };
+    if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
+      COPY(old_offset, coordinate_system[active_coordinate_system]);
+    if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
+      COPY(new_offset, coordinate_system[_new]);
+    active_coordinate_system = _new;
+    bool didXYZ = false;
+    LOOP_XYZ(i) {
+      const float diff = new_offset[i] - old_offset[i];
+      if (diff) {
+        position_shift[i] += diff;
+        update_software_endstops((AxisEnum)i);
+        didXYZ = true;
+      }
+    }
+    if (didXYZ) SYNC_PLAN_POSITION_KINEMATIC();
+    return true;
+  }
+
+  /**
+   * In CNC G-code G53 is like a modifier
+   * It precedes a movement command (or other modifiers) on the same line.
+   * This is the first command to use parser.chain() to make this possible.
+   */
+  inline void gcode_G53() {
+    // If this command has more following...
+    if (parser.chain()) {
+      const int8_t _system = active_coordinate_system;
+      active_coordinate_system = -1;
+      process_parsed_command();
+      active_coordinate_system = _system;
+    }
+  }
+
+  /**
+   * G54-G59.3: Select a new workspace
+   *
+   * A workspace is an XYZ offset to the machine native space.
+   * All workspaces default to 0,0,0 at start, or with EEPROM
+   * support they may be restored from a previous session.
+   *
+   * G92 is used to set the current workspace's offset.
+   */
+  inline void gcode_G54_59(uint8_t subcode=0) {
+    const int8_t _space = parser.codenum - 54 + subcode;
+    if (select_coordinate_system(_space)) {
+      SERIAL_PROTOCOLLNPAIR("Select workspace ", _space);
+      report_current_position();
+    }
+  }
+  FORCE_INLINE void gcode_G54() { gcode_G54_59(); }
+  FORCE_INLINE void gcode_G55() { gcode_G54_59(); }
+  FORCE_INLINE void gcode_G56() { gcode_G54_59(); }
+  FORCE_INLINE void gcode_G57() { gcode_G54_59(); }
+  FORCE_INLINE void gcode_G58() { gcode_G54_59(); }
+  FORCE_INLINE void gcode_G59() { gcode_G54_59(parser.subcode); }
+
+#endif
+
 #if ENABLED(INCH_MODE_SUPPORT)
   /**
    * G20: Set input mode to inches
@@ -4153,13 +4226,12 @@ inline void gcode_G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1
-    tool_change(old_tool_index, 0,
-      #if ENABLED(PARKING_EXTRUDER)
-        false // fetch the previous toolhead
-      #else
-        true
-      #endif
-    );
+    #if ENABLED(PARKING_EXTRUDER)
+      #define NO_FETCH false // fetch the previous toolhead
+    #else
+      #define NO_FETCH true
+    #endif
+    tool_change(old_tool_index, 0, NO_FETCH);
   #endif
 
   lcd_refresh();
@@ -6201,7 +6273,30 @@ inline void gcode_G92() {
 
   if (!didE) stepper.synchronize();
 
-  LOOP_XYZE(i) {
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    switch (parser.subcode) {
+      case 1:
+        // Zero the G92 values and restore current position
+        #if !IS_SCARA
+          LOOP_XYZ(i) {
+            const float v = position_shift[i];
+            if (v) {
+              position_shift[i] = 0;
+              update_software_endstops((AxisEnum)i);
+            }
+          }
+        #endif // Not SCARA
+        return;
+    }
+  #endif
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    #define IS_G92_0 (parser.subcode == 0)
+  #else
+    #define IS_G92_0 true
+  #endif
+
+  if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
       #if IS_SCARA
         if (i != E_AXIS) didXYZ = true;
@@ -6221,6 +6316,13 @@ inline void gcode_G92() {
       #endif
     }
   }
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    // Apply workspace offset to the active coordinate system
+    if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
+      COPY(coordinate_system[active_coordinate_system], position_shift);
+  #endif
+
   if (didXYZ)
     SYNC_PLAN_POSITION_KINEMATIC();
   else if (didE)
@@ -11194,25 +11296,10 @@ inline void gcode_T(const uint8_t tmp_extruder) {
 }
 
 /**
- * Process a single command and dispatch it to its handler
- * This is called from the main loop()
+ * Process the parsed command and dispatch it to its handler
  */
-void process_next_command() {
-  char * const current_command = command_queue[cmd_queue_index_r];
-
-  if (DEBUGGING(ECHO)) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLN(current_command);
-    #if ENABLED(M100_FREE_MEMORY_WATCHER)
-      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
-    #endif
-  }
-
+void process_parsed_command() {
   KEEPALIVE_STATE(IN_HANDLER);
-
-  // Parse the next command in the queue
-  parser.parse(current_command);
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
@@ -12051,6 +12138,23 @@ void process_next_command() {
   KEEPALIVE_STATE(NOT_BUSY);
 
   ok_to_send();
+}
+
+void process_next_command() {
+  char * const current_command = command_queue[cmd_queue_index_r];
+
+  if (DEBUGGING(ECHO)) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLN(current_command);
+    #if ENABLED(M100_FREE_MEMORY_WATCHER)
+      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
+      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+    #endif
+  }
+
+  // Parse the next command in the queue
+  parser.parse(current_command);
+  process_parsed_command();
 }
 
 /**
