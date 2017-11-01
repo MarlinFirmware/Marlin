@@ -1251,15 +1251,15 @@ void MarlinSettings::reset() {
   #if ENABLED(ULTIPANEL)
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-	lcd_preheat_hotend_temp[2] = PREHEAT_3_TEMP_HOTEND;
+	//lcd_preheat_hotend_temp[2] = PREHEAT_3_TEMP_HOTEND;
 	
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
     lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-	lcd_preheat_bed_temp[2] = PREHEAT_3_TEMP_BED;
+	//lcd_preheat_bed_temp[2] = PREHEAT_3_TEMP_BED;
    
     lcd_preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
 	lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
-	lcd_preheat_fan_speed[2] = PREHEAT_3_FAN_SPEED;
+	//lcd_preheat_fan_speed[2] = PREHEAT_3_FAN_SPEED;
   #endif
 
   #if HAS_LCD_CONTRAST
