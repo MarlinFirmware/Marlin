@@ -48,9 +48,9 @@
 // Limit Switches
 //
 #define ENDSTOP_INTERRUPTS_PIN 35
-#define X_MIN_PIN          143
-#define Y_MIN_PIN          142
-#define Z_MIN_PIN          141
+#define X_MIN_PIN          141
+#define Y_MIN_PIN          139
+#define Z_MIN_PIN          137
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -63,27 +63,27 @@
 //
 // Steppers
 //
-#define X_STEP_PIN          25
+#define X_STEP_PIN          32
 #define X_DIR_PIN           33
-#define X_ENABLE_PIN       128
+#define X_ENABLE_PIN       130
 
-#define Y_STEP_PIN          16
-#define Y_DIR_PIN            5
-#define Y_ENABLE_PIN       129
+#define Y_STEP_PIN          25
+#define Y_DIR_PIN           26
+#define Y_ENABLE_PIN       128
 
 #define Z_STEP_PIN           2
-#define Z_DIR_PIN            0
-#define Z_ENABLE_PIN       130
+#define Z_DIR_PIN           27
+#define Z_ENABLE_PIN       129
 
-#define E0_STEP_PIN         27
-#define E0_DIR_PIN          26
+#define E0_STEP_PIN         17
+#define E0_DIR_PIN          16
 #define E0_ENABLE_PIN      131
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          39   // Analog Input
-#define TEMP_BED_PIN        36   // Analog Input
+#define TEMP_0_PIN          36   // Analog Input
+#define TEMP_BED_PIN        39   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
@@ -112,6 +112,6 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        32
-#define FAN_PIN              4
-#define HEATER_BED_PIN      17
+#define HEATER_0_PIN        23
+#define FAN_PIN             19
+#define HEATER_BED_PIN      18
