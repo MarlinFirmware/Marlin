@@ -10473,6 +10473,7 @@ inline void gcode_M907() {
       else
         WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
     }
+	
     else {
       if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
         analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0);
