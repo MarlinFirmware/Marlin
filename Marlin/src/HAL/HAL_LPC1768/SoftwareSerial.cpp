@@ -212,7 +212,7 @@ extern "C" void intWrapper() {
 //
 // Constructor
 //
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) :
+SoftwareSerial::SoftwareSerial(pin_t receivePin, pin_t transmitPin, bool inverse_logic /* = false */) :
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
@@ -233,7 +233,7 @@ SoftwareSerial::~SoftwareSerial()
   end();
 }
 
-void SoftwareSerial::setTX(uint8_t tx)
+void SoftwareSerial::setTX(pin_t tx)
 {
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
@@ -246,7 +246,7 @@ void SoftwareSerial::setTX(uint8_t tx)
 
 }
 
-void SoftwareSerial::setRX(uint8_t rx)
+void SoftwareSerial::setRX(pin_t rx)
 {
   pinMode(rx, INPUT_PULLUP); // pullup for normal logic!
   //if (!_inverse_logic)

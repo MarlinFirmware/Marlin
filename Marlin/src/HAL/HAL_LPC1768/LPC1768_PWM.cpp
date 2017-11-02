@@ -90,7 +90,7 @@ typedef struct {            // holds all data needed to control/init one of the 
 
 #define MICRO_MAX 0xffffffff
 
-#define PWM_MAP_INIT_ROW {0, 0xff, 0, 0, 0, 0, MICRO_MAX, 0, 0, 0, 0, 0, 0, 0, 0}
+#define PWM_MAP_INIT_ROW {0, P_NC, 0, 0, 0, 0, MICRO_MAX, 0, 0, 0, 0, 0, 0, 0, 0}
 #define PWM_MAP_INIT {PWM_MAP_INIT_ROW,\
                       PWM_MAP_INIT_ROW,\
                       PWM_MAP_INIT_ROW,\
@@ -234,12 +234,12 @@ typedef struct {                        // status of PWM1 channel
 MR_map map_MR[NUM_PWMS];
 
 void LPC1768_PWM_update_map_MR(void) {
-  map_MR[0] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_4_PWM_channel)  ? 1 : 0),  4, &LPC_PWM1->MR1, 0, 0};
-  map_MR[1] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_11_PWM_channel) ? 1 : 0), 11, &LPC_PWM1->MR2, 0, 0};
-  map_MR[2] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_6_PWM_channel)  ? 1 : 0),  6, &LPC_PWM1->MR3, 0, 0};
-  map_MR[3] = {0, 0,  0, &LPC_PWM1->MR4, 0, 0};
-  map_MR[4] = {0, 0,  0, &LPC_PWM1->MR5, 0, 0};
-  map_MR[5] = {0, 0,  0, &LPC_PWM1->MR6, 0, 0};
+  map_MR[0] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_4_PWM_channel)  ? 1 : 0), P1_18, &LPC_PWM1->MR1, 0, 0};
+  map_MR[1] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_11_PWM_channel) ? 1 : 0), P1_20, &LPC_PWM1->MR2, 0, 0};
+  map_MR[2] = {0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + pin_6_PWM_channel)  ? 1 : 0), P1_21, &LPC_PWM1->MR3, 0, 0};
+  map_MR[3] = {0, 0, P_NC, &LPC_PWM1->MR4, 0, 0};
+  map_MR[4] = {0, 0, P_NC, &LPC_PWM1->MR5, 0, 0};
+  map_MR[5] = {0, 0, P_NC, &LPC_PWM1->MR6, 0, 0};
 }
 
 
@@ -384,6 +384,8 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
       map_MR[pin_4_PWM_channel - 1].PINSEL3_bits =  0;
       map_MR[pin_4_PWM_channel - 1].map_PWM_INT = 0;                // 0 - available for interrupts, 1 - in use by PWM
       break;
+    default:
+      break;
   }
 
   pinMode(pin, INPUT);
@@ -506,4 +508,3 @@ return;
  *             NOTE - PCR must be set before PINSEL
  *          sets the pins controlled by the ISR to their active states
  */
-
