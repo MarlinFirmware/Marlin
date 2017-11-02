@@ -49,15 +49,16 @@ void update_case_light() {
     case_light_brightness = case_light_brightness_sav;  // restore last brightens if this is an S1 arguement
 
   if (case_light_on) {
-    if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
-      analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness );
-    }
-    else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
+    if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+      analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness);
+    else
+      WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
   }
   else {
     if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
-      analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0 );  // turn the light off
-    WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+      analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0);
+    else
+      WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
   }
 }
 
