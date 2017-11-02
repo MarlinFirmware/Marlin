@@ -10468,12 +10468,17 @@ inline void gcode_M907() {
   void update_case_light() {
     pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
     if (case_light_on) {
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
         analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness);
-      }
-      else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
+      else
+        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
     }
-    else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+    else {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0);
+      else
+        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+    }
   }
 #endif // HAS_CASE_LIGHT
 
