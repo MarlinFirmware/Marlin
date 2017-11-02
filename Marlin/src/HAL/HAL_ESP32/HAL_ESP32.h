@@ -36,6 +36,7 @@
 // Types
 // --------------------------------------------------------------------------
 
+typedef int16_t pin_t;
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -75,5 +76,9 @@ void HAL_adc_init(void);
 #define HAL_READ_ADC        HAL_adc_result
 
 void HAL_adc_start_conversion (uint8_t adc_pin);
+
+#define GET_PIN_MAP_PIN(index) index
+#define GET_PIN_MAP_INDEX(pin) pin
+#define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #endif
