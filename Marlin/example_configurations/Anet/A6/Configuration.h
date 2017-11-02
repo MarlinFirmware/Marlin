@@ -1162,16 +1162,16 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
 
   //Anet A6 with new X-Axis
-  //#define Z_SAFE_HOMING_X_POINT 113    // X point for Z homing when homing all axis (G28).
-  //#define Z_SAFE_HOMING_Y_POINT 112    // Y point for Z homing when homing all axis (G28).
+  //#define Z_SAFE_HOMING_X_POINT 113    // X point for Z homing when homing all axes (G28).
+  //#define Z_SAFE_HOMING_Y_POINT 112    // Y point for Z homing when homing all axes (G28).
 
   //Anet A6 with new X-Axis and defined X_HOME_POS -7, Y_HOME_POS -6
-  //#define Z_SAFE_HOMING_X_POINT 107    // X point for Z homing when homing all axis (G28).
-  //#define Z_SAFE_HOMING_Y_POINT 107    // Y point for Z homing when homing all axis (G28).
+  //#define Z_SAFE_HOMING_X_POINT 107    // X point for Z homing when homing all axes (G28).
+  //#define Z_SAFE_HOMING_Y_POINT 107    // Y point for Z homing when homing all axes (G28).
 
 #endif
 
@@ -1711,6 +1711,11 @@
 // Tiny, but very sharp OLED display
 //
 //#define MKS_12864OLED
+
+// Silvergate GLCD controller
+// http://github.com/android444/Silvergate
+//
+//#define SILVER_GATE_GLCD_CONTROLLER
 
 //=============================================================================
 //=============================== Extra Features ==============================

@@ -28,6 +28,13 @@
 #define ABC  3
 #define XYZ  3
 
+#define _XMIN_ 100
+#define _YMIN_ 200
+#define _ZMIN_ 300
+#define _XMAX_ 101
+#define _YMAX_ 201
+#define _ZMAX_ 301
+
 #define FORCE_INLINE __attribute__((always_inline)) inline
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))

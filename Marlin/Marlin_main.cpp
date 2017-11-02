@@ -472,11 +472,14 @@ float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
 #endif
 
 // Software Endstops are based on the configured limits.
-#if HAS_SOFTWARE_ENDSTOPS
-  bool soft_endstops_enabled = true;
-#endif
 float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
+#if HAS_SOFTWARE_ENDSTOPS
+  bool soft_endstops_enabled = true;
+  #if IS_KINEMATIC
+    float soft_endstop_radius, soft_endstop_radius_2;
+  #endif
+#endif
 
 #if FAN_COUNT > 0
   int16_t fanSpeeds[FAN_COUNT] = { 0 };
@@ -562,13 +565,19 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+#if ENABLED(X_DUAL_ENDSTOPS)
+  float x_endstop_adj;                // Initialized by settings.load()
+#endif
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  float y_endstop_adj;                // Initialized by settings.load()
+#endif
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj;
+  float z_endstop_adj;                // Initialized by settings.load()
 #endif
 
 // Extruder offsets
 #if HOTENDS > 1
-  float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()
+  float hotend_offset[XYZ][HOTENDS];  // Initialized by settings.load()
 #endif
 
 #if HAS_Z_SERVO_ENDSTOP
@@ -1129,18 +1138,17 @@ inline void get_serial_commands() {
      */
     if (serial_char == '\n' || serial_char == '\r') {
 
-      serial_comment_mode = false; // end of line == end of comment
+      serial_comment_mode = false;                      // end of line == end of comment
 
-      if (!serial_count) continue; // skip empty lines
+      if (!serial_count) continue;                      // Skip empty lines
 
-      serial_line_buffer[serial_count] = 0; // terminate string
-      serial_count = 0; //reset buffer
+      serial_line_buffer[serial_count] = 0;             // Terminate string
+      serial_count = 0;                                 // Reset buffer
 
       char* command = serial_line_buffer;
 
-      while (*command == ' ') command++; // skip any leading spaces
-      char *npos = (*command == 'N') ? command : NULL, // Require the N parameter to start the line
-           *apos = strchr(command, '*');
+      while (*command == ' ') command++;                // Skip leading spaces
+      char *npos = (*command == 'N') ? command : NULL;  // Require the N parameter to start the line
 
       if (npos) {
 
@@ -1158,15 +1166,14 @@ inline void get_serial_commands() {
           return;
         }
 
+        char *apos = strrchr(command, '*');
         if (apos) {
-          byte checksum = 0, count = 0;
-          while (command[count] != '*') checksum ^= command[count++];
-
+          uint8_t checksum = 0, count = uint8_t(apos - command);
+          while (count) checksum ^= command[--count];
           if (strtol(apos + 1, NULL, 10) != checksum) {
             gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
             return;
           }
-          // if no errors, continue parsing
         }
         else {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
@@ -1174,11 +1181,6 @@ inline void get_serial_commands() {
         }
 
         gcode_LastN = gcode_N;
-        // if no errors, continue parsing
-      }
-      else if (apos) { // No '*' without 'N'
-        gcode_line_error(PSTR(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM), false);
-        return;
       }
 
       // Movement commands alert when stopped
@@ -1458,8 +1460,17 @@ bool get_target_extruder_from_command(const uint16_t code) {
     #endif
 
     #if ENABLED(DELTA)
-      if (axis == Z_AXIS)
-        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+      switch(axis) {
+        case X_AXIS:
+        case Y_AXIS:
+          // Get a minimum radius for clamping
+          soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+          soft_endstop_radius_2 = sq(soft_endstop_radius);
+          break;
+        case Z_AXIS:
+          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+        default: break;
+      }
     #endif
   }
 
@@ -3017,9 +3028,15 @@ static void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
 
-  // Set a flag for Z motor locking
+  // Set flags for X, Y, Z motor locking
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    if (axis == X_AXIS) stepper.set_homing_flag_x(true);
+  #endif
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) stepper.set_homing_flag_y(true);
+  #endif
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+    if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -3061,25 +3078,41 @@ static void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
-  #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) {
-      float adj = FABS(z_endstop_adj);
-      bool lockZ1;
-      if (axis_home_dir > 0) {
-        adj = -adj;
-        lockZ1 = (z_endstop_adj > 0);
+  /**
+   * Home axes that have dual endstops... differently
+   */
+  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    const bool pos_dir = axis_home_dir > 0;
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      if (axis == X_AXIS) {
+        const bool lock_x1 = pos_dir ? (x_endstop_adj > 0) : (x_endstop_adj < 0);
+        const float adj = FABS(x_endstop_adj);
+        if (lock_x1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+        do_homing_move(axis, pos_dir ? -adj : adj);
+        if (lock_x1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
+        stepper.set_homing_flag_x(false);
       }
-      else
-        lockZ1 = (z_endstop_adj < 0);
-
-      if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-
-      // Move to the adjusted endstop height
-      do_homing_move(axis, adj);
-
-      if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-      stepper.set_homing_flag(false);
-    } // Z_AXIS
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      if (axis == Y_AXIS) {
+        const bool lock_y1 = pos_dir ? (y_endstop_adj > 0) : (y_endstop_adj < 0);
+        const float adj = FABS(y_endstop_adj);
+        if (lock_y1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+        do_homing_move(axis, pos_dir ? -adj : adj);
+        if (lock_y1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
+        stepper.set_homing_flag_y(false);
+      }
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      if (axis == Z_AXIS) {
+        const bool lock_z1 = pos_dir ? (z_endstop_adj > 0) : (z_endstop_adj < 0);
+        const float adj = FABS(z_endstop_adj);
+        if (lock_z1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+        do_homing_move(axis, pos_dir ? -adj : adj);
+        if (lock_z1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
+        stepper.set_homing_flag_z(false);
+      }
+    #endif
   #endif
 
   #if IS_SCARA
@@ -3375,6 +3408,12 @@ void gcode_get_destination() {
  ***************** GCode Handlers *****************
  **************************************************/
 
+#if ENABLED(NO_MOTION_BEFORE_HOMING)
+  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+#else
+  #define G0_G1_CONDITION true
+#endif
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -3383,11 +3422,7 @@ inline void gcode_G0_G1(
     bool fast_move=false
   #endif
 ) {
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    if (axis_unhomed_error()) return;
-  #endif
-
-  if (IsRunning()) {
+  if (IsRunning() && G0_G1_CONDITION) {
     gcode_get_destination(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
@@ -5433,7 +5468,7 @@ void home_all_axes() { gcode_G28(true); }
                     dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
       #endif
 
-      for (uint8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] = 0.0;
+      for (uint8_t i = 0; i <= 12; i++) z_at_pt[i] = 0.0;
     
       if (!_0p_calibration) {
     
@@ -5446,7 +5481,7 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         if (_7p_calibration) { // probe extra center points
-          for (int8_t axis = _7p_multi_circle ? COUNT(z_at_pt) - 2 : COUNT(z_at_pt) - 4; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
+          for (int8_t axis = _7p_multi_circle ? 11 : 9; axis > 0; axis -= _7p_multi_circle ? 2 : 4) {
             const float a = RADIANS(180 + 30 * axis), r = delta_calibration_radius * 0.1;
             #if ENABLED(PROBE_MANUALLY)
               z_at_pt[0] += lcd_probe_pt(cos(a) * r, sin(a) * r);
@@ -5461,7 +5496,7 @@ void home_all_axes() { gcode_G28(true); }
           bool zig_zag = true;
           const uint8_t start = _4p_opposite_points ? 3 : 1,
                         step = _4p_calibration ? 4 : _7p_half_circle ? 2 : 1;
-          for (uint8_t axis = start; axis < COUNT(z_at_pt); axis += step) {
+          for (uint8_t axis = start; axis <= 12; axis += step) {
             const float zigadd = (zig_zag ? 0.5 : 0.0),
                         offset_circles = _7p_quadruple_circle ? zigadd + 1.0 :
                                          _7p_triple_circle    ? zigadd + 0.5 :
@@ -5481,14 +5516,14 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         if (_7p_intermed_points) // average intermediates to tower and opposites
-          for (uint8_t axis = 1; axis < COUNT(z_at_pt); axis += 2)
+          for (uint8_t axis = 1; axis <= 12; axis += 2)
             z_at_pt[axis] = (z_at_pt[axis] + (z_at_pt[axis + 1] + z_at_pt[(axis + 10) % 12 + 1]) / 2.0) / 2.0;
 
         float S1 = z_at_pt[0],
               S2 = sq(z_at_pt[0]);
         int16_t N = 1;
         if (!_1p_calibration) // std dev from zero plane
-          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis < COUNT(z_at_pt); axis += (_4p_calibration ? 4 : 2)) {
+          for (uint8_t axis = (_4p_opposite_points ? 3 : 1); axis <= 12; axis += (_4p_calibration ? 4 : 2)) {
             S1 += z_at_pt[axis];
             S2 += sq(z_at_pt[axis]);
             N++;
@@ -5530,7 +5565,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
           delta_endstop_adj[axis] += 1.0;
           switch (axis) {
@@ -5560,7 +5595,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOL(zig_zag == -1 ? "-" : "+");
           SERIAL_EOL();
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
           delta_radius -= 1.0 * zig_zag;
           recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
@@ -5587,7 +5622,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           probe_G33_points(z_at_pt, 3, true, false);
-          for (int8_t i = 0; i < COUNT(z_at_pt); i++) z_at_pt[i] -= z_at_pt_base[i];
+          for (int8_t i = 0; i <= 12; i++) z_at_pt[i] -= z_at_pt_base[i];
           print_G33_results(z_at_pt, true, true);
 
           delta_tower_angle_trim[axis] -= 1.0;
@@ -8769,7 +8804,7 @@ inline void gcode_M204() {
 inline void gcode_M205() {
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('B')) planner.min_segment_time = parser.value_millis();
+  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
   if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
@@ -8894,14 +8929,28 @@ inline void gcode_M205() {
     }
   }
 
-#elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
+
+
+#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   inline void gcode_M666() {
-    if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      if (parser.seen('X')) x_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" X", x_endstop_adj);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      if (parser.seen('Y')) y_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" Y", y_endstop_adj);
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      if (parser.seen('Z')) z_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" Z", z_endstop_adj);
+    #endif
+    SERIAL_EOL();
   }
 
 #endif // !DELTA && Z_DUAL_ENDSTOPS
@@ -10419,12 +10468,17 @@ inline void gcode_M907() {
   void update_case_light() {
     pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
     if (case_light_on) {
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
         analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness);
-      }
-      else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
+      else
+        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
     }
-    else WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+    else {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0);
+      else
+        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
+    }
   }
 #endif // HAS_CASE_LIGHT
 
@@ -11606,7 +11660,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+      #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         case 666: // M666: Set delta or dual endstop adjustment
           gcode_M666();
           break;
@@ -12005,30 +12059,35 @@ void ok_to_send() {
 
   /**
    * Constrain the given coordinates to the software endstops.
-   */
-
-  /**
-   * Constrain the given coordinates to the software endstops.
    *
-   * NOTE: This will only apply to Z on DELTA and SCARA. XY is
-   *       constrained to a circle on these kinematic systems.
+   * For DELTA/SCARA the XY constraint is based on the smallest
+   * radius within the set software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
     if (!soft_endstops_enabled) return;
-    #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-    #endif
-    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #if IS_KINEMATIC
+      const float dist_2 = HYPOT2(target[X_AXIS], target[Y_AXIS]);
+      if (dist_2 > soft_endstop_radius_2) {
+        const float ratio = soft_endstop_radius / SQRT(dist_2); // 200 / 300 = 0.66
+        target[X_AXIS] *= ratio;
+        target[Y_AXIS] *= ratio;
+      }
+    #else
+      #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+      #endif
+      #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      #endif
+      #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+      #endif
+      #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      #endif
     #endif
     #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
     #endif
     #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
@@ -13949,4 +14008,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-
