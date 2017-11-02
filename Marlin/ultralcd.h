@@ -205,4 +205,8 @@ void lcd_reset_status();
   float lcd_probe_pt(const float &lx, const float &ly);
 #endif
 
+#if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+  void lcd_reselect_last_file();
+#endif
+
 #endif // ULTRALCD_H

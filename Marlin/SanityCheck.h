@@ -78,8 +78,6 @@
   #error "FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
   #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
-#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
-  #error "Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2."
 #elif defined(LANGUAGE_INCLUDE)
   #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE. Please update your configuration."
 #elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
@@ -1059,23 +1057,25 @@ static_assert(1 >= 0
 #endif
 
 /**
- * Endstops
+ * Endstop Tests
  */
-#if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _XMAX_, _XMIN_))
- #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-#elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _YMAX_, _YMIN_))
- #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-#elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _ZMAX_, _ZMIN_))
- #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
-#elif ENABLED(Z_DUAL_ENDSTOPS)
-  #if !Z2_USE_ENDSTOP
-    #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
-  #elif Z2_MAX_PIN == 0 && Z2_MIN_PIN == 0
-    #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-  #elif ENABLED(DELTA)
-    #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
-  #endif
-#elif !IS_SCARA
+
+#define _PLUG_UNUSED_TEST(AXIS,PLUG) (DISABLED(USE_##PLUG##MIN_PLUG) && DISABLED(USE_##PLUG##MAX_PLUG) && !(ENABLED(AXIS##_DUAL_ENDSTOPS) && WITHIN(AXIS##2_USE_ENDSTOP, _##PLUG##MAX_, _##PLUG##MIN_)))
+#define _AXIS_PLUG_UNUSED_TEST(AXIS) (_PLUG_UNUSED_TEST(AXIS,X) && _PLUG_UNUSED_TEST(AXIS,Y) && _PLUG_UNUSED_TEST(AXIS,Z))
+
+// At least 3 endstop plugs must be used
+#if _AXIS_PLUG_UNUSED_TEST(X)
+  #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
+#endif
+#if _AXIS_PLUG_UNUSED_TEST(Y)
+  #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
+#endif
+#if _AXIS_PLUG_UNUSED_TEST(Z)
+  #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+#endif
+
+// Delta and Cartesian use 3 homing endstops
+#if !IS_SCARA
   #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
     #error "Enable USE_XMIN_PLUG when homing X to MIN."
   #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
@@ -1084,10 +1084,76 @@ static_assert(1 >= 0
     #error "Enable USE_YMIN_PLUG when homing Y to MIN."
   #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
     #error "Enable USE_YMAX_PLUG when homing Y to MAX."
-  #elif Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
-    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
-    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  #endif
+#endif
+#if Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+  #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+#elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+  #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+#endif
+
+// Dual endstops requirements
+#if ENABLED(X_DUAL_ENDSTOPS)
+  #if !X2_USE_ENDSTOP
+    #error "You must set X2_USE_ENDSTOP with X_DUAL_ENDSTOPS."
+  #elif X2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _X_MIN_."
+  #elif X2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _X_MAX_."
+  #elif X2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _Y_MIN_."
+  #elif X2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _Y_MAX_."
+  #elif X2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _Z_MIN_."
+  #elif X2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _Z_MAX_."
+  #elif !HAS_X2_MIN && !HAS_X2_MAX
+    #error "X2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
+  #elif ENABLED(DELTA)
+    #error "X_DUAL_ENDSTOPS is not compatible with DELTA."
+  #endif
+#endif
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  #if !Y2_USE_ENDSTOP
+    #error "You must set Y2_USE_ENDSTOP with Y_DUAL_ENDSTOPS."
+  #elif Y2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _X_MIN_."
+  #elif Y2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _X_MAX_."
+  #elif Y2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _Y_MIN_."
+  #elif Y2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _Y_MAX_."
+  #elif Y2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _Z_MIN_."
+  #elif Y2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _Z_MAX_."
+  #elif !HAS_Y2_MIN && !HAS_Y2_MAX
+    #error "Y2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
+  #elif ENABLED(DELTA)
+    #error "Y_DUAL_ENDSTOPS is not compatible with DELTA."
+  #endif
+#endif
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  #if !Z2_USE_ENDSTOP
+    #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
+  #elif Z2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _X_MIN_."
+  #elif Z2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _X_MAX_."
+  #elif Z2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _Y_MIN_."
+  #elif Z2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _Y_MAX_."
+  #elif Z2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _Z_MIN_."
+  #elif Z2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _Z_MAX_."
+  #elif !HAS_Z2_MIN && !HAS_Z2_MAX
+    #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
+  #elif ENABLED(DELTA)
+    #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
   #endif
 #endif
 
