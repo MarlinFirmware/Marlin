@@ -80,8 +80,8 @@
 // 3.3V max when defined as an analog input
 //
 
-#define TEMP_0_PIN          0  // A0 (TH1)
-#define TEMP_BED_PIN        1  // A1 (TH2)
+#define TEMP_BED_PIN        0  // A0 (TH1)
+#define TEMP_0_PIN          1  // A1 (TH2)
 #define TEMP_1_PIN          2  // A2 (TH3)
 #define TEMP_2_PIN          3  // A3 (TH4)
 
@@ -127,9 +127,9 @@
 //
 
 #if ENABLED(MK2_MULTIPLEXER)
-  #define E_MUX0_PIN         P0_17   // J7-4
-  #define E_MUX1_PIN         P0_16   // J7-5
-  #define E_MUX2_PIN         P0_15   // J7-6
+  #define E_MUX0_PIN         P1_23   // J8-3
+  #define E_MUX1_PIN         P2_12   // J8-4
+  #define E_MUX2_PIN         P2_11   // J8-5
 #endif
 
 
@@ -155,7 +155,7 @@
   #define LCD_PINS_RS      P0_16  // EXP1.4
   #define LCD_SDSS         P0_28  // EXP2.4
   #define LCD_PINS_ENABLE  P0_18  // EXP1.3
-  #define LCD_PINS_D4      P0_14  // EXP1.5
+  #define LCD_PINS_D4      P0_15  // EXP1.5
 #endif // ULTRA_LCD
 
 //
