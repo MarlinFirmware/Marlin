@@ -20,32 +20,20 @@
  *
  */
 
-#ifdef TARGET_LPC1768
+/**
+ * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ */
 
-#include "../../inc/MarlinConfig.h"
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS GEN L supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#endif
 
-#include "lpc17xx_wdt.h"
-#include "watchdog.h"
+#define BOARD_NAME "MKS GEN L"
 
-void watchdog_init(void) {
-  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
-  WDT_Start(WDT_TIMEOUT);
-}
+//
+// Heaters / Fans
+//
+// Power outputs EFBF or EFBE
+#define MOSFET_D_PIN 7
 
-void HAL_clear_reset_source(void) {
-  WDT_ClrTimeOutFlag();
-}
-
-uint8_t HAL_get_reset_source(void) {
-  if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
-  return RST_POWER_ON;
-}
-
-void watchdog_reset() {
-  WDT_Feed();
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
-  #endif
-}
-
-#endif // TARGET_LPC1768
+#include "pins_RAMPS.h"

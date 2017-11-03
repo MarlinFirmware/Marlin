@@ -94,6 +94,8 @@
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"            // ATmega1280, ATmega2560
+#elif MB(MKS_GEN_L)
+  #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560 (MKS_13)
 #elif MB(FELIX2)
@@ -300,6 +302,8 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_SF)
   #include "pins_RAMPS4DUE.h"
+#elif MB(ARCHIM2)
+  #include "pins_ARCHIM2.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)

@@ -103,6 +103,8 @@ constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) 
 // ******************
 // Runtime pinmapping
 // ******************
+#define P_NC   -1
+
 #if SERIAL_PORT != 3
   #define P0_0   LPC1768_PIN(PORT(0), PIN(0), INTERRUPT(1), PWM(0), ADC_NONE)
   #define P0_1   LPC1768_PIN(PORT(0), PIN(1), INTERRUPT(1), PWM(0), ADC_NONE)
@@ -231,7 +233,7 @@ constexpr pin_t adc_pin_table[] = {
 };
 
 constexpr pin_t analogInputToDigitalPin(const uint8_t p) {
-  return (p < COUNT(adc_pin_table) ? adc_pin_table[p] : -1);
+  return (p < COUNT(adc_pin_table) ? adc_pin_table[p] : P_NC);
 }
 
 constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t p) {

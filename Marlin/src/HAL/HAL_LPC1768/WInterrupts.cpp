@@ -45,7 +45,7 @@ static void __initialize() {
   NVIC_EnableIRQ(EINT3_IRQn);
 }
 
-void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) {
+void attachInterrupt(const pin_t pin, void (*callback)(void), uint32_t mode) {
   static int enabled = 0;
 
   if (!INTERRUPT_PIN(pin)) return;
@@ -66,7 +66,7 @@ void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) 
   GpioEnableInt(myport,mypin,mode);
 }
 
-void detachInterrupt(const uint32_t pin) {
+void detachInterrupt(const pin_t pin) {
   if (!INTERRUPT_PIN(pin)) return;
 
   const uint8_t myport = LPC1768_PIN_PORT(pin),

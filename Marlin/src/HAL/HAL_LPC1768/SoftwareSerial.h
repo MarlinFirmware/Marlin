@@ -48,8 +48,8 @@ class SoftwareSerial : public Stream
 {
 private:
   // per object data
-  uint8_t _receivePin;
-  uint8_t _transmitPin;
+  pin_t _receivePin;
+  pin_t _transmitPin;
 //  uint32_t _receiveBitMask; // for rx interrupts
   uint32_t _receivePort;
   uint32_t _receivePortPin;
@@ -74,8 +74,8 @@ private:
   void recv();
   uint32_t rx_pin_read();
   void tx_pin_write(uint8_t pin_state);
-  void setTX(uint8_t transmitPin);
-  void setRX(uint8_t receivePin);
+  void setTX(pin_t transmitPin);
+  void setRX(pin_t receivePin);
   void setRxIntMsk(bool enable);
 
   // private static method for timing
@@ -84,7 +84,7 @@ private:
 public:
   // public methods
 
-  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
+  SoftwareSerial(pin_t receivePin, pin_t transmitPin, bool inverse_logic = false);
   ~SoftwareSerial();
   void begin(long speed);
   bool listen();
