@@ -20,7 +20,7 @@
  *
  */
 
-#if !defined(__AVR_ATmega1281__) && !defined(__AVR_ATmega2561__) 
+#if !defined(__AVR_ATmega1281__) && !defined(__AVR_ATmega2561__)
   #error Oops!  Make sure you have 'Silvergate' selected from the 'Tools -> Boards' menu.
 #endif
 
@@ -71,7 +71,7 @@
 #define TEMP_BED_PIN        6
 
 #if ENABLED(DOGLCD)
-  #if ENABLED(U8GLIB_ST7920)    // SPI GLCD 12864 ST7920 
+  #if ENABLED(U8GLIB_ST7920)    // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS    30
     #define LCD_PINS_ENABLE 20
     #define LCD_PINS_D4    25
@@ -80,7 +80,7 @@
     #define BTN_EN2        22
     #define BTN_ENC        24
     #define LCD_BACKLIGHT_PIN  6
-    #if ENABLED(SILVER_GATE_GLCD_CONTROLLER) 
+    #if ENABLED(SILVER_GATE_GLCD_CONTROLLER)
       #define KILL_PIN     21
       #define HOME_PIN     28
     #endif
@@ -88,7 +88,7 @@
 #endif
 
 #define SD_DETECT_PIN      15
- 
+
 #define STAT_LED_RED_PIN   23
 #define STAT_LED_BLUE_PIN  26
 #define CASE_LIGHT_PIN     51

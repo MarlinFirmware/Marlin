@@ -50,8 +50,8 @@ enum CalEnum {                               // the 7 main calibration points - 
   _CA      = __C + _7P_STEP,
 };
 
-#define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N) 
-#define F_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N) 
+#define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N)
+#define F_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N)
 #define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN+0.9999; VAR-=N)
 #define LOOP_CAL_ALL(VAR) LOOP_CAL_PT(VAR, CEN, 1)
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
@@ -189,8 +189,8 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
                              _7p_8_intermediates  ? _7P_STEP /  9.0 : //  9r * 6 + 10c = 64
                              _7p_6_intermediates  ? _7P_STEP /  7.0 : //  7r * 6 +  7c = 49
                              _7p_4_intermediates  ? _7P_STEP /  5.0 : //  5r * 6 +  6c = 36
-                             _7p_2_intermediates  ? _7P_STEP /  3.0 : //  3r * 6 +  7c = 25 
-                             _7p_1_intermediates  ? _7P_STEP /  2.0 : //  2r * 6 +  4c = 16 
+                             _7p_2_intermediates  ? _7P_STEP /  3.0 : //  3r * 6 +  7c = 25
+                             _7p_1_intermediates  ? _7P_STEP /  2.0 : //  2r * 6 +  4c = 16
                              _7p_no_intermediates ? _7P_STEP :        //  1r * 6 +  3c = 9
                              _4P_STEP;                                // .5r * 6 +  1c = 4
       bool zig_zag = true;
