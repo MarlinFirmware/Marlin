@@ -53,6 +53,7 @@
     // this helps to implement ADC_KEYPAD menus
     #define ENCODER_PULSES_PER_STEP 1
     #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define ENCODER_FEEDRATE_DEADZONE 2
     #define REVERSE_MENU_DIRECTION
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
