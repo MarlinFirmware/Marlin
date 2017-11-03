@@ -229,13 +229,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           max = 0, min = 10000;
 
     #if WATCH_THE_BED || WATCH_HOTENDS
-      const float watch_temp_target =
+      const float watch_temp_target = temp -
         #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? temp - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1) : temp - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
+          (hotend < 0 ? (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1) : (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))
         #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          temp - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)
+          (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)
         #else
-          temp - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
+          (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
         #endif
       ;
       const int8_t watch_temp_period =
