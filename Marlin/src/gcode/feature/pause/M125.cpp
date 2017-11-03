@@ -68,6 +68,8 @@ void GcodeSuite::M125() {
   const float x_pos = parser.linearval('X')
     #ifdef PAUSE_PARK_X_POS
       + PAUSE_PARK_X_POS
+    #else
+      + current_position[X_AXIS]
     #endif
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       + (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0)
@@ -76,6 +78,8 @@ void GcodeSuite::M125() {
   const float y_pos = parser.linearval('Y')
     #ifdef PAUSE_PARK_Y_POS
       + PAUSE_PARK_Y_POS
+    #else
+      + current_position[Y_AXIS]
     #endif
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       + (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0)
