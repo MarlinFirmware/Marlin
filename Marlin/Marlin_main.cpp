@@ -5387,9 +5387,9 @@ void home_all_axes() { gcode_G28(true); }
       __C      = _BC + _7P_STEP,
       _CA      = __C + _7P_STEP,
     };
-    
-    #define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N) 
-    #define F_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N) 
+
+    #define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N)
+    #define F_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR<NPP+0.9999; VAR+=N)
     #define I_LOOP_CAL_PT(VAR, S, N) for (float VAR=S; VAR>CEN+0.9999; VAR-=N)
     #define LOOP_CAL_ALL(VAR) LOOP_CAL_PT(VAR, CEN, 1)
     #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
@@ -5494,9 +5494,9 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
           LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
-    
+
       if (!_0p_calibration) {
-    
+
         if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
           #if ENABLED(PROBE_MANUALLY)
             z_at_pt[CEN] += lcd_probe_pt(0, 0);
@@ -5527,8 +5527,8 @@ void home_all_axes() { gcode_G28(true); }
                                  _7p_8_intermediates  ? _7P_STEP /  9.0 : //  9r * 6 + 10c = 64
                                  _7p_6_intermediates  ? _7P_STEP /  7.0 : //  7r * 6 +  7c = 49
                                  _7p_4_intermediates  ? _7P_STEP /  5.0 : //  5r * 6 +  6c = 36
-                                 _7p_2_intermediates  ? _7P_STEP /  3.0 : //  3r * 6 +  7c = 25 
-                                 _7p_1_intermediates  ? _7P_STEP /  2.0 : //  2r * 6 +  4c = 16 
+                                 _7p_2_intermediates  ? _7P_STEP /  3.0 : //  3r * 6 +  7c = 25
+                                 _7p_1_intermediates  ? _7P_STEP /  2.0 : //  2r * 6 +  4c = 16
                                  _7p_no_intermediates ? _7P_STEP :        //  1r * 6 +  3c = 9
                                  _4P_STEP;                                // .5r * 6 +  1c = 4
           bool zig_zag = true;
@@ -5576,7 +5576,7 @@ void home_all_axes() { gcode_G28(true); }
           return round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
         }
       }
-    
+
       return 0.00001;
     }
 
@@ -5586,7 +5586,7 @@ void home_all_axes() { gcode_G28(true); }
         float z_at_pt[NPP + 1]      = { 0.0 },
               z_at_pt_base[NPP + 1] = { 0.0 },
               z_temp, h_fac = 0.0, r_fac = 0.0, a_fac = 0.0, norm = 0.8;
-    
+
         #define ZP(N,I) ((N) * z_at_pt[I])
         #define Z06(I)  ZP(6, I)
         #define Z03(I)  ZP(3, I)
