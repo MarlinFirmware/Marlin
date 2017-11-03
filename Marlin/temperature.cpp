@@ -429,6 +429,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         #if WATCH_THE_BED || WATCH_HOTENDS
           if (!heated && input > next_watch_temp) {
+            if (input > watch_temp_target) heated = true;
             next_watch_temp = input + hysteresis;
             temp_change_ms = ms + watch_temp_period * 1000UL;
           }
