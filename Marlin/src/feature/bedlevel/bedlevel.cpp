@@ -256,18 +256,18 @@ void reset_bed_level() {
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
-  void _manual_goto_xy(const float &x, const float &y) {
+  void _manual_goto_xy(const float &rx, const float &ry) {
     const float old_feedrate_mm_s = feedrate_mm_s;
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
       feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MANUAL_PROBE_HEIGHT);
+      current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
       line_to_current_position();
     #endif
 
     feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-    current_position[X_AXIS] = LOGICAL_X_POSITION(x);
-    current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
+    current_position[X_AXIS] = rx;
+    current_position[Y_AXIS] = ry;
     line_to_current_position();
 
     #if MANUAL_PROBE_HEIGHT > 0

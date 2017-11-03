@@ -240,9 +240,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           switch (dual_x_carriage_mode) {
             case DXC_FULL_CONTROL_MODE:
               // New current position is the position of the activated extruder
-              current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
+              current_position[X_AXIS] = inactive_extruder_x_pos;
               // Save the inactive extruder's position (from the old current_position)
-              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
+              inactive_extruder_x_pos = destination[X_AXIS];
               break;
             case DXC_AUTO_PARK_MODE:
               // record raised toolhead position for use by unpark
@@ -260,10 +260,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               active_extruder_parked = (active_extruder == 0);
 
               if (active_extruder_parked)
-                current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
+                current_position[X_AXIS] = inactive_extruder_x_pos;
               else
                 current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
+              inactive_extruder_x_pos = destination[X_AXIS];
               extruder_duplication_enabled = false;
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) {

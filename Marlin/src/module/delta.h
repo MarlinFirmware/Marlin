@@ -47,7 +47,7 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
 /**
  * Delta Inverse Kinematics
  *
- * Calculate the tower positions for a given logical
+ * Calculate the tower positions for a given machine
  * position, storing the result in the delta[] array.
  *
  * This is an expensive calculation, requiring 3 square
@@ -88,16 +88,7 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
   delta[C_AXIS] = DELTA_Z(C_AXIS); \
 }while(0)
 
-#define DELTA_LOGICAL_IK() do {      \
-  const float raw[XYZ] = {           \
-    RAW_X_POSITION(logical[X_AXIS]), \
-    RAW_Y_POSITION(logical[Y_AXIS]), \
-    RAW_Z_POSITION(logical[Z_AXIS])  \
-  };                                 \
-  DELTA_RAW_IK();                    \
-}while(0)
-
-void inverse_kinematics(const float logical[XYZ]);
+void inverse_kinematics(const float raw[XYZ]);
 
 /**
  * Calculate the highest Z position where the

@@ -365,10 +365,10 @@ void safe_delay(millis_t ms) {
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
-        float lz = current_position[Z_AXIS];
-        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
+        float rz = current_position[Z_AXIS];
+        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], rz);
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", lz);
+        SERIAL_ECHOPAIR("MBL Adjustment Z", rz);
       }
       else
         SERIAL_ECHOPGM(" (disabled)");

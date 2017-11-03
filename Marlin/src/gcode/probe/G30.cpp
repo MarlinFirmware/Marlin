@@ -42,7 +42,7 @@ void GcodeSuite::G30() {
   const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
               ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-  if (!position_is_reachable_by_probe_xy(xpos, ypos)) return;
+  if (!position_is_reachable_by_probe(xpos, ypos)) return;
 
   // Disable leveling so the planner won't mess with us
   #if HAS_LEVELING

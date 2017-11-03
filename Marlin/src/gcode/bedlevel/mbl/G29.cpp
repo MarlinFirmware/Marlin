@@ -46,7 +46,7 @@ void mesh_probing_done() {
   gcode.home_all_axes();
   set_bed_leveling_enabled(true);
   #if ENABLED(MESH_G28_REST_ORIGIN)
-    current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
+    current_position[Z_AXIS] = Z_MIN_POS;
     set_destination_from_current();
     line_to_destination(homing_feedrate(Z_AXIS));
     stepper.synchronize();
@@ -139,7 +139,7 @@ void GcodeSuite::G29() {
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+        current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         stepper.synchronize();
 

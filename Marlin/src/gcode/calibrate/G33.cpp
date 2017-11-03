@@ -459,7 +459,7 @@ void GcodeSuite::G33() {
     LOOP_CAL_RAD(axis) {
       const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                   r = delta_calibration_radius * (1 + (_7p_9_centre ? 0.1 : 0.0));
-      if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
+      if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
         SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
         return;
       }
