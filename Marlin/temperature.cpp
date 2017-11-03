@@ -220,7 +220,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
     int cycles = 0;
     bool heating = true;
 
-    millis_t temp_ms = millis(), t1 = temp_ms, t2 = temp_ms;
+    millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
     long t_high = 0, t_low = 0;
 
     long bias, d;
@@ -256,13 +256,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           TEMP_HYSTERESIS
         #endif
       ;
-      millis_t temp_change_ms = temp_ms + watch_temp_period * 1000UL;
+      millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
       float next_watch_temp = 0.0;
       bool heated = false;
     #endif
 
     #if HAS_AUTO_FAN
-      next_auto_fan_check_ms = temp_ms + 2500UL;
+      next_auto_fan_check_ms = next_temp_ms + 2500UL;
     #endif
 
     #if ENABLED(PIDTEMP)
@@ -419,13 +419,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
         break;
       }
       // Every 2 seconds...
-      if (ELAPSED(ms, temp_ms)) {
+      if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
           print_heaterstates();
           SERIAL_EOL();
         #endif
 
-        temp_ms = ms + 2000UL;
+        next_temp_ms = ms + 2000UL;
 
         #if WATCH_THE_BED || WATCH_HOTENDS
           if (!heated && input > next_watch_temp) {
