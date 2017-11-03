@@ -4338,9 +4338,7 @@ void kill_screen(const char* lcd_msg) {
 
     inline bool handle_adc_keypad() {
       #define ADC_MIN_KEY_DELAY 100
-      static uint8_t adc_steps = 0;
       if (buttons_reprapworld_keypad) {
-        if (adc_steps < 20) ++adc_steps;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         if (encoderDirection == -1) { // side effect which signals we are inside a menu
           if      (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)  encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
@@ -4350,9 +4348,8 @@ void kill_screen(const char* lcd_msg) {
         }
         else {
           if (buttons_reprapworld_keypad & (EN_REPRAPWORLD_KEYPAD_DOWN|EN_REPRAPWORLD_KEYPAD_UP|EN_REPRAPWORLD_KEYPAD_RIGHT)) {
-            const int8_t step = adc_steps > 19 ? 100 : adc_steps > 10 ? 10 : 1;
-                 if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)  encoderPosition += ENCODER_PULSES_PER_STEP * step;
-            else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)    encoderPosition -= ENCODER_PULSES_PER_STEP * step;
+                 if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)  encoderPosition += ENCODER_PULSES_PER_STEP;
+            else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)    encoderPosition -= ENCODER_PULSES_PER_STEP;
             else if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT) encoderPosition = 0;
           }
         }
@@ -4363,8 +4360,6 @@ void kill_screen(const char* lcd_msg) {
         next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
         return true;
       }
-      else if (!thermalManager.current_ADCKey_raw)
-        adc_steps = 0; // reset stepping acceleration
 
       return false;
     }
