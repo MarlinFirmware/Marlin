@@ -816,22 +816,10 @@ void setup() {
 
   lcd_init();
 
-  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
-    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
-  #endif
-
   #if ENABLED(SHOW_BOOTSCREEN)
-    #if ENABLED(DOGLCD)                           // On DOGM the first bootscreen is already drawn
-      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);    // Custom boot screen pause
-        lcd_bootscreen();                         // Show Marlin boot screen
-      #endif
-      safe_delay(BOOTSCREEN_TIMEOUT);             // Pause
-    #elif ENABLED(ULTRA_LCD)
-      lcd_bootscreen();
-      #if DISABLED(SDSUPPORT)
+    lcd_bootscreen();
+    #if ENABLED(ULTRA_LCD) && DISABLED(SDSUPPORT)
         lcd_init();
-      #endif
     #endif
   #endif
 
