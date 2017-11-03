@@ -96,10 +96,10 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         10   // D10 PB19 THERM AN1
-#define TEMP_1_PIN          9   // D9 PB18 THERM AN2
-#define TEMP_2_PIN          8   // D8 PB17 THERM AN4
-#define TEMP_BED_PIN       11   // D11 PB20 THERM AN3
+#define TEMP_0_PIN         10   // D10 PB19 THERM AN1 *
+#define TEMP_1_PIN          9   // D9 PB18 THERM AN2 *
+#define TEMP_2_PIN          8   // D8 PB17 THERM AN4 *
+#define TEMP_BED_PIN       11   // D11 PB20 THERM AN3 *
 
 //
 // Heaters / Fans
@@ -118,7 +118,7 @@
 
 #if ENABLED(ULTRA_LCD)
   #if ENABLED(NEWPANEL)
-    #define BEEPER         23   // D24 PA15_CTS1
+    #define BEEPER_PIN     23   // D24 PA15_CTS1
     #define LCD_PINS_RS    17   // D17 PA12_RXD1
     #define LCD_PINS_ENABLE 24  // D23 PA14_RTS1
     #define LCD_PINS_D4    69   // D69 PA0_CANTX0
