@@ -125,10 +125,10 @@
                   destination[E_AXIS]
                 };
 
-    const int cell_start_xi = get_cell_index_x(RAW_X_POSITION(start[X_AXIS])),
-              cell_start_yi = get_cell_index_y(RAW_Y_POSITION(start[Y_AXIS])),
-              cell_dest_xi  = get_cell_index_x(RAW_X_POSITION(end[X_AXIS])),
-              cell_dest_yi  = get_cell_index_y(RAW_Y_POSITION(end[Y_AXIS]));
+    const int cell_start_xi = get_cell_index_x(start[X_AXIS]),
+              cell_start_yi = get_cell_index_y(start[Y_AXIS]),
+              cell_dest_xi  = get_cell_index_x(end[X_AXIS]),
+              cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
 
     if (g26_debug_flag) {
       SERIAL_ECHOPAIR(" ubl.line_to_destination(xe=", end[X_AXIS]);
@@ -173,7 +173,7 @@
        * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
        */
 
-      const float xratio = (RAW_X_POSITION(end[X_AXIS]) - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST));
+      const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST));
 
       float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                 (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
@@ -185,7 +185,7 @@
       // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
-      const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
+      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
       float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
@@ -261,7 +261,7 @@
       current_yi += down_flag;  // Line is heading down, we just want to go to the bottom
       while (current_yi != cell_dest_yi + down_flag) {
         current_yi += dyi;
-        const float next_mesh_line_y = LOGICAL_Y_POSITION(mesh_index_to_ypos(current_yi));
+        const float next_mesh_line_y = mesh_index_to_ypos(current_yi);
 
         /**
          * if the slope of the line is infinite, we won't do the calculations
@@ -282,7 +282,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float y = LOGICAL_Y_POSITION(mesh_index_to_ypos(current_yi));
+        const float y = mesh_index_to_ypos(current_yi);
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -331,7 +331,7 @@
                                 // edge of this cell for the first move.
       while (current_xi != cell_dest_xi + left_flag) {
         current_xi += dxi;
-        const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_xpos(current_xi)),
+        const float next_mesh_line_x = mesh_index_to_xpos(current_xi),
                     y = m * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
 
         float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi)
@@ -346,7 +346,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float x = LOGICAL_X_POSITION(mesh_index_to_xpos(current_xi));
+        const float x = mesh_index_to_xpos(current_xi);
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -396,8 +396,8 @@
 
     while (xi_cnt > 0 || yi_cnt > 0) {
 
-      const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_xpos(current_xi + dxi)),
-                  next_mesh_line_y = LOGICAL_Y_POSITION(mesh_index_to_ypos(current_yi + dyi)),
+      const float next_mesh_line_x = mesh_index_to_xpos(current_xi + dxi),
+                  next_mesh_line_y = mesh_index_to_ypos(current_yi + dyi),
                   y = m * next_mesh_line_x + c,   // Calculate Y at the next X mesh line
                   x = (next_mesh_line_y - c) / m; // Calculate X at the next Y mesh line
                                                   // (No need to worry about m being zero.
@@ -489,7 +489,7 @@
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call _buffer_line directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void _O2 ubl_buffer_segment_raw( float rx, float ry, float rz, float le, float fr ) {
+    inline void _O2 ubl_buffer_segment_raw( float rx, float ry, float rz, float e, float fr ) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
@@ -505,14 +505,11 @@
                                          - HYPOT2( delta_tower[C_AXIS][X_AXIS] - rx,
                                                    delta_tower[C_AXIS][Y_AXIS] - ry ));
 
-        planner._buffer_line(delta_A, delta_B, delta_C, le, fr, active_extruder);
+        planner._buffer_line(delta_A, delta_B, delta_C, e, fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
-        const float lseg[XYZ] = { LOGICAL_X_POSITION(rx),
-                                  LOGICAL_Y_POSITION(ry),
-                                  LOGICAL_Z_POSITION(rz)
-                                };
+        const float lseg[XYZ] = { rx, ry, rz };
 
         inverse_kinematics(lseg); // this writes delta[ABC] from lseg[XYZ]
                                   // should move the feedrate scaling to scara inverse_kinematics
@@ -523,17 +520,13 @@
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
 
-        planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], le, s_feedrate, active_extruder);
+        planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], e, s_feedrate, active_extruder);
 
       #else // CARTESIAN
 
         // Cartesian _buffer_line seems to take LOGICAL, not RAW coordinates
 
-        const float lx = LOGICAL_X_POSITION(rx),
-                    ly = LOGICAL_Y_POSITION(ry),
-                    lz = LOGICAL_Z_POSITION(rz);
-
-        planner._buffer_line(lx, ly, lz, le, fr, active_extruder);
+        planner._buffer_line(rx, ry, rz, e, fr, active_extruder);
 
       #endif
 
@@ -546,15 +539,15 @@
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
-    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float ltarget[XYZE], const float &feedrate) {
+    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate) {
 
-      if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS]))  // fail if moving outside reachable boundary
+      if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate
 
-      const float tot_dx = ltarget[X_AXIS] - current_position[X_AXIS],
-                  tot_dy = ltarget[Y_AXIS] - current_position[Y_AXIS],
-                  tot_dz = ltarget[Z_AXIS] - current_position[Z_AXIS],
-                  tot_de = ltarget[E_AXIS] - current_position[E_AXIS];
+      const float tot_dx = rtarget[X_AXIS] - current_position[X_AXIS],
+                  tot_dy = rtarget[Y_AXIS] - current_position[Y_AXIS],
+                  tot_dz = rtarget[Z_AXIS] - current_position[Z_AXIS],
+                  tot_de = rtarget[E_AXIS] - current_position[E_AXIS];
 
       const float cartesian_xy_mm = HYPOT(tot_dx, tot_dy);  // total horizontal xy distance
 
@@ -584,14 +577,14 @@
       // Note that E segment distance could vary slightly as z mesh height
       // changes for each segment, but small enough to ignore.
 
-      float seg_rx = RAW_X_POSITION(current_position[X_AXIS]),
-            seg_ry = RAW_Y_POSITION(current_position[Y_AXIS]),
-            seg_rz = RAW_Z_POSITION(current_position[Z_AXIS]),
+      float seg_rx = current_position[X_AXIS],
+            seg_ry = current_position[Y_AXIS],
+            seg_rz = current_position[Z_AXIS],
             seg_le = current_position[E_AXIS];
 
       const bool above_fade_height = (
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          planner.z_fade_height != 0 && planner.z_fade_height < RAW_Z_POSITION(ltarget[Z_AXIS])
+          planner.z_fade_height != 0 && planner.z_fade_height < rtarget[Z_AXIS]
         #else
           false
         #endif
@@ -599,7 +592,7 @@
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
 
-      if (!planner.leveling_active || !planner.leveling_active_at_z(ltarget[Z_AXIS])) {   // no mesh leveling
+      if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling
 
         do {
 
@@ -609,13 +602,13 @@
             seg_rz += seg_dz;
             seg_le += seg_de;
           } else {              // last segment, use exact destination
-            seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
-            seg_ry = RAW_Y_POSITION(ltarget[Y_AXIS]);
-            seg_rz = RAW_Z_POSITION(ltarget[Z_AXIS]);
-            seg_le = ltarget[E_AXIS];
+            seg_rx = rtarget[X_AXIS];
+            seg_ry = rtarget[Y_AXIS];
+            seg_rz = rtarget[Z_AXIS];
+            seg_le = rtarget[E_AXIS];
           }
 
-          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz, seg_le, feedrate );
+          ubl_buffer_segment_raw(seg_rx, seg_ry, seg_rz, seg_le, feedrate);
 
         } while (segments);
 
@@ -625,7 +618,7 @@
       // Otherwise perform per-segment leveling
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = planner.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+        const float fade_scaling_factor = planner.fade_scaling_factor_for_z(rtarget[Z_AXIS]);
       #else
         constexpr float fade_scaling_factor = 1.0;
       #endif
@@ -690,16 +683,16 @@
 
           float z_cxcy = (z_cxy0 + z_cxym * cy) * fade_scaling_factor; // interpolated mesh z height along cx at cy, scaled for fade
 
-          if (--segments == 0) {                    // if this is last segment, use ltarget for exact
-            seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
-            seg_ry = RAW_Y_POSITION(ltarget[Y_AXIS]);
-            seg_rz = RAW_Z_POSITION(ltarget[Z_AXIS]);
-            seg_le = ltarget[E_AXIS];
+          if (--segments == 0) {                    // if this is last segment, use rtarget for exact
+            seg_rx = rtarget[X_AXIS];
+            seg_ry = rtarget[Y_AXIS];
+            seg_rz = rtarget[Z_AXIS];
+            seg_le = rtarget[E_AXIS];
           }
 
-          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz + z_cxcy, seg_le, feedrate );
+          ubl_buffer_segment_raw(seg_rx, seg_ry, seg_rz + z_cxcy, seg_le, feedrate);
 
-          if (segments == 0 )                       // done with last segment
+          if (segments == 0)                        // done with last segment
             return false;                           // did not set_current_from_destination()
 
           seg_rx += seg_dx;

@@ -202,7 +202,7 @@ void lcd_reset_status();
 #endif
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-  float lcd_probe_pt(const float &lx, const float &ly);
+  float lcd_probe_pt(const float &rx, const float &ry);
 #endif
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)

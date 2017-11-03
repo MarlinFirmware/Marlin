@@ -370,7 +370,7 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 
 /**
  * Cartesian Current Position
- *   Used to track the logical position as moves are queued.
+ *   Used to track the native machine position as moves are queued.
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
@@ -1367,7 +1367,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
 
   static float x_home_pos(const int extruder) {
     if (extruder == 0)
-      return LOGICAL_X_POSITION(base_home_pos(X_AXIS));
+      return base_home_pos(X_AXIS);
     else
       /**
        * In dual carriage mode the extruder offset provides an override of the
@@ -1375,7 +1375,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
        * This allows soft recalibration of the second extruder home position
        * without firmware reflash (through the M218 command).
        */
-      return LOGICAL_X_POSITION(hotend_offset[X_AXIS][1] > 0 ? hotend_offset[X_AXIS][1] : X2_HOME_POS);
+      return hotend_offset[X_AXIS][1] > 0 ? hotend_offset[X_AXIS][1] : X2_HOME_POS;
   }
 
   static int x_home_dir(const int extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
@@ -1437,12 +1437,6 @@ bool get_target_extruder_from_command(const uint16_t code) {
           soft_endstop_max[axis] = base_max_pos(axis) + offs;
         }
       }
-    #elif ENABLED(DELTA)
-      soft_endstop_min[axis] = base_min_pos(axis) + (axis == Z_AXIS ? 0 : offs);
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
-    #else
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1486,7 +1480,6 @@ bool get_target_extruder_from_command(const uint16_t code) {
    * call sync_plan_position soon after this.
    */
   static void set_home_offset(const AxisEnum axis, const float v) {
-    current_position[axis] += v - home_offset[axis];
     home_offset[axis] = v;
     update_software_endstops(axis);
   }
@@ -1540,8 +1533,11 @@ static void set_axis_is_at_home(const AxisEnum axis) {
      */
     if (axis == X_AXIS || axis == Y_AXIS) {
 
-      float homeposition[XYZ];
-      LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos((AxisEnum)i), i);
+      float homeposition[XYZ] = {
+        base_home_pos(X_AXIS),
+        base_home_pos(Y_AXIS),
+        base_home_pos(Z_AXIS)
+      };
 
       // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
       // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
@@ -1556,7 +1552,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
       // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
       // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
 
-      current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
+      current_position[axis] = cartes[axis];
 
       /**
        * SCARA home positions are based on configuration since the actual
@@ -1568,7 +1564,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     else
   #endif
   {
-    current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis);
+    current_position[axis] = base_home_pos(axis);
   }
 
   /**
@@ -1679,16 +1675,16 @@ inline void set_destination_from_current() { COPY(destination, current_position)
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(const float &lx, const float &ly, const float &lz, const float &fr_mm_s/*=0.0*/) {
+void do_blocking_move_to(const float &rx, const float &ry, const float &rz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, lx, ly, lz);
+    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, LOGICAL_X_POSITION(rx), LOGICAL_Y_POSITION(ry), LOGICAL_Z_POSITION(rz));
   #endif
 
   #if ENABLED(DELTA)
 
-    if (!position_is_reachable_xy(lx, ly)) return;
+    if (!position_is_reachable(rx, ry)) return;
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
@@ -1700,10 +1696,10 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
     // when in the danger zone
     if (current_position[Z_AXIS] > delta_clip_start_height) {
-      if (lz > delta_clip_start_height) {   // staying in the danger zone
-        destination[X_AXIS] = lx;           // move directly (uninterpolated)
-        destination[Y_AXIS] = ly;
-        destination[Z_AXIS] = lz;
+      if (rz > delta_clip_start_height) {   // staying in the danger zone
+        destination[X_AXIS] = rx;           // move directly (uninterpolated)
+        destination[Y_AXIS] = ry;
+        destination[Z_AXIS] = rz;
         prepare_uninterpolated_move_to_destination(); // set_current_from_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
@@ -1719,23 +1715,23 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
       }
     }
 
-    if (lz > current_position[Z_AXIS]) {    // raising?
-      destination[Z_AXIS] = lz;
+    if (rz > current_position[Z_AXIS]) {    // raising?
+      destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination();   // set_current_from_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
     }
 
-    destination[X_AXIS] = lx;
-    destination[Y_AXIS] = ly;
+    destination[X_AXIS] = rx;
+    destination[Y_AXIS] = ry;
     prepare_move_to_destination();         // set_current_from_destination
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
     #endif
 
-    if (lz < current_position[Z_AXIS]) {    // lowering?
-      destination[Z_AXIS] = lz;
+    if (rz < current_position[Z_AXIS]) {    // lowering?
+      destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination();   // set_current_from_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
@@ -1744,44 +1740,44 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
 
   #elif IS_SCARA
 
-    if (!position_is_reachable_xy(lx, ly)) return;
+    if (!position_is_reachable(rx, ry)) return;
 
     set_destination_from_current();
 
     // If Z needs to raise, do it before moving XY
-    if (destination[Z_AXIS] < lz) {
-      destination[Z_AXIS] = lz;
+    if (destination[Z_AXIS] < rz) {
+      destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
     }
 
-    destination[X_AXIS] = lx;
-    destination[Y_AXIS] = ly;
+    destination[X_AXIS] = rx;
+    destination[Y_AXIS] = ry;
     prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
 
     // If Z needs to lower, do it after moving XY
-    if (destination[Z_AXIS] > lz) {
-      destination[Z_AXIS] = lz;
+    if (destination[Z_AXIS] > rz) {
+      destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
     }
 
   #else
 
     // If Z needs to raise, do it before moving XY
-    if (current_position[Z_AXIS] < lz) {
+    if (current_position[Z_AXIS] < rz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = lz;
+      current_position[Z_AXIS] = rz;
       line_to_current_position();
     }
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
-    current_position[X_AXIS] = lx;
-    current_position[Y_AXIS] = ly;
+    current_position[X_AXIS] = rx;
+    current_position[Y_AXIS] = ry;
     line_to_current_position();
 
     // If Z needs to lower, do it after moving XY
-    if (current_position[Z_AXIS] > lz) {
+    if (current_position[Z_AXIS] > rz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = lz;
+      current_position[Z_AXIS] = rz;
       line_to_current_position();
     }
 
@@ -1795,14 +1791,14 @@ void do_blocking_move_to(const float &lx, const float &ly, const float &lz, cons
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
   #endif
 }
-void do_blocking_move_to_x(const float &lx, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(lx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
+void do_blocking_move_to_x(const float &rx, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(rx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
-void do_blocking_move_to_z(const float &lz, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], lz, fr_mm_s);
+void do_blocking_move_to_z(const float &rz, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
 }
-void do_blocking_move_to_xy(const float &lx, const float &ly, const float &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(lx, ly, current_position[Z_AXIS], fr_mm_s);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(rx, ry, current_position[Z_AXIS], fr_mm_s);
 }
 
 //
@@ -1916,8 +1912,8 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float logical[XYZ], const float &fr_mm_s) {
-    do_blocking_move_to(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], fr_mm_s);
+  FORCE_INLINE void do_blocking_move_to(const float raw[XYZ], const float &fr_mm_s) {
+    do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
   }
 
   void run_deploy_moves_script() {
@@ -2376,7 +2372,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
+    return current_position[Z_AXIS] + zprobe_zoffset
       #if ENABLED(DELTA)
         + home_offset[Z_AXIS] // Account for delta height adjustment
       #endif
@@ -2392,22 +2388,22 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t verbose_level, const bool printable=true) {
+  float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool printable=true) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR(">>> probe_pt(", lx);
-        SERIAL_ECHOPAIR(", ", ly);
+        SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
+        SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
         SERIAL_ECHOPAIR(", ", stow ? "" : "no ");
         SERIAL_ECHOLNPGM("stow)");
         DEBUG_POS("", current_position);
       }
     #endif
 
-    const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     if (printable
-      ? !position_is_reachable_xy(nx, ny)
-      : !position_is_reachable_by_probe_xy(lx, ly)
+      ? !position_is_reachable(nx, ny)
+      : !position_is_reachable_by_probe(rx, ry)
     ) return NAN;
 
 
@@ -2446,9 +2442,9 @@ static void clean_up_after_endstop_or_probe_move() {
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
-      SERIAL_PROTOCOL_F(lx, 3);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 3);
       SERIAL_PROTOCOLPGM(" Y: ");
-      SERIAL_PROTOCOL_F(ly, 3);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 3);
       SERIAL_PROTOCOLPGM(" Z: ");
       SERIAL_PROTOCOL_F(measured_z, 3);
       SERIAL_EOL();
@@ -3351,7 +3347,7 @@ static void homeaxis(const AxisEnum axis) {
 void gcode_get_destination() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i]))
-      destination[i] = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+      destination[i] = LOGICAL_TO_NATIVE(parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0), i);
     else
       destination[i] = current_position[i];
   }
@@ -3476,7 +3472,7 @@ inline void gcode_G0_G1(
  */
 #if ENABLED(ARC_SUPPORT)
 
-  inline void gcode_G2_G3(bool clockwise) {
+  inline void gcode_G2_G3(const bool clockwise) {
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (axis_unhomed_error()) return;
     #endif
@@ -3821,10 +3817,10 @@ inline void gcode_G4() {
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
-        float lz = current_position[Z_AXIS];
-        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
+        float rz = current_position[Z_AXIS];
+        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], rz);
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", lz);
+        SERIAL_ECHOPAIR("MBL Adjustment Z", rz);
       }
       else
         SERIAL_ECHOPGM(" (disabled)");
@@ -3912,8 +3908,8 @@ inline void gcode_G4() {
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      */
-    destination[X_AXIS] = LOGICAL_X_POSITION(Z_SAFE_HOMING_X_POINT);
-    destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
+    destination[X_AXIS] = Z_SAFE_HOMING_X_POINT;
+    destination[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
@@ -3921,7 +3917,7 @@ inline void gcode_G4() {
       destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
-    if (position_is_reachable_xy(destination[X_AXIS], destination[Y_AXIS])) {
+    if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
@@ -4041,7 +4037,7 @@ inline void gcode_G28(const bool always_home_all) {
 
       if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
+        destination[Z_AXIS] = Z_HOMING_HEIGHT;
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -4083,7 +4079,7 @@ inline void gcode_G28(const bool always_home_all) {
         HOMEAXIS(X);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x_pos = RAW_X_POSITION(current_position[X_AXIS]);
+        inactive_extruder_x_pos = current_position[X_AXIS];
 
         // Home the 1st (left) extruder
         active_extruder = 0;
@@ -4184,18 +4180,18 @@ void home_all_axes() { gcode_G28(true); }
     extern bool lcd_wait_for_move;
   #endif
 
-  inline void _manual_goto_xy(const float &x, const float &y) {
+  inline void _manual_goto_xy(const float &rx, const float &ry) {
     const float old_feedrate_mm_s = feedrate_mm_s;
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
       feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MANUAL_PROBE_HEIGHT);
+      current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
       line_to_current_position();
     #endif
 
     feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-    current_position[X_AXIS] = LOGICAL_X_POSITION(x);
-    current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
+    current_position[X_AXIS] = rx;
+    current_position[Y_AXIS] = ry;
     line_to_current_position();
 
     #if MANUAL_PROBE_HEIGHT > 0
@@ -4233,7 +4229,7 @@ void home_all_axes() { gcode_G28(true); }
     home_all_axes();
     set_bed_leveling_enabled(true);
     #if ENABLED(MESH_G28_REST_ORIGIN)
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
+      current_position[Z_AXIS] = Z_MIN_POS;
       set_destination_from_current();
       line_to_destination(homing_feedrate(Z_AXIS));
       stepper.synchronize();
@@ -4326,7 +4322,7 @@ void home_all_axes() { gcode_G28(true); }
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
-          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+          current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
           line_to_current_position();
           stepper.synchronize();
 
@@ -4609,28 +4605,28 @@ void home_all_axes() { gcode_G28(true); }
             return;
           }
 
-          const float z = parser.floatval('Z', RAW_CURRENT_POSITION(Z));
-          if (!WITHIN(z, -10, 10)) {
+          const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position[Z_AXIS];
+          if (!WITHIN(rz, -10, 10)) {
             SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("Bad Z value");
             return;
           }
 
-          const float x = parser.floatval('X', NAN),
-                      y = parser.floatval('Y', NAN);
+          const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
+                      ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
           int8_t i = parser.byteval('I', -1),
                  j = parser.byteval('J', -1);
 
-          if (!isnan(x) && !isnan(y)) {
+          if (!isnan(rx) && !isnan(ry)) {
             // Get nearest i / j from x / y
-            i = (x - LOGICAL_X_POSITION(bilinear_start[X_AXIS]) + 0.5 * xGridSpacing) / xGridSpacing;
-            j = (y - LOGICAL_Y_POSITION(bilinear_start[Y_AXIS]) + 0.5 * yGridSpacing) / yGridSpacing;
+            i = (rx - bilinear_start[X_AXIS] + 0.5 * xGridSpacing) / xGridSpacing;
+            j = (ry - bilinear_start[Y_AXIS] + 0.5 * yGridSpacing) / yGridSpacing;
             i = constrain(i, 0, GRID_MAX_POINTS_X - 1);
             j = constrain(j, 0, GRID_MAX_POINTS_Y - 1);
           }
           if (WITHIN(i, 0, GRID_MAX_POINTS_X - 1) && WITHIN(j, 0, GRID_MAX_POINTS_Y)) {
             set_bed_leveling_enabled(false);
-            z_values[i][j] = z;
+            z_values[i][j] = rz;
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
             #endif
@@ -4690,36 +4686,36 @@ void home_all_axes() { gcode_G28(true); }
 
         xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
-        left_probe_bed_position = (int)parser.linearval('L', LOGICAL_X_POSITION(LEFT_PROBE_BED_POSITION));
-        right_probe_bed_position = (int)parser.linearval('R', LOGICAL_X_POSITION(RIGHT_PROBE_BED_POSITION));
-        front_probe_bed_position = (int)parser.linearval('F', LOGICAL_Y_POSITION(FRONT_PROBE_BED_POSITION));
-        back_probe_bed_position = (int)parser.linearval('B', LOGICAL_Y_POSITION(BACK_PROBE_BED_POSITION));
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
 
-        const bool left_out_l = left_probe_bed_position < LOGICAL_X_POSITION(MIN_PROBE_X),
+        const bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
                    left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
-                   right_out_r = right_probe_bed_position > LOGICAL_X_POSITION(MAX_PROBE_X),
+                   right_out_r = right_probe_bed_position > MAX_PROBE_X,
                    right_out = right_out_r || right_probe_bed_position < left_probe_bed_position + MIN_PROBE_EDGE,
-                   front_out_f = front_probe_bed_position < LOGICAL_Y_POSITION(MIN_PROBE_Y),
+                   front_out_f = front_probe_bed_position < MIN_PROBE_Y,
                    front_out = front_out_f || front_probe_bed_position > back_probe_bed_position - (MIN_PROBE_EDGE),
-                   back_out_b = back_probe_bed_position > LOGICAL_Y_POSITION(MAX_PROBE_Y),
+                   back_out_b = back_probe_bed_position > MAX_PROBE_Y,
                    back_out = back_out_b || back_probe_bed_position < front_probe_bed_position + MIN_PROBE_EDGE;
 
         if (left_out || right_out || front_out || back_out) {
           if (left_out) {
             out_of_range_error(PSTR("(L)eft"));
-            left_probe_bed_position = left_out_l ? LOGICAL_X_POSITION(MIN_PROBE_X) : right_probe_bed_position - (MIN_PROBE_EDGE);
+            left_probe_bed_position = left_out_l ? MIN_PROBE_X : right_probe_bed_position - (MIN_PROBE_EDGE);
           }
           if (right_out) {
             out_of_range_error(PSTR("(R)ight"));
-            right_probe_bed_position = right_out_r ? LOGICAL_Y_POSITION(MAX_PROBE_X) : left_probe_bed_position + MIN_PROBE_EDGE;
+            right_probe_bed_position = right_out_r ? MAX_PROBE_X : left_probe_bed_position + MIN_PROBE_EDGE;
           }
           if (front_out) {
             out_of_range_error(PSTR("(F)ront"));
-            front_probe_bed_position = front_out_f ? LOGICAL_Y_POSITION(MIN_PROBE_Y) : back_probe_bed_position - (MIN_PROBE_EDGE);
+            front_probe_bed_position = front_out_f ? MIN_PROBE_Y : back_probe_bed_position - (MIN_PROBE_EDGE);
           }
           if (back_out) {
             out_of_range_error(PSTR("(B)ack"));
-            back_probe_bed_position = back_out_b ? LOGICAL_Y_POSITION(MAX_PROBE_Y) : front_probe_bed_position + MIN_PROBE_EDGE;
+            back_probe_bed_position = back_out_b ? MAX_PROBE_Y : front_probe_bed_position + MIN_PROBE_EDGE;
           }
           return;
         }
@@ -4766,8 +4762,8 @@ void home_all_axes() { gcode_G28(true); }
         #endif
         if ( xGridSpacing != bilinear_grid_spacing[X_AXIS]
           || yGridSpacing != bilinear_grid_spacing[Y_AXIS]
-          || left_probe_bed_position != LOGICAL_X_POSITION(bilinear_start[X_AXIS])
-          || front_probe_bed_position != LOGICAL_Y_POSITION(bilinear_start[Y_AXIS])
+          || left_probe_bed_position != bilinear_start[X_AXIS]
+          || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
           if (dryrun) {
             // Before reset bed level, re-enable to correct the position
@@ -4779,8 +4775,8 @@ void home_all_axes() { gcode_G28(true); }
           // Initialize a grid with the given dimensions
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
-          bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
-          bilinear_start[Y_AXIS] = RAW_Y_POSITION(front_probe_bed_position);
+          bilinear_start[X_AXIS] = left_probe_bed_position;
+          bilinear_start[Y_AXIS] = front_probe_bed_position;
 
           // Can't re-enable (on error) until the new grid is written
           abl_should_enable = false;
@@ -4905,7 +4901,7 @@ void home_all_axes() { gcode_G28(true); }
           #endif
 
           // Keep looping till a reachable point is found
-          if (position_is_reachable_xy(xProbe, yProbe)) break;
+          if (position_is_reachable(xProbe, yProbe)) break;
           ++abl_probe_index;
         }
 
@@ -4935,8 +4931,8 @@ void home_all_axes() { gcode_G28(true); }
 
         // Probe at 3 arbitrary points
         if (abl_probe_index < 3) {
-          xProbe = LOGICAL_X_POSITION(points[abl_probe_index].x);
-          yProbe = LOGICAL_Y_POSITION(points[abl_probe_index].y);
+          xProbe = points[abl_probe_index].x;
+          yProbe = points[abl_probe_index].y;
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -5011,7 +5007,7 @@ void home_all_axes() { gcode_G28(true); }
 
             #if IS_KINEMATIC
               // Avoid probing outside the round or hexagonal area
-              if (!position_is_reachable_by_probe_xy(xProbe, yProbe)) continue;
+              if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
             #endif
 
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
@@ -5049,8 +5045,8 @@ void home_all_axes() { gcode_G28(true); }
 
         for (uint8_t i = 0; i < 3; ++i) {
           // Retain the last probe position
-          xProbe = LOGICAL_X_POSITION(points[i].x);
-          yProbe = LOGICAL_Y_POSITION(points[i].y);
+          xProbe = points[i].x;
+          yProbe = points[i].y;
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
           if (isnan(measured_z)) {
             planner.leveling_active = abl_should_enable;
@@ -5333,7 +5329,7 @@ void home_all_axes() { gcode_G28(true); }
     const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
                 ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (!position_is_reachable_by_probe_xy(xpos, ypos)) return;
+    if (!position_is_reachable_by_probe(xpos, ypos)) return;
 
     // Disable leveling so the planner won't mess with us
     #if HAS_LEVELING
@@ -5797,7 +5793,7 @@ void home_all_axes() { gcode_G28(true); }
         LOOP_CAL_RAD(axis) {
           const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                       r = delta_calibration_radius * (1 + (_7p_9_centre ? 0.1 : 0.0));
-          if (!position_is_reachable_xy(cos(a) * r, sin(a) * r)) {
+          if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
             SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
             return;
           }
@@ -6148,9 +6144,9 @@ void home_all_axes() { gcode_G28(true); }
 
     if (IsRunning()) {
       const bool hasI = parser.seenval('I');
-      const int8_t ix = hasI ? parser.value_int() : 0;
+      const int8_t ix = RAW_X_POSITION(hasI ? parser.value_linear_units() : 0);
       const bool hasJ = parser.seenval('J');
-      const int8_t iy = hasJ ? parser.value_int() : 0;
+      const int8_t iy = RAW_Y_POSITION(hasJ ? parser.value_linear_units() : 0);
 
       if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
         SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
@@ -6169,8 +6165,8 @@ void home_all_axes() { gcode_G28(true); }
       #endif
 
       set_destination_from_current();
-      if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
-      if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
+      if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
+      if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
       if (parser.boolval('P')) {
         if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
         if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
@@ -6202,15 +6198,12 @@ inline void gcode_G92() {
   LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
       #if IS_SCARA
-        current_position[i] = parser.value_axis_units((AxisEnum)i);
         if (i != E_AXIS) didXYZ = true;
       #else
         #if HAS_POSITION_SHIFT
           const float p = current_position[i];
         #endif
         const float v = parser.value_axis_units((AxisEnum)i);
-
-        current_position[i] = v;
 
         if (i != E_AXIS) {
           didXYZ = true;
@@ -7289,16 +7282,16 @@ inline void gcode_M42() {
                 Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     #if DISABLED(DELTA)
-      if (!WITHIN(X_probe_location, LOGICAL_X_POSITION(MIN_PROBE_X), LOGICAL_X_POSITION(MAX_PROBE_X))) {
+      if (!WITHIN(X_probe_location, MIN_PROBE_X, MAX_PROBE_X)) {
         out_of_range_error(PSTR("X"));
         return;
       }
-      if (!WITHIN(Y_probe_location, LOGICAL_Y_POSITION(MIN_PROBE_Y), LOGICAL_Y_POSITION(MAX_PROBE_Y))) {
+      if (!WITHIN(Y_probe_location, MIN_PROBE_Y, MAX_PROBE_Y)) {
         out_of_range_error(PSTR("Y"));
         return;
       }
     #else
-      if (!position_is_reachable_by_probe_xy(X_probe_location, Y_probe_location)) {
+      if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
         SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
@@ -7391,7 +7384,7 @@ inline void gcode_M42() {
             #else
               // If we have gone out too far, we can do a simple fix and scale the numbers
               // back in closer to the origin.
-              while (!position_is_reachable_by_probe_xy(X_current, Y_current)) {
+              while (!position_is_reachable_by_probe(X_current, Y_current)) {
                 X_current *= 0.8;
                 Y_current *= 0.8;
                 if (verbose_level > 3) {
@@ -8403,11 +8396,11 @@ inline void gcode_M92() {
  */
 void report_current_position() {
   SERIAL_PROTOCOLPGM("X:");
-  SERIAL_PROTOCOL(current_position[X_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_X_POSITION(current_position[X_AXIS]));
   SERIAL_PROTOCOLPGM(" Y:");
-  SERIAL_PROTOCOL(current_position[Y_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_X_POSITION(current_position[Y_AXIS]));
   SERIAL_PROTOCOLPGM(" Z:");
-  SERIAL_PROTOCOL(current_position[Z_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_Z_POSITION(current_position[Z_AXIS]));
   SERIAL_PROTOCOLPGM(" E:");
   SERIAL_PROTOCOL(current_position[E_AXIS]);
 
@@ -8440,11 +8433,15 @@ void report_current_position() {
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("\nLogical:");
-    report_xyze(current_position);
+    const float logical[XYZ] = {
+      LOGICAL_X_POSITION(current_position[X_AXIS]),
+      LOGICAL_Y_POSITION(current_position[Y_AXIS]),
+      LOGICAL_Z_POSITION(current_position[Z_AXIS])
+    };
+    report_xyze(logical);
 
     SERIAL_PROTOCOLPGM("Raw:    ");
-    const float raw[XYZ] = { RAW_X_POSITION(current_position[X_AXIS]), RAW_Y_POSITION(current_position[Y_AXIS]), RAW_Z_POSITION(current_position[Z_AXIS]) };
-    report_xyz(raw);
+    report_xyz(current_position);
 
     SERIAL_PROTOCOLPGM("Leveled:");
     float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
@@ -8871,7 +8868,6 @@ inline void gcode_M205() {
       if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_linear_units()); // Psi
     #endif
 
-    SYNC_PLAN_POSITION_KINEMATIC();
     report_current_position();
   }
 
@@ -9477,11 +9473,11 @@ inline void gcode_M303() {
 
 #if ENABLED(MORGAN_SCARA)
 
-  bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
+  bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
     if (IsRunning()) {
       forward_kinematics_SCARA(delta_a, delta_b);
-      destination[X_AXIS] = LOGICAL_X_POSITION(cartes[X_AXIS]);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(cartes[Y_AXIS]);
+      destination[X_AXIS] = cartes[X_AXIS];
+      destination[Y_AXIS] = cartes[Y_AXIS];
       destination[Z_AXIS] = current_position[Z_AXIS];
       prepare_move_to_destination();
       return true;
@@ -9797,9 +9793,9 @@ void quickstop_stepper() {
    */
   inline void gcode_M421() {
     const bool hasX = parser.seen('X'), hasI = parser.seen('I');
-    const int8_t ix = hasI ? parser.value_int() : hasX ? mbl.probe_index_x(RAW_X_POSITION(parser.value_linear_units())) : -1;
+    const int8_t ix = hasI ? parser.value_int() : hasX ? mbl.probe_index_x(parser.value_linear_units()) : -1;
     const bool hasY = parser.seen('Y'), hasJ = parser.seen('J');
-    const int8_t iy = hasJ ? parser.value_int() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(parser.value_linear_units())) : -1;
+    const int8_t iy = hasJ ? parser.value_int() : hasY ? mbl.probe_index_y(parser.value_linear_units()) : -1;
     const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
 
     if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ)) {
@@ -9903,7 +9899,7 @@ void quickstop_stepper() {
     LOOP_XYZ(i) {
       if (axis_homed[i]) {
         const float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
-                    diff = base - RAW_POSITION(current_position[i], i);
+                    diff = base - current_position[i];
         if (WITHIN(diff, -20, 20)) {
           set_home_offset((AxisEnum)i, diff);
         }
@@ -9919,7 +9915,6 @@ void quickstop_stepper() {
     }
 
     if (!err) {
-      SYNC_PLAN_POSITION_KINEMATIC();
       report_current_position();
       LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
       BUZZ(100, 659);
@@ -10820,9 +10815,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           switch (dual_x_carriage_mode) {
             case DXC_FULL_CONTROL_MODE:
               // New current position is the position of the activated extruder
-              current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
+              current_position[X_AXIS] = inactive_extruder_x_pos;
               // Save the inactive extruder's position (from the old current_position)
-              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
+              inactive_extruder_x_pos = destination[X_AXIS];
               break;
             case DXC_AUTO_PARK_MODE:
               // record raised toolhead position for use by unpark
@@ -10840,10 +10835,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               active_extruder_parked = (active_extruder == 0);
 
               if (active_extruder_parked)
-                current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
+                current_position[X_AXIS] = inactive_extruder_x_pos;
               else
                 current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
+              inactive_extruder_x_pos = destination[X_AXIS];
               extruder_duplication_enabled = false;
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) {
@@ -12154,7 +12149,7 @@ void ok_to_send() {
   #endif
 
   // Get the Z adjustment for non-linear bed leveling
-  float bilinear_z_offset(const float logical[XYZ]) {
+  float bilinear_z_offset(const float raw[XYZ]) {
 
     static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
                  last_x = -999.999, last_y = -999.999;
@@ -12164,8 +12159,8 @@ void ok_to_send() {
                   last_gridx = -99, last_gridy = -99;
 
     // XY relative to the probed area
-    const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
-                y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
+    const float rx = raw[X_AXIS] - bilinear_start[X_AXIS],
+                ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
 
     #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
       // Keep using the last grid box
@@ -12175,9 +12170,9 @@ void ok_to_send() {
       #define FAR_EDGE_OR_BOX 1
     #endif
 
-    if (last_x != x) {
-      last_x = x;
-      ratio_x = x * ABL_BG_FACTOR(X_AXIS);
+    if (last_x != rx) {
+      last_x = rx;
+      ratio_x = rx * ABL_BG_FACTOR(X_AXIS);
       const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
       ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
 
@@ -12190,11 +12185,11 @@ void ok_to_send() {
       nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
     }
 
-    if (last_y != y || last_gridx != gridx) {
+    if (last_y != ry || last_gridx != gridx) {
 
-      if (last_y != y) {
-        last_y = y;
-        ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
+      if (last_y != ry) {
+        last_y = ry;
+        ratio_y = ry * ABL_BG_FACTOR(Y_AXIS);
         const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
         ratio_y -= gy;
 
@@ -12217,7 +12212,7 @@ void ok_to_send() {
         d4 = ABL_BG_GRID(nextx, nexty) - z3;  // right-back (delta)
       }
 
-      // Bilinear interpolate. Needed since y or gridx has changed.
+      // Bilinear interpolate. Needed since ry or gridx has changed.
                   L = z1 + d2 * ratio_y;   // Linear interp. LF -> LB
       const float R = z3 + d4 * ratio_y;   // Linear interp. RF -> RB
 
@@ -12230,10 +12225,10 @@ void ok_to_send() {
     static float last_offset = 0;
     if (FABS(last_offset - offset) > 0.2) {
       SERIAL_ECHOPGM("Sudden Shift at ");
-      SERIAL_ECHOPAIR("x=", x);
+      SERIAL_ECHOPAIR("x=", rx);
       SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
       SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
-      SERIAL_ECHOPAIR(" y=", y);
+      SERIAL_ECHOPAIR(" y=", ry);
       SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
       SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
       SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
@@ -12304,7 +12299,7 @@ void ok_to_send() {
   /**
    * Delta Inverse Kinematics
    *
-   * Calculate the tower positions for a given logical
+   * Calculate the tower positions for a given machine
    * position, storing the result in the delta[] array.
    *
    * This is an expensive calculation, requiring 3 square
@@ -12334,15 +12329,6 @@ void ok_to_send() {
     delta[C_AXIS] = DELTA_Z(C_AXIS); \
   }while(0)
 
-  #define DELTA_LOGICAL_IK() do {      \
-    const float raw[XYZ] = {           \
-      RAW_X_POSITION(logical[X_AXIS]), \
-      RAW_Y_POSITION(logical[Y_AXIS]), \
-      RAW_Z_POSITION(logical[Z_AXIS])  \
-    };                                 \
-    DELTA_RAW_IK();                    \
-  }while(0)
-
   #define DELTA_DEBUG() do { \
       SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
       SERIAL_ECHOPAIR(" Y:", raw[Y_AXIS]);          \
@@ -12352,8 +12338,8 @@ void ok_to_send() {
       SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
     }while(0)
 
-  void inverse_kinematics(const float logical[XYZ]) {
-    DELTA_LOGICAL_IK();
+  void inverse_kinematics(const float raw[XYZ]) {
+    DELTA_RAW_IK();
     // DELTA_DEBUG();
   }
 
@@ -12362,11 +12348,7 @@ void ok_to_send() {
    * effector has the full range of XY motion.
    */
   float delta_safe_distance_from_top() {
-    float cartesian[XYZ] = {
-      LOGICAL_X_POSITION(0),
-      LOGICAL_Y_POSITION(0),
-      LOGICAL_Z_POSITION(0)
-    };
+    float cartesian[XYZ] = { 0, 0, 0 };
     inverse_kinematics(cartesian);
     float distance = delta[A_AXIS];
     cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
@@ -12462,8 +12444,8 @@ void ok_to_send() {
  *
  * The result is in the current coordinate space with
  * leveling applied. The coordinates need to be run through
- * unapply_leveling to obtain the "ideal" coordinates
- * suitable for current_position, etc.
+ * unapply_leveling to obtain machine coordinates suitable
+ * for current_position, etc.
  */
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
@@ -12472,20 +12454,16 @@ void get_cartesian_from_steppers() {
       stepper.get_axis_position_mm(B_AXIS),
       stepper.get_axis_position_mm(C_AXIS)
     );
-    cartes[X_AXIS] += LOGICAL_X_POSITION(0);
-    cartes[Y_AXIS] += LOGICAL_Y_POSITION(0);
-    cartes[Z_AXIS] += LOGICAL_Z_POSITION(0);
-  #elif IS_SCARA
-    forward_kinematics_SCARA(
-      stepper.get_axis_position_degrees(A_AXIS),
-      stepper.get_axis_position_degrees(B_AXIS)
-    );
-    cartes[X_AXIS] += LOGICAL_X_POSITION(0);
-    cartes[Y_AXIS] += LOGICAL_Y_POSITION(0);
-    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
   #else
-    cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-    cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+    #if IS_SCARA
+      forward_kinematics_SCARA(
+        stepper.get_axis_position_degrees(A_AXIS),
+        stepper.get_axis_position_degrees(B_AXIS)
+      );
+    #else
+      cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
+      cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+    #endif
     cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
   #endif
 }
@@ -12513,10 +12491,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * splitting the move where it crosses mesh borders.
    */
   void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xFF, uint8_t y_splits = 0xFF) {
-    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
-        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
-        cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
-        cy2 = mbl.cell_index_y(RAW_Y_POSITION(destination[Y_AXIS]));
+    int cx1 = mbl.cell_index_x(current_position[X_AXIS]),
+        cy1 = mbl.cell_index_y(current_position[Y_AXIS]),
+        cx2 = mbl.cell_index_x(destination[X_AXIS]),
+        cy2 = mbl.cell_index_y(destination[Y_AXIS]);
     NOMORE(cx1, GRID_MAX_POINTS_X - 2);
     NOMORE(cy1, GRID_MAX_POINTS_Y - 2);
     NOMORE(cx2, GRID_MAX_POINTS_X - 2);
@@ -12537,14 +12515,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(mbl.index_to_xpos[gcx]);
+      destination[X_AXIS] = mbl.index_to_xpos[gcx];
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.index_to_ypos[gcy]);
+      destination[Y_AXIS] = mbl.index_to_ypos[gcy];
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
       CBI(y_splits, gcy);
@@ -12600,14 +12578,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
+      destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
+      destination[Y_AXIS] = bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy;
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
       CBI(y_splits, gcy);
@@ -12640,26 +12618,26 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    */
-  inline bool prepare_kinematic_move_to(float ltarget[XYZE]) {
+  inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
     const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
 
     // If the move is only in Z/E don't split up the move
-    if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
-      planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
+    if (rtarget[X_AXIS] == current_position[X_AXIS] && rtarget[Y_AXIS] == current_position[Y_AXIS]) {
+      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
       return false;
     }
 
     // Fail if attempting move outside printable radius
-    if (!position_is_reachable_xy(ltarget[X_AXIS], ltarget[Y_AXIS])) return true;
+    if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS])) return true;
 
     // Get the cartesian distances moved in XYZE
     const float difference[XYZE] = {
-      ltarget[X_AXIS] - current_position[X_AXIS],
-      ltarget[Y_AXIS] - current_position[Y_AXIS],
-      ltarget[Z_AXIS] - current_position[Z_AXIS],
-      ltarget[E_AXIS] - current_position[E_AXIS]
+      rtarget[X_AXIS] - current_position[X_AXIS],
+      rtarget[Y_AXIS] - current_position[Y_AXIS],
+      rtarget[Z_AXIS] - current_position[Z_AXIS],
+      rtarget[E_AXIS] - current_position[E_AXIS]
     };
 
     // Get the linear distance in XYZ
@@ -12707,9 +12685,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             oldB = stepper.get_axis_position_degrees(B_AXIS);
     #endif
 
-    // Get the logical current position as starting point
-    float logical[XYZE];
-    COPY(logical, current_position);
+    // Get the raw current position as starting point
+    float raw[XYZE];
+    COPY(raw, current_position);
 
     // Drop one segment so the last move is to the exact target.
     // If there's only 1 segment, loops will be skipped entirely.
@@ -12717,25 +12695,25 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     // Calculate and execute the segments
     for (uint16_t s = segments + 1; --s;) {
-      LOOP_XYZE(i) logical[i] += segment_distance[i];
+      LOOP_XYZE(i) raw[i] += segment_distance[i];
       #if ENABLED(DELTA)
-        DELTA_LOGICAL_IK(); // Delta can inline its kinematics
+        DELTA_RAW_IK(); // Delta can inline its kinematics
       #else
-        inverse_kinematics(logical);
+        inverse_kinematics(raw);
       #endif
 
-      ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
+      ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
 
       #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
                     bdiff = abs(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
         oldA = delta[A_AXIS];
         oldB = delta[B_AXIS];
       #else
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder);
       #endif
     }
 
@@ -12745,13 +12723,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // With segments > 1 length is 1 segment, otherwise total length
-      inverse_kinematics(ltarget);
-      ADJUST_DELTA(ltarget);
+      inverse_kinematics(rtarget);
+      ADJUST_DELTA(rtarget);
       const float adiff = abs(delta[A_AXIS] - oldA),
                   bdiff = abs(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
     #else
-      planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
+      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
 
     return false;
@@ -12832,13 +12810,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           if (active_extruder == 0) {
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
-                SERIAL_ECHOPAIR("Set planner X", LOGICAL_X_POSITION(inactive_extruder_x_pos));
+                SERIAL_ECHOPAIR("Set planner X", inactive_extruder_x_pos);
                 SERIAL_ECHOLNPAIR(" ... Line to X", current_position[X_AXIS] + duplicate_extruder_x_offset);
               }
             #endif
             // move duplicate extruder into correct duplication position.
             planner.set_position_mm(
-              LOGICAL_X_POSITION(inactive_extruder_x_pos),
+              inactive_extruder_x_pos,
               current_position[Y_AXIS],
               current_position[Z_AXIS],
               current_position[E_AXIS]
@@ -12932,7 +12910,7 @@ void prepare_move_to_destination() {
    * options for G2/G3 arc generation. In future these options may be GCode tunable.
    */
   void plan_arc(
-    float logical[XYZE], // Destination position
+    float raw[XYZE],     // Destination position
     float *offset,       // Center of rotation relative to current_position
     uint8_t clockwise    // Clockwise?
   ) {
@@ -12953,10 +12931,10 @@ void prepare_move_to_destination() {
     const float radius = HYPOT(r_P, r_Q),
                 center_P = current_position[p_axis] - r_P,
                 center_Q = current_position[q_axis] - r_Q,
-                rt_X = logical[p_axis] - center_P,
-                rt_Y = logical[q_axis] - center_Q,
-                linear_travel = logical[l_axis] - current_position[l_axis],
-                extruder_travel = logical[E_AXIS] - current_position[E_AXIS];
+                rt_X = raw[p_axis] - center_P,
+                rt_Y = raw[q_axis] - center_Q,
+                linear_travel = raw[l_axis] - current_position[l_axis],
+                extruder_travel = raw[E_AXIS] - current_position[E_AXIS];
 
     // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
     float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
@@ -12964,7 +12942,7 @@ void prepare_move_to_destination() {
     if (clockwise) angular_travel -= RADIANS(360);
 
     // Make a circle if the angular rotation is 0 and the target is current position
-    if (angular_travel == 0 && current_position[p_axis] == logical[p_axis] && current_position[q_axis] == logical[q_axis])
+    if (angular_travel == 0 && current_position[p_axis] == raw[p_axis] && current_position[q_axis] == raw[q_axis])
       angular_travel = RADIANS(360);
 
     const float mm_of_travel = HYPOT(angular_travel * radius, FABS(linear_travel));
@@ -13064,7 +13042,7 @@ void prepare_move_to_destination() {
     }
 
     // Ensure last segment arrives at target location.
-    planner.buffer_line_kinematic(logical, fr_mm_s, active_extruder);
+    planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
 
     // As far as the parser is concerned, the position is now == target. In reality the
     // motion control system might still be processing the action and the real tool position
@@ -13164,12 +13142,12 @@ void prepare_move_to_destination() {
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
-  void inverse_kinematics(const float logical[XYZ]) {
+  void inverse_kinematics(const float raw[XYZ]) {
 
     static float C2, S2, SK1, SK2, THETA, PSI;
 
-    float sx = RAW_X_POSITION(logical[X_AXIS]) - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
-          sy = RAW_Y_POSITION(logical[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
+    float sx = raw[X_AXIS] - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
+          sy = raw[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
 
     if (L1 == L2)
       C2 = HYPOT2(sx, sy) / L1_2_2 - 1;
@@ -13192,10 +13170,10 @@ void prepare_move_to_destination() {
 
     delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
     delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-    delta[C_AXIS] = logical[Z_AXIS];
+    delta[C_AXIS] = raw[Z_AXIS];
 
     /*
-      DEBUG_POS("SCARA IK", logical);
+      DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
       SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
       SERIAL_ECHOPAIR(",", sy);

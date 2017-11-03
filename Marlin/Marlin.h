@@ -252,14 +252,14 @@ extern float current_position[NUM_AXIS];
   #define WORKSPACE_OFFSET(AXIS) 0
 #endif
 
-#define LOGICAL_POSITION(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
-#define RAW_POSITION(POS, AXIS)     ((POS) - WORKSPACE_OFFSET(AXIS))
+#define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
+#define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - WORKSPACE_OFFSET(AXIS))
 
 #if HAS_POSITION_SHIFT || DISABLED(DELTA)
-  #define LOGICAL_X_POSITION(POS)   LOGICAL_POSITION(POS, X_AXIS)
-  #define LOGICAL_Y_POSITION(POS)   LOGICAL_POSITION(POS, Y_AXIS)
-  #define RAW_X_POSITION(POS)       RAW_POSITION(POS, X_AXIS)
-  #define RAW_Y_POSITION(POS)       RAW_POSITION(POS, Y_AXIS)
+  #define LOGICAL_X_POSITION(POS)   NATIVE_TO_LOGICAL(POS, X_AXIS)
+  #define LOGICAL_Y_POSITION(POS)   NATIVE_TO_LOGICAL(POS, Y_AXIS)
+  #define RAW_X_POSITION(POS)       LOGICAL_TO_NATIVE(POS, X_AXIS)
+  #define RAW_Y_POSITION(POS)       LOGICAL_TO_NATIVE(POS, Y_AXIS)
 #else
   #define LOGICAL_X_POSITION(POS)   (POS)
   #define LOGICAL_Y_POSITION(POS)   (POS)
@@ -267,9 +267,8 @@ extern float current_position[NUM_AXIS];
   #define RAW_Y_POSITION(POS)       (POS)
 #endif
 
-#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
-#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
-#define RAW_CURRENT_POSITION(A)     RAW_##A##_POSITION(current_position[A##_AXIS])
+#define LOGICAL_Z_POSITION(POS)     NATIVE_TO_LOGICAL(POS, Z_AXIS)
+#define RAW_Z_POSITION(POS)         LOGICAL_TO_NATIVE(POS, Z_AXIS)
 
 // Hotend Offsets
 #if HOTENDS > 1
@@ -293,7 +292,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if IS_KINEMATIC
   extern float delta[ABC];
-  void inverse_kinematics(const float logical[XYZ]);
+  void inverse_kinematics(const float raw[XYZ]);
 #endif
 
 #if ENABLED(DELTA)
@@ -313,7 +312,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   extern int bilinear_grid_spacing[2], bilinear_start[2];
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float logical[XYZ]);
+  float bilinear_z_offset(const float raw[XYZ]);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -455,7 +454,7 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     extern const float L1, L2;
   #endif
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable(const float &rx, const float &ry) {
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
     #elif IS_SCARA
@@ -470,37 +469,29 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     #endif
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
 
     // Both the nozzle and the probe must be able to reach the point.
     // This won't work on SCARA since the probe offset rotates with the arm.
 
-    return position_is_reachable_raw_xy(rx, ry)
-        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+    return position_is_reachable(rx, ry)
+        && position_is_reachable(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
   }
 
 #else // CARTESIAN
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable(const float &rx, const float &ry) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
           && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
           && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
   }
 
 #endif // CARTESIAN
-
-FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly) {
-  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
-
-FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
-  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
 
 #endif // MARLIN_H
