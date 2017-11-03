@@ -42,10 +42,29 @@
 
 #include "Arduino.h"
 
+// --------------------------------------------------------------------------
+// Undefine DEBUG_ settings
+// --------------------------------------------------------------------------
+
+#ifdef DEBUG_NONE
+ #undef DEBUG_NONE
+#endif
+#ifdef DEBUG_FAULT
+ #undef DEBUG_FAULT
+#endif
+#ifdef DEBUG_ALL
+ #undef DEBUG_ALL
+#endif
+
+// --------------------------------------------------------------------------
+// Includes
+// --------------------------------------------------------------------------
+
 #include "fastio_Stm32f1.h"
 #include "watchdog_Stm32f1.h"
 
 #include "HAL_timers_Stm32f1.h"
+
 
 // --------------------------------------------------------------------------
 // Defines
