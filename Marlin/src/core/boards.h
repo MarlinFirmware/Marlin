@@ -174,6 +174,7 @@
 #define BOARD_RAMPS4DUE_EFF    1545   // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS4DUE_EEF    1546   // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF     1548   // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
+#define BOARD_ARCHIM2          1590   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
 
 //
