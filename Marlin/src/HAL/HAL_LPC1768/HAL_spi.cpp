@@ -104,14 +104,14 @@
     else if (SPI_speed == 1) { // medium - about 1 MHz
       for (int bits = 0; bits < 8; bits++) {
         if (b & 0x80) {
-          for (uint8_t i = 0; i < 8; i++) WRITE(MOSI_PIN, HIGH);
+          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, HIGH);
         }
         else {
-          for (uint8_t i = 0; i < 8; i++) WRITE(MOSI_PIN, LOW);
+          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, LOW);
         }
         b <<= 1;
 
-        for (uint8_t i = 0; i < 6; i++) WRITE(SCK_PIN, HIGH);
+        for (uint8_t i = 0; i < 7; i++) WRITE(SCK_PIN, HIGH);
 
         if (READ(MISO_PIN)) {
           b |= 1;
