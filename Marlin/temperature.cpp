@@ -215,7 +215,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
 #if HAS_PID_HEATING
 
-  void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const float temp, const int8_t hotend, const int8_t ncycles, const bool set_result/*=false*/) {
     float input = 0.0;
     int cycles = 0;
     bool heating = true;
@@ -224,27 +224,59 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
     long t_high = 0, t_low = 0;
 
     long bias, d;
-    float Ku, Tu;
-    float workKp = 0, workKi = 0, workKd = 0;
-    float max = 0, min = 10000;
+    float Ku, Tu,
+          workKp = 0, workKi = 0, workKd = 0,
+          max = 0, min = 10000;
+
+    #if WATCH_THE_BED || WATCH_HOTENDS
+      const float watch_temp_target =
+        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+          hotend < 0 ? temp - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1) : temp - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
+        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
+          temp - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)
+        #else
+          temp - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
+        #endif
+      ;
+      const int8_t watch_temp_period =
+        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+          hotend < 0 ? temp - THERMAL_PROTECTION_BED_PERIOD : THERMAL_PROTECTION_PERIOD
+        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
+          THERMAL_PROTECTION_BED_PERIOD
+        #else
+          THERMAL_PROTECTION_PERIOD
+        #endif
+      ;
+      const int8_t hysteresis =
+        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+          hotend < 0 ? TEMP_BED_HYSTERESIS : TEMP_HYSTERESIS
+        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
+          TEMP_BED_HYSTERESIS
+        #else
+          TEMP_HYSTERESIS
+        #endif
+      ;
+      millis_t temp_change_ms = temp_ms + watch_temp_period * 1000UL;
+      float next_watch_temp = 0.0;
+      bool heated = false;
+    #endif
 
     #if HAS_AUTO_FAN
       next_auto_fan_check_ms = temp_ms + 2500UL;
     #endif
 
-    if (hotend >=
-        #if ENABLED(PIDTEMP)
-          HOTENDS
-        #else
-          0
-        #endif
-      || hotend <
-        #if ENABLED(PIDTEMPBED)
-          -1
-        #else
-          0
-        #endif
-    ) {
+    #if ENABLED(PIDTEMP)
+      #define _TOP_HOTEND HOTENDS - 1
+    #else
+      #define _TOP_HOTEND -1
+    #endif
+    #if ENABLED(PIDTEMPBED)
+      #define _BOT_HOTEND -1
+    #else
+      #define _BOT_HOTEND 0
+    #endif
+
+    if (!WITHIN(hotend, _BOT_HOTEND, _TOP_HOTEND)) {
       SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
       return;
     }
@@ -330,7 +362,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
               ;
               bias += (d * (t_high - t_low)) / (t_low + t_high);
               bias = constrain(bias, 20, max_pow - 20);
-              d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
+              d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 
               SERIAL_PROTOCOLPAIR(MSG_BIAS, bias);
               SERIAL_PROTOCOLPAIR(MSG_D, d);
@@ -394,6 +426,16 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
         #endif
 
         temp_ms = ms + 2000UL;
+
+        #if WATCH_THE_BED || WATCH_HOTENDS
+          if (!heated && input > next_watch_temp) {
+            if (input > watch_temp_target) heated = true;
+            next_watch_temp = input + hysteresis;
+            temp_change_ms = ms + watch_temp_period * 1000UL;
+          }
+          else if ((!heated && ELAPSED(ms, temp_change_ms)) || (heated && input < temp - MAX_OVERSHOOT_PID_AUTOTUNE))
+            _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
+        #endif
       } // every 2 seconds
       // Timeout after 20 minutes since the last undershoot/overshoot cycle
       if (((ms - t1) + (ms - t2)) > (20L * 60L * 1000L)) {
