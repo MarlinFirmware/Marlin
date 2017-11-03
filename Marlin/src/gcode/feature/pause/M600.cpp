@@ -52,6 +52,9 @@
  *
  *  T[int]: 0=disable : 1/2/3 Enable the max number of swapping
  *
+ *  Starting Purge  : Goto pause, extrude and return 
+ *                  : Only one instruction to prime nozzle (one by one only)
+ *  P[bool] : 0 = disable  : 1 = activated
  *  Default values are used for omitted arguments.
  *
  */
@@ -150,8 +153,19 @@ void GcodeSuite::M600() {
   const bool job_running = print_job_timer.isRunning();
 
   #if ENABLED(PAUSE_SPOOL_SWAP)
-    // Next tool 
-	
+    //Starting Purge
+   if (parser.intval('P',(FIL_RUNOUT_SENSORS))){
+     //Temporary activation to inhibit all menus in resume_print
+     bool old_swap_spool_enabled = swap_spool_enabled ;
+     swap_spool_enabled = true ;
+     //Pause + Resume without LCD
+     if (pause_print(0/*retract*/, z_lift, x_pos, y_pos, 0/*unload_length*/, 0/*beep_count*/, false)) {
+      resume_print(0/*load_length*/, PAUSE_EXTRUDE, 0/*beep_count*/);
+     }
+     swap_spool_enabled = old_swap_spool_enabled ;// restore old state
+     return;	  
+   } ;
+    // Next tool	
     if (swap_spool_enabled ) {
 		
       pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, false);
