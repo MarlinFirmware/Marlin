@@ -46,15 +46,10 @@
 // Undefine DEBUG_ settings
 // --------------------------------------------------------------------------
 
-#ifdef DEBUG_NONE
- #undef DEBUG_NONE
-#endif
-#ifdef DEBUG_FAULT
- #undef DEBUG_FAULT
-#endif
-#ifdef DEBUG_ALL
- #undef DEBUG_ALL
-#endif
+
+#undef DEBUG_NONE
+#undef DEBUG_FAULT
+#undef DEBUG_ALL
 
 // --------------------------------------------------------------------------
 // Includes
