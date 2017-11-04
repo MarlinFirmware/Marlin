@@ -6219,11 +6219,6 @@ inline void gcode_G92() {
           #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
-
-            #if ENABLED(I2C_POSITION_ENCODERS)
-              I2CPEM.encoders[I2CPEM.idx_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
-            #endif
-
           #endif
         }
       #endif
