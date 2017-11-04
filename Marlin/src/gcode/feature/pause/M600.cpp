@@ -52,8 +52,8 @@
  *
  *  T[int]: 0=disable : 1/2/3 Enable the max number of swapping
  *
- *  Starting Purge  : Goto pause, extrude and return 
- *                  : Only one instruction to prime nozzle (one by one only)
+ *  Start Priming : Goto pause, extrude and return 
+ *                : Only one instruction to prime nozzle (one by one only)
  *  P[bool] : 0 = disable  : 1 = activated
  *  For ex M600 E0 U0 L0 B0 P1 = goto pause, extrude and return
  *  Default values are used for omitted arguments.
