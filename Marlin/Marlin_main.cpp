@@ -3646,10 +3646,19 @@ inline void gcode_G4() {
 
 #if ENABLED(CNC_WORKSPACE_PLANES)
 
-  void report_workspace_plane() {
+  inline void report_workspace_plane() {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Workspace Plane ");
-    serialprintPGM(workspace_plane == PLANE_YZ ? PSTR("YZ\n") : workspace_plane == PLANE_ZX ? PSTR("ZX\n") : PSTR("XY\n"));
+    serialprintPGM(
+      workspace_plane == PLANE_YZ ? PSTR("YZ\n") :
+      workspace_plane == PLANE_ZX ? PSTR("ZX\n") :
+                                    PSTR("XY\n")
+    );
+  }
+
+  inline void set_workspace_plane(const WorkspacePlane plane) {
+    workspace_plane = plane;
+    if (DEBUGGING(INFO)) report_workspace_plane();
   }
 
   /**
@@ -3657,9 +3666,9 @@ inline void gcode_G4() {
    * G18: Select Plane ZX
    * G19: Select Plane YZ
    */
-  inline void gcode_G17() { workspace_plane = PLANE_XY; }
-  inline void gcode_G18() { workspace_plane = PLANE_ZX; }
-  inline void gcode_G19() { workspace_plane = PLANE_YZ; }
+  inline void gcode_G17() { set_workspace_plane(PLANE_XY); }
+  inline void gcode_G18() { set_workspace_plane(PLANE_ZX); }
+  inline void gcode_G19() { set_workspace_plane(PLANE_YZ); }
 
 #endif // CNC_WORKSPACE_PLANES
 
