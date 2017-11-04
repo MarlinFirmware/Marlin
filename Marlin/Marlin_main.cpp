@@ -5498,16 +5498,18 @@ void home_all_axes() { gcode_G28(true); }
                     dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
       #endif
 
-          LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
+      LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
 
       if (!_0p_calibration) {
 
         if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
-          #if ENABLED(PROBE_MANUALLY)
-            z_at_pt[CEN] += lcd_probe_pt(0, 0);
-          #else
-            z_at_pt[CEN] += probe_pt(dx, dy, stow_after_each, 1, false);
-          #endif
+          z_at_pt[CEN] +=
+            #if ENABLED(PROBE_MANUALLY)
+              lcd_probe_pt(0, 0)
+            #else
+              probe_pt(dx, dy, stow_after_each, 1, false)
+            #endif
+          ;
         }
 
         if (_7p_calibration) { // probe extra center points
@@ -5516,11 +5518,13 @@ void home_all_axes() { gcode_G28(true); }
           I_LOOP_CAL_PT(axis, start, steps) {
             const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                         r = delta_calibration_radius * 0.1;
-            #if ENABLED(PROBE_MANUALLY)
-              z_at_pt[CEN] += lcd_probe_pt(cos(a) * r, sin(a) * r);
-            #else
-              z_at_pt[CEN] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-            #endif
+            z_at_pt[CEN] +=
+              #if ENABLED(PROBE_MANUALLY)
+                lcd_probe_pt(cos(a) * r, sin(a) * r)
+              #else
+                probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+              #endif
+            ;
           }
           z_at_pt[CEN] /= float(_7p_2_intermediates ? 7 : probe_points);
         }
@@ -5543,29 +5547,22 @@ void home_all_axes() { gcode_G28(true); }
               const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                           r = delta_calibration_radius * (1 + 0.1 * (zig_zag ? circle : - circle)),
                           interpol = fmod(axis, 1);
-              #if ENABLED(PROBE_MANUALLY)
-                 float z_temp = lcd_probe_pt(cos(a) * r, sin(a) * r);
-              #else
-                float z_temp = probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-              #endif
+              const float z_temp =
+                #if ENABLED(PROBE_MANUALLY)
+                  lcd_probe_pt(cos(a) * r, sin(a) * r)
+                #else
+                  probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+                #endif
+              ;
               // split probe point to neighbouring calibration points
-              z_at_pt[round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-              z_at_pt[round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+              z_at_pt[uint8_t(round(axis - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+              z_at_pt[uint8_t(round(axis - interpol          )) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
             }
             zig_zag = !zig_zag;
           }
           if (_7p_intermed_points)
-            LOOP_CAL_RAD(axis) {
-/*
-            // average intermediate points to towers and opposites - only required with _7P_STEP >= 2
-              for (int8_t i = 1; i < _7P_STEP; i++) {
-                const float interpol = i * (1.0 / _7P_STEP);
-                z_at_pt[axis] += (z_at_pt[(axis + NPP - i - 1) % NPP + 1]
-                                 + z_at_pt[axis + i]) * sq(cos(RADIANS(interpol * 90)));
-              }
-*/
+            LOOP_CAL_RAD(axis)
               z_at_pt[axis] /= _7P_STEP  / steps;
-            }
         }
 
 
@@ -10708,7 +10705,7 @@ inline void invalid_extruder_error(const uint8_t e) {
     #endif
   }
 
-  FORCE_INLINE void fanmux_init(void){
+  FORCE_INLINE void fanmux_init(void) {
     SET_OUTPUT(FANMUX0_PIN);
     #if PIN_EXISTS(FANMUX1)
       SET_OUTPUT(FANMUX1_PIN);
