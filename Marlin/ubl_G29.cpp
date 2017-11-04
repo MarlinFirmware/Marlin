@@ -51,7 +51,7 @@
 
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool=true);
+  extern float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool=true);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
   typedef void (*screenFunc_t)();
@@ -392,11 +392,11 @@
           restore_ubl_active_state_and_leave();
         }
         else { // grid_size == 0 : A 3-Point leveling has been requested
-          float z3, z2, z1 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y), false, g29_verbose_level);
+          float z3, z2, z1 = probe_pt(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false, g29_verbose_level);
           if (!isnan(z1)) {
-            z2 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y), false, g29_verbose_level);
+            z2 = probe_pt(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false, g29_verbose_level);
             if (!isnan(z2))
-              z3 = probe_pt(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y), true, g29_verbose_level);
+              z3 = probe_pt(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true, g29_verbose_level);
           }
 
           if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
@@ -410,9 +410,9 @@
           // its height is.)
 
           save_ubl_active_state_and_disable();
-          z1 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_1_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_1_Y)) /* + zprobe_zoffset */ ;
-          z2 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_2_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_2_Y)) /* + zprobe_zoffset */ ;
-          z3 -= get_z_correction(LOGICAL_X_POSITION(UBL_PROBE_PT_3_X), LOGICAL_Y_POSITION(UBL_PROBE_PT_3_Y)) /* + zprobe_zoffset */ ;
+          z1 -= get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y) /* + zprobe_zoffset */ ;
+          z2 -= get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y) /* + zprobe_zoffset */ ;
+          z3 -= get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y) /* + zprobe_zoffset */ ;
 
           do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
           tilt_mesh_based_on_3pts(z1, z2, z3);
@@ -496,7 +496,7 @@
               }
             }
 
-            if (!position_is_reachable_xy(g29_x_pos, g29_y_pos)) {
+            if (!position_is_reachable(g29_x_pos, g29_y_pos)) {
               SERIAL_PROTOCOLLNPGM("XY outside printable radius.");
               return;
             }
@@ -640,8 +640,8 @@
               SERIAL_ECHOPAIR(" J ", y);
               SERIAL_ECHOPGM(" Z ");
               SERIAL_ECHO_F(z_values[x][y], 6);
-              SERIAL_ECHOPAIR(" ; X ", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
-              SERIAL_ECHOPAIR(", Y ", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
+              SERIAL_ECHOPAIR(" ; X ", mesh_index_to_xpos(x));
+              SERIAL_ECHOPAIR(", Y ", mesh_index_to_ypos(y));
               SERIAL_EOL();
             }
         return;
@@ -732,7 +732,7 @@
      * Probe all invalidated locations of the mesh that can be reached by the probe.
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
-    void unified_bed_leveling::probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
+    void unified_bed_leveling::probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
       mesh_index_pair location;
 
       has_control_of_lcd_panel = true;
@@ -755,13 +755,13 @@
           }
         #endif
 
-        location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
+        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
 
         if (location.x_index >= 0) {    // mesh point found and is reachable by probe
           const float rawx = mesh_index_to_xpos(location.x_index),
                       rawy = mesh_index_to_ypos(location.y_index);
 
-          const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level); // TODO: Needs error handling
+          const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
 
@@ -773,8 +773,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_X, MESH_MAX_X),
-        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_Y, MESH_MAX_Y)
+        constrain(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_X, MESH_MAX_X),
+        constrain(ry - (Y_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -946,28 +946,26 @@
       return thickness;
     }
 
-    void unified_bed_leveling::manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
+    void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
       has_control_of_lcd_panel = true;
 
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      do_blocking_move_to_xy(lx, ly);
+      do_blocking_move_to_xy(rx, ry);
 
       lcd_return_to_status();
 
       mesh_index_pair location;
       do {
-        location = find_closest_mesh_point_of_type(INVALID, lx, ly, USE_NOZZLE_AS_REFERENCE, NULL, false);
+        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_NOZZLE_AS_REFERENCE, NULL, false);
         // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
         if (location.x_index < 0 && location.y_index < 0) continue;
 
-        const float rawx = mesh_index_to_xpos(location.x_index),
-                    rawy = mesh_index_to_ypos(location.y_index),
-                    xProbe = LOGICAL_X_POSITION(rawx),
-                    yProbe = LOGICAL_Y_POSITION(rawy);
+        const float xProbe = mesh_index_to_xpos(location.x_index),
+                    yProbe = mesh_index_to_ypos(location.y_index);
 
-        if (!position_is_reachable_raw_xy(rawx, rawy)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
+        if (!position_is_reachable(xProbe, yProbe)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
 
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -1031,7 +1029,7 @@
       restore_ubl_active_state_and_leave();
       KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      do_blocking_move_to_xy(lx, ly);
+      do_blocking_move_to_xy(rx, ry);
     }
   #endif // NEWPANEL
 
@@ -1103,8 +1101,8 @@
     }
 
     // If X or Y are not valid, use center of the bed values
-    if (!WITHIN(RAW_X_POSITION(g29_x_pos), X_MIN_BED, X_MAX_BED)) g29_x_pos = LOGICAL_X_POSITION(X_CENTER);
-    if (!WITHIN(RAW_Y_POSITION(g29_y_pos), Y_MIN_BED, Y_MAX_BED)) g29_y_pos = LOGICAL_Y_POSITION(Y_CENTER);
+    if (!WITHIN(g29_x_pos, X_MIN_BED, X_MAX_BED)) g29_x_pos = X_CENTER;
+    if (!WITHIN(g29_y_pos, Y_MIN_BED, Y_MAX_BED)) g29_y_pos = Y_CENTER;
 
     if (err_flag) return UBL_ERR;
 
@@ -1230,7 +1228,7 @@
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
+      SERIAL_PROTOCOL_F(mesh_index_to_xpos(i), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
@@ -1238,7 +1236,7 @@
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
+      SERIAL_PROTOCOL_F(mesh_index_to_ypos(i), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
@@ -1342,13 +1340,13 @@
         z_values[x][y] -= tmp_z_values[x][y];
   }
 
-  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, unsigned int bits[16], const bool far_flag) {
+  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, unsigned int bits[16], const bool far_flag) {
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
 
     // Get our reference position. Either the nozzle or probe location.
-    const float px = RAW_X_POSITION(lx) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = RAW_Y_POSITION(ly) - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
+    const float px = rx - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
+                py = ry - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
     float best_so_far = far_flag ? -99999.99 : 99999.99;
 
@@ -1361,7 +1359,6 @@
         ) {
           // We only get here if we found a Mesh Point of the specified type
 
-          float raw_x = RAW_CURRENT_POSITION(X), raw_y = RAW_CURRENT_POSITION(Y);
           const float mx = mesh_index_to_xpos(i),
                       my = mesh_index_to_ypos(j);
 
@@ -1369,7 +1366,7 @@
           // Also for round beds, there are grid points outside the bed the nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if (probe_as_reference ? !position_is_reachable_by_probe_raw_xy(mx, my) : !position_is_reachable_raw_xy(mx, my))
+          if (probe_as_reference ? !position_is_reachable_by_probe(mx, my) : !position_is_reachable(mx, my))
             continue;
 
           // Reachable. Check if it's the best_so_far location to the nozzle.
@@ -1395,9 +1392,9 @@
             }
           }
           else
-          // factor in the distance from the current location for the normal case
-          // so the nozzle isn't running all over the bed.
-            distance += HYPOT(raw_x - mx, raw_y - my) * 0.1;
+            // factor in the distance from the current location for the normal case
+            // so the nozzle isn't running all over the bed.
+            distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1;
 
           // if far_flag, look for farthest point
           if (far_flag == (distance > best_so_far) && distance != best_so_far) {
@@ -1415,7 +1412,7 @@
 
   #if ENABLED(NEWPANEL)
 
-    void unified_bed_leveling::fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+    void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {
       if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
@@ -1430,7 +1427,7 @@
 
       mesh_index_pair location;
 
-      if (!position_is_reachable_xy(lx, ly)) {
+      if (!position_is_reachable(rx, ry)) {
         SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
         return;
       }
@@ -1440,12 +1437,12 @@
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
 
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      do_blocking_move_to_xy(lx, ly);
+      do_blocking_move_to_xy(rx, ry);
 
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
       do {
-        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, lx, ly, USE_NOZZLE_AS_REFERENCE, not_done, false);
+        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done, false);
 
         if (location.x_index < 0) break; // stop when we can't find any more reachable points.
 
@@ -1455,7 +1452,7 @@
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
 
-        if (!position_is_reachable_raw_xy(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+        if (!position_is_reachable(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
           break;
 
         float new_z = z_values[location.x_index][location.y_index];
@@ -1464,7 +1461,7 @@
           new_z = 0.0;
 
         do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);    // Move the nozzle to where we are going to edit
-        do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
+        do_blocking_move_to_xy(rawx, rawy);
 
         new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
@@ -1526,7 +1523,7 @@
       restore_ubl_active_state_and_leave();
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
-      do_blocking_move_to_xy(lx, ly);
+      do_blocking_move_to_xy(rx, ry);
 
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");
@@ -1610,10 +1607,10 @@
 
       bool zig_zag = false;
       for (uint8_t ix = 0; ix < g29_grid_size; ix++) {
-        const float x = float(x_min) + ix * dx;
+        const float rx = float(x_min) + ix * dx;
         for (int8_t iy = 0; iy < g29_grid_size; iy++) {
-          const float y = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
-          float measured_z = probe_pt(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
+          const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
+          float measured_z = probe_pt(rx, ry, parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_CHAR('(');
@@ -1622,17 +1619,17 @@
               SERIAL_PROTOCOL_F(y, 7);
               SERIAL_ECHOPGM(")   logical: ");
               SERIAL_CHAR('(');
-              SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(x), 7);
+              SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 7);
               SERIAL_CHAR(',');
-              SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(y), 7);
+              SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ry), 7);
               SERIAL_ECHOPGM(")   measured: ");
               SERIAL_PROTOCOL_F(measured_z, 7);
               SERIAL_ECHOPGM("   correction: ");
-              SERIAL_PROTOCOL_F(get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)), 7);
+              SERIAL_PROTOCOL_F(get_z_correction(rx, ry), 7);
             }
           #endif
 
-          measured_z -= get_z_correction(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y)) /* + zprobe_zoffset */ ;
+          measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -1642,7 +1639,7 @@
             }
           #endif
 
-          incremental_LSF(&lsf_results, x, y, measured_z);
+          incremental_LSF(&lsf_results, rx, ry, measured_z);
         }
 
         zig_zag ^= true;

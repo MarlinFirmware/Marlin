@@ -618,7 +618,9 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   lcd.print(itostr3(t1 + 0.5));
   lcd.write('/');
 
-  #if HEATER_IDLE_HANDLER
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
     const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
@@ -776,12 +778,12 @@ static void lcd_implementation_status_screen() {
         // When everything is ok you see a constant 'X'.
 
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(current_position[X_AXIS]));
+        lcd.print(ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
 
         lcd.write(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(current_position[Y_AXIS]));
+        lcd.print(ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
