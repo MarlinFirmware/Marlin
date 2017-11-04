@@ -278,9 +278,11 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
-  bool show_bootscreen = true;
-
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+    #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+      #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+    #endif
 
     void lcd_custom_bootscreen() {
       u8g.firstPage();
@@ -290,37 +292,38 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
           ( 64 - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) /2,
           CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp);
       } while (u8g.nextPage());
+      safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
 
   #endif // SHOW_CUSTOM_BOOTSCREEN
 
   void lcd_bootscreen() {
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      lcd_custom_bootscreen();
+    #endif
 
-    if (show_bootscreen) {
-      show_bootscreen = false;
+    #if ENABLED(START_BMPHIGH)
+      constexpr uint8_t offy = 0;
+    #else
+      constexpr uint8_t offy = DOG_CHAR_HEIGHT;
+    #endif
 
-      #if ENABLED(START_BMPHIGH)
-        constexpr uint8_t offy = 0;
+    const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2,
+                  txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
+
+    u8g.firstPage();
+    do {
+      u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+      lcd_setFont(FONT_MENU);
+      #ifndef STRING_SPLASH_LINE2
+        u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
       #else
-        constexpr uint8_t offy = DOG_CHAR_HEIGHT;
+        const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+        u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+        u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
       #endif
-
-      const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2,
-                    txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
-
-      u8g.firstPage();
-      do {
-        u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-        lcd_setFont(FONT_MENU);
-        #ifndef STRING_SPLASH_LINE2
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
-        #else
-          const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
-        #endif
-      } while (u8g.nextPage());
-    }
+    } while (u8g.nextPage());
+    safe_delay(BOOTSCREEN_TIMEOUT);
   }
 
 #endif // SHOW_BOOTSCREEN
@@ -351,27 +354,20 @@ static void lcd_implementation_init() {
   #elif ENABLED(LCD_SCREEN_ROT_270)
     u8g.setRot270();  // Rotate screen by 270°
   #endif
-
-  #if ENABLED(SHOW_BOOTSCREEN)
-    if (show_bootscreen) {
-      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-        lcd_custom_bootscreen();
-      #else
-        lcd_bootscreen();
-      #endif
-    }
-  #endif
 }
 
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
-  lcd_setFont(FONT_MENU);
-  u8g.setPrintPos(0, u8g.getHeight()/4*1);
-  lcd_print_utf(lcd_status_message);
-  u8g.setPrintPos(0, u8g.getHeight()/4*2);
-  lcd_printPGM(PSTR(MSG_HALTED));
-  u8g.setPrintPos(0, u8g.getHeight()/4*3);
-  lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+  u8g.firstPage();
+  do {
+    lcd_setFont(FONT_MENU);
+    u8g.setPrintPos(0, u8g.getHeight()/4*1);
+    lcd_print_utf(lcd_status_message);
+    u8g.setPrintPos(0, u8g.getHeight()/4*2);
+    lcd_printPGM(PSTR(MSG_HALTED));
+    u8g.setPrintPos(0, u8g.getHeight()/4*3);
+    lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+  } while (u8g.nextPage());
 }
 
 void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
@@ -477,6 +473,7 @@ inline void lcd_implementation_status_message(const bool blink) {
       }
     }
   #else
+    UNUSED(blink);
     lcd_print_utf(lcd_status_message);
   #endif
 }

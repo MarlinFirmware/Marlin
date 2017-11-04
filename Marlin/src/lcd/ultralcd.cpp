@@ -715,14 +715,7 @@ void lcd_reset_status() { lcd_setstatusPGM(PSTR(""), -1); }
 void kill_screen(const char* lcd_msg) {
   lcd_init();
   lcd_setalertstatusPGM(lcd_msg);
-  #if ENABLED(DOGLCD)
-    u8g.firstPage();
-    do {
-      lcd_kill_screen();
-    } while (u8g.nextPage());
-  #else
-    lcd_kill_screen();
-  #endif
+  lcd_kill_screen();
 }
 
 #if ENABLED(ULTIPANEL)
