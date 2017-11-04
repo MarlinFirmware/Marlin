@@ -132,7 +132,7 @@ float Planner::min_feedrate_mm_s,
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   float Planner::z_fade_height, // Initialized by settings.load()
         Planner::inverse_z_fade_height,
-        Planner::last_raw_lz;
+        Planner::last_fade_z;
 #endif
 
 #if ENABLED(AUTOTEMP)
@@ -552,14 +552,14 @@ void Planner::calculate_volumetric_multipliers() {
 
 #if PLANNER_LEVELING
   /**
-   * lx, ly, lz - logical (cartesian, not delta) positions in mm
+   * rx, ry, rz - Cartesian positions in mm
    */
-  void Planner::apply_leveling(float &lx, float &ly, float &lz) {
+  void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
     if (!planner.leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = fade_scaling_factor_for_z(lz);
+      const float fade_scaling_factor = fade_scaling_factor_for_z(rz);
       if (!fade_scaling_factor) return;
     #else
       constexpr float fade_scaling_factor = 1.0;
@@ -567,11 +567,11 @@ void Planner::calculate_volumetric_multipliers() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      lz += ubl.get_z_correction(lx, ly) * fade_scaling_factor;
+      rz += ubl.get_z_correction(rx, ry) * fade_scaling_factor;
 
     #elif ENABLED(MESH_BED_LEVELING)
 
-      lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
+      rz += mbl.get_z(rx, ry
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           , fade_scaling_factor
         #endif
@@ -581,42 +581,38 @@ void Planner::calculate_volumetric_multipliers() {
 
       UNUSED(fade_scaling_factor);
 
-      float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
-            dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
-            dz = RAW_Z_POSITION(lz);
+      float dx = rx - (X_TILT_FULCRUM),
+            dy = ry - (Y_TILT_FULCRUM);
 
-      apply_rotation_xyz(bed_level_matrix, dx, dy, dz);
+      apply_rotation_xyz(bed_level_matrix, dx, dy, rz);
 
-      lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
-      ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
-      lz = LOGICAL_Z_POSITION(dz);
+      rx = dx + X_TILT_FULCRUM;
+      ry = dy + Y_TILT_FULCRUM;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      float tmp[XYZ] = { lx, ly, 0 };
-      lz += bilinear_z_offset(tmp) * fade_scaling_factor;
+      float tmp[XYZ] = { rx, ry, 0 };
+      rz += bilinear_z_offset(tmp) * fade_scaling_factor;
 
     #endif
   }
 
-  void Planner::unapply_leveling(float logical[XYZ]) {
+  void Planner::unapply_leveling(float raw[XYZ]) {
 
     if (!planner.leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (z_fade_height && RAW_Z_POSITION(logical[Z_AXIS]) >= z_fade_height) return;
+      if (z_fade_height && raw[Z_AXIS] >= z_fade_height) return;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
-                  z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
-                  z_virtual = z_physical - z_correct;
-            float z_logical = LOGICAL_Z_POSITION(z_virtual);
+      const float z_correct = ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]);
+            float z_raw = raw[Z_AXIS] - z_correct;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
+        // for P=physical_z, L=raw_z, M=mesh_z, H=fade_height,
         // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
         //  then L=P-M(1-L/H)
         //    so L=P-M+ML/H
@@ -625,46 +621,46 @@ void Planner::calculate_volumetric_multipliers() {
         //    so L=(P-M)/(1-M/H) for L<H
 
         if (planner.z_fade_height) {
-          if (z_logical >= planner.z_fade_height)
-            z_logical = LOGICAL_Z_POSITION(z_physical);
+          if (z_raw >= planner.z_fade_height)
+            z_raw = raw[Z_AXIS];
           else
-            z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
+            z_raw /= 1.0 - z_correct * planner.inverse_z_fade_height;
         }
 
       #endif // ENABLE_LEVELING_FADE_HEIGHT
 
-      logical[Z_AXIS] = z_logical;
+      raw[Z_AXIS] = z_raw;
 
     #elif ENABLED(MESH_BED_LEVELING)
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
-        logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+        const float c = mbl.get_z(raw[X_AXIS], raw[Y_AXIS], 1.0);
+        raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS] - c)) / (z_fade_height - c);
       #else
-        logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+        raw[Z_AXIS] -= mbl.get_z(raw[X_AXIS], raw[Y_AXIS]);
       #endif
 
     #elif ABL_PLANAR
 
       matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-      float dx = RAW_X_POSITION(logical[X_AXIS]) - (X_TILT_FULCRUM),
-            dy = RAW_Y_POSITION(logical[Y_AXIS]) - (Y_TILT_FULCRUM),
-            dz = RAW_Z_POSITION(logical[Z_AXIS]);
+      float dx = raw[X_AXIS] - (X_TILT_FULCRUM),
+            dy = raw[Y_AXIS] - (Y_TILT_FULCRUM),
+            dz = raw[Z_AXIS];
 
       apply_rotation_xyz(inverse, dx, dy, dz);
 
-      logical[X_AXIS] = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
-      logical[Y_AXIS] = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
-      logical[Z_AXIS] = LOGICAL_Z_POSITION(dz);
+      raw[X_AXIS] = dx + X_TILT_FULCRUM;
+      raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
+      raw[Z_AXIS] = dz;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float c = bilinear_z_offset(logical);
-        logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+        const float c = bilinear_z_offset(raw);
+        raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS]) - c) / (z_fade_height - c);
       #else
-        logical[Z_AXIS] -= bilinear_z_offset(logical);
+        raw[Z_AXIS] -= bilinear_z_offset(raw);
       #endif
 
     #endif

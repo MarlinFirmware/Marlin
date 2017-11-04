@@ -57,10 +57,10 @@
    * splitting the move where it crosses mesh borders.
    */
   void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
-    int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
-        cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
-        cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
-        cy2 = mbl.cell_index_y(RAW_Y_POSITION(destination[Y_AXIS]));
+    int cx1 = mbl.cell_index_x(current_position[X_AXIS]),
+        cy1 = mbl.cell_index_y(current_position[Y_AXIS]),
+        cx2 = mbl.cell_index_x(destination[X_AXIS]),
+        cy2 = mbl.cell_index_y(destination[Y_AXIS]);
     NOMORE(cx1, GRID_MAX_POINTS_X - 2);
     NOMORE(cy1, GRID_MAX_POINTS_Y - 2);
     NOMORE(cx2, GRID_MAX_POINTS_X - 2);
@@ -81,14 +81,14 @@
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(mbl.index_to_xpos[gcx]);
+      destination[X_AXIS] = mbl.index_to_xpos[gcx];
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.index_to_ypos[gcy]);
+      destination[Y_AXIS] = mbl.index_to_ypos[gcy];
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
       CBI(y_splits, gcy);

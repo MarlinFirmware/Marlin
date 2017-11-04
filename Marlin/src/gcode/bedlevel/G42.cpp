@@ -56,8 +56,8 @@ void GcodeSuite::G42() {
     #endif
 
     set_destination_from_current();
-    if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
-    if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
+    if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
+    if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
     if (parser.boolval('P')) {
       if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
       if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;

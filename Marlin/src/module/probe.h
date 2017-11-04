@@ -30,7 +30,7 @@
 #include "../inc/MarlinConfig.h"
 
 bool set_probe_deployed(const bool deploy);
-float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool printable=true);
+float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool printable=true);
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;

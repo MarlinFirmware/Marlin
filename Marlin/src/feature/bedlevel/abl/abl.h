@@ -32,7 +32,7 @@
   extern int bilinear_grid_spacing[2], bilinear_start[2];
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float logical[XYZ]);
+  float bilinear_z_offset(const float raw[XYZ]);
 
   void extrapolate_unprobed_bed_level();
   void print_bilinear_leveling_grid();
