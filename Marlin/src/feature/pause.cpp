@@ -401,23 +401,17 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   // Keep applied retractation as resume position if retracted before goto pause
   #ifdef PAUSE_RET
     #if ENABLED(FWRETRACT)
-	  //if not swapped before , then recover to zero
-	  if (!fwretract.retracted_swap[active_extruder] ){
+	  //if not retracted/swapped before , then recover to zero
+	  if (!fwretract.retracted_swap[active_extruder] && !fwretract.retracted[active_extruder]){
 	    const float tmp_length=fwretract.swap_retract_recover_length;
 	    const float tmp_feed=  fwretract.swap_retract_recover_feedrate_mm_s;
 	    do_pause_e_move(tmp_length, tmp_feed); 
-	  }
-	  //if not retracted before , then recover to zero
-	  else if (!fwretract.retracted[active_extruder]) {
-	         const float tmp_length=fwretract.retract_recover_length;
-	         const float tmp_feed=  fwretract.retract_recover_feedrate_mm_s;
-                 do_pause_e_move(tmp_length, tmp_feed);
-	       }			
+	  }	  			
 	#else    
 	  // If resume_position negative goto resume_position
-      if (resume_position[E_AXIS]<0) do_pause_e_move(resume_position[E_AXIS], PAUSE_RET_F);
+          if (resume_position[E_AXIS]<0) do_pause_e_move(resume_position[E_AXIS], PAUSE_RET_F);
 	  // if positive soft recovery to zero for sure print restart
-      else do_pause_e_move(PAUSE_RET,15); 
+          else do_pause_e_move(PAUSE_RET,15); 
     #endif
   #endif
   
