@@ -206,8 +206,8 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
             float z_temp = probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
           #endif
           // split probe point to neighbouring calibration points
-          z_at_pt[round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-          z_at_pt[round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+          z_at_pt[(uint8_t)round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+          z_at_pt[(uint8_t)round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
         }
         zig_zag = !zig_zag;
       }
