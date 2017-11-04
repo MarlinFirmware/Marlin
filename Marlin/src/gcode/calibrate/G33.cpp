@@ -155,7 +155,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
                 dy = (Y_PROBE_OFFSET_FROM_EXTRUDER);
   #endif
 
-      LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
+  LOOP_CAL_ALL(axis) z_at_pt[axis] = 0.0;
 
   if (!_0p_calibration) {
 
@@ -199,30 +199,23 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
         for (int8_t circle = -offset; circle <= offset; circle++) {
           const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                       r = delta_calibration_radius * (1 + 0.1 * (zig_zag ? circle : - circle)),
-                      interpol = fmod(axis, 1);
-          #if ENABLED(PROBE_MANUALLY)
-             float z_temp = lcd_probe_pt(cos(a) * r, sin(a) * r);
-          #else
-            float z_temp = probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-          #endif
+                      interpol = FMOD(axis, 1);
+          const float z_temp =
+            #if ENABLED(PROBE_MANUALLY)
+              lcd_probe_pt(cos(a) * r, sin(a) * r)
+            #else
+              probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+            #endif
+          ;
           // split probe point to neighbouring calibration points
-          z_at_pt[(uint8_t)round(axis - interpol + NPP - 1) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-          z_at_pt[(uint8_t)round(axis - interpol) % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+          z_at_pt[uint8_t(round(axis - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+          z_at_pt[uint8_t(round(axis - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
         }
         zig_zag = !zig_zag;
       }
       if (_7p_intermed_points)
-        LOOP_CAL_RAD(axis) {
-/*
-        // average intermediate points to towers and opposites - only required with _7P_STEP >= 2
-          for (int8_t i = 1; i < _7P_STEP; i++) {
-            const float interpol = i * (1.0 / _7P_STEP);
-            z_at_pt[axis] += (z_at_pt[(axis + NPP - i - 1) % NPP + 1]
-                             + z_at_pt[axis + i]) * sq(cos(RADIANS(interpol * 90)));
-          }
-*/
-          z_at_pt[axis] /= _7P_STEP  / steps;
-        }
+        LOOP_CAL_RAD(axis)
+          z_at_pt[axis] /= _7P_STEP / steps;
     }
 
 
@@ -342,14 +335,14 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
       switch (axis) {
         case A_AXIS :
-        a_fac += 4.0 / (          Z06(__B) -Z06(__C)           +Z06(_CA) -Z06(_AB)); // Offset by alpha tower angle
-        break;
+          a_fac += 4.0 / (          Z06(__B) -Z06(__C)           +Z06(_CA) -Z06(_AB)); // Offset by alpha tower angle
+          break;
         case B_AXIS :
-        a_fac += 4.0 / (-Z06(__A)          +Z06(__C) -Z06(_BC)           +Z06(_AB)); // Offset by beta tower angle
-        break;
+          a_fac += 4.0 / (-Z06(__A)          +Z06(__C) -Z06(_BC)           +Z06(_AB)); // Offset by beta tower angle
+          break;
         case C_AXIS :
-        a_fac += 4.0 / (Z06(__A) -Z06(__B)           +Z06(_BC) -Z06(_CA)          ); // Offset by gamma tower angle
-        break;
+          a_fac += 4.0 / (Z06(__A) -Z06(__B)           +Z06(_BC) -Z06(_CA)          ); // Offset by gamma tower angle
+          break;
       }
     }
     a_fac /= 3.0;
