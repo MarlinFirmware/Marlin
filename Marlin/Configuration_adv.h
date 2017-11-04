@@ -854,15 +854,15 @@
  *    Retract/Recover before/after travel
  *    Requires : LCD display + FILAMENT_RUNOUT_SCRIPT .
  * 
- * Spool_Swap 
- *  Tool change after filament runout.
- *  SingleNozzle strongly RECOMMENDED , 'no offset to set is better '
- *  M600: T[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
- *    Finish a spool and begin another by swapping to next extruder automaticly 
- *    Copy Temp + Flow + Fwretract
- *    Requires (2 extruders + 2 runout sensors ) at min
- *    
- *    Normal M600 run after max swap reached
+ * Spool_Swap : Tool change after filament runout
+ *
+ *  T[int]: 0=disable : 1/2/3 Enable the max number of swapping
+ *
+ *  Start Priming  : Goto pause, extrude and return 
+ *                 : Only one instruction to prime nozzle (one by one only)
+ *  P[bool] : 0 = disable  : 1 = activated
+ *  For ex M600 E0 U0 L0 B0 P1 = goto pause, extrude and return
+ *  Default values are used for omitted arguments.
  *
  */
 #define SMART_PAUSE
