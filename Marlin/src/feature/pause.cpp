@@ -366,28 +366,63 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     fanSpeeds[PAUSE_FAN]=0 ;
   #endif  
   
-  // Retractation before return to print
   #ifdef PAUSE_RET
-    do_pause_e_move(-PAUSE_RET, PAUSE_RET_F);
-  #endif
-
+  // Intelligent Retractation before return to print
+  // If resume position negative then travel back Retraction = resume_position
+  // Rare but possible : can go on pause with retracted/swapped status or negative position
+  #ifdef PAUSE_RET
+    #if ENABLED(FWRETRACT)
+	  //If retracted/swapped goto negative position
+	  if (fwretract.retracted_swap[active_extruder]) {
+	    const float tmp_length=fwretract.swap_retract_length;
+	    const float tmp_feed=fwretract.retract_feedrate_mm_s;
+	    do_pause_e_move(tmp_length, tmp_feed); 
+	  }
+	  // If retracted or not : normal fwretract used
+	  else {
+	    const float tmp_length=fwretract.retract_length;  
+            const float tmp_feed=fwretract.retract_feedrate_mm_s;   
+            do_pause_e_move(tmp_length, tmp_feed); 
+	  }
+    #else
+	  //If negative and more than PAUSE_RET goto resume_position 
+	  if (resume_position[E_AXIS]<(-PAUSE_RET)) do_pause_e_move(resume_position[E_AXIS], PAUSE_RET_F);
+          else do_pause_e_move(-PAUSE_RET, PAUSE_RET_F);
+    #endif
+  #endif	
+ 
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_XY_F);
 
    //Set Z_AXIS to saved position  
   do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_Z_F);
   
-  // Retractation Recovery
+  // Intelligent Retractation Recovery
+  // Keep applied retractation as resume position if retracted before goto pause
   #ifdef PAUSE_RET
     #if ENABLED(FWRETRACT)
-      do_pause_e_move(PAUSE_RET, fwretract.retract_recover_feedrate_mm_s);    
-    #else 
-      do_pause_e_move(PAUSE_RET, 15); 
+	  //if not swapped before , then recover to zero
+	  if (!fwretract.retracted_swap[active_extruder] ){
+	    const float tmp_length=fwretract.swap_retract_recover_length;
+	    const float tmp_feed=  fwretract.swap_retract_recover_feedrate_mm_s;
+	    do_pause_e_move(tmp_length, tmp_feed); 
+	  }
+	  //if not retracted before , then recover to zero
+	  else if (!fwretract.retracted[active_extruder]) {
+	         const float tmp_length=fwretract.retract_recover_length;
+	         const float tmp_feed=  fwretract.retract_recover_feedrate_mm_s;
+                 do_pause_e_move(tmp_length, tmp_feed);
+	       }			
+	#else    
+	  // If resume_position negative goto resume_position
+      if (resume_position[E_AXIS]<0) do_pause_e_move(resume_position[E_AXIS], PAUSE_RET_F);
+	  // if positive soft recovery to zero for sure print restart
+      else do_pause_e_move(PAUSE_RET,15); 
     #endif
   #endif
-	
+  
+  //Now all extrusion positions are resumed and ready to be confirmed
   //Set extruder to saved position
-  if (resume_position[E_AXIS]<=0) do_pause_e_move(resume_position[E_AXIS], PAUSE_RET_F);
   planner.set_e_position_mm((current_position[E_AXIS] = resume_position[E_AXIS]));
   
   #if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS)
