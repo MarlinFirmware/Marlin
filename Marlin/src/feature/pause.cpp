@@ -28,7 +28,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(SMART_PAUSE) || ENABLED(PARK_HEAD_ON_PAUSE)
-
+#include "fwretract.h"
 #include "../Marlin.h"								  
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
@@ -380,7 +380,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   // Retractation Recovery
   #ifdef PAUSE_RET
     #if ENABLED(FWRETRACT)
-      do_pause_e_move(PAUSE_RET, FWRetract.retract_recover_feedrate_mm_s);    
+      do_pause_e_move(PAUSE_RET, fwretract.retract_recover_feedrate_mm_s);    
     #else 
       do_pause_e_move(PAUSE_RET, 15); 
     #endif
