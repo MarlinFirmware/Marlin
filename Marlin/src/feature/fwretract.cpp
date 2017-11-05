@@ -123,7 +123,6 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
 
-  const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   // The current position will be the destination for E and Z moves
@@ -142,7 +141,7 @@ void FWRetract::retract(const bool retracting
     // Is a Z hop set, and has the hop not yet been done?
     // No double zlifting
     // Feedrate to the max
-    if (has_zhop && !hop_amount) {
+    if ((retract_zlift>0) && !hop_amount) {
       hop_amount += retract_zlift;                        // Carriage is raised for retraction hop
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       current_position[Z_AXIS] -= retract_zlift;          // Pretend current pos is lower. Next move raises Z.
