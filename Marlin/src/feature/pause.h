@@ -37,5 +37,9 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
 void wait_for_filament_reload(const int8_t max_beep_count=0);
 
 void resume_print(const float &load_length=0, const float &initial_extrude_length=0, const int8_t max_beep_count=0);
+#if ENABLED(PAUSE_SPOOL_SWAP)
+  extern bool swap_spool_enabled;
+  extern int16_t swap_spool_stop;
+#endif
 
 #endif // _PAUSE_H_

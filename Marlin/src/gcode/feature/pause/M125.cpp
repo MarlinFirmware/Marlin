@@ -68,6 +68,8 @@ void GcodeSuite::M125() {
   const float x_pos = parser.linearval('X')
     #ifdef PAUSE_PARK_X_POS
       + PAUSE_PARK_X_POS
+    #else
+      + current_position[X_AXIS]
     #endif
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       + (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0)
@@ -76,6 +78,8 @@ void GcodeSuite::M125() {
   const float y_pos = parser.linearval('Y')
     #ifdef PAUSE_PARK_Y_POS
       + PAUSE_PARK_Y_POS
+    #else
+      + current_position[Y_AXIS]
     #endif
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       + (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0)
@@ -87,14 +91,20 @@ void GcodeSuite::M125() {
   #endif
 
   if (pause_print(retract, z_lift, x_pos, y_pos)) {
+    //disabling Run Next Tool feature 
+	  #if ENABLED(PAUSE_SPOOL_SWAP)
+	    bool swap_spool_disabling = swap_spool_enabled;//save momentary
+	    swap_spool_enabled = false;//Runout Next Tool OFF
+    #endif 	  
     #if DISABLED(SDSUPPORT)
       // Wait for lcd click or M108
       wait_for_filament_reload();
-
       // Return to print position and continue
-      resume_print();
-
-      if (job_running) print_job_timer.start();
+      resume_print();		
+      #if ENABLED(PAUSE_SPOOL_SWAP)
+        swap_spool_enabled= swap_spool_disabling ;//restore Run out Next Tool
+	    #endif 
+        if (job_running) print_job_timer.start();
     #endif
   }
 }

@@ -39,6 +39,10 @@
 
 #include "../Marlin.h"
 
+#if ENABLED(PAUSE_SPOOL_SWAP)
+#include "../gcode/gcode.h"   
+#endif 
+
 #if ENABLED(PRINTCOUNTER) && ENABLED(LCD_INFO_MENU)
   #include "../libs/duration_t.h"
 #endif
@@ -3656,7 +3660,10 @@ void kill_screen(const char* lcd_msg) {
   void lcd_control_filament_menu() {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
-
+    #if ENABLED(PAUSE_SPOOL_SWAP)//steeve
+	    MENU_ITEM_EDIT(bool,MSG_SWAP_SPOOL_ON, &swap_spool_enabled);
+	    MENU_ITEM_EDIT(int3,MSG_SWAP_SPOOL_STOP, &swap_spool_stop,active_extruder,FIL_RUNOUT_SENSORS);
+    #endif
     #if ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
     #endif

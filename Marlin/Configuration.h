@@ -815,15 +815,25 @@
  * A mechanical or opto endstop is used to check for the presence of filament.
  *
  * RAMPS-based boards use SERVO3_PIN.
- * For other boards you may need to define FIL_RUNOUT_PIN.
+ * For other boards you may need to define FIL_RUNOUT_PIN 0/1/2/3/4.
  * By default the firmware assumes HIGH = has filament, LOW = ran out
  */
-//#define FILAMENT_RUNOUT_SENSOR
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+#define FILAMENT_RUNOUT_MULTI_SENSORS
+#if ENABLED(FILAMENT_RUNOUT_MULTI_SENSORS) 
+  #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
+  #define FILAMENT_RUNOUT_MULTI_PIN // if only one pin for all sensors with FIL_RUNOUT_0_PIN
+  #if ENABLED(FILAMENT_RUNOUT_MULTI_PIN) 
+    #define FIL_RUNOUT_SENSORS 2 //Numbers of sensors
+    //#define FIL_RUNOUT_0_PIN 1  // On Extruder 0
+    //#define FIL_RUNOUT_1_PIN -2 // On Extruder 1
+    #define FIL_RUNOUT_2_PIN -1   // On Extruder 2
+    #define FIL_RUNOUT_3_PIN -1   // On Extruder 3
+    #define FIL_RUNOUT_4_PIN -1   // On Extruder 4
+  #endif
 #endif
+
 
 //===========================================================================
 //=============================== Bed Leveling ==============================
