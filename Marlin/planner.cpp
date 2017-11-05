@@ -124,6 +124,20 @@ float Planner::min_feedrate_mm_s,
   #endif
 #endif
 
+#if ENABLED(SKEW_CORRECTION)
+  #if ENABLED(SKEW_CORRECTION_GCODE)
+    // Initialized by settings.load()
+    float Planner::xy_skew_factor;
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+      float Planner::xz_skew_factor, Planner::yz_skew_factor;
+    #else
+      constexpr float Planner::xz_skew_factor, Planner::yz_skew_factor;
+    #endif
+  #else
+    constexpr float Planner::xy_skew_factor, Planner::xz_skew_factor, Planner::yz_skew_factor;
+  #endif
+#endif
+
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
@@ -554,6 +568,19 @@ void Planner::calculate_volumetric_multipliers() {
    */
   void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
+    #if ENABLED(SKEW_CORRECTION)
+      if (WITHIN(rx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(ry, Y_MIN_POS + 1, Y_MAX_POS)) {
+        const float tempry = ry - (rz * planner.yz_skew_factor),
+                    temprx = rx - (ry * planner.xy_skew_factor) - (rz * (planner.xz_skew_factor - (planner.xy_skew_factor * planner.yz_skew_factor)));
+        if (WITHIN(temprx, X_MIN_POS, X_MAX_POS) && WITHIN(tempry, Y_MIN_POS, Y_MAX_POS)) {
+          rx = temprx;
+          ry = tempry;
+        }
+        else
+          SERIAL_ECHOLN(MSG_SKEW_WARN);
+      }
+    #endif
+
     if (!leveling_active) return;
 
     #if ABL_PLANAR
@@ -600,45 +627,56 @@ void Planner::calculate_volumetric_multipliers() {
 
   void Planner::unapply_leveling(float raw[XYZ]) {
 
-    if (!leveling_active) return;
-
-    #if ABL_PLANAR
-
-      matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
-
-      float dx = raw[X_AXIS] - (X_TILT_FULCRUM),
-            dy = raw[Y_AXIS] - (Y_TILT_FULCRUM);
-
-      apply_rotation_xyz(inverse, dx, dy, raw[Z_AXIS]);
-
-      raw[X_AXIS] = dx + X_TILT_FULCRUM;
-      raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
-
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
     #else
+      constexpr float fade_scaling_factor = 1.0;
+    #endif
 
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
-        if (!fade_scaling_factor) return;
-      #elif HAS_MESH
-        constexpr float fade_scaling_factor = 1.0;
-      #endif
+    if (leveling_active && fade_scaling_factor) {
 
-      raw[Z_AXIS] -= (
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) * fade_scaling_factor
-        #elif ENABLED(MESH_BED_LEVELING)
-          mbl.get_z(raw[X_AXIS], raw[Y_AXIS]
-            #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-              , fade_scaling_factor
-            #endif
-          )
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          bilinear_z_offset(raw) * fade_scaling_factor
-        #else
-          0
-        #endif
-      );
+      #if ABL_PLANAR
 
+        matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
+
+        float dx = raw[X_AXIS] - (X_TILT_FULCRUM),
+              dy = raw[Y_AXIS] - (Y_TILT_FULCRUM);
+
+        apply_rotation_xyz(inverse, dx, dy, raw[Z_AXIS]);
+
+        raw[X_AXIS] = dx + X_TILT_FULCRUM;
+        raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
+
+      #else // !ABL_PLANAR
+
+        raw[Z_AXIS] -= (
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) * fade_scaling_factor
+          #elif ENABLED(MESH_BED_LEVELING)
+            mbl.get_z(raw[X_AXIS], raw[Y_AXIS]
+              #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+                , fade_scaling_factor
+              #endif
+            )
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+            bilinear_z_offset(raw) * fade_scaling_factor
+          #else
+            0
+          #endif
+        );
+
+      #endif // !ABL_PLANAR
+    }
+
+    #if ENABLED(SKEW_CORRECTION)
+      if (WITHIN(raw[X_AXIS], X_MIN_POS, X_MAX_POS) && WITHIN(raw[Y_AXIS], Y_MIN_POS, Y_MAX_POS)) {
+        const float temprx = raw[X_AXIS] + raw[Y_AXIS] * planner.xy_skew_factor + raw[Z_AXIS] * planner.xz_skew_factor,
+                    tempry = raw[Y_AXIS] + raw[Z_AXIS] * planner.yz_skew_factor;
+        if (WITHIN(temprx, X_MIN_POS, X_MAX_POS) && WITHIN(tempry, Y_MIN_POS, Y_MAX_POS)) {
+          raw[X_AXIS] = temprx;
+          raw[Y_AXIS] = tempry;
+        }
+      }
     #endif
   }
 

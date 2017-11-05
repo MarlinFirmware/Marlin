@@ -205,6 +205,7 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
  * M861 - Report the status of position encoder modules.
  * M862 - Perform an axis continuity test for position encoder modules.
@@ -9942,6 +9943,69 @@ inline void gcode_M502() {
 
 #endif // HAS_BED_PROBE
 
+#if ENABLED(SKEW_CORRECTION_GCODE)
+
+  /**
+   * M852: Get or set the machine skew factors. Reports current values with no arguments.
+   *
+   *  S[xy_factor] - Alias for 'I'
+   *  I[xy_factor] - New XY skew factor
+   *  J[xz_factor] - New XZ skew factor
+   *  K[yz_factor] - New YZ skew factor
+   */
+  inline void gcode_M852() {
+    const bool ijk = parser.seen('I') || parser.seen('S')
+      #if ENABLED(SKEW_CORRECTION_FOR_Z)
+        || parser.seen('J') || parser.seen('K')
+      #endif
+    ;
+    bool badval = false;
+
+    if (parser.seen('I') || parser.seen('S')) {
+      const float value = parser.value_linear_units();
+      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
+        planner.xy_skew_factor = value;
+      else
+        badval = true;
+    }
+
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+
+      if (parser.seen('J')) {
+        const float value = parser.value_linear_units();
+        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
+          planner.xz_skew_factor = value;
+        else
+          badval = true;
+      }
+
+      if (parser.seen('K')) {
+        const float value = parser.value_linear_units();
+        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
+          planner.yz_skew_factor = value;
+        else
+          badval = true;
+      }
+
+    #endif
+
+    if (badval)
+      SERIAL_ECHOLNPGM(MSG_SKEW_MIN " " STRINGIFY(SKEW_FACTOR_MIN) " " MSG_SKEW_MAX " " STRINGIFY(SKEW_FACTOR_MAX));
+
+    if (!ijk) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPAIR(MSG_SKEW_FACTOR " XY: ", planner.xy_skew_factor);
+      #if ENABLED(SKEW_CORRECTION_FOR_Z)
+        SERIAL_ECHOPAIR(" XZ: ", planner.xz_skew_factor);
+        SERIAL_ECHOLNPAIR(" YZ: ", planner.yz_skew_factor);
+      #else
+        SERIAL_EOL();
+      #endif
+    }
+  }
+
+#endif // SKEW_CORRECTION_GCODE
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   /**
@@ -11786,6 +11850,12 @@ void process_parsed_command() {
           gcode_M851();
           break;
       #endif // HAS_BED_PROBE
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        case 852: // M852: Set Skew factors
+          gcode_M852();
+          break;
+      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
