@@ -228,6 +228,26 @@ void GCodeParser::parse(char *p) {
   }
 }
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+
+  // Parse the next parameter as a new command
+  bool GCodeParser::chain() {
+    #if ENABLED(FASTER_GCODE_PARSER)
+      char *next_command = command_ptr;
+      if (next_command) {
+        while (*next_command && *next_command != ' ') ++next_command;
+        while (*next_command == ' ') ++next_command;
+        if (!*next_command) next_command = NULL;
+      }
+    #else
+      const char *next_command = command_args;
+    #endif
+    if (next_command) parse(next_command);
+    return !!next_command;
+  }
+
+#endif // CNC_COORDINATE_SYSTEMS
+
 void GCodeParser::unknown_command_error() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);

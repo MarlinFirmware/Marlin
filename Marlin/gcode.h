@@ -169,6 +169,11 @@ public:
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
 
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    // Parse the next parameter as a new command
+    static bool chain();
+  #endif
+
   // The code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
 
