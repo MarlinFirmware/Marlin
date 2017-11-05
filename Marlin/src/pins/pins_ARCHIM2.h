@@ -112,6 +112,13 @@
 #define HEATER_2_PIN        8   // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN      9   // D9 PC21 BED_PWM
 
+
+//
+// Misc. Functions
+//
+#define SDSS           87   // D87 PA29 CS
+
+
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
@@ -127,7 +134,6 @@
     #define LCD_PINS_D7    34   // D34 PC2_PWML0
 
     #define SD_DETECT_PIN   2   // D2  PB25_TIOA0
-    #define SDSS           87   // D87 PA29 CS
 
     // Buttons on AUX-2
     #define BTN_EN1        60   // D60 PA3_TIOB1
