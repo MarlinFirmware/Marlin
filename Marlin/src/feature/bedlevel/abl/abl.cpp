@@ -259,7 +259,7 @@ void refresh_bed_level() {
 #endif
 
 // Get the Z adjustment for non-linear bed leveling
-float bilinear_z_offset(const float logical[XYZ]) {
+float bilinear_z_offset(const float raw[XYZ]) {
 
   static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
                last_x = -999.999, last_y = -999.999;
@@ -269,8 +269,8 @@ float bilinear_z_offset(const float logical[XYZ]) {
                 last_gridx = -99, last_gridy = -99;
 
   // XY relative to the probed area
-  const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
-              y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
+  const float rx = raw[X_AXIS] - bilinear_start[X_AXIS],
+              ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
     // Keep using the last grid box
@@ -280,9 +280,9 @@ float bilinear_z_offset(const float logical[XYZ]) {
     #define FAR_EDGE_OR_BOX 1
   #endif
 
-  if (last_x != x) {
-    last_x = x;
-    ratio_x = x * ABL_BG_FACTOR(X_AXIS);
+  if (last_x != rx) {
+    last_x = rx;
+    ratio_x = rx * ABL_BG_FACTOR(X_AXIS);
     const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
     ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
 
@@ -295,11 +295,11 @@ float bilinear_z_offset(const float logical[XYZ]) {
     nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
   }
 
-  if (last_y != y || last_gridx != gridx) {
+  if (last_y != ry || last_gridx != gridx) {
 
-    if (last_y != y) {
-      last_y = y;
-      ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
+    if (last_y != ry) {
+      last_y = ry;
+      ratio_y = ry * ABL_BG_FACTOR(Y_AXIS);
       const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
       ratio_y -= gy;
 
@@ -322,7 +322,7 @@ float bilinear_z_offset(const float logical[XYZ]) {
       d4 = ABL_BG_GRID(nextx, nexty) - z3;  // right-back (delta)
     }
 
-    // Bilinear interpolate. Needed since y or gridx has changed.
+    // Bilinear interpolate. Needed since ry or gridx has changed.
                 L = z1 + d2 * ratio_y;   // Linear interp. LF -> LB
     const float R = z3 + d4 * ratio_y;   // Linear interp. RF -> RB
 
@@ -335,10 +335,10 @@ float bilinear_z_offset(const float logical[XYZ]) {
   static float last_offset = 0;
   if (FABS(last_offset - offset) > 0.2) {
     SERIAL_ECHOPGM("Sudden Shift at ");
-    SERIAL_ECHOPAIR("x=", x);
+    SERIAL_ECHOPAIR("x=", rx);
     SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
     SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
-    SERIAL_ECHOPAIR(" y=", y);
+    SERIAL_ECHOPAIR(" y=", ry);
     SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
     SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
     SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
@@ -390,14 +390,14 @@ float bilinear_z_offset(const float logical[XYZ]) {
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
+      destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
+      destination[Y_AXIS] = bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy;
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
       CBI(y_splits, gcy);

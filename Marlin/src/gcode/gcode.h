@@ -266,11 +266,19 @@ public:
     static WorkspacePlane workspace_plane;
   #endif
 
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    #define MAX_COORDINATE_SYSTEMS 9
+    static int8_t active_coordinate_system;
+    static float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+    static bool select_coordinate_system(const int8_t _new);
+  #endif
+
   static millis_t previous_cmd_ms;
   FORCE_INLINE static void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
   static bool get_target_extruder_from_command();
   static void get_destination_from_command();
+  static void process_parsed_command();
   static void process_next_command();
 
   static FORCE_INLINE void home_all_axes() { G28(true); }
@@ -381,6 +389,17 @@ private:
 
   #if HAS_MESH
     static void G42();
+  #endif
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    bool select_coordinate_system(const int8_t _new);
+    static void G53();
+    static void G54();
+    static void G55();
+    static void G56();
+    static void G57();
+    static void G58();
+    static void G59();
   #endif
 
   static void G92();

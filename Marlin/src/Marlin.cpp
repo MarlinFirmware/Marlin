@@ -138,6 +138,10 @@
   #include "feature/caselight.h"
 #endif
 
+#if HAS_FANMUX
+  #include "feature/fanmux.h"
+#endif
+
 #if (ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
   #include "module/tool_change.h"
 #endif

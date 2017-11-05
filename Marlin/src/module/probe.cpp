@@ -106,8 +106,8 @@ inline void do_probe_raise(const float z_raise) {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float logical[XYZ], const float &fr_mm_s) {
-    do_blocking_move_to(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], fr_mm_s);
+  FORCE_INLINE void do_blocking_move_to(const float raw[XYZ], const float &fr_mm_s) {
+    do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
   }
 
   void run_deploy_moves_script() {
@@ -564,7 +564,7 @@ static float run_z_probe(const bool short_move=true) {
     }
   #endif
 
-  return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
+  return current_position[Z_AXIS] + zprobe_zoffset
     #if ENABLED(DELTA)
       + home_offset[Z_AXIS] // Account for delta height adjustment
     #endif
@@ -580,22 +580,22 @@ static float run_z_probe(const bool short_move=true) {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t verbose_level, const bool printable/*=true*/) {
+float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool printable/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> probe_pt(", lx);
-      SERIAL_ECHOPAIR(", ", ly);
+      SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
+      SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
       SERIAL_ECHOPAIR(", ", stow ? "" : "no ");
       SERIAL_ECHOLNPGM("stow)");
       DEBUG_POS("", current_position);
     }
   #endif
 
-  const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
   if (printable
-    ? !position_is_reachable_xy(nx, ny)
-    : !position_is_reachable_by_probe_xy(lx, ly)
+    ? !position_is_reachable(nx, ny)
+    : !position_is_reachable_by_probe(rx, ry)
   ) return NAN;
 
 
@@ -634,9 +634,9 @@ float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t 
 
   if (verbose_level > 2) {
     SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL_F(lx, 3);
+    SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 3);
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL_F(ly, 3);
+    SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 3);
     SERIAL_PROTOCOLPGM(" Z: ");
     SERIAL_PROTOCOL_F(measured_z, 3);
     SERIAL_EOL();

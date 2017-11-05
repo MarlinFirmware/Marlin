@@ -86,8 +86,8 @@
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      */
-    destination[X_AXIS] = LOGICAL_X_POSITION(Z_SAFE_HOMING_X_POINT);
-    destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
+    destination[X_AXIS] = Z_SAFE_HOMING_X_POINT;
+    destination[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
@@ -95,7 +95,7 @@
       destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
-    if (position_is_reachable_xy(destination[X_AXIS], destination[Y_AXIS])) {
+    if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
@@ -209,7 +209,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
       if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
+        destination[Z_AXIS] = Z_HOMING_HEIGHT;
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -251,7 +251,7 @@ void GcodeSuite::G28(const bool always_home_all) {
         HOMEAXIS(X);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x_pos = RAW_X_POSITION(current_position[X_AXIS]);
+        inactive_extruder_x_pos = current_position[X_AXIS];
 
         // Home the 1st (left) extruder
         active_extruder = 0;

@@ -21,26 +21,35 @@
  */
 
 /**
- * scara.h - SCARA-specific functions
+ * feature/pause.cpp - Pause feature support functions
+ * This may be combined with related G-codes if features are consolidated.
  */
 
-#ifndef __SCARA_H__
-#define __SCARA_H__
+#include "../inc/MarlinConfig.h"
 
-#include "../core/macros.h"
+#if HAS_FANMUX
 
-extern float delta_segments_per_second;
+#include "fanmux.h"
 
-// Float constants for SCARA calculations
-float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
-                L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
-                L2_2 = sq(float(L2));
+void fanmux_switch(const uint8_t e) {
+  WRITE(FANMUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+  #if PIN_EXISTS(FANMUX1)
+    WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+    #if PIN_EXISTS(FANMUX2)
+      WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
+    #endif
+  #endif
+}
 
-void scara_set_axis_is_at_home(const AxisEnum axis);
+void fanmux_init(void) {
+  SET_OUTPUT(FANMUX0_PIN);
+  #if PIN_EXISTS(FANMUX1)
+    SET_OUTPUT(FANMUX1_PIN);
+    #if PIN_EXISTS(FANMUX2)
+      SET_OUTPUT(FANMUX2_PIN);
+    #endif
+  #endif
+  fanmux_switch(0);
+}
 
-void inverse_kinematics(const float raw[XYZ]);
-void forward_kinematics_SCARA(const float &a, const float &b);
-
-void scara_report_positions();
-
-#endif // __SCARA_H__
+#endif // HAS_FANMUX

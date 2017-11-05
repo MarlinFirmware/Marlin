@@ -621,7 +621,9 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   lcd.print(itostr3(t1 + 0.5));
   lcd.write('/');
 
-  #if HEATER_IDLE_HANDLER
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
     const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
       #if HAS_TEMP_BED
         thermalManager.is_bed_idle()
@@ -779,12 +781,12 @@ static void lcd_implementation_status_screen() {
         // When everything is ok you see a constant 'X'.
 
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(current_position[X_AXIS]));
+        lcd.print(ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
 
         lcd.write(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(current_position[Y_AXIS]));
+        lcd.print(ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
@@ -842,11 +844,11 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
+    // Draw the progress bar if the message has shown long enough
+    // or if there is no message set.
     #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
       const uint8_t progress_bar_percent = card.percentDone();
     #endif
-    // Draw the progress bar if the message has shown long enough
-    // or if there is no message set.
     if (progress_bar_percent > 2 && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
       return lcd_draw_progress_bar(progress_bar_percent);
 
@@ -1168,9 +1170,9 @@ static void lcd_implementation_status_screen() {
       return ret_val;
     }
 
-    coordinate pixel_location(uint8_t x, uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void lcd_implementation_ubl_plot(uint8_t x, uint8_t inverted_y) {
+    void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12

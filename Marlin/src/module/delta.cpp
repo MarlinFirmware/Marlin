@@ -72,7 +72,7 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
 /**
  * Delta Inverse Kinematics
  *
- * Calculate the tower positions for a given logical
+ * Calculate the tower positions for a given machine
  * position, storing the result in the delta[] array.
  *
  * This is an expensive calculation, requiring 3 square
@@ -117,8 +117,8 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
     SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
   }while(0)
 
-void inverse_kinematics(const float logical[XYZ]) {
-  DELTA_LOGICAL_IK();
+void inverse_kinematics(const float raw[XYZ]) {
+  DELTA_RAW_IK();
   // DELTA_DEBUG();
 }
 
@@ -127,14 +127,10 @@ void inverse_kinematics(const float logical[XYZ]) {
  * effector has the full range of XY motion.
  */
 float delta_safe_distance_from_top() {
-  float cartesian[XYZ] = {
-    LOGICAL_X_POSITION(0),
-    LOGICAL_Y_POSITION(0),
-    LOGICAL_Z_POSITION(0)
-  };
+  float cartesian[XYZ] = { 0, 0, 0 };
   inverse_kinematics(cartesian);
   float distance = delta[A_AXIS];
-  cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
+  cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
   return FABS(distance - delta[A_AXIS]);
 }

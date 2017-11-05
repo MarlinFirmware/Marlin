@@ -1079,10 +1079,6 @@
   #undef MOTOR_CURRENT
 #endif
 
-#if ENABLED(SDCARD_SORT_ALPHA)
-  #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
-#endif
-
 // Updated G92 behavior shifts the workspace
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
 // The home offset also shifts the coordinate space
@@ -1116,7 +1112,7 @@
 #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
 // Add commands that need sub-codes to this list
-#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET)
+#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS)
 
 // MESH_BED_LEVELING overrides PROBE_MANUALLY
 #if ENABLED(MESH_BED_LEVELING)
@@ -1195,6 +1191,11 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+#endif
+
+// needs to be here so that we catch the above changes to our defines
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
 #endif
 
 #endif // CONDITIONALS_POST_H

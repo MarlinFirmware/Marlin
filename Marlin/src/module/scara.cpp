@@ -36,14 +36,14 @@ float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 
 void scara_set_axis_is_at_home(const AxisEnum axis) {
   if (axis == Z_AXIS)
-    current_position[Z_AXIS] = LOGICAL_POSITION(Z_HOME_POS, Z_AXIS);
+    current_position[Z_AXIS] = Z_HOME_POS;
   else {
 
     /**
      * SCARA homes XY at the same time
      */
     float homeposition[XYZ];
-    LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos((AxisEnum)i), i);
+    LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
 
     // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
     // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
@@ -58,7 +58,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
     // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
     // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
 
-    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
+    current_position[axis] = cartes[axis];
 
     /**
      * SCARA home positions are based on configuration since the actual
@@ -104,12 +104,12 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
  * Maths and first version by QHARLEY.
  * Integrated into Marlin and slightly restructured by Joachim Cerny.
  */
-void inverse_kinematics(const float logical[XYZ]) {
+void inverse_kinematics(const float raw[XYZ]) {
 
   static float C2, S2, SK1, SK2, THETA, PSI;
 
-  float sx = RAW_X_POSITION(logical[X_AXIS]) - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
-        sy = RAW_Y_POSITION(logical[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
+  float sx = raw[X_AXIS] - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
+        sy = raw[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
 
   if (L1 == L2)
     C2 = HYPOT2(sx, sy) / L1_2_2 - 1;
@@ -132,10 +132,10 @@ void inverse_kinematics(const float logical[XYZ]) {
 
   delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
   delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-  delta[C_AXIS] = logical[Z_AXIS];
+  delta[C_AXIS] = raw[Z_AXIS];
 
   /*
-    DEBUG_POS("SCARA IK", logical);
+    DEBUG_POS("SCARA IK", raw);
     DEBUG_POS("SCARA IK", delta);
     SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
     SERIAL_ECHOPAIR(",", sy);

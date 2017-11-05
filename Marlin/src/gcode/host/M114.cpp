@@ -46,11 +46,15 @@
     stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("\nLogical:");
-    report_xyze(current_position);
+    const float logical[XYZ] = {
+      LOGICAL_X_POSITION(current_position[X_AXIS]),
+      LOGICAL_Y_POSITION(current_position[Y_AXIS]),
+      LOGICAL_Z_POSITION(current_position[Z_AXIS])
+    };
+    report_xyze(logical);
 
     SERIAL_PROTOCOLPGM("Raw:    ");
-    const float raw[XYZ] = { RAW_X_POSITION(current_position[X_AXIS]), RAW_Y_POSITION(current_position[Y_AXIS]), RAW_Z_POSITION(current_position[Z_AXIS]) };
-    report_xyz(raw);
+    report_xyz(current_position);
 
     SERIAL_PROTOCOLPGM("Leveled:");
     float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
