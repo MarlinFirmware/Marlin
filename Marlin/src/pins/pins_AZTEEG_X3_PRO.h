@@ -28,14 +28,12 @@
   #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE)  && !PIN_EXISTS(CASE_LIGHT)
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
   #define CASE_LIGHT_PIN 44     // must define it here or else RAMPS will define it
 #endif
 
 
 #define BOARD_NAME "Azteeg X3 Pro"
-
-#include "pins_RAMPS.h"
 
 #ifndef __AVR_ATmega2560__
   #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
@@ -80,55 +78,83 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  18
+  #define Z_MIN_PROBE_PIN  15
 #endif
+
+//
+// Endstops
+//
+
+#define X_MIN_PIN		3
+#define X_MAX_PIN		2
+#define Y_MIN_PIN		14
+#define Y_MAX_PIN		15 // NOZZLE BED PROBE
+#define Z_MIN_PIN		18
+#define Z_MAX_PIN		19
 
 //
 // Steppers
 //
-#define E2_STEP_PIN        23
-#define E2_DIR_PIN         25
-#define E2_ENABLE_PIN      40
+#define X_STEP_PIN         54
+#define X_DIR_PIN          55
+#define X_ENABLE_PIN       38
 
-#define E3_STEP_PIN        27
-#define E3_DIR_PIN         29
-#define E3_ENABLE_PIN      41
+#define Y_STEP_PIN         60
+#define Y_DIR_PIN          61
+#define Y_ENABLE_PIN       56
 
-#define E4_STEP_PIN        43
-#define E4_DIR_PIN         37
-#define E4_ENABLE_PIN      42
+#define Z_STEP_PIN         46
+#define Z_DIR_PIN          48
+#define Z_ENABLE_PIN       62
+
+#define E0_STEP_PIN        26
+#define E0_DIR_PIN         28
+#define E0_ENABLE_PIN      24
+
+#define E1_STEP_PIN        36
+#define E1_DIR_PIN         34
+#define E1_ENABLE_PIN      30
+
+#define X2_STEP_PIN        23
+#define X2_DIR_PIN         25
+#define X2_ENABLE_PIN      40
+
+#define Y2_STEP_PIN        27
+#define Y2_DIR_PIN         29
+#define Y2_ENABLE_PIN      41
+
+#define Z2_STEP_PIN        43
+#define Z2_DIR_PIN         37
+#define Z2_ENABLE_PIN      42
+
+//Dummy stepper
+#define E2_STEP_PIN			35
+#define E2_DIR_PIN			32
+#define E2_ENABLE_PIN		31
+
 
 //
 // Temperature Sensors
 //
-#define TEMP_2_PIN         12   // Analog Input
-#define TEMP_3_PIN         11   // Analog Input
-#define TEMP_4_PIN         10   // Analog Input
-#define TC1                 4   // Analog Input (Thermo couple on Azteeg X3Pro)
-#define TC2                 5   // Analog Input (Thermo couple on Azteeg X3Pro)
+#define TEMP_0_PIN		   3	// T0 TEMP - ANALOG
+#define	TEMP_1_PIN		   9	// T1 TEMP - ANALOG
+#define TEMP_2_PIN         13   // CHAMBER TEMP - ANALOG
+#define TEMP_BED_PIN	   14	// BED TEMP - ANALOG
 
 //
 // Heaters / Fans
 //
-#define HEATER_2_PIN       16
-#define HEATER_3_PIN       17
-#define HEATER_4_PIN        4
-#define HEATER_5_PIN        5
-#define HEATER_6_PIN        6
-#define HEATER_7_PIN       11
+#define HEATER_0_PIN	   10	//T0 HE HEATER
+#define HEATER_1_PIN       9	//T1 HE HEATER
+#define HEATER_2_PIN	   4	//CHAMBER HEATER SSR
+#define HEATER_BED_PIN	   8	//BED HEATER SSR
 
-#undef FAN_PIN
-#define FAN_PIN             6 // Part Cooling System
+#define FAN_PIN             16	//T0 PART COOLING
+#define FAN1_PIN			17	//T1 PART COOLING
+#define FAN2_PIN			5	//CHAMBER FAN
 
-#ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN 4 // Pin used for the fan to cool motherboard (-1 to disable)
-#endif
-
-// Fans/Water Pump to cool the hotend cool side.
-#define ORIG_E0_AUTO_FAN_PIN 5
-#define ORIG_E1_AUTO_FAN_PIN 5
-#define ORIG_E2_AUTO_FAN_PIN 5
-#define ORIG_E3_AUTO_FAN_PIN 5
+//Filament runout - Dyze Sentinel
+#define FIL_RUNOUT_PIN      22
 
 //
 // LCD / Controller
