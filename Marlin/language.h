@@ -311,6 +311,6 @@
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
-#include "language_en.h"
+#include "fallback_language.h"
 
 #endif // __LANGUAGE_H
