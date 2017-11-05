@@ -39,10 +39,6 @@
   #include "../lcd/ultralcd.h"
 #endif
 
-// #if ENABLED(DUAL_X_CARRIAGE)
-//   #include "tool_change.h"
-// #endif
-
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif

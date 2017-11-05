@@ -37,7 +37,30 @@ void GcodeSuite::G92() {
 
   if (!didE) stepper.synchronize();
 
-  LOOP_XYZE(i) {
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    switch (parser.subcode) {
+      case 1:
+        // Zero the G92 values and restore current position
+        #if !IS_SCARA
+          LOOP_XYZ(i) {
+            const float v = position_shift[i];
+            if (v) {
+              position_shift[i] = 0;
+              update_software_endstops((AxisEnum)i);
+            }
+          }
+        #endif // Not SCARA
+        return;
+    }
+  #endif
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    #define IS_G92_0 (parser.subcode == 0)
+  #else
+    #define IS_G92_0 true
+  #endif
+
+  if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
       #if IS_SCARA
         current_position[i] = parser.value_axis_units((AxisEnum)i);
@@ -55,16 +78,18 @@ void GcodeSuite::G92() {
           #if HAS_POSITION_SHIFT
             position_shift[i] += v - p; // Offset the coordinate space
             update_software_endstops((AxisEnum)i);
-
-            #if ENABLED(I2C_POSITION_ENCODERS)
-              I2CPEM.encoders[I2CPEM.idx_from_axis((AxisEnum)i)].set_axis_offset(position_shift[i]);
-            #endif
-
           #endif
         }
       #endif
     }
   }
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    // Apply workspace offset to the active coordinate system
+    if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
+      COPY(coordinate_system[active_coordinate_system], position_shift);
+  #endif
+
   if (didXYZ)
     SYNC_PLAN_POSITION_KINEMATIC();
   else if (didE)

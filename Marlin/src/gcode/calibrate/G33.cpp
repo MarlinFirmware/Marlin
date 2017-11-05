@@ -30,8 +30,11 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../module/tool_change.h"
 #include "../../lcd/ultralcd.h"
+
+#if HOTENDS > 1
+  #include "../../module/tool_change.h"
+#endif
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -160,11 +163,13 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
   if (!_0p_calibration) {
 
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
-      #if ENABLED(PROBE_MANUALLY)
-        z_at_pt[CEN] += lcd_probe_pt(0, 0);
-      #else
-        z_at_pt[CEN] += probe_pt(dx, dy, stow_after_each, 1, false);
-      #endif
+      z_at_pt[CEN] +=
+        #if ENABLED(PROBE_MANUALLY)
+          lcd_probe_pt(0, 0)
+        #else
+          probe_pt(dx, dy, stow_after_each, 1, false)
+        #endif
+      ;
     }
 
     if (_7p_calibration) { // probe extra center points
@@ -173,11 +178,13 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       I_LOOP_CAL_PT(axis, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                     r = delta_calibration_radius * 0.1;
-        #if ENABLED(PROBE_MANUALLY)
-          z_at_pt[CEN] += lcd_probe_pt(cos(a) * r, sin(a) * r);
-        #else
-          z_at_pt[CEN] += probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1);
-        #endif
+        z_at_pt[CEN] +=
+          #if ENABLED(PROBE_MANUALLY)
+            lcd_probe_pt(cos(a) * r, sin(a) * r)
+          #else
+            probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+          #endif
+        ;
       }
       z_at_pt[CEN] /= float(_7p_2_intermediates ? 7 : probe_points);
     }
