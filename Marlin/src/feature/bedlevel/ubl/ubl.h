@@ -104,8 +104,16 @@ class unified_bed_leveling {
 
   public:
 
-    static void echo_name();
-    static void report_state();
+    static void echo_name(
+      #if NUM_SERIAL > 1
+        const int8_t port = -1
+      #endif
+    );
+    static void report_state(
+      #if NUM_SERIAL > 1
+        const int8_t port = -1
+      #endif
+    );
     static void save_ubl_active_state_and_disable();
     static void restore_ubl_active_state_and_leave();
     static void display_map(const int);

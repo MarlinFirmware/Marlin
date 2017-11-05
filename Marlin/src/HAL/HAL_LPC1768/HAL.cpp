@@ -29,7 +29,7 @@ extern "C" {
 
 HalSerial usb_serial;
 
-//u8glib required fucntions
+// U8glib required functions
 extern "C" void u8g_xMicroDelay(uint16_t val) {
   delayMicroseconds(val);
 }
@@ -85,7 +85,7 @@ void HAL_adc_enable_channel(int ch) {
   pin_t pin = analogInputToDigitalPin(ch);
 
   if (pin == -1) {
-    MYSERIAL.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
+    SERIAL_PRINTF("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
     kill(MSG_KILLED);
   }
 
@@ -97,15 +97,15 @@ void HAL_adc_enable_channel(int ch) {
                               pin_port == 1                        ? 3 : 10;
 
   switch (pin_sel_register) {
-    case 1 :
+    case 1:
       LPC_PINCON->PINSEL1 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL1 |=  (0x1 << pinsel_start_bit);
       break;
-    case 3 :
+    case 3:
       LPC_PINCON->PINSEL3 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL3 |=  (0x3 << pinsel_start_bit);
       break;
-    case 0 :
+    case 0:
       LPC_PINCON->PINSEL0 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL0 |=  (0x2 << pinsel_start_bit);
       break;
@@ -115,7 +115,7 @@ void HAL_adc_enable_channel(int ch) {
 uint8_t active_adc = 0;
 void HAL_adc_start_conversion(const uint8_t ch) {
   if (analogInputToDigitalPin(ch) == -1) {
-    MYSERIAL.printf("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
+    SERIAL_PRINTF("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
     return;
   }
 

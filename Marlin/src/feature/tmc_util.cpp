@@ -146,12 +146,12 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       const uint32_t pwm_scale = get_pwm_scale(st);
       SERIAL_ECHO(axisID);
       SERIAL_ECHOPAIR(":", pwm_scale);
-      SERIAL_ECHO(" |0b"); MYSERIAL.print(get_status_response(st), BIN);
+      SERIAL_ECHO(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
       SERIAL_ECHO("| ");
       if (data.is_error) SERIAL_ECHO('E');
       else if (data.is_ot) SERIAL_ECHO('O');
       else if (data.is_otpw) SERIAL_ECHO('W');
-      else if (otpw_cnt>0) MYSERIAL.print(otpw_cnt, DEC);
+      else if (otpw_cnt>0) SERIAL_PRINT(otpw_cnt, DEC);
       else if (st.flag_otpw) SERIAL_ECHO('F');
       SERIAL_ECHO("\t");
     }

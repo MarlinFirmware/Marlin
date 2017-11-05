@@ -547,7 +547,11 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-      static void print_heaterstates();
+      static void print_heaterstates(
+        #if NUM_SERIAL > 1
+          const int8_t port = -1
+        #endif
+      );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;

@@ -121,7 +121,7 @@ static uint8_t curGroup = 0xFF;     // Current FLASH group
     char buffer[80];
 
     sprintf(buffer, "Page: %d (0x%04x)\n", page, page);
-    MYSERIAL.print(buffer);
+    SERIAL_PROTOCOL(buffer);
 
     char* p = &buffer[0];
     for (int i = 0; i< PageSize; ++i) {
@@ -133,7 +133,7 @@ static uint8_t curGroup = 0xFF;     // Current FLASH group
       if ((i & 15) == 15) {
         *p++ = '\n';
         *p = 0;
-        MYSERIAL.print(buffer);
+        SERIAL_PROTOCOL(buffer);
         p = &buffer[0];
       }
     }
@@ -182,7 +182,7 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
     SERIAL_ECHOLNPAIR("EEPROM PageWrite   ",page);
     SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
     SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
-    MYSERIAL.flush();
+    SERIAL_FLUSH();
   #endif
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
@@ -313,7 +313,7 @@ static bool ee_PageErase(uint16_t page) {
     SERIAL_ECHOLNPAIR("EEPROM PageErase  ",page);
     SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
     SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
-    MYSERIAL.flush();
+    SERIAL_FLUSH();
   #endif
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
@@ -943,7 +943,7 @@ static void ee_Init() {
   #ifdef EE_EMU_DEBUG
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
-    MYSERIAL.flush();
+    SERIAL_FLUSH();
   #endif
 
   // Now, validate that all the other group pages are empty
@@ -957,7 +957,7 @@ static void ee_Init() {
           SERIAL_ECHO_START();
           SERIAL_ECHOPAIR("EEPROM Page ",page);
           SERIAL_ECHOLNPAIR(" not clean on group ",grp);
-          MYSERIAL.flush();
+          SERIAL_FLUSH();
         #endif
         ee_PageErase(grp * PagesPerGroup + page);
       }
@@ -978,7 +978,7 @@ static void ee_Init() {
   #ifdef EE_EMU_DEBUG
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("EEPROM Active page: ",curPage);
-    MYSERIAL.flush();
+    SERIAL_FLUSH();
   #endif
 
   // Make sure the pages following the first clean one are also clean
@@ -988,7 +988,7 @@ static void ee_Init() {
         SERIAL_ECHO_START();
         SERIAL_ECHOPAIR("EEPROM Page ",page);
         SERIAL_ECHOLNPAIR(" not clean on active group ",curGroup);
-        MYSERIAL.flush();
+        SERIAL_FLUSH();
         ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
       #endif
       ee_PageErase(curGroup * PagesPerGroup + page);
