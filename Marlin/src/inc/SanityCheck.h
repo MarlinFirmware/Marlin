@@ -891,6 +891,7 @@ static_assert(1 >= 0
 /**
  * Make sure Z_SAFE_HOMING point is reachable
  */
+/**
 #if ENABLED(Z_SAFE_HOMING)
   #if !WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X)
     #if HAS_BED_PROBE
@@ -906,6 +907,7 @@ static_assert(1 >= 0
     #endif
   #endif
 #endif // Z_SAFE_HOMING
+**/
 
 /**
  * Make sure DISABLE_[XYZ] compatible with selected homing options
