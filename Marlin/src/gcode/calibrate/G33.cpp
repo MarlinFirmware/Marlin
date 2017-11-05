@@ -30,8 +30,11 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../module/tool_change.h"
 #include "../../lcd/ultralcd.h"
+
+#if HOTENDS > 1
+  #include "../../module/tool_change.h"
+#endif
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"

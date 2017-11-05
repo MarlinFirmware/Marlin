@@ -50,6 +50,10 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if HAS_FANMUX
+  #include "../feature/fanmux.h"
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)
 
   #if EXTRUDERS > 3
@@ -109,30 +113,6 @@
 
 #endif // PARKING_EXTRUDER
 
-#if HAS_FANMUX
-
-  void fanmux_switch(const uint8_t e) {
-    WRITE(FANMUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-    #if PIN_EXISTS(FANMUX1)
-      WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-      #if PIN_EXISTS(FANMUX2)
-        WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
-      #endif
-    #endif
-  }
-
-  FORCE_INLINE void fanmux_init(void){
-    SET_OUTPUT(FANMUX0_PIN);
-    #if PIN_EXISTS(FANMUX1)
-      SET_OUTPUT(FANMUX1_PIN);
-      #if PIN_EXISTS(FANMUX2)
-        SET_OUTPUT(FANMUX2_PIN);
-      #endif
-    #endif
-    fanmux_switch(0);
-  }
-
-#endif // HAS_FANMUX
 
 inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
