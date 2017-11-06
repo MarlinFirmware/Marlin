@@ -40,7 +40,7 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-typedef uint32_t timer_t;
+typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
 #define STEP_TIMER_NUM 0
@@ -82,7 +82,7 @@ static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint
   }
 }
 
-static FORCE_INLINE timer_t HAL_timer_get_count(const uint8_t timer_num) {
+static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch(timer_num) {
     case 0: return FTM0_C0V;
     case 1: return FTM1_C0V;
