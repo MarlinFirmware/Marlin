@@ -30,6 +30,6 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-#include "fallback_language.h"
+// Nothing to do this is already the fallback language, I just need 'LANGUAGE_EN_H' define
 
 #endif // LANGUAGE_EN_H

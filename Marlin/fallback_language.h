@@ -27,6 +27,9 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
+#ifndef FALLBACK_LANGUAGE
+#define FALLBACK_LANGUAGE
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
 #endif
@@ -936,4 +939,6 @@
     #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
   #endif
 #endif // LCD_HEIGHT < 4
+
+#endif // FALLBACK_LANGUAGE
 
