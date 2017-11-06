@@ -80,7 +80,7 @@
     const uint8_t zigs = objects << 1;
     const bool horiz = FABS(diffx) >= FABS(diffy);    // Do a horizontal wipe?
     const float P = (horiz ? diffx : diffy) / zigs;   // Period of each zig / zag
-    point_t *side;
+    const point_t *side;
     for (uint8_t j = 0; j < strokes; j++) {
       for (int8_t i = 0; i < zigs; i++) {
         side = (i & 1) ? &end : &start;
