@@ -30,6 +30,6 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-// Nothing to do. Fall back languege is English
+ // Nothing to do this is already the fallback language, I just need 'LANGUAGE_EN_H' define
 
 #endif // LANGUAGE_EN_H
