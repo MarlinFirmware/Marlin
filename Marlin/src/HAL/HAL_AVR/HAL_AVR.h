@@ -66,7 +66,7 @@
 // Types
 // --------------------------------------------------------------------------
 
-typedef uint16_t timer_t;
+typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
 typedef int8_t pin_t;
