@@ -28,9 +28,9 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-#if ENABLED(DELTA)
-  #include "../../feature/bedlevel/bedlevel.h"
-#endif
+
+#include "../../feature/bedlevel/bedlevel.h"
+
 
 #if HAS_LEVELING
   #include "../../module/planner.h"
