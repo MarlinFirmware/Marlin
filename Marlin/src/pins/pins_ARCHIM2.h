@@ -116,7 +116,7 @@
 //
 // Misc. Functions
 //
-#define SDSS           87   // D87 PA29 CS
+#define SDSS               87   // D87 PA29 CS
 
 
 //////////////////////////
