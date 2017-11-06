@@ -28,7 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-#if DISABLED(DELTA)
+#if ENABLED(DELTA)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -56,7 +56,7 @@
  */
 void GcodeSuite::M48() {
 
-  if (axis_unhomed_error()) return;
+  if (axis_unhomed_error()) home_all_axes(); //return;
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
