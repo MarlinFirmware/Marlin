@@ -31,6 +31,7 @@
 #define LANGUAGE_AN_H
 
 #define DISPLAY_CHARSET_ISO10646_1
+#define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" parada.")
 #define MSG_SD_INSERTED                     _UxGT("Tarcheta mesa")

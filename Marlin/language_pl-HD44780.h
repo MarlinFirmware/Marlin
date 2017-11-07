@@ -27,6 +27,8 @@
 #ifndef LANGUAGE_PL_HD44780_H
 #define LANGUAGE_PL_HD44780_H
 
+#define NOT_EXTENDED_ISO10646_1_5X7
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta wlozona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunieta")
