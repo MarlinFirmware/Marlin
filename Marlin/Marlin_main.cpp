@@ -5055,6 +5055,8 @@ void home_all_axes() { gcode_G28(true); }
 
         bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
+        measured_z = 0;
+
         // Outer loop is Y with PROBE_Y_FIRST disabled
         for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
@@ -8705,8 +8707,8 @@ inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
 /**
  * M118: Display a message in the host console.
  *
- *  A  Append '// ' for an action command, as in OctoPrint
- *  E  Have the host 'echo:' the text
+ *  A1  Append '// ' for an action command, as in OctoPrint
+ *  E1  Have the host 'echo:' the text
  */
 inline void gcode_M118() {
   if (parser.boolval('E')) SERIAL_ECHO_START();
@@ -10965,7 +10967,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-            float z_raise = 0;
+            float z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
@@ -10988,7 +10990,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 SERIAL_ECHOLNPGM("Starting Autopark");
                 if (DEBUGGING(LEVELING)) DEBUG_POS("current position:", current_position);
               #endif
-              z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
               current_position[Z_AXIS] += z_raise;
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 SERIAL_ECHOLNPGM("(1) Raise Z-Axis ");
@@ -13026,6 +13027,7 @@ void prepare_move_to_destination() {
     #if ENABLED(CNC_WORKSPACE_PLANES)
       AxisEnum p_axis, q_axis, l_axis;
       switch (workspace_plane) {
+        default:
         case PLANE_XY: p_axis = X_AXIS; q_axis = Y_AXIS; l_axis = Z_AXIS; break;
         case PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
         case PLANE_YZ: p_axis = Y_AXIS; q_axis = Z_AXIS; l_axis = X_AXIS; break;
