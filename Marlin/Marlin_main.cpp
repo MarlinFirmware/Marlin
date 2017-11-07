@@ -12850,11 +12850,11 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    */
   inline bool prepare_move_to_destination_cartesian() {
     const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      if (!planner.leveling_active) {
-        line_to_destination(fr_scaled);
-        return false;
-      }
       #if HAS_MESH
+        if (!planner.leveling_active) {
+          line_to_destination(fr_scaled);
+          return false;
+        }
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.line_to_destination_cartesian(fr_scaled, active_extruder);  // UBL's motion routine needs to know about all moves,
           return true;                                                    // even purely Z-Axis moves
