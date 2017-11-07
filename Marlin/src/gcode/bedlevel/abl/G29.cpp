@@ -630,6 +630,8 @@ void GcodeSuite::G29() {
 
       bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
+      measured_z = 0;
+
       // Outer loop is Y with PROBE_Y_FIRST disabled
       for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
