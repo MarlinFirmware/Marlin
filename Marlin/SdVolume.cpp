@@ -73,14 +73,14 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
   // search the FAT for free clusters
   for (uint32_t n = 0;; n++, endCluster++) {
     // can't find space checked all clusters
-    if (n >= clusterCount_) goto fail;
+    if (n >= clusterCount_) goto FAIL;
 
     // past end - start from beginning of FAT
     if (endCluster > fatEnd) {
       bgnCluster = endCluster = 2;
     }
     uint32_t f;
-    if (!fatGet(endCluster, &f)) goto fail;
+    if (!fatGet(endCluster, &f)) goto FAIL;
 
     if (f != 0) {
       // cluster in use try next cluster as bgnCluster
@@ -92,16 +92,16 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
     }
   }
   // mark end of chain
-  if (!fatPutEOC(endCluster)) goto fail;
+  if (!fatPutEOC(endCluster)) goto FAIL;
 
   // link clusters
   while (endCluster > bgnCluster) {
-    if (!fatPut(endCluster - 1, endCluster)) goto fail;
+    if (!fatPut(endCluster - 1, endCluster)) goto FAIL;
     endCluster--;
   }
   if (*curCluster != 0) {
     // connect chains
-    if (!fatPut(*curCluster, bgnCluster)) goto fail;
+    if (!fatPut(*curCluster, bgnCluster)) goto FAIL;
   }
   // return first cluster number to caller
   *curCluster = bgnCluster;
@@ -110,38 +110,38 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
   if (setStart) allocSearchStart_ = bgnCluster + 1;
 
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
 bool SdVolume::cacheFlush() {
   if (cacheDirty_) {
     if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data)) {
-      goto fail;
+      goto FAIL;
     }
     // mirror FAT tables
     if (cacheMirrorBlock_) {
       if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data)) {
-        goto fail;
+        goto FAIL;
       }
       cacheMirrorBlock_ = 0;
     }
     cacheDirty_ = 0;
   }
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
 bool SdVolume::cacheRawBlock(uint32_t blockNumber, bool dirty) {
   if (cacheBlockNumber_ != blockNumber) {
-    if (!cacheFlush()) goto fail;
-    if (!sdCard_->readBlock(blockNumber, cacheBuffer_.data)) goto fail;
+    if (!cacheFlush()) goto FAIL;
+    if (!sdCard_->readBlock(blockNumber, cacheBuffer_.data)) goto FAIL;
     cacheBlockNumber_ = blockNumber;
   }
   if (dirty) cacheDirty_ = true;
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -149,33 +149,33 @@ fail:
 bool SdVolume::chainSize(uint32_t cluster, uint32_t* size) {
   uint32_t s = 0;
   do {
-    if (!fatGet(cluster, &cluster)) goto fail;
+    if (!fatGet(cluster, &cluster)) goto FAIL;
     s += 512UL << clusterSizeShift_;
   } while (!isEOC(cluster));
   *size = s;
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
 // Fetch a FAT entry
 bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
   uint32_t lba;
-  if (cluster > (clusterCount_ + 1)) goto fail;
+  if (cluster > (clusterCount_ + 1)) goto FAIL;
   if (FAT12_SUPPORT && fatType_ == 12) {
     uint16_t index = cluster;
     index += index >> 1;
     lba = fatStartBlock_ + (index >> 9);
-    if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto fail;
-    index &= 0X1FF;
+    if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto FAIL;
+    index &= 0x1FF;
     uint16_t tmp = cacheBuffer_.data[index];
     index++;
     if (index == 512) {
-      if (!cacheRawBlock(lba + 1, CACHE_FOR_READ)) goto fail;
+      if (!cacheRawBlock(lba + 1, CACHE_FOR_READ)) goto FAIL;
       index = 0;
     }
     tmp |= cacheBuffer_.data[index] << 8;
-    *value = cluster & 1 ? tmp >> 4 : tmp & 0XFFF;
+    *value = cluster & 1 ? tmp >> 4 : tmp & 0xFFF;
     return true;
   }
   if (fatType_ == 16) {
@@ -185,19 +185,19 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
     lba = fatStartBlock_ + (cluster >> 7);
   }
   else {
-    goto fail;
+    goto FAIL;
   }
   if (lba != cacheBlockNumber_) {
-    if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto fail;
+    if (!cacheRawBlock(lba, CACHE_FOR_READ)) goto FAIL;
   }
   if (fatType_ == 16) {
-    *value = cacheBuffer_.fat16[cluster & 0XFF];
+    *value = cacheBuffer_.fat16[cluster & 0xFF];
   }
   else {
-    *value = cacheBuffer_.fat32[cluster & 0X7F] & FAT32MASK;
+    *value = cacheBuffer_.fat32[cluster & 0x7F] & FAT32MASK;
   }
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -205,19 +205,19 @@ fail:
 bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
   uint32_t lba;
   // error if reserved cluster
-  if (cluster < 2) goto fail;
+  if (cluster < 2) goto FAIL;
 
   // error if not in FAT
-  if (cluster > (clusterCount_ + 1)) goto fail;
+  if (cluster > (clusterCount_ + 1)) goto FAIL;
 
   if (FAT12_SUPPORT && fatType_ == 12) {
     uint16_t index = cluster;
     index += index >> 1;
     lba = fatStartBlock_ + (index >> 9);
-    if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto fail;
+    if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto FAIL;
     // mirror second FAT
     if (fatCount_ > 1) cacheMirrorBlock_ = lba + blocksPerFat_;
-    index &= 0X1FF;
+    index &= 0x1FF;
     uint8_t tmp = value;
     if (cluster & 1) {
       tmp = (cacheBuffer_.data[index] & 0XF) | tmp << 4;
@@ -227,13 +227,13 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
     if (index == 512) {
       lba++;
       index = 0;
-      if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto fail;
+      if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto FAIL;
       // mirror second FAT
       if (fatCount_ > 1) cacheMirrorBlock_ = lba + blocksPerFat_;
     }
     tmp = value >> 4;
     if (!(cluster & 1)) {
-      tmp = ((cacheBuffer_.data[index] & 0XF0)) | tmp >> 4;
+      tmp = ((cacheBuffer_.data[index] & 0xF0)) | tmp >> 4;
     }
     cacheBuffer_.data[index] = tmp;
     return true;
@@ -245,20 +245,20 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
     lba = fatStartBlock_ + (cluster >> 7);
   }
   else {
-    goto fail;
+    goto FAIL;
   }
-  if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto fail;
+  if (!cacheRawBlock(lba, CACHE_FOR_WRITE)) goto FAIL;
   // store entry
   if (fatType_ == 16) {
-    cacheBuffer_.fat16[cluster & 0XFF] = value;
+    cacheBuffer_.fat16[cluster & 0xFF] = value;
   }
   else {
-    cacheBuffer_.fat32[cluster & 0X7F] = value;
+    cacheBuffer_.fat32[cluster & 0x7F] = value;
   }
   // mirror second FAT
   if (fatCount_ > 1) cacheMirrorBlock_ = lba + blocksPerFat_;
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -270,16 +270,16 @@ bool SdVolume::freeChain(uint32_t cluster) {
   allocSearchStart_ = 2;
 
   do {
-    if (!fatGet(cluster, &next)) goto fail;
+    if (!fatGet(cluster, &next)) goto FAIL;
 
     // free cluster
-    if (!fatPut(cluster, 0)) goto fail;
+    if (!fatPut(cluster, 0)) goto FAIL;
 
     cluster = next;
   } while (!isEOC(cluster));
 
   return true;
-fail:
+  FAIL:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -344,30 +344,30 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   allocSearchStart_ = 2;
   cacheDirty_ = 0;  // cacheFlush() will write block if true
   cacheMirrorBlock_ = 0;
-  cacheBlockNumber_ = 0XFFFFFFFF;
+  cacheBlockNumber_ = 0xFFFFFFFF;
 
   // if part == 0 assume super floppy with FAT boot sector in block zero
   // if part > 0 assume mbr volume with partition table
   if (part) {
-    if (part > 4)goto fail;
-    if (!cacheRawBlock(volumeStartBlock, CACHE_FOR_READ)) goto fail;
+    if (part > 4)goto FAIL;
+    if (!cacheRawBlock(volumeStartBlock, CACHE_FOR_READ)) goto FAIL;
     part_t* p = &cacheBuffer_.mbr.part[part - 1];
-    if ((p->boot & 0X7F) != 0  ||
+    if ((p->boot & 0x7F) != 0  ||
         p->totalSectors < 100 ||
         p->firstSector == 0) {
       // not a valid partition
-      goto fail;
+      goto FAIL;
     }
     volumeStartBlock = p->firstSector;
   }
-  if (!cacheRawBlock(volumeStartBlock, CACHE_FOR_READ)) goto fail;
+  if (!cacheRawBlock(volumeStartBlock, CACHE_FOR_READ)) goto FAIL;
   fbs = &cacheBuffer_.fbs32;
   if (fbs->bytesPerSector != 512 ||
       fbs->fatCount == 0 ||
       fbs->reservedSectorCount == 0 ||
       fbs->sectorsPerCluster == 0) {
     // not valid FAT volume
-    goto fail;
+    goto FAIL;
   }
   fatCount_ = fbs->fatCount;
   blocksPerCluster_ = fbs->sectorsPerCluster;
@@ -375,7 +375,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   clusterSizeShift_ = 0;
   while (blocksPerCluster_ != _BV(clusterSizeShift_)) {
     // error if not power of 2
-    if (clusterSizeShift_++ > 7) goto fail;
+    if (clusterSizeShift_++ > 7) goto FAIL;
   }
   blocksPerFat_ = fbs->sectorsPerFat16 ?
                   fbs->sectorsPerFat16 : fbs->sectorsPerFat32;
@@ -404,7 +404,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   // FAT type is determined by cluster count
   if (clusterCount_ < 4085) {
     fatType_ = 12;
-    if (!FAT12_SUPPORT) goto fail;
+    if (!FAT12_SUPPORT) goto FAIL;
   }
   else if (clusterCount_ < 65525) {
     fatType_ = 16;
@@ -414,7 +414,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
     fatType_ = 32;
   }
   return true;
-fail:
+  FAIL:
   return false;
 }
 #endif

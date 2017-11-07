@@ -532,7 +532,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || ELAPSED(millis(), next_autostart_ms)))
+  if (!force && (!autostart_stilltocheck || PENDING(millis(), next_autostart_ms)))
     return;
 
   autostart_stilltocheck = false;
@@ -878,6 +878,10 @@ void CardReader::printingHasFinished() {
       enqueue_and_echo_commands_P(PSTR("M31"));
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
+    #endif
+
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      lcd_reselect_last_file();
     #endif
   }
 }

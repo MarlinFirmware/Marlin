@@ -28,6 +28,13 @@
 #define ABC  3
 #define XYZ  3
 
+#define _XMIN_ 100
+#define _YMIN_ 200
+#define _ZMIN_ 300
+#define _XMAX_ 101
+#define _YMAX_ 201
+#define _ZMAX_ 301
+
 #define FORCE_INLINE __attribute__((always_inline)) inline
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
@@ -98,6 +105,9 @@
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
 #define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
+
+// Macro to check that a number if a power if 2
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros for maths shortcuts
 #ifndef M_PI

@@ -45,7 +45,7 @@
 #define PCA9632_PWM3        0x05
 #define PCA9632_GRPPWM      0x06
 #define PCA9632_GRPFREQ     0x07
-#define PCA9632_LEDOUT      0X08
+#define PCA9632_LEDOUT      0x08
 #define PCA9632_SUBADR1     0x09
 #define PCA9632_SUBADR2     0x0A
 #define PCA9632_SUBADR3     0x0B

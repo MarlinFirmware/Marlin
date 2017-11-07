@@ -22,35 +22,42 @@
 
 /**
  * Melzi (Creality) pin assignments
+ *
+ * The Creality board needs a bootloader installed before Marlin can be uploaded.
+ * If you don't have a chip programmer you can use a spare Arduino plus a few
+ * electronic components to write the bootloader.
+ *
+ * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  */
 
-#define BOARD_NAME "Melzi Creality"
+#define BOARD_NAME "Melzi (Creality)"
+#define IS_MELZI
 
-#ifdef __AVR_ATmega1284P__
-  #define LARGE_FLASH true
-#endif
+#include "pins_SANGUINOLOLU_12.h"
 
 // For the stock CR-10 use the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 //   option for the display in Configuration.h
 
-#define SANGUINOLOLU_V_1_2
-#include "pins_SANGUINOLOLU_11.h"
-
 #undef LCD_SDSS
 #undef LED_PIN
-
 #undef LCD_PINS_RS
 #undef LCD_PINS_ENABLE
-
-#define LCD_PINS_RS     28 // st9720 CS
-#define LCD_PINS_ENABLE 17 // st9720 DAT
-
 #undef LCD_PINS_D4
 #undef LCD_PINS_D5
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
+#undef FIL_RUNOUT_PIN
 
+#define LCD_SDSS        31 // Smart Controller SD card reader (rather than the Melzi)
+#define LCD_PINS_RS     28 // st9720 CS
+#define LCD_PINS_ENABLE 17 // st9720 DAT
 #define LCD_PINS_D4     30 // st9720 CLK
+#define FIL_RUNOUT_PIN  -1 // Uses Beeper/LED Pin Pulled to GND
+
+// Alter timing for graphical display
+#define ST7920_DELAY_1 DELAY_2_NOP
+#define ST7920_DELAY_2 DELAY_2_NOP
+#define ST7920_DELAY_3 DELAY_2_NOP
 
 /**
   PIN:   0   Port: B0        E0_DIR_PIN                  protected

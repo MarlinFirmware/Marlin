@@ -23,9 +23,7 @@
 #ifndef ULCDST7920_H
 #define ULCDST7920_H
 
-#include "Marlin.h"
-
-#if ENABLED(U8GLIB_ST7920)
+#include <U8glib.h>
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
@@ -37,8 +35,6 @@
 
 #define LCD_PIXEL_WIDTH 128
 #define LCD_PIXEL_HEIGHT 64
-
-#include <U8glib.h>
 
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
@@ -52,15 +48,15 @@
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_0_NOP
   #define CPU_ST7920_DELAY_3 DELAY_1_NOP
-#elif (MOTHERBOARD == BOARD_3DRAG) || (MOTHERBOARD == BOARD_K8200) || (MOTHERBOARD == BOARD_K8400)
+#elif MB(3DRAG) || MB(K8200) || MB(K8400) || MB(SILVER_GATE)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_3_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
-#elif (MOTHERBOARD == BOARD_MINIRAMBO)
+#elif MB(MINIRAMBO)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_4_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
-#elif (MOTHERBOARD == BOARD_RAMBO)
+#elif MB(RAMBO)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_0_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
@@ -139,8 +135,9 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       ST7920_NCS();
     }
     break;
-    case U8G_DEV_MSG_STOP:
-      break;
+
+    case U8G_DEV_MSG_STOP: break;
+
     case U8G_DEV_MSG_PAGE_NEXT: {
       uint8_t* ptr;
       u8g_pb_t* pb = (u8g_pb_t*)(dev->dev_mem);
@@ -186,5 +183,4 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB {
 
 #pragma GCC reset_options
 
-#endif // U8GLIB_ST7920
 #endif // ULCDST7920_H

@@ -44,7 +44,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+// See also http://marlinfw.org/docs/development/lcd_language.html
 
 // Languages
 // an         Aragonese
@@ -61,6 +61,7 @@
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
+// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian
@@ -73,8 +74,11 @@
 // pt-br_utf8 Portuguese (Brazilian) (UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// sk         Slovak (UTF8)
 // tr         Turkish
 // uk         Ukrainian
+// zh_CN      Chinese (Simplified)
+// zh_TW      Chinese (Taiwan)
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -126,7 +130,6 @@
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define MSG_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
-#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
 #define MSG_FILE_PRINTED                    "Done printing file"
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
@@ -146,8 +149,12 @@
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
+#define MSG_X2_MIN                          "x2_min: "
+#define MSG_X2_MAX                          "x2_max: "
 #define MSG_Y_MIN                           "y_min: "
 #define MSG_Y_MAX                           "y_max: "
+#define MSG_Y2_MIN                          "y2_min: "
+#define MSG_Y2_MAX                          "y2_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MIN                          "z2_min: "
@@ -157,6 +164,7 @@
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M355_NONE                   "No case light"
 #define MSG_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
+#define MSG_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
 #define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define MSG_ERR_PROTECTED_PIN               "Protected Pin"
@@ -194,9 +202,6 @@
 #define MSG_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define MSG_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define MSG_TOO_COLD_FOR_M600               "M600 Hotend too cold to change filament"
-#define MSG_BABYSTEPPING_X                  "Babystepping X"
-#define MSG_BABYSTEPPING_Y                  "Babystepping Y"
-#define MSG_BABYSTEPPING_Z                  "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
@@ -301,7 +306,8 @@
  && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_TR) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_PL) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CZ)
+ && DISABLED(DISPLAY_CHARSET_ISO10646_CZ) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_SK)
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
