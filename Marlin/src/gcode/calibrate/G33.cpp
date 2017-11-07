@@ -649,7 +649,7 @@ void GcodeSuite::G33() {
           }
         SERIAL_EOL();
         char mess[21];
-        sprintf_P(mess, PSTR("Calibration sd:"));
+        strcpy_P(mess, PSTR("Calibration sd:"));
         if (zero_std_dev_min < 1)
           sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev_min * 1000.0));
         else
@@ -664,7 +664,7 @@ void GcodeSuite::G33() {
         if (iterations < 31)
           sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
         else
-          sprintf_P(mess, PSTR("No convergence"));
+          strcpy_P(mess, PSTR("No convergence"));
         SERIAL_PROTOCOL(mess);
         SERIAL_PROTOCOL_SP(32);
         SERIAL_PROTOCOLPGM("std dev:");
@@ -683,8 +683,8 @@ void GcodeSuite::G33() {
       SERIAL_EOL();
 
       char mess[21];
-      sprintf_P(mess, enddryrun);
-      sprintf_P(&mess[11], PSTR(" sd:"));
+      strcpy_P(mess, enddryrun);
+      strcpy_P(&mess[11], PSTR(" sd:"));
       if (zero_std_dev < 1)
         sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev * 1000.0));
       else
