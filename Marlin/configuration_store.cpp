@@ -1088,7 +1088,7 @@ void MarlinSettings::postprocess() {
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
-        for (uint8_t q = 11; --q;) EEPROM_READ(val);
+        for (uint8_t q = 0; q < 11; q++) EEPROM_READ(val);
       #endif
 
       //
