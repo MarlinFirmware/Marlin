@@ -428,12 +428,13 @@
 //===========================================================================
 
 /**
- * Thermal Protection protects your printer from damage and fire if a
- * thermistor falls out or temperature sensors fail in any way.
+ * Thermal Protection provides additional protection to your printer from damage
+ * and fire. Marlin always includes safe min and max temperature ranges which
+ * protect against a broken or disconnected thermistor wire.
  *
- * The issue: If a thermistor falls out or a temperature sensor fails,
- * Marlin can no longer sense the actual temperature. Since a disconnected
- * thermistor reads as a low temperature, the firmware will keep the heater on.
+ * The issue: If a thermistor falls out, it will report the much lower
+ * temperature of the air in the room, and the the firmware will keep
+ * the heater on.
  *
  * If you get "Thermal Runaway" or "Heating failed" errors the
  * details can be tuned in Configuration_adv.h
