@@ -332,7 +332,7 @@
       else {
         while (g29_repetition_cnt--) {
           if (cnt > 20) { cnt = 0; idle(); }
-          const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
+          const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL);
           if (location.x_index < 0) {
             // No more REACHABLE mesh points to invalidate, so we ASSUME the user
             // meant to invalidate the ENTIRE mesh, which cannot be done with
@@ -528,7 +528,7 @@
             }
             else {
               while (g29_repetition_cnt--) {  // this only populates reachable mesh points near
-                const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL, false);
+                const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL);
                 if (location.x_index < 0) {
                   // No more REACHABLE INVALID mesh points to populate, so we ASSUME
                   // user meant to populate ALL INVALID mesh points to value
@@ -667,7 +667,7 @@
     }
 
     if (parser.seen('T'))
-      display_map(parser.has_value() ? parser.value_int() : 0);
+      display_map(g29_map_type);
 
     LEAVE:
 
@@ -742,6 +742,8 @@
       uint16_t max_iterations = GRID_MAX_POINTS;
 
       do {
+        if (do_ubl_mesh_map) display_map(g29_map_type);
+
         #if ENABLED(NEWPANEL)
           if (ubl_lcd_clicked()) {
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
@@ -755,7 +757,10 @@
           }
         #endif
 
-        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, NULL, close_or_far);
+        if (close_or_far)
+          location = find_furthest_invalid_mesh_point();
+        else
+          location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, NULL);
 
         if (location.x_index >= 0) {    // mesh point found and is reachable by probe
           const float rawx = mesh_index_to_xpos(location.x_index),
@@ -765,7 +770,6 @@
           z_values[location.x_index][location.y_index] = measured_z;
         }
 
-        if (do_ubl_mesh_map) display_map(g29_map_type);
 
       } while (location.x_index >= 0 && --max_iterations);
 
@@ -958,7 +962,7 @@
 
       mesh_index_pair location;
       do {
-        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_NOZZLE_AS_REFERENCE, NULL, false);
+        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_NOZZLE_AS_REFERENCE, NULL);
         // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
         if (location.x_index < 0 && location.y_index < 0) continue;
 
@@ -1228,7 +1232,7 @@
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(mesh_index_to_xpos(i), 3);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
@@ -1236,7 +1240,7 @@
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(mesh_index_to_ypos(i), 3);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(25);
     }
@@ -1284,7 +1288,7 @@
    */
   void unified_bed_leveling::g29_eeprom_dump() {
     unsigned char cccc;
-    uint16_t kkkk;
+    unsigned int  kkkk;  // Needs to be of unspecfied size to compile clean on all platforms
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
@@ -1294,7 +1298,7 @@
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
         kkkk = i + j;
-        eeprom_read_block(&cccc, (void *)kkkk, 1);
+        eeprom_read_block(&cccc, (const void *) kkkk, sizeof(unsigned char));
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
@@ -1340,18 +1344,84 @@
         z_values[x][y] -= tmp_z_values[x][y];
   }
 
-  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, unsigned int bits[16], const bool far_flag) {
+
+  mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
+
+    bool found_a_NAN  = false;
+    bool found_a_real = false;
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
+    out_mesh.distance = -99999.99;
+
+    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
+
+        if ( isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
+
+          const float mx = mesh_index_to_xpos(i),
+                      my = mesh_index_to_ypos(j);
+
+          if ( !position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
+            continue;
+
+          found_a_NAN = true;
+
+          int8_t closest_x=-1, closest_y=-1;
+          float d1, d2 = 99999.9;
+          for (int8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
+            for (int8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
+              if (!isnan(z_values[k][l])) {
+                found_a_real = true;
+
+          // Add in a random weighting factor that scrambles the probing of the
+          // last half of the mesh (when every unprobed mesh point is one index
+          // from a probed location).
+
+                d1 = HYPOT(i - k, j - l) + (1.0 / ((millis() % 47) + 13));
+
+                if (d1 < d2) {    // found a closer distance from invalid mesh point at (i,j) to defined mesh point at (k,l)
+                  d2 = d1;       // found a closer location with
+                  closest_x = i;    // an assigned mesh point value
+                  closest_y = j;
+                }
+              }
+            }
+          }
+
+          //
+          // at this point d2 should have the closest defined mesh point to invalid mesh point (i,j)
+          //
+
+          if (found_a_real && (closest_x >= 0) && (d2 > out_mesh.distance)) {
+            out_mesh.distance = d2;         // found an invalid location with a greater distance
+            out_mesh.x_index = closest_x;   // to a defined mesh point
+            out_mesh.y_index = closest_y;
+          }
+        }
+      } // for j
+    } // for i
+
+    if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
+      out_mesh.x_index = GRID_MAX_POINTS_X / 2;
+      out_mesh.y_index = GRID_MAX_POINTS_Y / 2;
+      out_mesh.distance = 1.0;
+    }
+    return out_mesh;
+  }
+
+  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, uint16_t bits[16]) {
+    mesh_index_pair out_mesh;
+    out_mesh.x_index = out_mesh.y_index = -1;
+    out_mesh.distance = -99999.9;
 
     // Get our reference position. Either the nozzle or probe location.
     const float px = rx - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
                 py = ry - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
-    float best_so_far = far_flag ? -99999.99 : 99999.99;
+    float best_so_far = 99999.99;
 
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
+    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
         if ( (type == INVALID && isnan(z_values[i][j]))  // Check to see if this location holds the right thing
           || (type == REAL && !isnan(z_values[i][j]))
@@ -1370,35 +1440,15 @@
             continue;
 
           // Reachable. Check if it's the best_so_far location to the nozzle.
-          // Add in a weighting factor that considers the current location of the nozzle.
 
           float distance = HYPOT(px - mx, py - my);
 
-          /**
-           * If doing the far_flag action, we want to be as far as possible
-           * from the starting point and from any other probed points. We
-           * want the next point spread out and filling in any blank spaces
-           * in the mesh. So we add in some of the distance to every probed
-           * point we can find.
-           */
-          if (far_flag) {
-            for (uint8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
-              for (uint8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
-                if (i != k && j != l && !isnan(z_values[k][l])) {
-                  //distance += pow((float) abs(i - k) * (MESH_X_DIST), 2) + pow((float) abs(j - l) * (MESH_Y_DIST), 2);  // working here
-                  distance += HYPOT(MESH_X_DIST, MESH_Y_DIST) / log(HYPOT((i - k) * (MESH_X_DIST) + .001, (j - l) * (MESH_Y_DIST)) + .001);
-                }
-              }
-            }
-          }
-          else
             // factor in the distance from the current location for the normal case
             // so the nozzle isn't running all over the bed.
             distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1;
 
-          // if far_flag, look for farthest point
-          if (far_flag == (distance > best_so_far) && distance != best_so_far) {
-            best_so_far = distance;   // We found a closer/farther location with
+          if (distance < best_so_far) {
+            best_so_far = distance;   // We found a closer location with
             out_mesh.x_index = i;     // the specified type of mesh value.
             out_mesh.y_index = j;
             out_mesh.distance = best_so_far;
@@ -1442,7 +1492,7 @@
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
       do {
-        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done, false);
+        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done);
 
         if (location.x_index < 0) break; // stop when we can't find any more reachable points.
 
@@ -1566,16 +1616,10 @@
       info3 PROGMEM = { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  };  // Right side of the mesh looking left
     static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
-    // static const smart_fill_info info[] PROGMEM = {
-    //   { 0, GRID_MAX_POINTS_X,      0, GRID_MAX_POINTS_Y - 2,  false } PROGMEM,  // Bottom of the mesh looking up
-    //   { 0, GRID_MAX_POINTS_X,      GRID_MAX_POINTS_Y - 1, 0,  false } PROGMEM,  // Top of the mesh looking down
-    //   { 0, GRID_MAX_POINTS_X - 2,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM,  // Left side of the mesh looking right
-    //   { GRID_MAX_POINTS_X - 1, 0,  0, GRID_MAX_POINTS_Y,      true  } PROGMEM   // Right side of the mesh looking left
-    // };
     for (uint8_t i = 0; i < COUNT(info); ++i) {
-      const smart_fill_info *f = (smart_fill_info*)pgm_read_word(&info[i]);
-      const int8_t sx = pgm_read_word(&f->sx), sy = pgm_read_word(&f->sy),
-                   ex = pgm_read_word(&f->ex), ey = pgm_read_word(&f->ey);
+      const smart_fill_info *f = (smart_fill_info*)pgm_read_ptr(&info[i]);
+      const int8_t sx = pgm_read_byte(&f->sx), sy = pgm_read_byte(&f->sy),
+                   ex = pgm_read_byte(&f->ex), ey = pgm_read_byte(&f->ey);
       if (pgm_read_byte(&f->yfirst)) {
         const int8_t dir = ex > sx ? 1 : -1;
         for (uint8_t y = sy; y != ey; ++y)
@@ -1614,9 +1658,9 @@
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_CHAR('(');
-              SERIAL_PROTOCOL_F(x, 7);
+              SERIAL_PROTOCOL_F(rx, 7);
               SERIAL_CHAR(',');
-              SERIAL_PROTOCOL_F(y, 7);
+              SERIAL_PROTOCOL_F(ry, 7);
               SERIAL_ECHOPGM(")   logical: ");
               SERIAL_CHAR('(');
               SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 7);
