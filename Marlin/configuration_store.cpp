@@ -903,8 +903,6 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(delta_segments_per_second); // 1 float
         EEPROM_READ(delta_calibration_radius);  // 1 float
         EEPROM_READ(delta_tower_angle_trim);    // 3 floats
-        dummy = 0.0f;
-        for (uint8_t q=2; q--;) EEPROM_READ(dummy);
 
       #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
