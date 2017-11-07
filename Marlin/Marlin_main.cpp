@@ -6300,9 +6300,10 @@ inline void gcode_G92() {
 
   if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
-      const float v = parser.value_axis_units((AxisEnum)i),
-                  d = current_position[i] - v;
-      if (d) {
+      const float l = parser.value_axis_units((AxisEnum)i),
+                  v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
+                  d = v - current_position[i];
+      if (!NEAR_ZERO(d)) {
         if (i == E_AXIS) didE = true; else didXYZ = true;
         #if IS_SCARA
           current_position[i] = v;        // For SCARA just set the position directly
