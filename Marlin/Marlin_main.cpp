@@ -9965,7 +9965,7 @@ void quickstop_stepper() {
                hasQ = !hasZ && parser.seen('Q');
 
     if (hasC) {
-      const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
+      const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL);
       ix = location.x_index;
       iy = location.y_index;
     }
@@ -12849,24 +12849,28 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Returns true if current_position[] was set to destination[]
    */
   inline bool prepare_move_to_destination_cartesian() {
-    if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
-      const float fr_scaled = MMS_SCALED(feedrate_mm_s);
+    const float fr_scaled = MMS_SCALED(feedrate_mm_s);
       #if HAS_MESH
-        if (planner.leveling_active) {
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            ubl.line_to_destination_cartesian(fr_scaled, active_extruder);
-          #elif ENABLED(MESH_BED_LEVELING)
-            mesh_line_to_destination(fr_scaled);
-          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-            bilinear_line_to_destination(fr_scaled);
-          #endif
-          return true;
+        if (!planner.leveling_active) {
+          line_to_destination(fr_scaled);
+          return false;
         }
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          ubl.line_to_destination_cartesian(fr_scaled, active_extruder);  // UBL's motion routine needs to know about all moves,
+          return true;                                                    // even purely Z-Axis moves
+        #else
+          if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
+            #if ENABLED(MESH_BED_LEVELING)
+              mesh_line_to_destination(fr_scaled);
+            #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+              bilinear_line_to_destination(fr_scaled);
+            #endif
+            return true;
+          }
+          else
+            line_to_destination();
+        #endif
       #endif // HAS_MESH
-      line_to_destination(fr_scaled);
-    }
-    else
-      line_to_destination();
 
     return false;
   }
