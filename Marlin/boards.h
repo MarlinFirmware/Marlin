@@ -24,6 +24,7 @@
 #define BOARDS_H
 
 #define BOARD_UNKNOWN -1
+
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
 //
@@ -138,7 +139,6 @@
 #define BOARD_SAV_MKI           83    // SAV Mk-I (AT90USB1286)
 #define BOARD_TEENSY2           84    // Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
 #define BOARD_5DPRINT           88    // 5DPrint D8 Driver Board
-
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
