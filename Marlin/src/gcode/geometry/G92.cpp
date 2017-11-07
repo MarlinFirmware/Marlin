@@ -32,10 +32,8 @@
  * G92: Set current position to given X Y Z E
  */
 void GcodeSuite::G92() {
-  bool didXYZ = false,
-       didE = parser.seenval('E');
 
-  if (!didE) stepper.synchronize();
+  stepper.synchronize();
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     switch (parser.subcode) {
@@ -60,27 +58,28 @@ void GcodeSuite::G92() {
     #define IS_G92_0 true
   #endif
 
+  bool didXYZ = false, didE = false;
+
   if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
-      #if IS_SCARA
-        current_position[i] = parser.value_axis_units((AxisEnum)i);
-        if (i != E_AXIS) didXYZ = true;
-      #else
-        #if HAS_POSITION_SHIFT
-          const float p = current_position[i];
-        #endif
-        const float v = parser.value_axis_units((AxisEnum)i);
-
-        current_position[i] = v;
-
-        if (i != E_AXIS) {
-          didXYZ = true;
-          #if HAS_POSITION_SHIFT
-            position_shift[i] += v - p; // Offset the coordinate space
+      const float l = parser.value_axis_units((AxisEnum)i),
+                  v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
+                  d = v - current_position[i];
+      if (!NEAR_ZERO(d)) {
+        if (i == E_AXIS) didE = true; else didXYZ = true;
+        #if IS_SCARA
+          current_position[i] = v;        // For SCARA just set the position directly
+        #elif HAS_POSITION_SHIFT
+          if (i == E_AXIS)
+            current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+          else {
+            position_shift[i] += d;       // Other axes simply offset the coordinate space
             update_software_endstops((AxisEnum)i);
-          #endif
-        }
-      #endif
+          }
+        #else
+          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
+        #endif
+      }
     }
   }
 
