@@ -64,7 +64,7 @@
  *  195  M206 XYZ  home_offset                      (float x3)
  *  207  M218 XYZ  hotend_offset                    (float x3 per additional hotend)
  *
- * Global Leveling:
+ * Global Leveling:                                 4 bytes
  *  219            z_fade_height                    (float)
  *
  * MESH_BED_LEVELING:                               43 bytes
@@ -80,7 +80,7 @@
  * ABL_PLANAR:                                      36 bytes
  *  270            planner.bed_level_matrix         (matrix_3x3 = float x9)
  *
- * AUTO_BED_LEVELING_BILINEAR:                      47 bytes
+ * AUTO_BED_LEVELING_BILINEAR:                      46 bytes
  *  306            GRID_MAX_POINTS_X                (uint8_t)
  *  307            GRID_MAX_POINTS_Y                (uint8_t)
  *  308            bilinear_grid_spacing            (int x2)
