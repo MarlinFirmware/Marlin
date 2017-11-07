@@ -1685,6 +1685,18 @@
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }
 
+/**
+ * Default extrusion settings
+ *
+ * These settings control basic extrusion from within the Marlin firmware.
+ * 
+ */
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
+#define DEFAULT_NOZZLE_SIZE           .4    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_LAYER_HEIGHT          .2    // (mm) Default layer height that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_HOTEND_TEMP        205.0    // (c)  Default nozzle temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_BED_TEMP            60.0    // (c)  Default bed temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
+
 // Servo deactivation
 //
 // With this option servos are powered only during movement, then turned off to prevent jitter.
@@ -1709,8 +1721,6 @@
  * Note: May require analog pins to be defined for other boards.
  */
 //#define FILAMENT_WIDTH_SENSOR
-
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)
