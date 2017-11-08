@@ -379,7 +379,7 @@ private:
     #endif
   #endif
 
-  #if PROBE_SELECTED && ENABLED(DELTA_AUTO_CALIBRATION)
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
     static void G33();
   #endif
 
