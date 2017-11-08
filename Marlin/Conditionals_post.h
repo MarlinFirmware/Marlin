@@ -1062,11 +1062,6 @@
   // Add commands that need sub-codes to this list
   #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS)
 
-  // MESH_BED_LEVELING overrides PROBE_MANUALLY
-  #if ENABLED(MESH_BED_LEVELING)
-    #undef PROBE_MANUALLY
-  #endif
-
   // Parking Extruder
   #if ENABLED(PARKING_EXTRUDER)
     #ifndef PARKING_EXTRUDER_GRAB_DISTANCE
