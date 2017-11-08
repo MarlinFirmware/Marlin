@@ -38,12 +38,7 @@
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
-  #define NOZZLE 0.4
-  #define FILAMENT 1.75
-  #define LAYER_HEIGHT 0.2
   #define PRIME_LENGTH 10.0
-  #define BED_TEMP 60.0
-  #define HOTEND_TEMP 205.0
   #define OOZE_AMOUNT 0.3
 
   #define SIZE_OF_INTERSECTION_CIRCLES 5
@@ -624,12 +619,12 @@
 
     g26_extrusion_multiplier  = EXTRUSION_MULTIPLIER;
     g26_retraction_multiplier = RETRACTION_MULTIPLIER;
-    g26_nozzle                = NOZZLE;
-    g26_filament_diameter     = FILAMENT;
-    g26_layer_height          = LAYER_HEIGHT;
+    g26_nozzle                = DEFAULT_NOZZLE_SIZE;
+    g26_filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA;
+    g26_layer_height          = DEFAULT_LAYER_HEIGHT;
     g26_prime_length          = PRIME_LENGTH;
-    g26_bed_temp              = BED_TEMP;
-    g26_hotend_temp           = HOTEND_TEMP;
+    g26_bed_temp              = DEFAULT_BED_TEMP;
+    g26_hotend_temp           = DEFAULT_HOTEND_TEMP;
     g26_prime_flag            = 0;
 
     g26_ooze_amount           = parser.linearval('O', OOZE_AMOUNT);
