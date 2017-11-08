@@ -318,6 +318,8 @@
   #include "pins_AZSMZ_MINI.h"
 #elif MB(AZTEEG_X5_GT)
   #include "pins_AZTEEG_X5_GT.h"
+#elif MB(BIQU_BQ111_A4)
+  #include "pins_BIQU_BQ111_A4.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

@@ -31,11 +31,21 @@
 //#define MOSI_PIN          P0_09
 //#define SS_PIN            P0_06
 /** external */
-#define SCK_PIN           P0_15
-#define MISO_PIN          P0_17
-#define MOSI_PIN          P0_18
-#define SS_PIN            P1_23
-#define SDSS              SS_PIN
+#ifndef SCK_PIN
+  #define SCK_PIN           P0_15
+#endif
+#ifndef MISO_PIN
+  #define MISO_PIN          P0_17
+#endif
+#ifndef MOSI_PIN
+  #define MOSI_PIN          P0_18
+#endif
+#ifndef SS_PIN
+  #define SS_PIN            P1_23
+#endif
+#ifndef SDSS
+  #define SDSS              SS_PIN
+#endif
 
 #if (defined(TARGET_LPC1768) && !(defined(LPC_SOFTWARE_SPI)))   // signal LCDs that they need to use the hardware SPI
   #define SHARED_SPI
