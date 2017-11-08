@@ -663,7 +663,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             return false;
           }
         #endif
-      #elif
+      #else
         line_to_destination();  
       #endif // HAS_MESH
 
