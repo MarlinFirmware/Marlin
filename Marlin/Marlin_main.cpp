@@ -2813,7 +2813,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (axis == Z_AXIS) probing_pause(true);
   #endif
 
-  // Tell the planner we're at Z=0
+  // Tell the planner the axis is at 0
   current_position[axis] = 0;
 
   #if IS_SCARA
