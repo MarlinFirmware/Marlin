@@ -855,9 +855,22 @@
   #define HEATER_IDLE_HANDLER (ENABLED(ADVANCED_PAUSE_FEATURE) || ENABLED(PROBING_HEATERS_OFF))
 
   /**
+   * Only constrain Z on DELTA / SCARA machines
+   */
+  #if IS_KINEMATIC
+    #undef MIN_SOFTWARE_ENDSTOP_X
+    #undef MIN_SOFTWARE_ENDSTOP_Y
+    #undef MAX_SOFTWARE_ENDSTOP_X
+    #undef MAX_SOFTWARE_ENDSTOP_Y
+  #endif
+
+  /**
    * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
+    #ifndef DELTA_PROBEABLE_RADIUS
+      #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
+    #endif
     #ifndef DELTA_CALIBRATION_RADIUS
       #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
     #endif
@@ -878,7 +891,6 @@
   /**
    * Set granular options based on the specific type of leveling
    */
-
   #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)))
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
@@ -978,6 +990,18 @@
   #endif
 
   /**
+   * VIKI2, miniVIKI, and AZSMZ_12864 require DOGLCD_SCK and DOGLCD_MOSI to be defined.
+   */
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(AZSMZ_12864)
+    #ifndef DOGLCD_SCK
+      #define DOGLCD_SCK  SCK_PIN
+    #endif
+    #ifndef DOGLCD_MOSI
+      #define DOGLCD_MOSI MOSI_PIN
+    #endif
+  #endif
+
+  /**
    * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
    */
   #ifndef Z_HOMING_HEIGHT
@@ -1037,11 +1061,6 @@
 
   // Add commands that need sub-codes to this list
   #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS)
-
-  // MESH_BED_LEVELING overrides PROBE_MANUALLY
-  #if ENABLED(MESH_BED_LEVELING)
-    #undef PROBE_MANUALLY
-  #endif
 
   // Parking Extruder
   #if ENABLED(PARKING_EXTRUDER)

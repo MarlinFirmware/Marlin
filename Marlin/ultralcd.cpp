@@ -2682,26 +2682,9 @@ void kill_screen(const char* lcd_msg) {
 
   float move_menu_scale;
 
-  #if ENABLED(DELTA_CALIBRATION_MENU)
+  #if ENABLED(DELTA_CALIBRATION_MENU) || (ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE)
 
     void lcd_move_z();
-    void lcd_delta_calibrate_menu();
-
-    void _lcd_calibrate_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_HOMING));
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        lcd_goto_previous_menu();
-    }
-
-    void _lcd_delta_calibrate_home() {
-      #if HAS_LEVELING
-        reset_bed_level(); // After calibration bed-level data is no longer valid
-      #endif
-
-      enqueue_and_echo_commands_P(PSTR("G28"));
-      lcd_goto_screen(_lcd_calibrate_homing);
-    }
 
     void _man_probe_pt(const float rx, const float ry) {
       #if HAS_LEVELING
@@ -2719,6 +2702,10 @@ void kill_screen(const char* lcd_msg) {
       lcd_goto_screen(lcd_move_z);
     }
 
+  #endif // DELTA_CALIBRATION_MENU || (DELTA_AUTO_CALIBRATION && !HAS_BED_PROBE)
+
+  #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
+
     float lcd_probe_pt(const float &rx, const float &ry) {
       _man_probe_pt(rx, ry);
       KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -2728,6 +2715,26 @@ void kill_screen(const char* lcd_msg) {
       KEEPALIVE_STATE(IN_HANDLER);
       lcd_goto_previous_menu_no_defer();
       return current_position[Z_AXIS];
+    }
+
+  #endif // DELTA_AUTO_CALIBRATION && !HAS_BED_PROBE
+
+  #if ENABLED(DELTA_CALIBRATION_MENU)
+
+    void _lcd_calibrate_homing() {
+      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_HOMING));
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+        lcd_goto_previous_menu();
+    }
+
+    void _lcd_delta_calibrate_home() {
+      #if HAS_LEVELING
+        reset_bed_level(); // After calibration bed-level data is no longer valid
+      #endif
+
+      enqueue_and_echo_commands_P(PSTR("G28"));
+      lcd_goto_screen(_lcd_calibrate_homing);
     }
 
     void _goto_tower_x() { _man_probe_pt(cos(RADIANS(210)) * delta_calibration_radius, sin(RADIANS(210)) * delta_calibration_radius); }

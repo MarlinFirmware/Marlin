@@ -454,13 +454,6 @@
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
   /**
-   * UBL has its own manual probing, so this just causes trouble.
-   */
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #undef PROBE_MANUALLY
-  #endif
-
-  /**
    * Set a flag for any enabled probe
    */
   #define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE))
