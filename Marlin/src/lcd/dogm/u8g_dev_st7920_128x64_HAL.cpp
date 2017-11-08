@@ -56,9 +56,9 @@
 
 */
 
-#include <lib/u8g.h>
+#include <U8glib.h>
 
-#include <src/lcd/dogm/HAL_LCD_com_defines.h>
+#include "HAL_LCD_com_defines.h"
 
 #define WIDTH 128
 #define HEIGHT 64

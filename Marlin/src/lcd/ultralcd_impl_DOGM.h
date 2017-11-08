@@ -59,7 +59,7 @@
 #endif
 
 #include <U8glib.h>
-#include <src/lcd/dogm/HAL_LCD_class_defines.h>
+#include "dogm/HAL_LCD_class_defines.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/ubl/ubl.h"

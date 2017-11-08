@@ -77,7 +77,7 @@
 
 #ifdef TARGET_LPC1768
 
-  #include <lib/u8g.h>
+  #include <U8glib.h>
 
   #define I2C_SLA         (0x3c*2)
   //#define I2C_CMD_MODE  0x080
