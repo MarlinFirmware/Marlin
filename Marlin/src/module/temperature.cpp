@@ -249,13 +249,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           THERMAL_PROTECTION_PERIOD
         #endif
       ;
-      const int8_t hysteresis =
+      const int8_t watch_temp_increase =
         #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? TEMP_BED_HYSTERESIS : TEMP_HYSTERESIS
+          hotend < 0 ? WATCH_BED_TEMP_INCREASE : WATCH_TEMP_INCREASE
         #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          TEMP_BED_HYSTERESIS
+          WATCH_BED_TEMP_INCREASE
         #else
-          TEMP_HYSTERESIS
+          WATCH_TEMP_INCREASE
         #endif
       ;
       millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
@@ -432,7 +432,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
         #if WATCH_THE_BED || WATCH_HOTENDS
           if (!heated && input > next_watch_temp) {
             if (input > watch_temp_target) heated = true;
-            next_watch_temp = input + hysteresis;
+            next_watch_temp = input + watch_temp_increase;
             temp_change_ms = ms + watch_temp_period * 1000UL;
           }
           else if ((!heated && ELAPSED(ms, temp_change_ms)) || (heated && input < temp - MAX_OVERSHOOT_PID_AUTOTUNE))

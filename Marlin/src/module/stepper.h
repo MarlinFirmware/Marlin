@@ -97,7 +97,7 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(LIN_ADVANCE)
-      static timer_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      static hal_timer_t nextMainISR, nextAdvanceISR, eISR_Rate;
       #define _NEXT_ISR(T) nextMainISR = T
 
       static volatile int e_steps[E_STEPPERS];
@@ -112,9 +112,9 @@ class Stepper {
 
     static long acceleration_time, deceleration_time;
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-    static timer_t acc_step_rate; // needed for deceleration start point
+    static hal_timer_t acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-    static timer_t OCR1A_nominal;
+    static hal_timer_t OCR1A_nominal;
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -277,8 +277,8 @@ class Stepper {
 
   private:
 
-    static FORCE_INLINE timer_t calc_timer(timer_t step_rate) {
-      timer_t timer;
+    static FORCE_INLINE hal_timer_t calc_timer(hal_timer_t step_rate) {
+      hal_timer_t timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
 

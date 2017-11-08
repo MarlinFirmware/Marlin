@@ -118,7 +118,7 @@
       float lcd_z_offset_edit();
     #endif
 
-    #if ENABLED(DELTA_CALIBRATION_MENU)
+    #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
       float lcd_probe_pt(const float &rx, const float &ry);
     #endif
 

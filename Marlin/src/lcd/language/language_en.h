@@ -30,6 +30,12 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
+#define en 1234
+#if LCD_LANGUAGE == en
+  #define NOT_EXTENDED_ISO10646_1_5X7
+#endif
+#undef en
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
 #endif
