@@ -567,10 +567,8 @@ static_assert(1 >= 0
     #error "You probably want to use Max Endstops for DELTA!"
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_DELTA
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
-  #elif ENABLED(DELTA_AUTO_CALIBRATION) && !PROBE_SELECTED
-    #error "DELTA_AUTO_CALIBRATION requires a probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, Z Servo."
-  #elif ENABLED(DELTA_AUTO_CALIBRATION) && ENABLED(PROBE_MANUALLY) && DISABLED(ULTIPANEL)
-    #error "DELTA_AUTO_CALIBRATION requires an LCD controller with PROBE_MANUALLY."
+  #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || ENABLED(ULTIPANEL))
+    #error "DELTA_AUTO_CALIBRATION requires either a probe or an LCD Controller."
   #elif ABL_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
@@ -612,7 +610,7 @@ static_assert(1 >= 0
   , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 );
 
-#if PROBE_SELECTED
+#if HAS_BED_PROBE
 
   /**
    * Z_PROBE_SLED is incompatible with DELTA
@@ -660,14 +658,14 @@ static_assert(1 >= 0
     #if !HAS_Z_MIN_PROBE_PIN
       #error "Z_MIN_PROBE_ENDSTOP requires the Z_MIN_PROBE_PIN to be defined."
     #endif
-  #elif DISABLED(PROBE_MANUALLY)
+  #else
     #error "You must enable either Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use a probe."
   #endif
 
   /**
    * Make sure Z raise values are set
    */
-  #if !defined(Z_CLEARANCE_DEPLOY_PROBE)
+  #ifndef Z_CLEARANCE_DEPLOY_PROBE
     #error "You must define Z_CLEARANCE_DEPLOY_PROBE in your configuration."
   #elif !defined(Z_CLEARANCE_BETWEEN_PROBES)
     #error "You must define Z_CLEARANCE_BETWEEN_PROBES in your configuration."
@@ -682,14 +680,14 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if OLDSCHOOL_ABL
+  #if OLDSCHOOL_ABL && !PROBE_SELECTED
     #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
-#endif
+  #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+  #endif
 
-#if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST) && !HAS_BED_PROBE
-  #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 #endif
 
 /**
@@ -724,6 +722,9 @@ static_assert(1 >= 0
    * Unified Bed Leveling
    */
 
+  // Hide PROBE_MANUALLY from the rest of the code
+  #undef PROBE_MANUALLY
+
   #if IS_SCARA
     #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
   #elif DISABLED(EEPROM_SETTINGS)
@@ -739,7 +740,7 @@ static_assert(1 >= 0
     static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y can't be reached by the Z probe.");
   #endif
 
-#elif HAS_ABL
+#elif OLDSCHOOL_ABL
 
   /**
    * Auto Bed Leveling
@@ -788,6 +789,9 @@ static_assert(1 >= 0
 
 #elif ENABLED(MESH_BED_LEVELING)
 
+  // Hide PROBE_MANUALLY from the rest of the code
+  #undef PROBE_MANUALLY
+
   /**
    * Mesh Bed Leveling
    */
@@ -806,8 +810,8 @@ static_assert(1 >= 0
 #if ENABLED(LCD_BED_LEVELING)
   #if DISABLED(ULTIPANEL)
     #error "LCD_BED_LEVELING requires an LCD controller."
-  #elif DISABLED(MESH_BED_LEVELING) && !(HAS_ABL && ENABLED(PROBE_MANUALLY))
-    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or PROBE_MANUALLY with auto bed leveling enabled."
+  #elif !(ENABLED(MESH_BED_LEVELING) || (OLDSCHOOL_ABL && ENABLED(PROBE_MANUALLY)))
+    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or ABL with PROBE_MANUALLY."
   #endif
 #endif
 

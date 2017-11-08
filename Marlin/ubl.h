@@ -46,9 +46,9 @@
 
   // ubl.cpp
 
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
+void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
+bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
 
   // ubl_motion.cpp
 
@@ -147,7 +147,8 @@
       static void save_ubl_active_state_and_disable();
       static void restore_ubl_active_state_and_leave();
       static void display_map(const int);
-      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16], bool);
+    static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]);
+    static mesh_index_pair find_furthest_invalid_mesh_point();
       static void reset();
       static void invalidate();
       static void set_all_mesh_points_to_value(const float);
@@ -246,12 +247,16 @@
        */
       inline static float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
         if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
           serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1l_i") : PSTR("yi") );
           SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0);
           SERIAL_ECHOPAIR(",x1_i=", x1_i);
           SERIAL_ECHOPAIR(",yi=", yi);
           SERIAL_CHAR(')');
           SERIAL_EOL();
+          }
+        #endif
           return NAN;
         }
 
@@ -266,12 +271,16 @@
       //
       inline static float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
         if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 2)) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
           serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("yl_i") );
           SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0);
           SERIAL_ECHOPAIR(", xi=", xi);
           SERIAL_ECHOPAIR(", y1_i=", y1_i);
           SERIAL_CHAR(')');
           SERIAL_EOL();
+          }
+        #endif
           return NAN;
         }
 
@@ -364,6 +373,19 @@
 
       static bool prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate);
       static void line_to_destination_cartesian(const float &fr, uint8_t e);
+
+    #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
+    #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))
+    #define ZZER(a) (z_values[a][0] == 0)
+
+    FORCE_INLINE bool mesh_is_valid() {
+      return !(
+        (    CMPZ(0) && CMPZ(1) && CMPZ(2) // adjacent z values all equal?
+          && ZZER(0) && ZZER(1) && ZZER(2) // all zero at the edge?
+        )
+        || isnan(z_values[0][0])
+      );
+    }
 
   }; // class unified_bed_leveling
 
