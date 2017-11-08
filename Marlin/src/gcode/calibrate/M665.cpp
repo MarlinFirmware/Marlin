@@ -55,7 +55,7 @@
     if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim[C_AXIS] = parser.value_float();
-    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+    recalc_delta_settings();
   }
 
 #elif IS_SCARA

@@ -56,18 +56,20 @@ float delta_safe_distance_from_top();
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
-void recalc_delta_settings(const float radius, const float diagonal_rod, const float tower_angle_trim[ABC]) {
+void recalc_delta_settings() {
   const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
               drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
-  delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]); // front left tower
-  delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]);
-  delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]); // front right tower
-  delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]);
-  delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]); // back middle tower
-  delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]);
-  delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + drt[A_AXIS]);
-  delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + drt[B_AXIS]);
-  delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + drt[C_AXIS]);
+  delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]); // front left tower
+  delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]);
+  delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]); // front right tower
+  delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]);
+  delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]); // back middle tower
+  delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]);
+  delta_diagonal_rod_2_tower[A_AXIS] = sq(delta_diagonal_rod + drt[A_AXIS]);
+  delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
+  delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
+  update_software_endstops(Z_AXIS);
+  axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
 }
 
 /**
