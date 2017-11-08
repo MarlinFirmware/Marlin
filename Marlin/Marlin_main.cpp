@@ -3352,8 +3352,10 @@ static void homeaxis(const AxisEnum axis) {
  */
 void gcode_get_destination() {
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i]))
-      destination[i] = LOGICAL_TO_NATIVE(parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0), i);
+    if (parser.seen(axis_codes[i])) {
+      const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+      destination[i] = (i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i));
+    }
     else
       destination[i] = current_position[i];
   }
