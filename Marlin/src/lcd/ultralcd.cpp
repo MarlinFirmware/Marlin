@@ -4758,6 +4758,11 @@ void lcd_update() {
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         if (!drawing_screen) {
+#if defined(TARGET_LPC1768)
+digitalWrite(P1_4, !digitalRead(P1_4));  //re-arm (was 77 in the old system)
+#else
+digitalWrite(29, !digitalRead(29));  //2560
+#endif           
           u8g.firstPage();
           drawing_screen = 1;
         }
