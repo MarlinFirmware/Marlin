@@ -2333,10 +2333,9 @@ static void clean_up_after_endstop_or_probe_move() {
    * @details Used by probe_pt to do a single Z probe.
    *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
    *
-   * @param  short_move Flag for a shorter probe move towards the bed
    * @return The raw Z position where the probe was triggered
    */
-  static float run_z_probe(const bool short_move=true) {
+  static float run_z_probe() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -2374,7 +2373,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // move down slowly to find bed
-    if (do_probe_move(-10 + (short_move ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
+    if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
@@ -2413,23 +2412,16 @@ static void clean_up_after_endstop_or_probe_move() {
 
     const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    if (printable
+    if (!printable
       ? !position_is_reachable(nx, ny)
       : !position_is_reachable_by_probe(rx, ry)
     ) return NAN;
-
 
     const float old_feedrate_mm_s = feedrate_mm_s;
 
     #if ENABLED(DELTA)
       if (current_position[Z_AXIS] > delta_clip_start_height)
         do_blocking_move_to_z(delta_clip_start_height);
-    #endif
-
-    #if HAS_SOFTWARE_ENDSTOPS
-      // Store the status of the soft endstops and disable if we're probing a non-printable location
-      static bool enable_soft_endstops = soft_endstops_enabled;
-      if (!printable) soft_endstops_enabled = false;
     #endif
 
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
@@ -2439,18 +2431,13 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
-      measured_z = run_z_probe(printable);
+      measured_z = run_z_probe();
 
       if (!stow)
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       else
         if (STOW_PROBE()) measured_z = NAN;
     }
-
-    #if HAS_SOFTWARE_ENDSTOPS
-      // Restore the soft endstop status
-      soft_endstops_enabled = enable_soft_endstops;
-    #endif
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
@@ -5592,7 +5579,7 @@ void home_all_axes() { gcode_G28(true); }
                       r = delta_calibration_radius * 0.1;
           z_at_pt[CEN] +=
             #if HAS_BED_PROBE
-              probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+              probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false)
             #else
               lcd_probe_pt(cos(a) * r, sin(a) * r)
             #endif
@@ -5621,7 +5608,7 @@ void home_all_axes() { gcode_G28(true); }
                         interpol = fmod(axis, 1);
             const float z_temp =
               #if HAS_BED_PROBE
-                probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1)
+                probe_pt(cos(a) * r + dx, sin(a) * r + dy, stow_after_each, 1, false)
               #else
                 lcd_probe_pt(cos(a) * r, sin(a) * r)
               #endif
@@ -5636,7 +5623,6 @@ void home_all_axes() { gcode_G28(true); }
           LOOP_CAL_RAD(axis)
             z_at_pt[axis] /= _7P_STEP  / steps;
       }
-
 
       float S1 = z_at_pt[CEN],
             S2 = sq(z_at_pt[CEN]);
@@ -5675,6 +5661,7 @@ void home_all_axes() { gcode_G28(true); }
 
       LOOP_XYZ(axis) {
         delta_endstop_adj[axis] -= 1.0;
+        recalc_delta_settings();
 
         endstops.enable(true);
         if (!home_delta()) return;
@@ -5688,6 +5675,7 @@ void home_all_axes() { gcode_G28(true); }
         LOOP_CAL_ALL(axis) z_at_pt[axis] -= z_at_pt_base[axis];
         print_G33_results(z_at_pt, true, true);
         delta_endstop_adj[axis] += 1.0;
+        recalc_delta_settings();
         switch (axis) {
           case A_AXIS :
             h_fac += 4.0 / (Z03(CEN) +Z01(__A)                               +Z32(_CA) +Z32(_AB)); // Offset by X-tower end-stop
@@ -5705,7 +5693,7 @@ void home_all_axes() { gcode_G28(true); }
 
       for (int8_t zig_zag = -1; zig_zag < 2; zig_zag += 2) {
         delta_radius += 1.0 * zig_zag;
-        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        recalc_delta_settings();
 
         endstops.enable(true);
         if (!home_delta()) return;
@@ -5718,7 +5706,7 @@ void home_all_axes() { gcode_G28(true); }
         LOOP_CAL_ALL(axis) z_at_pt[axis] -= z_at_pt_base[axis];
         print_G33_results(z_at_pt, true, true);
         delta_radius -= 1.0 * zig_zag;
-        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        recalc_delta_settings();
         r_fac -= zig_zag * 6.0 / (Z03(__A) +Z03(__B) +Z03(__C) +Z03(_BC) +Z03(_CA) +Z03(_AB)); // Offset by delta radius
       }
       r_fac /= 2.0;
@@ -5731,7 +5719,7 @@ void home_all_axes() { gcode_G28(true); }
         z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
         delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
-        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        recalc_delta_settings();
 
         endstops.enable(true);
         if (!home_delta()) return;
@@ -5751,7 +5739,7 @@ void home_all_axes() { gcode_G28(true); }
         z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
         delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
-        recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+        recalc_delta_settings();
         switch (axis) {
           case A_AXIS :
           a_fac += 4.0 / (          Z06(__B) -Z06(__C)           +Z06(_CA) -Z06(_AB)); // Offset by alpha tower angle
@@ -6038,7 +6026,7 @@ void home_all_axes() { gcode_G28(true); }
         delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
       }
-      recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+      recalc_delta_settings();
       NOMORE(zero_std_dev_min, zero_std_dev);
 
       // print report
@@ -8997,7 +8985,7 @@ inline void gcode_M205() {
     if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim[C_AXIS] = parser.value_float();
-    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+    recalc_delta_settings();
   }
   /**
    * M666: Set delta endstop adjustment
@@ -11409,17 +11397,13 @@ void process_parsed_command() {
 
       #endif // HAS_BED_PROBE
 
-      #if PROBE_SELECTED
+      #if ENABLED(DELTA_AUTO_CALIBRATION)
 
-        #if ENABLED(DELTA_AUTO_CALIBRATION)
+        case 33: // G33: Delta Auto-Calibration
+          gcode_G33();
+          break;
 
-          case 33: // G33: Delta Auto-Calibration
-            gcode_G33();
-            break;
-
-        #endif // DELTA_AUTO_CALIBRATION
-
-      #endif // PROBE_SELECTED
+      #endif // DELTA_AUTO_CALIBRATION
 
       #if ENABLED(G38_PROBE_TARGET)
         case 38: // G38.2 & G38.3
@@ -12355,18 +12339,20 @@ void ok_to_send() {
    * Recalculate factors used for delta kinematics whenever
    * settings have been changed (e.g., by M665).
    */
-  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]) {
+  void recalc_delta_settings() {
     const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
                 drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
-    delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]); // front left tower
-    delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]);
-    delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]); // front right tower
-    delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]);
-    delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]); // back middle tower
-    delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]);
-    delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + drt[A_AXIS]);
-    delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + drt[B_AXIS]);
-    delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + drt[C_AXIS]);
+    delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]); // front left tower
+    delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]);
+    delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]); // front right tower
+    delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]);
+    delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]); // back middle tower
+    delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]);
+    delta_diagonal_rod_2_tower[A_AXIS] = sq(delta_diagonal_rod + drt[A_AXIS]);
+    delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
+    delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
+    update_software_endstops(Z_AXIS);
+    axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
   }
 
   #if ENABLED(DELTA_FAST_SQRT)

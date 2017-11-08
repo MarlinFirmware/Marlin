@@ -310,7 +310,7 @@ void report_current_position();
                delta_segments_per_second,
                delta_tower_angle_trim[ABC],
                delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]);
+  void recalc_delta_settings();
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
