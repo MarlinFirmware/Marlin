@@ -12866,9 +12866,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             #endif
             return true;
           }
-          else
+          else {
             line_to_destination();
+            return false;
+          }
         #endif
+      #else
+        line_to_destination();
       #endif // HAS_MESH
 
     return false;
