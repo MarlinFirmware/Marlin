@@ -4746,22 +4746,18 @@ void lcd_update() {
     #endif
 
     if ((lcdDrawUpdate || IS_DRAWING) && (!bbr2 || bbr2 > max_display_update_time)) {
-      #if ENABLED(DOGLCD)
-        if (!drawing_screen)
-      #endif
-        {
-          switch (lcdDrawUpdate) {
-            case LCDVIEW_CALL_NO_REDRAW:
-              lcdDrawUpdate = LCDVIEW_NONE;
-              break;
-            case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
-            case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
-              lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-            case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
-            case LCDVIEW_NONE:
-              break;
-          } // switch
-        }
+
+      if (!IS_DRAWING) switch (lcdDrawUpdate) {
+        case LCDVIEW_CALL_NO_REDRAW:
+          lcdDrawUpdate = LCDVIEW_NONE;
+          break;
+        case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
+        case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
+        case LCDVIEW_NONE:
+          break;
+      } // switch
 
       #if ENABLED(ADC_KEYPAD)
         buttons_reprapworld_keypad = 0;
@@ -4773,14 +4769,18 @@ void lcd_update() {
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        if (!drawing_screen) {
-          u8g.firstPage();
-          drawing_screen = 1;
+      #if ENABLED(DOGLCD)
+        if (!drawing_screen) {                        // If not already drawing pages
+          u8g.firstPage();                            // Start the first page
+          drawing_screen = 1;                         // Flag as drawing pages
         }
-        lcd_setFont(FONT_MENU);
-        u8g.setColorIndex(1);
-        CURRENTSCREEN();
+        lcd_setFont(FONT_MENU);                       // Setup font for every page draw
+        u8g.setColorIndex(1);                         // And reset the color
+        CURRENTSCREEN();                              // Draw and process the current screen
+
+        // The screen handler can clear drawing_screen for an action that changes the screen.
+        // If still drawing and there's another page, update max-time and return now.
+        // The nextPage will already be set up on the next call.
         if (drawing_screen && (drawing_screen = u8g.nextPage())) {
           NOLESS(max_display_update_time, millis() - ms);
           return;
@@ -4788,6 +4788,9 @@ void lcd_update() {
       #else
         CURRENTSCREEN();
       #endif
+
+      // Keeping track of the longest time for an individual LCD update.
+      // Used to do screen throttling when the planner starts to fill up.
       NOLESS(max_display_update_time, millis() - ms);
     }
 
@@ -4801,23 +4804,19 @@ void lcd_update() {
 
     #endif // ULTIPANEL
 
-    #if ENABLED(DOGLCD)
-      if (!drawing_screen)
-    #endif
-      {
-        switch (lcdDrawUpdate) {
-          case LCDVIEW_CLEAR_CALL_REDRAW:
-            lcd_implementation_clear();
-          case LCDVIEW_CALL_REDRAW_NEXT:
-            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-            break;
-          case LCDVIEW_REDRAW_NOW:
-            lcdDrawUpdate = LCDVIEW_NONE;
-            break;
-          case LCDVIEW_NONE:
-            break;
-        } // switch
-      }
+    if (!IS_DRAWING) switch (lcdDrawUpdate) {
+      case LCDVIEW_CLEAR_CALL_REDRAW:
+        lcd_implementation_clear();
+      case LCDVIEW_CALL_REDRAW_NEXT:
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        break;
+      case LCDVIEW_REDRAW_NOW:
+        lcdDrawUpdate = LCDVIEW_NONE;
+        break;
+      case LCDVIEW_NONE:
+        break;
+    } // switch
+
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
