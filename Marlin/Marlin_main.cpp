@@ -3354,7 +3354,7 @@ void gcode_get_destination() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
-      destination[i] = (i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i));
+      destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
@@ -12716,13 +12716,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #endif // AUTO_BED_LEVELING_BILINEAR
 
-#if IS_KINEMATIC && !UBL_DELTA
+#if !UBL_DELTA
+#if IS_KINEMATIC
 
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
    *
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
+   *
+   * For Unified Bed Leveling (Delta or Segmented Cartesian)
+   * the ubl.prepare_segmented_line_to method replaces this.
    */
   inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
 
@@ -12841,46 +12845,45 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return false;
   }
 
-#else // !IS_KINEMATIC || UBL_DELTA
+#else // !IS_KINEMATIC
 
   /**
    * Prepare a linear move in a Cartesian setup.
-   * If Mesh Bed Leveling is enabled, perform a mesh move.
+   *
+   * When a mesh-based leveling system is active, moves are segmented
+   * according to the configuration of the leveling system.
    *
    * Returns true if current_position[] was set to destination[]
    */
   inline bool prepare_move_to_destination_cartesian() {
-    const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      #if HAS_MESH
-        if (!planner.leveling_active) {
-          line_to_destination(fr_scaled);
-          return false;
-        }
+    #if HAS_MESH
+      if (planner.leveling_active) {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.line_to_destination_cartesian(fr_scaled, active_extruder);  // UBL's motion routine needs to know about all moves,
-          return true;                                                    // even purely Z-Axis moves
+          ubl.line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);  // UBL's motion routine needs to know about
+          return true;                                                                    // all moves, including Z-only moves.
         #else
+          /**
+           * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
+           * Otherwise fall through to do a direct single move.
+           */
           if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
             #if ENABLED(MESH_BED_LEVELING)
-              mesh_line_to_destination(fr_scaled);
+              mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bilinear_line_to_destination(fr_scaled);
+              bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
             #endif
             return true;
           }
-          else {
-            line_to_destination();
-            return false;
-          }
         #endif
-      #else
-        line_to_destination();
-      #endif // HAS_MESH
+      }
+    #endif // HAS_MESH
 
+    line_to_destination(MMS_SCALED(feedrate_mm_s));
     return false;
   }
 
-#endif // !IS_KINEMATIC || UBL_DELTA
+#endif // !IS_KINEMATIC
+#endif // !UBL_DELTA
 
 #if ENABLED(DUAL_X_CARRIAGE)
 

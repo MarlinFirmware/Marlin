@@ -489,7 +489,7 @@
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call _buffer_line directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void _O2 ubl_buffer_segment_raw( float rx, float ry, float rz, float e, float fr ) {
+    inline void _O2 ubl_buffer_segment_raw(const float &rx, const float &ry, const float rz, const float &e, const float &fr) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
@@ -507,7 +507,7 @@
 
         planner._buffer_line(delta_A, delta_B, delta_C, e, fr, active_extruder);
 
-      #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
+      #elif IS_SCARA  // apply scara inverse_kinematics
 
         const float lseg[XYZ] = { rx, ry, rz };
 
@@ -523,8 +523,6 @@
         planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], e, s_feedrate, active_extruder);
 
       #else // CARTESIAN
-
-        // Cartesian _buffer_line seems to take LOGICAL, not RAW coordinates
 
         planner._buffer_line(rx, ry, rz, e, fr, active_extruder);
 
