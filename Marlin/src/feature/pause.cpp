@@ -99,7 +99,7 @@ void do_pause_e_move(const float &length, const float fr) {
   #if IS_KINEMATIC
     planner.buffer_line_kinematic(destination, fr, active_extruder);
   #else
-    line_to_destination(fr);
+    buffer_line_to_destination(fr);
   #endif
   stepper.synchronize();
 }
