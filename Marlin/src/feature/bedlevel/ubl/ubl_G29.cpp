@@ -1665,7 +1665,7 @@
               SERIAL_CHAR('(');
               SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 7);
               SERIAL_CHAR(',');
-              SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ry), 7);
+              SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 7);
               SERIAL_ECHOPGM(")   measured: ");
               SERIAL_PROTOCOL_F(measured_z, 7);
               SERIAL_ECHOPGM("   correction: ");
