@@ -482,6 +482,21 @@
 // The timeout (in ms) to return to the status screen from sub-menus
 //#define LCD_TIMEOUT_TO_STATUS 15000
 
+//#define LED_CONTROL_MENU                       // Uncomment to enable the LED control menu option.
+#if ENABLED(LED_CONTROL_MENU)
+
+  #define LED_COLOR_PRESETS                   // Uncomment to enable the preset color menu option.
+    #if ENABLED(LED_COLOR_PRESETS)
+      #define LED_USER_PRESET_RED       255   // User defined RED value
+      #define LED_USER_PRESET_GREEN     128   // User defined GREEN value
+      #define LED_USER_PRESET_BLUE        0   // User defined BLUE value
+      #define LED_USER_PRESET_WHITE     255   // User defined WHITE value
+      #define LED_USER_PRESET_INTENSITY 255   // User defined intensity
+
+      //#define LED_USER_PRESET_STARTUP         // Have the printer display the user preset color on startup
+    #endif
+#endif // LED_CONTROL_MENU
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work

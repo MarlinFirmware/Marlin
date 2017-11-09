@@ -65,4 +65,6 @@ void set_led_color(
     #endif
 );
 
+void set_led_white();
+
 #endif // __LEDS_H__

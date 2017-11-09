@@ -30,6 +30,32 @@
 
 #include "leds.h"
 
+#if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(LED_COLOR_PRESETS)
+uint8_t led_intensity_red = LED_USER_PRESET_RED,
+        led_intensity_green = LED_USER_PRESET_GREEN,
+        led_intensity_blue = LED_USER_PRESET_BLUE
+        #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+          , led_intensity_white = LED_USER_PRESET_WHITE
+        #endif
+        #if ENABLED(NEOPIXEL_LED)
+          , led_intensity = NEOPIXEL_BRIGHTNESS
+        #endif
+        ;
+  #else
+    uint8_t led_intensity_red = 255,
+            led_intensity_green = 255,
+            led_intensity_blue = 255
+            #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+              , led_intensity_white = 0
+            #endif
+            #if ENABLED(NEOPIXEL_LED)
+              , led_intensity = NEOPIXEL_BRIGHTNESS
+            #endif
+            ;
+  #endif
+#endif
+
 void set_led_color(
   const uint8_t r, const uint8_t g, const uint8_t b
     #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
@@ -42,20 +68,11 @@ void set_led_color(
 ) {
 
   #if ENABLED(NEOPIXEL_LED)
-
-    const uint32_t color = pixels.Color(r, g, b, w);
-    static uint16_t nextLed = 0;
-
-    pixels.setBrightness(p);
-    if (!isSequence)
-      set_neopixel_color(color);
-    else {
-      pixels.setPixelColor(nextLed, color);
-      pixels.show();
-      if (++nextLed >= pixels.numPixels()) nextLed = 0;
-      return;
+    if ((w == 255) || ((r == 255) && (g == 255) && (b == 255))) {
+      neopixel_set_led_color(NEO_WHITE, p);
     }
-
+    else
+      neopixel_set_led_color(r, g, b, w, p);
   #endif
 
   #if ENABLED(BLINKM)
@@ -80,6 +97,34 @@ void set_led_color(
 
   #if ENABLED(PCA9632)
     pca9632_set_led_color(r, g, b); // Update I2C LED driver
+  #endif
+
+  #if ENABLED(LED_CONTROL_MENU)
+    if ((r + g + b
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+        + w
+      #endif
+    ) >= 3) {
+      led_intensity_red = r;
+      led_intensity_green = g;
+      led_intensity_blue = b;
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+        led_intensity_white = w;
+      #endif
+      #if ENABLED(NEOPIXEL_LED)
+        led_intensity = p;
+      #endif
+    }
+  #endif
+}
+
+void set_led_white(){
+  #if ENABLED(NEOPIXEL_LED)
+    neopixel_set_led_color(NEO_WHITE, pixels.getBrightness());
+  #elif (RGBW_LED)
+    set_led_color(0, 0, 0, 255);
+  #else
+    set_led_color(255, 255, 255);
   #endif
 }
 
