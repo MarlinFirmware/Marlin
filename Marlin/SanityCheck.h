@@ -797,7 +797,7 @@ static_assert(1 >= 0
    */
 
   #if ENABLED(DELTA)
-    #error "MESH_BED_LEVELING does not yet support DELTA printers."
+    #error "MESH_BED_LEVELING is not compatible with DELTA printers."
   #elif GRID_MAX_POINTS_X > 9 || GRID_MAX_POINTS_Y > 9
     #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
   #endif

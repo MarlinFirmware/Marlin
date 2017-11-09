@@ -376,16 +376,16 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
- *   Used by 'line_to_current_position' to do a move after changing it.
+ *   Used by 'buffer_line_to_current_position' to do a move after changing it.
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
 float current_position[XYZE] = { 0.0 };
 
 /**
  * Cartesian Destination
- *   A temporary position, usually applied to 'current_position'.
+ *   The destination for a move, filled in by G-code movement commands,
+ *   and expected by functions like 'prepare_move_to_destination'.
  *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
- *   'line_to_destination' sets 'current_position' to 'destination'.
  */
 float destination[XYZE] = { 0.0 };
 
@@ -1633,7 +1633,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-inline void line_to_current_position() {
+inline void buffer_line_to_current_position() {
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
 }
 
@@ -1641,10 +1641,9 @@ inline void line_to_current_position() {
  * Move the planner to the position stored in the destination array, which is
  * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
  */
-inline void line_to_destination(const float fr_mm_s) {
+inline void buffer_line_to_destination(const float fr_mm_s) {
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
 }
-inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
 inline void set_current_from_destination() { COPY(current_position, destination); }
 inline void set_destination_from_current() { COPY(destination, current_position); }
@@ -1772,19 +1771,19 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
     if (current_position[Z_AXIS] < rz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
       current_position[Z_AXIS] = rz;
-      line_to_current_position();
+      buffer_line_to_current_position();
     }
 
     feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
     current_position[X_AXIS] = rx;
     current_position[Y_AXIS] = ry;
-    line_to_current_position();
+    buffer_line_to_current_position();
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > rz) {
       feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
       current_position[Z_AXIS] = rz;
-      line_to_current_position();
+      buffer_line_to_current_position();
     }
 
   #endif
@@ -3933,7 +3932,7 @@ inline void gcode_G4() {
     // Move all carriages together linearly until an endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (DELTA_HEIGHT + home_offset[Z_AXIS] + 10);
     feedrate_mm_s = homing_feedrate(X_AXIS);
-    line_to_current_position();
+    buffer_line_to_current_position();
     stepper.synchronize();
 
     // If an endstop was not hit, then damage can occur if homing is continued.
@@ -4314,7 +4313,7 @@ void home_all_axes() { gcode_G28(true); }
     #if ENABLED(MESH_G28_REST_ORIGIN)
       current_position[Z_AXIS] = Z_MIN_POS;
       set_destination_from_current();
-      line_to_destination(homing_feedrate(Z_AXIS));
+      buffer_line_to_destination(homing_feedrate(Z_AXIS));
       stepper.synchronize();
     #endif
   }
@@ -4406,7 +4405,7 @@ void home_all_axes() { gcode_G28(true); }
         else {
           // One last "return to the bed" (as originally coded) at completion
           current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
-          line_to_current_position();
+          buffer_line_to_current_position();
           stepper.synchronize();
 
           // After recording the last point, activate home and activate
@@ -6563,17 +6562,13 @@ inline void gcode_M17() {
   #if IS_KINEMATIC
     #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder)
   #else
-    #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S)
+    #define RUNPLAN(RATE_MM_S) buffer_line_to_destination(RATE_MM_S)
   #endif
 
   void do_pause_e_move(const float &length, const float fr) {
     current_position[E_AXIS] += length;
     set_destination_from_current();
-    #if IS_KINEMATIC
-      planner.buffer_line_kinematic(destination, fr, active_extruder);
-    #else
-      line_to_destination(fr);
-    #endif
+    RUNPLAN(fr);
     stepper.synchronize();
   }
 
@@ -12596,7 +12591,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a mesh-leveled linear move in a Cartesian setup,
    * splitting the move where it crosses mesh borders.
    */
-  void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xFF, uint8_t y_splits = 0xFF) {
+  void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits = 0xFF, uint8_t y_splits = 0xFF) {
     int cx1 = mbl.cell_index_x(current_position[X_AXIS]),
         cy1 = mbl.cell_index_y(current_position[Y_AXIS]),
         cx2 = mbl.cell_index_x(destination[X_AXIS]),
@@ -12608,7 +12603,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
@@ -12635,7 +12630,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     }
     else {
       // Already split on a border
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
@@ -12659,7 +12654,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void bilinear_line_to_destination(float fr_mm_s, uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF) {
+  void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF) {
     int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
@@ -12671,7 +12666,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
@@ -12698,7 +12693,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     }
     else {
       // Already split on a border
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
@@ -12878,7 +12873,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       }
     #endif // HAS_MESH
 
-    line_to_destination(MMS_SCALED(feedrate_mm_s));
+    buffer_line_to_destination(MMS_SCALED(feedrate_mm_s));
     return false;
   }
 
