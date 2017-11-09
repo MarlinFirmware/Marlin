@@ -627,7 +627,8 @@ static uint8_t target_extruder;
   float delta[ABC];
 
   // Initialized by settings.load()
-  float delta_endstop_adj[ABC] = { 0 },
+  float delta_height,
+        delta_endstop_adj[ABC] = { 0 },
         delta_radius,
         delta_tower_angle_trim[ABC],
         delta_tower[ABC][2],
@@ -1443,6 +1444,12 @@ bool get_target_extruder_from_command(const uint16_t code) {
           soft_endstop_max[axis] = base_max_pos(axis) + offs;
         }
       }
+    #elif ENABLED(DELTA)
+      soft_endstop_min[axis] = base_min_pos(axis) + offs;
+      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height : base_max_pos(axis)) + offs;
+    #else
+      soft_endstop_min[axis] = base_min_pos(axis) + offs;
+      soft_endstop_max[axis] = base_max_pos(axis) + offs;
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1567,6 +1574,10 @@ static void set_axis_is_at_home(const AxisEnum axis) {
       soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
       soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
     }
+    else
+  #elif ENABLED(DELTA)
+    if (axis == Z_AXIS)
+      current_position[axis] = delta_height;
     else
   #endif
   {
@@ -2378,11 +2389,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    return current_position[Z_AXIS] + zprobe_zoffset
-      #if ENABLED(DELTA)
-        + home_offset[Z_AXIS] // Account for delta height adjustment
-      #endif
-    ;
+    return current_position[Z_AXIS] + zprobe_zoffset;
   }
 
   /**
@@ -3931,14 +3938,13 @@ inline void gcode_G4() {
     sync_plan_position();
 
     // Move all carriages together linearly until an endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (DELTA_HEIGHT + home_offset[Z_AXIS] + 10);
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
     feedrate_mm_s = homing_feedrate(X_AXIS);
     line_to_current_position();
     stepper.synchronize();
 
     // If an endstop was not hit, then damage can occur if homing is continued.
-    // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
-    // not set correctly.
+    // This can occur if the delta height not set correctly.
     if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
       LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
       SERIAL_ERROR_START();
@@ -5483,7 +5489,7 @@ void home_all_axes() { gcode_G28(true); }
   }
 
   static void print_G33_settings(const bool end_stops, const bool tower_angles) {
-    SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+    SERIAL_PROTOCOLPAIR(".Height:", delta_height);
     if (end_stops) {
       print_signed_float(PSTR("Ex"), delta_endstop_adj[A_AXIS]);
       print_signed_float(PSTR("Ey"), delta_endstop_adj[B_AXIS]);
@@ -5731,7 +5737,7 @@ void home_all_axes() { gcode_G28(true); }
         delta_endstop_adj[(axis + 1) % 3] -= 1.0 / 4.5;
         delta_endstop_adj[(axis + 2) % 3] += 1.0 / 4.5;
         z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-        home_offset[Z_AXIS] -= z_temp;
+        delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
         recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
 
@@ -5751,7 +5757,7 @@ void home_all_axes() { gcode_G28(true); }
         delta_endstop_adj[(axis+1) % 3] += 1.0/4.5;
         delta_endstop_adj[(axis+2) % 3] -= 1.0/4.5;
         z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-        home_offset[Z_AXIS] -= z_temp;
+        delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
         recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
         switch (axis) {
@@ -5860,7 +5866,7 @@ void home_all_axes() { gcode_G28(true); }
             delta_endstop_adj[C_AXIS]
           },
           dr_old = delta_radius,
-          zh_old = home_offset[Z_AXIS],
+          zh_old = delta_height,
           ta_old[ABC] = {
             delta_tower_angle_trim[A_AXIS],
             delta_tower_angle_trim[B_AXIS],
@@ -5939,7 +5945,7 @@ void home_all_axes() { gcode_G28(true); }
         if (zero_std_dev < zero_std_dev_min) {
           COPY(e_old, delta_endstop_adj);
           dr_old = delta_radius;
-          zh_old = home_offset[Z_AXIS];
+          zh_old = delta_height;
           COPY(ta_old, delta_tower_angle_trim);
         }
 
@@ -6023,7 +6029,7 @@ void home_all_axes() { gcode_G28(true); }
       else if (zero_std_dev >= test_precision) {   // step one back
         COPY(delta_endstop_adj, e_old);
         delta_radius = dr_old;
-        home_offset[Z_AXIS] = zh_old;
+        delta_height = zh_old;
         COPY(delta_tower_angle_trim, ta_old);
       }
 
@@ -6037,7 +6043,7 @@ void home_all_axes() { gcode_G28(true); }
 
         // adjust delta_height and endstops by the max amount
         const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-        home_offset[Z_AXIS] -= z_temp;
+        delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
       }
       recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
@@ -8993,7 +8999,7 @@ inline void gcode_M205() {
    */
   inline void gcode_M665() {
     if (parser.seen('H')) {
-      home_offset[Z_AXIS] = parser.value_linear_units() - DELTA_HEIGHT;
+      delta_height = parser.value_linear_units();
       update_software_endstops(Z_AXIS);
     }
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
@@ -10101,7 +10107,7 @@ inline void gcode_M502() {
       #endif
 
       #if ENABLED(DELTA) // correct the delta_height
-        home_offset[Z_AXIS] -= diff;
+        delta_height -= diff;
       #endif
     }
 
