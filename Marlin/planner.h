@@ -356,18 +356,18 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    static FORCE_INLINE void buffer_line_kinematic(const float rtarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line_kinematic(const float cart[XYZE], const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
-        float lpos[XYZ] = { rtarget[X_AXIS], rtarget[Y_AXIS], rtarget[Z_AXIS] };
-        apply_leveling(lpos);
+        float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
+        apply_leveling(raw);
       #else
-        const float * const lpos = rtarget;
+        const float * const raw = cart;
       #endif
       #if IS_KINEMATIC
-        inverse_kinematics(lpos);
-        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], fr_mm_s, extruder);
+        inverse_kinematics(raw);
+        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #else
-        _buffer_line(lpos[X_AXIS], lpos[Y_AXIS], lpos[Z_AXIS], rtarget[E_AXIS], fr_mm_s, extruder);
+        _buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #endif
     }
 
