@@ -2742,19 +2742,15 @@ void kill_screen(const char* lcd_msg) {
     void _goto_tower_z() { _man_probe_pt(cos(RADIANS( 90)) * delta_calibration_radius, sin(RADIANS( 90)) * delta_calibration_radius); }
     void _goto_center()  { _man_probe_pt(0,0); }
 
-    static float _delta_height = DELTA_HEIGHT;
     void _lcd_set_delta_height() {
-      home_offset[Z_AXIS] = _delta_height - DELTA_HEIGHT;
       update_software_endstops(Z_AXIS);
     }
 
     void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
-      float Tz = 0.00;
       MENU_ITEM_EDIT(float52, MSG_DELTA_DIAG_ROG, &delta_diagonal_rod, DELTA_DIAGONAL_ROD - 5.0, DELTA_DIAGONAL_ROD + 5.0);
-      _delta_height = DELTA_HEIGHT + home_offset[Z_AXIS];
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_HEIGHT, &_delta_height, _delta_height - 10.0, _delta_height + 10.0, _lcd_set_delta_height);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10.0, delta_height + 10.0, _lcd_set_delta_height);
       MENU_ITEM_EDIT(float43, "Ex", &delta_endstop_adj[A_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Ey", &delta_endstop_adj[B_AXIS], -5.0, 5.0);
       MENU_ITEM_EDIT(float43, "Ez", &delta_endstop_adj[C_AXIS], -5.0, 5.0);
