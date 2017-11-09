@@ -114,7 +114,7 @@
   #include "pins_RUMBA.h"             // ATmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560
-#elif MB(RAMPS_TRIGORILLA)
+#elif MB(TRIGORILLA)
   #include "pins_TRIGORILLA.h"          // ATmega2560
 
 //
