@@ -256,29 +256,6 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
-// Dual X Steppers
-// Uncomment this option to drive two X axis motors.
-// The next unused E driver will be assigned to the second X stepper.
-//#define X_DUAL_STEPPER_DRIVERS
-#if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  // Set true if the two X motors need to rotate in opposite directions
-  #define INVERT_X2_VS_X_DIR true
-#endif
-
-// Dual Y Steppers
-// Uncomment this option to drive two Y axis motors.
-// The next unused E driver will be assigned to the second Y stepper.
-//#define Y_DUAL_STEPPER_DRIVERS
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  // Set true if the two Y motors need to rotate in opposite directions
-  #define INVERT_Y2_VS_Y_DIR true
-#endif
-
-// A single Z stepper driver is usually used to drive 2 stepper motors.
-// Uncomment this option to use a separate stepper driver for each Z axis motor.
-// The next unused E driver will be assigned to the second Z stepper.
-//#define Z_DUAL_STEPPER_DRIVERS
-
 /**
  * Dual Steppers / Dual Endstops
  *

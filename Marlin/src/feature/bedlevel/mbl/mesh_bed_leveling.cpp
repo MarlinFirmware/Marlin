@@ -68,7 +68,7 @@
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
@@ -95,7 +95,7 @@
     }
     else {
       // Already split on a border
-      line_to_destination(fr_mm_s);
+      buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
     }
