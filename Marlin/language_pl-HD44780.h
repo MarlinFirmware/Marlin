@@ -24,6 +24,11 @@
  * Polish for HD44780 display - no accented characters
  */
 
+#ifndef LANGUAGE_PL_HD44780_H
+#define LANGUAGE_PL_HD44780_H
+
+#define NOT_EXTENDED_ISO10646_1_5X7
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta wlozona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunieta")
@@ -40,6 +45,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nastepny punkt")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Wypoziomowano!")
+#define MSG_USER_MENU                       _UxGT("Wlasne Polecenia")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
 #define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
@@ -263,3 +269,5 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
+
+#endif  // LANGUAGE_PL_HD44780_H

@@ -879,6 +879,10 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
+
+    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+      lcd_reselect_last_file();
+    #endif
   }
 }
 

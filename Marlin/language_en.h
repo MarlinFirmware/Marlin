@@ -30,6 +30,12 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
+#define en 1234
+#if LCD_LANGUAGE == en
+  #define NOT_EXTENDED_ISO10646_1_5X7
+#endif
+#undef en
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
 #endif
@@ -398,6 +404,9 @@
 #ifndef MSG_FAN_SPEED
   #define MSG_FAN_SPEED                       _UxGT("Fan speed")
 #endif
+#ifndef MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra fan speed")
+#endif
 #ifndef MSG_FLOW
   #define MSG_FLOW                            _UxGT("Flow")
 #endif
@@ -612,7 +621,10 @@
   #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVERF
-  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet V")
+#endif
+#ifndef MSG_CONTROL_RETRACT_RECOVER_SWAPF
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #endif
 #ifndef MSG_AUTORETRACT
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")

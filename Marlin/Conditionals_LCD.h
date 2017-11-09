@@ -53,6 +53,7 @@
     // this helps to implement ADC_KEYPAD menus
     #define ENCODER_PULSES_PER_STEP 1
     #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define ENCODER_FEEDRATE_DEADZONE 2
     #define REVERSE_MENU_DIRECTION
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
@@ -62,7 +63,6 @@
   #elif ENABLED(BQ_LCD_SMART_CONTROLLER)
 
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-    #define LONG_FILENAME_HOST_SUPPORT
 
   #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -155,7 +155,7 @@
 
   #endif
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI)
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI) || ENABLED(SILVER_GATE_GLCD_CONTROLLER)
     #define DOGLCD
     #define U8GLIB_ST7920
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -452,13 +452,6 @@
    * Set a flag for a servo probe
    */
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
-
-  /**
-   * UBL has its own manual probing, so this just causes trouble.
-   */
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #undef PROBE_MANUALLY
-  #endif
 
   /**
    * Set a flag for any enabled probe

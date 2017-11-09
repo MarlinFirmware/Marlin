@@ -61,6 +61,7 @@
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
+// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian
@@ -129,7 +130,6 @@
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define MSG_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
-#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
 #define MSG_FILE_PRINTED                    "Done printing file"
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
@@ -149,8 +149,12 @@
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
+#define MSG_X2_MIN                          "x2_min: "
+#define MSG_X2_MAX                          "x2_max: "
 #define MSG_Y_MIN                           "y_min: "
 #define MSG_Y_MAX                           "y_max: "
+#define MSG_Y2_MIN                          "y2_min: "
+#define MSG_Y2_MAX                          "y2_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MIN                          "z2_min: "
