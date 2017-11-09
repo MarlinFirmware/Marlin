@@ -271,7 +271,6 @@
  * in X2. Dual endstop offsets can be set at runtime with 'M666 X<offset> Y<offset> Z<offset>'.
  */
 
-
 //#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define INVERT_X2_VS_X_DIR true   // Set 'true' if X motors should rotate in opposite directions
@@ -300,6 +299,49 @@
     #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0
   #endif
 #endif
+
+// Dual X Steppers
+// Uncomment this option to drive two X axis motors.
+// The next unused E driver will be assigned to the second X stepper.
+//#define X_DUAL_STEPPER_DRIVERS
+#if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  // Set true if the two X motors need to rotate in opposite directions
+  #define INVERT_X2_VS_X_DIR true
+#endif
+
+// Dual Y Steppers
+// Uncomment this option to drive two Y axis motors.
+// The next unused E driver will be assigned to the second Y stepper.
+//#define Y_DUAL_STEPPER_DRIVERS
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+  // Set true if the two Y motors need to rotate in opposite directions
+  #define INVERT_Y2_VS_Y_DIR true
+#endif
+
+// A single Z stepper driver is usually used to drive 2 stepper motors.
+// Uncomment this option to use a separate stepper driver for each Z axis motor.
+// The next unused E driver will be assigned to the second Z stepper.
+//#define Z_DUAL_STEPPER_DRIVERS
+
+#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
+
+  // Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
+  // That way the machine is capable to align the bed during home, since both Z steppers are homed.
+  // There is also an implementation of M666 (software endstops adjustment) to this feature.
+  // After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
+  // One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
+  // If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
+  // Play a little bit with small adjustments (0.5mm) and check the behaviour.
+  // The M119 (endstops report) will start reporting the Z2 Endstop as well.
+
+  //#define Z_DUAL_ENDSTOPS
+
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    #define Z2_USE_ENDSTOP _XMAX_
+    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // Use M666 to determine/test this value
+  #endif
+
+#endif // Z_DUAL_STEPPER_DRIVERS
 
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
@@ -350,8 +392,7 @@
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 5 // deltas need the same for all three axes
-#define HOMING_BUMP_DIVISOR { 20, 20, 20 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-
+#define HOMING_BUMP_DIVISOR { 10, 10, 10 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
 
 // When G28 is called, this option will make Y home before X
@@ -472,10 +513,10 @@
 // @section lcd
 
 // Include a page of printer information in the LCD Main Menu
-#define LCD_INFO_MENU
+//#define LCD_INFO_MENU
 
 // Scroll a longer status message into view
-#define STATUS_MESSAGE_SCROLLING
+//#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -1281,7 +1322,7 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-#define PINS_DEBUGGING
+//#define PINS_DEBUGGING
 
 /**
  * Auto-report temperatures with M155 S<seconds>
