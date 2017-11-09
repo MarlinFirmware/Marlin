@@ -25,7 +25,7 @@
 
 #ifndef U8G_HAL_LINKS
 
-#include <src/Marlin.h>
+#include "../../Marlin.h"
 
 //#if ENABLED(U8GLIB_ST7920)
 //#if ( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(LCD_PINS_D4) &&  LCD_PINS_D4 >= 0) &&  (defined(LCD_PINS_ENABLE) &&  LCD_PINS_ENABLE >= 0))

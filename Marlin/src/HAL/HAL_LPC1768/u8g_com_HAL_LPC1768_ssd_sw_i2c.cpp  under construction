@@ -64,7 +64,7 @@
 
 #ifdef TARGET_LPC1768
 
-  #include <lib/u8g.h>
+  #include <U8glib.h>
 
 void delayMicroseconds(uint32_t us);
 //void pinMode(int16_t pin, uint8_t mode);
