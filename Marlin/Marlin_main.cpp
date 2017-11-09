@@ -4263,27 +4263,20 @@ void home_all_axes() { gcode_G28(true); }
   #endif
 
   inline void _manual_goto_xy(const float &rx, const float &ry) {
-    const float old_feedrate_mm_s = feedrate_mm_s;
+
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
-      line_to_current_position();
+      do_blocking_move_to_z(MANUAL_PROBE_HEIGHT, homing_feedrate(Z_AXIS));
     #endif
 
-    feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-    current_position[X_AXIS] = rx;
-    current_position[Y_AXIS] = ry;
-    line_to_current_position();
+    do_blocking_move_to_xy(rx, ry, MMM_TO_MMS(XY_PROBE_SPEED));
 
     #if MANUAL_PROBE_HEIGHT > 0
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = prev_z; // move back to the previous Z.
-      line_to_current_position();
+      do_blocking_move_to_z(prev_z, homing_feedrate(Z_AXIS));
     #endif
 
-    feedrate_mm_s = old_feedrate_mm_s;
-    stepper.synchronize();
+    current_position[X_AXIS] = rx;
+    current_position[Y_AXIS] = ry;
 
     #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
