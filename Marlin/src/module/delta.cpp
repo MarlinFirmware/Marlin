@@ -38,7 +38,8 @@
 #include "../Marlin.h"
 
 // Initialized by settings.load()
-float delta_endstop_adj[ABC] = { 0 },
+float delta_height,
+      delta_endstop_adj[ABC] = { 0 },
       delta_radius,
       delta_diagonal_rod,
       delta_segments_per_second,
@@ -224,14 +225,13 @@ bool home_delta() {
   sync_plan_position();
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (DELTA_HEIGHT + home_offset[Z_AXIS] + 10);
+  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
   feedrate_mm_s = homing_feedrate(X_AXIS);
   line_to_current_position();
   stepper.synchronize();
 
   // If an endstop was not hit, then damage can occur if homing is continued.
-  // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
-  // not set correctly.
+  // This can occur if the delta height not set correctly.
   if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
     LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
     SERIAL_ERROR_START();

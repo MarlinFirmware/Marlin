@@ -564,11 +564,7 @@ static float run_z_probe(const bool short_move=true) {
     }
   #endif
 
-  return current_position[Z_AXIS] + zprobe_zoffset
-    #if ENABLED(DELTA)
-      + home_offset[Z_AXIS] // Account for delta height adjustment
-    #endif
-  ;
+  return current_position[Z_AXIS] + zprobe_zoffset;
 }
 
 /**
@@ -686,7 +682,7 @@ void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
     #endif
 
     #if ENABLED(DELTA) // correct the delta_height
-      home_offset[Z_AXIS] -= diff;
+      delta_height -= diff;
     #endif
   }
 

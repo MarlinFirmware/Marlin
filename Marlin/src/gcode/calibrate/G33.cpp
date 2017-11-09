@@ -69,7 +69,7 @@ static void print_signed_float(const char * const prefix, const float &f) {
 }
 
 static void print_G33_settings(const bool end_stops, const bool tower_angles) {
-  SERIAL_PROTOCOLPAIR(".Height:", DELTA_HEIGHT + home_offset[Z_AXIS]);
+  SERIAL_PROTOCOLPAIR(".Height:", delta_height);
   if (end_stops) {
     print_signed_float(PSTR("Ex"), delta_endstop_adj[A_AXIS]);
     print_signed_float(PSTR("Ey"), delta_endstop_adj[B_AXIS]);
@@ -317,7 +317,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       delta_endstop_adj[(axis + 1) % 3] -= 1.0 / 4.5;
       delta_endstop_adj[(axis + 2) % 3] += 1.0 / 4.5;
       z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-      home_offset[Z_AXIS] -= z_temp;
+      delta_height -= z_temp;
       LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
       recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
 
@@ -337,7 +337,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       delta_endstop_adj[(axis+1) % 3] += 1.0/4.5;
       delta_endstop_adj[(axis+2) % 3] -= 1.0/4.5;
       z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-      home_offset[Z_AXIS] -= z_temp;
+      delta_height -= z_temp;
       LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
       recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
       switch (axis) {
@@ -446,7 +446,7 @@ void GcodeSuite::G33() {
           delta_endstop_adj[C_AXIS]
         },
         dr_old = delta_radius,
-        zh_old = home_offset[Z_AXIS],
+        zh_old = delta_height,
         ta_old[ABC] = {
           delta_tower_angle_trim[A_AXIS],
           delta_tower_angle_trim[B_AXIS],
@@ -525,7 +525,7 @@ void GcodeSuite::G33() {
       if (zero_std_dev < zero_std_dev_min) {
         COPY(e_old, delta_endstop_adj);
         dr_old = delta_radius;
-        zh_old = home_offset[Z_AXIS];
+        zh_old = delta_height;
         COPY(ta_old, delta_tower_angle_trim);
       }
 
@@ -609,7 +609,7 @@ void GcodeSuite::G33() {
     else if (zero_std_dev >= test_precision) {   // step one back
       COPY(delta_endstop_adj, e_old);
       delta_radius = dr_old;
-      home_offset[Z_AXIS] = zh_old;
+      delta_height = zh_old;
       COPY(delta_tower_angle_trim, ta_old);
     }
 
@@ -623,7 +623,7 @@ void GcodeSuite::G33() {
 
       // adjust delta_height and endstops by the max amount
       const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-      home_offset[Z_AXIS] -= z_temp;
+      delta_height -= z_temp;
       LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
     }
     recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
