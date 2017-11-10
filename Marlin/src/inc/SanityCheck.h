@@ -1462,3 +1462,78 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 #include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
 
 #endif // _SANITYCHECK_H_
+
+/**
+ * Warnings for EasyConfig
+ */
+
+static_assert(1 >= 0
+  #if ENABLED(BLTOUCH)
+    + 1
+  #endif
+  #if ENABLED(SN04)
+    + 1
+  #endif
+  #if ENABLED(INDUCTIVE_NO)
+    + 1
+  #endif
+  #if ENABLED(INDUCTIVE_NC)
+    + 1
+  #endif
+  #if ENABLED(SERVO_PROBE)
+    + 1
+  #endif
+  , "Please enable only one of BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, or SERVO_PROBE."
+);
+
+static_assert(1 >= 0
+  #if ENABLED(TRIPOINT)
+    + 1
+  #endif
+  #if ENABLED(LINEAR)
+    + 1
+  #endif
+  #if ENABLED(BILINEAR)
+    + 1
+  #endif
+  #if ENABLED(UBL)
+    + 1
+  #endif
+  #if ENABLED(MANUAL)
+    + 1
+  #endif
+  , "Please enable only one of TRIPOINT, LINEAR, BILINEAR, UBL or MANUAL."
+);
+
+#if SENSOR_LEFT > 0 && SENSOR_RIGHT > 0
+  #error "Please set only one of SENSOR_LEFT or SENSOR_RIGHT, the other must be 0 (zero)."
+#endif
+
+#if SENSOR_FRONT > 0 && SENSOR_BEHIND > 0
+  #error "Please set only one of SENSOR_FRONT or SENSOR_BEHIND, the other must be 0 (zero)."
+#endif
+
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE)
+  #if DISABLED(TRIPOINT) && DISABLED(LINEAR) && DISABLED(BILINEAR) && DISABLED(UBL)
+    #if ENABLED(MANUAL)
+      #error "MANUAL bed leveling cannot be used with a Z Probe. Please select another bed leveling method."
+    #else
+      #error "A bed leveling method (other than MANUAL) must be selected when a Z Probe is selected."
+    #endif
+  #endif
+#endif
+
+#if ENABLED(MANUAL) && GRID_POINTS > 7
+  #error "GRID_POINTS must be 7 or less for MANUAL bed leveling"
+#endif
+#if (ENABLED(TRIPOINT) || ENABLED(LINEAR) || ENABLED(BILINEAR)) && GRID_POINTS > 10
+  #error "GRID_POINTS must be 10 or less for TRIPOINT, LINEAR, or BILINEAR bed leveling."
+#endif
+#if ENABLED(UBL) && GRID_POINTS > 15
+  #error "GRID_POINTS must be 15 or less for UBL bed leveling."
+#endif
+
+#if DISABLED(DUAL_EXTRUDER) && ENABLED(SINGLENOZZLE)
+  #error "SINGLENOZZLE requires DUAL_EXTRUDER to be enabled."
+#endif
+
