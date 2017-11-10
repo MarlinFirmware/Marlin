@@ -790,26 +790,28 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   gcode.refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
-        if (thermalManager.tooColdToExtrude(active_extruder)) {
-          current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-        }
+        #if ENABLED(PREVENT_COLD_EXTRUSION)
+          if (thermalManager.tooColdToExtrude(active_extruder)) {
+            current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+          }
+        #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (destination[E_AXIS] - current_position[E_AXIS] > EXTRUDE_MAXLENGTH) {
+          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) > (EXTRUDE_MAXLENGTH) / planner.volumetric_multiplier[active_extruder]) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
           }
-        #endif
+        #endif // PREVENT_LENGTHY_EXTRUDE
       }
     }
 
-  #endif
+  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   if (
     #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
