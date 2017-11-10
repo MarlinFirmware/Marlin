@@ -118,6 +118,12 @@ class Temperature {
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
       #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
+
+      // Apply the scale factors to the PID values
+      #define scalePID_i(i)   ( (i) * PID_dT )
+      #define unscalePID_i(i) ( (i) / PID_dT )
+      #define scalePID_d(d)   ( (d) / PID_dT )
+      #define unscalePID_d(d) ( (d) * PID_dT )
     #endif
 
     #if ENABLED(PIDTEMP)
@@ -140,17 +146,16 @@ class Temperature {
 
       #endif // PID_PARAMS_PER_HOTEND
 
-      // Apply the scale factors to the PID values
-      #define scalePID_i(i)   ( (i) * PID_dT )
-      #define unscalePID_i(i) ( (i) / PID_dT )
-      #define scalePID_d(d)   ( (d) / PID_dT )
-      #define unscalePID_d(d) ( (d) * PID_dT )
-
-    #endif
+    #endif // PIDTEMP
 
     #if ENABLED(PIDTEMPBED)
+
       static float bedKp, bedKi, bedKd;
-    #endif
+      #if ENABLED(BEDPID_EDIT)
+        #define BEDPID_PARAM(param) Temperature::param
+      #endif
+
+    #endif // PIDTEMPBED
 
     #if ENABLED(BABYSTEPPING)
       static volatile int babystepsTodo[3];
