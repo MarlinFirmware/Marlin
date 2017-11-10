@@ -482,7 +482,7 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     // This won't work on SCARA since the probe offset rotates with the arm.
 
     return position_is_reachable(rx, ry)
-        && position_is_reachable(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+        && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
   }
 
 #else // CARTESIAN
