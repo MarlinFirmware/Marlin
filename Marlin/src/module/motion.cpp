@@ -802,7 +802,7 @@ void prepare_move_to_destination() {
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) > (EXTRUDE_MAXLENGTH) / planner.volumetric_multiplier[active_extruder]) {
+          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);

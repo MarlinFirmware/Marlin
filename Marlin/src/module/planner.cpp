@@ -106,7 +106,8 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
 // Initialized by settings.load()
-float Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+float Planner::e_factor[EXTRUDERS],              // The flow percentage and volumetric multiplier combine to scale E movement
+      Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
       Planner::volumetric_multiplier[EXTRUDERS]; // May be auto-adjusted by a filament width sensor
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
@@ -546,8 +547,10 @@ inline float calculate_volumetric_multiplier(const float &diameter) {
 }
 
 void Planner::calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++)
+  for (uint8_t i = 0; i < COUNT(filament_size); i++) {
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    refresh_e_factor(i);
+  }
 }
 
 #if PLANNER_LEVELING
@@ -740,8 +743,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   long de = target[E_AXIS] - position[E_AXIS];
 
-  const float e_factor = volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
-
   #if ENABLED(LIN_ADVANCE)
     float de_float = e - position_float[E_AXIS]; // Should this include e_factor?
   #endif
@@ -761,8 +762,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        const int32_t de_mm = labs(de * e_factor);
-        if (de_mm > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
+        if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           #if ENABLED(LIN_ADVANCE)
@@ -803,7 +803,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * e_factor;
+  const float esteps_float = de * e_factor[extruder];
   const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
