@@ -1709,8 +1709,8 @@
  * 
  */
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
-#define DEFAULT_NOZZLE_SIZE           .4    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.
-#define DEFAULT_LAYER_HEIGHT          .2    // (mm) Default layer height that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_NOZZLE_SIZE           .5    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_LAYER_HEIGHT          .35   // (mm) Default layer height that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 #define DEFAULT_HOTEND_TEMP        205.0    // (c)  Default nozzle temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 #define DEFAULT_BED_TEMP            60.0    // (c)  Default bed temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 
