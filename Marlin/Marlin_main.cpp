@@ -452,13 +452,10 @@ FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&ho
 
 float feedrate_mm_s = MMM_TO_MMS(1500.0);
 static float saved_feedrate_mm_s;
-int16_t feedrate_percentage = 100, saved_feedrate_percentage,
-    flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
+int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
-bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled;
-float filament_size[EXTRUDERS], volumetric_multiplier[EXTRUDERS];
+bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 
 #if HAS_WORKSPACE_OFFSET
   #if HAS_POSITION_SHIFT
@@ -3226,7 +3223,7 @@ static void homeaxis(const AxisEnum axis) {
     set_destination_from_current();
     stepper.synchronize();  // Wait for buffered moves to complete
 
-    const float renormalize = 100.0 / flow_percentage[active_extruder] / volumetric_multiplier[active_extruder];
+    const float renormalize = 1.0 / planner.e_factor[active_extruder];
 
     if (retracting) {
       // Retract by moving from a faux E position back to the current E position
@@ -6553,7 +6550,7 @@ inline void gcode_M17() {
   #endif
 
   void do_pause_e_move(const float &length, const float fr) {
-    current_position[E_AXIS] += length * 100.0 / flow_percentage[active_extruder] / volumetric_multiplier[active_extruder];
+    current_position[E_AXIS] += length / planner.e_factor[active_extruder];
     set_destination_from_current();
     RUNPLAN(fr);
     stepper.synchronize();
@@ -8832,15 +8829,14 @@ inline void gcode_M200() {
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    volumetric_enabled = (parser.value_linear_units() != 0.0);
-    if (volumetric_enabled) {
-      filament_size[target_extruder] = parser.value_linear_units();
+    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) ) {
+      planner.filament_size[target_extruder] = parser.value_linear_units();
       // make sure all extruders have some sane value for the filament size
-      for (uint8_t i = 0; i < COUNT(filament_size); i++)
-        if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+      for (uint8_t i = 0; i < COUNT(planner.filament_size); i++)
+        if (!planner.filament_size[i]) planner.filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
     }
   }
-  calculate_volumetric_multipliers();
+  planner.calculate_volumetric_multipliers();
 }
 
 /**
@@ -9201,8 +9197,10 @@ inline void gcode_M220() {
  */
 inline void gcode_M221() {
   if (get_target_extruder_from_command(221)) return;
-  if (parser.seenval('S'))
-    flow_percentage[target_extruder] = parser.value_int();
+  if (parser.seenval('S')) {
+    planner.flow_percentage[target_extruder] = parser.value_int();
+    planner.refresh_e_factor(target_extruder);
+  }
 }
 
 /**
@@ -9735,7 +9733,7 @@ inline void gcode_M400() { stepper.synchronize(); }
     //SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
     //SERIAL_PROTOCOL(filament_width_meas);
     //SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
-    //SERIAL_PROTOCOL(flow_percentage[active_extruder]);
+    //SERIAL_PROTOCOL(planner.flow_percentage[active_extruder]);
   }
 
   /**
@@ -9743,7 +9741,7 @@ inline void gcode_M400() { stepper.synchronize(); }
    */
   inline void gcode_M406() {
     filament_sensor = false;
-    calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
+    planner.calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
   }
 
   /**
@@ -12967,7 +12965,7 @@ void prepare_move_to_destination() {
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) > (EXTRUDE_MAXLENGTH) / volumetric_multiplier[active_extruder]) {
+          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
@@ -13386,16 +13384,6 @@ void prepare_move_to_destination() {
   }
 
 #endif // FAST_PWM_FAN
-
-float calculate_volumetric_multiplier(const float diameter) {
-  if (!volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / (M_PI * sq(diameter * 0.5));
-}
-
-void calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++)
-    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
-}
 
 void enable_all_steppers() {
   enable_X();
