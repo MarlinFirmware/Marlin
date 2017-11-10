@@ -117,7 +117,11 @@
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
+#define CIRCLE_AREA(R) (M_PI * sq(R))
+#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+
 #define SIGN(a) ((a>0)-(a<0))
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -183,6 +187,9 @@
 
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
+
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 
 #define NOOP do{} while(0)
 

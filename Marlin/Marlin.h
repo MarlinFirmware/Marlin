@@ -212,8 +212,6 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
  */
 extern int16_t feedrate_percentage;
 
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
 extern bool axis_relative_modes[];
