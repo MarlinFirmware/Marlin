@@ -12947,27 +12947,32 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  *
  * This may result in several calls to planner.buffer_line to
  * do smaller moves for DELTA, SCARA, mesh moves, etc.
+ *
+ * Make sure current_position[E] and destination[E] are good
+ * before calling or cold/lengthy extrusion may get missed.
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
-        if (thermalManager.tooColdToExtrude(active_extruder)) {
-          current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-        }
+        #if ENABLED(PREVENT_COLD_EXTRUSION)
+          if (thermalManager.tooColdToExtrude(active_extruder)) {
+            current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+          }
+        #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (fabs(destination[E_AXIS] - current_position[E_AXIS]) > EXTRUDE_MAXLENGTH / volumetric_multiplier[active_extruder]) {
+          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) > (EXTRUDE_MAXLENGTH) / volumetric_multiplier[active_extruder]) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
           }
-        #endif
+        #endif // PREVENT_LENGTHY_EXTRUDE
       }
     }
 

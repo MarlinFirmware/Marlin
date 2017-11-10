@@ -719,24 +719,28 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   long de = target[E_AXIS] - position[E_AXIS];
 
+  const float e_factor = volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+
   #if ENABLED(LIN_ADVANCE)
     float de_float = e - position_float[E_AXIS];
   #endif
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
-      if (thermalManager.tooColdToExtrude(extruder)) {
-        position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-        de = 0; // no difference
-        #if ENABLED(LIN_ADVANCE)
-          position_float[E_AXIS] = e;
-          de_float = 0;
-        #endif
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      }
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (thermalManager.tooColdToExtrude(extruder)) {
+          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+          de = 0; // no difference
+          #if ENABLED(LIN_ADVANCE)
+            position_float[E_AXIS] = e;
+            de_float = 0;
+          #endif
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        }
+      #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        int32_t de_mm = labs(de * volumetric_multiplier[active_extruder]);
+        const int32_t de_mm = labs(de * e_factor);
         if (de_mm > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
@@ -747,9 +751,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
-      #endif
+      #endif // PREVENT_LENGTHY_EXTRUDE
     }
-  #endif
+  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
@@ -778,7 +782,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  const float esteps_float = de * e_factor;
   const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
