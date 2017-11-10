@@ -6553,7 +6553,7 @@ inline void gcode_M17() {
   #endif
 
   void do_pause_e_move(const float &length, const float fr) {
-    current_position[E_AXIS] += length;
+    current_position[E_AXIS] += length * 100.0 / flow_percentage[active_extruder] / volumetric_multiplier[active_extruder];
     set_destination_from_current();
     RUNPLAN(fr);
     stepper.synchronize();
@@ -12962,7 +12962,7 @@ void prepare_move_to_destination() {
           SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
         }
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (destination[E_AXIS] - current_position[E_AXIS] > EXTRUDE_MAXLENGTH) {
+          if (fabs(destination[E_AXIS] - current_position[E_AXIS]) > EXTRUDE_MAXLENGTH / volumetric_multiplier[active_extruder]) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
