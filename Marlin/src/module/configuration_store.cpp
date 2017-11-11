@@ -138,8 +138,8 @@
  *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
- *  537  M200 D    volumetric_enabled               (bool)
- *  538  M200 T D  filament_size                    (float x5) (T0..3)
+ *  537  M200 D    parser.volumetric_enabled        (bool)
+ *  538  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    22 bytes
  *  558  M906 X    Stepper X current                (uint16_t)
