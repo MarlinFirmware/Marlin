@@ -53,6 +53,20 @@
 
 #include "pins_RAMPS.h"
 
+#ifdef Z_MIN_PROBE_ENDSTOP
+  #undef Z_MIN_PROBE_ENDSTOP
+#endif
+
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if  ENABLED(USE_ZMIN_PLUG)
+    #define Z_MAX_PIN -1
+    #define Z_MIN_PROBE_PIN 19
+  #elif ENABLED(USE_ZMAX_PLUG)
+    #define Z_MIN_PIN -1
+    #define Z_MIN_PROBE_PIN 18
+  #endif
+#endif
+
 //
 // LCD / Controller
 //
