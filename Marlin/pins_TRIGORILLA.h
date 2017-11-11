@@ -123,11 +123,17 @@
 
 #define HEATER_0_PIN     10
 #define HEATER_1_PIN     45
-#define HEATER_BED_PIN 	 8
-#define FAN0_PIN	9
-#define FAN1_PIN	7
-#define FAN2_PIN	44
-#define FAN_PIN FAN0_PIN
+#define HEATER_2_PIN 	 8
+#define FAN_0_PIN	9
+#define FAN_1_PIN	7
+#define FAN_2_PIN	44
+
+//Match pins to old pin names
+#define FAN0_PIN		FAN_0_PIN
+#define FAN1_PIN		FAN_1_PIN
+#define FAN2_PIN		FAN_2_PIN
+#define FAN_PIN 		FAN0_PIN
+#define HEATER_BED_PIN	HEATER_2_PIN
 
 //
 // Misc. Functions

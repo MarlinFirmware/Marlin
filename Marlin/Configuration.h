@@ -345,7 +345,7 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
-  // Ultimaker
+  // 
   #define  DEFAULT_Kp 21.28
   #define  DEFAULT_Ki 1.40
   #define  DEFAULT_Kd 80.63
@@ -509,12 +509,12 @@
   #define DELTA_DIAGONAL_ROD 242.0 // mm
 
   // height from z=0 to home position
-  #define DELTA_HEIGHT 323.2 // get this value from auto calibrate
+  #define DELTA_HEIGHT 323.25 // get this value from auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // get these from auto calibrate
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS 120.5.0 //mm  Get this value from auto calibrate
+  #define DELTA_RADIUS 103 //mm  Get this value from auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
