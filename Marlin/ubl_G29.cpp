@@ -466,6 +466,7 @@
             //
             SERIAL_PROTOCOLLNPGM("Manually probing unreachable mesh locations.");
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+
             if (!g29_x_flag && !g29_y_flag) {
               /**
                * Use a good default location for the path.
@@ -911,8 +912,7 @@
       has_control_of_lcd_panel = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
-      do_blocking_move_to_z(in_height);
-      do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
+      do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
         //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
       stepper.synchronize();
 
@@ -955,8 +955,7 @@
       has_control_of_lcd_panel = true;
 
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      do_blocking_move_to_xy(rx, ry);
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
 
       lcd_return_to_status();
 
@@ -971,11 +970,9 @@
 
         if (!position_is_reachable(xProbe, yProbe)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
 
-        do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-
         LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
 
-        do_blocking_move_to_xy(xProbe, yProbe);
+        do_blocking_move_to(xProbe, yProbe, Z_CLEARANCE_BETWEEN_PROBES);
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -1032,8 +1029,7 @@
 
       restore_ubl_active_state_and_leave();
       KEEPALIVE_STATE(IN_HANDLER);
-      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      do_blocking_move_to_xy(rx, ry);
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
   #endif // NEWPANEL
 
@@ -1486,8 +1482,7 @@
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
 
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      do_blocking_move_to_xy(rx, ry);
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
 
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
@@ -1510,8 +1505,7 @@
         if (isnan(new_z)) // if the mesh point is invalid, set it to 0.0 so it can be edited
           new_z = 0.0;
 
-        do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);    // Move the nozzle to where we are going to edit
-        do_blocking_move_to_xy(rawx, rawy);
+        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
 
         new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
@@ -1571,9 +1565,8 @@
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
-      do_blocking_move_to_xy(rx, ry);
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
 
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");

@@ -2414,17 +2414,8 @@ static void clean_up_after_endstop_or_probe_move() {
       : !position_is_reachable_by_probe(rx, ry)
     ) return NAN;
 
-    const float old_feedrate_mm_s = feedrate_mm_s;
-
-    #if ENABLED(DELTA)
-      if (current_position[Z_AXIS] > delta_clip_start_height)
-        do_blocking_move_to_z(delta_clip_start_height);
-    #endif
-
-    feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-
     // Move the probe to the given XY
-    do_blocking_move_to_xy(nx, ny);
+    do_blocking_move_to_xy(nx, ny, XY_PROBE_FEEDRATE_MM_S);
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
@@ -2449,8 +2440,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
     #endif
-
-    feedrate_mm_s = old_feedrate_mm_s;
 
     if (isnan(measured_z)) {
       LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
