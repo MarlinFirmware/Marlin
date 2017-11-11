@@ -650,7 +650,7 @@ static void lcd_implementation_status_screen() {
     strcpy(zstring, ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
       strcpy(wstring, ftostr12ns(filament_width_meas));
-      strcpy(mstring, itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+      strcpy(mstring, itostr3(100.0 * planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
     #endif
   }
 
@@ -739,7 +739,7 @@ static void lcd_implementation_status_screen() {
         lcd_print(ftostr12ns(filament_width_meas));
         lcd_printPGM(PSTR("  " LCD_STR_FILAM_MUL));
         u8g.print(':');
-        lcd_print(itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+        lcd_print(itostr3(100.0 * planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
         u8g.print('%');
       }
     #else
