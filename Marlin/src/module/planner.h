@@ -146,7 +146,8 @@ class Planner {
 
     static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
 
-    static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+    static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
+                 filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
                  volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
                                                     // May be auto-adjusted by a filament width sensor
 
@@ -245,6 +246,10 @@ class Planner {
 
     static void reset_acceleration_rates();
     static void refresh_positioning();
+
+    FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
+      e_factor[e] = volumetric_multiplier[e] * flow_percentage[e] * 0.01;
+    }
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();

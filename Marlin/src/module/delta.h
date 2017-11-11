@@ -43,7 +43,7 @@ extern float delta_tower[ABC][2],
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
-void recalc_delta_settings(const float radius, const float diagonal_rod, const float tower_angle_trim[ABC]);
+void recalc_delta_settings();
 
 /**
  * Delta Inverse Kinematics
