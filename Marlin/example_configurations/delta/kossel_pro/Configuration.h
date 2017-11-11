@@ -482,7 +482,7 @@
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
-    // Set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS for non-eccentric probes
+    // Set the radius for the calibration probe points - max 0.9 * DELTA_PRINTABLE_RADIUS for non-eccentric probes
     #define DELTA_CALIBRATION_RADIUS 110.0 // mm
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.025
@@ -1817,7 +1817,7 @@
  * Default extrusion settings
  *
  * These settings control basic extrusion from within the Marlin firmware.
- * 
+ *
  */
 #define DEFAULT_NOMINAL_FILAMENT_DIA 3.00   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
 #define DEFAULT_NOZZLE_SIZE           .4    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.

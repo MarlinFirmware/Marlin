@@ -212,15 +212,9 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
  */
 extern int16_t feedrate_percentage;
 
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
 extern bool axis_relative_modes[];
-extern bool volumetric_enabled;
-extern int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
-extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
-extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern bool axis_known_position[XYZ];
 extern bool axis_homed[XYZ];
 extern volatile bool wait_for_heatup;
@@ -304,14 +298,15 @@ void report_current_position();
 #endif
 
 #if ENABLED(DELTA)
-  extern float delta_endstop_adj[ABC],
+  extern float delta_height,
+               delta_endstop_adj[ABC],
                delta_radius,
                delta_diagonal_rod,
                delta_calibration_radius,
                delta_segments_per_second,
                delta_tower_angle_trim[ABC],
                delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]);
+  void recalc_delta_settings();
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
@@ -428,8 +423,6 @@ extern uint8_t active_extruder;
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
 
-void calculate_volumetric_multipliers();
-
 /**
  * Blocking movement and shorthand functions
  */
@@ -483,7 +476,7 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     // This won't work on SCARA since the probe offset rotates with the arm.
 
     return position_is_reachable(rx, ry)
-        && position_is_reachable(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+        && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
   }
 
 #else // CARTESIAN

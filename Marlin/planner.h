@@ -140,6 +140,13 @@ class Planner {
       static uint8_t last_extruder;             // Respond to extruder change
     #endif
 
+    static int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
+
+    static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
+                 filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                 volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+                                                    // May be auto-adjusted by a filament width sensor
+
     static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
                  steps_to_mm[XYZE_N];
@@ -236,8 +243,14 @@ class Planner {
     static void reset_acceleration_rates();
     static void refresh_positioning();
 
+    FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
+      e_factor[e] = volumetric_multiplier[e] * flow_percentage[e] * 0.01;
+    }
+
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
+
+    static void calculate_volumetric_multipliers();
 
     /**
      * Number of moves currently in the planner
@@ -356,18 +369,18 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    static FORCE_INLINE void buffer_line_kinematic(const float rtarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line_kinematic(const float cart[XYZE], const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
-        float lpos[XYZ] = { rtarget[X_AXIS], rtarget[Y_AXIS], rtarget[Z_AXIS] };
-        apply_leveling(lpos);
+        float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
+        apply_leveling(raw);
       #else
-        const float * const lpos = rtarget;
+        const float * const raw = cart;
       #endif
       #if IS_KINEMATIC
-        inverse_kinematics(lpos);
-        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], fr_mm_s, extruder);
+        inverse_kinematics(raw);
+        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #else
-        _buffer_line(lpos[X_AXIS], lpos[Y_AXIS], lpos[Z_AXIS], rtarget[E_AXIS], fr_mm_s, extruder);
+        _buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #endif
     }
 

@@ -1030,7 +1030,7 @@
   // Updated G92 behavior shifts the workspace
   #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
   // The home offset also shifts the coordinate space
-  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DELTA))
+  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA))
   // Either offset yields extra calculations on all moves
   #define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
   // M206 doesn't apply to DELTA

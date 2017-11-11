@@ -44,10 +44,6 @@
   #include "serial.h"
 #endif
 
-#if ENABLED(INCH_MODE_SUPPORT)
-  extern bool volumetric_enabled;
-#endif
-
 /**
  * GCode parser
  *
@@ -75,6 +71,8 @@ private:
 public:
 
   // Global states for GCode-level units features
+
+  static bool volumetric_enabled;
 
   #if ENABLED(INCH_MODE_SUPPORT)
     static float linear_unit_factor, volumetric_unit_factor;
