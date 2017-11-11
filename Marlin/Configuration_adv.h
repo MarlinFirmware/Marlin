@@ -219,6 +219,8 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 40
 #define EXTRUDER_AUTO_FAN_SPEED   128  // == half speed
 
+
+
 /**
  * Part-Cooling Fan Multiplexer
  *
@@ -886,7 +888,7 @@
  *   'M106 P<fan> T2'     : Use the set secondary speed
  *   'M106 P<fan> T1'     : Restore the previous fan speed
  */
-//#define EXTRA_FAN_SPEED
+#define EXTRA_FAN_SPEED
 
 /**
  * Advanced Pause

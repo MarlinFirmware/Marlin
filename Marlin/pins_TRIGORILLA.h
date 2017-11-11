@@ -103,6 +103,9 @@
 #define TEMP_2_PIN		   15   // Analog Input
 #define TEMP_3_PIN         12   // Analog Input
 
+#define TEMP_BED_PIN TEMP_2_PIN
+
+
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
   #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
@@ -124,6 +127,7 @@
 #define FAN0_PIN	9
 #define FAN1_PIN	7
 #define FAN2_PIN	44
+#define FAN_PIN FAN0_PIN
 
 //
 // Misc. Functions
