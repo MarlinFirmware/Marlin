@@ -88,6 +88,7 @@
 #define BOARD_SCOOVO_X9H        303   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_TRIGORILLA        364   // Tri(3)G(6)orilla A(4)nycubic version 1.3 based on RAMPS EFB
 
 //
 // ATmega1281, ATmega2561
