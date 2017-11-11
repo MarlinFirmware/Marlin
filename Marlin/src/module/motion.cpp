@@ -785,6 +785,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
  *
  * This may result in several calls to planner.buffer_line to
  * do smaller moves for DELTA, SCARA, mesh moves, etc.
+ *
+ * Make sure current_position[E] and destination[E] are good
+ * before calling or cold/lengthy extrusion may get missed.
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);

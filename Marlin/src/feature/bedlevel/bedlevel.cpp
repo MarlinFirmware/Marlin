@@ -260,13 +260,10 @@ void reset_bed_level() {
 
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
-      do_blocking_move_to_z(MANUAL_PROBE_HEIGHT, homing_feedrate(Z_AXIS));
-    #endif
-
-    do_blocking_move_to_xy(rx, ry, MMM_TO_MMS(XY_PROBE_SPEED));
-
-    #if MANUAL_PROBE_HEIGHT > 0
-      do_blocking_move_to_z(prev_z, homing_feedrate(Z_AXIS));
+      do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
+      do_blocking_move_to_z(prev_z);
+    #else
+      do_blocking_move_to_xy(rx, ry);
     #endif
 
     current_position[X_AXIS] = rx;
