@@ -310,7 +310,7 @@ void report_current_position();
                delta_segments_per_second,
                delta_tower_angle_trim[ABC],
                delta_clip_start_height;
-  void recalc_delta_settings(float radius, float diagonal_rod, float tower_angle_trim[ABC]);
+  void recalc_delta_settings();
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
@@ -482,7 +482,7 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
     // This won't work on SCARA since the probe offset rotates with the arm.
 
     return position_is_reachable(rx, ry)
-        && position_is_reachable(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+        && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
   }
 
 #else // CARTESIAN
