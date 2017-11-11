@@ -346,9 +346,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // 
-  #define  DEFAULT_Kp 21.28
-  #define  DEFAULT_Ki 1.40
-  #define  DEFAULT_Kd 80.63
+  #define  DEFAULT_Kp 28.33
+  #define  DEFAULT_Ki 2.01
+  #define  DEFAULT_Kd 99.81
 
   // Ultimaker
   //#define  DEFAULT_Kp 22.2
@@ -898,7 +898,7 @@
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
-#define Z_MIN_POS 0
+#define Z_MIN_POS -1
 #define X_MAX_POS DELTA_PRINTABLE_RADIUS
 #define Y_MAX_POS DELTA_PRINTABLE_RADIUS
 #define Z_MAX_POS MANUAL_Z_HOME_POS
@@ -1098,7 +1098,7 @@
  * Use the LCD controller for bed leveling
  * Requires MESH_BED_LEVELING or PROBE_MANUALLY
  */
-#define LCD_BED_LEVELING
+//#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
