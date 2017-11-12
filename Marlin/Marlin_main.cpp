@@ -7790,7 +7790,6 @@ inline void gcode_M105() {
     if (p < FAN_COUNT) {
       #if ENABLED(EXTRA_FAN_SPEED)
         const int16_t t = parser.intval('T');
-        NOMORE(t, 255);
         if (t > 0) {
           switch (t) {
             case 1:
@@ -7801,7 +7800,7 @@ inline void gcode_M105() {
               fanSpeeds[p] = new_fanSpeeds[p];
               break;
             default:
-              new_fanSpeeds[p] = t;
+              new_fanSpeeds[p] = min(t, 255);
               break;
           }
           return;
@@ -9323,7 +9322,7 @@ inline void gcode_M226() {
           zprobe_zoffset += offs;
           refresh_zprobe_zoffset(); // This will babystep the axis
         #else
-          thermalManager.babystep_axis(Z_AXIS, parser.value_axis_units(Z_AXIS) * planner.axis_steps_per_mm[Z_AXIS]);
+          thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
         #endif
       }
     #endif

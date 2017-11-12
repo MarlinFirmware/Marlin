@@ -1746,15 +1746,15 @@ void Temperature::isr() {
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
-          soft_pwm_count_fan[0] = (soft_pwm_count_fan[0] & pwm_mask) + soft_pwm_amount_fan[0] >> 1;
+          soft_pwm_count_fan[0] = ((soft_pwm_count_fan[0] & pwm_mask) + soft_pwm_amount_fan[0]) >> 1;
           WRITE_FAN(soft_pwm_count_fan[0] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN1
-          soft_pwm_count_fan[1] = (soft_pwm_count_fan[1] & pwm_mask) + soft_pwm_amount_fan[1] >> 1;
+          soft_pwm_count_fan[1] = ((soft_pwm_count_fan[1] & pwm_mask) + soft_pwm_amount_fan[1]) >> 1;
           WRITE_FAN1(soft_pwm_count_fan[1] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN2
-          soft_pwm_count_fan[2] = (soft_pwm_count_fan[2] & pwm_mask) + soft_pwm_amount_fan[2] >> 1;
+          soft_pwm_count_fan[2] = ((soft_pwm_count_fan[2] & pwm_mask) + soft_pwm_amount_fan[2]) >> 1;
           WRITE_FAN2(soft_pwm_count_fan[2] > pwm_mask ? HIGH : LOW);
         #endif
       #endif
