@@ -9314,7 +9314,7 @@ inline void gcode_M226() {
       for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
         if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
           float offs = parser.value_axis_units(a);
-          constrain(offs, -2, 2);
+          offs = constrain(offs, -2, 2);
           #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
             if (a == Z_AXIS) {
               zprobe_zoffset += offs;
@@ -9326,7 +9326,7 @@ inline void gcode_M226() {
     #else
       if (parser.seenval('Z') || parser.seenval('S')) {
         float offs = parser.value_axis_units(Z_AXIS);
-        constrain(offs, -2, 2);
+        offs = constrain(offs, -2, 2);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           zprobe_zoffset += offs;
           refresh_zprobe_zoffset(); // This will babystep the axis
