@@ -203,7 +203,8 @@ script:
   - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
-  - opt_add_adv Z2_MIN_PIN 2
+  - pins_set RAMPS X_MAX_PIN -1
+  - opt_add_adv Z2_MAX_PIN 2
   - build_marlin
   #
   # Enable COREXY
@@ -214,10 +215,21 @@ script:
   #
   # Enable COREYX (swapped)
   #
-  #- restore_configs
-  #- opt_enable COREYX
-  #- build_marlin
+  - restore_configs
+  - opt_enable COREYX
+  - build_marlin
   #
+  # Test Endstop Interrupts Feature
+  #
+  - restore_configs
+  - opt_enable ENDSTOP_INTERRUPTS_FEATURE
+  - opt_enable USE_XMIN_PLUG
+  - opt_enable USE_XMAX_PLUG
+  - opt_enable USE_YMIN_PLUG
+  - opt_enable USE_YMAX_PLUG
+  - opt_enable USE_ZMIN_PLUG
+  - opt_enable USE_ZMAX_PLUG
+  - build_marlin
   #
   ######## Other Standard LCD/Panels ##############
   #

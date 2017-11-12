@@ -47,7 +47,7 @@
  * So we extend them here because these are the normal pins for Y_MIN and Y_MAX on RAMPS.
  * There are more PCI-enabled processor pins on Port J, but they are not connected to Arduino MEGA.
  */
-#if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   #undef  digitalPinToPCICR
   #define digitalPinToPCICR(p)    ( WITHIN(p, 10, 15) || \
                                     WITHIN(p, 50, 53) || \
