@@ -64,7 +64,7 @@
 //  #include "src/core/macros.h"
 //  #include "Configuration.h"
 
-  #include <lib/u8g.h>
+  #include <U8glib.h>
 
   #define SPI_FULL_SPEED 0
   #define SPI_HALF_SPEED 1

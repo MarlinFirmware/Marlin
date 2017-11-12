@@ -28,6 +28,8 @@
  */
 void GcodeSuite::M221() {
   if (get_target_extruder_from_command()) return;
-  if (parser.seenval('S'))
+  if (parser.seenval('S')) {
     planner.flow_percentage[target_extruder] = parser.value_int();
+    planner.refresh_e_factor(target_extruder);
+  }
 }
