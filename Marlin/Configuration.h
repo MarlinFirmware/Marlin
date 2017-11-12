@@ -91,6 +91,7 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
+
 // @section machine
 
 /**
@@ -99,6 +100,14 @@
  * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
+ /**MR
+ Set you serial port to -1 and usb should work, there is currently a problem to communicate with the sd-card over usb, but should be fixed soon.
+
+I dont have a reprap discount full graphic so couldn't test it, but s hopefully it should work :)
+
+serialport = 0 transfers hostmode to the serialport (AUX1) so you can use a MKS TFT display.
+serialport = -1 transfers it back to the usb port
  */
 #define SERIAL_PORT 0
 
@@ -119,12 +128,14 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  //#define MOTHERBOARD BOARD_MKS_SBASE
+  #define MOTHERBOARD BOARD_RAMPS_FD_V2
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+//MR
+#define CUSTOM_MACHINE_NAME "1_20171110_MR"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -223,12 +234,13 @@
  *
  * :{ 0:'No power switch', 1:'ATX', 2:'X-Box 360' }
  */
-#define POWER_SUPPLY 0
+//MR
+#define POWER_SUPPLY 1
 
 #if POWER_SUPPLY > 0
   // Enable this option to leave the PSU off at startup.
   // Power to steppers and heaters will need to be turned on with M80.
-  //#define PS_DEFAULT_OFF
+#define PS_DEFAULT_OFF
 #endif
 
 // @section temperature
@@ -283,12 +295,12 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 5
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -352,9 +364,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -365,6 +377,11 @@
   //#define  DEFAULT_Kp 63.0
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
+
+  //MR PID Autotune finished FROM REPEIER! Put the last Kp, Ki and Kd constants from below into Configuration.h
+#define  DEFAULT_Kp 34.46
+#define  DEFAULT_Ki 5.19
+#define  DEFAULT_Kd 57.16
 
 #endif // PIDTEMP
 
@@ -396,9 +413,14 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define  DEFAULT_bedKp 10.00
-  #define  DEFAULT_bedKi .023
-  #define  DEFAULT_bedKd 305.4
+  //#define  DEFAULT_bedKp 10.00
+  //#define  DEFAULT_bedKi .023
+  //#define  DEFAULT_bedKd 305.4
+
+  //MR - PID Autotune finished FROM REPETIER! Put the last Kp, Ki and Kd constants from below into Configuration.h
+  #define  DEFAULT_bedKp 198.02
+  #define  DEFAULT_bedKi 16.22
+  #define  DEFAULT_bedKd 604.24
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -451,7 +473,8 @@
 
 // Uncomment one of these options to enable CoreXY, CoreXZ, or CoreYZ kinematics
 // either in the usual order or reversed
-//#define COREXY
+//MR7
+#define COREXY
 //#define COREXZ
 //#define COREYZ
 //#define COREYX
@@ -468,10 +491,12 @@
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG
-#define USE_YMIN_PLUG
+//#define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
-//#define USE_XMAX_PLUG
-//#define USE_YMAX_PLUG
+
+//MR9   - MUDAR LIGACOES DOS ENDSTOPS
+#define USE_XMAX_PLUG  //Z_DUAL_ENDSTOPS
+#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 
 // coarse Endstop Settings
@@ -489,13 +514,19 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
+//MR9.1
+#define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//MR9.1
+#define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//MR9.1
+#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//MR9.1
+#define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//MR9.1
+#define Y_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//MR9.1
+#define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+//#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -526,14 +557,19 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+//MR17
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,400,92.6}   // 1/16 microsteps. DRIVER A4988
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {200,200,800,185.2}  // 1/32 microsteps. DRIVER 8825
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,800,92.6}  // 1/32 microsteps. DRIVER TMC2100. No eixo Z driver 8825
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {200,200,800,185.2}  // 1/32 microsteps.
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+//MR17
+#define DEFAULT_MAX_FEEDRATE          {400, 400, 10, 30}
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -541,7 +577,8 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+//MR17
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,1100}
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -551,9 +588,10 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+//MR17
+#define DEFAULT_ACCELERATION           750    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION   750    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION    200    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk (mm/s)
@@ -563,10 +601,12 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                 20.0
-#define DEFAULT_YJERK                 20.0
-#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_EJERK                  5.0
+//MR
+#define DEFAULT_XJERK                 14
+#define DEFAULT_YJERK                 14
+#define DEFAULT_ZJERK                 0.4
+#define DEFAULT_EJERK                 5.0
+
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -582,7 +622,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -680,9 +720,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 32  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 5     // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0     // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -744,8 +784,10 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+//MR10
+#define INVERT_Y_DIR false
+//MR10
+#define INVERT_Z_DIR true
 
 // Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -769,13 +811,14 @@
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
 #define X_HOME_DIR -1
-#define Y_HOME_DIR -1
+//MR11
+#define Y_HOME_DIR 1
 #define Z_HOME_DIR -1
 
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 200
+#define X_BED_SIZE 275
 #define Y_BED_SIZE 200
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
@@ -784,7 +827,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define Z_MAX_POS 260
 
 /**
  * Software Endstops
@@ -796,15 +839,18 @@
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-#define MIN_SOFTWARE_ENDSTOPS
+//MR PROBLEMS COM MARLIN NAO AVANCAVA POIS FACO O HOMING 0.9mm ACIMA DO ENDSTOP Z
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
   #define MIN_SOFTWARE_ENDSTOP_Z
 #endif
-
-// Max software endstops constrain movement within maximum coordinate bounds
-#define MAX_SOFTWARE_ENDSTOPS
+// If enabled, axes won't move below MIN_POS in response to movement commands.
+//MR PROBLEMS COM MARLIN NAO AVANÇAVA POIS FAÇO O HOMING 0.9mm ACIMA DO ENDSTOP Z
+//#define MIN_SOFTWARE_ENDSTOPS
+// If enabled, axes won't move above MAX_POS in response to movement commands.
+//#define MAX_SOFTWARE_ENDSTOPS
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
@@ -892,7 +938,7 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 15
+  #define LEFT_PROBE_BED_POSITION 32
   #define RIGHT_PROBE_BED_POSITION 170
   #define FRONT_PROBE_BED_POSITION 20
   #define BACK_PROBE_BED_POSITION 170
@@ -979,7 +1025,7 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-//#define LEVEL_BED_CORNERS
+#define LEVEL_BED_CORNERS
 
 /**
  * Commands to execute at the end of G29 probing.
@@ -995,9 +1041,12 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS 0
-//#define MANUAL_Y_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 0
+//MR12
+#define MANUAL_X_HOME_POS 0
+//MR12
+#define MANUAL_Y_HOME_POS 200
+//MR12
+#define MANUAL_Z_HOME_POS 0   // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1008,11 +1057,12 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+//MR 99
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE)-50)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE)-(Y_BED_SIZE)+20)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // Homing speeds (mm/m)
@@ -1033,9 +1083,10 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
+//MR14
 //#define EEPROM_SETTINGS // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
-#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
+//#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
 //
 // Host Keepalive
@@ -1065,12 +1116,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 180
+#define PREHEAT_1_TEMP_HOTEND 200
 #define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_HOTEND 220
+#define PREHEAT_2_TEMP_BED    95
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1201,7 +1252,8 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'fr_utf8':'French (UTF8)', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'sk_utf8':'Slovak (UTF8)', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', test':'TEST' }
  */
-#define LCD_LANGUAGE en
+//MR20
+#define LCD_LANGUAGE pt
 
 /**
  * LCD Character Set
@@ -1247,14 +1299,16 @@
  * you must uncomment the following option or it won't work.
  *
  */
-//#define SDSUPPORT
+//MR19
+#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
  *
  * Enable one of the following items for a slower SPI transfer speed.
- * This may be required to resolve "volume init" errors.
+ * This may be required to resolve "volume init" errors or LCD issues.
  */
+
 //#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
 //#define SPI_SPEED SPI_EIGHTH_SPEED
@@ -1295,6 +1349,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
+//MR15
 //#define REVERSE_ENCODER_DIRECTION
 
 //
@@ -1310,6 +1365,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
+//MR16
 //#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
@@ -1385,6 +1441,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
+//MR18  LCD 2004
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
@@ -1399,7 +1456,8 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+//MR18 descomentei seguinte e fiz download libraria para trabalhar com lcd 16284 comprado EBAY
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // MakerLab Mini Panel with graphic
@@ -1497,6 +1555,7 @@
 //
 // SSD1306 OLED full graphics generic display
 //
+//#define U8GLIB_ST7920
 //#define U8GLIB_SSD1306
 
 //
@@ -1520,35 +1579,6 @@
 // TinyBoy2 128x64 OLED / Encoder Panel
 //
 //#define OLED_PANEL_TINYBOY2
-
-//
-// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
-// https://www.aliexpress.com/item/Micromake-Makeboard-3D-Printer-Parts-3D-Printer-Mini-Display-1602-Mini-Controller-Compatible-with-Ramps-1/32765887917.html
-//
-//#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
-
-//
-// MKS MINI12864 with graphic controller and SD support
-// http://reprap.org/wiki/MKS_MINI_12864
-//
-//#define MKS_MINI_12864
-
-//
-// Factory display for Creality CR-10
-// https://www.aliexpress.com/item/Universal-LCD-12864-3D-Printer-Display-Screen-With-Encoder-For-CR-10-CR-7-Model/32833148327.html
-//
-// This is RAMPS-compatible using a single 10-pin connector.
-// (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
-//
-//#define CR10_STOCKDISPLAY
-
-//
-// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
-// http://reprap.org/wiki/MKS_12864OLED
-//
-// Tiny, but very sharp OLED display
-//
-//#define MKS_12864OLED
 
 //
 // AZSMZ 12864 LCD with SD
@@ -1662,7 +1692,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_RGBW_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 

@@ -64,8 +64,8 @@
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 40        // Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
+  #define THERMAL_PROTECTION_PERIOD 50        // Seconds
+  #define THERMAL_PROTECTION_HYSTERESIS 6     // Degrees Celsius
 
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
@@ -79,7 +79,7 @@
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
    * below 2.
    */
-  #define WATCH_TEMP_PERIOD 20                // Seconds
+  #define WATCH_TEMP_PERIOD 40                // Seconds
   #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -87,13 +87,13 @@
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+  #define THERMAL_PROTECTION_BED_PERIOD 110    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
+  #define WATCH_BED_TEMP_PERIOD 100                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -256,6 +256,24 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
+// Dual X Steppers
+// Uncomment this option to drive two X axis motors.
+// The next unused E driver will be assigned to the second X stepper.
+//#define X_DUAL_STEPPER_DRIVERS
+#if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  // Set true if the two X motors need to rotate in opposite directions
+  #define INVERT_X2_VS_X_DIR true
+#endif
+
+// Dual Y Steppers
+// Uncomment this option to drive two Y axis motors.
+// The next unused E driver will be assigned to the second Y stepper.
+//#define Y_DUAL_STEPPER_DRIVERS
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+  // Set true if the two Y motors need to rotate in opposite directions
+  #define INVERT_Y2_VS_Y_DIR true
+#endif
+
 /**
  * Dual Steppers / Dual Endstops
  *
@@ -291,9 +309,12 @@
   #endif
 #endif
 
-//#define Z_DUAL_STEPPER_DRIVERS
+// A single Z stepper driver is usually used to drive 2 stepper motors.
+// Uncomment this option to use a separate stepper driver for each Z axis motor.
+// The next unused E driver will be assigned to the second Z stepper.
+#define Z_DUAL_STEPPER_DRIVERS
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-  //#define Z_DUAL_ENDSTOPS
+  #define Z_DUAL_ENDSTOPS
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z2_USE_ENDSTOP _XMAX_
     #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0
@@ -346,9 +367,9 @@
 // @section homing
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
-#define X_HOME_BUMP_MM 5
-#define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 2
+#define X_HOME_BUMP_MM 0
+#define Y_HOME_BUMP_MM 0
+#define Z_HOME_BUMP_MM 1
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
 
@@ -434,25 +455,26 @@
 //#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 }    // Default drive percent - X, Y, Z, E axis
 
-// Use an I2C based DIGIPOT (e.g., Azteeg X3 Pro)
-//#define DIGIPOT_I2C
-#if ENABLED(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A)
-  /**
-   * Common slave addresses:
-   *
-   *                    A   (A shifted)   B   (B shifted)  IC
-   * Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
-   * AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
-   * MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
-   */
+// Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+#define DIGIPOT_I2C
+
+#if (defined(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A))  //default to settings in pins_XXXX.h files
   #define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for first DIGIPOT
   #define DIGIPOT_I2C_ADDRESS_B 0x2D  // unshifted slave address for second DIGIPOT
 #endif
+/**
+ *  common slave addresses
+ *
+ *  board              A   (A shifted)   B   (B shifted)  IC
+ *  Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
+ *  AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
+ *  MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
+ */
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
-#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
+#define DIGIPOT_I2C_NUM_CHANNELS 5 // 5DPRINT: 4     AZTEEG_X3_PRO: 8	MKS SBASE: 5
 // Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
+#define DIGIPOT_I2C_MOTOR_CURRENTS { 0.5, 0.5, 1.2, 1.2, 0.6 }  //  MKS SBASE: 5
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -608,6 +630,12 @@
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
 
+  // VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #define DOGLCD_SCK SCK_PIN
+    #define DOGLCD_MOSI MOSI_PIN
+  #endif
+
 #endif // DOGLCD
 
 // @section safety
@@ -646,6 +674,20 @@
 #endif
 
 // @section extruder
+
+// extruder advance constant (s2/mm3)
+//
+// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K * cubic mm per second ^ 2
+//
+// Hooke's law says:    force = k * distance
+// Bernoulli's principle says:  v ^ 2 / 2 + g . h + pressure / density = constant
+// so: v ^ 2 is proportional to number of steps we advance the extruder
+//#define ADVANCE
+
+#if ENABLED(ADVANCE)
+  #define EXTRUDER_ADVANCE_K .0
+  #define D_FILAMENT 2.85
+#endif
 
 /**
  * Implementation of linear pressure control
@@ -731,7 +773,7 @@
 
 // The minimum pulse width (in µs) for stepping a stepper.
 // Set this if you find stepping unreliable, or if using a very fast CPU.
-#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
+#define MINIMUM_STEPPER_PULSE 4 // (µs) The smallest stepper pulse allowed
 
 // @section temperature
 
