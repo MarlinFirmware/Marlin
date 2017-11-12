@@ -1405,17 +1405,8 @@ bool get_target_extruder_from_command(const uint16_t code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = 0.0
-      #if HAS_HOME_OFFSET
-        + home_offset[axis]
-      #endif
-      #if HAS_POSITION_SHIFT
-        + position_shift[axis]
-      #endif
-    ;
-
     #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-      workspace_offset[axis] = offs;
+      workspace_offset[axis] = home_offset[axis] + position_shift[axis];
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -1426,27 +1417,27 @@ bool get_target_extruder_from_command(const uint16_t code) {
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-          soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-          soft_endstop_max[X_AXIS] = dual_max_x + offs;
+          soft_endstop_min[X_AXIS] = X2_MIN_POS;
+          soft_endstop_max[X_AXIS] = dual_max_x;
         }
         else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
+          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-          soft_endstop_min[axis] = base_min_pos(axis) + offs;
-          soft_endstop_max[axis] = base_max_pos(axis) + offs;
+          soft_endstop_min[axis] = base_min_pos(axis);
+          soft_endstop_max[axis] = base_max_pos(axis);
         }
       }
     #elif ENABLED(DELTA)
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height : base_max_pos(axis)) + offs;
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = axis == Z_AXIS ? delta_height : base_max_pos(axis);
     #else
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = base_max_pos(axis);
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -11143,14 +11134,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(PARKING_EXTRUDER)
-            for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-              #if HAS_POSITION_SHIFT
-                position_shift[i] += xydiff[i];
-              #endif
-              update_software_endstops((AxisEnum)i);
-            }
-          #endif
 
           // Set the new active extruder
           active_extruder = tmp_extruder;
