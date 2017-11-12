@@ -169,23 +169,26 @@
 #endif
 
 #if ENABLED(MINIPANEL)
-  #if ENABLED(USE_INTERNAL_SD)
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#
-    #define SDSS               20  //        10               B0
-    #define SD_DETECT_PIN      -1  // no auto-detect SD insertion on built-in Printrboard SD reader
-  #else
+  #if DISABLED(USE_INTERNAL_SD)
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+    #undef SDSS
     #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
+    #undef SD_DETECT_PIN
     #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
   #endif
 
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
     #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04
     #define DOGLCD_CS           5  //        30               D5                EXP2-06             EXP1-05
+    #undef BTN_ENC
     #define BTN_ENC             6  //        31               D6                EXP2-07             EXP1-09
+    #undef BEEPER_PIN
     #define BEEPER_PIN          7  //        32               D7                EXP2-08             EXP1-10
+    #undef KILL_PIN
     #define KILL_PIN            8  //        33               E0                EXP2-10             EXP2-03
+    #undef BTN_EN1
     #define BTN_EN1            10  //        35               C0                EXP2-12             EXP2-06
+    #undef BTN_EN2
     #define BTN_EN2            12  //        37               C2                EXP2-14             EXP2-08
   //#define LCD_BACKLIGHT_PIN  43  //        56               F5                EXP1-12     Not Implemented
   //#define SCK                21  //        11               B1                ICSP-04             EXP2-09
@@ -203,7 +206,7 @@
   #define encrot2 3
   #define encrot3 1
 
-  // increase delays to max
+  // increase delays
   #define ST7920_DELAY_1 DELAY_5_NOP
   #define ST7920_DELAY_2 DELAY_5_NOP
   #define ST7920_DELAY_3 DELAY_5_NOP
@@ -212,8 +215,13 @@
 //
 // Misc. Functions
 //
+//      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
 #ifndef SDSS
-  #define SDSS               20   // B0 SS
+  #define SDSS             20  //        10               B0
 #endif
-
-#define FILWIDTH_PIN        2   // Analog Input
+#ifndef SD_DETECT_PIN
+  #define SD_DETECT_PIN    -1  // no auto-detect SD insertion on built-in Printrboard SD reader
+#endif
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN      2  // Analog Input 
+#endif
