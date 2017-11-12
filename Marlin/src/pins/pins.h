@@ -268,6 +268,8 @@
   #include "pins_DUE3DOM_MINI.h"
 #elif MB(RADDS)
   #include "pins_RADDS.h"
+#elif MB(RURAMPS4D)
+  #include "pins_RURAMPS4D.h"
 #elif MB(RAMPS_FD_V1)
   #include "pins_RAMPS_FD_V1.h"
 #elif MB(RAMPS_FD_V2)

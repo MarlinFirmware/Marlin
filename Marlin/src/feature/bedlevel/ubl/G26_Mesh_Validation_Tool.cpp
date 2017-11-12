@@ -730,7 +730,7 @@ bool unified_bed_leveling::parse_G26_parameters() {
   }
 
   g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS];
-  g26_y_pos = parser.seenval('Y') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
+  g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
   if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
     SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
     return UBL_ERR;

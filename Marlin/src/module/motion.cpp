@@ -70,16 +70,16 @@ bool relative_mode = false;
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
- *   Used by 'line_to_current_position' to do a move after changing it.
+ *   Used by 'buffer_line_to_current_position' to do a move after changing it.
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
 float current_position[XYZE] = { 0.0 };
 
 /**
  * Cartesian Destination
- *   A temporary position, usually applied to 'current_position'.
- *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
- *   'line_to_destination' sets 'current_position' to 'destination'.
+ *   The destination for a move, filled in by G-code movement commands,
+ *   and expected by functions like 'prepare_move_to_destination'.
+ *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
  */
 float destination[XYZE] = { 0.0 };
 
@@ -235,7 +235,7 @@ void line_to_current_position() {
  * Move the planner to the position stored in the destination array, which is
  * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
  */
-void line_to_destination(const float fr_mm_s) {
+void buffer_line_to_destination(const float fr_mm_s) {
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
 }
 
@@ -489,7 +489,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #endif
 
-#if IS_KINEMATIC && !UBL_DELTA
+#if !UBL_DELTA
+#if IS_KINEMATIC
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #if ENABLED(DELTA)
@@ -512,6 +513,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
    *
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
+   *
+   * For Unified Bed Leveling (Delta or Segmented Cartesian)
+   * the ubl.prepare_segmented_line_to method replaces this.
    */
   inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
 
@@ -630,47 +634,45 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     return false;
   }
 
-#else // !IS_KINEMATIC || UBL_DELTA
+#else // !IS_KINEMATIC
 
   /**
    * Prepare a linear move in a Cartesian setup.
-   * Bed Leveling will be applied to the move if enabled.
+   *
+   * When a mesh-based leveling system is active, moves are segmented
+   * according to the configuration of the leveling system.
    *
    * Returns true if current_position[] was set to destination[]
    */
-
   inline bool prepare_move_to_destination_cartesian() {
-    const float fr_scaled = MMS_SCALED(feedrate_mm_s);
-      #if HAS_MESH
-        if (!planner.leveling_active) {
-          line_to_destination(fr_scaled);
-          return false;
-        }
+    #if HAS_MESH
+      if (planner.leveling_active) {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.line_to_destination_cartesian(fr_scaled, active_extruder);  // UBL's motion routine needs to know about all moves,
-          return true;                                                    // even purely Z-Axis moves
+          ubl.line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);  // UBL's motion routine needs to know about
+          return true;                                                                    // all moves, including Z-only moves.
         #else
+          /**
+           * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
+           * Otherwise fall through to do a direct single move.
+           */
           if (current_position[X_AXIS] != destination[X_AXIS] || current_position[Y_AXIS] != destination[Y_AXIS]) {
             #if ENABLED(MESH_BED_LEVELING)
-              mesh_line_to_destination(fr_scaled);
+              mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bilinear_line_to_destination(fr_scaled);
+              bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
             #endif
             return true;
           }
-          else {
-            line_to_destination();
-            return false;
-          }
         #endif
-      #else
-        line_to_destination();  
-      #endif // HAS_MESH
+      }
+    #endif // HAS_MESH
 
+    buffer_line_to_destination(MMS_SCALED(feedrate_mm_s));
     return false;
   }
 
-#endif // !IS_KINEMATIC || UBL_DELTA
+#endif // !IS_KINEMATIC
+#endif // !UBL_DELTA
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false;                              // Used in Dual X mode 2
@@ -783,31 +785,36 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
  *
  * This may result in several calls to planner.buffer_line to
  * do smaller moves for DELTA, SCARA, mesh moves, etc.
+ *
+ * Make sure current_position[E] and destination[E] are good
+ * before calling or cold/lengthy extrusion may get missed.
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   gcode.refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
-        if (thermalManager.tooColdToExtrude(active_extruder)) {
-          current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-        }
+        #if ENABLED(PREVENT_COLD_EXTRUSION)
+          if (thermalManager.tooColdToExtrude(active_extruder)) {
+            current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+          }
+        #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (destination[E_AXIS] - current_position[E_AXIS] > EXTRUDE_MAXLENGTH) {
+          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
           }
-        #endif
+        #endif // PREVENT_LENGTHY_EXTRUDE
       }
     }
 
-  #endif
+  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   if (
     #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
@@ -970,6 +977,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   #if ENABLED(MORGAN_SCARA)
     scara_set_axis_is_at_home(axis);
+  #elif ENABLED(DELTA)
+    current_position[axis] = (axis == Z_AXIS ? delta_height : base_home_pos(axis));
   #else
     current_position[axis] = base_home_pos(axis);
   #endif
@@ -1214,17 +1223,8 @@ void homeaxis(const AxisEnum axis) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = 0.0
-      #if HAS_HOME_OFFSET
-        + home_offset[axis]
-      #endif
-      #if HAS_POSITION_SHIFT
-        + position_shift[axis]
-      #endif
-    ;
-
     #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-      workspace_offset[axis] = offs;
+      workspace_offset[axis] = home_offset[axis] + position_shift[axis];
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -1235,27 +1235,27 @@ void homeaxis(const AxisEnum axis) {
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-          soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-          soft_endstop_max[X_AXIS] = dual_max_x + offs;
+          soft_endstop_min[X_AXIS] = X2_MIN_POS;
+          soft_endstop_max[X_AXIS] = dual_max_x;
         }
         else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
+          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-          soft_endstop_min[axis] = base_min_pos(axis) + offs;
-          soft_endstop_max[axis] = base_max_pos(axis) + offs;
+          soft_endstop_min[axis] = base_min_pos(axis);
+          soft_endstop_max[axis] = base_max_pos(axis);
         }
       }
     #elif ENABLED(DELTA)
-      soft_endstop_min[axis] = base_min_pos(axis) + (axis == Z_AXIS ? 0 : offs);
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height : base_max_pos(axis));
     #else
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = base_max_pos(axis);
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)

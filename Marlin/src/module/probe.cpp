@@ -509,10 +509,9 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
  * @details Used by probe_pt to do a single Z probe.
  *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
  *
- * @param  short_move Flag for a shorter probe move towards the bed
  * @return The raw Z position where the probe was triggered
  */
-static float run_z_probe(const bool short_move=true) {
+static float run_z_probe() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -549,8 +548,8 @@ static float run_z_probe(const bool short_move=true) {
     }
   #endif
 
-  // move down slowly to find bed
-  if (do_probe_move(-10 + (short_move ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
+  // Move down slowly to find bed, not too far
+  if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
@@ -564,11 +563,7 @@ static float run_z_probe(const bool short_move=true) {
     }
   #endif
 
-  return current_position[Z_AXIS] + zprobe_zoffset
-    #if ENABLED(DELTA)
-      + home_offset[Z_AXIS] // Account for delta height adjustment
-    #endif
-  ;
+  return current_position[Z_AXIS] + zprobe_zoffset;
 }
 
 /**
@@ -593,23 +588,16 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
 
   const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-  if (printable
+  if (!printable
     ? !position_is_reachable(nx, ny)
     : !position_is_reachable_by_probe(rx, ry)
   ) return NAN;
-
 
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DELTA)
     if (current_position[Z_AXIS] > delta_clip_start_height)
       do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-
-  #if HAS_SOFTWARE_ENDSTOPS
-    // Store the status of the soft endstops and disable if we're probing a non-printable location
-    static bool enable_soft_endstops = soft_endstops_enabled;
-    if (!printable) soft_endstops_enabled = false;
   #endif
 
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
@@ -619,18 +607,13 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe(printable);
+    measured_z = run_z_probe();
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     else
       if (STOW_PROBE()) measured_z = NAN;
   }
-
-  #if HAS_SOFTWARE_ENDSTOPS
-    // Restore the soft endstop status
-    soft_endstops_enabled = enable_soft_endstops;
-  #endif
 
   if (verbose_level > 2) {
     SERIAL_PROTOCOLPGM("Bed X: ");
@@ -686,7 +669,7 @@ void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
     #endif
 
     #if ENABLED(DELTA) // correct the delta_height
-      home_offset[Z_AXIS] -= diff;
+      delta_height -= diff;
     #endif
   }
 

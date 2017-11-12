@@ -695,7 +695,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -17    // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -10    // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.027 // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.25  // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 7500
@@ -1708,11 +1708,11 @@
  * Default extrusion settings
  *
  * These settings control basic extrusion from within the Marlin firmware.
- * 
+ *
  */
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
-#define DEFAULT_NOZZLE_SIZE           .4    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.
-#define DEFAULT_LAYER_HEIGHT          .2    // (mm) Default layer height that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_NOZZLE_SIZE           .5    // (mm) Diameter of primary nozzle.  Used by G26 Mesh Validation Pattern tool.
+#define DEFAULT_LAYER_HEIGHT          .35   // (mm) Default layer height that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 #define DEFAULT_HOTEND_TEMP        205.0    // (c)  Default nozzle temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 #define DEFAULT_BED_TEMP            60.0    // (c)  Default bed temperature that will produce usable results by the printer.  Used by G26 Mesh Validation Pattern tool.
 

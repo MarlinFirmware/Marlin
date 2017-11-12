@@ -48,7 +48,7 @@ void mesh_probing_done() {
   #if ENABLED(MESH_G28_REST_ORIGIN)
     current_position[Z_AXIS] = Z_MIN_POS;
     set_destination_from_current();
-    line_to_destination(homing_feedrate(Z_AXIS));
+    buffer_line_to_destination(homing_feedrate(Z_AXIS));
     stepper.synchronize();
   #endif
 }

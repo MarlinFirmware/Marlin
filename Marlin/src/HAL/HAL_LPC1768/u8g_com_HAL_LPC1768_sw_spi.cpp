@@ -60,7 +60,6 @@
 #if defined (TARGET_LPC1768)
 
 
-#include <lib/u8g.h>
 #include <U8glib.h>
 
 #include <lpc17xx_pinsel.h>

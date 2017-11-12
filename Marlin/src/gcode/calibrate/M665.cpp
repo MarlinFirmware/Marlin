@@ -45,7 +45,7 @@
    */
   void GcodeSuite::M665() {
     if (parser.seen('H')) {
-      home_offset[Z_AXIS] = parser.value_linear_units() - DELTA_HEIGHT;
+      delta_height = parser.value_linear_units();
       update_software_endstops(Z_AXIS);
     }
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
@@ -55,7 +55,7 @@
     if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim[C_AXIS] = parser.value_float();
-    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+    recalc_delta_settings();
   }
 
 #elif IS_SCARA
