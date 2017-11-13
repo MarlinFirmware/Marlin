@@ -27,7 +27,7 @@
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
 
   /**
-   * Select a coordinate system and update the current position.
+   * Select a coordinate system and update the workspace offset.
    * System index -1 is used to specify machine-native.
    */
   bool GCodeSuite::select_coordinate_system(const int8_t _new) {
@@ -39,16 +39,13 @@
     if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
       COPY(new_offset, coordinate_system[_new]);
     active_coordinate_system = _new;
-    bool didXYZ = false;
     LOOP_XYZ(i) {
       const float diff = new_offset[i] - old_offset[i];
       if (diff) {
         position_shift[i] += diff;
         update_software_endstops((AxisEnum)i);
-        didXYZ = true;
       }
     }
-    if (didXYZ) SYNC_PLAN_POSITION_KINEMATIC();
     return true;
   }
 
