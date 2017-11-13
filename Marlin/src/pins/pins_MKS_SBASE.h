@@ -34,8 +34,6 @@
   #define DEFAULT_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
 #endif
 
-#define LARGE_FLASH true
-
 // unused
 /*
 #define PIN_P0_27         P0_27

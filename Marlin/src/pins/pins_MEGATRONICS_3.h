@@ -36,8 +36,6 @@
   #define BOARD_NAME       "Megatronics v3.0"
 #endif
 
-#define LARGE_FLASH        true
-
 //
 // Servos
 //

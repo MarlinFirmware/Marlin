@@ -34,8 +34,6 @@
   #define DEFAULT_WEBSITE_URL "https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Limit Switches
 //

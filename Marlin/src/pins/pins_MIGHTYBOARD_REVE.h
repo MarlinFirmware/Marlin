@@ -59,8 +59,6 @@
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
