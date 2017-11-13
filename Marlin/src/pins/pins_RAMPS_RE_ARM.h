@@ -44,8 +44,6 @@
   #define BOARD_NAME "Re-ARM RAMPS 1.4"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
