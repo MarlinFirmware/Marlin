@@ -3653,7 +3653,7 @@ inline void gcode_G4() {
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
 
   /**
-   * Select a coordinate system and update the current position.
+   * Select a coordinate system and update the workspace offset.
    * System index -1 is used to specify machine-native.
    */
   bool select_coordinate_system(const int8_t _new) {
@@ -3664,16 +3664,13 @@ inline void gcode_G4() {
     if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
       COPY(new_offset, coordinate_system[_new]);
     active_coordinate_system = _new;
-    bool didXYZ = false;
     LOOP_XYZ(i) {
       const float diff = new_offset[i] - old_offset[i];
       if (diff) {
         position_shift[i] += diff;
         update_software_endstops((AxisEnum)i);
-        didXYZ = true;
       }
     }
-    if (didXYZ) SYNC_PLAN_POSITION_KINEMATIC();
     return true;
   }
 
@@ -6257,7 +6254,12 @@ inline void gcode_G92() {
     #define IS_G92_0 true
   #endif
 
-  bool didXYZ = false, didE = false;
+  bool didE = false;
+  #if IS_SCARA || !HAS_POSITION_SHIFT
+    bool didXYZ = false;
+  #else
+    constexpr bool didXYZ = false;
+  #endif
 
   if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
@@ -6265,18 +6267,18 @@ inline void gcode_G92() {
                   v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
                   d = v - current_position[i];
       if (!NEAR_ZERO(d)) {
-        if (i == E_AXIS) didE = true; else didXYZ = true;
-        #if IS_SCARA
-          current_position[i] = v;        // For SCARA just set the position directly
+        #if IS_SCARA || !HAS_POSITION_SHIFT
+          if (i == E_AXIS) didE = true; else didXYZ = true;
+          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #elif HAS_POSITION_SHIFT
-          if (i == E_AXIS)
+          if (i == E_AXIS) {
+            didE = true;
             current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+          }
           else {
             position_shift[i] += d;       // Other axes simply offset the coordinate space
             update_software_endstops((AxisEnum)i);
           }
-        #else
-          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #endif
       }
     }
