@@ -35,7 +35,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "bugfix-1.1.x"
+  #define SHORT_BUILD_VERSION "1.1.6"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -48,6 +48,7 @@
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
+
   #define STRING_DISTRIBUTION_DATE "2017-10-24 12:00"
 
   /**
