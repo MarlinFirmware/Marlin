@@ -38,8 +38,6 @@
 
 #define AT90USB 1286   // Disable MarlinSerial etc.
 #define USBCON //1286  // Disable MarlinSerial etc.
-#define LARGE_FLASH        true
-
 /*
 
   teemuatlut plan for Teensy3.5 and Teensy3.6:

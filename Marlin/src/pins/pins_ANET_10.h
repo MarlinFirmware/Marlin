@@ -96,8 +96,6 @@
   #define BOARD_NAME "Anet"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Limit Switches
 //

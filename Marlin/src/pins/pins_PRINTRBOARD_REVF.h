@@ -71,8 +71,6 @@
 #endif
 
 #define BOARD_NAME         "Printrboard Rev F"
-#define LARGE_FLASH        true
-
 // Disable JTAG pins so EXP1 pins work correctly
 // (Its pins are used for the Extrudrboard and filament sensor, for example).
 #define DISABLE_JTAG
