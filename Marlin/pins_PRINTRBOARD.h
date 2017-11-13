@@ -70,7 +70,7 @@
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
-#define DISABLE_JTAG       true
+#define DISABLE_JTAG
 
 //
 // Limit Switches
