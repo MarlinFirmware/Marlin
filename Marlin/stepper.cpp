@@ -72,7 +72,7 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
   bool Stepper::abort_on_endstop_hit = false;
 #endif
 
-#if ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::performing_homing = false;
 #endif
 
@@ -85,9 +85,14 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
 uint16_t Stepper::cleaning_buffer_counter = 0;
 
+#if ENABLED(X_DUAL_ENDSTOPS)
+  bool Stepper::locked_x_motor = false, Stepper::locked_x2_motor = false;
+#endif
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  bool Stepper::locked_y_motor = false, Stepper::locked_y2_motor = false;
+#endif
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::locked_z_motor = false;
-  bool Stepper::locked_z2_motor = false;
+  bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
 long Stepper::counter_X = 0,
@@ -142,26 +147,54 @@ unsigned short Stepper::OCR1A_nominal;
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
+#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+  #define LOCKED_X_MOTOR  locked_x_motor
+  #define LOCKED_Y_MOTOR  locked_y_motor
+  #define LOCKED_Z_MOTOR  locked_z_motor
+  #define LOCKED_X2_MOTOR locked_x2_motor
+  #define LOCKED_Y2_MOTOR locked_y2_motor
+  #define LOCKED_Z2_MOTOR locked_z2_motor
+  #define DUAL_ENDSTOP_APPLY_STEP(AXIS,v)                                                                                                             \
+    if (performing_homing) {                                                                                                                          \
+      if (AXIS##_HOME_DIR < 0) {                                                                                                                      \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##_MIN) && (count_direction[AXIS##_AXIS] < 0)) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MIN) && (count_direction[AXIS##_AXIS] < 0)) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+      }                                                                                                                                               \
+      else {                                                                                                                                          \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##_MAX) && (count_direction[AXIS##_AXIS] > 0)) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MAX) && (count_direction[AXIS##_AXIS] > 0)) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+      }                                                                                                                                               \
+    }                                                                                                                                                 \
+    else {                                                                                                                                            \
+      AXIS##_STEP_WRITE(v);                                                                                                                           \
+      AXIS##2_STEP_WRITE(v);                                                                                                                          \
+    }
+#endif
+
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
-  #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
-#elif ENABLED(DUAL_X_CARRIAGE)
-  #define X_APPLY_DIR(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_DIR_WRITE(v); \
-      X2_DIR_WRITE(v); \
-    } \
-    else { \
-      if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
-    }
-  #define X_APPLY_STEP(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_STEP_WRITE(v); \
-      X2_STEP_WRITE(v); \
-    } \
-    else { \
-      if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
-    }
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #define X_APPLY_DIR(v,ALWAYS) \
+      if (extruder_duplication_enabled || ALWAYS) { \
+        X_DIR_WRITE(v); \
+        X2_DIR_WRITE(v); \
+      } \
+      else { \
+        if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+      }
+    #define X_APPLY_STEP(v,ALWAYS) \
+      if (extruder_duplication_enabled || ALWAYS) { \
+        X_STEP_WRITE(v); \
+        X2_STEP_WRITE(v); \
+      } \
+      else { \
+        if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+      }
+  #elif ENABLED(X_DUAL_ENDSTOPS)
+    #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
+  #else
+    #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
+  #endif
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
@@ -169,7 +202,11 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
-  #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
+  #else
+    #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
+  #endif
 #else
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
@@ -178,21 +215,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z_APPLY_STEP(v,Q) \
-    if (performing_homing) { \
-      if (Z_HOME_DIR < 0) { \
-        if (!(TEST(endstops.old_endstop_bits, Z_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
-        if (!(TEST(endstops.old_endstop_bits, Z2_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
-      } \
-      else { \
-        if (!(TEST(endstops.old_endstop_bits, Z_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
-        if (!(TEST(endstops.old_endstop_bits, Z2_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
-      } \
-    } \
-    else { \
-      Z_STEP_WRITE(v); \
-      Z2_STEP_WRITE(v); \
-    }
+    #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
   #endif

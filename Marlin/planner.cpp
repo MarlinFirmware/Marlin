@@ -94,7 +94,7 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
-millis_t Planner::min_segment_time;
+uint32_t Planner::min_segment_time_us;
 
 // Initialized by settings.load()
 float Planner::min_feedrate_mm_s,
@@ -104,17 +104,16 @@ float Planner::min_feedrate_mm_s,
       Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
       Planner::min_travel_feedrate_mm_s;
 
-#if HAS_ABL
-  bool Planner::abl_enabled = false; // Flag that auto bed leveling is enabled
-#endif
-
-#if ABL_PLANAR
-  matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
-#endif
-
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float Planner::z_fade_height, // Initialized by settings.load()
-        Planner::inverse_z_fade_height;
+#if HAS_LEVELING
+  bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
+  #if ABL_PLANAR
+    matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
+  #endif
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    float Planner::z_fade_height,      // Initialized by settings.load()
+          Planner::inverse_z_fade_height,
+          Planner::last_raw_lz;
+  #endif
 #endif
 
 #if ENABLED(AUTOTEMP)
@@ -141,7 +140,7 @@ float Planner::previous_speed[NUM_AXIS],
   // Old direction bits. Used for speed calculations
   unsigned char Planner::old_direction_bits = 0;
   // Segment times (in µs). Used for speed calculations
-  long Planner::axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
+  uint32_t Planner::axis_segment_time_us[2][3] = { { MAX_FREQ_TIME_US + 1, 0, 0 }, { MAX_FREQ_TIME_US + 1, 0, 0 } };
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -528,45 +527,30 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
+    if (!leveling_active) return;
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      const float fade_scaling_factor = fade_scaling_factor_for_z(lz);
+      if (!fade_scaling_factor) return;
+    #else
+      constexpr float fade_scaling_factor = 1.0;
+    #endif
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      if (!ubl.state.active) return;
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        // if z_fade_height enabled (nonzero) and raw_z above it, no leveling required
-        if (planner.z_fade_height && planner.z_fade_height <= RAW_Z_POSITION(lz)) return;
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly) * ubl.fade_scaling_factor_for_z(lz);
-      #else // no fade
-        lz += ubl.state.z_offset + ubl.get_z_correction(lx, ly);
-      #endif // FADE
-    #endif // UBL
 
-    #if HAS_ABL
-      if (!abl_enabled) return;
-    #endif
+      lz += ubl.get_z_correction(lx, ly) * fade_scaling_factor;
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_UBL)
-      static float z_fade_factor = 1.0, last_raw_lz = -999.0;
-      if (z_fade_height) {
-        const float raw_lz = RAW_Z_POSITION(lz);
-        if (raw_lz >= z_fade_height) return;
-        if (last_raw_lz != raw_lz) {
-          last_raw_lz = raw_lz;
-          z_fade_factor = 1.0 - raw_lz * inverse_z_fade_height;
-        }
-      }
-      else
-        z_fade_factor = 1.0;
-    #endif
+    #elif ENABLED(MESH_BED_LEVELING)
 
-    #if ENABLED(MESH_BED_LEVELING)
-
-      if (mbl.active())
-        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            , z_fade_factor
-          #endif
-          );
+      lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          , fade_scaling_factor
+        #endif
+      );
 
     #elif ABL_PLANAR
+
+      UNUSED(fade_scaling_factor);
 
       float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
             dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
@@ -581,63 +565,56 @@ void Planner::check_axes_activity() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       float tmp[XYZ] = { lx, ly, 0 };
-      lz += bilinear_z_offset(tmp)
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          * z_fade_factor
-        #endif
-      ;
+      lz += bilinear_z_offset(tmp) * fade_scaling_factor;
 
     #endif
   }
 
   void Planner::unapply_leveling(float logical[XYZ]) {
 
+    #if HAS_LEVELING
+      if (!leveling_active) return;
+    #endif
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      if (!leveling_active_at_z(logical[Z_AXIS])) return;
+    #endif
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      if (ubl.state.active) {
+      const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
+                  z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
+                  z_virtual = z_physical - z_correct;
+            float z_logical = LOGICAL_Z_POSITION(z_virtual);
 
-        const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
-                    z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
-                    z_virtual = z_physical - ubl.state.z_offset - z_correct;
-              float z_logical = LOGICAL_Z_POSITION(z_virtual);
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
+        // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
+        //  then L=P-M(1-L/H)
+        //    so L=P-M+ML/H
+        //    so L-ML/H=P-M
+        //    so L(1-M/H)=P-M
+        //    so L=(P-M)/(1-M/H) for L<H
 
-          // for P=physical_z, L=logical_z, M=mesh_z, O=z_offset, H=fade_height,
-          // Given P=L+O+M(1-L/H) (faded mesh correction formula for L<H)
-          //  then L=P-O-M(1-L/H)
-          //    so L=P-O-M+ML/H
-          //    so L-ML/H=P-O-M
-          //    so L(1-M/H)=P-O-M
-          //    so L=(P-O-M)/(1-M/H) for L<H
+        if (planner.z_fade_height) {
+          if (z_logical >= planner.z_fade_height)
+            z_logical = LOGICAL_Z_POSITION(z_physical);
+          else
+            z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
+        }
 
-          if (planner.z_fade_height) {
-            if (z_logical >= planner.z_fade_height)
-              z_logical = LOGICAL_Z_POSITION(z_physical - ubl.state.z_offset);
-            else
-              z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
-          }
+      #endif // ENABLE_LEVELING_FADE_HEIGHT
 
-        #endif // ENABLE_LEVELING_FADE_HEIGHT
-
-        logical[Z_AXIS] = z_logical;
-      }
+      logical[Z_AXIS] = z_logical;
 
       return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
 
     #endif
 
-    #if HAS_ABL
-      if (!abl_enabled) return;
-    #endif
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (z_fade_height && RAW_Z_POSITION(logical[Z_AXIS]) >= z_fade_height) return;
-    #endif
-
     #if ENABLED(MESH_BED_LEVELING)
 
-      if (mbl.active()) {
+      if (leveling_active) {
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
           logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
@@ -1059,15 +1036,15 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    unsigned long segment_time = LROUND(1000000.0 / inverse_mm_s);
+    uint32_t segment_time_us = LROUND(1000000.0 / inverse_mm_s);
   #endif
   #if ENABLED(SLOWDOWN)
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
-      if (segment_time < min_segment_time) {
+      if (segment_time_us < min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        inverse_mm_s = 1000000.0 / (segment_time + LROUND(2 * (min_segment_time - segment_time) / moves_queued));
+        inverse_mm_s = 1000000.0 / (segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued));
         #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
-          segment_time = LROUND(1000000.0 / inverse_mm_s);
+          segment_time_us = LROUND(1000000.0 / inverse_mm_s);
         #endif
       }
     }
@@ -1075,7 +1052,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(ULTRA_LCD)
     CRITICAL_SECTION_START
-      block_buffer_runtime_us += segment_time;
+      block_buffer_runtime_us += segment_time_us;
     CRITICAL_SECTION_END
   #endif
 
@@ -1132,34 +1109,34 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // Check and limit the xy direction change frequency
     const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
     old_direction_bits = block->direction_bits;
-    segment_time = LROUND((float)segment_time / speed_factor);
+    segment_time_us = LROUND((float)segment_time_us / speed_factor);
 
-    long xs0 = axis_segment_time[X_AXIS][0],
-         xs1 = axis_segment_time[X_AXIS][1],
-         xs2 = axis_segment_time[X_AXIS][2],
-         ys0 = axis_segment_time[Y_AXIS][0],
-         ys1 = axis_segment_time[Y_AXIS][1],
-         ys2 = axis_segment_time[Y_AXIS][2];
+    uint32_t xs0 = axis_segment_time_us[X_AXIS][0],
+             xs1 = axis_segment_time_us[X_AXIS][1],
+             xs2 = axis_segment_time_us[X_AXIS][2],
+             ys0 = axis_segment_time_us[Y_AXIS][0],
+             ys1 = axis_segment_time_us[Y_AXIS][1],
+             ys2 = axis_segment_time_us[Y_AXIS][2];
 
     if (TEST(direction_change, X_AXIS)) {
-      xs2 = axis_segment_time[X_AXIS][2] = xs1;
-      xs1 = axis_segment_time[X_AXIS][1] = xs0;
+      xs2 = axis_segment_time_us[X_AXIS][2] = xs1;
+      xs1 = axis_segment_time_us[X_AXIS][1] = xs0;
       xs0 = 0;
     }
-    xs0 = axis_segment_time[X_AXIS][0] = xs0 + segment_time;
+    xs0 = axis_segment_time_us[X_AXIS][0] = xs0 + segment_time_us;
 
     if (TEST(direction_change, Y_AXIS)) {
-      ys2 = axis_segment_time[Y_AXIS][2] = axis_segment_time[Y_AXIS][1];
-      ys1 = axis_segment_time[Y_AXIS][1] = axis_segment_time[Y_AXIS][0];
+      ys2 = axis_segment_time_us[Y_AXIS][2] = axis_segment_time_us[Y_AXIS][1];
+      ys1 = axis_segment_time_us[Y_AXIS][1] = axis_segment_time_us[Y_AXIS][0];
       ys0 = 0;
     }
-    ys0 = axis_segment_time[Y_AXIS][0] = ys0 + segment_time;
+    ys0 = axis_segment_time_us[Y_AXIS][0] = ys0 + segment_time_us;
 
-    const long max_x_segment_time = MAX3(xs0, xs1, xs2),
-               max_y_segment_time = MAX3(ys0, ys1, ys2),
-               min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
-    if (min_xy_segment_time < MAX_FREQ_TIME) {
-      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
+    const uint32_t max_x_segment_time = MAX3(xs0, xs1, xs2),
+                   max_y_segment_time = MAX3(ys0, ys1, ys2),
+                   min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
+    if (min_xy_segment_time < MAX_FREQ_TIME_US) {
+      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
       NOMORE(speed_factor, low_sf);
     }
   #endif // XY_FREQUENCY_LIMIT

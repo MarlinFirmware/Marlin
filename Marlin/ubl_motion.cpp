@@ -33,17 +33,17 @@
   extern float destination[XYZE];
 
   #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
-    inline void set_current_to_destination() { COPY(current_position, destination); }
+    inline void set_current_from_destination() { COPY(current_position, destination); }
   #else
-    extern void set_current_to_destination();
+    extern void set_current_from_destination();
   #endif
 
 #if ENABLED(DELTA)
 
-  extern float delta[ABC],
-               endstop_adj[ABC];
+  extern float delta[ABC];
 
-  extern float delta_radius,
+  extern float delta_endstop_adj[ABC],
+               delta_radius,
                delta_tower_angle_trim[ABC],
                delta_tower[ABC][2],
                delta_diagonal_rod,
@@ -153,8 +153,8 @@
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
         // a reasonable correction would be.
 
-        planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + state.z_offset, end[E_AXIS], feed_rate, extruder);
-        set_current_to_destination();
+        planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
+        set_current_from_destination();
 
         if (g26_debug_flag)
           debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination()"));
@@ -186,7 +186,7 @@
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
       const float yratio = (RAW_Y_POSITION(end[Y_AXIS]) - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
+      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       /**
        * If part of the Mesh is undefined, it will show up as NAN
@@ -197,12 +197,12 @@
        */
       if (isnan(z0)) z0 = 0.0;
 
-      planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0 + state.z_offset, end[E_AXIS], feed_rate, extruder);
+      planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -270,9 +270,8 @@
          */
         const float x = inf_m_flag ? start[X_AXIS] : (next_mesh_line_y - c) / m;
 
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi, current_yi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -302,7 +301,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+          planner._buffer_line(x, y, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -315,7 +314,7 @@
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -335,9 +334,8 @@
         const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_xpos(current_xi)),
                     y = m * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
 
-        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi, current_yi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -367,7 +365,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+          planner._buffer_line(x, y, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -377,7 +375,7 @@
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
 
-      set_current_to_destination();
+      set_current_from_destination();
       return;
     }
 
@@ -408,9 +406,8 @@
 
       if (left_flag == (x > next_mesh_line_x)) { // Check if we hit the Y line first
         // Yes!  Crossing a Y Mesh Line next
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(x, current_xi - left_flag, current_yi + dyi)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -430,15 +427,14 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        planner._buffer_line(x, next_mesh_line_y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+        planner._buffer_line(x, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
         current_yi += dyi;
         yi_cnt--;
       }
       else {
         // Yes!  Crossing a X Mesh Line next
-        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag);
-
-        z0 *= fade_scaling_factor_for_z(end[Z_AXIS]);
+        float z0 = z_correction_for_y_on_vertical_mesh_line(y, current_xi + dxi, current_yi - down_flag)
+                   * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
         /**
          * If part of the Mesh is undefined, it will show up as NAN
@@ -459,7 +455,7 @@
           z_position = end[Z_AXIS];
         }
 
-        planner._buffer_line(next_mesh_line_x, y, z_position + z0 + state.z_offset, e_position, feed_rate, extruder);
+        planner._buffer_line(next_mesh_line_x, y, z_position + z0, e_position, feed_rate, extruder);
         current_xi += dxi;
         xi_cnt--;
       }
@@ -473,7 +469,7 @@
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
 
-    set_current_to_destination();
+    set_current_from_destination();
   }
 
   #if UBL_DELTA
@@ -603,9 +599,7 @@
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
 
-      if (!state.active || above_fade_height) {   // no mesh leveling
-
-        const float z_offset = state.active ? state.z_offset : 0.0;
+      if (!planner.leveling_active || !planner.leveling_active_at_z(ltarget[Z_AXIS])) {   // no mesh leveling
 
         do {
 
@@ -621,17 +615,19 @@
             seg_le = ltarget[E_AXIS];
           }
 
-          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz + z_offset, seg_le, feedrate );
+          ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz, seg_le, feedrate );
 
         } while (segments);
 
-        return false; // moved but did not set_current_to_destination();
+        return false; // moved but did not set_current_from_destination();
       }
 
       // Otherwise perform per-segment leveling
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+        const float fade_scaling_factor = planner.fade_scaling_factor_for_z(ltarget[Z_AXIS]);
+      #else
+        constexpr float fade_scaling_factor = 1.0;
       #endif
 
       // increment to first segment destination
@@ -649,8 +645,8 @@
         // in top of loop and again re-find same adjacent cell and use it, just less efficient
         // for mesh inset area.
 
-        int8_t cell_xi = (seg_rx - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
-               cell_yi = (seg_ry - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_X_DIST));
+        int8_t cell_xi = (seg_rx - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
+               cell_yi = (seg_ry - (MESH_MIN_Y)) * (1.0 / (MESH_X_DIST));
 
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
@@ -663,7 +659,7 @@
               z_x0y1 = z_values[cell_xi  ][cell_yi+1],  // z at lower right corner
               z_x1y1 = z_values[cell_xi+1][cell_yi+1];  // z at upper right corner
 
-        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating state.active (G29 A)
+        if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
         if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
         if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
         if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
@@ -692,13 +688,7 @@
 
         for(;;) {  // for all segments within this mesh cell
 
-          float z_cxcy = z_cxy0 + z_cxym * cy;      // interpolated mesh z height along cx at cy
-
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
-          #endif
-
-          z_cxcy += state.z_offset;                 // add fixed mesh offset from G29 Z
+          float z_cxcy = (z_cxy0 + z_cxym * cy) * fade_scaling_factor; // interpolated mesh z height along cx at cy, scaled for fade
 
           if (--segments == 0) {                    // if this is last segment, use ltarget for exact
             seg_rx = RAW_X_POSITION(ltarget[X_AXIS]);
@@ -710,7 +700,7 @@
           ubl_buffer_segment_raw( seg_rx, seg_ry, seg_rz + z_cxcy, seg_le, feedrate );
 
           if (segments == 0 )                       // done with last segment
-            return false;                           // did not set_current_to_destination()
+            return false;                           // did not set_current_from_destination()
 
           seg_rx += seg_dx;
           seg_ry += seg_dy;
