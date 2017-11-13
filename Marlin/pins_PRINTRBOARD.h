@@ -129,8 +129,6 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  // we have no buzzer installed
-  #define BEEPER_PIN       -1
 
   // LCD Pins
   #if ENABLED(LCD_I2C_PANELOLU2)
@@ -143,9 +141,6 @@
     #define BTN_EN2        11   // C1       JP11-13
     #define BTN_ENC        12   // C2       JP11-14
   #endif
-
-  // not connected
-  #define SD_DETECT_PIN    -1
 
   #define LCD_PINS_RS       9   // E1       JP11-11
   #define LCD_PINS_ENABLE   8   // E0       JP11-10
@@ -169,7 +164,6 @@
   #define BTN_ENC          45   // F7 TDI   JP2-12
 
   #define SDSS             43   // F5 TMS   JP2-8
-  #define SD_DETECT_PIN    -1
 
   #define STAT_LED_RED_PIN  12  // C2       JP11-14
   #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
