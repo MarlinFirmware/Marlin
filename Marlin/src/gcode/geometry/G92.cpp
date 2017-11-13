@@ -58,7 +58,12 @@ void GcodeSuite::G92() {
     #define IS_G92_0 true
   #endif
 
-  bool didXYZ = false, didE = false;
+  bool didE = false;
+  #if IS_SCARA || !HAS_POSITION_SHIFT
+    bool didXYZ = false;
+  #else
+    constexpr bool didXYZ = false;
+  #endif
 
   if (IS_G92_0) LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
@@ -66,18 +71,18 @@ void GcodeSuite::G92() {
                   v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
                   d = v - current_position[i];
       if (!NEAR_ZERO(d)) {
-        if (i == E_AXIS) didE = true; else didXYZ = true;
-        #if IS_SCARA
-          current_position[i] = v;        // For SCARA just set the position directly
+        #if IS_SCARA || !HAS_POSITION_SHIFT
+          if (i == E_AXIS) didE = true; else didXYZ = true;
+          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #elif HAS_POSITION_SHIFT
-          if (i == E_AXIS)
+          if (i == E_AXIS) {
+            didE = true;
             current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+          }
           else {
             position_shift[i] += d;       // Other axes simply offset the coordinate space
             update_software_endstops((AxisEnum)i);
           }
-        #else
-          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #endif
       }
     }
