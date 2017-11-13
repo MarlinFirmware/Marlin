@@ -173,6 +173,7 @@ void clean_up_after_endstop_or_probe_move();
       || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
       || ENABLED(NOZZLE_PARK_FEATURE)                                              \
       || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+      || HAS_M206_COMMAND                                                          \
     ) || ENABLED(NO_MOTION_BEFORE_HOMING)
 
 #if HAS_AXIS_UNHOMED_ERR
