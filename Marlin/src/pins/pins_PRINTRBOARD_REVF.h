@@ -135,8 +135,6 @@
 //#define USE_INTERNAL_SD
 
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN       -1
-
   #define LCD_PINS_RS       9   // E1       JP11-11
   #define LCD_PINS_ENABLE   8   // E0       JP11-10
   #define LCD_PINS_D4       7   // D7       JP11-8
@@ -144,76 +142,65 @@
   #define LCD_PINS_D6       5   // D5       JP11-6
   #define LCD_PINS_D7       4   // D4       JP11-5
 
-  #define BTN_EN1          10   // C0       JP11-12
-  #define BTN_EN2          11   // C1       JP11-13
-  #define BTN_ENC          12   // C2       JP11-14
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
-  #define SD_DETECT_PIN    -1
-#endif
+    #define BEEPER_PIN      8   // E0       JP11-10
+    #define DOGLCD_A0      40   // F2       JP2-2
+    #define DOGLCD_CS      41   // F3       JP2-4
+    #define LCD_SCREEN_ROT_180
 
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN        8   // E0       JP11-10
-  #define DOGLCD_A0        40   // F2       JP2-2
-  #define DOGLCD_CS        41   // F3       JP2-4
-  #define LCD_SCREEN_ROT_180
+    #define BTN_EN1         2   // D2 TX1   JP2-5
+    #define BTN_EN2         3   // D3 RX1   JP2-7
+    #define BTN_ENC        45   // F7 TDI   JP2-12
 
-  #define BTN_EN1           2   // D2 TX1   JP2-5
-  #define BTN_EN2           3   // D3 RX1   JP2-7
-  #define BTN_ENC          45   // F7 TDI   JP2-12
+    #define SDSS            3   // F5 TMS   JP2-8
 
-  #define SDSS             43   // F5 TMS   JP2-8
-  #define SD_DETECT_PIN    -1
+    #define STAT_LED_RED_PIN  12  // C2       JP11-14
+    #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
 
-  #define STAT_LED_RED_PIN  12  // C2       JP11-14
-  #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
-#endif
+  #elif ENABLED(MINIPANEL)
 
-#if ENABLED(MINIPANEL)
-  #if ENABLED(USE_INTERNAL_SD)
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#
-    #define SDSS               20  //        10               B0
-    #define SD_DETECT_PIN      -1  // no auto-detect SD insertion on built-in Printrboard SD reader
-  #else
+    #if DISABLED(USE_INTERNAL_SD)
+      //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+      #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
+      #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+    #endif
+
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
-    #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+    #define DOGLCD_A0       4  //        29               D4                EXP2-05             EXP1-04
+    #define DOGLCD_CS       5  //        30               D5                EXP2-06             EXP1-05
+    #define BTN_ENC         6  //        31               D6                EXP2-07             EXP1-09
+    #define BEEPER_PIN      7  //        32               D7                EXP2-08             EXP1-10
+    #define KILL_PIN        8  //        33               E0                EXP2-10             EXP2-03
+    #define BTN_EN1        10  //        35               C0                EXP2-12             EXP2-06
+    #define BTN_EN2        12  //        37               C2                EXP2-14             EXP2-08
+    //#define LCD_BACKLIGHT_PIN 43  //        56               F5                EXP1-12     Not Implemented
+    //#define SCK          21  //        11               B1                ICSP-04             EXP2-09
+    //#define MOSI         22  //        12               B2                ICSP-03             EXP2-05
+    //#define MISO         23  //        13               B3                ICSP-06             EXP2-05
+
+    // increase delays
+    #define ST7920_DELAY_1 DELAY_5_NOP
+    #define ST7920_DELAY_2 DELAY_5_NOP
+    #define ST7920_DELAY_3 DELAY_5_NOP
+
+  #else
+
+    #define BTN_EN1        10   // C0       JP11-12
+    #define BTN_EN2        11   // C1       JP11-13
+    #define BTN_ENC        12   // C2       JP11-14
+
   #endif
 
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04
-    #define DOGLCD_CS           5  //        30               D5                EXP2-06             EXP1-05
-    #define BTN_ENC             6  //        31               D6                EXP2-07             EXP1-09
-    #define BEEPER_PIN          7  //        32               D7                EXP2-08             EXP1-10
-    #define KILL_PIN            8  //        33               E0                EXP2-10             EXP2-03
-    #define BTN_EN1            10  //        35               C0                EXP2-12             EXP2-06
-    #define BTN_EN2            12  //        37               C2                EXP2-14             EXP2-08
-  //#define LCD_BACKLIGHT_PIN  43  //        56               F5                EXP1-12     Not Implemented
-  //#define SCK                21  //        11               B1                ICSP-04             EXP2-09
-  //#define MOSI               22  //        12               B2                ICSP-03             EXP2-05
-  //#define MISO               23  //        13               B3                ICSP-06             EXP2-05
-
-  // encoder connections present
-  #define BLEN_A 0
-  #define BLEN_B 1
-  #define BLEN_C 2
-
-  // encoder rotation values
-  #define encrot0 0
-  #define encrot1 2
-  #define encrot2 3
-  #define encrot3 1
-
-  // increase delays to max
-  #define ST7920_DELAY_1 DELAY_5_NOP
-  #define ST7920_DELAY_2 DELAY_5_NOP
-  #define ST7920_DELAY_3 DELAY_5_NOP
 #endif
 
 //
 // Misc. Functions
 //
+//      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
 #ifndef SDSS
-  #define SDSS               20   // B0 SS
+  #define SDSS             20  //        10               B0
 #endif
-
-#define FILWIDTH_PIN        2   // Analog Input
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN      2  // Analog Input 
+#endif

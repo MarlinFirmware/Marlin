@@ -1150,6 +1150,7 @@
   #undef min
   #define min(a,b) ((a)<(b)?(a):(b))
 
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
   #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
