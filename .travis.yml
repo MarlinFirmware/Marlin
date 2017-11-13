@@ -85,7 +85,7 @@ script:
   # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
   #
   - restore_configs
-  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS
+  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test a Servo Probe
@@ -94,7 +94,7 @@ script:
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
   - opt_set NUM_SERVOS 1
-  - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS
+  - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
@@ -104,14 +104,25 @@ script:
   - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Test PROBE_MANUALLY feature, with LCD support,
+  # Test MINIRAMBO for PWM_MOTOR_CURRENT
+  #      PROBE_MANUALLY feature, with LCD support,
+  #      ULTIMAKERCONTROLLER, FILAMENT_LCD_DISPLAY, FILAMENT_WIDTH_SENSOR,
+  #      PRINTCOUNTER, NOZZLE_PARK_FEATURE, NOZZLE_CLEAN_FEATURE, PCA9632,
+  #      Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS, BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS,
+  #      ADVANCED_PAUSE_FEATURE, PARK_HEAD_ON_PAUSE, LCD_INFO_MENU,
   #      EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
   #      INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
   #
   - restore_configs
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR LCD_BED_LEVELING ULTIMAKERCONTROLLER
-  - opt_enable EEPROM_SETTINGS M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - opt_enable ULTIMAKERCONTROLLER SDSUPPORT
+  - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632 USE_XMAX_PLUG
+  - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
+  - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
+  - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
+  - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
@@ -164,34 +175,29 @@ script:
   - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Test MINIRAMBO for PWM_MOTOR_CURRENT
-  #      ULTIMAKERCONTROLLER, FILAMENT_LCD_DISPLAY, FILAMENT_WIDTH_SENSOR,
-  #      PRINTCOUNTER, NOZZLE_PARK_FEATURE, NOZZLE_CLEAN_FEATURE, PCA9632,
-  #      Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS, BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS,
-  #      ADVANCED_PAUSE_FEATURE, PARK_HEAD_ON_PAUSE, LCD_INFO_MENU,
-  #
-  - restore_configs
-  - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR SDSUPPORT
-  - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632 USE_XMAX_PLUG
-  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
-  - opt_set_adv I2C_SLAVE_ADDRESS 63
-  - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
-  - pins_set RAMPS X_MAX_PIN -1
-  - opt_add_adv Z2_MAX_PIN 2
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  #
   # Enable COREXY
   #
   - restore_configs
   - opt_enable COREXY
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Enable COREYX (swapped)
+  # Test many less common options
   #
-  #- restore_configs
-  #- opt_enable COREYX
-  #- build_marlin
-  #
+  - restore_configs
+  - opt_enable COREYX
+  - opt_set_adv FAN_MIN_PWM 50
+  - opt_set_adv FAN_KICKSTART_TIME 100
+  - opt_set_adv XY_FREQUENCY_LIMIT  15
+  - opt_enable_adv SHOW_TEMP_ADC_VALUES HOME_Y_BEFORE_X EMERGENCY_PARSER
+  - opt_enable_adv ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED ADVANCED_OK
+  - opt_enable_adv VOLUMETRIC_DEFAULT_ON NO_WORKSPACE_OFFSETS ACTION_ON_KILL
+  - opt_enable_adv EXTRA_FAN_SPEED FWERETRACT Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
+  - opt_enable_adv MENU_ADDAUTOSTART SDCARD_SORT_ALPHA
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER
+  - opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
+  - opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
+  - opt_enable USE_XMAX_PLUG
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   ######## Other Standard LCD/Panels ##############
   #
@@ -212,7 +218,7 @@ script:
   #
   #- restore_configs
   #- opt_enable MAKRPANEL
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
@@ -244,7 +250,7 @@ script:
   # Cant find configuration details to get it to compile
   #- restore_configs
   #- opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # RA_CONTROL_PANEL
   #
@@ -262,19 +268,19 @@ script:
   #
   #- restore_configs
   #- opt_enable LCD_I2C_SAINSMART_YWROBOT
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # LCD_I2C_PANELOLU2
   #
   #- restore_configs
   #- opt_enable LCD_I2C_PANELOLU2
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # LCD_I2C_VIKI
   #
   #- restore_configs
   #- opt_enable LCD_I2C_VIKI
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # LCM1602
   #
@@ -288,18 +294,18 @@ script:
   # BQ Hephestos 2
   #- restore_configs
   #- use_example_configs Hephestos_2
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
   - use_example_configs delta/generic
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_AUTO_CALIBRATION DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
   #
   - use_example_configs delta/generic
   - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS OLED_PANEL_TINYBOY2
+  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Delta Config (FLSUN AC because it's complex)
@@ -310,12 +316,12 @@ script:
   # Makibox Config  need to check board type for Teensy++ 2.0
   #
   #- use_example_configs makibox
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # SCARA with TMC2130
   #
   - use_example_configs SCARA
-  - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS ULTIMAKERCONTROLLER
+  - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
@@ -323,7 +329,7 @@ script:
   # tvrrug Config need to check board type for sanguino atmega644p
   #
   #- use_example_configs tvrrug/Round2
-  #- build_marlin
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   #
   ######## Board Types #############
@@ -392,15 +398,6 @@ script:
   - opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1
   - opt_set MIXING_STEPPERS 2
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  #
-  # Test DUAL_X_CARRIAGE
-  #
-  #- restore_configs
-  #- opt_set EXTRUDERS 2
-  #- opt_set TEMP_SENSOR_1 1
-  #- opt_enable USE_XMAX_PLUG
-  #- opt_enable_adv DUAL_X_CARRIAGE
-  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test SWITCHING_EXTRUDER
   #
