@@ -223,7 +223,7 @@ script:
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER
   - opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
   - opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
-  - opt_enable USE_XMIN_PLUG USE_XMAX_PLUG USE_YMIN_PLUG USE_YMAX_PLUG USE_ZMIN_PLUG USE_ZMAX_PLUG
+  - opt_enable USE_XMAX_PLUG
   - build_marlin
   #
   ######## Other Standard LCD/Panels ##############
