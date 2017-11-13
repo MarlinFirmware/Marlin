@@ -8508,15 +8508,17 @@ void report_current_position() {
     SERIAL_PROTOCOLPGM("Raw:    ");
     report_xyz(current_position);
 
-    SERIAL_PROTOCOLPGM("Leveled:");
-    float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
-    planner.apply_leveling(leveled);
-    report_xyz(leveled);
+    #if PLANNER_LEVELING
+      SERIAL_PROTOCOLPGM("Leveled:");
+      float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+      planner.apply_leveling(leveled);
+      report_xyz(leveled);
 
-    SERIAL_PROTOCOLPGM("UnLevel:");
-    float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
-    planner.unapply_leveling(unleveled);
-    report_xyz(unleveled);
+      SERIAL_PROTOCOLPGM("UnLevel:");
+      float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
+      planner.unapply_leveling(unleveled);
+      report_xyz(unleveled);
+    #endif
 
     #if IS_KINEMATIC
       #if IS_SCARA
