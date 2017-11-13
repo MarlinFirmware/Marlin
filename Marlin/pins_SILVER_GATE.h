@@ -28,8 +28,6 @@
   #define BOARD_NAME "Silver Gate"
 #endif
 
-#define LARGE_FLASH true
-
 #define X_STEP_PIN         43
 #define X_DIR_PIN          44
 #define X_ENABLE_PIN       42

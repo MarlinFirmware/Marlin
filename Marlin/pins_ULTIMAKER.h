@@ -40,8 +40,6 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 #define BOARD_NAME              "Ultimaker"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //

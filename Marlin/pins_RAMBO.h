@@ -46,8 +46,6 @@
 
 #define BOARD_NAME "Rambo"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
