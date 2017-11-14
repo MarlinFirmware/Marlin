@@ -701,7 +701,7 @@ private:
     static void M702();
   #endif
 
-  #if HAS_BED_PROBE
+  #if HAS_Z_OFFSET
     static void M851();
   #endif
 

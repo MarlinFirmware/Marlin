@@ -24,8 +24,13 @@
 
 #if HAS_BED_PROBE
 
-#include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
+
+#endif
+
+#if HAS_Z_OFFSET
+
+#include "../gcode.h"
 #include "../../module/probe.h"
 
 void GcodeSuite::M851() {
@@ -47,4 +52,4 @@ void GcodeSuite::M851() {
   SERIAL_EOL();
 }
 
-#endif // HAS_BED_PROBE
+#endif // HAS_Z_OFFSET

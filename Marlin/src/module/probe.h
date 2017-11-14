@@ -32,9 +32,11 @@
 bool set_probe_deployed(const bool deploy);
 float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool printable=true);
 
-#if HAS_BED_PROBE
+#if HAS_Z_OFFSET
   extern float zprobe_zoffset;
   void refresh_zprobe_zoffset(const bool no_babystep=false);
+#endif
+#if HAS_BED_PROBE
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #else

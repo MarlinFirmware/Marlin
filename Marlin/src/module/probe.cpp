@@ -26,9 +26,20 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
+#if HAS_Z_OFFSET
 
 #include "probe.h"
+
+#if ENABLED(DELTA)
+  #include "../module/delta.h"
+#endif
+
+float zprobe_zoffset; // Initialized by settings.load()
+
+#endif
+
+#if HAS_BED_PROBE
+
 #include "motion.h"
 #include "temperature.h"
 #include "endstops.h"
@@ -42,15 +53,9 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(DELTA)
-  #include "../module/delta.h"
-#endif
-
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "planner.h"
 #endif
-
-float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_ENDSTOP
   const int z_servo_angle[2] = Z_SERVO_ANGLES;
@@ -640,6 +645,27 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
   return measured_z;
 }
 
+#if HAS_Z_SERVO_ENDSTOP
+
+  void servo_probe_init() {
+    /**
+     * Set position of Z Servo Endstop
+     *
+     * The servo might be deployed and positioned too low to stow
+     * when starting up the machine or rebooting the board.
+     * There's no way to know where the nozzle is positioned until
+     * homing has been done - no homing with z-probe without init!
+     *
+     */
+    STOW_Z_SERVO();
+  }
+
+#endif // HAS_Z_SERVO_ENDSTOP
+
+#endif // HAS_BED_PROBE
+
+#if HAS_Z_OFFSET
+
 void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
   static float last_zoffset = NAN;
 
@@ -649,7 +675,7 @@ void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
       const float diff = zprobe_zoffset - last_zoffset;
     #endif
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR) && HAS_BED_PROBE
       // Correct bilinear grid for new probe offset
       if (diff) {
         for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -670,27 +696,10 @@ void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
 
     #if ENABLED(DELTA) // correct the delta_height
       delta_height -= diff;
+      recalc_delta_settings();
     #endif
   }
 
   last_zoffset = zprobe_zoffset;
 }
-
-#if HAS_Z_SERVO_ENDSTOP
-
-  void servo_probe_init() {
-    /**
-     * Set position of Z Servo Endstop
-     *
-     * The servo might be deployed and positioned too low to stow
-     * when starting up the machine or rebooting the board.
-     * There's no way to know where the nozzle is positioned until
-     * homing has been done - no homing with z-probe without init!
-     *
-     */
-    STOW_Z_SERVO();
-  }
-
-#endif // HAS_Z_SERVO_ENDSTOP
-
-#endif // HAS_BED_PROBE
+#endif // HAS_Z_OFFSET
