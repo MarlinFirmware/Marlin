@@ -45,6 +45,7 @@
 #undef INVERTED_BED_PINS
 #undef INVERTED_FAN_PINS
 
+<<<<<<< HEAD
 // EEPROM
 #define E2END 0x8000  // 32Kb (24lc256)
 #define I2C_EEPROM    // EEPROM on I2C-0
@@ -66,6 +67,35 @@
 #define ESP_WIFI_MODULE_BAUDRATE  115600
 #define ESP_WIFI_MODULE_RESET_PIN -1
 #define PIGGY_GPIO_PIN            -1
+=======
+#define I2C_EEPROM
+//#define SPI_EEPROM
+
+//
+// Servos
+//
+#define SERVO0_PIN          5
+#define SERVO1_PIN          3
+#define SERVO2_PIN         -1
+#define SERVO3_PIN          1
+
+//
+// Limit Switches
+//
+#define X_MIN_PIN          45
+#define X_MAX_PIN          39
+#define Y_MIN_PIN          46
+#define Y_MAX_PIN          41
+#define Z_MIN_PIN          49
+#define Z_MAX_PIN          43
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  43
+#endif
+>>>>>>> upstream/bugfix-2.0.x
 
 //
 // Steppers
