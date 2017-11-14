@@ -391,32 +391,32 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  	#if DISABLED(FILAMENT_RUNOUT_MULTI_PIN)
-	  // Only one sensor for all extruders
-	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
-	    if((READ(FIL_RUNOUT_PIN)== FIL_RUNOUT_INVERTING)) 
-	     handle_filament_runout();  
-	    }
+    #if DISABLED(FILAMENT_RUNOUT_MULTI_PIN)
+      // Only one sensor for all extruders
+      if (IS_SD_PRINTING || print_job_timer.isRunning()) {
+       if((READ(FIL_RUNOUT_PIN)== FIL_RUNOUT_INVERTING)) 
+        handle_filament_runout();  
+      }
     #else
-	  // Read only the sensor of the active extruder 
-	  if (IS_SD_PRINTING || print_job_timer.isRunning()) {
-	    switch (active_extruder){
-	       case 0: if((READ(FIL_RUNOUT_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
-	       #if FIL_RUNOUT_SENSORS > 1
-	       case 1: if((READ(FIL_RUNOUT2_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
-	       #endif
-		   #if FIL_RUNOUT_SENSORS > 2
-	       case 2: if((READ(FIL_RUNOUT3_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
-	       #endif
-		   #if FIL_RUNOUT_SENSORS > 3
-	       case 3: if((READ(FIL_RUNOUT4_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
-	       #endif
-		   #if FIL_RUNOUT_SENSORS > 4
-	       case 4: if((READ(FIL_RUNOUT5_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
-	       #endif
-	    } 
-	  }  
-	#endif  
+      // Read only the sensor of the active extruder 
+      if (IS_SD_PRINTING || print_job_timer.isRunning()) {
+       switch (active_extruder){
+        case 0: if((READ(FIL_RUNOUT_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
+        #if FIL_RUNOUT_SENSORS > 1
+        case 1: if((READ(FIL_RUNOUT2_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
+        #endif
+        #if FIL_RUNOUT_SENSORS > 2
+        case 2: if((READ(FIL_RUNOUT3_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
+        #endif
+        #if FIL_RUNOUT_SENSORS > 3
+        case 3: if((READ(FIL_RUNOUT4_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
+        #endif
+        #if FIL_RUNOUT_SENSORS > 4
+        case 4: if((READ(FIL_RUNOUT5_PIN)== FIL_RUNOUT_INVERTING)) handle_filament_runout();break ;
+        #endif
+       } 
+      }  
+    #endif  
   #endif
   if (commands_in_queue < BUFSIZE) get_available_commands();
 
