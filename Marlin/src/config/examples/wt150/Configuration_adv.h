@@ -122,6 +122,9 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+// Show extra position information in M114
+//#define M114_DETAIL
+
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
@@ -345,7 +348,7 @@
 
 // @section homing
 
-//homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
+// Homing hits each endstop, retracts by these distances, then does a slower bump.
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
