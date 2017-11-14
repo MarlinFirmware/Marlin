@@ -124,7 +124,7 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (!thermalManager.allow_cold_extrude &&
-          thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
+        thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
         return false;
@@ -140,17 +140,17 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
     if (IS_SD_PRINTING) {
-      card.pauseSDPrint();
-      sd_print_paused = true;
+     card.pauseSDPrint();
+     sd_print_paused = true;
     }
   #endif
   print_job_timer.pause();
 
   // Show initial message and wait for synchronize steppers
   if (show_lcd) {
-    #if ENABLED(ULTIPANEL)
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
-    #endif
+   #if ENABLED(ULTIPANEL)
+     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
+   #endif
   }
 
   stepper.synchronize();
@@ -161,19 +161,18 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
 
   // Lift Z axis
   if (z_lift > 0)
-    do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
+   do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
 
   // Move XY axes to filament exchange position
   do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
 
   if (unload_length != 0) {
-    if (show_lcd) {
-      #if ENABLED(ULTIPANEL)
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD);
-        idle();
-      #endif
-    }
-
+   if (show_lcd) {
+    #if ENABLED(ULTIPANEL)
+      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD);
+      idle();
+    #endif
+   }
     // Unload filament
     do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
   }
@@ -201,17 +200,17 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
 
   HOTEND_LOOP()
     thermalManager.start_heater_idle_timer(e, nozzle_timeout);
-
+	
   return true;
 }
 
 void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
-  // Wait for filament insert by user and press button
-  KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;    // LCD click or M108 will clear this
-  while (wait_for_user) {
+    // Wait for filament insert by user and press button
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;    // LCD click or M108 will clear this
+    while (wait_for_user) {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count);
     #endif
@@ -277,35 +276,34 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 
   // Stop blowing while heating
   #if (ADVANCED_PAUSE_FAN < FAN_COUNT)
-	fanSpeeds[ADVANCED_PAUSE_FAN]=0; 
+    fanSpeeds[ADVANCED_PAUSE_FAN]=0; 
   #endif
   
   // Heating/ensure temp of the next extruder  
   #if ENABLED(ADVANCED_PAUSE_SPOOL_SWAP)
-  	if (swap_spool_enabled){
-	ensure_safe_temperature();
-	lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    if (swap_spool_enabled){
+     ensure_safe_temperature();
+     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     }
   #else
-	if (nozzle_timed_out) ensure_safe_temperature();
+    if (nozzle_timed_out) ensure_safe_temperature();
   #endif 
-  
-
+	
   #if HAS_BUZZER
     filament_change_beep(max_beep_count, true);
   #endif
   
   // Start blowing
   #if (ADVANCED_PAUSE_FANSPEED >0 && ADVANCED_PAUSE_FAN < FAN_COUNT)
-	  fansp=fanSpeeds[ADVANCED_PAUSE_FAN];
-	  fanSpeeds[ADVANCED_PAUSE_FAN]=ADVANCED_PAUSE_FANSPEED ;
+    fansp=fanSpeeds[ADVANCED_PAUSE_FAN];
+    fanSpeeds[ADVANCED_PAUSE_FAN]=ADVANCED_PAUSE_FANSPEED ;
   #endif
      
   if (load_length != 0) {
     #if ENABLED(ULTIPANEL)
       // Show "insert filament"
       if (nozzle_timed_out)
-        if (swap_spool_disabled) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);//steeve
+      if (swap_spool_disabled) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);//steeve
     #endif
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -314,7 +312,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
       #if HAS_BUZZER
         if (swap_spool_disabled) filament_change_beep(max_beep_count);
       #endif
-      idle(true);
+    idle(true);
     }
     KEEPALIVE_STATE(IN_HANDLER);
 
@@ -332,24 +330,22 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     float extrude_length = initial_extrude_length;
 
     if (swap_spool_disabled){ 
-        
-	  do {
-	    if (extrude_length > 0) {
-		  // "Wait for filament extrude"
-		  if (swap_spool_disabled) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE); 
-		  // Extrude filament to get into hotend
-          do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-	    }
-		// Show "Extrude More" / "Resume" menu and wait for reply
-		KEEPALIVE_STATE(PAUSED_FOR_USER);
-		wait_for_user = false;
-		lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-	    while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-		KEEPALIVE_STATE(IN_HANDLER);
-		
-		extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
-		// Keep looping if "Extrude More" was selected
-	  } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+     do {
+      if (extrude_length > 0) {
+       // "Wait for filament extrude"
+       if (swap_spool_disabled) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE); 
+       // Extrude filament to get into hotend
+       do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+       }
+       // Show "Extrude More" / "Resume" menu and wait for reply
+       KEEPALIVE_STATE(PAUSED_FOR_USER);
+       wait_for_user = false;
+       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+       while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+       KEEPALIVE_STATE(IN_HANDLER);
+       extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+       // Keep looping if "Extrude More" was selected
+      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
   }
   else do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
   #endif
@@ -375,21 +371,21 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   // Rare but possible : can go on pause with retracted/swapped status or negative position
   #ifdef PAUSE_PARK_RETRACT_LENGTH
     #if ENABLED(FWRETRACT)
-	  //If retracted/swapped goto negative position
-	  if (fwretract.retracted_swap[active_extruder]) {
-		const float tmp_length=-fwretract.swap_retract_length;
-	    const float tmp_feed=fwretract.retract_feedrate_mm_s;
-	    do_pause_e_move(tmp_length, tmp_feed); 
-	  }
+      //If retracted/swapped goto negative position
+      if (fwretract.retracted_swap[active_extruder]) {
+       const float tmp_length=-fwretract.swap_retract_length;
+       const float tmp_feed=fwretract.retract_feedrate_mm_s;
+       do_pause_e_move(tmp_length, tmp_feed); 
+      }
 	  // If retracted or not : normal fwretract used
-	  else {
-	   const float tmp_length=-fwretract.retract_length;  
+      else {
+       const float tmp_length=-fwretract.retract_length;  
        const float tmp_feed=fwretract.retract_feedrate_mm_s;   
        do_pause_e_move(tmp_length, tmp_feed); 
-	 }
+      }
     #else
-	  //If negative and more than PAUSE_PARK_RETRACT_LENGTH goto resume_position 
-	  if (resume_position[E_AXIS]<(-PAUSE_PARK_RETRACT_LENGTH)) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+      //If negative and more than PAUSE_PARK_RETRACT_LENGTH goto resume_position 
+      if (resume_position[E_AXIS]<(-PAUSE_PARK_RETRACT_LENGTH)) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
       else do_pause_e_move(-PAUSE_PARK_RETRACT_LENGTH, PAUSE_PARK_RETRACT_FEEDRATE);
     #endif
   #endif	
@@ -404,16 +400,16 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   // Keep applied retractation as resume position if retracted before goto pause
   #ifdef PAUSE_PARK_RETRACT_LENGTH
     #if ENABLED(FWRETRACT)
-	  //if not retracted/swapped before , then recover to zero
-	  if (!fwretract.retracted_swap[active_extruder] && !fwretract.retracted[active_extruder]){
-		const float tmp_length=fwretract.swap_retract_recover_length;
-	    const float tmp_feed=  fwretract.swap_retract_recover_feedrate_mm_s;
-	    do_pause_e_move(tmp_length, tmp_feed); 
-	  }	  			
-	#else    
-	  // If resume_position negative goto resume_position
+      //if not retracted/swapped before , then recover to zero
+      if (!fwretract.retracted_swap[active_extruder] && !fwretract.retracted[active_extruder]){
+       const float tmp_length=fwretract.swap_retract_recover_length;
+       const float tmp_feed=  fwretract.swap_retract_recover_feedrate_mm_s;
+        do_pause_e_move(tmp_length, tmp_feed); 
+      }	  			
+    #else    
+      // If resume_position negative goto resume_position
       if (resume_position[E_AXIS]<0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
-	  // if positive soft recovery to zero for sure print restart
+      // if positive soft recovery to zero for sure print restart
       else do_pause_e_move(PAUSE_PARK_RETRACT_LENGTH,PAUSE_PARK_RECOVER_FEEDRATE); 
     #endif
   #endif
