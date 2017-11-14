@@ -26,7 +26,7 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 
-#ifdef M114_DETAIL
+#if ENABLED(M114_DETAIL)
 
   void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
@@ -56,9 +56,10 @@
     SERIAL_PROTOCOLPGM("Raw:    ");
     report_xyz(current_position);
 
+    float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
     #if PLANNER_LEVELING
       SERIAL_PROTOCOLPGM("Leveled:");
-      float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
       planner.apply_leveling(leveled);
       report_xyz(leveled);
 
@@ -113,7 +114,7 @@
  */
 void GcodeSuite::M114() {
 
-  #ifdef M114_DETAIL
+  #if ENABLED(M114_DETAIL)
     if (parser.seen('D')) {
       report_current_position_detail();
       return;
