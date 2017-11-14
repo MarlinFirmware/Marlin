@@ -26,7 +26,7 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 
-#ifdef M114_DETAIL
+#if ENABLED(M114_DETAIL)
 
   void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
@@ -113,7 +113,7 @@
  */
 void GcodeSuite::M114() {
 
-  #ifdef M114_DETAIL
+  #if ENABLED(M114_DETAIL)
     if (parser.seen('D')) {
       report_current_position_detail();
       return;
