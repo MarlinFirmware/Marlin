@@ -56,9 +56,10 @@
     SERIAL_PROTOCOLPGM("Raw:    ");
     report_xyz(current_position);
 
+    float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
     #if PLANNER_LEVELING
       SERIAL_PROTOCOLPGM("Leveled:");
-      float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
       planner.apply_leveling(leveled);
       report_xyz(leveled);
 
