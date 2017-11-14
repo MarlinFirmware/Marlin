@@ -142,8 +142,8 @@ void GcodeSuite::M600() {
   #endif //end load filament
 
   const int beep_count = parser.intval('B',
-    #ifdef PAUSE_BEEPS
-      PAUSE_BEEPS
+    #ifdef FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
+      FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS
     #else
       -1
     #endif
