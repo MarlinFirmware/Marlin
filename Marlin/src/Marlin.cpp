@@ -250,16 +250,16 @@ void setup_killpin() {
    	  #else
 	    SET_INPUT(FIL_RUNOUT_PIN);
 	    #if FIL_RUNOUT_SENSORS > 1
-		  SET_INPUT(FIL_RUNOUT2_PIN);
+	      SET_INPUT(FIL_RUNOUT2_PIN);
 	    #endif
 	    #if FIL_RUNOUT_SENSORS > 2
-	  	SET_INPUT(FIL_RUNOUT3_PIN);  
+	      SET_INPUT(FIL_RUNOUT3_PIN);  
 	    #endif
 	    #if FIL_RUNOUT_SENSORS > 3
-          SET_INPUT(FIL_RUNOUT4_PIN);     
+              SET_INPUT(FIL_RUNOUT4_PIN);     
 	    #endif
 	    #if FIL_RUNOUT_SENSORS > 4
-	 	  SET_INPUT(FIL_RUNOUT5_PIN);     
+	      SET_INPUT(FIL_RUNOUT5_PIN);     
 	    #endif
 	  #endif  
     }
