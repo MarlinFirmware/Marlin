@@ -619,12 +619,12 @@
 
     g26_extrusion_multiplier  = EXTRUSION_MULTIPLIER;
     g26_retraction_multiplier = RETRACTION_MULTIPLIER;
-    g26_nozzle                = DEFAULT_NOZZLE_SIZE;
+    g26_nozzle                = MESH_TEST_NOZZLE_SIZE;
     g26_filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA;
-    g26_layer_height          = DEFAULT_LAYER_HEIGHT;
+    g26_layer_height          = MESH_TEST_LAYER_HEIGHT;
     g26_prime_length          = PRIME_LENGTH;
-    g26_bed_temp              = DEFAULT_BED_TEMP;
-    g26_hotend_temp           = DEFAULT_HOTEND_TEMP;
+    g26_bed_temp              = MESH_TEST_BED_TEMP;
+    g26_hotend_temp           = MESH_TEST_HOTEND_TEMP;
     g26_prime_flag            = 0;
 
     g26_ooze_amount           = parser.linearval('O', OOZE_AMOUNT);
