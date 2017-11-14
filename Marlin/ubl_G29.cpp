@@ -1207,7 +1207,7 @@
 
     find_mean_mesh_height();
 
-    #if HAS_BED_PROBE
+    #if HAS_Z_OFFSET
       SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
       SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
       SERIAL_EOL();
