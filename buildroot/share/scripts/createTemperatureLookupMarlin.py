@@ -140,7 +140,7 @@ def main(argv):
 
     for temp in temps:
         adc = t.adc(temp)
-        print "    { (short) (%7.2f * OVERSAMPLENR ), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
+        print "    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
                         ',' if temp != temps[-1] else ' ', \
                         t.voltage(adc), \
                         t.resist( adc), \
