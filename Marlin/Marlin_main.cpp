@@ -4093,14 +4093,21 @@ inline void gcode_G28(const bool always_home_all) {
 
       if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        destination[Z_AXIS] = Z_HOMING_HEIGHT;
-        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
+        // We should never move more than Z_HOMING_HEIGHT distance.
+        #if DISABLED(MIN_SOFTWARE_ENDSTOP_Z)
+          if (current_position[Z_AXIS] < 0.0f)
+            destination[Z_AXIS] = current_position[Z_AXIS] + Z_HOMING_HEIGHT;
+          else
+            destination[Z_AXIS] = Z_HOMING_HEIGHT;
+        #else
+          destination[Z_AXIS] = Z_HOMING_HEIGHT;
+        #endif
 
+        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING))
               SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
           #endif
-
           do_blocking_move_to_z(destination[Z_AXIS]);
         }
       }
