@@ -26,8 +26,8 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef SDFATUTIL_H
-#define SDFATUTIL_H
+#ifndef _SDFATUTIL_H_
+#define _SDFATUTIL_H_
 
 #include <string.h>
 
@@ -50,4 +50,4 @@ namespace SdFatUtil {
 
 using namespace SdFatUtil;  // NOLINT
 
-#endif // SDFATUTIL_H
+#endif // _SDFATUTIL_H_
