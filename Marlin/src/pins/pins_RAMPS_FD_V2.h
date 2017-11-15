@@ -29,7 +29,7 @@
 
 #define BOARD_NAME         "RAMPS-FD v2"
 
-#include "pins_RAMPS_FD.h"
+#include "pins_RAMPS_FD_V1.h"
 
 #undef INVERTED_HEATER_PINS
 #undef INVERTED_BED_PINS
