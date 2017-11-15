@@ -418,7 +418,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 	PAUSE_PARK_RECOVER_FEEDRATE 
 	#else 20
 	#endif
-       ); 
+      ); 
     #endif
   #endif
   
