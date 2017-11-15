@@ -167,7 +167,7 @@ void GCodeParser::parse(char *p) {
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
   string_arg = NULL;
-  while (char code = *p++) {                    // Get the next parameter. A NUL ends the loop
+  while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
@@ -188,12 +188,20 @@ void GCodeParser::parse(char *p) {
     if (PARAM_TEST) {
 
       while (*p == ' ') p++;                    // Skip spaces between parameters & values
-      const bool has_num = DECIMAL_SIGNED(*p);  // The parameter has a number [-+0-9.]
+
+      const bool has_num = NUMERIC(p[0])                            // [0-9]
+                        || (p[0] == '.' && NUMERIC(p[1]))           // .[0-9]
+                        || (
+                              (p[0] == '-' || p[0] == '+') && (     // [-+]
+                                NUMERIC(p[1])                       //     [0-9]
+                                || (p[1] == '.' && NUMERIC(p[2]))   //     .[0-9]
+                              )
+                            );
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got letter ", code); // DEBUG
-          SERIAL_ECHOPAIR(" at index ", (int)(p - command_ptr - 1)); // DEBUG
+          SERIAL_ECHOPAIR("Got letter ", code);
+          SERIAL_ECHOPAIR(" at index ", (int)(p - command_ptr - 1));
           if (has_num) SERIAL_ECHOPGM(" (has_num)");
         }
       #endif
@@ -210,11 +218,13 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
+      {
         set(code, has_num ? p : NULL            // Set parameter exists and pointer (NULL for no number)
           #if ENABLED(DEBUG_GCODE_PARSER)
             , debug
           #endif
         );
+      }
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -224,8 +234,8 @@ void GCodeParser::parse(char *p) {
       #endif
     }
 
-    if (!WITHIN(*p, 'A', 'Z')) {
-      while (*p && NUMERIC(*p)) p++;            // Skip over the value section of a parameter
+    if (!WITHIN(*p, 'A', 'Z')) {                // Another parameter right away?
+      while (*p && DECIMAL_SIGNED(*p)) p++;     // Skip over the value section of a parameter
       while (*p == ' ') p++;                    // Skip over all spaces
     }
   }
