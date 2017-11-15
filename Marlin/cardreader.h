@@ -45,7 +45,7 @@ public:
   // device is available soon after a reset.
 
   void checkautostart(bool x);
-  void openFile(char* name, bool read, bool push_current=false);
+  void openFile(char* name, const bool read, const bool subcall=false);
   void openLogFile(char* name);
   void removeFile(const char * const name);
   void closefile(bool store_location=false);

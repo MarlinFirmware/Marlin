@@ -1276,19 +1276,25 @@ inline void get_serial_commands() {
           || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode)
       ) {
         if (card_eof) {
-          SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+
           card.printingHasFinished();
-          #if ENABLED(PRINTER_EVENT_LEDS)
-            LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-            set_led_color(0, 255, 0); // Green
-            #if HAS_RESUME_CONTINUE
-              enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
-            #else
-              safe_delay(1000);
+
+          if (card.sdprinting)
+            sd_count = 0; // If a sub-file was printing, continue from call point
+          else {
+            SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+            #if ENABLED(PRINTER_EVENT_LEDS)
+              LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+              set_led_color(0, 255, 0); // Green
+              #if HAS_RESUME_CONTINUE
+                enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
+              #else
+                safe_delay(1000);
+              #endif
+              set_led_color(0, 0, 0);   // OFF
             #endif
-            set_led_color(0, 0, 0);   // OFF
-          #endif
-          card.checkautostart(true);
+            card.checkautostart(true);
+          }
         }
         else if (n == -1) {
           SERIAL_ERROR_START();
@@ -6897,19 +6903,23 @@ inline void gcode_M31() {
 
   /**
    * M32: Select file and start SD Print
+   *
+   * Examples:
+   *
+   *    M32 !PATH/TO/FILE.GCO#      ; Start FILE.GCO
+   *    M32 P !PATH/TO/FILE.GCO#    ; Start FILE.GCO as a procedure
+   *    M32 S60 !PATH/TO/FILE.GCO#  ; Start FILE.GCO at byte 60
+   *
    */
   inline void gcode_M32() {
-    if (card.sdprinting)
-      stepper.synchronize();
-
-    char* namestartpos = parser.string_arg;
-    const bool call_procedure = parser.boolval('P');
+    if (card.sdprinting) stepper.synchronize();
 
     if (card.cardOK) {
-      card.openFile(namestartpos, true, call_procedure);
+      const bool call_procedure = parser.boolval('P');
 
-      if (parser.seenval('S'))
-        card.setIndex(parser.value_long());
+      card.openFile(parser.string_arg, true, call_procedure);
+
+      if (parser.seenval('S')) card.setIndex(parser.value_long());
 
       card.startFileprint();
 
