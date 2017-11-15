@@ -310,26 +310,33 @@ void CardReader::openLogFile(char* name) {
   openFile(name, false);
 }
 
-void CardReader::getAbsFilename(char *t) {
-  uint8_t cnt = 0;
-  *t = '/'; t++; cnt++;
-  for (uint8_t i = 0; i < workDirDepth; i++) {
-    workDirParents[i].getFilename(t); //SDBaseFile.getfilename!
-    while (*t && cnt < MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
-  }
-  if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH))
-    file.getFilename(t);
-  else
-    t[0] = 0;
+void appendAtom(SdFile &file, char *& dst, uint8_t &cnt) {
+  file.getFilename(dst);
+  while (*dst && cnt < MAXPATHNAMELENGTH) { dst++; cnt++; }
+  if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
 }
 
-void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
+void CardReader::getAbsFilename(char *t) {
+  *t++ = '/';                                               // Root folder
+  uint8_t cnt = 1;
+
+  for (uint8_t i = 0; i < workDirDepth; i++)                // Loop to current work dir
+    appendAtom(workDirParents[i], t, cnt);
+
+  if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH)) {
+    appendAtom(file, t, cnt);
+    --t;
+  }
+  *t = '\0';
+}
+
+void CardReader::openFile(char* name, const bool read, const bool subcall/*=false*/) {
 
   if (!cardOK) return;
 
   uint8_t doing = 0;
-  if (isFileOpen()) { //replacing current file by new file, or subfile call
-    if (push_current) {
+  if (isFileOpen()) {                     // Replacing current file or doing a subroutine
+    if (subcall) {
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START();
         SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
@@ -338,20 +345,24 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
         return;
       }
 
-      // Store current filename and position
+      // Store current filename (based on workDirParents) and position
       getAbsFilename(proc_filenames[file_subcall_ctr]);
+      filespos[file_subcall_ctr] = sdpos;
 
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("SUBROUTINE CALL target:\"", name);
       SERIAL_ECHOPAIR("\" parent:\"", proc_filenames[file_subcall_ctr]);
       SERIAL_ECHOLNPAIR("\" pos", sdpos);
-      filespos[file_subcall_ctr] = sdpos;
       file_subcall_ctr++;
     }
     else
       doing = 1;
   }
-  else { // Opening fresh file
+  else if (subcall) {     // Returning from a subcall?
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPGM("END SUBROUTINE");
+  }
+  else {                  // Opening fresh file
     doing = 2;
     file_subcall_ctr = 0; // Reset procedure depth in case user cancels print while in procedure
   }
@@ -600,20 +611,20 @@ uint16_t CardReader::getnrfilenames() {
 }
 
 void CardReader::chdir(const char * relpath) {
-  SdFile newfile;
+  SdFile newDir;
   SdFile *parent = &root;
 
   if (workDir.isOpen()) parent = &workDir;
 
-  if (!newfile.open(*parent, relpath, O_READ)) {
+  if (!newDir.open(*parent, relpath, O_READ)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_SD_CANT_ENTER_SUBDIR);
     SERIAL_ECHOLN(relpath);
   }
   else {
+    workDir = newDir;
     if (workDirDepth < MAX_DIR_DEPTH)
-      workDirParents[workDirDepth++] = *parent;
-    workDir = newfile;
+      workDirParents[workDirDepth++] = workDir;
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
@@ -621,8 +632,8 @@ void CardReader::chdir(const char * relpath) {
 }
 
 void CardReader::updir() {
-  if (workDirDepth > 0) {
-    workDir = workDirParents[--workDirDepth];
+  if (workDirDepth > 0) {                                           // At least 1 dir has been saved
+    workDir = --workDirDepth ? workDirParents[workDirDepth] : root; // Use parent, or root if none
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
