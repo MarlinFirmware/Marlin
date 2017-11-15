@@ -411,10 +411,11 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
       if (resume_position[E_AXIS]<0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
       // if positive soft recovery to zero for sure print restart
       else 
-        do_pause_e_move(PAUSE_PARK_RETRACT_LENGTH, 
+        do_pause_e_move(PAUSE_PARK_RETRACT_LENGTH,0
 	  #ifdef PAUSE_PARK_RECOVER_FEEDRATE
-	  PAUSE_PARK_RECOVER_FEEDRATE 
-	  #else 20
+	    +PAUSE_PARK_RECOVER_FEEDRATE 
+	  #else 
+	    +20
 	  #endif
         ); 
     #endif
