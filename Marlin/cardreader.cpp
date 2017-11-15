@@ -74,9 +74,12 @@ char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
 /**
  * Dive into a folder and recurse depth-first to perform a pre-set operation lsAction:
  *   LS_Count       - Add +1 to nrFiles for every file within the parent
- *   LS_GetFilename - Get the filename of the file indexed by nrFiles
+ *   LS_GetFilename - Get the filename of the file indexed by nrFile_index
  *   LS_SerialPrint - Print the full path and size of each file to serial output
  */
+
+uint16_t nrFile_index;
+
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
   dir_t p;
   uint8_t cnt = 0;
@@ -130,7 +133,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
       if (!filenameIsDir && (p.name[8] != 'G' || p.name[9] == '~')) continue;
 
-      switch (lsAction) {
+      switch (lsAction) {  // 1 based file count
         case LS_Count:
           nrFiles++;
           break;
@@ -148,7 +151,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
           if (match != NULL) {
             if (strcasecmp(match, filename) == 0) return;
           }
-          else if (cnt == nrFiles) return;
+          else if (cnt == nrFile_index) return;  // 0 based index
           cnt++;
           break;
       }
@@ -587,7 +590,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   #endif // SDSORT_CACHE_NAMES
   curDir = &workDir;
   lsAction = LS_GetFilename;
-  nrFiles = nr;
+  nrFile_index = nr;
   curDir->rewind();
   lsDive("", *curDir, match);
 }
@@ -688,7 +691,7 @@ void CardReader::updir() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][LONG_FILENAME_LENGTH];
+          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.
@@ -727,7 +730,12 @@ void CardReader::updir() {
               #endif
             #else
               // Copy filenames into the static array
-              strcpy(sortnames[i], LONGEST_FILENAME);
+              #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
+                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+                sortnames[i][SORTED_LONGNAME_MAXLEN - 1] = '\0';
+              #else
+                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+              #endif
               #if ENABLED(SDSORT_CACHE_NAMES)
                 strcpy(sortshort[i], filename);
               #endif
@@ -818,12 +826,21 @@ void CardReader::updir() {
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortnames[0] = strdup(LONGEST_FILENAME); // malloc
-            sortshort = new char*[1];
-            sortshort[0] = strdup(filename);         // malloc
+            #if ENABLED(SDSORT_CACHE_NAMES)
+              sortshort = new char*[1];
+              sortshort[0] = strdup(filename);       // malloc
+            #endif
             isDir = new uint8_t[1];
           #else
-            strcpy(sortnames[0], LONGEST_FILENAME);
-            strcpy(sortshort[0], filename);
+            #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
+              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+              sortnames[0][SORTED_LONGNAME_MAXLEN - 1] = '\0';
+            #else
+              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+            #endif
+            #if ENABLED(SDSORT_CACHE_NAMES)
+              strcpy(sortshort[0], filename);
+            #endif
           #endif
           isDir[0] = filenameIsDir ? 0x01 : 0x00;
         #endif
@@ -851,6 +868,16 @@ void CardReader::updir() {
   }
 
 #endif // SDCARD_SORT_ALPHA
+
+uint16_t CardReader::get_num_Files() {
+  return
+    #if ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES
+      nrFiles // no need to access the SD card for filenames
+    #else
+      getnrfilenames()
+    #endif
+  ;
+}
 
 void CardReader::printingHasFinished() {
   stepper.synchronize();
