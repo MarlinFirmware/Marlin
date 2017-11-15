@@ -262,8 +262,7 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   if (!move_away_flag) return;
   bool nozzle_timed_out = false;
   bool swap_spool_disabled = true;
-  int16_t fansp=fanSpeeds[ADVANCED_PAUSE_FAN];
-  
+    
   #if ENABLED(ADVANCED_PAUSE_SPOOL_SWAP)
 	swap_spool_disabled= !swap_spool_enabled ; // only if next tool option enabled in lcd or gcode //steeve
   #endif
@@ -275,7 +274,8 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   }
 
   // Stop blowing while heating
-  #if (ADVANCED_PAUSE_FAN < FAN_COUNT)
+  #if (ADVANCED_PAUSE_FANSPEED >0 && ADVANCED_PAUSE_FAN < FAN_COUNT)
+    int16_t fansp=fanSpeeds[ADVANCED_PAUSE_FAN];
     fanSpeeds[ADVANCED_PAUSE_FAN]=0; 
   #endif
   
