@@ -35,7 +35,6 @@ void GcodeSuite::M851() {
     const float value = parser.value_linear_units();
     if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
       zprobe_zoffset = value;
-      refresh_zprobe_zoffset();
       SERIAL_ECHO(zprobe_zoffset);
     }
     else

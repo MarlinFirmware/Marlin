@@ -34,7 +34,6 @@ float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, cons
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
-  void refresh_zprobe_zoffset(const bool no_babystep=false);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #else
