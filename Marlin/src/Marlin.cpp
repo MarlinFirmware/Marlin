@@ -522,7 +522,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     tmc2130_checkOverTemp();
   #endif
 
-  planner.check_axes_activity();
+  // Limit check_axes_activity frequency to 10Hz
+  static millis_t next_check_axes_ms = 0;
+  if (ELAPSED(ms, next_check_axes_ms)) {
+    planner.check_axes_activity();
+    next_check_axes_ms = ms + 100UL;
+  }
 }
 
 /**
