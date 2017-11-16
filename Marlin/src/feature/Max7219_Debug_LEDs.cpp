@@ -63,54 +63,41 @@
 
 static uint8_t LEDs[8] = { 0 };
 
+#ifdef CPU_32_BIT
+  #define MS_DELAY() delayMicroseconds(5)  // 32-bit processors need a delay to stabilize the signal
+#else
+  #define MS_DELAY() NOOP
+#endif
+
 void Max7219_PutByte(uint8_t data) {
   CRITICAL_SECTION_START
   for (uint8_t i = 8; i--;) {
-    #ifdef CPU_32_BIT                    // The 32-bit processors are so fast, a small delay in the code is needed
-      delayMicroseconds(5);              // to let the signal wires stabilize.
-      WRITE(MAX7219_CLK_PIN, LOW);       // tick
-      delayMicroseconds(5);
-      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-      delayMicroseconds(5);
-      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-      delayMicroseconds(5);
-    #else
-      WRITE(MAX7219_CLK_PIN, LOW);       // tick
-      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-    #endif
-
+    MS_DELAY();
+    WRITE(MAX7219_CLK_PIN, LOW);       // tick
+    MS_DELAY();
+    WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+    MS_DELAY();
+    WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+    MS_DELAY();
     data <<= 1;
   }
   CRITICAL_SECTION_END
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   CRITICAL_SECTION_START
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
-  #ifdef CPU_32_BIT              // The 32-bit processors are so fast, a small delay in the code is needed
-    delayMicroseconds(5);        // to let the signal wires stabilize.
-  #endif
+  MS_DELAY();
   Max7219_PutByte(reg);          // specify register
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   Max7219_PutByte(data);         // put data
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   WRITE(MAX7219_LOAD_PIN, HIGH);
   CRITICAL_SECTION_END
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
 }
 
 void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on) {
