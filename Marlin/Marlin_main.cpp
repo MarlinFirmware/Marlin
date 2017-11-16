@@ -8942,8 +8942,8 @@ inline void gcode_M205() {
         set_home_offset((AxisEnum)i, parser.value_linear_units());
 
     #if ENABLED(MORGAN_SCARA)
-      if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_linear_units()); // Theta
-      if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_linear_units()); // Psi
+      if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+      if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
     #endif
 
     report_current_position();
@@ -9319,14 +9319,14 @@ inline void gcode_M226() {
     #if ENABLED(BABYSTEP_XY)
       for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
         if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
-          const float offs = constrain(parser.value_axis_units(a), -2, 2);
+          const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
           #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
             if (a == Z_AXIS) {
               zprobe_zoffset += offs;
               refresh_zprobe_zoffset(true); // 'true' to not babystep
             }
           #endif
-          thermalManager.babystep_axis(a, offs * planner.axis_steps_per_mm[a]);
+          thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
         }
     #else
       if (parser.seenval('Z') || parser.seenval('S')) {
@@ -13318,48 +13318,27 @@ void prepare_move_to_destination() {
         #if !AVR_AT90USB1286_FAMILY
           case TIMER0A:
         #endif
-        case TIMER0B:
-          //_SET_CS(0, val);
-          break;
+        case TIMER0B:                           //_SET_CS(0, val);
+                                                  break;
       #endif
-      #ifdef TCCR1A
-        case TIMER1A:
-        case TIMER1B:
-          //_SET_CS(1, val);
-          break;
+      #ifdef TCCR1A 
+        case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
+                                                  break;
       #endif
-      #ifdef TCCR2
-        case TIMER2:
-        case TIMER2:
-          _SET_CS(2, val);
-          break;
+      #ifdef TCCR2 
+        case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
       #endif
-      #ifdef TCCR2A
-        case TIMER2A:
-        case TIMER2B:
-          _SET_CS(2, val);
-          break;
+      #ifdef TCCR2A 
+        case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
       #endif
-      #ifdef TCCR3A
-        case TIMER3A:
-        case TIMER3B:
-        case TIMER3C:
-          _SET_CS(3, val);
-          break;
+      #ifdef TCCR3A 
+        case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
       #endif
-      #ifdef TCCR4A
-        case TIMER4A:
-        case TIMER4B:
-        case TIMER4C:
-          _SET_CS(4, val);
-          break;
+      #ifdef TCCR4A 
+        case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
       #endif
-      #ifdef TCCR5A
-        case TIMER5A:
-        case TIMER5B:
-        case TIMER5C:
-          _SET_CS(5, val);
-          break;
+      #ifdef TCCR5A 
+        case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
       #endif
     }
   }

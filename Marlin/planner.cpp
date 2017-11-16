@@ -528,8 +528,7 @@ void Planner::check_axes_activity() {
 }
 
 inline float calculate_volumetric_multiplier(const float &diameter) {
-  if (!parser.volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / CIRCLE_AREA(diameter * 0.5);
+  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
 }
 
 void Planner::calculate_volumetric_multipliers() {

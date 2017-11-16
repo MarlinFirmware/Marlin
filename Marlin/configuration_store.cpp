@@ -215,8 +215,8 @@ MarlinSettings settings;
 #endif
 
 /**
-* Post-process after Retrieve or Reset
-*/
+ * Post-process after Retrieve or Reset
+ */
 void MarlinSettings::postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
