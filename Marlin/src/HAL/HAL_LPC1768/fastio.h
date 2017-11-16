@@ -39,7 +39,7 @@
 #include "arduino.h"
 #include "pinmapping.h"
 
-bool useable_hardware_PWM(uint8_t pin);
+bool useable_hardware_PWM(pin_t pin);
 #define USEABLE_HARDWARE_PWM(pin) useable_hardware_PWM(pin)
 
 #define LPC_PORT_OFFSET         (0x0020)
