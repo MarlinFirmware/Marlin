@@ -137,7 +137,7 @@ void GcodeSuite::M600() {
   #else    
     const float load_length = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
       #ifdef FILAMENT_CHANGE_LOAD_LENGTH
-	    + FILAMENT_CHANGE_LOAD_LENGTH ;
+        + FILAMENT_CHANGE_LOAD_LENGTH ;
       #endif    
   #endif //end load filament
 
@@ -169,7 +169,7 @@ void GcodeSuite::M600() {
 	  // FwRetract status 
 	  #if ENABLED(FWRETRACT)
 	    fwretract.retracted[active_extruder]=fwretract.retracted[active_extruder-1];
-		fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
+	    fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
 	  #endif
 	  
 	  #if HOTENDS>1
