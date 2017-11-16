@@ -1002,13 +1002,12 @@ void Temperature::updateTemperaturesFromRawValues() {
   // Convert raw Filament Width to millimeters
   float Temperature::analog2widthFil() {
     return current_raw_filwidth * 5.0 * (1.0 / 16383.0);
-    //return current_raw_filwidth;
   }
 
   // Convert raw Filament Width to a ratio
   int Temperature::widthFil_to_size_ratio() {
     float temp = filament_width_meas;
-    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
+    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  // Assume a bad sensor reading
     else NOMORE(temp, MEASURED_UPPER_LIMIT);
     return filament_width_nominal / temp * 100;
   }
