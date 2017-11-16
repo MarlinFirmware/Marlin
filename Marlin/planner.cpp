@@ -91,6 +91,12 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
 
+int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
+
+float Planner::e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
+      Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+      Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
@@ -112,7 +118,7 @@ float Planner::min_feedrate_mm_s,
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     float Planner::z_fade_height,      // Initialized by settings.load()
           Planner::inverse_z_fade_height,
-          Planner::last_raw_lz;
+          Planner::last_fade_z;
   #endif
 #endif
 
@@ -521,16 +527,27 @@ void Planner::check_axes_activity() {
   #endif
 }
 
+inline float calculate_volumetric_multiplier(const float &diameter) {
+  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
+}
+
+void Planner::calculate_volumetric_multipliers() {
+  for (uint8_t i = 0; i < COUNT(filament_size); i++) {
+    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    refresh_e_factor(i);
+  }
+}
+
 #if PLANNER_LEVELING
   /**
-   * lx, ly, lz - logical (cartesian, not delta) positions in mm
+   * rx, ry, rz - cartesian position in mm
    */
-  void Planner::apply_leveling(float &lx, float &ly, float &lz) {
+  void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
     if (!leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = fade_scaling_factor_for_z(lz);
+      const float fade_scaling_factor = fade_scaling_factor_for_z(rz);
       if (!fade_scaling_factor) return;
     #else
       constexpr float fade_scaling_factor = 1.0;
@@ -538,11 +555,11 @@ void Planner::check_axes_activity() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      lz += ubl.get_z_correction(lx, ly) * fade_scaling_factor;
+      rz += ubl.get_z_correction(rx, ry) * fade_scaling_factor;
 
     #elif ENABLED(MESH_BED_LEVELING)
 
-      lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
+      rz += mbl.get_z(rx, ry
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           , fade_scaling_factor
         #endif
@@ -552,40 +569,38 @@ void Planner::check_axes_activity() {
 
       UNUSED(fade_scaling_factor);
 
-      float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
-            dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
-            dz = RAW_Z_POSITION(lz);
+      float dx = rx - (X_TILT_FULCRUM),
+            dy = ry - (Y_TILT_FULCRUM);
 
-      apply_rotation_xyz(bed_level_matrix, dx, dy, dz);
+      apply_rotation_xyz(bed_level_matrix, dx, dy, rz);
 
-      lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
-      ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
-      lz = LOGICAL_Z_POSITION(dz);
+      rx = dx + X_TILT_FULCRUM;
+      ry = dy + Y_TILT_FULCRUM;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      float tmp[XYZ] = { lx, ly, 0 };
-      lz += bilinear_z_offset(tmp) * fade_scaling_factor;
+      float tmp[XYZ] = { rx, ry, 0 };
+      rz += bilinear_z_offset(tmp) * fade_scaling_factor;
 
     #endif
   }
 
-  void Planner::unapply_leveling(float logical[XYZ]) {
+  void Planner::unapply_leveling(float raw[XYZ]) {
 
     #if HAS_LEVELING
       if (!leveling_active) return;
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (!leveling_active_at_z(logical[Z_AXIS])) return;
+      if (!leveling_active_at_z(raw[Z_AXIS])) return;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      const float z_physical = RAW_Z_POSITION(logical[Z_AXIS]),
-                  z_correct = ubl.get_z_correction(logical[X_AXIS], logical[Y_AXIS]),
+      const float z_physical = raw[Z_AXIS],
+                  z_correct = ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]),
                   z_virtual = z_physical - z_correct;
-            float z_logical = LOGICAL_Z_POSITION(z_virtual);
+            float z_raw = z_virtual;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
@@ -598,15 +613,15 @@ void Planner::check_axes_activity() {
         //    so L=(P-M)/(1-M/H) for L<H
 
         if (planner.z_fade_height) {
-          if (z_logical >= planner.z_fade_height)
-            z_logical = LOGICAL_Z_POSITION(z_physical);
+          if (z_raw >= planner.z_fade_height)
+            z_raw = z_physical;
           else
-            z_logical /= 1.0 - z_correct * planner.inverse_z_fade_height;
+            z_raw /= 1.0 - z_correct * planner.inverse_z_fade_height;
         }
 
       #endif // ENABLE_LEVELING_FADE_HEIGHT
 
-      logical[Z_AXIS] = z_logical;
+      raw[Z_AXIS] = z_raw;
 
       return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
 
@@ -616,10 +631,10 @@ void Planner::check_axes_activity() {
 
       if (leveling_active) {
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
-          logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+          const float c = mbl.get_z(raw[X_AXIS], raw[Y_AXIS], 1.0);
+          raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS]) - c) / (z_fade_height - c);
         #else
-          logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+          raw[Z_AXIS] -= mbl.get_z(raw[X_AXIS], raw[Y_AXIS]);
         #endif
       }
 
@@ -627,23 +642,21 @@ void Planner::check_axes_activity() {
 
       matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-      float dx = RAW_X_POSITION(logical[X_AXIS]) - (X_TILT_FULCRUM),
-            dy = RAW_Y_POSITION(logical[Y_AXIS]) - (Y_TILT_FULCRUM),
-            dz = RAW_Z_POSITION(logical[Z_AXIS]);
+      float dx = raw[X_AXIS] - (X_TILT_FULCRUM),
+            dy = raw[Y_AXIS] - (Y_TILT_FULCRUM);
 
-      apply_rotation_xyz(inverse, dx, dy, dz);
+      apply_rotation_xyz(inverse, dx, dy, raw[Z_AXIS]);
 
-      logical[X_AXIS] = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
-      logical[Y_AXIS] = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
-      logical[Z_AXIS] = LOGICAL_Z_POSITION(dz);
+      raw[X_AXIS] = dx + X_TILT_FULCRUM;
+      raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float c = bilinear_z_offset(logical);
-        logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+        const float c = bilinear_z_offset(raw);
+        raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS]) - c) / (z_fade_height - c);
       #else
-        logical[Z_AXIS] -= bilinear_z_offset(logical);
+        raw[Z_AXIS] -= bilinear_z_offset(raw);
       #endif
 
     #endif
@@ -724,23 +737,25 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   long de = target[E_AXIS] - position[E_AXIS];
 
   #if ENABLED(LIN_ADVANCE)
-    float de_float = e - position_float[E_AXIS];
+    float de_float = e - position_float[E_AXIS]; // Should this include e_factor?
   #endif
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
-      if (thermalManager.tooColdToExtrude(extruder)) {
-        position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-        de = 0; // no difference
-        #if ENABLED(LIN_ADVANCE)
-          position_float[E_AXIS] = e;
-          de_float = 0;
-        #endif
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      }
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (thermalManager.tooColdToExtrude(extruder)) {
+          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+          de = 0; // no difference
+          #if ENABLED(LIN_ADVANCE)
+            position_float[E_AXIS] = e;
+            de_float = 0;
+          #endif
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        }
+      #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (labs(de) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
+        if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           #if ENABLED(LIN_ADVANCE)
@@ -750,9 +765,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
-      #endif
+      #endif // PREVENT_LENGTHY_EXTRUDE
     }
-  #endif
+  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
@@ -781,7 +796,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  const float esteps_float = de * e_factor[extruder];
   const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte

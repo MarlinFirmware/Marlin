@@ -44,10 +44,6 @@
   #include "serial.h"
 #endif
 
-#if ENABLED(INCH_MODE_SUPPORT)
-  extern bool volumetric_enabled;
-#endif
-
 /**
  * GCode parser
  *
@@ -75,6 +71,8 @@ private:
 public:
 
   // Global states for GCode-level units features
+
+  static bool volumetric_enabled;
 
   #if ENABLED(INCH_MODE_SUPPORT)
     static float linear_unit_factor, volumetric_unit_factor;
@@ -168,6 +166,11 @@ public:
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    // Parse the next parameter as a new command
+    static bool chain();
+  #endif
 
   // The code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }

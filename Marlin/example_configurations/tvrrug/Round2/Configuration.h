@@ -136,6 +136,9 @@
 // :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
+// Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
@@ -417,12 +420,13 @@
 //===========================================================================
 
 /**
- * Thermal Protection protects your printer from damage and fire if a
- * thermistor falls out or temperature sensors fail in any way.
+ * Thermal Protection provides additional protection to your printer from damage
+ * and fire. Marlin always includes safe min and max temperature ranges which
+ * protect against a broken or disconnected thermistor wire.
  *
- * The issue: If a thermistor falls out or a temperature sensor fails,
- * Marlin can no longer sense the actual temperature. Since a disconnected
- * thermistor reads as a low temperature, the firmware will keep the heater on.
+ * The issue: If a thermistor falls out, it will report the much lower
+ * temperature of the air in the room, and the the firmware will keep
+ * the heater on.
  *
  * If you get "Thermal Runaway" or "Heating failed" errors the
  * details can be tuned in Configuration_adv.h
@@ -948,6 +952,12 @@
   #define UBL_PROBE_PT_3_Y 20
 
   #define UBL_G26_MESH_VALIDATION   // Enable G26 mesh validation
+  #if ENABLED(UBL_G26_MESH_VALIDATION)
+    #define MESH_TEST_NOZZLE_SIZE     0.4   // (mm) Diameter of primary nozzle.
+    #define MESH_TEST_LAYER_HEIGHT    0.2   // (mm) Default layer height for the G26 Mesh Validation Tool.
+    #define MESH_TEST_HOTEND_TEMP   205.0   // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_BED_TEMP       60.0   // (°C) Default bed temperature for the G26 Mesh Validation Tool.
+  #endif
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
@@ -1681,41 +1691,5 @@
 //
 // With this option servos are powered only during movement, then turned off to prevent jitter.
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
-
-/**
- * Filament Width Sensor
- *
- * Measures the filament width in real-time and adjusts
- * flow rate to compensate for any irregularities.
- *
- * Also allows the measured filament diameter to set the
- * extrusion rate, so the slicer only has to specify the
- * volume.
- *
- * Only a single extruder is supported at this time.
- *
- *  34 RAMPS_14    : Analog input 5 on the AUX2 connector
- *  81 PRINTRBOARD : Analog input 2 on the Exp1 connector (version B,C,D,E)
- * 301 RAMBO       : Analog input 3
- *
- * Note: May require analog pins to be defined for other boards.
- */
-//#define FILAMENT_WIDTH_SENSOR
-
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00   // (mm) Diameter of the filament generally used (3.0 or 1.75mm), also used in the slicer. Used to validate sensor reading.
-
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor (0,1,2,3)
-  #define MEASUREMENT_DELAY_CM        14    // (cm) The distance from the filament sensor to the melting chamber
-
-  #define MEASURED_UPPER_LIMIT         3.30 // (mm) Upper limit used to validate sensor reading
-  #define MEASURED_LOWER_LIMIT         1.90 // (mm) Lower limit used to validate sensor reading
-  #define MAX_MEASUREMENT_DELAY       20    // (bytes) Buffer size for stored measurements (1 byte per cm). Must be larger than MEASUREMENT_DELAY_CM.
-
-  #define DEFAULT_MEASURED_FILAMENT_DIA DEFAULT_NOMINAL_FILAMENT_DIA // Set measured to nominal initially
-
-  // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
-  //#define FILAMENT_LCD_DISPLAY
-#endif
 
 #endif // CONFIGURATION_H

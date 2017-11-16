@@ -48,31 +48,36 @@
 #endif
 
 /**
- * Thermal Protection protects your printer from damage and fire if a
- * thermistor falls out or temperature sensors fail in any way.
+ * Thermal Protection provides additional protection to your printer from damage
+ * and fire. Marlin always includes safe min and max temperature ranges which
+ * protect against a broken or disconnected thermistor wire.
  *
- * The issue: If a thermistor falls out or a temperature sensor fails,
- * Marlin can no longer sense the actual temperature. Since a disconnected
- * thermistor reads as a low temperature, the firmware will keep the heater on.
+ * The issue: If a thermistor falls out, it will report the much lower
+ * temperature of the air in the room, and the the firmware will keep
+ * the heater on.
  *
  * The solution: Once the temperature reaches the target, start observing.
- * If the temperature stays too far below the target (hysteresis) for too long (period),
- * the firmware will halt the machine as a safety precaution.
+ * If the temperature stays too far below the target (hysteresis) for too
+ * long (period), the firmware will halt the machine as a safety precaution.
  *
- * If you get false positives for "Thermal Runaway" increase THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
+ * If you get false positives for "Thermal Runaway", increase
+ * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
   /**
-   * Whenever an M104 or M109 increases the target temperature the firmware will wait for the
-   * WATCH_TEMP_PERIOD to expire, and if the temperature hasn't increased by WATCH_TEMP_INCREASE
-   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M104/M109,
-   * but only if the current temperature is far enough below the target for a reliable test.
+   * Whenever an M104, M109, or M303 increases the target temperature, the
+   * firmware will wait for the WATCH_TEMP_PERIOD to expire. If the temperature
+   * hasn't increased by WATCH_TEMP_INCREASE degrees, the machine is halted and
+   * requires a hard reset. This test restarts with any M104/M109/M303, but only
+   * if the current temperature is far enough below the target for a reliable
+   * test.
    *
-   * If you get false positives for "Heating failed" increase WATCH_TEMP_PERIOD and/or decrease WATCH_TEMP_INCREASE
-   * WATCH_TEMP_INCREASE should not be below 2.
+   * If you get false positives for "Heating failed", increase WATCH_TEMP_PERIOD
+   * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
+   * below 2.
    */
   #define WATCH_TEMP_PERIOD 20                // Seconds
   #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
@@ -86,13 +91,7 @@
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 
   /**
-   * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
-   * WATCH_BED_TEMP_PERIOD to expire, and if the temperature hasn't increased by WATCH_BED_TEMP_INCREASE
-   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M140/M190,
-   * but only if the current temperature is far enough below the target for a reliable test.
-   *
-   * If you get too many "Heating failed" errors, increase WATCH_BED_TEMP_PERIOD and/or decrease
-   * WATCH_BED_TEMP_INCREASE. (WATCH_BED_TEMP_INCREASE should not be below 2.)
+   * As described above, except for the bed (M140/M190/M303).
    */
   #define WATCH_BED_TEMP_PERIOD 60                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
@@ -122,6 +121,9 @@
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
+
+// Show extra position information in M114
+//#define M114_DETAIL
 
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
@@ -301,49 +303,6 @@
   #endif
 #endif
 
-// Dual X Steppers
-// Uncomment this option to drive two X axis motors.
-// The next unused E driver will be assigned to the second X stepper.
-//#define X_DUAL_STEPPER_DRIVERS
-#if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  // Set true if the two X motors need to rotate in opposite directions
-  #define INVERT_X2_VS_X_DIR true
-#endif
-
-// Dual Y Steppers
-// Uncomment this option to drive two Y axis motors.
-// The next unused E driver will be assigned to the second Y stepper.
-//#define Y_DUAL_STEPPER_DRIVERS
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  // Set true if the two Y motors need to rotate in opposite directions
-  #define INVERT_Y2_VS_Y_DIR true
-#endif
-
-// A single Z stepper driver is usually used to drive 2 stepper motors.
-// Uncomment this option to use a separate stepper driver for each Z axis motor.
-// The next unused E driver will be assigned to the second Z stepper.
-//#define Z_DUAL_STEPPER_DRIVERS
-
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-
-  // Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
-  // That way the machine is capable to align the bed during home, since both Z steppers are homed.
-  // There is also an implementation of M666 (software endstops adjustment) to this feature.
-  // After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
-  // One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
-  // If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
-  // Play a little bit with small adjustments (0.5mm) and check the behaviour.
-  // The M119 (endstops report) will start reporting the Z2 Endstop as well.
-
-  //#define Z_DUAL_ENDSTOPS
-
-  #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z2_USE_ENDSTOP _XMAX_
-    #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0  // Use M666 to determine/test this value
-  #endif
-
-#endif // Z_DUAL_STEPPER_DRIVERS
-
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
@@ -389,7 +348,7 @@
 
 // @section homing
 
-//homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
+// Homing hits each endstop, retracts by these distances, then does a slower bump.
 #define X_HOME_BUMP_MM 3
 #define Y_HOME_BUMP_MM 3
 #define Z_HOME_BUMP_MM 3
@@ -1309,6 +1268,48 @@
   //#define SPEED_POWER_MIN       10
   //#define SPEED_POWER_MAX      100      // 0-100%
 #endif
+
+/**
+ * Filament Width Sensor
+ *
+ * Measures the filament width in real-time and adjusts
+ * flow rate to compensate for any irregularities.
+ *
+ * Also allows the measured filament diameter to set the
+ * extrusion rate, so the slicer only has to specify the
+ * volume.
+ *
+ * Only a single extruder is supported at this time.
+ *
+ *  34 RAMPS_14    : Analog input 5 on the AUX2 connector
+ *  81 PRINTRBOARD : Analog input 2 on the Exp1 connector (version B,C,D,E)
+ * 301 RAMBO       : Analog input 3
+ *
+ * Note: May require analog pins to be defined for other boards.
+ */
+//#define FILAMENT_WIDTH_SENSOR
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor. :[0,1,2,3,4]
+  #define MEASUREMENT_DELAY_CM        14    // (cm) The distance from the filament sensor to the melting chamber
+
+  #define MEASURED_UPPER_LIMIT         3.30 // (mm) Upper limit used to validate sensor reading
+  #define MEASURED_LOWER_LIMIT         1.90 // (mm) Lower limit used to validate sensor reading
+  #define MAX_MEASUREMENT_DELAY       20    // (bytes) Buffer size for stored measurements (1 byte per cm). Must be larger than MEASUREMENT_DELAY_CM.
+
+  #define DEFAULT_MEASURED_FILAMENT_DIA DEFAULT_NOMINAL_FILAMENT_DIA // Set measured to nominal initially
+
+  // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
+  //#define FILAMENT_LCD_DISPLAY
+#endif
+
+/**
+ * CNC Coordinate Systems
+ *
+ * Enables G53 and G54-G59.3 commands to select coordinate systems
+ * and G92.1 to reset the workspace to native machine space.
+ */
+//#define CNC_COORDINATE_SYSTEMS
 
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins

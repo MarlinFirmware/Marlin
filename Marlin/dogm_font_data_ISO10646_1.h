@@ -33,18 +33,7 @@
 */
 #include <U8glib.h>
 
-#define not_extended_ISO10646_1_5x7 (defined(LANGUAGE_AN_H) \
-                                  || defined(LANGUAGE_EN_H) \
-                                  || defined(LANGUAGE_ES_H) \
-                                  || defined(LANGUAGE_EU_H) \
-                                  || defined(LANGUAGE_FR_H) \
-                                  || defined(LANGUAGE_GL_H) \
-                                  || defined(LANGUAGE_NL_H) \
-                                  || defined(LANGUAGE_PL_HD44780_H) \
-                                  || defined(LANGUAGE_PT_H) \
-                                  || defined(LANGUAGE_PT_BR_H))
-
-#if (defined(__AVR__) && not_extended_ISO10646_1_5x7)
+#if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
 
   //
   // Reduced font (only symbols 32 - 127) - About 1400 bytes smaller

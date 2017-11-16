@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V43"
+#define EEPROM_VERSION "V45"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V43 EEPROM Layout:
+ * V44 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -64,7 +64,7 @@
  *  195  M206 XYZ  home_offset                      (float x3)
  *  207  M218 XYZ  hotend_offset                    (float x3 per additional hotend)
  *
- * Global Leveling:
+ * Global Leveling:                                 4 bytes
  *  219            z_fade_height                    (float)
  *
  * MESH_BED_LEVELING:                               43 bytes
@@ -80,7 +80,7 @@
  * ABL_PLANAR:                                      36 bytes
  *  270            planner.bed_level_matrix         (matrix_3x3 = float x9)
  *
- * AUTO_BED_LEVELING_BILINEAR:                      47 bytes
+ * AUTO_BED_LEVELING_BILINEAR:                      46 bytes
  *  306            GRID_MAX_POINTS_X                (uint8_t)
  *  307            GRID_MAX_POINTS_Y                (uint8_t)
  *  308            bilinear_grid_spacing            (int x2)
@@ -91,15 +91,16 @@
  *  324  G29 A     planner.leveling_active          (bool)
  *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
- * DELTA:                                           40 bytes
- *  352  M666 XYZ  delta_endstop_adj                (float x3)
- *  364  M665 R    delta_radius                     (float)
- *  368  M665 L    delta_diagonal_rod               (float)
- *  372  M665 S    delta_segments_per_second        (float)
- *  376  M665 B    delta_calibration_radius         (float)
- *  380  M665 X    delta_tower_angle_trim[A]        (float)
- *  384  M665 Y    delta_tower_angle_trim[B]        (float)
- *  388  M665 Z    delta_tower_angle_trim[C]        (float)
+ * DELTA:                                           44 bytes
+ *  352  M666 H    delta_height                     (float)
+ *  364  M666 XYZ  delta_endstop_adj                (float x3)
+ *  368  M665 R    delta_radius                     (float)
+ *  372  M665 L    delta_diagonal_rod               (float)
+ *  376  M665 S    delta_segments_per_second        (float)
+ *  380  M665 B    delta_calibration_radius         (float)
+ *  384  M665 X    delta_tower_angle_trim[A]        (float)
+ *  388  M665 Y    delta_tower_angle_trim[B]        (float)
+ *  392  M665 Z    delta_tower_angle_trim[C]        (float)
  *
  * [XYZ]_DUAL_ENDSTOPS:                             12 bytes
  *  352  M666 X    x_endstop_adj                    (float)
@@ -107,63 +108,66 @@
  *  360  M666 Z    z_endstop_adj                    (float)
  *
  * ULTIPANEL:                                       6 bytes
- *  392  M145 S0 H lcd_preheat_hotend_temp          (int x2)
- *  396  M145 S0 B lcd_preheat_bed_temp             (int x2)
- *  400  M145 S0 F lcd_preheat_fan_speed            (int x2)
+ *  396  M145 S0 H lcd_preheat_hotend_temp          (int x2)
+ *  400  M145 S0 B lcd_preheat_bed_temp             (int x2)
+ *  404  M145 S0 F lcd_preheat_fan_speed            (int x2)
  *
  * PIDTEMP:                                         82 bytes
- *  404  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
- *  420  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
- *  436  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
- *  452  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  468  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  484  M301 L        lpq_len                      (int)
+ *  408  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
+ *  428  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
+ *  440  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
+ *  456  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  472  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  488  M301 L        lpq_len                      (int)
  *
  * PIDTEMPBED:                                      12 bytes
- *  486  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
+ *  490  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  498  M250 C    lcd_contrast                     (uint16_t)
+ *  502  M250 C    lcd_contrast                     (uint16_t)
  *
  * FWRETRACT:                                       33 bytes
- *  500  M209 S    autoretract_enabled              (bool)
- *  501  M207 S    retract_length                   (float)
- *  505  M207 F    retract_feedrate_mm_s            (float)
- *  509  M207 Z    retract_zlift                    (float)
- *  513  M208 S    retract_recover_length           (float)
- *  517  M208 F    retract_recover_feedrate_mm_s    (float)
- *  521  M207 W    swap_retract_length              (float)
- *  525  M208 W    swap_retract_recover_length      (float)
- *  529  M208 R    swap_retract_recover_feedrate_mm_s (float)
+ *  504  M209 S    autoretract_enabled              (bool)
+ *  505  M207 S    retract_length                   (float)
+ *  509  M207 F    retract_feedrate_mm_s            (float)
+ *  513  M207 Z    retract_zlift                    (float)
+ *  517  M208 S    retract_recover_length           (float)
+ *  521  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  525  M207 W    swap_retract_length              (float)
+ *  529  M208 W    swap_retract_recover_length      (float)
+ *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
- *  533  M200 D    volumetric_enabled               (bool)
- *  534  M200 T D  filament_size                    (float x5) (T0..3)
+ *  537  M200 D    parser.volumetric_enabled        (bool)
+ *  538  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    22 bytes
- *  554  M906 X    Stepper X current                (uint16_t)
- *  556  M906 Y    Stepper Y current                (uint16_t)
- *  558  M906 Z    Stepper Z current                (uint16_t)
- *  560  M906 X2   Stepper X2 current               (uint16_t)
- *  562  M906 Y2   Stepper Y2 current               (uint16_t)
- *  564  M906 Z2   Stepper Z2 current               (uint16_t)
- *  566  M906 E0   Stepper E0 current               (uint16_t)
- *  568  M906 E1   Stepper E1 current               (uint16_t)
- *  570  M906 E2   Stepper E2 current               (uint16_t)
- *  572  M906 E3   Stepper E3 current               (uint16_t)
- *  574  M906 E4   Stepper E4 current               (uint16_t)
+ *  558  M906 X    Stepper X current                (uint16_t)
+ *  560  M906 Y    Stepper Y current                (uint16_t)
+ *  562  M906 Z    Stepper Z current                (uint16_t)
+ *  564  M906 X2   Stepper X2 current               (uint16_t)
+ *  566  M906 Y2   Stepper Y2 current               (uint16_t)
+ *  568  M906 Z2   Stepper Z2 current               (uint16_t)
+ *  570  M906 E0   Stepper E0 current               (uint16_t)
+ *  572  M906 E1   Stepper E1 current               (uint16_t)
+ *  574  M906 E2   Stepper E2 current               (uint16_t)
+ *  576  M906 E3   Stepper E3 current               (uint16_t)
+ *  578  M906 E4   Stepper E4 current               (uint16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
- *  576  M900 K    extruder_advance_k               (float)
- *  580  M900 WHD  advance_ed_ratio                 (float)
+ *  580  M900 K    extruder_advance_k               (float)
+ *  584  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  584  M907 X    Stepper XY current               (uint32_t)
- *  588  M907 Z    Stepper Z current                (uint32_t)
- *  592  M907 E    Stepper E current                (uint32_t)
+ *  588  M907 X    Stepper XY current               (uint32_t)
+ *  592  M907 Z    Stepper Z current                (uint32_t)
+ *  596  M907 E    Stepper E current                (uint32_t)
  *
- *  596                                Minimum end-point
- * 1917 (596 + 36 + 9 + 288 + 988)     Maximum end-point
+ * CNC_COORDINATE_SYSTEMS                           108 bytes
+ *  600  G54-G59.3 coordinate_system                (float x 27)
+ *
+ *  708                                Minimum end-point
+ * 2025 (704 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -184,10 +188,7 @@ MarlinSettings settings;
 #include "temperature.h"
 #include "ultralcd.h"
 #include "stepper.h"
-
-#if ENABLED(INCH_MODE_SUPPORT) || (ENABLED(ULTIPANEL) && ENABLED(TEMPERATURE_UNITS_SUPPORT))
-  #include "gcode.h"
-#endif
+#include "gcode.h"
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -209,9 +210,13 @@ MarlinSettings settings;
   float new_z_fade_height;
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  bool position_changed;
+#endif
+
 /**
-* Post-process after Retrieve or Reset
-*/
+ * Post-process after Retrieve or Reset
+ */
 void MarlinSettings::postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -219,7 +224,7 @@ void MarlinSettings::postprocess() {
   // Make sure delta kinematics are updated before refreshing the
   // planner position so the stepper counts will be set correctly.
   #if ENABLED(DELTA)
-    recalc_delta_settings(delta_radius, delta_diagonal_rod, delta_tower_angle_trim);
+    recalc_delta_settings();
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
@@ -230,7 +235,7 @@ void MarlinSettings::postprocess() {
     thermalManager.updatePID();
   #endif
 
-  calculate_volumetric_multipliers();
+  planner.calculate_volumetric_multipliers();
 
   #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
     // Software endstops depend on home_offset
@@ -252,6 +257,13 @@ void MarlinSettings::postprocess() {
 
   #if HAS_MOTOR_CURRENT_PWM
     stepper.refresh_motor_power();
+  #endif
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    if (position_changed) {
+      report_current_position();
+      position_changed = false;
+    }
   #endif
 }
 
@@ -340,15 +352,7 @@ void MarlinSettings::postprocess() {
     #if !HAS_HOME_OFFSET
       const float home_offset[XYZ] = { 0 };
     #endif
-    #if ENABLED(DELTA)
-      dummy = 0.0;
-      EEPROM_WRITE(dummy);
-      EEPROM_WRITE(dummy);
-      dummy = DELTA_HEIGHT + home_offset[Z_AXIS];
-      EEPROM_WRITE(dummy);
-    #else
-      EEPROM_WRITE(home_offset);
-    #endif
+    EEPROM_WRITE(home_offset);
 
     #if HOTENDS > 1
       // Skip hotend 0 which must be 0
@@ -451,6 +455,7 @@ void MarlinSettings::postprocess() {
 
     // 10 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
+      EEPROM_WRITE(delta_height);              // 1 float
       EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
       EEPROM_WRITE(delta_diagonal_rod);        // 1 float
@@ -561,11 +566,11 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(swap_retract_recover_length);
     EEPROM_WRITE(swap_retract_recover_feedrate_mm_s);
 
-    EEPROM_WRITE(volumetric_enabled);
+    EEPROM_WRITE(parser.volumetric_enabled);
 
     // Save filament sizes
     for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-      if (q < COUNT(filament_size)) dummy = filament_size[q];
+      if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
       EEPROM_WRITE(dummy);
     }
 
@@ -663,6 +668,13 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
     #endif
 
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      EEPROM_WRITE(coordinate_system); // 27 floats
+    #else
+      dummy = 0.0f;
+      for (uint8_t q = 27; q--;) EEPROM_WRITE(dummy);
+    #endif
+
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
@@ -723,11 +735,15 @@ void MarlinSettings::postprocess() {
       float dummy = 0;
       bool dummyb;
 
-      working_crc = 0; //clear before reading first "real data"
+      working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       // Number of esteppers may change
       uint8_t esteppers;
       EEPROM_READ(esteppers);
+
+      //
+      // Planner Motion
+      //
 
       // Get only the number of E stepper parameters previously stored
       // Any steppers added later are set to their defaults
@@ -752,16 +768,18 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.min_segment_time_us);
       EEPROM_READ(planner.max_jerk);
 
+      //
+      // Home Offset (M206)
+      //
+
       #if !HAS_HOME_OFFSET
         float home_offset[XYZ];
       #endif
       EEPROM_READ(home_offset);
 
-      #if ENABLED(DELTA)
-        home_offset[X_AXIS] = 0.0;
-        home_offset[Y_AXIS] = 0.0;
-        home_offset[Z_AXIS] -= DELTA_HEIGHT;
-      #endif
+      //
+      // Hotend Offsets, if any
+      //
 
       #if HOTENDS > 1
         // Skip hotend 0 which must be 0
@@ -846,6 +864,10 @@ void MarlinSettings::postprocess() {
           for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
         }
 
+      //
+      // Unified Bed Leveling active state
+      //
+
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         EEPROM_READ(planner.leveling_active);
         EEPROM_READ(ubl.storage_slot);
@@ -855,15 +877,18 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
 
+      //
+      // DELTA Geometry or Dual Endstops offsets
+      //
+
       #if ENABLED(DELTA)
+        EEPROM_READ(delta_height);              // 1 float
         EEPROM_READ(delta_endstop_adj);         // 3 floats
         EEPROM_READ(delta_radius);              // 1 float
         EEPROM_READ(delta_diagonal_rod);        // 1 float
         EEPROM_READ(delta_segments_per_second); // 1 float
         EEPROM_READ(delta_calibration_radius);  // 1 float
         EEPROM_READ(delta_tower_angle_trim);    // 3 floats
-        dummy = 0.0f;
-        for (uint8_t q=2; q--;) EEPROM_READ(dummy);
 
       #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
@@ -891,18 +916,25 @@ void MarlinSettings::postprocess() {
 
       #endif
 
+      //
+      // LCD Preheat settings
+      //
+
       #if DISABLED(ULTIPANEL)
         int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
       #endif
-
-      EEPROM_READ(lcd_preheat_hotend_temp);
-      EEPROM_READ(lcd_preheat_bed_temp);
-      EEPROM_READ(lcd_preheat_fan_speed);
+      EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
+      EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
+      EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
 
       //EEPROM_ASSERT(
       //  WITHIN(lcd_preheat_fan_speed, 0, 255),
       //  "lcd_preheat_fan_speed out of range"
       //);
+
+      //
+      // Hotend PID
+      //
 
       #if ENABLED(PIDTEMP)
         for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
@@ -927,10 +959,18 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
       #endif // !PIDTEMP
 
+      //
+      // PID Extrusion Scaling
+      //
+
       #if DISABLED(PID_EXTRUSION_SCALING)
         int lpq_len;
       #endif
       EEPROM_READ(lpq_len);
+
+      //
+      // Heated Bed PID
+      //
 
       #if ENABLED(PIDTEMPBED)
         EEPROM_READ(dummy); // bedKp
@@ -943,10 +983,18 @@ void MarlinSettings::postprocess() {
         for (uint8_t q=3; q--;) EEPROM_READ(dummy); // bedKp, bedKi, bedKd
       #endif
 
+      //
+      // LCD Contrast
+      //
+
       #if !HAS_LCD_CONTRAST
         uint16_t lcd_contrast;
       #endif
       EEPROM_READ(lcd_contrast);
+
+      //
+      // Firmware Retraction
+      //
 
       #if ENABLED(FWRETRACT)
         EEPROM_READ(autoretract_enabled);
@@ -963,12 +1011,19 @@ void MarlinSettings::postprocess() {
         for (uint8_t q=8; q--;) EEPROM_READ(dummy);
       #endif
 
-      EEPROM_READ(volumetric_enabled);
+      //
+      // Volumetric & Filament Size
+      //
 
+      EEPROM_READ(parser.volumetric_enabled);
       for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
         EEPROM_READ(dummy);
-        if (q < COUNT(filament_size)) filament_size[q] = dummy;
+        if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
       }
+
+      //
+      // TMC2130 Stepper Current
+      //
 
       uint16_t val;
       #if ENABLED(HAVE_TMC2130)
@@ -1017,7 +1072,7 @@ void MarlinSettings::postprocess() {
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
-        for (uint8_t q = 0; q < 11; q++) EEPROM_READ(val);
+        for (uint8_t q = 11; q--;) EEPROM_READ(val);
       #endif
 
       //
@@ -1032,11 +1087,26 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummy);
       #endif
 
+      //
+      // Motor Current PWM
+      //
+
       #if HAS_MOTOR_CURRENT_PWM
         for (uint8_t q = 3; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
       #else
         uint32_t dummyui32;
         for (uint8_t q = 3; q--;) EEPROM_READ(dummyui32);
+      #endif
+
+      //
+      // CNC Coordinate System
+      //
+
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        position_changed = select_coordinate_system(-1); // Go back to machine space
+        EEPROM_READ(coordinate_system);                  // 27 floats
+      #else
+        for (uint8_t q = 27; q--;) EEPROM_READ(dummy);
       #endif
 
       if (working_crc == stored_crc) {
@@ -1263,13 +1333,13 @@ void MarlinSettings::reset() {
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
                 dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+    delta_height = DELTA_HEIGHT;
     COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
     COPY(delta_tower_angle_trim, dta);
-    home_offset[Z_AXIS] = 0;
 
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
@@ -1351,15 +1421,15 @@ void MarlinSettings::reset() {
     swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   #endif // FWRETRACT
 
-  volumetric_enabled =
+  parser.volumetric_enabled =
     #if ENABLED(VOLUMETRIC_DEFAULT_ON)
       true
     #else
       false
     #endif
   ;
-  for (uint8_t q = 0; q < COUNT(filament_size); q++)
-    filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+  for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+    planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -1442,7 +1512,7 @@ void MarlinSettings::reset() {
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
       #define LINEAR_UNIT(N) ((N) / parser.linear_unit_factor)
-      #define VOLUMETRIC_UNIT(N) ((N) / (volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
+      #define VOLUMETRIC_UNIT(N) ((N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
       SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM(" ; Units in ");
@@ -1479,37 +1549,37 @@ void MarlinSettings::reset() {
     if (!forReplay) {
       CONFIG_ECHO_START;
       SERIAL_ECHOPGM("Filament settings:");
-      if (volumetric_enabled)
+      if (parser.volumetric_enabled)
         SERIAL_EOL();
       else
         SERIAL_ECHOLNPGM(" Disabled");
     }
 
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
+    SERIAL_ECHOPAIR("  M200 D", planner.filament_size[0]);
     SERIAL_EOL();
     #if EXTRUDERS > 1
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+      SERIAL_ECHOPAIR("  M200 T1 D", planner.filament_size[1]);
       SERIAL_EOL();
       #if EXTRUDERS > 2
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
+        SERIAL_ECHOPAIR("  M200 T2 D", planner.filament_size[2]);
         SERIAL_EOL();
         #if EXTRUDERS > 3
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+          SERIAL_ECHOPAIR("  M200 T3 D", planner.filament_size[3]);
           SERIAL_EOL();
           #if EXTRUDERS > 4
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M200 T4 D", filament_size[4]);
+            SERIAL_ECHOPAIR("  M200 T4 D", planner.filament_size[4]);
             SERIAL_EOL();
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
     #endif // EXTRUDERS > 1
 
-    if (!volumetric_enabled) {
+    if (!parser.volumetric_enabled) {
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPGM("  M200 D0");
     }
@@ -1706,7 +1776,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M665 L", LINEAR_UNIT(delta_diagonal_rod));
       SERIAL_ECHOPAIR(" R", LINEAR_UNIT(delta_radius));
-      SERIAL_ECHOPAIR(" H", LINEAR_UNIT(DELTA_HEIGHT + home_offset[Z_AXIS]));
+      SERIAL_ECHOPAIR(" H", LINEAR_UNIT(delta_height));
       SERIAL_ECHOPAIR(" S", delta_segments_per_second);
       SERIAL_ECHOPAIR(" B", LINEAR_UNIT(delta_calibration_radius));
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(delta_tower_angle_trim[A_AXIS]));
@@ -1738,8 +1808,8 @@ void MarlinSettings::reset() {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Material heatup parameters:");
       }
-      CONFIG_ECHO_START;
       for (uint8_t i = 0; i < COUNT(lcd_preheat_hotend_temp); i++) {
+        CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M145 S", (int)i);
         SERIAL_ECHOPAIR(" H", TEMP_UNIT(lcd_preheat_hotend_temp[i]));
         SERIAL_ECHOPAIR(" B", TEMP_UNIT(lcd_preheat_bed_temp[i]));

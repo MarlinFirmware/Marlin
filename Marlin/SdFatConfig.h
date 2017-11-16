@@ -33,8 +33,6 @@
 
 #include "MarlinConfig.h"
 
-//------------------------------------------------------------------------------
-
 /**
  * To use multiple SD cards set USE_MULTIPLE_CARDS nonzero.
  *
@@ -43,8 +41,6 @@
  * Each card requires about 550 bytes of SRAM so use of a Mega is recommended.
  */
 #define USE_MULTIPLE_CARDS 0
-
-//------------------------------------------------------------------------------
 
 /**
  * Call flush for endl if ENDL_CALLS_FLUSH is nonzero
@@ -65,14 +61,10 @@
  */
 #define ENDL_CALLS_FLUSH 0
 
-//------------------------------------------------------------------------------
-
 /**
  * Allow use of deprecated functions if ALLOW_DEPRECATED_FUNCTIONS is nonzero
  */
 #define ALLOW_DEPRECATED_FUNCTIONS 1
-
-//------------------------------------------------------------------------------
 
 /**
  * Allow FAT12 volumes if FAT12_SUPPORT is nonzero.
@@ -80,23 +72,17 @@
  */
 #define FAT12_SUPPORT 0
 
-//------------------------------------------------------------------------------
-
 /**
  * SPI init rate for SD initialization commands. Must be 5 (F_CPU/64)
  * or 6 (F_CPU/128).
  */
 #define SPI_SD_INIT_RATE 5
 
-//------------------------------------------------------------------------------
-
 /**
  * Set the SS pin high for hardware SPI.  If SS is chip select for another SPI
  * device this will disable that device during the SD init phase.
  */
 #define SET_SPI_SS_HIGH 1
-
-//------------------------------------------------------------------------------
 
 /**
  * Define MEGA_SOFT_SPI nonzero to use software SPI on Mega Arduinos.
@@ -108,8 +94,6 @@
  */
 #define MEGA_SOFT_SPI 0
 
-//------------------------------------------------------------------------------
-
 // Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
 #define USE_SOFTWARE_SPI 0
 
@@ -118,8 +102,6 @@
 #define SOFT_SPI_MOSI_PIN 11 // Software SPI Master Out Slave In pin
 #define SOFT_SPI_MISO_PIN 12 // Software SPI Master In Slave Out pin
 #define SOFT_SPI_SCK_PIN  13 // Software SPI Clock pin
-
-//------------------------------------------------------------------------------
 
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
