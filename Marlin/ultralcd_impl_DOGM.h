@@ -648,9 +648,15 @@ static void lcd_implementation_status_screen() {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
     strcpy(zstring, ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
-    #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
+    #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
-      strcpy(mstring, itostr3(100.0 * planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+      if (parser.volumetric_enabled)
+        strcpy(mstring, itostr3(100.0 * filament_width_meas / filament_width_nominal));
+      else
+        strcpy_P(mstring, PSTR("---"));
+      // Alternatively, show the ratio between cross-sectional areas:
+      //strcpy(mstring, itostr3(100.0 / CIRCLE_AREA(filament_width_nominal * 0.5)
+      //                              / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
     #endif
   }
 
@@ -706,7 +712,7 @@ static void lcd_implementation_status_screen() {
     //
     // Filament sensor display if SD is disabled
     //
-    #if DISABLED(SDSUPPORT) && ENABLED(FILAMENT_LCD_DISPLAY)
+    #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
       u8g.setPrintPos(56, 50);
       lcd_print(wstring);
       u8g.setPrintPos(102, 50);
@@ -736,10 +742,10 @@ static void lcd_implementation_status_screen() {
       else {
         lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
         u8g.print(':');
-        lcd_print(ftostr12ns(filament_width_meas));
+        lcd_print(wstring);
         lcd_printPGM(PSTR("  " LCD_STR_FILAM_MUL));
         u8g.print(':');
-        lcd_print(itostr3(100.0 * planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+        lcd_print(mstring);
         u8g.print('%');
       }
     #else
