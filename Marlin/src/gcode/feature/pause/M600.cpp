@@ -156,49 +156,49 @@ void GcodeSuite::M600() {
     // Next tool 	
     if (swap_spool_enabled ) {
 		
-      pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, false);
+     pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, false);
 	  
-	  #if ENABLED(ADVANCED_PAUSE_SPOOL_SWAP_COPY_FLOW)
-	  // Same flow after tool change 'for same nozzle size '
-	  planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
-	  #endif
+     #if ENABLED(ADVANCED_PAUSE_SPOOL_SWAP_COPY_FLOW)
+       // Same flow after tool change 'for same nozzle size '
+       planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
+     #endif
 	  
-	  // Changing tool now
-	  tool_change(active_extruder+1, 0, false); 
+     // Changing tool now
+     tool_change(active_extruder+1, 0, false); 
 	  
-	  // FwRetract status 
-	  #if ENABLED(FWRETRACT)
-	    fwretract.retracted[active_extruder]=fwretract.retracted[active_extruder-1];
-	    fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
-	  #endif
+     // FwRetract status 
+     #if ENABLED(FWRETRACT)
+       fwretract.retracted[active_extruder]=fwretract.retracted[active_extruder-1];
+       fwretract.retracted_swap[active_extruder]=fwretract.retracted_swap[active_extruder-1];	    
+     #endif
 	  
-	  #if HOTENDS>1
-	    // Heat the new , cold the old   
-	    thermalManager.setTargetHotend(thermalManager.target_temperature[active_extruder-1], active_extruder);
-	    thermalManager.setTargetHotend(0, active_extruder-1);
-	  #endif
+     #if HOTENDS>1
+       // Heat the new , cold the old   
+       thermalManager.setTargetHotend(thermalManager.target_temperature[active_extruder-1], active_extruder);
+       thermalManager.setTargetHotend(0, active_extruder-1);
+     #endif
 	  
-      resume_print(load_length, ADVANCED_PAUSE_SPOOL_SWAP_EXTRUDE, beep_count);
+     resume_print(load_length, ADVANCED_PAUSE_SPOOL_SWAP_EXTRUDE, beep_count);
 	  
-      //Managing if swap next time
-	  if (active_extruder >= (EXTRUDERS-1)) swap_spool_enabled = false ;
-	  if (swap_spool_stop <= active_extruder) swap_spool_enabled = false ;
+     //Managing if swap next time
+     if (active_extruder >= (EXTRUDERS-1)) swap_spool_enabled = false ;
+     if (swap_spool_stop <= active_extruder) swap_spool_enabled = false ;
       	  
     }//end next tool
     else 
      if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
-     wait_for_filament_reload(beep_count);
-     resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);       
-    }      
+       wait_for_filament_reload(beep_count);
+       resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);       
+     }      
   #else 
-        if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
-        wait_for_filament_reload(beep_count);
-        resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
-        } 
+    if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+     wait_for_filament_reload(beep_count);
+     resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+    } 
   #endif
 
   // Resume the print job timer if it was running
   if (job_running) print_job_timer.start();
-}
+  }
 
 #endif // ADVANCED_PAUSE_FEATURE
