@@ -118,6 +118,8 @@ tags
 
 # PlatformIO files/dirs
 .pio*
+.pioenvs
+.piolibdeps
 lib/readme.txt
 
 #Visual Studio
@@ -132,6 +134,7 @@ vc-fileutils.settings
 
 #VScode
 .vscode
+.vscode/c_cpp_properties.json
 
 #cmake
 CMakeLists.txt

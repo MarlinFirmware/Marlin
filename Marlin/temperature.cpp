@@ -32,7 +32,7 @@
 #include "language.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
-  #include "spi.h"
+  #include "MarlinSPI.h"
 #endif
 
 #if ENABLED(BABYSTEPPING)
