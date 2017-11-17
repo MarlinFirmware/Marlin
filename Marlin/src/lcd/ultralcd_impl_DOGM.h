@@ -313,8 +313,6 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2,
                   txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
 
-    static bool show_bootscreen = true;
-
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
