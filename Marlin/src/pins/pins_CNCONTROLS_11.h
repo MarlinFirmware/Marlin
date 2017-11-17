@@ -8,8 +8,6 @@
 
 #define BOARD_NAME "CN Controls V11"
 
-//#define LARGE_FLASH true
-
 //
 // Limit Switches
 //

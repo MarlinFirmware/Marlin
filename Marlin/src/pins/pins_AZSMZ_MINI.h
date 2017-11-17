@@ -32,8 +32,6 @@
   #define BOARD_NAME "AZSMZ MINI"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //

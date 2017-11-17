@@ -112,8 +112,6 @@
 
 #define BOARD_NAME         "Teensy++2.0"
 
-#define LARGE_FLASH        true
-
 //
 // Limit Switches
 //

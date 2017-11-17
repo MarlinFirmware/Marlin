@@ -29,7 +29,6 @@
 #endif
 
 #define BOARD_NAME          "Mini Rambo"
-#define LARGE_FLASH         true
 
 //
 // Limit Switches

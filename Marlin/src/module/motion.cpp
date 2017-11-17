@@ -147,11 +147,11 @@ float cartes[XYZ];
  */
 void report_current_position() {
   SERIAL_PROTOCOLPGM("X:");
-  SERIAL_PROTOCOL(current_position[X_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_X_POSITION(current_position[X_AXIS]));
   SERIAL_PROTOCOLPGM(" Y:");
-  SERIAL_PROTOCOL(current_position[Y_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_Y_POSITION(current_position[Y_AXIS]));
   SERIAL_PROTOCOLPGM(" Z:");
-  SERIAL_PROTOCOL(current_position[Z_AXIS]);
+  SERIAL_PROTOCOL(LOGICAL_Z_POSITION(current_position[Z_AXIS]));
   SERIAL_PROTOCOLPGM(" E:");
   SERIAL_PROTOCOL(current_position[E_AXIS]);
 

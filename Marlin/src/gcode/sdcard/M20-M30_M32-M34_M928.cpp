@@ -124,19 +124,23 @@ void GcodeSuite::M30() {
 
 /**
  * M32: Select file and start SD Print
+ *
+ * Examples:
+ *
+ *    M32 !PATH/TO/FILE.GCO#      ; Start FILE.GCO
+ *    M32 P !PATH/TO/FILE.GCO#    ; Start FILE.GCO as a procedure
+ *    M32 S60 !PATH/TO/FILE.GCO#  ; Start FILE.GCO at byte 60
+ *
  */
 void GcodeSuite::M32() {
-  if (IS_SD_PRINTING)
-    stepper.synchronize();
-
-  char* namestartpos = parser.string_arg;
-  const bool call_procedure = parser.boolval('P');
+  if (card.sdprinting) stepper.synchronize();
 
   if (card.cardOK) {
-    card.openFile(namestartpos, true, call_procedure);
+    const bool call_procedure = parser.boolval('P');
 
-    if (parser.seenval('S'))
-      card.setIndex(parser.value_long());
+    card.openFile(parser.string_arg, true, call_procedure);
+
+    if (parser.seenval('S')) card.setIndex(parser.value_long());
 
     card.startFileprint();
 
