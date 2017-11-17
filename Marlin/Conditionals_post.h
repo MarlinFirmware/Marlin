@@ -914,10 +914,10 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
+    #define MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
     #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
