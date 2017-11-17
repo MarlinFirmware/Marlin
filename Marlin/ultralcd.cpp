@@ -362,7 +362,7 @@ uint16_t max_display_update_time = 0;
     static int8_t _countedItems = 0; \
     int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
     if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
-      encoderLine = max(0, _countedItems - (LIMIT)); \
+      encoderLine = MAX(0, _countedItems - (LIMIT)); \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     }
 
@@ -1442,7 +1442,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
-    if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
+    if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum], temph), endnum);
     #if TEMP_SENSOR_BED != 0
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
     #else
@@ -3452,8 +3452,8 @@ void kill_screen(const char* lcd_msg) {
       #define MINTEMP_ALL MIN3(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
       #define MAXTEMP_ALL MAX3(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
     #elif HOTENDS > 1
-      #define MINTEMP_ALL min(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
-      #define MAXTEMP_ALL max(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
+      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
+      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
     #else
       #define MINTEMP_ALL HEATER_0_MINTEMP
       #define MAXTEMP_ALL HEATER_0_MAXTEMP

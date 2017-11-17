@@ -1419,7 +1419,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
       if (axis == X_AXIS) {
 
         // In Dual X mode hotend_offset[X] is T1's home position
-        float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
+        float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -1430,7 +1430,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
           soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
-          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop_max[X_AXIS] = MIN(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
@@ -1465,7 +1465,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
         case X_AXIS:
         case Y_AXIS:
           // Get a minimum radius for clamping
-          soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+          soft_endstop_radius = MIN3(FABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
           soft_endstop_radius_2 = sq(soft_endstop_radius);
           break;
         case Z_AXIS:
@@ -3036,7 +3036,7 @@ static void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
-      (axis == Z_AXIS) ? max(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) :
+      (axis == Z_AXIS) ? MAX(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) :
     #endif
     home_bump_mm(axis)
   );
@@ -3762,7 +3762,7 @@ inline void gcode_G4() {
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
                 mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = min(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
+                fr_mm_s = MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
     endstops.hit_on_purpose(); // clear endstop hit flags
@@ -4871,7 +4871,7 @@ void home_all_axes() { gcode_G28(true); }
       if (verbose_level || seenQ) {
         SERIAL_PROTOCOLPGM("Manual G29 ");
         if (g29_in_progress) {
-          SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl2));
+          SERIAL_PROTOCOLPAIR("point ", MIN(abl_probe_index + 1, abl2));
           SERIAL_PROTOCOLLNPAIR(" of ", abl2);
         }
         else
@@ -7420,7 +7420,7 @@ inline void gcode_M42() {
               0.1250000000 * (DELTA_PROBEABLE_RADIUS),
               0.3333333333 * (DELTA_PROBEABLE_RADIUS)
             #else
-              5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
+              5.0, 0.125 * MIN(X_BED_SIZE, Y_BED_SIZE)
             #endif
           );
 
@@ -7812,14 +7812,14 @@ inline void gcode_M105() {
               fanSpeeds[p] = new_fanSpeeds[p];
               break;
             default:
-              new_fanSpeeds[p] = min(t, 255);
+              new_fanSpeeds[p] = MIN(t, 255);
               break;
           }
           return;
         }
       #endif // EXTRA_FAN_SPEED
       const uint16_t s = parser.ushortval('S', 255);
-      fanSpeeds[p] = min(s, 255);
+      fanSpeeds[p] = MIN(s, 255);
     }
   }
 
@@ -10235,7 +10235,7 @@ inline void gcode_M502() {
       case DXC_AUTO_PARK_MODE:
         break;
       case DXC_DUPLICATION_MODE:
-        if (parser.seen('X')) duplicate_extruder_x_offset = max(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
+        if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
         if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
         SERIAL_ECHO_START();
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
@@ -12248,7 +12248,7 @@ void ok_to_send() {
       #endif
 
       gridx = gx;
-      nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
+      nextx = MIN(gridx + 1, ABL_BG_POINTS_X - 1);
     }
 
     if (last_y != ry || last_gridx != gridx) {
@@ -12265,7 +12265,7 @@ void ok_to_send() {
         #endif
 
         gridy = gy;
-        nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
+        nexty = MIN(gridy + 1, ABL_BG_POINTS_Y - 1);
       }
 
       if (last_gridx != gridx || last_gridy != gridy) {
@@ -12580,7 +12580,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = mbl.index_to_xpos[gcx];
@@ -12643,7 +12643,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
@@ -12751,7 +12751,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
-      const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
+      const float inv_segment_length = MIN(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   feed_factor = inv_segment_length * _feedrate_mm_s;
       float oldA = stepper.get_axis_position_degrees(A_AXIS),
             oldB = stepper.get_axis_position_degrees(B_AXIS);
@@ -12781,7 +12781,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
                     bdiff = abs(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], MAX(adiff, bdiff) * feed_factor, active_extruder);
         oldA = delta[A_AXIS];
         oldB = delta[B_AXIS];
       #else
@@ -12799,7 +12799,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       ADJUST_DELTA(rtarget);
       const float adiff = abs(delta[A_AXIS] - oldA),
                   bdiff = abs(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], MAX(adiff, bdiff) * feed_factor, active_extruder);
     #else
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
