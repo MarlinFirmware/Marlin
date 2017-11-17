@@ -124,10 +124,11 @@ lib/readme.txt
 *.sln
 *.vcxproj
 *.vcxproj.filters
-Marlin/Release/
-Marlin/Debug/
-Marlin/__vm/
-Marlin/.vs/
+Release/
+Debug/
+__vm/
+.vs/
+vc-fileutils.settings
 
 #VScode
 .vscode
