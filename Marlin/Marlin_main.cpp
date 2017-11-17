@@ -538,7 +538,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 static uint8_t target_extruder;
 
-#if HAS_BED_PROBE
+#if HAS_Z_OFFSET
   float zprobe_zoffset; // Initialized by settings.load()
 #endif
 
@@ -8965,10 +8965,7 @@ inline void gcode_M205() {
    *    Z = Rotate A and B by this angle
    */
   inline void gcode_M665() {
-    if (parser.seen('H')) {
-      delta_height = parser.value_linear_units();
-      update_software_endstops(Z_AXIS);
-    }
+    if (parser.seen('H')) delta_height                   = parser.value_linear_units();
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
     if (parser.seen('R')) delta_radius                   = parser.value_linear_units();
     if (parser.seen('S')) delta_segments_per_second      = parser.value_float();
@@ -10037,7 +10034,7 @@ inline void gcode_M502() {
 
 #endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
-#if HAS_BED_PROBE
+#if HAS_Z_OFFSET
 
   void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
     static float last_zoffset = NAN;
@@ -10069,6 +10066,7 @@ inline void gcode_M502() {
 
       #if ENABLED(DELTA) // correct the delta_height
         delta_height -= diff;
+        recalc_delta_settings();
       #endif
     }
 
@@ -10094,7 +10092,7 @@ inline void gcode_M502() {
     SERIAL_EOL();
   }
 
-#endif // HAS_BED_PROBE
+#endif // HAS_Z_OFFSET
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -11935,11 +11933,11 @@ void process_parsed_command() {
           break;
       #endif
 
-      #if HAS_BED_PROBE
+      #if HAS_Z_OFFSET
         case 851: // M851: Set Z Probe Z Offset
           gcode_M851();
           break;
-      #endif // HAS_BED_PROBE
+      #endif // HAS_Z_OFFSET
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
