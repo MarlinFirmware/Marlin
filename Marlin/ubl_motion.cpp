@@ -518,7 +518,7 @@
                     bdiff = FABS(delta[B_AXIS] - scara_oldB);
         scara_oldA = delta[A_AXIS];
         scara_oldB = delta[B_AXIS];
-        float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
+        float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
 
         planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], e, s_feedrate, active_extruder);
 

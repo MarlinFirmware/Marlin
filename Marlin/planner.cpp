@@ -203,7 +203,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   if (plateau_steps < 0) {
     accelerate_steps = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
     NOLESS(accelerate_steps, 0); // Check limits due to numerical round-off
-    accelerate_steps = min((uint32_t)accelerate_steps, block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
+    accelerate_steps = MIN((uint32_t)accelerate_steps, block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
     plateau_steps = 0;
   }
 
@@ -241,7 +241,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
     // for max allowable speed if block is decelerating and nominal length is false.
     current->entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
       ? max_entry_speed
-      : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
+      : MIN(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
     SBI(current->flag, BLOCK_BIT_RECALCULATE);
   }
 }
@@ -284,7 +284,7 @@ void Planner::forward_pass_kernel(const block_t* previous, block_t* const curren
   // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
   if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
     if (previous->entry_speed < current->entry_speed) {
-      float entry_speed = min(current->entry_speed,
+      float entry_speed = MIN(current->entry_speed,
                                max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
       // Check for junction speed change
       if (current->entry_speed != entry_speed) {
@@ -1149,7 +1149,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     const uint32_t max_x_segment_time = MAX3(xs0, xs1, xs2),
                    max_y_segment_time = MAX3(ys0, ys1, ys2),
-                   min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
+                   min_xy_segment_time = MIN(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME_US) {
       const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
       NOMORE(speed_factor, low_sf);
@@ -1253,8 +1253,8 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
                         - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS] ;
       // Skip and use default max junction speed for 0 degree acute junction.
       if (cos_theta < 0.95) {
-        vmax_junction = min(previous_nominal_speed, block->nominal_speed);
-        // Skip and avoid divide by zero for straight junctions at 180 degrees. Limit to min() of nominal speeds.
+        vmax_junction = MIN(previous_nominal_speed, block->nominal_speed);
+        // Skip and avoid divide by zero for straight junctions at 180 degrees. Limit to MIN() of nominal speeds.
         if (cos_theta > -0.95) {
           // Compute maximum junction velocity based on maximum acceleration and junction deviation
           float sin_theta_d2 = SQRT(0.5 * (1.0 - cos_theta)); // Trig half angle identity. Always positive.
@@ -1316,9 +1316,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
       const float jerk = (v_exit > v_entry)
           ? //                                  coasting             axis reversal
-            ( (v_entry > 0.f || v_exit < 0.f) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+            ( (v_entry > 0.f || v_exit < 0.f) ? (v_exit - v_entry) : MAX(v_exit, -v_entry) )
           : // v_exit <= v_entry                coasting             axis reversal
-            ( (v_entry < 0.f || v_exit > 0.f) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+            ( (v_entry < 0.f || v_exit > 0.f) ? (v_entry - v_exit) : MAX(-v_exit, v_entry) );
 
       if (jerk > max_jerk[axis]) {
         v_factor *= max_jerk[axis] / jerk;
@@ -1346,7 +1346,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
   const float v_allowable = max_allowable_speed(-block->acceleration, MINIMUM_PLANNER_SPEED, block->millimeters);
-  block->entry_speed = min(vmax_junction, v_allowable);
+  block->entry_speed = MIN(vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.

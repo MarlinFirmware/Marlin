@@ -137,6 +137,8 @@
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#define MAX(a,b) ((a)>(b)?(a):(b))
 #define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
 #define DECIMAL(a) (NUMERIC(a) || a == '.')
@@ -144,7 +146,7 @@
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
+#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -195,12 +197,12 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-#define MIN3(a, b, c)       min(min(a, b), c)
-#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       max(max(a, b), c)
-#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
+#define MIN3(a, b, c)       MIN(MIN(a, b), c)
+#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       MAX(MAX(a, b), c)
+#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
