@@ -361,7 +361,63 @@
 #ifndef MSG_UBL_STEP_BY_STEP_MENU
   #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
 #endif
-
+#ifndef MSG_LED_CONTROL
+  #define MSG_LED_CONTROL                     _UxGT("LED Control")
+#endif
+#ifndef MSG_LEDS_OFF
+  #define MSG_LEDS_OFF                        _UxGT("Turn Off Lights")
+#endif
+#ifndef MSG_LED_ON
+  #define MSG_LED_ON                          _UxGT("Turn on ")
+#endif
+#ifndef MSG_RED
+  #define MSG_RED                             _UxGT("Red ")
+#endif
+#ifndef MSG_ORANGE
+  #define MSG_ORANGE                          _UxGT("Orange ")
+#endif
+#ifndef MSG_YELLOW
+  #define MSG_YELLOW                          _UxGT("Yellow ")
+#endif
+#ifndef MSG_GREEN
+  #define MSG_GREEN                           _UxGT("Green ")
+#endif
+#ifndef MSG_BLUE
+  #define MSG_BLUE                            _UxGT("Blue ")
+#endif
+#ifndef MSG_PURPLE
+  #define MSG_PURPLE                          _UxGT("Purple ")
+#endif
+#ifndef MSG_WHITE
+  #define MSG_WHITE                           _UxGT("White ")
+#endif
+#ifndef MSG_CUSTOM
+  #define MSG_CUSTOM                          _UxGT("Custom ")
+#endif
+#ifndef MSG_LED_PRESET
+  #define MSG_LED_PRESET                      _UxGT("Preset ")
+#endif
+#ifndef MSG_LED_DEFAULT
+  #define MSG_LED_DEFAULT                     _UxGT("Default ")
+#endif
+#ifndef MSG_LIGHTS
+  #define MSG_LIGHTS                          _UxGT("Lights ")
+#endif
+#ifndef MSG_COLOR
+  #define MSG_COLOR                           _UxGT("Color")
+#endif
+#ifndef MSG_LED_INTENSITY
+  #define MSG_LED_INTENSITY                   _UxGT("Intensity ")
+#endif
+#ifndef MSG_LED_CUSTOM
+  #define MSG_LED_CUSTOM                      _UxGT("Custom LED")
+#endif
+#ifndef MSG_LED_SAVE
+  #define MSG_LED_SAVE                        _UxGT("Save ")
+#endif
+#ifndef MSG_LED_LOAD
+  #define MSG_LED_LOAD                        _UxGT("Load ")
+#endif
 #ifndef MSG_MOVING
   #define MSG_MOVING                          _UxGT("Moving...")
 #endif

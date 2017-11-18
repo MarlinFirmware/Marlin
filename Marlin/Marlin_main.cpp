@@ -331,6 +331,32 @@
   void gcode_G26();
 #endif
 
+#if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(LED_COLOR_PRESETS)
+    uint8_t led_intensity_red = LED_USER_PRESET_RED,
+            led_intensity_green = LED_USER_PRESET_GREEN,
+            led_intensity_blue = LED_USER_PRESET_BLUE
+            #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+              , led_intensity_white = LED_USER_PRESET_WHITE
+            #endif
+            #if ENABLED(NEOPIXEL_LED)
+              , led_intensity = NEOPIXEL_BRIGHTNESS
+            #endif
+            ;
+  #else
+    uint8_t led_intensity_red = 255,
+            led_intensity_green = 255,
+            led_intensity_blue = 255
+            #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+              , led_intensity_white = 0
+            #endif
+            #if ENABLED(NEOPIXEL_LED)
+              , led_intensity = NEOPIXEL_BRIGHTNESS
+            #endif
+            ;
+  #endif
+#endif
+
 #if ENABLED(SDSUPPORT)
   CardReader card;
 #endif
@@ -1100,6 +1126,32 @@ void servo_init() {
     #if ENABLED(PCA9632)
       // Update I2C LED driver
       PCA9632_SetColor(r, g, b);
+    #endif
+
+    #if ENABLED(LED_CONTROL_MENU)
+      if ((r + g + b
+        #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+          + w
+        #endif
+      ) >= 3) {
+        led_intensity_red = r;
+        led_intensity_green = g;
+        led_intensity_blue = b;
+        #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+          led_intensity_white = w;
+        #endif
+        #if ENABLED(NEOPIXEL_LED)
+          led_intensity = p;
+        #endif
+      }
+    #endif
+  }
+
+  void set_led_white() {
+    #if ENABLED(NEOPIXEL_LED)
+      set_neopixel_color(pixels.Color(NEO_WHITE));
+    #else
+      set_led_color(LED_WHITE);
     #endif
   }
 

@@ -184,6 +184,23 @@ uint16_t max_display_update_time = 0;
     void lcd_info_menu();
   #endif // LCD_INFO_MENU
 
+  #if ENABLED(LED_CONTROL_MENU)
+    extern void set_led_color(
+             const uint8_t r, const uint8_t g, const uint8_t b
+               #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+                 , const uint8_t w = 0
+                 #if ENABLED(NEOPIXEL_LED)
+                   , const uint8_t p = NEOPIXEL_BRIGHTNESS
+                   , bool isSequence = false
+                 #endif
+               #endif
+           );
+
+    extern void set_led_white();
+    void lcd_led_menu();
+    void lcd_led_custom_menu();
+  #endif
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void lcd_advanced_pause_toocold_menu();
     void lcd_advanced_pause_option_menu();
@@ -1011,6 +1028,10 @@ void kill_screen(const char* lcd_msg) {
 
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
+    #endif
+
+    #if ENABLED(LED_CONTROL_MENU)
+      MENU_ITEM(submenu, "LED Control", lcd_led_menu);
     #endif
 
     END_MENU();
@@ -3941,6 +3962,132 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
   #endif // LCD_INFO_MENU
+
+  /**
+   *
+   * LED Menu
+   *
+   */
+
+  #if ENABLED(LED_CONTROL_MENU)
+
+    bool led_restore_color =
+      #if ENABLED(LED_USER_PRESET_STARTUP)
+        false;
+      #else
+        true;
+      #endif
+
+    extern uint8_t led_intensity_red,
+           led_intensity_green,
+           led_intensity_blue
+           #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+             , led_intensity_white
+           #endif
+           #if ENABLED(NEOPIXEL_LED)
+             , led_intensity
+           #endif
+           ;
+
+    void update_leds() {
+      if (led_restore_color) {
+        #if ENABLED(LED_COLOR_PRESETS)
+          led_intensity_red = LED_USER_PRESET_RED;
+          led_intensity_green = LED_USER_PRESET_GREEN;
+          led_intensity_blue = LED_USER_PRESET_BLUE;
+          #if ENABLED(RGBW_LED)
+            led_intensity_white = LED_USER_PRESET_WHITE;
+          #endif
+          #if ENABLED(NEOPIXEL_LED)
+            led_intensity = LED_USER_PRESET_INTENSITY;
+          #endif
+        #else
+          led_intensity_red = 255;
+          led_intensity_green = 255;
+          led_intensity_blue = 255;
+          #if ENABLED(RGBW_LED)
+            led_intensity_white = 0;
+          #endif
+          #if ENABLED(NEOPIXEL_LED)
+            led_intensity = LED_USER_PRESET_INTENSITY;
+          #endif
+        #endif
+        led_restore_color = false;
+      }
+
+      set_led_color(led_intensity_red, led_intensity_green, led_intensity_blue
+        #if ENABLED(RGBW_LED)
+          , led_intensity_white
+        #endif
+        #if ENABLED(NEOPIXEL_LED)
+          , 0, led_intensity
+        #endif
+        );
+      led_restore_color = false;
+    }
+
+    void led_restore_default() {
+      led_restore_color = true;
+      update_leds();
+    }
+
+    void set_leds_off() {
+      set_led_color(0, 0, 0
+        #if ENABLED(RGBW) || ENABLED(NEOPIXEL_LED)
+        , 0
+        #endif
+        );
+    }
+
+    void lcd_led_red()    { set_led_color(255, 0, 0); }
+    void lcd_led_orange() { set_led_color(150, 60, 0); }
+    void lcd_led_yellow() { set_led_color(255, 255, 0); }
+    void lcd_led_green()  { set_led_color(0, 255, 0); }
+    void lcd_led_blue()   { set_led_color(0, 0, 255); }
+    void lcd_led_purple() { set_led_color(255, 0, 255); }
+
+    void lcd_led_presets_menu() {
+      START_MENU();
+      MENU_BACK(MSG_LED_CONTROL);
+      MENU_ITEM(function, MSG_LED_ON MSG_RED MSG_LIGHTS, lcd_led_red);
+      MENU_ITEM(function, MSG_LED_ON MSG_ORANGE MSG_LIGHTS, lcd_led_orange);
+      MENU_ITEM(function, MSG_LED_ON MSG_YELLOW MSG_LIGHTS,lcd_led_yellow);
+      MENU_ITEM(function, MSG_LED_ON MSG_GREEN MSG_LIGHTS, lcd_led_green);
+      MENU_ITEM(function, MSG_LED_ON MSG_BLUE MSG_LIGHTS, lcd_led_blue);
+      MENU_ITEM(function, MSG_LED_ON MSG_PURPLE MSG_LIGHTS, lcd_led_purple);
+      MENU_ITEM(function, MSG_LED_ON MSG_WHITE MSG_LIGHTS, set_led_white);
+      END_MENU();
+    }
+
+    void lcd_led_custom_menu() {
+      START_MENU();
+      MENU_BACK(MSG_LED_CONTROL);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_RED MSG_LED_INTENSITY, &led_intensity_red, 0, 255, update_leds, true);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_GREEN MSG_LED_INTENSITY, &led_intensity_green, 0, 255, update_leds, true);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_BLUE MSG_LED_INTENSITY, &led_intensity_blue, 0, 255, update_leds, true);
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+        MENU_ITEM_EDIT_CALLBACK(int8, MSG_WHITE MSG_LED_INTENSITY, &led_intensity_white, 0, 255, update_leds, true);
+      #endif
+      #if ENABLED(NEOPIXEL_LED)
+        MENU_ITEM_EDIT_CALLBACK(int8, MSG_LED_INTENSITY, &led_intensity, 0, 255, update_leds, true);
+      #endif
+      END_MENU();
+    }
+
+    void lcd_led_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM(function, MSG_LIGHTS MSG_OFF, set_leds_off); // works
+      MENU_ITEM(function, MSG_LIGHTS MSG_ON, update_leds); // works
+      MENU_ITEM(function, MSG_LED_LOAD MSG_LED_DEFAULT MSG_COLOR, led_restore_default); // works
+      #if ENABLED(LED_COLOR_PRESETS)
+        MENU_ITEM(submenu, MSG_LED_PRESET MSG_LIGHTS, lcd_led_presets_menu);
+      #endif
+      MENU_ITEM(submenu, MSG_CUSTOM MSG_LIGHTS, lcd_led_custom_menu);
+      END_MENU();
+    }
+
+  #endif // LED_CONTROL_MENU
 
   /**
    *
