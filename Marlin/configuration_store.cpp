@@ -214,6 +214,10 @@ MarlinSettings settings;
   bool position_changed;
 #endif
 
+#if ENABLED(DELTA_AUTO_CALIBRATION) && HAS_BED_PROBE
+  void G33_z_offset(float new_z_offset);
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
@@ -1336,6 +1340,9 @@ void MarlinSettings::reset() {
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
     COPY(delta_tower_angle_trim, dta);
+    #if ENABLED(DELTA_AUTO_CALIBRATION) && HAS_BED_PROBE
+      G33_z_offset(zprobe_zoffset);
+    #endif
 
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
