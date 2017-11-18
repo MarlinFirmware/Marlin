@@ -24,7 +24,7 @@
  * The class Servo uses the PWM class to implement its functions
  *
  * All PWMs use the same repetition rate - 20mS because that's the normal servo rate
-*/
+ */
 
 /**
  * This is a hybrid system.
@@ -59,7 +59,6 @@
  *
  * See the end of this file for details on the hardware/firmware interaction
  */
-
 
 #ifdef TARGET_LPC1768
 #include <lpc17xx_pinsel.h>
