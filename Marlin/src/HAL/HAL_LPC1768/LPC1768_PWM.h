@@ -24,7 +24,7 @@
  * The class Servo uses the PWM class to implement its functions
  *
  * All PWMs use the same repetition rate - 20mS because that's the normal servo rate
-*/
+ */
 
 /**
  * This is a hybrid system.
@@ -60,7 +60,7 @@
  * See the end of this file for details on the hardware/firmware interaction
  */
 
- #include "fastio.h"
+#include "fastio.h"
 
 #define LPC_PWM1_MR0 19999  // base repetition rate minus one count - 20mS
 #define LPC_PWM1_PR 24      // prescaler value - prescaler divide by 24 + 1  -  1 MHz output

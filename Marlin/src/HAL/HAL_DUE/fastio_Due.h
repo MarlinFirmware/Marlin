@@ -21,9 +21,10 @@
  */
 
 /**
-  This code contributed by Triffid_Hunter and modified by Kliment
-  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-*/
+ * Fast I/O Routines for SAM3X8E
+ * Use direct port manipulation to save scads of processor time.
+ * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
+ */
 
 /**
  * Description: Fast IO functions for Arduino Due and compatible (SAM3X8E)
@@ -35,17 +36,20 @@
 #define _FASTIO_DUE_H
 
 /**
-  utility functions
-*/
+ * Utility functions
+ */
 
 #ifndef MASK
   #define MASK(PIN)  (1 << PIN)
 #endif
 
 /**
-  magic I/O routines
-  now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
-*/
+ * Magic I/O routines
+ *
+ * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
+ *
+ * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ */
 
 /// Read a pin
 #define _READ(IO) ((bool)(DIO ## IO ## _WPORT -> PIO_PDSR & (MASK(DIO ## IO ## _PIN))))
@@ -80,8 +84,6 @@
 /// check if pin is an timer
 #define _GET_TIMER(IO)
 
-//  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-
 /// Read a pin wrapper
 #define READ(IO)  _READ(IO)
 
@@ -111,10 +113,9 @@
 #define OUT_WRITE(IO, v) { SET_OUTPUT(IO); WRITE(IO, v); }
 
 /**
-  ports and functions
-
-  added as necessary or if I feel like it- not a comprehensive list!
-*/
+ * Ports and functions
+ * Added as necessary or if I feel like it- not a comprehensive list!
+ */
 
 // UART
 #define RXD        DIO0
@@ -125,8 +126,8 @@
 #define SDA        DIO20
 
 /**
-pins
-*/
+ * pins
+ */
 
 #define DIO0_PIN 8
 #define DIO0_WPORT PIOA

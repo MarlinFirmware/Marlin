@@ -21,9 +21,10 @@
  */
 
 /**
-  This code contributed by Triffid_Hunter and modified by Kliment
-  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
-*/
+ * Fast I/O Routines for LPC1768/9
+ * Use direct port manipulation to save scads of processor time.
+ * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
+ */
 
 /**
  * Description: Fast IO functions LPC1768
@@ -57,9 +58,12 @@ bool useable_hardware_PWM(uint8_t pin);
 #define WRITE_PIN(IO, v)        ((v) ? WRITE_PIN_SET(IO) : WRITE_PIN_CLR(IO))
 
 /**
-  magic I/O routines
-  now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
-*/
+ * Magic I/O routines
+ *
+ * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
+ *
+ * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ */
 
 /// Read a pin
 #define _READ(IO) READ_PIN(IO)
@@ -88,8 +92,6 @@ bool useable_hardware_PWM(uint8_t pin);
 
 /// check if pin is an timer
 #define _GET_TIMER(IO)
-
-//  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 
 /// Read a pin wrapper
 #define READ(IO)  _READ(IO)

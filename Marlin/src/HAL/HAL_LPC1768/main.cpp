@@ -79,8 +79,8 @@ int main(void) {
   USB_Init();                               // USB Initialization
   USB_Connect(TRUE);                        // USB Connect
 
-  volatile uint32_t usb_timeout = millis() + 2000;
-  while (!USB_Configuration && millis() < usb_timeout) {
+  const uint32_t usb_timeout = millis() + 2000;
+  while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
 
     #if PIN_EXISTS(LED)
