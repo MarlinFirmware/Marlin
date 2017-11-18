@@ -5746,6 +5746,14 @@ void home_all_axes() { gcode_G28(true); }
       SERIAL_EOL();
     }
 
+    void G33_z_offset(float new_z_offset) {
+
+      static float old_z_offset = NAN;
+
+      if (!isnan(old_z_offset)) delta_height += old_z_offset - new_z_offset;
+      old_z_offset = new_z_offset;  
+    }
+
   #endif // HAS_BED_PROBE
 
   /**
@@ -5886,6 +5894,10 @@ void home_all_axes() { gcode_G28(true); }
     lcd_setstatusPGM(checkingac);
 
     print_G33_settings(_endstop_results, _angle_results);
+
+    #if HAS_BED_PROBE
+      if (verbose_level != 0) G33_z_offset(zprobe_zoffset);
+    #endif
 
     do {
 
@@ -8965,10 +8977,7 @@ inline void gcode_M205() {
    *    Z = Rotate A and B by this angle
    */
   inline void gcode_M665() {
-    if (parser.seen('H')) {
-      delta_height = parser.value_linear_units();
-      update_software_endstops(Z_AXIS);
-    }
+    if (parser.seen('H')) delta_height                   = parser.value_linear_units();
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
     if (parser.seen('R')) delta_radius                   = parser.value_linear_units();
     if (parser.seen('S')) delta_segments_per_second      = parser.value_float();
