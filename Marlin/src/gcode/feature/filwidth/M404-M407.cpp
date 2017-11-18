@@ -36,6 +36,7 @@
 void GcodeSuite::M404() {
   if (parser.seen('W')) {
     filament_width_nominal = parser.value_linear_units();
+    planner.volumetric_area_nominal = CIRCLE_AREA(filament_width_nominal * 0.5);
   }
   else {
     SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
