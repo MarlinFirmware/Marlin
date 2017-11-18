@@ -616,11 +616,11 @@ void GcodeSuite::process_parsed_command() {
         case 540: M540(); break;  // M540: Set abort on endstop hit for SD printing
       #endif
 
-      #if HAS_BED_PROBE
+      #if HAS_Z_OFFSET
         case 851: // M851: Set Z Probe Z Offset
           M851();
           break;
-      #endif // HAS_BED_PROBE
+      #endif // HAS_Z_OFFSET
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
