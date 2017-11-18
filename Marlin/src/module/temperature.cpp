@@ -1271,57 +1271,38 @@ void Temperature::init() {
 
 #if ENABLED(FAST_PWM_FAN)
 
-  void Temperature::setPwmFrequency(const uint8_t pin, int val) {
-    val &= 0x07;
-    switch (digitalPinToTimer(pin)) {
-      #ifdef TCCR0A
-        #if !AVR_AT90USB1286_FAMILY
-          case TIMER0A:
+  void Temperature::setPwmFrequency(const pin_t pin, int val) {
+    #ifdef ARDUINO
+      val &= 0x07;
+      switch (digitalPinToTimer(pin)) {
+        #ifdef TCCR0A
+          #if !AVR_AT90USB1286_FAMILY
+            case TIMER0A:
+          #endif
+          case TIMER0B:                           //_SET_CS(0, val);
+                                                    break;
         #endif
-        case TIMER0B:
-          //_SET_CS(0, val);
-          break;
-      #endif
-      #ifdef TCCR1A
-        case TIMER1A:
-        case TIMER1B:
-          //_SET_CS(1, val);
-          break;
-      #endif
-      #ifdef TCCR2
-        case TIMER2:
-        case TIMER2:
-          _SET_CS(2, val);
-          break;
-      #endif
-      #ifdef TCCR2A
-        case TIMER2A:
-        case TIMER2B:
-          _SET_CS(2, val);
-          break;
-      #endif
-      #ifdef TCCR3A
-        case TIMER3A:
-        case TIMER3B:
-        case TIMER3C:
-          _SET_CS(3, val);
-          break;
-      #endif
-      #ifdef TCCR4A
-        case TIMER4A:
-        case TIMER4B:
-        case TIMER4C:
-          _SET_CS(4, val);
-          break;
-      #endif
-      #ifdef TCCR5A
-        case TIMER5A:
-        case TIMER5B:
-        case TIMER5C:
-          _SET_CS(5, val);
-          break;
-      #endif
-    }
+        #ifdef TCCR1A
+          case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
+                                                    break;
+        #endif
+        #ifdef TCCR2
+          case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
+        #endif
+        #ifdef TCCR2A
+          case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
+        #endif
+        #ifdef TCCR3A
+          case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
+        #endif
+        #ifdef TCCR4A
+          case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
+        #endif
+        #ifdef TCCR5A
+          case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
+        #endif
+      }
+    #endif  
   }
 
 #endif // FAST_PWM_FAN
@@ -1332,7 +1313,7 @@ void Temperature::init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void Temperature::start_watching_heater(uint8_t e) {
+  void Temperature::start_watching_heater(const uint8_t e) {
     #if HOTENDS == 1
       UNUSED(e);
     #endif

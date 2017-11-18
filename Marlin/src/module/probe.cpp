@@ -640,42 +640,6 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
   return measured_z;
 }
 
-void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
-  static float last_zoffset = NAN;
-
-  if (!isnan(last_zoffset)) {
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET) || ENABLED(DELTA)
-      const float diff = zprobe_zoffset - last_zoffset;
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Correct bilinear grid for new probe offset
-      if (diff) {
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-            z_values[x][y] -= diff;
-      }
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_interpolate();
-      #endif
-    #endif
-
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      if (!no_babystep && planner.leveling_active)
-        thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
-    #else
-      UNUSED(no_babystep);
-    #endif
-
-    #if ENABLED(DELTA) // correct the delta_height
-      delta_height -= diff;
-    #endif
-  }
-
-  last_zoffset = zprobe_zoffset;
-}
-
 #if HAS_Z_SERVO_ENDSTOP
 
   void servo_probe_init() {

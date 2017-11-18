@@ -361,14 +361,14 @@ class Temperature {
     static int16_t degTargetBed() { return target_temperature_bed; }
 
     #if WATCH_HOTENDS
-      static void start_watching_heater(uint8_t e = 0);
+      static void start_watching_heater(const uint8_t e = 0);
     #endif
 
     #if WATCH_THE_BED
       static void start_watching_bed();
     #endif
 
-    static void setTargetHotend(const int16_t celsius, uint8_t e) {
+    static void setTargetHotend(const int16_t celsius, const uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
