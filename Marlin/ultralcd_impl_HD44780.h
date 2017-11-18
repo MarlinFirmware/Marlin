@@ -858,7 +858,7 @@ static void lcd_implementation_status_screen() {
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));
       if (parser.volumetric_enabled) {
-        lcd.print(itostr3(100.0 * filament_width_meas / filament_width_nominal));
+        lcd.print(itostr3(100.0 * planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
         lcd.write('%');
       }
       else
