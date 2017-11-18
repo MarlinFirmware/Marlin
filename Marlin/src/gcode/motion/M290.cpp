@@ -41,6 +41,7 @@ void GcodeSuite::M290() {
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           zprobe_zoffset += offs;
         #endif
+        thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
       }
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
