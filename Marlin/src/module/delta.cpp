@@ -38,7 +38,8 @@
 #include "../Marlin.h"
 
 // Initialized by settings.load()
-float delta_height,
+float G33_offset,
+      delta_height,
       delta_endstop_adj[ABC] = { 0 },
       delta_radius,
       delta_diagonal_rod,

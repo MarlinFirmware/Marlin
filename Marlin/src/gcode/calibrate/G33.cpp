@@ -508,6 +508,13 @@ void GcodeSuite::G33() {
 
   print_G33_settings(_endstop_results, _angle_results);
 
+  #if HAS_BED_PROBE
+    if (verbose_level != 0) {
+      delta_height += G33_offset - zprobe_zoffset;
+      G33_offset = zprobe_zoffset;
+    }
+  #endif
+
   do {
 
     float z_at_pt[NPP + 1] = { 0.0 };
