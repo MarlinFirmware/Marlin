@@ -365,7 +365,7 @@ class Planner {
      * The target is cartesian, it's translated to delta/scara if
      * needed.
      *
-     *  rtarget  - x,y,z,e CARTESIAN target in mm
+     *  cart     - x,y,z,e CARTESIAN target in mm
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */

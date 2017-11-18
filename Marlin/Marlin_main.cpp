@@ -9320,22 +9320,17 @@ inline void gcode_M226() {
       for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
         if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
           const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
-          #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-            if (a == Z_AXIS) {
-              zprobe_zoffset += offs;
-              refresh_zprobe_zoffset(true); // 'true' to not babystep
-            }
-          #endif
           thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
+          #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+            zprobe_zoffset += offs;
+          #endif
         }
     #else
       if (parser.seenval('Z') || parser.seenval('S')) {
         const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
+        thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           zprobe_zoffset += offs;
-          refresh_zprobe_zoffset(); // This will babystep the axis
-        #else
-          thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
         #endif
       }
     #endif
@@ -10039,42 +10034,6 @@ inline void gcode_M502() {
 
 #if HAS_BED_PROBE
 
-  void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
-    static float last_zoffset = NAN;
-
-    if (!isnan(last_zoffset)) {
-
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET) || ENABLED(DELTA)
-        const float diff = zprobe_zoffset - last_zoffset;
-      #endif
-
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        // Correct bilinear grid for new probe offset
-        if (diff) {
-          for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-            for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-              z_values[x][y] -= diff;
-        }
-        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_interpolate();
-        #endif
-      #endif
-
-      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!no_babystep && planner.leveling_active)
-          thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
-      #else
-        UNUSED(no_babystep);
-      #endif
-
-      #if ENABLED(DELTA) // correct the delta_height
-        delta_height -= diff;
-      #endif
-    }
-
-    last_zoffset = zprobe_zoffset;
-  }
-
   inline void gcode_M851() {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
@@ -10082,7 +10041,6 @@ inline void gcode_M502() {
       const float value = parser.value_linear_units();
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         zprobe_zoffset = value;
-        refresh_zprobe_zoffset();
         SERIAL_ECHO(zprobe_zoffset);
       }
       else
