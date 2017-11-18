@@ -263,14 +263,14 @@ void Max7219_init() {
 }
 
 /**
-* These are sample debug features to demonstrate the usage of the 8x8 LED Matrix for debug purposes.
-* There is very little CPU burden added to the system by displaying information within the idle()
-* task.
-*
-* But with that said, if your debugging can be facilitated by making calls into the library from
-* other places in the code, feel free to do it.  The CPU burden for a few calls to toggle an LED
-* or clear a row is not very significant.
-*/
+ * These are sample debug features to demonstrate the usage of the 8x8 LED Matrix for debug purposes.
+ * There is very little CPU burden added to the system by displaying information within the idle()
+ * task.
+ *
+ * But with that said, if your debugging can be facilitated by making calls into the library from
+ * other places in the code, feel free to do it.  The CPU burden for a few calls to toggle an LED
+ * or clear a row is not very significant.
+ */
 void Max7219_idle_tasks() {
 #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
   CRITICAL_SECTION_START
