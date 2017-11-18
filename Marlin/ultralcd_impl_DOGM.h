@@ -651,7 +651,7 @@ static void lcd_implementation_status_screen() {
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       if (parser.volumetric_enabled)
-        strcpy(mstring, itostr3(100.0 * (CIRCLE_AREA(filament_width_nominal * 0.5) / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM])));
+        strcpy(mstring, itostr3(100.0 * (planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM])));
       else
         strcpy_P(mstring, PSTR("---"));
     #endif
