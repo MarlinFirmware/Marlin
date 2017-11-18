@@ -35,15 +35,18 @@ int16_t GET_PIN_MAP_INDEX(pin_t pin) {
   return -1;
 }
 
-int16_t PARSED_PIN_INDEX(char code, int16_t dval) {
+int16_t PARSED_PIN_INDEX(char code, int16_t dval) {  // treats 1.2 and 1.20 as the same thing
   if (parser.seenval(code)) {
     int port, pin;
-    if (sscanf(parser.strval(code), "%d.%d", &port, &pin) == 2)
+    char pin_string[3] = {"  "};
+    if (sscanf(parser.strval(code), "%d.%2s", &port, pin_string) == 2) {
+      if (pin_string[1] == '\0') pin_string[1] = '0';   // add trailing zero if a null is found
+      pin = (10 * (pin_string[0] - '0')) + (pin_string[1] - '0');  // convert string to number
       for (size_t i = 0; i < NUM_DIGITAL_PINS; ++i)
         if (LPC1768_PIN_PORT(pin_map[i]) == port && LPC1768_PIN_PIN(pin_map[i]) == pin)
           return i;
+    }
   }
-
   return dval;
 }
 

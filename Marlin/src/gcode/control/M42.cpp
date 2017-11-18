@@ -28,11 +28,7 @@
  * M42: Change pin status via GCode
  *
  *  P<pin>  Pin number (LED if omitted)
- *            For LPC1768 use M42 P1.20 S255 if wanting to set P1_20 to logic 1
- *              NOTE - Repetier Host truncates trailing zeros on a decimal when
- *                     sending commands so typing M42 P1.20 S255 results in 
- *                     M42 P1.2 S255 being sent.  Pronterface doesn't have this issue.
- *                     
+ *            For LPC1768 enter pin P1_20 as M42 P1.20
  *  S<byte> Pin status from 0 - 255
  */
 void GcodeSuite::M42() {
