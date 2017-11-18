@@ -367,6 +367,14 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
     SERIAL_EOL();
   }
 
+  void G33_z_offset(float new_z_offset) {
+
+    static float old_z_offset = NAN;
+
+    if (!isnan(old_z_offset)) delta_height += old_z_offset - new_z_offset;
+    old_z_offset = new_z_offset;  
+  }
+
 #endif // HAS_BED_PROBE
 
 /**
@@ -507,6 +515,10 @@ void GcodeSuite::G33() {
   lcd_setstatusPGM(checkingac);
 
   print_G33_settings(_endstop_results, _angle_results);
+
+  #if HAS_BED_PROBE
+    if (verbose_level != 0) G33_z_offset(zprobe_zoffset);
+  #endif
 
   do {
 
