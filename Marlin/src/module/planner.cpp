@@ -108,6 +108,7 @@ int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extru
 // Initialized by settings.load()
 float Planner::e_factor[EXTRUDERS],              // The flow percentage and volumetric multiplier combine to scale E movement
       Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+      Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
       Planner::volumetric_multiplier[EXTRUDERS]; // May be auto-adjusted by a filament width sensor
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
