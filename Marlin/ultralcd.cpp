@@ -774,7 +774,11 @@ void kill_screen(const char* lcd_msg) {
       clear_command_queue();
       quickstop_stepper();
       print_job_timer.stop();
+	  
+#ifdef SDCARD_COOLDOWN_ON_STOP
       thermalManager.disable_all_heaters();
+#endif
+
       #if FAN_COUNT > 0
         for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
       #endif
