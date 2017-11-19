@@ -20,33 +20,35 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+/**
+ * module/servo.cpp
+ */
+
+#include "../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 
-#include "../gcode.h"
-#include "../../module/servo.h"
+#include "servo.h"
 
-/**
- * M280: Get or set servo position. P<index> [S<angle>]
- */
-void GcodeSuite::M280() {
-  if (!parser.seen('P')) return;
-  const int servo_index = parser.value_int();
-  if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
-    if (parser.seen('S'))
-      MOVE_SERVO(servo_index, parser.value_int());
-    else {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(" Servo ", servo_index);
-      SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
-    }
-  }
-  else {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOPAIR("Servo ", servo_index);
-    SERIAL_ECHOLNPGM(" out of range");
-  }
+HAL_SERVO_LIB servo[NUM_SERVOS];
+
+void servo_init() {
+  #if NUM_SERVOS >= 1 && HAS_SERVO_0
+    servo[0].attach(SERVO0_PIN);
+    servo[0].detach(); // Just set up the pin. We don't have a position yet. Don't move to a random position.
+  #endif
+  #if NUM_SERVOS >= 2 && HAS_SERVO_1
+    servo[1].attach(SERVO1_PIN);
+    servo[1].detach();
+  #endif
+  #if NUM_SERVOS >= 3 && HAS_SERVO_2
+    servo[2].attach(SERVO2_PIN);
+    servo[2].detach();
+  #endif
+  #if NUM_SERVOS >= 4 && HAS_SERVO_3
+    servo[3].attach(SERVO3_PIN);
+    servo[3].detach();
+  #endif
 }
 
 #endif // HAS_SERVOS

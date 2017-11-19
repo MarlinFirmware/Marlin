@@ -20,33 +20,25 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
-
-#if HAS_SERVOS
-
-#include "../gcode.h"
-#include "../../module/servo.h"
-
 /**
- * M280: Get or set servo position. P<index> [S<angle>]
+ * module/servo.h
  */
-void GcodeSuite::M280() {
-  if (!parser.seen('P')) return;
-  const int servo_index = parser.value_int();
-  if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
-    if (parser.seen('S'))
-      MOVE_SERVO(servo_index, parser.value_int());
-    else {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(" Servo ", servo_index);
-      SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
-    }
-  }
-  else {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOPAIR("Servo ", servo_index);
-    SERIAL_ECHOLNPGM(" out of range");
-  }
-}
 
-#endif // HAS_SERVOS
+#ifndef _SERVO_H_
+#define _SERVO_H_
+
+#include "../HAL/servo.h"
+
+extern HAL_SERVO_LIB servo[NUM_SERVOS];
+extern void servo_init();
+
+#define MOVE_SERVO(I, P) servo[I].move(P)
+
+#include "../inc/MarlinConfig.h"
+
+#if HAS_Z_SERVO_ENDSTOP
+  #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
+  #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
+#endif
+
+#endif // _SERVO_H_

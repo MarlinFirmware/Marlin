@@ -53,6 +53,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_ENDSTOP
+  #include "../module/servo.h"
   const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
 
