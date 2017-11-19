@@ -11122,21 +11122,21 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         // Move to the "old position" (move the extruder into place)
         if (!no_move && IsRunning()) {
+          #if ENABLED(SWITCHING_NOZZLE)
+            if (z_raise != z_diff)
+              destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
+          #endif
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
-          prepare_move_to_destination();
+          // Move back to the original (or tweaked) position
+          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
         }
-
         #if ENABLED(SWITCHING_NOZZLE)
           // Move back down, if needed. (Including when the new tool is higher.)
-          if (z_raise != z_diff) {
-            destination[Z_AXIS] += z_diff;
-            feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];
-            prepare_move_to_destination();
-          }
+          else if (z_raise != z_diff)
+            do_blocking_move_to_z(destination[Z_AXIS] + z_diff, planner.max_feedrate_mm_s[Z_AXIS]);
         #endif
-
       } // (tmp_extruder != active_extruder)
 
       stepper.synchronize();
@@ -13285,23 +13285,23 @@ void prepare_move_to_destination() {
         case TIMER0B:                           //_SET_CS(0, val);
                                                   break;
       #endif
-      #ifdef TCCR1A 
+      #ifdef TCCR1A
         case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
                                                   break;
       #endif
-      #ifdef TCCR2 
+      #ifdef TCCR2
         case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
       #endif
-      #ifdef TCCR2A 
+      #ifdef TCCR2A
         case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
       #endif
-      #ifdef TCCR3A 
+      #ifdef TCCR3A
         case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
       #endif
-      #ifdef TCCR4A 
+      #ifdef TCCR4A
         case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
       #endif
-      #ifdef TCCR5A 
+      #ifdef TCCR5A
         case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
       #endif
     }
