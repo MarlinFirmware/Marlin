@@ -108,6 +108,18 @@
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      enum AdvancedPauseMessage {
+        ADVANCED_PAUSE_MESSAGE_INIT,
+        ADVANCED_PAUSE_MESSAGE_UNLOAD,
+        ADVANCED_PAUSE_MESSAGE_INSERT,
+        ADVANCED_PAUSE_MESSAGE_LOAD,
+        ADVANCED_PAUSE_MESSAGE_EXTRUDE,
+        ADVANCED_PAUSE_MESSAGE_OPTION,
+        ADVANCED_PAUSE_MESSAGE_RESUME,
+        ADVANCED_PAUSE_MESSAGE_STATUS,
+        ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
+        ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
+      };
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
     #endif
 

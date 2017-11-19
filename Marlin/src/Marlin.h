@@ -199,6 +199,11 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  enum AdvancedPauseMenuResponse {
+    ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
+    ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
+    ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
+  };
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
