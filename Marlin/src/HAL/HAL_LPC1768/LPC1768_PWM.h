@@ -60,7 +60,10 @@
  * See the end of this file for details on the hardware/firmware interaction
  */
 
-#include "fastio.h"
+#ifndef _LPC1768_PWM_H_
+#define _LPC1768_PWM_H_
+
+#include "pinmapping.h"
 
 #define LPC_PWM1_MR0 19999  // base repetition rate minus one count - 20mS
 #define LPC_PWM1_PR 24      // prescaler value - prescaler divide by 24 + 1  -  1 MHz output
@@ -73,3 +76,5 @@ bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min=1, uint32_t max=(LPC_PWM1_MR
 bool LPC1768_PWM_write(pin_t pin, uint32_t value);
 bool LPC1768_PWM_detach_pin(pin_t pin);
 bool useable_hardware_PWM(pin_t pin);
+
+#endif // _LPC1768_PWM_H_

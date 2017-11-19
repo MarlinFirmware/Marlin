@@ -31,6 +31,7 @@
 
 #if HAS_Z_SERVO_ENDSTOP
   #include "../../module/probe.h"
+  #include "../../module/servo.h"
 #endif
 
 inline void toggle_pins() {

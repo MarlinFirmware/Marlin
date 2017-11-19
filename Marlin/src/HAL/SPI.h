@@ -28,11 +28,7 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-//#include "../inc/MarlinConfig.h"
-
 #include <stdint.h>
-
-#ifndef SPI_FULL_SPEED
 
 /**
  * SPI speed where 0 <= index <= 6
@@ -72,7 +68,5 @@ uint8_t spiRec(void);
 void spiRead(uint8_t* buf, uint16_t nbyte);
 /** Write token and then write from 512 byte buffer to SPI (for SD card) */
 void spiSendBlock(uint8_t token, const uint8_t* buf);
-
-#endif // SPI_FULL_SPEED
 
 #endif // _SPI_H_

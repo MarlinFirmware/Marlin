@@ -28,7 +28,7 @@
 #ifndef __BLINKM_H__
 #define __BLINKM_H__
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include <Wire.h>
 
 void blinkm_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b);
