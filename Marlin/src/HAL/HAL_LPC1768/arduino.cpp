@@ -22,10 +22,10 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfig.h"
 #include "LPC1768_PWM.h"
-
 #include <lpc17xx_pinsel.h>
+
+#include "../../inc/MarlinConfig.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable

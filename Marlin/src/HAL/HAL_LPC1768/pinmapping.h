@@ -24,6 +24,8 @@
 #define __HAL_PINMAPPING_H__
 #include "../../core/macros.h"
 
+#include <stdint.h>
+
 typedef int16_t pin_t;
 
 #define PORT_0  000
