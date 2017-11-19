@@ -137,7 +137,7 @@
   #include "planner.h"
   #include "../core/enum.h"
 
-  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
+  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST((uint8_t)ST##_ENABLE_PIN, (uint8_t)ST##_DIR_PIN, (uint8_t)ST##_STEP_PIN, (uint8_t)ST##_CS_PIN)
 
   // Stepper objects of TMC2130 steppers used
   #if ENABLED(X_IS_TMC2130)
