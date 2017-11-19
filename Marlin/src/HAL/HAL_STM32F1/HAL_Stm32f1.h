@@ -40,7 +40,7 @@
 
 #include <stdint.h>
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 // --------------------------------------------------------------------------
 // Undefine DEBUG_ settings

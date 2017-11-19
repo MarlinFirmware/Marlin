@@ -30,7 +30,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"
