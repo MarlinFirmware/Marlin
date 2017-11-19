@@ -7027,7 +7027,7 @@ inline void gcode_M42() {
     const bool I_flag = parser.boolval('I');
     const int repeat = parser.intval('R', 1),
               start = parser.intval('S'),
-              end = parser.intval('E', NUM_DIGITAL_PINS - 1),
+              end = parser.intval('L', NUM_DIGITAL_PINS - 1),
               wait = parser.intval('W', 500);
 
     for (uint8_t pin = start; pin <= end; pin++) {
