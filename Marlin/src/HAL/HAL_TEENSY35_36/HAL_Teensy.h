@@ -82,8 +82,8 @@ typedef int8_t pin_t;
 #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
 #define CRITICAL_SECTION_END    SREG = _sreg;
 
-// On AVR this is in math.h?
-#define square(x) ((x)*(x))
+#undef sq
+#define sq(x) ((x)*(x))
 
 #ifndef strncpy_P
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
