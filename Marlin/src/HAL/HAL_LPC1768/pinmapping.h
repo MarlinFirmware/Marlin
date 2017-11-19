@@ -22,6 +22,7 @@
 
 #ifndef __HAL_PINMAPPING_H__
 #define __HAL_PINMAPPING_H__
+
 #include "../../core/macros.h"
 
 #include <stdint.h>
