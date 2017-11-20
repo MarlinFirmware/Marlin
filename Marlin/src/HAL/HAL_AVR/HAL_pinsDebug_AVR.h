@@ -58,7 +58,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
 #include "../../pins/pinsDebug_list.h"
-#line 51
+#line 62
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
@@ -109,7 +109,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "../../pins/pinsDebug_list.h"
-  #line 102
+  #line 113
 
 };
 

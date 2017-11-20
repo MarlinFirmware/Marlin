@@ -65,27 +65,27 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         P2_1   // (54)
+#define X_STEP_PIN         P2_01  // (54)
 #define X_DIR_PIN          P0_11  // (55)
 #define X_ENABLE_PIN       P0_10  // (38)
 
-#define Y_STEP_PIN         P2_2   // (60)
+#define Y_STEP_PIN         P2_02  // (60)
 #define Y_DIR_PIN          P0_20  // (61)
 #define Y_ENABLE_PIN       P0_19  // (56)
 
-#define Z_STEP_PIN         P2_3   // (46)
+#define Z_STEP_PIN         P2_03  // (46)
 #define Z_DIR_PIN          P0_22  // (48)
 #define Z_ENABLE_PIN       P0_21  // (62)
 
-#define E0_STEP_PIN        P2_0   // (26)
-#define E0_DIR_PIN         P0_5   // (28)
-#define E0_ENABLE_PIN      P0_4   // (24)
+#define E0_STEP_PIN        P2_00  // (26)
+#define E0_DIR_PIN         P0_05  // (28)
+#define E0_ENABLE_PIN      P0_04  // (24)
 
-#define E1_STEP_PIN        P2_8   // (36)
+#define E1_STEP_PIN        P2_08  // (36)
 #define E1_DIR_PIN         P2_13  // (34)
 #define E1_ENABLE_PIN      P4_29  // (30)
 
-#define E2_STEP_PIN        P2_8   // (36)
+#define E2_STEP_PIN        P2_08  // (36)
 #define E2_DIR_PIN         P2_13  // (34)
 #define E2_ENABLE_PIN      P4_29  // (30)
 
@@ -127,13 +127,13 @@
   #define MOSFET_D_PIN   -1
 #endif
 #ifndef RAMPS_D8_PIN
-  #define RAMPS_D8_PIN   P2_7  // (8)
+  #define RAMPS_D8_PIN   P2_07 // (8)
 #endif
 #ifndef RAMPS_D9_PIN
-  #define RAMPS_D9_PIN   P2_4  // (9)
+  #define RAMPS_D9_PIN   P2_04 // (9)
 #endif
 #ifndef RAMPS_D10_PIN
-  #define RAMPS_D10_PIN  P2_5  // (10)
+  #define RAMPS_D10_PIN  P2_05 // (10)
 #endif
 
 #define HEATER_0_PIN     RAMPS_D10_PIN
@@ -198,8 +198,8 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX0_PIN         P0_3    // ( 0) Z_CS_PIN
-#define E_MUX1_PIN         P0_2    // ( 1) E0_CS_PIN
+#define E_MUX0_PIN         P0_03   // ( 0) Z_CS_PIN
+#define E_MUX1_PIN         P0_02   // ( 1) E0_CS_PIN
 #define E_MUX2_PIN         P0_26   // (63) E1_CS_PIN
 
 /**
@@ -237,7 +237,7 @@
   #define LCD_PINS_ENABLE     P0_18  // (51) (MOSI) J3-10 & AUX-3
   #define LCD_PINS_D4         P0_15  // (52) (SCK)  J3-9 & AUX-3
 
-  #define DOGLCD_A0           P2_6   // (59) J3-8 & AUX-2
+  #define DOGLCD_A0           P2_06  // (59) J3-8 & AUX-2
   #define DOGLCD_CS           P0_26  // (63) J5-3 & AUX-2
 
   #ifdef ULTIPANEL
@@ -278,8 +278,8 @@
     #undef  LCD_PINS_ENABLE     //P0_18  // (51) (MOSI) J3-10 & AUX-3
     #undef  LCD_PINS_D4         //P0_15  // (52) (SCK)  J3-9 & AUX-3
 
-    #undef  LCD_PINS_D5         //P2_6   // (59) J3-8 & AUX-2
-    #define DOGLCD_A0           P2_6   // (59) J3-8 & AUX-2
+    #undef  LCD_PINS_D5         //P2_06  // (59) J3-8 & AUX-2
+    #define DOGLCD_A0           P2_06  // (59) J3-8 & AUX-2
     #undef  LCD_PINS_D6         //P0_26  // (63) J5-3 & AUX-2
     #undef  LCD_PINS_D7         //P1_21  // ( 6) (SERVO1) J5-1 & SERVO connector
     #define DOGLCD_SCK          SCK_PIN
@@ -315,11 +315,11 @@
 #endif
 #define ENET_MOC      P1_16  // (70)  J12-3
 #define REF_CLK       P1_15  // (72)  J12-5
-#define ENET_RXD0     P1_9   // (74)  J12-7
-#define ENET_CRS      P1_8   // (76)  J12-9
-#define ENET_TX_EN    P1_4   // (77)  J12-10
-#define ENET_TXD0     P1_0   // (78)  J12-11
-#define ENET_TXD1     P1_1   // (79)  J12-12
+#define ENET_RXD0     P1_09  // (74)  J12-7
+#define ENET_CRS      P1_08  // (76)  J12-9
+#define ENET_TX_EN    P1_04  // (77)  J12-10
+#define ENET_TXD0     P1_00  // (78)  J12-11
+#define ENET_TXD1     P1_01  // (79)  J12-12
 
 /**
  *  Fast PWMS
@@ -339,8 +339,8 @@
  *     P1_20 (11)   SERVO0_PIN
  *     P1_21 ( 6)   SERVO1_PIN       J5-1
  *     P0_18 ( 4)   SERVO3_PIN       5V output
- *    *P2_4  ( 9)   RAMPS_D9_PIN
- *    *P2_5  (10)   RAMPS_D10_PIN
+ *    *P2_04 ( 9)   RAMPS_D9_PIN
+ *    *P2_05 (10)   RAMPS_D10_PIN
  *
  *    * - If used as a heater driver then a Fast PWM is NOT assigned.  If used as
  *        a fan driver then enabling FAST_PWM_FAN assigns a Fast PWM to it.
