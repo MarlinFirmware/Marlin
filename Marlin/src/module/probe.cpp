@@ -564,7 +564,7 @@ static float run_z_probe() {
     }
   #endif
 
-  return current_position[Z_AXIS] + zprobe_zoffset;
+  return current_position[Z_AXIS];
 }
 
 /**
@@ -576,7 +576,7 @@ static float run_z_probe() {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool printable/*=true*/) {
+float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool bedlevelprobe/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
@@ -587,11 +587,12 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
     }
   #endif
 
-  const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  const float nx = rx - (bedlevelprobe ? (X_PROBE_OFFSET_FROM_EXTRUDER) : 0.0),
+              ny = ry - (bedlevelprobe ? (Y_PROBE_OFFSET_FROM_EXTRUDER) : 0.0);
 
-  if (!printable
-    ? !position_is_reachable(nx, ny)
-    : !position_is_reachable_by_probe(rx, ry)
+  if (bedlevelprobe
+    ? !position_is_reachable_by_probe(rx, ry)
+    : !position_is_reachable(nx, ny)
   ) return NAN;
 
   const float old_feedrate_mm_s = feedrate_mm_s;
@@ -608,7 +609,7 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe();
+    measured_z = run_z_probe() + zprobe_zoffset;
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));

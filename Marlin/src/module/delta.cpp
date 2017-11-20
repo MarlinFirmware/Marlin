@@ -37,6 +37,10 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+// Initialized by G33
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  float raw_delta_height;
+#endif
 // Initialized by settings.load()
 float delta_height,
       delta_endstop_adj[ABC] = { 0 },
