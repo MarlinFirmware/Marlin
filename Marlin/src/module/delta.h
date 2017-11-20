@@ -27,7 +27,8 @@
 #ifndef __DELTA_H__
 #define __DELTA_H__
 
-extern float delta_height,
+extern float G33_offset,
+             delta_height,
              delta_endstop_adj[ABC],
              delta_radius,
              delta_diagonal_rod,

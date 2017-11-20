@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V45"
+#define EEPROM_VERSION "V46"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -92,6 +92,7 @@
  *  325  G29 S     ubl.storage_slot                 (int8_t)
  *
  * DELTA:                                           44 bytes
+ *  352            G33_offset                       (float)
  *  352  M666 H    delta_height                     (float)
  *  364  M666 XYZ  delta_endstop_adj                (float x3)
  *  368  M665 R    delta_radius                     (float)
@@ -422,8 +423,9 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
-    // 10 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
+    // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
+      EEPROM_WRITE(G33_offset);    
       EEPROM_WRITE(delta_height);              // 1 float
       EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
@@ -453,11 +455,11 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       #endif
 
-      for (uint8_t q = 7; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 8; q--;) EEPROM_WRITE(dummy);
 
     #else
       dummy = 0.0f;
-      for (uint8_t q = 10; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
     #endif
 
     #if DISABLED(ULTIPANEL)
@@ -850,6 +852,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(DELTA)
+        EEPROM_READ(G33_offset);                // 1 float
         EEPROM_READ(delta_height);              // 1 float
         EEPROM_READ(delta_endstop_adj);         // 3 floats
         EEPROM_READ(delta_radius);              // 1 float
@@ -876,11 +879,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy);
         #endif
 
-        for (uint8_t q=7; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
 
       #else
 
-        for (uint8_t q=10; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
 
       #endif
 
@@ -1317,6 +1320,7 @@ void MarlinSettings::reset() {
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
                 dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+    G33_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
     delta_height = DELTA_HEIGHT;
     COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
