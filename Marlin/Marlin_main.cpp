@@ -624,7 +624,8 @@ static uint8_t target_extruder;
   float delta[ABC];
 
   // Initialized by settings.load()
-  float delta_height,
+  float G33_offset,
+        delta_height,
         delta_endstop_adj[ABC] = { 0 },
         delta_radius,
         delta_tower_angle_trim[ABC],
@@ -5887,6 +5888,13 @@ void home_all_axes() { gcode_G28(true); }
 
     print_G33_settings(_endstop_results, _angle_results);
 
+    #if HAS_BED_PROBE
+      if (verbose_level != 0) {
+        delta_height += G33_offset - zprobe_zoffset;
+        G33_offset = zprobe_zoffset;
+      }
+    #endif
+
     do {
 
       float z_at_pt[NPP + 1] = { 0.0 };
@@ -8966,8 +8974,10 @@ inline void gcode_M205() {
    */
   inline void gcode_M665() {
     if (parser.seen('H')) {
-      delta_height = parser.value_linear_units();
-      update_software_endstops(Z_AXIS);
+      #if DISABLED(DELTA_AUTO_CALIBRATION) && HAS_BED_PROBE
+        G33_offset = zprobe_zoffset;
+      #endif
+      delta_height                                       = parser.value_linear_units();
     }
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
     if (parser.seen('R')) delta_radius                   = parser.value_linear_units();

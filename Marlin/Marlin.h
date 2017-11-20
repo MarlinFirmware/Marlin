@@ -298,7 +298,8 @@ void report_current_position();
 #endif
 
 #if ENABLED(DELTA)
-  extern float delta_height,
+  extern float G33_offset,
+               delta_height,
                delta_endstop_adj[ABC],
                delta_radius,
                delta_diagonal_rod,
