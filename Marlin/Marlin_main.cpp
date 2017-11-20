@@ -8973,7 +8973,12 @@ inline void gcode_M205() {
    *    Z = Rotate A and B by this angle
    */
   inline void gcode_M665() {
-    if (parser.seen('H')) delta_height                   = parser.value_linear_units();
+    if (parser.seen('H')) {
+      #if DISABLED(DELTA_AUTO_CALIBRATION) && HAS_BED_PROBE
+        G33_offset = zprobe_zoffset;
+      #endif
+      delta_height                                       = parser.value_linear_units();
+    }
     if (parser.seen('L')) delta_diagonal_rod             = parser.value_linear_units();
     if (parser.seen('R')) delta_radius                   = parser.value_linear_units();
     if (parser.seen('S')) delta_segments_per_second      = parser.value_float();
