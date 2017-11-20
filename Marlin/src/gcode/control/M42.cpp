@@ -28,7 +28,9 @@
  * M42: Change pin status via GCode
  *
  *  P<pin>  Pin number (LED if omitted)
- *            For LPC1768 enter pin P1_20 as M42 P1.20
+ *          For LPC1768 specify pin P1_02 as M42 P102,
+ *                                  P1_20 as M42 P120, etc.
+ *
  *  S<byte> Pin status from 0 - 255
  */
 void GcodeSuite::M42() {
