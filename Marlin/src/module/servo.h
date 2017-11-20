@@ -20,17 +20,25 @@
  *
  */
 
-/*
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
+/**
+ * module/servo.h
  */
 
-#ifndef __PCA9632_H__
-#define __PCA9632_H__
+#ifndef _SERVO_H_
+#define _SERVO_H_
 
-#include <Arduino.h>
-#include <Wire.h>
+#include "../HAL/servo.h"
 
-void pca9632_set_led_color(const byte r, const byte g, const byte b);
+extern HAL_SERVO_LIB servo[NUM_SERVOS];
+extern void servo_init();
 
-#endif // __PCA9632_H__
+#define MOVE_SERVO(I, P) servo[I].move(P)
+
+#include "../inc/MarlinConfig.h"
+
+#if HAS_Z_SERVO_ENDSTOP
+  #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
+  #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
+#endif
+
+#endif // _SERVO_H_

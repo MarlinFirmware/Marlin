@@ -22,15 +22,15 @@
 #ifndef __MARLIN_H__
 #define __MARLIN_H__
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "inc/MarlinConfig.h"
 
 #ifdef DEBUG_GCODE_PARSER
   #include "gcode/parser.h"
 #endif
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void stop();
 
@@ -186,16 +186,6 @@ extern volatile bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if HAS_SERVOS
-  #include "HAL/servo.h"
-  extern HAL_SERVO_LIB servo[NUM_SERVOS];
-  #define MOVE_SERVO(I, P) servo[I].move(P)
-  #if HAS_Z_SERVO_ENDSTOP
-    #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
-    #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
-  #endif
-#endif
-
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
   #if ENABLED(EXTRA_FAN_SPEED)
@@ -209,6 +199,11 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  enum AdvancedPauseMenuResponse {
+    ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
+    ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
+    ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
+  };
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 

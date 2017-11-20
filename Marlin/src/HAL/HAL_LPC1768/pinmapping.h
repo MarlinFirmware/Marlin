@@ -22,7 +22,10 @@
 
 #ifndef __HAL_PINMAPPING_H__
 #define __HAL_PINMAPPING_H__
+
 #include "../../core/macros.h"
+
+#include <stdint.h>
 
 typedef int16_t pin_t;
 

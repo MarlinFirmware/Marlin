@@ -34,6 +34,10 @@
   #include "../gcode/gcode.h" // for dwell()
 #endif
 
+#if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
+  #include "../module/servo.h"
+#endif
+
 #if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
   #include "../feature/solenoid.h"
 #endif

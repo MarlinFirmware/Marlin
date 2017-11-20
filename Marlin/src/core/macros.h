@@ -43,7 +43,6 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
-
 // Clock speed factors
 #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
 #define INT0_PRESCALER 8

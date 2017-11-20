@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
