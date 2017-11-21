@@ -19,6 +19,15 @@
 //===========================================================================
 
 /*
+ *  Initialize valves
+ */
+void valve_init(void) {
+    for (uint8_t valve = 0; valve < MAX_VALVES; valve++) {
+        valve_close(valve);    
+    }
+}
+
+/*
  *  Opens given valve
  */
 void valve_open(uint8_t valve) {
