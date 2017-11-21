@@ -4931,7 +4931,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #define encrot3 1
   #endif
 
-  #define GET_BUTTON_STATES(DST) \
+  #define GET_SHIFT_BUTTON_STATES(DST) \
     uint8_t new_##DST = 0; \
     WRITE(SHIFT_LD, LOW); \
     WRITE(SHIFT_LD, HIGH); \
@@ -5033,13 +5033,15 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
         #elif ENABLED(REPRAPWORLD_KEYPAD)
 
-          GET_BUTTON_STATES(buttons_reprapworld_keypad);
+          GET_SHIFT_BUTTON_STATES(buttons_reprapworld_keypad);
 
         #endif
 
-      #else
-        GET_BUTTON_STATES(buttons);
-      #endif // !NEWPANEL
+      #else // !NEWPANEL
+
+        GET_SHIFT_BUTTON_STATES(buttons);
+
+      #endif
 
     } // next_button_update_ms
 
