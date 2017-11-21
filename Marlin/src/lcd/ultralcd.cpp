@@ -4590,14 +4590,20 @@ void lcd_update() {
 
   #if ENABLED(ULTIPANEL)
     static millis_t return_to_status_ms = 0;
+
+    // Handle any queued Move Axis motion
     manage_manual_move();
 
+    // Update button states for LCD_CLICKED, etc.
+    // After state changes the next button update
+    // may be delayed 300-500ms.
     lcd_buttons_update();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool UBL_CONDITION = !ubl.has_control_of_lcd_panel;
+      // Don't run the debouncer if UBL owns the display
+      #define UBL_CONDITION !ubl.has_control_of_lcd_panel
     #else
-      constexpr bool UBL_CONDITION = true;
+      #define UBL_CONDITION true
     #endif
 
     // If the action button is pressed...
@@ -4944,7 +4950,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
    */
   void lcd_buttons_update() {
     static uint8_t lastEncoderBits;
-    millis_t now = millis();
+    const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
       #if ENABLED(NEWPANEL)
@@ -4962,9 +4968,16 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
         #endif
 
+        buttons = newbutton;
+        #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+          buttons |= slow_buttons;
+        #endif
+
+        //
+        // Directional buttons
+        //
         #if LCD_HAS_DIRECTIONAL_BUTTONS
 
-          // Manage directional buttons
           #if ENABLED(REVERSE_MENU_DIRECTION)
             #define _ENCODER_UD_STEPS (ENCODER_STEPS_PER_MENU_ITEM * encoderDirection)
           #else
@@ -5007,11 +5020,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           #endif
 
         #endif // LCD_HAS_DIRECTIONAL_BUTTONS
-
-        buttons = newbutton;
-        #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-          buttons |= slow_buttons;
-        #endif
 
         #if ENABLED(ADC_KEYPAD)
 
