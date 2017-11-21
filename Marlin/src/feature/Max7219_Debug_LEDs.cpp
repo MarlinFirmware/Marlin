@@ -100,7 +100,7 @@ void Max7219(const uint8_t reg, const uint8_t data) {
   MS_DELAY();
 }
 
-void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on) {
+void Max7219_LED_Set(const uint8_t col, const uint8_t row, const bool on) {
   if (row > 7 || col > 7) {
     SERIAL_ECHOPAIR("??? Max7219_LED_Set(", (int)row);
     SERIAL_ECHOPAIR(",", (int)col);
@@ -272,16 +272,16 @@ void Max7219_init() {
  * or clear a row is not very significant.
  */
 void Max7219_idle_tasks() {
-#if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
-  CRITICAL_SECTION_START
-  #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_QUEUE
-    const uint8_t head = planner.block_buffer_head;
+  #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
+    CRITICAL_SECTION_START
+    #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_QUEUE
+      const uint8_t head = planner.block_buffer_head;
+    #endif
+    #if MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
+      const uint8_t tail = planner.block_buffer_tail;
+    #endif
+    CRITICAL_SECTION_END
   #endif
-  #if MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
-    const uint8_t tail = planner.block_buffer_tail;
-  #endif
-  CRITICAL_SECTION_END
-#endif
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static millis_t next_blink = 0;
