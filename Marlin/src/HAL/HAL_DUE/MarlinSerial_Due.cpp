@@ -34,18 +34,22 @@
 #include "../../Marlin.h"
 
 // Based on selected port, use the proper configuration
-#if SERIAL_PORT == 0
+#if SERIAL_PORT == -1
   #define HWUART UART
   #define HWUART_IRQ UART_IRQn
   #define HWUART_IRQ_ID ID_UART
-#elif SERIAL_PORT == 1
+#elif SERIAL_PORT == 0
   #define HWUART USART0
   #define HWUART_IRQ USART0_IRQn
   #define HWUART_IRQ_ID ID_USART0
-#elif SERIAL_PORT == 2
+#elif SERIAL_PORT == 1
   #define HWUART USART1
   #define HWUART_IRQ USART1_IRQn
   #define HWUART_IRQ_ID ID_USART1
+#elif SERIAL_PORT == 2
+  #define HWUART USART2
+  #define HWUART_IRQ USART2_IRQn
+  #define HWUART_IRQ_ID ID_USART2
 #elif SERIAL_PORT == 3
   #define HWUART USART3
   #define HWUART_IRQ USART3_IRQn
