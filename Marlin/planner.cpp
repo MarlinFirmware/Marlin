@@ -58,6 +58,7 @@
  *
  */
 
+#include "MarlinConfig.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"

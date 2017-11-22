@@ -32,6 +32,7 @@
   #include "stepper.h"
   #include "planner.h"
   #include "gcode.h"
+  #include "bitmap_flags.h"
 
   #include <math.h>
   #include "least_squares_fit.h"
@@ -46,6 +47,7 @@
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
     extern void _lcd_ubl_output_map_lcd();
+    extern bool ubl_lcd_clicked();
     float lcd_z_offset_edit();
   #endif
 
@@ -676,8 +678,7 @@
       lcd_reset_alert_level();
       LCD_MESSAGEPGM("");
       lcd_quick_feedback();
-
-      has_control_of_lcd_panel = false;
+      lcd_external_control = false;
     #endif
 
     return;
@@ -736,7 +737,10 @@
     void unified_bed_leveling::probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
       mesh_index_pair location;
 
-      has_control_of_lcd_panel = true;
+      #if ENABLED(NEWPANEL)
+        lcd_external_control = true;
+      #endif
+
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
       DEPLOY_PROBE();
 
@@ -751,7 +755,7 @@
             lcd_quick_feedback();
             STOW_PROBE();
             while (ubl_lcd_clicked()) idle();
-            has_control_of_lcd_panel = false;
+            lcd_external_control = false;
             restore_ubl_active_state_and_leave();
             safe_delay(50);  // Debounce the Encoder wheel
             return;
@@ -909,7 +913,7 @@
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      has_control_of_lcd_panel = true;
+      lcd_external_control = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -943,7 +947,7 @@
 
       in_height = current_position[Z_AXIS]; // do manual probing at lower height
 
-      has_control_of_lcd_panel = false;
+      lcd_external_control = false;
 
       restore_ubl_active_state_and_leave();
 
@@ -952,7 +956,7 @@
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
-      has_control_of_lcd_panel = true;
+      lcd_external_control = true;
 
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
       do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
@@ -976,7 +980,7 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        has_control_of_lcd_panel = true;
+        lcd_external_control = true;
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -1008,7 +1012,7 @@
             #if ENABLED(NEWPANEL)
               lcd_quick_feedback();
               while (ubl_lcd_clicked()) idle();
-              has_control_of_lcd_panel = false;
+              lcd_external_control = false;
             #endif
 
             KEEPALIVE_STATE(IN_HANDLER);
@@ -1510,7 +1514,7 @@
         new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        has_control_of_lcd_panel = true;
+        lcd_external_control = true;
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show the user which point is being adjusted
 
@@ -1531,7 +1535,7 @@
         // The technique used here generates a race condition for the encoder click.
         // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
         // Let's work on specifying a proper API for the LCD ASAP, OK?
-        has_control_of_lcd_panel = true;
+        lcd_external_control = true;
 
         // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
         // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
@@ -1560,7 +1564,7 @@
 
       FINE_TUNE_EXIT:
 
-      has_control_of_lcd_panel = false;
+      lcd_external_control = false;
       KEEPALIVE_STATE(IN_HANDLER);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);

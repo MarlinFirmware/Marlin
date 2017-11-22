@@ -27,6 +27,10 @@
 
 #if ENABLED(ULTRA_LCD)
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    extern bool lcd_external_control;
+  #endif
+
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 

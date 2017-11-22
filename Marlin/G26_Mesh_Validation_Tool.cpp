@@ -26,15 +26,21 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+#if ENABLED(G26_MESH_VALIDATION)
 
-  #include "ubl.h"
   #include "Marlin.h"
   #include "planner.h"
   #include "stepper.h"
   #include "temperature.h"
   #include "ultralcd.h"
   #include "gcode.h"
+  #include "bitmap_flags.h"
+
+  #if ENABLED(MESH_BED_LEVELING)
+    #include "mesh_bed_leveling.h"
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #include "ubl.h"
+  #endif
 
   #define EXTRUSION_MULTIPLIER 1.0
   #define RETRACTION_MULTIPLIER 1.0
@@ -47,6 +53,9 @@
   #if SIZE_OF_CROSSHAIRS >= SIZE_OF_INTERSECTION_CIRCLES
     #error "SIZE_OF_CROSSHAIRS must be less than SIZE_OF_INTERSECTION_CIRCLES."
   #endif
+
+  #define G26_OK false
+  #define G26_ERROR true
 
   /**
    *   G26 Mesh Validation Tool
@@ -146,35 +155,42 @@
 
   static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
                                      // retracts/recovers won't result in a bad state.
-
   float valid_trig_angle(float);
 
-  float unified_bed_leveling::g26_extrusion_multiplier,
-        unified_bed_leveling::g26_retraction_multiplier,
-        unified_bed_leveling::g26_nozzle,
-        unified_bed_leveling::g26_filament_diameter,
-        unified_bed_leveling::g26_layer_height,
-        unified_bed_leveling::g26_prime_length,
-        unified_bed_leveling::g26_x_pos,
-        unified_bed_leveling::g26_y_pos,
-        unified_bed_leveling::g26_ooze_amount;
-
-  int16_t unified_bed_leveling::g26_bed_temp,
-          unified_bed_leveling::g26_hotend_temp;
-
-  int8_t unified_bed_leveling::g26_prime_flag;
-
-  bool unified_bed_leveling::g26_continue_with_closest,
-       unified_bed_leveling::g26_keep_heaters_on;
-
-  int16_t unified_bed_leveling::g26_repeats;
-
-  void unified_bed_leveling::G26_line_to_destination(const float &feed_rate) {
+  void G26_line_to_destination(const float &feed_rate) {
     const float save_feedrate = feedrate_mm_s;
     feedrate_mm_s = feed_rate;      // use specified feed rate
-    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_DELTA
+    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian for UBL or ubl.prepare_linear_move_to for UBL_DELTA
     feedrate_mm_s = save_feedrate;  // restore global feed rate
   }
+  static bool exit_from_g26();
+  static bool parse_G26_parameters();
+  static mesh_index_pair find_closest_circle_to_print(const float&, const float&);
+  static bool look_for_lines_to_connect();
+  static bool turn_on_heaters();
+  static bool prime_nozzle();
+  static void retract_filament(const float where[XYZE]);
+  static void recover_filament(const float where[XYZE]);
+  static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
+  static void move_to(const float&, const float&, const float&, const float&);
+  #if ENABLED(NEWPANEL)
+    extern bool ubl_lcd_clicked();
+  #endif
+  static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
+
+  static float   g26_extrusion_multiplier,
+                 g26_retraction_multiplier,
+                 g26_nozzle,
+                 g26_filament_diameter,
+                 g26_prime_length,
+                 g26_x_pos, g26_y_pos,
+                 g26_ooze_amount,
+                 g26_layer_height;
+  static int16_t g26_bed_temp,
+                 g26_hotend_temp,
+                 g26_repeats;
+  static int8_t  g26_prime_flag;
+  static bool    g26_continue_with_closest, g26_keep_heaters_on;
 
   #if ENABLED(NEWPANEL)
     /**
@@ -207,7 +223,7 @@
    * Used to interactively edit UBL's Mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
    */
-  void unified_bed_leveling::G26() {
+  void gcode_G26() {
     SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
     float tmp, start_angle, end_angle;
     int   i, xi, yi;
@@ -250,7 +266,10 @@
     move_to(destination, 0.0);
     move_to(destination, g26_ooze_amount);
 
-    has_control_of_lcd_panel = true;
+    #if ENABLED(ULTRA_LCD)
+      lcd_external_control = true;
+    #endif
+
     //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
     /**
@@ -269,8 +288,8 @@
         : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        const float circle_x = mesh_index_to_xpos(location.x_index),
-                    circle_y = mesh_index_to_ypos(location.y_index);
+        const float circle_x = _GET_MESH_X(location.x_index),
+                    circle_y = _GET_MESH_Y(location.y_index);
 
         // If this mesh location is outside the printable_radius, skip it.
 
@@ -373,7 +392,9 @@
     move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
-    has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
+    #if ENABLED(ULTRA_LCD)
+      lcd_external_control = false;     // Give back control of the LCD Panel!
+    #endif
 
     if (!g26_keep_heaters_on) {
       #if HAS_TEMP_BED
@@ -389,7 +410,7 @@
     return d;
   }
 
-  mesh_index_pair unified_bed_leveling::find_closest_circle_to_print(const float &X, const float &Y) {
+  mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
     float closest = 99999.99;
     mesh_index_pair return_val;
 
@@ -398,8 +419,8 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          const float mx = mesh_index_to_xpos(i),  // We found a circle that needs to be printed
-                      my = mesh_index_to_ypos(j);
+          const float mx = _GET_MESH_X(i),  // We found a circle that needs to be printed
+                      my = _GET_MESH_Y(j);
 
           // Get the distance to this intersection
           float f = HYPOT(X - mx, Y - my);
@@ -427,7 +448,7 @@
     return return_val;
   }
 
-  bool unified_bed_leveling::look_for_lines_to_connect() {
+  bool look_for_lines_to_connect() {
     float sx, sy, ex, ey;
 
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
@@ -447,11 +468,11 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = mesh_index_to_xpos(  i  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
-              ex = mesh_index_to_xpos(i + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
+              sx = _GET_MESH_X(  i  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
+              ex = _GET_MESH_X(i + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
 
               sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
-              sy = ey = constrain(mesh_index_to_ypos(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+              sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
               if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
@@ -480,10 +501,10 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sy = mesh_index_to_ypos(  j  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
-                ey = mesh_index_to_ypos(j + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
+                sy = _GET_MESH_Y(  j  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
+                ey = _GET_MESH_Y(j + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
 
-                sx = ex = constrain(mesh_index_to_xpos(i), X_MIN_POS + 1, X_MAX_POS - 1);
+                sx = ex = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
@@ -496,7 +517,10 @@
                     SERIAL_ECHOPAIR(", ey=", ey);
                     SERIAL_CHAR(')');
                     SERIAL_EOL();
-                    debug_current_and_destination(PSTR("Connecting vertical line."));
+
+                    #if ENABLED(AUTO_BED_LEVELING_UBL)
+                      debug_current_and_destination(PSTR("Connecting vertical line."));
+                    #endif
                   }
                   print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
                 }
@@ -510,7 +534,7 @@
     return false;
   }
 
-  void unified_bed_leveling::move_to(const float &x, const float &y, const float &z, const float &e_delta) {
+  void move_to(const float &x, const float &y, const float &z, const float &e_delta) {
     float feed_value;
     static float last_z = -999.99;
 
@@ -548,14 +572,14 @@
 
   }
 
-  void unified_bed_leveling::retract_filament(const float where[XYZE]) {
+  void retract_filament(const float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
       move_to(where, -1.0 * g26_retraction_multiplier);
     }
   }
 
-  void unified_bed_leveling::recover_filament(const float where[XYZE]) {
+  void recover_filament(const float where[XYZE]) {
     if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(where, 1.2 * g26_retraction_multiplier);
       g26_retracted = false;
@@ -577,7 +601,7 @@
    * segment of a 'circle'. The time this requires is very short and is easily saved by the other
    * cases where the optimization comes into play.
    */
-  void unified_bed_leveling::print_line_from_here_to_there(const float &sx, const float &sy, const float &sz, const float &ex, const float &ey, const float &ez) {
+  void print_line_from_here_to_there(const float &sx, const float &sy, const float &sz, const float &ex, const float &ey, const float &ez) {
     const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual line segment
                 dy_s = current_position[Y_AXIS] - sy,
                 dist_start = HYPOT2(dx_s, dy_s),        // We don't need to do a sqrt(), we can compare the distance^2
@@ -615,7 +639,7 @@
    * parameters it made sense to turn them into static globals and get
    * this code out of sight of the main routine.
    */
-  bool unified_bed_leveling::parse_G26_parameters() {
+  bool parse_G26_parameters() {
 
     g26_extrusion_multiplier  = EXTRUSION_MULTIPLIER;
     g26_retraction_multiplier = RETRACTION_MULTIPLIER;
@@ -635,7 +659,7 @@
       g26_bed_temp = parser.value_celsius();
       if (!WITHIN(g26_bed_temp, 15, 140)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
 
@@ -643,7 +667,7 @@
       g26_layer_height = parser.value_linear_units();
       if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
 
@@ -652,12 +676,12 @@
         g26_retraction_multiplier = parser.value_float();
         if (!WITHIN(g26_retraction_multiplier, 0.05, 15.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified Retraction Multiplier not plausible.");
-          return UBL_ERR;
+          return G26_ERROR;
         }
       }
       else {
         SERIAL_PROTOCOLLNPGM("?Retraction Multiplier must be specified.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
 
@@ -665,7 +689,7 @@
       g26_nozzle = parser.value_float();
       if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
 
@@ -675,7 +699,7 @@
           g26_prime_flag = -1;
         #else
           SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
-          return UBL_ERR;
+          return G26_ERROR;
         #endif
       }
       else {
@@ -683,7 +707,7 @@
         g26_prime_length = parser.value_linear_units();
         if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
-          return UBL_ERR;
+          return G26_ERROR;
         }
       }
     }
@@ -692,7 +716,7 @@
       g26_filament_diameter = parser.value_linear_units();
       if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
     g26_extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
@@ -705,7 +729,7 @@
       g26_hotend_temp = parser.value_celsius();
       if (!WITHIN(g26_hotend_temp, 165, 280)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
     }
 
@@ -720,21 +744,21 @@
     #else
       if (!parser.seen('R')) {
         SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
-        return UBL_ERR;
+        return G26_ERROR;
       }
       else
         g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
     #endif
     if (g26_repeats < 1) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
-      return UBL_ERR;
+      return G26_ERROR;
     }
 
     g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS];
     g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
     if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
       SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
-      return UBL_ERR;
+      return G26_ERROR;
     }
 
     /**
@@ -742,14 +766,14 @@
      */
     set_bed_leveling_enabled(!parser.seen('D'));
 
-    return UBL_OK;
+    return G26_OK;
   }
 
   #if ENABLED(NEWPANEL)
-    bool unified_bed_leveling::exit_from_g26() {
+    bool exit_from_g26() {
       lcd_setstatusPGM(PSTR("Leaving G26"), -1);
       while (ubl_lcd_clicked()) idle();
-      return UBL_ERR;
+      return G26_ERROR;
     }
   #endif
 
@@ -757,15 +781,15 @@
    * Turn on the bed and nozzle heat and
    * wait for them to get up to temperature.
    */
-  bool unified_bed_leveling::turn_on_heaters() {
+  bool turn_on_heaters() {
     millis_t next = millis() + 5000UL;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
           lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
+          lcd_external_control = true;
       #endif
-          has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(g26_bed_temp);
           while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
 
@@ -808,20 +832,20 @@
       lcd_quick_feedback();
     #endif
 
-    return UBL_OK;
+    return G26_OK;
   }
 
   /**
    * Prime the nozzle if needed. Return true on error.
    */
-  bool unified_bed_leveling::prime_nozzle() {
+  bool prime_nozzle() {
 
     #if ENABLED(NEWPANEL)
       float Total_Prime = 0.0;
 
       if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
-        has_control_of_lcd_panel = true;
+        lcd_external_control = true;
         lcd_setstatusPGM(PSTR("User-Controlled Prime"), 99);
         chirp_at_user();
 
@@ -834,7 +858,7 @@
           destination[E_AXIS] += 0.25;
           #ifdef PREVENT_LENGTHY_EXTRUDE
             Total_Prime += 0.25;
-            if (Total_Prime >= EXTRUDE_MAXLENGTH) return UBL_ERR;
+            if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERROR;
           #endif
           G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
 
@@ -853,10 +877,8 @@
                                                               // So... We cheat to get a message up.
           lcd_setstatusPGM(PSTR("Done Priming"), 99);
           lcd_quick_feedback();
+          lcd_external_control = false;
         #endif
-
-        has_control_of_lcd_panel = false;
-
       }
       else {
     #else
@@ -874,7 +896,7 @@
       retract_filament(destination);
     }
 
-    return UBL_OK;
+    return G26_OK;
   }
 
-#endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+#endif // G26_MESH_VALIDATION

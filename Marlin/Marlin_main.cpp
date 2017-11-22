@@ -59,7 +59,7 @@
  * G19  - Select Plane YZ (Requires CNC_WORKSPACE_PLANES)
  * G20  - Set input units to inches (Requires INCH_MODE_SUPPORT)
  * G21  - Set input units to millimeters (Requires INCH_MODE_SUPPORT)
- * G26  - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
+ * G26  - Mesh Validation Pattern (Requires G26_MESH_VALIDATION)
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
  * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
@@ -324,6 +324,11 @@
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
   void M100_dump_routine(const char * const title, const char *start, const char *end);
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  bool g26_debug_flag; // =false
+  void gcode_G26();
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -6197,17 +6202,6 @@ void home_all_axes() { gcode_G28(true); }
         return;
       }
 
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        #define _GET_MESH_X(I) bilinear_start[X_AXIS] + I * bilinear_grid_spacing[X_AXIS]
-        #define _GET_MESH_Y(J) bilinear_start[Y_AXIS] + J * bilinear_grid_spacing[Y_AXIS]
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
-        #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
-      #elif ENABLED(MESH_BED_LEVELING)
-        #define _GET_MESH_X(I) mbl.index_to_xpos[I]
-        #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
-      #endif
-
       set_destination_from_current();
       if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
       if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
@@ -7567,15 +7561,15 @@ inline void gcode_M42() {
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+#if ENABLED(G26_MESH_VALIDATION)
 
   inline void gcode_M49() {
-    ubl.g26_debug_flag ^= true;
-    SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-    serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
+    g26_debug_flag ^= true;
+    SERIAL_PROTOCOLPGM("G26 Debug ");
+    serialprintPGM(g26_debug_flag ? PSTR("on.") : PSTR("off."));
   }
 
-#endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+#endif // G26_MESH_VALIDATION
 
 #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
   /**
@@ -11295,11 +11289,11 @@ void process_parsed_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 26: // G26: Mesh Validation Pattern generation
           gcode_G26();
           break;
-      #endif // AUTO_BED_LEVELING_UBL
+      #endif // G26_MESH_VALIDATION
 
       #if ENABLED(NOZZLE_PARK_FEATURE)
         case 27: // G27: Nozzle Park
@@ -11459,11 +11453,11 @@ void process_parsed_command() {
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 49: // M49: Turn on or off G26 debug flag for verbose output
           gcode_M49();
           break;
-      #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_VALIDATION
+      #endif // G26_MESH_VALIDATION
 
       #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
         case 73: // M73: Set print progress percentage
