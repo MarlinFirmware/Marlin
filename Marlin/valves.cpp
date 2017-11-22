@@ -22,8 +22,21 @@
  *  Initialize valves
  */
 void valve_init(void) {
-    for (uint8_t valve = 0; valve < MAX_VALVES; valve++) {
-        valve_close(valve);    
+    // Set all outputs low
+    VALVE_0_PORT &= ~VALVE_0;
+    VALVE_1_PORT &= ~VALVE_1;
+    VALVE_2_PORT &= ~VALVE_2;
+    VALVE_3_PORT &= ~VALVE_3;
+
+    // Set pin direction as output
+    VALVE_0_DDR |= VALVE_0;
+    VALVE_1_DDR |= VALVE_1;
+    VALVE_2_DDR |= VALVE_2;
+    VALVE_3_DDR |= VALVE_3;
+
+    // Open all valves for testing
+    for (uint8_t valve = 1; valve <= MAX_VALVES; valve++) {
+        valve_open(valve);
     }
 }
 

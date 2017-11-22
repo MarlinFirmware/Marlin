@@ -23,6 +23,12 @@
 #define VALVE_2_PORT            PORTJ
 #define VALVE_3_PORT            PORTJ
 
+// DDR Definitions
+#define VALVE_0_DDR             DDRG
+#define VALVE_1_DDR             DDRG
+#define VALVE_2_DDR             DDRJ
+#define VALVE_3_DDR             DDRJ
+
 // Pin Definitions
 #define VALVE_0                 (1 << 4)
 #define VALVE_1                 (1 << 3)
@@ -33,6 +39,11 @@
 //===========================================================================
 //  Function Prototypes
 //===========================================================================
+
+/*
+ *  Init valves
+ */
+void valve_init();
 
 /*
  *  Opens given valve
