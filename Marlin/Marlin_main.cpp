@@ -13904,7 +13904,7 @@ void setup() {
 
   #if ENABLED(SHOW_BOOTSCREEN)
     lcd_bootscreen();
-    #if ENABLED(ULTRA_LCD) && DISABLED(SDSUPPORT)
+    #if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && DISABLED(SDSUPPORT)
       lcd_init();
     #endif
   #endif
