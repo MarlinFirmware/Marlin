@@ -12378,7 +12378,7 @@ void ok_to_send() {
     float cartesian[XYZ] = { 0, 0, 0 };
     inverse_kinematics(cartesian);
     float distance = delta[A_AXIS];
-    cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
+    cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
     inverse_kinematics(cartesian);
     return FABS(distance - delta[A_AXIS]);
   }
