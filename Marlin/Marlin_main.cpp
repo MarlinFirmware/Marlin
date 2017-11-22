@@ -68,7 +68,7 @@
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
- * G42  - Coordinated move to a mesh point (Requires AUTO_BED_LEVELING_UBL)
+ * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
@@ -6188,9 +6188,9 @@ void home_all_axes() { gcode_G28(true); }
 
     if (IsRunning()) {
       const bool hasI = parser.seenval('I');
-      const int8_t ix = RAW_X_POSITION(hasI ? parser.value_linear_units() : 0);
+      const int8_t ix = hasI ? parser.value_int() : 0;
       const bool hasJ = parser.seenval('J');
-      const int8_t iy = RAW_Y_POSITION(hasJ ? parser.value_linear_units() : 0);
+      const int8_t iy = hasJ ? parser.value_int() : 0;
 
       if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
         SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
