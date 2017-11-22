@@ -1,0 +1,10 @@
+{
+  "builtInLibrariesFolders": "/Applications/Arduino.app/Contents/Java/libraries",
+  "customBuildProperties": "build.warn_data_percentage=75,runtime.tools.avr-gcc.path=/Applications/Arduino.app/Contents/Java/hardware/tools/avr,runtime.tools.arduinoOTA.path=/Applications/Arduino.app/Contents/Java/hardware/tools/avr,runtime.tools.avrdude.path=/Applications/Arduino.app/Contents/Java/hardware/tools/avr",
+  "fqbn": "arduino:avr:mega:cpu=atmega2560",
+  "hardwareFolders": "/Applications/Arduino.app/Contents/Java/hardware",
+  "otherLibrariesFolders": "/Users/pizzyflavin/Documents/Arduino/libraries",
+  "runtime.ide.version": "10805",
+  "sketchLocation": "/Users/pizzyflavin/projects/Marlin/Marlin/Marlin.ino",
+  "toolsFolders": "/Applications/Arduino.app/Contents/Java/tools-builder,/Applications/Arduino.app/Contents/Java/hardware/tools/avr"
+}
