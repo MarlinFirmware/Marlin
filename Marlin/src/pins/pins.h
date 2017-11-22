@@ -304,6 +304,8 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_SF)
   #include "pins_RAMPS4DUE.h"
+#elif MB(ULTRATRONICS_PRO)
+  #include "pins_ULTRATRONICS_PRO.h"
 #elif MB(ARCHIM2)
   #include "pins_ARCHIM2.h"
 #elif MB(ALLIGATOR)
