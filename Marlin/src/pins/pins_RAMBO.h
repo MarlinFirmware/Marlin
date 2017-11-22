@@ -55,13 +55,6 @@
 #define SERVO3_PIN          5 // PWM header pin 5
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  30
-#endif
-
-//
 // Limit Switches
 //
 #define X_MIN_PIN          12
@@ -70,6 +63,13 @@
 #define Y_MAX_PIN          23
 #define Z_MIN_PIN          10
 #define Z_MAX_PIN          30
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  30
+#endif
 
 //
 // Steppers

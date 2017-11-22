@@ -105,8 +105,6 @@ ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
 
 #if ENABLED(EMERGENCY_PARSER)
 
-  #include "../../module/stepper.h"
-
   // Currently looking for: M108, M112, M410
   // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
 
@@ -115,80 +113,80 @@ ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
     static e_parser_state state = state_RESET;
 
     switch (state) {
-    case state_RESET:
-      switch (c) {
-        case ' ': break;
-        case 'N': state = state_N;      break;
-        case 'M': state = state_M;      break;
-        default: state = state_IGNORE;
-      }
-      break;
-
-    case state_N:
-      switch (c) {
-        case '0': case '1': case '2':
-        case '3': case '4': case '5':
-        case '6': case '7': case '8':
-        case '9': case '-': case ' ':   break;
-        case 'M': state = state_M;      break;
-        default:  state = state_IGNORE;
-      }
-      break;
-
-    case state_M:
-      switch (c) {
-        case ' ': break;
-        case '1': state = state_M1;     break;
-        case '4': state = state_M4;     break;
-        default: state = state_IGNORE;
-      }
-      break;
-
-    case state_M1:
-      switch (c) {
-        case '0': state = state_M10;    break;
-        case '1': state = state_M11;    break;
-        default: state = state_IGNORE;
-      }
-      break;
-
-    case state_M10:
-      state = (c == '8') ? state_M108 : state_IGNORE;
-      break;
-
-    case state_M11:
-      state = (c == '2') ? state_M112 : state_IGNORE;
-      break;
-
-    case state_M4:
-      state = (c == '1') ? state_M41 : state_IGNORE;
-      break;
-
-    case state_M41:
-      state = (c == '0') ? state_M410 : state_IGNORE;
-      break;
-
-    case state_IGNORE:
-      if (c == '\n') state = state_RESET;
-      break;
-
-    default:
-      if (c == '\n') {
-        switch (state) {
-          case state_M108:
-          wait_for_user = wait_for_heatup = false;
-          break;
-          case state_M112:
-          kill(PSTR(MSG_KILLED));
-          break;
-          case state_M410:
-          quickstop_stepper();
-          break;
-          default:
-          break;
+      case state_RESET:
+        switch (c) {
+          case ' ': break;
+          case 'N': state = state_N;      break;
+          case 'M': state = state_M;      break;
+          default: state = state_IGNORE;
         }
-        state = state_RESET;
-      }
+        break;
+
+      case state_N:
+        switch (c) {
+          case '0': case '1': case '2':
+          case '3': case '4': case '5':
+          case '6': case '7': case '8':
+          case '9': case '-': case ' ':   break;
+          case 'M': state = state_M;      break;
+          default:  state = state_IGNORE;
+        }
+        break;
+
+      case state_M:
+        switch (c) {
+          case ' ': break;
+          case '1': state = state_M1;     break;
+          case '4': state = state_M4;     break;
+          default: state = state_IGNORE;
+        }
+        break;
+
+      case state_M1:
+        switch (c) {
+          case '0': state = state_M10;    break;
+          case '1': state = state_M11;    break;
+          default: state = state_IGNORE;
+        }
+        break;
+
+      case state_M10:
+        state = (c == '8') ? state_M108 : state_IGNORE;
+        break;
+
+      case state_M11:
+        state = (c == '2') ? state_M112 : state_IGNORE;
+        break;
+
+      case state_M4:
+        state = (c == '1') ? state_M41 : state_IGNORE;
+        break;
+
+      case state_M41:
+        state = (c == '0') ? state_M410 : state_IGNORE;
+        break;
+
+      case state_IGNORE:
+        if (c == '\n') state = state_RESET;
+        break;
+
+      default:
+        if (c == '\n') {
+          switch (state) {
+            case state_M108:
+              wait_for_user = wait_for_heatup = false;
+              break;
+            case state_M112:
+              kill(PSTR(MSG_KILLED));
+              break;
+            case state_M410:
+              quickstop_stepper();
+              break;
+            default:
+              break;
+          }
+          state = state_RESET;
+        }
     }
   }
 
@@ -213,61 +211,61 @@ FORCE_INLINE void store_rxd_char() {
     else if (!++rx_dropped_bytes) ++rx_dropped_bytes;
   #endif
 
-#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  // calculate count of bytes stored into the RX buffer
-  ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
-  // Keep track of the maximum count of enqueued bytes
-  NOLESS(rx_max_enqueued, rx_count);
-#endif
-
-#if ENABLED(SERIAL_XON_XOFF)
-
-  // for high speed transfers, we can use XON/XOFF protocol to do
-  // software handshake and avoid overruns.
-  if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
-
+  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     // calculate count of bytes stored into the RX buffer
     ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+    // Keep track of the maximum count of enqueued bytes
+    NOLESS(rx_max_enqueued, rx_count);
+  #endif
 
-    // if we are above 12.5% of RX buffer capacity, send XOFF before
-    // we run out of RX buffer space .. We need 325 bytes @ 250kbits/s to
-    // let the host react and stop sending bytes. This translates to 13mS
-    // propagation time.
-    if (rx_count >= (RX_BUFFER_SIZE) / 8) {
-      // If TX interrupts are disabled and data register is empty,
-      // just write the byte to the data register and be done. This
-      // shortcut helps significantly improve the effective datarate
-      // at high (>500kbit/s) bitrates, where interrupt overhead
-      // becomes a slowdown.
-      if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
-        // Send an XOFF character
-        HWUART->UART_THR = XOFF_CHAR;
+  #if ENABLED(SERIAL_XON_XOFF)
 
-        // And remember it was sent
-        xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
-      }
-      else {
-        // TX interrupts disabled, but buffer still not empty ... or
-        // TX interrupts enabled. Reenable TX ints and schedule XOFF
-        // character to be sent
-        #if TX_BUFFER_SIZE > 0
-          HWUART->UART_IER = UART_IER_TXRDY;
-          xon_xoff_state = XOFF_CHAR;
-        #else
-          // We are not using TX interrupts, we will have to send this manually
-          while (!(HWUART->UART_SR & UART_SR_TXRDY)) { sw_barrier(); };
+    // for high speed transfers, we can use XON/XOFF protocol to do
+    // software handshake and avoid overruns.
+    if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
+
+      // calculate count of bytes stored into the RX buffer
+      ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+      // if we are above 12.5% of RX buffer capacity, send XOFF before
+      // we run out of RX buffer space .. We need 325 bytes @ 250kbits/s to
+      // let the host react and stop sending bytes. This translates to 13mS
+      // propagation time.
+      if (rx_count >= (RX_BUFFER_SIZE) / 8) {
+        // If TX interrupts are disabled and data register is empty,
+        // just write the byte to the data register and be done. This
+        // shortcut helps significantly improve the effective datarate
+        // at high (>500kbit/s) bitrates, where interrupt overhead
+        // becomes a slowdown.
+        if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
+          // Send an XOFF character
           HWUART->UART_THR = XOFF_CHAR;
-          // And remember we already sent it
+
+          // And remember it was sent
           xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
-        #endif
+        }
+        else {
+          // TX interrupts disabled, but buffer still not empty ... or
+          // TX interrupts enabled. Reenable TX ints and schedule XOFF
+          // character to be sent
+          #if TX_BUFFER_SIZE > 0
+            HWUART->UART_IER = UART_IER_TXRDY;
+            xon_xoff_state = XOFF_CHAR;
+          #else
+            // We are not using TX interrupts, we will have to send this manually
+            while (!(HWUART->UART_SR & UART_SR_TXRDY)) { sw_barrier(); };
+            HWUART->UART_THR = XOFF_CHAR;
+            // And remember we already sent it
+            xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+          #endif
+        }
       }
     }
-  }
-#endif // SERIAL_XON_XOFF
+  #endif // SERIAL_XON_XOFF
 
-#if ENABLED(EMERGENCY_PARSER)
-  emergency_parser(c);
-#endif
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser(c);
+  #endif
 }
 
 #if TX_BUFFER_SIZE > 0
@@ -296,7 +294,7 @@ FORCE_INLINE void store_rxd_char() {
       HWUART->UART_IDR = UART_IDR_TXRDY;
   }
 
-#endif // TX_BUFFER_SIZE
+#endif // TX_BUFFER_SIZE > 0
 
 static void UART_ISR(void) {
   uint32_t status = HWUART->UART_SR;
@@ -393,20 +391,20 @@ int MarlinSerial::read(void) {
     v = rx_buffer.buffer[t];
     rx_buffer.tail = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
 
-  #if ENABLED(SERIAL_XON_XOFF)
-    if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-      // Get count of bytes in the RX buffer
-      ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
-      // When below 10% of RX buffer capacity, send XON before
-      // running out of RX buffer bytes
-      if (rx_count < (RX_BUFFER_SIZE) / 10) {
-        xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-        CRITICAL_SECTION_END;       // End critical section before returning!
-        writeNoHandshake(XON_CHAR);
-        return v;
+    #if ENABLED(SERIAL_XON_XOFF)
+      if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+        // Get count of bytes in the RX buffer
+        ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+        // When below 10% of RX buffer capacity, send XON before
+        // running out of RX buffer bytes
+        if (rx_count < (RX_BUFFER_SIZE) / 10) {
+          xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+          CRITICAL_SECTION_END;       // End critical section before returning!
+          writeNoHandshake(XON_CHAR);
+          return v;
+        }
       }
-    }
-  #endif
+    #endif
   }
   CRITICAL_SECTION_END;
   return v;
@@ -427,15 +425,16 @@ void MarlinSerial::flush(void) {
   rx_buffer.head = rx_buffer.tail;
   CRITICAL_SECTION_END;
 
-#if ENABLED(SERIAL_XON_XOFF)
-  if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-    xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-    writeNoHandshake(XON_CHAR);
-  }
-#endif
+  #if ENABLED(SERIAL_XON_XOFF)
+    if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+      xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+      writeNoHandshake(XON_CHAR);
+    }
+  #endif
 }
 
 #if TX_BUFFER_SIZE > 0
+
   uint8_t MarlinSerial::availableForWrite(void) {
     CRITICAL_SECTION_START;
     const uint8_t h = tx_buffer.head, t = tx_buffer.tail;
