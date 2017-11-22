@@ -23,12 +23,12 @@
 #ifndef _VERSION_H_
 #define _VERSION_H_
 
-#include "MarlinConfig.h"
+#include "../core/macros.h" // for ENABLED
 
 /**
- * This file is the standard Marlin version identifier file, all fields can be
- * overriden by the ones defined in _Version.h by using the Configuration.h
- * directive USE_AUTOMATIC_VERSIONING.
+ * This file is the standard Marlin version identifier file.
+ * Use -DUSE_AUTOMATIC_VERSIONING=1 and a custom _Version.h
+ * to override these values.
  */
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)

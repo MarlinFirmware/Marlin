@@ -78,12 +78,12 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
-      #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
+      #define B_ST (EN_C)                              // Map the pause/stop/resume button into its normalized functional name
       #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
       #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&(B_MI|B_RI))
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
@@ -119,7 +119,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_DW (_BV(BL_DW))
     #define B_RI (_BV(BL_RI))
     #define B_ST (_BV(BL_ST))
-    #define LCD_CLICKED ((buttons & B_MI) || (buttons & B_ST))
+    #define LCD_CLICKED (buttons & (B_MI|B_ST))
   #endif
 
 #endif // ULTIPANEL

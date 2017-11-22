@@ -1302,7 +1302,7 @@ void Temperature::init() {
           case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
         #endif
       }
-    #endif  
+    #endif
   }
 
 #endif // FAST_PWM_FAN

@@ -547,7 +547,7 @@ class Temperature {
   private:
 
     #if ENABLED(FAST_PWM_FAN)
-      static void setPwmFrequency(const uint8_t pin, int val);
+      static void setPwmFrequency(const pin_t pin, int val);
     #endif
 
     static void set_current_temp_raw();
