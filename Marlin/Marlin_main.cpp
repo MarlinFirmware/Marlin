@@ -257,6 +257,8 @@
 #include "duration_t.h"
 #include "types.h"
 #include "gcode.h"
+#include "valves.h"
+#include "solenoids.h"
 
 #if HAS_ABL
   #include "vector_3.h"
@@ -362,6 +364,7 @@
 #elif ENABLED(RGBW_LED)
   #define LED_WHITE 0, 0, 0, 255
 #endif
+
 
 bool Running = true;
 
@@ -13619,6 +13622,12 @@ void setup() {
     delay(1000);
     WRITE(LCD_PINS_RS, HIGH);
   #endif
+
+  //----------------------------------------------------------------------------
+  // Test Setup Initialization
+  //----------------------------------------------------------------------------
+
+  valve_init();
 }
 
 /**
