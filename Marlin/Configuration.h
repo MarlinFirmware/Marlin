@@ -49,7 +49,7 @@
 #define CHANGE_Y_DIRECTION      // If your bed homes in the wrong direction front to back, enable this.
 //#define CHANGE_X_DIRECTION      // If your X carriage homes in the wrong direction left to right, enable this.
 //#define CHANGE_Z_DIRECTION      // If your Z homes in the wrong direction bottom to top, enable this.
-//#define HOTEND_E3DV6            // Genuine E3D v6 hotend. Also enables Fan Soft PWM
+//#define HOTEND_E3DV6            // Genuine E3D v6 hotend.
 //#define FULL_GRAPHIC_SMART      // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The
                                   // stock controller is a RepRap Discount Smart Controller)
 //#define Z_DUAL_STEPPER_DRIVERS  // Enable this if you have dual Z stepper motors with the second stepper motor
@@ -143,20 +143,26 @@
 /**
  * TEVO Tarantula Custom PID Settings - Stock Hotend
  */
-#define  hot_Kp 8.10
-#define  hot_Ki 0.36
-#define  hot_Kd 44.96
+#define  hot_Kp 9.84
+#define  hot_Ki 0.50
+#define  hot_Kd 48.17
 // FIND YOUR OWN: "M303 E0 C8 S200" to run autotune on the hotend at 200 degreesC for 8 cycles.
 // More info here: http://reprap.org/wiki/PID_Tuning
 
 /**
  * TEVO Tarantula Custom PID Settings - Stock Heatbed
  */
-#define  bed_Kp 841.21
-#define  bed_Ki 165.63
-#define  bed_Kd 1068.13
+#define  bed_Kp 984.88
+#define  bed_Ki 193.91
+#define  bed_Kd 1250.55
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 // More info here: http://reprap.org/wiki/PID_Tuning
+
+/**
+ * Fan Soft PWM. Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
+ * which is not as annoying as with the hardware PWM. Redo PID Autotune.
+ */
+#define SOFT_PWM
 
 /**
  * Enable this to provide a realtime control over the head position via the LCD menu system that works while printing.
@@ -1902,7 +1908,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-#if ENABLED(HOTEND_E3DV6)
+#if ENABLED(SOFT_PWM)
   #define FAN_SOFT_PWM
 #endif
 
