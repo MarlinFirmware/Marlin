@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CARDREADER_H
-#define CARDREADER_H
+#ifndef _CARDREADER_H_
+#define _CARDREADER_H_
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
@@ -35,13 +35,15 @@ public:
 
   void initsd();
   void write_command(char *buf);
-  //files auto[0-9].g on the sd card are performed in a row
-  //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
+  // Files auto[0-9].g on the sd card are performed in sequence.
+  // This is to delay autostart and hence the initialisation of
+  // the sd card to some seconds after the normal init, so the
+  // device is available soon after a reset.
 
   void checkautostart(bool x);
-  void openFile(char* name, bool read, bool push_current=false);
+  void openFile(char* name, const bool read, const bool subcall=false);
   void openLogFile(char* name);
-  void removeFile(char* name);
+  void removeFile(const char * const name);
   void closefile(bool store_location=false);
   void release();
   void openAndPrintFile(const char *name);
@@ -151,8 +153,7 @@ private:
   uint8_t file_subcall_ctr;
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
-  uint32_t filesize;
-  uint32_t sdpos;
+  uint32_t filesize, sdpos;
 
   millis_t next_autostart_ms;
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
@@ -188,4 +189,4 @@ private:
 
 extern CardReader card;
 
-#endif // CARDREADER_H
+#endif // _CARDREADER_H_

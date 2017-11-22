@@ -54,12 +54,12 @@
 #include "planner.h"
 #include "motion.h"
 
-#include "../Marlin.h"
 #include "../module/temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
+#include "../Marlin.h"
 
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"

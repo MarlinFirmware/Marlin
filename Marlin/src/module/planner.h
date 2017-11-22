@@ -148,6 +148,7 @@ class Planner {
 
     static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
                  filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                 volumetric_area_nominal,           // Nominal cross-sectional area
                  volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
                                                     // May be auto-adjusted by a filament width sensor
 
@@ -377,7 +378,7 @@ class Planner {
      * The target is cartesian, it's translated to delta/scara if
      * needed.
      *
-     *  rtarget  - x,y,z,e CARTESIAN target in mm
+     *  cart     - x,y,z,e CARTESIAN target in mm
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */

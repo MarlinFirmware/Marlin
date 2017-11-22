@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
@@ -95,6 +95,8 @@
 // --------------------------------------------------------------------------
 
 typedef int8_t pin_t;
+
+#define HAL_SERVO_LIB Servo
 
 // --------------------------------------------------------------------------
 // Public Variables

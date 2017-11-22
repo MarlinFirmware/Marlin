@@ -108,6 +108,7 @@ int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extru
 // Initialized by settings.load()
 float Planner::e_factor[EXTRUDERS],              // The flow percentage and volumetric multiplier combine to scale E movement
       Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+      Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
       Planner::volumetric_multiplier[EXTRUDERS]; // May be auto-adjusted by a filament width sensor
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
@@ -542,8 +543,7 @@ void Planner::check_axes_activity() {
 }
 
 inline float calculate_volumetric_multiplier(const float &diameter) {
-  if (!parser.volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / CIRCLE_AREA(diameter * 0.5);
+  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
 }
 
 void Planner::calculate_volumetric_multipliers() {

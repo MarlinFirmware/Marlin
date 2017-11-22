@@ -20,16 +20,12 @@
  *
  */
 
-#if defined(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
 
-   void u8g_i2c_init(uint8_t options);
-
+  void u8g_i2c_init(uint8_t options);
   uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos);
-
   uint8_t u8g_i2c_start(uint8_t sla);
-
   uint8_t u8g_i2c_send_byte(uint8_t data);
-
   void u8g_i2c_stop(void);
 
 #endif

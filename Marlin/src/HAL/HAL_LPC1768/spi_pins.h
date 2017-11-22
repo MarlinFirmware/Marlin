@@ -26,10 +26,10 @@
 #define LPC_SOFTWARE_SPI
 
 /** onboard SD card */
-//#define SCK_PIN           P0_7
-//#define MISO_PIN          P0_8
-//#define MOSI_PIN          P0_9
-//#define SS_PIN            P0_6
+//#define SCK_PIN           P0_07
+//#define MISO_PIN          P0_08
+//#define MOSI_PIN          P0_09
+//#define SS_PIN            P0_06
 /** external */
 #define SCK_PIN           P0_15
 #define MISO_PIN          P0_17

@@ -20,17 +20,15 @@
  *
  */
 
-/*
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
- */
+#ifndef MARLIN_CONFIGPRE_H
+#define MARLIN_CONFIGPRE_H
 
-#ifndef __PCA9632_H__
-#define __PCA9632_H__
+#include "../core/boards.h"
+#include "../core/macros.h"
+#include "Version.h"
+#include "../../Configuration.h"
+#include "Conditionals_LCD.h"
+#include "../../Configuration_adv.h"
+#include "Conditionals_adv.h"
 
-#include <Arduino.h>
-#include <Wire.h>
-
-void pca9632_set_led_color(const byte r, const byte g, const byte b);
-
-#endif // __PCA9632_H__
+#endif // MARLIN_CONFIGPRE_H

@@ -43,8 +43,8 @@ void GcodeSuite::M206() {
       set_home_offset((AxisEnum)i, parser.value_linear_units());
 
   #if ENABLED(MORGAN_SCARA)
-    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_linear_units()); // Theta
-    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_linear_units()); // Psi
+    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
   report_current_position();

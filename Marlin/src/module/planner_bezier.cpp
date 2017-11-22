@@ -44,8 +44,7 @@
 #define MAX_STEP 0.1
 #define SIGMA 0.1
 
-/* Compute the linear interpolation between to real numbers.
-*/
+// Compute the linear interpolation between two real numbers.
 inline static float interp(float a, float b, float t) { return (1.0 - t) * a + t * b; }
 
 /**

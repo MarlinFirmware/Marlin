@@ -22,10 +22,10 @@
 
 /**
  * Support routines for LPC1768
-*/
+ */
 
 /**
- * translation of routines & variables used by pinsDebug.h
+ * Translation of routines & variables used by pinsDebug.h
  */
 
 #define pwm_details(pin) pin = pin    // do nothing  // print PWM details

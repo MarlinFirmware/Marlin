@@ -721,7 +721,7 @@
 #endif
 
 #ifndef HAL_SENSITIVE_PINS
-#define HAL_SENSITIVE_PINS
+  #define HAL_SENSITIVE_PINS
 #endif
 
 #define SENSITIVE_PINS { \

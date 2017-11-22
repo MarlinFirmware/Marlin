@@ -515,7 +515,7 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    static const int8_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    static const pin_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
     static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
@@ -531,7 +531,11 @@ int Temperature::getHeaterPower(int heater) {
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      int8_t pin = pgm_read_byte(&fanPin[f]);
+      #ifdef ARDUINO
+        pin_t pin = pgm_read_byte(&fanPin[f]);
+      #else
+        pin_t pin = fanPin[f];
+      #endif
       const uint8_t bit = pgm_read_byte(&fanBit[f]);
       if (pin >= 0 && !TEST(fanDone, bit)) {
         uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
@@ -1002,13 +1006,12 @@ void Temperature::updateTemperaturesFromRawValues() {
   // Convert raw Filament Width to millimeters
   float Temperature::analog2widthFil() {
     return current_raw_filwidth * 5.0 * (1.0 / 16383.0);
-    //return current_raw_filwidth;
   }
 
   // Convert raw Filament Width to a ratio
   int Temperature::widthFil_to_size_ratio() {
     float temp = filament_width_meas;
-    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
+    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  // Assume a bad sensor reading
     else NOMORE(temp, MEASURED_UPPER_LIMIT);
     return filament_width_nominal / temp * 100;
   }
@@ -1268,57 +1271,38 @@ void Temperature::init() {
 
 #if ENABLED(FAST_PWM_FAN)
 
-  void Temperature::setPwmFrequency(const uint8_t pin, int val) {
-    val &= 0x07;
-    switch (digitalPinToTimer(pin)) {
-      #ifdef TCCR0A
-        #if !AVR_AT90USB1286_FAMILY
-          case TIMER0A:
+  void Temperature::setPwmFrequency(const pin_t pin, int val) {
+    #ifdef ARDUINO
+      val &= 0x07;
+      switch (digitalPinToTimer(pin)) {
+        #ifdef TCCR0A
+          #if !AVR_AT90USB1286_FAMILY
+            case TIMER0A:
+          #endif
+          case TIMER0B:                           //_SET_CS(0, val);
+                                                    break;
         #endif
-        case TIMER0B:
-          //_SET_CS(0, val);
-          break;
-      #endif
-      #ifdef TCCR1A
-        case TIMER1A:
-        case TIMER1B:
-          //_SET_CS(1, val);
-          break;
-      #endif
-      #ifdef TCCR2
-        case TIMER2:
-        case TIMER2:
-          _SET_CS(2, val);
-          break;
-      #endif
-      #ifdef TCCR2A
-        case TIMER2A:
-        case TIMER2B:
-          _SET_CS(2, val);
-          break;
-      #endif
-      #ifdef TCCR3A
-        case TIMER3A:
-        case TIMER3B:
-        case TIMER3C:
-          _SET_CS(3, val);
-          break;
-      #endif
-      #ifdef TCCR4A
-        case TIMER4A:
-        case TIMER4B:
-        case TIMER4C:
-          _SET_CS(4, val);
-          break;
-      #endif
-      #ifdef TCCR5A
-        case TIMER5A:
-        case TIMER5B:
-        case TIMER5C:
-          _SET_CS(5, val);
-          break;
-      #endif
-    }
+        #ifdef TCCR1A
+          case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
+                                                    break;
+        #endif
+        #ifdef TCCR2
+          case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
+        #endif
+        #ifdef TCCR2A
+          case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
+        #endif
+        #ifdef TCCR3A
+          case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
+        #endif
+        #ifdef TCCR4A
+          case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
+        #endif
+        #ifdef TCCR5A
+          case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
+        #endif
+      }
+    #endif
   }
 
 #endif // FAST_PWM_FAN
@@ -1329,7 +1313,7 @@ void Temperature::init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void Temperature::start_watching_heater(uint8_t e) {
+  void Temperature::start_watching_heater(const uint8_t e) {
     #if HOTENDS == 1
       UNUSED(e);
     #endif
@@ -1717,15 +1701,15 @@ void Temperature::isr() {
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
-          soft_pwm_count_fan[0] = ((soft_pwm_count_fan[0] & pwm_mask) + soft_pwm_amount_fan[0]) >> 1;
+          soft_pwm_count_fan[0] = (soft_pwm_count_fan[0] & pwm_mask) + (soft_pwm_amount_fan[0] >> 1);
           WRITE_FAN(soft_pwm_count_fan[0] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN1
-          soft_pwm_count_fan[1] = ((soft_pwm_count_fan[1] & pwm_mask) + soft_pwm_amount_fan[1]) >> 1;
+          soft_pwm_count_fan[1] = (soft_pwm_count_fan[1] & pwm_mask) + (soft_pwm_amount_fan[1] >> 1);
           WRITE_FAN1(soft_pwm_count_fan[1] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN2
-          soft_pwm_count_fan[2] = ((soft_pwm_count_fan[2] & pwm_mask) + soft_pwm_amount_fan[2]) >> 1;
+          soft_pwm_count_fan[2] = (soft_pwm_count_fan[2] & pwm_mask) + (soft_pwm_amount_fan[2] >> 1);
           WRITE_FAN2(soft_pwm_count_fan[2] > pwm_mask ? HIGH : LOW);
         #endif
       #endif

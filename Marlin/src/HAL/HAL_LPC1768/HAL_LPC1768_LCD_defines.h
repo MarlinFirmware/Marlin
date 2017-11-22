@@ -21,13 +21,13 @@
  */
 
 /**
-* LPC1768 LCD specific defines
-*/
+ * LPC1768 LCD-specific defines
+ */
 
-#if defined(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
 
   // pointers to low level routines - must always supply these
-//  #define U8G_HAL_LINKS
+  //#define U8G_HAL_LINKS
   #define HAL_LCD_pin_routines "HAL_LPC1768/HAL_LCD_pin_routines.h"
   #define HAL_LCD_I2C_routines  "HAL_LPC1768/HAL_LCD_I2C_routines.h"
   #define HAL_LCD_delay "HAL_LPC1768/HAL_LCD_delay.h"
