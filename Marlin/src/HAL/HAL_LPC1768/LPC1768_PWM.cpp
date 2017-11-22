@@ -245,14 +245,15 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
 
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));
 
-  NVIC_EnableIRQ(PWM1_IRQn);   // ?? fixes compiler problem??  ISR won't start
-                               // unless put in an extra "enable"
   NVIC_DisableIRQ(PWM1_IRQn);
 
   uint8_t slot = 0xFF;
   for (uint8_t i = 0; i < NUM_PWMS; i++)         // find slot
     if (ISR_table[i].pin == pin) { slot = i; break; }
-  if (slot == 0xFF) return false;    // return error if pin not found
+  if (slot == 0xFF) {   // return error if pin not found
+    NVIC_EnableIRQ(PWM1_IRQn);
+    return false;
+  }
 
   LPC1768_PWM_update_map_MR();
 
@@ -315,7 +316,10 @@ bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
   uint8_t slot = 0xFF;
   for (uint8_t i = 0; i < NUM_PWMS; i++)         // find slot
     if (ISR_table[i].pin == pin) { slot = i; break; }
-  if (slot == 0xFF) return false;    // return error if pin not found
+  if (slot == 0xFF) {   // return error if pin not found
+    NVIC_EnableIRQ(PWM1_IRQn);
+    return false;
+  }
 
   LPC1768_PWM_update_map_MR();
 
