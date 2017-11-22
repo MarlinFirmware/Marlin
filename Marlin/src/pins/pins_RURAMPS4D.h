@@ -1,4 +1,4 @@
-/**
+/*
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -21,7 +21,7 @@
  * Ported sys0724 & Vynt
  */
 
-/**
+/*
  * Arduino Mega? or Due with RuRAMPS4DUE pin assignments
  *
  * Applies to the following boards:
@@ -40,35 +40,32 @@
   #define BOARD_NAME       "RuRAMPS4Due"
 #endif
 #define RURAMPS4DUE        // #1550 in boards.h
-
+//#define LARGE_FLASH true
 #undef INVERTED_HEATER_PINS
 #undef INVERTED_BED_PINS
 #undef INVERTED_FAN_PINS
 
-//
-// Servos
-//
-#define SERVO0_PIN          5
-#define SERVO1_PIN          3
-#define SERVO2_PIN         -1
-#define SERVO3_PIN          1
+// EEPROM
+#define E2END 0x8000  // 32Kb (24lc256)
+#define I2C_EEPROM    // EEPROM on I2C-0
+//#define EEPROM_SD   // EEPROM on SDCARD
+//#define SPI_EEPROM  // EEPROM on SPI-0
+//#define SPI_CHAN_EEPROM1        ?
+//#define SPI_EEPROM1_CS          ?
+// 2K EEPROM
+//#define SPI_EEPROM2_CS          ?
+// 32Mb FLASH
+//#define SPI_FLASH_CS            ?
 
-//
-// Limit Switches
-//
-#define X_MIN_PIN          45
-#define X_MAX_PIN          39
-#define Y_MIN_PIN          46
-#define Y_MAX_PIN          41
-#define Z_MIN_PIN          49
-#define Z_MAX_PIN          43
+// MKS TFT / Nextion Use internal USART-1
+#define TFT_LCD_MODULE_COM        1
+#define TFT_LCD_MODULE_BAUDRATE   115600
 
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  43
-#endif
+// ESP WiFi Use internal USART-2
+#define ESP_WIFI_MODULE_COM       2
+#define ESP_WIFI_MODULE_BAUDRATE  115600
+#define ESP_WIFI_MODULE_RESET_PIN -1
+#define PIGGY_GPIO_PIN            -1
 
 //
 // Steppers
@@ -104,7 +101,7 @@
 #define E2_CS_PIN          -1
 
 #define E3_STEP_PIN        15 // Only For Extension Board
-#define E3_DIR_PIN         14
+#define E3_DIR_PIN         14 
 #define E3_ENABLE_PIN      61
 #define E3_CS_PIN          -1
 
@@ -128,7 +125,7 @@
 
 #if !ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_PROBE_PIN      49
-#endif // else Z_PROBE_PIN = Z_MIN_PIN
+#endif // else Z_PROBE_PIN = Z_MIN_PIN 
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
@@ -175,7 +172,7 @@
 #define SERVO0_PIN          5
 #define SERVO1_PIN          3
 #define SERVO2_PIN         -1
-#define SERVO3_PIN         -1
+#define SERVO3_PIN         -1  
 
 //
 // Misc. Functions
@@ -185,30 +182,6 @@
 #define SDPOWER	           -1
 #define PS_ON_PIN          -1 // 65
 #define KILL_PIN           -1
-
-// MKS TFT / Nextion Use internal USART-1
-#define TFT_LCD_MODULE_COM        1
-#define TFT_LCD_MODULE_BAUDRATE   115600
-
-// ESP WiFi Use internal USART-2
-#define ESP_WIFI_MODULE_COM       2
-#define ESP_WIFI_MODULE_BAUDRATE  115600
-#define ESP_WIFI_MODULE_RESET_PIN -1
-#define PIGGY_GPIO_PIN            -1
-
-//
-// EEPROM
-//
-#define E2END 0x8000  // 32Kb (24lc256)
-#define I2C_EEPROM    // EEPROM on I2C-0
-//#define EEPROM_SD   // EEPROM on SDCARD
-//#define SPI_EEPROM  // EEPROM on SPI-0
-//#define SPI_CHAN_EEPROM1        ?
-//#define SPI_EEPROM1_CS          ?
-// 2K EEPROM
-//#define SPI_EEPROM2_CS          ?
-// 32Mb FLASH
-//#define SPI_FLASH_CS            ?
 
 //
 // LCD / Controller
@@ -222,7 +195,7 @@
     #define LCD_PINS_D5     50
     #define LCD_PINS_D6     52
     #define LCD_PINS_D7     53
-
+	
     #define BEEPER_PIN      62
 
     #define BTN_EN1         44
@@ -246,7 +219,8 @@
      #define BTN_EN2        42
      #define BTN_ENC        40
      #define SD_DETECT_PIN  51
-    #endif
+    #endif 
+
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
     #define BTN_EN1         44
     #define BTN_EN2         42
@@ -265,5 +239,7 @@
     //#define BTN_EN2         33//?
     //#define BTN_ENC         37//?
   #endif // SPARK_FULL_GRAPHICS
+  
+#else // DOG_LCD
 
 #endif // ULTRA_LCD
