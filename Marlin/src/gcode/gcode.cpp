@@ -207,7 +207,7 @@ void GcodeSuite::process_parsed_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 26: // G26: Mesh Validation Pattern generation
           G26();
           break;
@@ -342,7 +342,7 @@ void GcodeSuite::process_parsed_command() {
         case 48: M48(); break;    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 49: M49(); break;    // M49: Turn on or off G26 debug flag for verbose output
       #endif
 

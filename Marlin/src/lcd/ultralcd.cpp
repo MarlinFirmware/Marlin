@@ -60,6 +60,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+  bool lcd_external_control; // = false
+#endif
+
 // Initialized by settings.load()
 int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
@@ -4599,7 +4603,7 @@ void lcd_update() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // Don't run the debouncer if UBL owns the display
-      #define UBL_CONDITION !ubl.has_control_of_lcd_panel
+      #define UBL_CONDITION !lcd_external_control
     #else
       #define UBL_CONDITION true
     #endif
@@ -5070,7 +5074,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (ubl.has_control_of_lcd_panel) {
+        if (lcd_external_control) {
           ubl.encoder_diff = encoderDiff;   // Make the encoder's rotation available to G29's Mesh Editor
           encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder
                                             // knob has not turned.
@@ -5086,14 +5090,14 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     bool lcd_detected() { return true; }
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-
-    void chirp_at_user() {
+  #if ENABLED(G26_MESH_VALIDATION)
+    void lcd_chirp() {
       lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     }
+  #endif
 
-    bool ubl_lcd_clicked() { return LCD_CLICKED; }
-
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool is_lcd_clicked() { return LCD_CLICKED; }
   #endif
 
 #endif // ULTIPANEL
