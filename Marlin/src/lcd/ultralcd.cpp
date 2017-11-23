@@ -522,13 +522,15 @@ uint16_t max_display_update_time = 0;
       lcd_implementation_clear();
       // Re-initialize custom characters that may be re-used
       #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl.lcd_map_control) lcd_set_custom_characters(
-          #if ENABLED(LCD_PROGRESS_BAR)
-            screen == lcd_status_screen
-          #endif
-        );
+        if (!ubl.lcd_map_control) {
+          lcd_set_custom_characters(
+            #if ENABLED(LCD_PROGRESS_BAR)
+              screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
+            #endif
+          );
+        }
       #elif ENABLED(LCD_PROGRESS_BAR)
-        lcd_set_custom_characters(screen == lcd_status_screen);
+        lcd_set_custom_characters(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       screen_changed = true;
@@ -670,7 +672,7 @@ void lcd_status_screen() {
       #endif
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
-          false
+          CHARSET_MENU
         #endif
       );
       lcd_goto_screen(lcd_main_menu);
@@ -849,7 +851,7 @@ void kill_screen(const char* lcd_msg) {
       static int8_t bar_percent = 0;
       if (lcd_clicked) {
         lcd_goto_previous_menu();
-        lcd_set_custom_characters(false);
+        lcd_set_custom_characters(CHARSET_MENU);
         return;
       }
       bar_percent += (int8_t)encoderPosition;
@@ -4458,11 +4460,7 @@ void kill_screen(const char* lcd_msg) {
 
 void lcd_init() {
 
-  lcd_implementation_init(
-    #if ENABLED(LCD_PROGRESS_BAR)
-      true
-    #endif
-  );
+  lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
 
@@ -4636,7 +4634,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
-          currentScreen == lcd_status_screen
+          currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
         #endif
       );
     }

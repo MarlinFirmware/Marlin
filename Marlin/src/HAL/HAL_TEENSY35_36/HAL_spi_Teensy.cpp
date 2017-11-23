@@ -11,7 +11,7 @@ static SPISettings spiConfig;
 // Standard SPI functions
 /** Initialise SPI bus */
 void spiBegin(void) {
-  #ifndef SS_PIN
+  #if !PIN_EXISTS(SS)
     #error SS_PIN not defined!
   #endif
   SET_OUTPUT(SS_PIN);
@@ -21,7 +21,7 @@ void spiBegin(void) {
   SET_OUTPUT(MOSI_PIN);
 
   //#if DISABLED(SOFTWARE_SPI)
-  #if false
+  #if 0
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
       WRITE(SS_PIN, HIGH);

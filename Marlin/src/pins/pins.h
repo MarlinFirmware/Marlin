@@ -304,6 +304,8 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_SF)
   #include "pins_RAMPS4DUE.h"
+#elif MB(ULTRATRONICS_PRO)
+  #include "pins_ULTRATRONICS_PRO.h"
 #elif MB(ARCHIM2)
   #include "pins_ARCHIM2.h"
 #elif MB(ALLIGATOR)
@@ -316,6 +318,8 @@
   #include "pins_AZSMZ_MINI.h"
 #elif MB(AZTEEG_X5_GT)
   #include "pins_AZTEEG_X5_GT.h"
+#elif MB(BIQU_BQ111_A4)
+  #include "pins_BIQU_BQ111_A4.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
