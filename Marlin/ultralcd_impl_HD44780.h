@@ -396,7 +396,7 @@ static void lcd_set_custom_characters(
   #endif // SDSUPPORT
 
   #if ENABLED(SHOW_BOOTSCREEN) || ENABLED(LCD_PROGRESS_BAR)
-    static uint8_t char_mode = 0;
+    static uint8_t char_mode = CHARSET_MENU;
     #define CHAR_COND (screen_charset != char_mode)
   #else
     #define CHAR_COND true
