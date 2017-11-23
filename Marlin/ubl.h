@@ -46,9 +46,9 @@
 
   // ubl.cpp
 
-void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
-void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
+  void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
+  void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
+  bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
 
   // ubl_motion.cpp
 
@@ -190,6 +190,10 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
                               };
 
       static bool g26_debug_flag, has_control_of_lcd_panel;
+
+      #if ENABLED(ULTIPANEL)
+        static bool lcd_map_control;
+      #endif
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 

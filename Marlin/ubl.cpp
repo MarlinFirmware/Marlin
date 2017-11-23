@@ -73,6 +73,10 @@
   bool unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
 
+  #if ENABLED(ULTIPANEL)
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
+
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {

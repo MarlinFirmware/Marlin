@@ -193,7 +193,6 @@
 void lcd_reset_status();
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  extern bool ubl_lcd_map_control;
   void lcd_mesh_edit_setup(float initial);
   float lcd_mesh_edit();
   void lcd_z_offset_edit_setup(float);
