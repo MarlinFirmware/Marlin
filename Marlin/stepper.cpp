@@ -54,6 +54,10 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
+  #include "ubl.h"
+#endif
+
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -61,10 +65,6 @@
 Stepper stepper; // Singleton
 
 // public:
-
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-  extern bool ubl_lcd_map_control;
-#endif
 
 block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
 
@@ -1224,7 +1224,7 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-    if (!ubl_lcd_map_control)
+    if (!ubl.lcd_map_control)
       cleaning_buffer_counter = 5000;
   #else
     cleaning_buffer_counter = 5000;

@@ -8414,7 +8414,7 @@ inline void gcode_M18_M84() {
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  // Only needed with an LCD
-      ubl_lcd_map_control = defer_return_to_status = false;
+      ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
 }
@@ -13483,7 +13483,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       disable_e_steppers();
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  // Only needed with an LCD
-      ubl_lcd_map_control = defer_return_to_status = false;
+      ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
 
@@ -13904,9 +13904,6 @@ void setup() {
 
   #if ENABLED(SHOW_BOOTSCREEN)
     lcd_bootscreen();
-    #if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && DISABLED(SDSUPPORT)
-      lcd_init();
-    #endif
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
