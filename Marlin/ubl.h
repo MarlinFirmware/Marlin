@@ -50,7 +50,6 @@
   // External references
 
   char *ftostr43sign(const float&, char);
-  bool ubl_lcd_clicked();
   void home_all_axes();
 
   extern uint8_t ubl_cnt;

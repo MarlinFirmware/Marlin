@@ -29,6 +29,9 @@
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     extern bool lcd_external_control;
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
+    #endif
   #endif
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
@@ -169,6 +172,10 @@
     #define LCD_CLICKED (buttons & EN_C)
   #else
     #define LCD_CLICKED false
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool is_lcd_clicked();
   #endif
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))

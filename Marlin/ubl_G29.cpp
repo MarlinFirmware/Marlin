@@ -47,7 +47,6 @@
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
     extern void _lcd_ubl_output_map_lcd();
-    extern bool ubl_lcd_clicked();
     float lcd_z_offset_edit();
   #endif
 
@@ -750,11 +749,11 @@
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
         #if ENABLED(NEWPANEL)
-          if (ubl_lcd_clicked()) {
+          if (is_lcd_clicked()) {
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             lcd_quick_feedback();
             STOW_PROBE();
-            while (ubl_lcd_clicked()) idle();
+            while (is_lcd_clicked()) idle();
             lcd_external_control = false;
             restore_ubl_active_state_and_leave();
             safe_delay(50);  // Debounce the Encoder wheel
@@ -893,13 +892,14 @@
   #endif // HAS_BED_PROBE
 
   #if ENABLED(NEWPANEL)
+
     float unified_bed_leveling::measure_point_with_encoder() {
 
-      while (ubl_lcd_clicked()) delay(50);  // wait for user to release encoder wheel
+      while (is_lcd_clicked()) delay(50);  // wait for user to release encoder wheel
       delay(50);  // debounce
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
+      while (!is_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + 0.01 * float(encoder_diff));
@@ -989,9 +989,9 @@
         const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
         //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
 
-        while (ubl_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
+        while (is_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
         delay(50);                                       // debounce
-        while (!ubl_lcd_clicked()) {                     // we need the loop to move the nozzle based on the encoder wheel here!
+        while (!is_lcd_clicked()) {                     // we need the loop to move the nozzle based on the encoder wheel here!
           idle();
           if (encoder_diff) {
             do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * z_step);
@@ -999,11 +999,11 @@
           }
         }
 
-        // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+        // this sequence to detect an is_lcd_clicked() debounce it and leave if it is
         // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
         // should be redone and compressed.
         const millis_t nxt = millis() + 1500L;
-        while (ubl_lcd_clicked()) {     // debounce and watch for abort
+        while (is_lcd_clicked()) {     // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
@@ -1011,7 +1011,7 @@
 
             #if ENABLED(NEWPANEL)
               lcd_quick_feedback();
-              while (ubl_lcd_clicked()) idle();
+              while (is_lcd_clicked()) idle();
               lcd_external_control = false;
             #endif
 
@@ -1528,7 +1528,7 @@
             do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
-        } while (!ubl_lcd_clicked());
+        } while (!is_lcd_clicked());
 
         if (!lcd_map_control) lcd_return_to_status();
 
@@ -1537,18 +1537,18 @@
         // Let's work on specifying a proper API for the LCD ASAP, OK?
         lcd_external_control = true;
 
-        // this sequence to detect an ubl_lcd_clicked() debounce it and leave if it is
+        // this sequence to detect an is_lcd_clicked() debounce it and leave if it is
         // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
         // should be redone and compressed.
         const millis_t nxt = millis() + 1500UL;
-        while (ubl_lcd_clicked()) { // debounce and watch for abort
+        while (is_lcd_clicked()) { // debounce and watch for abort
           idle();
           if (ELAPSED(millis(), nxt)) {
             lcd_return_to_status();
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
             LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
 
-            while (ubl_lcd_clicked()) idle();
+            while (is_lcd_clicked()) idle();
 
             goto FINE_TUNE_EXIT;
           }

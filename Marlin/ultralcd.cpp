@@ -5091,17 +5091,18 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     bool lcd_detected() { return true; }
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-    void chirp_at_user() {
+  #if ENABLED(G26_MESH_VALIDATION)
+    void lcd_chirp() {
       #if ENABLED(LCD_USE_I2C_BUZZER)
         lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
       #elif PIN_EXISTS(BEEPER)
         buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
       #endif
     }
+  #endif
 
-    bool ubl_lcd_clicked() { return LCD_CLICKED; }
-
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool is_lcd_clicked() { return LCD_CLICKED; }
   #endif
 
 #endif // ULTIPANEL
