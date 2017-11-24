@@ -1492,4 +1492,38 @@
                                          // tweaks made to the configuration are affecting the printer in real-time.
 #endif
 
+
+// some MK2_MUXER requirements
+#if ENABLED(MK2_MULTIPLEXER)
+
+  #undef DISABLE_INACTIVE_EXTRUDER
+  #define DISABLE_INACTIVE_EXTRUDER false // Keep only the active extruder enabled. MK2_MULTIPLEXER won't work otherwise.
+
+  // all extruders use E0 stepper
+  #undef E1_STEP_PIN                  
+  #undef E1_DIR_PIN
+  #undef E1_ENABLE_PIN
+
+  #undef E2_STEP_PIN                  
+  #undef E2_DIR_PIN
+  #undef E2_ENABLE_PIN
+
+  #undef E3_STEP_PIN                  
+  #undef E3_DIR_PIN
+  #undef E3_ENABLE_PIN
+
+  #define E1_STEP_PIN     E0_STEP_PIN
+  #define E1_DIR_PIN      E0_DIR_PIN
+  #define E1_ENABLE_PIN   E0_ENABLE_PIN
+
+  #define E2_STEP_PIN     E0_STEP_PIN
+  #define E2_DIR_PIN      E0_DIR_PIN
+  #define E2_ENABLE_PIN   E0_ENABLE_PIN
+
+  #define E3_STEP_PIN     E0_STEP_PIN
+  #define E3_DIR_PIN      E0_DIR_PIN
+  #define E3_ENABLE_PIN   E0_ENABLE_PIN
+  
+#endif
+
 #endif // CONFIGURATION_ADV_H
