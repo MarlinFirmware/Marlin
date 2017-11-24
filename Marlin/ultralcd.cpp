@@ -4607,10 +4607,11 @@ void lcd_update() {
 
     lcd_buttons_update();
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-      const bool UBL_CONDITION = lcd_external_control;
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Don't run the debouncer if UBL owns the display
+      #define UBL_CONDITION !lcd_external_control
     #else
-      constexpr bool UBL_CONDITION = true;
+      #define UBL_CONDITION true
     #endif
 
     // If the action button is pressed...
