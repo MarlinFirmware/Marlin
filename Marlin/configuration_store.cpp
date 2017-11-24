@@ -1507,15 +1507,15 @@ void MarlinSettings::reset() {
      */
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
-      #define LINEAR_UNIT(N) ((N) / parser.linear_unit_factor)
-      #define VOLUMETRIC_UNIT(N) ((N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
+      #define LINEAR_UNIT(N) (float(N) / parser.linear_unit_factor)
+      #define VOLUMETRIC_UNIT(N) (float(N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
       SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM(" ; Units in ");
       serialprintPGM(parser.linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
     #else
-      #define LINEAR_UNIT(N) N
-      #define VOLUMETRIC_UNIT(N) N
+      #define LINEAR_UNIT(N) (N)
+      #define VOLUMETRIC_UNIT(N) (N)
       SERIAL_ECHOLNPGM("  G21    ; Units in mm");
     #endif
 
@@ -1531,7 +1531,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM(" ; Units in ");
         serialprintPGM(parser.temp_units_name());
       #else
-        #define TEMP_UNIT(N) N
+        #define TEMP_UNIT(N) (N)
         SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
       #endif
 
@@ -1552,23 +1552,23 @@ void MarlinSettings::reset() {
     }
 
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", planner.filament_size[0]);
+    SERIAL_ECHOPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
     SERIAL_EOL();
     #if EXTRUDERS > 1
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", planner.filament_size[1]);
+      SERIAL_ECHOPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
       SERIAL_EOL();
       #if EXTRUDERS > 2
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", planner.filament_size[2]);
+        SERIAL_ECHOPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
         SERIAL_EOL();
         #if EXTRUDERS > 3
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", planner.filament_size[3]);
+          SERIAL_ECHOPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
           SERIAL_EOL();
           #if EXTRUDERS > 4
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M200 T4 D", planner.filament_size[4]);
+            SERIAL_ECHOPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
             SERIAL_EOL();
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3
