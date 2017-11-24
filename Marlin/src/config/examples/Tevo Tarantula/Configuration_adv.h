@@ -861,7 +861,7 @@
 #define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_X_POS 0                  // X position of hotend
-  #define PAUSE_PARK_Y_POS Y_BED_SIZE         // Y position of hotend
+  #define PAUSE_PARK_Y_POS 0                  // Y position of hotend
   #define PAUSE_PARK_Z_ADD 5                  // Z addition of hotend (lift)
   #define PAUSE_PARK_XY_FEEDRATE 225          // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define PAUSE_PARK_Z_FEEDRATE 5             // Z axis feedrate in mm/s (not used for delta printers)
