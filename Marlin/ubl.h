@@ -39,17 +39,6 @@
   #define USE_NOZZLE_AS_REFERENCE 0
   #define USE_PROBE_AS_REFERENCE 1
 
-  typedef struct {
-    int8_t x_index, y_index;
-    float distance; // When populated, the distance from the search location
-  } mesh_index_pair;
-
-  // ubl.cpp
-
-  void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
-  void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-  bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-
   // ubl_motion.cpp
 
   void debug_current_and_destination(const char * const title);
@@ -61,7 +50,6 @@
   // External references
 
   char *ftostr43sign(const float&, char);
-  bool ubl_lcd_clicked();
   void home_all_axes();
 
   extern uint8_t ubl_cnt;
@@ -93,22 +81,6 @@
         static int  g29_grid_size;
       #endif
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static float   g26_extrusion_multiplier,
-                       g26_retraction_multiplier,
-                       g26_nozzle,
-                       g26_filament_diameter,
-                       g26_prime_length,
-                       g26_x_pos, g26_y_pos,
-                       g26_ooze_amount,
-                       g26_layer_height;
-        static int16_t g26_bed_temp,
-                       g26_hotend_temp,
-                       g26_repeats;
-        static int8_t  g26_prime_flag;
-        static bool    g26_continue_with_closest, g26_keep_heaters_on;
-      #endif
-
       static float measure_point_with_encoder();
       static float measure_business_card_thickness(float);
       static bool g29_parameter_parsing();
@@ -125,21 +97,6 @@
       static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
       static void smart_fill_mesh();
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static bool exit_from_g26();
-        static bool parse_G26_parameters();
-        static void G26_line_to_destination(const float &feed_rate);
-        static mesh_index_pair find_closest_circle_to_print(const float&, const float&);
-        static bool look_for_lines_to_connect();
-        static bool turn_on_heaters();
-        static bool prime_nozzle();
-        static void retract_filament(const float where[XYZE]);
-        static void recover_filament(const float where[XYZE]);
-        static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
-        static void move_to(const float&, const float&, const float&, const float&);
-        inline static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
-      #endif
-
     public:
 
       static void echo_name();
@@ -147,8 +104,8 @@
       static void save_ubl_active_state_and_disable();
       static void restore_ubl_active_state_and_leave();
       static void display_map(const int);
-    static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]);
-    static mesh_index_pair find_furthest_invalid_mesh_point();
+      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]);
+      static mesh_index_pair find_furthest_invalid_mesh_point();
       static void reset();
       static void invalidate();
       static void set_all_mesh_points_to_value(const float);
@@ -156,11 +113,6 @@
 
       static void G29() _O0;                          // O0 for no optimization
       static void smart_fill_wlsf(const float &) _O2; // O2 gives smaller code than Os on A2560
-
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static void G26();
-      #endif
-
       static int8_t storage_slot;
 
       static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -188,8 +140,6 @@
                                 MESH_MIN_Y + 12 * (MESH_Y_DIST), MESH_MIN_Y + 13 * (MESH_Y_DIST),
                                 MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                               };
-
-      static bool g26_debug_flag, has_control_of_lcd_panel;
 
       #if ENABLED(ULTIPANEL)
         static bool lcd_map_control;
@@ -390,14 +340,9 @@
         || isnan(z_values[0][0])
       );
     }
-
   }; // class unified_bed_leveling
 
   extern unified_bed_leveling ubl;
-
-  #if ENABLED(UBL_G26_MESH_VALIDATION)
-    FORCE_INLINE void gcode_G26() { ubl.G26(); }
-  #endif
 
   FORCE_INLINE void gcode_G29() { ubl.G29(); }
 

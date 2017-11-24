@@ -38,23 +38,23 @@
     extern void set_current_from_destination();
   #endif
 
-#if ENABLED(DELTA)
+  #if ENABLED(DELTA)
 
-  extern float delta[ABC];
+    extern float delta[ABC];
 
-  extern float delta_endstop_adj[ABC],
-               delta_radius,
-               delta_tower_angle_trim[ABC],
-               delta_tower[ABC][2],
-               delta_diagonal_rod,
-               delta_calibration_radius,
-               delta_diagonal_rod_2_tower[ABC],
-               delta_segments_per_second,
-               delta_clip_start_height;
+    extern float delta_endstop_adj[ABC],
+                 delta_radius,
+                 delta_tower_angle_trim[ABC],
+                 delta_tower[ABC][2],
+                 delta_diagonal_rod,
+                 delta_calibration_radius,
+                 delta_diagonal_rod_2_tower[ABC],
+                 delta_segments_per_second,
+                 delta_clip_start_height;
 
-  extern float delta_safe_distance_from_top();
+    extern float delta_safe_distance_from_top();
 
-#endif
+  #endif
 
 
   static void debug_echo_axis(const AxisEnum axis) {
@@ -68,7 +68,7 @@
 
     // if the title message starts with a '!' it is so important, we are going to
     // ignore the status of the g26_debug_flag
-    if (*title != '!' && !ubl.g26_debug_flag) return;
+    if (*title != '!' && !g26_debug_flag) return;
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
