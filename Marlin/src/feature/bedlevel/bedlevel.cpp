@@ -41,7 +41,7 @@
   #endif
 #endif
 
-#if G26_MESH_VALIDATION
+#if ENABLED(G26_MESH_VALIDATION)
   bool g26_debug_flag; // = false
 #endif
 
