@@ -31,6 +31,10 @@
 
 #include "../../sd/cardreader.h"
 
+#if ENABLED(NANODLP_Z_SYNC)
+  #include "../../module/stepper.h"
+#endif
+
 extern float destination[XYZE];
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
