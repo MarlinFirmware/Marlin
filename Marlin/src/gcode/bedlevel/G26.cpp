@@ -517,13 +517,11 @@ bool prime_nozzle() {
 
       while (is_lcd_clicked()) idle();           // Debounce Encoder Wheel
 
-      #if ENABLED(ULTRA_LCD)
-        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
-                                                            // So... We cheat to get a message up.
-        lcd_setstatusPGM(PSTR("Done Priming"), 99);
-        lcd_quick_feedback();
-        lcd_external_control = false;
-      #endif
+      strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
+                                                          // So... We cheat to get a message up.
+      lcd_setstatusPGM(PSTR("Done Priming"), 99);
+      lcd_quick_feedback();
+      lcd_external_control = false;
     }
     else
   #endif

@@ -1009,11 +1009,9 @@
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
             do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
 
-            #if ENABLED(NEWPANEL)
-              lcd_quick_feedback();
-              while (is_lcd_clicked()) idle();
-              lcd_external_control = false;
-            #endif
+            lcd_quick_feedback();
+            while (is_lcd_clicked()) idle();
+            lcd_external_control = false;
 
             KEEPALIVE_STATE(IN_HANDLER);
             restore_ubl_active_state_and_leave();
