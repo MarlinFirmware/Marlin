@@ -219,6 +219,10 @@
   #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
 #elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X)  || defined(UBL_MESH_MAX_Y)
   #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
+#elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
+  #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
+#elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
+  #error "BABYSTEP_ZPROBE_GFX_REVERSE is now set by OVERLAY_GFX_REVERSE. Please update your configurations."
 #endif
 
 /**
@@ -760,9 +764,6 @@ static_assert(1 >= 0
     static_assert(WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_2_Y can't be reached by the Z probe.");
     static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y can't be reached by the Z probe.");
   #endif
-  #if ENABLED(ENABLE_MESH_EDIT_GFX_OVERLAY) && !ENABLED(DOGLCD)
-    #error "ENABLE_MESH_EDIT_GFX_OVERLAY requires a DOGLCD."
-  #endif
 
 #elif OLDSCHOOL_ABL
 
@@ -830,6 +831,10 @@ static_assert(1 >= 0
 
 #if !HAS_MESH && ENABLED(G26_MESH_VALIDATION)
   #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
+#endif
+
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && (DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(DOGLCD))
+  #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
 /**

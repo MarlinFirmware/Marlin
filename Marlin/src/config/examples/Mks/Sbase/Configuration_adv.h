@@ -612,6 +612,10 @@
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
 
+  // Swap the CW/CCW indicators in the graphics overlay
+  //#define OVERLAY_GFX_REVERSE
+
+
   // VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
   #if ENABLED(VIKI2) || ENABLED(miniVIKI)
     #define DOGLCD_SCK SCK_PIN
@@ -652,7 +656,6 @@
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
-  //#define BABYSTEP_ZPROBE_GFX_REVERSE // Reverses the direction of the CW/CCW indicators
 #endif
 
 // @section extruder
