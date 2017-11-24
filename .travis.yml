@@ -325,7 +325,7 @@ script:
   #
   - use_example_configs delta/generic
   - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2
+  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
   - build_marlin
   #
   # Delta Config (FLSUN AC because it's complex)
