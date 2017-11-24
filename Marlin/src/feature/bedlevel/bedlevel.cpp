@@ -41,6 +41,10 @@
   #endif
 #endif
 
+#if G26_MESH_VALIDATION
+  bool g26_debug_flag; // = false
+#endif
+
 bool leveling_is_valid() {
   return
     #if ENABLED(MESH_BED_LEVELING)

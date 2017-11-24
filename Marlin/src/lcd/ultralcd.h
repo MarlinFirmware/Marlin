@@ -29,6 +29,12 @@
 
   #include "../Marlin.h"
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    extern bool lcd_external_control;
+  #else
+    constexpr bool lcd_external_control = false;
+  #endif
+
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
@@ -123,6 +129,10 @@
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
     #endif
 
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
+    #endif
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       void lcd_mesh_edit_setup(float initial);
       float lcd_mesh_edit();
@@ -206,6 +216,10 @@
     #define LCD_CLICKED (buttons & EN_C)
   #else
     #define LCD_CLICKED false
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool is_lcd_clicked();
   #endif
 
 #else // no LCD
