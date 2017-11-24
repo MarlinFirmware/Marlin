@@ -53,7 +53,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klick für Start")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nächste Koordinate")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Fertig")
-#define MSG_Z_FADE_HEIGHT                   _UxGT("Niv. Ausblendhöhe")
+#define MSG_Z_FADE_HEIGHT                   _UxGT("Ausblendhöhe")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Setze Homeversatz")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Homeversatz aktiv")
 #define MSG_SET_ORIGIN                      _UxGT("Setze Nullpunkt") //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
@@ -77,6 +77,8 @@
 #define MSG_MOVE_AXIS                       _UxGT("Bewegen")
 #define MSG_BED_LEVELING                    _UxGT("Bett Nivellierung")
 #define MSG_LEVEL_BED                       _UxGT("Bett nivellieren")
+#define MSG_LEVEL_CORNERS                   _UxGT("Ecken nivellieren")
+#define MSG_NEXT_CORNER                     _UxGT("Nächste Ecke")
 #define MSG_EDITING_STOPPED                 _UxGT("Netzbearb. angeh.")
 #define MSG_USER_MENU                       _UxGT("Benutzer Menü")
 #define MSG_MOVING                          _UxGT("In Bewegung...")

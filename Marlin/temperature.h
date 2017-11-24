@@ -437,13 +437,20 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(float temp, int hotend, int ncycles, bool set_result=false);
-    #endif
+      static void PID_autotune(const float temp, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
 
-    /**
-     * Update the temp manager when PID values change
-     */
-    static void updatePID();
+      /**
+       * Update the temp manager when PID values change
+       */
+      #if ENABLED(PIDTEMP)
+        FORCE_INLINE static void updatePID() {
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            last_e_position = 0;
+          #endif
+        }
+      #endif
+
+    #endif
 
     #if ENABLED(BABYSTEPPING)
 

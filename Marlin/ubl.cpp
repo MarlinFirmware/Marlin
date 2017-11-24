@@ -28,18 +28,7 @@
   #include "ubl.h"
   #include "hex_print_routines.h"
   #include "temperature.h"
-
-  extern Planner planner;
-
-  /**
-   * These support functions allow the use of large bit arrays of flags that take very
-   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
-   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
-   * in the future.
-   */
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+  #include "planner.h"
 
   uint8_t ubl_cnt = 0;
 
@@ -48,7 +37,7 @@
   void unified_bed_leveling::report_state() {
     echo_name();
     SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
-    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    if (!planner.leveling_active) SERIAL_PROTOCOLPGM("in");
     SERIAL_PROTOCOLLNPGM("active.");
     safe_delay(50);
   }
@@ -62,18 +51,18 @@
     safe_delay(10);
   }
 
-  ubl_state unified_bed_leveling::state;
+  int8_t unified_bed_leveling::storage_slot;
 
-  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        unified_bed_leveling::last_specified_z;
+  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
   constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
                   unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  bool unified_bed_leveling::g26_debug_flag = false,
-       unified_bed_leveling::has_control_of_lcd_panel = false;
+  #if ENABLED(ULTIPANEL)
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
 
   volatile int unified_bed_leveling::encoder_diff;
 
@@ -84,22 +73,19 @@
 
   void unified_bed_leveling::reset() {
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
-    state.storage_slot = -1;
+    storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      planner.z_fade_height = 10.0;
+      planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
-    last_specified_z = -999.9;
   }
 
   void unified_bed_leveling::invalidate() {
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
     set_all_mesh_points_to_value(NAN);
   }
 
-  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+  void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = value;
@@ -122,9 +108,9 @@
       SERIAL_ECHO_SP(spaces + 3);
       serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
       SERIAL_EOL();
-      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
+      serial_echo_xy(MESH_MIN_X, MESH_MAX_Y);
       SERIAL_ECHO_SP(spaces);
-      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
+      serial_echo_xy(MESH_MAX_X, MESH_MAX_Y);
       SERIAL_EOL();
     }
     else {
@@ -171,9 +157,9 @@
     }
 
     if (map_type == 0) {
-      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
+      serial_echo_xy(MESH_MIN_X, MESH_MIN_Y);
       SERIAL_ECHO_SP(spaces + 4);
-      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
+      serial_echo_xy(MESH_MAX_X, MESH_MIN_Y);
       SERIAL_EOL();
       serial_echo_xy(0, 0);
       SERIAL_ECHO_SP(spaces + 5);
