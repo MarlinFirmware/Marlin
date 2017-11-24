@@ -427,15 +427,15 @@ void Planner::check_axes_activity() {
 
         static millis_t fan_kick_end[FAN_COUNT] = { 0 };
 
-        #define KICKSTART_FAN(f)                         \
-          if (tail_fan_speed[f]) {                       \ // is the fan turned on?
-            millis_t ms = millis();                      \
-            if (fan_kick_end[f] == 0) {                  \ // not yet kickstarted?
-              fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \ // kickstart until this time
-              tail_fan_speed[f] = 255;                   \ // full speed
-            } else if (PENDING(ms, fan_kick_end[f]))     \ // kickstart in progress?
-              tail_fan_speed[f] = 255;                   \ // keep full speed going
-          } else fan_kick_end[f] = 0                       // fan off? kick next time
+        #define KICKSTART_FAN(f) \
+          if (tail_fan_speed[f]) { \
+            millis_t ms = millis(); \
+            if (fan_kick_end[f] == 0) { \
+              fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
+              tail_fan_speed[f] = 255; \
+            } else if (PENDING(ms, fan_kick_end[f])) \
+              tail_fan_speed[f] = 255; \
+          } else fan_kick_end[f] = 0
 
         #if HAS_FAN0
           KICKSTART_FAN(0);
