@@ -55,7 +55,7 @@
  * G19  - Select Plane YZ (Requires CNC_WORKSPACE_PLANES)
  * G20  - Set input units to inches (Requires INCH_MODE_SUPPORT)
  * G21  - Set input units to millimeters (Requires INCH_MODE_SUPPORT)
- * G26  - Mesh Validation Pattern (Requires UBL_G26_MESH_VALIDATION)
+ * G26  - Mesh Validation Pattern (Requires G26_MESH_VALIDATION)
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
  * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
@@ -357,7 +357,7 @@ private:
     static void G21();
   #endif
 
-  #if ENABLED(UBL_G26_MESH_VALIDATION)
+  #if ENABLED(G26_MESH_VALIDATION)
     static void G26();
   #endif
 
@@ -453,7 +453,7 @@ private:
     static void M48();
   #endif
 
-  #if ENABLED(UBL_G26_MESH_VALIDATION)
+  #if ENABLED(G26_MESH_VALIDATION)
     static void M49();
   #endif
 
