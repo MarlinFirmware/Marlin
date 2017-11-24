@@ -3430,6 +3430,14 @@ inline void gcode_G0_G1(
     #else
       prepare_move_to_destination();
     #endif
+	
+    #if ENABLED(NANODLP_Z_SYNC)
+      // If G0/G1 command include Z-axis, wait for move and output sync text.
+      if (parser.seenval('Z')) {
+        stepper.synchronize();
+        SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+      }
+    #endif
   }
 }
 

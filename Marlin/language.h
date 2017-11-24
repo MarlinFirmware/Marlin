@@ -144,6 +144,7 @@
 #define MSG_BUSY_PROCESSING                 "busy: processing"
 #define MSG_BUSY_PAUSED_FOR_USER            "busy: paused for user"
 #define MSG_BUSY_PAUSED_FOR_INPUT           "busy: paused for input"
+#define MSG_Z_MOVE_COMP                     "Z_move_comp"
 #define MSG_RESEND                          "Resend: "
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
