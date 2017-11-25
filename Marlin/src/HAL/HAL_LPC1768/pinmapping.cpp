@@ -27,8 +27,8 @@
 #include "../../gcode/parser.h"
 
 // Get the digital pin for an analog index
-pin_t analogInputToDigitalPin(const uint8_t p) {
-  return (p < COUNT(adc_pin_table) ? adc_pin_table[p] : P_NC);
+pin_t analogInputToDigitalPin(const int8_t p) {
+  return (WITHIN(p, 0, NUM_ANALOG_INPUTS) ? adc_pin_table[p] : P_NC);
 }
 
 // Return the index of a pin number
