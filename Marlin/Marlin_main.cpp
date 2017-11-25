@@ -9338,7 +9338,7 @@ inline void gcode_M226() {
           const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
           thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
           #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-            zprobe_zoffset += offs;
+            if (a == Z_AXIS) zprobe_zoffset += offs;
           #endif
         }
     #else
@@ -9349,6 +9349,10 @@ inline void gcode_M226() {
           zprobe_zoffset += offs;
         #endif
       }
+    #endif
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
     #endif
   }
 
@@ -10053,20 +10057,16 @@ inline void gcode_M502() {
 
   inline void gcode_M851() {
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " ");
+    SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);
     if (parser.seen('Z')) {
       const float value = parser.value_linear_units();
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        zprobe_zoffset = value;
-        SERIAL_ECHO(zprobe_zoffset);
+      if (!WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        SERIAL_ECHOLNPGM(" " MSG_Z_MIN " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " " MSG_Z_MAX " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX));
+        return;
       }
-      else
-        SERIAL_ECHOPGM(MSG_Z_MIN " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " " MSG_Z_MAX " " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX));
+      zprobe_zoffset = value;
     }
-    else
-      SERIAL_ECHOPAIR(": ", zprobe_zoffset);
-
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
   }
 
 #endif // HAS_BED_PROBE
