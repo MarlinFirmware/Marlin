@@ -628,6 +628,10 @@ static uint8_t target_extruder;
 
   float delta[ABC];
 
+  // Initialized by G33
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    float raw_delta_height;
+  #endif
   // Initialized by settings.load()
   float delta_height,
         delta_endstop_adj[ABC] = { 0 },
@@ -5853,7 +5857,7 @@ void home_all_axes() { gcode_G28(true); }
             delta_endstop_adj[C_AXIS]
           },
           dr_old = delta_radius,
-          zh_old = delta_height,
+          zh_old = raw_delta_height,
           ta_old[ABC] = {
             delta_tower_angle_trim[A_AXIS],
             delta_tower_angle_trim[B_AXIS],
@@ -5886,22 +5890,51 @@ void home_all_axes() { gcode_G28(true); }
       #define G33_CLEANUP() G33_cleanup()
     #endif
 
+    if (auto_tune) {
+      #if HAS_BED_PROBE
+        if (isnan(raw_delta_height) ? true : !G33_auto_tune()) {
+          SERIAL_PROTOCOLPGM("Calibrate printer first");
+          SERIAL_EOL();
+        }
+      #else
+        SERIAL_PROTOCOLLNPGM("A probe is needed for auto-tune");
+      #endif
+      return G33_CLEANUP();
+    }
+
+    // inititialze raw height with one probe
+    if (isnan(raw_delta_height)) {
+      SERIAL_PROTOCOLPGM("Initialzing...");
+      SERIAL_EOL();
+      raw_delta_height = delta_height;
+      #if HAS_BED_PROBE
+        setup_for_endstop_or_probe_move();
+        endstops.enable(true);
+        if (!home_delta())
+          return;
+        endstops.not_homing();
+        raw_delta_height += zprobe_zoffset - calibration_probe(0, 0, stow_after_each);
+        if (isnan(raw_delta_height)) {
+          SERIAL_PROTOCOLPGM("Correct delta_height with M665 H");
+          SERIAL_EOL();
+          return G33_CLEANUP();
+        }
+      #endif
+    }
+
+    // reset height to raw position;
+    delta_height = raw_delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    ;
+
     setup_for_endstop_or_probe_move();
     endstops.enable(true);
     if (!_0p_calibration) {
       if (!home_delta())
         return;
       endstops.not_homing();
-    }
-
-    if (auto_tune) {
-      #if HAS_BED_PROBE
-        G33_auto_tune();
-      #else
-        SERIAL_PROTOCOLLNPGM("A probe is needed for auto-tune");
-      #endif
-      G33_CLEANUP();
-      return;
     }
 
     // Report settings
@@ -5932,7 +5965,7 @@ void home_all_axes() { gcode_G28(true); }
         if (zero_std_dev < zero_std_dev_min) {
           COPY(e_old, delta_endstop_adj);
           dr_old = delta_radius;
-          zh_old = delta_height;
+          zh_old = raw_delta_height;
           COPY(ta_old, delta_tower_angle_trim);
         }
 
@@ -6016,7 +6049,7 @@ void home_all_axes() { gcode_G28(true); }
       else if (zero_std_dev >= test_precision) {   // step one back
         COPY(delta_endstop_adj, e_old);
         delta_radius = dr_old;
-        delta_height = zh_old;
+        raw_delta_height = zh_old;
         COPY(delta_tower_angle_trim, ta_old);
       }
 
@@ -6030,8 +6063,15 @@ void home_all_axes() { gcode_G28(true); }
 
         // adjust delta_height and endstops by the max amount
         const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
-        delta_height -= z_temp;
+        raw_delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
+
+        // reset height to raw position;
+        delta_height = raw_delta_height
+        #if HAS_BED_PROBE
+          - zprobe_zoffset
+        #endif
+        ;
       }
       recalc_delta_settings();
       NOMORE(zero_std_dev_min, zero_std_dev);
