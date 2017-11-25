@@ -55,10 +55,6 @@
   #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
 #endif
 
-#ifndef _BV
-  #define _BV(bit) (1UL << (bit))
-#endif
-
 /**
  * Magic I/O routines
  *
