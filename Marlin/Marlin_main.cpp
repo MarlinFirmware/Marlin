@@ -5544,13 +5544,12 @@ void home_all_axes() { gcode_G28(true); }
   }
 
   inline float calibration_probe(const float nx, const float ny, const bool stow) {
-    return
-      #if HAS_BED_PROBE
-        probe_pt(nx, ny, stow, 0, false)
-      #else
-        lcd_probe_pt(nx, ny)
-      #endif
-    ;
+    #if HAS_BED_PROBE
+      return probe_pt(nx, ny, stow, 0, false);
+    #else
+      UNUSED(stow);
+      return lcd_probe_pt(nx, ny);
+    #endif
   }
 
   static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points, const bool towers_set, const bool stow_after_each) {
