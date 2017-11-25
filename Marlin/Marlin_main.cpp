@@ -13923,12 +13923,21 @@ void setup() {
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    // Initialize mixing to 100% color 1
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = (i == 0) ? 1.0 : 0.0;
-    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
+    // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
+    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+        mixing_virtual_tool_mix[t][i] = (t == i) ? 1.0 : 0.0;
+
+    // Remaining virtual tools are 100% filament 1
+    #if MIXING_STEPPERS < MIXING_VIRTUAL_TOOLS
+      for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
+        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+          mixing_virtual_tool_mix[t][i] = (i == 0) ? 1.0 : 0.0;
+    #endif
+
+    // Initialize mixing to tool 0 color
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      mixing_factor[i] = mixing_virtual_tool_mix[0][i];
   #endif
 
   #if ENABLED(BLTOUCH)
