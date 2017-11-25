@@ -27,6 +27,9 @@
 #ifndef __DELTA_H__
 #define __DELTA_H__
 
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  extern float raw_delta_height;
+#endif
 extern float delta_height,
              delta_endstop_adj[ABC],
              delta_radius,
