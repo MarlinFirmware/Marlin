@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V45"
+#define EEPROM_VERSION "V46"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V44 EEPROM Layout:
+ * V46 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -93,14 +93,15 @@
  *
  * DELTA:                                           44 bytes
  *  352  M666 H    delta_height                     (float)
- *  364  M666 XYZ  delta_endstop_adj                (float x3)
- *  368  M665 R    delta_radius                     (float)
- *  372  M665 L    delta_diagonal_rod               (float)
- *  376  M665 S    delta_segments_per_second        (float)
- *  380  M665 B    delta_calibration_radius         (float)
- *  384  M665 X    delta_tower_angle_trim[A]        (float)
- *  388  M665 Y    delta_tower_angle_trim[B]        (float)
- *  392  M665 Z    delta_tower_angle_trim[C]        (float)
+ *  356            raw_delta_height                 (float)
+ *  360  M666 XYZ  delta_endstop_adj                (float x3)
+ *  372  M665 R    delta_radius                     (float)
+ *  376  M665 L    delta_diagonal_rod               (float)
+ *  380  M665 S    delta_segments_per_second        (float)
+ *  384  M665 B    delta_calibration_radius         (float)
+ *  388  M665 X    delta_tower_angle_trim[A]        (float)
+ *  392  M665 Y    delta_tower_angle_trim[B]        (float)
+ *  396  M665 Z    delta_tower_angle_trim[C]        (float)
  *
  * [XYZ]_DUAL_ENDSTOPS:                             12 bytes
  *  352  M666 X    x_endstop_adj                    (float)
@@ -108,66 +109,66 @@
  *  360  M666 Z    z_endstop_adj                    (float)
  *
  * ULTIPANEL:                                       6 bytes
- *  396  M145 S0 H lcd_preheat_hotend_temp          (int x2)
- *  400  M145 S0 B lcd_preheat_bed_temp             (int x2)
- *  404  M145 S0 F lcd_preheat_fan_speed            (int x2)
+ *  400  M145 S0 H lcd_preheat_hotend_temp          (int x2)
+ *  404  M145 S0 B lcd_preheat_bed_temp             (int x2)
+ *  408  M145 S0 F lcd_preheat_fan_speed            (int x2)
  *
  * PIDTEMP:                                         82 bytes
- *  408  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
- *  428  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
- *  440  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
- *  456  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  472  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
- *  488  M301 L        lpq_len                      (int)
+ *  412  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]   (float x4)
+ *  432  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]   (float x4)
+ *  444  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]   (float x4)
+ *  460  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  476  M301 E4 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]   (float x4)
+ *  492  M301 L        lpq_len                      (int)
  *
  * PIDTEMPBED:                                      12 bytes
- *  490  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
+ *  494  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  502  M250 C    lcd_contrast                     (uint16_t)
+ *  506  M250 C    lcd_contrast                     (uint16_t)
  *
  * FWRETRACT:                                       33 bytes
- *  504  M209 S    autoretract_enabled              (bool)
- *  505  M207 S    retract_length                   (float)
- *  509  M207 F    retract_feedrate_mm_s            (float)
- *  513  M207 Z    retract_zlift                    (float)
- *  517  M208 S    retract_recover_length           (float)
- *  521  M208 F    retract_recover_feedrate_mm_s    (float)
- *  525  M207 W    swap_retract_length              (float)
- *  529  M208 W    swap_retract_recover_length      (float)
- *  533  M208 R    swap_retract_recover_feedrate_mm_s (float)
+ *  508  M209 S    autoretract_enabled              (bool)
+ *  509  M207 S    retract_length                   (float)
+ *  513  M207 F    retract_feedrate_mm_s            (float)
+ *  517  M207 Z    retract_zlift                    (float)
+ *  521  M208 S    retract_recover_length           (float)
+ *  525  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  529  M207 W    swap_retract_length              (float)
+ *  533  M208 W    swap_retract_recover_length      (float)
+ *  537  M208 R    swap_retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:                            21 bytes
- *  537  M200 D    parser.volumetric_enabled        (bool)
- *  538  M200 T D  planner.filament_size            (float x5) (T0..3)
+ *  541  M200 D    parser.volumetric_enabled        (bool)
+ *  542  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
  * HAVE_TMC2130:                                    22 bytes
- *  558  M906 X    Stepper X current                (uint16_t)
- *  560  M906 Y    Stepper Y current                (uint16_t)
- *  562  M906 Z    Stepper Z current                (uint16_t)
- *  564  M906 X2   Stepper X2 current               (uint16_t)
- *  566  M906 Y2   Stepper Y2 current               (uint16_t)
- *  568  M906 Z2   Stepper Z2 current               (uint16_t)
- *  570  M906 E0   Stepper E0 current               (uint16_t)
- *  572  M906 E1   Stepper E1 current               (uint16_t)
- *  574  M906 E2   Stepper E2 current               (uint16_t)
- *  576  M906 E3   Stepper E3 current               (uint16_t)
- *  578  M906 E4   Stepper E4 current               (uint16_t)
+ *  562  M906 X    Stepper X current                (uint16_t)
+ *  564  M906 Y    Stepper Y current                (uint16_t)
+ *  566  M906 Z    Stepper Z current                (uint16_t)
+ *  568  M906 X2   Stepper X2 current               (uint16_t)
+ *  570  M906 Y2   Stepper Y2 current               (uint16_t)
+ *  572  M906 Z2   Stepper Z2 current               (uint16_t)
+ *  574  M906 E0   Stepper E0 current               (uint16_t)
+ *  576  M906 E1   Stepper E1 current               (uint16_t)
+ *  578  M906 E2   Stepper E2 current               (uint16_t)
+ *  580  M906 E3   Stepper E3 current               (uint16_t)
+ *  582  M906 E4   Stepper E4 current               (uint16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
- *  580  M900 K    extruder_advance_k               (float)
- *  584  M900 WHD  advance_ed_ratio                 (float)
+ *  584  M900 K    extruder_advance_k               (float)
+ *  588  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  588  M907 X    Stepper XY current               (uint32_t)
- *  592  M907 Z    Stepper Z current                (uint32_t)
- *  596  M907 E    Stepper E current                (uint32_t)
+ *  592  M907 X    Stepper XY current               (uint32_t)
+ *  596  M907 Z    Stepper Z current                (uint32_t)
+ *  600  M907 E    Stepper E current                (uint32_t)
  *
  * CNC_COORDINATE_SYSTEMS                           108 bytes
- *  600  G54-G59.3 coordinate_system                (float x 27)
+ *  604  G54-G59.3 coordinate_system                (float x 27)
  *
  *  708                                Minimum end-point
- * 2025 (704 + 36 + 9 + 288 + 988)     Maximum end-point
+ * 2029 (708 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -449,9 +450,13 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
 
-    // 10 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
+    // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
       EEPROM_WRITE(delta_height);              // 1 float
+      #if DISABLED(DELTA_AUTO_CALIBRATION)
+        float raw_delta_height = NAN;
+      #endif
+      EEPROM_WRITE(raw_delta_height);          // 1 float
       EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
       EEPROM_WRITE(delta_diagonal_rod);        // 1 float
@@ -480,11 +485,11 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       #endif
 
-      for (uint8_t q = 7; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 8; q--;) EEPROM_WRITE(dummy);
 
     #else
       dummy = 0.0f;
-      for (uint8_t q = 10; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
     #endif
 
     #if DISABLED(ULTIPANEL)
@@ -879,6 +884,10 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(DELTA)
         EEPROM_READ(delta_height);              // 1 float
+        #if DISABLED(DELTA_AUTO_CALIBRATION)
+          float raw_delta_height;
+        #endif
+        EEPROM_READ(raw_delta_height);          // 1 float
         EEPROM_READ(delta_endstop_adj);         // 3 floats
         EEPROM_READ(delta_radius);              // 1 float
         EEPROM_READ(delta_diagonal_rod);        // 1 float
@@ -904,11 +913,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy);
         #endif
 
-        for (uint8_t q=7; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
 
       #else
 
-        for (uint8_t q=10; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
 
       #endif
 
@@ -1330,6 +1339,9 @@ void MarlinSettings::reset() {
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
                 dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
     delta_height = DELTA_HEIGHT;
+    #if ENABLED(DELTA_AUTO_CALIBRATION)
+      raw_delta_height = NAN;
+    #endif
     COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
