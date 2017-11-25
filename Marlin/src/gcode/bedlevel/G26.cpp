@@ -146,6 +146,8 @@ float g26_extrusion_multiplier,
       g26_layer_height,
       g26_prime_length;
 
+float g26_x_pos=0, g26_y_pos=0;
+
 int16_t g26_bed_temp,
         g26_hotend_temp;
 
@@ -403,7 +405,10 @@ inline bool look_for_lines_to_connect() {
                   SERIAL_ECHOPAIR(", ey=", ey);
                   SERIAL_CHAR(')');
                   SERIAL_EOL();
-                  debug_current_and_destination(PSTR("Connecting vertical line."));
+                  #if ENABLED(AUTO_BED_LEVELING_UBL)
+                    void debug_current_and_destination(const char *title);
+                    debug_current_and_destination(PSTR("Connecting vertical line."));
+                  #endif
                 }
                 print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
               }
@@ -512,13 +517,11 @@ bool prime_nozzle() {
 
       while (is_lcd_clicked()) idle();           // Debounce Encoder Wheel
 
-      #if ENABLED(ULTRA_LCD)
-        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
-                                                            // So... We cheat to get a message up.
-        lcd_setstatusPGM(PSTR("Done Priming"), 99);
-        lcd_quick_feedback();
-        lcd_external_control = false;
-      #endif
+      strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
+                                                          // So... We cheat to get a message up.
+      lcd_setstatusPGM(PSTR("Done Priming"), 99);
+      lcd_quick_feedback();
+      lcd_external_control = false;
     }
     else
   #endif
@@ -675,8 +678,9 @@ void GcodeSuite::G26() {
     return G26_ERR;
   }
 
-  float g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS],
-        g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
+  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS],
+  g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
+
   if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
     SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
     return G26_ERR;

@@ -69,23 +69,23 @@ script:
   - opt_set_adv FANMUX0_PIN 53
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Test a probeless build of AUTO_BED_LEVELING_UBL
+  # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_UBL G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
+  - opt_set EXTRUDERS 5
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_2 5
+  - opt_set TEMP_SENSOR_3 20
+  - opt_set TEMP_SENSOR_4 999
+  - opt_set TEMP_SENSOR_BED 1
+  - opt_enable AUTO_BED_LEVELING_UBL DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS EEPROM_CHITCHAT G3D_PANEL
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING LIN_ADVANCE NANODLP_Z_SYNC
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # And with a probe...
+  # And with a Sled Z Probe
   #
-  - opt_enable FIX_MOUNTED_PROBE
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  #
-  # Test a Sled Z Probe
-  # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
-  #
-  - restore_configs
-  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - opt_enable Z_PROBE_SLED 
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test a Servo Probe
@@ -123,19 +123,6 @@ script:
   - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
   - opt_set_adv I2C_SLAVE_ADDRESS 63
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  #
-  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
-  # Include a test for LIN_ADVANCE here also
-  #
-  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-  - opt_set EXTRUDERS 5
-  - opt_set TEMP_SENSOR_1 1
-  - opt_set TEMP_SENSOR_2 5
-  - opt_set TEMP_SENSOR_3 20
-  - opt_set TEMP_SENSOR_4 999
-  - opt_set TEMP_SENSOR_BED 1
-  - opt_enable_adv LIN_ADVANCE
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Mixing Extruder with 5 steppers
@@ -305,7 +292,7 @@ script:
   #
   - use_example_configs delta/generic
   - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2
+  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Delta Config (FLSUN AC because it's complex)

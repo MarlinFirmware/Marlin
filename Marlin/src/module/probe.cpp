@@ -594,17 +594,20 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
     : !position_is_reachable_by_probe(rx, ry)
   ) return NAN;
 
+  const float nz = 
+    #if ENABLED(DELTA)
+      // Move below clip height or xy move will be aborted by do_blocking_move_to
+      min(current_position[Z_AXIS], delta_clip_start_height)
+    #else
+      current_position[Z_AXIS]
+    #endif
+  ;
+
   const float old_feedrate_mm_s = feedrate_mm_s;
-
-  #if ENABLED(DELTA)
-    if (current_position[Z_AXIS] > delta_clip_start_height)
-      do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
-  // Move the probe to the given XY
-  do_blocking_move_to_xy(nx, ny);
+  // Move the probe to the starting XYZ
+  do_blocking_move_to(nx, ny, nz);
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
