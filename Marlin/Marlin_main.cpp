@@ -9324,6 +9324,14 @@ inline void gcode_M226() {
 
 #if ENABLED(BABYSTEPPING)
 
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
+      zprobe_zoffset += offs;
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+    }
+  #endif
+
   /**
    * M290: Babystepping
    */
@@ -9334,7 +9342,7 @@ inline void gcode_M226() {
           const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
           thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
           #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-            if (a == Z_AXIS) zprobe_zoffset += offs;
+            if (a == Z_AXIS && parser.boolval('P', true)) mod_zprobe_zoffset(offs);
           #endif
         }
     #else
@@ -9342,13 +9350,9 @@ inline void gcode_M226() {
         const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
         thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          zprobe_zoffset += offs;
+          if (parser.boolval('P', true)) mod_zprobe_zoffset(offs);
         #endif
       }
-    #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
     #endif
   }
 
