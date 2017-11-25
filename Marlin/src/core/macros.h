@@ -96,7 +96,7 @@
 
 // Macros for bit masks
 #ifndef _BV
-  #define _BV(B) (1UL<<(B))
+  #define _BV(n)  (1<<(n))
 #endif
 #define TEST(n,b) (((n)&_BV(b))!=0)
 #define SBI(n,b) (n |= _BV(b))
