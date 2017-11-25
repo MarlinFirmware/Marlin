@@ -29,6 +29,10 @@
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../core/serial.h"
+#endif
+
 /**
  * M290: Babystepping
  */
@@ -39,7 +43,7 @@ void GcodeSuite::M290() {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          zprobe_zoffset += offs;
+          if (a == Z_AXIS) zprobe_zoffset += offs;
         #endif
       }
   #else
@@ -50,6 +54,10 @@ void GcodeSuite::M290() {
         zprobe_zoffset += offs;
       #endif
     }
+  #endif
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
   #endif
 }
 
