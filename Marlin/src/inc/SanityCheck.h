@@ -635,7 +635,7 @@ static_assert(1 >= 0
   , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 );
 
-#if HAS_BED_PROBE
+#if PROBE_SELECTED && DISABLED(PROBE_MANUALLY)
 
   /**
    * Z_PROBE_SLED is incompatible with DELTA
