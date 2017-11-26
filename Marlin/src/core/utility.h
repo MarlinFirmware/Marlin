@@ -40,9 +40,9 @@ void safe_delay(millis_t ms);
    * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
    * in the future.
    */
-  FORCE_INLINE void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
-  FORCE_INLINE void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
-  FORCE_INLINE bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
+  FORCE_INLINE void bitmap_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
+  FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
+  FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 #endif
 
 #if ENABLED(ULTRA_LCD)

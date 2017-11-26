@@ -194,7 +194,7 @@ mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
 
   for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
-      if (!is_bit_set(circle_flags, i, j)) {
+      if (!is_bitmap_set(circle_flags, i, j)) {
         const float mx = _GET_MESH_X(i),  // We found a circle that needs to be printed
                     my = _GET_MESH_Y(j);
 
@@ -220,7 +220,7 @@ mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
       }
     }
   }
-  bit_set(circle_flags, return_val.x_index, return_val.y_index);   // Mark this location as done.
+  bitmap_set(circle_flags, return_val.x_index, return_val.y_index);   // Mark this location as done.
   return return_val;
 }
 
@@ -348,8 +348,8 @@ inline bool look_for_lines_to_connect() {
       if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
                                    // This is already a half circle because we are at the edge of the bed.
 
-        if (is_bit_set(circle_flags, i, j) && is_bit_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
-          if (!is_bit_set(horizontal_mesh_line_flags, i, j)) {
+        if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
+          if (!is_bitmap_set(horizontal_mesh_line_flags, i, j)) {
 
             //
             // We found two circles that need a horizontal line to connect them
@@ -376,15 +376,15 @@ inline bool look_for_lines_to_connect() {
 
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
             }
-            bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
+            bitmap_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
           }
         }
 
         if (j < GRID_MAX_POINTS_Y) { // We can't connect to anything further back than GRID_MAX_POINTS_Y.
                                          // This is already a half circle because we are at the edge  of the bed.
 
-          if (is_bit_set(circle_flags, i, j) && is_bit_set(circle_flags, i, j + 1)) { // check if we can do a line straight down
-            if (!is_bit_set( vertical_mesh_line_flags, i, j)) {
+          if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i, j + 1)) { // check if we can do a line straight down
+            if (!is_bitmap_set( vertical_mesh_line_flags, i, j)) {
               //
               // We found two circles that need a vertical line to connect them
               // Print it!
@@ -412,7 +412,7 @@ inline bool look_for_lines_to_connect() {
                 }
                 print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
               }
-              bit_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if skipped
+              bitmap_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if skipped
             }
           }
         }
