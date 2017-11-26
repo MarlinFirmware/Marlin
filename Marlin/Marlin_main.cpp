@@ -10922,7 +10922,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
-                          midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0] + hotend_offset[X_AXIS][active_extruder],
+                          midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + hotend_offset[X_AXIS][active_extruder],
                           grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
                                     + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
