@@ -1123,7 +1123,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    const float cs = FABS(current_speed[i] = delta_mm[i] * inverse_mm_s);
+    const float cs = FABS((current_speed[i] = delta_mm[i] * inverse_mm_s));
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif

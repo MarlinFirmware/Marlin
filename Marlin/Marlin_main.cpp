@@ -13305,11 +13305,14 @@ void prepare_move_to_destination() {
         case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
                                                   break;
       #endif
-      #ifdef TCCR2
-        case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
-      #endif
-      #ifdef TCCR2A
-        case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
+      #if defined(TCCR2) || defined(TCCR2A)
+        #ifdef TCCR2
+          case TIMER2:
+        #endif
+        #ifdef TCCR2A
+          case TIMER2A: case TIMER2B:
+        #endif
+                                                  _SET_CS(2, val); break;
       #endif
       #ifdef TCCR3A
         case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
