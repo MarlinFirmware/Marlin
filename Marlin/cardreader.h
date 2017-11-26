@@ -67,7 +67,7 @@ public:
 
   void ls();
   void chdir(const char *relpath);
-  void updir();
+  int8_t updir();
   void setroot();
 
   uint16_t get_num_Files();

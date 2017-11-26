@@ -626,13 +626,14 @@ void CardReader::chdir(const char * relpath) {
   }
 }
 
-void CardReader::updir() {
-  if (workDirDepth > 0) {                                           // At least 1 dir has been saved
-    workDir = --workDirDepth ? workDirParents[workDirDepth] : root; // Use parent, or root if none
+int8_t CardReader::updir() {
+  if (workDirDepth > 0) {                                               // At least 1 dir has been saved
+    workDir = --workDirDepth ? workDirParents[workDirDepth - 1] : root; // Use parent, or root if none
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
   }
+  return workDirDepth;
 }
 
 #if ENABLED(SDCARD_SORT_ALPHA)
