@@ -64,13 +64,28 @@
  * See the end of this file for details on the hardware/firmware interaction
  */
 
+/**
+ * Directly controlled PWM pins (
+ *   NA means not being used as a directly controlled PWM pin
+ *
+ *                   Re-ARM              MKS Sbase
+ *  PWM1.1   P1_18   SERVO3_PIN           NA(no connection)
+ *  PWM1.1   P2_00    NA(E0_STEP_PIN)     NA(X stepper)
+ *  PWM1.2   P1_20   SERVO0_PIN           NA(no connection)
+ *  PWM1.2   P2_01    NA(X_STEP_PIN)      NA(Y stepper)
+ *  PWM1.3   P1_21   SERVO1_PIN           NA(no connection)
+ *  PWM1.3   P2_02    NA(Y_STEP_PIN)      NA(Z stepper)
+ *  PWM1.4   P1_23    NA(SDSS(SSEL0))    SERVO0_PIN
+ *  PWM1.4   P2_03    NA(Z_STEP_PIN)      NA(E0 stepper)
+ *  PWM1.5   P1_24    NA(X_MIN_PIN)       NA(X_MIN_pin)
+ *  PWM1.5   P2_04   RAMPS_D9_PIN        FAN_PIN
+ *  PWM1.6   P1_26    NA(Y_MIN_PIN)       NA(Y_MIN_pin)
+ *  PWM1.6   P2_05   RAMPS_D10_PIN       HEATER_BED_PIN
+ */
+
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-
-// #include <math.h>
-// #include <stdio.h>
-// #include <stdlib.h>
 
 #include <lpc17xx_pinsel.h>
 #include "LPC1768_PWM.h"
@@ -115,6 +130,7 @@ PWM_map ISR_table[NUM_PWMS] = PWM_MAP_INIT;
 #define P1_18_PWM_channel  1  // servo 3
 #define P1_20_PWM_channel  2  // servo 0
 #define P1_21_PWM_channel  3  // servo 1
+#define P1_23_PWM_channel  4  // servo 0 for MKS Sbase
 #define P2_04_PWM_channel  5  // D9
 #define P2_05_PWM_channel  6  // D10
 
@@ -137,7 +153,11 @@ void LPC1768_PWM_update_map_MR(void) {
   map_MR[0] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_18_PWM_channel) ? 1 : 0), P1_18, &LPC_PWM1->MR1, 0, 0, 0 };
   map_MR[1] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_20_PWM_channel) ? 1 : 0), P1_20, &LPC_PWM1->MR2, 0, 0, 0 };
   map_MR[2] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_21_PWM_channel) ? 1 : 0), P1_21, &LPC_PWM1->MR3, 0, 0, 0 };
-  map_MR[3] = { 0, 0, P_NC, &LPC_PWM1->MR4, 0, 0, 0 };
+  #if MOTHERBOARD == BOARD_MKS_SBASE
+    map_MR[3] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_23_PWM_channel) ? 1 : 0), P1_23, &LPC_PWM1->MR4, 0, 0, 0 };
+  #else
+    map_MR[3] = { 0, 0, P_NC, &LPC_PWM1->MR4, 0, 0, 0 };
+  #endif
   map_MR[4] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P2_04_PWM_channel) ? 1 : 0), P2_04, &LPC_PWM1->MR5, 0, 0, 0 };
   map_MR[5] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P2_05_PWM_channel) ? 1 : 0), P2_05, &LPC_PWM1->MR6, 0, 0, 0 };
 }
@@ -259,6 +279,13 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
 
   // OK to make these changes before the MR0 interrupt
   switch(pin) {
+    case P1_23:                        // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
+      LPC_PWM1->PCR &= ~(_BV(8 + P1_23_PWM_channel));                 // disable PWM1 module control of this pin
+      map_MR[P1_23_PWM_channel - 1].PCR_bit = 0;
+      LPC_PINCON->PINSEL3 &= ~(0x3 <<  14);    // return pin to general purpose I/O
+      map_MR[P1_23_PWM_channel - 1].PINSEL_bits = 0;
+      map_MR[P1_23_PWM_channel - 1].map_PWM_INT = 0;               // 0 - available for interrupts, 1 - in use by PWM
+      break;
     case P1_20:                        // Servo 0, PWM1 channel 2  (Pin 11  P1.20 PWM1.2)
       LPC_PWM1->PCR &= ~(_BV(8 + P1_20_PWM_channel));                 // disable PWM1 module control of this pin
       map_MR[P1_20_PWM_channel - 1].PCR_bit = 0;
@@ -324,6 +351,11 @@ bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
   LPC1768_PWM_update_map_MR();
 
   switch(pin) {
+    case P1_23:                        // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
+      map_MR[P1_23_PWM_channel - 1].PCR_bit = _BV(8 + P1_23_PWM_channel);  // enable PWM1 module control of this pin
+      map_MR[P1_23_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
+      map_MR[P1_23_PWM_channel - 1].PINSEL_bits = 0x2 <<  14;      // ISR must do this AFTER setting PCR
+      break;
     case P1_20:                        // Servo 0, PWM1 channel 2 (Pin 11  P1.20 PWM1.2)
       map_MR[P1_20_PWM_channel - 1].PCR_bit = _BV(8 + P1_20_PWM_channel);  // enable PWM1 module control of this pin
       map_MR[P1_20_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
