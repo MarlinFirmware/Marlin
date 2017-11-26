@@ -248,7 +248,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       ;
       const int8_t watch_temp_period =
         #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? temp - THERMAL_PROTECTION_BED_PERIOD : THERMAL_PROTECTION_PERIOD
+          hotend < 0 ? THERMAL_PROTECTION_BED_PERIOD : THERMAL_PROTECTION_PERIOD
         #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
           THERMAL_PROTECTION_BED_PERIOD
         #else
@@ -1286,11 +1286,14 @@ void Temperature::init() {
           case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
                                                     break;
         #endif
-        #ifdef TCCR2
-          case TIMER2: case TIMER2:                 _SET_CS(2, val); break;
-        #endif
-        #ifdef TCCR2A
-          case TIMER2A: case TIMER2B:               _SET_CS(2, val); break;
+        #if defined(TCCR2) || defined(TCCR2A)
+          #ifdef TCCR2
+            case TIMER2:
+          #endif
+          #ifdef TCCR2A
+            case TIMER2A: case TIMER2B:
+          #endif
+                                                    _SET_CS(2, val); break;
         #endif
         #ifdef TCCR3A
           case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;

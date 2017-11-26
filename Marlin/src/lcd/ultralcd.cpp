@@ -2004,7 +2004,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
         if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+          MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
       #if ENABLED(EEPROM_SETTINGS)
@@ -2015,7 +2015,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void _lcd_goto_bed_leveling() {
-      currentScreen = lcd_bed_leveling;
+      lcd_goto_screen(lcd_bed_leveling);
       #if ENABLED(LCD_BED_LEVELING)
         new_level_state = planner.leveling_active;
       #endif
@@ -3743,7 +3743,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     void lcd_sd_updir() {
-      card.updir();
+      encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
       encoderTopLine = 0;
       screen_changed = true;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
@@ -4444,7 +4444,8 @@ void kill_screen(const char* lcd_msg) {
     void menu_action_sddirectory(const char* filename, char* longFilename) {
       UNUSED(longFilename);
       card.chdir(filename);
-      encoderPosition = 0;
+      encoderTopLine = 0;
+      encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
       screen_changed = true;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     }
