@@ -53,8 +53,6 @@
   #define MYSERIAL customizedSerial
 #endif
 
-#define _BV(bit) (1 << (bit))
-
 // We need the previous define before the include, or compilation bombs...
 #include "MarlinSerial_Due.h"
 

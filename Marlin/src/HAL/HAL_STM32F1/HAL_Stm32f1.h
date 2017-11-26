@@ -77,8 +77,6 @@
   #define MYSERIAL Serial3
 #endif
 
-#define _BV(bit) 	(1 << (bit))
-
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
