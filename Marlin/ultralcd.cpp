@@ -2009,7 +2009,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
         if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+          MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
       #if ENABLED(EEPROM_SETTINGS)
@@ -2020,7 +2020,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
     void _lcd_goto_bed_leveling() {
-      currentScreen = lcd_bed_leveling;
+      lcd_goto_screen(lcd_bed_leveling);
       #if ENABLED(LCD_BED_LEVELING)
         new_level_state = planner.leveling_active;
       #endif
