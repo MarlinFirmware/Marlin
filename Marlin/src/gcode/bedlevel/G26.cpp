@@ -483,7 +483,7 @@ inline bool turn_on_heaters() {
 /**
  * Prime the nozzle if needed. Return true on error.
  */
-bool prime_nozzle() {
+inline bool prime_nozzle() {
 
   #if ENABLED(NEWPANEL)
     float Total_Prime = 0.0;
@@ -582,7 +582,7 @@ void GcodeSuite::G26() {
     g26_bed_temp = parser.value_celsius();
     if (!WITHIN(g26_bed_temp, 15, 140)) {
       SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
-      return G26_ERR;
+      return;
     }
   }
 
@@ -590,7 +590,7 @@ void GcodeSuite::G26() {
     g26_layer_height = parser.value_linear_units();
     if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
       SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
-      return G26_ERR;
+      return;
     }
   }
 
@@ -599,12 +599,12 @@ void GcodeSuite::G26() {
       g26_retraction_multiplier = parser.value_float();
       if (!WITHIN(g26_retraction_multiplier, 0.05, 15.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified Retraction Multiplier not plausible.");
-        return G26_ERR;
+        return;
       }
     }
     else {
       SERIAL_PROTOCOLLNPGM("?Retraction Multiplier must be specified.");
-      return G26_ERR;
+      return;
     }
   }
 
@@ -612,7 +612,7 @@ void GcodeSuite::G26() {
     g26_nozzle = parser.value_float();
     if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
       SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
-      return G26_ERR;
+      return;
     }
   }
 
@@ -622,7 +622,7 @@ void GcodeSuite::G26() {
         g26_prime_flag = -1;
       #else
         SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
-        return G26_ERR;
+        return;
       #endif
     }
     else {
@@ -630,7 +630,7 @@ void GcodeSuite::G26() {
       g26_prime_length = parser.value_linear_units();
       if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
-        return G26_ERR;
+        return;
       }
     }
   }
@@ -639,7 +639,7 @@ void GcodeSuite::G26() {
     g26_filament_diameter = parser.value_linear_units();
     if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
       SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
-      return G26_ERR;
+      return;
     }
   }
   g26_extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
@@ -652,7 +652,7 @@ void GcodeSuite::G26() {
     g26_hotend_temp = parser.value_celsius();
     if (!WITHIN(g26_hotend_temp, 165, 280)) {
       SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
-      return G26_ERR;
+      return;
     }
   }
 
@@ -668,14 +668,14 @@ void GcodeSuite::G26() {
   #else
     if (!parser.seen('R')) {
       SERIAL_PROTOCOLLNPGM("?(R)epeat must be specified when not using an LCD.");
-      return G26_ERR;
+      return;
     }
     else
       g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
   #endif
   if (g26_repeats < 1) {
     SERIAL_PROTOCOLLNPGM("?(R)epeat value not plausible; must be at least 1.");
-    return G26_ERR;
+    return;
   }
 
   g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS],
@@ -683,7 +683,7 @@ void GcodeSuite::G26() {
 
   if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
     SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
-    return G26_ERR;
+    return;
   }
 
   /**
