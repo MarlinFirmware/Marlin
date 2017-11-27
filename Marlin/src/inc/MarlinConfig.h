@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#ifndef _MARLIN_CONFIG_H_
+#define _MARLIN_CONFIG_H_
 
 #include "MarlinConfigPre.h"
 
@@ -36,8 +36,7 @@
 // Include all core headers
 #include "../core/enum.h"
 #include "../core/language.h"
-#include "../core/types.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
 
-#endif // MARLIN_CONFIG_H
+#endif // _MARLIN_CONFIG_H_

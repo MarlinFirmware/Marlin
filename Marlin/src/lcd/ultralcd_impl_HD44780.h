@@ -78,12 +78,12 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
-      #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
+      #define B_ST (EN_C)                              // Map the pause/stop/resume button into its normalized functional name
       #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
       #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&(B_MI|B_RI))
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
@@ -119,7 +119,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_DW (_BV(BL_DW))
     #define B_RI (_BV(BL_RI))
     #define B_ST (_BV(BL_ST))
-    #define LCD_CLICKED ((buttons & B_MI) || (buttons & B_ST))
+    #define LCD_CLICKED (buttons & (B_MI|B_ST))
   #endif
 
 #endif // ULTIPANEL
@@ -221,11 +221,57 @@ static void createChar_P(const char c, const byte * const ptr) {
   lcd.createChar(c, temp);
 }
 
+#define CHARSET_MENU 0
+#define CHARSET_INFO 1
+#define CHARSET_BOOT 2
+
 static void lcd_set_custom_characters(
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
+  #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
+    const uint8_t screen_charset=CHARSET_INFO
   #endif
 ) {
+  // CHARSET_BOOT
+  #if ENABLED(SHOW_BOOTSCREEN)
+    const static PROGMEM byte corner[4][8] = { {
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00001,
+      B00010,
+      B00100,
+      B00100
+    }, {
+      B00000,
+      B00000,
+      B00000,
+      B11100,
+      B11100,
+      B01100,
+      B00100,
+      B00100
+    }, {
+      B00100,
+      B00010,
+      B00001,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    }, {
+      B00100,
+      B01000,
+      B10000,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    } };
+  #endif // SHOW_BOOTSCREEN
+
+  // CHARSET_INFO
   const static PROGMEM byte bedTemp[8] = {
     B00000,
     B11111,
@@ -293,6 +339,8 @@ static void lcd_set_custom_characters(
   };
 
   #if ENABLED(SDSUPPORT)
+
+    // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
       B00000,
       B00110,
@@ -315,6 +363,8 @@ static void lcd_set_custom_characters(
     };
 
     #if ENABLED(LCD_PROGRESS_BAR)
+
+      // CHARSET_INFO
       const static PROGMEM byte progress[3][8] = { {
         B00000,
         B10000,
@@ -343,43 +393,61 @@ static void lcd_set_custom_characters(
         B10101,
         B00000
       } };
-    #endif
-  #endif
 
-  createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
-  createChar_P(LCD_DEGREE_CHAR, degree);
-  createChar_P(LCD_STR_THERMOMETER[0], thermometer);
-  createChar_P(LCD_FEEDRATE_CHAR, feedrate);
-  createChar_P(LCD_CLOCK_CHAR, clock);
+    #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(SDSUPPORT)
-    #if ENABLED(LCD_PROGRESS_BAR)
-      static bool char_mode = false;
-      if (info_screen_charset != char_mode) {
-        char_mode = info_screen_charset;
-        if (info_screen_charset) { // Progress bar characters for info screen
-          for (int16_t i = 3; i--;) createChar_P(LCD_STR_PROGRESS[i], progress[i]);
-        }
-        else { // Custom characters for submenus
-          createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-          createChar_P(LCD_STR_REFRESH[0], refresh);
-          createChar_P(LCD_STR_FOLDER[0], folder);
-        }
-      }
-    #else
-      createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-      createChar_P(LCD_STR_REFRESH[0], refresh);
-      createChar_P(LCD_STR_FOLDER[0], folder);
-    #endif
+  #endif // SDSUPPORT
 
+  #if ENABLED(SHOW_BOOTSCREEN) || ENABLED(LCD_PROGRESS_BAR)
+    static uint8_t char_mode = CHARSET_MENU;
+    #define CHAR_COND (screen_charset != char_mode)
   #else
-    createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+    #define CHAR_COND true
   #endif
+
+  if (CHAR_COND) {
+    #if ENABLED(SHOW_BOOTSCREEN) || ENABLED(LCD_PROGRESS_BAR)
+      char_mode = screen_charset;
+      #if ENABLED(SHOW_BOOTSCREEN)
+        // Set boot screen corner characters
+        if (screen_charset == CHARSET_BOOT) {
+          for (uint8_t i = 4; i--;)
+            createChar_P(i, corner[i]);
+        }
+        else
+      #endif
+    #endif
+        { // Info Screen uses 5 special characters
+          createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
+          createChar_P(LCD_DEGREE_CHAR, degree);
+          createChar_P(LCD_STR_THERMOMETER[0], thermometer);
+          createChar_P(LCD_FEEDRATE_CHAR, feedrate);
+          createChar_P(LCD_CLOCK_CHAR, clock);
+
+          #if ENABLED(SDSUPPORT)
+            #if ENABLED(LCD_PROGRESS_BAR)
+              if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
+                for (int16_t i = 3; i--;)
+                  createChar_P(LCD_STR_PROGRESS[i], progress[i]);
+              }
+              else
+            #endif
+              { // SD Card sub-menu special characters
+                createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+                createChar_P(LCD_STR_REFRESH[0], refresh);
+                createChar_P(LCD_STR_FOLDER[0], folder);
+              }
+          #else
+            // With no SD support, only need the uplevel character
+            createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+          #endif
+        }
+  }
 }
 
 static void lcd_implementation_init(
   #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
+    const uint8_t screen_charset=CHARSET_INFO
   #endif
 ) {
 
@@ -409,7 +477,7 @@ static void lcd_implementation_init(
 
   lcd_set_custom_characters(
     #if ENABLED(LCD_PROGRESS_BAR)
-      info_screen_charset
+      screen_charset
     #endif
   );
 
@@ -461,46 +529,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   }
 
   void lcd_bootscreen() {
-    const static PROGMEM byte corner[4][8] = { {
-      B00000,
-      B00000,
-      B00000,
-      B00000,
-      B00001,
-      B00010,
-      B00100,
-      B00100
-    }, {
-      B00000,
-      B00000,
-      B00000,
-      B11100,
-      B11100,
-      B01100,
-      B00100,
-      B00100
-    }, {
-      B00100,
-      B00010,
-      B00001,
-      B00000,
-      B00000,
-      B00000,
-      B00000,
-      B00000
-    }, {
-      B00100,
-      B01000,
-      B10000,
-      B00000,
-      B00000,
-      B00000,
-      B00000,
-      B00000
-    } };
-    for (uint8_t i = 0; i < 4; i++)
-      createChar_P(i, corner[i]);
-
+    lcd_set_custom_characters(CHARSET_BOOT);
     lcd.clear();
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
@@ -568,14 +597,9 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     #endif
 
     lcd.clear();
-
     safe_delay(100);
-
-    lcd_set_custom_characters(
-      #if ENABLED(LCD_PROGRESS_BAR)
-        false
-      #endif
-    );
+    lcd_set_custom_characters();
+    lcd.clear();
   }
 
 #endif // SHOW_BOOTSCREEN

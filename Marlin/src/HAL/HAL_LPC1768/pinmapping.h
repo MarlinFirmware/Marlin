@@ -239,7 +239,7 @@ constexpr pin_t pin_map[] = {
   P_NC,  P_NC,  P_NC,  P_NC,  P4_28, P4_29, P_NC,  P_NC
 };
 
-constexpr int16_t NUM_DIGITAL_PINS = COUNT(pin_map);
+constexpr int8_t NUM_DIGITAL_PINS = COUNT(pin_map);
 
 constexpr pin_t adc_pin_table[] = {
   P0_23, P0_24, P0_25, P0_26, P1_30, P1_31,
@@ -255,7 +255,7 @@ constexpr int16_t NUM_ANALOG_INPUTS = COUNT(adc_pin_table);
 #define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09, P0_29, P0_30
 
 // Get the digital pin for an analog index
-pin_t analogInputToDigitalPin(const uint8_t p);
+pin_t analogInputToDigitalPin(const int8_t p);
 
 // Return the index of a pin number
 // The pin number given here is in the form ppp:nnnnn

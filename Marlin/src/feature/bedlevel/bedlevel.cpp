@@ -36,9 +36,14 @@
 
 #if ENABLED(PROBE_MANUALLY)
   bool g29_in_progress = false;
-  #if ENABLED(LCD_BED_LEVELING)
-    #include "../../lcd/ultralcd.h"
-  #endif
+#endif
+
+#if ENABLED(LCD_BED_LEVELING)
+  #include "../../lcd/ultralcd.h"
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  bool g26_debug_flag; // = false
 #endif
 
 bool leveling_is_valid() {
@@ -269,7 +274,7 @@ void reset_bed_level() {
     current_position[X_AXIS] = rx;
     current_position[Y_AXIS] = ry;
 
-    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
     #endif
   }

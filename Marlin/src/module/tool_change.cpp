@@ -274,7 +274,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
-                          midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0] + hotend_offset[X_AXIS][active_extruder],
+                          midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + hotend_offset[X_AXIS][active_extruder],
                           grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
                                     + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
@@ -493,22 +493,22 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         SYNC_PLAN_POSITION_KINEMATIC();
 
         // Move to the "old position" (move the extruder into place)
+        #if ENABLED(SWITCHING_NOZZLE)
+          destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
+        #endif
         if (!no_move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
-          prepare_move_to_destination();
+          // Move back to the original (or tweaked) position
+          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
         }
-
         #if ENABLED(SWITCHING_NOZZLE)
-          // Move back down, if needed. (Including when the new tool is higher.)
-          if (z_raise != z_diff) {
-            destination[Z_AXIS] += z_diff;
-            feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];
-            prepare_move_to_destination();
+          else {
+            // Move back down. (Including when the new tool is higher.)
+            do_blocking_move_to_z(destination[Z_AXIS], planner.max_feedrate_mm_s[Z_AXIS]);
           }
         #endif
-
       } // (tmp_extruder != active_extruder)
 
       stepper.synchronize();

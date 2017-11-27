@@ -564,7 +564,7 @@ static float run_z_probe() {
     }
   #endif
 
-  return current_position[Z_AXIS] + zprobe_zoffset;
+  return current_position[Z_AXIS];
 }
 
 /**
@@ -576,7 +576,7 @@ static float run_z_probe() {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool printable/*=true*/) {
+float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool probe_relative/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
@@ -587,28 +587,33 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
     }
   #endif
 
-  const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  // TODO: Adapt for SCARA, where the offset rotates
+  float nx = rx, ny = ry;
+  if (probe_relative) {
+    if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
+    nx -= (X_PROBE_OFFSET_FROM_EXTRUDER);                     // Get the nozzle position
+    ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  }
+  else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
 
-  if (!printable
-    ? !position_is_reachable(nx, ny)
-    : !position_is_reachable_by_probe(rx, ry)
-  ) return NAN;
+  const float nz =
+    #if ENABLED(DELTA)
+      // Move below clip height or xy move will be aborted by do_blocking_move_to
+      min(current_position[Z_AXIS], delta_clip_start_height)
+    #else
+      current_position[Z_AXIS]
+    #endif
+  ;
 
   const float old_feedrate_mm_s = feedrate_mm_s;
-
-  #if ENABLED(DELTA)
-    if (current_position[Z_AXIS] > delta_clip_start_height)
-      do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
-  // Move the probe to the given XY
-  do_blocking_move_to_xy(nx, ny);
+  // Move the probe to the starting XYZ
+  do_blocking_move_to(nx, ny, nz);
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe();
+    measured_z = run_z_probe() + zprobe_zoffset;
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));

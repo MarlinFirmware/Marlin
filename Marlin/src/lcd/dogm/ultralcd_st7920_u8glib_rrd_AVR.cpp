@@ -25,24 +25,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DOGLCD)
+#if ENABLED(U8GLIB_ST7920)
 
 #ifndef U8G_HAL_LINKS
 
-//#include "../../Marlin.h"
-
-//#if ENABLED(U8GLIB_ST7920)
-//#if ( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(LCD_PINS_D4) &&  LCD_PINS_D4 >= 0) &&  (defined(LCD_PINS_ENABLE) &&  LCD_PINS_ENABLE >= 0))
-
-#define ST7920_CLK_PIN  23
-#define ST7920_DAT_PIN  17
-#define ST7920_CS_PIN   16
-
-/*
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
 #define ST7920_CS_PIN   LCD_PINS_RS
-*/
 
 //#define PAGE_HEIGHT 8   //128 byte framebuffer
 #define PAGE_HEIGHT 16  //256 byte framebuffer
@@ -192,9 +181,6 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g
 
 #pragma GCC reset_options
 
-//#endif //( ENABLED(SHARED_SPI) || !ENABLED(SHARED_SPI) && (defined(LCD_PINS_D4) &&  LCD_PINS_D4 >= 0) &&  (defined(LCD_PINS_ENABLE) &&  LCD_PINS_ENABLE >= 0))
-//#endif // U8GLIB_ST7920
-
 #endif // U8G_HAL_LINKS
 
-#endif // DOGLCD
+#endif // U8GLIB_ST7920

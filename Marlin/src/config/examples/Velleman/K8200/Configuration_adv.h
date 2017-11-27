@@ -618,6 +618,10 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
+
+  // Swap the CW/CCW indicators in the graphics overlay
+  //#define OVERLAY_GFX_REVERSE
+
 #endif // DOGLCD
 
 // @section safety
@@ -652,7 +656,6 @@
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
-  //#define BABYSTEP_ZPROBE_GFX_REVERSE // Reverses the direction of the CW/CCW indicators
 #endif
 
 // @section extruder
@@ -755,7 +758,7 @@
 // @section hidden
 
 // The number of linear motions that can be in the plan at any give time.
-// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
+// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
   #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
@@ -1498,5 +1501,15 @@
                                          // If you experience stuttering, reboots, etc. this option can reveal how
                                          // tweaks made to the configuration are affecting the printer in real-time.
 #endif
+
+/**
+ * NanoDLP Synch support
+ *
+ * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
+ * string to enable synchronization with DLP projector exposure. This change will allow to use
+ * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
+ *
+ */
+ //#define NANODLP_Z_SYNC
 
 #endif // CONFIGURATION_ADV_H

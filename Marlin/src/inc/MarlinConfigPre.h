@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MARLIN_CONFIGPRE_H
-#define MARLIN_CONFIGPRE_H
+#ifndef _MARLIN_CONFIGPRE_H_
+#define _MARLIN_CONFIGPRE_H_
 
 #include "../core/boards.h"
 #include "../core/macros.h"
@@ -31,4 +31,6 @@
 #include "../../Configuration_adv.h"
 #include "Conditionals_adv.h"
 
-#endif // MARLIN_CONFIGPRE_H
+#include "../core/types.h"
+
+#endif // _MARLIN_CONFIGPRE_H_

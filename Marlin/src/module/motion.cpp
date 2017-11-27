@@ -287,6 +287,8 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
     if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, rx, ry, rz);
   #endif
 
+  const float z_feedrate = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
+
   #if ENABLED(DELTA)
 
     if (!position_is_reachable(rx, ry)) return;
@@ -311,18 +313,16 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
         #endif
         return;
       }
-      else {
-        destination[Z_AXIS] = delta_clip_start_height;
-        prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
-        #endif
-      }
+      destination[Z_AXIS] = delta_clip_start_height;
+      prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
+      #endif
     }
 
     if (rz > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = rz;
-      prepare_uninterpolated_move_to_destination();   // set_current_from_destination()
+      prepare_uninterpolated_move_to_destination(z_feedrate);   // set_current_from_destination()
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
@@ -337,7 +337,7 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
 
     if (rz < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = rz;
-      prepare_uninterpolated_move_to_destination();   // set_current_from_destination()
+      prepare_uninterpolated_move_to_destination(z_feedrate);   // set_current_from_destination()
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
       #endif
@@ -352,7 +352,7 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
     // If Z needs to raise, do it before moving XY
     if (destination[Z_AXIS] < rz) {
       destination[Z_AXIS] = rz;
-      prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
+      prepare_uninterpolated_move_to_destination(z_feedrate);
     }
 
     destination[X_AXIS] = rx;
@@ -362,14 +362,14 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
     // If Z needs to lower, do it after moving XY
     if (destination[Z_AXIS] > rz) {
       destination[Z_AXIS] = rz;
-      prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS));
+      prepare_uninterpolated_move_to_destination(z_feedrate);
     }
 
   #else
 
     // If Z needs to raise, do it before moving XY
     if (current_position[Z_AXIS] < rz) {
-      feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
+      feedrate_mm_s = z_feedrate;
       current_position[Z_AXIS] = rz;
       line_to_current_position();
     }
@@ -381,7 +381,7 @@ void do_blocking_move_to(const float &rx, const float &ry, const float &rz, cons
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > rz) {
-      feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
+      feedrate_mm_s = z_feedrate;
       current_position[Z_AXIS] = rz;
       line_to_current_position();
     }

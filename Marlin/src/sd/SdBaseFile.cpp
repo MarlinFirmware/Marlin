@@ -1061,7 +1061,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
   while (1) {
 
     n = read(dir, sizeof(dir_t));
-    if (n != sizeof(dir_t)) return n == 0 ? 0 : -1;
+    if (n != sizeof(dir_t)) return n ? -1 : 0;
 
     // last entry if DIR_NAME_FREE
     if (dir->name[0] == DIR_NAME_FREE) return 0;
@@ -1074,13 +1074,16 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     if (longFilename != NULL && DIR_IS_LONG_NAME(dir)) {
       vfat_t* VFAT = (vfat_t*)dir;
       // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
-      if (VFAT->firstClusterLow == 0 && (VFAT->sequenceNumber & 0x1F) > 0 && (VFAT->sequenceNumber & 0x1F) <= MAX_VFAT_ENTRIES) {
-        // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
-        n = ((VFAT->sequenceNumber & 0x1F) - 1) * (FILENAME_LENGTH);
-        for (uint8_t i = 0; i < FILENAME_LENGTH; i++)
-          longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
-        // If this VFAT entry is the last one, add a NUL terminator at the end of the string
-        if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';
+      if (VFAT->firstClusterLow == 0) {
+        const uint8_t seq = VFAT->sequenceNumber & 0x1F;
+        if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
+          // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
+          n = (seq - 1) * (FILENAME_LENGTH);
+          for (uint8_t i = 0; i < FILENAME_LENGTH; i++)
+            longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+          // If this VFAT entry is the last one, add a NUL terminator at the end of the string
+          if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';
+        }
       }
     }
     // Return if normal file or subdirectory

@@ -38,8 +38,6 @@
 #define OUTPUT       0x01
 #define INPUT_PULLUP 0x02
 
-#define _BV(bit) (1 << (bit))
-
 #define E2END 0xFFF // EEPROM end address
 
 typedef uint8_t byte;

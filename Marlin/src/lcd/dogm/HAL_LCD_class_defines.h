@@ -51,7 +51,7 @@ class U8GLIB_ST7920_128X64_4X_HAL : public U8GLIB
 };
 
 
-
+// AVR version uses ultralcd_st7920_u8glib_rrd_AVR.cpp, HAL version uses u8g_dev_st7920_128x64_HAL.cpp
 extern u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi;
 class U8GLIB_ST7920_128X64_RRD : public U8GLIB
 {

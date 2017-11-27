@@ -30,6 +30,9 @@
 // Includes
 // --------------------------------------------------------------------------
 
+// _BV is re-defined in Arduino.h
+#undef _BV
+
 #include <Arduino.h>
 
 // Redefine sq macro defined by teensy3/wiring.h
