@@ -64,13 +64,28 @@
  * See the end of this file for details on the hardware/firmware interaction
  */
 
+/**
+ * Directly controlled PWM pins (
+ *   NA means not being used as a directly controlled PWM pin
+ *
+ *                   Re-ARM              MKS Sbase
+ *  PWM1.1   P1_18   SERVO3_PIN           NA(no connection)
+ *  PWM1.1   P2_00    NA(E0_STEP_PIN)     NA(X stepper)
+ *  PWM1.2   P1_20   SERVO0_PIN           NA(no connection)
+ *  PWM1.2   P2_01    NA(X_STEP_PIN)      NA(Y stepper)
+ *  PWM1.3   P1_21   SERVO1_PIN           NA(no connection)
+ *  PWM1.3   P2_02    NA(Y_STEP_PIN)      NA(Z stepper)
+ *  PWM1.4   P1_23    NA(SDSS(SSEL0))    SERVO0_PIN
+ *  PWM1.4   P2_03    NA(Z_STEP_PIN)      NA(E0 stepper)
+ *  PWM1.5   P1_24    NA(X_MIN_PIN)       NA(X_MIN_pin)
+ *  PWM1.5   P2_04   RAMPS_D9_PIN        FAN_PIN
+ *  PWM1.6   P1_26    NA(Y_MIN_PIN)       NA(Y_MIN_pin)
+ *  PWM1.6   P2_05   RAMPS_D10_PIN       HEATER_BED_PIN
+ */
+
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-
-// #include <math.h>
-// #include <stdio.h>
-// #include <stdlib.h>
 
 #include <lpc17xx_pinsel.h>
 #include "LPC1768_PWM.h"
@@ -115,6 +130,7 @@ PWM_map ISR_table[NUM_PWMS] = PWM_MAP_INIT;
 #define P1_18_PWM_channel  1  // servo 3
 #define P1_20_PWM_channel  2  // servo 0
 #define P1_21_PWM_channel  3  // servo 1
+#define P1_23_PWM_channel  4  // servo 0 for MKS Sbase
 #define P2_04_PWM_channel  5  // D9
 #define P2_05_PWM_channel  6  // D10
 
@@ -137,7 +153,13 @@ void LPC1768_PWM_update_map_MR(void) {
   map_MR[0] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_18_PWM_channel) ? 1 : 0), P1_18, &LPC_PWM1->MR1, 0, 0, 0 };
   map_MR[1] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_20_PWM_channel) ? 1 : 0), P1_20, &LPC_PWM1->MR2, 0, 0, 0 };
   map_MR[2] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_21_PWM_channel) ? 1 : 0), P1_21, &LPC_PWM1->MR3, 0, 0, 0 };
-  map_MR[3] = { 0, 0, P_NC, &LPC_PWM1->MR4, 0, 0, 0 };
+  map_MR[3] = {
+    #if MB(MKS_SBASE)
+      0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P1_23_PWM_channel) ? 1 : 0), P1_23, &LPC_PWM1->MR4, 0, 0, 0
+    #else
+      0, 0, P_NC, &LPC_PWM1->MR4, 0, 0, 0
+    #endif
+  };
   map_MR[4] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P2_04_PWM_channel) ? 1 : 0), P2_04, &LPC_PWM1->MR5, 0, 0, 0 };
   map_MR[5] = { 0, (uint8_t) (LPC_PWM1->PCR & _BV(8 + P2_05_PWM_channel) ? 1 : 0), P2_05, &LPC_PWM1->MR6, 0, 0, 0 };
 }
@@ -192,7 +214,7 @@ void LPC1768_PWM_init(void) {
   LPC_PWM1->MR0  = LPC_PWM1_MR0;                                          // TC resets every 19,999 + 1 cycles - sets PWM cycle(Ton+Toff) to 20 mS
   // MR0 must be set before TCR enables the PWM
   LPC_PWM1->TCR  = _BV(SBIT_CNTEN) | _BV(SBIT_CNTRST) | _BV(SBIT_PWMEN);  // Enable counters, reset counters, set mode to PWM
-  LPC_PWM1->TCR  &= ~(_BV(SBIT_CNTRST));                                  // Take counters out of reset
+  CBI(LPC_PWM1->TCR, SBIT_CNTRST);                                        // Take counters out of reset
   LPC_PWM1->PR   =  LPC_PWM1_PR;
   LPC_PWM1->MCR  = _BV(SBIT_PWMMR0R) | _BV(0);                            // Reset TC if it matches MR0, disable all interrupts except for MR0
   LPC_PWM1->CTCR = 0;                                                     // Disable counter mode (enable PWM mode)
@@ -259,40 +281,47 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
 
   // OK to make these changes before the MR0 interrupt
   switch(pin) {
-    case P1_20:                        // Servo 0, PWM1 channel 2  (Pin 11  P1.20 PWM1.2)
-      LPC_PWM1->PCR &= ~(_BV(8 + P1_20_PWM_channel));                 // disable PWM1 module control of this pin
+    case P1_23:                                       // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
+      CBI(LPC_PWM1->PCR, 8 + P1_23_PWM_channel);      // disable PWM1 module control of this pin
+      map_MR[P1_23_PWM_channel - 1].PCR_bit = 0;
+      LPC_PINCON->PINSEL3 &= ~(0x3 <<  14);           // return pin to general purpose I/O
+      map_MR[P1_23_PWM_channel - 1].PINSEL_bits = 0;
+      map_MR[P1_23_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
+      break;
+    case P1_20:                                       // Servo 0, PWM1 channel 2  (Pin 11  P1.20 PWM1.2)
+      CBI(LPC_PWM1->PCR, 8 + P1_20_PWM_channel);      // disable PWM1 module control of this pin
       map_MR[P1_20_PWM_channel - 1].PCR_bit = 0;
-      LPC_PINCON->PINSEL3 &= ~(0x3 <<  8);    // return pin to general purpose I/O
+      LPC_PINCON->PINSEL3 &= ~(0x3 <<  8);            // return pin to general purpose I/O
       map_MR[P1_20_PWM_channel - 1].PINSEL_bits = 0;
-      map_MR[P1_20_PWM_channel - 1].map_PWM_INT = 0;               // 0 - available for interrupts, 1 - in use by PWM
+      map_MR[P1_20_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
       break;
-    case P1_21:                        // Servo 1, PWM1 channel 3  (Pin 6  P1.21 PWM1.3)
-      LPC_PWM1->PCR &= ~(_BV(8 + P1_21_PWM_channel));                  // disable PWM1 module control of this pin
+    case P1_21:                                       // Servo 1, PWM1 channel 3  (Pin 6  P1.21 PWM1.3)
+      CBI(LPC_PWM1->PCR, 8 + P1_21_PWM_channel);      // disable PWM1 module control of this pin
       map_MR[P1_21_PWM_channel - 1].PCR_bit = 0;
-      LPC_PINCON->PINSEL3 &= ~(0x3 << 10);  // return pin to general purpose I/O
+      LPC_PINCON->PINSEL3 &= ~(0x3 << 10);            // return pin to general purpose I/O
       map_MR[P1_21_PWM_channel - 1].PINSEL_bits = 0;
-      map_MR[P1_21_PWM_channel - 1].map_PWM_INT = 0;                // 0 - available for interrupts, 1 - in use by PWM
+      map_MR[P1_21_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
       break;
-    case P1_18:                        // Servo 3, PWM1 channel 1 (Pin 4  P1.18 PWM1.1)
-      LPC_PWM1->PCR &= ~(_BV(8 + P1_18_PWM_channel));                  // disable PWM1 module control of this pin
+    case P1_18:                                       // Servo 3, PWM1 channel 1 (Pin 4  P1.18 PWM1.1)
+      CBI(LPC_PWM1->PCR, 8 + P1_18_PWM_channel);      // disable PWM1 module control of this pin
       map_MR[P1_18_PWM_channel - 1].PCR_bit =  0;
-      LPC_PINCON->PINSEL3 &= ~(0x3 <<  4);  // return pin to general purpose I/O
+      LPC_PINCON->PINSEL3 &= ~(0x3 <<  4);            // return pin to general purpose I/O
       map_MR[P1_18_PWM_channel - 1].PINSEL_bits =  0;
-      map_MR[P1_18_PWM_channel - 1].map_PWM_INT = 0;                // 0 - available for interrupts, 1 - in use by PWM
+      map_MR[P1_18_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
       break;
-    case P2_04:                        // D9 FET, PWM1 channel 5  (Pin 9  P2_04 PWM1.5)
-      LPC_PWM1->PCR &= ~(_BV(8 + P2_04_PWM_channel));                  // disable PWM1 module control of this pin
+    case P2_04:                                       // D9 FET, PWM1 channel 5  (Pin 9  P2_04 PWM1.5)
+      CBI(LPC_PWM1->PCR, 8 + P2_04_PWM_channel);      // disable PWM1 module control of this pin
       map_MR[P2_04_PWM_channel - 1].PCR_bit = 0;
-      LPC_PINCON->PINSEL4 &= ~(0x3 << 10);  // return pin to general purpose I/O
+      LPC_PINCON->PINSEL4 &= ~(0x3 << 10);            // return pin to general purpose I/O
       map_MR[P2_04_PWM_channel - 1].PINSEL_bits = 0;
-      map_MR[P2_04_PWM_channel - 1].map_PWM_INT = 0;                // 0 - available for interrupts, 1 - in use by PWM
+      map_MR[P2_04_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
       break;
-    case P2_05:                        // D10 FET, PWM1 channel 6 (Pin 10  P2_05 PWM1.6)
-      LPC_PWM1->PCR &= ~(_BV(8 + P2_05_PWM_channel));                  // disable PWM1 module control of this pin
+    case P2_05:                                       // D10 FET, PWM1 channel 6 (Pin 10  P2_05 PWM1.6)
+      CBI(LPC_PWM1->PCR, 8 + P2_05_PWM_channel);      // disable PWM1 module control of this pin
       map_MR[P2_05_PWM_channel - 1].PCR_bit =  0;
-      LPC_PINCON->PINSEL4 &= ~(0x3 <<  4);  // return pin to general purpose I/O
+      LPC_PINCON->PINSEL4 &= ~(0x3 <<  4);            // return pin to general purpose I/O
       map_MR[P2_05_PWM_channel - 1].PINSEL_bits =  0;
-      map_MR[P2_05_PWM_channel - 1].map_PWM_INT = 0;                // 0 - available for interrupts, 1 - in use by PWM
+      map_MR[P2_05_PWM_channel - 1].map_PWM_INT = 0;  // 0 - available for interrupts, 1 - in use by PWM
       break;
     default:
       break;
@@ -324,30 +353,35 @@ bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
   LPC1768_PWM_update_map_MR();
 
   switch(pin) {
-    case P1_20:                        // Servo 0, PWM1 channel 2 (Pin 11  P1.20 PWM1.2)
-      map_MR[P1_20_PWM_channel - 1].PCR_bit = _BV(8 + P1_20_PWM_channel);  // enable PWM1 module control of this pin
+    case P1_23:                                                           // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
+      map_MR[P1_23_PWM_channel - 1].PCR_bit = _BV(8 + P1_23_PWM_channel); // enable PWM1 module control of this pin
+      map_MR[P1_23_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
+      map_MR[P1_23_PWM_channel - 1].PINSEL_bits = 0x2 <<  14;             // ISR must do this AFTER setting PCR
+      break;
+    case P1_20:                                                           // Servo 0, PWM1 channel 2 (Pin 11  P1.20 PWM1.2)
+      map_MR[P1_20_PWM_channel - 1].PCR_bit = _BV(8 + P1_20_PWM_channel); // enable PWM1 module control of this pin
       map_MR[P1_20_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
-      map_MR[P1_20_PWM_channel - 1].PINSEL_bits = 0x2 <<  8;      // ISR must do this AFTER setting PCR
+      map_MR[P1_20_PWM_channel - 1].PINSEL_bits = 0x2 <<  8;              // ISR must do this AFTER setting PCR
       break;
-    case P1_21:                        // Servo 1, PWM1 channel 3 (Pin 6  P1.21 PWM1.3)
-      map_MR[P1_21_PWM_channel - 1].PCR_bit = _BV(8 + P1_21_PWM_channel);                  // enable PWM1 module control of this pin
+    case P1_21:                                                           // Servo 1, PWM1 channel 3 (Pin 6  P1.21 PWM1.3)
+      map_MR[P1_21_PWM_channel - 1].PCR_bit = _BV(8 + P1_21_PWM_channel); // enable PWM1 module control of this pin
       map_MR[P1_21_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
-      map_MR[P1_21_PWM_channel - 1].PINSEL_bits = 0x2 << 10;       // ISR must do this AFTER setting PCR
+      map_MR[P1_21_PWM_channel - 1].PINSEL_bits = 0x2 << 10;              // ISR must do this AFTER setting PCR
       break;
-    case P1_18:                        // Servo 3, PWM1 channel 1 (Pin 4  P1.18 PWM1.1)
-      map_MR[P1_18_PWM_channel - 1].PCR_bit = _BV(8 + P1_18_PWM_channel);                  // enable PWM1 module control of this pin
+    case P1_18:                                                           // Servo 3, PWM1 channel 1 (Pin 4  P1.18 PWM1.1)
+      map_MR[P1_18_PWM_channel - 1].PCR_bit = _BV(8 + P1_18_PWM_channel); // enable PWM1 module control of this pin
       map_MR[P1_18_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL3;
-      map_MR[P1_18_PWM_channel - 1].PINSEL_bits = 0x2 <<  4;       // ISR must do this AFTER setting PCR
+      map_MR[P1_18_PWM_channel - 1].PINSEL_bits = 0x2 <<  4;              // ISR must do this AFTER setting PCR
       break;
-    case P2_04:                        // D9 FET, PWM1 channel 5 (Pin 9  P2_04 PWM1.5)
-      map_MR[P2_04_PWM_channel - 1].PCR_bit = _BV(8 + P2_04_PWM_channel);                  // enable PWM1 module control of this pin
+    case P2_04:                                                           // D9 FET, PWM1 channel 5 (Pin 9  P2_04 PWM1.5)
+      map_MR[P2_04_PWM_channel - 1].PCR_bit = _BV(8 + P2_04_PWM_channel); // enable PWM1 module control of this pin
       map_MR[P2_04_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL4;
-      map_MR[P2_04_PWM_channel - 1].PINSEL_bits = 0x1 <<  8;       // ISR must do this AFTER setting PCR
+      map_MR[P2_04_PWM_channel - 1].PINSEL_bits = 0x1 <<  8;              // ISR must do this AFTER setting PCR
       break;
-    case P2_05:                        // D10 FET, PWM1 channel 6 (Pin 10  P2_05 PWM1.6)
-      map_MR[P2_05_PWM_channel - 1].PCR_bit = _BV(8 + P2_05_PWM_channel);                  // enable PWM1 module control of this pin
+    case P2_05:                                                           // D10 FET, PWM1 channel 6 (Pin 10  P2_05 PWM1.6)
+      map_MR[P2_05_PWM_channel - 1].PCR_bit = _BV(8 + P2_05_PWM_channel); // enable PWM1 module control of this pin
       map_MR[P2_05_PWM_channel - 1].PINSEL_reg = &LPC_PINCON->PINSEL4;
-      map_MR[P2_05_PWM_channel - 1].PINSEL_bits = 0x1 << 10;       // ISR must do this AFTER setting PCR
+      map_MR[P2_05_PWM_channel - 1].PINSEL_bits = 0x1 << 10;              // ISR must do this AFTER setting PCR
       break;
     default:  // ISR pins
       pinMode(pin, OUTPUT);  // set pin to output
@@ -386,11 +420,11 @@ void LPC1768_PWM_update(void) {     // only called by the ISR
       found = false;
       for (uint8_t j = 0; (j < NUM_PWMS) && !found; j++) {
         if ( (map_MR[j].map_PWM_PIN == ISR_table[i].pin)) {
-          map_MR[j].map_PWM_INT = 1;                            // flag that it's already setup for direct control
+          map_MR[j].map_PWM_INT = 1;                          // flag that it's already setup for direct control
           ISR_table[i].PWM_mask = 0;
-          ISR_table[i].PCR_bit = map_MR[j].PCR_bit;            // PCR register bit to enable PWM1 control of this pin
-          ISR_table[i].PINSEL_reg = map_MR[j].PINSEL_reg;  // PINSEL register address to set pin mode to PWM1 control} MR_map;
-          ISR_table[i].PINSEL_bits = map_MR[j].PINSEL_bits;  // PINSEL register bits to set pin mode to PWM1 control} MR_map;
+          ISR_table[i].PCR_bit = map_MR[j].PCR_bit;           // PCR register bit to enable PWM1 control of this pin
+          ISR_table[i].PINSEL_reg = map_MR[j].PINSEL_reg;     // PINSEL register address to set pin mode to PWM1 control} MR_map;
+          ISR_table[i].PINSEL_bits = map_MR[j].PINSEL_bits;   // PINSEL register bits to set pin mode to PWM1 control} MR_map;
           map_MR[j].map_used = 2;
           ISR_table[i].PWM_flag = 0;
           *map_MR[j].MR_register = ISR_table[i].microseconds;

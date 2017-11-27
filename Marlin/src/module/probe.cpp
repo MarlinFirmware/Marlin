@@ -596,7 +596,7 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
   }
   else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
 
-  const float nz = 
+  const float nz =
     #if ENABLED(DELTA)
       // Move below clip height or xy move will be aborted by do_blocking_move_to
       min(current_position[Z_AXIS], delta_clip_start_height)
