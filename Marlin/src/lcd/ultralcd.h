@@ -40,8 +40,10 @@
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-  #if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+  #if ENABLED(LCD_BED_LEVELING)
     extern bool lcd_wait_for_move;
+  #else
+    constexpr bool lcd_wait_for_move = false;
   #endif
 
   int16_t lcd_strlen(const char* s);
