@@ -4260,8 +4260,10 @@ void home_all_axes() { gcode_G28(true); }
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
-  #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+  #if ENABLED(LCD_BED_LEVELING)
     extern bool lcd_wait_for_move;
+  #else
+    constexpr bool lcd_wait_for_move = false;
   #endif
 
   inline void _manual_goto_xy(const float &rx, const float &ry) {
@@ -4277,7 +4279,7 @@ void home_all_axes() { gcode_G28(true); }
     current_position[X_AXIS] = rx;
     current_position[Y_AXIS] = ry;
 
-    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
     #endif
   }
@@ -4296,18 +4298,6 @@ void home_all_axes() { gcode_G28(true); }
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
       [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
     );
-  }
-
-  void mesh_probing_done() {
-    mbl.has_mesh = true;
-    home_all_axes();
-    set_bed_leveling_enabled(true);
-    #if ENABLED(MESH_G28_REST_ORIGIN)
-      current_position[Z_AXIS] = Z_MIN_POS;
-      set_destination_from_current();
-      buffer_line_to_destination(homing_feedrate(Z_AXIS));
-      stepper.synchronize();
-    #endif
   }
 
   /**
@@ -4359,7 +4349,7 @@ void home_all_axes() { gcode_G28(true); }
       case MeshStart:
         mbl.reset();
         mbl_probe_index = 0;
-        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
         break;
 
       case MeshNext:
@@ -4405,7 +4395,21 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           BUZZ(100, 659);
           BUZZ(100, 698);
-          mesh_probing_done();
+          mbl.has_mesh = true;
+
+          home_all_axes();
+          set_bed_leveling_enabled(true);
+
+          #if ENABLED(MESH_G28_REST_ORIGIN)
+            current_position[Z_AXIS] = Z_MIN_POS;
+            set_destination_from_current();
+            buffer_line_to_destination(homing_feedrate(Z_AXIS));
+            stepper.synchronize();
+          #endif
+
+          #if ENABLED(LCD_BED_LEVELING)
+            lcd_wait_for_move = false;
+          #endif
         }
         break;
 
@@ -4434,9 +4438,8 @@ void home_all_axes() { gcode_G28(true); }
           return;
         }
 
-        if (parser.seenval('Z')) {
+        if (parser.seenval('Z'))
           mbl.z_values[px][py] = parser.value_linear_units();
-        }
         else {
           SERIAL_CHAR('Z'); echo_not_entered();
           return;
@@ -4444,9 +4447,8 @@ void home_all_axes() { gcode_G28(true); }
         break;
 
       case MeshSetZOffset:
-        if (parser.seenval('Z')) {
+        if (parser.seenval('Z'))
           mbl.z_offset = parser.value_linear_units();
-        }
         else {
           SERIAL_CHAR('Z'); echo_not_entered();
           return;
@@ -4458,6 +4460,11 @@ void home_all_axes() { gcode_G28(true); }
         break;
 
     } // switch(state)
+
+    if (state == MeshStart || state == MeshNext) {
+      SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
+      SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
+    }
 
     report_current_position();
   }
