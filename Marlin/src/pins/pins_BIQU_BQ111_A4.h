@@ -95,7 +95,7 @@
  *
  * REPRAP_DISCOUNT_SMART_CONTROLLER is not supported due to the lack of LCD_PINS_D5,
  * LCD_PINS_D6 or LCD_PINS_D7 in the EXP1 connector.
- * 
+ *
  * A remote SD card is not supported as the pins routed to EXP2 are the same as used
  * for the onboard SD card, and a chip select signal is not provided for the remote
  * SD card.
