@@ -931,6 +931,20 @@
     #define MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
+  // Allow configuration to override these for special purposes
+  #ifndef MIN_PROBE_X
+    #define MIN_PROBE_X _MIN_PROBE_X
+  #endif
+  #ifndef MIN_PROBE_Y
+    #define MIN_PROBE_Y _MIN_PROBE_Y
+  #endif
+  #ifndef MAX_PROBE_X
+    #define MAX_PROBE_X _MAX_PROBE_X
+  #endif
+  #ifndef MAX_PROBE_Y
+    #define MAX_PROBE_Y _MAX_PROBE_Y
+  #endif
+
   /**
    * Default mesh area is an area with an inset margin on the print area.
    */
