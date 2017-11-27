@@ -137,13 +137,19 @@ void GcodeSuite::G29() {
         BUZZ(100, 659);
         BUZZ(100, 698);
         mbl.has_mesh = true;
+
         gcode.home_all_axes();
         set_bed_leveling_enabled(true);
+
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = Z_MIN_POS;
           set_destination_from_current();
           buffer_line_to_destination(homing_feedrate(Z_AXIS));
           stepper.synchronize();
+        #endif
+
+        #if ENABLED(LCD_BED_LEVELING)
+          lcd_wait_for_move = false;
         #endif
       }
       break;
