@@ -38,6 +38,9 @@
 #include "../Marlin.h"
 
 // Initialized by settings.load()
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  float additional_z_offset;
+#endif
 float delta_height,
       delta_endstop_adj[ABC] = { 0 },
       delta_radius,

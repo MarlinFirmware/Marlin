@@ -613,7 +613,7 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe() + zprobe_zoffset;
+    measured_z = run_z_probe() + (probe_relative ? zprobe_zoffset : 0.0);
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));

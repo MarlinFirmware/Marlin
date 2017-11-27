@@ -137,10 +137,10 @@ static void G33_cleanup(
 
 inline float calibration_probe(const float nx, const float ny, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_pt(nx, ny, stow, 0, false);
+    return probe_pt(nx, ny, stow, 0, false) + additional_z_offset;
   #else
     UNUSED(stow);
-    return lcd_probe_pt(nx, ny);
+    return lcd_probe_pt(nx, ny) + additional_z_offset;
   #endif
 }
 
@@ -372,6 +372,8 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
  *      P3     Probe all positions: center, towers and opposite towers. Set all.
  *      P4-P10 Probe all positions + at different itermediate locations and average them.
  *
+ *   Zn.nn  changes the Z-shift appied to the print height of 1st layer (+up/-down)
+ *
  *   T   Don't calibrate tower angle corrections
  *
  *   Cn.nn  Calibration precision; when omitted calibrates to maximum precision
@@ -390,9 +392,15 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
  */
 void GcodeSuite::G33() {
 
-  const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
+  const int8_t probe_points = parser.seenval('Z') ? 0 : parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
     SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (0-10).");
+    return;
+  }
+
+  const float z_shift = parser.floatval('Z', 0.0);
+  if (!WITHIN(z_shift, -25, 5)) {
+    SERIAL_PROTOCOLLNPGM("?(Z)-shift is implausible (-25,5).");
     return;
   }
 
@@ -471,14 +479,6 @@ void GcodeSuite::G33() {
     #define G33_CLEANUP() G33_cleanup()
   #endif
 
-  setup_for_endstop_or_probe_move();
-  endstops.enable(true);
-  if (!_0p_calibration) {
-    if (!home_delta())
-      return;
-    endstops.not_homing();
-  }
-
   if (auto_tune) {
     #if HAS_BED_PROBE
       G33_auto_tune();
@@ -489,15 +489,28 @@ void GcodeSuite::G33() {
     return;
   }
 
+  setup_for_endstop_or_probe_move();
+  endstops.enable(true);
+  if (!_0p_calibration) {
+    if (!home_delta())
+      return;
+    endstops.not_homing();
+  }
+
   // Report settings
 
   const char *checkingac = PSTR("Checking... AC"); // TODO: Make translatable string
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
-  SERIAL_EOL();
   lcd_setstatusPGM(checkingac);
+  SERIAL_EOL();
 
   print_G33_settings(_endstop_results, _angle_results);
+
+  if (parser.seenval('Z') && verbose_level != 0) { // reset the print height of 1st layer
+    delta_height -= z_shift - additional_z_offset;
+    additional_z_offset = z_shift;
+  }
 
   do {
 
@@ -511,7 +524,7 @@ void GcodeSuite::G33() {
 
     zero_std_dev = probe_G33_points(z_at_pt, probe_points, towers_set, stow_after_each);
     if (isnan(zero_std_dev)) {
-      SERIAL_PROTOCOLPGM("Correct delta_radius with M665 R or end-stops with M666 X Y Z");
+      SERIAL_PROTOCOLPGM("Correct delta_height, delta_radius with M665 R H or end-stops with M666 X Y Z");
       SERIAL_EOL();
       return G33_CLEANUP();
     }
@@ -637,7 +650,12 @@ void GcodeSuite::G33() {
         SERIAL_PROTOCOL_SP(32);
         #if HAS_BED_PROBE
           if (zero_std_dev >= test_precision && !_1p_calibration)
-            SERIAL_PROTOCOLPGM("rolling back.");
+            if (_0p_calibration) {
+              SERIAL_PROTOCOLPGM("Z-shift: ");
+              SERIAL_PROTOCOL_F(additional_z_offset, 3);
+            }
+            else
+              SERIAL_PROTOCOLPGM("rolling back.");
           else
         #endif
           {
