@@ -298,6 +298,9 @@ void report_current_position();
 #endif
 
 #if ENABLED(DELTA)
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    extern float additional_z_offset;
+  #endif
   extern float delta_height,
                delta_endstop_adj[ABC],
                delta_radius,

@@ -845,6 +845,13 @@
   #endif
 
   /**
+   * ADDITIONAL_Z_OFFSET is not defined on purpose, use old value as default
+   */
+  #if ENABLED(DELTA) && ENABLED(DELTA_AUTO_CALIBRATION) && !defined(ADDITIONAL_Z_OFFSET)
+    #define ADDITIONAL_Z_OFFSET Z_PROBE_OFFSET_FROM_EXTRUDER
+  #endif
+
+  /**
    * Heater & Fan Pausing
    */
   #if FAN_COUNT == 0
