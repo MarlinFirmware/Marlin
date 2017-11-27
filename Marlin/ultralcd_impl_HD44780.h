@@ -594,10 +594,9 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     #endif
 
     lcd.clear();
-
     safe_delay(100);
-
     lcd_set_custom_characters();
+    lcd.clear();
   }
 
 #endif // SHOW_BOOTSCREEN
