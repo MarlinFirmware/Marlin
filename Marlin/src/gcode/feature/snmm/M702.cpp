@@ -25,7 +25,9 @@
 #if ENABLED(MK2_MULTIPLEXER)
 
 #include "../../gcode.h"
+#include "../../../module/motion.h"
 #include "../../../feature/snmm.h"
+#include "../../../Marlin.h"
 
 /**
  * M702: Unload all extruders
