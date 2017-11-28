@@ -1479,6 +1479,8 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "BLOCK_BUFFER_SIZE must be a power of 2."
 #endif
 
-#include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
+#if ENABLED(LED_CONTROL_MENU) && DISABLED(ULTIPANEL)
+  #error "LED_CONTROL_MENU requires an LCD controller."
+#endif
 
 #endif // _SANITYCHECK_H_
