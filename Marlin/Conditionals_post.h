@@ -1096,4 +1096,27 @@
     #define MAX_VFAT_ENTRIES (2)
   #endif
 
+  // Set defaults for unspecified LED user colors
+  #if ENABLED(LED_CONTROL_MENU)
+    #ifndef LED_USER_PRESET_RED
+      #define LED_USER_PRESET_RED       255
+    #endif
+    #ifndef LED_USER_PRESET_GREEN
+      #define LED_USER_PRESET_GREEN     255
+    #endif
+    #ifndef LED_USER_PRESET_BLUE
+      #define LED_USER_PRESET_BLUE      255
+    #endif
+    #ifndef LED_USER_PRESET_WHITE
+      #define LED_USER_PRESET_WHITE     0
+    #endif
+    #ifndef LED_USER_PRESET_BRIGHTNESS
+      #ifdef NEOPIXEL_BRIGHTNESS
+        #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
+      #else
+        #define LED_USER_PRESET_BRIGHTNESS 255
+      #endif
+    #endif
+  #endif
+
 #endif // CONDITIONALS_POST_H
