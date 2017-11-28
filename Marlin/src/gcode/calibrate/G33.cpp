@@ -254,7 +254,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       recalc_delta_settings();
 
       endstops.enable(true);
-      if (!home_delta()) return;
+      if (!home_delta()) return false;
       endstops.not_homing();
 
       SERIAL_PROTOCOLPGM("Tuning E");
@@ -286,7 +286,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       recalc_delta_settings();
 
       endstops.enable(true);
-      if (!home_delta()) return;
+      if (!home_delta()) return false;
       endstops.not_homing();
 
       SERIAL_PROTOCOLPGM("Tuning R");
@@ -312,7 +312,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
       recalc_delta_settings();
 
       endstops.enable(true);
-      if (!home_delta()) return;
+      if (!home_delta()) return false;
       endstops.not_homing();
 
       SERIAL_PROTOCOLPGM("Tuning T");
@@ -346,7 +346,7 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
     a_fac *= norm; // Normalize to 0.83 for Kossel mini
 
     endstops.enable(true);
-    if (!home_delta()) return;
+    if (!home_delta()) return false;
     endstops.not_homing();
     print_signed_float(PSTR( "H_FACTOR: "), h_fac);
     print_signed_float(PSTR(" R_FACTOR: "), r_fac);
@@ -481,7 +481,10 @@ void GcodeSuite::G33() {
 
   if (auto_tune) {
     #if HAS_BED_PROBE
-      G33_auto_tune();
+      if (!G33_auto_tune()) {
+        SERIAL_PROTOCOLPGM("Calibrate printer first");
+        SERIAL_EOL();
+      }
     #else
       SERIAL_PROTOCOLLNPGM("A probe is needed for auto-tune");
     #endif

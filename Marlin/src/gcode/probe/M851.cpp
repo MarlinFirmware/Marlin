@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
+#include "../../module/delta.h"
 
 void GcodeSuite::M851() {
   SERIAL_ECHO_START();
@@ -38,6 +39,9 @@ void GcodeSuite::M851() {
       return;
     }
     zprobe_zoffset = value;
+    #if ENABLED(DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE)
+      recalc_delta_settings();
+    #endif
   }
   SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
 }

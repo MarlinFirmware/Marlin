@@ -30,6 +30,7 @@
 
 #include "delta.h"
 #include "motion.h"
+#include "probe.h"
 
 // For homing:
 #include "stepper.h"
@@ -57,6 +58,7 @@ float delta_safe_distance_from_top();
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings() {
+  static float last_zoffset = NAN;
   const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
               drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
   delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]); // front left tower
@@ -68,6 +70,13 @@ void recalc_delta_settings() {
   delta_diagonal_rod_2_tower[A_AXIS] = sq(delta_diagonal_rod + drt[A_AXIS]);
   delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
   delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
+
+  #if ENABLED(DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE) // to keep G33-data intact
+    if (!isnan(last_zoffset)) {
+      delta_height -= zprobe_zoffset - last_zoffset;
+    }
+    last_zoffset = zprobe_zoffset;
+  #endif
   update_software_endstops(Z_AXIS);
   axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
 }

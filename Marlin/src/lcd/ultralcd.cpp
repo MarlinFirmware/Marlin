@@ -1110,6 +1110,9 @@ void kill_screen(const char* lcd_msg) {
               thermalManager.babystep_axis(Z_AXIS, babystep_increment);
 
             zprobe_zoffset = new_zoffset;
+            #if ENABLED(DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE)
+              recalc_delta_settings();
+            #endif
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
           encoderPosition = 0;
@@ -1937,7 +1940,11 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
       #elif HAS_BED_PROBE
-        MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+        #if ENABLED(DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE)
+          MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, recalc_delta_settings);
+        #else
+          MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+        #endif
       #endif
 
       MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
@@ -3581,7 +3588,11 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     #elif HAS_BED_PROBE
-      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #if ENABLED(DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE)
+        MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, recalc_delta_settings);
+      #else
+        MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #endif
     #endif
 
     // M203 / M205 - Feedrate items
