@@ -484,6 +484,7 @@
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   //#define DELTA_AUTO_CALIBRATION
+  #define DELTA_HEIGHT_FOLLOWS_Z_OFFSET_CHANGE
 
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
