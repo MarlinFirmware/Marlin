@@ -12746,6 +12746,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     // Calculate and execute the segments
     for (uint16_t s = segments + 1; --s;) {
+
+      static millis_t next_idle_ms = millis() + 200UL;
+      thermalManager.manage_heater();  // This returns immediately if not really needed.
+      if (ELAPSED(millis(), next_idle_ms)) {
+        next_idle_ms = millis() + 200UL;
+        idle();
+      }
+
       LOOP_XYZE(i) raw[i] += segment_distance[i];
       #if ENABLED(DELTA)
         DELTA_RAW_IK(); // Delta can inline its kinematics
