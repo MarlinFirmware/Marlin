@@ -2417,8 +2417,8 @@ static void clean_up_after_endstop_or_probe_move() {
       ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
     }
     else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
-  
-    const float nz = 
+
+    const float nz =
       #if ENABLED(DELTA)
         // Move below clip height or xy move will be aborted by do_blocking_move_to
         min(current_position[Z_AXIS], delta_clip_start_height)
@@ -3446,7 +3446,7 @@ inline void gcode_G0_G1(
     #else
       prepare_move_to_destination();
     #endif
-	
+
     #if ENABLED(NANODLP_Z_SYNC)
       // If G0/G1 command include Z-axis, wait for move and output sync text.
       if (parser.seenval('Z')) {
