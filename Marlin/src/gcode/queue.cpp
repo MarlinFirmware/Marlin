@@ -370,13 +370,13 @@ inline void get_serial_commands() {
             SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
             #if ENABLED(PRINTER_EVENT_LEDS)
               LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-              set_led_color(0, 255, 0); // Green
+              leds.set_green();
               #if HAS_RESUME_CONTINUE
                 enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
               #else
                 safe_delay(1000);
               #endif
-              set_led_color(0, 0, 0);   // OFF
+              leds.set_off();
             #endif
             card.checkautostart(true);
           }

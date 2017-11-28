@@ -61,6 +61,7 @@ void setup_neopixel() {
   #endif
 }
 
+#if 0
 bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {
   const uint32_t color = pixels.Color(r, g, b, w);
   pixels.setBrightness(p);
@@ -75,5 +76,6 @@ bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, c
     return true;
   #endif
 }
+#endif
 
 #endif // NEOPIXEL_LED

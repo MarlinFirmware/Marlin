@@ -43,7 +43,7 @@
 
 void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+//bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 
 extern Adafruit_NeoPixel pixels;
 
