@@ -9346,7 +9346,7 @@ inline void gcode_M226() {
           const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
           thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
           #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-            if (a == Z_AXIS && parser.boolval('P', true)) mod_zprobe_zoffset(offs);
+            if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_zprobe_zoffset(offs);
           #endif
         }
     #else
@@ -9354,7 +9354,7 @@ inline void gcode_M226() {
         const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
         thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (parser.boolval('P', true)) mod_zprobe_zoffset(offs);
+          if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
         #endif
       }
     #endif
