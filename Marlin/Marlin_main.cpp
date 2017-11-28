@@ -284,17 +284,8 @@
   #include "Max7219_Debug_LEDs.h"
 #endif
 
-#if ENABLED(NEOPIXEL_LED)
-  #include <Adafruit_NeoPixel.h>
-#endif
-
-#if ENABLED(BLINKM)
-  #include "blinkm.h"
-  #include "Wire.h"
-#endif
-
-#if ENABLED(PCA9632)
-  #include "pca9632.h"
+#if HAS_COLOR_LEDS
+  #include "leds.h"
 #endif
 
 #if HAS_SERVOS
@@ -331,32 +322,6 @@
   void gcode_G26();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
-  #if ENABLED(LED_COLOR_PRESETS)
-    uint8_t led_intensity_red = LED_USER_PRESET_RED,
-            led_intensity_green = LED_USER_PRESET_GREEN,
-            led_intensity_blue = LED_USER_PRESET_BLUE
-            #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-              , led_intensity_white = LED_USER_PRESET_WHITE
-            #endif
-            #if ENABLED(NEOPIXEL_LED)
-              , led_intensity = NEOPIXEL_BRIGHTNESS
-            #endif
-            ;
-  #else
-    uint8_t led_intensity_red = 255,
-            led_intensity_green = 255,
-            led_intensity_blue = 255
-            #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-              , led_intensity_white = 0
-            #endif
-            #if ENABLED(NEOPIXEL_LED)
-              , led_intensity = NEOPIXEL_BRIGHTNESS
-            #endif
-            ;
-  #endif
-#endif
-
 #if ENABLED(SDSUPPORT)
   CardReader card;
 #endif
@@ -379,20 +344,6 @@
                            && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
                            && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
                            || isnan(ubl.z_values[0][0]))
-#endif
-
-#if ENABLED(NEOPIXEL_LED)
-  #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
-    #define NEO_WHITE 255, 255, 255
-  #else
-    #define NEO_WHITE 0, 0, 0, 255
-  #endif
-#endif
-
-#if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
-  #define LED_WHITE 255, 255, 255
-#elif ENABLED(RGBW_LED)
-  #define LED_WHITE 0, 0, 0, 255
 #endif
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -1039,124 +990,6 @@ void servo_init() {
 
 #endif
 
-#if HAS_COLOR_LEDS
-
-  #if ENABLED(NEOPIXEL_LED)
-
-    Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
-
-    void set_neopixel_color(const uint32_t color) {
-      for (uint16_t i = 0; i < pixels.numPixels(); ++i)
-        pixels.setPixelColor(i, color);
-      pixels.show();
-    }
-
-    void setup_neopixel() {
-      pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
-      pixels.begin();
-      pixels.show(); // initialize to all off
-
-      #if ENABLED(NEOPIXEL_STARTUP_TEST)
-        safe_delay(1000);
-        set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-        safe_delay(1000);
-        set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-        safe_delay(1000);
-        set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-        safe_delay(1000);
-      #endif
-      set_neopixel_color(pixels.Color(NEO_WHITE));       // white
-    }
-
-  #endif // NEOPIXEL_LED
-
-  void set_led_color(
-    const uint8_t r, const uint8_t g, const uint8_t b
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-        , const uint8_t w = 0
-        #if ENABLED(NEOPIXEL_LED)
-          , const uint8_t p = NEOPIXEL_BRIGHTNESS
-          , bool isSequence = false
-        #endif
-      #endif
-  ) {
-
-    #if ENABLED(NEOPIXEL_LED)
-
-      const uint32_t color = pixels.Color(r, g, b, w);
-      static uint16_t nextLed = 0;
-
-      pixels.setBrightness(p);
-      if (!isSequence)
-        set_neopixel_color(color);
-      else {
-        pixels.setPixelColor(nextLed, color);
-        pixels.show();
-        if (++nextLed >= pixels.numPixels()) nextLed = 0;
-        return;
-      }
-
-    #endif
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #endif
-
-    #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      WRITE(RGB_LED_R_PIN, r ? HIGH : LOW);
-      WRITE(RGB_LED_G_PIN, g ? HIGH : LOW);
-      WRITE(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-      #if ENABLED(RGBW_LED)
-        WRITE(RGB_LED_W_PIN, w ? HIGH : LOW);
-        analogWrite(RGB_LED_W_PIN, w);
-      #endif
-
-    #endif
-
-    #if ENABLED(PCA9632)
-      // Update I2C LED driver
-      PCA9632_SetColor(r, g, b);
-    #endif
-
-    #if ENABLED(LED_CONTROL_MENU)
-      if ((r + g + b
-        #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-          + w
-        #endif
-      ) >= 3) {
-        led_intensity_red = r;
-        led_intensity_green = g;
-        led_intensity_blue = b;
-        #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-          led_intensity_white = w;
-        #endif
-        #if ENABLED(NEOPIXEL_LED)
-          led_intensity = p;
-        #endif
-      }
-    #endif
-  }
-
-  void set_led_white() {
-    #if ENABLED(NEOPIXEL_LED)
-      set_neopixel_color(pixels.Color(NEO_WHITE));
-    #else
-      set_led_color(LED_WHITE);
-    #endif
-  }
-
-#endif // HAS_COLOR_LEDS
-
 void gcode_line_error(const char* err, bool doFlush = true) {
   SERIAL_ERROR_START();
   serialprintPGM(err);
@@ -1342,13 +1175,13 @@ inline void get_serial_commands() {
             SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
             #if ENABLED(PRINTER_EVENT_LEDS)
               LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-              set_led_color(0, 255, 0); // Green
+              leds.set_green();
               #if HAS_RESUME_CONTINUE
                 enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
               #else
                 safe_delay(1000);
               #endif
-              set_led_color(0, 0, 0);   // OFF
+              leds.set_off();
             #endif
             card.checkautostart(true);
           }
@@ -8039,14 +7872,11 @@ inline void gcode_M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue
-          #if ENABLED(NEOPIXEL_LED)
-            , 0
-            , pixels.getBrightness()
+          leds.set_color(
+            MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
             #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
               , true
             #endif
-          #endif
           );
         }
       }
@@ -8083,12 +7913,7 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632) || ENABLED(RGBW_LED)
-        set_led_color(LED_WHITE);
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        set_neopixel_color(pixels.Color(NEO_WHITE));
-      #endif
+      leds.set_white();
     #endif
   }
 
@@ -8184,12 +8009,10 @@ inline void gcode_M109() {
           const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
           if (red != old_red) {
             old_red = red;
-            set_led_color(red, 0, 255
-              #if ENABLED(NEOPIXEL_LED)
-                , 0, pixels.getBrightness()
-                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                  , true
-                #endif
+            leds.set_color(
+              MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
+              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                , true
               #endif
             );
           }
@@ -8866,17 +8689,13 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150 P          ; Set LED full brightness
    */
   inline void gcode_M150() {
-    set_led_color(
+    leds.set_color(MakeLEDColor(
       parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-      parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-        , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-        #if ENABLED(NEOPIXEL_LED)
-          , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
-        #endif
-      #endif
-    );
+      parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+      parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+      parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+    ));
   }
 
 #endif // HAS_COLOR_LEDS
@@ -14034,9 +13853,8 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(NEOPIXEL_LED)
-    SET_OUTPUT(NEOPIXEL_PIN);
-    setup_neopixel();
+  #if HAS_COLOR_LEDS
+    leds.setup();
   #endif
 
   #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)

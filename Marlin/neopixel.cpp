@@ -21,26 +21,40 @@
  */
 
 /**
- * blinkm.cpp - Control a BlinkM over i2c
+ * neopixel.cpp
  */
 
 #include "MarlinConfig.h"
 
-#if ENABLED(BLINKM)
+#if ENABLED(NEOPIXEL_LED)
 
-#include "blinkm.h"
-#include "leds.h"
-#include <Wire.h>
+#include "neopixel.h"
 
-void blinkm_set_led_color(const LEDColor &color) {
-  Wire.begin();
-  Wire.beginTransmission(0x09);
-  Wire.write('o');                    //to disable ongoing script, only needs to be used once
-  Wire.write('n');
-  Wire.write(color.r);
-  Wire.write(color.g);
-  Wire.write(color.b);
-  Wire.endTransmission();
+Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
+
+void set_neopixel_color(const uint32_t color) {
+  for (uint16_t i = 0; i < pixels.numPixels(); ++i)
+    pixels.setPixelColor(i, color);
+  pixels.show();
 }
 
-#endif // BLINKM
+void setup_neopixel() {
+  SET_OUTPUT(NEOPIXEL_PIN);
+  pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
+  pixels.begin();
+  pixels.show(); // initialize to all off
+
+  #if ENABLED(NEOPIXEL_STARTUP_TEST)
+    safe_delay(1000);
+    set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
+    safe_delay(1000);
+    set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
+    safe_delay(1000);
+    set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
+    safe_delay(1000);
+  #endif
+  set_neopixel_color(pixels.Color(NEO_WHITE));       // white
+}
+
+#endif // NEOPIXEL_LED
+
