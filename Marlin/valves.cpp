@@ -34,9 +34,10 @@ void valve_init(void) {
     VALVE_2_DDR |= VALVE_2;
     VALVE_3_DDR |= VALVE_3;
 
-    // Open all valves for testing
+    // Set all valves to "closed"
+    // (remember, numbering starts at 1, not 0)
     for (uint8_t valve = 1; valve <= MAX_VALVES; valve++) {
-        valve_open(valve);
+        valve_close(valve);
     }
 }
 
