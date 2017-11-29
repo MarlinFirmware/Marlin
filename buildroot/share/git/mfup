@@ -38,6 +38,8 @@ if [[ $BRANCH != $TARG ]]; then
   else
     echo "No such branch!"
   fi
+else
+  git reset --hard upstream/$TARG
 fi
 
 echo
