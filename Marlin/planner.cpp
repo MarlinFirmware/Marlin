@@ -1071,9 +1071,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
       if (segment_time_us < min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        inverse_mm_s = 1000000.0 / (segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued));
+        const uint32_t nst = segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued);
+        inverse_mm_s = 1000000.0 / nst;
         #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
-          segment_time_us = LROUND(1000000.0 / inverse_mm_s);
+          segment_time_us = nst;
         #endif
       }
     }
@@ -1101,7 +1102,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       filwidth_delay_dist += delta_mm[E_AXIS];
 
       // Only get new measurements on forward E movement
-      if (filwidth_e_count > 0.0001) {
+      if (!UNEAR_ZERO(filwidth_e_count)) {
 
         // Loop the delay distance counter (modulus by the mm length)
         while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
@@ -1304,18 +1305,18 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   }
 
-  if (moves_queued > 1 && previous_nominal_speed > 0.0001) {
+  if (moves_queued > 1 && !UNEAR_ZERO(previous_nominal_speed)) {
     // Estimate a maximum velocity allowed at a joint of two successive segments.
     // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
     // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
 
     // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-    bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
+    const bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
     float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
     // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
-    float v_factor = 1.f;
+    float v_factor = 1;
     limited = 0;
     // Now limit the jerk in all axes.
     LOOP_XYZE(axis) {
@@ -1330,9 +1331,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
       const float jerk = (v_exit > v_entry)
           ? //                                  coasting             axis reversal
-            ( (v_entry > 0.f || v_exit < 0.f) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+            ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
           : // v_exit <= v_entry                coasting             axis reversal
-            ( (v_entry < 0.f || v_exit > 0.f) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+            ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
 
       if (jerk > max_jerk[axis]) {
         v_factor *= max_jerk[axis] / jerk;
