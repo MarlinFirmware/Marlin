@@ -39,19 +39,6 @@
 #ifndef BOARD_NAME
   #define BOARD_NAME       "RuRAMPS4Due"
 #endif
-#define RURAMPS4DUE        // #1550 in boards.h
-
-#undef INVERTED_HEATER_PINS
-#undef INVERTED_BED_PINS
-#undef INVERTED_FAN_PINS
-
-//
-// Servos
-//
-#define SERVO0_PIN          5
-#define SERVO1_PIN          3
-#define SERVO2_PIN         -1
-#define SERVO3_PIN          1
 
 //
 // Limit Switches
@@ -60,7 +47,7 @@
 #define X_MAX_PIN          39
 #define Y_MIN_PIN          46
 #define Y_MAX_PIN          41
-#define Z_MIN_PIN          49
+#define Z_MIN_PIN          47
 #define Z_MAX_PIN          43
 
 //
@@ -116,16 +103,6 @@
 //#define Z2_MS2_PIN         ? // shared with E3_MS2_PIN
 //#define Z2_MS3_PIN         ? // shared with E3_MS3_PIN
 
-//
-// Limit Switches
-//
-#define X_MIN_PIN          45
-#define X_MAX_PIN          39
-#define Y_MIN_PIN          46
-#define Y_MAX_PIN          41
-#define Z_MIN_PIN          47
-#define Z_MAX_PIN          43
-
 #if !ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_PROBE_PIN      49
 #endif // else Z_PROBE_PIN = Z_MIN_PIN
@@ -144,7 +121,7 @@
 #define HEATER_2_PIN       11
 #define HEATER_BED_PIN      7  // BED H1
 
-#define FAN_PIN	            9
+#define FAN_PIN             9
 #define FAN1_PIN            8
 #define CONTROLLER_FAN_PIN -1
 
@@ -182,9 +159,7 @@
 //
 #define SDSS                4 // 4,10,52 if using HW SPI.
 #define LED_PIN            -1 // 13 - HEATER_0_PIN
-#define SDPOWER	           -1
 #define PS_ON_PIN          -1 // 65
-#define KILL_PIN           -1
 
 // MKS TFT / Nextion Use internal USART-1
 #define TFT_LCD_MODULE_COM        1
@@ -247,6 +222,7 @@
      #define BTN_ENC        40
      #define SD_DETECT_PIN  51
     #endif
+
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
     #define BTN_EN1         44
     #define BTN_EN2         42
