@@ -357,7 +357,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
   return offset;
 }
 
-#if !IS_KINEMATIC
+#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
   #define CELL_INDEX(A,V) ((V - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
 
@@ -420,6 +420,6 @@ float bilinear_z_offset(const float raw[XYZ]) {
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#endif // !IS_KINEMATIC
+#endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
 #endif // AUTO_BED_LEVELING_BILINEAR
