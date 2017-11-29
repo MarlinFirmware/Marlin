@@ -2,6 +2,14 @@
 
 # Quick build script for RAMBo
 
+# Function Definitions
+build_dir_check_rm() {
+    if [ -d $build_dir ]; then
+        rm -r $build_dir
+    fi
+}
+
+
 # Check if build dir exists
 build_dir="$HOME/projects/Marlin/build/"
 build_dir_check_rm
@@ -26,13 +34,18 @@ else
     exit 1
 fi
 
-avrdude -p m2560 -b 115200 -c wiring -P /dev/tty.usbmodem1461 -D -U flash:w:$target_hex
+# Get port number
+PORT=$(ls /dev/tty.* | grep -E 'usbmodem[0-9]+')
+
+echo "Port found $PORT"
+
+avrdude -p m2560 -b 115200 -c wiring -P $PORT -D -U flash:w:$target_hex
 
 # rename hex file back to what it was
 mv $target_hex $build_dir/MarlinUsed.ino.hex
 build_dir_check_rm
 
-build_dir_check_rm() {
+function build_dir_check_rm() {
     if [ -d $build_dir ]; then
         rm -r $build_dir
     fi
