@@ -28,7 +28,6 @@ before_install:
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
 
 install:
-  - pip install backports.functools_lru_cache
   - pip install -U platformio
 
 before_script:
