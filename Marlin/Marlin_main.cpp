@@ -239,6 +239,10 @@
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
+ * ************ Test Setup Codes
+ * M960 - Set valve state "M960 P<valve> S<state>
+ * M970 - Set solenoid state "M970 P<solenoid> S<state>
+ *
  */
 
 #include "Marlin.h"
@@ -10283,6 +10287,53 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 
+/**
+ * M960: Set valve state "M960 P<valve> S<state>"
+ *
+ * Valves start at 1.
+ * State = 0 -> Closed
+ * State = 1 -> Opened
+ *
+ */
+inline void gcode_M960() {
+    uint8_t valve = 0;
+    uint8_t state = 0;
+    // Get valve
+    if (parser.seenval('P')) {
+        // Check for <= MAX_VALVES b/c end user doesn't like zero indexing :(
+        if ((parser.value_byte() > 0) && (parser.value_byte() <= MAX_VALVES)) {
+            valve = parser.value_byte();
+        }
+        else {
+            SERIAL_PROTOCOLLNPGM("Invalid valve number");
+            SERIAL_EOL();
+            return;
+        }
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a valve P");
+        SERIAL_EOL();
+        return;
+    }
+    // Get state
+    if (parser.seenval('S')) {
+        state = parser.value_bool();
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a state S");
+        SERIAL_EOL();
+        return;
+    }
+    
+    // Call valve function on valve
+    if (state == 0) {
+        valve_close(valve);
+    }
+    else if (state == 1) {
+        valve_open(valve);
+    }
+}
+
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
@@ -11678,6 +11729,12 @@ void process_next_command() {
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
+        break;
+
+      // Test Setup M-Codes
+
+      case 960: // M960: Set valve state
+        gcode_M960();
         break;
     }
     break;
