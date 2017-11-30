@@ -1312,7 +1312,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
     const bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
-    float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
+    const float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
     // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
@@ -1444,10 +1444,10 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   #else
     #define _EINDEX E_AXIS
   #endif
-  long na = position[X_AXIS] = LROUND(a * axis_steps_per_mm[X_AXIS]),
-       nb = position[Y_AXIS] = LROUND(b * axis_steps_per_mm[Y_AXIS]),
-       nc = position[Z_AXIS] = LROUND(c * axis_steps_per_mm[Z_AXIS]),
-       ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
+  const long na = position[X_AXIS] = LROUND(a * axis_steps_per_mm[X_AXIS]),
+             nb = position[Y_AXIS] = LROUND(b * axis_steps_per_mm[Y_AXIS]),
+             nc = position[Z_AXIS] = LROUND(c * axis_steps_per_mm[Z_AXIS]),
+             ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
   #if ENABLED(LIN_ADVANCE)
     position_float[X_AXIS] = a;
     position_float[Y_AXIS] = b;
