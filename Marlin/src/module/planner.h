@@ -144,7 +144,7 @@ class Planner {
       static uint8_t last_extruder;             // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
+    static int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 
     static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
                  filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -167,7 +167,7 @@ class Planner {
                  min_travel_feedrate_mm_s;
 
     #if HAS_LEVELING
-      static bool leveling_active;              // Flag that bed leveling is enabled
+      static bool leveling_active;          // Flag that bed leveling is enabled
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
       #endif
@@ -186,7 +186,7 @@ class Planner {
      * The current position of the tool in absolute steps
      * Recalculated if any axis_steps_per_mm are changed by gcode
      */
-    static long position[NUM_AXIS];
+    static int32_t position[NUM_AXIS];
 
     /**
      * Speed of previous path line segment
@@ -220,11 +220,7 @@ class Planner {
       // Old direction bits. Used for speed calculations
       static unsigned char old_direction_bits;
       // Segment times (in µs). Used for speed calculations
-      static long axis_segment_time_us[2][3];
-    #endif
-
-    #if ENABLED(LIN_ADVANCE)
-      static float position_float[NUM_AXIS];
+      static uint32_t axis_segment_time_us[2][3];
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -342,12 +338,12 @@ class Planner {
     /**
      * Planner::_buffer_line
      *
-     * Add a new direct linear movement to the buffer.
+     * Add a new linear movement to the buffer in axis units.
      *
-     * Leveling and kinematics should be applied ahead of this.
+     * Leveling and kinematics should be applied ahead of calling this.
      *
-     *  a,b,c,e   - target position in mm or degrees
-     *  fr_mm_s   - (target) speed of the move (mm/s)
+     *  a,b,c,e   - target positions in mm and/or degrees
+     *  fr_mm_s   - (target) speed of the move
      *  extruder  - target extruder
      */
     static void _buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder);
@@ -444,7 +440,7 @@ class Planner {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
         #if ENABLED(ULTRA_LCD)
-          block_buffer_runtime_us -= block->segment_time_us; //We can't be sure how long an active block will take, so don't count it.
+          block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
