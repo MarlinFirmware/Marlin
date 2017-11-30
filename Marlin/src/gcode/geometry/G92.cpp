@@ -94,7 +94,21 @@ void GcodeSuite::G92() {
       COPY(coordinate_system[active_coordinate_system], position_shift);
   #endif
 
-  if (didXYZ)
+  bool didA = seenval('A');
+  if (didA) {
+    const float curr_z = current_position[Z_AXIS];
+    const float adjust_z = parser.value_axis_units(Z_AXIS);
+
+    do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
+    current_position[Z_AXIS] = curr_z;
+
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPGM("\nA: ");
+    SERIAL_ECHOLN(adjust_z);
+
+  }
+
+  if (didXYZ || didA)
     SYNC_PLAN_POSITION_KINEMATIC();
   else if (didE)
     sync_plan_position_e();
