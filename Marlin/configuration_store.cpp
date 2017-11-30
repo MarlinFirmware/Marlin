@@ -225,6 +225,9 @@ void MarlinSettings::postprocess() {
   // planner position so the stepper counts will be set correctly.
   #if ENABLED(DELTA)
     recalc_delta_settings();
+    #if ENABLED(DELTA_AUTO_CALIBRATION)
+      tune_delta_height(false);
+    #endif
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm

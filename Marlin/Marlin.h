@@ -307,6 +307,9 @@ void report_current_position();
                delta_tower_angle_trim[ABC],
                delta_clip_start_height;
   void recalc_delta_settings();
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    void tune_delta_height(bool set_h);
+  #endif
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
