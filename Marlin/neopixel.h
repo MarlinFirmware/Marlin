@@ -21,15 +21,24 @@
  */
 
 /**
- * blinkm.h - Control a BlinkM over i2c
+ * neopixel.h
  */
 
-#ifndef _BLINKM_H_
-#define _BLINKM_H_
+#include "MarlinConfig.h"
 
-struct LEDColor;
-typedef LEDColor LEDColor;
+#define NEOPIXEL_IS_RGB  (NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR)
+#define NEOPIXEL_IS_RGBW !NEOPIXEL_IS_RGB
 
-void blinkm_set_led_color(const LEDColor &color);
+#if NEOPIXEL_IS_RGB
+  #define NEO_WHITE 255, 255, 255, 0
+#else
+  #define NEO_WHITE 0, 0, 0, 255
+#endif
 
-#endif // _BLINKM_H_
+#include <Adafruit_NeoPixel.h>
+#include <stdint.h>
+
+void setup_neopixel();
+void set_neopixel_color(const uint32_t color);
+
+extern Adafruit_NeoPixel pixels;
