@@ -182,7 +182,7 @@ class Planner {
      * The current position of the tool in absolute steps
      * Recalculated if any axis_steps_per_mm are changed by gcode
      */
-    static long position[NUM_AXIS];
+    static int32_t position[NUM_AXIS];
 
     /**
      * Speed of previous path line segment

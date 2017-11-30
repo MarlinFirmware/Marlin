@@ -133,7 +133,7 @@ float Planner::min_feedrate_mm_s,
 
 // private:
 
-long Planner::position[NUM_AXIS] = { 0 };
+int32_t Planner::position[NUM_AXIS] = { 0 };
 
 uint32_t Planner::cutoff_long;
 
@@ -675,9 +675,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  const long da = target[X_AXIS] - position[X_AXIS],
-             db = target[Y_AXIS] - position[Y_AXIS],
-             dc = target[Z_AXIS] - position[Z_AXIS];
+  const int32_t da = target[X_AXIS] - position[X_AXIS],
+                db = target[Y_AXIS] - position[Y_AXIS],
+                dc = target[Z_AXIS] - position[Z_AXIS];
 
   /*
   SERIAL_ECHOPAIR("  Planner FR:", fr_mm_s);
@@ -706,7 +706,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   if (DEBUGGING(DRYRUN))
     position[E_AXIS] = target[E_AXIS];
 
-  long de = target[E_AXIS] - position[E_AXIS];
+  int32_t de = target[E_AXIS] - position[E_AXIS];
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
@@ -1386,10 +1386,10 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   #else
     #define _EINDEX E_AXIS
   #endif
-  const long na = position[X_AXIS] = LROUND(a * axis_steps_per_mm[X_AXIS]),
-             nb = position[Y_AXIS] = LROUND(b * axis_steps_per_mm[Y_AXIS]),
-             nc = position[Z_AXIS] = LROUND(c * axis_steps_per_mm[Z_AXIS]),
-             ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
+  const int32_t na = position[X_AXIS] = LROUND(a * axis_steps_per_mm[X_AXIS]),
+                nb = position[Y_AXIS] = LROUND(b * axis_steps_per_mm[Y_AXIS]),
+                nc = position[Z_AXIS] = LROUND(c * axis_steps_per_mm[Z_AXIS]),
+                ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
   stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
   ZERO(previous_speed);
