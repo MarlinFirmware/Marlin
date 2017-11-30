@@ -239,6 +239,10 @@
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
+ * ************ Test Setup Codes
+ * M960 - Set valve state "M960 P<valve> S<state>
+ * M970 - Set solenoid state "M970 P<solenoid> S<state>
+ *
  */
 
 #include "Marlin.h"
@@ -257,6 +261,8 @@
 #include "duration_t.h"
 #include "types.h"
 #include "gcode.h"
+#include "valves.h"
+#include "solenoids.h"
 
 #if HAS_ABL
   #include "vector_3.h"
@@ -349,7 +355,7 @@
                            || isnan(ubl.z_values[0][0]))
 #endif
 
-#if ENABLED(NEOPIXEL_LED) 
+#if ENABLED(NEOPIXEL_LED)
   #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
     #define NEO_WHITE 255, 255, 255
   #else
@@ -362,6 +368,7 @@
 #elif ENABLED(RGBW_LED)
   #define LED_WHITE 0, 0, 0, 255
 #endif
+
 
 bool Running = true;
 
@@ -10280,6 +10287,102 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 
+/**
+ * M960: Set valve state "M960 P<valve> S<state>"
+ *
+ * Valves start at 1.
+ * State = 0 -> Closed
+ * State = 1 -> Opened
+ *
+ */
+inline void gcode_M960() {
+    uint8_t valve = 0;
+    uint8_t state = 0;
+    // Get valve
+    if (parser.seenval('P')) {
+        // Check for <= MAX_VALVES b/c end user doesn't like zero indexing :(
+        if ((parser.value_byte() > 0) && (parser.value_byte() <= MAX_VALVES)) {
+            valve = parser.value_byte();
+        }
+        else {
+            SERIAL_PROTOCOLLNPGM("Invalid valve number");
+            SERIAL_EOL();
+            return;
+        }
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a valve P");
+        SERIAL_EOL();
+        return;
+    }
+    // Get state
+    if (parser.seenval('S')) {
+        state = parser.value_bool();
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a state S");
+        SERIAL_EOL();
+        return;
+    }
+
+    // Call valve function on valve
+    if (state == 0) {
+        valve_close(valve);
+    }
+    else if (state == 1) {
+        valve_open(valve);
+    }
+}
+
+/**
+ * M970; Set solenoid state "M970 P<solenoid> S<state>
+ *
+ * Solenoids start at 1, and whether they are open or closed depends on if they
+ * are normally open or normally closed solenoids.
+ *
+ * State = 0 -> Inactive
+ * State = 1 -> Active
+ *
+ */
+inline void gcode_M970() {
+    uint8_t solenoid = 0;
+    uint8_t state = 0;
+    // Get solenoid
+    if (parser.seenval('P')) {
+        // Check for <= MAX_SOLENOIDS b/c end user doesn't like zero indexing :(
+        if ((parser.value_byte() > 0) && (parser.value_byte() <= MAX_SOLENOIDS)) {
+            solenoid = parser.value_byte();
+        }
+        else {
+            SERIAL_PROTOCOLLNPGM("Invalid solenoid number");
+            SERIAL_EOL();
+            return;
+        }
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a solenoid P");
+        SERIAL_EOL();
+        return;
+    }
+    // Get state
+    if (parser.seenval('S')) {
+        state = parser.value_bool();
+    }
+    else {
+        SERIAL_PROTOCOLLNPGM("Please specify a state S");
+        SERIAL_EOL();
+        return;
+    }
+
+    // Call solenoid function on solenoid
+    if (state == 0) {
+        solenoid_deactivate(solenoid);
+    }
+    else if (state == 1) {
+        solenoid_activate(solenoid);
+    }
+}
+
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
@@ -11675,6 +11778,16 @@ void process_next_command() {
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
+        break;
+
+      // Test Setup M-Codes
+
+      case 960: // M960: Set valve state
+        gcode_M960();
+        break;
+
+      case 970: // M970: Set solenoid state
+        gcode_M970();
         break;
     }
     break;
@@ -13619,6 +13732,13 @@ void setup() {
     delay(1000);
     WRITE(LCD_PINS_RS, HIGH);
   #endif
+
+  //----------------------------------------------------------------------------
+  // Test Setup Initialization
+  //----------------------------------------------------------------------------
+
+  valve_init();
+  solenoid_init();
 }
 
 /**

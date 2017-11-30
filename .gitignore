@@ -139,3 +139,6 @@ CMakeListsPrivate.txt
 
 #CLion
 cmake-build-*
+
+#Syntastic Config File ATMega2560
+.syntastic_avrgcc_config
