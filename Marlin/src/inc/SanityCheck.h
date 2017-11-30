@@ -223,6 +223,8 @@
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
   #error "BABYSTEP_ZPROBE_GFX_REVERSE is now set by OVERLAY_GFX_REVERSE. Please update your configurations."
+#elif defined(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)
+  #error "UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN is now SEGMENT_LEVELED_MOVES. Please update your configuration."
 #endif
 
 /**
@@ -1477,7 +1479,9 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "BLOCK_BUFFER_SIZE must be a power of 2."
 #endif
 
-#include "../HAL/HAL_SanityCheck.h"  // get CPU specific checks
+#if ENABLED(LED_CONTROL_MENU) && DISABLED(ULTIPANEL)
+  #error "LED_CONTROL_MENU requires an LCD controller."
+#endif
 
 #endif // _SANITYCHECK_H_
 

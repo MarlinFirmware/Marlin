@@ -775,8 +775,8 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(NEOPIXEL_LED)
-    setup_neopixel();
+  #if HAS_COLOR_LEDS
+    leds.setup();
   #endif
 
   #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
