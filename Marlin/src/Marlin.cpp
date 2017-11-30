@@ -99,8 +99,8 @@
   #include "HAL/HAL_endstop_interrupts.h"
 #endif
 
-#if ENABLED(HAVE_TMC2130)
-  #include "feature/tmc2130.h"
+#if HAS_TRINAMIC
+  #include "feature/tmc_util.h"
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -489,8 +489,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     handle_status_leds();
   #endif
 
-  #if ENABLED(HAVE_TMC2130)
-    tmc2130_checkOverTemp();
+  #if ENABLED(MONITOR_DRIVER_STATUS)
+    monitor_tmc_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
