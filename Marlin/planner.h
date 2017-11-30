@@ -251,14 +251,22 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
-    static void calculate_volumetric_multipliers();
-
     /**
      * Number of moves currently in the planner
      */
     static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+
+    // Update multipliers based on new diameter measurements
+    static void calculate_volumetric_multipliers();
+
+    FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
+      filament_size[e] = v;
+      // make sure all extruders have some sane value for the filament size
+      for (uint8_t i = 0; i < COUNT(filament_size); i++)
+        if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+    }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 

@@ -8714,12 +8714,8 @@ inline void gcode_M200() {
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) ) {
-      planner.filament_size[target_extruder] = parser.value_linear_units();
-      // make sure all extruders have some sane value for the filament size
-      for (uint8_t i = 0; i < COUNT(planner.filament_size); i++)
-        if (!planner.filament_size[i]) planner.filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    }
+    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
+      planner.set_filament_size(target_extruder, parser.value_linear_units());
   }
   planner.calculate_volumetric_multipliers();
 }
