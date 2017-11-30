@@ -19,22 +19,22 @@
 #define MAX_SOLENOIDS           (4)
 
 // Port Definitions
-#define SOLENOID_0_PORT         PORTJ
-#define SOLENOID_1_PORT         PORTJ
-#define SOLENOID_2_PORT         PORTJ
-#define SOLENOID_3_PORT         PORTJ
+#define SOLENOID_0_PORT         PORTD
+#define SOLENOID_1_PORT         PORTE
+#define SOLENOID_2_PORT         PORTE
+#define SOLENOID_3_PORT         PORTE
 
 // DDR Definitions
-#define SOLENOID_0_DDR          DDRJ
-#define SOLENOID_1_DDR          DDRJ
-#define SOLENOID_2_DDR          DDRJ
-#define SOLENOID_3_DDR          DDRJ
+#define SOLENOID_0_DDR          DDRD
+#define SOLENOID_1_DDR          DDRE
+#define SOLENOID_2_DDR          DDRE
+#define SOLENOID_3_DDR          DDRE
 
 // Pin Definitions
-#define SOLENOID_0              (1 << 7)
-#define SOLENOID_1              (1 << 4)
-#define SOLENOID_2              (1 << 5)
-#define SOLENOID_3              (1 << 6)
+#define SOLENOID_0              (1 << 4)
+#define SOLENOID_1              (1 << 7)
+#define SOLENOID_2              (1 << 6)
+#define SOLENOID_3              (1 << 2)
 
 
 //===========================================================================
