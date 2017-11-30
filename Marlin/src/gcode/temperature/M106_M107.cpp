@@ -45,7 +45,6 @@ void GcodeSuite::M106() {
   if (p < FAN_COUNT) {
     #if ENABLED(EXTRA_FAN_SPEED)
       const int16_t t = parser.intval('T');
-      NOMORE(t, 255);
       if (t > 0) {
         switch (t) {
           case 1:
@@ -56,7 +55,7 @@ void GcodeSuite::M106() {
             fanSpeeds[p] = new_fanSpeeds[p];
             break;
           default:
-            new_fanSpeeds[p] = t;
+            new_fanSpeeds[p] = min(t, 255);
             break;
         }
         return;

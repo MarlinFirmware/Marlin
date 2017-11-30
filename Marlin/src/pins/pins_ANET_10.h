@@ -86,7 +86,7 @@
  *   Anet Users / Skynet SW on Facebook - https://www.facebook.com/skynet3ddevelopment/
  *
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
-*/
+ */
 
 #ifndef __AVR_ATmega1284P__
   #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected from the 'Tools -> Boards' menu."
@@ -95,8 +95,6 @@
 #ifndef BOARD_NAME
   #define BOARD_NAME "Anet"
 #endif
-
-#define LARGE_FLASH true
 
 //
 // Limit Switches
@@ -166,7 +164,6 @@
     #define BTN_EN2          -1
     #define BTN_ENC          -1
     #define ADC_KEYPAD_PIN    1
-    #define ENCODER_FEEDRATE_DEADZONE 2
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(ANET_FULL_GRAPHICS_LCD)
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb

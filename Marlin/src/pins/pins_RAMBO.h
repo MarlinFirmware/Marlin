@@ -46,8 +46,6 @@
 
 #define BOARD_NAME "Rambo"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -55,13 +53,6 @@
 #define SERVO1_PIN         23 // Motor header MX2
 #define SERVO2_PIN         24 // Motor header MX3
 #define SERVO3_PIN          5 // PWM header pin 5
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  30
-#endif
 
 //
 // Limit Switches
@@ -72,6 +63,13 @@
 #define Y_MAX_PIN          23
 #define Z_MIN_PIN          10
 #define Z_MAX_PIN          30
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  30
+#endif
 
 //
 // Steppers

@@ -42,7 +42,7 @@
     void bed_level_virt_interpolate();
   #endif
 
-  #if !IS_KINEMATIC
+  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
     void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
   #endif
 

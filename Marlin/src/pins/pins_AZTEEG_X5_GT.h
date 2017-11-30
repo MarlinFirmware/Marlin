@@ -34,8 +34,6 @@
   #define DEFAULT_WEBSITE_URL "https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Limit Switches
 //
@@ -51,23 +49,23 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         P2_1
+#define X_STEP_PIN         P2_01
 #define X_DIR_PIN          P0_11
 #define X_ENABLE_PIN       P0_10
 
-#define Y_STEP_PIN         P2_2
+#define Y_STEP_PIN         P2_02
 #define Y_DIR_PIN          P0_20
 #define Y_ENABLE_PIN       P0_19
 
-#define Z_STEP_PIN         P2_3
+#define Z_STEP_PIN         P2_03
 #define Z_DIR_PIN          P0_22
 #define Z_ENABLE_PIN       P0_21
 
-#define E0_STEP_PIN        P2_0
-#define E0_DIR_PIN         P0_5
-#define E0_ENABLE_PIN      P0_4
+#define E0_STEP_PIN        P2_00
+#define E0_DIR_PIN         P0_05
+#define E0_ENABLE_PIN      P0_04
 
-#define E1_STEP_PIN        P2_8
+#define E1_STEP_PIN        P2_08
 #define E1_DIR_PIN         P2_13
 #define E1_ENABLE_PIN      P4_29
 
@@ -84,9 +82,9 @@
 // Heaters / Fans
 //
 
-#define HEATER_BED_PIN     P2_7
-#define HEATER_0_PIN       P2_4
-#define HEATER_1_PIN       P2_5
+#define HEATER_BED_PIN     P2_07
+#define HEATER_0_PIN       P2_04
+#define HEATER_1_PIN       P2_05
 #define FAN_PIN            P0_26
 #define FAN1_PIN           P1_22
 
@@ -96,7 +94,7 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
     #define BEEPER_PIN        P1_30
-    #define DOGLCD_A0         P2_6
+    #define DOGLCD_A0         P2_06
     #define DOGLCD_CS         P0_16
 
     #define BTN_EN1           P3_25

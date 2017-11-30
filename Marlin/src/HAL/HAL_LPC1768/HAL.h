@@ -35,6 +35,10 @@
 
 #include <stdint.h>
 #include <stdarg.h>
+
+#undef min
+#undef max
+
 #include <algorithm>
 
 void _printf (const  char *format, ...);
@@ -52,7 +56,8 @@ extern "C" volatile uint32_t _millis;
 #define B01 1
 #define B10 2
 
-#include "arduino.h"
+#include "include/arduino.h"
+
 #include "pinmapping.h"
 #include "fastio.h"
 #include "watchdog.h"

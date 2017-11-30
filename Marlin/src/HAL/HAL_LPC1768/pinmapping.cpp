@@ -22,29 +22,53 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfig.h"
+#include "pinmapping.h"
+
 #include "../../gcode/parser.h"
 
-int16_t GET_PIN_MAP_INDEX(pin_t pin) {
-  const uint8_t pin_port = LPC1768_PIN_PORT(pin),
-                pin_pin = LPC1768_PIN_PIN(pin);
-  for (size_t i = 0; i < NUM_DIGITAL_PINS; ++i)
-    if (LPC1768_PIN_PORT(pin_map[i]) == pin_port && LPC1768_PIN_PIN(pin_map[i]) == pin_pin)
-      return i;
-
-  return -1;
+// Get the digital pin for an analog index
+pin_t analogInputToDigitalPin(const int8_t p) {
+  return (WITHIN(p, 0, NUM_ANALOG_INPUTS) ? adc_pin_table[p] : P_NC);
 }
 
-int16_t PARSED_PIN_INDEX(char code, int16_t dval) {
-  if (parser.seenval(code)) {
-    int port, pin;
-    if (sscanf(parser.strval(code), "%d.%d", &port, &pin) == 2)
-      for (size_t i = 0; i < NUM_DIGITAL_PINS; ++i)
-        if (LPC1768_PIN_PORT(pin_map[i]) == port && LPC1768_PIN_PIN(pin_map[i]) == pin)
-          return i;
-  }
+// Return the index of a pin number
+// The pin number given here is in the form ppp:nnnnn
+int16_t GET_PIN_MAP_INDEX(const pin_t pin) {
+  const uint16_t index = (LPC1768_PIN_PORT(pin) << 5) | LPC1768_PIN_PIN(pin);
+  return (index < NUM_DIGITAL_PINS && pin_map[index] != P_NC) ? index : -1;
+}
 
-  return dval;
+// Test whether the pin is valid
+bool VALID_PIN(const pin_t p) {
+  const int16_t ind = GET_PIN_MAP_INDEX(p);
+  return ind >= 0 && pin_map[ind] >= 0;
+}
+
+// Get the analog index for a digital pin
+int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t p) {
+  return (VALID_PIN(p) ? LPC1768_PIN_ADC(p) : -1);
+}
+
+// Test whether the pin is PWM
+bool PWM_PIN(const pin_t p) {
+  return VALID_PIN(p) && LPC1768_PIN_PWM(p);
+}
+
+// Test whether the pin is interruptable
+bool INTERRUPT_PIN(const pin_t p) {
+  return VALID_PIN(p) && LPC1768_PIN_INTERRUPT(p);
+}
+
+// Get the pin number at the given index
+pin_t GET_PIN_MAP_PIN(const int16_t ind) {
+  return WITHIN(ind, 0, NUM_DIGITAL_PINS - 1) ? pin_map[ind] : P_NC;
+}
+
+int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
+  const uint16_t val = (uint16_t)parser.intval(code), port = val / 100, pin = val % 100;
+  const  int16_t ind = (port < (NUM_DIGITAL_PINS >> 5) && (pin < 32))
+                      ? GET_PIN_MAP_INDEX(port << 5 | pin) : -2;
+  return ind > -2 ? ind : dval;
 }
 
 #endif // TARGET_LPC1768

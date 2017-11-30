@@ -56,6 +56,11 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
   GcodeSuite::WorkspacePlane GcodeSuite::workspace_plane = PLANE_XY;
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  int8_t GcodeSuite::active_coordinate_system = -1; // machine space
+  float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+#endif
+
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -88,8 +93,10 @@ bool GcodeSuite::get_target_extruder_from_command() {
  */
 void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i]))
-      destination[i] = LOGICAL_TO_NATIVE(parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0), i);
+    if (parser.seen(axis_codes[i])) {
+      const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+      destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
+    }
     else
       destination[i] = current_position[i];
   }
@@ -125,25 +132,10 @@ void GcodeSuite::dwell(millis_t time) {
 #endif
 
 /**
- * Process a single command and dispatch it to its handler
- * This is called from the main loop()
+ * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_next_command() {
-  char * const current_command = command_queue[cmd_queue_index_r];
-
-  if (DEBUGGING(ECHO)) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLN(current_command);
-    #if ENABLED(M100_FREE_MEMORY_WATCHER)
-      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
-    #endif
-  }
-
+void GcodeSuite::process_parsed_command() {
   KEEPALIVE_STATE(IN_HANDLER);
-
-  // Parse the next command in the queue
-  parser.parse(current_command);
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
@@ -215,7 +207,7 @@ void GcodeSuite::process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 26: // G26: Mesh Validation Pattern generation
           G26();
           break;
@@ -350,7 +342,7 @@ void GcodeSuite::process_next_command() {
         case 48: M48(); break;    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 49: M49(); break;    // M49: Turn on or off G26 debug flag for verbose output
       #endif
 
@@ -709,6 +701,27 @@ void GcodeSuite::process_next_command() {
   KEEPALIVE_STATE(NOT_BUSY);
 
   ok_to_send();
+}
+
+/**
+ * Process a single command and dispatch it to its handler
+ * This is called from the main loop()
+ */
+void GcodeSuite::process_next_command() {
+  char * const current_command = command_queue[cmd_queue_index_r];
+
+  if (DEBUGGING(ECHO)) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLN(current_command);
+    #if ENABLED(M100_FREE_MEMORY_WATCHER)
+      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
+      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+    #endif
+  }
+
+  // Parse the next command in the queue
+  parser.parse(current_command);
+  process_parsed_command();
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

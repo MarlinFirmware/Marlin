@@ -32,8 +32,6 @@
 
 #define BOARD_NAME           "GT2560 Rev.A"
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
-#define LARGE_FLASH true
-
 //
 // Limit Switches
 //

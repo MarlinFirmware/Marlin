@@ -23,9 +23,10 @@
 #ifndef UNIFIED_BED_LEVELING_H
 #define UNIFIED_BED_LEVELING_H
 
-#include "../../../Marlin.h"
+#include "../bedlevel.h"
 #include "../../../module/planner.h"
 #include "../../../module/motion.h"
+#include "../../../Marlin.h"
 
 #define UBL_VERSION "1.01"
 #define UBL_OK false
@@ -33,17 +34,6 @@
 
 #define USE_NOZZLE_AS_REFERENCE 0
 #define USE_PROBE_AS_REFERENCE 1
-
-typedef struct {
-  int8_t x_index, y_index;
-  float distance; // When populated, the distance from the search location
-} mesh_index_pair;
-
-// ubl.cpp
-
-void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
-void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
 
 // ubl_motion.cpp
 
@@ -56,7 +46,6 @@ enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
 // External references
 
 char *ftostr43sign(const float&, char);
-bool ubl_lcd_clicked();
 
 extern uint8_t ubl_cnt;
 
@@ -87,22 +76,6 @@ class unified_bed_leveling {
       static int  g29_grid_size;
     #endif
 
-    #if ENABLED(UBL_G26_MESH_VALIDATION)
-      static float   g26_extrusion_multiplier,
-                     g26_retraction_multiplier,
-                     g26_nozzle,
-                     g26_filament_diameter,
-                     g26_prime_length,
-                     g26_x_pos, g26_y_pos,
-                     g26_ooze_amount,
-                     g26_layer_height;
-      static int16_t g26_bed_temp,
-                     g26_hotend_temp,
-                     g26_repeats;
-      static int8_t  g26_prime_flag;
-      static bool    g26_continue_with_closest, g26_keep_heaters_on;
-    #endif
-
     static float measure_point_with_encoder();
     static float measure_business_card_thickness(float);
     static bool g29_parameter_parsing();
@@ -118,21 +91,6 @@ class unified_bed_leveling {
     static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
     static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
     static void smart_fill_mesh();
-
-    #if ENABLED(UBL_G26_MESH_VALIDATION)
-      static bool exit_from_g26();
-      static bool parse_G26_parameters();
-      static void G26_line_to_destination(const float &feed_rate);
-      static mesh_index_pair find_closest_circle_to_print(const float&, const float&);
-      static bool look_for_lines_to_connect();
-      static bool turn_on_heaters();
-      static bool prime_nozzle();
-      static void retract_filament(const float where[XYZE]);
-      static void recover_filament(const float where[XYZE]);
-      static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
-      static void move_to(const float&, const float&, const float&, const float&);
-      inline static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
-    #endif
 
   public:
 
@@ -150,10 +108,6 @@ class unified_bed_leveling {
 
     static void G29() _O0;                          // O0 for no optimization
     static void smart_fill_wlsf(const float &) _O2; // O2 gives smaller code than Os on A2560
-
-    #if ENABLED(UBL_G26_MESH_VALIDATION)
-      static void G26();
-    #endif
 
     static int8_t storage_slot;
 
@@ -182,8 +136,6 @@ class unified_bed_leveling {
                               MESH_MIN_Y + 12 * (MESH_Y_DIST), MESH_MIN_Y + 13 * (MESH_Y_DIST),
                               MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                             };
-
-    static bool g26_debug_flag, has_control_of_lcd_panel;
 
     #if ENABLED(ULTRA_LCD)
       static bool lcd_map_control;

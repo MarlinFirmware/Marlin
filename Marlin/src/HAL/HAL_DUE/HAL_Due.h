@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
@@ -52,8 +52,6 @@
 #elif SERIAL_PORT == 3
   #define MYSERIAL customizedSerial
 #endif
-
-#define _BV(bit) (1 << (bit))
 
 // We need the previous define before the include, or compilation bombs...
 #include "MarlinSerial_Due.h"
@@ -95,6 +93,8 @@
 // --------------------------------------------------------------------------
 
 typedef int8_t pin_t;
+
+#define HAL_SERVO_LIB Servo
 
 // --------------------------------------------------------------------------
 // Public Variables
