@@ -174,7 +174,6 @@
 #ifndef MSG_USER_MENU
   #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
-
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
 #endif
@@ -360,6 +359,64 @@
 #endif
 #ifndef MSG_UBL_STEP_BY_STEP_MENU
   #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
+#endif
+
+#ifndef MSG_LED_CONTROL
+  #define MSG_LED_CONTROL                     _UxGT("LED Control")
+#endif
+#ifndef MSG_LEDS_ON
+  #define MSG_LEDS_ON                         _UxGT("Lights On")
+#endif
+#ifndef MSG_LEDS_OFF
+  #define MSG_LEDS_OFF                        _UxGT("Lights Off")
+#endif
+#ifndef MSG_LED_PRESETS
+  #define MSG_LED_PRESETS                     _UxGT("Light Presets")
+#endif
+#ifndef MSG_SET_LEDS_RED
+  #define MSG_SET_LEDS_RED                    _UxGT("Red")
+#endif
+#ifndef MSG_SET_LEDS_ORANGE
+  #define MSG_SET_LEDS_ORANGE                 _UxGT("Orange")
+#endif
+#ifndef MSG_SET_LEDS_YELLOW
+  #define MSG_SET_LEDS_YELLOW                 _UxGT("Yellow")
+#endif
+#ifndef MSG_SET_LEDS_GREEN
+  #define MSG_SET_LEDS_GREEN                  _UxGT("Green")
+#endif
+#ifndef MSG_SET_LEDS_BLUE
+  #define MSG_SET_LEDS_BLUE                   _UxGT("Blue")
+#endif
+#ifndef MSG_SET_LEDS_INDIGO
+  #define MSG_SET_LEDS_INDIGO                 _UxGT("Indigo")
+#endif
+#ifndef MSG_SET_LEDS_VIOLET
+  #define MSG_SET_LEDS_VIOLET                 _UxGT("Violet")
+#endif
+#ifndef MSG_SET_LEDS_WHITE
+  #define MSG_SET_LEDS_WHITE                  _UxGT("White")
+#endif
+#ifndef MSG_SET_LEDS_DEFAULT
+  #define MSG_SET_LEDS_DEFAULT                _UxGT("Default")
+#endif
+#ifndef MSG_CUSTOM_LEDS
+  #define MSG_CUSTOM_LEDS                     _UxGT("Custom Lights")
+#endif
+#ifndef MSG_INTENSITY_R
+  #define MSG_INTENSITY_R                     _UxGT("Red Intensity")
+#endif
+#ifndef MSG_INTENSITY_G
+  #define MSG_INTENSITY_G                     _UxGT("Green Intensity")
+#endif
+#ifndef MSG_INTENSITY_B
+  #define MSG_INTENSITY_B                     _UxGT("Blue Intensity")
+#endif
+#ifndef MSG_INTENSITY_W
+  #define MSG_INTENSITY_W                     _UxGT("White Intensity")
+#endif
+#ifndef MSG_LED_BRIGHTNESS
+  #define MSG_LED_BRIGHTNESS                  _UxGT("Brightness")
 #endif
 
 #ifndef MSG_MOVING
@@ -839,7 +896,6 @@
     #define MSG_INFO_PRINT_FILAMENT           _UxGT("Extruded")
   #endif
 #endif
-
 #ifndef MSG_INFO_MIN_TEMP
   #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #endif

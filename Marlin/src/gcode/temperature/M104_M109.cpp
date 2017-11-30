@@ -190,12 +190,10 @@ void GcodeSuite::M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue
-            #if ENABLED(NEOPIXEL_LED)
-              , 0, pixels.getBrightness()
-              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                , true
-              #endif
+          leds.set_color(
+            MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
+            #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+              , true
             #endif
           );
         }
@@ -233,12 +231,7 @@ void GcodeSuite::M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGB_LED) || ENABLED(BLINKM) || ENABLED(PCA9632) || ENABLED(RGBW_LED)
-        set_led_color(LED_WHITE);
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        set_neopixel_color(pixels.Color(NEO_WHITE));
-      #endif
+      leds.set_white();
     #endif
   }
 
