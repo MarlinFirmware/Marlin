@@ -4064,12 +4064,17 @@ inline void gcode_G4() {
  */
 inline void gcode_G28(const bool always_home_all) {
 
-  #if (HAS_POWER_SWITCH && ENABLED(NO_MOTION_BEFORE_HOMING))
+  #if HAS_POWER_SWITCH && ENABLED(NO_MOTION_BEFORE_HOMING)
     if (!powersupply_on) {
-      SERIAL_ECHOLNPGM(MSG_ERR_PS_OFF);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_PS_OFF);
+      #if ENABLED(ULTIPANEL)
+        lcd_completion_feedback(false);
+      #endif
       return;
     }
   #endif
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOLNPGM(">>> G28");
