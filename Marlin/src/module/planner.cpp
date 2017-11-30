@@ -105,11 +105,10 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
-// Initialized by settings.load()
-float Planner::e_factor[EXTRUDERS],              // The flow percentage and volumetric multiplier combine to scale E movement
-      Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+float Planner::e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
+      Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
       Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
-      Planner::volumetric_multiplier[EXTRUDERS]; // May be auto-adjusted by a filament width sensor
+      Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
@@ -129,12 +128,11 @@ float Planner::min_feedrate_mm_s,
   #if ABL_PLANAR
     matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
   #endif
-#endif
-
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float Planner::z_fade_height, // Initialized by settings.load()
-        Planner::inverse_z_fade_height,
-        Planner::last_fade_z;
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    float Planner::z_fade_height,      // Initialized by settings.load()
+          Planner::inverse_z_fade_height,
+          Planner::last_fade_z;
+  #endif
 #endif
 
 #if ENABLED(AUTOTEMP)
@@ -571,7 +569,7 @@ void Planner::calculate_volumetric_multipliers() {
    */
   void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
-    if (!planner.leveling_active) return;
+    if (!leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float fade_scaling_factor = fade_scaling_factor_for_z(rz);
@@ -614,20 +612,22 @@ void Planner::calculate_volumetric_multipliers() {
 
   void Planner::unapply_leveling(float raw[XYZ]) {
 
-    if (!planner.leveling_active) return;
+    if (!leveling_active) return;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (z_fade_height && raw[Z_AXIS] >= z_fade_height) return;
+      if (!leveling_active_at_z(raw[Z_AXIS])) return;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      const float z_correct = ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]);
-            float z_raw = raw[Z_AXIS] - z_correct;
+      const float z_physical = raw[Z_AXIS],
+                  z_correct = ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]),
+                  z_virtual = z_physical - z_correct;
+            float z_raw = z_virtual;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        // for P=physical_z, L=raw_z, M=mesh_z, H=fade_height,
+        // for P=physical_z, L=logical_z, M=mesh_z, H=fade_height,
         // Given P=L+M(1-L/H) (faded mesh correction formula for L<H)
         //  then L=P-M(1-L/H)
         //    so L=P-M+ML/H
@@ -637,7 +637,7 @@ void Planner::calculate_volumetric_multipliers() {
 
         if (planner.z_fade_height) {
           if (z_raw >= planner.z_fade_height)
-            z_raw = raw[Z_AXIS];
+            z_raw = z_physical;
           else
             z_raw /= 1.0 - z_correct * planner.inverse_z_fade_height;
         }
@@ -646,28 +646,32 @@ void Planner::calculate_volumetric_multipliers() {
 
       raw[Z_AXIS] = z_raw;
 
-    #elif ENABLED(MESH_BED_LEVELING)
+      return; // don't fall thru to other ENABLE_LEVELING_FADE_HEIGHT logic
 
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float c = mbl.get_z(raw[X_AXIS], raw[Y_AXIS], 1.0);
-        raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS] - c)) / (z_fade_height - c);
-      #else
-        raw[Z_AXIS] -= mbl.get_z(raw[X_AXIS], raw[Y_AXIS]);
-      #endif
+    #endif
+
+    #if ENABLED(MESH_BED_LEVELING)
+
+      if (leveling_active) {
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float c = mbl.get_z(raw[X_AXIS], raw[Y_AXIS], 1.0);
+          raw[Z_AXIS] = (z_fade_height * (raw[Z_AXIS]) - c) / (z_fade_height - c);
+        #else
+          raw[Z_AXIS] -= mbl.get_z(raw[X_AXIS], raw[Y_AXIS]);
+        #endif
+      }
 
     #elif ABL_PLANAR
 
       matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
       float dx = raw[X_AXIS] - (X_TILT_FULCRUM),
-            dy = raw[Y_AXIS] - (Y_TILT_FULCRUM),
-            dz = raw[Z_AXIS];
+            dy = raw[Y_AXIS] - (Y_TILT_FULCRUM);
 
-      apply_rotation_xyz(inverse, dx, dy, dz);
+      apply_rotation_xyz(inverse, dx, dy, raw[Z_AXIS]);
 
       raw[X_AXIS] = dx + X_TILT_FULCRUM;
       raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
-      raw[Z_AXIS] = dz;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
