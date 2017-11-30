@@ -44,6 +44,9 @@ extern float delta_tower[ABC][2],
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings();
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  void tune_delta_height(bool set_h);
+#endif
 
 /**
  * Delta Inverse Kinematics

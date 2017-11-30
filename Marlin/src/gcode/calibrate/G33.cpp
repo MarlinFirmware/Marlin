@@ -230,6 +230,14 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
   return 0.00001;
 }
 
+static void tune_delta_height(bool set_h) {
+  #if HAS_BED_PROBE
+    static float last_zoffset = zprobe_zoffset;
+    if (set_h) delta_height -= zprobe_zoffset - last_zoffset;
+    last_zoffset = zprobe_zoffset;
+  #endif
+}
+
 #if HAS_BED_PROBE
 
   static bool G33_auto_tune() {
@@ -498,6 +506,8 @@ void GcodeSuite::G33() {
   lcd_setstatusPGM(checkingac);
 
   print_G33_settings(_endstop_results, _angle_results);
+
+  if (verbose_level != 0) tune_delta_height(true);
 
   do {
 
