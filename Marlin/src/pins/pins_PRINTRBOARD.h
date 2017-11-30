@@ -67,10 +67,8 @@
 
 #define BOARD_NAME         "Printrboard"
 
-#define LARGE_FLASH        true
-
 // Disable JTAG pins so they can be used for the Extrudrboard
-#define DISABLE_JTAG       true
+#define DISABLE_JTAG
 
 //
 // Limit Switches
@@ -129,23 +127,6 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  // we have no buzzer installed
-  #define BEEPER_PIN       -1
-
-  // LCD Pins
-  #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1         3   // D3 RX1   JP2-7
-    #define BTN_EN2         2   // D2 TX1   JP2-5
-    #define BTN_ENC        41   // F3       JP2-4
-    #define SDSS           38   // F0       B-THERM connector - use SD card on Panelolu2
-  #else
-    #define BTN_EN1        10   // C0       JP11-12
-    #define BTN_EN2        11   // C1       JP11-13
-    #define BTN_ENC        12   // C2       JP11-14
-  #endif
-
-  // not connected
-  #define SD_DETECT_PIN    -1
 
   #define LCD_PINS_RS       9   // E1       JP11-11
   #define LCD_PINS_ENABLE   8   // E0       JP11-10
@@ -154,24 +135,35 @@
   #define LCD_PINS_D6       5   // D5       JP11-6
   #define LCD_PINS_D7       4   // D4       JP11-5
 
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #define BEEPER_PIN      8   // E0       JP11-10
+
+    #define DOGLCD_A0      40   // F2       JP2-2
+    #define DOGLCD_CS      41   // F3       JP2-4
+    #define LCD_SCREEN_ROT_180
+
+    #define BTN_EN1         2   // D2 TX1   JP2-5
+    #define BTN_EN2         3   // D3 RX1   JP2-7
+    #define BTN_ENC        45   // F7 TDI   JP2-12
+
+    #define SDSS           43   // F5 TMS   JP2-8
+
+    #define STAT_LED_RED_PIN  12  // C2       JP11-14
+    #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
+
+  #elif ENABLED(LCD_I2C_PANELOLU2)
+
+    #define BTN_EN1         3   // D3 RX1   JP2-7
+    #define BTN_EN2         2   // D2 TX1   JP2-5
+    #define BTN_ENC        41   // F3       JP2-4
+    #define SDSS           38   // F0       B-THERM connector - use SD card on Panelolu2
+
+  #else
+
+    #define BTN_EN1        10   // C0       JP11-12
+    #define BTN_EN2        11   // C1       JP11-13
+    #define BTN_ENC        12   // C2       JP11-14
+
+  #endif
+
 #endif // ULTRA_LCD && NEWPANEL
-
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN        8   // E0       JP11-10
-  // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0        40   // F2       JP2-2
-  #define DOGLCD_CS        41   // F3       JP2-4
-  #define LCD_SCREEN_ROT_180
-
-  // The encoder and click button
-  #define BTN_EN1           2   // D2 TX1   JP2-5
-  #define BTN_EN2           3   // D3 RX1   JP2-7
-  #define BTN_ENC          45   // F7 TDI   JP2-12
-
-  #define SDSS             43   // F5 TMS   JP2-8
-  #define SD_DETECT_PIN    -1
-
-  #define STAT_LED_RED_PIN  12  // C2       JP11-14
-  #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
-
-#endif

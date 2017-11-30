@@ -106,7 +106,9 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
 // Initialized by settings.load()
-float Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+float Planner::e_factor[EXTRUDERS],              // The flow percentage and volumetric multiplier combine to scale E movement
+      Planner::filament_size[EXTRUDERS],         // As a baseline for the multiplier, filament diameter
+      Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
       Planner::volumetric_multiplier[EXTRUDERS]; // May be auto-adjusted by a filament width sensor
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
@@ -419,23 +421,20 @@ void Planner::check_axes_activity() {
   unsigned char axis_active[NUM_AXIS] = { 0 },
                 tail_fan_speed[FAN_COUNT];
 
-  #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fanSpeeds[i];
-  #endif
-
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      uint8_t tail_valve_pressure = baricuda_valve_pressure;
+      uint8_t tail_valve_pressure;
     #endif
     #if HAS_HEATER_2
-      uint8_t tail_e_to_p_pressure = baricuda_e_to_p_pressure;
+      uint8_t tail_e_to_p_pressure;
     #endif
   #endif
 
   if (blocks_queued()) {
 
     #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
+      for (uint8_t i = 0; i < FAN_COUNT; i++)
+        tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
     #endif
 
     block_t* block;
@@ -455,6 +454,21 @@ void Planner::check_axes_activity() {
       LOOP_XYZE(i) if (block->steps[i]) axis_active[i]++;
     }
   }
+  else {
+    #if FAN_COUNT > 0
+      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fanSpeeds[i];
+    #endif
+
+    #if ENABLED(BARICUDA)
+      #if HAS_HEATER_1
+        tail_valve_pressure = baricuda_valve_pressure;
+      #endif
+      #if HAS_HEATER_2
+        tail_e_to_p_pressure = baricuda_e_to_p_pressure;
+      #endif
+    #endif
+  }
+
   #if ENABLED(DISABLE_X)
     if (!axis_active[X_AXIS]) disable_X();
   #endif
@@ -470,13 +484,7 @@ void Planner::check_axes_activity() {
 
   #if FAN_COUNT > 0
 
-    #ifdef FAN_MIN_PWM
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
-    #else
-      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
-    #endif
-
-    #ifdef FAN_KICKSTART_TIME
+    #if FAN_KICKSTART_TIME > 0
 
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
 
@@ -500,7 +508,13 @@ void Planner::check_axes_activity() {
         KICKSTART_FAN(2);
       #endif
 
-    #endif // FAN_KICKSTART_TIME
+    #endif // FAN_KICKSTART_TIME > 0
+
+    #ifdef FAN_MIN_PWM
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
+    #else
+      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
+    #endif
 
     #if ENABLED(FAN_SOFT_PWM)
       #if HAS_FAN0
@@ -541,13 +555,14 @@ void Planner::check_axes_activity() {
 }
 
 inline float calculate_volumetric_multiplier(const float &diameter) {
-  if (!parser.volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / CIRCLE_AREA(diameter * 0.5);
+  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
 }
 
 void Planner::calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++)
+  for (uint8_t i = 0; i < COUNT(filament_size); i++) {
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    refresh_e_factor(i);
+  }
 }
 
 #if PLANNER_LEVELING
@@ -741,23 +756,25 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   long de = target[E_AXIS] - position[E_AXIS];
 
   #if ENABLED(LIN_ADVANCE)
-    float de_float = e - position_float[E_AXIS];
+    float de_float = e - position_float[E_AXIS]; // Should this include e_factor?
   #endif
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
-      if (thermalManager.tooColdToExtrude(extruder)) {
-        position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-        de = 0; // no difference
-        #if ENABLED(LIN_ADVANCE)
-          position_float[E_AXIS] = e;
-          de_float = 0;
-        #endif
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      }
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (thermalManager.tooColdToExtrude(extruder)) {
+          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+          de = 0; // no difference
+          #if ENABLED(LIN_ADVANCE)
+            position_float[E_AXIS] = e;
+            de_float = 0;
+          #endif
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        }
+      #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (labs(de) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
+        if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           #if ENABLED(LIN_ADVANCE)
@@ -767,9 +784,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
-      #endif
+      #endif // PREVENT_LENGTHY_EXTRUDE
     }
-  #endif
+  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
@@ -798,7 +815,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  const float esteps_float = de * e_factor[extruder];
   const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
@@ -1043,7 +1060,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       #endif
     );
   }
-  float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
+  const float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate moves/second for this move. No divide by zero due to previous checks.
   float inverse_mm_s = fr_mm_s * inverse_millimeters;
@@ -1059,9 +1076,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
       if (segment_time_us < min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        inverse_mm_s = 1000000.0 / (segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued));
+        const uint32_t nst = segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued);
+        inverse_mm_s = 1000000.0 / nst;
         #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
-          segment_time_us = LROUND(1000000.0 / inverse_mm_s);
+          segment_time_us = nst;
         #endif
       }
     }
@@ -1089,7 +1107,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       filwidth_delay_dist += delta_mm[E_AXIS];
 
       // Only get new measurements on forward E movement
-      if (filwidth_e_count > 0.0001) {
+      if (!UNEAR_ZERO(filwidth_e_count)) {
 
         // Loop the delay distance counter (modulus by the mm length)
         while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
@@ -1113,7 +1131,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    const float cs = FABS(current_speed[i] = delta_mm[i] * inverse_mm_s);
+    const float cs = FABS((current_speed[i] = delta_mm[i] * inverse_mm_s));
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -1292,7 +1310,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   }
 
-  if (moves_queued > 1 && previous_nominal_speed > 0.0001) {
+  if (moves_queued > 1 && !UNEAR_ZERO(previous_nominal_speed)) {
     // Estimate a maximum velocity allowed at a joint of two successive segments.
     // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
     // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
@@ -1303,7 +1321,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
-    float v_factor = 1.f;
+    float v_factor = 1;
     limited = 0;
     // Now limit the jerk in all axes.
     LOOP_XYZE(axis) {
@@ -1318,9 +1336,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
       const float jerk = (v_exit > v_entry)
           ? //                                  coasting             axis reversal
-            ( (v_entry > 0.f || v_exit < 0.f) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+            ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
           : // v_exit <= v_entry                coasting             axis reversal
-            ( (v_entry < 0.f || v_exit > 0.f) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+            ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
 
       if (jerk > max_jerk[axis]) {
         v_factor *= max_jerk[axis] / jerk;

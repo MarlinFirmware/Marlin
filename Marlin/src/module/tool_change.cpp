@@ -34,6 +34,10 @@
   #include "../gcode/gcode.h" // for dwell()
 #endif
 
+#if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
+  #include "../module/servo.h"
+#endif
+
 #if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
   #include "../feature/solenoid.h"
 #endif
@@ -48,6 +52,10 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+#endif
+
+#if HAS_FANMUX
+  #include "../feature/fanmux.h"
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -109,30 +117,6 @@
 
 #endif // PARKING_EXTRUDER
 
-#if HAS_FANMUX
-
-  void fanmux_switch(const uint8_t e) {
-    WRITE(FANMUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-    #if PIN_EXISTS(FANMUX1)
-      WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-      #if PIN_EXISTS(FANMUX2)
-        WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
-      #endif
-    #endif
-  }
-
-  FORCE_INLINE void fanmux_init(void){
-    SET_OUTPUT(FANMUX0_PIN);
-    #if PIN_EXISTS(FANMUX1)
-      SET_OUTPUT(FANMUX1_PIN);
-      #if PIN_EXISTS(FANMUX2)
-        SET_OUTPUT(FANMUX2_PIN);
-      #endif
-    #endif
-    fanmux_switch(0);
-  }
-
-#endif // HAS_FANMUX
 
 inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
@@ -290,7 +274,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
-                          midpos = ((parkingposx[1] - parkingposx[0])/2) + parkingposx[0] + hotend_offset[X_AXIS][active_extruder],
+                          midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + hotend_offset[X_AXIS][active_extruder],
                           grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
                                     + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
@@ -495,14 +479,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(PARKING_EXTRUDER)
-            for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-              #if HAS_POSITION_SHIFT
-                position_shift[i] += xydiff[i];
-              #endif
-              update_software_endstops((AxisEnum)i);
-            }
-          #endif
 
           // Set the new active extruder
           active_extruder = tmp_extruder;
@@ -517,22 +493,22 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         SYNC_PLAN_POSITION_KINEMATIC();
 
         // Move to the "old position" (move the extruder into place)
+        #if ENABLED(SWITCHING_NOZZLE)
+          destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
+        #endif
         if (!no_move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
-          prepare_move_to_destination();
+          // Move back to the original (or tweaked) position
+          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
         }
-
         #if ENABLED(SWITCHING_NOZZLE)
-          // Move back down, if needed. (Including when the new tool is higher.)
-          if (z_raise != z_diff) {
-            destination[Z_AXIS] += z_diff;
-            feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];
-            prepare_move_to_destination();
+          else {
+            // Move back down. (Including when the new tool is higher.)
+            do_blocking_move_to_z(destination[Z_AXIS], planner.max_feedrate_mm_s[Z_AXIS]);
           }
         #endif
-
       } // (tmp_extruder != active_extruder)
 
       stepper.synchronize();

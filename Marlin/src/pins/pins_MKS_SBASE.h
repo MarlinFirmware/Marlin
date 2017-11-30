@@ -34,13 +34,20 @@
   #define DEFAULT_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
 #endif
 
-#define LARGE_FLASH true
-
 // unused
 /*
 #define PIN_P0_27         P0_27
 #define PIN_P0_28         P0_28
 */
+
+
+//
+// Servo pin
+//
+#define SERVO0_PIN         P1_23  // J8-3 (low jitter)
+#define SERVO1_PIN         P2_12  // J8-4
+#define SERVO2_PIN         P2_11  // J8-5
+#define SERVO3_PIN         P4_28  // J8-6
 
 //
 // Limit Switches
@@ -55,23 +62,23 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         P2_0
-#define X_DIR_PIN          P0_5
-#define X_ENABLE_PIN       P0_4
+#define X_STEP_PIN         P2_00
+#define X_DIR_PIN          P0_05
+#define X_ENABLE_PIN       P0_04
 
-#define Y_STEP_PIN         P2_1
+#define Y_STEP_PIN         P2_01
 #define Y_DIR_PIN          P0_11
 #define Y_ENABLE_PIN       P0_10
 
-#define Z_STEP_PIN         P2_2
+#define Z_STEP_PIN         P2_02
 #define Z_DIR_PIN          P0_20
 #define Z_ENABLE_PIN       P0_19
 
-#define E0_STEP_PIN        P2_3
+#define E0_STEP_PIN        P2_03
 #define E0_DIR_PIN         P0_22
 #define E0_ENABLE_PIN      P0_21
 
-#define E1_STEP_PIN        P2_8
+#define E1_STEP_PIN        P2_08
 #define E1_DIR_PIN         P2_13
 #define E1_ENABLE_PIN      P4_29
 
@@ -90,10 +97,10 @@
 // Heaters / Fans
 //
 
-#define HEATER_BED_PIN     P2_5
-#define HEATER_0_PIN       P2_7
-#define HEATER_1_PIN       P2_6
-#define FAN_PIN            P2_4
+#define HEATER_BED_PIN     P2_05
+#define HEATER_0_PIN       P2_07
+#define HEATER_1_PIN       P2_06
+#define FAN_PIN            P2_04
 
 
 #define PS_ON_PIN          P0_25
@@ -168,11 +175,11 @@
 #endif
 #define ENET_MOC           P1_16  // J12-3
 #define REF_CLK            P1_15  // J12-5
-#define ENET_RXD0          P1_9   // J12-7
-#define ENET_CRS           P1_8   // J12-9
-#define ENET_TX_EN         P1_4   // J12-10
-#define ENET_TXD0          P1_0   // J12-11
-#define ENET_TXD1          P1_1   // J12-12
+#define ENET_RXD0          P1_09  // J12-7
+#define ENET_CRS           P1_08  // J12-9
+#define ENET_TX_EN         P1_04  // J12-10
+#define ENET_TXD0          P1_00  // J12-11
+#define ENET_TXD1          P1_01  // J12-12
 
 /**
  *  PWMs
@@ -182,17 +189,17 @@
  *  SERVO2 does NOT have a PWM assigned to it.
  *
  *  PWM1.1   P1_18   SERVO3_PIN       FIL_RUNOUT_PIN   5V output, PWM
- *  PWM1.1   P2_0    E0_STEP_PIN
+ *  PWM1.1   P2_00   E0_STEP_PIN
  *  PWM1.2   P1_20   SERVO0_PIN
- *  PWM1.2   P2_1    X_STEP_PIN
+ *  PWM1.2   P2_01   X_STEP_PIN
  *  PWM1.3   P1_21   SERVO1_PIN       J5-1
- *  PWM1.3   P2_2    Y_STEP_PIN
+ *  PWM1.3   P2_02   Y_STEP_PIN
  *  PWM1.4   P1_23   SDSS(SSEL0)      J3-5  AUX-3
- *  PWM1.4   P2_3    Z_STEP_PIN
+ *  PWM1.4   P2_03   Z_STEP_PIN
  *  PWM1.5   P1_24   X_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.5   P2_4    RAMPS_D9_PIN
+ *  PWM1.5   P2_04   RAMPS_D9_PIN
  *  PWM1.6   P1_26   Y_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.6   P2_5    RAMPS_D10_PIN
+ *  PWM1.6   P2_05   RAMPS_D10_PIN
  */
 
  /**

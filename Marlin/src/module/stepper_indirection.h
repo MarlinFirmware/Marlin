@@ -21,25 +21,25 @@
  */
 
 /**
-  stepper_indirection.h - stepper motor driver indirection macros
-  to allow some stepper functions to be done via SPI/I2c instead of direct pin manipulation
-  Part of Marlin
-
-  Copyright (c) 2015 Dominik Wenger
-
-  Marlin is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Marlin is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * stepper_indirection.h - stepper motor driver indirection macros
+ * to allow some stepper functions to be done via SPI/I2c instead of direct pin manipulation
+ * Part of Marlin
+ *
+ * Copyright (c) 2015 Dominik Wenger
+ *
+ * Marlin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * at your option) any later version.
+ *
+ * Marlin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef STEPPER_INDIRECTION_H
 #define STEPPER_INDIRECTION_H
@@ -429,6 +429,10 @@
     #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); } }
     #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }
   #endif
+#elif ENABLED(MK2_MULTIPLEXER) // Even-numbered steppers are reversed
+  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
+  #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
+  #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
 #elif EXTRUDERS > 4
   #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }
   #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }
@@ -472,14 +476,8 @@
   #endif
 #else
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #if ENABLED(MK2_MULTIPLEXER)
-    // Even-numbered steppers are reversed
-    #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
-    #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
-  #else
-    #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
-    #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
-  #endif
+  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
+  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
 #endif
 
 #endif // STEPPER_INDIRECTION_H

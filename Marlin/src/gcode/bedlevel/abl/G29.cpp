@@ -34,6 +34,7 @@
 #include "../../../module/planner.h"
 #include "../../../module/stepper.h"
 #include "../../../module/probe.h"
+#include "../../queue.h"
 
 #if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
   #include "../../../lcd/ultralcd.h"
@@ -344,7 +345,7 @@ void GcodeSuite::G29() {
       right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
       front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
       back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
-  
+
       const bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
                  left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
                  right_out_r = right_probe_bed_position > MAX_PROBE_X,
@@ -629,6 +630,8 @@ void GcodeSuite::G29() {
     #if ABL_GRID
 
       bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+
+      measured_z = 0;
 
       // Outer loop is Y with PROBE_Y_FIRST disabled
       for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {

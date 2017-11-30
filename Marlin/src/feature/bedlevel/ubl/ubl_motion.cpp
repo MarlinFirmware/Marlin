@@ -23,9 +23,7 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  #include "ubl.h"
-
-  #include "../../../Marlin.h"
+  #include "../bedlevel.h"
   #include "../../../module/planner.h"
   #include "../../../module/stepper.h"
   #include "../../../module/motion.h"
@@ -34,6 +32,7 @@
     #include "../../../module/delta.h"
   #endif
 
+  #include "../../../Marlin.h"
   #include <math.h>
 
   extern float destination[XYZE];
@@ -55,7 +54,7 @@
 
     // if the title message starts with a '!' it is so important, we are going to
     // ignore the status of the g26_debug_flag
-    if (*title != '!' && !ubl.g26_debug_flag) return;
+    if (*title != '!' && !g26_debug_flag) return;
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 

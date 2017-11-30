@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
-  #include "../../module/stepper.h"
+  #include "../../module/motion.h"
 #endif
 
 #if PLANNER_LEVELING
@@ -36,9 +36,14 @@
 
 #if ENABLED(PROBE_MANUALLY)
   bool g29_in_progress = false;
-  #if ENABLED(LCD_BED_LEVELING)
-    #include "../../lcd/ultralcd.h"
-  #endif
+#endif
+
+#if ENABLED(LCD_BED_LEVELING)
+  #include "../../lcd/ultralcd.h"
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  bool g26_debug_flag; // = false
 #endif
 
 bool leveling_is_valid() {
@@ -257,29 +262,19 @@ void reset_bed_level() {
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
   void _manual_goto_xy(const float &rx, const float &ry) {
-    const float old_feedrate_mm_s = feedrate_mm_s;
+
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
-      line_to_current_position();
+      do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
+      do_blocking_move_to_z(prev_z);
+    #else
+      do_blocking_move_to_xy(rx, ry);
     #endif
 
-    feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
     current_position[X_AXIS] = rx;
     current_position[Y_AXIS] = ry;
-    line_to_current_position();
 
-    #if MANUAL_PROBE_HEIGHT > 0
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = prev_z; // move back to the previous Z.
-      line_to_current_position();
-    #endif
-
-    feedrate_mm_s = old_feedrate_mm_s;
-    stepper.synchronize();
-
-    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
     #endif
   }

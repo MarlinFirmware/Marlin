@@ -28,16 +28,19 @@
  * M42: Change pin status via GCode
  *
  *  P<pin>  Pin number (LED if omitted)
+ *          For LPC1768 specify pin P1_02 as M42 P102,
+ *                                  P1_20 as M42 P120, etc.
+ *
  *  S<byte> Pin status from 0 - 255
  */
 void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  int pin_number = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
-  if (pin_number < 0) return;
+  const int pin_index = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
+  if (pin_index < 0) return;
 
-  const pin_t pin = GET_PIN_MAP_PIN(pin_number);
+  const pin_t pin = GET_PIN_MAP_PIN(pin_index);
   if (pin_is_protected(pin)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);

@@ -22,7 +22,7 @@
 
 /**
  * Conditionals_adv.h
- * Defines that depend on advanced onfiguration.
+ * Defines that depend on advanced configuration.
  */
 
 #ifndef CONDITIONALS_ADV_H

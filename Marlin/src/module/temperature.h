@@ -361,14 +361,14 @@ class Temperature {
     static int16_t degTargetBed() { return target_temperature_bed; }
 
     #if WATCH_HOTENDS
-      static void start_watching_heater(uint8_t e = 0);
+      static void start_watching_heater(const uint8_t e = 0);
     #endif
 
     #if WATCH_THE_BED
       static void start_watching_bed();
     #endif
 
-    static void setTargetHotend(const int16_t celsius, uint8_t e) {
+    static void setTargetHotend(const int16_t celsius, const uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
@@ -430,12 +430,19 @@ class Temperature {
      */
     #if HAS_PID_HEATING
       static void PID_autotune(const float temp, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
-    #endif
 
-    /**
-     * Update the temp manager when PID values change
-     */
-    static void updatePID();
+      #if ENABLED(PIDTEMP)
+        /**
+         * Update the temp manager when PID values change
+         */
+        FORCE_INLINE static void updatePID() {
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            last_e_position = 0;
+          #endif
+        }
+      #endif
+
+    #endif
 
     #if ENABLED(BABYSTEPPING)
 
@@ -540,7 +547,7 @@ class Temperature {
   private:
 
     #if ENABLED(FAST_PWM_FAN)
-      static void setPwmFrequency(const uint8_t pin, int val);
+      static void setPwmFrequency(const pin_t pin, int val);
     #endif
 
     static void set_current_temp_raw();

@@ -75,7 +75,7 @@
 #endif
 
 #if HAS_SERVOS
-  #include "HAL/servo.h"
+  #include "module/servo.h"
 #endif
 
 #if HAS_DIGIPOTSS
@@ -136,6 +136,10 @@
 
 #if HAS_CASE_LIGHT
   #include "feature/caselight.h"
+#endif
+
+#if HAS_FANMUX
+  #include "feature/fanmux.h"
 #endif
 
 #if (ENABLED(SWITCHING_EXTRUDER) && !DONT_SWITCH) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
@@ -242,35 +246,6 @@ void setup_powerhold() {
     #endif
   #endif
 }
-
-#if HAS_SERVOS
-
-  HAL_SERVO_LIB servo[NUM_SERVOS];
-
-  void servo_init() {
-    #if NUM_SERVOS >= 1 && HAS_SERVO_0
-      servo[0].attach(SERVO0_PIN);
-      servo[0].detach(); // Just set up the pin. We don't have a position yet. Don't move to a random position.
-    #endif
-    #if NUM_SERVOS >= 2 && HAS_SERVO_1
-      servo[1].attach(SERVO1_PIN);
-      servo[1].detach();
-    #endif
-    #if NUM_SERVOS >= 3 && HAS_SERVO_2
-      servo[2].attach(SERVO2_PIN);
-      servo[2].detach();
-    #endif
-    #if NUM_SERVOS >= 4 && HAS_SERVO_3
-      servo[3].attach(SERVO3_PIN);
-      servo[3].detach();
-    #endif
-
-    #if HAS_Z_SERVO_ENDSTOP
-      servo_probe_init();
-    #endif
-  }
-
-#endif // HAS_SERVOS
 
 /**
  * Stepper Reset (RigidBoard, et.al.)
@@ -518,7 +493,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     tmc2130_checkOverTemp();
   #endif
 
-  planner.check_axes_activity();
+  // Limit check_axes_activity frequency to 10Hz
+  static millis_t next_check_axes_ms = 0;
+  if (ELAPSED(ms, next_check_axes_ms)) {
+    planner.check_axes_activity();
+    next_check_axes_ms = ms + 100UL;
+  }
 }
 
 /**
@@ -657,7 +637,7 @@ void setup() {
     Max7219_init();
   #endif
 
-  #ifdef DISABLE_JTAG
+  #if ENABLED(DISABLE_JTAG)
     // Disable JTAG on AT90USB chips to free up pins for IO
     MCUCR = 0x80;
     MCUCR = 0x80;
@@ -734,6 +714,10 @@ void setup() {
 
   #if HAS_SERVOS
     servo_init();
+  #endif
+
+  #if HAS_Z_SERVO_ENDSTOP
+    servo_probe_init();
   #endif
 
   #if HAS_PHOTOGRAPH
@@ -818,9 +802,6 @@ void setup() {
 
   #if ENABLED(SHOW_BOOTSCREEN)
     lcd_bootscreen();
-    #if ENABLED(ULTRA_LCD) && DISABLED(SDSUPPORT)
-        lcd_init();
-    #endif
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1

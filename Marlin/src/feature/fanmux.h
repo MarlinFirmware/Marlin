@@ -21,16 +21,13 @@
  */
 
 /**
- * G26.cpp - Unified Bed Leveling
+ * feature/fanmux.h - Cooling Fan Multiplexer support functions
  */
 
-#include "../../../inc/MarlinConfig.h"
+#ifndef _FANMUX_H_
+#define _FANMUX_H_
 
-#if ENABLED(UBL_G26_MESH_VALIDATION)
+extern void fanmux_switch(const uint8_t e);
+extern void fanmux_init(void);
 
-#include "../../gcode.h"
-#include "../../../feature/bedlevel/ubl/ubl.h"
-
-void GcodeSuite::G26() { ubl.G26(); }
-
-#endif // UBL_G26_MESH_VALIDATION
+#endif // _FANMUX_H_

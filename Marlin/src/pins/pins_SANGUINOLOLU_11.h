@@ -59,10 +59,6 @@
   #define BOARD_NAME "Sanguinololu <1.2"
 #endif
 
-#ifdef __AVR_ATmega1284P__
-  #define LARGE_FLASH true
-#endif
-
 //
 // Limit Switches
 //

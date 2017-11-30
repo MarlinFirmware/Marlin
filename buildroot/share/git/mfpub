@@ -35,7 +35,7 @@ fi
 echo "Stashing any changes to files..."
 echo "Don't forget to update and push 'master'!"
 # GOJF Card
-git stash
+[[ $(git stash) != "No local "* ]] && HAS_STASH=1
 
 COMMIT=$( git log --format="%H" -n 1 )
 
@@ -46,16 +46,26 @@ git clean -d -f
 if [[ $BRANCH == "master" ]]; then
 
   # Don't lose upstream changes!
-  mfup
+  git fetch upstream
 
-  # Allow working directly with the main fork
-  echo
-  echo -n "Pushing to origin/master... "
-  git push -f origin
+  # Rebase onto latest master
+  if git rebase upstream/master; then
 
-  echo
-  echo -n "Pushing to upstream/master... "
-  git push -f upstream
+    # Allow working directly with the main fork
+    echo
+    echo -n "Pushing to origin/master... "
+    git push -f origin
+
+    echo
+    echo -n "Pushing to upstream/master... "
+    git push -f upstream
+
+  else
+
+    echo "Merge conflicts? Stopping here."
+    exit
+
+  fi
 
 else
 
@@ -114,6 +124,4 @@ rm -rf ${TMPFOLDER}
 # Go back to the branch we started from
 git checkout $BRANCH
 
-if [[ $BRANCH != "master" ]]; then
-  git stash pop
-fi
+[[ $HAS_STASH == 1 ]] && git stash pop

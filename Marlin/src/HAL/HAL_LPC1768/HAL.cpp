@@ -174,12 +174,12 @@ uint16_t HAL_adc_get_result(void) {
 #define SBIT_PWMEN     2
 #define SBIT_PWMMR0R   1
 
-#define PWM_1          0  //P2_0 (0-1 Bits of PINSEL4)
-#define PWM_2          2  //P2_1 (2-3 Bits of PINSEL4)
-#define PWM_3          4  //P2_2 (4-5 Bits of PINSEL4)
-#define PWM_4          6  //P2_3 (6-7 Bits of PINSEL4)
-#define PWM_5          8  //P2_4 (8-9 Bits of PINSEL4)
-#define PWM_6          10 //P2_5 (10-11 Bits of PINSEL4)
+#define PWM_1          0  //P2_00 (0-1 Bits of PINSEL4)
+#define PWM_2          2  //P2_01 (2-3 Bits of PINSEL4)
+#define PWM_3          4  //P2_02 (4-5 Bits of PINSEL4)
+#define PWM_4          6  //P2_03 (6-7 Bits of PINSEL4)
+#define PWM_5          8  //P2_04 (8-9 Bits of PINSEL4)
+#define PWM_6          10 //P2_05 (10-11 Bits of PINSEL4)
 
 void HAL_pwm_init(void) {
   LPC_PINCON->PINSEL4 = _BV(PWM_5) | _BV(PWM_6);
@@ -193,7 +193,7 @@ void HAL_pwm_init(void) {
 
   // Trigger the latch Enable Bits to load the new Match Values MR0, MR5, MR6
   LPC_PWM1->LER = _BV(0) | _BV(5) | _BV(6);
-  // Enable the PWM output pins for PWM_5-PWM_6(P2_4 - P2_5)
+  // Enable the PWM output pins for PWM_5-PWM_6(P2_04 - P2_05)
   LPC_PWM1->PCR = _BV(13) | _BV(14);
 }
 

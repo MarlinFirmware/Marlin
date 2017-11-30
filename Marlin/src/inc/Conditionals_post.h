@@ -848,8 +848,7 @@
   #endif
 #endif
 
-#define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
-#define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
+#define HAS_BED_PROBE (PROBE_SELECTED && DISABLED(PROBE_MANUALLY))
 
 #if ENABLED(Z_PROBE_ALLEN_KEY)
   #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
@@ -935,7 +934,7 @@
 /**
  * Set granular options based on the specific type of leveling
  */
-#define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)))
+#define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(SEGMENT_LEVELED_MOVES)))
 #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
 #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
 #define OLDSCHOOL_ABL         (ABL_PLANAR || ABL_GRID)
@@ -950,6 +949,10 @@
   #define PROBE_BED_HEIGHT abs(BACK_PROBE_BED_POSITION - (FRONT_PROBE_BED_POSITION))
 #endif
 
+#if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
+  #define LEVELED_SEGMENT_LENGTH 5
+#endif
+
 /**
  * Bed Probing rectangular bounds
  * These can be further constrained in code for Delta and SCARA
@@ -958,22 +961,36 @@
   // Probing points may be verified at compile time within the radius
   // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
   // so that may be added to SanityCheck.h in the future.
-  #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
-  #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
-  #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
-  #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
+  #define _MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
+  #define _MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
+  #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
+  #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
 #elif IS_SCARA
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-  #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
-  #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
-  #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
-  #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
+  #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
+  #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
+  #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
+  #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
 #else
   // Boundaries for Cartesian probing based on bed limits
-  #define MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+#endif
+
+// Allow configuration to override these for special purposes
+#ifndef MIN_PROBE_X
+  #define MIN_PROBE_X _MIN_PROBE_X
+#endif
+#ifndef MIN_PROBE_Y
+  #define MIN_PROBE_Y _MIN_PROBE_Y
+#endif
+#ifndef MAX_PROBE_X
+  #define MAX_PROBE_X _MAX_PROBE_X
+#endif
+#ifndef MAX_PROBE_Y
+  #define MAX_PROBE_Y _MAX_PROBE_Y
 #endif
 
 /**
@@ -1079,14 +1096,10 @@
   #undef MOTOR_CURRENT
 #endif
 
-#if ENABLED(SDCARD_SORT_ALPHA)
-  #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
-#endif
-
 // Updated G92 behavior shifts the workspace
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
 // The home offset also shifts the coordinate space
-#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DELTA))
+#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA))
 // Either offset yields extra calculations on all moves
 #define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
 // M206 doesn't apply to DELTA
@@ -1116,12 +1129,7 @@
 #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
 // Add commands that need sub-codes to this list
-#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET)
-
-// MESH_BED_LEVELING overrides PROBE_MANUALLY
-#if ENABLED(MESH_BED_LEVELING)
-  #undef PROBE_MANUALLY
-#endif
+#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS)
 
 // Parking Extruder
 #if ENABLED(PARKING_EXTRUDER)
@@ -1159,6 +1167,7 @@
   #undef min
   #define min(a,b) ((a)<(b)?(a):(b))
 
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
   #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
@@ -1195,6 +1204,11 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+#endif
+
+// needs to be here so that we catch the above changes to our defines
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
 #endif
 
 #endif // CONDITIONALS_POST_H

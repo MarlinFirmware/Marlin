@@ -23,8 +23,6 @@
 #ifndef __ENUM_H__
 #define __ENUM_H__
 
-#include "../inc/MarlinConfig.h"
-
 /**
  * Axis indices as enumerated constants
  *
@@ -69,46 +67,6 @@ typedef enum {
   TEMPUNIT_F
 } TempUnit;
 
-#if ENABLED(EMERGENCY_PARSER)
-  enum e_parser_state {
-    state_RESET,
-    state_N,
-    state_M,
-    state_M1,
-    state_M10,
-    state_M108,
-    state_M11,
-    state_M112,
-    state_M4,
-    state_M41,
-    state_M410,
-    state_IGNORE // to '\n'
-  };
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  enum AdvancedPauseMenuResponse {
-    ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
-    ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
-    ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
-  };
-
-  #if ENABLED(ULTIPANEL)
-    enum AdvancedPauseMessage {
-      ADVANCED_PAUSE_MESSAGE_INIT,
-      ADVANCED_PAUSE_MESSAGE_UNLOAD,
-      ADVANCED_PAUSE_MESSAGE_INSERT,
-      ADVANCED_PAUSE_MESSAGE_LOAD,
-      ADVANCED_PAUSE_MESSAGE_EXTRUDE,
-      ADVANCED_PAUSE_MESSAGE_OPTION,
-      ADVANCED_PAUSE_MESSAGE_RESUME,
-      ADVANCED_PAUSE_MESSAGE_STATUS,
-      ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
-      ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
-    };
-  #endif
-#endif
-
 /**
  * SD Card
  */
@@ -124,16 +82,5 @@ enum LCDViewAction {
   LCDVIEW_CLEAR_CALL_REDRAW,
   LCDVIEW_CALL_NO_REDRAW
 };
-
-/**
- * Dual X Carriage modes. A Dual Nozzle can also do duplication.
- */
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  enum DualXMode {
-    DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
-    DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
-    DXC_DUPLICATION_MODE
-  };
-#endif
 
 #endif // __ENUM_H__

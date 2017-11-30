@@ -104,14 +104,14 @@
     else if (SPI_speed == 1) { // medium - about 1 MHz
       for (int bits = 0; bits < 8; bits++) {
         if (b & 0x80) {
-          for (uint8_t i = 0; i < 8; i++) WRITE(MOSI_PIN, HIGH);
+          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, HIGH);
         }
         else {
-          for (uint8_t i = 0; i < 8; i++) WRITE(MOSI_PIN, LOW);
+          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, LOW);
         }
         b <<= 1;
 
-        for (uint8_t i = 0; i < 6; i++) WRITE(SCK_PIN, HIGH);
+        for (uint8_t i = 0; i < 7; i++) WRITE(SCK_PIN, HIGH);
 
         if (READ(MISO_PIN)) {
           b |= 1;
@@ -205,18 +205,18 @@
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = pin_map[SCK_PIN].pin;
-    PinCfg.Portnum = pin_map[SCK_PIN].port;
+  PinCfg.Pinnum = LPC1768_PIN_PIN(SCK_PIN);
+PinCfg.Portnum = LPC1768_PIN_PORT(SCK_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(SCK_PIN);
 
-    PinCfg.Pinnum = pin_map[MISO_PIN].pin;
-    PinCfg.Portnum = pin_map[MISO_PIN].port;
+PinCfg.Pinnum = LPC1768_PIN_PIN(MISO_PIN);
+PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_INPUT(MISO_PIN);
 
-    PinCfg.Pinnum = pin_map[MOSI_PIN].pin;
-    PinCfg.Portnum = pin_map[MOSI_PIN].port;
+    PinCfg.Pinnum = LPC1768_PIN_PIN(MOSI_PIN);
+    PinCfg.Portnum = LPC1768_PIN_PORT(MOSI_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(MOSI_PIN);
   }
