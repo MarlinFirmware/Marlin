@@ -186,7 +186,7 @@ class Planner {
      * The current position of the tool in absolute steps
      * Recalculated if any axis_steps_per_mm are changed by gcode
      */
-    static long position[NUM_AXIS];
+    static int32_t position[NUM_AXIS];
 
     /**
      * Speed of previous path line segment
@@ -220,11 +220,7 @@ class Planner {
       // Old direction bits. Used for speed calculations
       static unsigned char old_direction_bits;
       // Segment times (in µs). Used for speed calculations
-      static long axis_segment_time_us[2][3];
-    #endif
-
-    #if ENABLED(LIN_ADVANCE)
-      static float position_float[NUM_AXIS];
+      static uint32_t axis_segment_time_us[2][3];
     #endif
 
     #if ENABLED(ULTRA_LCD)
