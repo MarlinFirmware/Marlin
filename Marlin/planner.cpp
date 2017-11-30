@@ -153,8 +153,7 @@ float Planner::previous_speed[NUM_AXIS],
 
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_k, // Initialized by settings.load()
-        Planner::advance_ed_ratio,   // Initialized by settings.load()
-        Planner::position_float[NUM_AXIS] = { 0 };
+        Planner::advance_ed_ratio;   // Initialized by settings.load()
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -170,9 +169,6 @@ Planner::Planner() { init(); }
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
   ZERO(position);
-  #if ENABLED(LIN_ADVANCE)
-    ZERO(position_float);
-  #endif
   ZERO(previous_speed);
   previous_nominal_speed = 0.0;
   #if ABL_PLANAR
@@ -679,10 +675,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
-    const float mm_D_float = SQRT(sq(a - position_float[X_AXIS]) + sq(b - position_float[Y_AXIS]));
-  #endif
-
   const long da = target[X_AXIS] - position[X_AXIS],
              db = target[Y_AXIS] - position[Y_AXIS],
              dc = target[Z_AXIS] - position[Z_AXIS];
@@ -711,18 +703,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   //*/
 
   // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
-  if (DEBUGGING(DRYRUN)) {
+  if (DEBUGGING(DRYRUN))
     position[E_AXIS] = target[E_AXIS];
-    #if ENABLED(LIN_ADVANCE)
-      position_float[E_AXIS] = e;
-    #endif
-  }
 
   long de = target[E_AXIS] - position[E_AXIS];
-
-  #if ENABLED(LIN_ADVANCE)
-    float de_float = e - position_float[E_AXIS]; // Should this include e_factor?
-  #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
@@ -730,10 +714,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         if (thermalManager.tooColdToExtrude(extruder)) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
-          #if ENABLED(LIN_ADVANCE)
-            position_float[E_AXIS] = e;
-            de_float = 0;
-          #endif
           SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
         }
@@ -742,16 +722,16 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
-          #if ENABLED(LIN_ADVANCE)
-            position_float[E_AXIS] = e;
-            de_float = 0;
-          #endif
           SERIAL_ECHO_START();
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
       #endif // PREVENT_LENGTHY_EXTRUDE
     }
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
+
+  #if ENABLED(LIN_ADVANCE)
+    float de_float = de * steps_to_mm[E_AXIS_N];
+  #endif
 
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
@@ -1350,30 +1330,28 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(LIN_ADVANCE)
 
-    //
-    // Use LIN_ADVANCE for blocks if all these are true:
-    //
-    // esteps                                          : We have E steps todo (a printing move)
-    //
-    // block->steps[X_AXIS] || block->steps[Y_AXIS]    : We have a movement in XY direction (i.e., not retract / prime).
-    //
-    // extruder_advance_k                              : There is an advance factor set.
-    //
-    // block->steps[E_AXIS] != block->step_event_count : A problem occurs if the move before a retract is too small.
-    //                                                   In that case, the retract and move will be executed together.
-    //                                                   This leads to too many advance steps due to a huge e_acceleration.
-    //                                                   The math is good, but we must avoid retract moves with advance!
-    // de_float > 0.0                                  : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
-    //
-    block->use_advance_lead =  esteps
-                            && (block->steps[X_AXIS] || block->steps[Y_AXIS])
+    /**
+     *
+     * Use LIN_ADVANCE for blocks if all these are true:
+     *
+     * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS]) : This is a print move
+     *
+     * extruder_advance_k                 : There is an advance factor set.
+     *
+     * esteps != block->step_event_count  : A problem occurs if the move before a retract is too small.
+     *                                      In that case, the retract and move will be executed together.
+     *                                      This leads to too many advance steps due to a huge e_acceleration.
+     *                                      The math is good, but we must avoid retract moves with advance!
+     * de > 0                             : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+     */
+    block->use_advance_lead =  esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS])
                             && extruder_advance_k
                             && (uint32_t)esteps != block->step_event_count
-                            && de_float > 0.0;
+                            && de > 0;
     if (block->use_advance_lead)
       block->abs_adv_steps_multiplier8 = LROUND(
         extruder_advance_k
-        * (UNEAR_ZERO(advance_ed_ratio) ? de_float / mm_D_float : advance_ed_ratio) // Use the fixed ratio, if set
+        * (UNEAR_ZERO(advance_ed_ratio) ? de * steps_to_mm[E_AXIS_N] / HYPOT(da * steps_to_mm[X_AXIS], db * steps_to_mm[Y_AXIS]) : advance_ed_ratio) // Use the fixed ratio, if set
         * (block->nominal_speed / (float)block->nominal_rate)
         * axis_steps_per_mm[E_AXIS_N] * 256.0
       );
@@ -1387,12 +1365,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Update the position (only when a move was queued)
   COPY(position, target);
-  #if ENABLED(LIN_ADVANCE)
-    position_float[X_AXIS] = a;
-    position_float[Y_AXIS] = b;
-    position_float[Z_AXIS] = c;
-    position_float[E_AXIS] = e;
-  #endif
 
   recalculate();
 
@@ -1418,12 +1390,6 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
              nb = position[Y_AXIS] = LROUND(b * axis_steps_per_mm[Y_AXIS]),
              nc = position[Z_AXIS] = LROUND(c * axis_steps_per_mm[Z_AXIS]),
              ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
-  #if ENABLED(LIN_ADVANCE)
-    position_float[X_AXIS] = a;
-    position_float[Y_AXIS] = b;
-    position_float[Z_AXIS] = c;
-    position_float[E_AXIS] = e;
-  #endif
   stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
   ZERO(previous_speed);
@@ -1448,16 +1414,8 @@ void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
  * Sync from the stepper positions. (e.g., after an interrupted move)
  */
 void Planner::sync_from_steppers() {
-  LOOP_XYZE(i) {
+  LOOP_XYZE(i)
     position[i] = stepper.position((AxisEnum)i);
-    #if ENABLED(LIN_ADVANCE)
-      position_float[i] = position[i] * steps_to_mm[i
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + (i == E_AXIS ? active_extruder : 0)
-        #endif
-      ];
-    #endif
-  }
 }
 
 /**
@@ -1471,9 +1429,6 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
     const uint8_t axis_index = axis;
   #endif
   position[axis] = LROUND(v * axis_steps_per_mm[axis_index]);
-  #if ENABLED(LIN_ADVANCE)
-    position_float[axis] = v;
-  #endif
   stepper.set_position(axis, v);
   previous_speed[axis] = 0.0;
 }

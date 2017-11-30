@@ -219,10 +219,6 @@ class Planner {
       static uint32_t axis_segment_time_us[2][3];
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
-      static float position_float[NUM_AXIS];
-    #endif
-
     #if ENABLED(ULTRA_LCD)
       volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
