@@ -28,6 +28,8 @@
   #include "../../feature/I2CPositionEncoder.h"
 #endif
 
+float total_adjusted_Z = 0.0;
+
 /**
  * G92: Set current position to given X Y Z E
  */
@@ -102,9 +104,13 @@ void GcodeSuite::G92() {
     do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
     current_position[Z_AXIS] = curr_z;
 
+    total_adjusted_Z+= adjust_z;
+
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("\nA: ");
     SERIAL_ECHOLN(adjust_z);
+    SERIAL_ECHOLNPGM("\ntotal_adjusted_Z: ");
+    SERIAL_ECHOLN(total_adjusted_Z);
 
   }
 
