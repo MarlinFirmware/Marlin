@@ -622,6 +622,12 @@ void GcodeSuite::process_parsed_command() {
           break;
       #endif // HAS_BED_PROBE
 
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        case 852: // M852: Set Skew factors
+          M852();
+          break;
+      #endif
+
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
           M600();
