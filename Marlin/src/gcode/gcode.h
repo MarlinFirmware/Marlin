@@ -201,6 +201,7 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
  * M861 - Report the status of position encoder modules.
  * M862 - Perform an axis continuity test for position encoder modules.
@@ -703,6 +704,10 @@ private:
 
   #if HAS_BED_PROBE
     static void M851();
+  #endif
+
+  #if ENABLED(SKEW_CORRECTION_GCODE)
+    static void M852();
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
