@@ -845,6 +845,49 @@
   #endif
 
   /**
+   * XYZ Bed Skew Correction
+   */
+  #if ENABLED(SKEW_CORRECTION)
+    #define SKEW_FACTOR_MIN -1
+    #define SKEW_FACTOR_MAX 1
+
+    #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5)
+    #define _SKEW_SIDE(a,b,c) tan(M_PI*0.5-acos((sq(a)-sq(b)-sq(c))/(2*c*b)))
+    #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(a,_GET_SIDE(a,b,c),c)
+
+    #ifndef XY_SKEW_FACTOR
+      constexpr float XY_SKEW_FACTOR = (
+        #if defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD)
+          _SKEW_FACTOR(XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef XZ_SKEW_FACTOR
+      #if defined(XY_SIDE_AD) && !defined(XZ_SIDE_AD)
+        #define XZ_SIDE_AD XY_SIDE_AD
+      #endif
+      constexpr float XZ_SKEW_FACTOR = (
+        #if defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD)
+          _SKEW_FACTOR(XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef YZ_SKEW_FACTOR
+      constexpr float YZ_SKEW_FACTOR = (
+        #if defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD)
+          _SKEW_FACTOR(YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+  #endif // SKEW_CORRECTION
+
+  /**
    * Heater & Fan Pausing
    */
   #if FAN_COUNT == 0
@@ -898,7 +941,7 @@
   #define HAS_LEVELING          (HAS_ABL || ENABLED(MESH_BED_LEVELING))
   #define HAS_AUTOLEVEL         (HAS_ABL && DISABLED(PROBE_MANUALLY))
   #define HAS_MESH              (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
-  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_DELTA)
+  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_DELTA || ENABLED(SKEW_CORRECTION))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
   #if HAS_PROBING_PROCEDURE
     #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))

@@ -176,6 +176,23 @@ class Planner {
       static float extruder_advance_k, advance_ed_ratio;
     #endif
 
+    #if ENABLED(SKEW_CORRECTION)
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        static float xy_skew_factor;
+      #else
+        static constexpr float xy_skew_factor = XY_SKEW_FACTOR;
+      #endif
+      #if ENABLED(SKEW_CORRECTION_FOR_Z)
+        #if ENABLED(SKEW_CORRECTION_GCODE)
+          static float xz_skew_factor, yz_skew_factor;
+        #else
+          static constexpr float xz_skew_factor = XZ_SKEW_FACTOR, yz_skew_factor = YZ_SKEW_FACTOR;
+        #endif
+      #else
+        static constexpr float xz_skew_factor = 0, yz_skew_factor = 0;
+      #endif
+    #endif
+
   private:
 
     /**

@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V45"
+#define EEPROM_VERSION "V46"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V45 EEPROM Layout:
+ * V46 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -166,8 +166,13 @@
  * CNC_COORDINATE_SYSTEMS                           108 bytes
  *  602  G54-G59.3 coordinate_system                (float x 27)
  *
- *  710                                   Minimum end-point
- * 2239 (710 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
+ * SKEW_CORRECTION:                                 12 bytes
+ *  710  M852 I    planner.xy_skew_factor           (float)
+ *  714  M852 J    planner.xz_skew_factor           (float)
+ *  718  M852 K    planner.yz_skew_factor           (float)
+ *
+ *  722                                   Minimum end-point
+ * 2251 (722 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -664,11 +669,28 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
     #endif
 
+    //
+    // CNC Coordinate Systems
+    //
+
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
       EEPROM_WRITE(coordinate_system); // 27 floats
     #else
       dummy = 0.0f;
       for (uint8_t q = 27; q--;) EEPROM_WRITE(dummy);
+    #endif
+
+    //
+    // Skew correction factors
+    //
+
+    #if ENABLED(SKEW_CORRECTION)
+      EEPROM_WRITE(planner.xy_skew_factor);
+      EEPROM_WRITE(planner.xz_skew_factor);
+      EEPROM_WRITE(planner.yz_skew_factor);
+    #else
+      dummy = 0.0f;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
 
     if (!eeprom_error) {
@@ -1105,6 +1127,23 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = 27; q--;) EEPROM_READ(dummy);
       #endif
 
+      //
+      // Skew correction factors
+      //
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        EEPROM_READ(planner.xy_skew_factor);
+        #if ENABLED(SKEW_CORRECTION_FOR_Z)
+          EEPROM_READ(planner.xz_skew_factor);
+          EEPROM_READ(planner.yz_skew_factor);
+        #else
+          EEPROM_READ(dummy);
+          EEPROM_READ(dummy);
+        #endif
+      #else
+        for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
+      #endif
+
       if (working_crc == stored_crc) {
         postprocess();
         #if ENABLED(EEPROM_CHITCHAT)
@@ -1481,6 +1520,14 @@ void MarlinSettings::reset() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     ubl.reset();
+  #endif
+
+  #if ENABLED(SKEW_CORRECTION_GCODE)
+    planner.xy_skew_factor = XY_SKEW_FACTOR;
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+      planner.xz_skew_factor = XZ_SKEW_FACTOR;
+      planner.yz_skew_factor = YZ_SKEW_FACTOR;
+    #endif
   #endif
 
   postprocess();
@@ -1910,6 +1957,24 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
+    #endif
+
+    /**
+     * Bed Skew Correction
+     */
+    #if ENABLED(SKEW_CORRECTION_GCODE)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Skew Factor: ");
+      }
+      CONFIG_ECHO_START;
+      #if ENABLED(SKEW_CORRECTION_FOR_Z)
+        SERIAL_ECHOPAIR("  M852 I", LINEAR_UNIT(planner.xy_skew_factor));
+        SERIAL_ECHOPAIR(" J", LINEAR_UNIT(planner.xz_skew_factor));
+        SERIAL_ECHOLNPAIR(" K", LINEAR_UNIT(planner.yz_skew_factor));
+      #else
+        SERIAL_ECHOLNPAIR("  M852 S", LINEAR_UNIT(planner.xy_skew_factor));
+      #endif
     #endif
 
     /**
