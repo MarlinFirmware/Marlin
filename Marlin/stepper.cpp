@@ -443,8 +443,7 @@ void Stepper::isr() {
   // If there is no current block, attempt to pop one from the buffer
   if (!current_block) {
     // Anything in the buffer?
-    current_block = planner.get_current_block();
-    if (current_block) {
+    if ((current_block = planner.get_current_block())) {
       trapezoid_generator_reset();
 
       // Initialize Bresenham counters to 1/2 the ceiling

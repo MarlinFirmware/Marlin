@@ -140,7 +140,7 @@ class Planner {
       static uint8_t last_extruder;             // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
+    static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
 
     static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
                  filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -501,8 +501,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate

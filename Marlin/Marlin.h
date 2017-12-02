@@ -301,12 +301,38 @@ void report_current_position();
   extern float delta_height,
                delta_endstop_adj[ABC],
                delta_radius,
+               delta_tower_angle_trim[ABC],
+               delta_tower[ABC][2],
                delta_diagonal_rod,
                delta_calibration_radius,
+               delta_diagonal_rod_2_tower[ABC],
                delta_segments_per_second,
-               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
+
   void recalc_delta_settings();
+  float delta_safe_distance_from_top();
+
+  #if ENABLED(DELTA_FAST_SQRT)
+    float Q_rsqrt(const float number);
+    #define _SQRT(n) (1.0f / Q_rsqrt(n))
+  #else
+    #define _SQRT(n) SQRT(n)
+  #endif
+
+  // Macro to obtain the Z position of an individual tower
+  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
+    delta_diagonal_rod_2_tower[T] - HYPOT2(   \
+        delta_tower[T][X_AXIS] - raw[X_AXIS], \
+        delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
+      )                                       \
+    )
+
+  #define DELTA_RAW_IK() do {        \
+    delta[A_AXIS] = DELTA_Z(A_AXIS); \
+    delta[B_AXIS] = DELTA_Z(B_AXIS); \
+    delta[C_AXIS] = DELTA_Z(C_AXIS); \
+  }while(0)
+
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif

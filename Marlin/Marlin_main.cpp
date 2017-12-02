@@ -12258,7 +12258,7 @@ void ok_to_send() {
      * Fast inverse sqrt from Quake III Arena
      * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root
      */
-    float Q_rsqrt(float number) {
+    float Q_rsqrt(const float number) {
       long i;
       float x2, y;
       const float threehalfs = 1.5f;
@@ -12271,12 +12271,6 @@ void ok_to_send() {
       // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
       return y;
     }
-
-    #define _SQRT(n) (1.0f / Q_rsqrt(n))
-
-  #else
-
-    #define _SQRT(n) SQRT(n)
 
   #endif
 
@@ -12298,20 +12292,6 @@ void ok_to_send() {
    * - Use a fast-inverse-sqrt function and add the reciprocal.
    *   (see above)
    */
-
-  // Macro to obtain the Z position of an individual tower
-  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
-    delta_diagonal_rod_2_tower[T] - HYPOT2(   \
-        delta_tower[T][X_AXIS] - raw[X_AXIS], \
-        delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
-      )                                       \
-    )
-
-  #define DELTA_RAW_IK() do {        \
-    delta[A_AXIS] = DELTA_Z(A_AXIS); \
-    delta[B_AXIS] = DELTA_Z(B_AXIS); \
-    delta[C_AXIS] = DELTA_Z(C_AXIS); \
-  }while(0)
 
   #define DELTA_DEBUG() do { \
       SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
@@ -12367,46 +12347,53 @@ void ok_to_send() {
    */
   void forward_kinematics_DELTA(float z1, float z2, float z3) {
     // Create a vector in old coordinates along x axis of new coordinate
-    float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 };
+    const float p12[] = {
+      delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS],
+      delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS],
+      z2 - z1
+    },
 
     // Get the Magnitude of vector.
-    float d = SQRT( sq(p12[0]) + sq(p12[1]) + sq(p12[2]) );
+    d = SQRT(sq(p12[0]) + sq(p12[1]) + sq(p12[2])),
 
     // Create unit vector by dividing by magnitude.
-    float ex[3] = { p12[0] / d, p12[1] / d, p12[2] / d };
+    ex[3] = { p12[0] / d, p12[1] / d, p12[2] / d },
 
     // Get the vector from the origin of the new system to the third point.
-    float p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 };
+    p13[3] = {
+      delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS],
+      delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS],
+      z3 - z1
+    },
 
     // Use the dot product to find the component of this vector on the X axis.
-    float i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2];
+    i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2],
 
     // Create a vector along the x axis that represents the x component of p13.
-    float iex[3] = { ex[0] * i, ex[1] * i, ex[2] * i };
+    iex[] = { ex[0] * i, ex[1] * i, ex[2] * i };
 
     // Subtract the X component from the original vector leaving only Y. We use the
     // variable that will be the unit vector after we scale it.
     float ey[3] = { p13[0] - iex[0], p13[1] - iex[1], p13[2] - iex[2] };
 
     // The magnitude of Y component
-    float j = SQRT( sq(ey[0]) + sq(ey[1]) + sq(ey[2]) );
+    const float j = SQRT(sq(ey[0]) + sq(ey[1]) + sq(ey[2]));
 
     // Convert to a unit vector
     ey[0] /= j; ey[1] /= j;  ey[2] /= j;
 
     // The cross product of the unit x and y is the unit z
     // float[] ez = vectorCrossProd(ex, ey);
-    float ez[3] = {
+    const float ez[3] = {
       ex[1] * ey[2] - ex[2] * ey[1],
       ex[2] * ey[0] - ex[0] * ey[2],
       ex[0] * ey[1] - ex[1] * ey[0]
-    };
-
+    },
     // We now have the d, i and j values defined in Wikipedia.
     // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
-    float Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + sq(d)) / (d * 2),
-          Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + HYPOT2(i, j)) / 2 - i * Xnew) / j,
-          Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
+    Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + sq(d)) / (d * 2),
+    Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + HYPOT2(i, j)) / 2 - i * Xnew) / j,
+    Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
 
     // Start from the origin of the old coordinates and add vectors in the
     // old coords that represent the Xnew, Ynew and Znew to find the point
@@ -12478,7 +12465,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * small incremental moves. This allows the planner to
    * apply more detailed bed leveling to the full move.
    */
-  inline void segmented_line_to_destination(const float fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
+  inline void segmented_line_to_destination(const float &fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
 
     const float xdiff = destination[X_AXIS] - current_position[X_AXIS],
                 ydiff = destination[Y_AXIS] - current_position[Y_AXIS];
@@ -12517,16 +12504,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    // Drop one segment so the last move is to the exact target.
-    // If there's only 1 segment, loops will be skipped entirely.
-    --segments;
-
     // Get the raw current position as starting point
     float raw[XYZE];
     COPY(raw, current_position);
 
     // Calculate and execute the segments
-    for (uint16_t s = segments + 1; --s;) {
+    while (--segments) {
       static millis_t next_idle_ms = millis() + 200UL;
       thermalManager.manage_heater();  // This returns immediately if not really needed.
       if (ELAPSED(millis(), next_idle_ms)) {
@@ -12548,7 +12531,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a mesh-leveled linear move in a Cartesian setup,
    * splitting the move where it crosses mesh borders.
    */
-  void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits = 0xFF, uint8_t y_splits = 0xFF) {
+  void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF) {
+    // Get current and destination cells for this line
     int cx1 = mbl.cell_index_x(current_position[X_AXIS]),
         cy1 = mbl.cell_index_y(current_position[Y_AXIS]),
         cx2 = mbl.cell_index_x(destination[X_AXIS]),
@@ -12558,8 +12542,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     NOMORE(cx2, GRID_MAX_POINTS_X - 2);
     NOMORE(cy2, GRID_MAX_POINTS_Y - 2);
 
+    // Start and end in the same cell? No split needed.
     if (cx1 == cx2 && cy1 == cy2) {
-      // Start and end on same mesh square
       buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
@@ -12568,25 +12552,30 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
     float normalized_dist, end[XYZE];
-
-    // Split at the left/front border of the right/top square
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+
+    // Crosses on the X and not already split on this X?
+    // The x_splits flags are insurance against rounding errors.
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
+      // Split on the X grid line
+      CBI(x_splits, gcx);
       COPY(end, destination);
       destination[X_AXIS] = mbl.index_to_xpos[gcx];
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
-      CBI(x_splits, gcx);
     }
+    // Crosses on the Y and not already split on this Y?
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
+      // Split on the Y grid line
+      CBI(y_splits, gcy);
       COPY(end, destination);
       destination[Y_AXIS] = mbl.index_to_ypos[gcy];
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
-      CBI(y_splits, gcy);
     }
     else {
-      // Already split on a border
+      // Must already have been split on these border(s)
+      // This should be a rare case.
       buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
@@ -12611,7 +12600,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF) {
+  void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF) {
+    // Get current and destination cells for this line
     int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
@@ -12621,8 +12611,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
     cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
 
+    // Start and end in the same cell? No split needed.
     if (cx1 == cx2 && cy1 == cy2) {
-      // Start and end on same mesh square
       buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
@@ -12631,25 +12621,30 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
     float normalized_dist, end[XYZE];
-
-    // Split at the left/front border of the right/top square
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+
+    // Crosses on the X and not already split on this X?
+    // The x_splits flags are insurance against rounding errors.
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
+      // Split on the X grid line
+      CBI(x_splits, gcx);
       COPY(end, destination);
       destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
-      CBI(x_splits, gcx);
     }
+    // Crosses on the Y and not already split on this Y?
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
+      // Split on the Y grid line
+      CBI(y_splits, gcy);
       COPY(end, destination);
       destination[Y_AXIS] = bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy;
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
-      CBI(y_splits, gcy);
     }
     else {
-      // Already split on a border
+      // Must already have been split on these border(s)
+      // This should be a rare case.
       buffer_line_to_destination(fr_mm_s);
       set_current_from_destination();
       return;
@@ -12745,16 +12740,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             oldB = stepper.get_axis_position_degrees(B_AXIS);
     #endif
 
-    // Get the raw current position as starting point
+    // Get the current position as starting point
     float raw[XYZE];
     COPY(raw, current_position);
 
-    // Drop one segment so the last move is to the exact target.
-    // If there's only 1 segment, loops will be skipped entirely.
-    --segments;
 
     // Calculate and execute the segments
-    for (uint16_t s = segments + 1; --s;) {
+    while (--segments) {
 
       static millis_t next_idle_ms = millis() + 200UL;
       thermalManager.manage_heater();  // This returns immediately if not really needed.
@@ -13033,7 +13025,7 @@ void prepare_move_to_destination() {
     if (mm_of_travel < 0.001) return;
 
     uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
-    if (segments == 0) segments = 1;
+    NOLESS(segments, 1);
 
     /**
      * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
