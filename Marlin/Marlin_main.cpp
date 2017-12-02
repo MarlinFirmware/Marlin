@@ -8613,6 +8613,7 @@ inline void gcode_M81() {
     suicide();
   #elif HAS_POWER_SWITCH
     PSU_OFF();
+    axis_homed = axis_known_position = 0;
   #endif
 
   #if ENABLED(ULTIPANEL)
