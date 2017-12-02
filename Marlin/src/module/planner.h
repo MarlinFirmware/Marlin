@@ -505,8 +505,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate

@@ -59,6 +59,7 @@
      * splitting the move where it crosses mesh borders.
      */
     void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
+      // Get current and destination cells for this line
       int cx1 = mbl.cell_index_x(current_position[X_AXIS]),
           cy1 = mbl.cell_index_y(current_position[Y_AXIS]),
           cx2 = mbl.cell_index_x(destination[X_AXIS]),
@@ -68,8 +69,8 @@
       NOMORE(cx2, GRID_MAX_POINTS_X - 2);
       NOMORE(cy2, GRID_MAX_POINTS_Y - 2);
 
+      // Start and end in the same cell? No split needed.
       if (cx1 == cx2 && cy1 == cy2) {
-        // Start and end on same mesh square
         buffer_line_to_destination(fr_mm_s);
         set_current_from_destination();
         return;
@@ -78,25 +79,30 @@
       #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
       float normalized_dist, end[XYZE];
-
-      // Split at the left/front border of the right/top square
       const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+
+      // Crosses on the X and not already split on this X?
+      // The x_splits flags are insurance against rounding errors.
       if (cx2 != cx1 && TEST(x_splits, gcx)) {
+        // Split on the X grid line
+        CBI(x_splits, gcx);
         COPY(end, destination);
         destination[X_AXIS] = mbl.index_to_xpos[gcx];
         normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
         destination[Y_AXIS] = MBL_SEGMENT_END(Y);
-        CBI(x_splits, gcx);
       }
+      // Crosses on the Y and not already split on this Y?
       else if (cy2 != cy1 && TEST(y_splits, gcy)) {
+        // Split on the Y grid line
+        CBI(y_splits, gcy);
         COPY(end, destination);
         destination[Y_AXIS] = mbl.index_to_ypos[gcy];
         normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
         destination[X_AXIS] = MBL_SEGMENT_END(X);
-        CBI(y_splits, gcy);
       }
       else {
-        // Already split on a border
+        // Must already have been split on these border(s)
+        // This should be a rare case.
         buffer_line_to_destination(fr_mm_s);
         set_current_from_destination();
         return;
