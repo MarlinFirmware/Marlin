@@ -484,8 +484,8 @@
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
-        inverse_kinematics(raw); // this writes delta[ABC] from raw[XYZE]
-                                 // should move the feedrate scaling to scara inverse_kinematics
+        inverse_kinematics(raw);  // this writes delta[ABC] from raw[XYZE]
+                                  // should move the feedrate scaling to scara inverse_kinematics
 
         const float adiff = FABS(delta[A_AXIS] - scara_oldA),
                     bdiff = FABS(delta[B_AXIS] - scara_oldB);
@@ -500,9 +500,19 @@
         planner._buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], raw[E_AXIS], fr, active_extruder);
 
       #endif
-
     }
 
+    #if IS_SCARA
+      #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+    #elif ENABLED(DELTA)
+      #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #else // CARTESIAN
+      #ifdef LEVELED_SEGMENT_LENGTH
+        #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
+      #else
+        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #endif
+    #endif
 
     /**
      * Prepare a segmented linear move for DELTA/SCARA/CARTESIAN with UBL and FADE semantics.
@@ -633,10 +643,11 @@
           if (--segments == 0)                      // if this is last segment, use rtarget for exact
             COPY(raw, rtarget);
 
-          float z_cxcy = z_cxy0 + z_cxym * cy;      // interpolated mesh z height along cx at cy
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            z_cxcy *= fade_scaling_factor;          // apply fade factor to interpolated mesh height
-          #endif
+          const float z_cxcy = (z_cxy0 + z_cxym * cy) // interpolated mesh z height along cx at cy
+            #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+              * fade_scaling_factor                   // apply fade factor to interpolated mesh height
+            #endif
+          ;
 
           const float z = raw[Z_AXIS];
           raw[Z_AXIS] += z_cxcy;
