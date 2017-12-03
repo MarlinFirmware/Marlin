@@ -867,7 +867,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   // Enable extruder(s)
   if (esteps) {
 
-    #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+    #if HAS_EXTRUDERS && ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
       #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
 

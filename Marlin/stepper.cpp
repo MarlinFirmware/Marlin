@@ -225,7 +225,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
 #endif
 
-#if DISABLED(MIXING_EXTRUDER)
+#if E_STEPPERS && DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 #endif
 
@@ -338,7 +338,7 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(LIN_ADVANCE)
+  #if E_STEPPERS && DISABLED(LIN_ADVANCE)
     if (motor_direction(E_AXIS)) {
       REV_E_DIR();
       count_direction[E_AXIS] = -1;
@@ -631,7 +631,7 @@ void Stepper::isr() {
           // Step when the counter goes over zero
           if (counter_m[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
         }
-      #else // !MIXING_EXTRUDER
+      #elif HAS_EXTRUDERS // !MIXING_EXTRUDER
         PULSE_START(E);
       #endif
     #endif // !LIN_ADVANCE
@@ -654,7 +654,7 @@ void Stepper::isr() {
       PULSE_STOP(Z);
     #endif
 
-    #if DISABLED(LIN_ADVANCE)
+    #if E_STEPPERS && DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         // Always step the single E axis
         if (counter_E > 0) {

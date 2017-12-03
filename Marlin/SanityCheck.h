@@ -374,7 +374,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Filament Runout needs a pin and either SD Support or Auto print start detection
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #if !HAS_FIL_RUNOUT
+  #if EXTRUDERS == 0
+    #error "FILAMENT_RUNOUT_SENSOR requires an extruder."
+  #elif !HAS_FIL_RUNOUT
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
@@ -387,7 +389,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Advanced Pause
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if DISABLED(NEWPANEL)
+  #if EXTRUDERS == 0
+    #error "ADVANCED_PAUSE_FEATURE requires an extruder."
+  #elif DISABLED(NEWPANEL)
     #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
@@ -438,6 +442,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Requirements for FWRETRACT
+ */
+#if ENABLED(FWRETRACT) && EXTRUDERS == 0
+  #error "FWRETRACT requires at least one extruder."
+#endif
+
+/**
  * A Dual Nozzle carriage with switching servo
  */
 #if ENABLED(SWITCHING_NOZZLE)
@@ -463,7 +474,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Mixing Extruder requirements
  */
 #if ENABLED(MIXING_EXTRUDER)
-  #if EXTRUDERS > 1
+  #if EXTRUDERS != 1
     #error "MIXING_EXTRUDER currently only supports one extruder."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
@@ -983,8 +994,10 @@ static_assert(1 >= 0
   #error "TEMP_0_PIN not defined for this board."
 #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#elif TEMP_SENSOR_0 == 0
-  #error "TEMP_SENSOR_0 is required."
+#elif HOTENDS && TEMP_SENSOR_0 == 0
+  #error "TEMP_SENSOR_0 is required for the 1st extruder."
+#elif HOTENDS > 1 && TEMP_SENSOR_1 == 0
+  #error "TEMP_SENSOR_1 is required for the 2nd extruder."
 #endif
 
 #if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
@@ -1098,6 +1111,7 @@ static_assert(1 >= 0
     #endif
   #endif
 #endif
+
 /**
  * Endstop Tests
  */
@@ -1198,6 +1212,38 @@ static_assert(1 >= 0
     #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
   #endif
 #endif
+
+#if DISABLED(GALVO_XY)
+  #if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _XMAX_, _XMIN_))
+   #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
+  #elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _YMAX_, _YMIN_))
+   #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
+  #elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && WITHIN(Z2_USE_ENDSTOP, _ZMAX_, _ZMIN_))
+   #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+  #elif ENABLED(Z_DUAL_ENDSTOPS)
+    #if !Z2_USE_ENDSTOP
+      #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
+    #elif Z2_MAX_PIN == 0 && Z2_MIN_PIN == 0
+      #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
+    #elif ENABLED(DELTA)
+      #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
+    #endif
+  #elif !IS_SCARA
+    #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+      #error "Enable USE_XMIN_PLUG when homing X to MIN."
+    #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+      #error "Enable USE_XMAX_PLUG when homing X to MAX."
+    #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+      #error "Enable USE_YMIN_PLUG when homing Y to MIN."
+    #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+      #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+    #elif Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+      #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+    #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+      #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+    #endif
+  #endif
+#endif // !GALVO_XY
 
 /**
  * emergency-command parser

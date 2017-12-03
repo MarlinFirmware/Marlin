@@ -440,7 +440,7 @@
 #endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
+#define _E0_PINS
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
@@ -456,60 +456,68 @@
       #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
     #endif
   #endif
-#elif EXTRUDERS > 1
-  #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
-  #if EXTRUDERS > 2
-    #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
-    #if EXTRUDERS > 3
-      #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
-      #if EXTRUDERS > 4
-        #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
-      #endif // EXTRUDERS > 4
-    #endif // EXTRUDERS > 3
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
+#elif HAS_EXTRUDERS
+  #undef _E0_PINS
+  #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
+  #if EXTRUDERS > 1
+    #undef _E1_PINS
+    #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
+    #if EXTRUDERS > 2
+      #undef _E2_PINS
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+      #if EXTRUDERS > 3
+        #undef _E3_PINS
+        #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
+        #if EXTRUDERS > 4
+          #undef _E4_PINS
+          #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
+        #endif // EXTRUDERS > 4
+      #endif // EXTRUDERS > 3
+    #endif // EXTRUDERS > 2
+  #endif // EXTRUDERS > 1
+#endif // HAS_EXTRUDERS
 
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
 #define _H4_PINS
 
-#if HOTENDS > 1
-  #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
-  #if HOTENDS > 2
-    #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
-    #if HOTENDS > 3
-      #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
-      #if HOTENDS > 4
-        #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#elif ENABLED(MIXING_EXTRUDER)
-  #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
-  #if MIXING_STEPPERS > 2
-    #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
-    #if MIXING_STEPPERS > 3
-      #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
-      #if MIXING_STEPPERS > 4
-        #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
-      #endif // MIXING_STEPPERS > 4
-    #endif // MIXING_STEPPERS > 3
-  #endif // MIXING_STEPPERS > 2
-#endif // MIXING_STEPPERS > 1
+#if HOTENDS
+  #undef _H0_PINS
+  #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+  #if HOTENDS > 1
+    #undef _H1_PINS
+    #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+    #if HOTENDS > 2
+      #undef _H2_PINS
+      #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+      #if HOTENDS > 3
+        #undef _H3_PINS
+        #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
+        #if HOTENDS > 4
+          #undef _H4_PINS
+          #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #elif ENABLED(MIXING_EXTRUDER)
+    #undef _E1_PINS
+    #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
+    #if MIXING_STEPPERS > 2
+      #undef _E2_PINS
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+      #if MIXING_STEPPERS > 3
+        #undef _E3_PINS
+        #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
+        #if MIXING_STEPPERS > 4
+          #undef _E4_PINS
+          #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
+        #endif // MIXING_STEPPERS > 4
+      #endif // MIXING_STEPPERS > 3
+    #endif // MIXING_STEPPERS > 2
+  #endif // MIXING_STEPPERS > 1
+#endif // HOTENDS
 
 #define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
 

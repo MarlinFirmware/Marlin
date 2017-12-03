@@ -56,6 +56,10 @@ install:
   - git clone https://github.com/adafruit/Adafruit_NeoPixel.git
   - sudo mv Adafruit_NeoPixel /usr/local/share/arduino/libraries/Adafruit_NeoPixel
   #
+  # Install: MCP4725 12-bit I2C DAC Driver library
+  - git clone https://github.com/adafruit/Adafruit_MCP4725.git
+  - sudo mv Adafruit_MCP4725 /usr/local/share/arduino/libraries/Adafruit_MCP4725
+  #
 before_script:
   #
   # Change current working directory to the build dir
@@ -77,10 +81,18 @@ script:
   #
   - build_marlin
   #
+  # Test Galvos and EXTRUDERS 0
+  #
+  - opt_set EXTRUDERS 0
+  - opt_set TEMP_SENSOR_0 0
+  - opt_enable GALVO_XY
+  - build_marlin
+  #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
   # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
   # linear bed leveling, M48, leveling debug, and firmware retraction.
   #
+  - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
   - opt_set EXTRUDERS 2
   - opt_set TEMP_SENSOR_0 -2

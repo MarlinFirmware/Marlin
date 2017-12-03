@@ -6728,6 +6728,7 @@ inline void gcode_M17() {
 
     move_away_flag = false;
   }
+
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(SDSUPPORT)
@@ -7556,6 +7557,8 @@ inline void gcode_M77() { print_job_timer.stop(); }
   }
 #endif
 
+#if HAS_TEMP_HOTEND
+
 /**
  * M104: Set hot end temperature
  */
@@ -7597,6 +7600,8 @@ inline void gcode_M104() {
     planner.autotemp_M104_M109();
   #endif
 }
+
+#endif // HAS_TEMP_HOTEND
 
 /**
  * M105: Read hot end and bed temperature
@@ -7706,6 +7711,8 @@ inline void gcode_M105() {
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
+
+#if HOTENDS
 
 #ifndef MIN_COOLING_SLOPE_DEG
   #define MIN_COOLING_SLOPE_DEG 1.50
@@ -7862,6 +7869,8 @@ inline void gcode_M109() {
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
 }
+
+#endif // HOTENDS
 
 #if HAS_TEMP_BED
 
@@ -8117,7 +8126,9 @@ inline void gcode_M140() {
       int v;
       if (parser.seenval('H')) {
         v = parser.value_int();
-        lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+        #if HEATER_0_MAXTEMP
+          lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+        #endif
       }
       if (parser.seenval('F')) {
         v = parser.value_int();
@@ -11411,9 +11422,11 @@ void process_parsed_command() {
           break;
       #endif
 
-      case 104: // M104: Set hot end temperature
-        gcode_M104();
-        break;
+      #if HOTENDS
+        case 104: // M104: Set hot end temperature
+          gcode_M104();
+          break;
+      #endif
 
       case 110: // M110: Set Current Line Number
         gcode_M110();
@@ -11454,15 +11467,17 @@ void process_parsed_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
-      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HOTENDS || HAS_TEMP_BED)
         case 155: // M155: Set temperature auto-report interval
           gcode_M155();
           break;
       #endif
 
-      case 109: // M109: Wait for hotend temperature to reach target
-        gcode_M109();
-        break;
+      #if HOTENDS
+        case 109: // M109: Wait for hotend temperature to reach target
+          gcode_M109();
+          break;
+      #endif
 
       #if HAS_TEMP_BED
         case 190: // M190: Wait for bed temperature to reach target
@@ -13645,7 +13660,7 @@ void idle(
 
   host_keepalive();
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HOTENDS || HAS_TEMP_BED)
     thermalManager.auto_report_temperatures();
   #endif
 

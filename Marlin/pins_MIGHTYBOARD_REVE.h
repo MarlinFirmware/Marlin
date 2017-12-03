@@ -153,7 +153,9 @@
 #define MOSFET_C_PIN        45   // L4
 #define MOSFET_D_PIN        44   // L5
 
-#if HOTENDS > 1
+#if HOTENDS == 0
+  #define IS_SF
+#elif HOTENDS > 1
   #if TEMP_SENSOR_BED
     #define IS_EEB
   #else

@@ -131,7 +131,9 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
+  #if HOTENDS == 0
+    #define IS_RAMPS_SF
+  #elif HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else

@@ -720,52 +720,48 @@ static void lcd_implementation_status_screen() {
   // Line 1
   //
 
-  lcd.setCursor(0, 0);
+  #if HOTENDS
 
-  #if LCD_WIDTH < 20
+    lcd.setCursor(0, 0);
 
-    //
-    // Hotend 0 Temperature
-    //
-    _draw_heater_status(0, -1, blink);
+    #if LCD_WIDTH < 20
 
-    //
-    // Hotend 1 or Bed Temperature
-    //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
+      //
+      // Hotend 0 Temperature
+      //
+      _draw_heater_status(0, -1, blink);
 
-      lcd.setCursor(8, 0);
-      #if HOTENDS > 1
-        lcd.print((char)LCD_STR_THERMOMETER[0]);
-        _draw_heater_status(1, -1, blink);
-      #else
-        lcd.print((char)LCD_BEDTEMP_CHAR);
-        _draw_heater_status(-1, -1, blink);
-      #endif
+      //
+      // Hotend 1 or Bed Temperature
+      //
+      #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
+        lcd.setCursor(8, 0);
+        #if HOTENDS > 1
+          lcd.print((char)LCD_STR_THERMOMETER[0]);
+          _draw_heater_status(1, -1, blink);
+        #else
+          lcd.print((char)LCD_BEDTEMP_CHAR);
+          _draw_heater_status(-1, -1, blink);
+        #endif
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+    #else // LCD_WIDTH >= 20
 
-  #else // LCD_WIDTH >= 20
+      //
+      // Hotend 1 or Bed Temperature
+      //
+      #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
+        lcd.setCursor(10, 0);
+        #if HOTENDS > 1
+          _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
+        #else
+          _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
+        #endif
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
-    //
-    // Hotend 0 Temperature
-    //
-    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+    #endif // LCD_WIDTH >= 20
 
-    //
-    // Hotend 1 or Bed Temperature
-    //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
-      lcd.setCursor(10, 0);
-      #if HOTENDS > 1
-        _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
-      #else
-        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
-      #endif
-
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
-
-  #endif // LCD_WIDTH >= 20
+  #endif // HOTENDS
 
   //
   // Line 2
@@ -1094,9 +1090,16 @@ static void lcd_implementation_status_screen() {
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
 
-      if (thermalManager.degTargetBed() > 0) leds |= LED_A;
+      #if HAS_HEATER_BED
+        if (thermalManager.degTargetBed() > 0) leds |= LED_A;
+      #endif
 
-      if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
+      #if HOTENDS
+        if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
+        #if HOTENDS > 1
+          if (thermalManager.degTargetHotend(1) > 0) leds |= LED_C;
+        #endif
+      #endif
 
       #if FAN_COUNT > 0
         if (0
@@ -1111,10 +1114,6 @@ static void lcd_implementation_status_screen() {
           #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
-
-      #if HOTENDS > 1
-        if (thermalManager.degTargetHotend(1) > 0) leds |= LED_C;
-      #endif
 
       if (leds != ledsprev) {
         lcd.setBacklight(leds);
