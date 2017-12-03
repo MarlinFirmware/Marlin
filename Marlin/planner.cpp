@@ -771,10 +771,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
-  #if ENABLED(LIN_ADVANCE)
-    float de_float = de * steps_to_mm[E_AXIS_N];
-  #endif
-
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
   #if CORE_IS_XY
