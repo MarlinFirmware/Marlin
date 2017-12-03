@@ -286,9 +286,6 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-
 /**
  *         __________________________
  *        /|                        |\     _________________         ^

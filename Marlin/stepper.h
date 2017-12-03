@@ -52,6 +52,9 @@
 class Stepper;
 extern Stepper stepper;
 
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
+
 // intRes = intIn1 * intIn2 >> 16
 // uses:
 // r26 to store 0
