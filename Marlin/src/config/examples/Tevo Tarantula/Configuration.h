@@ -58,6 +58,12 @@
 //#define CHANGE_E0_DIRECTION   // If your extruder is going backwards, enable this.
 
 /**
+ * Z Axis steps per mm (Default for stock lead screw is 1600)
+ * If you install a lead screw with a different pitch and/or lead, change this
+ */
+#define Z_STEPS      1600 // Stock lead screw
+
+/**
  * Z-Probe type (must be none or one of them)
  * If a Z-Probe type is selected, a Bed Leveling type other than MANUAL must be selected.
  */
@@ -754,9 +760,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUAL_EXTRUDER)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS, E1_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, Z_STEPS, E0_STEPS, E1_STEPS }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, E0_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, Z_STEPS, E0_STEPS }
 #endif
 
 /**
