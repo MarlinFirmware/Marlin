@@ -144,7 +144,7 @@ class Planner {
       static uint8_t last_extruder;             // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS];  // Extrusion factor for each extruder
+    static int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 
     static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
                  filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -353,17 +353,6 @@ class Planner {
     #endif
 
     /**
-     * Planner::_buffer_steps
-     *
-     * Add a new linear movement to the buffer (in terms of steps).
-     *
-     *  target    - target position in steps units
-     *  fr_mm_s   - (target) speed of the move
-     *  extruder  - target extruder
-     */
-    static void _buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uint8_t extruder);
-
-    /**
      * Planner::_buffer_line
      *
      * Add a new linear movement to the buffer in axis units.
@@ -374,7 +363,7 @@ class Planner {
      *  fr_mm_s   - (target) speed of the move
      *  extruder  - target extruder
      */
-    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
+    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -463,7 +452,6 @@ class Planner {
     /**
      * The current block. NULL if the buffer is empty.
      * This also marks the block as busy.
-     * WARNING: Called from Stepper ISR context!
      */
     static block_t* get_current_block() {
       if (blocks_queued()) {
@@ -517,8 +505,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
@@ -530,7 +518,7 @@ class Planner {
     }
 
     /**
-     * Return the point at which you must start braking (at the rate of -'accel') if
+     * Return the point at which you must start braking (at the rate of -'acceleration') if
      * you start at 'initial_rate', accelerate (until reaching the point), and want to end at
      * 'final_rate' after traveling 'distance'.
      *
