@@ -688,34 +688,68 @@ void Planner::calculate_volumetric_multipliers() {
 #endif // PLANNER_LEVELING
 
 /**
- * Planner::_buffer_steps
+ * Planner::_buffer_line
  *
- * Add a new linear movement to the buffer (in terms of steps).
+ * Add a new linear movement to the buffer in axis units.
  *
- *  target    - target position in steps units
+ * Leveling and kinematics should be applied ahead of calling this.
+ *
+ *  a,b,c,e   - target positions in mm and/or degrees
  *  fr_mm_s   - (target) speed of the move
  *  extruder  - target extruder
  */
-void Planner::_buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uint8_t extruder) {
+void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder) {
+
+  // The target position of the tool in absolute steps
+  // Calculate target position in absolute steps
+  //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
+  const long target[XYZE] = {
+    LROUND(a * axis_steps_per_mm[X_AXIS]),
+    LROUND(b * axis_steps_per_mm[Y_AXIS]),
+    LROUND(c * axis_steps_per_mm[Z_AXIS]),
+    LROUND(e * axis_steps_per_mm[E_AXIS_N])
+  };
+
+  // When changing extruders recalculate steps corresponding to the E position
+  #if ENABLED(DISTINCT_E_FACTORS)
+    if (last_extruder != extruder && axis_steps_per_mm[E_AXIS_N] != axis_steps_per_mm[E_AXIS + last_extruder]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * axis_steps_per_mm[E_AXIS_N] * steps_to_mm[E_AXIS + last_extruder]);
+      last_extruder = extruder;
+    }
+  #endif
 
   const int32_t da = target[X_AXIS] - position[X_AXIS],
                 db = target[Y_AXIS] - position[Y_AXIS],
                 dc = target[Z_AXIS] - position[Z_AXIS];
 
-  int32_t de = target[E_AXIS] - position[E_AXIS];
-
-  /* <-- add a slash to enable
-    SERIAL_ECHOPAIR("  _buffer_steps FR:", fr_mm_s);
-    SERIAL_ECHOPAIR(" A:", target[A_AXIS]);
+  /*
+  SERIAL_ECHOPAIR("  Planner FR:", fr_mm_s);
+  SERIAL_CHAR(' ');
+  #if IS_KINEMATIC
+    SERIAL_ECHOPAIR("A:", a);
     SERIAL_ECHOPAIR(" (", da);
-    SERIAL_ECHOPAIR(" steps) B:", target[B_AXIS]);
-    SERIAL_ECHOPAIR(" (", db);
-    SERIAL_ECHOLNPGM(" steps) C:", target[C_AXIS]);
-    SERIAL_ECHOPAIR(" (", dc);
-    SERIAL_ECHOLNPGM(" steps) E:", target[E_AXIS]);
-    SERIAL_ECHOPAIR(" (", de);
-    SERIAL_ECHOLNPGM(" steps)");
+    SERIAL_ECHOPAIR(") B:", b);
+  #else
+    SERIAL_ECHOPAIR("X:", a);
+    SERIAL_ECHOPAIR(" (", da);
+    SERIAL_ECHOPAIR(") Y:", b);
+  #endif
+  SERIAL_ECHOPAIR(" (", db);
+  #if ENABLED(DELTA)
+    SERIAL_ECHOPAIR(") C:", c);
+  #else
+    SERIAL_ECHOPAIR(") Z:", c);
+  #endif
+  SERIAL_ECHOPAIR(" (", dc);
+  SERIAL_CHAR(')');
+  SERIAL_EOL();
   //*/
+
+  // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
+  if (DEBUGGING(DRYRUN))
+    position[E_AXIS] = target[E_AXIS];
+
+  int32_t de = target[E_AXIS] - position[E_AXIS];
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
@@ -1023,7 +1057,6 @@ void Planner::_buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uin
     // Segment time im micro seconds
     uint32_t segment_time_us = LROUND(1000000.0 / inverse_secs);
   #endif
-
   #if ENABLED(SLOWDOWN)
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
       if (segment_time_us < min_segment_time_us) {
@@ -1217,12 +1250,12 @@ void Planner::_buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uin
     vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
-    if (block_buffer_head != block_buffer_tail && previous_nominal_speed > 0.0) {
+    if (moves_queued() && !UNEAR_ZERO(previous_nominal_speed)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
-      float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
-                        - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
-                        - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS] ;
+      const float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
+                              - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
+                              - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS];
       // Skip and use default max junction speed for 0 degree acute junction.
       if (cos_theta < 0.95) {
         vmax_junction = min(previous_nominal_speed, block->nominal_speed);
@@ -1262,24 +1295,25 @@ void Planner::_buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uin
     }
   }
 
-  if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
+  if (moves_queued > 1 && !UNEAR_ZERO(previous_nominal_speed)) {
     // Estimate a maximum velocity allowed at a joint of two successive segments.
     // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
     // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
 
     // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-    const bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
-    const float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
     // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-    vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
+    vmax_junction = min(block->nominal_speed, previous_nominal_speed);
+
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
     float v_factor = 1;
     limited = 0;
+
     // Now limit the jerk in all axes.
+    const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
     LOOP_XYZE(axis) {
       // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
-      float v_exit = previous_speed[axis], v_entry = current_speed[axis];
-      if (prev_speed_larger) v_exit *= smaller_speed_factor;
+      float v_exit = previous_speed[axis] * smaller_speed_factor,
+            v_entry = current_speed[axis];
       if (limited) {
         v_exit *= v_factor;
         v_entry *= v_factor;
@@ -1374,79 +1408,9 @@ void Planner::_buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uin
 
   recalculate();
 
-} // _buffer_steps()
-
-/**
- * Planner::_buffer_line
- *
- * Add a new linear movement to the buffer in axis units.
- *
- * Leveling and kinematics should be applied ahead of calling this.
- *
- *  a,b,c,e   - target positions in mm and/or degrees
- *  fr_mm_s   - (target) speed of the move
- *  extruder  - target extruder
- */
-void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder) {
-  // When changing extruders recalculate steps corresponding to the E position
-  #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && axis_steps_per_mm[E_AXIS_N] != axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * axis_steps_per_mm[E_AXIS_N] * steps_to_mm[E_AXIS + last_extruder]);
-      last_extruder = extruder;
-    }
-  #endif
-
-  // The target position of the tool in absolute steps
-  // Calculate target position in absolute steps
-  const int32_t target[XYZE] = {
-    LROUND(a * axis_steps_per_mm[X_AXIS]),
-    LROUND(b * axis_steps_per_mm[Y_AXIS]),
-    LROUND(c * axis_steps_per_mm[Z_AXIS]),
-    LROUND(e * axis_steps_per_mm[E_AXIS_N])
-  };
-
-  /* <-- add a slash to enable
-    SERIAL_ECHOPAIR("  _buffer_line FR:", fr_mm_s);
-    #if IS_KINEMATIC
-      SERIAL_ECHOPAIR(" A:", a);
-      SERIAL_ECHOPAIR(" (", target[A_AXIS]);
-      SERIAL_ECHOPAIR(" steps) B:", b);
-    #else
-      SERIAL_ECHOPAIR(" X:", a);
-      SERIAL_ECHOPAIR(" (", target[X_AXIS]);
-      SERIAL_ECHOPAIR(" steps) Y:", b);
-    #endif
-    SERIAL_ECHOPAIR(" (", target[Y_AXIS]);
-    #if ENABLED(DELTA)
-      SERIAL_ECHOPAIR(" steps) C:", c);
-    #else
-      SERIAL_ECHOPAIR(" steps) Z:", c);
-    #endif
-    SERIAL_ECHOPAIR(" (", target[Z_AXIS]);
-    SERIAL_ECHOPAIR(" steps) E:", e);
-    SERIAL_ECHOPAIR(" (", target[E_AXIS]);
-    SERIAL_ECHOLNPGM(" steps)");
-  //*/
-
-  // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
-  if (DEBUGGING(DRYRUN))
-    position[E_AXIS] = target[E_AXIS];
-
-  // Always split the first move in two so it can chain
-  if (!blocks_queued()) {
-    DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
-    const int32_t between[XYZE] = { _BETWEEN(X), _BETWEEN(Y), _BETWEEN(Z), _BETWEEN(E) };
-    _buffer_steps(between, fr_mm_s, extruder);
-    _buffer_steps(target, fr_mm_s, extruder);
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
-  }
-  else
-    _buffer_steps(target, fr_mm_s, extruder);
-
   stepper.wake_up();
 
-} // _buffer_line()
+} // buffer_line()
 
 /**
  * Directly set the planner XYZ position (and stepper positions)
