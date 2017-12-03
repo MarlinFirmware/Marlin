@@ -349,28 +349,17 @@ class Planner {
     #endif
 
     /**
-     * Planner::_buffer_steps
-     *
-     * Add a new linear movement to the buffer (in terms of steps).
-     *
-     *  target    - target position in steps units
-     *  fr_mm_s   - (target) speed of the move
-     *  extruder  - target extruder
-     */
-    static void _buffer_steps(const int32_t target[XYZE], float fr_mm_s, const uint8_t extruder);
-
-    /**
      * Planner::_buffer_line
      *
-     * Add a new linear movement to the buffer in axis units.
+     * Add a new direct linear movement to the buffer.
      *
-     * Leveling and kinematics should be applied ahead of calling this.
+     * Leveling and kinematics should be applied ahead of this.
      *
-     *  a,b,c,e   - target positions in mm and/or degrees
-     *  fr_mm_s   - (target) speed of the move
+     *  a,b,c,e   - target position in mm or degrees
+     *  fr_mm_s   - (target) speed of the move (mm/s)
      *  extruder  - target extruder
      */
-    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
+    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
