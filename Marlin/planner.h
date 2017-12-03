@@ -448,6 +448,7 @@ class Planner {
     /**
      * The current block. NULL if the buffer is empty.
      * This also marks the block as busy.
+     * WARNING: Called from Stepper ISR context!
      */
     static block_t* get_current_block() {
       if (blocks_queued()) {
@@ -514,7 +515,7 @@ class Planner {
     }
 
     /**
-     * Return the point at which you must start braking (at the rate of -'acceleration') if
+     * Return the point at which you must start braking (at the rate of -'accel') if
      * you start at 'initial_rate', accelerate (until reaching the point), and want to end at
      * 'final_rate' after traveling 'distance'.
      *
