@@ -30,10 +30,12 @@
 
   #ifndef USBCON
     // Define constants and variables for buffering incoming serial data.
-    // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+    // Use only powers of 2.
+    // : [0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
     #ifndef RX_BUFFER_SIZE
       #define RX_BUFFER_SIZE 128
     #endif
+    // 256 is the max TX buffer climit due to uint8_t head and tail.
     #ifndef TX_BUFFER_SIZE
       #define TX_BUFFER_SIZE 32
     #endif

@@ -587,12 +587,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     float raw[XYZE];
     COPY(raw, current_position);
 
-    // Drop one segment so the last move is to the exact target.
-    // If there's only 1 segment, loops will be skipped entirely.
-    --segments;
 
     // Calculate and execute the segments
-    for (uint16_t s = segments + 1; --s;) {
+    while (--segments) {
 
       static millis_t next_idle_ms = millis() + 200UL;
       thermalManager.manage_heater();  // This returns immediately if not really needed.
@@ -691,16 +688,12 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       // SERIAL_ECHOPAIR("mm=", cartesian_mm);
       // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-      // Drop one segment so the last move is to the exact target.
-      // If there's only 1 segment, loops will be skipped entirely.
-      --segments;
-
       // Get the raw current position as starting point
       float raw[XYZE];
       COPY(raw, current_position);
 
       // Calculate and execute the segments
-      for (uint16_t s = segments + 1; --s;) {
+      while (--segments) {
         static millis_t next_idle_ms = millis() + 200UL;
         thermalManager.manage_heater();  // This returns immediately if not really needed.
         if (ELAPSED(millis(), next_idle_ms)) {
@@ -984,7 +977,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (axis == Z_AXIS) probing_pause(true);
   #endif
 
-  // Tell the planner we're at Z=0
+  // Tell the planner the axis is at 0
   current_position[axis] = 0;
 
   #if IS_SCARA

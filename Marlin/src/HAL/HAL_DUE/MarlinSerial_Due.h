@@ -64,7 +64,7 @@
 #endif
 
 #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
-  #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
+  #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
 #endif
 
 #if RX_BUFFER_SIZE > 256
