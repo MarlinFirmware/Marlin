@@ -1101,21 +1101,6 @@
     #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
 
-  /**
-   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
-   */
-  #if UBL_DELTA
-    #ifndef DELTA_SEGMENT_MIN_LENGTH
-      #if IS_SCARA
-        #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-      #elif ENABLED(DELTA)
-        #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
-      #else // CARTESIAN
-        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
-      #endif
-    #endif
-  #endif
-
   // Shorthand
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 

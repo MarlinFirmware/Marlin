@@ -569,6 +569,7 @@ void Planner::calculate_volumetric_multipliers() {
 #if PLANNER_LEVELING
   /**
    * rx, ry, rz - Cartesian positions in mm
+   *              Leveled XYZ on completion
    */
   void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
@@ -611,7 +612,7 @@ void Planner::calculate_volumetric_multipliers() {
       #endif
 
       rz += (
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
+        #if ENABLED(AUTO_BED_LEVELING_UBL) // UBL_DELTA
           ubl.get_z_correction(rx, ry) * fade_scaling_factor
         #elif ENABLED(MESH_BED_LEVELING)
           mbl.get_z(rx, ry

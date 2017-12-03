@@ -497,6 +497,17 @@
       #endif
     }
 
+    #if IS_SCARA
+      #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+    #elif ENABLED(DELTA)
+      #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #else // CARTESIAN
+      #ifdef LEVELED_SEGMENT_LENGTH
+        #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
+      #else
+        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #endif
+    #endif
 
     /**
      * Prepare a segmented linear move for DELTA/SCARA/CARTESIAN with UBL and FADE semantics.
