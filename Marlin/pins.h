@@ -71,6 +71,21 @@
 #elif MB(RAMPS_14_SF)
   #define IS_RAMPS_SF
   #include "pins_RAMPS.h"
+#elif MB(RAMPS_PLUS_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS_PLUS.h"
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
