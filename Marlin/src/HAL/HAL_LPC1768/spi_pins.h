@@ -23,6 +23,22 @@
 #ifndef SPI_PINS_LPC1768_H
 #define SPI_PINS_LPC1768_H
 
+#include "../../inc/MarlinConfig.h"
+
+#if MB(MKS_SBASE)
+  
+#define LPC_SOFTWARE_SPI
+
+// A custom cable is needed. See the README file in the 
+// Marlin\src\config\examples\Mks\Sbase directory
+
+#define SCK_PIN           P1_22  // J8-2 (moved from EXP2 P0.7)
+#define MISO_PIN          P1_23  // J8-3 (moved from EXP2 P0.8)  
+#define MOSI_PIN          P2_12  // J8-4 (moved from EXP2 P0.5)  
+#define SS_PIN            P0_28  
+
+#else
+
 #define LPC_SOFTWARE_SPI
 
 /** onboard SD card */
@@ -47,8 +63,9 @@
   #define SDSS              SS_PIN
 #endif
 
-#if (defined(TARGET_LPC1768) && !(defined(LPC_SOFTWARE_SPI)))   // signal LCDs that they need to use the hardware SPI
+#if defined(TARGET_LPC1768) && !defined(LPC_SOFTWARE_SPI)   // signal LCDs that they need to use the hardware SPI
   #define SHARED_SPI
 #endif
 
+#endif // MKS_SBASE
 #endif /* SPI_PINS_LPC1768_H */
