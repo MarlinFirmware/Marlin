@@ -89,7 +89,7 @@
       #define CORE_AXIS_1 B_AXIS
       #define CORE_AXIS_2 C_AXIS
     #endif
-    #if (ENABLED(COREYX) || ENABLED(COREZX) || ENABLED(COREZY))
+    #if ENABLED(COREYX) || ENABLED(COREZX) || ENABLED(COREZY)
       #define CORESIGN(n) (-(n))
     #else
       #define CORESIGN(n) (n)
