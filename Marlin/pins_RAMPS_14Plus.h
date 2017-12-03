@@ -26,7 +26,7 @@
  * Swap heater E0 with E1
  * Swap pins 8 and 10. Bed, Fan and Hotend, as labeled on the board, are on pins
  * 8,9 and 10 respectively.
- * Changed pins 16 -> 42, 17 -> 44 and 29 -> 53. Those pins are
+ * Changed pins 16 -> 42, 17 -> 44 and 29 -> 53 used for display
  *
  * Applies to the following boards:
  *
@@ -280,14 +280,14 @@
          #define DOGLCD_SCK      23
          #define DOGLCD_A0       LCD_PINS_DC
        #else
-         #define LCD_PINS_RS     16
-         #define LCD_PINS_ENABLE 17
+         #define LCD_PINS_RS     42   // 3DYMY boards pin 16 -> 42
+         #define LCD_PINS_ENABLE 44   // 3DYMY boards pin 17 -> 44
          #define LCD_PINS_D4     23
          #define LCD_PINS_D5     25
          #define LCD_PINS_D6     27
        #endif
 
-       #define LCD_PINS_D7       29
+       #define LCD_PINS_D7       53   // 3DYMY boards pin 29 -> 53
 
        #if DISABLED(NEWPANEL)
          #define BEEPER_PIN      33
