@@ -926,11 +926,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy);
         #endif
 
-        for (uint8_t q=7; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
 
       #else
 
-        for (uint8_t q=10; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
 
       #endif
 
