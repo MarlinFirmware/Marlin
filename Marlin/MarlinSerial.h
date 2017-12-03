@@ -80,10 +80,12 @@
   // using a ring buffer (I think), in which rx_buffer_head is the index of the
   // location to which to write the next incoming character and rx_buffer_tail
   // is the index of the location from which to read.
-  // 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+  // Use only powers of 2.
+  // : [0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
   #ifndef RX_BUFFER_SIZE
     #define RX_BUFFER_SIZE 128
   #endif
+  // 256 is the max TX buffer climit due to uint8_t head and tail.
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
@@ -95,7 +97,7 @@
     #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
   #endif
   #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
-    #error "TX_BUFFER_SIZE must be 0 or a power of 2 greater than 1."
+    #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
   #endif
 
   #if RX_BUFFER_SIZE > 256
