@@ -29,16 +29,20 @@
 #define CONDITIONALS_ADV_H
 
   #ifndef USBCON
-    // Define constants and variables for buffering incoming serial data.
-    // Use only powers of 2.
-    // : [0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
+    // Define constants and variables for buffering serial data.
+    // Use only 0 or powers of 2 greater than 1
+    // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
     #ifndef RX_BUFFER_SIZE
       #define RX_BUFFER_SIZE 128
     #endif
-    // 256 is the max TX buffer climit due to uint8_t head and tail.
+    // 256 is the max TX buffer limit due to uint8_t head and tail
+    // : [0, 4, 8, 16, 32, 64, 128, 256]
     #ifndef TX_BUFFER_SIZE
       #define TX_BUFFER_SIZE 32
     #endif
+  #else
+    // SERIAL_XON_XOFF not supported on USB-native devices
+    #undef SERIAL_XON_XOFF
   #endif
 
 #endif // CONDITIONALS_ADV_H
