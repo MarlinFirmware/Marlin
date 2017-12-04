@@ -55,13 +55,8 @@
 #define _READ(IO) ((bool)(DIO ## IO ## _WPORT -> PIO_PDSR & (MASK(DIO ## IO ## _PIN))))
 
 /// Write to a pin
-#define _WRITE_VAR(IO, v) do {  if (v) {g_APinDescription[IO].pPort->PIO_SODR = g_APinDescription[IO].ulPin; } \
-                                    else {g_APinDescription[IO].pPort->PIO_CODR = g_APinDescription[IO].ulPin; } \
-                                 } while (0)
-
-#define _WRITE(IO, v) do {  if (v) {DIO ## IO ## _WPORT -> PIO_SODR = MASK(DIO ## IO ##_PIN); } \
-                                else {DIO ##  IO ## _WPORT -> PIO_CODR = MASK(DIO ## IO ## _PIN); }; \
-                             } while (0)
+#define _WRITE_VAR(IO, v) *((v)?(&(g_APinDescription[IO].pPort->PIO_SODR)):(&(g_APinDescription[IO].pPort->PIO_CODR))) = g_APinDescription[IO].ulPin
+#define _WRITE(IO, v) *((v)?(&(DIO ## IO ## _WPORT -> PIO_SODR)):(&(DIO ##  IO ## _WPORT -> PIO_CODR))) =  MASK(DIO ## IO ## _PIN)
 
 /// toggle a pin
 #define _TOGGLE(IO)  _WRITE(IO, !READ(IO))
