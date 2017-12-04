@@ -6,6 +6,8 @@
 
 #if ENABLED(EEPROM_SETTINGS)
 
+extern void eeprom_flush(void);
+
 namespace HAL {
 namespace PersistentStore {
 
@@ -14,6 +16,7 @@ bool access_start() {
 }
 
 bool access_finish(){
+  eeprom_flush();
   return true;
 }
 
