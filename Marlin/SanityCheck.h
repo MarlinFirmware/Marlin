@@ -5,7 +5,6 @@
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -248,10 +247,8 @@
 /**
  * Serial
  */
-#ifdef USBCON
-  #if ENABLED(SERIAL_XON_XOFF)
-    #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
-  #endif
+#if defined(USBCON) && ENABLED(SERIAL_XON_XOFF)
+  #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
 #endif
 
 /**
