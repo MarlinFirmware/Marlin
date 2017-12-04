@@ -27,7 +27,8 @@
 
 #if MB(MKS_SBASE)
   
-#define LPC_SOFTWARE_SPI
+#define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the 
+                          // selected pins are not on a hardware SPI controller
 
 // A custom cable is needed. See the README file in the 
 // Marlin\src\config\examples\Mks\Sbase directory
@@ -39,7 +40,10 @@
 
 #else
 
-#define LPC_SOFTWARE_SPI
+#define LPC_SOFTWARE_SPI  // Re-ARM board needs a software SPI because using the 
+                          // standard LCD adapter results in the LCD and the 
+                          // SD card sharing a single SPI when the RepRap Full
+                          // Graphic Smart Controller is selected
 
 /** onboard SD card */
 //#define SCK_PIN           P0_07
@@ -61,10 +65,6 @@
 #endif
 #ifndef SDSS
   #define SDSS              SS_PIN
-#endif
-
-#if defined(TARGET_LPC1768) && !defined(LPC_SOFTWARE_SPI)   // signal LCDs that they need to use the hardware SPI
-  #define SHARED_SPI
 #endif
 
 #endif // MKS_SBASE
