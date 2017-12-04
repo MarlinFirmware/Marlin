@@ -88,7 +88,6 @@
 
 #ifndef USBCON
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
-    #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
   #endif
 
