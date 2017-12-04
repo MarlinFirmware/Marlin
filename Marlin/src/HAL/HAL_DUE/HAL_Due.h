@@ -51,6 +51,8 @@
   #define MYSERIAL customizedSerial
 #elif SERIAL_PORT == 3
   #define MYSERIAL customizedSerial
+#elif SERIAL_PORT == 4
+  #define MYSERIAL customizedSerial
 #endif
 
 // We need the previous define before the include, or compilation bombs...
