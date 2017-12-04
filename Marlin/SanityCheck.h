@@ -246,6 +246,13 @@
 #endif
 
 /**
+ * Serial
+ */
+#if defined(USBCON) && ENABLED(SERIAL_XON_XOFF)
+  #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(X_DUAL_STEPPER_DRIVERS) && ENABLED(DUAL_X_CARRIAGE)
