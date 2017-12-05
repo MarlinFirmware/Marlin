@@ -70,7 +70,15 @@ class Endstops {
 
     static esbits_t current_endstop_bits, old_endstop_bits;
 
-    Endstops() {};
+    Endstops() {
+      enable_globally(
+        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+          true
+        #else
+          false
+        #endif
+      );
+    };
 
     /**
      * Initialize the endstop pins
