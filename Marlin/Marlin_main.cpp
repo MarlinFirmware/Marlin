@@ -4004,7 +4004,7 @@ inline void gcode_G28(const bool always_home_all) {
         #endif
       }
 
-    #else
+    #endif
 
       if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
@@ -4020,7 +4020,6 @@ inline void gcode_G28(const bool always_home_all) {
         }
       }
 
-    #endif
 
     #if ENABLED(QUICK_HOME)
 
