@@ -226,6 +226,8 @@
 
 #else // no LCD
 
+  constexpr bool lcd_wait_for_move = false;
+
   inline void lcd_update() {}
   inline void lcd_init() {}
   inline bool lcd_hasstatus() { return false; }
