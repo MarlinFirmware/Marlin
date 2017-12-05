@@ -119,13 +119,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-	#ifdef __arm__
-		// RAMPS for DUE board
-		#define MOTHERBOARD BOARD_RAMPS_DUO_EFB
-	#else
-		// RAMPS for Mega board
-		#define MOTHERBOARD BOARD_RAMPS_14_EFB
-	#endif
+  #define MOTHERBOARD BOARD_RAMPS_DUO_EFB
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -534,15 +528,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,97*2}  //motor bajos con varilla3200 y altos 1600 default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,97}  //motor bajos con varilla3200 y altos 1600 default steps per unit for Ultimaker
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-//#define DEFAULT_MAX_FEEDRATE          { 120, 120, 2, 20 } /* Safe values */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 2, 30 }	/* For 300mm/s printing */
+#define DEFAULT_MAX_FEEDRATE            { 300, 300, 2, 30 }	/* For 300mm/s printing */ 
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -550,8 +543,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-//#define DEFAULT_MAX_ACCELERATION      { 1200, 1200,  20, 200 } /* Safe values */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000,  50, 50 }	/* For 300mm/s printing */
+#define DEFAULT_MAX_ACCELERATION        { 1500, 1500, 100, 200 } /* For 300mm/s printing */
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -561,13 +553,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-//#define DEFAULT_ACCELERATION          1200    // X, Y, Z and E acceleration for printing moves
-//#define DEFAULT_RETRACT_ACCELERATION  200    	// E acceleration for retracts
-//#define DEFAULT_TRAVEL_ACCELERATION   1200    // X, Y, Z acceleration for travel (non printing) moves
-
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  50    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION   200    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk (mm/s)
@@ -577,16 +565,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define DEFAULT_XJERK                  2.0
-//#define DEFAULT_YJERK                  2.0
-//#define DEFAULT_ZJERK                  0.4
-//#define DEFAULT_EJERK                  8.0
-
-#define DEFAULT_XJERK                  20.0
-#define DEFAULT_YJERK                  20.0
+#define DEFAULT_XJERK                  2.0
+#define DEFAULT_YJERK                  2.0
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  8.0
-
 
 //===========================================================================
 //============================= Z Probe Options =============================
