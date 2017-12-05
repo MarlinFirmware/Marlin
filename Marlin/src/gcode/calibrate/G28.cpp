@@ -207,7 +207,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
 	#endif
 
-      if (homeX || homeY) {
+      if (home_all || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
         destination[Z_AXIS] = Z_HOMING_HEIGHT;
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
