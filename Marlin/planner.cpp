@@ -1217,7 +1217,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
-    if (moves_queued() && !UNEAR_ZERO(previous_nominal_speed)) {
+    if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
       const float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
@@ -1262,7 +1262,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     }
   }
 
-  if (moves_queued > 1 && !UNEAR_ZERO(previous_nominal_speed)) {
+  if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
     // Estimate a maximum velocity allowed at a joint of two successive segments.
     // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
     // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
