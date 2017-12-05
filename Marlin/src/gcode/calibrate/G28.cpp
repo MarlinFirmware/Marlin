@@ -205,7 +205,7 @@ void GcodeSuite::G28(const bool always_home_all) {
         #endif
       }
 
-      else
+	#endif
 
       if (homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
@@ -221,7 +221,6 @@ void GcodeSuite::G28(const bool always_home_all) {
         }
       }
 
-    #endif
 
     #if ENABLED(QUICK_HOME)
 
