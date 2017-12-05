@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -54,15 +54,15 @@
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_0_NOP
   #define CPU_ST7920_DELAY_3 DELAY_1_NOP
-#elif (MOTHERBOARD == BOARD_3DRAG) || (MOTHERBOARD == BOARD_K8200) || (MOTHERBOARD == BOARD_K8400)
+#elif MB(3DRAG) || MB(K8200) || MB(K8400) || MB(SILVER_GATE)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_3_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
-#elif (MOTHERBOARD == BOARD_MINIRAMBO)
+#elif MB(MINIRAMBO)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_4_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
-#elif (MOTHERBOARD == BOARD_RAMBO)
+#elif MB(RAMBO)
   #define CPU_ST7920_DELAY_1 DELAY_0_NOP
   #define CPU_ST7920_DELAY_2 DELAY_0_NOP
   #define CPU_ST7920_DELAY_3 DELAY_0_NOP
@@ -101,7 +101,7 @@ static void ST7920_WRITE_BYTE(uint8_t val) {
 
 #define ST7920_SET_CMD()         { ST7920_WRITE_BYTE(0xF8); U8G_DELAY(); }
 #define ST7920_SET_DAT()         { ST7920_WRITE_BYTE(0xFA); U8G_DELAY(); }
-#define ST7920_WRITE_NIBBLES(a)     { ST7920_WRITE_BYTE((uint8_t)((a)&0xF0u)); ST7920_WRITE_BYTE((uint8_t)((a)<<4u)); U8G_DELAY(); }
+#define ST7920_WRITE_NIBBLES(a)  { ST7920_WRITE_BYTE((uint8_t)((a)&0xF0u)); ST7920_WRITE_BYTE((uint8_t)((a)<<4u)); U8G_DELAY(); }
 #define ST7920_WRITE_NIBBLES_P(p,l)  { for (uint8_t i = l + 1; --i;) { ST7920_WRITE_BYTE(*p&0xF0); ST7920_WRITE_BYTE(*p<<4); p++; } U8G_DELAY(); }
 
 
@@ -137,10 +137,10 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       ST7920_NCS();
     }
     break;
-    case U8G_DEV_MSG_STOP:
-      break;
-    case U8G_DEV_MSG_PAGE_NEXT: {
 
+    case U8G_DEV_MSG_STOP: break;
+
+    case U8G_DEV_MSG_PAGE_NEXT: {
       uint8_t* ptr;
       u8g_pb_t* pb = (u8g_pb_t*)(dev->dev_mem);
       y = pb->p.page_y0;
@@ -161,7 +161,6 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_WRITE_NIBBLES_P(ptr, (LCD_PIXEL_WIDTH) / 8); //ptr is incremented inside of macro
         y++;
       }
-
       ST7920_NCS();
     }
     break;
