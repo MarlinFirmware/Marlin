@@ -61,7 +61,6 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
-USBSerial SerialUSB;
 STM32ADC adc(ADC1);
 
 uint8 adc_pins[] = {
@@ -173,9 +172,9 @@ void HAL_adc_init(void)
 {
   // configure the ADC
   adc.calibrate();
-  adc.setSampleRate(ADC_SMPR_1_5); // ?
+  adc.setSampleRate(ADC_SMPR_41_5); // ?
   adc.setPins(adc_pins, ADC_PIN_COUNT);
-  adc.setDMA(HAL_adc_results, ADC_PIN_COUNT, (DMA_MINC_MODE | DMA_CIRC_MODE), NULL);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();

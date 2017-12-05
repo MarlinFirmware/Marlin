@@ -193,7 +193,9 @@
 //
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_STM32F1R         1800   // STM3R Libmaple based STM32F1 controller
-#define BOARD_MALYAN_M200      1801  // STM32C8T6 Libmaple based stm32f1 controller
+#define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
+#define BOARD_BEAST            1802  // STM32FxxxVxT6 Libmaple based stm32f4 controller
+#define BOARD_STM3R_MINI       1803  // STM32 Libmaple based stm32f1 controller
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
