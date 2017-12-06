@@ -222,6 +222,8 @@
   #error "BABYSTEP_ZPROBE_GFX_REVERSE is now set by OVERLAY_GFX_REVERSE. Please update your configurations."
 #elif defined(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)
   #error "UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN is now SEGMENT_LEVELED_MOVES. Please update your configuration."
+#elif HAS_PID_HEATING && (defined(K1) || !defined(PID_K1))
+  #error "K1 is now PID_K1. Please update your configuration."
 #endif
 
 /**
