@@ -2553,10 +2553,11 @@ void kill_screen(const char* lcd_msg) {
       #if PLANNER_LEVELING
         MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
       #endif
-      #if ENABLED(LEVEL_BED_CORNERS)
-        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-          MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
-      #endif
+    #endif
+
+    #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+        MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
     #endif
 
     #if HAS_M206_COMMAND
