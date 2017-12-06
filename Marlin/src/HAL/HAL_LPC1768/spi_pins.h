@@ -26,22 +26,22 @@
 #include "../../inc/MarlinConfig.h"
 
 #if MB(MKS_SBASE)
-  
-#define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the 
+
+#define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the
                           // selected pins are not on a hardware SPI controller
 
-// A custom cable is needed. See the README file in the 
+// A custom cable is needed. See the README file in the
 // Marlin\src\config\examples\Mks\Sbase directory
 
 #define SCK_PIN           P1_22  // J8-2 (moved from EXP2 P0.7)
-#define MISO_PIN          P1_23  // J8-3 (moved from EXP2 P0.8)  
-#define MOSI_PIN          P2_12  // J8-4 (moved from EXP2 P0.5)  
-#define SS_PIN            P0_28  
+#define MISO_PIN          P1_23  // J8-3 (moved from EXP2 P0.8)
+#define MOSI_PIN          P2_12  // J8-4 (moved from EXP2 P0.5)
+#define SS_PIN            P0_28
 
 #else
 
-#define LPC_SOFTWARE_SPI  // Re-ARM board needs a software SPI because using the 
-                          // standard LCD adapter results in the LCD and the 
+#define LPC_SOFTWARE_SPI  // Re-ARM board needs a software SPI because using the
+                          // standard LCD adapter results in the LCD and the
                           // SD card sharing a single SPI when the RepRap Full
                           // Graphic Smart Controller is selected
 
