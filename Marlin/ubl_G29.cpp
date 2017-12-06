@@ -24,6 +24,8 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+  //#define UBL_DEVEL_DEBUGGING
+
   #include "ubl.h"
   #include "Marlin.h"
   #include "hex_print_routines.h"
@@ -1152,21 +1154,24 @@
     return UBL_OK;
   }
 
-  static int ubl_state_at_invocation = 0,
-             ubl_state_recursion_chk = 0;
+  static uint8_t ubl_state_at_invocation = 0;
+
+  #ifdef UBL_DEVEL_DEBUGGING
+    static uint8_t ubl_state_recursion_chk = 0;
+  #endif
 
   void unified_bed_leveling::save_ubl_active_state_and_disable() {
-    ubl_state_recursion_chk++;
-    if (ubl_state_recursion_chk != 1) {
-      SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-
-      #if ENABLED(NEWPANEL)
-        LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
-        lcd_quick_feedback();
-      #endif
-
-      return;
-    }
+    #ifdef UBL_DEVEL_DEBUGGING
+      ubl_state_recursion_chk++;
+      if (ubl_state_recursion_chk != 1) {
+        SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
+        #if ENABLED(NEWPANEL)
+          LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
+          lcd_quick_feedback();
+        #endif
+        return;
+      }
+    #endif
     ubl_state_at_invocation = planner.leveling_active;
     set_bed_leveling_enabled(false);
   }
@@ -1253,28 +1258,30 @@
     SERIAL_EOL();
     safe_delay(50);
 
-    SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-    SERIAL_EOL();
-    SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-    SERIAL_EOL();
-    safe_delay(50);
+    #ifdef UBL_DEVEL_DEBUGGING
+      SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
+      SERIAL_EOL();
+      SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
+      SERIAL_EOL();
+      safe_delay(50);
 
-    SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
-    SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.get_end_of_meshes()));
-    safe_delay(50);
+      SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
+      SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.get_end_of_meshes()));
+      safe_delay(50);
 
-    SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
-    SERIAL_EOL();
-    SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
-    SERIAL_EOL();
-    safe_delay(25);
+      SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
+      SERIAL_EOL();
+      SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
+      SERIAL_EOL();
+      safe_delay(25);
 
-    SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
-    safe_delay(50);
+      SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
+      safe_delay(50);
 
-    SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
-    SERIAL_PROTOCOLLNPGM(" meshes.\n");
-    safe_delay(25);
+      SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
+      SERIAL_PROTOCOLLNPGM(" meshes.\n");
+      safe_delay(25);
+    #endif // UBL_DEVEL_DEBUGGING
 
     if (!sanity_check()) {
       echo_name();
@@ -1344,11 +1351,10 @@
         z_values[x][y] -= tmp_z_values[x][y];
   }
 
-
   mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
 
-    bool found_a_NAN  = false;
-    bool found_a_real = false;
+    bool found_a_NAN  = false, found_a_real = false;
+
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
     out_mesh.distance = -99999.99;
@@ -1356,12 +1362,12 @@
     for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        if ( isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
+        if (isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
 
           const float mx = mesh_index_to_xpos(i),
                       my = mesh_index_to_ypos(j);
 
-          if ( !position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
+          if (!position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
             continue;
 
           found_a_NAN = true;
@@ -1504,14 +1510,7 @@
         if (!position_is_reachable(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
           break;
 
-        float new_z = z_values[location.x_index][location.y_index];
-
-        if (isnan(new_z)) // if the mesh point is invalid, set it to 0.0 so it can be edited
-          new_z = 0.0;
-
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
-
-        new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         lcd_external_control = true;
@@ -1520,15 +1519,19 @@
 
         lcd_refresh();
 
+        float new_z = z_values[location.x_index][location.y_index];
+        if (isnan(new_z)) new_z = 0.0;          // Set invalid mesh points to 0.0 so they can be edited
+        new_z = FLOOR(new_z * 1000.0) * 0.001;  // Chop off digits after the 1000ths place
+
         lcd_mesh_edit_setup(new_z);
 
-        do {
+        while (!is_lcd_clicked()) {
           new_z = lcd_mesh_edit();
           #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
             do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
-        } while (!is_lcd_clicked());
+        }
 
         if (!lcd_map_control) lcd_return_to_status();
 

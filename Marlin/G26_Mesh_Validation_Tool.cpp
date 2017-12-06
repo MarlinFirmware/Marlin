@@ -168,15 +168,15 @@
      * Detect is_lcd_clicked, debounce it, and return true for cancel
      */
     bool user_canceled() {
-      if (!is_lcd_clicked()) return false;
-      safe_delay(10);                       // Wait for click to settle
+      if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
 
       #if ENABLED(ULTRA_LCD)
         lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
         lcd_quick_feedback();
       #endif
 
-      while (!is_lcd_clicked()) idle();    // Wait for button release
+      safe_delay(10);                      // Wait for click to settle
+      while (!is_lcd_clicked()) idle();    // Wait for button press again?
 
       // If the button is suddenly pressed again,
       // ask the user to resolve the issue
