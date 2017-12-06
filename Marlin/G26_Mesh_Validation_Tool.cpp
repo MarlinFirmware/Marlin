@@ -181,9 +181,8 @@
       // If the button is suddenly pressed again,
       // ask the user to resolve the issue
       lcd_setstatusPGM(PSTR("Release button"), 99); // will never appear...
-      while (is_lcd_clicked()) idle();             // unless this loop happens
+      wait_for_release();
       lcd_reset_status();
-
       return true;
     }
   #endif
@@ -191,7 +190,7 @@
   #if ENABLED(NEWPANEL)
     bool exit_from_g26() {
       lcd_setstatusPGM(PSTR("Leaving G26"), -1);
-      while (is_lcd_clicked()) idle();
+      wait_for_release();
       return G26_ERR;
     }
   #endif
@@ -291,7 +290,7 @@
           idle();
         }
 
-        while (is_lcd_clicked()) idle();           // Debounce Encoder Wheel
+        wait_for_release();
 
         #if ENABLED(ULTRA_LCD)
           strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;

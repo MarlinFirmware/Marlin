@@ -5112,6 +5112,10 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool is_lcd_clicked() { return LCD_CLICKED; }
+    void wait_for_release() {
+      while (is_lcd_clicked()) safe_delay(50);
+      safe_delay(50);
+    }
   #endif
 
 #endif // ULTIPANEL

@@ -730,6 +730,30 @@
           z_values[x][y] += g29_constant;
   }
 
+  #if ENABLED(NEWPANEL)
+
+    typedef void (*clickFunc_t)();
+
+    bool click_and_hold(const clickFunc_t func=NULL) {
+      if (is_lcd_clicked()) {
+        lcd_quick_feedback();
+        const millis_t nxt = millis() + 1500UL;
+        while (is_lcd_clicked()) {                // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                                 // idle, of course
+          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
+            lcd_quick_feedback();
+            if (func) (*func)();
+            wait_for_release();
+            safe_delay(50);                       // Debounce the Encoder wheel
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+  #endif // NEWPANEL
+
   #if HAS_BED_PROBE
     /**
      * Probe all invalidated locations of the mesh that can be reached by the probe.
@@ -755,10 +779,9 @@
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             lcd_quick_feedback();
             STOW_PROBE();
-            while (is_lcd_clicked()) idle();
+            wait_for_release();
             lcd_external_control = false;
             restore_ubl_active_state_and_leave();
-            safe_delay(50);  // Debounce the Encoder wheel
             return;
           }
         #endif
@@ -895,19 +918,20 @@
 
   #if ENABLED(NEWPANEL)
 
-    float unified_bed_leveling::measure_point_with_encoder() {
-
-      while (is_lcd_clicked()) delay(50);  // wait for user to release encoder wheel
-      delay(50);  // debounce
-
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (!is_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
+    void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
+      wait_for_release();
+      while (!is_lcd_clicked()) {
         idle();
         if (encoder_diff) {
-          do_blocking_move_to_z(current_position[Z_AXIS] + 0.01 * float(encoder_diff));
+          do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
         }
       }
+    }
+
+    float unified_bed_leveling::measure_point_with_encoder() {
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      move_z_with_encoder(0.01);
       KEEPALIVE_STATE(IN_HANDLER);
       return current_position[Z_AXIS];
     }
@@ -956,6 +980,14 @@
       return thickness;
     }
 
+    void abort_manual_probe_remaining_mesh() {
+      SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+      lcd_external_control = false;
+      KEEPALIVE_STATE(IN_HANDLER);
+      ubl.restore_ubl_active_state_and_leave();
+    }
+
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
       lcd_external_control = true;
@@ -991,36 +1023,15 @@
         const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
         //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
 
-        while (is_lcd_clicked()) delay(50);             // wait for user to release encoder wheel
-        delay(50);                                       // debounce
-        while (!is_lcd_clicked()) {                     // we need the loop to move the nozzle based on the encoder wheel here!
-          idle();
-          if (encoder_diff) {
-            do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * z_step);
-            encoder_diff = 0;
-          }
-        }
+        move_z_with_encoder(z_step);
 
-        // this sequence to detect an is_lcd_clicked() debounce it and leave if it is
-        // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
-        // should be redone and compressed.
-        const millis_t nxt = millis() + 1500L;
-        while (is_lcd_clicked()) {     // debounce and watch for abort
-          idle();
-          if (ELAPSED(millis(), nxt)) {
-            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
-            do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-
-            #if ENABLED(NEWPANEL)
-              lcd_quick_feedback();
-              while (is_lcd_clicked()) idle();
-              lcd_external_control = false;
-            #endif
-
-            KEEPALIVE_STATE(IN_HANDLER);
-            restore_ubl_active_state_and_leave();
-            return;
-          }
+        if (click_and_hold()) {
+          SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+          do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+          lcd_external_control = false;
+          KEEPALIVE_STATE(IN_HANDLER);
+          restore_ubl_active_state_and_leave();
+          return;
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
@@ -1177,16 +1188,16 @@
   }
 
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
-    if (--ubl_state_recursion_chk) {
-      SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-
-      #if ENABLED(NEWPANEL)
-        LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
-        lcd_quick_feedback();
-      #endif
-
-      return;
-    }
+    #ifdef UBL_DEVEL_DEBUGGING
+      if (--ubl_state_recursion_chk) {
+        SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
+        #if ENABLED(NEWPANEL)
+          LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
+          lcd_quick_feedback();
+        #endif
+        return;
+      }
+    #endif
     set_bed_leveling_enabled(ubl_state_at_invocation);
   }
 
@@ -1468,6 +1479,12 @@
 
   #if ENABLED(NEWPANEL)
 
+    void abort_fine_tune() {
+      lcd_return_to_status();
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+      LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
+    }
+
     void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {
       if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
@@ -1543,19 +1560,8 @@
         // this sequence to detect an is_lcd_clicked() debounce it and leave if it is
         // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
         // should be redone and compressed.
-        const millis_t nxt = millis() + 1500UL;
-        while (is_lcd_clicked()) { // debounce and watch for abort
-          idle();
-          if (ELAPSED(millis(), nxt)) {
-            lcd_return_to_status();
-            do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-            LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
-
-            while (is_lcd_clicked()) idle();
-
-            goto FINE_TUNE_EXIT;
-          }
-        }
+        if (click_and_hold(abort_fine_tune))
+          goto FINE_TUNE_EXIT;
 
         safe_delay(20);                       // We don't want any switch noise.
 
