@@ -3164,7 +3164,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if ENABLED(PID_AUTOTUNE_MENU)
+  #if ENABLED(PID_AUTOTUNE_MENU) || ENABLED(BEDPID_AUTOTUNE_MENU)
 
     #if ENABLED(PIDTEMP)
       int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
@@ -3188,7 +3188,7 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_command(cmd);
     }
 
-  #endif // PID_AUTOTUNE_MENU
+  #endif // PID_AUTOTUNE_MENU || BEDPID_AUTOTUNE_MENU
 
   #if ENABLED(PIDTEMP)
 
@@ -3237,6 +3237,25 @@ void kill_screen(const char* lcd_msg) {
     #endif // PID_PARAMS_PER_HOTEND
 
   #endif // PIDTEMP
+
+  #if ENABLED(BEDPID_EDIT)
+    // Helpers for editing PID Ki & Kd values
+    // grab the PID value out of the temp variable; scale it; then update the PID driver
+    void copy_and_scalePID_i_Bed() {
+      BEDPID_PARAM(bedKi) = scalePID_i(raw_Ki);
+      thermalManager.updatePID();
+    }
+    void copy_and_scalePID_d_Bed() {
+      BEDPID_PARAM(bedKd) = scalePID_d(raw_Kd);
+      thermalManager.updatePID();
+    }
+
+    #if ENABLED(BEDPID_AUTOTUNE_MENU)
+      void lcd_autotune_callback_Bed() {
+        _lcd_autotune(-1);
+      }
+    #endif
+  #endif // BEDPID_EDIT
 
   /**
    *
@@ -3319,6 +3338,7 @@ void kill_screen(const char* lcd_msg) {
     // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
+    // PID-P E, PID-I E, PID-D E, PID-C E1, PID Autotune E
     //
     #if ENABLED(PIDTEMP)
 
@@ -3358,10 +3378,38 @@ void kill_screen(const char* lcd_msg) {
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
       #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-        PID_MENU_ITEMS("", 0);
+        #if ENABLED(BEDPID_EDIT)
+          PID_MENU_ITEMS(" " MSG_E, 0);
+        #else
+          PID_MENU_ITEMS("", 0);
+        #endif
       #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
 
     #endif // PIDTEMP
+
+    //
+    // PID-P BED, PID-I BED, PID-D BED, PID Autotune BED
+    //
+    #if ENABLED(BEDPID_EDIT)
+
+      #define _BEDPID_BASE_MENU_ITEMS(BEDLABEL) \
+        raw_Ki = unscalePID_i(BEDPID_PARAM(bedKi)); \
+        raw_Kd = unscalePID_d(BEDPID_PARAM(bedKd)); \
+        MENU_ITEM_EDIT(float52, MSG_PID_P BEDLABEL, &BEDPID_PARAM(bedKp), 1, 9990); \
+        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I BEDLABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_Bed); \
+        MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D BEDLABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_Bed)
+
+      #if ENABLED(BEDPID_AUTOTUNE_MENU)
+        #define BEDPID_MENU_ITEMS(BEDLABEL) \
+          _BEDPID_BASE_MENU_ITEMS(BEDLABEL); \
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE BEDLABEL, &autotune_temp_bed, 70, BED_MAXTEMP - 15, lcd_autotune_callback_Bed)
+      #else
+        #define BEDPID_MENU_ITEMS(BEDLABEL) _BEDPID_BASE_MENU_ITEMS(BEDLABEL)
+      #endif
+
+      BEDPID_MENU_ITEMS(" " MSG_BED);
+
+    #endif // BEDPID_EDIT
 
     //
     // Preheat Material 1 conf
