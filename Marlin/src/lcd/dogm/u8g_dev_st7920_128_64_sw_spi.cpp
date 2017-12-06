@@ -21,29 +21,30 @@
  */
 
 /*
- * Please, note: 
- *  We need our custom implementation for Software SPI, as the default implementation 
+ * Please, note:
+ *  We need our custom implementation for Software SPI, as the default implementation
  * of U8GLIB, when running in an ARM based board, is too fast and the display will not
  * recognize commands and/or data at such speeds. This implementation autoderives the
  * required delays to get the maximum possible performance by using the F_CPU macro that
  * specifies the CPU speed. According to the ST7920 datasheet, the maximum SCLK is 1MHz.
  */
- 
+
 #ifndef ULCDST7920_SWSPI_H
 #define ULCDST7920_SWSPI_H
 
-#include "../../Marlin.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(U8GLIB_ST7920)
 
 #include <U8glib.h>
+#include "HAL_LCD_com_defines.h"
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
 #define ST7920_CS_PIN   LCD_PINS_RS
 
 //#define PAGE_HEIGHT 8   //128 byte framebuffer
-#define PAGE_HEIGHT 16  	//256 byte framebuffer
+#define PAGE_HEIGHT 16    //256 byte framebuffer
 //#define PAGE_HEIGHT 32  //512 byte framebuffer
 
 #define LCD_PIXEL_WIDTH 128
@@ -59,157 +60,183 @@
 
 #define nop() __asm__ __volatile__("nop;\n\t":::)
 
-static __inline__ __attribute__((__always_inline__)) void __delay_4cycles(uint32_t cy) // +1 cycle
-{
- #if ARCH_PIPELINE_RELOAD_CYCLES<2
- #	define EXTRA_NOP_CYCLES "nop"
- #else
- #	define EXTRA_NOP_CYCLES ""
- #endif
+static __inline__ __attribute__((__always_inline__)) void __delay_4cycles(uint32_t cy) { // +1 cycle
+  #if ARCH_PIPELINE_RELOAD_CYCLES<2
+    #define EXTRA_NOP_CYCLES "nop"
+  #else
+    #define EXTRA_NOP_CYCLES ""
+  #endif
 
- __asm__ __volatile__
- (
-  ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
-	
-  "loop%=:" "\n\t"
-  "	subs %[cnt],#1" "\n\t"
-  EXTRA_NOP_CYCLES "\n\t"
-  " bne loop%=" "\n\t"
-  : [cnt]"+r"(cy) // output: +r means input+output
-  : // input:
-  : "cc" // clobbers:
- );
+  __asm__ __volatile__(
+    ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+
+    "loop%=:" "\n\t"
+    " subs %[cnt],#1" "\n\t"
+    EXTRA_NOP_CYCLES "\n\t"
+    " bne loop%=" "\n\t"
+    : [cnt]"+r"(cy) // output: +r means input+output
+    : // input:
+    : "cc" // clobbers:
+  );
 }
 
-static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t x)
-{
+static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t x) {
+
   if (__builtin_constant_p(x)) {
-#define MAXNOPS 4
 
-		if (x<=MAXNOPS) {
-			if (x==1) {nop();}
-			else if (x==2) {nop(); nop();}
-			else if (x==3) {nop(); nop(); nop();}
-			else if (x==4) {nop(); nop(); nop(); nop();}
-		} else { // because of +1 cycle inside delay_4cycles
-			uint32_t rem = (x-1)%MAXNOPS;
+    #define MAXNOPS 4
 
-			if (rem==1) {nop();}
-			else if (rem==2) {nop(); nop();}
-			else if (rem==3) {nop(); nop(); nop();}
+    if (x<=MAXNOPS) {
+      if (x==1) {
+        nop();
+      }
+      else if (x==2) {
+        nop();
+        nop();
+      }
+      else if (x==3) {
+        nop();
+        nop();
+        nop();
+      }
+      else if (x==4) {
+        nop();
+        nop();
+        nop();
+        nop();
+      }
+    }
+    else { // because of +1 cycle inside delay_4cycles
+      uint32_t rem = (x-1)%MAXNOPS;
 
-			if ((x=(x-1)/MAXNOPS)) __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-		}
-  } else {
+      if (rem==1) {
+        nop();
+      }
+      else if (rem==2) {
+        nop();
+        nop();
+      }
+      else if (rem==3) {
+        nop();
+        nop();
+        nop();
+      }
+
+      if ((x=(x-1)/MAXNOPS))
+        __delay_4cycles(x); // if need more then 4 nop loop is more optimal
+    }
+  }
+  else {
     __delay_4cycles(x / 4);
   }
 }
 
 #ifdef __TEST_DELAY
-void calibrateTimer() {
-	
-	// Use DWT to calibrate cycles
-	uint32_t count = 0;
+  void calibrateTimer() {
 
-	// addresses of registers
-	volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
-	volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004; 
-	volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC; 
+    // Use DWT to calibrate cycles
+    uint32_t count = 0;
 
-	cli();
-	
-	// enable the use DWT
-	*DEMCR = *DEMCR | 0x01000000;
+    // addresses of registers
+    volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
+    volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
+    volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
 
-	// Reset cycle counter
-	*DWT_CYCCNT = 0; 
+    cli();
 
-	// enable cycle counter
-	*DWT_CONTROL = *DWT_CONTROL | 1;
+    // enable the use DWT
+    *DEMCR = *DEMCR | 0x01000000;
 
-	// Perform a delay of 10000 cycles 
-	DELAY_CYCLES(10000U);
-	
-	// number of cycles stored in count variable
-	count = *DWT_CYCCNT;
-	
-	sei();
-	
-	SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("calibrated Cycles: ", (int)count);
-}
+    // Reset cycle counter
+    *DWT_CYCCNT = 0;
+
+    // enable cycle counter
+    *DWT_CONTROL = *DWT_CONTROL | 1;
+
+    // Perform a delay of 10000 cycles
+    DELAY_CYCLES(10000U);
+
+    // number of cycles stored in count variable
+    count = *DWT_CYCCNT;
+
+    sei();
+
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("calibrated Cycles: ", (int)count);
+  }
 #endif
 
 #elif defined(__AVR__)
-	#define DELAY_CYCLES(cycles) __builtin_avr_delay_cycles(cycles)
+  #define DELAY_CYCLES(cycles) __builtin_avr_delay_cycles(cycles)
 #else
-	#error DELAY_CYCLES not implemented for this architecture
+  #error DELAY_CYCLES not implemented for this architecture
 #endif
 
 /* ---------------- Delay in nanoseconds and in microseconds */
 
 #define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000) / 1000)
-#define DELAY_US(x) DELAY_CYCLES( 3 * (x) * (F_CPU/1000000))
+#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU/1000000))
 
 /* ---------------- ST7920 commands ------------------------ */
 
 #if defined(__arm__)
 
-	/* ARM: Plain implementation is more than enough */
-	static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
-		int n = 8;
-		do {
-			WRITE(ST7920_CLK_PIN, LOW);
-			WRITE(ST7920_DAT_PIN, val & 0x80); 
-			DELAY_NS(500);
-			WRITE(ST7920_CLK_PIN, HIGH);
-			DELAY_NS(500);
-			val <<= 1;
-		} while (--n);
-	}
+  /* ARM: Plain implementation is more than enough */
+  static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+    int n = 8;
+    do {
+      WRITE(ST7920_CLK_PIN, LOW);
+      WRITE(ST7920_DAT_PIN, val & 0x80);
+      DELAY_NS(500);
+      WRITE(ST7920_CLK_PIN, HIGH);
+      DELAY_NS(500);
+      val <<= 1;
+    } while (--n);
+  }
 #else
-	
-	/* AVR: Unrolling loop makes sense */
-	#define ST7920_SND_BIT(nr) \
-		WRITE(ST7920_CLK_PIN, LOW);                      \
-		WRITE(ST7920_DAT_PIN, val & (uint8_t)(1 << nr)); \
-		DELAY_NS(500);                                   \
-		WRITE(ST7920_CLK_PIN, HIGH);                     \
-		DELAY_NS(500);
 
-	static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
-		ST7920_SND_BIT(7); // MSBit
-		ST7920_SND_BIT(6); //
-		ST7920_SND_BIT(5); //
-		ST7920_SND_BIT(4); //
-		ST7920_SND_BIT(3); //
-		ST7920_SND_BIT(2); //
-		ST7920_SND_BIT(1); //
-		ST7920_SND_BIT(0); // LSBit
-	}
+  /* AVR: Unrolling loop makes sense */
+  #define ST7920_SND_BIT(nr) \
+    WRITE(ST7920_CLK_PIN, LOW);                      \
+    WRITE(ST7920_DAT_PIN, val & (uint8_t)(1 << nr)); \
+    DELAY_NS(500);                                   \
+    WRITE(ST7920_CLK_PIN, HIGH);                     \
+    DELAY_NS(500);
+
+  static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+    ST7920_SND_BIT(7); // MSBit
+    ST7920_SND_BIT(6); //
+    ST7920_SND_BIT(5); //
+    ST7920_SND_BIT(4); //
+    ST7920_SND_BIT(3); //
+    ST7920_SND_BIT(2); //
+    ST7920_SND_BIT(1); //
+    ST7920_SND_BIT(0); // LSBit
+  }
 #endif
 
 #define ST7920_CS()              { WRITE(ST7920_CS_PIN,1); DELAY_NS(200); }
 #define ST7920_NCS()             { WRITE(ST7920_CS_PIN,0); }
-#define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); DELAY_US(1); }
-#define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); DELAY_US(1); }
-#define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u)); DELAY_US(1); }
-#define ST7920_WRITE_BYTES(p,l)  { for (uint8_t i = l + 1; --i;) { ST7920_SWSPI_SND_8BIT(*p&0xF0); ST7920_SWSPI_SND_8BIT(*p<<4); p++; } DELAY_US(1); }
+#define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); DELAY_US(3); }
+#define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); DELAY_US(3); }
+#define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u)); DELAY_US(3); }
+#define ST7920_WRITE_BYTES(p,l)  { for (uint8_t i = l + 1; --i;) { ST7920_SWSPI_SND_8BIT(*p&0xF0); ST7920_SWSPI_SND_8BIT(*p<<4); p++; } DELAY_US(3); }
 
 
 uint8_t u8g_dev_st7920_custom_sw_spi_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
+
   uint8_t i, y;
   switch (msg) {
     case U8G_DEV_MSG_INIT: {
-			
-			/* Set to output and write */
+
+      /* Set to output and write */
       OUT_WRITE(ST7920_CS_PIN, LOW);
-			OUT_WRITE(ST7920_DAT_PIN, LOW);
-			OUT_WRITE(ST7920_CLK_PIN, HIGH);
+      OUT_WRITE(ST7920_DAT_PIN, LOW);
+      OUT_WRITE(ST7920_CLK_PIN, HIGH);
 
       ST7920_CS();
       u8g_Delay(120);                //initial delay for boot up
-			
+
       ST7920_SET_CMD();
       ST7920_WRITE_BYTE(0x08);       //display off, cursor+blink off
       ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
@@ -224,14 +251,14 @@ uint8_t u8g_dev_st7920_custom_sw_spi_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8
         ST7920_SET_CMD();
       }
 
-      ST7920_WRITE_BYTE(0x0C); 			 //display on, cursor+blink off
+      ST7920_WRITE_BYTE(0x0C);       //display on, cursor+blink off
       ST7920_NCS();
     }
     break;
-		
+
     case U8G_DEV_MSG_STOP:
       break;
-			
+
     case U8G_DEV_MSG_PAGE_NEXT: {
       uint8_t* ptr;
       u8g_pb_t* pb = (u8g_pb_t*)(dev->dev_mem);
@@ -253,7 +280,7 @@ uint8_t u8g_dev_st7920_custom_sw_spi_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8
         ST7920_WRITE_BYTES(ptr, (LCD_PIXEL_WIDTH) / 8); //ptr is incremented inside of macro
         y++;
       }
-			
+
       ST7920_NCS();
     }
     break;
@@ -274,4 +301,4 @@ u8g_dev_t u8g_dev_st7920_128x64_custom_sw_spi = {u8g_dev_st7920_custom_sw_spi_12
 #pragma GCC reset_options
 
 #endif // U8GLIB_ST7920
-#endif // ULCDST7920_SWSPI_H 
+#endif // ULCDST7920_SWSPI_H

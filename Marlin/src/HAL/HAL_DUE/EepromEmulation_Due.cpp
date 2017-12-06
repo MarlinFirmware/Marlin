@@ -1,22 +1,25 @@
 
-/* EEPROM emulation over flash with reduced wear 
+/* EEPROM emulation over flash with reduced wear
  *
- * We will use 2 contiguous pages as main and alternate.  We 
- * want an structure that allows to read as fast as possible, 
+ * We will use 2 contiguous groups of pages as main and alternate.
+ * We want an structure that allows to read as fast as possible,
  * without the need of scanning the whole FLASH memory.
  *
  * FLASH bits default erased state is 1, and can be set to 0
  * on a per bit basis. To reset them to 1, a full page erase
  * is needed.
  *
- * We will use a linked-list approach. Link is expressed in
- * storage block units, and is 0x7F if the block contains
- * the latest value. Otherwise, the link value + 1 is the value
- * that has to be added to the current block number to go to
- * the next block containing the updated value.
- *
- * We will emulate a 8bit data width device. This means each
- * storage block is 2 bytes.
+ * Values are stored as differences that should be applied to a
+ * completely erased EEPROM (filled with 0xFFs). We just encode
+ * the starting address of the values to change, the length of
+ * the block of new values, and the values themselves. All diffs
+ * are accumulated into a RAM buffer, compacted into the least
+ * amount of non overlapping diffs possible and sorted by starting
+ * address before being saved into the next available page of FLASH
+ * of the current group.
+ * Once the current group is completely full, we compact it and save
+ * it into the other group, then erase the current group and switch
+ * to that new group and set it as current.
  *
  * The FLASH endurance is about 1/10 ... 1/100 of an EEPROM
  * endurance, but EEPROM endurance is specified per byte, not
@@ -24,9 +27,6 @@
  * bytes, but we can emulate endurance for a given percent of
  * bytes.
  *
- * A full page can store 256/2 = 128bytes of data. But, to 
- * improve endurance, we store just 16 bytes, that improves
- * page endurance as storage in 16x.
  */
 
 #ifdef ARDUINO_ARCH_SAM
@@ -34,18 +34,19 @@
 #include "../persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) 
- 
+#if ENABLED(EEPROM_SETTINGS)
+
 #include <Arduino.h>
 
 #define EEPROMSize     4096
-#define PagesPerGroup 128
-#define GroupCount      2
-#define PageSize    256
-
+#define PagesPerGroup   128
+#define GroupCount        2
+#define PageSize        256
 
  /* Flash storage */
-typedef struct FLASH_SECTOR { uint8_t page[PageSize]; } FLASH_SECTOR_T;
+typedef struct FLASH_SECTOR {
+  uint8_t page[PageSize];
+} FLASH_SECTOR_T;
 
 #define PAGE_FILL \
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, \
@@ -63,7 +64,7 @@ typedef struct FLASH_SECTOR { uint8_t page[PageSize]; } FLASH_SECTOR_T;
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, \
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, \
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, \
-  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF 
+  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 
 #define FLASH_INIT_FILL \
   PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL, \
@@ -98,7 +99,7 @@ typedef struct FLASH_SECTOR { uint8_t page[PageSize]; } FLASH_SECTOR_T;
   PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL, \
   PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL, \
   PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL,PAGE_FILL
-  
+
 /* This is the FLASH area used to emulate a 2Kbyte EEPROM  -- We need this buffer aligned
    to a 256 byte boundary. */
 static const uint8_t flashStorage[PagesPerGroup * GroupCount * PageSize] __attribute__ ((aligned (PageSize))) = { FLASH_INIT_FILL };
@@ -109,46 +110,45 @@ static const FLASH_SECTOR_T* getFlashStorage(int page) {
 }
 
 static uint8_t buffer[256] = {0};   // The RAM buffer to accumulate writes
-static uint8_t curPage = 0;     // Current FLASH page inside the group
-static uint8_t curGroup = 0xFF;   // Current FLASH group
+static uint8_t curPage = 0;         // Current FLASH page inside the group
+static uint8_t curGroup = 0xFF;     // Current FLASH group
 
 //#define EE_EMU_DEBUG
 #ifdef EE_EMU_DEBUG
-static void ee_Dump(int page,const void* data)
-{
-  const uint8_t* c = (const uint8_t*) data;
-  
-  char buffer[80];
-  
-  sprintf(buffer, "Page: %d (0x%04x)\n", page, page);
-  Serial.print(buffer);
-  
-  char* p = &buffer[0];
-  for (int i = 0; i< PageSize; ++i) {
-    if ((i & 15) == 0) {
-      p += sprintf(p,"%04x] ",i);
-    }
-    
-    p += sprintf(p," %02x",c[i]);
-    if ((i & 15) == 15) {
-      *p++ = '\n';
-      *p = 0;
-      Serial.print(buffer);
-      p = &buffer[0];
+  static void ee_Dump(int page,const void* data) {
+
+    const uint8_t* c = (const uint8_t*) data;
+    char buffer[80];
+
+    sprintf(buffer, "Page: %d (0x%04x)\n", page, page);
+    MYSERIAL.print(buffer);
+
+    char* p = &buffer[0];
+    for (int i = 0; i< PageSize; ++i) {
+      if ((i & 15) == 0) {
+        p += sprintf(p,"%04x] ",i);
+      }
+
+      p += sprintf(p," %02x",c[i]);
+      if ((i & 15) == 15) {
+        *p++ = '\n';
+        *p = 0;
+        MYSERIAL.print(buffer);
+        p = &buffer[0];
+      }
     }
   }
-}
 #endif
 
 /* Flash Writing Protection Key */
 #define FWP_KEY    0x5Au
 
 #if SAM4S_SERIES
-#define EEFC_FCR_FCMD(value) \
+  #define EEFC_FCR_FCMD(value) \
   ((EEFC_FCR_FCMD_Msk & ((value) << EEFC_FCR_FCMD_Pos)))
-#define EEFC_ERROR_FLAGS  (EEFC_FSR_FLOCKE | EEFC_FSR_FCMDE | EEFC_FSR_FLERR)
+  #define EEFC_ERROR_FLAGS  (EEFC_FSR_FLOCKE | EEFC_FSR_FCMDE | EEFC_FSR_FLERR)
 #else
-#define EEFC_ERROR_FLAGS  (EEFC_FSR_FLOCKE | EEFC_FSR_FCMDE)
+  #define EEFC_ERROR_FLAGS  (EEFC_FSR_FLOCKE | EEFC_FSR_FCMDE)
 #endif
 
 
@@ -158,40 +158,41 @@ static void ee_Dump(int page,const void* data)
  * @param data    (pointer to the data buffer)
  */
 __attribute__ ((long_call, section (".ramfunc")))
-static bool ee_PageWrite(uint16_t page,const void* data)
-{
+static bool ee_PageWrite(uint16_t page,const void* data) {
+
   int i;
   uint32_t addrflash = ((uint32_t)getFlashStorage(page));
-  
+
   // Read the flash contents
   uint32_t pageContents[PageSize>>2];
   memcpy(pageContents, (void*)addrflash, PageSize);
-  
+
   // We ONLY want to toggle bits that have changed, and that have changed to 0.
-  // SAM3X8E tends to destroy contiguous bits if reprogrammed without erasing, so 
-  // we try by all means to avoid this. That is why it says: "The Partial 
+  // SAM3X8E tends to destroy contiguous bits if reprogrammed without erasing, so
+  // we try by all means to avoid this. That is why it says: "The Partial
   // Programming mode works only with 128-bit (or higher) boundaries. It cannot
   // be used with boundaries lower than 128 bits (8, 16 or 32-bit for example)."
   // All bits that did not change, set them to 1.
   for (i = 0; i <PageSize >> 2; i++) {
     pageContents[i] = (((uint32_t*)data)[i]) | (~(pageContents[i] ^ ((uint32_t*)data)[i]));
   }
-  
-#ifdef EE_EMU_DEBUG
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("EEPROM PageWrite   ",page);
-  SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
-  SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
-  Serial.flush();
-#endif
-  
+
+  #ifdef EE_EMU_DEBUG
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("EEPROM PageWrite   ",page);
+    SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
+    SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
+    MYSERIAL.flush();
+  #endif
+
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
   Efc *efc;
   uint16_t fpage;
   if (addrflash >= IFLASH1_ADDR) {
     efc = EFC1;
     fpage = (addrflash - IFLASH1_ADDR) / IFLASH1_PAGE_SIZE;
-  } else {
+  }
+  else {
     efc = EFC0;
     fpage = (addrflash - IFLASH0_ADDR) / IFLASH0_PAGE_SIZE;
   }
@@ -201,13 +202,13 @@ static bool ee_PageWrite(uint16_t page,const void* data)
 
   // Disable all interrupts
   __disable_irq();
-      
-  // Get the FLASH wait states 
+
+  // Get the FLASH wait states
   uint32_t orgWS = (efc->EEFC_FMR & EEFC_FMR_FWS_Msk) >> EEFC_FMR_FWS_Pos;
-  
+
   // Set wait states to 6 (SAM errata)
   efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(6);
-  
+
   // Unlock the flash page
   uint32_t status;
   efc->EEFC_FCR = EEFC_FCR_FKEY(FWP_KEY) | EEFC_FCR_FARG(lpage) | EEFC_FCR_FCMD(EFC_FCMD_CLB);
@@ -215,18 +216,19 @@ static bool ee_PageWrite(uint16_t page,const void* data)
     // force compiler to not optimize this -- NOPs don't work!
     __asm__ __volatile__("");
   };
+
   if ((status & EEFC_ERROR_FLAGS) != 0) {
 
     // Restore original wait states
     efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
-  
+
     // Reenable interrupts
     __enable_irq();
-  
-#ifdef EE_EMU_DEBUG 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
-#endif
+
+    #ifdef EE_EMU_DEBUG
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
+    #endif
     return false;
   }
 
@@ -241,58 +243,59 @@ static bool ee_PageWrite(uint16_t page,const void* data)
     // force compiler to not optimize this -- NOPs don't work!
     __asm__ __volatile__("");
   };
+
   if ((status & EEFC_ERROR_FLAGS) != 0) {
-    
+
     // Restore original wait states
     efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
 
     // Reenable interrupts
     __enable_irq();
-    
-#ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Write failure for page ",page);
-#endif
+
+    #ifdef EE_EMU_DEBUG
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("EEPROM Write failure for page ",page);
+    #endif
     return false;
   }
 
   // Restore original wait states
   efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
-  
+
   // Reenable interrupts
   __enable_irq();
-  
+
   // Compare contents
   if (memcmp(getFlashStorage(page),data,PageSize)) {
-    
-#ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Verify Write failure for page ",page);
-    
-    ee_Dump( page,(uint32_t *) addrflash);
-    ee_Dump(-page,data);
-    
-    // Calculate count of changed bits
-    uint32_t* p1 = (uint32_t*)addrflash;
-    uint32_t* p2 = (uint32_t*)data;
-    int count = 0;
-    for (i =0; i<PageSize >> 2; i++) {
-      if (p1[i] != p2[i]) {
-        uint32_t delta = p1[i] ^ p2[i];
-        while (delta) {
-          if ((delta&1) != 0)
-            count++;
-          delta >>= 1;
+
+    #ifdef EE_EMU_DEBUG
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("EEPROM Verify Write failure for page ",page);
+
+      ee_Dump( page,(uint32_t *) addrflash);
+      ee_Dump(-page,data);
+
+      // Calculate count of changed bits
+      uint32_t* p1 = (uint32_t*)addrflash;
+      uint32_t* p2 = (uint32_t*)data;
+      int count = 0;
+      for (i =0; i<PageSize >> 2; i++) {
+        if (p1[i] != p2[i]) {
+          uint32_t delta = p1[i] ^ p2[i];
+          while (delta) {
+            if ((delta&1) != 0)
+              count++;
+            delta >>= 1;
+          }
         }
       }
-    }
-    SERIAL_ECHOLNPAIR("--> Differing bits: ",count);
-#endif    
+      SERIAL_ECHOLNPAIR("--> Differing bits: ",count);
+    #endif
 
     return false;
   }
-  
-  return true; 
+
+  return true;
 }
 
 /**
@@ -300,26 +303,27 @@ static bool ee_PageWrite(uint16_t page,const void* data)
  * @param page    (page #)
   */
 __attribute__ ((long_call, section (".ramfunc")))
-static bool ee_PageErase(uint16_t page)
-{
+static bool ee_PageErase(uint16_t page) {
+
   int i;
   uint32_t addrflash = ((uint32_t)getFlashStorage(page));
 
-#ifdef EE_EMU_DEBUG
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("EEPROM PageErase  ",page);
-  SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
-  SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
-  Serial.flush();
-#endif
-  
+  #ifdef EE_EMU_DEBUG
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("EEPROM PageErase  ",page);
+    SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
+    SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
+    MYSERIAL.flush();
+  #endif
+
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
   Efc *efc;
   uint16_t fpage;
   if (addrflash >= IFLASH1_ADDR) {
     efc = EFC1;
     fpage = (addrflash - IFLASH1_ADDR) / IFLASH1_PAGE_SIZE;
-  } else {
+  }
+  else {
     efc = EFC0;
     fpage = (addrflash - IFLASH0_ADDR) / IFLASH0_PAGE_SIZE;
   }
@@ -329,13 +333,13 @@ static bool ee_PageErase(uint16_t page)
 
   // Disable all interrupts
   __disable_irq();
-  
-  // Get the FLASH wait states 
+
+  // Get the FLASH wait states
   uint32_t orgWS = (efc->EEFC_FMR & EEFC_FMR_FWS_Msk) >> EEFC_FMR_FWS_Pos;
-  
+
   // Set wait states to 6 (SAM errata)
   efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(6);
-  
+
   // Unlock the flash page
   uint32_t status;
   efc->EEFC_FCR = EEFC_FCR_FKEY(FWP_KEY) | EEFC_FCR_FARG(lpage) | EEFC_FCR_FCMD(EFC_FCMD_CLB);
@@ -344,17 +348,17 @@ static bool ee_PageErase(uint16_t page)
     __asm__ __volatile__("");
   };
   if ((status & EEFC_ERROR_FLAGS) != 0) {
-    
+
     // Restore original wait states
     efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
-    
+
     // Reenable interrupts
     __enable_irq();
-    
-#ifdef EE_EMU_DEBUG   
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
-#endif    
+
+    #ifdef EE_EMU_DEBUG
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
+    #endif
     return false;
   }
 
@@ -369,45 +373,45 @@ static bool ee_PageErase(uint16_t page)
     __asm__ __volatile__("");
   };
   if ((status & EEFC_ERROR_FLAGS) != 0) {
-    
+
     // Restore original wait states
     efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
-    
+
     // Reenable interrupts
     __enable_irq();
-    
-#ifdef EE_EMU_DEBUG   
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Erase failure for page ",page);
-#endif
+
+    #ifdef EE_EMU_DEBUG
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("EEPROM Erase failure for page ",page);
+    #endif
     return false;
   }
-  
+
   // Restore original wait states
   efc->EEFC_FMR = efc->EEFC_FMR & (~EEFC_FMR_FWS_Msk) | EEFC_FMR_FWS(orgWS);
-  
+
   // Reenable interrupts
   __enable_irq();
-  
+
   // Check erase
   uint32_t * aligned_src = (uint32_t *) addrflash;
   for (i = 0; i < PageSize >> 2; i++) {
     if (*aligned_src++ != 0xFFFFFFFF) {
-      
-#ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Verify Erase failure for page ",page);
-    
-      ee_Dump( page,(uint32_t *) addrflash);
-#endif
+
+      #ifdef EE_EMU_DEBUG
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR("EEPROM Verify Erase failure for page ",page);
+
+        ee_Dump( page,(uint32_t *) addrflash);
+      #endif
       return false;
     }
   }
-  
-  return true; 
+
+  return true;
 }
-static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false)
-{
+static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false) {
+
   uint32_t baddr;
   uint32_t blen;
 
@@ -438,7 +442,7 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false)
         return buffer[i + 3 + address - baddr];
       }
 
-      // As blocks are always sorted, if the starting address of this block is higher 
+      // As blocks are always sorted, if the starting address of this block is higher
       // than the address we are looking for, break loop now - We wont find the value
       // associated to the address
       if (baddr > address)
@@ -449,9 +453,9 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false)
     }
   }
 
-  // It is NOT on the RAM buffer. It could be stored in FLASH. We are 
+  // It is NOT on the RAM buffer. It could be stored in FLASH. We are
   //  ensured on a given FLASH page, address contents are never repeated
-  //  but on different pages, there is no such warranty, so we must go 
+  //  but on different pages, there is no such warranty, so we must go
   //  backwards from the last written FLASH page to the first one.
   for (int page = curPage - 1; page >= 0; --page) {
 
@@ -479,7 +483,7 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false)
         return pflash[i + 3 + address - baddr];
       }
 
-      // As blocks are always sorted, if the starting address of this block is higher 
+      // As blocks are always sorted, if the starting address of this block is higher
       // than the address we are looking for, break loop now - We wont find the value
       // associated to the address
       if (baddr > address)
@@ -494,8 +498,7 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false)
   return 0xFF;
 }
 
-static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
-{
+static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false) {
   uint32_t baddr;
   uint32_t blen;
   uint32_t nextAddr = 0xFFFF;
@@ -530,7 +533,7 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
         nextRange = blen;
       }
 
-      // As blocks are always sorted, if the starting address of this block is higher 
+      // As blocks are always sorted, if the starting address of this block is higher
       // than the address we are looking for, break loop now - We wont find the value
       // associated to the address
       if (baddr > address)
@@ -541,9 +544,9 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
     }
   }
 
-  // It is NOT on the RAM buffer. It could be stored in FLASH. We are 
+  // It is NOT on the RAM buffer. It could be stored in FLASH. We are
   //  ensured on a given FLASH page, address contents are never repeated
-  //  but on different pages, there is no such warranty, so we must go 
+  //  but on different pages, there is no such warranty, so we must go
   //  backwards from the last written FLASH page to the first one.
   for (int page = curPage - 1; page >= 0; --page) {
 
@@ -577,7 +580,7 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
         nextRange = blen;
       }
 
-      // As blocks are always sorted, if the starting address of this block is higher 
+      // As blocks are always sorted, if the starting address of this block is higher
       // than the address we are looking for, break loop now - We wont find the value
       // associated to the address
       if (baddr > address)
@@ -592,8 +595,8 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
   return nextAddr | (nextRange << 16);
 }
 
-static bool ee_IsPageClean(int page)
-{
+static bool ee_IsPageClean(int page) {
+
   uint32_t* pflash = (uint32_t*) getFlashStorage(page);
   for (int i = 0; i < (PageSize >> 2); ++i) {
     if (*pflash++ != 0xFFFFFFFF)
@@ -602,9 +605,9 @@ static bool ee_IsPageClean(int page)
   return true;
 }
 
-static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData = 0xFF)
-{
-  // Check if RAM buffer has something to be written 
+static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData = 0xFF) {
+
+  // Check if RAM buffer has something to be written
   bool isEmpty = true;
   uint32_t* p = (uint32_t*) &buffer[0];
   for (int j = 0; j < (PageSize >> 2); j++) {
@@ -613,14 +616,14 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
       break;
     }
   }
-  
+
   // If something has to be written, do so!
   if (!isEmpty) {
-    
+
     // Write the current ram buffer into FLASH
     ee_PageWrite(curPage + curGroup * PagesPerGroup, buffer);
 
-    // Clear the RAM buffer 
+    // Clear the RAM buffer
     memset(buffer, 0xFF, sizeof(buffer));
 
     // Increment the page to use the next time
@@ -644,7 +647,7 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
     return true;
   }
 
-  // We have no space left on the current group - We must compact the values 
+  // We have no space left on the current group - We must compact the values
   int i = 0;
 
   // Compute the next group to use
@@ -667,8 +670,8 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
 
       rdAddr = overrideAddress;
       rdRange = 1;
-
-    } else {
+    }
+    else {
       rdAddr = addrRange & 0xFFFF;
       rdRange = addrRange >> 16;
     }
@@ -694,7 +697,8 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
           buffer[i + 2] = 1;
           buffer[i + 3] = rdValue;
 
-        } else {
+        }
+        else {
           // Buffer already has contents. Check if we can extend it
 
           // Get the address of the block
@@ -714,7 +718,8 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
             // And store the value
             buffer[i + 3 + rdAddr - baddr] = rdValue;
 
-          } else {
+          }
+          else {
 
             // No, we can't expand it - Skip the existing block
             i += 3 + blen;
@@ -753,7 +758,7 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
     // Repeat until we run out of ranges
   } while (rdAddr < EEPROMSize);
 
-  // We must erase the previous group, in preparation for the next swap 
+  // We must erase the previous group, in preparation for the next swap
   for (int page = 0; page < curPage; page++) {
     ee_PageErase(page + curGroup * PagesPerGroup);
   }
@@ -766,8 +771,8 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
   return true;
 }
 
-static bool ee_Write(uint32_t address, uint8_t data)
-{
+static bool ee_Write(uint32_t address, uint8_t data) {
+
   // If we were requested an address outside of the emulated range, fail now
   if (address >= EEPROMSize)
     return false;
@@ -830,7 +835,9 @@ static bool ee_Write(uint32_t address, uint8_t data)
           buffer[i + 2]++;
           buffer[i + 3] = data;
 
-        } else {
+        }
+        else {
+
           // Insert at the end - There is a very interesting thing that could happen here:
           //  Maybe we could coalesce the next block with this block. Let's try to do it!
           int inext = i + 3 + blen;
@@ -841,7 +848,7 @@ static bool ee_Write(uint32_t address, uint8_t data)
             // Adjust this block header to include the next one
             buffer[i + 2] += buffer[inext + 2] + 1;
 
-            // Store data at the right place 
+            // Store data at the right place
             buffer[i + 3 + blen] = data;
 
             // Remove the next block header and append its data
@@ -851,7 +858,8 @@ static bool ee_Write(uint32_t address, uint8_t data)
             buffer[iend - 2] = 0xFF;
             buffer[iend - 1] = 0xFF;
 
-          } else {
+          }
+          else {
             // NO ... No coalescing possible yet
 
             // Make room at the end for our byte
@@ -868,7 +876,7 @@ static bool ee_Write(uint32_t address, uint8_t data)
       }
     }
 
-    // As blocks are always sorted, if the starting address of this block is higher 
+    // As blocks are always sorted, if the starting address of this block is higher
     // than the address we are looking for, break loop now - We wont find the value
     // associated to the address
     if (baddr > address)
@@ -892,7 +900,7 @@ static bool ee_Write(uint32_t address, uint8_t data)
   if (iend <= (PageSize - 4)) {
 
     // We have room to create a new block. Do so --- But add
-    // the block at the proper position, sorted by starting 
+    // the block at the proper position, sorted by starting
     // address, so it will be possible to compact it with other blocks.
 
     // Make space
@@ -908,17 +916,17 @@ static bool ee_Write(uint32_t address, uint8_t data)
     return true;
   }
 
-  // Not enough room to store this information on this FLASH page -  Perform a 
+  // Not enough room to store this information on this FLASH page -  Perform a
   // flush and override the address with the specified contents
   return ee_Flush(address, data);
 }
 
-static void ee_Init()
-{
+static void ee_Init() {
+
   // Just init once!
   if (curGroup != 0xFF)
     return;
-  
+
   // Clean up the SRAM buffer
   memset(buffer, 0xFF, sizeof(buffer));
 
@@ -932,24 +940,25 @@ static void ee_Init()
   if (curGroup >= GroupCount)
     curGroup = 0;
 
-#ifdef EE_EMU_DEBUG
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
-  Serial.flush();
-#endif
-  
+  #ifdef EE_EMU_DEBUG
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
+    MYSERIAL.flush();
+  #endif
+
   // Now, validate that all the other group pages are empty
   for (int grp = 0; grp < GroupCount; grp++) {
     if (grp == curGroup)
       continue;
+
     for (int page = 0; page < PagesPerGroup; page++) {
       if (!ee_IsPageClean(grp * PagesPerGroup + page)) {
-#ifdef EE_EMU_DEBUG
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("EEPROM Page ",page);
-        SERIAL_ECHOLNPAIR(" not clean on group ",grp);
-        Serial.flush();
-#endif
+        #ifdef EE_EMU_DEBUG
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("EEPROM Page ",page);
+          SERIAL_ECHOLNPAIR(" not clean on group ",grp);
+          MYSERIAL.flush();
+        #endif
         ee_PageErase(grp * PagesPerGroup + page);
       }
     }
@@ -959,48 +968,45 @@ static void ee_Init()
   // and also validate that all the other ones are clean
   for (curPage = 0; curPage < PagesPerGroup; curPage++) {
     if (ee_IsPageClean(curGroup * PagesPerGroup + curPage)) {
-#ifdef EE_EMU_DEBUG
-      ee_Dump(curGroup * PagesPerGroup + curPage, getFlashStorage(curGroup * PagesPerGroup + curPage));
-#endif
+      #ifdef EE_EMU_DEBUG
+        ee_Dump(curGroup * PagesPerGroup + curPage, getFlashStorage(curGroup * PagesPerGroup + curPage));
+      #endif
       break;
     }
   }
 
-#ifdef EE_EMU_DEBUG
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("EEPROM Active page: ",curPage);
-  Serial.flush();
-#endif
-  
+  #ifdef EE_EMU_DEBUG
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("EEPROM Active page: ",curPage);
+    MYSERIAL.flush();
+  #endif
+
   // Make sure the pages following the first clean one are also clean
   for (int page = curPage + 1; page < PagesPerGroup; page++) {
     if (!ee_IsPageClean(curGroup * PagesPerGroup + page)) {
-#ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("EEPROM Page ",page);
-      SERIAL_ECHOLNPAIR(" not clean on active group ",curGroup);
-      Serial.flush();
-      ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
-#endif
+      #ifdef EE_EMU_DEBUG
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("EEPROM Page ",page);
+        SERIAL_ECHOLNPAIR(" not clean on active group ",curGroup);
+        MYSERIAL.flush();
+        ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
+      #endif
       ee_PageErase(curGroup * PagesPerGroup + page);
     }
   }
 }
 
-uint8_t eeprom_read_byte(uint8_t* addr)
-{
+uint8_t eeprom_read_byte(uint8_t* addr) {
   ee_Init();
   return ee_Read((uint32_t)addr);
 }
 
-void eeprom_write_byte(uint8_t* addr, uint8_t value)
-{
+void eeprom_write_byte(uint8_t* addr, uint8_t value) {
   ee_Init();
   ee_Write((uint32_t)addr, value);
 }
 
-void eeprom_update_block(const void* __src, void* __dst, size_t __n)
-{
+void eeprom_update_block(const void* __src, void* __dst, size_t __n) {
   uint8_t* dst = (uint8_t*)__dst;
   const uint8_t* src = (const uint8_t*)__src;
   while (__n--) {
@@ -1010,8 +1016,7 @@ void eeprom_update_block(const void* __src, void* __dst, size_t __n)
   }
 }
 
-void eeprom_read_block(void* __dst, const void* __src, size_t __n)
-{
+void eeprom_read_block(void* __dst, const void* __src, size_t __n) {
   uint8_t* dst = (uint8_t*)__dst;
   uint8_t* src = (uint8_t*)__src;
   while (__n--) {
@@ -1021,10 +1026,9 @@ void eeprom_read_block(void* __dst, const void* __src, size_t __n)
   }
 }
 
-void eeprom_flush(void)
-{
+void eeprom_flush(void) {
   ee_Flush();
 }
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_AVR 
+#endif // ARDUINO_ARCH_AVR

@@ -53,7 +53,7 @@
 #define MAX_XYAXIS_ACCEL (3 * (Vref_mV) * 100 / (Rsc_mOhms))
 
 // Notes:
-//	If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
+//  If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
 // if perfectly achievable. Using 1A as motor current, 2400 mm/s^2 acceleration
 // is perfectly possible without losing any steps
 // On A4988 drivers, maximum current can be calculated as I_TripMax= Vref/(8*Rs) 
@@ -555,7 +555,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE            { 300, 300, 2, 30 }	/* For 300mm/s printing */ 
+#define DEFAULT_MAX_FEEDRATE            { 300, 300, 2, 30 } /* For 300mm/s printing */ 
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -574,7 +574,7 @@
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          MAX_XYAXIS_ACCEL    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  100    						  // E acceleration for retracts
+#define DEFAULT_RETRACT_ACCELERATION  100                 // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   MAX_XYAXIS_ACCEL    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
