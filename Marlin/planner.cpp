@@ -1072,9 +1072,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     CRITICAL_SECTION_END
   #endif
 
-  block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
-  block->nominal_rate = CEIL(block->step_event_count * inverse_mm_s); // (step/sec) Always > 0
-
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static float filwidth_e_count = 0, filwidth_delay_dist = 0;
 
@@ -1109,10 +1106,13 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  // Calculate and limit speed in mm/sec for each axis
+  // Calculate and limit speed in mm/sec for each axis, calculate minimum acceleration ratio
   float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
+  float max_stepper_speed = 0, min_axis_accel_ratio = 1; // ratio < 1 means accelation ramp needed
   LOOP_XYZE(i) {
     const float cs = FABS(current_speed[i] = delta_mm[i] * inverse_mm_s);
+    NOMORE(min_axis_accel_ratio, max_jerk[i]/cs);
+    NOLESS(max_stepper_speed, cs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -1157,12 +1157,18 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif // XY_FREQUENCY_LIMIT
 
+  block->nominal_speed = max_stepper_speed; // (mm/sec) Always > 0
+  block->nominal_rate = CEIL(block->step_event_count * inverse_mm_s);  // (step/sec) Always > 0
+
   // Correct the speed
   if (speed_factor < 1.0) {
     LOOP_XYZE(i) current_speed[i] *= speed_factor;
     block->nominal_speed *= speed_factor;
     block->nominal_rate *= speed_factor;
   }
+
+  float safe_speed = block->nominal_speed * min_axis_accel_ratio;
+  static float previous_safe_speed;
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
@@ -1265,32 +1271,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  /**
-   * Adapted from Průša MKS firmware
-   * https://github.com/prusa3d/Prusa-Firmware
-   *
-   * Start with a safe speed (from which the machine may halt to stop immediately).
-   */
-
-  // Exit speed limited by a jerk to full halt of a previous last segment
-  static float previous_safe_speed;
-
-  float safe_speed = block->nominal_speed;
-  uint8_t limited = 0;
-  LOOP_XYZE(i) {
-    const float jerk = FABS(current_speed[i]), maxj = max_jerk[i];
-    if (jerk > maxj) {
-      if (limited) {
-        const float mjerk = maxj * block->nominal_speed;
-        if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk;
-      }
-      else {
-        ++limited;
-        safe_speed = maxj;
-      }
-    }
-  }
-
   if (moves_queued > 1 && previous_nominal_speed > 0.0001) {
     // Estimate a maximum velocity allowed at a joint of two successive segments.
     // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
@@ -1303,7 +1283,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
     float v_factor = 1.f;
-    limited = 0;
+    uint8_t limited = 0;
     // Now limit the jerk in all axes.
     LOOP_XYZE(axis) {
       // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
