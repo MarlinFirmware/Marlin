@@ -94,7 +94,7 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 // private:
 
 uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
-uint16_t Stepper::cleaning_buffer_counter = 0;
+int16_t Stepper::cleaning_buffer_counter = 0;
 
 #if ENABLED(X_DUAL_ENDSTOPS)
   bool Stepper::locked_x_motor = false;
@@ -341,10 +341,8 @@ HAL_STEP_TIMER_ISR {
 
 void Stepper::isr() {
 
-  hal_timer_t ocr_val;
-
-  #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
-  #define OCR_VAL_TOLERANCE 500 * HAL_TICKS_PER_US           // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
+  #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
+  #define OCR_VAL_TOLERANCE        500 * HAL_TICKS_PER_US // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
 
   #if DISABLED(LIN_ADVANCE)
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
@@ -355,6 +353,7 @@ void Stepper::isr() {
     #endif
   #endif
 
+  hal_timer_t ocr_val;
   static uint32_t step_remaining = 0;  // SPLIT function always runs.  This allows 16 bit timers to be
                                        // used to generate the stepper ISR.
   #define SPLIT(L) do { \
@@ -367,42 +366,45 @@ void Stepper::isr() {
       ocr_val = L;\
   }while(0)
 
+  // Time remaining before the next step?
   if (step_remaining) {
-    if (ENDSTOPS_ENABLED)
-      endstops.update();
-    if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
-      step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
-      ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
-    }
-    else {
-      ocr_val = step_remaining;
-      step_remaining = 0;  //  last one before the ISR that does the step
-    }
 
+    // Make sure endstops are updated
+    if (ENDSTOPS_ENABLED) endstops.update();
+
+    // Next ISR either for endstops or stepping
+    ocr_val = step_remaining <= ENDSTOP_NOMINAL_OCR_VAL ? step_remaining : ENDSTOP_NOMINAL_OCR_VAL;
+    step_remaining -= ocr_val;
     _NEXT_ISR(ocr_val);
 
-  #if DISABLED(LIN_ADVANCE)
-    #ifdef CPU_32_BIT
-      HAL_timer_set_count(STEP_TIMER_NUM, ocr_val);
-    #else
-      NOLESS(OCR1A, TCNT1 + 16);
+    #if DISABLED(LIN_ADVANCE)
+      #ifdef CPU_32_BIT
+        HAL_timer_set_count(STEP_TIMER_NUM, ocr_val);
+      #else
+        NOLESS(OCR1A, TCNT1 + 16);
+      #endif
+      HAL_ENABLE_ISRs(); // re-enable ISRs
     #endif
-    HAL_ENABLE_ISRs(); // re-enable ISRs
-  #endif
 
     return;
   }
 
-
+  //
+  // When cleaning, discard the current block and run fast
+  //
   if (cleaning_buffer_counter) {
-    --cleaning_buffer_counter;
+    if (cleaning_buffer_counter < 0)
+      ++cleaning_buffer_counter;                // Count up for endstop hit
+    else {
+      --cleaning_buffer_counter;                // Count down for abort print
+      #ifdef SD_FINISHED_RELEASECOMMAND
+        if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      #endif
+    }
     current_block = NULL;
     planner.discard_current_block();
-    #ifdef SD_FINISHED_RELEASECOMMAND
-      if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    #endif
-    _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000); // Run at max speed - 10 KHz
-    HAL_ENABLE_ISRs(); // re-enable ISRs
+    _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000);  // Run at max speed - 10 KHz
+    HAL_ENABLE_ISRs();                          // Re-enable ISRs
     return;
   }
 
