@@ -1273,7 +1273,7 @@ void Temperature::init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void Temperature::start_watching_heater(uint8_t e) {
+  void Temperature::start_watching_heater(const uint8_t e) {
     #if HOTENDS == 1
       UNUSED(e);
     #endif

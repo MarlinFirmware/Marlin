@@ -124,15 +124,20 @@ float Planner::min_feedrate_mm_s,
           Planner::inverse_z_fade_height,
           Planner::last_fade_z;
   #endif
+#else
+  constexpr bool Planner::leveling_active;
 #endif
 
 #if ENABLED(SKEW_CORRECTION)
   #if ENABLED(SKEW_CORRECTION_GCODE)
-    // Initialized by settings.load()
     float Planner::xy_skew_factor;
-    #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      float Planner::xz_skew_factor, Planner::yz_skew_factor;
-    #endif
+  #else
+    constexpr float Planner::xy_skew_factor;
+  #endif
+  #if ENABLED(SKEW_CORRECTION_FOR_Z) && ENABLED(SKEW_CORRECTION_GCODE)
+    float Planner::xz_skew_factor, Planner::yz_skew_factor;
+  #else
+    constexpr float Planner::xz_skew_factor, Planner::yz_skew_factor;
   #endif
 #endif
 

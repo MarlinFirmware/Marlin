@@ -164,6 +164,7 @@
   static int8_t g26_prime_flag;
 
   #if ENABLED(NEWPANEL)
+
     /**
      * Detect is_lcd_clicked, debounce it, and return true for cancel
      */
@@ -185,28 +186,27 @@
       lcd_reset_status();
       return true;
     }
-  #endif
 
-  #if ENABLED(NEWPANEL)
     bool exit_from_g26() {
       lcd_setstatusPGM(PSTR("Leaving G26"), -1);
       wait_for_release();
       return G26_ERR;
     }
+
   #endif
 
   void G26_line_to_destination(const float &feed_rate) {
     const float save_feedrate = feedrate_mm_s;
     feedrate_mm_s = feed_rate;      // use specified feed rate
-    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian for UBL or ubl.prepare_linear_move_to for UBL_DELTA
+    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_DELTA
     feedrate_mm_s = save_feedrate;  // restore global feed rate
   }
 
-  void move_to(const float &x, const float &y, const float &z, const float &e_delta) {
+  void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
     float feed_value;
     static float last_z = -999.99;
 
-    bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
+    bool has_xy_component = (rx != current_position[X_AXIS] || ry != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
     if (z != last_z) {
       last_z = z;
@@ -229,8 +229,8 @@
 
     if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
-    destination[X_AXIS] = x;
-    destination[Y_AXIS] = y;
+    destination[X_AXIS] = rx;
+    destination[Y_AXIS] = ry;
     destination[E_AXIS] += e_delta;
 
     G26_line_to_destination(feed_value);
@@ -292,13 +292,11 @@
 
         wait_for_release();
 
-        #if ENABLED(ULTRA_LCD)
-          strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
-                                                              // So... We cheat to get a message up.
-          lcd_setstatusPGM(PSTR("Done Priming"), 99);
-          lcd_quick_feedback();
-          lcd_external_control = false;
-        #endif
+        strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
+                                                            // So... We cheat to get a message up.
+        lcd_setstatusPGM(PSTR("Done Priming"), 99);
+        lcd_quick_feedback();
+        lcd_external_control = false;
       }
       else
     #endif
@@ -490,17 +488,11 @@
     return false;
   }
 
-  float valid_trig_angle(float d) {
-    while (d > 360.0) d -= 360.0;
-    while (d < 0.0) d += 360.0;
-    return d;
-  }
-
   /**
    * Turn on the bed and nozzle heat and
    * wait for them to get up to temperature.
    */
-  bool turn_on_heaters() {
+  inline bool turn_on_heaters() {
     millis_t next = millis() + 5000UL;
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
@@ -554,10 +546,16 @@
     return G26_OK;
   }
 
+  float valid_trig_angle(float d) {
+    while (d > 360.0) d -= 360.0;
+    while (d < 0.0) d += 360.0;
+    return d;
+  }
+
   /**
    * G26: Mesh Validation Pattern generation.
    *
-   * Used to interactively edit UBL's Mesh by placing the
+   * Used to interactively edit the mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
    */
   void gcode_G26() {
@@ -703,12 +701,12 @@
       set_current_from_destination();
     }
 
-    if (turn_on_heaters()) goto LEAVE;
+    if (turn_on_heaters() != G26_OK) goto LEAVE;
 
     current_position[E_AXIS] = 0.0;
     sync_plan_position_e();
 
-    if (g26_prime_flag && prime_nozzle()) goto LEAVE;
+    if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
 
     /**
      *  Bed is preheated

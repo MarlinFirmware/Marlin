@@ -45,7 +45,7 @@
 
   #if ENABLED(NEWPANEL)
     void lcd_return_to_status();
-    void lcd_mesh_edit_setup(float initial);
+    void lcd_mesh_edit_setup(const float initial);
     float lcd_mesh_edit();
     void lcd_z_offset_edit_setup(float);
     extern void _lcd_ubl_output_map_lcd();
@@ -57,8 +57,9 @@
   extern float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool=true);
   extern bool set_probe_deployed(bool);
   extern void set_bed_leveling_enabled(bool);
+
   typedef void (*screenFunc_t)();
-  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0);
+  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -644,8 +645,8 @@
               SERIAL_ECHOPAIR(" J ", y);
               SERIAL_ECHOPGM(" Z ");
               SERIAL_ECHO_F(z_values[x][y], 6);
-              SERIAL_ECHOPAIR(" ; X ", mesh_index_to_xpos(x));
-              SERIAL_ECHOPAIR(", Y ", mesh_index_to_ypos(y));
+              SERIAL_ECHOPAIR(" ; X ", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
+              SERIAL_ECHOPAIR(", Y ", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
               SERIAL_EOL();
             }
         return;
@@ -799,7 +800,6 @@
           z_values[location.x_index][location.y_index] = measured_z;
         }
 
-
       } while (location.x_index >= 0 && --max_iterations);
 
       STOW_PROBE();
@@ -914,6 +914,7 @@
         }
       }
     }
+
   #endif // HAS_BED_PROBE
 
   #if ENABLED(NEWPANEL)
@@ -938,7 +939,7 @@
 
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
-    float unified_bed_leveling::measure_business_card_thickness(float in_height) {
+    float unified_bed_leveling::measure_business_card_thickness(const float &in_height) {
       lcd_external_control = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
@@ -970,8 +971,6 @@
         SERIAL_PROTOCOL_F(thickness, 4);
         SERIAL_PROTOCOLLNPGM("mm thick.");
       }
-
-      in_height = current_position[Z_AXIS]; // do manual probing at lower height
 
       lcd_external_control = false;
 
@@ -1460,10 +1459,9 @@
 
           float distance = HYPOT(px - mx, py - my);
 
-            // factor in the distance from the current location for the normal case
-            // so the nozzle isn't running all over the bed.
-            distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1;
-
+          // factor in the distance from the current location for the normal case
+          // so the nozzle isn't running all over the bed.
+          distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1;
           if (distance < best_so_far) {
             best_so_far = distance;   // We found a closer location with
             out_mesh.x_index = i;     // the specified type of mesh value.
@@ -1518,8 +1516,8 @@
 
         if (location.x_index < 0) break; // stop when we can't find any more reachable points.
 
-        bitmap_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
-                                                                  // different location the next time through the loop
+        bitmap_clear(not_done, location.x_index, location.y_index); // Mark this location as 'adjusted' so we will find a
+                                                                    // different location the next time through the loop
 
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
