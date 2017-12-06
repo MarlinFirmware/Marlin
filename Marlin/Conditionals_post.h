@@ -804,8 +804,7 @@
     #endif
   #endif
 
-  #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
-  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
+  #define HAS_BED_PROBE (PROBE_SELECTED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
@@ -844,6 +843,49 @@
     #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
+
+  /**
+   * XYZ Bed Skew Correction
+   */
+  #if ENABLED(SKEW_CORRECTION)
+    #define SKEW_FACTOR_MIN -1
+    #define SKEW_FACTOR_MAX 1
+
+    #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5)
+    #define _SKEW_SIDE(a,b,c) tan(M_PI*0.5-acos((sq(a)-sq(b)-sq(c))/(2*c*b)))
+    #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(a,_GET_SIDE(a,b,c),c)
+
+    #ifndef XY_SKEW_FACTOR
+      constexpr float XY_SKEW_FACTOR = (
+        #if defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD)
+          _SKEW_FACTOR(XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef XZ_SKEW_FACTOR
+      #if defined(XY_SIDE_AD) && !defined(XZ_SIDE_AD)
+        #define XZ_SIDE_AD XY_SIDE_AD
+      #endif
+      constexpr float XZ_SKEW_FACTOR = (
+        #if defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD)
+          _SKEW_FACTOR(XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef YZ_SKEW_FACTOR
+      constexpr float YZ_SKEW_FACTOR = (
+        #if defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD)
+          _SKEW_FACTOR(YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+  #endif // SKEW_CORRECTION
 
   /**
    * Heater & Fan Pausing
@@ -891,7 +933,7 @@
   /**
    * Set granular options based on the specific type of leveling
    */
-  #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)))
+  #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(SEGMENT_LEVELED_MOVES)))
   #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
   #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
   #define OLDSCHOOL_ABL         (ABL_PLANAR || ABL_GRID)
@@ -899,11 +941,15 @@
   #define HAS_LEVELING          (HAS_ABL || ENABLED(MESH_BED_LEVELING))
   #define HAS_AUTOLEVEL         (HAS_ABL && DISABLED(PROBE_MANUALLY))
   #define HAS_MESH              (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
-  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_DELTA)
+  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_DELTA || ENABLED(SKEW_CORRECTION))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
   #if HAS_PROBING_PROCEDURE
     #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))
     #define PROBE_BED_HEIGHT abs(BACK_PROBE_BED_POSITION - (FRONT_PROBE_BED_POSITION))
+  #endif
+
+  #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
+    #define LEVELED_SEGMENT_LENGTH 5
   #endif
 
   /**
@@ -914,10 +960,10 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
+    #define MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
+    #define MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
     #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
@@ -930,6 +976,20 @@
     #define MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+
+  // Allow configuration to override these for special purposes
+  #ifndef MIN_PROBE_X
+    #define MIN_PROBE_X _MIN_PROBE_X
+  #endif
+  #ifndef MIN_PROBE_Y
+    #define MIN_PROBE_Y _MIN_PROBE_Y
+  #endif
+  #ifndef MAX_PROBE_X
+    #define MAX_PROBE_X _MAX_PROBE_X
+  #endif
+  #ifndef MAX_PROBE_Y
+    #define MAX_PROBE_Y _MAX_PROBE_Y
   #endif
 
   /**
@@ -1041,21 +1101,6 @@
     #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
 
-  /**
-   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
-   */
-  #if UBL_DELTA
-    #ifndef DELTA_SEGMENT_MIN_LENGTH
-      #if IS_SCARA
-        #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-      #elif ENABLED(DELTA)
-        #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
-      #else // CARTESIAN
-        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
-      #endif
-    #endif
-  #endif
-
   // Shorthand
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
@@ -1077,6 +1122,29 @@
     #define MAX_VFAT_ENTRIES (5)
   #else
     #define MAX_VFAT_ENTRIES (2)
+  #endif
+
+  // Set defaults for unspecified LED user colors
+  #if ENABLED(LED_CONTROL_MENU)
+    #ifndef LED_USER_PRESET_RED
+      #define LED_USER_PRESET_RED       255
+    #endif
+    #ifndef LED_USER_PRESET_GREEN
+      #define LED_USER_PRESET_GREEN     255
+    #endif
+    #ifndef LED_USER_PRESET_BLUE
+      #define LED_USER_PRESET_BLUE      255
+    #endif
+    #ifndef LED_USER_PRESET_WHITE
+      #define LED_USER_PRESET_WHITE     0
+    #endif
+    #ifndef LED_USER_PRESET_BRIGHTNESS
+      #ifdef NEOPIXEL_BRIGHTNESS
+        #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
+      #else
+        #define LED_USER_PRESET_BRIGHTNESS 255
+      #endif
+    #endif
   #endif
 
 #endif // CONDITIONALS_POST_H

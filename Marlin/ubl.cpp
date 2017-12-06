@@ -30,16 +30,6 @@
   #include "temperature.h"
   #include "planner.h"
 
-  /**
-   * These support functions allow the use of large bit arrays of flags that take very
-   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
-   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
-   * in the future.
-   */
-  void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y) { CBI(bits[y], x); }
-  void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
-
   uint8_t ubl_cnt = 0;
 
   void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
@@ -70,8 +60,9 @@
   constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
                   unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  bool unified_bed_leveling::g26_debug_flag = false,
-       unified_bed_leveling::has_control_of_lcd_panel = false;
+  #if ENABLED(ULTIPANEL)
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
 
   volatile int unified_bed_leveling::encoder_diff;
 

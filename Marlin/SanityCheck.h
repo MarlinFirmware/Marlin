@@ -180,10 +180,12 @@
   #error "MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(UBL_MESH_NUM_X_POINTS) || defined(UBL_MESH_NUM_Y_POINTS)
   #error "UBL_MESH_NUM_[XY]_POINTS is now GRID_MAX_POINTS_[XY]. Please update your configuration."
+#elif defined(UBL_G26_MESH_VALIDATION)
+  #error "UBL_G26_MESH_VALIDATION is now G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(UBL_MESH_EDIT_ENABLED)
-  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+  #error "UBL_MESH_EDIT_ENABLED is now G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(UBL_MESH_EDITING)
-  #error "UBL_MESH_EDITING is now UBL_G26_MESH_VALIDATION. Please update your configuration."
+  #error "UBL_MESH_EDITING is now G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(BLTOUCH_HEATERS_OFF)
   #error "BLTOUCH_HEATERS_OFF is now PROBING_HEATERS_OFF. Please update your configuration."
 #elif defined(BEEPER)
@@ -214,6 +216,12 @@
   #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
 #elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X)  || defined(UBL_MESH_MAX_Y)
   #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
+#elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
+  #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
+#elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
+  #error "BABYSTEP_ZPROBE_GFX_REVERSE is now set by OVERLAY_GFX_REVERSE. Please update your configurations."
+#elif defined(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)
+  #error "UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN is now SEGMENT_LEVELED_MOVES. Please update your configuration."
 #endif
 
 /**
@@ -235,6 +243,13 @@
   #error "DEFAULT_MACHINE_UUID must be specified."
 #elif !defined(WEBSITE_URL)
   #error "WEBSITE_URL must be specified."
+#endif
+
+/**
+ * Serial
+ */
+#if defined(USBCON) && ENABLED(SERIAL_XON_XOFF)
+  #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
 #endif
 
 /**
@@ -563,7 +578,9 @@ static_assert(1 >= 0
  * Delta requirements
  */
 #if ENABLED(DELTA)
-  #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
+  #if HAS_BED_PROBE && ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #error "Delta probably shouldn't use Z_MIN_PROBE_ENDSTOP. Comment out this line to continue."
+  #elif DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_DELTA
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
@@ -804,6 +821,14 @@ static_assert(1 >= 0
 
 #endif
 
+#if !HAS_MESH && ENABLED(G26_MESH_VALIDATION)
+  #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
+#endif
+
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && (DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(DOGLCD))
+  #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
+#endif
+
 /**
  * LCD_BED_LEVELING requirements
  */
@@ -1042,24 +1067,25 @@ static_assert(1 >= 0
 /**
  * Test Extruder Stepper Pins
  */
-#if E_STEPPERS > 4
-  #if !PIN_EXISTS(E4_STEP) || !PIN_EXISTS(E4_DIR) || !PIN_EXISTS(E4_ENABLE)
-    #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
-  #endif
-#elif E_STEPPERS > 3
-  #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
-    #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
-  #endif
-#elif E_STEPPERS > 2
-  #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
-    #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
-  #endif
-#elif E_STEPPERS > 1
-  #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-    #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+#if DISABLED(MK2_MULTIPLEXER) // MK2_MULTIPLEXER uses E0 stepper only
+  #if E_STEPPERS > 4
+    #if !PIN_EXISTS(E4_STEP) || !PIN_EXISTS(E4_DIR) || !PIN_EXISTS(E4_ENABLE)
+      #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+    #endif
+  #elif E_STEPPERS > 3
+    #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
+      #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+    #endif
+  #elif E_STEPPERS > 2
+    #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
+      #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+    #endif
+  #elif E_STEPPERS > 1
+    #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+    #endif
   #endif
 #endif
-
 /**
  * Endstop Tests
  */
@@ -1490,4 +1516,26 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS) && ENABLED(NO_WORKSPACE_OFFSETS)
   #error "CNC_COORDINATE_SYSTEMS is incompatible with NO_WORKSPACE_OFFSETS."
+#endif
+
+#if !BLOCK_BUFFER_SIZE || !IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
+  #error "BLOCK_BUFFER_SIZE must be a power of 2."
+#endif
+
+#if ENABLED(LED_CONTROL_MENU) && DISABLED(ULTIPANEL)
+  #error "LED_CONTROL_MENU requires an LCD controller."
+#endif
+
+#if ENABLED(SKEW_CORRECTION)
+  #if !defined(XY_SKEW_FACTOR) && !(defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD))
+    #error "SKEW_CORRECTION requires XY_SKEW_FACTOR or XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD."
+  #endif
+  #if ENABLED(SKEW_CORRECTION_FOR_Z)
+    #if !defined(XZ_SKEW_FACTOR) && !(defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD))
+      #error "SKEW_CORRECTION requires XZ_SKEW_FACTOR or XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD."
+    #endif
+    #if !defined(YZ_SKEW_FACTOR) && !(defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD))
+      #error "SKEW_CORRECTION requires YZ_SKEW_FACTOR or YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD."
+    #endif
+  #endif
 #endif

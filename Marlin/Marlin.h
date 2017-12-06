@@ -301,14 +301,57 @@ void report_current_position();
   extern float delta_height,
                delta_endstop_adj[ABC],
                delta_radius,
+               delta_tower_angle_trim[ABC],
+               delta_tower[ABC][2],
                delta_diagonal_rod,
                delta_calibration_radius,
+               delta_diagonal_rod_2_tower[ABC],
                delta_segments_per_second,
-               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
+
   void recalc_delta_settings();
+  float delta_safe_distance_from_top();
+
+  #if ENABLED(DELTA_FAST_SQRT)
+    float Q_rsqrt(const float number);
+    #define _SQRT(n) (1.0f / Q_rsqrt(n))
+  #else
+    #define _SQRT(n) SQRT(n)
+  #endif
+
+  // Macro to obtain the Z position of an individual tower
+  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
+    delta_diagonal_rod_2_tower[T] - HYPOT2(   \
+        delta_tower[T][X_AXIS] - raw[X_AXIS], \
+        delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
+      )                                       \
+    )
+
+  #define DELTA_RAW_IK() do {        \
+    delta[A_AXIS] = DELTA_Z(A_AXIS); \
+    delta[B_AXIS] = DELTA_Z(B_AXIS); \
+    delta[C_AXIS] = DELTA_Z(C_AXIS); \
+  }while(0)
+
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  extern bool g26_debug_flag;
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  constexpr bool g26_debug_flag = false;
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
+  #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
+  #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
+#elif ENABLED(MESH_BED_LEVELING)
+  #define _GET_MESH_X(I) mbl.index_to_xpos[I]
+  #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -345,7 +388,6 @@ void report_current_position();
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
-  void refresh_zprobe_zoffset(const bool no_babystep=false);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #else
@@ -439,6 +481,7 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
       || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
       || ENABLED(NOZZLE_PARK_FEATURE)                                              \
       || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+      || HAS_M206_COMMAND                                                          \
     ) || ENABLED(NO_MOTION_BEFORE_HOMING)
 
 #if HAS_AXIS_UNHOMED_ERR

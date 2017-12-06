@@ -122,6 +122,9 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+// Show extra position information in M114
+//#define M114_DETAIL
+
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
@@ -345,7 +348,7 @@
 
 // @section homing
 
-//homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
+// Homing hits each endstop, retracts by these distances, then does a slower bump.
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
@@ -479,6 +482,23 @@
 // The timeout (in ms) to return to the status screen from sub-menus
 //#define LCD_TIMEOUT_TO_STATUS 15000
 
+/**
+ * LED Control Menu
+ * Enable this feature to add LED Control to the LCD menu
+ */
+//#define LED_CONTROL_MENU
+#if ENABLED(LED_CONTROL_MENU)
+  #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
+  #if ENABLED(LED_COLOR_PRESETS)
+    #define LED_USER_PRESET_RED        255  // User defined RED value
+    #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
+    #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
+    #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
+    #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
+    //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
+  #endif
+#endif // LED_CONTROL_MENU
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -608,6 +628,10 @@
   // Enable this option and reduce the value to optimize screen updates.
   // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
+
+  // Swap the CW/CCW indicators in the graphics overlay
+  //#define OVERLAY_GFX_REVERSE
+
 #endif // DOGLCD
 
 // @section safety
@@ -642,7 +666,6 @@
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
-  //#define BABYSTEP_ZPROBE_GFX_REVERSE // Reverses the direction of the CW/CCW indicators
 #endif
 
 // @section extruder
@@ -701,9 +724,6 @@
   //#define MESH_MIN_Y MESH_INSET
   //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #define UBL_SAVE_ACTIVE_ON_M500 // Save the currently active mesh in the current slot on M500
 #endif
 
 // @section extras
@@ -748,7 +768,7 @@
 // @section hidden
 
 // The number of linear motions that can be in the plan at any give time.
-// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
+// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
   #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
@@ -1271,6 +1291,40 @@
 #endif
 
 /**
+ * Filament Width Sensor
+ *
+ * Measures the filament width in real-time and adjusts
+ * flow rate to compensate for any irregularities.
+ *
+ * Also allows the measured filament diameter to set the
+ * extrusion rate, so the slicer only has to specify the
+ * volume.
+ *
+ * Only a single extruder is supported at this time.
+ *
+ *  34 RAMPS_14    : Analog input 5 on the AUX2 connector
+ *  81 PRINTRBOARD : Analog input 2 on the Exp1 connector (version B,C,D,E)
+ * 301 RAMBO       : Analog input 3
+ *
+ * Note: May require analog pins to be defined for other boards.
+ */
+//#define FILAMENT_WIDTH_SENSOR
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #define FILAMENT_SENSOR_EXTRUDER_NUM 0    // Index of the extruder that has the filament sensor. :[0,1,2,3,4]
+  #define MEASUREMENT_DELAY_CM        14    // (cm) The distance from the filament sensor to the melting chamber
+
+  #define MEASURED_UPPER_LIMIT         3.30 // (mm) Upper limit used to validate sensor reading
+  #define MEASURED_LOWER_LIMIT         1.90 // (mm) Lower limit used to validate sensor reading
+  #define MAX_MEASUREMENT_DELAY       20    // (bytes) Buffer size for stored measurements (1 byte per cm). Must be larger than MEASUREMENT_DELAY_CM.
+
+  #define DEFAULT_MEASURED_FILAMENT_DIA DEFAULT_NOMINAL_FILAMENT_DIA // Set measured to nominal initially
+
+  // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
+  //#define FILAMENT_LCD_DISPLAY
+#endif
+
+/**
  * CNC Coordinate Systems
  *
  * Enables G53 and G54-G59.3 commands to select coordinate systems
@@ -1468,5 +1522,14 @@
                                          // If you experience stuttering, reboots, etc. this option can reveal how
                                          // tweaks made to the configuration are affecting the printer in real-time.
 #endif
+
+/**
+ * NanoDLP Sync support
+ *
+ * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
+ * string to enable synchronization with DLP projector exposure. This change will allow to use
+ * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
+ */
+//#define NANODLP_Z_SYNC
 
 #endif // CONFIGURATION_ADV_H

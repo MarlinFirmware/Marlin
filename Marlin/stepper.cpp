@@ -54,6 +54,10 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
+  #include "ubl.h"
+#endif
+
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -61,10 +65,6 @@
 Stepper stepper; // Singleton
 
 // public:
-
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-  extern bool ubl_lcd_map_control;
-#endif
 
 block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
 
@@ -286,9 +286,6 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-
 /**
  *         __________________________
  *        /|                        |\     _________________         ^
@@ -443,8 +440,7 @@ void Stepper::isr() {
   // If there is no current block, attempt to pop one from the buffer
   if (!current_block) {
     // Anything in the buffer?
-    current_block = planner.get_current_block();
-    if (current_block) {
+    if ((current_block = planner.get_current_block())) {
       trapezoid_generator_reset();
 
       // Initialize Bresenham counters to 1/2 the ceiling
@@ -1224,7 +1220,7 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-    if (!ubl_lcd_map_control)
+    if (!ubl.lcd_map_control)
       cleaning_buffer_counter = 5000;
   #else
     cleaning_buffer_counter = 5000;
