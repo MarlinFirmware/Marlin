@@ -40,6 +40,26 @@
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
+//===== Pololus calibration =================================================
+//===========================================================================
+
+// Voltage reference on potentiometer on Green Pololus in millivolts
+#define Vref_mV   800
+
+// Rsc value used on PCB of the Green Pololus
+#define Rsc_mOhms 100
+
+// Estimated maximum acceleration for X and Y axis
+#define MAX_XYAXIS_ACCEL (3 * (Vref_mV) * 100 / (Rsc_mOhms))
+
+// Notes:
+//	If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
+// if perfectly achievable. Using 1A as motor current, 2400 mm/s^2 acceleration
+// is perfectly possible without losing any steps
+// On A4988 drivers, maximum current can be calculated as I_TripMax= Vref/(8*Rs) 
+//
+
+//===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
 
@@ -543,7 +563,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION        { 1500, 1500, 100, 200 } /* For 300mm/s printing */
+#define DEFAULT_MAX_ACCELERATION        { MAX_XYAXIS_ACCEL, MAX_XYAXIS_ACCEL, 100, 200 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -553,9 +573,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION   200    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          MAX_XYAXIS_ACCEL    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  100    						  // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   MAX_XYAXIS_ACCEL    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk (mm/s)
