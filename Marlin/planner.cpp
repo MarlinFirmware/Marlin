@@ -92,8 +92,6 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
 
-bool Planner::split_first_move = true;
-
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
 float Planner::e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
@@ -1441,7 +1439,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     position[E_AXIS] = target[E_AXIS];
 
   // Always split the first move into two (if not homing or probing)
-  if (!blocks_queued() && split_first_move) {
+  if (!blocks_queued()) {
     #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
     const int32_t between[XYZE] = { _BETWEEN(X), _BETWEEN(Y), _BETWEEN(Z), _BETWEEN(E) };
     DISABLE_STEPPER_DRIVER_INTERRUPT();
