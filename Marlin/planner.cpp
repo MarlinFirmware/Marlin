@@ -577,8 +577,6 @@ void Planner::calculate_volumetric_multipliers() {
           rx = temprx;
           ry = tempry;
         }
-        else
-          SERIAL_ECHOLN(MSG_SKEW_WARN);
       }
     #endif
 
