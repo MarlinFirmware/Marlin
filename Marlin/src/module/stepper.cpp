@@ -97,18 +97,13 @@ uint8_t Stepper::last_direction_bits = 0;        // The next stepping-bits to be
 int16_t Stepper::cleaning_buffer_counter = 0;
 
 #if ENABLED(X_DUAL_ENDSTOPS)
-  bool Stepper::locked_x_motor = false;
-  bool Stepper::locked_x2_motor = false;
+  bool Stepper::locked_x_motor = false, Stepper::locked_x2_motor = false;
 #endif
-
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  bool Stepper::locked_y_motor = false;
-  bool Stepper::locked_y2_motor = false;
+  bool Stepper::locked_y_motor = false, Stepper::locked_y2_motor = false;
 #endif
-
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::locked_z_motor = false;
-  bool Stepper::locked_z2_motor = false;
+  bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
 long Stepper::counter_X = 0,

@@ -53,6 +53,9 @@
   #error "SIZE_OF_CROSSHAIRS must be less than SIZE_OF_INTERSECTION_CIRCLES."
 #endif
 
+#define G26_OK false
+#define G26_ERR true
+
 /**
  *   G26 Mesh Validation Tool
  *
@@ -268,9 +271,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   set_destination_from_current();
 }
 
-FORCE_INLINE void move_to(const float where[XYZE], const float &de) {
-  move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de);
-}
+FORCE_INLINE void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
 
 void retract_filament(const float where[XYZE]) {
   if (!g26_retracted) { // Only retract if we are not already retracted!
@@ -314,9 +315,8 @@ void print_line_from_here_to_there(const float &sx, const float &sy, const float
 
   // If the end point of the line is closer to the nozzle, flip the direction,
   // moving from the end to the start. On very small lines the optimization isn't worth it.
-  if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < FABS(line_length)) {
+  if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < FABS(line_length))
     return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
-  }
 
   // Decide whether to retract & bump
 
@@ -373,7 +373,6 @@ inline bool look_for_lines_to_connect() {
                 SERIAL_EOL();
                 //debug_current_and_destination(PSTR("Connecting horizontal line."));
               }
-
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
             }
             bitmap_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
@@ -405,8 +404,8 @@ inline bool look_for_lines_to_connect() {
                   SERIAL_ECHOPAIR(", ey=", ey);
                   SERIAL_CHAR(')');
                   SERIAL_EOL();
+
                   #if ENABLED(AUTO_BED_LEVELING_UBL)
-                    void debug_current_and_destination(const char *title);
                     debug_current_and_destination(PSTR("Connecting vertical line."));
                   #endif
                 }
@@ -678,9 +677,8 @@ void GcodeSuite::G26() {
     return;
   }
 
-  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS],
+  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS];
   g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
-
   if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
     SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
@@ -727,6 +725,7 @@ void GcodeSuite::G26() {
   #if ENABLED(ULTRA_LCD)
     lcd_external_control = true;
   #endif
+
   //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
   /**
@@ -806,7 +805,7 @@ void GcodeSuite::G26() {
         #if IS_KINEMATIC
           // Check to make sure this segment is entirely on the bed, skip if not.
           if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
-        #else                                              // not, we need to skip
+        #else                                               // not, we need to skip
           rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
           ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
           xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
@@ -842,15 +841,15 @@ void GcodeSuite::G26() {
   move_to(destination, 0); // Raise the nozzle
   //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
-  destination[X_AXIS] = g26_x_pos;                                               // Move back to the starting position
+  destination[X_AXIS] = g26_x_pos;                               // Move back to the starting position
   destination[Y_AXIS] = g26_y_pos;
-  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                        // Keep the nozzle where it is
+  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;            // Keep the nozzle where it is
 
   move_to(destination, 0); // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
 
   #if ENABLED(ULTRA_LCD)
-    lcd_external_control = false;   // Give back control of the LCD Panel!
+    lcd_external_control = false;     // Give back control of the LCD Panel!
   #endif
 
   if (!g26_keep_heaters_on) {

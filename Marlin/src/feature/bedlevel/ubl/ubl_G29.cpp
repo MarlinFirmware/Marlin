@@ -458,7 +458,7 @@
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
             break;
 
-        #endif
+        #endif // HAS_BED_PROBE
 
         case 2: {
           #if ENABLED(NEWPANEL)
@@ -913,7 +913,7 @@
 
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
-    float unified_bed_leveling::measure_business_card_thickness(const float in_height) {
+    float unified_bed_leveling::measure_business_card_thickness(const float &in_height) {
       lcd_external_control = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
@@ -1033,7 +1033,6 @@
       KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
-
   #endif // NEWPANEL
 
   bool unified_bed_leveling::g29_parameter_parsing() {
@@ -1078,11 +1077,11 @@
       #endif
         {
           g29_phase_value = pv;
-           if (!WITHIN(g29_phase_value, 0, 6)) {
-             SERIAL_PROTOCOLLNPGM("?(P)hase value invalid (0-6).\n");
-             err_flag = true;
-           }
-         }
+          if (!WITHIN(g29_phase_value, 0, 6)) {
+            SERIAL_PROTOCOLLNPGM("?(P)hase value invalid (0-6).\n");
+            err_flag = true;
+          }
+        }
     }
 
     if (parser.seen('J')) {
@@ -1341,11 +1340,10 @@
         z_values[x][y] -= tmp_z_values[x][y];
   }
 
-
   mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
 
-    bool found_a_NAN  = false;
-    bool found_a_real = false;
+    bool found_a_NAN  = false, found_a_real = false;
+
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
     out_mesh.distance = -99999.99;
@@ -1353,12 +1351,12 @@
     for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        if ( isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
+        if (isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
 
           const float mx = mesh_index_to_xpos(i),
                       my = mesh_index_to_ypos(j);
 
-          if ( !position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
+          if (!position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
             continue;
 
           found_a_NAN = true;
@@ -1452,6 +1450,7 @@
         }
       } // for j
     } // for i
+
     return out_mesh;
   }
 
@@ -1499,14 +1498,7 @@
         if (!position_is_reachable(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
           break;
 
-        float new_z = z_values[location.x_index][location.y_index];
-
-        if (isnan(new_z)) // if the mesh point is invalid, set it to 0.0 so it can be edited
-          new_z = 0.0;
-
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
-
-        new_z = FLOOR(new_z * 1000.0) * 0.001; // Chop off digits after the 1000ths place
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         lcd_external_control = true;
@@ -1514,6 +1506,10 @@
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show the user which point is being adjusted
 
         lcd_refresh();
+
+        float new_z = z_values[location.x_index][location.y_index];
+        if (isnan(new_z)) new_z = 0.0;          // Set invalid mesh points to 0.0 so they can be edited
+        new_z = FLOOR(new_z * 1000.0) * 0.001;  // Chop off digits after the 1000ths place
 
         lcd_mesh_edit_setup(new_z);
 
