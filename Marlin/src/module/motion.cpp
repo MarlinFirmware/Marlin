@@ -426,11 +426,13 @@ void bracket_probe_move(const bool before) {
     saved_feedrate_percentage = feedrate_percentage;
     feedrate_percentage = 100;
     gcode.refresh_cmd_timeout();
+    planner.split_first_move = false;
   }
   else {
     feedrate_mm_s = saved_feedrate_mm_s;
     feedrate_percentage = saved_feedrate_percentage;
     gcode.refresh_cmd_timeout();
+    planner.split_first_move = true;
   }
 }
 
