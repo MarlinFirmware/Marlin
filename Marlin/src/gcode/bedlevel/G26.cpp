@@ -162,28 +162,27 @@ int8_t g26_prime_flag;
    * Detect is_lcd_clicked, debounce it, and return true for cancel
    */
   bool user_canceled() {
-    if (!is_lcd_clicked()) return false;
-    safe_delay(10);                       // Wait for click to settle
+    if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
 
     #if ENABLED(ULTRA_LCD)
       lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
       lcd_quick_feedback();
     #endif
 
-    while (!is_lcd_clicked()) idle();    // Wait for button release
+    safe_delay(10);                      // Wait for click to settle
+    while (!is_lcd_clicked()) idle();    // Wait for button press again?
 
     // If the button is suddenly pressed again,
     // ask the user to resolve the issue
     lcd_setstatusPGM(PSTR("Release button"), 99); // will never appear...
-    while (is_lcd_clicked()) idle();             // unless this loop happens
+    wait_for_release();
     lcd_reset_status();
-
     return true;
   }
 
   bool exit_from_g26() {
     lcd_setstatusPGM(PSTR("Leaving G26"), -1);
-    while (is_lcd_clicked()) idle();
+    wait_for_release();
     return G26_ERR;
   }
 
@@ -514,7 +513,7 @@ inline bool prime_nozzle() {
         idle();
       }
 
-      while (is_lcd_clicked()) idle();           // Debounce Encoder Wheel
+      wait_for_release();
 
       strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
                                                           // So... We cheat to get a message up.
