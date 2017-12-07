@@ -960,22 +960,22 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
-    #define MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
+    #define _MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define _MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-    #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
-    #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
-    #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
   #else
     // Boundaries for Cartesian probing based on bed limits
-    #define MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
   // Allow configuration to override these for special purposes
