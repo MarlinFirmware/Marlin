@@ -559,7 +559,7 @@ uint16_t max_display_update_time = 0;
     if (no_reentry) return;
     // Make this the current handler till all moves are done
     no_reentry = true;
-    screenFunc_t old_screen = currentScreen;
+    const screenFunc_t old_screen = currentScreen;
     lcd_goto_screen(_lcd_synchronize);
     stepper.synchronize();
     no_reentry = false;
@@ -2336,6 +2336,19 @@ void kill_screen(const char* lcd_msg) {
     void set_current_from_steppers_for_axis(const AxisEnum axis);
     void sync_plan_position();
 
+    void _lcd_do_nothing() {}
+    void _lcd_hard_stop() {
+      stepper.quick_stop();
+      const screenFunc_t old_screen = currentScreen;
+      currentScreen = _lcd_do_nothing;
+      while (planner.movesplanned()) idle();
+      currentScreen = old_screen;
+      stepper.cleaning_buffer_counter = 0;
+      set_current_from_steppers_for_axis(ALL_AXES);
+      sync_plan_position();
+      refresh_cmd_timeout();
+    }
+
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
 
@@ -2380,15 +2393,10 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) {
         lcd_implementation_ubl_plot(x_plot, y_plot);
 
-        ubl_map_move_to_xy(); // Move to current location
+        if (planner.movesplanned()) // If the nozzle is already moving, cancel the move.
+          _lcd_hard_stop();
 
-        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
-          stepper.quick_stop();
-          set_current_from_steppers_for_axis(ALL_AXES);
-          sync_plan_position();
-          ubl_map_move_to_xy(); // Move to new location
-          refresh_cmd_timeout();
-        }
+        ubl_map_move_to_xy();       // Move to new location
       }
     }
 

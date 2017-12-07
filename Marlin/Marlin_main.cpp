@@ -1719,7 +1719,6 @@ static void setup_for_endstop_or_probe_move() {
   saved_feedrate_percentage = feedrate_percentage;
   feedrate_percentage = 100;
   refresh_cmd_timeout();
-  planner.split_first_move = false; 
 }
 
 static void clean_up_after_endstop_or_probe_move() {
@@ -1729,7 +1728,6 @@ static void clean_up_after_endstop_or_probe_move() {
   feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
   refresh_cmd_timeout();
-  planner.split_first_move = true; 
 }
 
 #if HAS_BED_PROBE

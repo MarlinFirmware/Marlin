@@ -1224,12 +1224,7 @@ void Stepper::finish_and_disable() {
 }
 
 void Stepper::quick_stop() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-    if (!ubl.lcd_map_control)
-      cleaning_buffer_counter = 5000;
-  #else
-    cleaning_buffer_counter = 5000;
-  #endif
+  cleaning_buffer_counter = 5000;
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
@@ -1255,6 +1250,7 @@ void Stepper::endstop_triggered(AxisEnum axis) {
   #endif // !COREXY && !COREXZ && !COREYZ
 
   kill_current_block();
+  cleaning_buffer_counter = -(BLOCK_BUFFER_SIZE - 1); // Ignore remaining blocks
 }
 
 void Stepper::report_positions() {

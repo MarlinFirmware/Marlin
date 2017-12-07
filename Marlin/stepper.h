@@ -101,10 +101,11 @@ class Stepper {
       static uint32_t motor_current_setting[3];
     #endif
 
+    static int16_t cleaning_buffer_counter;
+
   private:
 
     static uint8_t last_direction_bits;        // The next stepping-bits to be output
-    static int16_t cleaning_buffer_counter;
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_x_motor, locked_x2_motor;
