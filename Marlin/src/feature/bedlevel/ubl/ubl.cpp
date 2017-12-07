@@ -64,7 +64,7 @@
   constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
                   unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTIPANEL)
     bool unified_bed_leveling::lcd_map_control = false;
   #endif
 
