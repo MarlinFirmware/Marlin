@@ -111,18 +111,8 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define BTN_EN2 48
  #define BTN_ENC 31  //the click 
 
- #define BLEN_C 2
- #define BLEN_B 1
- #define BLEN_A 0
-
  #define SD_DETECT_PIN 49 
  #define BEEPER_PIN   29
  #define SDSS         53
 
 #define LCD_SDSS 53
-
- //encoder rotation values
- #define encrot0 0
- #define encrot1 2
- #define encrot2 3
- #define encrot3 1
