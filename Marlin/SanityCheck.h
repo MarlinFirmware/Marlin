@@ -1533,6 +1533,9 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 #endif
 
 #if ENABLED(SKEW_CORRECTION)
+  #if ENABLED(AUTO_BED_LEVELING_UBL) && !ENABLED(SEGMENT_LEVELED_MOVES)
+    #error "SKEW_CORRECTION with AUTO_BED_LEVELING_UBL requires SEGMENT_LEVELED_MOVES."
+  #endif
   #if !defined(XY_SKEW_FACTOR) && !(defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD))
     #error "SKEW_CORRECTION requires XY_SKEW_FACTOR or XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD."
   #endif
