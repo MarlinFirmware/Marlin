@@ -311,8 +311,7 @@
   void unified_bed_leveling::G29() {
 
     if (!settings.calc_num_meshes()) {
-      SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it");
-      SERIAL_PROTOCOLLNPGM("with M502, M500, M501 in that order.\n");
+      SERIAL_PROTOCOLLNPGM("?Enable EEPROM and init with M502, M500.\n");
       return;
     }
 
