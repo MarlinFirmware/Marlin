@@ -12649,7 +12649,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
-                  feed_factor = inv_segment_length * _feedrate_mm_s;
+                  inverse_secs = inv_segment_length * _feedrate_mm_s;
       float oldA = stepper.get_axis_position_degrees(A_AXIS),
             oldB = stepper.get_axis_position_degrees(B_AXIS);
     #endif
@@ -12683,7 +12683,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         // Use ratio between the length of the move and the larger angle change
         const float adiff = abs(delta[A_AXIS] - oldA),
                     bdiff = abs(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * inverse_secs, active_extruder);
         oldA = delta[A_AXIS];
         oldB = delta[B_AXIS];
       #else
@@ -12701,7 +12701,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       ADJUST_DELTA(rtarget);
       const float adiff = abs(delta[A_AXIS] - oldA),
                   bdiff = abs(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * inverse_secs, active_extruder);
     #else
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
