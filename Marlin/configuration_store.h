@@ -52,10 +52,10 @@ class MarlinSettings {
     #endif
 
     #if DISABLED(DISABLE_M503)
-      static void report(bool forReplay=false);
+      static void report(const bool forReplay=false);
     #else
       FORCE_INLINE
-      static void report(bool forReplay=false) { UNUSED(forReplay); }
+      static void report(const bool forReplay=false) { UNUSED(forReplay); }
     #endif
 
   private:
