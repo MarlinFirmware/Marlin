@@ -457,10 +457,6 @@ void report_current_position();
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
-#if HAS_TEMP_HOTEND || HAS_TEMP_BED
-  void print_heaterstates();
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
 #endif

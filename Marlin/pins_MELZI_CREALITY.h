@@ -60,7 +60,7 @@
 #define ST7920_DELAY_3 DELAY_2_NOP
 
 #if ENABLED(MINIPANEL)
-  #undef DOGLCD_CS    
+  #undef DOGLCD_CS
   #define DOGLCD_CS        LCD_PINS_RS
 #endif
 

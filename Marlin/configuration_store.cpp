@@ -1547,7 +1547,7 @@ void MarlinSettings::reset() {
    *
    * Unless specifically disabled, M503 is available even without EEPROM
    */
-  void MarlinSettings::report(bool forReplay) {
+  void MarlinSettings::report(const bool forReplay) {
 
     /**
      * Announce current units, in case inches are being displayed

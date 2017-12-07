@@ -81,19 +81,23 @@
         static int  g29_grid_size;
       #endif
 
-      static float measure_point_with_encoder();
-      static float measure_business_card_thickness(float);
+      #if ENABLED(NEWPANEL)
+        static void move_z_with_encoder(const float &multiplier);
+        static float measure_point_with_encoder();
+        static float measure_business_card_thickness(const float&);
+        static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+        static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
+      #endif
+
       static bool g29_parameter_parsing();
       static void find_mean_mesh_height();
       static void shift_mesh_height();
       static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
-      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
       static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
       static void g29_what_command();
       static void g29_eeprom_dump();
       static void g29_compare_current_mesh_to_stored_mesh();
-      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
       static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
       static void smart_fill_mesh();
 
