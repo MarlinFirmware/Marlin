@@ -53,7 +53,6 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
- #define KNOWN_BOARD 1
  #define LARGE_FLASH true
 
  #define X_DIR_PIN         54
@@ -78,12 +77,6 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define E0_STEP_PIN         67 
  #define E0_DIR_PIN          24
  #define E0_ENABLE_PIN       26
-
- #define SDPOWER            -1
- #define LED_PIN            -1 
- #define PS_ON_PIN          -1
- #define KILL_PIN           -1
-
       
  #define SSR_PIN            6
  #define HEATER_BED_PIN     8 // heat bed
@@ -133,6 +126,3 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define encrot1 2
  #define encrot2 3
  #define encrot3 1
- 
-
-
