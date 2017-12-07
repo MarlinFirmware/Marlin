@@ -2307,11 +2307,12 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_map_homing() {
       defer_return_to_status = true;
-      ubl.lcd_map_control = true; // Return to the map screen
       if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        ubl.lcd_map_control = true; // Return to the map screen
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
+      }
     }
 
     /**
@@ -2340,6 +2341,19 @@ void kill_screen(const char* lcd_msg) {
      */
     void set_current_from_steppers_for_axis(const AxisEnum axis);
     void sync_plan_position();
+
+    void _lcd_do_nothing() {}
+    void _lcd_hard_stop() {
+      stepper.quick_stop();
+      const screenFunc_t old_screen = currentScreen;
+      currentScreen = _lcd_do_nothing;
+      while (planner.movesplanned()) idle();
+      currentScreen = old_screen;
+      stepper.cleaning_buffer_counter = 0;
+      set_current_from_steppers_for_axis(ALL_AXES);
+      sync_plan_position();
+      gcode.refresh_cmd_timeout();
+    }
 
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
@@ -2385,15 +2399,10 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) {
         lcd_implementation_ubl_plot(x_plot, y_plot);
 
-        ubl_map_move_to_xy(); // Move to current location
+        if (planner.movesplanned()) // If the nozzle is already moving, cancel the move.
+          _lcd_hard_stop();
 
-        if (planner.movesplanned() > 1) { // if the nozzle is moving, cancel the move.  There is a new location
-          stepper.quick_stop();
-          set_current_from_steppers_for_axis(ALL_AXES);
-          sync_plan_position();
-          ubl_map_move_to_xy(); // Move to new location
-          gcode.refresh_cmd_timeout();
-        }
+        ubl_map_move_to_xy();       // Move to new location
       }
     }
 
