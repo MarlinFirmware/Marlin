@@ -519,7 +519,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   #define BUZZ(d,f) NOOP
 #endif
 
-static uint8_t target_extruder;
+uint8_t target_extruder;
 
 #if HAS_BED_PROBE
   float zprobe_zoffset; // Initialized by settings.load()
@@ -7570,80 +7570,6 @@ inline void gcode_M104() {
   #endif
 }
 
-#if HAS_TEMP_HOTEND || HAS_TEMP_BED
-
-  void print_heater_state(const float &c, const float &t,
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      const float r,
-    #endif
-    const int8_t e=-2
-  ) {
-    #if !(HAS_TEMP_BED && HAS_TEMP_HOTEND) && HOTENDS <= 1
-      UNUSED(e);
-    #endif
-
-    SERIAL_PROTOCOLCHAR(' ');
-    SERIAL_PROTOCOLCHAR(
-      #if HAS_TEMP_BED && HAS_TEMP_HOTEND
-        e == -1 ? 'B' : 'T'
-      #elif HAS_TEMP_HOTEND
-        'T'
-      #else
-        'B'
-      #endif
-    );
-    #if HOTENDS > 1
-      if (e >= 0) SERIAL_PROTOCOLCHAR('0' + e);
-    #endif
-    SERIAL_PROTOCOLCHAR(':');
-    SERIAL_PROTOCOL(c);
-    SERIAL_PROTOCOLPAIR(" /" , t);
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
-      SERIAL_PROTOCOLCHAR(')');
-    #endif
-  }
-
-  void print_heaterstates() {
-    #if HAS_TEMP_HOTEND
-      print_heater_state(thermalManager.degHotend(target_extruder), thermalManager.degTargetHotend(target_extruder)
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , thermalManager.rawHotendTemp(target_extruder)
-        #endif
-      );
-    #endif
-    #if HAS_TEMP_BED
-      print_heater_state(thermalManager.degBed(), thermalManager.degTargetBed(),
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          thermalManager.rawBedTemp(),
-        #endif
-        -1 // BED
-      );
-    #endif
-    #if HOTENDS > 1
-      HOTEND_LOOP() print_heater_state(thermalManager.degHotend(e), thermalManager.degTargetHotend(e),
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          thermalManager.rawHotendTemp(e),
-        #endif
-        e
-      );
-    #endif
-    SERIAL_PROTOCOLPGM(" @:");
-    SERIAL_PROTOCOL(thermalManager.getHeaterPower(target_extruder));
-    #if HAS_TEMP_BED
-      SERIAL_PROTOCOLPGM(" B@:");
-      SERIAL_PROTOCOL(thermalManager.getHeaterPower(-1));
-    #endif
-    #if HOTENDS > 1
-      HOTEND_LOOP() {
-        SERIAL_PROTOCOLPAIR(" @", e);
-        SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL(thermalManager.getHeaterPower(e));
-      }
-    #endif
-  }
-#endif
-
 /**
  * M105: Read hot end and bed temperature
  */
@@ -7652,7 +7578,7 @@ inline void gcode_M105() {
 
   #if HAS_TEMP_HOTEND || HAS_TEMP_BED
     SERIAL_PROTOCOLPGM(MSG_OK);
-    print_heaterstates();
+    thermalManager.print_heaterstates();
   #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
@@ -7663,26 +7589,12 @@ inline void gcode_M105() {
 
 #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
 
-  static uint8_t auto_report_temp_interval;
-  static millis_t next_temp_report_ms;
-
   /**
    * M155: Set temperature auto-report interval. M155 S<seconds>
    */
   inline void gcode_M155() {
-    if (parser.seenval('S')) {
-      auto_report_temp_interval = parser.value_byte();
-      NOMORE(auto_report_temp_interval, 60);
-      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-    }
-  }
-
-  inline void auto_report_temperatures() {
-    if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
-      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-      print_heaterstates();
-      SERIAL_EOL();
-    }
+    if (parser.seenval('S'))
+      thermalManager.set_auto_report_interval(parser.value_byte());
   }
 
 #endif // AUTO_REPORT_TEMPERATURES
@@ -7851,7 +7763,7 @@ inline void gcode_M109() {
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
-      print_heaterstates();
+      thermalManager.print_heaterstates();
       #if TEMP_RESIDENCY_TIME > 0
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms)
@@ -7988,7 +7900,7 @@ inline void gcode_M109() {
       now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
-        print_heaterstates();
+        thermalManager.print_heaterstates();
         #if TEMP_BED_RESIDENCY_TIME > 0
           SERIAL_PROTOCOLPGM(" W:");
           if (residency_start_ms)
@@ -13672,7 +13584,7 @@ void idle(
   host_keepalive();
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    auto_report_temperatures();
+    thermalManager.auto_report_temperatures();
   #endif
 
   manage_inactivity(

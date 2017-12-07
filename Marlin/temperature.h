@@ -539,6 +539,20 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+      static void print_heaterstates();
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        static uint8_t auto_report_temp_interval;
+        static millis_t next_temp_report_ms;
+        static void auto_report_temperatures(void);
+        FORCE_INLINE void set_auto_report_interval(uint8_t v) {
+          NOMORE(v, 60);
+          auto_report_temp_interval = v;
+          next_temp_report_ms = millis() + 1000UL * v;
+        }
+      #endif
+    #endif
+
   private:
 
     static void set_current_temp_raw();

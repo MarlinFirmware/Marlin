@@ -519,7 +519,7 @@
 
             if (ELAPSED(millis(), next)) {
               next = millis() + 5000UL;
-              print_heaterstates();
+              thermalManager.print_heaterstates();
               SERIAL_EOL();
             }
             idle();
@@ -541,7 +541,7 @@
 
       if (ELAPSED(millis(), next)) {
         next = millis() + 5000UL;
-        print_heaterstates();
+        thermalManager.print_heaterstates();
         SERIAL_EOL();
       }
       idle();
