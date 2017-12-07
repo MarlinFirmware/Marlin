@@ -101,17 +101,27 @@ void GcodeSuite::G92() {
     const float curr_z = current_position[Z_AXIS];
     const float adjust_z = parser.value_axis_units(Z_AXIS);
 
-    do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
-    current_position[Z_AXIS] = curr_z;
+    if(adjust_z == 0){//report total adjusted
+       SERIAL_ECHOLNPGM("\ntotal_adjusted_Z: ");
+       SERIAL_ECHOLN(total_adjusted_Z);
 
-    total_adjusted_Z+= adjust_z;
+    }else{
+      if(adjust_z > 0){
+        do_blocking_move_to_z(curr_z + Z_ADJUST_HOP_DISTANCE + adjust_z, HOMING_FEEDRATE_Z);
+        do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("\nA: ");
-    SERIAL_ECHOLN(adjust_z);
-    SERIAL_ECHOLNPGM("\ntotal_adjusted_Z: ");
-    SERIAL_ECHOLN(total_adjusted_Z);
+      }else{//adjust_z < 0
+        do_blocking_move_to_z(curr_z + Z_ADJUST_HOP_DISTANCE, HOMING_FEEDRATE_Z);
+        do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
+      }
 
+      current_position[Z_AXIS] = curr_z;
+      total_adjusted_Z+= adjust_z;
+
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM("\nA: ");
+      SERIAL_ECHOLN(adjust_z);
+    }
   }
 
   if (didXYZ || didA)
