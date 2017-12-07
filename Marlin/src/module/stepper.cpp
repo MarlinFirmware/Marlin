@@ -1219,12 +1219,7 @@ void Stepper::finish_and_disable() {
 }
 
 void Stepper::quick_stop() {
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-    if (!ubl.lcd_map_control)
-  #endif
-      cleaning_buffer_counter = 5000;
-
+  cleaning_buffer_counter = 5000;
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
