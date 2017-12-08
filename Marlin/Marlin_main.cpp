@@ -2215,7 +2215,7 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
   /**
-   * @details Used by probe_pt to do a single Z probe.
+   * @details Used by probe_pt to do a single Z probe at the current position.
    *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
    *
    * @return The raw Z position where the probe was triggered
@@ -2229,7 +2229,8 @@ static void clean_up_after_endstop_or_probe_move() {
     // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
-    #if ENABLED(PROBE_DOUBLE_TOUCH)
+    // Double-probing does a fast probe followed by a slow probe
+    #if MULTIPLE_PROBING == 2
 
       // Do a first probe at the fast speed
       if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
@@ -2257,22 +2258,49 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    // move down slowly to find bed
-    if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+    #if MULTIPLE_PROBING > 2
+      float probes_total = 0;
+      for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
+    #endif
+
+        // move down slowly to find bed
+        if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+
+    #if MULTIPLE_PROBING > 2
+        probes_total += current_position[Z_AXIS];
+        if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      }
+    #endif
+
+    #if MULTIPLE_PROBING > 2
+
+      // Return the average value of all probes
+      return probes_total * (1.0 / (MULTIPLE_PROBING));
+
+    #elif MULTIPLE_PROBING == 2
+
+      const float z2 = current_position[Z_AXIS];
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("2nd Probe Z:", z2);
+          SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - z2);
+        }
+      #endif
+
+      // Return a weighted average of the fast and slow probes
+      return (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
+
+    #else
+
+      // Return the single probe result
+      return current_position[Z_AXIS];
+
+    #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
     #endif
-
-    // Debug: compare probe heights
-    #if ENABLED(PROBE_DOUBLE_TOUCH) && ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("2nd Probe Z:", current_position[Z_AXIS]);
-        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
-      }
-    #endif
-
-    return current_position[Z_AXIS];
   }
 
   /**
@@ -6005,7 +6033,7 @@ void home_all_axes() { gcode_G28(true); }
 
     bool G38_pass_fail = false;
 
-    #if ENABLED(PROBE_DOUBLE_TOUCH)
+    #if MULTIPLE_PROBING > 1
       // Get direction of move and retract
       float retract_mm[XYZ];
       LOOP_XYZ(i) {
@@ -6032,7 +6060,7 @@ void home_all_axes() { gcode_G28(true); }
 
       G38_pass_fail = true;
 
-      #if ENABLED(PROBE_DOUBLE_TOUCH)
+      #if MULTIPLE_PROBING > 1
         // Move away by the retract distance
         set_destination_from_current();
         LOOP_XYZ(i) destination[i] += retract_mm[i];
