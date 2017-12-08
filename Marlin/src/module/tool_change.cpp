@@ -158,9 +158,21 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("No move on toolchange");
           #endif
         }
-
-        // Save current position to destination, for use later
-        set_destination_from_current();
+        
+        #if ENABLED(DUAL_X_CARRIAGE)//trick into thinking X is homed
+          #if ENABLED(DONT_UNPARK_DUAL_X)
+            float tempX = current_position[X_AXIS];
+            SERIAL_ECHOLNPAIR("tempX: ", tempX);
+            current_position[X_AXIS] = x_home_pos(tmp_extruder);
+            SERIAL_ECHOLNPAIR("trickX: ", current_position[X_AXIS]);
+          #endif
+        #endif
+        set_destination_from_current();//unpark position set. Save current position to destination, for use later
+        #if ENABLED(DUAL_X_CARRIAGE)//back to normal X from trick
+          #if ENABLED(DONT_UNPARK_DUAL_X)
+            current_position[X_AXIS] = tempX;
+          #endif
+        #endif
 
         #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -191,17 +203,25 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 SERIAL_ECHOLNPAIR("Lower to ", current_position[Z_AXIS]);
               }
             #endif
+
+            bool park_active_tool = true;
+            #if ENABLED(DUAL_X_CARRIAGE)
+              if(active_extruder >= 2)
+                park_active_tool = false;
+            #endif
             // Park old head: 1) raise 2) move to park position 3) lower
-            for (uint8_t i = 0; i < 3; i++)
-              planner.buffer_line(
-                i == 0 ? current_position[X_AXIS] : xhome,
-                current_position[Y_AXIS],
-                i == 2 ? current_position[Z_AXIS] : raised_z,
-                current_position[E_AXIS],
-                planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
-                active_extruder
-              );
-            stepper.synchronize();
+            if(park_active_tool){
+              for (uint8_t i = 0; i < 3; i++)
+                planner.buffer_line(
+                  i == 0 ? current_position[X_AXIS] : xhome,
+                  current_position[Y_AXIS],
+                  i == 2 ? current_position[Z_AXIS] : raised_z,
+                  current_position[E_AXIS],
+                  planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
+                  active_extruder
+                );
+              stepper.synchronize();
+            }
           }
 
           // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
