@@ -2235,8 +2235,9 @@ static void clean_up_after_endstop_or_probe_move() {
       // Do a first probe at the fast speed
       if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
 
+      float first_probe_z = current_position[Z_AXIS];
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        float first_probe_z = current_position[Z_AXIS];
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
       #endif
 
