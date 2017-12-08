@@ -53,14 +53,18 @@ enum BlockFlagBit {
   BLOCK_BIT_START_FROM_FULL_HALT,
 
   // The block is busy
-  BLOCK_BIT_BUSY
+  BLOCK_BIT_BUSY,
+
+  // The block is segment 2+ of a longer move
+  BLOCK_BIT_CONTINUED
 };
 
 enum BlockFlag {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
   BLOCK_FLAG_START_FROM_FULL_HALT = _BV(BLOCK_BIT_START_FROM_FULL_HALT),
-  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY)
+  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
+  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
 };
 
 /**
@@ -450,12 +454,22 @@ class Planner {
     static bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
-     * "Discards" the block and "releases" the memory.
+     * "Discard" the block and "release" the memory.
      * Called when the current block is no longer needed.
      */
-    static void discard_current_block() {
+    FORCE_INLINE static void discard_current_block() {
       if (blocks_queued())
         block_buffer_tail = BLOCK_MOD(block_buffer_tail + 1);
+    }
+
+    /**
+     * "Discard" the next block if it's continued.
+     * Called after an interrupted move to throw away the rest of the move.
+     */
+    FORCE_INLINE static bool discard_continued_block() {
+      const bool discard = blocks_queued() && TEST(block_buffer[block_buffer_tail].flag, BLOCK_BIT_CONTINUED);
+      if (discard) discard_current_block();
+      return discard;
     }
 
     /**
@@ -465,7 +479,7 @@ class Planner {
      */
     static block_t* get_current_block() {
       if (blocks_queued()) {
-        block_t* block = &block_buffer[block_buffer_tail];
+        block_t * const block = &block_buffer[block_buffer_tail];
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
