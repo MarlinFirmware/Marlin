@@ -75,14 +75,14 @@ typedef uint32_t hal_timer_t;
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
   switch(timer_num) {
     case 0: FTM0_C0V = count; break;
     case 1: FTM1_C0V = count; break;
   }
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch(timer_num) {
     case 0: return FTM0_C0V;
     case 1: return FTM1_C0V;
@@ -90,7 +90,7 @@ static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return 0;
 }
 
-static FORCE_INLINE uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
   switch(timer_num) {
     case 0: return FTM0_CNT;
     case 1: return FTM1_CNT;
