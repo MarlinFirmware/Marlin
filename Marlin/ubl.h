@@ -204,7 +204,7 @@
        * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
        */
       inline static float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
-        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
           serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1l_i") : PSTR("yi") );
@@ -221,14 +221,16 @@
         const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
                     z1 = z_values[x1_i][yi];
 
-        return z1 + xratio * (z_values[x1_i + 1][yi] - z1);
+        return z1 + xratio * (z_values[x1_i < GRID_MAX_POINTS_X - 1 ? x1_i + 1 : x1_i][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+                                                                                                   // If it is, it is clamped to the last element of the 
+                                                                                                   // z_values[][] array and no correction is applied.
       }
 
       //
       // See comments above for z_correction_for_x_on_horizontal_mesh_line
       //
       inline static float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
-        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 2)) {
+        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
           serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("yl_i") );
@@ -245,7 +247,9 @@
         const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
                     z1 = z_values[xi][y1_i];
 
-        return z1 + yratio * (z_values[xi][y1_i + 1] - z1);
+        return z1 + yratio * (z_values[xi][y1_i < GRID_MAX_POINTS_Y - 1 ? y1_i + 1 : y1_i] - z1);  // Don't allow y1_i+1 to be past the end of the array
+                                                                                                   // If it is, it is clamped to the last element of the 
+                                                                                                   // z_values[][] array and no correction is applied.
       }
 
       /**
@@ -258,7 +262,7 @@
         const int8_t cx = get_cell_index_x(rx0),
                      cy = get_cell_index_y(ry0);
 
-        if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 2)) {
+        if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 1)) {
 
           SERIAL_ECHOPAIR("? in get_z_correction(rx0=", rx0);
           SERIAL_ECHOPAIR(", ry0=", ry0);
@@ -274,11 +278,11 @@
 
         const float z1 = calc_z0(rx0,
                                  mesh_index_to_xpos(cx), z_values[cx][cy],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy]);
+                                 mesh_index_to_xpos(cx + 1), z_values[cx < GRID_MAX_POINTS_X - 1 ? cx + 1 : cx][cy]);
 
         const float z2 = calc_z0(rx0,
-                                 mesh_index_to_xpos(cx), z_values[cx][cy + 1],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy + 1]);
+                                 mesh_index_to_xpos(cx), z_values[cx][cy < GRID_MAX_POINTS_Y - 1 ? cy + 1 : cy],
+                                 mesh_index_to_xpos(cx + 1), z_values[cx < GRID_MAX_POINTS_X - 1 ? cx + 1 : cx][cy<GRID_MAX_POINTS_Y - 1 ? cy + 1 : cy]);
 
         float z0 = calc_z0(ry0,
                            mesh_index_to_ypos(cy), z1,
