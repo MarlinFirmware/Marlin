@@ -107,7 +107,7 @@ void HAL_timer_disable_interrupt(uint8_t timer_num);
  * Todo: Look at that possibility later.
  */
 
-static FORCE_INLINE void HAL_timer_set_count (uint8_t timer_num, uint32_t count) {
+FORCE_INLINE static void HAL_timer_set_count (uint8_t timer_num, uint32_t count) {
   switch (timer_num) {
   case STEP_TIMER_NUM:
     StepperTimer.pause();
@@ -126,7 +126,7 @@ static FORCE_INLINE void HAL_timer_set_count (uint8_t timer_num, uint32_t count)
   }
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_count (uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count (uint8_t timer_num) {
   hal_timer_t temp;
   switch (timer_num) {
   case STEP_TIMER_NUM:
@@ -142,7 +142,7 @@ static FORCE_INLINE hal_timer_t HAL_timer_get_count (uint8_t timer_num) {
   return temp;
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_current_count(uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(uint8_t timer_num) {
   hal_timer_t temp;
   switch (timer_num) {
   case STEP_TIMER_NUM:
@@ -161,7 +161,7 @@ static FORCE_INLINE hal_timer_t HAL_timer_get_current_count(uint8_t timer_num) {
 
 //void HAL_timer_isr_prologue (uint8_t timer_num);
 
-static FORCE_INLINE void HAL_timer_isr_prologue(uint8_t timer_num) {
+FORCE_INLINE static void HAL_timer_isr_prologue(uint8_t timer_num) {
   switch (timer_num) {
   case STEP_TIMER_NUM:
     StepperTimer.pause();

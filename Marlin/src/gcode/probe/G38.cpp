@@ -35,7 +35,7 @@ static bool G38_run_probe() {
 
   bool G38_pass_fail = false;
 
-  #if ENABLED(PROBE_DOUBLE_TOUCH)
+  #if MULTIPLE_PROBING > 1
     // Get direction of move and retract
     float retract_mm[XYZ];
     LOOP_XYZ(i) {
@@ -62,7 +62,7 @@ static bool G38_run_probe() {
 
     G38_pass_fail = true;
 
-    #if ENABLED(PROBE_DOUBLE_TOUCH)
+    #if MULTIPLE_PROBING > 1
       // Move away by the retract distance
       set_destination_from_current();
       LOOP_XYZ(i) destination[i] += retract_mm[i];
