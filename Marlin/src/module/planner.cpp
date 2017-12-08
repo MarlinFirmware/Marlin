@@ -1053,9 +1053,6 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     CRITICAL_SECTION_END
   #endif
 
-  block->nominal_speed = block->millimeters * inverse_secs;           //   (mm/sec) Always > 0
-  block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
-
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static float filwidth_e_count = 0, filwidth_delay_dist = 0;
 
