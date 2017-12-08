@@ -778,7 +778,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   block_t* block = &block_buffer[block_buffer_head];
 
   // Clear all flags, including the "busy" bit
-  block->flag = 0;
+  block->flag = 0x00;
 
   // Set direction bits
   block->direction_bits = dm;
@@ -1139,6 +1139,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
 
   float safe_speed = block->nominal_speed * min_axis_accel_ratio;
   static float previous_safe_speed;
+
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
@@ -1423,7 +1424,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     const int32_t between[XYZE] = { _BETWEEN(X), _BETWEEN(Y), _BETWEEN(Z), _BETWEEN(E) };
     DISABLE_STEPPER_DRIVER_INTERRUPT();
     _buffer_steps(between, fr_mm_s, extruder);
+    const uint8_t next = block_buffer_head;
     _buffer_steps(target, fr_mm_s, extruder);
+    SBI(block_buffer[next].flag, BLOCK_BIT_CONTINUED);
     ENABLE_STEPPER_DRIVER_INTERRUPT();
   }
   else
