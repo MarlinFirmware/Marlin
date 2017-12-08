@@ -388,18 +388,21 @@ void Stepper::isr() {
   // When cleaning, discard the current block and run fast
   //
   if (cleaning_buffer_counter) {
-    if (cleaning_buffer_counter < 0)
-      ++cleaning_buffer_counter;                // Count up for endstop hit
+    if (cleaning_buffer_counter < 0) {          // Count up for endstop hit
+      if (current_block) planner.discard_current_block(); // Discard the active block that led to the trigger
+      if (!planner.discard_continued_block())   // Discard next CONTINUED block
+        cleaning_buffer_counter = 0;            // Keep discarding until non-CONTINUED
+    }
     else {
+      planner.discard_current_block();
       --cleaning_buffer_counter;                // Count down for abort print
       #ifdef SD_FINISHED_RELEASECOMMAND
         if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       #endif
     }
-    current_block = NULL;
-    planner.discard_current_block();
+    current_block = NULL;                       // Prep to get a new block after cleaning
     _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000);  // Run at max speed - 10 KHz
-    HAL_ENABLE_ISRs();                          // Re-enable ISRs
+    HAL_ENABLE_ISRs();
     return;
   }
 
@@ -1119,9 +1122,9 @@ void Stepper::init() {
 
 
 /**
- * Block until all buffered steps are executed
+ * Block until all buffered steps are executed / cleaned
  */
-void Stepper::synchronize() { while (planner.blocks_queued()) idle(); }
+void Stepper::synchronize() { while (planner.blocks_queued() || cleaning_buffer_counter) idle(); }
 
 /**
  * Set the stepper positions directly in steps
@@ -1245,7 +1248,7 @@ void Stepper::endstop_triggered(AxisEnum axis) {
   #endif // !COREXY && !COREXZ && !COREYZ
 
   kill_current_block();
-  cleaning_buffer_counter = -(BLOCK_BUFFER_SIZE - 1); // Ignore remaining blocks
+  cleaning_buffer_counter = -1; // Discard the rest of the move
 }
 
 void Stepper::report_positions() {
