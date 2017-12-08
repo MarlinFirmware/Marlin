@@ -278,11 +278,11 @@
 
         const float z1 = calc_z0(rx0,
                                  mesh_index_to_xpos(cx), z_values[cx][cy],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx<GRID_MAX_POINTS_X-1 ? cx + 1 : cx][cy]);
+                                 mesh_index_to_xpos(cx + 1), z_values[cx < GRID_MAX_POINTS_X - 1 ? cx + 1 : cx][cy]);
 
         const float z2 = calc_z0(rx0,
-                                 mesh_index_to_xpos(cx), z_values[cx][cy<GRID_MAX_POINTS_Y-1 ? cy + 1 : cy],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx<GRID_MAX_POINTS_X-1 ? cx + 1 : cx][cy<GRID_MAX_POINTS_Y-1 ? cy + 1 : cy]);
+                                 mesh_index_to_xpos(cx), z_values[cx][cy < GRID_MAX_POINTS_Y - 1 ? cy + 1 : cy],
+                                 mesh_index_to_xpos(cx + 1), z_values[cx < GRID_MAX_POINTS_X - 1 ? cx + 1 : cx][cy<GRID_MAX_POINTS_Y - 1 ? cy + 1 : cy]);
 
         float z0 = calc_z0(ry0,
                            mesh_index_to_ypos(cy), z1,
