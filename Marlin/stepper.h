@@ -225,7 +225,7 @@ class Stepper {
     // SCARA AB axes are in degrees, not mm
     //
     #if IS_SCARA
-      static FORCE_INLINE float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
+      FORCE_INLINE static float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
     //
@@ -247,7 +247,7 @@ class Stepper {
     //
     // The direction of a single motor
     //
-    static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
+    FORCE_INLINE static bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
       static void digitalPotWrite(const int16_t address, const int16_t value);
@@ -261,19 +261,19 @@ class Stepper {
     #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag_x(const bool state) { performing_homing = state; }
-      static FORCE_INLINE void set_x_lock(const bool state) { locked_x_motor = state; }
-      static FORCE_INLINE void set_x2_lock(const bool state) { locked_x2_motor = state; }
+      FORCE_INLINE static void set_homing_flag_x(const bool state) { performing_homing = state; }
+      FORCE_INLINE static void set_x_lock(const bool state) { locked_x_motor = state; }
+      FORCE_INLINE static void set_x2_lock(const bool state) { locked_x2_motor = state; }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag_y(const bool state) { performing_homing = state; }
-      static FORCE_INLINE void set_y_lock(const bool state) { locked_y_motor = state; }
-      static FORCE_INLINE void set_y2_lock(const bool state) { locked_y2_motor = state; }
+      FORCE_INLINE static void set_homing_flag_y(const bool state) { performing_homing = state; }
+      FORCE_INLINE static void set_y_lock(const bool state) { locked_y_motor = state; }
+      FORCE_INLINE static void set_y2_lock(const bool state) { locked_y2_motor = state; }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag_z(const bool state) { performing_homing = state; }
-      static FORCE_INLINE void set_z_lock(const bool state) { locked_z_motor = state; }
-      static FORCE_INLINE void set_z2_lock(const bool state) { locked_z2_motor = state; }
+      FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
+      FORCE_INLINE static void set_z_lock(const bool state) { locked_z_motor = state; }
+      FORCE_INLINE static void set_z2_lock(const bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -292,7 +292,7 @@ class Stepper {
     //
     // Triggered position of an axis in mm (not core-savvy)
     //
-    static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
+    FORCE_INLINE static float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
 
@@ -302,7 +302,7 @@ class Stepper {
 
   private:
 
-    static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
+    FORCE_INLINE static unsigned short calc_timer(unsigned short step_rate) {
       unsigned short timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
@@ -344,7 +344,7 @@ class Stepper {
 
     // Initialize the trapezoid generator from the current block.
     // Called whenever a new block begins.
-    static FORCE_INLINE void trapezoid_generator_reset() {
+    FORCE_INLINE static void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
 
