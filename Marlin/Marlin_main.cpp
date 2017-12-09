@@ -706,7 +706,7 @@ FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_by
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
   static const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }; \
-  static inline type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
+  static inline type array(const AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
   typedef void __void_##CONFIG##__
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
