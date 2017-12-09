@@ -25,10 +25,14 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have 'Rambo' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME          "Mini Rambo"
+#if MB(MINIRAMBO_10A)
+  #define BOARD_NAME "Mini Rambo 1.0a"
+#else
+  #define BOARD_NAME "Mini Rambo"
+#endif
 
 //
 // Limit Switches
@@ -66,10 +70,6 @@
 #define E0_DIR_PIN         43
 #define E0_ENABLE_PIN      26
 
-#define E1_STEP_PIN        -1
-#define E1_DIR_PIN         -1
-#define E1_ENABLE_PIN      -1
-
 // Microstepping pins - Mapping not from fastio.h (?)
 #define X_MS1_PIN          40
 #define X_MS2_PIN          41
@@ -101,7 +101,9 @@
 //
 #define HEATER_0_PIN        3
 #define HEATER_1_PIN        7
-#define HEATER_2_PIN        6
+#if !MB(MINIRAMBO_10A)
+  #define HEATER_2_PIN      6
+#endif
 #define HEATER_BED_PIN      4
 
 #define FAN_PIN             8
@@ -112,7 +114,9 @@
 //
 #define SDSS               53
 #define LED_PIN            13
-#define CASE_LIGHT_PIN      9
+#if !MB(MINIRAMBO_10A)
+  #define CASE_LIGHT_PIN    9
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
@@ -127,33 +131,59 @@
 //
 #define E_MUX0_PIN         17
 #define E_MUX1_PIN         16
-#define E_MUX2_PIN         78 // 84 in MK2 Firmware, with BEEPER as 78
+#if !MB(MINIRAMBO_10A)
+  #define E_MUX2_PIN       78   // 84 in MK2 Firmware, with BEEPER as 78
+#endif
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
 
-  #define KILL_PIN         32
+  #if !MB(MINIRAMBO_10A)
+    #define KILL_PIN       32
+  #endif
 
   #if ENABLED(NEWPANEL)
 
-    // Beeper on AUX-4
-    #define BEEPER_PIN     84
+    #if MB(MINIRAMBO_10A)
 
-    #define LCD_PINS_RS    82
-    #define LCD_PINS_ENABLE 18
-    #define LCD_PINS_D4    19
-    #define LCD_PINS_D5    70
-    #define LCD_PINS_D6    85
-    #define LCD_PINS_D7    71
+      #define BEEPER_PIN   78
 
-    // buttons are directly attached using AUX-2
-    #define BTN_EN1        14
-    #define BTN_EN2        72
-    #define BTN_ENC         9  // the click
+      #define BTN_EN1      80
+      #define BTN_EN2      73
+      #define BTN_ENC      21
 
-    #define SD_DETECT_PIN  15
+      #define LCD_PINS_RS  38
+      #define LCD_PINS_ENABLE 5
+      #define LCD_PINS_D4  14
+      #define LCD_PINS_D5  15
+      #define LCD_PINS_D6  32
+      #define LCD_PINS_D7  31
+
+      #define SD_DETECT_PIN  72
+
+    #else // !MINIRAMBO_10A
+
+      // AUX-4
+      #define BEEPER_PIN   84
+
+      // AUX-2
+      #define BTN_EN1      14
+      #define BTN_EN2      72
+      #define BTN_ENC       9
+
+      #define LCD_PINS_RS  82
+      #define LCD_PINS_ENABLE 18
+      #define LCD_PINS_D4  19
+      #define LCD_PINS_D5  70
+      #define LCD_PINS_D6  85
+      #define LCD_PINS_D7  71
+
+      #define SD_DETECT_PIN  15
+
+    #endif // !MINIRAMBO_10A
 
   #endif // NEWPANEL
+
 #endif // ULTRA_LCD
