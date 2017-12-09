@@ -141,9 +141,10 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
   long Stepper::counter_m[MIXING_STEPPERS];
 #endif
 
-unsigned short Stepper::acc_step_rate; // needed for deceleration start point
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
-unsigned short Stepper::OCR1A_nominal;
+
+uint16_t Stepper::OCR1A_nominal,
+         Stepper::acc_step_rate; // needed for deceleration start point
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
@@ -711,12 +712,12 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    const uint16_t timer = calc_timer(acc_step_rate);
+    const uint16_t interval = calc_timer_interval(acc_step_rate);
 
-    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
 
-    acceleration_time += timer;
+    acceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
 
@@ -728,7 +729,7 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }
@@ -744,12 +745,12 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    const uint16_t timer = calc_timer(step_rate);
+    const uint16_t interval = calc_timer_interval(step_rate);
 
-    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
 
-    deceleration_time += timer;
+    deceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
 
@@ -761,7 +762,7 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }

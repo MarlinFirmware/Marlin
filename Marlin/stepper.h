@@ -138,10 +138,10 @@ class Stepper {
     #endif // !LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
-    //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-    static unsigned short acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-    static unsigned short OCR1A_nominal;
+
+    static uint16_t OCR1A_nominal,
+                    acc_step_rate; // needed for deceleration start point
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -302,7 +302,7 @@ class Stepper {
 
   private:
 
-    FORCE_INLINE static unsigned short calc_timer(unsigned short step_rate) {
+    FORCE_INLINE static unsigned short calc_timer_interval(unsigned short step_rate) {
       unsigned short timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
@@ -356,11 +356,11 @@ class Stepper {
 
       deceleration_time = 0;
       // step_rate to timer interval
-      OCR1A_nominal = calc_timer(current_block->nominal_rate);
+      OCR1A_nominal = calc_timer_interval(current_block->nominal_rate);
       // make a note of the number of step loops required at nominal speed
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
-      acceleration_time = calc_timer(acc_step_rate);
+      acceleration_time = calc_timer_interval(acc_step_rate);
       _NEXT_ISR(acceleration_time);
 
       #if ENABLED(LIN_ADVANCE)
