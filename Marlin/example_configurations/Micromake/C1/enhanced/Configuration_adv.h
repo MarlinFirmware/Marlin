@@ -1003,7 +1003,7 @@
  */
 //#define HAVE_TMC2208
 
-#if HAS_TRINAMIC // TMC2130 & TMC2208
+#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
 
   // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
   //#define X_IS_TMC2130
@@ -1155,7 +1155,7 @@
    */
   #define  TMC_ADV() {  }
 
-#endif // HAS_TRINAMIC
+#endif // TMC2130 || TMC2208
 
 // @section L6470
 

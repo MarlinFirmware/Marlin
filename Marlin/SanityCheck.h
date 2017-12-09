@@ -1436,7 +1436,7 @@ static_assert(1 >= 0
     || ENABLED( E1_IS_TMC2208 ) \
     || ENABLED( E2_IS_TMC2208 ) \
     || ENABLED( E3_IS_TMC2208 ) )
-  #error "Choose at least one TMC2208 stepper."
+  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
 #endif
 
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)

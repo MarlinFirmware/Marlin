@@ -116,7 +116,7 @@
 
 #if ENABLED(HAVE_TMC2208)
   #include <HardwareSerial.h>
-  /*
+  /**
    * TMC2208 stepper drivers
    *
    * Hardware serial communication ports.
@@ -134,7 +134,7 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
 
-  /*
+  /**
    * Software serial
    */
 
