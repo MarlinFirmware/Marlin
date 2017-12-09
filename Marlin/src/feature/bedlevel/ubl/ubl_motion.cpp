@@ -41,6 +41,8 @@
     extern void set_current_from_destination();
   #endif
 
+#if !UBL_SEGMENTED
+
   void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, const uint8_t extruder) {
     /**
      * Much of the nozzle movement will be within the same cell. So we will do as little computation
@@ -405,7 +407,7 @@
     set_current_from_destination();
   }
 
-  #if UBL_SEGMENTED
+#else // UBL_SEGMENTED
 
     #if IS_SCARA // scale the feed rate from mm/s to degrees/s
       static float scara_feed_factor, scara_oldA, scara_oldB;
@@ -621,6 +623,6 @@
       } // cell loop
     }
 
-  #endif // UBL_SEGMENTED
+#endif // UBL_SEGMENTED
 
 #endif // AUTO_BED_LEVELING_UBL
