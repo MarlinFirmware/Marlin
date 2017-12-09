@@ -152,10 +152,7 @@
   #include "pins_MEGATRONICS.h"       // ATmega2560
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"     // ATmega2560
-#elif MB(MEGATRONICS_3)
-  #include "pins_MEGATRONICS_3.h"     // ATmega2560
-#elif MB(MEGATRONICS_31)
-  #define MEGATRONICS_31
+#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31)
   #include "pins_MEGATRONICS_3.h"     // ATmega2560
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"             // ATmega2560
