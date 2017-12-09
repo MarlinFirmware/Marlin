@@ -21,19 +21,17 @@
  */
 
 /**
- * MegaTronics v3.0 pin assignments
+ * MegaTronics v3.0 / v3.1 pin assignments
  */
 
 #ifndef __AVR_ATmega2560__
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define MEGATRONICS_31
-
-#if ENABLED(MEGATRONICS_31)
-  #define BOARD_NAME       "Megatronics v3.1"
+#if MB(MEGATRONICS_31)
+  #define BOARD_NAME "Megatronics v3.1"
 #else
-  #define BOARD_NAME       "Megatronics v3.0"
+  #define BOARD_NAME "Megatronics v3.0"
 #endif
 
 //
@@ -161,10 +159,8 @@
   #define SHIFT_OUT        34
   #define SHIFT_EN         44
 
-  #if ENABLED(MEGATRONICS_31)
+  #if MB(MEGATRONICS_31)
     #define SD_DETECT_PIN  56
-  #else
-    #define SD_DETECT_PIN  -1
   #endif
 
 #endif
