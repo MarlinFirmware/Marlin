@@ -1588,7 +1588,7 @@ void Temperature::set_current_temp_raw() {
 /**
  * Timer 0 is shared with millies so don't change the prescaler.
  *
- * This ISR uses the compare method so it runs at the base
+ * On AVR this ISR uses the compare method so it runs at the base
  * frequency (16 MHz / 64 / 256 = 976.5625 Hz), but at the TCNT0 set
  * in OCR0B above (128 or halfway between OVFs).
  *

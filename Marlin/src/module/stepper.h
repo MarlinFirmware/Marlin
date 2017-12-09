@@ -278,7 +278,7 @@ class Stepper {
 
   private:
 
-    FORCE_INLINE static hal_timer_t calc_timer(hal_timer_t step_rate) {
+    FORCE_INLINE static hal_timer_t calc_timer_interval(hal_timer_t step_rate) {
       hal_timer_t timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
@@ -359,11 +359,11 @@ class Stepper {
 
       deceleration_time = 0;
       // step_rate to timer interval
-      OCR1A_nominal = calc_timer(current_block->nominal_rate);
+      OCR1A_nominal = calc_timer_interval(current_block->nominal_rate);
       // make a note of the number of step loops required at nominal speed
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
-      acceleration_time = calc_timer(acc_step_rate);
+      acceleration_time = calc_timer_interval(acc_step_rate);
       _NEXT_ISR(acceleration_time);
 
       #if ENABLED(LIN_ADVANCE)
