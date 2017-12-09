@@ -137,7 +137,6 @@
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
   #endif
-  extern float destination[XYZE];
   void set_destination_from_current();
   void prepare_move_to_destination();
   inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }

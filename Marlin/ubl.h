@@ -26,6 +26,9 @@
 #include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+  //#define UBL_DEVEL_DEBUGGING
+
   #include "Marlin.h"
   #include "planner.h"
   #include "math.h"
@@ -41,7 +44,11 @@
 
   // ubl_motion.cpp
 
-  void debug_current_and_destination(const char * const title);
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
+    void debug_current_and_destination(const char * const title);
+  #else
+    FORCE_INLINE void debug_current_and_destination(const char * const title) { UNUSED(title); }
+  #endif
 
   // ubl_G29.cpp
 

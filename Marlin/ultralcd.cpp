@@ -2755,7 +2755,6 @@ void kill_screen(const char* lcd_msg) {
 
   #if IS_KINEMATIC
     extern float feedrate_mm_s;
-    extern float destination[XYZE];
     void set_destination_from_current();
     void prepare_move_to_destination();
   #endif
