@@ -268,26 +268,20 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
  * Once in reverse and once forward. This implements the reverse pass.
  */
 void Planner::reverse_pass() {
-
   if (movesplanned() > 3) {
+    uint8_t endnr = BLOCK_MOD(block_buffer_tail + 2); // tail is running. tail+1 should not be altered because it's connected to the running block.
+                                                      // tail+2 because the index is not already advanced when checked
+    uint8_t blocknr = prev_block_index(block_buffer_head);
+    block_t* current = &block_buffer[blocknr];
 
-    block_t* block[3] = { NULL, NULL, NULL };
-
-    // Make a local copy of block_buffer_tail, because the interrupt can alter it
-    // Is a critical section REALLY needed for a single byte change?
-    //CRITICAL_SECTION_START;
-    uint8_t tail = block_buffer_tail;
-    //CRITICAL_SECTION_END
-
-    uint8_t b = BLOCK_MOD(block_buffer_head - 3);
-    while (b != tail) {
-      if (block[0] && TEST(block[0]->flag, BLOCK_BIT_START_FROM_FULL_HALT)) break;
-      b = prev_block_index(b);
-      block[2] = block[1];
-      block[1] = block[0];
-      block[0] = &block_buffer[b];
-      reverse_pass_kernel(block[1], block[2]);
-    }
+    do {
+      block_t* next = current;
+      blocknr = prev_block_index(blocknr);
+      current = &block_buffer[blocknr];
+      if(TEST(current->flag, BLOCK_BIT_START_FROM_FULL_HALT)) //before of that every block is already optimized.
+        break;
+      reverse_pass_kernel(current, next);
+    } while (blocknr != endnr);
   }
 }
 
