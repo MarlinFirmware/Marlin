@@ -1081,7 +1081,8 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   float max_stepper_speed = 0, min_axis_accel_ratio = 1; // ratio < 1 means acceleration ramp needed
   LOOP_XYZE(i) {
     const float cs = FABS((current_speed[i] = delta_mm[i] * inverse_secs));
-    NOMORE(min_axis_accel_ratio, max_jerk[i] / cs);
+    if (cs >  max_jerk[i]) 
+      NOMORE(min_axis_accel_ratio, max_jerk[i] / cs);
     NOLESS(max_stepper_speed, cs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
