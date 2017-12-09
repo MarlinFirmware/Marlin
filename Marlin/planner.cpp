@@ -1354,7 +1354,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
 } // _buffer_steps()
 
 /**
- * Planner::_buffer_line
+ * Planner::buffer_segment
  *
  * Add a new linear movement to the buffer in axis units.
  *
@@ -1364,7 +1364,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
  *  fr_mm_s   - (target) speed of the move
  *  extruder  - target extruder
  */
-void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder) {
+void Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder) {
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
     if (last_extruder != extruder && axis_steps_per_mm[E_AXIS_N] != axis_steps_per_mm[E_AXIS + last_extruder]) {
@@ -1383,7 +1383,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   };
 
   /* <-- add a slash to enable
-    SERIAL_ECHOPAIR("  _buffer_line FR:", fr_mm_s);
+    SERIAL_ECHOPAIR("  buffer_segment FR:", fr_mm_s);
     #if IS_KINEMATIC
       SERIAL_ECHOPAIR(" A:", a);
       SERIAL_ECHOPAIR(" (", position[A_AXIS]);
@@ -1430,7 +1430,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   stepper.wake_up();
 
-} // _buffer_line()
+} // buffer_segment()
 
 /**
  * Directly set the planner XYZ position (and stepper positions)

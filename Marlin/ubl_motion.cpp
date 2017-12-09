@@ -134,7 +134,7 @@
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
         // a reasonable correction would be.
 
-        planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
+        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
         set_current_from_destination();
 
         if (g26_debug_flag)
@@ -178,7 +178,7 @@
        */
       if (isnan(z0)) z0 = 0.0;
 
-      planner._buffer_line(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
+      planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
@@ -269,7 +269,7 @@
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
          * where the line is heading down and it is starting right on a Mesh Line boundary. For how often that
          * happens, it might be best to remove the check and always 'schedule' the move because
-         * the planner._buffer_line() routine will filter it if that happens.
+         * the planner.buffer_segment() routine will filter it if that happens.
          */
         if (ry != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
@@ -282,7 +282,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+          planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -333,7 +333,7 @@
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
          * where the line is heading left and it is starting right on a Mesh Line boundary. For how often
          * that happens, it might be best to remove the check and always 'schedule' the move because
-         * the planner._buffer_line() routine will filter it if that happens.
+         * the planner.buffer_segment() routine will filter it if that happens.
          */
         if (rx != start[X_AXIS]) {
           if (!inf_normalized_flag) {
@@ -346,7 +346,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner._buffer_line(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+          planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -408,7 +408,7 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        planner._buffer_line(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
+        planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
         current_yi += dyi;
         yi_cnt--;
       }
@@ -436,7 +436,7 @@
           z_position = end[Z_AXIS];
         }
 
-        planner._buffer_line(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
+        planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
         current_xi += dxi;
         xi_cnt--;
       }
@@ -468,14 +468,14 @@
     #endif
 
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
-    // so we call _buffer_line directly here.  Per-segmented leveling and kinematics performed first.
+    // so we call buffer_segment directly here.  Per-segmented leveling and kinematics performed first.
 
     inline void _O2 ubl_buffer_segment_raw(const float raw[XYZE], const float &fr) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
         DELTA_RAW_IK();
-        planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
@@ -488,11 +488,11 @@
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
 
-        planner._buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], s_feedrate, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], s_feedrate, active_extruder);
 
       #else // CARTESIAN
 
-        planner._buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], raw[E_AXIS], fr, active_extruder);
 
       #endif
     }
@@ -511,7 +511,7 @@
 
     /**
      * Prepare a segmented linear move for DELTA/SCARA/CARTESIAN with UBL and FADE semantics.
-     * This calls planner._buffer_line multiple times for small incremental moves.
+     * This calls planner.buffer_segment multiple times for small incremental moves.
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
