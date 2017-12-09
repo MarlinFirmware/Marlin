@@ -710,6 +710,7 @@ void Stepper::isr() {
 
     if (first_step) {
       acc_step_rate = current_block->initial_rate;
+      acceleration_time = 0;
     }
     else {
       MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
