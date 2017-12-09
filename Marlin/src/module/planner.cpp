@@ -616,7 +616,7 @@ void Planner::calculate_volumetric_multipliers() {
       #endif
 
       rz += (
-        #if ENABLED(AUTO_BED_LEVELING_UBL) // UBL_DELTA
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.get_z_correction(rx, ry) * fade_scaling_factor
         #elif ENABLED(MESH_BED_LEVELING)
           mbl.get_z(rx, ry

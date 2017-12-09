@@ -264,7 +264,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
 
     gcode.refresh_cmd_timeout();
 
-    #if UBL_DELTA
+    #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
     #else
@@ -495,7 +495,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #endif
 
-#if !UBL_DELTA
+#if !UBL_SEGMENTED
 #if IS_KINEMATIC
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -762,7 +762,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   }
 
 #endif // !IS_KINEMATIC
-#endif // !UBL_DELTA
+#endif // !UBL_SEGMENTED
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false;                              // Used in Dual X mode 2
@@ -907,7 +907,7 @@ void prepare_move_to_destination() {
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   if (
-    #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
+    #if UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)

@@ -220,7 +220,7 @@ mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
 void G26_line_to_destination(const float &feed_rate) {
   const float save_feedrate = feedrate_mm_s;
   feedrate_mm_s = feed_rate;      // use specified feed rate
-  prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_DELTA
+  prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_SEGMENTED
   feedrate_mm_s = save_feedrate;  // restore global feed rate
 }
 

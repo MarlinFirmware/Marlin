@@ -458,15 +458,7 @@
     set_current_from_destination();
   }
 
-  #if UBL_DELTA
-
-    // macro to inline copy exactly 4 floats, don't rely on sizeof operator
-    #define COPY_XYZE( target, source ) { \
-                target[X_AXIS] = source[X_AXIS]; \
-                target[Y_AXIS] = source[Y_AXIS]; \
-                target[Z_AXIS] = source[Z_AXIS]; \
-                target[E_AXIS] = source[E_AXIS]; \
-            }
+  #if UBL_SEGMENTED
 
     #if IS_SCARA // scale the feed rate from mm/s to degrees/s
       static float scara_feed_factor, scara_oldA, scara_oldB;
@@ -675,6 +667,6 @@
       } // cell loop
     }
 
-  #endif // UBL_DELTA
+  #endif // UBL_SEGMENTED
 
 #endif // AUTO_BED_LEVELING_UBL
