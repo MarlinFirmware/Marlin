@@ -470,7 +470,7 @@
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call buffer_segment directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void _O2 ubl_buffer_segment_raw(const float raw[XYZE], const float &fr) {
+    inline void _O2 ubl_buffer_segment_raw(const float (&raw)[XYZE], const float &fr) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
@@ -515,7 +515,7 @@
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
-    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate) {
+    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float (&in_target)[XYZE], const float &feedrate) {
 
       if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate

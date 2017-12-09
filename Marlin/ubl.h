@@ -319,7 +319,7 @@
         return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
       }
 
-      static bool prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate);
+      static bool prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate);
       static void line_to_destination_cartesian(const float &fr, uint8_t e);
 
     #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
