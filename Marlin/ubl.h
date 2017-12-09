@@ -222,7 +222,7 @@
                     z1 = z_values[x1_i][yi];
 
         return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the 
+                                                                                        // If it is, it is clamped to the last element of the
                                                                                         // z_values[][] array and no correction is applied.
       }
 
@@ -248,7 +248,7 @@
                     z1 = z_values[xi][y1_i];
 
         return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the 
+                                                                                        // If it is, it is clamped to the last element of the
                                                                                         // z_values[][] array and no correction is applied.
       }
 
