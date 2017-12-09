@@ -88,6 +88,17 @@ enum ADCSensorState {
 
 #define ACTUAL_ADC_SAMPLES max(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
 
+#if HAS_PID_HEATING
+  #define PID_K2 (1.0-PID_K1)
+  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (F_CPU / 64.0 / 256.0))
+
+  // Apply the scale factors to the PID values
+  #define scalePID_i(i)   ( (i) * PID_dT )
+  #define unscalePID_i(i) ( (i) / PID_dT )
+  #define scalePID_d(d)   ( (d) / PID_dT )
+  #define unscalePID_d(d) ( (d) * PID_dT )
+#endif
+
 #if !HAS_HEATER_BED
   constexpr int16_t target_temperature_bed = 0;
 #endif
@@ -116,10 +127,6 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-      #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
-    #endif
-
     #if ENABLED(PIDTEMP)
 
       #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
@@ -139,12 +146,6 @@ class Temperature {
         #define PID_PARAM(param, h) Temperature::param
 
       #endif // PID_PARAMS_PER_HOTEND
-
-      // Apply the scale factors to the PID values
-      #define scalePID_i(i)   ( (i) * PID_dT )
-      #define unscalePID_i(i) ( (i) / PID_dT )
-      #define scalePID_d(d)   ( (d) / PID_dT )
-      #define unscalePID_d(d) ( (d) * PID_dT )
 
     #endif
 
@@ -431,10 +432,10 @@ class Temperature {
     #if HAS_PID_HEATING
       static void PID_autotune(const float temp, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
 
+      /**
+       * Update the temp manager when PID values change
+       */
       #if ENABLED(PIDTEMP)
-        /**
-         * Update the temp manager when PID values change
-         */
         FORCE_INLINE static void updatePID() {
           #if ENABLED(PID_EXTRUSION_SCALING)
             last_e_position = 0;

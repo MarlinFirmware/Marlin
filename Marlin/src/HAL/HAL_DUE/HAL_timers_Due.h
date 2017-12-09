@@ -87,17 +87,17 @@ extern const tTimerConfig TimerConfig[];
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC = count;
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC;
 }
 
-static FORCE_INLINE uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_CV;
 }
@@ -107,7 +107,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 
 //void HAL_timer_isr_prologue(const uint8_t timer_num);
 
-static FORCE_INLINE void HAL_timer_isr_prologue(const uint8_t timer_num) {
+FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   // Reading the status register clears the interrupt flag
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_SR;

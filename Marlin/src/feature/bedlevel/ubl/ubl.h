@@ -76,19 +76,23 @@ class unified_bed_leveling {
       static int  g29_grid_size;
     #endif
 
-    static float measure_point_with_encoder();
-    static float measure_business_card_thickness(float);
+    #if ENABLED(NEWPANEL)
+      static void move_z_with_encoder(const float &multiplier);
+      static float measure_point_with_encoder();
+      static float measure_business_card_thickness(const float&);
+      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
+    #endif
+
     static bool g29_parameter_parsing();
     static void find_mean_mesh_height();
     static void shift_mesh_height();
     static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
-    static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
     static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
     static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
     static void g29_what_command();
     static void g29_eeprom_dump();
     static void g29_compare_current_mesh_to_stored_mesh();
-    static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
     static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
     static void smart_fill_mesh();
 
@@ -137,7 +141,7 @@ class unified_bed_leveling {
                               MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                             };
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(ULTIPANEL)
       static bool lcd_map_control;
     #endif
 
@@ -196,10 +200,10 @@ class unified_bed_leveling {
      * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
      */
     inline static float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
-      if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+      if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1l_i") : PSTR("yi") );
+            serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1_i") : PSTR("yi") );
             SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0);
             SERIAL_ECHOPAIR(",x1_i=", x1_i);
             SERIAL_ECHOPAIR(",yi=", yi);
@@ -213,17 +217,19 @@ class unified_bed_leveling {
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
                   z1 = z_values[x1_i][yi];
 
-      return z1 + xratio * (z_values[x1_i + 1][yi] - z1);
+      return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+                                                                                       // If it is, it is clamped to the last element of the 
+                                                                                       // z_values[][] array and no correction is applied.
     }
 
     //
     // See comments above for z_correction_for_x_on_horizontal_mesh_line
     //
     inline static float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
-      if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 2)) {
+      if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("yl_i") );
+            serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("y1_i") );
             SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0);
             SERIAL_ECHOPAIR(", xi=", xi);
             SERIAL_ECHOPAIR(", y1_i=", y1_i);
@@ -237,7 +243,9 @@ class unified_bed_leveling {
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
                   z1 = z_values[xi][y1_i];
 
-      return z1 + yratio * (z_values[xi][y1_i + 1] - z1);
+      return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
+                                                                                       // If it is, it is clamped to the last element of the 
+                                                                                       // z_values[][] array and no correction is applied.
     }
 
     /**
@@ -248,29 +256,15 @@ class unified_bed_leveling {
      */
     static float get_z_correction(const float &rx0, const float &ry0) {
       const int8_t cx = get_cell_index_x(rx0),
-                   cy = get_cell_index_y(ry0);
-
-      if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 2)) {
-
-        SERIAL_ECHOPAIR("? in get_z_correction(rx0=", rx0);
-        SERIAL_ECHOPAIR(", ry0=", ry0);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-
-        #if ENABLED(ULTRA_LCD)
-          strcpy(lcd_status_message, "get_z_correction() indexes out of range.");
-          lcd_quick_feedback();
-        #endif
-        return NAN;
-      }
+                   cy = get_cell_index_y(ry0); // return values are clamped
 
       const float z1 = calc_z0(rx0,
                                mesh_index_to_xpos(cx), z_values[cx][cy],
-                               mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy]);
+                               mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
 
       const float z2 = calc_z0(rx0,
-                               mesh_index_to_xpos(cx), z_values[cx][cy + 1],
-                               mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy + 1]);
+                               mesh_index_to_xpos(cx), z_values[cx][min(cy, GRID_MAX_POINTS_Y - 2) + 1],
+                               mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][min(cy, GRID_MAX_POINTS_Y - 2) + 1]);
 
       float z0 = calc_z0(ry0,
                          mesh_index_to_ypos(cy), z1,

@@ -282,7 +282,7 @@ public:
   static void process_parsed_command();
   static void process_next_command();
 
-  static FORCE_INLINE void home_all_axes() { G28(true); }
+  FORCE_INLINE static void home_all_axes() { G28(true); }
 
   /**
    * Multi-stepper support for M92, M201, M203
