@@ -316,7 +316,7 @@ class unified_bed_leveling {
     }
 
     static bool prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate);
-    static void line_to_destination_cartesian(const float &fr, uint8_t e);
+    static void line_to_destination_cartesian(const float &fr, const uint8_t e);
 
     #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
     #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))

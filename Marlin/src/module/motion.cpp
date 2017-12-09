@@ -517,13 +517,19 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
    *
+   * Called from prepare_move_to_destination as the
+   * default Delta/SCARA segmenter.
+   *
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    *
    * For Unified Bed Leveling (Delta or Segmented Cartesian)
    * the ubl.prepare_segmented_line_to method replaces this.
+   *
+   * For Auto Bed Leveling (Bilinear) with SEGMENT_LEVELED_MOVES
+   * this is replaced by segmented_line_to_destination below.
    */
-  inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
+  inline bool prepare_kinematic_move_to(const float (&rtarget)[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
     const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);

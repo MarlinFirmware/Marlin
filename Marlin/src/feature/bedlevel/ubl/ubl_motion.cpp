@@ -92,7 +92,7 @@
 
   }
 
-  void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, uint8_t extruder) {
+  void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, const uint8_t extruder) {
     /**
      * Much of the nozzle movement will be within the same cell. So we will do as little computation
      * as possible to determine if this is the case. If this move is within the same cell, we will
@@ -475,7 +475,7 @@
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call _buffer_line directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void _O2 ubl_buffer_segment_raw(const float raw[XYZE], const float &fr) {
+    inline void _O2 ubl_buffer_segment_raw(const float (&raw)[XYZE], const float &fr) {
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 

@@ -261,16 +261,16 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   set_destination_from_current();
 }
 
-FORCE_INLINE void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
+FORCE_INLINE void move_to(const float (&where)[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
 
-void retract_filament(const float where[XYZE]) {
+void retract_filament(const float (&where)[XYZE]) {
   if (!g26_retracted) { // Only retract if we are not already retracted!
     g26_retracted = true;
     move_to(where, -1.0 * g26_retraction_multiplier);
   }
 }
 
-void recover_filament(const float where[XYZE]) {
+void recover_filament(const float (&where)[XYZE]) {
   if (g26_retracted) { // Only un-retract if we are retracted.
     move_to(where, 1.2 * g26_retraction_multiplier);
     g26_retracted = false;
