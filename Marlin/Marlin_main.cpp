@@ -12895,7 +12895,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           break;
       }
     }
-    return prepare_move_to_destination_cartesian();
+    return (
+      #if UBL_SEGMENTED
+        ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
+      #else
+        prepare_move_to_destination_cartesian()
+      #endif
+    );
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -12937,12 +12943,12 @@ void prepare_move_to_destination() {
   #endif
 
   if (
-    #if UBL_SEGMENTED // Also works for CARTESIAN (smaller segments follow mesh more closely)
+    #if ENABLED(DUAL_X_CARRIAGE)
+      prepare_move_to_destination_dualx()
+    #elif UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
-    #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
