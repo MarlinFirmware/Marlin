@@ -453,7 +453,7 @@
     set_current_from_destination();
   }
 
-  #if UBL_DELTA
+  #if UBL_SEGMENTED
 
     // macro to inline copy exactly 4 floats, don't rely on sizeof operator
     #define COPY_XYZE( target, source ) { \
@@ -670,6 +670,6 @@
       } // cell loop
     }
 
-  #endif // UBL_DELTA
+  #endif // UBL_SEGMENTED
 
 #endif // AUTO_BED_LEVELING_UBL
