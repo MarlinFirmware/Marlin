@@ -44,18 +44,16 @@
        * as possible to determine if this is the case. If this move is within the same cell, we will
        * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
        */
-      const float start[XYZE] = {
-                    current_position[X_AXIS],
-                    current_position[Y_AXIS],
-                    current_position[Z_AXIS],
-                    current_position[E_AXIS]
-                  },
-                  end[XYZE] = {
-                    destination[X_AXIS],
-                    destination[Y_AXIS],
-                    destination[Z_AXIS],
-                    destination[E_AXIS]
-                  };
+      #if ENABLED(SKEW_CORRECTION)
+        // For skew correction just adjust the destination point and we're done
+        float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
+              end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
+        planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
+        planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
+      #else
+        const float (&start)[XYZE] = current_position,
+                      (&end)[XYZE] = destination;
+      #endif
 
       const int cell_start_xi = get_cell_index_x(start[X_AXIS]),
                 cell_start_yi = get_cell_index_y(start[Y_AXIS]),
@@ -63,13 +61,13 @@
                 cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
 
       if (g26_debug_flag) {
-        SERIAL_ECHOPAIR(" ubl.line_to_destination(xe=", end[X_AXIS]);
-        SERIAL_ECHOPAIR(", ye=", end[Y_AXIS]);
-        SERIAL_ECHOPAIR(", ze=", end[Z_AXIS]);
-        SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
+        SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
+        SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
+        SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
+        SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
         SERIAL_CHAR(')');
         SERIAL_EOL();
-        debug_current_and_destination(PSTR("Start of ubl.line_to_destination()"));
+        debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
       }
 
       if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) { // if the whole move is within the same cell,
@@ -89,7 +87,7 @@
           set_current_from_destination();
 
           if (g26_debug_flag)
-            debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination()"));
+            debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination_cartesian()"));
 
           return;
         }
@@ -132,7 +130,7 @@
         planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
         if (g26_debug_flag)
-          debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
+          debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
 
         set_current_from_destination();
         return;
@@ -238,7 +236,7 @@
         }
 
         if (g26_debug_flag)
-          debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination()"));
+          debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination_cartesian()"));
 
         //
         // Check if we are at the final destination. Usually, we won't be, but if it is on a Y Mesh Line, we are done.
@@ -302,7 +300,7 @@
         }
 
         if (g26_debug_flag)
-          debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination()"));
+          debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination_cartesian()"));
 
         if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
           goto FINAL_MOVE;
@@ -396,7 +394,7 @@
       }
 
       if (g26_debug_flag)
-        debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination()"));
+        debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination_cartesian()"));
 
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -460,8 +458,16 @@
 
     bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float (&in_target)[XYZE], const float &feedrate) {
 
-      if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS]))  // fail if moving outside reachable boundary
+      if (!position_is_reachable(in_target[X_AXIS], in_target[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate
+
+      #if ENABLED(SKEW_CORRECTION)
+        // For skew correction just adjust the destination point and we're done
+        float rtarget[XYZE] = { in_target[X_AXIS], in_target[Y_AXIS], in_target[Z_AXIS], in_target[E_AXIS] };
+        planner.skew(rtarget[X_AXIS], rtarget[Y_AXIS], rtarget[Z_AXIS]);
+      #else
+        const float (&rtarget)[XYZE] = in_target;
+      #endif
 
       const float total[XYZE] = {
         rtarget[X_AXIS] - current_position[X_AXIS],
@@ -506,6 +512,10 @@
         current_position[Z_AXIS],
         current_position[E_AXIS]
       };
+
+      #if ENABLED(SKEW_CORRECTION)
+        planner.skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
+      #endif
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
       if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling

@@ -341,6 +341,30 @@ class Planner {
 
     #endif
 
+    #if ENABLED(SKEW_CORRECTION)
+
+      FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
+        if (WITHIN(cx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
+          const float sx = cx - (cy * xy_skew_factor) - (cz * (xz_skew_factor - (xy_skew_factor * yz_skew_factor))),
+                      sy = cy - (cz * yz_skew_factor);
+          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+            cx = sx; cy = sy;
+          }
+        }
+      }
+
+      FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
+        if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
+          const float sx = cx + cy * xy_skew_factor + cz * xz_skew_factor,
+                      sy = cy + cz * yz_skew_factor;
+          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+            cx = sx; cy = sy;
+          }
+        }
+      }
+
+    #endif // SKEW_CORRECTION
+
     #if PLANNER_LEVELING
 
       #define ARG_X float rx
