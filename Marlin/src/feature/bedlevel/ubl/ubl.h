@@ -23,6 +23,8 @@
 #ifndef UNIFIED_BED_LEVELING_H
 #define UNIFIED_BED_LEVELING_H
 
+//#define UBL_DEVEL_DEBUGGING
+
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
 #include "../../../module/motion.h"
@@ -37,7 +39,11 @@
 
 // ubl_motion.cpp
 
-void debug_current_and_destination(const char * const title);
+#if ENABLED(UBL_DEVEL_DEBUGGING)
+  void debug_current_and_destination(const char * const title);
+#else
+  FORCE_INLINE void debug_current_and_destination(const char * const title) { UNUSED(title); }
+#endif
 
 // ubl_G29.cpp
 
@@ -217,9 +223,9 @@ class unified_bed_leveling {
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
                   z1 = z_values[x1_i][yi];
 
-      return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
-                                                                                       // If it is, it is clamped to the last element of the 
-                                                                                       // z_values[][] array and no correction is applied.
+      return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
+                                                                                      // If it is, it is clamped to the last element of the
+                                                                                      // z_values[][] array and no correction is applied.
     }
 
     //
@@ -243,9 +249,9 @@ class unified_bed_leveling {
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
                   z1 = z_values[xi][y1_i];
 
-      return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
-                                                                                       // If it is, it is clamped to the last element of the 
-                                                                                       // z_values[][] array and no correction is applied.
+      return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
+                                                                                      // If it is, it is clamped to the last element of the
+                                                                                      // z_values[][] array and no correction is applied.
     }
 
     /**

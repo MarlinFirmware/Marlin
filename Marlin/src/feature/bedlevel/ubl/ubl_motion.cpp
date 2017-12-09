@@ -35,62 +35,11 @@
   #include "../../../Marlin.h"
   #include <math.h>
 
-  extern float destination[XYZE];
-
   #if AVR_AT90USB1286_FAMILY  // Teensyduino & Printrboard IDE extensions have compile errors without this
     inline void set_current_from_destination() { COPY(current_position, destination); }
   #else
     extern void set_current_from_destination();
   #endif
-
-  static void debug_echo_axis(const AxisEnum axis) {
-    if (current_position[axis] == destination[axis])
-      SERIAL_ECHOPGM("-------------");
-    else
-      SERIAL_ECHO_F(destination[X_AXIS], 6);
-  }
-
-  void debug_current_and_destination(const char *title) {
-
-    // if the title message starts with a '!' it is so important, we are going to
-    // ignore the status of the g26_debug_flag
-    if (*title != '!' && !g26_debug_flag) return;
-
-    const float de = destination[E_AXIS] - current_position[E_AXIS];
-
-    if (de == 0.0) return; // Printing moves only
-
-    const float dx = destination[X_AXIS] - current_position[X_AXIS],
-                dy = destination[Y_AXIS] - current_position[Y_AXIS],
-                xy_dist = HYPOT(dx, dy);
-
-    if (xy_dist == 0.0) return;
-
-    SERIAL_ECHOPGM("   fpmm=");
-    const float fpmm = de / xy_dist;
-    SERIAL_ECHO_F(fpmm, 6);
-
-    SERIAL_ECHOPGM("    current=( ");
-    SERIAL_ECHO_F(current_position[X_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[Y_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[Z_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[E_AXIS], 6);
-    SERIAL_ECHOPGM(" )   destination=( ");
-    debug_echo_axis(X_AXIS);
-    SERIAL_ECHOPGM(", ");
-    debug_echo_axis(Y_AXIS);
-    SERIAL_ECHOPGM(", ");
-    debug_echo_axis(Z_AXIS);
-    SERIAL_ECHOPGM(", ");
-    debug_echo_axis(E_AXIS);
-    SERIAL_ECHOPGM(" )   ");
-    SERIAL_ECHO(title);
-    SERIAL_EOL();
-
-  }
 
   void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, const uint8_t extruder) {
     /**
@@ -123,7 +72,7 @@
       SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
       SERIAL_CHAR(')');
       SERIAL_EOL();
-      debug_current_and_destination(PSTR("Start of ubl.line_to_destination()"));
+      debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
     }
 
     if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) { // if the whole move is within the same cell,
@@ -143,7 +92,7 @@
         set_current_from_destination();
 
         if (g26_debug_flag)
-          debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination()"));
+          debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination_cartesian()"));
 
         return;
       }
@@ -186,7 +135,7 @@
       planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
       if (g26_debug_flag)
-        debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination()"));
+        debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
 
       set_current_from_destination();
       return;
@@ -292,7 +241,7 @@
       }
 
       if (g26_debug_flag)
-        debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination()"));
+        debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination_cartesian()"));
 
       //
       // Check if we are at the final destination. Usually, we won't be, but if it is on a Y Mesh Line, we are done.
@@ -356,7 +305,7 @@
       }
 
       if (g26_debug_flag)
-        debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination()"));
+        debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination_cartesian()"));
 
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -450,7 +399,7 @@
     }
 
     if (g26_debug_flag)
-      debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination()"));
+      debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination_cartesian()"));
 
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
