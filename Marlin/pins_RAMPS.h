@@ -115,7 +115,6 @@
 
 
 #if ENABLED(HAVE_TMC2208)
-  #include <HardwareSerial.h>
   /**
    * TMC2208 stepper drivers
    *
