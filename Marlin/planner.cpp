@@ -247,7 +247,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
+void Planner::reverse_pass_kernel(block_t* const current, const block_t * const next) {
   if (!current || !next) return;
   // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
   // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
@@ -268,31 +268,25 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
  * Once in reverse and once forward. This implements the reverse pass.
  */
 void Planner::reverse_pass() {
-
   if (movesplanned() > 3) {
+    const uint8_t endnr = BLOCK_MOD(block_buffer_tail + 2); // tail is running. tail+1 shouldn't be altered because it's connected to the running block.
+                                                            // tail+2 because the index is not yet advanced when checked
+    uint8_t blocknr = prev_block_index(block_buffer_head);
+    block_t* current = &block_buffer[blocknr];
 
-    block_t* block[3] = { NULL, NULL, NULL };
-
-    // Make a local copy of block_buffer_tail, because the interrupt can alter it
-    // Is a critical section REALLY needed for a single byte change?
-    //CRITICAL_SECTION_START;
-    uint8_t tail = block_buffer_tail;
-    //CRITICAL_SECTION_END
-
-    uint8_t b = BLOCK_MOD(block_buffer_head - 3);
-    while (b != tail) {
-      if (block[0] && TEST(block[0]->flag, BLOCK_BIT_START_FROM_FULL_HALT)) break;
-      b = prev_block_index(b);
-      block[2] = block[1];
-      block[1] = block[0];
-      block[0] = &block_buffer[b];
-      reverse_pass_kernel(block[1], block[2]);
-    }
+    do {
+      const block_t * const next = current;
+      blocknr = prev_block_index(blocknr);
+      current = &block_buffer[blocknr];
+      if (TEST(current->flag, BLOCK_BIT_START_FROM_FULL_HALT)) // Up to this every block is already optimized.
+        break;
+      reverse_pass_kernel(current, next);
+    } while (blocknr != endnr);
   }
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t* previous, block_t* const current) {
+void Planner::forward_pass_kernel(const block_t * const previous, block_t* const current) {
   if (!previous) return;
 
   // If the previous block is an acceleration block, but it is not long enough to complete the
@@ -344,8 +338,8 @@ void Planner::recalculate_trapezoids() {
       // Recalculate if current block entry or exit junction speed has changed.
       if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
-        float nom = current->nominal_speed;
-        calculate_trapezoid_for_block(current, current->entry_speed / nom, next->entry_speed / nom);
+        const float nomr = 1.0 / current->nominal_speed;
+        calculate_trapezoid_for_block(current, current->entry_speed * nomr, next->entry_speed * nomr);
         CBI(current->flag, BLOCK_BIT_RECALCULATE); // Reset current only to ensure next trapezoid is computed
       }
     }
@@ -353,8 +347,8 @@ void Planner::recalculate_trapezoids() {
   }
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
   if (next) {
-    float nom = next->nominal_speed;
-    calculate_trapezoid_for_block(next, next->entry_speed / nom, (MINIMUM_PLANNER_SPEED) / nom);
+    const float nomr = 1.0 / next->nominal_speed;
+    calculate_trapezoid_for_block(next, next->entry_speed * nomr, (MINIMUM_PLANNER_SPEED) * nomr);
     CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
@@ -1009,7 +1003,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
       #endif
     );
   }
-  float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
+  const float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move takes 0.5s. So this will give 2.0.
@@ -1048,7 +1042,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     //FMM update ring buffer used for delay with filament measurements
     if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && filwidth_delay_index[1] >= 0) {  //only for extruder with filament sensor and if ring buffer is initialized
 
-      const int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
+      constexpr int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
 
       // increment counters with next move in e axis
       filwidth_e_count += delta_mm[E_AXIS];
@@ -1345,7 +1339,8 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
 
   #endif // LIN_ADVANCE
 
-  calculate_trapezoid_for_block(block, block->entry_speed / block->nominal_speed, safe_speed / block->nominal_speed);
+  const float bnsr = 1.0 / block->nominal_speed;
+  calculate_trapezoid_for_block(block, block->entry_speed * bnsr, safe_speed * bnsr);
 
   // Move buffer head
   block_buffer_head = next_buffer_head;
