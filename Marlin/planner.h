@@ -130,21 +130,30 @@ typedef struct {
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
 class Planner {
-
   public:
 
     /**
-     * A ring buffer of moves described in steps
+     * The move buffer, calculated in stepper steps
+     *
+     * block_buffer is a ring buffer...
+     *
+     *             head,tail : indexes for write,read
+     *            head==tail : the buffer is empty
+     *            head!=tail : blocks are in the buffer
+     *   head==(tail-1)%size : the buffer is full
+     *
+     *  Writer of head is Planner::_buffer_line().
+     *  Reader of tail is Stepper::isr(). Always consider tail busy / read-only
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
-    static volatile uint8_t block_buffer_head,  // Index of the next block to be pushed
-                            block_buffer_tail;
+    static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
+                            block_buffer_tail;      // Index of the busy block, if any
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      static uint8_t last_extruder;             // Respond to extruder change
+      static uint8_t last_extruder;                 // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
+    static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
 
     static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
                  filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -152,7 +161,7 @@ class Planner {
                  volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
                                                     // May be auto-adjusted by a filament width sensor
 
-    static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
+    static float max_feedrate_mm_s[XYZE_N],         // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
                  steps_to_mm[XYZE_N];
     static uint32_t max_acceleration_steps_per_s2[XYZE_N],
@@ -273,9 +282,9 @@ class Planner {
     /**
      * Number of moves currently in the planner
      */
-    static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
+    FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
-    static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+    FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Update multipliers based on new diameter measurements
     static void calculate_volumetric_multipliers();
@@ -529,8 +538,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static constexpr int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static constexpr int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
