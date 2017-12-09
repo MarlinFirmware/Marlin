@@ -118,8 +118,8 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
   constexpr hal_timer_t ADV_NEVER = HAL_TIMER_TYPE_MAX;
 
   hal_timer_t Stepper::nextMainISR = 0,
-         Stepper::nextAdvanceISR = ADV_NEVER,
-         Stepper::eISR_Rate = ADV_NEVER;
+              Stepper::nextAdvanceISR = ADV_NEVER,
+              Stepper::eISR_Rate = ADV_NEVER;
 
   volatile int Stepper::e_steps[E_STEPPERS];
   int Stepper::final_estep_rate,
@@ -152,9 +152,10 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
   long Stepper::counter_m[MIXING_STEPPERS];
 #endif
 
-hal_timer_t Stepper::acc_step_rate; // needed for deceleration start point
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
-hal_timer_t Stepper::OCR1A_nominal;
+
+hal_timer_t Stepper::OCR1A_nominal,
+            Stepper::acc_step_rate; // needed for deceleration start point
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
@@ -557,13 +558,13 @@ void Stepper::isr() {
     /**
      * If a minimum pulse time was specified get the timer 0 value.
      *
-     * TCNT0 has an 8x prescaler, so it increments every 8 cycles.
+     * On AVR the TCNT0 timer has an 8x prescaler, so it increments every 8 cycles.
      * That's every 0.5µs on 16MHz and every 0.4µs on 20MHz.
      * 20 counts of TCNT0 -by itself- is a good pulse delay.
      * 10µs = 160 or 200 cycles.
      */
     #if EXTRA_CYCLES_XYZE > 20
-      uint32_t pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
+      hal_timer_t pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
     #endif
 
     #if HAS_X_STEP
@@ -676,12 +677,12 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    const hal_timer_t timer = calc_timer(acc_step_rate);
+    const hal_timer_t interval = calc_timer_interval(acc_step_rate);
 
-    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
 
-    acceleration_time += timer;
+    acceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
 
@@ -693,7 +694,7 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }
@@ -713,11 +714,11 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    const hal_timer_t timer = calc_timer(step_rate);
+    const hal_timer_t interval = calc_timer_interval(step_rate);
 
-    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
-    deceleration_time += timer;
+    deceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
 
@@ -729,7 +730,7 @@ void Stepper::isr() {
           current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], timer, step_loops);
+      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }
@@ -754,7 +755,7 @@ void Stepper::isr() {
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
       hal_timer_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
-                     stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+                  stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
       HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
       NOLESS(OCR1A, TCNT1 + 16);
@@ -817,7 +818,7 @@ void Stepper::isr() {
     for (uint8_t i = step_loops; i--;) {
 
       #if EXTRA_CYCLES_E > 20
-        uint32_t pulse_start = TCNT0;
+        hal_timer_t pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
       #endif
 
       START_E_PULSE(0);
@@ -836,8 +837,8 @@ void Stepper::isr() {
 
       // For minimum pulse time wait before stopping pulses
       #if EXTRA_CYCLES_E > 20
-        while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
-        pulse_start = TCNT0;
+        while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_current_count(STEP_TIMER_NUM) - pulse_start) * (STEPPER_TIMER_PRESCALE)) { /* nada */ }
+        pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
       #elif EXTRA_CYCLES_E > 0
         DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
@@ -858,7 +859,7 @@ void Stepper::isr() {
 
       // For minimum pulse time wait before looping
       #if EXTRA_CYCLES_E > 20
-        if (i) while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
+        if (i) while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_current_count(STEP_TIMER_NUM) - pulse_start) * (STEPPER_TIMER_PRESCALE)) { /* nada */ }
       #elif EXTRA_CYCLES_E > 0
         if (i) DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
@@ -1297,8 +1298,8 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START const uint32_t pulse_start = TCNT0
-    #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
+    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM)
+    #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_current_count(STEP_TIMER_NUM) - pulse_start) * (STEPPER_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
