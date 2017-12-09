@@ -47,18 +47,16 @@
      * as possible to determine if this is the case. If this move is within the same cell, we will
      * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
      */
-    const float start[XYZE] = {
-                  current_position[X_AXIS],
-                  current_position[Y_AXIS],
-                  current_position[Z_AXIS],
-                  current_position[E_AXIS]
-                },
-                end[XYZE] = {
-                  destination[X_AXIS],
-                  destination[Y_AXIS],
-                  destination[Z_AXIS],
-                  destination[E_AXIS]
-                };
+    #if ENABLED(SKEW_CORRECTION)
+      // For skew correction just adjust the destination point and we're done
+      float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
+            end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
+      planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
+      planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
+    #else
+      const float (&start)[XYZE] = current_position,
+                    (&end)[XYZE] = destination;
+    #endif
 
     const int cell_start_xi = get_cell_index_x(start[X_AXIS]),
               cell_start_yi = get_cell_index_y(start[Y_AXIS]),
@@ -66,10 +64,10 @@
               cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
 
     if (g26_debug_flag) {
-      SERIAL_ECHOPAIR(" ubl.line_to_destination(xe=", end[X_AXIS]);
-      SERIAL_ECHOPAIR(", ye=", end[Y_AXIS]);
-      SERIAL_ECHOPAIR(", ze=", end[Z_AXIS]);
-      SERIAL_ECHOPAIR(", ee=", end[E_AXIS]);
+      SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
+      SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
+      SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
+      SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
       SERIAL_CHAR(')');
       SERIAL_EOL();
       debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
@@ -416,12 +414,19 @@
     // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
     // so we call buffer_segment directly here.  Per-segmented leveling and kinematics performed first.
 
-    inline void _O2 ubl_buffer_segment_raw(const float (&raw)[XYZE], const float &fr) {
+    inline void _O2 ubl_buffer_segment_raw(const float (&in_raw)[XYZE], const float &fr) {
+
+      #if ENABLED(SKEW_CORRECTION)
+        float raw[XYZE] = { in_raw[X_AXIS], in_raw[Y_AXIS], in_raw[Z_AXIS] };
+        planner.skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
+      #else
+        const float (&raw)[XYZE] = in_raw;
+      #endif
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
         DELTA_RAW_IK();
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
@@ -434,11 +439,11 @@
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
 
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], s_feedrate, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
 
       #else // CARTESIAN
 
-        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
 
       #endif
     }
@@ -461,7 +466,7 @@
      * Returns true if did NOT move, false if moved (requires current_position update).
      */
 
-    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate) {
+    bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate) {
 
       if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS]))  // fail if moving outside reachable boundary
         return true; // did not move, so current_position still accurate

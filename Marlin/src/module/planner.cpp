@@ -580,14 +580,7 @@ void Planner::calculate_volumetric_multipliers() {
   void Planner::apply_leveling(float &rx, float &ry, float &rz) {
 
     #if ENABLED(SKEW_CORRECTION)
-      if (WITHIN(rx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(ry, Y_MIN_POS + 1, Y_MAX_POS)) {
-        const float tempry = ry - (rz * planner.yz_skew_factor),
-                    temprx = rx - (ry * planner.xy_skew_factor) - (rz * (planner.xz_skew_factor - (planner.xy_skew_factor * planner.yz_skew_factor)));
-        if (WITHIN(temprx, X_MIN_POS, X_MAX_POS) && WITHIN(tempry, Y_MIN_POS, Y_MAX_POS)) {
-          rx = temprx;
-          ry = tempry;
-        }
-      }
+      skew(rx, ry, rz);
     #endif
 
     if (!leveling_active) return;
@@ -678,14 +671,7 @@ void Planner::calculate_volumetric_multipliers() {
     }
 
     #if ENABLED(SKEW_CORRECTION)
-      if (WITHIN(raw[X_AXIS], X_MIN_POS, X_MAX_POS) && WITHIN(raw[Y_AXIS], Y_MIN_POS, Y_MAX_POS)) {
-        const float temprx = raw[X_AXIS] + raw[Y_AXIS] * planner.xy_skew_factor + raw[Z_AXIS] * planner.xz_skew_factor,
-                    tempry = raw[Y_AXIS] + raw[Z_AXIS] * planner.yz_skew_factor;
-        if (WITHIN(temprx, X_MIN_POS, X_MAX_POS) && WITHIN(tempry, Y_MIN_POS, Y_MAX_POS)) {
-          raw[X_AXIS] = temprx;
-          raw[Y_AXIS] = tempry;
-        }
-      }
+      unskew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
     #endif
   }
 
