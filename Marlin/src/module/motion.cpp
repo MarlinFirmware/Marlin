@@ -796,7 +796,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
    *
    * Return true if current_position[] was set to destination[]
    */
-  inline bool prepare_move_to_destination_dualx() {
+  inline bool dual_x_carriage_unpark() {
     if (active_extruder_parked) {
       switch (dual_x_carriage_mode) {
         case DXC_FULL_CONTROL_MODE:
@@ -865,7 +865,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           break;
       }
     }
-    return prepare_move_to_destination_cartesian();
+    return false;
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -906,13 +906,15 @@ void prepare_move_to_destination() {
 
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    if (dual_x_carriage_unpark()) return;
+  #endif
+
   if (
     #if UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
-    #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
