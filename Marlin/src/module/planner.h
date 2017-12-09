@@ -146,7 +146,7 @@ class Planner {
      *            head!=tail : blocks are in the buffer
      *   head==(tail-1)%size : the buffer is full
      *
-     *  Writer of head is Planner::_buffer_line().
+     *  Writer of head is Planner::buffer_segment().
      *  Reader of tail is Stepper::isr(). Always consider tail busy / read-only
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
@@ -379,7 +379,7 @@ class Planner {
     static void _buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const uint8_t extruder);
 
     /**
-     * Planner::_buffer_line
+     * Planner::buffer_segment
      *
      * Add a new linear movement to the buffer in axis units.
      *
@@ -389,7 +389,7 @@ class Planner {
      *  fr_mm_s   - (target) speed of the move
      *  extruder  - target extruder
      */
-    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
+    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -409,7 +409,7 @@ class Planner {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      _buffer_line(rx, ry, rz, e, fr_mm_s, extruder);
+      buffer_segment(rx, ry, rz, e, fr_mm_s, extruder);
     }
 
     /**
@@ -430,9 +430,9 @@ class Planner {
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #else
-        _buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #endif
     }
 
