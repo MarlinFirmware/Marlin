@@ -21,8 +21,8 @@
  */
 
 /*
- * Please, note:
- *  We need our custom implementation for Software SPI, as the default implementation
+ * PLEASE NOTE >>>
+ * We need our custom implementation for Software SPI, as the default implementation
  * of U8GLIB, when running in an ARM based board, is too fast and the display will not
  * recognize commands and/or data at such speeds. This implementation autoderives the
  * required delays to get the maximum possible performance by using the F_CPU macro that
@@ -55,12 +55,12 @@
 
 /* ---------------- Delay Cycles routine -------------- */
 
-#if defined(__arm__)
+#ifdef __arm__
 /* https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles */
 
 #define nop() __asm__ __volatile__("nop;\n\t":::)
 
-static __inline__ __attribute__((__always_inline__)) void __delay_4cycles(uint32_t cy) { // +1 cycle
+FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
   #if ARCH_PIPELINE_RELOAD_CYCLES<2
     #define EXTRA_NOP_CYCLES "nop"
   #else
@@ -80,67 +80,37 @@ static __inline__ __attribute__((__always_inline__)) void __delay_4cycles(uint32
   );
 }
 
-static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t x) {
+FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
   if (__builtin_constant_p(x)) {
 
     #define MAXNOPS 4
 
-    if (x<=MAXNOPS) {
-      if (x==1) {
-        nop();
-      }
-      else if (x==2) {
-        nop();
-        nop();
-      }
-      else if (x==3) {
-        nop();
-        nop();
-        nop();
-      }
-      else if (x==4) {
-        nop();
-        nop();
-        nop();
-        nop();
-      }
+    if (x <= (MAXNOPS)) {
+      switch(x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
     }
     else { // because of +1 cycle inside delay_4cycles
-      uint32_t rem = (x-1)%MAXNOPS;
-
-      if (rem==1) {
-        nop();
-      }
-      else if (rem==2) {
-        nop();
-        nop();
-      }
-      else if (rem==3) {
-        nop();
-        nop();
-        nop();
-      }
-
-      if ((x=(x-1)/MAXNOPS))
+      const uint32_t rem = (x - 1) % (MAXNOPS);
+      switch(rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
+      if ((x = (x - 1) / (MAXNOPS)))
         __delay_4cycles(x); // if need more then 4 nop loop is more optimal
     }
   }
-  else {
+  else
     __delay_4cycles(x / 4);
-  }
 }
 
 #ifdef __TEST_DELAY
+
   void calibrateTimer() {
 
     // Use DWT to calibrate cycles
     uint32_t count = 0;
 
     // addresses of registers
-    volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
-    volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
-    volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
+    volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000,
+                      *DWT_CYCCNT = (uint32_t *)0xE0001004,
+                      *DEMCR = (uint32_t *)0xE000EDFC;
 
     cli();
 
@@ -164,26 +134,27 @@ static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("calibrated Cycles: ", (int)count);
   }
-#endif
+
+#endif // __TEST_DELAY
 
 #elif defined(__AVR__)
   #define DELAY_CYCLES(cycles) __builtin_avr_delay_cycles(cycles)
 #else
-  #error DELAY_CYCLES not implemented for this architecture
+  #error "DELAY_CYCLES not implemented for this architecture."
 #endif
 
 /* ---------------- Delay in nanoseconds and in microseconds */
 
-#define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000) / 1000)
-#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU/1000000))
+#define DELAY_NS(x) DELAY_CYCLES((x) * (F_CPU / 1000000) / 1000)
+#define DELAY_US(x) DELAY_CYCLES((x) * (F_CPU / 1000000))
 
 /* ---------------- ST7920 commands ------------------------ */
 
-#if defined(__arm__)
+#ifdef __arm__
 
   /* ARM: Plain implementation is more than enough */
   static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
-    int n = 8;
+    uint8_t n = 8;
     do {
       WRITE(ST7920_CLK_PIN, LOW);
       WRITE(ST7920_DAT_PIN, val & 0x80);
@@ -193,17 +164,18 @@ static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t 
       val <<= 1;
     } while (--n);
   }
-#else
+
+#else // !ARM
 
   /* AVR: Unrolling loop makes sense */
-  #define ST7920_SND_BIT(nr) \
-    WRITE(ST7920_CLK_PIN, LOW);                      \
-    WRITE(ST7920_DAT_PIN, val & (uint8_t)(1 << nr)); \
-    DELAY_NS(500);                                   \
-    WRITE(ST7920_CLK_PIN, HIGH);                     \
+  #define ST7920_SND_BIT(nr)              \
+    WRITE(ST7920_CLK_PIN, LOW);           \
+    WRITE(ST7920_DAT_PIN, TEST(val, nr)); \
+    DELAY_NS(500);                        \
+    WRITE(ST7920_CLK_PIN, HIGH);          \
     DELAY_NS(500);
 
-  static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+  static void ST7920_SWSPI_SND_8BIT(const uint8_t val) {
     ST7920_SND_BIT(7); // MSBit
     ST7920_SND_BIT(6); //
     ST7920_SND_BIT(5); //
@@ -213,7 +185,8 @@ static __inline__ __attribute__((__always_inline__)) void DELAY_CYCLES(uint32_t 
     ST7920_SND_BIT(1); //
     ST7920_SND_BIT(0); // LSBit
   }
-#endif
+
+#endif // !ARM
 
 #define ST7920_CS()              { WRITE(ST7920_CS_PIN,1); DELAY_NS(200); }
 #define ST7920_NCS()             { WRITE(ST7920_CS_PIN,0); }
@@ -260,13 +233,12 @@ uint8_t u8g_dev_st7920_custom_sw_spi_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT: {
-      uint8_t* ptr;
       u8g_pb_t* pb = (u8g_pb_t*)(dev->dev_mem);
       y = pb->p.page_y0;
-      ptr = (uint8_t*)pb->buf;
+      uint8_t* ptr = (uint8_t*)pb->buf;
 
       ST7920_CS();
-      for (i = 0; i < PAGE_HEIGHT; i ++) {
+      for (i = 0; i < PAGE_HEIGHT; i++) {
         ST7920_SET_CMD();
         if (y < 32) {
           ST7920_WRITE_BYTE(0x80 | y);   //y
