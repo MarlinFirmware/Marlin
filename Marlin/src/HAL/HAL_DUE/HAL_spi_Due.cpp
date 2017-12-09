@@ -52,29 +52,122 @@
   // --------------------------------------------------------------------------
   // software SPI
   // --------------------------------------------------------------------------
+
+  /* ---------------- Delay Cycles routine -------------- */
+
+  /* https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles */
+
+  #define nop() __asm__ __volatile__("nop;\n\t":::)
+
+  FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
+    #if ARCH_PIPELINE_RELOAD_CYCLES<2
+      #define EXTRA_NOP_CYCLES "nop"
+    #else
+      #define EXTRA_NOP_CYCLES ""
+    #endif
+
+    __asm__ __volatile__(
+      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+
+      "loop%=:" "\n\t"
+      " subs %[cnt],#1" "\n\t"
+      EXTRA_NOP_CYCLES "\n\t"
+      " bne loop%=" "\n\t"
+      : [cnt]"+r"(cy) // output: +r means input+output
+      : // input:
+      : "cc" // clobbers:
+    );
+  }
+
+  FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
+
+    if (__builtin_constant_p(x)) {
+
+      #define MAXNOPS 4
+
+      if (x <= (MAXNOPS)) {
+        switch(x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+      }
+      else { // because of +1 cycle inside delay_4cycles
+        const uint32_t rem = (x - 1) % (MAXNOPS);
+        switch(rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
+        if ((x = (x - 1) / (MAXNOPS)))
+          __delay_4cycles(x); // if need more then 4 nop loop is more optimal
+      }
+    }
+    else
+      __delay_4cycles(x / 4);
+  }
+
+  /* ---------------- Delay in nanoseconds and in microseconds */
+
+  #define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000) / 1000)
+
+  typedef uint8_t (*pfnSpiTransfer) (uint8_t b);
+
   // bitbanging transfer
-  // run at ~100KHz (necessary for init)
-  static uint8_t spiTransfer(uint8_t b) { // using Mode 0
-    for (int bits = 0; bits < 8; bits++) {
-      if (b & 0x80) {
-        WRITE(MOSI_PIN, HIGH);
-      }
-      else {
-        WRITE(MOSI_PIN, LOW);
-      }
-      b <<= 1;
+  #define SWSPI_BIT_XFER(n) \
+      WRITE(MOSI_PIN, bout & (1 << n)); \
+      WRITE(SCK_PIN, HIGH); /* Sampling point */\
+      /* (implicit by overhead) DELAY_NS(63); 5.3 cycles @ 84mhz */ \
+      bin |= (READ(MISO_PIN) != 0) << n; \
+      WRITE(SCK_PIN, LOW); /* Toggling point*/ \
+      /* (implicit by overhead) DELAY_NS(63); 5.3 cycles @ 84mhz */
+
+  // run at ~8 .. ~10Mhz
+  static uint8_t spiTransfer0(uint8_t bout) { // using Mode 0
+    volatile uint8_t bin = 0; /* volatile to disable deferred processing */
+    SWSPI_BIT_XFER(7);
+    SWSPI_BIT_XFER(6);
+    SWSPI_BIT_XFER(5);
+    SWSPI_BIT_XFER(4);
+    SWSPI_BIT_XFER(3);
+    SWSPI_BIT_XFER(2);
+    SWSPI_BIT_XFER(1);
+    SWSPI_BIT_XFER(0);
+    return bin;
+  }
+
+  // run at ~4Mhz
+  static uint8_t spiTransfer1(uint8_t b) { // using Mode 0
+    int bits = 8;
+    do {
+      WRITE(MOSI_PIN, b & 0x80);
+      b <<= 1; // little setup time
 
       WRITE(SCK_PIN, HIGH);
-      delayMicroseconds(5U);
+      DELAY_NS(125); // 10 cycles @ 84mhz
 
-      if (READ(MISO_PIN)) {
-        b |= 1;
-      }
+      b |= (READ(MISO_PIN) != 0);
+
       WRITE(SCK_PIN, LOW);
-      delayMicroseconds(5U);
-    }
+      DELAY_NS(125); // 10 cycles @ 84mhz
+    } while (--bits);
     return b;
   }
+
+  // all the others
+  static uint32_t spiDelayCyclesX4 = (F_CPU/1000000); // 4uS => 125khz
+
+  static uint8_t spiTransferX(uint8_t b) { // using Mode 0
+    int bits = 8;
+    do {
+      WRITE(MOSI_PIN, b & 0x80);
+      b <<= 1; // little setup time
+
+      WRITE(SCK_PIN, HIGH);
+      __delay_4cycles(spiDelayCyclesX4);
+
+      b |= (READ(MISO_PIN) != 0);
+
+      WRITE(SCK_PIN, LOW);
+      __delay_4cycles(spiDelayCyclesX4);
+    } while (--bits);
+    return b;
+  }
+
+  // Use the generic one
+  static pfnSpiTransfer spiTransfer = spiTransferX;
 
   void spiBegin() {
     SET_OUTPUT(SS_PIN);
@@ -84,8 +177,30 @@
     SET_OUTPUT(MOSI_PIN);
   }
 
+  /**
+   * spiRate should be
+   *  0 :  8 - 10 MHz
+   *  1 :  4 - 5 MHz
+   *  2 :  2 - 2.5 MHz
+   *  3 :  1 - 1.25 MHz
+   *  4 :  500 - 625 kHz
+   *  5 :  250 - 312 kHz
+   *  6 :  125 - 156 kHz
+   */
   void spiInit(uint8_t spiRate) {
-    UNUSED(spiRate);
+    switch (spiRate) {
+      case 0:
+        spiTransfer = spiTransfer0;
+        break;
+      case 1:
+        spiTransfer = spiTransfer1;
+        break;
+      default:
+        spiDelayCyclesX4 = (F_CPU/1000000) >> (6 - spiRate);
+        spiTransfer = spiTransferX;
+        break;
+    }
+
     WRITE(SS_PIN, HIGH);
     WRITE(MOSI_PIN, HIGH);
     WRITE(SCK_PIN, LOW);
@@ -137,6 +252,9 @@
     UNUSED(response);
     WRITE(SS_PIN, HIGH);
   }
+
+  #pragma GCC reset_options
+
 #else
   // --------------------------------------------------------------------------
   // hardware SPI
