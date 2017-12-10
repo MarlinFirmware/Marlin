@@ -168,11 +168,11 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 #else // !ARM
 
   /* AVR: Unrolling loop makes sense */
-  #define ST7920_SND_BIT(nr) \
-    WRITE(ST7920_CLK_PIN, LOW);                      \
+  #define ST7920_SND_BIT(nr)              \
+    WRITE(ST7920_CLK_PIN, LOW);           \
     WRITE(ST7920_DAT_PIN, TEST(val, nr)); \
-    DELAY_NS(500);                                   \
-    WRITE(ST7920_CLK_PIN, HIGH);                     \
+    DELAY_NS(500);                        \
+    WRITE(ST7920_CLK_PIN, HIGH);          \
     DELAY_NS(500);
 
   static void ST7920_SWSPI_SND_8BIT(const uint8_t val) {
