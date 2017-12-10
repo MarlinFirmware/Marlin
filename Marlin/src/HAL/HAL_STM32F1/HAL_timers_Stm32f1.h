@@ -144,6 +144,13 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return temp;
 }
 
+FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+  switch (timer_num) {
+    case STEP_TIMER_NUM: StepperTimer.setCount(count); break;
+    case TEMP_TIMER_NUM: TempTimer.setCount(count); break;
+  }
+}
+
 FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
   hal_timer_t temp;
   switch (timer_num) {
@@ -159,7 +166,6 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_
   }
   return temp;
 }
-
 
 //void HAL_timer_isr_prologue (const uint8_t timer_num);
 
