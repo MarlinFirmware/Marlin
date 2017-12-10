@@ -100,13 +100,13 @@ extern "C" {
 
 
 // timers
-#define STEP_TIMER_NUM OCR1A
-#define TEMP_TIMER_NUM 0
-#define TEMP_TIMER_FREQUENCY (F_CPU / 64.0 / 256.0)
+#define STEP_TIMER_NUM          OCR1A
+#define TEMP_TIMER_NUM          0
+#define TEMP_TIMER_FREQUENCY    (F_CPU / 64.0 / 256.0)
 
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
 #define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
-#define STEPPER_TIMER_PRESCALE  INT0_PRESCALER
+#define STEPPER_TIMER_PRESCALE  8
 #define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
@@ -117,6 +117,8 @@ extern "C" {
 
 //void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 #define HAL_timer_start(timer_num,frequency)
+
+#define HAL_timer_get_count(timer) timer
 
 //void HAL_timer_set_count(const uint8_t timer_num, const uint16_t count);
 #define HAL_timer_set_count(timer, count) timer = (count)
