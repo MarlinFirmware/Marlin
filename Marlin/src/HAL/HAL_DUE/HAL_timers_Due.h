@@ -64,6 +64,9 @@ typedef uint32_t hal_timer_t;
 #define HAL_STEP_TIMER_ISR  void TC3_Handler()
 #define HAL_TEMP_TIMER_ISR  void TC4_Handler()
 
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
