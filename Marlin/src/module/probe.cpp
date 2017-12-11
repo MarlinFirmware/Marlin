@@ -107,7 +107,7 @@ inline void do_probe_raise(const float z_raise) {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float raw[XYZ], const float &fr_mm_s) {
+  FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
     do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
   }
 

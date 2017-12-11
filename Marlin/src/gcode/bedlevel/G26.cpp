@@ -220,7 +220,7 @@ mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
 void G26_line_to_destination(const float &feed_rate) {
   const float save_feedrate = feedrate_mm_s;
   feedrate_mm_s = feed_rate;      // use specified feed rate
-  prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_DELTA
+  prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_SEGMENTED
   feedrate_mm_s = save_feedrate;  // restore global feed rate
 }
 
@@ -261,16 +261,16 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   set_destination_from_current();
 }
 
-FORCE_INLINE void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
+FORCE_INLINE void move_to(const float (&where)[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
 
-void retract_filament(const float where[XYZE]) {
+void retract_filament(const float (&where)[XYZE]) {
   if (!g26_retracted) { // Only retract if we are not already retracted!
     g26_retracted = true;
     move_to(where, -1.0 * g26_retraction_multiplier);
   }
 }
 
-void recover_filament(const float where[XYZE]) {
+void recover_filament(const float (&where)[XYZE]) {
   if (g26_retracted) { // Only un-retract if we are retracted.
     move_to(where, 1.2 * g26_retraction_multiplier);
     g26_retracted = false;
