@@ -340,11 +340,6 @@
   #include "ubl.h"
   extern bool defer_return_to_status;
   unified_bed_leveling ubl;
-  #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
-                           && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
-                           && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
-                           && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
-                           || isnan(ubl.z_values[0][0]))
 #endif
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -2490,10 +2485,7 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.set_z_fade_height(zfh);
 
       if (level_active) {
-        const float oldpos[XYZE] = {
-          current_position[X_AXIS], current_position[Y_AXIS],
-          current_position[Z_AXIS], current_position[E_AXIS]
-        };
+        const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
         #else
@@ -9616,6 +9608,8 @@ void quickstop_stepper() {
    */
   inline void gcode_M420() {
 
+    const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
       // L to load a mesh from the EEPROM
@@ -9650,7 +9644,7 @@ void quickstop_stepper() {
       // L to load a mesh from the EEPROM
       if (parser.seen('L') || parser.seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
         SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
 
@@ -9675,13 +9669,15 @@ void quickstop_stepper() {
       #endif
     }
 
-    const bool to_enable = parser.boolval('S');
-    if (parser.seen('S'))
-      set_bed_leveling_enabled(to_enable);
-
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units(), false);
     #endif
+
+    bool to_enable = false;
+    if (parser.seen('S')) {
+      to_enable = parser.value_bool();
+      set_bed_leveling_enabled(to_enable);
+    }
 
     const bool new_status = planner.leveling_active;
 
@@ -9701,6 +9697,10 @@ void quickstop_stepper() {
       else
         SERIAL_ECHOLNPGM(MSG_OFF);
     #endif
+
+    // Report change in position
+    if (memcmp(oldpos, current_position, sizeof(oldpos)))
+      report_current_position();
   }
 #endif
 
