@@ -137,7 +137,6 @@
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
   #endif
-  extern float destination[XYZE];
   void set_destination_from_current();
   void prepare_move_to_destination();
   inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
@@ -189,7 +188,7 @@
   void G26_line_to_destination(const float &feed_rate) {
     const float save_feedrate = feedrate_mm_s;
     feedrate_mm_s = feed_rate;      // use specified feed rate
-    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_DELTA
+    prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_SEGMENTED
     feedrate_mm_s = save_feedrate;  // restore global feed rate
   }
 

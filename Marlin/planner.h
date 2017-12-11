@@ -142,7 +142,7 @@ class Planner {
      *            head!=tail : blocks are in the buffer
      *   head==(tail-1)%size : the buffer is full
      *
-     *  Writer of head is Planner::_buffer_line().
+     *  Writer of head is Planner::buffer_segment().
      *  Reader of tail is Stepper::isr(). Always consider tail busy / read-only
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
@@ -341,6 +341,30 @@ class Planner {
 
     #endif
 
+    #if ENABLED(SKEW_CORRECTION)
+
+      FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
+        if (WITHIN(cx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
+          const float sx = cx - (cy * xy_skew_factor) - (cz * (xz_skew_factor - (xy_skew_factor * yz_skew_factor))),
+                      sy = cy - (cz * yz_skew_factor);
+          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+            cx = sx; cy = sy;
+          }
+        }
+      }
+
+      FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
+        if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
+          const float sx = cx + cy * xy_skew_factor + cz * xz_skew_factor,
+                      sy = cy + cz * yz_skew_factor;
+          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+            cx = sx; cy = sy;
+          }
+        }
+      }
+
+    #endif // SKEW_CORRECTION
+
     #if PLANNER_LEVELING
 
       #define ARG_X float rx
@@ -352,7 +376,7 @@ class Planner {
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &rx, float &ry, float &rz);
-      static void apply_leveling(float raw[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+      static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
       static void unapply_leveling(float raw[XYZ]);
 
     #else
@@ -375,7 +399,7 @@ class Planner {
     static void _buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const uint8_t extruder);
 
     /**
-     * Planner::_buffer_line
+     * Planner::buffer_segment
      *
      * Add a new linear movement to the buffer in axis units.
      *
@@ -385,7 +409,7 @@ class Planner {
      *  fr_mm_s   - (target) speed of the move
      *  extruder  - target extruder
      */
-    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
+    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -405,7 +429,7 @@ class Planner {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      _buffer_line(rx, ry, rz, e, fr_mm_s, extruder);
+      buffer_segment(rx, ry, rz, e, fr_mm_s, extruder);
     }
 
     /**
@@ -417,18 +441,18 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    FORCE_INLINE static void buffer_line_kinematic(const float cart[XYZE], const float &fr_mm_s, const uint8_t extruder) {
+    FORCE_INLINE static void buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
         float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
         apply_leveling(raw);
       #else
-        const float * const raw = cart;
+        const float (&raw)[XYZE] = cart;
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #else
-        _buffer_line(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
       #endif
     }
 
@@ -447,7 +471,7 @@ class Planner {
       #endif
       _set_position_mm(rx, ry, rz, e);
     }
-    static void set_position_mm_kinematic(const float position[NUM_AXIS]);
+    static void set_position_mm_kinematic(const float (&cart)[XYZE]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     FORCE_INLINE static void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
     FORCE_INLINE static void set_e_position_mm(const float &e) { set_position_mm(AxisEnum(E_AXIS), e); }

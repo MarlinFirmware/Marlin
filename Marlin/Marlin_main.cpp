@@ -706,7 +706,7 @@ FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_by
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
   static const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }; \
-  static inline type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
+  static inline type array(const AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
   typedef void __void_##CONFIG##__
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
@@ -733,11 +733,11 @@ void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(float target[XYZE], float* offset, uint8_t clockwise);
+  void plan_arc(const float (&cart)[XYZE], const float (&offset)[2], const bool clockwise);
 #endif
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
-  void plan_cubic_move(const float offset[4]);
+  void plan_cubic_move(const float (&offset)[4]);
 #endif
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
@@ -1550,7 +1550,7 @@ inline void set_destination_from_current() { COPY(destination, current_position)
 
     refresh_cmd_timeout();
 
-    #if UBL_DELTA
+    #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
     #else
@@ -1808,7 +1808,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float raw[XYZ], const float &fr_mm_s) {
+  FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
     do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
   }
 
@@ -8326,7 +8326,7 @@ void report_current_position() {
 
 #ifdef M114_DETAIL
 
-  void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
+  void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
     for (uint8_t i = 0; i < n; i++) {
       SERIAL_CHAR(' ');
@@ -8337,7 +8337,7 @@ void report_current_position() {
     SERIAL_EOL();
   }
 
-  inline void report_xyz(const float pos[XYZ]) { report_xyze(pos, 3); }
+  inline void report_xyz(const float pos[]) { report_xyze(pos, 3); }
 
   void report_current_position_detail() {
 
@@ -12647,7 +12647,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 #endif // AUTO_BED_LEVELING_BILINEAR
 #endif // IS_CARTESIAN
 
-#if !UBL_DELTA
+#if !UBL_SEGMENTED
 #if IS_KINEMATIC
 
   /**
@@ -12659,7 +12659,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * For Unified Bed Leveling (Delta or Segmented Cartesian)
    * the ubl.prepare_segmented_line_to method replaces this.
    */
-  inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
+  inline bool prepare_kinematic_move_to(const float (&rtarget)[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
     const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
@@ -12819,7 +12819,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   }
 
 #endif // !IS_KINEMATIC
-#endif // !UBL_DELTA
+#endif // !UBL_SEGMENTED
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -12895,7 +12895,13 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           break;
       }
     }
-    return prepare_move_to_destination_cartesian();
+    return (
+      #if UBL_SEGMENTED
+        ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
+      #else
+        prepare_move_to_destination_cartesian()
+      #endif
+    );
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -12937,12 +12943,12 @@ void prepare_move_to_destination() {
   #endif
 
   if (
-    #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
+    #if ENABLED(DUAL_X_CARRIAGE)
+      prepare_move_to_destination_dualx()
+    #elif UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
-    #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
@@ -12968,9 +12974,9 @@ void prepare_move_to_destination() {
    * options for G2/G3 arc generation. In future these options may be GCode tunable.
    */
   void plan_arc(
-    float raw[XYZE],     // Destination position
-    float *offset,       // Center of rotation relative to current_position
-    uint8_t clockwise    // Clockwise?
+    const float (&cart)[XYZE], // Destination position
+    const float (&offset)[2], // Center of rotation relative to current_position
+    const bool clockwise      // Clockwise?
   ) {
     #if ENABLED(CNC_WORKSPACE_PLANES)
       AxisEnum p_axis, q_axis, l_axis;
@@ -12990,10 +12996,10 @@ void prepare_move_to_destination() {
     const float radius = HYPOT(r_P, r_Q),
                 center_P = current_position[p_axis] - r_P,
                 center_Q = current_position[q_axis] - r_Q,
-                rt_X = raw[p_axis] - center_P,
-                rt_Y = raw[q_axis] - center_Q,
-                linear_travel = raw[l_axis] - current_position[l_axis],
-                extruder_travel = raw[E_AXIS] - current_position[E_AXIS];
+                rt_X = cart[p_axis] - center_P,
+                rt_Y = cart[q_axis] - center_Q,
+                linear_travel = cart[l_axis] - current_position[l_axis],
+                extruder_travel = cart[E_AXIS] - current_position[E_AXIS];
 
     // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
     float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
@@ -13001,7 +13007,7 @@ void prepare_move_to_destination() {
     if (clockwise) angular_travel -= RADIANS(360);
 
     // Make a circle if the angular rotation is 0 and the target is current position
-    if (angular_travel == 0 && current_position[p_axis] == raw[p_axis] && current_position[q_axis] == raw[q_axis])
+    if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis])
       angular_travel = RADIANS(360);
 
     const float mm_of_travel = HYPOT(angular_travel * radius, FABS(linear_travel));
@@ -13101,7 +13107,7 @@ void prepare_move_to_destination() {
     }
 
     // Ensure last segment arrives at target location.
-    planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
+    planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
 
     // As far as the parser is concerned, the position is now == target. In reality the
     // motion control system might still be processing the action and the real tool position
@@ -13113,7 +13119,7 @@ void prepare_move_to_destination() {
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
-  void plan_cubic_move(const float offset[4]) {
+  void plan_cubic_move(const float (&offset)[4]) {
     cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
 
     // As far as the parser is concerned, the position is now == destination. In reality the

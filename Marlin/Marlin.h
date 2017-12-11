@@ -223,7 +223,7 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
-extern float current_position[NUM_AXIS];
+extern float current_position[XYZE], destination[XYZE];
 
 // Workspace offsets
 #if HAS_WORKSPACE_OFFSET
