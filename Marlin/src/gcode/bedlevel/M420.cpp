@@ -108,7 +108,7 @@ void GcodeSuite::M420() {
   if (parser.seen('S')) set_bed_leveling_enabled(to_enable);
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
+    if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units(), false);
   #endif
 
   const bool new_status = planner.leveling_active;
