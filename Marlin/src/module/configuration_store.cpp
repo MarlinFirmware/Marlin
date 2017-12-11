@@ -220,10 +220,7 @@ MarlinSettings settings;
  * Post-process after Retrieve or Reset
  */
 void MarlinSettings::postprocess() {
-  const float oldpos[XYZE] = {
-    current_position[X_AXIS], current_position[Y_AXIS],
-    current_position[Z_AXIS], current_position[E_AXIS]
-  };
+  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();

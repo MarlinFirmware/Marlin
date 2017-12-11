@@ -45,10 +45,7 @@
  */
 void GcodeSuite::M420() {
 
-  const float oldpos[XYZE] = {
-    current_position[X_AXIS], current_position[Y_AXIS],
-    current_position[Z_AXIS], current_position[E_AXIS]
-  };
+  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 

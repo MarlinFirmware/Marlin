@@ -149,10 +149,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.set_z_fade_height(zfh);
 
     if (level_active) {
-      const float oldpos[XYZE] = {
-        current_position[X_AXIS], current_position[Y_AXIS],
-        current_position[Z_AXIS], current_position[E_AXIS]
-      };
+      const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         set_bed_leveling_enabled(true);  // turn back on after changing fade height
       #else
