@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V46"
+#define EEPROM_VERSION "V47"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
