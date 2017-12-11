@@ -80,8 +80,13 @@
     #endif
 
     SERIAL_PROTOCOLPGM("Stepper:");
-    const float step_count[XYZE] = { stepper.position(X_AXIS), stepper.position(Y_AXIS), stepper.position(Z_AXIS), stepper.position(E_AXIS) };
-    report_xyze(step_count, 4, 0);
+    LOOP_XYZE(i) {
+      SERIAL_CHAR(' ');
+      SERIAL_CHAR(axis_codes[i]);
+      SERIAL_CHAR(':');
+      SERIAL_PROTOCOL(stepper.position((AxisEnum)i));
+    }
+    SERIAL_EOL();
 
     #if IS_SCARA
       const float deg[XYZ] = {
