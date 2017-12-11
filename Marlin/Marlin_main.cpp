@@ -2475,7 +2475,9 @@ static void clean_up_after_endstop_or_probe_move() {
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-    void set_z_fade_height(const float zfh) {
+    void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+
+      if (planner.z_fade_height == zfh) return; // do nothing if no change
 
       const bool level_active = planner.leveling_active;
 
@@ -2497,6 +2499,7 @@ static void clean_up_after_endstop_or_probe_move() {
             #endif
           );
         #endif
+        if (do_report) report_current_position();
       }
     }
 

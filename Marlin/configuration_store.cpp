@@ -215,14 +215,12 @@ MarlinSettings settings;
   float new_z_fade_height;
 #endif
 
-#if ENABLED(CNC_COORDINATE_SYSTEMS)
-  bool position_changed;
-#endif
-
 /**
  * Post-process after Retrieve or Reset
  */
 void MarlinSettings::postprocess() {
+  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
@@ -231,10 +229,6 @@ void MarlinSettings::postprocess() {
   #if ENABLED(DELTA)
     recalc_delta_settings();
   #endif
-
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
-  planner.refresh_positioning();
 
   #if ENABLED(PIDTEMP)
     thermalManager.updatePID();
@@ -248,7 +242,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(new_z_fade_height);
+    set_z_fade_height(new_z_fade_height, false); // false = no report
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -260,12 +254,13 @@ void MarlinSettings::postprocess() {
     stepper.refresh_motor_power();
   #endif
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    if (position_changed) {
-      report_current_position();
-      position_changed = false;
-    }
-  #endif
+  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // and init stepper.count[], planner.position[] with current_position
+  planner.refresh_positioning();
+
+  // Various factors can change the current position
+  if (memcmp(oldpos, current_position, sizeof(oldpos)))
+    report_current_position();
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -1121,7 +1116,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        position_changed = select_coordinate_system(-1); // Go back to machine space
+        (void)select_coordinate_system(-1); // Go back to machine space
         EEPROM_READ(coordinate_system);                  // 27 floats
       #else
         for (uint8_t q = 27; q--;) EEPROM_READ(dummy);

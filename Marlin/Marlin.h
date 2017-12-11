@@ -373,7 +373,7 @@ void report_current_position();
 #endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh);
+  void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
 #if ENABLED(X_DUAL_ENDSTOPS)
