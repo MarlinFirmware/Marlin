@@ -216,14 +216,12 @@ MarlinSettings settings;
   float new_z_fade_height;
 #endif
 
-#if ENABLED(CNC_COORDINATE_SYSTEMS)
-  bool position_changed;
-#endif
-
 /**
  * Post-process after Retrieve or Reset
  */
 void MarlinSettings::postprocess() {
+  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
@@ -232,10 +230,6 @@ void MarlinSettings::postprocess() {
   #if ENABLED(DELTA)
     recalc_delta_settings();
   #endif
-
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
-  planner.refresh_positioning();
 
   #if ENABLED(PIDTEMP)
     thermalManager.updatePID();
@@ -249,7 +243,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(new_z_fade_height);
+    set_z_fade_height(new_z_fade_height, false); // false = no report
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -264,13 +258,14 @@ void MarlinSettings::postprocess() {
   #if ENABLED(FWRETRACT)
     fwretract.refresh_autoretract();
   #endif
+ 
+  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // and init stepper.count[], planner.position[] with current_position
+  planner.refresh_positioning();
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    if (position_changed) {
-      report_current_position();
-      position_changed = false;
-    }
-  #endif
+  // Various factors can change the current position
+  if (memcmp(oldpos, current_position, sizeof(oldpos)))
+    report_current_position();
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -304,11 +299,14 @@ void MarlinSettings::postprocess() {
     EEPROM_START();
 
     eeprom_error = false;
-
-    EEPROM_WRITE(ver);     // invalidate data first
+    #if ENABLED(FLASH_EEPROM_EMULATION)
+      EEPROM_SKIP(ver);   // Flash doesn't allow rewriting without erase
+    #else
+      EEPROM_WRITE(ver);  // invalidate data first
+    #endif
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
-    working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
+    working_crc = 0; // clear before first "real data"
 
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
@@ -342,7 +340,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float zfh = planner.z_fade_height;
     #else
-      const float zfh = 0.0;
+      const float zfh = 10.0;
     #endif
     EEPROM_WRITE(zfh);
 
@@ -725,7 +723,7 @@ void MarlinSettings::postprocess() {
       float dummy = 0;
       bool dummyb;
 
-      working_crc = 0; //clear before reading first "real data"
+      working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       // Number of esteppers may change
       uint8_t esteppers;
@@ -913,7 +911,6 @@ void MarlinSettings::postprocess() {
       #if DISABLED(ULTIPANEL)
         int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
       #endif
-
       EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
       EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
       EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
@@ -1094,7 +1091,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        position_changed = gcode.select_coordinate_system(-1); // Go back to machine space
+        (void)gcode.select_coordinate_system(-1); // Go back to machine space
         EEPROM_READ(gcode.coordinate_system);                  // 27 floats
       #else
         for (uint8_t q = 27; q--;) EEPROM_READ(dummy);

@@ -211,6 +211,12 @@ void get_cartesian_from_steppers() {
  * Set the current_position for an axis based on
  * the stepper positions, removing any leveling that
  * may have been applied.
+ *
+ * To prevent small shifts in axis position always call
+ * SYNC_PLAN_POSITION_KINEMATIC after updating axes with this.
+ *
+ * To keep hosts in sync, always call report_current_position
+ * after updating the current_position.
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
@@ -258,7 +264,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
 
     gcode.refresh_cmd_timeout();
 
-    #if UBL_DELTA
+    #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
     #else
@@ -489,7 +495,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #endif
 
-#if !UBL_DELTA
+#if !UBL_SEGMENTED
 #if IS_KINEMATIC
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -511,13 +517,19 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
    *
+   * Called from prepare_move_to_destination as the
+   * default Delta/SCARA segmenter.
+   *
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    *
    * For Unified Bed Leveling (Delta or Segmented Cartesian)
    * the ubl.prepare_segmented_line_to method replaces this.
+   *
+   * For Auto Bed Leveling (Bilinear) with SEGMENT_LEVELED_MOVES
+   * this is replaced by segmented_line_to_destination below.
    */
-  inline bool prepare_kinematic_move_to(float rtarget[XYZE]) {
+  inline bool prepare_kinematic_move_to(const float (&rtarget)[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
     const float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
@@ -750,7 +762,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   }
 
 #endif // !IS_KINEMATIC
-#endif // !UBL_DELTA
+#endif // !UBL_SEGMENTED
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false;                              // Used in Dual X mode 2
@@ -784,7 +796,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
    *
    * Return true if current_position[] was set to destination[]
    */
-  inline bool prepare_move_to_destination_dualx() {
+  inline bool dual_x_carriage_unpark() {
     if (active_extruder_parked) {
       switch (dual_x_carriage_mode) {
         case DXC_FULL_CONTROL_MODE:
@@ -853,7 +865,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           break;
       }
     }
-    return prepare_move_to_destination_cartesian();
+    return false;
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -894,13 +906,15 @@ void prepare_move_to_destination() {
 
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    if (dual_x_carriage_unpark()) return;
+  #endif
+
   if (
-    #if UBL_DELTA // Also works for CARTESIAN (smaller segments follow mesh more closely)
+    #if UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
-    #elif ENABLED(DUAL_X_CARRIAGE)
-      prepare_move_to_destination_dualx()
     #else
       prepare_move_to_destination_cartesian()
     #endif
