@@ -2469,6 +2469,8 @@ static void clean_up_after_endstop_or_probe_move() {
           // so compensation will give the right stepper counts.
           planner.unapply_leveling(current_position);
 
+        SYNC_PLAN_POSITION_KINEMATIC();
+
       #endif // ABL
     }
   }
@@ -2488,6 +2490,10 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.set_z_fade_height(zfh);
 
       if (level_active) {
+        const float oldpos[XYZE] = {
+          current_position[X_AXIS], current_position[Y_AXIS],
+          current_position[Z_AXIS], current_position[E_AXIS]
+        };
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
         #else
@@ -2498,8 +2504,10 @@ static void clean_up_after_endstop_or_probe_move() {
               Z_AXIS
             #endif
           );
+          SYNC_PLAN_POSITION_KINEMATIC();
         #endif
-        if (do_report) report_current_position();
+        if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
+          report_current_position();
       }
     }
 
@@ -4628,6 +4636,7 @@ void home_all_axes() { gcode_G28(true); }
               bed_level_virt_interpolate();
             #endif
             set_bed_leveling_enabled(abl_should_enable);
+            report_current_position();
           }
           return;
         } // parser.seen('W')
@@ -9671,7 +9680,7 @@ void quickstop_stepper() {
       set_bed_leveling_enabled(to_enable);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
+      if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units(), false);
     #endif
 
     const bool new_status = planner.leveling_active;
@@ -12394,6 +12403,12 @@ void get_cartesian_from_steppers() {
  * Set the current_position for an axis based on
  * the stepper positions, removing any leveling that
  * may have been applied.
+ *
+ * To prevent small shifts in axis position always call
+ * SYNC_PLAN_POSITION_KINEMATIC after updating axes with this.
+ *
+ * To keep hosts in sync, always call report_current_position
+ * after updating the current_position.
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
