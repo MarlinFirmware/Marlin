@@ -36,43 +36,60 @@
  *  K[yz_factor] - New YZ skew factor
  */
 void GcodeSuite::M852() {
-  const bool ijk = parser.seen('I') || parser.seen('S')
-    #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      || parser.seen('J') || parser.seen('K')
-    #endif
-  ;
-  bool badval = false;
+  uint8_t ijk = 0, badval = 0, setval = 0;
 
   if (parser.seen('I') || parser.seen('S')) {
+    ++ijk;
     const float value = parser.value_linear_units();
-    if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-      planner.xy_skew_factor = value;
+    if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+      if (planner.xy_skew_factor != value) {
+        planner.xy_skew_factor = value;
+        ++setval;
+      }
+    }
     else
-      badval = true;
+      ++badval;
   }
 
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
 
     if (parser.seen('J')) {
+      ++ijk;
       const float value = parser.value_linear_units();
-      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-        planner.xz_skew_factor = value;
+      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+        if (planner.xz_skew_factor != value) {
+          planner.xz_skew_factor = value;
+          ++setval;
+        }
+      }
       else
-        badval = true;
+        ++badval;
     }
 
     if (parser.seen('K')) {
+      ++ijk;
       const float value = parser.value_linear_units();
-      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-        planner.yz_skew_factor = value;
+      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+        if (planner.yz_skew_factor != value) {
+          planner.yz_skew_factor = value;
+          ++setval;
+        }
+      }
       else
-        badval = true;
+        ++badval;
     }
 
   #endif
 
   if (badval)
     SERIAL_ECHOLNPGM(MSG_SKEW_MIN " " STRINGIFY(SKEW_FACTOR_MIN) " " MSG_SKEW_MAX " " STRINGIFY(SKEW_FACTOR_MAX));
+
+  // When skew is changed the current position changes
+  if (setval) {
+    set_current_from_steppers_for_axis(ALL_AXES);
+    SYNC_PLAN_POSITION_KINEMATIC();
+    report_current_position();
+  }
 
   if (!ijk) {
     SERIAL_ECHO_START();
