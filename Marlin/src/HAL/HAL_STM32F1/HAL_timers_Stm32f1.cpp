@@ -96,22 +96,24 @@ Timer_clock4: Prescaler 128 -> 656.25kHz
 void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
-      StepperTimer.pause();
-      StepperTimer.setCount(0);
-      StepperTimer.setPrescaleFactor(STEPPER_TIMER_PRESCALE);
-      StepperTimer.setOverflow(0xFFFF);
-      StepperTimer.setCompare(STEP_TIMER_CHAN, uint32_t(HAL_STEPPER_TIMER_RATE) / frequency);
-      StepperTimer.refresh();
-      StepperTimer.resume();
+      timer_pause(STEP_TIMER_DEV);
+      timer_set_count(STEP_TIMER_DEV, 0);
+      timer_set_prescaler(STEP_TIMER_DEV, (uint16)(STEPPER_TIMER_PRESCALE - 1));
+      timer_set_reload(STEP_TIMER_DEV, 0xFFFF);
+      timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, min(HAL_TIMER_TYPE_MAX, (HAL_STEPPER_TIMER_RATE / frequency)));
+      timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
+      timer_generate_update(STEP_TIMER_DEV);
+      timer_resume(STEP_TIMER_DEV);
       break;
     case TEMP_TIMER_NUM:
-      TempTimer.pause();
-      TempTimer.setCount(0);
-      TempTimer.setPrescaleFactor(TEMP_TIMER_PRESCALE);
-      TempTimer.setOverflow(0xFFFF);
-      TempTimer.setCompare(TEMP_TIMER_CHAN, (F_CPU) / (TEMP_TIMER_PRESCALE) / frequency);
-      TempTimer.refresh();
-      TempTimer.resume();
+      timer_pause(TEMP_TIMER_DEV);
+      timer_set_count(TEMP_TIMER_DEV, 0);
+      timer_set_prescaler(TEMP_TIMER_DEV, (uint16)(TEMP_TIMER_PRESCALE - 1));
+      timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
+      timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, min(HAL_TIMER_TYPE_MAX, ((F_CPU / TEMP_TIMER_PRESCALE) / frequency)));
+      timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
+      timer_generate_update(TEMP_TIMER_DEV);
+      timer_resume(TEMP_TIMER_DEV);
       break;
   }
 }
@@ -119,10 +121,10 @@ void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
 void HAL_timer_enable_interrupt(uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
-      StepperTimer.attachInterrupt(STEP_TIMER_CHAN, stepTC_Handler);
+      timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
       break;
     case TEMP_TIMER_NUM:
-      TempTimer.attachInterrupt(STEP_TIMER_CHAN, tempTC_Handler);
+      timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
       break;
     default:
       break;
@@ -132,10 +134,10 @@ void HAL_timer_enable_interrupt(uint8_t timer_num) {
 void HAL_timer_disable_interrupt(uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
-      StepperTimer.detachInterrupt(STEP_TIMER_CHAN);
+      timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
       break;
     case TEMP_TIMER_NUM:
-      TempTimer.detachInterrupt(STEP_TIMER_CHAN);
+      timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
       break;
     default:
       break;
