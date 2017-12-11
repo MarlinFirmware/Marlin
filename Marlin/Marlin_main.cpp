@@ -340,11 +340,6 @@
   #include "ubl.h"
   extern bool defer_return_to_status;
   unified_bed_leveling ubl;
-  #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
-                           && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
-                           && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
-                           && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
-                           || isnan(ubl.z_values[0][0]))
 #endif
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -2469,13 +2464,17 @@ static void clean_up_after_endstop_or_probe_move() {
           // so compensation will give the right stepper counts.
           planner.unapply_leveling(current_position);
 
+        SYNC_PLAN_POSITION_KINEMATIC();
+
       #endif // ABL
     }
   }
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-    void set_z_fade_height(const float zfh) {
+    void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+
+      if (planner.z_fade_height == zfh) return; // do nothing if no change
 
       const bool level_active = planner.leveling_active;
 
@@ -2486,6 +2485,7 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.set_z_fade_height(zfh);
 
       if (level_active) {
+        const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           set_bed_leveling_enabled(true);  // turn back on after changing fade height
         #else
@@ -2496,7 +2496,10 @@ static void clean_up_after_endstop_or_probe_move() {
               Z_AXIS
             #endif
           );
+          SYNC_PLAN_POSITION_KINEMATIC();
         #endif
+        if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
+          report_current_position();
       }
     }
 
@@ -4625,6 +4628,7 @@ void home_all_axes() { gcode_G28(true); }
               bed_level_virt_interpolate();
             #endif
             set_bed_leveling_enabled(abl_should_enable);
+            report_current_position();
           }
           return;
         } // parser.seen('W')
@@ -9604,6 +9608,8 @@ void quickstop_stepper() {
    */
   inline void gcode_M420() {
 
+    const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
       // L to load a mesh from the EEPROM
@@ -9638,7 +9644,7 @@ void quickstop_stepper() {
       // L to load a mesh from the EEPROM
       if (parser.seen('L') || parser.seen('V')) {
         ubl.display_map(0);  // Currently only supports one map type
-        SERIAL_ECHOLNPAIR("UBL_MESH_VALID = ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
         SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
 
@@ -9663,13 +9669,15 @@ void quickstop_stepper() {
       #endif
     }
 
-    const bool to_enable = parser.boolval('S');
-    if (parser.seen('S'))
-      set_bed_leveling_enabled(to_enable);
-
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units());
+      if (parser.seen('Z')) set_z_fade_height(parser.value_linear_units(), false);
     #endif
+
+    bool to_enable = false;
+    if (parser.seen('S')) {
+      to_enable = parser.value_bool();
+      set_bed_leveling_enabled(to_enable);
+    }
 
     const bool new_status = planner.leveling_active;
 
@@ -9689,6 +9697,10 @@ void quickstop_stepper() {
       else
         SERIAL_ECHOLNPGM(MSG_OFF);
     #endif
+
+    // Report change in position
+    if (memcmp(oldpos, current_position, sizeof(oldpos)))
+      report_current_position();
   }
 #endif
 
@@ -9902,43 +9914,60 @@ inline void gcode_M502() {
    *  K[yz_factor] - New YZ skew factor
    */
   inline void gcode_M852() {
-    const bool ijk = parser.seen('I') || parser.seen('S')
-      #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        || parser.seen('J') || parser.seen('K')
-      #endif
-    ;
-    bool badval = false;
+    uint8_t ijk = 0, badval = 0, setval = 0;
 
     if (parser.seen('I') || parser.seen('S')) {
+      ++ijk;
       const float value = parser.value_linear_units();
-      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-        planner.xy_skew_factor = value;
+      if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+        if (planner.xy_skew_factor != value) {
+          planner.xy_skew_factor = value;
+          ++setval;
+        }
+      }
       else
-        badval = true;
+        ++badval;
     }
 
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
 
       if (parser.seen('J')) {
+        ++ijk;
         const float value = parser.value_linear_units();
-        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-          planner.xz_skew_factor = value;
+        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+          if (planner.xz_skew_factor != value) {
+            planner.xz_skew_factor = value;
+            ++setval;
+          }
+        }
         else
-          badval = true;
+          ++badval;
       }
 
       if (parser.seen('K')) {
+        ++ijk;
         const float value = parser.value_linear_units();
-        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX))
-          planner.yz_skew_factor = value;
+        if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
+          if (planner.yz_skew_factor != value) {
+            planner.yz_skew_factor = value;
+            ++setval;
+          }
+        }
         else
-          badval = true;
+          ++badval;
       }
 
     #endif
 
     if (badval)
       SERIAL_ECHOLNPGM(MSG_SKEW_MIN " " STRINGIFY(SKEW_FACTOR_MIN) " " MSG_SKEW_MAX " " STRINGIFY(SKEW_FACTOR_MAX));
+
+    // When skew is changed the current position changes
+    if (setval) {
+      set_current_from_steppers_for_axis(ALL_AXES);
+      SYNC_PLAN_POSITION_KINEMATIC();
+      report_current_position();
+    }
 
     if (!ijk) {
       SERIAL_ECHO_START();
@@ -12391,6 +12420,12 @@ void get_cartesian_from_steppers() {
  * Set the current_position for an axis based on
  * the stepper positions, removing any leveling that
  * may have been applied.
+ *
+ * To prevent small shifts in axis position always call
+ * SYNC_PLAN_POSITION_KINEMATIC after updating axes with this.
+ *
+ * To keep hosts in sync, always call report_current_position
+ * after updating the current_position.
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
