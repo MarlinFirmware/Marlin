@@ -285,6 +285,7 @@ void GcodeSuite::G29() {
             bed_level_virt_interpolate();
           #endif
           set_bed_leveling_enabled(abl_should_enable);
+          if (abl_should_enable) report_current_position();
         }
         return;
       } // parser.seen('W')
