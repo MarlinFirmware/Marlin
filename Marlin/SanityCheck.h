@@ -1342,7 +1342,7 @@ static_assert(1 >= 0
   #endif
   #if ENABLED(REPRAPWORLD_KEYPAD) \
       && DISABLED(CARTESIO_UI) \
-      && DISABLED(ANET_KEYPAD_LCD)
+      && DISABLED(ZONESTAR_LCD)
     + 1
   #endif
   #if ENABLED(RIGIDBOT_PANEL)
@@ -1378,7 +1378,7 @@ static_assert(1 >= 0
   #if ENABLED(OLED_PANEL_TINYBOY2)
     + 1
   #endif
-  #if ENABLED(ANET_KEYPAD_LCD)
+  #if ENABLED(ZONESTAR_LCD)
     + 1
   #endif
   , "Please select no more than one LCD controller option."
