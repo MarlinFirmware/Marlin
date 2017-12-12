@@ -120,7 +120,6 @@
 #define E1_CS_PIN          44
 
 #if ENABLED(HAVE_TMC2208)
-  #include <HardwareSerial.h>
   /*
    * TMC2208 stepper drivers
    * 
