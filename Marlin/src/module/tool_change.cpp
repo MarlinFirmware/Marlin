@@ -131,6 +131,136 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  uint8_t trick_extruder = tmp_extruder;//become tmp_extruder
+
+  //switch to XY_PROBE_FEEDRATE_MM_S feedrate
+  const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
+  feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+
+  #if ENABLED(DUAL_X_CARRIAGE) && ENABLED(DUAL_X_ZTO)//enabled Z Toolhead Adjust
+
+    //don't switch to out of range extruder
+    if (tmp_extruder >= EXTRUDERS)
+      return invalid_extruder_error(tmp_extruder);
+
+    if(tmp_extruder == active_extruder)
+      return; //nothing to do, already this extruder active
+
+    //treat higher toolheads as toolhead 1
+    if(active_extruder > 1)
+      active_extruder = 1;
+
+    //trick Marlin into thinking new extruder is 1 if extruder > 1, later changed back
+    //this way non actionable extruders can be used as extruder 1 in dual_X
+    if(trick_extruder > 1){
+      trick_extruder = 1;
+    }
+
+    if (!no_move && axis_unhomed_error()) {
+      no_move = true;
+    }
+
+    //save tempX and put trickX into current_position[X_AXIS]
+    float tempX = current_position[X_AXIS];
+    current_position[X_AXIS] = x_home_pos(trick_extruder);
+
+    set_destination_from_current();//unpark position set. Save current position to destination, for use later(with trickX)
+
+    //reload tempX into current_position[X_AXIS]
+    current_position[X_AXIS] = tempX;
+
+    const float xhome = x_home_pos(active_extruder);
+    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE
+        && IsRunning()
+        && (delayed_move_time || current_position[X_AXIS] != xhome)
+    ) {
+      float raised_z = current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT;
+      #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+        NOMORE(raised_z, soft_endstop_max[Z_AXIS]);
+      #endif
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOLNPAIR("Raise to ", raised_z);
+          SERIAL_ECHOLNPAIR("MoveX to ", xhome);
+          SERIAL_ECHOLNPAIR("Lower to ", current_position[Z_AXIS]);
+        }
+      #endif
+
+      // Park old head: 1) raise 2) move to park position 3) lower
+        for (uint8_t i = 0; i < 3; i++)
+          planner.buffer_line(
+            i == 0 ? current_position[X_AXIS] : xhome,
+            current_position[Y_AXIS],
+            i == 2 ? current_position[Z_AXIS] : raised_z,
+            current_position[E_AXIS],
+            planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
+            active_extruder
+          );
+        stepper.synchronize();
+    }
+
+    // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
+    current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][trick_extruder];
+    current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][trick_extruder];
+    //apply Z Toolhead Offsets
+    if(activePrimaryZTO){// going primary to non primary
+      activePrimaryZTO = false;
+      current_position[Z_AXIS] += primaryZTO - secondaryZTO;
+    }else if(trick_extruder == 0){// going non primary to primary
+      activePrimaryZTO = true;
+      current_position[Z_AXIS] += secondaryZTO - primaryZTO;
+    }
+
+    // Activate the new extruder ahead of calling set_axis_is_at_home!
+    active_extruder = trick_extruder;
+
+    // This function resets the max/min values - the current position may be overwritten below.
+    set_axis_is_at_home(X_AXIS);
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("New Extruder", current_position);
+    #endif
+
+    // Only when auto-parking are carriages safe to move
+    if (dual_x_carriage_mode != DXC_AUTO_PARK_MODE) no_move = true;
+
+    // record raised toolhead position for use by unpark
+    COPY(raised_parked_position, current_position);
+    raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+      NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+    #endif
+    active_extruder_parked = true;
+    delayed_move_time = 0;
+
+    // Tell the planner the new "current position"
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    // Move to the "old position" (move the extruder into place)
+    if (!no_move && IsRunning()) {
+      prepare_move_to_destination();
+    }
+
+    //block untill all steper commands are executed
+    stepper.synchronize();
+
+    //switch back to feedrate that came in with
+    feedrate_mm_s = old_feedrate_mm_s;
+
+    //reverse trick from start. that allowed higher toolheads to be used as toolhead 1
+    active_extruder = tmp_extruder;
+
+    #if HAS_FANMUX
+      fanmux_switch(active_extruder);
+    #endif
+
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
+    return;
+  #endif
+
+
+
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
@@ -146,10 +276,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       return invalid_extruder_error(tmp_extruder);
 
     #if HOTENDS > 1
-
-      const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
-
-      feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
       if (tmp_extruder != active_extruder) {
         if (!no_move && axis_unhomed_error()) {

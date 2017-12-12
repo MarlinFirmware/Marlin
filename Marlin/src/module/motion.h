@@ -75,6 +75,13 @@ extern int16_t feedrate_percentage;
 
 extern uint8_t active_extruder;
 
+//ZTO variables
+#if ENABLED(DUAL_X_CARRIAGE) && ENABLED(DUAL_X_ZTO)
+  extern float primaryZTO;
+  extern float secondaryZTO;
+  extern bool activePrimaryZTO;
+#endif
+
 #if HOTENDS > 1
   extern float hotend_offset[XYZ][HOTENDS];
 #endif
