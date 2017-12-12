@@ -29,8 +29,9 @@
 
 #include "../inc/MarlinConfig.h"
 
+extern float zprobe_zoffset;
+
 #if HAS_BED_PROBE
-  extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
   float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
