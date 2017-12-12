@@ -30,6 +30,10 @@
  * Description: Fast IO functions for Arduino Due and compatible (SAM3X8E)
  *
  * For ARDUINO_ARCH_SAM
+ * Note the code here was specifically crafted by disassembling what GCC produces
+ * out of it, so GCC is able to optimize it out as much as possible to the least
+ * amount of instructions. Be very carefull if you modify them, as "clean code"
+ * leads to less efficient compiled code!!
  */
 
 #ifndef _FASTIO_DUE_H
@@ -55,13 +59,20 @@
 #define _READ(IO) ((bool)(DIO ## IO ## _WPORT -> PIO_PDSR & (MASK(DIO ## IO ## _PIN))))
 
 /// Write to a pin
-#define _WRITE_VAR(IO, v) do {  if (v) {g_APinDescription[IO].pPort->PIO_SODR = g_APinDescription[IO].ulPin; } \
-                                    else {g_APinDescription[IO].pPort->PIO_CODR = g_APinDescription[IO].ulPin; } \
-                                 } while (0)
+#define _WRITE_VAR(IO, v)  do { \
+  volatile Pio* port = g_APinDescription[IO].pPort; \
+  uint32_t mask = g_APinDescription[IO].ulPin; \
+  if (v) port->PIO_SODR = mask; \
+  else port->PIO_CODR = mask; \
+} while(0)
 
-#define _WRITE(IO, v) do {  if (v) {DIO ## IO ## _WPORT -> PIO_SODR = MASK(DIO ## IO ##_PIN); } \
-                                else {DIO ##  IO ## _WPORT -> PIO_CODR = MASK(DIO ## IO ## _PIN); }; \
-                             } while (0)
+/// Write to a pin
+#define _WRITE(IO, v) do { \
+  volatile Pio* port = (DIO ##  IO ## _WPORT); \
+  uint32_t mask = MASK(DIO ## IO ## _PIN); \
+  if (v) port->PIO_SODR = mask; \
+  else port->PIO_CODR = mask; \
+} while(0)
 
 /// toggle a pin
 #define _TOGGLE(IO)  _WRITE(IO, !READ(IO))
