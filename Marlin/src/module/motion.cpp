@@ -87,6 +87,13 @@ float destination[XYZE] = { 0.0 };
 // The active extruder (tool). Set with T<extruder> command.
 uint8_t active_extruder = 0;
 
+//initialize ZTO variables
+#if ENABLED(DUAL_X_CARRIAGE) && ENABLED(DUAL_X_ZTO)
+  float primaryZTO = 0.0;
+  float secondaryZTO = 0.0;
+  bool activePrimaryZTO = true;
+#endif
+
 // Extruder offsets
 #if HOTENDS > 1
   float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()

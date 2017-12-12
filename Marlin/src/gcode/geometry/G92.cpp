@@ -28,8 +28,6 @@
   #include "../../feature/I2CPositionEncoder.h"
 #endif
 
-float total_adjusted_Z = 0.0;
-
 /**
  * G92: Set current position to given X Y Z E
  */
@@ -101,10 +99,8 @@ void GcodeSuite::G92() {
     const float curr_z = current_position[Z_AXIS];
     const float adjust_z = parser.value_axis_units(Z_AXIS);
 
-    if(adjust_z == 0){//report total adjusted
-       SERIAL_ECHOLNPGM("\ntotal_adjusted_Z: ");
-       SERIAL_ECHOLN(total_adjusted_Z);
-
+    if(adjust_z == 0){
+      //nothing
     }else{
       if(adjust_z > 0){
         do_blocking_move_to_z(curr_z + Z_ADJUST_HOP_DISTANCE + adjust_z, HOMING_FEEDRATE_Z);
@@ -116,12 +112,16 @@ void GcodeSuite::G92() {
       }
 
       current_position[Z_AXIS] = curr_z;
-      total_adjusted_Z+= adjust_z;
-
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM("\nA: ");
-      SERIAL_ECHOLN(adjust_z);
+      if(activePrimaryZTO)
+        primaryZTO += adjust_z;
+      else
+        secondaryZTO += adjust_z;
     }
+      //report
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("adjust_z(now): ", adjust_z);
+      SERIAL_ECHOLNPAIR("primaryZTO: ", primaryZTO);
+      SERIAL_ECHOLNPAIR("secondaryZTO: ", secondaryZTO);
   }
 
   if (didXYZ || didA)
