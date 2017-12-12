@@ -976,7 +976,7 @@
 
 #endif
 
-// @section TMC2130, TMC2208, TRAMS
+// @section TMC2130, TMC2208
 
 /**
  * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
@@ -988,7 +988,7 @@
  * the hardware SPI interface on your board and define the required CS pins
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  */
-#define HAVE_TMC2130
+//#define HAVE_TMC2130
 
 /**
  * Enable this for SilentStepStick Trinamic TMC2208 UART-configurable stepper drivers.
@@ -1002,10 +1002,10 @@
  */
 //#define HAVE_TMC2208
 
-#if HAS_TRINAMIC // TMC2130 & TMC2208 & TRAMS
+#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
 
   // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
-  #define X_IS_TMC2130
+  //#define X_IS_TMC2130
   //#define X2_IS_TMC2130
   //#define Y_IS_TMC2130
   //#define Y2_IS_TMC2130
@@ -1037,37 +1037,37 @@
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #define X_CURRENT         1000  // rms current in mA. Multiply by 1.41 for peak current.
+  #define X_CURRENT          800  // rms current in mA. Multiply by 1.41 for peak current.
   #define X_MICROSTEPS        16  // 0..256
 
-  #define Y_CURRENT         1000
+  #define Y_CURRENT          800
   #define Y_MICROSTEPS        16
 
-  #define Z_CURRENT         1000
-  #define Z_MICROSTEPS         8
+  #define Z_CURRENT          800
+  #define Z_MICROSTEPS        16
 
-  #define X2_CURRENT        1000
+  #define X2_CURRENT         800
   #define X2_MICROSTEPS       16
 
-  #define Y2_CURRENT        1000
+  #define Y2_CURRENT         800
   #define Y2_MICROSTEPS       16
 
-  #define Z2_CURRENT        1000
-  #define Z2_MICROSTEPS        8
+  #define Z2_CURRENT         800
+  #define Z2_MICROSTEPS       16
 
-  #define E0_CURRENT        1000
+  #define E0_CURRENT         800
   #define E0_MICROSTEPS       16
 
-  #define E1_CURRENT        1000
+  #define E1_CURRENT         800
   #define E1_MICROSTEPS       16
 
-  #define E2_CURRENT        1000
+  #define E2_CURRENT         800
   #define E2_MICROSTEPS       16
 
-  #define E3_CURRENT        1000
+  #define E3_CURRENT         800
   #define E3_MICROSTEPS       16
 
-  #define E4_CURRENT        1000
+  #define E4_CURRENT         800
   #define E4_MICROSTEPS       16
 
   /**
@@ -1077,8 +1077,8 @@
   #define STEALTHCHOP
 
   /**
-   * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions like
-   * overtemperature and short to ground. TMC2208 requires hardware serial.
+   * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions,
+   * like overtemperature and short to ground. TMC2208 requires hardware serial.
    * In the case of overtemperature Marlin can decrease the driver current until error condition clears.
    * Other detected conditions can be used to stop the current print.
    * Relevant g-codes:
@@ -1087,11 +1087,10 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 S0/1 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #define MONITOR_DRIVER_STATUS
+  //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
-    #define AUTO_ADJUST_MAX     1100  // [mA], 1100mA(rms) = 1550mA(peak)
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif
@@ -1102,7 +1101,7 @@
    * STEALTHCHOP needs to be enabled.
    * M913 X/Y/Z/E to live tune the setting
    */
-  #define HYBRID_THRESHOLD
+  //#define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -1128,31 +1127,18 @@
    * It is advised to set X/Y_HOME_BUMP_MM to 0.
    * M914 X/Y to live tune the setting
    */
-  #define SENSORLESS_HOMING // TMC2130 only
-  #if ENABLED(SENSORLESS_HOMING)
-    #define X_HOMING_SENSITIVITY  6
-    #define Y_HOMING_SENSITIVITY  8
-  #endif
+  //#define SENSORLESS_HOMING // TMC2130 only
 
-  /*
-   * Enable M915 Z axis calibration.
-   * Marlin will first adjust Z stepper current and then drive
-   * the Z axis to its' physical maximum. Finally it will home
-   * the Z axis to account for the lost steps. Use
-   * M915 S### to specify the current and
-   * M925 Z## to specify the extra Z height.
-   */
-  #define TMC_Z_CALIBRATION
-  #if ENABLED(TMC_Z_CALIBRATION)
-    #define CALIBRATION_CURRENT     250 // [mA]
-    #define CALIBRATION_EXTRA_HEIGHT 10
+  #if ENABLED(SENSORLESS_HOMING)
+    #define X_HOMING_SENSITIVITY  8
+    #define Y_HOMING_SENSITIVITY  8
   #endif
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #define TMC_DEBUG
+  //#define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -1168,7 +1154,7 @@
    */
   #define  TMC_ADV() {  }
 
-#endif // HAS_TRINAMIC
+#endif // TMC2130 || TMC2208
 
 // @section L6470
 
