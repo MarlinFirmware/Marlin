@@ -16,7 +16,9 @@ bool access_start() {
 }
 
 bool access_finish(){
+#if DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
   eeprom_flush();
+#endif
   return true;
 }
 

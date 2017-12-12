@@ -34,7 +34,7 @@
 #include "../persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
 
 #include <Arduino.h>
 
@@ -1030,5 +1030,5 @@ void eeprom_flush(void) {
   ee_Flush();
 }
 
-#endif // EEPROM_SETTINGS
+#endif // ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
 #endif // ARDUINO_ARCH_AVR
