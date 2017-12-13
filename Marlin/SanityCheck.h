@@ -1419,6 +1419,8 @@ static_assert(1 >= 0
   #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
 #elif ENABLED(SENSORLESS_HOMING) && DISABLED(HAVE_TMC2130)
   #error "Enable HAVE_TMC2130 to use SENSORLESS_HOMING."
+#elif defined(AUTOMATIC_CURRENT_CONTROL)
+  #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #endif
 
 /**
