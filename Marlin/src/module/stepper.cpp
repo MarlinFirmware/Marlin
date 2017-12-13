@@ -688,7 +688,7 @@ void Stepper::isr() {
     // step_rate to timer interval
     const hal_timer_t interval = calc_timer_interval(acc_step_rate);
 
-    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
 
     acceleration_time += interval;
@@ -725,7 +725,7 @@ void Stepper::isr() {
     // step_rate to timer interval
     const hal_timer_t interval = calc_timer_interval(step_rate);
 
-    SPLIT(interval);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(interval);  // split step into multiple ISRs if larger than ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
     deceleration_time += interval;
 
@@ -754,7 +754,7 @@ void Stepper::isr() {
 
     #endif
 
-    SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than ENDSTOP_NOMINAL_OCR_VAL
     _NEXT_ISR(ocr_val);
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;

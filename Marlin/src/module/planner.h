@@ -293,6 +293,10 @@ class Planner {
     // Update multipliers based on new diameter measurements
     static void calculate_volumetric_multipliers();
 
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      void calculate_volumetric_for_width_sensor(const int8_t encoded_ratio);
+    #endif
+
     FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
       filament_size[e] = v;
       // make sure all extruders have some sane value for the filament size
