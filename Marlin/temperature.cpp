@@ -874,7 +874,7 @@ void Temperature::manage_heater() {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
-float Temperature::analog2temp(int raw, uint8_t e) {
+float Temperature::analog2temp(const int raw, const uint8_t e) {
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     if (e > HOTENDS)
   #else
@@ -915,39 +915,41 @@ float Temperature::analog2temp(int raw, uint8_t e) {
   return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 }
 
-// Derived from RepRap FiveD extruder::getTemperature()
-// For bed temperature measurement.
-float Temperature::analog2tempBed(const int raw) {
-  #if ENABLED(BED_USES_THERMISTOR)
-    float celsius = 0;
-    byte i;
+#if HAS_TEMP_BED
+  // Derived from RepRap FiveD extruder::getTemperature()
+  // For bed temperature measurement.
+  float Temperature::analog2tempBed(const int raw) {
+    #if ENABLED(BED_USES_THERMISTOR)
+      float celsius = 0;
+      byte i;
 
-    for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
-      if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
-        celsius  = PGM_RD_W(BEDTEMPTABLE[i - 1][1]) +
-                   (raw - PGM_RD_W(BEDTEMPTABLE[i - 1][0])) *
-                   (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i - 1][1])) /
-                   (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i - 1][0]));
-        break;
+      for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
+        if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
+          celsius  = PGM_RD_W(BEDTEMPTABLE[i - 1][1]) +
+                     (raw - PGM_RD_W(BEDTEMPTABLE[i - 1][0])) *
+                     (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i - 1][1])) /
+                     (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i - 1][0]));
+          break;
+        }
       }
-    }
 
-    // Overflow: Set to last value in the table
-    if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i - 1][1]);
+      // Overflow: Set to last value in the table
+      if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i - 1][1]);
 
-    return celsius;
+      return celsius;
 
-  #elif defined(BED_USES_AD595)
+    #elif defined(BED_USES_AD595)
 
-    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
+      return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 
-  #else
+    #else
 
-    UNUSED(raw);
-    return 0;
+      UNUSED(raw);
+      return 0;
 
-  #endif
-}
+    #endif
+  }
+#endif // HAS_TEMP_BED
 
 /**
  * Get the raw values into the actual temperatures.
@@ -1234,24 +1236,26 @@ void Temperature::init() {
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
 
-  #ifdef BED_MINTEMP
-    while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
-      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-        bed_minttemp_raw += OVERSAMPLENR;
-      #else
-        bed_minttemp_raw -= OVERSAMPLENR;
-      #endif
-    }
-  #endif // BED_MINTEMP
-  #ifdef BED_MAXTEMP
-    while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
-      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-        bed_maxttemp_raw -= OVERSAMPLENR;
-      #else
-        bed_maxttemp_raw += OVERSAMPLENR;
-      #endif
-    }
-  #endif // BED_MAXTEMP
+  #if HAS_TEMP_BED
+    #ifdef BED_MINTEMP
+      while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+        #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+          bed_minttemp_raw += OVERSAMPLENR;
+        #else
+          bed_minttemp_raw -= OVERSAMPLENR;
+        #endif
+      }
+    #endif // BED_MINTEMP
+    #ifdef BED_MAXTEMP
+      while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
+        #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+          bed_maxttemp_raw -= OVERSAMPLENR;
+        #else
+          bed_maxttemp_raw += OVERSAMPLENR;
+        #endif
+      }
+    #endif // BED_MAXTEMP
+  #endif //HAS_TEMP_BED
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
