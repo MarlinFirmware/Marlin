@@ -1245,7 +1245,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
@@ -1712,5 +1712,8 @@
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
 #endif
+
+// Enable Anycubic TFT
+#define AnycubicTFTmodel
 
 #endif // CONFIGURATION_H

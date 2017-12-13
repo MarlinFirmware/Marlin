@@ -242,7 +242,7 @@
  */
 
 #include "Marlin.h"
-
+// #include "MyHardwareSerial.h"
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -361,6 +361,10 @@
   #define LED_WHITE 255, 255, 255
 #elif ENABLED(RGBW_LED)
   #define LED_WHITE 0, 0, 0, 255
+#endif
+
+#ifdef AnycubicTFTmodel
+#include "AnycubicTFT.h"
 #endif
 
 bool Running = true;
@@ -7618,6 +7622,10 @@ inline void gcode_M109() {
       }
     #endif
 
+    #ifdef AnycubicTFTmodel
+      AnycubicTFT.CommandScan();
+    #endif
+    
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = FABS(target_temp - temp);
@@ -7658,6 +7666,10 @@ inline void gcode_M109() {
     #endif
   }
 
+  #ifdef AnycubicTFTmodel
+  AnycubicTFT.HeatingDone();
+  #endif
+  
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
@@ -7761,7 +7773,11 @@ inline void gcode_M109() {
           }
         }
       #endif
-
+      
+      #ifdef AnycubicTFTmodel
+      AnycubicTFT.CommandScan();
+      #endif
+      
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         const float temp_diff = FABS(target_temp - temp);
@@ -7790,6 +7806,10 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
+    #ifdef AnycubicTFTmodel
+    AnycubicTFT.HotbedHeatingDone();
+    #endif
+    
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
@@ -7982,6 +8002,10 @@ inline void gcode_M140() {
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
+    
+    #ifdef AnycubicTFTmodel
+    AnycubicTFT.CommandScan();
+    #endif
   }
 
 #endif // HAS_POWER_SWITCH
@@ -8015,6 +8039,10 @@ inline void gcode_M81() {
 
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+  #endif
+  
+  #ifdef AnycubicTFTmodel
+  AnycubicTFT.CommandScan();
   #endif
 }
 
@@ -13366,6 +13394,7 @@ void stop() {
   }
 }
 
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -13411,7 +13440,12 @@ void setup() {
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
-
+  
+  #ifdef AnycubicTFTmodel
+    // Setup AnycubicTFT
+    AnycubicTFT.Setup();
+  #endif
+  
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
   if (mcu &  1) SERIAL_ECHOLNPGM(MSG_POWERUP);
@@ -13621,6 +13655,7 @@ void setup() {
   #endif
 }
 
+
 /**
  * The main Marlin program loop
  *
@@ -13685,5 +13720,9 @@ void loop() {
   }
   endstops.report_state();
   idle();
+
+  #ifdef AnycubicTFTmodel
+    AnycubicTFT.CommandScan();
+  #endif
 }
 
