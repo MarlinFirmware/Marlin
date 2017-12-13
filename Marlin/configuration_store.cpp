@@ -42,7 +42,7 @@
 #define EEPROM_OFFSET 100
 
 /**
- * V46 EEPROM Layout:
+ * V47 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
