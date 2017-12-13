@@ -333,8 +333,8 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static float analog2widthFil(); // Convert raw Filament Width to millimeters
-      static int widthFil_to_size_ratio(); // Convert raw Filament Width to an extrusion ratio
+      static float analog2widthFil();         // Convert raw Filament Width to millimeters
+      static int8_t widthFil_to_size_ratio(); // Convert Filament Width (mm) to an extrusion ratio
     #endif
 
 

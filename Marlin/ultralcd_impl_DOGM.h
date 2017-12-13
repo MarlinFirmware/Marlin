@@ -650,10 +650,12 @@ static void lcd_implementation_status_screen() {
     strcpy(zstring, ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
-      if (parser.volumetric_enabled)
-        strcpy(mstring, itostr3(100.0 * planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
-      else
-        strcpy_P(mstring, PSTR("---"));
+      strcpy(mstring, itostr3(100.0 * (
+          parser.volumetric_enabled
+            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+        )
+      ));
     #endif
   }
 
