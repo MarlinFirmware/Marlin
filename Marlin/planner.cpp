@@ -550,16 +550,44 @@ void Planner::check_axes_activity() {
   #endif
 }
 
+/**
+ * Get a volumetric multiplier from a filament diameter.
+ * This is the reciprocal of the circular cross-section area.
+ * Return 1.0 with volumetric off or a diameter of 0.0.
+ */
 inline float calculate_volumetric_multiplier(const float &diameter) {
   return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
 }
 
+/**
+ * Convert the filament sizes into volumetric multipliers.
+ * The multiplier converts a given E value into a length.
+ */
 void Planner::calculate_volumetric_multipliers() {
   for (uint8_t i = 0; i < COUNT(filament_size); i++) {
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
     refresh_e_factor(i);
   }
 }
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  /**
+   * Convert the ratio value given by the filament width sensor
+   * into a volumetric multiplier. Conversion differs when using
+   * linear extrusion vs volumetric extrusion.
+   */
+  void Planner::calculate_volumetric_for_width_sensor(const int8_t encoded_ratio) {
+    // Reconstitute the nominal/measured ratio
+    const float nom_meas_ratio = 1.0 + 0.01 * encoded_ratio,
+                ratio_2 = sq(nom_meas_ratio);
+
+    volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = parser.volumetric_enabled
+      ? ratio_2 / CIRCLE_AREA(filament_width_nominal * 0.5) // Volumetric uses a true volumetric multiplier
+      : ratio_2;                                            // Linear squares the ratio, which scales the volume
+
+    refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
+  }
+#endif
 
 #if PLANNER_LEVELING
   /**
@@ -1046,7 +1074,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
           filwidth_e_count = 0; // Reset the E movement counter
-          const uint8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          const uint8_t meas_sample = thermalManager.widthFil_to_size_ratio();
           do {
             filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement

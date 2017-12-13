@@ -736,17 +736,6 @@ float Temperature::get_pid_output(const int8_t e) {
  *  - Apply filament width to the extrusion rate (may move)
  *  - Update the heated bed PID output value
  */
-
-/**
- * The following line SOMETIMES results in the dreaded "unable to find a register to spill in class 'POINTER_REGS'"
- * compile error.
- *    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
- *
- * This is due to a bug in the C++ compiler used by the Arduino IDE from 1.6.10 to at least 1.8.1.
- *
- * The work around is to add the compiler flag "__attribute__((__optimize__("O2")))" to the declaration for manage_heater()
- */
-//void Temperature::manage_heater()  __attribute__((__optimize__("O2")));
 void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
@@ -801,19 +790,16 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  // Control the extruder rate based on the width sensor
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    /**
+     * Filament Width Sensor dynamically sets the volumetric multiplier
+     * based on a delayed measurement of the filament diameter.
+     */
     if (filament_sensor) {
       meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-
-      // Get the delayed info and add 100 to reconstitute to a percent of
-      // the nominal filament diameter then square it to get an area
-      float vmroot = measurement_delay[meas_shift_index] * 0.01 + 1.0;
-      NOLESS(vmroot, 0.1);
-      planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = 1.0 / CIRCLE_AREA(vmroot / 2);
-      planner.refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
+      calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index])
     }
   #endif // FILAMENT_WIDTH_SENSOR
 
@@ -999,15 +985,20 @@ void Temperature::updateTemperaturesFromRawValues() {
   // Convert raw Filament Width to millimeters
   float Temperature::analog2widthFil() {
     return current_raw_filwidth * 5.0 * (1.0 / 16383.0);
-    //return current_raw_filwidth;
   }
 
-  // Convert raw Filament Width to a ratio
-  int Temperature::widthFil_to_size_ratio() {
-    float temp = filament_width_meas;
-    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
-    else NOMORE(temp, MEASURED_UPPER_LIMIT);
-    return filament_width_nominal / temp * 100;
+  /**
+   * Convert Filament Width (mm) to a simple ratio
+   * and reduce to an 8 bit value.
+   *
+   * A nominal width of 1.75 and measured width of 1.73
+   * gives (100 * 1.75 / 1.73) for a ratio of 101 and
+   * a return value of 1.
+   */
+  int8_t Temperature::widthFil_to_size_ratio() {
+    if (WITHIN(filament_width_meas, MEASURED_LOWER_LIMIT, MEASURED_UPPER_LIMIT))
+      return int(100.0 * filament_width_nominal / filament_width_meas) - 100;
+    return 0;
   }
 
 #endif
