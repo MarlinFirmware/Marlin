@@ -43,13 +43,7 @@
 
 #if SERIAL_PORT == -1
   #define MYSERIAL SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 2
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 3
+#elif SERIAL_PORT >= 0 && SERIAL_PORT <= 4
   #define MYSERIAL customizedSerial
 #endif
 
