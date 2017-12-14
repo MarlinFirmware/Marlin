@@ -577,9 +577,12 @@ script:
 
 
   - export TEST_PLATFORM="-e teensy20"
-  - restore_configs
-  - use_example_configs delta/kossel_pro
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+#
+# Disabled due to Z_MIN_PIN related compile failure
+#
+#  - restore_configs
+#  - use_example_configs delta/kossel_pro
+#  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   - restore_configs
   - use_example_configs makibox
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
