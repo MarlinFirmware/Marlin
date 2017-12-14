@@ -94,7 +94,7 @@ void GcodeSuite::G92() {
       COPY(coordinate_system[active_coordinate_system], position_shift);
   #endif
 
-  bool didA = seenval('A');
+  bool didA = parser.seenval('A');
   if (didA) {
     const float curr_z = current_position[Z_AXIS];
     const float adjust_z = parser.value_axis_units(Z_AXIS);
@@ -122,6 +122,14 @@ void GcodeSuite::G92() {
       SERIAL_ECHOLNPAIR("adjust_z(now): ", adjust_z);
       SERIAL_ECHOLNPAIR("primaryZTO: ", primaryZTO);
       SERIAL_ECHOLNPAIR("secondaryZTO: ", secondaryZTO);
+  }
+
+  bool didR = parser.seenval('R')
+  if (didR){
+    primaryZTO = 0;
+    secondaryZTO = 0;
+    SERIAL_ECHO_START();
+    SERIAL_PROTOCOLLNPGM("Z toolhead offsets have been reset.");
   }
 
   if (didXYZ || didA)
