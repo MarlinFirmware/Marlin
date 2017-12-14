@@ -493,9 +493,12 @@ script:
   - use_example_configs Infitary/i3-M508
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   - restore_configs
-  - use_example_configs Malyan/M200
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  - restore_configs
+#
+# Disabled due to compile failure on E0_AUTO_FAN_PIN PB8
+#
+#  - use_example_configs Malyan/M200
+#  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+#  - restore_configs
   - use_example_configs Micromake/C1/basic
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   - restore_configs
