@@ -519,9 +519,13 @@ script:
   - restore_configs
   - use_example_configs Velleman/K8400
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  - restore_configs
-  - use_example_configs wt150
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+#
+# Disabled due to compile failure on https://github.com/stawel/SlowSoftI2CMaster
+#
+#  - Requires https://github.com/stawel/SlowSoftI2CMaster
+#  - restore_configs
+#  - use_example_configs wt150
+#  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
 
   - export TEST_PLATFORM="-e rambo"
