@@ -963,7 +963,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
   HOTEND_LOOP()
     current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
-  current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
+  #if HAS_TEMP_BED
+    current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
+  #endif
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = Temperature::analog2temp(redundant_temperature_raw, 1);
   #endif
