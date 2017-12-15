@@ -43,9 +43,9 @@
 #define E0_ENABLE_PIN      24
 
 // EndStops
-//#define Z_TEST 2
+#define Z_TEST 2
 
-#define FilamentTestPin    19
+#define FIL_RUNOUT_PIN	   19
 
 #define X_MIN_PIN           3
 #define Y_MIN_PIN          42 // Origine 42.
