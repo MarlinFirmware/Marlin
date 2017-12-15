@@ -1541,13 +1541,16 @@
 #endif
 
 /**
- * NanoDLP Synch support
+ * NanoDLP Sync support
  *
  * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
  * string to enable synchronization with DLP projector exposure. This change will allow to use
  * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
- *
  */
- //#define NANODLP_Z_SYNC
+//#define NANODLP_Z_SYNC
+#if ENABLED(NANODLP_Z_SYNC)
+  //#define NANODLP_ALL_AXIS  // Enables "Z_move_comp" output on any axis move.
+                              // Default behaviour is limited to Z axis only.
+#endif
 
 #endif // CONFIGURATION_ADV_H
