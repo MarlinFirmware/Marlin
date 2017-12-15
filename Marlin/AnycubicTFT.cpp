@@ -59,6 +59,17 @@ void AnycubicTFTClass::Setup() {
   delay(10);
   ANYCUBIC_SERIAL_PROTOCOLPGM("J12"); // J12 Ready
   ANYCUBIC_SERIAL_ENTER();
+  
+#if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  pinMode(FIL_RUNOUT_PIN,INPUT);
+  WRITE(FIL_RUNOUT_PIN,HIGH);
+  if(READ(FIL_RUNOUT_PIN)==true)
+  {
+    ANYCUBIC_SERIAL_PROTOCOLPGM("J15"); //J15 FILAMENT LACK
+    ANYCUBIC_SERIAL_ENTER();
+    SERIAL_ECHOLN("TFT Serial Debug: Filament runout... J15");
+  }
+#endif
 }
 
 void AnycubicTFTClass::ClearToSend(){
@@ -118,6 +129,43 @@ void AnycubicTFTClass::Ls()
     if(fileoutputcnt>=MyFileNrCnt) fileoutputcnt=0;
     
   }
+}
+
+void AnycubicTFTClass::FilamentRunout()
+{
+#if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  FilamentTestStatus=READ(FIL_RUNOUT_PIN)&0xff;
+  
+  if(FilamentTestStatus>FilamentTestLastStatus)
+  {
+    FilamentRunoutCounter++;
+    if(FilamentRunoutCounter>=15800)
+    {
+      FilamentRunoutCounter=0;
+      if((card.sdprinting==true))
+      {
+        ANYCUBIC_SERIAL_PROTOCOLPGM("J23"); //J23 FILAMENT LACK with the prompt box don't disappear
+        ANYCUBIC_SERIAL_ENTER();
+        TFTpausingFlag=true;
+        SERIAL_ECHOLN("TFT Serial Debug: Filament runout... J23");
+        card.pauseSDPrint();
+      }
+      else if((card.sdprinting==false))
+      {
+        ANYCUBIC_SERIAL_PROTOCOLPGM("J15"); //J15 FILAMENT LACK
+        ANYCUBIC_SERIAL_ENTER();
+        SERIAL_ECHOLN("TFT Serial Debug: Filament runout... J15");
+      }
+      FilamentTestLastStatus=FilamentTestStatus;
+    }
+  }
+  else if(FilamentTestStatus!=FilamentTestLastStatus)
+  {
+    FilamentRunoutCounter=0;
+    FilamentTestLastStatus=FilamentTestStatus;
+    SERIAL_ECHOLN("TFT Serial Debug: Filament runout recovered");
+  }
+#endif
 }
 
 void AnycubicTFTClass::GetCommandFromTFT()

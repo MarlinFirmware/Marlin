@@ -13124,6 +13124,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
+  
+  #if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  AnycubicTFT.FilamentRunout();
+  #endif
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
 

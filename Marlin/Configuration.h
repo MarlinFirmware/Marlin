@@ -811,7 +811,7 @@
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+  #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
@@ -1715,5 +1715,6 @@
 
 // Enable Anycubic TFT
 #define AnycubicTFTmodel
+#define ANYCUBIC_FILAMENT_RUNOUT_SENSOR
 
 #endif // CONFIGURATION_H

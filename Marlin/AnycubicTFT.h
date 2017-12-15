@@ -36,6 +36,7 @@ public:
   void CommandScan();
   void HotbedHeatingDone();
   void HeatingDone();
+  void FilamentRunout();
   
 private:
   char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
@@ -49,7 +50,6 @@ private:
   char TFTStatusFlag=0;
   char TFTresumingflag=0;
   char sdcardstartprintingflag=0;
-  char FilamentTestFlag=true;
   char FlagResumFromOutage=0;
   uint16_t MyFileNrCnt=0;
   uint16_t fileoutputcnt=0;
@@ -68,6 +68,12 @@ private:
   uint16_t GetFileNr();
   void Ls();
   void GetCommandFromTFT();
+
+#if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  char FilamentTestStatus=false;
+  char FilamentTestLastStatus=false;
+  long FilamentRunoutCounter=0;
+#endif
 };
 
 extern AnycubicTFTClass AnycubicTFT;
