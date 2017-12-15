@@ -97,7 +97,7 @@ void spiBegin (void) {
   //------------------------------------------------------------------------------
   /** SPI receive a byte */
   uint8_t spiRec(void) {
-    SPDR = 0XFF;
+    SPDR = 0xFF;
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     return SPDR;
   }
@@ -105,11 +105,11 @@ void spiBegin (void) {
   /** SPI read data  */
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     if (nbyte-- == 0) return;
-    SPDR = 0XFF;
+    SPDR = 0xFF;
     for (uint16_t i = 0; i < nbyte; i++) {
       while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
       buf[i] = SPDR;
-      SPDR = 0XFF;
+      SPDR = 0xFF;
     }
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     buf[nbyte] = SPDR;
@@ -150,7 +150,7 @@ void spiBegin (void) {
     uint8_t data = 0;
     // no interrupts during byte receive - about 8 us
     cli();
-    // output pin high - like sending 0XFF
+    // output pin high - like sending 0xFF
     WRITE(MOSI_PIN, HIGH);
 
     for (uint8_t i = 0; i < 8; i++) {
@@ -184,7 +184,7 @@ void spiBegin (void) {
     for (uint8_t i = 0; i < 8; i++) {
       WRITE(SCK_PIN, LOW);
 
-      WRITE(MOSI_PIN, data & 0X80);
+      WRITE(MOSI_PIN, data & 0x80);
 
       data <<= 1;
 
