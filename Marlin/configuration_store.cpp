@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V46"
+#define EEPROM_VERSION "V47"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V46 EEPROM Layout:
+ * V47 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -141,7 +141,7 @@
  *  539  M200 D    parser.volumetric_enabled        (bool)
  *  540  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
- * HAVE_TMC2130:                                    22 bytes
+ * HAVE_TMC2130 || HAVE_TMC2208:                    22 bytes
  *  560  M906 X    Stepper X current                (uint16_t)
  *  562  M906 Y    Stepper Y current                (uint16_t)
  *  564  M906 Z    Stepper Z current                (uint16_t)
@@ -154,25 +154,29 @@
  *  578  M906 E3   Stepper E3 current               (uint16_t)
  *  580  M906 E4   Stepper E4 current               (uint16_t)
  *
+ * SENSORLESS HOMING                                4 bytes
+ *  582  M914 X    Stepper X and X2 threshold       (int16_t)
+ *  584  M914 Y    Stepper Y and Y2 threshold       (int16_t)
+ *
  * LIN_ADVANCE:                                     8 bytes
- *  582  M900 K    extruder_advance_k               (float)
- *  586  M900 WHD  advance_ed_ratio                 (float)
+ *  586  M900 K    extruder_advance_k               (float)
+ *  590  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  590  M907 X    Stepper XY current               (uint32_t)
- *  594  M907 Z    Stepper Z current                (uint32_t)
- *  598  M907 E    Stepper E current                (uint32_t)
+ *  594  M907 X    Stepper XY current               (uint32_t)
+ *  598  M907 Z    Stepper Z current                (uint32_t)
+ *  602  M907 E    Stepper E current                (uint32_t)
  *
  * CNC_COORDINATE_SYSTEMS                           108 bytes
- *  602  G54-G59.3 coordinate_system                (float x 27)
+ *  606  G54-G59.3 coordinate_system                (float x 27)
  *
  * SKEW_CORRECTION:                                 12 bytes
- *  710  M852 I    planner.xy_skew_factor           (float)
- *  714  M852 J    planner.xz_skew_factor           (float)
- *  718  M852 K    planner.yz_skew_factor           (float)
+ *  714  M852 I    planner.xy_skew_factor           (float)
+ *  718  M852 J    planner.xz_skew_factor           (float)
+ *  722  M852 K    planner.yz_skew_factor           (float)
  *
- *  722                                   Minimum end-point
- * 2251 (722 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
+ *  726                                   Minimum end-point
+ * 2255 (726 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -199,7 +203,7 @@ MarlinSettings settings;
   #include "mesh_bed_leveling.h"
 #endif
 
-#if ENABLED(HAVE_TMC2130)
+#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
   #include "stepper_indirection.h"
 #endif
 
@@ -570,70 +574,70 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(dummy);
     }
 
-    // Save TMC2130 Configuration, and placeholder values
+    // Save TMC2130 or TMC2208 Configuration, and placeholder values
     uint16_t val;
-    #if ENABLED(HAVE_TMC2130)
-      #if ENABLED(X_IS_TMC2130)
+    #if HAS_TRINAMIC
+      #if X_IS_TRINAMIC
         val = stepperX.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y_IS_TMC2130)
+      #if Y_IS_TRINAMIC
         val = stepperY.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z_IS_TMC2130)
+      #if Z_IS_TRINAMIC
         val = stepperZ.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(X2_IS_TMC2130)
+      #if X2_IS_TRINAMIC
         val = stepperX2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y2_IS_TMC2130)
+      #if Y2_IS_TRINAMIC
         val = stepperY2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z2_IS_TMC2130)
+      #if Z2_IS_TRINAMIC
         val = stepperZ2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E0_IS_TMC2130)
+      #if E0_IS_TRINAMIC
         val = stepperE0.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E1_IS_TMC2130)
+      #if E1_IS_TRINAMIC
         val = stepperE1.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E2_IS_TMC2130)
+      #if E2_IS_TRINAMIC
         val = stepperE2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E3_IS_TMC2130)
+      #if E3_IS_TRINAMIC
         val = stepperE3.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E4_IS_TMC2130)
+      #if E4_IS_TRINAMIC
         val = stepperE4.getCurrent();
       #else
         val = 0;
@@ -642,6 +646,28 @@ void MarlinSettings::postprocess() {
     #else
       val = 0;
       for (uint8_t q = 11; q--;) EEPROM_WRITE(val);
+    #endif
+
+    //
+    // TMC2130 Sensorless homing threshold
+    //
+    int16_t thrs;
+    #if ENABLED(SENSORLESS_HOMING)
+      #if ENABLED(X_IS_TMC2130)
+        thrs = stepperX.sgt();
+      #else
+        thrs = 0;
+      #endif
+      EEPROM_WRITE(thrs);
+      #if ENABLED(Y_IS_TMC2130)
+        thrs = stepperY.sgt();
+      #else
+        thrs = 0;
+      #endif
+      EEPROM_WRITE(thrs);
+    #else
+      thrs = 0;
+      for (uint8_t q = 2; q--;) EEPROM_WRITE(thrs);
     #endif
 
     //
@@ -1039,53 +1065,78 @@ void MarlinSettings::postprocess() {
       //
 
       uint16_t val;
-      #if ENABLED(HAVE_TMC2130)
+      #if HAS_TRINAMIC
         EEPROM_READ(val);
-        #if ENABLED(X_IS_TMC2130)
+        #if X_IS_TRINAMIC
           stepperX.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y_IS_TMC2130)
+        #if Y_IS_TRINAMIC
           stepperY.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z_IS_TMC2130)
+        #if Z_IS_TRINAMIC
           stepperZ.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(X2_IS_TMC2130)
+        #if X2_IS_TRINAMIC
           stepperX2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y2_IS_TMC2130)
+        #if Y2_IS_TRINAMIC
           stepperY2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z2_IS_TMC2130)
+        #if Z2_IS_TRINAMIC
           stepperZ2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E0_IS_TMC2130)
+        #if E0_IS_TRINAMIC
           stepperE0.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E1_IS_TMC2130)
+        #if E1_IS_TRINAMIC
           stepperE1.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E2_IS_TMC2130)
+        #if E2_IS_TRINAMIC
           stepperE2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E3_IS_TMC2130)
+        #if E3_IS_TRINAMIC
           stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E4_IS_TMC2130)
+        #if E4_IS_TRINAMIC
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
         for (uint8_t q = 11; q--;) EEPROM_READ(val);
+      #endif
+
+      /*
+       * TMC2130 Sensorless homing threshold.
+       * X and X2 use the same value
+       * Y and Y2 use the same value
+       */
+      int16_t thrs;
+      #if ENABLED(SENSORLESS_HOMING)
+        EEPROM_READ(thrs);
+        #if ENABLED(X_IS_TMC2130)
+          stepperX.sgt(thrs);
+        #endif
+        #if ENABLED(X2_IS_TMC2130)
+          stepperX2.sgt(thrs);
+        #endif
+        EEPROM_READ(thrs);
+        #if ENABLED(Y_IS_TMC2130)
+          stepperY.sgt(thrs);
+        #endif
+        #if ENABLED(Y2_IS_TMC2130)
+          stepperY2.sgt(thrs);
+        #endif
+      #else
+        for (uint8_t q = 0; q < 2; q++) EEPROM_READ(thrs);
       #endif
 
       //
@@ -1469,36 +1520,52 @@ void MarlinSettings::reset() {
     #endif
   );
 
-  #if ENABLED(HAVE_TMC2130)
+  #if X_IS_TRINAMIC
+    stepperX.setCurrent(X_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Y_IS_TRINAMIC
+    stepperY.setCurrent(Y_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Z_IS_TRINAMIC
+    stepperZ.setCurrent(Z_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if X2_IS_TRINAMIC
+    stepperX2.setCurrent(X2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Y2_IS_TRINAMIC
+    stepperY2.setCurrent(Y2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Z2_IS_TRINAMIC
+    stepperZ2.setCurrent(Z2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E0_IS_TRINAMIC
+    stepperE0.setCurrent(E0_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E1_IS_TRINAMIC
+    stepperE1.setCurrent(E1_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E2_IS_TRINAMIC
+    stepperE2.setCurrent(E2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E3_IS_TRINAMIC
+    stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E4_IS_TRINAMIC
+    stepperE4.setCurrent(E4_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+
+  #if ENABLED(SENSORLESS_HOMING)
     #if ENABLED(X_IS_TMC2130)
-      stepperX.setCurrent(X_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      stepperY.setCurrent(Y_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Z_IS_TMC2130)
-      stepperZ.setCurrent(Z_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX.sgt(X_HOMING_SENSITIVITY);
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      stepperX2.setCurrent(X2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX2.sgt(X_HOMING_SENSITIVITY);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      stepperY.sgt(Y_HOMING_SENSITIVITY);
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      stepperY2.setCurrent(Y2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Z2_IS_TMC2130)
-      stepperZ2.setCurrent(Z2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E0_IS_TMC2130)
-      stepperE0.setCurrent(E0_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E1_IS_TMC2130)
-      stepperE1.setCurrent(E1_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E2_IS_TMC2130)
-      stepperE2.setCurrent(E2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E3_IS_TMC2130)
-      stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperY2.sgt(Y_HOMING_SENSITIVITY);
     #endif
   #endif
 
@@ -1982,35 +2049,63 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHO("  M906");
+      #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
+        SERIAL_ECHOPAIR(" X ", stepperX.getCurrent());
+      #endif
+      #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Y ", stepperY.getCurrent());
+      #endif
+      #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Z ", stepperZ.getCurrent());
+      #endif
+      #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" X2 ", stepperX2.getCurrent());
+      #endif
+      #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Y2 ", stepperY2.getCurrent());
+      #endif
+      #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Z2 ", stepperZ2.getCurrent());
+      #endif
+      #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E0 ", stepperE0.getCurrent());
+      #endif
+      #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E1 ", stepperE1.getCurrent());
+      #endif
+      #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E2 ", stepperE2.getCurrent());
+      #endif
+      #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E3 ", stepperE3.getCurrent());
+      #endif
+      #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E4 ", stepperE4.getCurrent());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    /**
+     * TMC2130 Sensorless homing thresholds
+     */
+    #if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Sensorless homing threshold:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHO("  M914");
       #if ENABLED(X_IS_TMC2130)
-        SERIAL_ECHOPAIR(" X", stepperX.getCurrent());
-      #endif
-      #if ENABLED(Y_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Y", stepperY.getCurrent());
-      #endif
-      #if ENABLED(Z_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Z", stepperZ.getCurrent());
+        SERIAL_ECHOPAIR(" X", stepperX.sgt());
       #endif
       #if ENABLED(X2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" X2", stepperX2.getCurrent());
+        SERIAL_ECHOPAIR(" X2 ", stepperX2.sgt());
       #endif
-      #if ENABLED(Y2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Y2", stepperY2.getCurrent());
+      #if ENABLED(Y_IS_TMC2130)
+        SERIAL_ECHOPAIR(" Y", stepperY.sgt());
       #endif
-      #if ENABLED(Z2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Z2", stepperZ2.getCurrent());
-      #endif
-      #if ENABLED(E0_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E0", stepperE0.getCurrent());
-      #endif
-      #if ENABLED(E1_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E1", stepperE1.getCurrent());
-      #endif
-      #if ENABLED(E2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E2", stepperE2.getCurrent());
-      #endif
-      #if ENABLED(E3_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
+      #if ENABLED(X2_IS_TMC2130)
+        SERIAL_ECHOPAIR(" Y2 ", stepperY2.sgt());
       #endif
       SERIAL_EOL();
     #endif

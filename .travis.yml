@@ -52,6 +52,10 @@ install:
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
+  # Install: TMC2208 Stepper Motor Controller library
+  - git clone https://github.com/teemuatlut/TMC2208Stepper.git
+  - sudo mv TMC2208Stepper /usr/local/share/arduino/libraries/TMC2208Stepper
+  #
   # Install: Adafruit Neopixel library
   - git clone https://github.com/adafruit/Adafruit_NeoPixel.git
   - sudo mv Adafruit_NeoPixel /usr/local/share/arduino/libraries/Adafruit_NeoPixel
@@ -345,7 +349,14 @@ script:
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
-  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
+  - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG SENSORLESS_HOMING
+  - build_marlin
+  #
+  # TMC2208 Config
+  #
+  - restore_configs
+  - opt_enable_adv HAVE_TMC2208 X_IS_TMC2208 Y_IS_TMC2208 Z_IS_TMC2208
+  - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
