@@ -34,7 +34,7 @@
 #include "MarlinConfig.h"
 
 
-#ifdef AnycubicTFTmodel
+#ifdef ANYCUBIC_TFT_MODEL
 
 // this next line disables the entire HardwareSerial.cpp, 
 // this is so I can support Attiny series and any other chip without a uart

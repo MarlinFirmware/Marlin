@@ -363,7 +363,7 @@
   #define LED_WHITE 0, 0, 0, 255
 #endif
 
-#ifdef AnycubicTFTmodel
+#ifdef ANYCUBIC_TFT_MODEL
 #include "AnycubicTFT.h"
 #endif
 
@@ -7622,7 +7622,7 @@ inline void gcode_M109() {
       }
     #endif
 
-    #ifdef AnycubicTFTmodel
+    #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
     #endif
     
@@ -7666,7 +7666,7 @@ inline void gcode_M109() {
     #endif
   }
 
-  #ifdef AnycubicTFTmodel
+  #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.HeatingDone();
   #endif
   
@@ -7774,7 +7774,7 @@ inline void gcode_M109() {
         }
       #endif
       
-      #ifdef AnycubicTFTmodel
+      #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
       #endif
       
@@ -7806,7 +7806,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    #ifdef AnycubicTFTmodel
+    #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.HotbedHeatingDone();
     #endif
     
@@ -8003,7 +8003,7 @@ inline void gcode_M140() {
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
     
-    #ifdef AnycubicTFTmodel
+    #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.CommandScan();
     #endif
   }
@@ -8041,7 +8041,7 @@ inline void gcode_M81() {
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
   
-  #ifdef AnycubicTFTmodel
+  #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.CommandScan();
   #endif
 }
@@ -13125,7 +13125,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       handle_filament_runout();
   #endif
   
-  #if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  #if ENABLED(ANYCUBIC_TFT_MODEL) && ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
   AnycubicTFT.FilamentRunout();
   #endif
 
@@ -13445,7 +13445,7 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
   
-  #ifdef AnycubicTFTmodel
+  #ifdef ANYCUBIC_TFT_MODEL
     // Setup AnycubicTFT
     AnycubicTFT.Setup();
   #endif
@@ -13725,7 +13725,7 @@ void loop() {
   endstops.report_state();
   idle();
 
-  #ifdef AnycubicTFTmodel
+  #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.CommandScan();
   #endif
 }

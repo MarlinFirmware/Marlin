@@ -32,7 +32,7 @@
 #include "stepper.h"
 #include "serial.h"
 
-#ifdef AnycubicTFTmodel
+#ifdef ANYCUBIC_TFT_MODEL
 #include "AnycubicTFT.h"
 #include "AnycubicSerial.h"
 
