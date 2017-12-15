@@ -65,7 +65,7 @@ enum DebugFlags {
 // For AVR only, define a serial interface based on configuration
 #ifdef __AVR__
   #ifdef USBCON
-    #include "HardwareSerial.h"
+    #include <HardwareSerial.h>
     #if ENABLED(BLUETOOTH)
       #define MYSERIAL bluetoothSerial
     #else

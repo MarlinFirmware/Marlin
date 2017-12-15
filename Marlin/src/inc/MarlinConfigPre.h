@@ -28,6 +28,7 @@
 #include "Version.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
+#include "../feature/tmc_macros.h"
 #include "../../Configuration_adv.h"
 #include "Conditionals_adv.h"
 

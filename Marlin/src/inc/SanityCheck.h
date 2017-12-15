@@ -1434,12 +1434,35 @@ static_assert(1 >= 0
       || ENABLED( E1_IS_TMC2130 ) \
       || ENABLED( E2_IS_TMC2130 ) \
       || ENABLED( E3_IS_TMC2130 ) \
-      || ENABLED( E4_IS_TMC2130 ) \
-  )
+      || ENABLED( E4_IS_TMC2130 ) )
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+  #elif defined(AUTOMATIC_CURRENT_CONTROL)
+    #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
   #endif
+#endif
+
+/**
+ * Make sure HAVE_TMC2208 is warranted
+ */
+
+#if ENABLED(HAVE_TMC2208) && !( \
+       ENABLED(  X_IS_TMC2208 ) \
+    || ENABLED( X2_IS_TMC2208 ) \
+    || ENABLED(  Y_IS_TMC2208 ) \
+    || ENABLED( Y2_IS_TMC2208 ) \
+    || ENABLED(  Z_IS_TMC2208 ) \
+    || ENABLED( Z2_IS_TMC2208 ) \
+    || ENABLED( E0_IS_TMC2208 ) \
+    || ENABLED( E1_IS_TMC2208 ) \
+    || ENABLED( E2_IS_TMC2208 ) \
+    || ENABLED( E3_IS_TMC2208 ) )
+  #error "Choose at least one TMC2208 stepper."
+#endif
+
+#if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+  #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
 #endif
 
 /**
