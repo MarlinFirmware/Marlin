@@ -74,7 +74,6 @@
  *  229            GRID_MAX_POINTS_Y                (uint8_t)
  *  230 G29 S3 XYZ z_values[][]                     (float x9, up to float x81) +288
  *
- * HAS_BED_PROBE:                                   4 bytes
  *  266  M851      zprobe_zoffset                   (float)
  *
  * ABL_PLANAR:                                      36 bytes
@@ -197,15 +196,11 @@ MarlinSettings settings;
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../Marlin.h"
-
+#include "../module/probe.h"
 #include "../gcode/parser.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
-#endif
-
-#if HAS_BED_PROBE
-  #include "../module/probe.h"
 #endif
 
 #if ENABLED(HAVE_TMC2130)
@@ -218,6 +213,10 @@ MarlinSettings settings;
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   float new_z_fade_height;
+#endif
+
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  #include "../feature/delta_auto_cal.h"
 #endif
 
 /**
@@ -253,6 +252,10 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     refresh_bed_level();
     //set_bed_leveling_enabled(leveling_is_on);
+  #endif
+
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    refresh_auto_cal_ref(NAN);
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -375,9 +378,6 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
-    #if !HAS_BED_PROBE
-      const float zprobe_zoffset = 0;
-    #endif
     EEPROM_WRITE(zprobe_zoffset);
 
     //
@@ -839,9 +839,6 @@ void MarlinSettings::postprocess() {
         for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
       #endif // MESH_BED_LEVELING
 
-      #if !HAS_BED_PROBE
-        float zprobe_zoffset;
-      #endif
       EEPROM_READ(zprobe_zoffset);
 
       //
@@ -1397,9 +1394,7 @@ void MarlinSettings::reset() {
     reset_bed_level();
   #endif
 
-  #if HAS_BED_PROBE
-    zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-  #endif
+  zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,

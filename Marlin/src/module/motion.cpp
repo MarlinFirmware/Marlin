@@ -1256,12 +1256,12 @@ void homeaxis(const AxisEnum axis) {
     // so here it re-homes each tower in turn.
     // Delta homing treats the axes as normal linear axes.
 
-    // retrace by the amount specified in delta_endstop_adj + additional 0.1mm in order to have minimum steps
+    // retrace by the amount specified in delta_endstop_adj + additional dist in order to have minimum steps
     if (delta_endstop_adj[axis] * Z_HOME_DIR <= 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("delta_endstop_adj:");
       #endif
-      do_homing_move(axis, delta_endstop_adj[axis] - 0.1 * Z_HOME_DIR);
+      do_homing_move(axis, delta_endstop_adj[axis] - MIN_STEPS_PER_SEGMENT / planner.axis_steps_per_mm[axis] * Z_HOME_DIR);
     }
 
   #else

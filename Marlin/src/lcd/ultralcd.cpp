@@ -2654,7 +2654,7 @@ void kill_screen(const char* lcd_msg) {
 
   float move_menu_scale;
 
-  #if ENABLED(DELTA_CALIBRATION_MENU) || (ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE)
+  #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
 
     void lcd_move_z();
 
@@ -2676,7 +2676,7 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // DELTA_CALIBRATION_MENU || (DELTA_AUTO_CALIBRATION && !HAS_BED_PROBE)
 
-  #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
 
     float lcd_probe_pt(const float &rx, const float &ry) {
       _man_probe_pt(rx, ry);
@@ -2721,7 +2721,6 @@ void kill_screen(const char* lcd_msg) {
     void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
-      MENU_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5.0, delta_diagonal_rod + 5.0, recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10.0, delta_height + 10.0, recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj[A_AXIS], -5.0, 5.0, recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj[B_AXIS], -5.0, 5.0, recalc_delta_settings);
@@ -2730,6 +2729,8 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5.0, 5.0, recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5.0, 5.0, recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim[C_AXIS], -5.0, 5.0, recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, zprobe_zoffset - 5.0, zprobe_zoffset + 5.0, recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float52, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5.0, delta_diagonal_rod + 5.0, recalc_delta_settings);
       END_MENU();
     }
 
@@ -2739,6 +2740,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(DELTA_AUTO_CALIBRATION)
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
         MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 P1"));
+        MENU_ITEM(gcode, MSG_DELTA_Z_OFFSET_CALIBRATE, PSTR("G33 P-1"));
         #if ENABLED(EEPROM_SETTINGS)
           MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
           MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);

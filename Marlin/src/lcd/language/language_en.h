@@ -812,6 +812,9 @@
 #ifndef MSG_DELTA_HEIGHT_CALIBRATE
   #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
+#ifndef MSG_DELTA_Z_OFFSET_CALIBRATE
+  #define MSG_DELTA_Z_OFFSET_CALIBRATE        _UxGT("Set Delta Z-offset")
+#endif
 #ifndef MSG_DELTA_DIAG_ROD
   #define MSG_DELTA_DIAG_ROD                  _UxGT("Diag Rod")
 #endif
