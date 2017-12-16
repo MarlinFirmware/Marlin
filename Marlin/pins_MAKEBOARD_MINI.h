@@ -20,38 +20,20 @@
  *
  */
 
-#ifndef __SPI_H__
-#define __SPI_H__
+#include "pins_RAMPS.h"
 
-#include <stdint.h>
-#include "softspi.h"
+#undef BOARD_NAME
+#define BOARD_NAME "MAKEBOARD_MINI"
 
-template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
-class SPI {
-  static SoftSPI<MisoPin, MosiPin, SckPin> softSPI;
-  public:
-    FORCE_INLINE static void init() { softSPI.begin(); }
-    FORCE_INLINE static void send(uint8_t data) { softSPI.send(data); }
-    FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
-};
-
-
-// Hardware SPI
-template<>
-class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
-  public:
-    FORCE_INLINE static void init() {
-        OUT_WRITE(SCK_PIN, LOW);
-        OUT_WRITE(MOSI_PIN, HIGH);
-        SET_INPUT(MISO_PIN);
-        WRITE(MISO_PIN, HIGH);
-    }
-    FORCE_INLINE static uint8_t receive() {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      return SPDR;
-    }
-
-};
-
-#endif // __SPI_H__
+//
+// Only 3 Limit Switch plugs on Micromake C1
+//
+#undef X_MIN_PIN
+#undef Y_MIN_PIN
+#undef Z_MIN_PIN
+#undef X_MAX_PIN
+#undef Y_MAX_PIN
+#undef Z_MAX_PIN
+#define X_STOP_PIN          2
+#define Y_STOP_PIN         15
+#define Z_STOP_PIN         19

@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * Driver for the Philips PCA9632 LED driver.
  * Written by Robert Mendon Feb 2017.
  */
@@ -30,11 +30,12 @@
 #if ENABLED(PCA9632)
 
 #include "pca9632.h"
+#include "leds.h"
+#include <Wire.h>
 
 #define PCA9632_MODE1_VALUE   0b00000001 //(ALLCALL)
 #define PCA9632_MODE2_VALUE   0b00010101 //(DIMMING, INVERT, CHANGE ON STOP,TOTEM)
 #define PCA9632_LEDOUT_VALUE  0b00101010
-
 
 /* Register addresses */
 #define PCA9632_MODE1       0x00
@@ -98,7 +99,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void PCA9632_SetColor(const byte r, const byte g, const byte b) {
+void pca9632_set_led_color(const LEDColor &color) {
   if (!PCA_init) {
     PCA_init = 1;
     Wire.begin();
@@ -106,11 +107,11 @@ void PCA9632_SetColor(const byte r, const byte g, const byte b) {
     PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_MODE2, PCA9632_MODE2_VALUE);
   }
 
-  const byte LEDOUT = (r ? LED_PWM << PCA9632_RED : 0)
-                    | (g ? LED_PWM << PCA9632_GRN : 0)
-                    | (b ? LED_PWM << PCA9632_BLU : 0);
+  const byte LEDOUT = (color.r ? LED_PWM << PCA9632_RED : 0)
+                    | (color.g ? LED_PWM << PCA9632_GRN : 0)
+                    | (color.b ? LED_PWM << PCA9632_BLU : 0);
 
-  PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, r, g, b);
+  PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b);
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
 
