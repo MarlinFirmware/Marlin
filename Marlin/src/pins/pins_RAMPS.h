@@ -538,7 +538,7 @@
 
 #endif // ULTRA_LCD
 
-#if ENABLED(ANET_KEYPAD_LCD)
+#if ENABLED(ZONESTAR_LCD)
   #define LCD_PINS_RS        64
   #define LCD_PINS_ENABLE    44
   #define LCD_PINS_D4        63
@@ -550,4 +550,4 @@
   #define BTN_EN2            -1
   #define BTN_ENC            -1
   // pin 29 N/C
-#endif // ANET_KEYPAD_LCD
+#endif // ZONESTAR_LCD
