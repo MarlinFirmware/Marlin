@@ -20,19 +20,20 @@
  *
  */
 
-#ifndef _TMC2130_H_
-#define _TMC2130_H_
+#include "pins_RAMPS.h"
 
-#include <TMC2130Stepper.h>
+#undef BOARD_NAME
+#define BOARD_NAME "MAKEBOARD_MINI"
 
-#include "../inc/MarlinConfig.h"
-
-extern bool auto_current_control;
-
-void tmc2130_checkOverTemp(void);
-
-#if ENABLED(SENSORLESS_HOMING)
-  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true);
-#endif
-
-#endif // _TMC2130_H_
+//
+// Only 3 Limit Switch plugs on Micromake C1
+//
+#undef X_MIN_PIN
+#undef Y_MIN_PIN
+#undef Z_MIN_PIN
+#undef X_MAX_PIN
+#undef Y_MAX_PIN
+#undef Z_MAX_PIN
+#define X_STOP_PIN          2
+#define Y_STOP_PIN         15
+#define Z_STOP_PIN         19

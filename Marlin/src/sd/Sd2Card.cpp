@@ -342,7 +342,7 @@ bool Sd2Card::readData(uint8_t* dst) {
 bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // wait for start block token
   uint16_t t0 = millis();
-  while ((status_ = spiRec()) == 0XFF) {
+  while ((status_ = spiRec()) == 0xFF) {
     if (((uint16_t)millis() - t0) > SD_READ_TIMEOUT) {
       error(SD_CARD_ERROR_READ_TIMEOUT);
       goto FAIL;
@@ -372,12 +372,12 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
 #endif
   chipSelectHigh();
   // Send an additional dummy byte, required by Toshiba Flash Air SD Card
-  spiSend(0XFF);
+  spiSend(0xFF);
   return true;
   FAIL:
   chipSelectHigh();
   // Send an additional dummy byte, required by Toshiba Flash Air SD Card
-  spiSend(0XFF);
+  spiSend(0xFF);
   return false;
 }
 
@@ -453,7 +453,7 @@ bool Sd2Card::setSckRate(uint8_t sckRateID) {
 // wait for card to go not busy
 bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
   uint16_t t0 = millis();
-  while (spiRec() != 0XFF)
+  while (spiRec() != 0xFF)
     if (((uint16_t)millis() - t0) >= timeoutMillis) return false;
 
   return true;
