@@ -822,7 +822,7 @@
  */
 #define DEFAULT_XJERK                  4.0
 #define DEFAULT_YJERK                  7.0
-#define DEFAULT_ZJERK                  1.0
+#define DEFAULT_ZJERK                  0.2
 #define DEFAULT_EJERK                  2.5
 
 //===========================================================================
