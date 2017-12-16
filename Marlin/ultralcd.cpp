@@ -2753,12 +2753,6 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // DELTA_CALIBRATION_MENU || DELTA_AUTO_CALIBRATION
 
-  #if IS_KINEMATIC
-    extern float feedrate_mm_s;
-    void set_destination_from_current();
-    void prepare_move_to_destination();
-  #endif
-
   /**
    * If the most recent manual move hasn't been fed to the planner yet,
    * and the planner can accept one, send immediately

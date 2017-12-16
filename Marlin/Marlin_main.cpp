@@ -724,7 +724,6 @@ void stop();
 void get_available_commands();
 void process_next_command();
 void process_parsed_command();
-void prepare_move_to_destination();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -1532,9 +1531,6 @@ inline void buffer_line_to_current_position() {
 inline void buffer_line_to_destination(const float fr_mm_s) {
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
 }
-
-inline void set_current_from_destination() { COPY(current_position, destination); }
-inline void set_destination_from_current() { COPY(destination, current_position); }
 
 #if IS_KINEMATIC
   /**

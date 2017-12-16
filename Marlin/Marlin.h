@@ -210,6 +210,7 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 /**
  * Feedrate scaling and conversion
  */
+extern float feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
@@ -460,6 +461,10 @@ extern uint8_t active_extruder;
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
+
+inline void set_current_from_destination() { COPY(current_position, destination); }
+inline void set_destination_from_current() { COPY(destination, current_position); }
+void prepare_move_to_destination();
 
 /**
  * Blocking movement and shorthand functions
