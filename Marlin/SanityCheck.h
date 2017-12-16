@@ -226,6 +226,8 @@
   #error "K1 is now PID_K1. Please update your configuration."
 #elif defined(PROBE_DOUBLE_TOUCH)
   #error "PROBE_DOUBLE_TOUCH is now MULTIPLE_PROBING. Please update your configuration."
+#elif defined(ANET_KEYPAD_LCD)
+  #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
 #endif
 
 /**
@@ -1340,7 +1342,7 @@ static_assert(1 >= 0
   #endif
   #if ENABLED(REPRAPWORLD_KEYPAD) \
       && DISABLED(CARTESIO_UI) \
-      && DISABLED(ANET_KEYPAD_LCD)
+      && DISABLED(ZONESTAR_LCD)
     + 1
   #endif
   #if ENABLED(RIGIDBOT_PANEL)
@@ -1376,7 +1378,7 @@ static_assert(1 >= 0
   #if ENABLED(OLED_PANEL_TINYBOY2)
     + 1
   #endif
-  #if ENABLED(ANET_KEYPAD_LCD)
+  #if ENABLED(ZONESTAR_LCD)
     + 1
   #endif
   , "Please select no more than one LCD controller option."
