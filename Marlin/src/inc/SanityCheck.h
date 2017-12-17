@@ -1262,7 +1262,7 @@ static_assert(1 >= 0
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
-#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632)
+#elif ENABLED(PRINTER_EVENT_LEDS) && DISABLED(BLINKM) && DISABLED(PCA9632) && DISABLED(NEOPIXEL_LED)
   #error "PRINTER_EVENT_LEDS requires BLINKM, PCA9632, RGB_LED, RGBW_LED or NEOPIXEL_LED."
 #endif
 
@@ -1466,7 +1466,7 @@ static_assert(1 >= 0
     || ENABLED( E1_IS_TMC2208 ) \
     || ENABLED( E2_IS_TMC2208 ) \
     || ENABLED( E3_IS_TMC2208 ) )
-  #error "Choose at least one TMC2208 stepper."
+  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
 #endif
 
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
