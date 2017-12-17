@@ -87,17 +87,33 @@ uint8 adc_pins[] = {
   #endif
 };
 
-enum TEMP_PINS {
-  TEMP_0,
-  TEMP_1,
-  TEMP_2,
-  TEMP_3,
-  TEMP_4,
-  TEMP_BED,
-  FILWIDTH
+enum TEMP_PINS
+{
+  #if HAS_TEMP_0
+    TEMP_0,
+  #endif
+  #if HAS_TEMP_1
+    TEMP_1,
+  #endif
+  #if HAS_TEMP_2
+    TEMP_2,
+  #endif
+  #if HAS_TEMP_3
+    TEMP_3,
+  #endif
+  #if HAS_TEMP_4
+    TEMP_4,
+  #endif
+  #if HAS_TEMP_BED
+    TEMP_BED,
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH
+  #endif
+    ADC_PIN_COUNT
 };
 
-#define ADC_PIN_COUNT (sizeof(adc_pins)/sizeof(adc_pins[0]))
+
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
 
 
@@ -181,16 +197,27 @@ void HAL_adc_init(void) {
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   TEMP_PINS pin_index;
   switch (adc_pin) {
-    default:
+#if HAS_TEMP_0
     case TEMP_0_PIN: pin_index = TEMP_0; break;
+#endif
+#if HAS_TEMP_1
     case TEMP_1_PIN: pin_index = TEMP_1; break;
+#endif
+#if HAS_TEMP_2
     case TEMP_2_PIN: pin_index = TEMP_2; break;
+#endif
+#if HAS_TEMP_3
     case TEMP_3_PIN: pin_index = TEMP_3; break;
+#endif
+#if HAS_TEMP_4
     case TEMP_4_PIN: pin_index = TEMP_4; break;
+#endif
+#if HAS_TEMP_BED
     case TEMP_BED_PIN: pin_index = TEMP_BED; break;
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      case FILWIDTH_PIN: pin_index = FILWIDTH; break;
-    #endif
+#endif
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+    case FILWIDTH_PIN: pin_index = FILWIDTH; break;
+#endif
   }
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
