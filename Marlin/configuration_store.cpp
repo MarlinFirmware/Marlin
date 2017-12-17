@@ -1810,7 +1810,6 @@ void MarlinSettings::reset() {
           CONFIG_ECHO_START;
           SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         }
-        CONFIG_ECHO_START;
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1819,7 +1818,6 @@ void MarlinSettings::reset() {
           ubl.echo_name();
           SERIAL_ECHOLNPGM(":");
         }
-        CONFIG_ECHO_START;
 
       #elif HAS_ABL
 
@@ -1827,7 +1825,6 @@ void MarlinSettings::reset() {
           CONFIG_ECHO_START;
           SERIAL_ECHOLNPGM("Auto Bed Leveling:");
         }
-        CONFIG_ECHO_START;
 
       #endif
 
