@@ -2,8 +2,8 @@
 
 restore_configs
 
-eval "cp Marlin/src/config/examples/${1}/Configuration* Marlin/"
+cp Marlin/src/config/examples/"$@"/Configuration* Marlin/
 
-if [ -f "Marlin/src/config/examples/${1}/_Bootscreen.h" ]; then
-  cp "Marlin/src/config/examples/${1}/_Bootscreen.h" Marlin/src/config/
+if [ -f "Marlin/src/config/examples/$@/_Bootscreen.h" ]; then
+  cp "Marlin/src/config/examples/$@/_Bootscreen.h" Marlin/src/config/
 fi

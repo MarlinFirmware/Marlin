@@ -71,18 +71,18 @@
   #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN  75
-    #define LCD_CONTRAST_MAX 115
-    #define DEFAULT_LCD_CONTRAST 95
+    #define LCD_CONTRAST_MIN      75
+    #define LCD_CONTRAST_MAX     115
+    #define DEFAULT_LCD_CONTRAST  95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN 0
-    #define LCD_CONTRAST_MAX 255
+    #define LCD_CONTRAST_MIN       0
+    #define LCD_CONTRAST_MAX     255
     #define DEFAULT_LCD_CONTRAST 140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN  90
-    #define LCD_CONTRAST_MAX 130
+    #define LCD_CONTRAST_MIN      90
+    #define LCD_CONTRAST_MAX     130
     #define DEFAULT_LCD_CONTRAST 110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
@@ -129,6 +129,11 @@
 
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #define U8GLIB_SH1106
+
+#elif ENABLED(MKS_12864OLED_SSD1306)
+
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #define U8GLIB_SSD1306
 
 #elif ENABLED(MKS_MINI_12864)
 
@@ -312,7 +317,7 @@
   #define LCD_STR_FILAM_DIA   "\xf8"
   #define LCD_STR_FILAM_MUL   "\xa4"
 #else
-  /* Custom characters defined in the first 8 characters of the LCD */
+  // Custom characters defined in the first 8 characters of the LCD
   #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
   #define LCD_DEGREE_CHAR      0x01
   #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
