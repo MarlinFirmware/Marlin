@@ -735,15 +735,10 @@ void Stepper::isr() {
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
     uint16_t step_rate;
-    MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
-
-    if (step_rate < acc_step_rate) { // Still decelerating?
-      step_rate = acc_step_rate - step_rate;
-      NOLESS(step_rate, current_block->final_rate);
-    }
-    else
-      step_rate = current_block->final_rate;
-
+    MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);  //calc decel rate
+    NOMORE(step_rate, acc_step_rate);  // make sure final step rate doesn't go negative
+    step_rate =  acc_step_rate - step_rate;  // now we have the real step rate
+    NOLESS(step_rate, current_block->final_rate);
     // step_rate to timer interval
     const uint16_t interval = calc_timer_interval(step_rate);
 
