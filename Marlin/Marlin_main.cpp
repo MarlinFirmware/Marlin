@@ -6496,7 +6496,7 @@ inline void gcode_M17() {
                           const float &unload_length = 0 , const int8_t max_beep_count = 0, const bool show_lcd = false
   ) {
     if (move_away_flag) return false; // already paused
-
+  SERIAL_ECHOLNPGM("//action:pause");
     if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude &&
