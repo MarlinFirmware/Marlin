@@ -334,7 +334,7 @@
 
     #else
 
-      #if ENABLED(MKS_12864OLED)
+      #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC     25 // Set as output on init
         #define LCD_PINS_RS     27 // Pull low for 1s to init
         // DOGM SPI LCD Support

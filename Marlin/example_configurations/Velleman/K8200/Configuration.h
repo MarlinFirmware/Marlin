@@ -1663,7 +1663,8 @@
 //
 // Tiny, but very sharp OLED display
 //
-//#define MKS_12864OLED
+//#define MKS_12864OLED          // Uses the SH1106 controller (default)
+//#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 #endif // K8200_VM8201
 
