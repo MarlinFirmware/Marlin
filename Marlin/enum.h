@@ -39,10 +39,20 @@ enum AxisEnum : unsigned char {
   B_AXIS    = 1,
   Z_AXIS    = 2,
   C_AXIS    = 2,
-  E_AXIS    = 3,
-  X_HEAD    = 4,
-  Y_HEAD    = 5,
-  Z_HEAD    = 6,
+  E_CART    = 3,
+  // Hangprinter order: A_AXIS, B_AXIS, C_AXIS, D_AXIS, E_AXIS
+  #if ENABLED(HANGPRINTER)
+    D_AXIS    = 3,
+    E_AXIS    = 4,
+    X_HEAD    = 5,
+    Y_HEAD    = 6,
+    Z_HEAD    = 7,
+  #else
+    E_AXIS    = 3,
+    X_HEAD    = 4,
+    Y_HEAD    = 5,
+    Z_HEAD    = 6,
+  #endif
   ALL_AXES  = 0xFE,
   NO_AXIS   = 0xFF
 };
@@ -54,11 +64,11 @@ enum AxisEnum : unsigned char {
 
 #define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
-#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_CART)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
-#define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
-#define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
-#define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
+#define LOOP_MOV_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, MOV_AXIS)
+#define LOOP_NUM_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS)
+#define LOOP_NUM_AXIS_N(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS_N)
 
 typedef enum {
   LINEARUNIT_MM,

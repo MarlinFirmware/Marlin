@@ -198,7 +198,7 @@
       destination[X_AXIS] = current_position[X_AXIS];
       destination[Y_AXIS] = current_position[Y_AXIS];
       destination[Z_AXIS] = z;                          // We know the last_z==z or we wouldn't be in this block of code.
-      destination[E_AXIS] = current_position[E_AXIS];
+      destination[E_CART] = current_position[E_CART];
 
       G26_line_to_destination(feed_value);
       set_destination_from_current();
@@ -212,7 +212,7 @@
 
     destination[X_AXIS] = rx;
     destination[Y_AXIS] = ry;
-    destination[E_AXIS] += e_delta;
+    destination[E_CART] += e_delta;
 
     G26_line_to_destination(feed_value);
     set_destination_from_current();
@@ -254,7 +254,7 @@
 
         while (!is_lcd_clicked()) {
           lcd_chirp();
-          destination[E_AXIS] += 0.25;
+          destination[E_CART] += 0.25;
           #ifdef PREVENT_LENGTHY_EXTRUDE
             Total_Prime += 0.25;
             if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
@@ -283,7 +283,7 @@
         lcd_quick_feedback(true);
       #endif
       set_destination_from_current();
-      destination[E_AXIS] += g26_prime_length;
+      destination[E_CART] += g26_prime_length;
       G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
       set_destination_from_current();
       retract_filament(destination);
@@ -697,7 +697,7 @@
 
     if (turn_on_heaters() != G26_OK) goto LEAVE;
 
-    current_position[E_AXIS] = 0.0;
+    current_position[E_CART] = 0.0;
     sync_plan_position_e();
 
     if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
@@ -812,7 +812,7 @@
           const float endpoint[XYZE] = {
             ex, ey,
             g26_layer_height,
-            current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+            current_position[E_CART] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
           };
 
           if (dist_start > 2.0) {

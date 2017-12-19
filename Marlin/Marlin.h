@@ -60,10 +60,18 @@ extern const char axis_codes[XYZE];
 
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
-  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_X() NOOP
+  #else
+    #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
+  #endif
 #elif HAS_X_ENABLE
   #define  enable_X() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_X() NOOP
+  #else
+    #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
+  #endif
 #else
   #define  enable_X() NOOP
   #define disable_X() NOOP
@@ -71,10 +79,18 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Y2_ENABLE
   #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
-  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_Y() NOOP
+  #else
+    #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
+  #endif
 #elif HAS_Y_ENABLE
   #define  enable_Y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_Y() NOOP
+  #else
+    #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
+  #endif
 #else
   #define  enable_Y() NOOP
   #define disable_Y() NOOP
@@ -82,10 +98,18 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Z2_ENABLE
   #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
-  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_Z() NOOP
+  #else
+    #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+  #endif
 #elif HAS_Z_ENABLE
   #define  enable_Z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+  #if ENABLED(HANGPRINTER)
+    #define disable_Z() NOOP
+  #else
+    #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+  #endif
 #else
   #define  enable_Z() NOOP
   #define disable_Z() NOOP
@@ -130,7 +154,11 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 1 && HAS_E1_ENABLE
     #define  enable_E1() E1_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
+    #if ENABLED(HANGPRINTER) && EXTRUDERS == 1
+      #define disable_E1() NOOP
+    #else
+      #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
+    #endif
   #else
     #define  enable_E1() NOOP
     #define disable_E1() NOOP
@@ -138,7 +166,11 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 2 && HAS_E2_ENABLE
     #define  enable_E2() E2_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
+    #if ENABLED(HANGPRINTER) && EXTRUDERS == 2
+      #define disable_E2() NOOP
+    #else
+      #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
+    #endif
   #else
     #define  enable_E2() NOOP
     #define disable_E2() NOOP
@@ -146,7 +178,11 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 3 && HAS_E3_ENABLE
     #define  enable_E3() E3_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
+    #if ENABLED(HANGPRINTER) && EXTRUDERS == 3
+      #define disable_E3() NOOP
+    #else
+      #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
+    #endif
   #else
     #define  enable_E3() NOOP
     #define disable_E3() NOOP
@@ -154,13 +190,32 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 4 && HAS_E4_ENABLE
     #define  enable_E4() E4_ENABLE_WRITE( E_ENABLE_ON)
-    #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
+    #if ENABLED(HANGPRINTER) && EXTRUDERS == 4
+      #define disable_E4() NOOP
+    #else
+      #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
+    #endif
   #else
     #define  enable_E4() NOOP
     #define disable_E4() NOOP
   #endif
 
 #endif // !MIXING_EXTRUDER
+
+#if ENABLED(HANGPRINTER)
+  #define enable_A() enable_X()
+  #define enable_B() enable_Y()
+  #define enable_C() enable_Z()
+  #if EXTRUDERS == 1
+    #define enable_D() E1_ENABLE_WRITE(E_ENABLE_ON)
+  #elif EXTRUDERS == 2
+    #define enable_D() E2_ENABLE_WRITE(E_ENABLE_ON)
+  #elif EXTRUDERS == 3
+    #define enable_D() E3_ENABLE_WRITE(E_ENABLE_ON)
+  #elif EXTRUDERS == 4
+    #define enable_D() E4_ENABLE_WRITE(E_ENABLE_ON)
+  #endif
+#endif
 
 #if ENABLED(G38_PROBE_TARGET)
   extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
@@ -309,7 +364,11 @@ void  home_all_axes();
 void report_current_position();
 
 #if IS_KINEMATIC
-  extern float delta[ABC];
+  #if ENABLED(HANGPRINTER)
+    extern float line_lengths[ABCD];
+  #else
+    extern float delta[ABC];
+  #endif
   void inverse_kinematics(const float raw[XYZ]);
 #endif
 
@@ -340,6 +399,50 @@ void report_current_position();
     delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
     delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
     delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
+  }while(0)
+
+#elif ENABLED(HANGPRINTER)
+ // Don't collect anchor positions in array because there are no A_x, D_x or D_y
+  extern float anchor_A_y,
+               anchor_A_z,
+               anchor_B_x,
+               anchor_B_y,
+               anchor_B_z,
+               anchor_C_x,
+               anchor_C_y,
+               anchor_C_z,
+               anchor_D_z,
+               delta_segments_per_second,
+               line_lengths_origin[ABCD];
+
+  void recalc_hangprinter_settings();
+
+  #define HANGPRINTER_IK(V) do {                             \
+    line_lengths[A_AXIS] = sqrt(sq(anchor_A_z - V[Z_AXIS])   \
+                              + sq(anchor_A_y - V[Y_AXIS])   \
+                              + sq(             V[X_AXIS])); \
+    line_lengths[B_AXIS] = sqrt(sq(anchor_B_z - V[Z_AXIS])   \
+                              + sq(anchor_B_y - V[Y_AXIS])   \
+                              + sq(anchor_B_x - V[X_AXIS])); \
+    line_lengths[C_AXIS] = sqrt(sq(anchor_C_z - V[Z_AXIS])   \
+                              + sq(anchor_C_y - V[Y_AXIS])   \
+                              + sq(anchor_C_x - V[X_AXIS])); \
+    line_lengths[D_AXIS] = sqrt(sq(             V[X_AXIS])   \
+                              + sq(             V[Y_AXIS])   \
+                              + sq(anchor_D_z - V[Z_AXIS])); \
+  }while(0)
+
+  // Inverse kinematics at origin
+  #define HANGPRINTER_IK_ORIGIN(LL) do { \
+    LL[A_AXIS] = sqrt(sq(anchor_A_z)     \
+                    + sq(anchor_A_y));   \
+    LL[B_AXIS] = sqrt(sq(anchor_B_z)     \
+                    + sq(anchor_B_y)     \
+                    + sq(anchor_B_x));   \
+    LL[C_AXIS] = sqrt(sq(anchor_C_z)     \
+                    + sq(anchor_C_y)     \
+                    + sq(anchor_C_x));   \
+    LL[D_AXIS] = anchor_D_z;             \
   }while(0)
 
 #elif IS_SCARA
@@ -506,6 +609,9 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset);
+    #elif ENABLED(HANGPRINTER)
+      // TODO: This is over simplified. Hangprinter's build volume is _not_ cylindrical.
+      return HYPOT2(rx, ry) <= sq(HANGPRINTER_PRINTABLE_RADIUS - inset);
     #elif IS_SCARA
       const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
       return (
