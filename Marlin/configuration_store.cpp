@@ -772,7 +772,9 @@ void MarlinSettings::postprocess() {
     }
     else {
       float dummy = 0;
-      bool dummyb;
+      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT)
+        bool dummyb;
+      #endif
 
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
