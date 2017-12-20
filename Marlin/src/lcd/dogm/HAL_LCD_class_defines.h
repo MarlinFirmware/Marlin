@@ -65,8 +65,8 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB
 extern u8g_dev_t u8g_dev_st7920_128x64_custom_sw_spi;
 class U8GLIB_ST7920_128X64_CUSTOM_SW_SPI : public U8GLIB {
   public:
-    U8GLIB_ST7920_128X64_CUSTOM_SW_SPI() 
-    : U8GLIB(&u8g_dev_st7920_128x64_custom_sw_spi) 
+    U8GLIB_ST7920_128X64_CUSTOM_SW_SPI()
+    : U8GLIB(&u8g_dev_st7920_128x64_custom_sw_spi)
     {  }
 };
 
