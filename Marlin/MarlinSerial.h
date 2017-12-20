@@ -87,17 +87,6 @@
 #endif
 
 #ifndef USBCON
-  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
-    #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
-  #endif
-
-  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
-    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
-  #endif
-
-  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
-    #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
-  #endif
 
   #if RX_BUFFER_SIZE > 256
     typedef uint16_t ring_buffer_pos_t;
