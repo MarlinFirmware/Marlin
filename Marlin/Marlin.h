@@ -423,9 +423,9 @@ void report_current_position();
   extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
   extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
                filament_width_meas;    // Measured filament diameter
-  extern uint8_t meas_delay_cm,        // Delay distance
-                 measurement_delay[];  // Ring buffer to delay measurement
-  extern int8_t filwidth_delay_index[2]; // Ring buffer indexes. Used by planner, temperature, and main code
+  extern uint8_t meas_delay_cm;        // Delay distance
+  extern int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1],  // Ring buffer to delay measurement
+                filwidth_delay_index[2]; // Ring buffer indexes. Used by planner, temperature, and main code
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
