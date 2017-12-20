@@ -96,23 +96,13 @@ Timer_clock4: Prescaler 128 -> 562.5kHz
 void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
   nvic_irq_num irq_num;
   switch (timer_num) {
-  case 1:
-      irq_num = NVIC_TIMER1_CC;
-      break;
-  case 2:
-      irq_num = NVIC_TIMER2;
-      break;
-  case 3:
-      irq_num = NVIC_TIMER3;
-      break;
-  case 4:
-      irq_num = NVIC_TIMER4;
-      break;
-  case 5:
-      irq_num = NVIC_TIMER5;
-      break;
-  default:
-      /*
+    case 1: irq_num = NVIC_TIMER1_CC; break;
+    case 2: irq_num = NVIC_TIMER2; break;
+    case 3: irq_num = NVIC_TIMER3; break;
+    case 4: irq_num = NVIC_TIMER4; break;
+    case 5: irq_num = NVIC_TIMER5; break;
+    default:
+      /**
        *  We should not get here, add Sanitycheck for timer number. Should be a general timer
        *  since basic timers do not have CC channels.
        *  Advanced timers should be skipped if possible too, and are not listed above.
