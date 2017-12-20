@@ -465,9 +465,9 @@ void GcodeSuite::process_parsed_command() {
         #endif
       #endif
 
-      case 200: // M200: Set filament diameter, E to cubic units
-        M200();
-        break;
+      #if DISABLED(NO_VOLUMETRICS)
+        case 200: M200(); break;  // M200: Set filament diameter, E to cubic units
+      #endif
 
       case 201: M201(); break;  // M201: Set max acceleration for print moves (units/s^2)
 
