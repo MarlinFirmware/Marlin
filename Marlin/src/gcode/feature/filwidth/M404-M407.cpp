@@ -56,7 +56,7 @@ void GcodeSuite::M405() {
   }
 
   if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
-    const uint8_t temp_ratio = thermalManager.widthFil_to_size_ratio();
+    const int8_t temp_ratio = thermalManager.widthFil_to_size_ratio();
 
     for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
       measurement_delay[i] = temp_ratio;

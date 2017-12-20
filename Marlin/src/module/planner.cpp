@@ -1092,7 +1092,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
           filwidth_e_count = 0; // Reset the E movement counter
-          const uint8_t meas_sample = thermalManager.widthFil_to_size_ratio();
+          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio();
           do {
             filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement
