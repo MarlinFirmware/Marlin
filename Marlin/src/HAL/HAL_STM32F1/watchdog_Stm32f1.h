@@ -46,9 +46,9 @@ void watchdog_init();
 // Reset watchdog. MUST be called at least every 4 seconds after the
 // first watchdog_init or STM32F1 will reset.
 inline void watchdog_reset() {
-#if PIN_EXISTS(LED)
-  TOGGLE(LED_PIN);  // heart beat indicator
-#endif
+  #if PIN_EXISTS(LED)
+    TOGGLE(LED_PIN);  // heart beat indicator
+  #endif
   iwdg_feed();
 }
 
