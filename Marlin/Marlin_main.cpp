@@ -8669,25 +8669,29 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // HAS_COLOR_LEDS
 
-/**
- * M200: Set filament diameter and set E axis units to cubic units
- *
- *    T<extruder> - Optional extruder number. Current extruder if omitted.
- *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
- */
-inline void gcode_M200() {
+#if DISABLED(NO_VOLUMETRICS)
 
-  if (get_target_extruder_from_command(200)) return;
+  /**
+   * M200: Set filament diameter and set E axis units to cubic units
+   *
+   *    T<extruder> - Optional extruder number. Current extruder if omitted.
+   *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
+   */
+  inline void gcode_M200() {
 
-  if (parser.seen('D')) {
-    // setting any extruder filament size disables volumetric on the assumption that
-    // slicers either generate in extruder values as cubic mm or as as filament feeds
-    // for all extruders
-    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
-      planner.set_filament_size(target_extruder, parser.value_linear_units());
+    if (get_target_extruder_from_command(200)) return;
+
+    if (parser.seen('D')) {
+      // setting any extruder filament size disables volumetric on the assumption that
+      // slicers either generate in extruder values as cubic mm or as as filament feeds
+      // for all extruders
+      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
+        planner.set_filament_size(target_extruder, parser.value_linear_units());
+    }
+    planner.calculate_volumetric_multipliers();
   }
-  planner.calculate_volumetric_multipliers();
-}
+
+#endif // !NO_VOLUMETRICS
 
 /**
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
@@ -12036,9 +12040,12 @@ void process_parsed_command() {
         #endif
       #endif
 
-      case 200: // M200: Set filament diameter, E to cubic units
-        gcode_M200();
-        break;
+      #if DISABLED(NO_VOLUMETRICS)
+        case 200: // M200: Set filament diameter, E to cubic units
+          gcode_M200();
+          break;
+      #endif
+
       case 201: // M201: Set max acceleration for print moves (units/s^2)
         gcode_M201();
         break;
