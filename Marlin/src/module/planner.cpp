@@ -105,10 +105,13 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
-float Planner::e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
-      Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-      Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
-      Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+float Planner::e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+
+#if DISABLED(NO_VOLUMETRICS)
+  float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+        Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
+        Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+#endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
@@ -561,25 +564,29 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-/**
- * Get a volumetric multiplier from a filament diameter.
- * This is the reciprocal of the circular cross-section area.
- * Return 1.0 with volumetric off or a diameter of 0.0.
- */
-inline float calculate_volumetric_multiplier(const float &diameter) {
-  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
-}
+#if DISABLED(NO_VOLUMETRICS)
 
-/**
- * Convert the filament sizes into volumetric multipliers.
- * The multiplier converts a given E value into a length.
- */
-void Planner::calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++) {
-    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
-    refresh_e_factor(i);
+  /**
+   * Get a volumetric multiplier from a filament diameter.
+   * This is the reciprocal of the circular cross-section area.
+   * Return 1.0 with volumetric off or a diameter of 0.0.
+   */
+  inline float calculate_volumetric_multiplier(const float &diameter) {
+    return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
   }
-}
+
+  /**
+   * Convert the filament sizes into volumetric multipliers.
+   * The multiplier converts a given E value into a length.
+   */
+  void Planner::calculate_volumetric_multipliers() {
+    for (uint8_t i = 0; i < COUNT(filament_size); i++) {
+      volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+      refresh_e_factor(i);
+    }
+  }
+
+#endif // !NO_VOLUMETRICS
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**
@@ -1085,7 +1092,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
           filwidth_e_count = 0; // Reset the E movement counter
-          const uint8_t meas_sample = thermalManager.widthFil_to_size_ratio();
+          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio();
           do {
             filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement
@@ -1100,7 +1107,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   float max_stepper_speed = 0, min_axis_accel_ratio = 1; // ratio < 1 means acceleration ramp needed
   LOOP_XYZE(i) {
     const float cs = FABS((current_speed[i] = delta_mm[i] * inverse_secs));
-    if (cs >  max_jerk[i]) 
+    if (cs > max_jerk[i])
       NOMORE(min_axis_accel_ratio, max_jerk[i] / cs);
     NOLESS(max_stepper_speed, cs);
     #if ENABLED(DISTINCT_E_FACTORS)

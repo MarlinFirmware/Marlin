@@ -56,7 +56,7 @@
 //  If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
 // if perfectly achievable. Using 1A as motor current, 2400 mm/s^2 acceleration
 // is perfectly possible without losing any steps
-// On A4988 drivers, maximum current can be calculated as I_TripMax= Vref/(8*Rs) 
+// On A4988 drivers, maximum current can be calculated as I_TripMax= Vref/(8*Rs)
 //
 
 //===========================================================================
@@ -548,14 +548,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,97}  //motor bajos con varilla3200 y altos 1600 default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT     { 80, 80, 4000, 97 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE            { 300, 300, 2, 30 } /* For 300mm/s printing */ 
+#define DEFAULT_MAX_FEEDRATE            { 300, 300, 2, 30 } // For 300mm/s printing
 
 /**
  * Default Max Acceleration (change/s) change = mm/s

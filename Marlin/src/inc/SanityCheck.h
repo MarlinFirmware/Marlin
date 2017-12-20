@@ -231,6 +231,8 @@
   #error "PROBE_DOUBLE_TOUCH is now MULTIPLE_PROBING. Please update your configuration."
 #elif defined(ANET_KEYPAD_LCD)
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
+#elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
+  #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #endif
 
 /**
@@ -260,13 +262,9 @@
 #ifndef USBCON
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
-  #endif
-
-  #if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
+  #elif RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
     #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
-  #endif
-
-  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+  #elif TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
     #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
   #endif
 #elif ENABLED(SERIAL_XON_XOFF)
@@ -898,15 +896,19 @@ static_assert(1 >= 0
  */
 #if ENABLED(DISABLE_X) || ENABLED(DISABLE_Y) || ENABLED(DISABLE_Z)
   #if ENABLED(HOME_AFTER_DEACTIVATE) || ENABLED(Z_SAFE_HOMING)
-    #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
+    #error "DISABLE_[XYZ] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif // DISABLE_[XYZ]
 
 /**
  * Filament Width Sensor
  */
-#if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
-  #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #if !HAS_FILAMENT_WIDTH_SENSOR
+    #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
+  #elif ENABLED(NO_VOLUMETRICS)
+    #error "FILAMENT_WIDTH_SENSOR requires NO_VOLUMETRICS to be disabled."
+  #endif
 #endif
 
 /**
