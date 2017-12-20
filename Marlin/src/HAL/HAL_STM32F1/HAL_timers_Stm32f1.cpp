@@ -82,12 +82,12 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
 // Public functions
 // --------------------------------------------------------------------------
 
-/*
-Timer_clock1: Prescaler 2 -> 36MHz
-Timer_clock2: Prescaler 8 -> 9MHz
-Timer_clock3: Prescaler 32 -> 2.25MHz
-Timer_clock4: Prescaler 128 -> 562.5kHz
-*/
+/**
+ * Timer_clock1: Prescaler   2 ->  36    MHz
+ * Timer_clock2: Prescaler   8 ->   9    MHz
+ * Timer_clock3: Prescaler  32 ->   2.25 MHz
+ * Timer_clock4: Prescaler 128 -> 562.5  kHz
+ */
 
 /**
  * TODO: Calculate Timer prescale value, so we get the 32bit to adjust
