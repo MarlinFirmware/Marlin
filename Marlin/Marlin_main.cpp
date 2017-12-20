@@ -6497,6 +6497,10 @@ inline void gcode_M17() {
   ) {
     if (move_away_flag) return false; // already paused
 
+    #ifdef ACTION_ON_PAUSE
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    #endif
+
     if (!DEBUGGING(DRYRUN) && unload_length != 0) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude &&
@@ -6727,6 +6731,10 @@ inline void gcode_M17() {
     #if ENABLED(ULTIPANEL)
       // Show status screen
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    #endif
+
+    #ifdef ACTION_ON_RESUME
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
     #endif
 
     #if ENABLED(SDSUPPORT)
