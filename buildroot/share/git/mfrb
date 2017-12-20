@@ -2,18 +2,18 @@
 #
 # mfrb
 #
-# Do "git rebase -i" against the "target" branch (RCBugFix or dev)
+# Do "git rebase -i" against the "target" branch (bugfix-1.1.x, bugfix-2.0.x, or master)
 #
 
-[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
 
-MFINFO=$(mfinfo) || exit 1
+MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 TARG=${INFO[3]}
-BRANCH=${INFO[5]}
+CURR=${INFO[5]}
 
 # If the branch isn't currently the PR target
-if [[ $TARG != $BRANCH ]]; then
+if [[ $TARG != $CURR ]]; then
   git fetch upstream
   git rebase upstream/$TARG && git rebase -i upstream/$TARG
 fi

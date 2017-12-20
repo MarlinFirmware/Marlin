@@ -52,8 +52,6 @@
   #define BOARD_NAME "RAMPS 1.4"
 #endif
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -114,6 +112,57 @@
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 #define E1_CS_PIN          44
+
+
+#if ENABLED(HAVE_TMC2208)
+  /**
+   * TMC2208 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+
+  /**
+   * Software serial
+   */
+
+  #define X_SERIAL_TX_PIN    59
+  #define X_SERIAL_RX_PIN    63
+  #define X2_SERIAL_TX_PIN   -1
+  #define X2_SERIAL_RX_PIN   -1
+
+  #define Y_SERIAL_TX_PIN    64
+  #define Y_SERIAL_RX_PIN    40
+  #define Y2_SERIAL_TX_PIN   -1
+  #define Y2_SERIAL_RX_PIN   -1
+
+  #define Z_SERIAL_TX_PIN    44
+  #define Z_SERIAL_RX_PIN    42
+  #define Z2_SERIAL_TX_PIN   -1
+  #define Z2_SERIAL_RX_PIN   -1
+
+  #define E0_SERIAL_TX_PIN   66
+  #define E0_SERIAL_RX_PIN   65
+  #define E1_SERIAL_TX_PIN   -1
+  #define E1_SERIAL_RX_PIN   -1
+  #define E2_SERIAL_TX_PIN   -1
+  #define E2_SERIAL_RX_PIN   -1
+  #define E3_SERIAL_TX_PIN   -1
+  #define E3_SERIAL_RX_PIN   -1
+  #define E4_SERIAL_TX_PIN   -1
+  #define E4_SERIAL_RX_PIN   -1
+#endif
 
 //
 // Temperature Sensors
@@ -285,7 +334,7 @@
 
     #else
 
-      #if ENABLED(MKS_12864OLED)
+      #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC     25 // Set as output on init
         #define LCD_PINS_RS     27 // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -483,3 +532,17 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
+
+#if ENABLED(ZONESTAR_LCD)
+  #define LCD_PINS_RS        64
+  #define LCD_PINS_ENABLE    44
+  #define LCD_PINS_D4        63
+  #define LCD_PINS_D5        40
+  #define LCD_PINS_D6        42
+  #define LCD_PINS_D7        65
+  #define ADC_KEYPAD_PIN     12
+  #define BTN_EN1            -1
+  #define BTN_EN2            -1
+  #define BTN_ENC            -1
+  // pin 29 N/C
+#endif // ZONESTAR_LCD
