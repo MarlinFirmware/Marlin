@@ -94,10 +94,13 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
-float Planner::e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
-      Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-      Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
-      Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+float Planner::e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+
+#if DISABLED(NO_VOLUMETRICS)
+  float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+        Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
+        Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+#endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
@@ -550,25 +553,29 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-/**
- * Get a volumetric multiplier from a filament diameter.
- * This is the reciprocal of the circular cross-section area.
- * Return 1.0 with volumetric off or a diameter of 0.0.
- */
-inline float calculate_volumetric_multiplier(const float &diameter) {
-  return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
-}
+#if DISABLED(NO_VOLUMETRICS)
 
-/**
- * Convert the filament sizes into volumetric multipliers.
- * The multiplier converts a given E value into a length.
- */
-void Planner::calculate_volumetric_multipliers() {
-  for (uint8_t i = 0; i < COUNT(filament_size); i++) {
-    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
-    refresh_e_factor(i);
+  /**
+   * Get a volumetric multiplier from a filament diameter.
+   * This is the reciprocal of the circular cross-section area.
+   * Return 1.0 with volumetric off or a diameter of 0.0.
+   */
+  inline float calculate_volumetric_multiplier(const float &diameter) {
+    return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
   }
-}
+
+  /**
+   * Convert the filament sizes into volumetric multipliers.
+   * The multiplier converts a given E value into a length.
+   */
+  void Planner::calculate_volumetric_multipliers() {
+    for (uint8_t i = 0; i < COUNT(filament_size); i++) {
+      volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+      refresh_e_factor(i);
+    }
+  }
+
+#endif // !NO_VOLUMETRICS
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**

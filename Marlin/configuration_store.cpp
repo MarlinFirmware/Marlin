@@ -238,7 +238,9 @@ void MarlinSettings::postprocess() {
     thermalManager.updatePID();
   #endif
 
-  planner.calculate_volumetric_multipliers();
+  #if DISABLED(NO_VOLUMETRICS)
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
     // Software endstops depend on home_offset
@@ -566,13 +568,20 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(swap_retract_recover_length);
     EEPROM_WRITE(swap_retract_recover_feedrate_mm_s);
 
-    EEPROM_WRITE(parser.volumetric_enabled);
+    //
+    // Volumetric & Filament Size
+    //
+    #if DISABLED(NO_VOLUMETRICS)
 
-    // Save filament sizes
-    for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-      if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
-      EEPROM_WRITE(dummy);
-    }
+      EEPROM_WRITE(parser.volumetric_enabled);
+
+      // Save filament sizes
+      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+        if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
+        EEPROM_WRITE(dummy);
+      }
+
+    #endif // !NO_VOLUMETRICS
 
     // Save TMC2130 or TMC2208 Configuration, and placeholder values
     uint16_t val;
@@ -1053,12 +1062,16 @@ void MarlinSettings::postprocess() {
       //
       // Volumetric & Filament Size
       //
+      #if DISABLED(NO_VOLUMETRICS)
 
-      EEPROM_READ(parser.volumetric_enabled);
-      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-        EEPROM_READ(dummy);
-        if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
-      }
+        EEPROM_READ(parser.volumetric_enabled);
+
+        for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+          EEPROM_READ(dummy);
+          if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
+        }
+
+      #endif
 
       //
       // TMC2130 Stepper Current
@@ -1502,15 +1515,19 @@ void MarlinSettings::reset() {
     swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   #endif // FWRETRACT
 
-  parser.volumetric_enabled =
-    #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-      true
-    #else
-      false
-    #endif
-  ;
-  for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
-    planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+  #if DISABLED(NO_VOLUMETRICS)
+
+    parser.volumetric_enabled =
+      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+        true
+      #else
+        false
+      #endif
+    ;
+    for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+      planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+
+  #endif
 
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -1648,46 +1665,50 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    /**
-     * Volumetric extrusion M200
-     */
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPGM("Filament settings:");
-      if (parser.volumetric_enabled)
-        SERIAL_EOL();
-      else
-        SERIAL_ECHOLNPGM(" Disabled");
-    }
+    #if DISABLED(NO_VOLUMETRICS)
 
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-    SERIAL_EOL();
-    #if EXTRUDERS > 1
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
-      SERIAL_EOL();
-      #if EXTRUDERS > 2
+      /**
+       * Volumetric extrusion M200
+       */
+      if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
-        SERIAL_EOL();
-        #if EXTRUDERS > 3
-          CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
+        SERIAL_ECHOPGM("Filament settings:");
+        if (parser.volumetric_enabled)
           SERIAL_EOL();
-          #if EXTRUDERS > 4
-            CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
-            SERIAL_EOL();
-          #endif // EXTRUDERS > 4
-        #endif // EXTRUDERS > 3
-      #endif // EXTRUDERS > 2
-    #endif // EXTRUDERS > 1
+        else
+          SERIAL_ECHOLNPGM(" Disabled");
+      }
 
-    if (!parser.volumetric_enabled) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("  M200 D0");
-    }
+      SERIAL_ECHOPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
+      SERIAL_EOL();
+      #if EXTRUDERS > 1
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
+        SERIAL_EOL();
+        #if EXTRUDERS > 2
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
+          SERIAL_EOL();
+          #if EXTRUDERS > 3
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
+            SERIAL_EOL();
+            #if EXTRUDERS > 4
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
+              SERIAL_EOL();
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+
+      if (!parser.volumetric_enabled) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("  M200 D0");
+      }
+
+    #endif
 
     if (!forReplay) {
       CONFIG_ECHO_START;
