@@ -799,7 +799,7 @@ void Temperature::manage_heater() {
       meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-      calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index])
+      planner.calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index]);
     }
   #endif // FILAMENT_WIDTH_SENSOR
 
