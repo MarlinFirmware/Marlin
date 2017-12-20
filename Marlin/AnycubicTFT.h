@@ -29,6 +29,15 @@ char *itostr2(const uint8_t &x);
 #define TFT_MAX_CMD_SIZE 96
 #define MSG_MY_VERSION "V116"
 
+#define ANYCUBIC_TFT_STATE_IDLE           0
+#define ANYCUBIC_TFT_STATE_SDPRINT        1
+#define ANYCUBIC_TFT_STATE_SDPAUSE        2
+#define ANYCUBIC_TFT_STATE_SDPAUSE_REQ    3
+#define ANYCUBIC_TFT_STATE_SDPRINT_HEAT   4
+#define ANYCUBIC_TFT_STATE_SDPAUSE_OOF    5
+#define ANYCUBIC_TFT_STATE_SDOUTAGE       99
+
+
 class AnycubicTFTClass {
 public:
   AnycubicTFTClass();
@@ -46,28 +55,30 @@ private:
   char serial3_char;
   int serial3_count = 0;
   char *TFTstrchr_pointer;
-  char TFTpausingFlag=0;
   char TFTStatusFlag=0;
   char TFTresumingflag=0;
-  char sdcardstartprintingflag=0;
+  char TFTprintingFlag=0;
+  char TFTstate=ANYCUBIC_TFT_STATE_IDLE;
   char FlagResumFromOutage=0;
   uint16_t MyFileNrCnt=0;
   uint16_t fileoutputcnt=0;
   uint16_t filenumber=0;
-  unsigned long previous_millis_cmd = 0;
   unsigned long starttime=0;
   unsigned long stoptime=0;
   uint8_t tmp_extruder=0;
-  long TFTcode_N=0;
-  long TFTcode_LastN=0;
-
-  void ClearToSend();
-  void FlushSerialRequestResend();
+  char LastSDstatus=0;
+  uint16_t HeaterCheckCount=0;
+  
   float CodeValue();
   bool CodeSeen(char);
   uint16_t GetFileNr();
   void Ls();
+  void StartPrint();
+  void PausePrint();
+  void StateHandler();
   void GetCommandFromTFT();
+  void CheckSDCardChange();
+  void CheckHeaterError();
 
 #if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
   char FilamentTestStatus=false;
