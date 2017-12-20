@@ -231,6 +231,8 @@
   #error "PROBE_DOUBLE_TOUCH is now MULTIPLE_PROBING. Please update your configuration."
 #elif defined(ANET_KEYPAD_LCD)
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
+#elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
+  #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #endif
 
 /**
