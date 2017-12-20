@@ -1711,7 +1711,7 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Maximum feedrates (units/s):");
+      SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M203 X", LINEAR_UNIT(planner.max_feedrate_mm_s[X_AXIS]));
@@ -1731,7 +1731,7 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Maximum Acceleration (units/s2):");
+      SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M201 X", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[X_AXIS]));
