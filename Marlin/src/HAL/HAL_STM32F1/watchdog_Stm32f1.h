@@ -31,7 +31,7 @@
 
 #include "../../../src/inc/MarlinConfig.h"
 
-/*
+/**
  *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and
  *  625 reload value (counts down to 0)
  *  use 1250 for 8 seconds
