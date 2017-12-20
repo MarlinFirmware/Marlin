@@ -1000,7 +1000,7 @@ void Temperature::updateTemperaturesFromRawValues() {
    * a return value of 1.
    */
   int8_t Temperature::widthFil_to_size_ratio() {
-    if (WITHIN(filament_width_meas, MEASURED_LOWER_LIMIT, MEASURED_UPPER_LIMIT))
+    if (FABS(filament_width_nominal - filament_width_meas) <= FILWIDTH_ERROR_MARGIN)
       return int(100.0 * filament_width_nominal / filament_width_meas) - 100;
     return 0;
   }
