@@ -548,6 +548,10 @@ void idle(
       lastUpdateMillis = millis();
     }
   #endif
+
+  #ifdef HAL_IDLETASK
+    HAL_idletask();
+  #endif
 }
 
 /**
