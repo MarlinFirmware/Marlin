@@ -80,15 +80,20 @@ void AnycubicTFTClass::StartPrint(){
 #endif
   }
   starttime=millis();
-  TFTstate=ANYCUBIC_TFT_STATE_SDPRINT;
   card.startFileprint();
+  TFTstate=ANYCUBIC_TFT_STATE_SDPRINT;
 }
 
 void AnycubicTFTClass::PausePrint(){
-  TFTresumingflag=true;
   card.pauseSDPrint();
   TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE_REQ;
 }
+
+void AnycubicTFTClass::StopPrint(){
+  card.stopSDPrint();
+  TFTstate=ANYCUBIC_TFT_STATE_SDSTOP_REQ;
+}
+
 
 float AnycubicTFTClass::CodeValue()
 {
@@ -197,7 +202,7 @@ void AnycubicTFTClass::StateHandler()
         // It seems that we are to printing anymore... pause or stopped?
         if (card.isFileOpen()){
           // File is still open --> paused
-          
+          TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE;          
         } else {
           // File is closed --> stopped
           ANYCUBIC_SERIAL_PROTOCOLPGM("J14");// J14 print done
@@ -238,6 +243,17 @@ void AnycubicTFTClass::StateHandler()
         SERIAL_ECHOLN("TFT Serial Debug: Filament runout while printing... J23");
 #endif
       }
+    }
+    break;
+  case ANYCUBIC_TFT_STATE_SDSTOP_REQ:
+    if((!card.sdprinting) && (!planner.movesplanned())){
+      ANYCUBIC_SERIAL_PROTOCOLPGM("J16");// J16 stop print
+      ANYCUBIC_SERIAL_ENTER();
+      TFTstate==ANYCUBIC_TFT_STATE_IDLE;
+#ifdef ANYCUBIC_TFT_DEBUG
+      SERIAL_ECHOLN("TFT Serial Debug: SD print stopped... J16");
+#endif
+      enqueue_and_echo_commands_P(PSTR("M84"));
     }
     break;
   default:
@@ -436,11 +452,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 11: // A11 STOP SD PRINT
             if((card.sdprinting) || (TFTstate==ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
-              card.stopSDPrint();
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J16");// J16 stop print
-              ANYCUBIC_SERIAL_ENTER();
-              TFTstate==ANYCUBIC_TFT_STATE_IDLE;
-              enqueue_and_echo_commands_P(PSTR("M84"));
+              StopPrint();
             }
             break;
           case 12: // A12 kill

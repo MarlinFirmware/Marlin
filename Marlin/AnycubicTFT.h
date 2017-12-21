@@ -35,6 +35,7 @@ char *itostr2(const uint8_t &x);
 #define ANYCUBIC_TFT_STATE_SDPAUSE_REQ    3
 #define ANYCUBIC_TFT_STATE_SDPRINT_HEAT   4
 #define ANYCUBIC_TFT_STATE_SDPAUSE_OOF    5
+#define ANYCUBIC_TFT_STATE_SDSTOP_REQ     6
 #define ANYCUBIC_TFT_STATE_SDOUTAGE       99
 
 
@@ -55,9 +56,6 @@ private:
   char serial3_char;
   int serial3_count = 0;
   char *TFTstrchr_pointer;
-  char TFTStatusFlag=0;
-  char TFTresumingflag=0;
-  char TFTprintingFlag=0;
   char TFTstate=ANYCUBIC_TFT_STATE_IDLE;
   char FlagResumFromOutage=0;
   uint16_t MyFileNrCnt=0;
@@ -75,6 +73,7 @@ private:
   void Ls();
   void StartPrint();
   void PausePrint();
+  void StopPrint();
   void StateHandler();
   void GetCommandFromTFT();
   void CheckSDCardChange();
