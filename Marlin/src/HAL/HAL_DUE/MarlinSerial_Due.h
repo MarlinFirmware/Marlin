@@ -31,11 +31,9 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <WString.h>
+#if SERIAL_PORT >= 0
 
-#ifndef SERIAL_PORT
-  #define SERIAL_PORT 0
-#endif
+#include <WString.h>
 
 #define DEC 10
 #define HEX 16
@@ -134,5 +132,7 @@ private:
 };
 
 extern MarlinSerial customizedSerial;
+
+#endif // SERIAL_PORT >= 0
 
 #endif // MARLINSERIAL_DUE_H

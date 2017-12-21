@@ -637,6 +637,10 @@ void stop() {
  */
 void setup() {
 
+  #ifdef HAL_INIT
+    HAL_init();
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     Max7219_init();
   #endif
