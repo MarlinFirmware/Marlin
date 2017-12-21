@@ -48,6 +48,10 @@
 #define GET_OUTPUT(IO)        (_GET_MODE(IO) == GPIO_OUTPUT_PP)
 #define GET_TIMER(IO)         (PIN_MAP[IO].timer_device != NULL)
 
-#define OUT_WRITE(IO, v) { _SET_OUTPUT(IO); WRITE(IO, v); }
+#define OUT_WRITE(IO, v)      { _SET_OUTPUT(IO); WRITE(IO, v); }
+/*
+ * TODO: Write a macro to test if PIN is PWM or not.
+ */
+#define PWM_PIN(p)            true
 
 #endif	/* _FASTIO_STM32F1_H */
