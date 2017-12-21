@@ -107,14 +107,22 @@
   #error "FILAMENT_CHANGE_FEATURE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_X_POS)
   #error "FILAMENT_CHANGE_X_POS is now PAUSE_PARK_X_POS. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_X_POS)
+  #error "PAUSE_PARK_X_POS is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_Y_POS)
   #error "FILAMENT_CHANGE_Y_POS is now PAUSE_PARK_Y_POS. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Y_POS)
+  #error "PAUSE_PARK_Y_POS is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_Z_ADD)
   #error "FILAMENT_CHANGE_Z_ADD is now PAUSE_PARK_Z_ADD. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Z_ADD)
+  #error "PAUSE_PARK_Z_ADD is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_XY_FEEDRATE)
   #error "FILAMENT_CHANGE_XY_FEEDRATE is now PAUSE_PARK_XY_FEEDRATE. Please update your configuration."
-#elif ENABLED(FILAMENT_CHANGE_Z_FEEDRATE)
-  #error "FILAMENT_CHANGE_Z_FEEDRATE is now PAUSE_PARK_Z_FEEDRATE. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_XY_FEEDRATE)
+  #error "PAUSE_PARK_XY_FEEDRATE is now NOZZLE_PARK_XY_FEEDRATE. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Z_FEEDRATE)
+  #error "PAUSE_PARK_Z_FEEDRATE is now NOZZLE_PARK_Z_FEEDRATE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_RETRACT_FEEDRATE)
   #error "FILAMENT_CHANGE_RETRACT_FEEDRATE is now PAUSE_PARK_RETRACT_FEEDRATE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_RETRACT_LENGTH)
@@ -410,6 +418,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #elif ENABLED(HOME_BEFORE_FILAMENT_CHANGE) && DISABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #error "HOME_BEFORE_FILAMENT_CHANGE requires PAUSE_PARK_NO_STEPPER_TIMEOUT"
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE"
   #endif
 #endif
 
