@@ -6492,12 +6492,12 @@ inline void gcode_M17() {
     stepper.synchronize();
   }
 
-  static bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                          const float &unload_length = 0 , const int8_t max_beep_count = 0, const bool show_lcd = false
+  static bool pause_print(const float &retract, const point_t &park_point, const float &unload_length = 0,
+                          const int8_t max_beep_count = 0, const bool show_lcd = false
   ) {
     if (move_away_flag) return false; // already paused
 
-    if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
+    if (!DEBUGGING(DRYRUN) && unload_length != 0) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude &&
             thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
@@ -6534,14 +6534,11 @@ inline void gcode_M17() {
     COPY(resume_position, current_position);
 
     // Initial retract before move to filament change position
-    if (retract) do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+    if (retract && !thermalManager.tooColdToExtrude(active_extruder))
+      do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-    // Lift Z axis
-    if (z_lift > 0)
-      do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
-
-    // Move XY axes to filament exchange position
-    do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
+    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+    Nozzle::park(2, park_point);
 
     if (unload_length != 0) {
       if (show_lcd) {
@@ -6683,28 +6680,30 @@ inline void gcode_M17() {
 
     #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
 
-      float extrude_length = initial_extrude_length;
+      if (!thermalManager.tooColdToExtrude(active_extruder)) {
+        float extrude_length = initial_extrude_length;
 
-      do {
-        if (extrude_length > 0) {
-          // "Wait for filament extrude"
-          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
+        do {
+          if (extrude_length > 0) {
+            // "Wait for filament extrude"
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
 
-          // Extrude filament to get into hotend
-          do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-        }
+            // Extrude filament to get into hotend
+            do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+          }
 
-        // Show "Extrude More" / "Resume" menu and wait for reply
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = false;
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-        KEEPALIVE_STATE(IN_HANDLER);
+          // Show "Extrude More" / "Resume" menu and wait for reply
+          KEEPALIVE_STATE(PAUSED_FOR_USER);
+          wait_for_user = false;
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+          while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+          KEEPALIVE_STATE(IN_HANDLER);
 
-        extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+          extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
 
-        // Keep looping if "Extrude More" was selected
-      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+          // Keep looping if "Extrude More" was selected
+        } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+      }
 
     #endif
 
@@ -6718,8 +6717,8 @@ inline void gcode_M17() {
     planner.set_e_position_mm(current_position[E_AXIS]);
 
     // Move XY to starting position, then Z
-    do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
-    do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+    do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
@@ -8586,6 +8585,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *    Z = override Z raise
    */
   inline void gcode_M125() {
+    point_t park_point = NOZZLE_PARK_POINT;
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
@@ -8595,35 +8595,26 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     ;
 
     // Lift Z axis
-    const float z_lift = parser.linearval('Z')
-      #ifdef PAUSE_PARK_Z_ADD
-        + PAUSE_PARK_Z_ADD
-      #endif
-    ;
+    if (parser.seenval('Z'))
+      park_point.z = parser.linearval('Z');
 
     // Move XY axes to filament change position or given position
-    const float x_pos = parser.linearval('X')
-      #ifdef PAUSE_PARK_X_POS
-        + PAUSE_PARK_X_POS
-      #endif
-      #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
-        + (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0)
-      #endif
-    ;
-    const float y_pos = parser.linearval('Y')
-      #ifdef PAUSE_PARK_Y_POS
-        + PAUSE_PARK_Y_POS
-      #endif
-      #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
-        + (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0)
-      #endif
-    ;
+    if (parser.seenval('X'))
+      park_point.x = parser.linearval('X');
+
+    if (parser.seenval('Y'))
+      park_point.y = parser.linearval('Y');
+
+    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+      park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
+      park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+    #endif
 
     #if DISABLED(SDSUPPORT)
       const bool job_running = print_job_timer.isRunning();
     #endif
 
-    if (pause_print(retract, z_lift, x_pos, y_pos)) {
+    if (pause_print(retract, park_point)) {
       #if DISABLED(SDSUPPORT)
         // Wait for lcd click or M108
         wait_for_filament_reload();
@@ -10011,6 +10002,7 @@ inline void gcode_M502() {
    *
    */
   inline void gcode_M600() {
+    point_t park_point = NOZZLE_PARK_POINT;
 
     #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
       // Don't allow filament change without homing first
@@ -10025,23 +10017,20 @@ inline void gcode_M502() {
     ;
 
     // Lift Z axis
-    const float z_lift = parser.linearval('Z', 0
-      #ifdef PAUSE_PARK_Z_ADD
-        + PAUSE_PARK_Z_ADD
-      #endif
-    );
+    if (parser.seenval('Z'))
+      park_point.z = parser.linearval('Z');
 
-    // Move XY axes to filament exchange position
-    const float x_pos = parser.linearval('X', 0
-      #ifdef PAUSE_PARK_X_POS
-        + PAUSE_PARK_X_POS
-      #endif
-    );
-    const float y_pos = parser.linearval('Y', 0
-      #ifdef PAUSE_PARK_Y_POS
-        + PAUSE_PARK_Y_POS
-      #endif
-    );
+    // Move XY axes to filament change position or given position
+    if (parser.seenval('X'))
+      park_point.x = parser.linearval('X');
+
+    if (parser.seenval('Y'))
+      park_point.y = parser.linearval('Y');
+
+    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+      park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
+      park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+    #endif
 
     // Unload filament
     const float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
@@ -10067,7 +10056,7 @@ inline void gcode_M502() {
 
     const bool job_running = print_job_timer.isRunning();
 
-    if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+    if (pause_print(retract, park_point, unload_length, beep_count, true)) {
       wait_for_filament_reload(beep_count);
       resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
     }
@@ -14515,7 +14504,7 @@ void setup() {
       pe_deactivate_magnet(1);
     #endif
   #endif
-  #if ENABLED(MKS_12864OLED)
+  #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
     OUT_WRITE(LCD_PINS_RS, LOW);
     delay(1000);

@@ -26,6 +26,9 @@
  * Test configuration values for errors at compile-time.
  */
 
+#ifndef _SANITYCHECK_H_
+#define _SANITYCHECK_H_
+
 /**
  * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
@@ -104,14 +107,22 @@
   #error "FILAMENT_CHANGE_FEATURE is now ADVANCED_PAUSE_FEATURE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_X_POS)
   #error "FILAMENT_CHANGE_X_POS is now PAUSE_PARK_X_POS. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_X_POS)
+  #error "PAUSE_PARK_X_POS is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_Y_POS)
   #error "FILAMENT_CHANGE_Y_POS is now PAUSE_PARK_Y_POS. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Y_POS)
+  #error "PAUSE_PARK_Y_POS is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_Z_ADD)
   #error "FILAMENT_CHANGE_Z_ADD is now PAUSE_PARK_Z_ADD. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Z_ADD)
+  #error "PAUSE_PARK_Z_ADD is now NOZZLE_PARK_POINT. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_XY_FEEDRATE)
   #error "FILAMENT_CHANGE_XY_FEEDRATE is now PAUSE_PARK_XY_FEEDRATE. Please update your configuration."
-#elif ENABLED(FILAMENT_CHANGE_Z_FEEDRATE)
-  #error "FILAMENT_CHANGE_Z_FEEDRATE is now PAUSE_PARK_Z_FEEDRATE. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_XY_FEEDRATE)
+  #error "PAUSE_PARK_XY_FEEDRATE is now NOZZLE_PARK_XY_FEEDRATE. Please update your configuration."
+#elif ENABLED(PAUSE_PARK_Z_FEEDRATE)
+  #error "PAUSE_PARK_Z_FEEDRATE is now NOZZLE_PARK_Z_FEEDRATE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_RETRACT_FEEDRATE)
   #error "FILAMENT_CHANGE_RETRACT_FEEDRATE is now PAUSE_PARK_RETRACT_FEEDRATE. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_RETRACT_LENGTH)
@@ -254,7 +265,19 @@
 /**
  * Serial
  */
-#if defined(USBCON) && ENABLED(SERIAL_XON_XOFF)
+#ifndef USBCON
+  #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+    #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
+  #endif
+
+  #if RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
+    #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
+  #endif
+
+  #if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+    #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
+  #endif
+#elif ENABLED(SERIAL_XON_XOFF)
   #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
 #endif
 
@@ -355,9 +378,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if DISABLED(ULTRA_LCD) && DISABLED(I2C_POSITION_ENCODERS)
-    #error "BABYSTEPPING requires an LCD controller."
-  #elif ENABLED(SCARA)
+  #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
@@ -397,6 +418,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #elif ENABLED(HOME_BEFORE_FILAMENT_CHANGE) && DISABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #error "HOME_BEFORE_FILAMENT_CHANGE requires PAUSE_PARK_NO_STEPPER_TIMEOUT"
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE"
   #endif
 #endif
 
@@ -595,7 +618,7 @@ static_assert(1 >= 0
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
   #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || ENABLED(ULTIPANEL))
-    #error "DELTA_AUTO_CALIBRATION requires either a probe or an LCD Controller."
+    #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
   #elif ABL_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
@@ -989,10 +1012,11 @@ static_assert(1 >= 0
   #error "TEMP_SENSOR_0 is required."
 #endif
 
-#if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
-  #if !HAS_HEATER_1
-    #error "HEATER_1_PIN not defined for this board."
-  #endif
+// Pins are required for heaters
+#if ENABLED(HEATER_0_USES_MAX6675) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
+  #error "MAX6675_SS (required for TEMP_SENSOR_0) not defined for this board."
+#elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
+  #error "HEATER_1_PIN not defined for this board."
 #endif
 
 #if HOTENDS > 1
@@ -1275,6 +1299,7 @@ static_assert(1 >= 0
  *       REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER => REPRAP_DISCOUNT_SMART_CONTROLLER
  *       SAV_3DGLCD => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       MKS_12864OLED => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
+ *       MKS_12864OLED_SSD1306 => U8GLIB_SSD1306 => ULTIMAKERCONTROLLER
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
@@ -1287,14 +1312,16 @@ static_assert(1 >= 0
       && DISABLED(VIKI2) \
       && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
       && DISABLED(PANEL_ONE) \
-      && DISABLED(MKS_12864OLED)
+      && DISABLED(MKS_12864OLED) \
+      && DISABLED(MKS_12864OLED_SSD1306)
     + 1
   #endif
   #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
       && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
       && DISABLED(LCD_FOR_MELZI) \
       && DISABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
-      && DISABLED(MKS_12864OLED)
+      && DISABLED(MKS_12864OLED) \
+      && DISABLED(MKS_12864OLED_SSD1306)
     + 1
   #endif
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
@@ -1305,6 +1332,9 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(MKS_12864OLED)
+    + 1
+  #endif
+  #if ENABLED(MKS_12864OLED_SSD1306)
     + 1
   #endif
   #if ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
@@ -1363,7 +1393,7 @@ static_assert(1 >= 0
   #if ENABLED(LCD_I2C_VIKI)
     + 1
   #endif
-  #if ENABLED(U8GLIB_SSD1306) && DISABLED(OLED_PANEL_TINYBOY2)
+  #if ENABLED(U8GLIB_SSD1306) && DISABLED(OLED_PANEL_TINYBOY2) && DISABLED(MKS_12864OLED_SSD1306)
     + 1
   #endif
   #if ENABLED(SAV_3DLCD)
@@ -1406,23 +1436,24 @@ static_assert(1 >= 0
 /**
  * Make sure HAVE_TMC2130 is warranted
  */
-#if ENABLED(HAVE_TMC2130) && !( \
-       ENABLED(  X_IS_TMC2130 ) \
-    || ENABLED( X2_IS_TMC2130 ) \
-    || ENABLED(  Y_IS_TMC2130 ) \
-    || ENABLED( Y2_IS_TMC2130 ) \
-    || ENABLED(  Z_IS_TMC2130 ) \
-    || ENABLED( Z2_IS_TMC2130 ) \
-    || ENABLED( E0_IS_TMC2130 ) \
-    || ENABLED( E1_IS_TMC2130 ) \
-    || ENABLED( E2_IS_TMC2130 ) \
-    || ENABLED( E3_IS_TMC2130 ) \
-    || ENABLED( E4_IS_TMC2130 ) )
-  #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-#elif ENABLED(SENSORLESS_HOMING) && DISABLED(HAVE_TMC2130)
-  #error "Enable HAVE_TMC2130 to use SENSORLESS_HOMING."
-#elif defined(AUTOMATIC_CURRENT_CONTROL)
-  #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
+#if ENABLED(HAVE_TMC2130)
+  #if !( ENABLED(  X_IS_TMC2130 ) \
+      || ENABLED( X2_IS_TMC2130 ) \
+      || ENABLED(  Y_IS_TMC2130 ) \
+      || ENABLED( Y2_IS_TMC2130 ) \
+      || ENABLED(  Z_IS_TMC2130 ) \
+      || ENABLED( Z2_IS_TMC2130 ) \
+      || ENABLED( E0_IS_TMC2130 ) \
+      || ENABLED( E1_IS_TMC2130 ) \
+      || ENABLED( E2_IS_TMC2130 ) \
+      || ENABLED( E3_IS_TMC2130 ) \
+      || ENABLED( E4_IS_TMC2130 ) )
+    #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
+  #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+    #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+  #elif defined(AUTOMATIC_CURRENT_CONTROL)
+    #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
+  #endif
 #endif
 
 /**
@@ -1575,3 +1606,5 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
     #endif
   #endif
 #endif
+
+#endif // _SANITYCHECK_H_
