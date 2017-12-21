@@ -191,7 +191,9 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_k, advance_ed_ratio;
+      static float extruder_advance_k, advance_ed_ratio,
+                   position_float[XYZE],
+                   lin_dist_xy, lin_dist_e;
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
