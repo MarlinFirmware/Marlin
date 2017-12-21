@@ -158,9 +158,9 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
     do {
       WRITE(ST7920_CLK_PIN, LOW);
       WRITE(ST7920_DAT_PIN, val & 0x80);
-      DELAY_NS(500);
+      DELAY_NS(700); /* RE-ARM requires 700ns to be stable, RAMPS4DUE works with 500ns */
       WRITE(ST7920_CLK_PIN, HIGH);
-      DELAY_NS(500);
+      DELAY_NS(700); /* RE-ARM requires 700ns to be stable, RAMPS4DUE works with 500ns */
       val <<= 1;
     } while (--n);
   }
@@ -171,9 +171,9 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
   #define ST7920_SND_BIT(nr)              \
     WRITE(ST7920_CLK_PIN, LOW);           \
     WRITE(ST7920_DAT_PIN, TEST(val, nr)); \
-    DELAY_NS(500);                        \
+    DELAY_NS(700);                        \
     WRITE(ST7920_CLK_PIN, HIGH);          \
-    DELAY_NS(500);
+    DELAY_NS(700);
 
   static void ST7920_SWSPI_SND_8BIT(const uint8_t val) {
     ST7920_SND_BIT(7); // MSBit
