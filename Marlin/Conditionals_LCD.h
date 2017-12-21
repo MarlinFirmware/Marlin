@@ -42,7 +42,7 @@
 
     #define U8GLIB_ST7565_64128N
 
-  #elif ENABLED(ANET_KEYPAD_LCD)
+  #elif ENABLED(ZONESTAR_LCD)
 
     #define REPRAPWORLD_KEYPAD
     #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
@@ -53,6 +53,7 @@
     // this helps to implement ADC_KEYPAD menus
     #define ENCODER_PULSES_PER_STEP 1
     #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define ENCODER_FEEDRATE_DEADZONE 2
     #define REVERSE_MENU_DIRECTION
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
@@ -62,7 +63,6 @@
   #elif ENABLED(BQ_LCD_SMART_CONTROLLER)
 
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-    #define LONG_FILENAME_HOST_SUPPORT
 
   #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -125,6 +125,11 @@
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
     #define U8GLIB_SH1106
 
+  #elif ENABLED(MKS_12864OLED_SSD1306)
+
+    #define REPRAP_DISCOUNT_SMART_CONTROLLER
+    #define U8GLIB_SSD1306
+
   #elif ENABLED(MKS_MINI_12864)
 
     #define MINIPANEL
@@ -155,7 +160,7 @@
 
   #endif
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI)
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI) || ENABLED(SILVER_GATE_GLCD_CONTROLLER)
     #define DOGLCD
     #define U8GLIB_ST7920
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -306,7 +311,7 @@
     #define LCD_STR_FILAM_DIA   "\xf8"
     #define LCD_STR_FILAM_MUL   "\xa4"
   #else
-    /* Custom characters defined in the first 8 characters of the LCD */
+    // Custom characters defined in the first 8 characters of the LCD
     #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
     #define LCD_DEGREE_CHAR      0x01
     #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
@@ -452,13 +457,6 @@
    * Set a flag for a servo probe
    */
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
-
-  /**
-   * UBL has its own manual probing, so this just causes trouble.
-   */
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #undef PROBE_MANUALLY
-  #endif
 
   /**
    * Set a flag for any enabled probe

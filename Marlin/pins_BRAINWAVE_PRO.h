@@ -80,8 +80,6 @@
 
 #define BOARD_NAME         "Brainwave Pro"
 
-#define LARGE_FLASH        true
-
 //
 // Limit Switches
 //

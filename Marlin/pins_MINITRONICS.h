@@ -40,8 +40,6 @@
 #endif
 
 #define BOARD_NAME         "Minitronics v1.0 / v1.1"
-#define LARGE_FLASH        true
-
 //
 // Limit Switches
 //
