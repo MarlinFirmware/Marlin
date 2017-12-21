@@ -73,7 +73,8 @@
 #ifndef X_MAX_PIN
   #define X_MAX_PIN         2
 #endif
-#define Y_MIN_PIN          14
+//#define Y_MIN_PIN          14
+#define Y_MIN_PIN          -1 //TFs mod for Molestock delta (pin D14 - Y_MIN for filament runout Sensors for Molestock S2)
 #define Y_MAX_PIN          15
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
@@ -214,7 +215,8 @@
 #define HEATER_0_PIN     RAMPS_D10_PIN
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-  #define FAN_PIN        RAMPS_D9_PIN
+  //#define FAN_PIN        RAMPS_D9_PIN
+  #define FAN_PIN        -1                    //TFs mod - disable fan from 9 to -1 (D9 is used for extruder cooling)
   #define HEATER_BED_PIN RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
   #define HEATER_1_PIN   RAMPS_D9_PIN
@@ -252,7 +254,8 @@
 #endif
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-#define FIL_RUNOUT_PIN      4
+//#define FIL_RUNOUT_PIN      4
+#define FIL_RUNOUT_PIN        4 // TFs mod for Molestock S2 delta (need 14)
 
 #ifndef PS_ON_PIN
   #define PS_ON_PIN        12

@@ -33,7 +33,7 @@
 #include "types.h"
 #include "MarlinConfig.h"
 
-//#define DEBUG_GCODE_PARSER
+//#define DEBUG_GCODE_PARSER // TFs mod for testing (run G800/M800 for debug)
 
 #if ENABLED(DEBUG_GCODE_PARSER)
   #if ENABLED(AUTO_BED_LEVELING_UBL)

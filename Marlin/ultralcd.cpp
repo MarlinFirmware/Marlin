@@ -922,6 +922,21 @@ void kill_screen(const char* lcd_msg) {
     #if defined(USER_DESC_5) && defined(USER_GCODE_5)
       void lcd_user_gcode_5() { _lcd_user_gcode(PSTR(USER_GCODE_5 _DONE_SCRIPT)); }
     #endif
+    #if defined(USER_DESC_6) && defined(USER_GCODE_6)
+      void lcd_user_gcode_6() { _lcd_user_gcode(PSTR(USER_GCODE_6 _DONE_SCRIPT)); }
+    #endif
+    #if defined(USER_DESC_7) && defined(USER_GCODE_7)
+      void lcd_user_gcode_7() { _lcd_user_gcode(PSTR(USER_GCODE_7 _DONE_SCRIPT)); }
+    #endif
+    #if defined(USER_DESC_8) && defined(USER_GCODE_8)
+      void lcd_user_gcode_8() { _lcd_user_gcode(PSTR(USER_GCODE_8 _DONE_SCRIPT)); }
+    #endif
+    #if defined(USER_DESC_9) && defined(USER_GCODE_9)
+      void lcd_user_gcode_9() { _lcd_user_gcode(PSTR(USER_GCODE_9 _DONE_SCRIPT)); }
+    #endif
+    #if defined(USER_DESC_10) && defined(USER_GCODE_10)
+      void lcd_user_gcode_10() { _lcd_user_gcode(PSTR(USER_GCODE_10 _DONE_SCRIPT)); }
+    #endif
 
     void _lcd_user_menu() {
       START_MENU();
@@ -940,6 +955,21 @@ void kill_screen(const char* lcd_msg) {
       #endif
       #if defined(USER_DESC_5) && defined(USER_GCODE_5)
         MENU_ITEM(function, USER_DESC_5, lcd_user_gcode_5);
+      #endif
+      #if defined(USER_DESC_6) && defined(USER_GCODE_6)
+        MENU_ITEM(function, USER_DESC_6, lcd_user_gcode_6);
+      #endif
+      #if defined(USER_DESC_7) && defined(USER_GCODE_7)
+        MENU_ITEM(function, USER_DESC_7, lcd_user_gcode_7);
+      #endif
+      #if defined(USER_DESC_8) && defined(USER_GCODE_8)
+        MENU_ITEM(function, USER_DESC_8, lcd_user_gcode_8);
+      #endif
+      #if defined(USER_DESC_9) && defined(USER_GCODE_9)
+        MENU_ITEM(function, USER_DESC_9, lcd_user_gcode_9);
+      #endif
+      #if defined(USER_DESC_10) && defined(USER_GCODE_10)
+        MENU_ITEM(function, USER_DESC_10, lcd_user_gcode_10);
       #endif
       END_MENU();
     }

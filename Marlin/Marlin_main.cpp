@@ -2334,7 +2334,7 @@ static void clean_up_after_endstop_or_probe_move() {
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
     // Move the probe to the starting XYZ
-    do_blocking_move_to(nx, ny, nz);
+    do_blocking_move_to(nx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny - (Y_PROBE_OFFSET_FROM_EXTRUDER), nz); //TFs mod - move to probe position
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
@@ -5021,7 +5021,7 @@ void home_all_axes() { gcode_G28(true); }
               if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
             #endif
 
-            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level, false); //TFs mod add absolute probing
 
             if (isnan(measured_z)) {
               planner.leveling_active = abl_should_enable;
@@ -12506,14 +12506,18 @@ void ok_to_send() {
    * radius within the set software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
-    if (!soft_endstops_enabled) return;
+	//return; //TFs mod test
+	if (!soft_endstops_enabled) return;
     #if IS_KINEMATIC
+      // TFs mod (problem moving outside bed for probe deployment)
+      /**
       const float dist_2 = HYPOT2(target[X_AXIS], target[Y_AXIS]);
       if (dist_2 > soft_endstop_radius_2) {
         const float ratio = soft_endstop_radius / SQRT(dist_2); // 200 / 300 = 0.66
         target[X_AXIS] *= ratio;
         target[Y_AXIS] *= ratio;
       }
+      */
     #else
       #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
         NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
@@ -12528,9 +12532,11 @@ void ok_to_send() {
         NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
       #endif
     #endif
+
     #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
+
     #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
     #endif
@@ -14216,6 +14222,10 @@ void idle(
  * After this the machine will need to be reset.
  */
 void kill(const char* lcd_msg) {
+ #if ENABLED(NO_KILL)
+  //pause for change filament - call M125
+	gcode_M121();
+ #else
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
@@ -14248,6 +14258,7 @@ void kill(const char* lcd_msg) {
       watchdog_reset();
     #endif
   } // Wait for reset
+ #endif
 }
 
 /**

@@ -501,9 +501,27 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 
   inline bool position_is_reachable(const float &rx, const float &ry) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+      // return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS); / TFs mod
+  	  #if ENABLED(ALLOW_EXTRA_POSITIONS)
+  	  	if ( ((rx == Z_PROBE_ALLEN_KEY_DEPLOY_1_X) && (ry == Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)) ||
+  	  		 ((rx == Z_PROBE_ALLEN_KEY_DEPLOY_2_X) && (ry == Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)) ||
+			 ((rx == Z_PROBE_ALLEN_KEY_DEPLOY_3_X) && (ry == Z_PROBE_ALLEN_KEY_DEPLOY_3_Y)) ||
+			 ((rx == Z_PROBE_ALLEN_KEY_STOW_1_X) && (ry == Z_PROBE_ALLEN_KEY_STOW_1_Y)) ||
+			 ((rx == Z_PROBE_ALLEN_KEY_STOW_2_X) && (ry == Z_PROBE_ALLEN_KEY_STOW_2_Y)) ||
+			 ((rx == Z_PROBE_ALLEN_KEY_STOW_3_X) && (ry == Z_PROBE_ALLEN_KEY_STOW_3_Y)) ||
+			 ((rx == Z_PROBE_ALLEN_KEY_STOW_4_X) && (ry == Z_PROBE_ALLEN_KEY_STOW_4_Y)) ||
+			 ((rx == EXTRA_POS_1_X) && (ry == EXTRA_POS_1_Y)) ||
+			 ((rx == EXTRA_POS_2_X) && (ry == EXTRA_POS_2_Y))
+  		   ) {
+  	  		  return true;
+  	  	} else {
+  	  		return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+  	  	}
+  	  #else
+  	  	return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+      #endif
     #elif IS_SCARA
-      #if MIDDLE_DEAD_ZONE_R > 0
+  	  #if MIDDLE_DEAD_ZONE_R > 0
         const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
         return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
       #else

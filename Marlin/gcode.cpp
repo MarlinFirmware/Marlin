@@ -151,6 +151,8 @@ void GCodeParser::parse(char *p) {
     command_args = p; // Scan for parameters in seen()
   #endif
 
+  //TFs mod for display text ETE:15:25:15 - 15%
+  if (letter == 'E') switch (codenum) { case 117: string_arg = p; return; default: break; }
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 928: string_arg = p; return; default: break; }
 

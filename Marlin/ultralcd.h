@@ -79,7 +79,7 @@
     void lcd_bootscreen();
   #endif
 
-  #define LCD_UPDATE_INTERVAL 100
+  #define LCD_UPDATE_INTERVAL 250 // TFs mod from 100
 
   #if ENABLED(ULTIPANEL)
 
