@@ -44,13 +44,13 @@
 //===========================================================================
 
 // Voltage reference on potentiometer on Green Pololus in millivolts
-#define Vref_mV   800
+#define Vref_mV   800UL
 
 // Rsc value used on PCB of the Green Pololus
-#define Rsc_mOhms 100
+#define Rsc_mOhms 100UL
 
 // Estimated maximum acceleration for X and Y axis
-#define MAX_XYAXIS_ACCEL (3 * (Vref_mV) * 100 / (Rsc_mOhms))
+#define MAX_XYAXIS_ACCEL (3UL * (Vref_mV) * 100UL / (Rsc_mOhms))
 
 // Notes:
 //  If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
