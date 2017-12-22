@@ -119,8 +119,8 @@ bool useable_hardware_PWM(pin_t pin);
 #define SET_INPUT(IO)  _SET_INPUT(IO)
 /// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
-/// set pin as output wrapper
-#define SET_OUTPUT(IO)  do{ _SET_OUTPUT(IO); _WRITE(IO, LOW); }while(0)
+/// set pin as output wrapper  -  reads the pin and sets the output to that value
+#define SET_OUTPUT(IO)  do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
 
 /// check if pin is an input wrapper
 #define GET_INPUT(IO)  _GET_INPUT(IO)
