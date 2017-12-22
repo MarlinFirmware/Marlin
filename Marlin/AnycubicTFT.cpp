@@ -76,7 +76,7 @@ void AnycubicTFTClass::Setup() {
 void AnycubicTFTClass::StartPrint(){
   if (TFTstate==ANYCUBIC_TFT_STATE_SDPAUSE) {
 #ifndef ADVANCED_PAUSE_FEATURE
-    enqueue_and_echo_commands_P(PSTR("G91\nG1 -Z10 F240\nG90"));
+    enqueue_and_echo_commands_P(PSTR("G91\nG1 Z-10 F240\nG90"));
 #endif
   }
   starttime=millis();
@@ -87,6 +87,21 @@ void AnycubicTFTClass::StartPrint(){
 void AnycubicTFTClass::PausePrint(){
   card.pauseSDPrint();
   TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE_REQ;
+  
+  if(FilamentTestStatus) {
+    ANYCUBIC_SERIAL_PROTOCOLPGM("J05");// J05 pausing
+    ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+    SERIAL_ECHOLN("TFT Serial Debug: SD print paused... J05");
+#endif
+  } else {
+    // Pause because of "out of filament"
+    ANYCUBIC_SERIAL_PROTOCOLPGM("J23"); //J23 FILAMENT LACK with the prompt box don't disappear
+    ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+    SERIAL_ECHOLN("TFT Serial Debug: Filament runout while printing... J23");
+#endif
+  }
 }
 
 void AnycubicTFTClass::StopPrint(){
@@ -156,11 +171,18 @@ void AnycubicTFTClass::CheckSDCardChange()
       MyFileNrCnt=GetFileNr();
       ANYCUBIC_SERIAL_PROTOCOLPGM("J00"); // J01 SD Card inserted
       ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+      SERIAL_ECHOLN("TFT Serial Debug: SD card inserted... J00");
+#endif
     }
     else
     {
       ANYCUBIC_SERIAL_PROTOCOLPGM("J01"); // J01 SD Card removed
       ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+      SERIAL_ECHOLN("TFT Serial Debug: SD card removed... J01");
+#endif
+
     }
   }
 }
@@ -174,6 +196,10 @@ void AnycubicTFTClass::CheckHeaterError()
       HeaterCheckCount = 0;
       ANYCUBIC_SERIAL_PROTOCOLPGM("J10"); // J10 Hotend temperature abnormal
       ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+      SERIAL_ECHOLN("TFT Serial Debug: Hotend temperature abnormal... J20");
+#endif
+
     }
     else
     {
@@ -205,6 +231,7 @@ void AnycubicTFTClass::StateHandler()
           TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE;          
         } else {
           // File is closed --> stopped
+          TFTstate=ANYCUBIC_TFT_STATE_IDLE;
           ANYCUBIC_SERIAL_PROTOCOLPGM("J14");// J14 print done
           ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
@@ -229,27 +256,24 @@ void AnycubicTFTClass::StateHandler()
 #endif
       if(FilamentTestStatus) {
         TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE;
-        ANYCUBIC_SERIAL_PROTOCOLPGM("J05");// J05 pausing
-        ANYCUBIC_SERIAL_ENTER();
-#ifdef ANYCUBIC_TFT_DEBUG
-        SERIAL_ECHOLN("TFT Serial Debug: SD print paused... J05");
-#endif
       } else {
         // Pause because of "out of filament"
         TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE_OOF;
-        ANYCUBIC_SERIAL_PROTOCOLPGM("J23"); //J23 FILAMENT LACK with the prompt box don't disappear
-        ANYCUBIC_SERIAL_ENTER();
-#ifdef ANYCUBIC_TFT_DEBUG
-        SERIAL_ECHOLN("TFT Serial Debug: Filament runout while printing... J23");
-#endif
       }
+      
+      ANYCUBIC_SERIAL_PROTOCOLPGM("J18");// J18 pausing print done
+      ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+      SERIAL_ECHOLN("TFT Serial Debug: SD print paused done... J18");
+#endif
+      
     }
     break;
   case ANYCUBIC_TFT_STATE_SDSTOP_REQ:
     if((!card.sdprinting) && (!planner.movesplanned())){
       ANYCUBIC_SERIAL_PROTOCOLPGM("J16");// J16 stop print
       ANYCUBIC_SERIAL_ENTER();
-      TFTstate==ANYCUBIC_TFT_STATE_IDLE;
+      TFTstate=ANYCUBIC_TFT_STATE_IDLE;
 #ifdef ANYCUBIC_TFT_DEBUG
       SERIAL_ECHOLN("TFT Serial Debug: SD print stopped... J16");
 #endif
@@ -437,8 +461,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
             }
             else
             {
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J16");// J16 stop print
-              ANYCUBIC_SERIAL_ENTER();
+              StopPrint();
             }
             break;
           case 10: // A10 resume sd print
@@ -447,6 +470,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
               StartPrint();
               ANYCUBIC_SERIAL_PROTOCOLPGM("J04");// J04 printing form sd card now
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: SD print started... J04");
+#endif
             }
             break;
           case 11: // A11 STOP SD PRINT
@@ -458,6 +484,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 12: // A12 kill
             ANYCUBIC_SERIAL_PROTOCOLPGM("J11"); // J11 Kill
             ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+            SERIAL_ECHOLN("TFT Serial Debug: Kill command... J11");
+#endif
             kill(PSTR(MSG_KILLED));
             break;
           case 13: // A13 SELECTION FILE
@@ -470,9 +499,15 @@ void AnycubicTFTClass::GetCommandFromTFT()
               if (card.isFileOpen()) {
                 ANYCUBIC_SERIAL_PROTOCOLPGM("J20"); // J20 Open successful
                 ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+                SERIAL_ECHOLN("TFT Serial Debug: File open successful... J20");
+#endif
               } else {
                 ANYCUBIC_SERIAL_PROTOCOLPGM("J21"); // J21 Open failed
                 ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+                SERIAL_ECHOLN("TFT Serial Debug: File open failed... J21");
+#endif
               }
               ANYCUBIC_SERIAL_ENTER();
             }
@@ -483,6 +518,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
               StartPrint();
               ANYCUBIC_SERIAL_PROTOCOLPGM("J06"); // J06 hotend heating
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: Hotend heating... J06");
+#endif
             }
             break;
           case 15: // A15 RESUMING FROM OUTAGE
@@ -642,16 +680,22 @@ void AnycubicTFTClass::GetCommandFromTFT()
             {
               thermalManager.setTargetHotend(0,0);
               thermalManager.setTargetBed(0);
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J12");//
+              ANYCUBIC_SERIAL_PROTOCOLPGM("J12"); // J12 cool down
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: Cooling down... J12");
+#endif
             }
             break;
           case 26: // A26 refresh SD
             card.initsd();
             if(!IS_SD_INSERTED)
             {
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J02");
+              ANYCUBIC_SERIAL_PROTOCOLPGM("J02"); // J02 SD Card initilized
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: SD card initialized... J02");
+#endif
             }
             break;
 #ifdef SERVO_ENDSTOPS
@@ -700,6 +744,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
               //                            enqueue_and_echo_commands_P(PSTR("... TBD ..."));
               ANYCUBIC_SERIAL_PROTOCOLPGM("J22"); // J22 Test print done
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: Leveling print test done... J22");
+#endif
             } else if(CodeSeen('L')) {
 #ifdef ANYCUBIC_TFT_DEBUG
               SERIAL_ECHOLN("TFT Level check heating...");
@@ -707,6 +754,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
               //                            enqueue_and_echo_commands_P(PSTR("... TBD ..."));
               ANYCUBIC_SERIAL_PROTOCOLPGM("J22"); // J22 Test print done
               ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+              SERIAL_ECHOLN("TFT Serial Debug: Leveling print test with heating done... J22");
+#endif
             }
             ANYCUBIC_SERIAL_SUCC_START;
             ANYCUBIC_SERIAL_ENTER();
