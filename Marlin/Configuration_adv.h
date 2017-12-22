@@ -732,7 +732,7 @@
 //
 // G2/G3 Arc Support
 //
-#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
+#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes //TFs mod - disable
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
   #define N_ARC_CORRECTION   25   // Number of intertpolated segments between corrections
@@ -1378,13 +1378,20 @@
 #define EXTENDED_CAPABILITIES_REPORT
 
 /**
- * Volumetric extrusion default state
- * Activate to make volumetric extrusion the default method,
- * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
- *
- * M200 D0 to disable, M200 Dn to set a new diameter.
+ * Disable all Volumetric extrusion options
  */
-//#define VOLUMETRIC_DEFAULT_ON
+//#define NO_VOLUMETRICS
+
+#if DISABLED(NO_VOLUMETRICS)
+  /**
+   * Volumetric extrusion default state
+   * Activate to make volumetric extrusion the default method,
+   * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
+   *
+   * M200 D0 to disable, M200 Dn to set a new diameter.
+   */
+  //#define VOLUMETRIC_DEFAULT_ON
+#endif
 
 /**
  * Enable this option for a leaner build of Marlin that removes all
@@ -1455,7 +1462,7 @@
 #define ACTION_ON_KILL "poweroff"
 //#define ACTION_ON_KILL "printing pause"
 // If enable, then KILL BUTTON run only gcode_M125 for pause (only for testing purpose, not "production" use!!!)
-//#define NO_KILL
+#define NO_KILL
 
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================

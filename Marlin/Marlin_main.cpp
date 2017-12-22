@@ -5968,7 +5968,7 @@ void home_all_axes() { gcode_G28(true); }
 
       // print report
 
-      if (verbose_level > 2)
+      if (verbose_level >= 0) // > 0) //TFs mod
         print_G33_results(z_at_pt, _tower_results, _opposite_results);
 
       if (verbose_level != 0) {                                    // !dry run
@@ -8539,7 +8539,7 @@ inline void gcode_M115() {
 /**
  * M117: Set LCD Status Message
  */
-inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
+inline void gcode_M117() { lcd_setstatus(parser.string_arg); } //parser.string_arg); }
 
 /**
  * M118: Display a message in the host console.
@@ -8669,25 +8669,29 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // HAS_COLOR_LEDS
 
-/**
- * M200: Set filament diameter and set E axis units to cubic units
- *
- *    T<extruder> - Optional extruder number. Current extruder if omitted.
- *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
- */
-inline void gcode_M200() {
+#if DISABLED(NO_VOLUMETRICS)
 
-  if (get_target_extruder_from_command(200)) return;
+  /**
+   * M200: Set filament diameter and set E axis units to cubic units
+   *
+   *    T<extruder> - Optional extruder number. Current extruder if omitted.
+   *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
+   */
+  inline void gcode_M200() {
 
-  if (parser.seen('D')) {
-    // setting any extruder filament size disables volumetric on the assumption that
-    // slicers either generate in extruder values as cubic mm or as as filament feeds
-    // for all extruders
-    if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
-      planner.set_filament_size(target_extruder, parser.value_linear_units());
+    if (get_target_extruder_from_command(200)) return;
+
+    if (parser.seen('D')) {
+      // setting any extruder filament size disables volumetric on the assumption that
+      // slicers either generate in extruder values as cubic mm or as as filament feeds
+      // for all extruders
+      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
+        planner.set_filament_size(target_extruder, parser.value_linear_units());
+    }
+    planner.calculate_volumetric_multipliers();
   }
-  planner.calculate_volumetric_multipliers();
-}
+
+#endif // !NO_VOLUMETRICS
 
 /**
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
@@ -12036,9 +12040,12 @@ void process_parsed_command() {
         #endif
       #endif
 
-      case 200: // M200: Set filament diameter, E to cubic units
-        gcode_M200();
-        break;
+      #if DISABLED(NO_VOLUMETRICS)
+        case 200: // M200: Set filament diameter, E to cubic units
+          gcode_M200();
+          break;
+      #endif
+
       case 201: // M201: Set max acceleration for print moves (units/s^2)
         gcode_M201();
         break;
@@ -13514,6 +13521,14 @@ void prepare_move_to_destination() {
       int8_t arc_recalc_count = N_ARC_CORRECTION;
     #endif
 
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      // SCARA needs to scale the feed rate from mm/s to degrees/s
+      const float inv_segment_length = 1.0 / (MM_PER_ARC_SEGMENT),
+                  inverse_secs = inv_segment_length * fr_mm_s;
+      float oldA = stepper.get_axis_position_degrees(A_AXIS),
+            oldB = stepper.get_axis_position_degrees(B_AXIS);
+    #endif
+
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
       thermalManager.manage_heater();
@@ -14067,10 +14082,20 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
-      kill(PSTR(MSG_KILLED));
-    }
+	  #if ENABLED(NO_KILL)
+	    //TFs mod - pause for change filament - call M25(SD card) or M125
+		#if ENABLED(SDSUPPORT)
+		  enqueue_and_echo_commands_P(PSTR("M25"));
+		#else
+		  enqueue_and_echo_commands_P(PSTR("M125\n"));
+		#endif
+		lcd_setstatusPGM(PSTR(MSG_PRINT_PAUSED), -1);
+	  #else
+    	SERIAL_ERROR_START();
+		SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
+		kill(PSTR(MSG_KILLED));
+      #endif
+		}
   #endif
 
   #if HAS_HOME
@@ -14222,10 +14247,6 @@ void idle(
  * After this the machine will need to be reset.
  */
 void kill(const char* lcd_msg) {
- #if ENABLED(NO_KILL)
-  //pause for change filament - call M125
-	gcode_M121();
- #else
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
@@ -14258,7 +14279,6 @@ void kill(const char* lcd_msg) {
       watchdog_reset();
     #endif
   } // Wait for reset
- #endif
 }
 
 /**

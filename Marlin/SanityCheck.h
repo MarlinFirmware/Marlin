@@ -231,6 +231,8 @@
   #error "PROBE_DOUBLE_TOUCH is now MULTIPLE_PROBING. Please update your configuration."
 #elif defined(ANET_KEYPAD_LCD)
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
+#elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
+  #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #endif
 
 /**
@@ -491,6 +493,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #elif ENABLED(LIN_ADVANCE)
     #error "MIXING_EXTRUDER is incompatible with LIN_ADVANCE."
   #endif
+#endif
+
+#if ENABLED(LIN_ADVANCE) && !IS_CARTESIAN
+  #error "Sorry! LIN_ADVANCE is only compatible with Cartesian."
 #endif
 
 /**
@@ -905,8 +911,12 @@ static_assert(1 >= 0
 /**
  * Filament Width Sensor
  */
-#if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
-  #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #if !HAS_FILAMENT_WIDTH_SENSOR
+    #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
+  #elif ENABLED(NO_VOLUMETRICS)
+    #error "FILAMENT_WIDTH_SENSOR requires NO_VOLUMETRICS to be disabled."
+  #endif
 #endif
 
 /**

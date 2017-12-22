@@ -500,7 +500,8 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
   #endif
 
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    #if ENABLED(DELTA)
+    //return true;
+	#if ENABLED(DELTA)
       // return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS); / TFs mod
   	  #if ENABLED(ALLOW_EXTRA_POSITIONS)
   	  	if ( ((rx == Z_PROBE_ALLEN_KEY_DEPLOY_1_X) && (ry == Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)) ||

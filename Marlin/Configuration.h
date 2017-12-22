@@ -111,7 +111,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000 //115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -500,7 +500,7 @@
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
     // Set the radius for the calibration probe points - max 0.9 * DELTA_PRINTABLE_RADIUS for non-eccentric probes
-    #define DELTA_CALIBRATION_RADIUS 115 // mm
+    #define DELTA_CALIBRATION_RADIUS 115.0 // mm
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.025
   #endif
@@ -804,6 +804,16 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z 100.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE Z_PROBE_SPEED_SLOW
 
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_X 0.0  // Deploy the probe into measuring position
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Y 135.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE Z_PROBE_SPEED_FAST
+
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_X 0.0  // Deploy the probe into measuring position
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Y 135.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE Z_PROBE_SPEED_FAST
+
   #define Z_PROBE_ALLEN_KEY_STOW_1_X -59.5 // Move the probe into parking position
   #define Z_PROBE_ALLEN_KEY_STOW_1_Y 141.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_Z 40.0
@@ -823,6 +833,11 @@
   #define Z_PROBE_ALLEN_KEY_STOW_4_Y   0
   #define Z_PROBE_ALLEN_KEY_STOW_4_Z 100
   #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE Z_PROBE_SPEED_FAST
+
+  #define Z_PROBE_ALLEN_KEY_STOW_5_X   0  // Move effector into center position
+  #define Z_PROBE_ALLEN_KEY_STOW_5_Y   0
+  #define Z_PROBE_ALLEN_KEY_STOW_5_Z 100
+  #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE Z_PROBE_SPEED_FAST
 
   // extra out of bed position (integer only)
   #define EXTRA_POS_1_X  -80   // positions for filling the nozzle
@@ -1034,8 +1049,8 @@
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
   // contours of the bed more closely than edge-to-edge straight moves.
-  #define SEGMENT_LEVELED_MOVES
-  #define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
+  //#define SEGMENT_LEVELED_MOVES
+  //#define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
 
   /**
    * Enable the G26 Mesh Validation Pattern tool.
