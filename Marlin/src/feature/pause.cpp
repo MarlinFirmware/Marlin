@@ -46,6 +46,7 @@
 #endif
 
 #include "../libs/buzzer.h"
+#include "../libs/nozzle.h"
 
 // private:
 
@@ -108,12 +109,12 @@ void do_pause_e_move(const float &length, const float fr) {
 
 bool move_away_flag = false;
 
-bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                        const float &unload_length/*=0*/ , const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/,
+                 const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
 ) {
   if (move_away_flag) return false; // already paused
 
-  if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
+  if (!DEBUGGING(DRYRUN) && unload_length != 0) {
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (!thermalManager.allow_cold_extrude &&
           thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
@@ -149,14 +150,11 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   COPY(resume_position, current_position); // Save current position for later
 
   // Initial retract before move to filament change position
-  if (retract) do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+  if (retract && !thermalManager.tooColdToExtrude(active_extruder))
+    do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-  // Lift Z axis
-  if (z_lift > 0)
-    do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
-
-  // Move XY axes to filament exchange position
-  do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
+  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  Nozzle::park(2, park_point);
 
   if (unload_length != 0) {
     if (show_lcd) {
@@ -296,28 +294,30 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 
   #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
 
-    float extrude_length = initial_extrude_length;
+    if (!thermalManager.tooColdToExtrude(active_extruder)) {
+      float extrude_length = initial_extrude_length;
 
-    do {
-      if (extrude_length > 0) {
-        // "Wait for filament extrude"
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
+      do {
+        if (extrude_length > 0) {
+          // "Wait for filament extrude"
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
 
-        // Extrude filament to get into hotend
-        do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-      }
+          // Extrude filament to get into hotend
+          do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+        }
 
-      // Show "Extrude More" / "Resume" menu and wait for reply
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = false;
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-      while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-      KEEPALIVE_STATE(IN_HANDLER);
+        // Show "Extrude More" / "Resume" menu and wait for reply
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = false;
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+        KEEPALIVE_STATE(IN_HANDLER);
 
-      extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+        extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
 
-      // Keep looping if "Extrude More" was selected
-    } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+        // Keep looping if "Extrude More" was selected
+      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+    }
 
   #endif
 
@@ -330,8 +330,8 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   planner.set_e_position_mm((current_position[E_AXIS] = resume_position[E_AXIS]));
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
-  do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
+  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+  do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     filament_ran_out = false;
