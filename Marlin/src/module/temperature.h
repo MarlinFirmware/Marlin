@@ -28,6 +28,12 @@
 #define TEMPERATURE_H
 
 #include "thermistor/thermistors.h"
+#include "../gcode/queue.h"
+
+//#include "../inc/MarlinConfig.h"
+
+ //src/gcode/queue.h
+ //src/module/temperature.h
 
 #if ENABLED(BABYSTEPPING)
   extern bool axis_known_position[XYZ];
@@ -384,6 +390,16 @@ class Temperature {
     #endif
 
     static void setTargetHotend(const int16_t celsius, const uint8_t e) {
+      if(e == 2){
+        if(celsius == 0){ //chamber off
+          //M106 P2 S0
+          enqueue_and_echo_commands_P(PSTR("M106 P2 S0"));
+        }else{ //chamber on
+          //M106 P2 S255
+          enqueue_and_echo_commands_P(PSTR("M106 P2 S255"));
+        }
+      }
+
       #if HOTENDS == 1
         UNUSED(e);
       #endif
