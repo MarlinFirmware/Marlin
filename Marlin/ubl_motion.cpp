@@ -422,7 +422,7 @@
 
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
-        DELTA_RAW_IK();
+        DELTA_IK(raw);
         planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)

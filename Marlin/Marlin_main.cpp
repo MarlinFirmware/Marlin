@@ -12749,7 +12749,7 @@ void ok_to_send() {
     }while(0)
 
   void inverse_kinematics(const float raw[XYZ]) {
-    DELTA_RAW_IK();
+    DELTA_IK(raw);
     // DELTA_DEBUG();
   }
 
@@ -13186,6 +13186,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
+      // i.e., Complete the angular vector in the given time.
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   inverse_secs = inv_segment_length * _feedrate_mm_s;
       float oldA = stepper.get_axis_position_degrees(A_AXIS),
@@ -13209,7 +13210,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
       #if ENABLED(DELTA)
-        DELTA_RAW_IK(); // Delta can inline its kinematics
+        DELTA_IK(raw); // Delta can inline its kinematics
       #else
         inverse_kinematics(raw);
       #endif
@@ -13218,23 +13219,19 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
-        // Use ratio between the length of the move and the larger angle change
-        const float adiff = FABS(delta[A_AXIS] - oldA), bdiff = FABS(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(adiff, bdiff) * inverse_secs, active_extruder);
+        // i.e., Complete the angular vector in the given time.
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
       #else
         planner.buffer_line(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder);
       #endif
     }
 
-    // Since segment_distance is only approximate,
-    // the final move must be to the exact destination.
-
+    // Ensure last segment arrives at target location.
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       inverse_kinematics(rtarget);
       ADJUST_DELTA(rtarget);
-      const float adiff = FABS(delta[A_AXIS] - oldA), bdiff = FABS(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(adiff, bdiff) * inverse_secs, active_extruder);
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
     #else
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
@@ -13572,20 +13569,12 @@ void prepare_move_to_destination() {
 
       clamp_to_software_endstops(raw);
 
-      #if IS_KINEMATIC
-        #if ENABLED(DELTA)
-          DELTA_RAW_IK(); // Delta can inline its kinematics
-        #else
-          inverse_kinematics(raw);
-        #endif
-        ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
-      #endif
-
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
-        // With segments > 1 length is 1 segment, otherwise total length
-        const float adiff = FABS(delta[A_AXIS] - oldA), bdiff = FABS(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(adiff, bdiff) * inverse_secs, active_extruder);
+        // i.e., Complete the angular vector in the given time.
+        inverse_kinematics(raw);
+        ADJUST_DELTA(raw);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
       #else
         planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
@@ -13596,8 +13585,7 @@ void prepare_move_to_destination() {
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       inverse_kinematics(cart);
       ADJUST_DELTA(cart);
-      const float adiff = FABS(delta[A_AXIS] - oldA), bdiff = FABS(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], cart[Z_AXIS], cart[E_AXIS], HYPOT(adiff, bdiff) * inverse_secs, active_extruder);
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], cart[Z_AXIS], cart[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
     #else
       planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
     #endif
