@@ -332,7 +332,9 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2     _UxGT("extrusion filament")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("attente impression")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("pour reprendre")
-#else // LCD_HEIGHT < 4
+  #define MSG_SWAP_SPOOL_ON                 _UxGT("Swap Spool ON")
+  #define MSG_SWAP_SPOOL_STOP               _UxGT("Stop after Extr")
+  #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Patientez...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Ejection...")

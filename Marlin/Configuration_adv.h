@@ -872,6 +872,23 @@
  * Adds the GCode M600 for initiating filament change.
  * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
  *
+ *  M600/Runout script : Filament change feature.
+ *  M125 to pause printing.
+ *    Park the nozzle
+ *    Apply Fanspeed and dwell to cooled purged filament
+ *    Retract/Recover before/after travel
+ *    Requires : LCD display + FILAMENT_RUNOUT_SCRIPT .
+ * 
+ * Spool_Swap 
+ *  Tool change after filament runout.
+ *  M600: T[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
+ *    Finish a spool and begin another by swapping to next extruder automaticly 
+ *    Copy Temp + Flow + Fwretract
+ *    Requires (2 extruders + 2 runout sensors ) at min
+ *    Single nozzle recommended
+ *    Require Filament runout multi sensors ENABLED
+ *    Normal M600 run after max swap reached
+ *
  * Requires an LCD display.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
@@ -885,6 +902,7 @@
   #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
   #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
                                               // It is a short retract used immediately after print interrupt before move to filament exchange position
+  #define PAUSE_PARK_RECOVER_FEEDRATE 20      // Resuming recover feedrate in mm/s
   #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
   #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
                                               // Longer length for bowden printers to unload filament from whole bowden tube,
@@ -905,6 +923,19 @@
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
   //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
+
+  //Blowing 
+  #define ADVANCED_PAUSE_FANSPEED    120         //Blowing to cold the purged filament
+  #define ADVANCED_PAUSE_FAN           0
+  #define ADVANCED_PAUSE_DWELL    4*1000         //Time to cold the purged filament
+  // Spool_Swap
+  #define ADVANCED_PAUSE_SPOOL_SWAP              //Run next tool after filament runout
+  #if ENABLED(ADVANCED_PAUSE_SPOOL_SWAP)
+    #define ADVANCED_PAUSE_SPOOL_SWAP_UNLOAD   10 // Don't eject filament because print continue
+    #define ADVANCED_PAUSE_SPOOL_SWAP_LOAD     10 // Same as FWRETRACT if enabled
+    #define ADVANCED_PAUSE_SPOOL_SWAP_EXTRUDE  20 //Purge length
+  //#define ADVANCED_PAUSE_SPOOL_SWAP_COPY_FLOW   // copy old tool flow to next tool 'Recommended'
+  #endif 
 #endif
 
 // @section tmc

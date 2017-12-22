@@ -829,6 +829,15 @@
   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
+  #define FILAMENT_RUNOUT_MULTI_PIN // if only one pin for all sensors with FIL_RUNOUT_PIN
+  #if ENABLED(FILAMENT_RUNOUT_MULTI_PIN) 
+    #define FIL_RUNOUT_SENSORS 2 //Numbers of sensors
+  //#define FIL_RUNOUT_PIN -1    // For Extruder 0
+  //#define FIL_RUNOUT2_PIN -1   // For Extruder 1
+    #define FIL_RUNOUT3_PIN -1   // For Extruder 2
+    #define FIL_RUNOUT4_PIN -1   // For Extruder 3
+    #define FIL_RUNOUT5_PIN -1   // For Extruder 4
+  
 #endif
 
 //===========================================================================
