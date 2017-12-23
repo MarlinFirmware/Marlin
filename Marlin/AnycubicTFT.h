@@ -67,6 +67,18 @@ private:
   char LastSDstatus=0;
   uint16_t HeaterCheckCount=0;
   
+  struct OutageDataStruct {
+    char OutageDataVersion;
+    char OutageFlag;
+    float last_position[XYZE];
+    float last_bed_temp;
+    float last_hotend_temp;
+    long lastSDposition;
+  } OutageData;
+  
+  void WriteOutageEEPromData();
+  void ReadOutageEEPromData();
+  
   float CodeValue();
   bool CodeSeen(char);
   uint16_t GetFileNr();

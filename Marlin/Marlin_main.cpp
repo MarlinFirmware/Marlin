@@ -13303,6 +13303,10 @@ void idle(
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.CommandScan();
+#endif
+  
   lcd_update();
 
   host_keepalive();
