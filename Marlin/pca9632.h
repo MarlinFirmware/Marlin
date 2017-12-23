@@ -20,7 +20,7 @@
  *
  */
 
-/**
+/*
  * Driver for the Philips PCA9632 LED driver.
  * Written by Robert Mendon Feb 2017.
  */
@@ -28,9 +28,9 @@
 #ifndef __PCA9632_H__
 #define __PCA9632_H__
 
-struct LEDColor;
-typedef LEDColor LEDColor;
+#include "Arduino.h"
+#include "Wire.h"
 
-void pca9632_set_led_color(const LEDColor &color);
+void PCA9632_SetColor(const byte r, const byte g, const byte  b);
 
 #endif // __PCA9632_H__

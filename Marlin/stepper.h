@@ -52,9 +52,6 @@
 class Stepper;
 extern Stepper stepper;
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-
 // intRes = intIn1 * intIn2 >> 16
 // uses:
 // r26 to store 0
@@ -90,7 +87,7 @@ class Stepper {
       static bool abort_on_endstop_hit;
     #endif
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(Z_DUAL_ENDSTOPS)
       static bool performing_homing;
     #endif
 
@@ -101,18 +98,11 @@ class Stepper {
       static uint32_t motor_current_setting[3];
     #endif
 
-    static int16_t cleaning_buffer_counter;
-
   private:
 
     static uint8_t last_direction_bits;        // The next stepping-bits to be output
+    static uint16_t cleaning_buffer_counter;
 
-    #if ENABLED(X_DUAL_ENDSTOPS)
-      static bool locked_x_motor, locked_x2_motor;
-    #endif
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      static bool locked_y_motor, locked_y2_motor;
-    #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static bool locked_z_motor, locked_z2_motor;
     #endif
@@ -138,10 +128,10 @@ class Stepper {
     #endif // !LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
+    //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
+    static unsigned short acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-
-    static uint16_t OCR1A_nominal,
-                    acc_step_rate; // needed for deceleration start point
+    static unsigned short OCR1A_nominal;
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -209,7 +199,7 @@ class Stepper {
     //
     // Get the position of a stepper, in steps
     //
-    static long position(const AxisEnum axis);
+    static long position(AxisEnum axis);
 
     //
     // Report the positions of the steppers, in steps
@@ -219,13 +209,13 @@ class Stepper {
     //
     // Get the position (mm) of an axis based on stepper position(s)
     //
-    static float get_axis_position_mm(const AxisEnum axis);
+    static float get_axis_position_mm(AxisEnum axis);
 
     //
     // SCARA AB axes are in degrees, not mm
     //
     #if IS_SCARA
-      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
+      static FORCE_INLINE float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
     //
@@ -247,7 +237,7 @@ class Stepper {
     //
     // The direction of a single motor
     //
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return TEST(last_direction_bits, axis); }
+    static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
       static void digitalPotWrite(const int16_t address, const int16_t value);
@@ -260,20 +250,10 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if ENABLED(X_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_x(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_x_lock(const bool state) { locked_x_motor = state; }
-      FORCE_INLINE static void set_x2_lock(const bool state) { locked_x2_motor = state; }
-    #endif
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_y(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_y_lock(const bool state) { locked_y_motor = state; }
-      FORCE_INLINE static void set_y2_lock(const bool state) { locked_y2_motor = state; }
-    #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_z_lock(const bool state) { locked_z_motor = state; }
-      FORCE_INLINE static void set_z2_lock(const bool state) { locked_z2_motor = state; }
+      static FORCE_INLINE void set_homing_flag(const bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_z_lock(const bool state) { locked_z_motor = state; }
+      static FORCE_INLINE void set_z2_lock(const bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -287,12 +267,12 @@ class Stepper {
     //
     // Handle a triggered endstop
     //
-    static void endstop_triggered(const AxisEnum axis);
+    static void endstop_triggered(AxisEnum axis);
 
     //
     // Triggered position of an axis in mm (not core-savvy)
     //
-    FORCE_INLINE static float triggered_position_mm(const AxisEnum axis) {
+    static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
 
@@ -302,7 +282,7 @@ class Stepper {
 
   private:
 
-    FORCE_INLINE static unsigned short calc_timer_interval(unsigned short step_rate) {
+    static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
       unsigned short timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
@@ -344,7 +324,7 @@ class Stepper {
 
     // Initialize the trapezoid generator from the current block.
     // Called whenever a new block begins.
-    FORCE_INLINE static void trapezoid_generator_reset() {
+    static FORCE_INLINE void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
 
@@ -356,11 +336,11 @@ class Stepper {
 
       deceleration_time = 0;
       // step_rate to timer interval
-      OCR1A_nominal = calc_timer_interval(current_block->nominal_rate);
+      OCR1A_nominal = calc_timer(current_block->nominal_rate);
       // make a note of the number of step loops required at nominal speed
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
-      acceleration_time = calc_timer_interval(acc_step_rate);
+      acceleration_time = calc_timer(acc_step_rate);
       _NEXT_ISR(acceleration_time);
 
       #if ENABLED(LIN_ADVANCE)

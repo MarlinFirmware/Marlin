@@ -31,9 +31,22 @@
  * @param x The x-coordinate of the point.
  * @param y The y-coordinate of the point.
  * @param z The z-coordinate of the point.
+ * @param e The e-coordinate of the point.
  */
 struct point_t {
-  float x, y, z;
+  float x;
+  float y;
+  float z;
+  float e;
+
+  /**
+   * @brief Two dimensional point constructor
+   *
+   * @param x The x-coordinate of the point.
+   * @param y The y-coordinate of the point.
+   */
+  point_t(float const x, float const y)
+    : point_t(x, y, NAN, NAN) {}
 
   /**
    * @brief Three dimensional point constructor
@@ -42,16 +55,23 @@ struct point_t {
    * @param y The y-coordinate of the point.
    * @param z The z-coordinate of the point.
    */
-  point_t(const float x, const float y, const float z) : x(x), y(y), z(z) {}
+  point_t(float const x, float const y, float const z)
+    : point_t(x, y, z, NAN) {}
 
   /**
-   * @brief Two dimensional point constructor
+   * @brief Tree dimensional point constructor with extrusion length
    *
    * @param x The x-coordinate of the point.
    * @param y The y-coordinate of the point.
+   * @param z The z-coordinate of the point.
+   * @param e The e-coordinate of the point.
    */
-  point_t(const float x, const float y) : point_t(x, y, NAN) {}
-
+  point_t(float const x, float const y, float const z, float const e) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+    this->e = e;
+  }
 };
 
 #endif // __POINT_T__

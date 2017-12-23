@@ -20,13 +20,38 @@
  *
  */
 
-// User-defined table 1
-// Dummy Thermistor table.. It will ALWAYS read a fixed value.
-#ifndef DUMMY_THERMISTOR_998_VALUE
-  #define DUMMY_THERMISTOR_998_VALUE 25
-#endif
+#ifndef __SPI_H__
+#define __SPI_H__
 
-const short temptable_998[][2] PROGMEM = {
-  {    1 * OVERSAMPLENR, DUMMY_THERMISTOR_998_VALUE },
-  { 1023 * OVERSAMPLENR, DUMMY_THERMISTOR_998_VALUE }
+#include <stdint.h>
+#include "softspi.h"
+
+template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
+class SPI {
+  static SoftSPI<MisoPin, MosiPin, SckPin> softSPI;
+  public:
+    FORCE_INLINE static void init() { softSPI.begin(); }
+    FORCE_INLINE static void send(uint8_t data) { softSPI.send(data); }
+    FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
 };
+
+
+// Hardware SPI
+template<>
+class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
+  public:
+    FORCE_INLINE static void init() {
+        OUT_WRITE(SCK_PIN, LOW);
+        OUT_WRITE(MOSI_PIN, HIGH);
+        SET_INPUT(MISO_PIN);
+        WRITE(MISO_PIN, HIGH);
+    }
+    FORCE_INLINE static uint8_t receive() {
+      SPDR = 0;
+      for (;!TEST(SPSR, SPIF););
+      return SPDR;
+    }
+
+};
+
+#endif // __SPI_H__

@@ -29,6 +29,8 @@
 #endif
 
 #define BOARD_NAME         "Megatronics"
+#define LARGE_FLASH        true
+
 //
 // Limit Switches
 //

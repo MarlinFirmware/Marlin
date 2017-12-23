@@ -58,12 +58,6 @@
   void tmc2130_init();
 #endif
 
-#if ENABLED(HAVE_TMC2208)
-  #include <TMC2208Stepper.h>
-  void tmc2208_serial_begin();
-  void tmc2208_init();
-#endif
-
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
 #if ENABLED(HAVE_L6470DRIVER)
   #include <SPI.h>
@@ -89,8 +83,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(X_IS_TMC2130)
       extern TMC2130Stepper stepperX;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(X_IS_TMC2208)
-      extern TMC2208Stepper stepperX;
     #endif
     #define X_ENABLE_INIT SET_OUTPUT(X_ENABLE_PIN)
     #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
@@ -122,8 +114,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(Y_IS_TMC2130)
       extern TMC2130Stepper stepperY;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(Y_IS_TMC2208)
-      extern TMC2208Stepper stepperY;
     #endif
     #define Y_ENABLE_INIT SET_OUTPUT(Y_ENABLE_PIN)
     #define Y_ENABLE_WRITE(STATE) WRITE(Y_ENABLE_PIN,STATE)
@@ -155,8 +145,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(Z_IS_TMC2130)
       extern TMC2130Stepper stepperZ;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(Z_IS_TMC2208)
-      extern TMC2208Stepper stepperZ;
     #endif
     #define Z_ENABLE_INIT SET_OUTPUT(Z_ENABLE_PIN)
     #define Z_ENABLE_WRITE(STATE) WRITE(Z_ENABLE_PIN,STATE)
@@ -189,8 +177,6 @@
     #else
       #if ENABLED(HAVE_TMC2130) && ENABLED(X2_IS_TMC2130)
         extern TMC2130Stepper stepperX2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(X2_IS_TMC2208)
-        extern TMC2208Stepper stepperX2;
       #endif
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
       #define X2_ENABLE_WRITE(STATE) WRITE(X2_ENABLE_PIN,STATE)
@@ -224,8 +210,6 @@
     #else
       #if ENABLED(HAVE_TMC2130) && ENABLED(Y2_IS_TMC2130)
         extern TMC2130Stepper stepperY2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(Y2_IS_TMC2208)
-        extern TMC2208Stepper stepperY2;
       #endif
       #define Y2_ENABLE_INIT SET_OUTPUT(Y2_ENABLE_PIN)
       #define Y2_ENABLE_WRITE(STATE) WRITE(Y2_ENABLE_PIN,STATE)
@@ -259,8 +243,6 @@
     #else
       #if ENABLED(HAVE_TMC2130) && ENABLED(Z2_IS_TMC2130)
         extern TMC2130Stepper stepperZ2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(Z2_IS_TMC2208)
-        extern TMC2208Stepper stepperZ2;
       #endif
       #define Z2_ENABLE_INIT SET_OUTPUT(Z2_ENABLE_PIN)
       #define Z2_ENABLE_WRITE(STATE) WRITE(Z2_ENABLE_PIN,STATE)
@@ -293,8 +275,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(E0_IS_TMC2130)
       extern TMC2130Stepper stepperE0;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E0_IS_TMC2208)
-      extern TMC2208Stepper stepperE0;
     #endif
     #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
     #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
@@ -326,8 +306,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(E1_IS_TMC2130)
       extern TMC2130Stepper stepperE1;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E1_IS_TMC2208)
-      extern TMC2208Stepper stepperE1;
     #endif
     #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
     #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
@@ -359,8 +337,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(E2_IS_TMC2130)
       extern TMC2130Stepper stepperE2;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E2_IS_TMC2208)
-      extern TMC2208Stepper stepperE2;
     #endif
     #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
     #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
@@ -392,8 +368,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(E3_IS_TMC2130)
       extern TMC2130Stepper stepperE3;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E3_IS_TMC2208)
-      extern TMC2208Stepper stepperE3;
     #endif
     #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
     #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
@@ -425,8 +399,6 @@
   #else
     #if ENABLED(HAVE_TMC2130) && ENABLED(E4_IS_TMC2130)
       extern TMC2130Stepper stepperE4;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E4_IS_TMC2208)
-      extern TMC2208Stepper stepperE4;
     #endif
     #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
     #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
@@ -457,10 +429,6 @@
     #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); } }
     #define REV_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }
   #endif
-#elif ENABLED(MK2_MULTIPLEXER) // Even-numbered steppers are reversed
-  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
 #elif EXTRUDERS > 4
   #define E_STEP_WRITE(v) { switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }
   #define NORM_E_DIR() { switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }
@@ -504,8 +472,14 @@
   #endif
 #else
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #if ENABLED(MK2_MULTIPLEXER)
+    // Even-numbered steppers are reversed
+    #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
+  #else
+    #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
+    #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+  #endif
 #endif
 
 #endif // STEPPER_INDIRECTION_H

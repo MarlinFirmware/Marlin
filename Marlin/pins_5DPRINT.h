@@ -74,6 +74,8 @@
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_NAME           "5DPrint D8"
 
+#define LARGE_FLASH        true
+
 //
 // Limit Switches
 //

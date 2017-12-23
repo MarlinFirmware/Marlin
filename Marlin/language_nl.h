@@ -31,7 +31,6 @@
 #define LANGUAGE_NL_H
 
 #define DISPLAY_CHARSET_ISO10646_1
-#define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gereed.")
 #define MSG_BACK                            _UxGT("Terug")

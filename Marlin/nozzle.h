@@ -26,6 +26,14 @@
 #include "Marlin.h"
 #include "point_t.h"
 
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  constexpr float nozzle_clean_start_point[4] = NOZZLE_CLEAN_START_POINT,
+                  nozzle_clean_end_point[4] = NOZZLE_CLEAN_END_POINT,
+                  nozzle_clean_length = FABS(nozzle_clean_start_point[X_AXIS] - nozzle_clean_end_point[X_AXIS]), //abs x size of wipe pad
+                  nozzle_clean_height = FABS(nozzle_clean_start_point[Y_AXIS] - nozzle_clean_end_point[Y_AXIS]); //abs y size of wipe pad
+  constexpr bool nozzle_clean_horizontal = nozzle_clean_length >= nozzle_clean_height; //whether to zig-zag horizontally or vertically
+#endif // NOZZLE_CLEAN_FEATURE
+
 /**
  * @brief Nozzle class
  *
@@ -33,9 +41,6 @@
  */
 class Nozzle {
   private:
-
-  #if ENABLED(NOZZLE_CLEAN_FEATURE)
-
     /**
      * @brief Stroke clean pattern
      * @details Wipes the nozzle back and forth in a linear movement
@@ -44,7 +49,11 @@ class Nozzle {
      * @param end point_t defining the ending point
      * @param strokes number of strokes to execute
      */
-    static void stroke(const point_t &start, const point_t &end, const uint8_t &strokes) _Os;
+    static void stroke(
+      _UNUSED point_t const &start,
+      _UNUSED point_t const &end,
+      _UNUSED uint8_t const &strokes
+    ) _Os;
 
     /**
      * @brief Zig-zag clean pattern
@@ -55,7 +64,12 @@ class Nozzle {
      * @param strokes number of strokes to execute
      * @param objects number of objects to create
      */
-    static void zigzag(const point_t &start, const point_t &end, const uint8_t &strokes, const uint8_t &objects) _Os;
+    static void zigzag(
+      _UNUSED point_t const &start,
+      _UNUSED point_t const &end,
+      _UNUSED uint8_t const &strokes,
+      _UNUSED uint8_t const &objects
+    ) _Os;
 
     /**
      * @brief Circular clean pattern
@@ -65,14 +79,14 @@ class Nozzle {
      * @param strokes number of strokes to execute
      * @param radius radius of circle
      */
-    static void circle(const point_t &start, const point_t &middle, const uint8_t &strokes, const float &radius) _Os;
-
-  #endif // NOZZLE_CLEAN_FEATURE
+    static void circle(
+      _UNUSED point_t const &start,
+      _UNUSED point_t const &middle,
+      _UNUSED uint8_t const &strokes,
+      _UNUSED float const &radius
+    ) _Os;
 
   public:
-
-  #if ENABLED(NOZZLE_CLEAN_FEATURE)
-
     /**
      * @brief Clean the nozzle
      * @details Starts the selected clean procedure pattern
@@ -80,15 +94,16 @@ class Nozzle {
      * @param pattern one of the available patterns
      * @param argument depends on the cleaning pattern
      */
-    static void clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects=0) _Os;
+    static void clean(
+      _UNUSED uint8_t const &pattern,
+      _UNUSED uint8_t const &strokes,
+      _UNUSED float const &radius,
+      _UNUSED uint8_t const &objects = 0
+    ) _Os;
 
-  #endif // NOZZLE_CLEAN_FEATURE
-
-  #if ENABLED(NOZZLE_PARK_FEATURE)
-
-    static void park(const uint8_t &z_action) _Os;
-
-  #endif
+    static void park(
+      _UNUSED uint8_t const &z_action
+    ) _Os;
 };
 
-#endif // __NOZZLE_H__
+#endif

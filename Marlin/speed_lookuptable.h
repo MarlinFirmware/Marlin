@@ -23,7 +23,7 @@
 #ifndef SPEED_LOOKUPTABLE_H
 #define SPEED_LOOKUPTABLE_H
 
-#include "MarlinConfig.h"
+#include "Marlin.h"
 
 #if F_CPU == 16000000
 

@@ -33,7 +33,7 @@
 #include "types.h"
 #include "MarlinConfig.h"
 
-//#define DEBUG_GCODE_PARSER // TFs mod for testing (run G800/M800 for debug)
+//#define DEBUG_GCODE_PARSER
 
 #if ENABLED(DEBUG_GCODE_PARSER)
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -42,6 +42,10 @@
     #include "hex_print_routines.h"
   #endif
   #include "serial.h"
+#endif
+
+#if ENABLED(INCH_MODE_SUPPORT)
+  extern bool volumetric_enabled;
 #endif
 
 /**
@@ -71,8 +75,6 @@ private:
 public:
 
   // Global states for GCode-level units features
-
-  static bool volumetric_enabled;
 
   #if ENABLED(INCH_MODE_SUPPORT)
     static float linear_unit_factor, volumetric_unit_factor;
@@ -166,11 +168,6 @@ public:
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
-
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    // Parse the next parameter as a new command
-    static bool chain();
-  #endif
 
   // The code value pointer was set
   FORCE_INLINE static bool has_value() { return value_ptr != NULL; }
@@ -310,7 +307,7 @@ public:
 
   // Provide simple value accessors with default option
   FORCE_INLINE static float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  FORCE_INLINE static bool     boolval(const char c)                          { return seenval(c) ? value_bool()      : seen(c); }
+  FORCE_INLINE static bool     boolval(const char c, const bool dval=false)   { return seen(c)    ? value_bool()         : dval; }
   FORCE_INLINE static uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
   FORCE_INLINE static int16_t  intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
   FORCE_INLINE static uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
