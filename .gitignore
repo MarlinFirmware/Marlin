@@ -118,19 +118,23 @@ tags
 
 # PlatformIO files/dirs
 .pio*
+.pioenvs
+.piolibdeps
 lib/readme.txt
 
 #Visual Studio
 *.sln
 *.vcxproj
 *.vcxproj.filters
-Marlin/Release/
-Marlin/Debug/
-Marlin/__vm/
-Marlin/.vs/
+Release/
+Debug/
+__vm/
+.vs/
+vc-fileutils.settings
 
 #VScode
 .vscode
+.vscode/c_cpp_properties.json
 
 #cmake
 CMakeLists.txt

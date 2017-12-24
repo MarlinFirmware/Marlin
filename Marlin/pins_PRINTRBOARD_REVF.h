@@ -30,8 +30,8 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
- *    Installation instructions are at the above URL.
+ *  Teensyduino -  https://www.pjrc.com/teensy/teensyduino.html
+ *  Installation - https://www.pjrc.com/teensy/td_download.html
  *
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
  *
@@ -66,8 +66,33 @@
   #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
 #endif
 
+#ifndef USBCON
+  #error "USBCON should be defined by the platform for this board."
+#endif
+
 #define BOARD_NAME         "Printrboard Rev F"
-#define LARGE_FLASH        true
+// Disable JTAG pins so EXP1 pins work correctly
+// (Its pins are used for the Extrudrboard and filament sensor, for example).
+#define DISABLE_JTAG
+
+/**
+ * Note that REV F6 of the Printrboard stole the A HOTEND pin and
+ * reassigned it to a second fan for the extruder heater.  It's
+ * recommended that you swap the A and B outputs on the Extrudrboard
+ * so EXTRUDERS=2 will still work on F6, using B for E1/HEATER_1/TEMP_1.
+ * See https://printrbot.zendesk.com/hc/en-us/articles/115003072346
+ *
+ * If you have REV F6 you probably also want to set E0_AUTO_FAN_PIN
+ * to PRINTRBOARD_F6_HEATER_FAN_PIN
+ *
+ * Define NO_EXTRUDRBOARD if you don't have an EXTRUDRBOARD and wish to
+ * reassign different functions to EXP1.
+ *
+ * Define NO_EXTRUDRBOARD_OUTPUT_SWAP if you have a REV F5 or lower and
+ * want to use EXTRUDRBOARD A for E1 and EXTRUDRBOARD B for E2.
+ */
+//#define NO_EXTRUDRBOARD
+//#define NO_EXTRUDRBOARD_OUTPUT_SWAP
 
 //
 // Limit Switches
@@ -95,6 +120,26 @@
 #define E0_DIR_PIN         35   // A7
 #define E0_ENABLE_PIN      13   // C3
 
+#if DISABLED(NO_EXTRUDRBOARD)
+#if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
+  #define E1_STEP_PIN      25   // B5
+  #define E1_DIR_PIN       37   // E5
+  #define E1_ENABLE_PIN    42   // F4
+
+  #define E2_STEP_PIN       2   // D2
+  #define E2_DIR_PIN        3   // D3
+  #define E2_ENABLE_PIN    43   // F5
+#else
+  #define E1_STEP_PIN       2   // D2
+  #define E1_DIR_PIN        3   // D3
+  #define E1_ENABLE_PIN    43   // F5
+
+  #define E2_STEP_PIN      25   // B5
+  #define E2_DIR_PIN       37   // E5
+  #define E2_ENABLE_PIN    42   // F4
+#endif
+#endif // NO_EXTRUDRBOARD
+
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
 #define DAC_STEPPER_CURRENT
 
@@ -119,13 +164,31 @@
 #define TEMP_0_PIN          1   // Analog Input (Extruder)
 #define TEMP_BED_PIN        0   // Analog Input (Bed)
 
+#if DISABLED(NO_EXTRUDRBOARD)
+#if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
+  #define TEMP_1_PIN        2   // Analog Input (Extrudrboard A THERM)
+  #define TEMP_2_PIN        3   // Analog Input (Extrudrboard B THERM)
+#else
+  #define TEMP_1_PIN        3   // Analog Input (Extrudrboard B THERM)
+  #define TEMP_2_PIN        2   // Analog Input (Extrudrboard A THERM)
+#endif
+#endif
+
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       15   // C5 PWM3B - Extruder
-#define HEATER_1_PIN       44   // F6
-#define HEATER_2_PIN       45   // F7
 #define HEATER_BED_PIN     14   // C4 PWM3C
+
+#if DISABLED(NO_EXTRUDRBOARD)
+#if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
+  #define HEATER_1_PIN     44   // F6 - Extrudrboard A HOTEND
+  #define HEATER_2_PIN     45   // F7 - Extrudrboard B HOTEND
+#else
+  #define HEATER_1_PIN     45   // F7 - Extrudrboard B HOTEND
+  #define HEATER_2_PIN     44   // F6 - Extrudrboard A HOTEND
+#endif
+#endif
 
 #define FAN_PIN            16   // C6 PWM3A
 
@@ -135,8 +198,6 @@
 //#define USE_INTERNAL_SD
 
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN       -1
-
   #define LCD_PINS_RS       9   // E1       JP11-11
   #define LCD_PINS_ENABLE   8   // E0       JP11-10
   #define LCD_PINS_D4       7   // D7       JP11-8
@@ -144,76 +205,73 @@
   #define LCD_PINS_D6       5   // D5       JP11-6
   #define LCD_PINS_D7       4   // D4       JP11-5
 
-  #define BTN_EN1          10   // C0       JP11-12
-  #define BTN_EN2          11   // C1       JP11-13
-  #define BTN_ENC          12   // C2       JP11-14
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
-  #define SD_DETECT_PIN    -1
-#endif
+    #define BEEPER_PIN      8   // E0       JP11-10
+    #define DOGLCD_A0      40   // F2       JP2-2
+    #define DOGLCD_CS      41   // F3       JP2-4
+    #define LCD_SCREEN_ROT_180
 
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN        8   // E0       JP11-10
-  #define DOGLCD_A0        40   // F2       JP2-2
-  #define DOGLCD_CS        41   // F3       JP2-4
-  #define LCD_SCREEN_ROT_180
+    #define BTN_EN1         2   // D2 TX1   JP2-5
+    #define BTN_EN2         3   // D3 RX1   JP2-7
+    #define BTN_ENC        45   // F7 TDI   JP2-12
 
-  #define BTN_EN1           2   // D2 TX1   JP2-5
-  #define BTN_EN2           3   // D3 RX1   JP2-7
-  #define BTN_ENC          45   // F7 TDI   JP2-12
+    #define SDSS            3   // F5 TMS   JP2-8
 
-  #define SDSS             43   // F5 TMS   JP2-8
-  #define SD_DETECT_PIN    -1
+    #define STAT_LED_RED_PIN  12  // C2       JP11-14
+    #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
 
-  #define STAT_LED_RED_PIN  12  // C2       JP11-14
-  #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
-#endif
+  #elif ENABLED(MINIPANEL)
 
-#if ENABLED(MINIPANEL)
-  #if ENABLED(USE_INTERNAL_SD)
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#
-    #define SDSS               20  //        10               B0
-    #define SD_DETECT_PIN      -1  // no auto-detect SD insertion on built-in Printrboard SD reader
-  #else
+    #if DISABLED(USE_INTERNAL_SD)
+      //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+      #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
+      #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+    #endif
+
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
-    #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+    #define DOGLCD_A0       4  //        29               D4                EXP2-05             EXP1-04
+    #define DOGLCD_CS       5  //        30               D5                EXP2-06             EXP1-05
+    #define BTN_ENC         6  //        31               D6                EXP2-07             EXP1-09
+    #define BEEPER_PIN      7  //        32               D7                EXP2-08             EXP1-10
+    #define KILL_PIN        8  //        33               E0                EXP2-10             EXP2-03
+    #define BTN_EN1        10  //        35               C0                EXP2-12             EXP2-06
+    #define BTN_EN2        12  //        37               C2                EXP2-14             EXP2-08
+    //#define LCD_BACKLIGHT_PIN 43  //        56               F5                EXP1-12     Not Implemented
+    //#define SCK          21  //        11               B1                ICSP-04             EXP2-09
+    //#define MOSI         22  //        12               B2                ICSP-03             EXP2-05
+    //#define MISO         23  //        13               B3                ICSP-06             EXP2-05
+
+    // increase delays
+    #define ST7920_DELAY_1 DELAY_5_NOP
+    #define ST7920_DELAY_2 DELAY_5_NOP
+    #define ST7920_DELAY_3 DELAY_5_NOP
+
+  #else
+
+    #define BTN_EN1        10   // C0       JP11-12
+    #define BTN_EN2        11   // C1       JP11-13
+    #define BTN_ENC        12   // C2       JP11-14
+
   #endif
 
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define DOGLCD_A0           4  //        29               D4                EXP2-05             EXP1-04
-    #define DOGLCD_CS           5  //        30               D5                EXP2-06             EXP1-05
-    #define BTN_ENC             6  //        31               D6                EXP2-07             EXP1-09
-    #define BEEPER_PIN          7  //        32               D7                EXP2-08             EXP1-10
-    #define KILL_PIN            8  //        33               E0                EXP2-10             EXP2-03
-    #define BTN_EN1            10  //        35               C0                EXP2-12             EXP2-06
-    #define BTN_EN2            12  //        37               C2                EXP2-14             EXP2-08
-  //#define LCD_BACKLIGHT_PIN  43  //        56               F5                EXP1-12     Not Implemented
-  //#define SCK                21  //        11               B1                ICSP-04             EXP2-09
-  //#define MOSI               22  //        12               B2                ICSP-03             EXP2-05
-  //#define MISO               23  //        13               B3                ICSP-06             EXP2-05
-
-  // encoder connections present
-  #define BLEN_A 0
-  #define BLEN_B 1
-  #define BLEN_C 2
-
-  // encoder rotation values
-  #define encrot0 0
-  #define encrot1 2
-  #define encrot2 3
-  #define encrot3 1
-
-  // increase delays to max
-  #define ST7920_DELAY_1 DELAY_5_NOP
-  #define ST7920_DELAY_2 DELAY_5_NOP
-  #define ST7920_DELAY_3 DELAY_5_NOP
 #endif
 
 //
 // Misc. Functions
 //
+//      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
 #ifndef SDSS
-  #define SDSS               20   // B0 SS
+  #define SDSS             20  //        10               B0
 #endif
 
-#define FILWIDTH_PIN        2   // Analog Input
+/**
+ * This is EXP1-2, which is also the TEMP_A_PIN for the Extrudrboard.
+ * If using w/ Extrudrboard, cut off pin 2 on the Extrudrboard male
+ * connector to ensure this is disconnected from the A THERM pullups.
+ * You probably want to set EXTRUDERS=2 and swap the Extrudrboard outputs,
+ * which will let you use Channel B on the Extrudrboard as E1.
+ */
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN      2   // Analog Input
+#endif

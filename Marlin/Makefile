@@ -332,7 +332,7 @@ endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
 LD_PREFIX=-nodefaultlibs
-LD_SUFFIX=-lm -lgcc -lc -lgcc
+LD_SUFFIX=-lm -lgcc -lc -lgcc -L$(ARDUINO_INSTALL_DIR)/hardware/tools/avr/avr/lib/avr6 -l$(MCU)
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct source files for that version
