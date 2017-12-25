@@ -78,14 +78,17 @@
 #define _TOGGLE(IO)  _WRITE(IO, !READ(IO))
 
 /// set pin as input
-#define _SET_INPUT(IO)  pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-                        PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, g_APinDescription[IO].ulPin, 0)
+#define _SET_INPUT(IO)  do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+                            PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, g_APinDescription[IO].ulPin, 0); \
+                        }while(0)
 /// set pin as output
-#define _SET_OUTPUT(IO)  PIO_Configure(g_APinDescription[IO].pPort, PIO_OUTPUT_1, \
-                         g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration)
+#define _SET_OUTPUT(IO) do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+                            PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, \
+                                          g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
+                        }while(0)
 
 /// set pin as input with pullup mode
-#define _PULLUP(IO, v)  { pinMode(IO, (v!=LOW ? INPUT_PULLUP : INPUT)); }
+#define _PULLUP(IO, v)  { pinMode(IO, v != LOW ? INPUT_PULLUP : INPUT); }
 
 /// check if pin is an input
 #define _GET_INPUT(IO)
@@ -109,9 +112,8 @@
 #define SET_INPUT(IO)  _SET_INPUT(IO)
 /// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
-/// set pin as output wrapper
-#define SET_OUTPUT(IO)  do{ _SET_OUTPUT(IO); _WRITE(IO, LOW); }while(0)
-
+/// set pin as output wrapper -  reads the pin and sets the output to that value
+#define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
 /// check if pin is an input wrapper
 #define GET_INPUT(IO)  _GET_INPUT(IO)
 /// check if pin is an output wrapper
