@@ -99,8 +99,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       break;
     case U8G_DEV_MSG_STOP:
       break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         uint8_t y, i;
         uint8_t *ptr;
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
@@ -149,8 +148,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
     case U8G_DEV_MSG_STOP:
       break;
 
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         uint8_t y, i;
         uint8_t *ptr;
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);

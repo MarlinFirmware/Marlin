@@ -61,12 +61,10 @@
   #include <Arduino.h>
   #include "../../core/macros.h"
 
-
   void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
      PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
        g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
   }
-
 
   void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
     volatile Pio* port = g_APinDescription[u8g->pin_list[pin_index]].pPort;
@@ -74,7 +72,6 @@
     if (level) port->PIO_SODR = mask;
     else port->PIO_CODR = mask;
   }
-
 
 #define nop() __asm__ __volatile__("nop;\n\t":::)
 
@@ -102,8 +99,7 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
   Pio *SCK_pPio, *MOSI_pPio;
   uint32_t SCK_dwMask, MOSI_dwMask;
 
-  static void spiSend_sw_DUE(uint8_t val)  // 800KHz
-  {
+  static void spiSend_sw_DUE(uint8_t val) { // 800KHz
     for (uint8_t i = 0; i < 8; i++) {
       if (val & 0x80)
         MOSI_pPio->PIO_SODR = MOSI_dwMask;
@@ -119,8 +115,7 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
 
   static uint8_t rs_last_state = 255;
 
-  static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val)
-  {
+  static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
     uint8_t i;
 
     if ( rs != rs_last_state) {  // time to send a command/data byte
@@ -142,10 +137,8 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
   }
 
 
-  uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-  {
-    switch(msg)
-    {
+  uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+    switch (msg) {
       case U8G_COM_MSG_INIT:
         SCK_pPio = g_APinDescription[u8g->pin_list[U8G_PI_SCK]].pPort;
         SCK_dwMask = g_APinDescription[u8g->pin_list[U8G_PI_SCK]].ulPin;
@@ -184,22 +177,18 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
         u8g_com_DUE_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ:
-        {
+      case U8G_COM_MSG_WRITE_SEQ: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             u8g_com_DUE_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
             arg_val--;
           }
         }
         break;
 
-        case U8G_COM_MSG_WRITE_SEQ_P:
-        {
+        case U8G_COM_MSG_WRITE_SEQ_P: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             u8g_com_DUE_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
             arg_val--;
           }
@@ -208,5 +197,7 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
     }
     return 1;
   }
+
 #pragma GCC reset_options
+
 #endif  //ARDUINO_ARCH_SAM
