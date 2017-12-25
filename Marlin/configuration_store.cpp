@@ -283,7 +283,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::eeprom_error;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    int MarlinSettings::meshes_begin;
+    int16_t MarlinSettings::meshes_begin;
   #endif
 
   void MarlinSettings::write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
@@ -383,9 +383,8 @@ void MarlinSettings::postprocess() {
         sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
         "MBL Z array is the wrong size."
       );
-      const bool leveling_is_on = mbl.has_mesh;
       const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
-      EEPROM_WRITE(leveling_is_on);
+      EEPROM_WRITE(mbl.has_mesh);
       EEPROM_WRITE(mbl.z_offset);
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
@@ -581,7 +580,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       }
 
-    #endif // !NO_VOLUMETRICS
+    #endif
 
     // Save TMC2130 or TMC2208 Configuration, and placeholder values
     uint16_t val;
@@ -1282,7 +1281,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int MarlinSettings::calc_num_meshes() {
+    uint16_t MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
 
       if (meshes_begin <= 0) return 0;
@@ -1290,10 +1289,10 @@ void MarlinSettings::postprocess() {
       return (meshes_end - meshes_begin) / sizeof(ubl.z_values);
     }
 
-    void MarlinSettings::store_mesh(int8_t slot) {
+    void MarlinSettings::store_mesh(const int8_t slot) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        const int a = calc_num_meshes();
+        const uint16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           #if ENABLED(EEPROM_CHITCHAT)
             ubl_invalid_slot(a);
@@ -1323,11 +1322,11 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    void MarlinSettings::load_mesh(int8_t slot, void *into /* = 0 */) {
+    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=NULL*/) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-        const int16_t a = settings.calc_num_meshes();
+        const uint16_t a = settings.calc_num_meshes();
 
         if (!WITHIN(slot, 0, a - 1)) {
           #if ENABLED(EEPROM_CHITCHAT)
@@ -1385,16 +1384,12 @@ void MarlinSettings::reset() {
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
-
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    new_z_fade_height = 10.0;
-  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -1417,7 +1412,14 @@ void MarlinSettings::reset() {
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
-  // Applies to all MBL and ABL
+  //
+  // Global Leveling
+  //
+
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    new_z_fade_height = 0.0;
+  #endif
+
   #if HAS_LEVELING
     reset_bed_level();
   #endif
@@ -1478,10 +1480,6 @@ void MarlinSettings::reset() {
     lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
 
-  #if HAS_LCD_CONTRAST
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
-  #endif
-
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
       HOTEND_LOOP()
@@ -1503,6 +1501,10 @@ void MarlinSettings::reset() {
     thermalManager.bedKp = DEFAULT_bedKp;
     thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
     thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
+  #endif
+
+  #if HAS_LCD_CONTRAST
+    lcd_contrast = DEFAULT_LCD_CONTRAST;
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -1597,10 +1599,6 @@ void MarlinSettings::reset() {
     uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
@@ -1710,7 +1708,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("  M200 D0");
       }
 
-    #endif
+    #endif // !NO_VOLUMETRICS
 
     if (!forReplay) {
       CONFIG_ECHO_START;

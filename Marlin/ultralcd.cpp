@@ -2279,7 +2279,7 @@ void kill_screen(const char* lcd_msg) {
      *    Save Bed Mesh
      */
     void _lcd_ubl_storage_mesh() {
-      int16_t a = settings.calc_num_meshes();
+      uint16_t a = settings.calc_num_meshes();
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
       if (!WITHIN(ubl_storage_slot, 0, a - 1)) {

@@ -309,7 +309,8 @@
   void unified_bed_leveling::G29() {
 
     if (!settings.calc_num_meshes()) {
-      SERIAL_PROTOCOLLNPGM("?Enable EEPROM and init with M502, M500.\n");
+      SERIAL_PROTOCOLLNPGM("?Enable EEPROM and init with");
+      SERIAL_PROTOCOLLNPGM("M502, M500, M501 in that order.\n");
       return;
     }
 
@@ -607,7 +608,7 @@
     if (parser.seen('L')) {     // Load Current Mesh Data
       g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
-      int16_t a = settings.calc_num_meshes();
+      uint16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
@@ -649,7 +650,7 @@
         return;
       }
 
-      int16_t a = settings.calc_num_meshes();
+      uint16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
@@ -1326,7 +1327,7 @@
    * use cases for the users. So we can wait and see what to do with it.
    */
   void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-    int16_t a = settings.calc_num_meshes();
+    uint16_t a = settings.calc_num_meshes();
 
     if (!a) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
