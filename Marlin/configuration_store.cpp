@@ -141,7 +141,7 @@
  *  539  M200 D    parser.volumetric_enabled        (bool)
  *  540  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
- * HAVE_TMC2130 || HAVE_TMC2208:                    22 bytes
+ * HAS_TRINAMIC:                                    22 bytes
  *  560  M906 X    Stepper X current                (uint16_t)
  *  562  M906 Y    Stepper Y current                (uint16_t)
  *  564  M906 Z    Stepper Z current                (uint16_t)
@@ -203,7 +203,7 @@ MarlinSettings settings;
   #include "mesh_bed_leveling.h"
 #endif
 
-#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+#if HAS_TRINAMIC
   #include "stepper_indirection.h"
 #endif
 
@@ -2062,7 +2062,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 stepper driver current
      */
-    #if ENABLED(HAVE_TMC2130)
+    #if HAS_TRINAMIC
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Stepper driver current:");
@@ -2108,7 +2108,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 Sensorless homing thresholds
      */
-    #if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(SENSORLESS_HOMING)
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Sensorless homing threshold:");
