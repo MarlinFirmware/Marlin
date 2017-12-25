@@ -10094,7 +10094,7 @@ inline void gcode_M502() {
    */
   inline void gcode_M702() {
     for (uint8_t s = 0; s < E_STEPPERS; s++) {
-      select_multiplexed_stepper(e);
+      select_multiplexed_stepper(s);
       // TODO: standard unload filament function
       // MK2 firmware behavior:
       //  - Make sure temperature is high enough
