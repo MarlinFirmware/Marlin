@@ -54,12 +54,13 @@ uint8_t const CMD0 = 0x00,    // GO_IDLE_STATE - init card in spi mode if CS low
               CMD24 = 0x18,   // WRITE_BLOCK - write a single data block to the card
               CMD25 = 0x19,   // WRITE_MULTIPLE_BLOCK - write blocks of data until a STOP_TRANSMISSION
               CMD32 = 0x20,   // ERASE_WR_BLK_START - sets the address of the first block to be erased
-              CMD33 = 0x21,   // ERASE_WR_BLK_END - sets the address of the last block of the continuous range to be erased*/
-              CMD38 = 0x26,   // ERASE - erase all previously selected blocks */
-              CMD55 = 0x37,   // APP_CMD - escape for application specific command */
-              CMD58 = 0x3A,   // READ_OCR - read the OCR register of a card */
-              ACMD23 = 0x17,  // SET_WR_BLK_ERASE_COUNT - Set the number of write blocks to be pre-erased before writing */
-              ACMD41 = 0x29;  // SD_SEND_OP_COMD - Sends host capacity support information and activates the card's initialization process */
+              CMD33 = 0x21,   // ERASE_WR_BLK_END - sets the address of the last block of the continuous range to be erased
+              CMD38 = 0x26,   // ERASE - erase all previously selected blocks
+              CMD55 = 0x37,   // APP_CMD - escape for application specific command
+              CMD58 = 0x3A,   // READ_OCR - read the OCR register of a card
+              CMD59 = 0x3B,   // CRC_ON_OFF - enable or disable CRC checking
+              ACMD23 = 0x17,  // SET_WR_BLK_ERASE_COUNT - Set the number of write blocks to be pre-erased before writing
+              ACMD41 = 0x29;  // SD_SEND_OP_COMD - Sends host capacity support information and activates the card's initialization process
 
 /** status for card in the ready state */
 uint8_t const R1_READY_STATE = 0x00;

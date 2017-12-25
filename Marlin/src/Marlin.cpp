@@ -548,6 +548,10 @@ void idle(
       lastUpdateMillis = millis();
     }
   #endif
+
+  #ifdef HAL_IDLETASK
+    HAL_idletask();
+  #endif
 }
 
 /**
@@ -632,6 +636,10 @@ void stop() {
  *    • status LEDs
  */
 void setup() {
+
+  #ifdef HAL_INIT
+    HAL_init();
+  #endif
 
   #if ENABLED(MAX7219_DEBUG)
     Max7219_init();
