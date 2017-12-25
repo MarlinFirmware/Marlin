@@ -454,8 +454,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #ifdef SNMM
   #error "SNMM is now MK2_MULTIPLEXER. Please update your configuration."
-#elif ENABLED(MK2_MULTIPLEXER) && DISABLED(ADVANCED_PAUSE_FEATURE)
-  #error "ADVANCED_PAUSE_FEATURE is required with MK2_MULTIPLEXER."
 #endif
 
 /**
