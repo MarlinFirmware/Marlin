@@ -27,8 +27,8 @@
 
 #include "../inc/MarlinConfig.h"
 
-static bool report_tmc_status = false;
-const char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1", "E2", "E3", "E4" };
+extern bool report_tmc_status;
+extern char extended_axis_codes[11][3];
 enum TMC_AxisEnum {
   TMC_X, TMC_X2, TMC_Y, TMC_Y2, TMC_Z, TMC_Z2,
   TMC_E0, TMC_E1, TMC_E2, TMC_E3, TMC_E4
