@@ -540,7 +540,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // If the move is only in Z/E don't split up the move
     if (!xdiff && !ydiff) {
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
-      return false;
+      return false; // caller will update current_position
     }
 
     // Fail if attempting move outside printable radius
@@ -638,7 +638,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
 
-    return false;
+    return false; // caller will update current_position
   }
 
 #else // !IS_KINEMATIC
@@ -730,7 +730,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           return true;                                                                    // all moves, including Z-only moves.
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
           segmented_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return false;
+          return false; // caller will update current_position
         #else
           /**
            * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
@@ -749,7 +749,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #endif // HAS_MESH
 
     buffer_line_to_destination(MMS_SCALED(feedrate_mm_s));
-    return false;
+    return false; // caller will update current_position
   }
 
 #endif // !IS_KINEMATIC

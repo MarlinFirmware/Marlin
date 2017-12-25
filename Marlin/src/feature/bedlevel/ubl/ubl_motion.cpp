@@ -621,6 +621,8 @@
 
       } // segment loop
     } // cell loop
+
+    return false; // caller will update current_position
   }
 
 #endif // UBL_SEGMENTED
