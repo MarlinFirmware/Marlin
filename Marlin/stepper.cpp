@@ -436,8 +436,8 @@ void Stepper::isr() {
     else {
       planner.discard_current_block();
       --cleaning_buffer_counter;                // Count down for abort print
-      #ifdef SD_FINISHED_RELEASECOMMAND
-        if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+        if (!cleaning_buffer_counter) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       #endif
     }
     current_block = NULL;                       // Prep to get a new block after cleaning
