@@ -578,10 +578,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                 5.0
-#define DEFAULT_YJERK                 5.0
-#define DEFAULT_ZJERK                 0.4
-#define DEFAULT_EJERK                 3.0
+#define DEFAULT_XJERK                  5.0
+#define DEFAULT_YJERK                  5.0
+#define DEFAULT_ZJERK                  0.3
+#define DEFAULT_EJERK                  3.0
 
 //===========================================================================
 //============================= Z Probe Options =============================

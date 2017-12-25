@@ -891,8 +891,9 @@ void CardReader::printingHasFinished() {
   }
   else {
     sdprinting = false;
-    if (SD_FINISHED_STEPPERRELEASE)
-      enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+      stepper.cleaning_buffer_counter = 1; // The command will fire from the Stepper ISR
+    #endif
     print_job_timer.stop();
     if (print_job_timer.duration() > 60)
       enqueue_and_echo_commands_P(PSTR("M31"));
