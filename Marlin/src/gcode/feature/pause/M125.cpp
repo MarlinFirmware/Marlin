@@ -49,8 +49,6 @@
  *    Z = override Z raise
  */
 void GcodeSuite::M125() {
-  point_t park_point = NOZZLE_PARK_POINT;
-
   // Initial retract before move to filament change position
   const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
     #ifdef PAUSE_PARK_RETRACT_LENGTH
@@ -58,16 +56,14 @@ void GcodeSuite::M125() {
     #endif
   ;
 
-  // Lift Z axis
-  if (parser.seenval('Z'))
-    park_point.z = parser.linearval('Z');
+  point_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X'))
-    park_point.x = parser.linearval('X');
+  if (parser.seenval('X')) park_point.x = parser.linearval('X');
+  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-  if (parser.seenval('Y'))
-    park_point.y = parser.linearval('Y');
+  // Lift Z axis
+  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
     park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);

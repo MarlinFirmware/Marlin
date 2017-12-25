@@ -114,6 +114,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 ) {
   if (move_away_flag) return false; // already paused
 
+  #ifdef ACTION_ON_PAUSE
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+  #endif
+
   if (!DEBUGGING(DRYRUN) && unload_length != 0) {
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (!thermalManager.allow_cold_extrude &&
@@ -340,6 +344,10 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   #if ENABLED(ULTIPANEL)
     // Show pause status screen
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+  #endif
+
+  #ifdef ACTION_ON_RESUME
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
 
   #if ENABLED(SDSUPPORT)

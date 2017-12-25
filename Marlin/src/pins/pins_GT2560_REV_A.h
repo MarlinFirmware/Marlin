@@ -30,8 +30,11 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME           "GT2560 Rev.A"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "GT2560 Rev.A"
+#endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
+
 //
 // Limit Switches
 //

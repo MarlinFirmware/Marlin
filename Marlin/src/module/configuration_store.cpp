@@ -141,7 +141,7 @@
  *  539  M200 D    parser.volumetric_enabled        (bool)
  *  540  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
- * HAVE_TMC2130:                                    22 bytes
+ * HAS_TRINAMIC:                                    22 bytes
  *  560  M906 X    Stepper X current                (uint16_t)
  *  562  M906 Y    Stepper Y current                (uint16_t)
  *  564  M906 Z    Stepper Z current                (uint16_t)
@@ -155,28 +155,28 @@
  *  580  M906 E4   Stepper E4 current               (uint16_t)
  *
  * SENSORLESS HOMING                                4 bytes
- *  580  M914 X    Stepper X and X2 threshold       (int16_t)
- *  582  M914 Y    Stepper Y and Y2 threshold       (int16_t)
+ *  582  M914 X    Stepper X and X2 threshold       (int16_t)
+ *  584  M914 Y    Stepper Y and Y2 threshold       (int16_t)
  *
  * LIN_ADVANCE:                                     8 bytes
- *  582  M900 K    extruder_advance_k               (float)
- *  586  M900 WHD  advance_ed_ratio                 (float)
+ *  586  M900 K    extruder_advance_k               (float)
+ *  590  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  590  M907 X    Stepper XY current               (uint32_t)
- *  594  M907 Z    Stepper Z current                (uint32_t)
- *  598  M907 E    Stepper E current                (uint32_t)
+ *  594  M907 X    Stepper XY current               (uint32_t)
+ *  598  M907 Z    Stepper Z current                (uint32_t)
+ *  602  M907 E    Stepper E current                (uint32_t)
  *
  * CNC_COORDINATE_SYSTEMS                           108 bytes
- *  602  G54-G59.3 coordinate_system                (float x 27)
+ *  606  G54-G59.3 coordinate_system                (float x 27)
  *
  * SKEW_CORRECTION:                                 12 bytes
- *  710  M852 I    planner.xy_skew_factor           (float)
- *  714  M852 J    planner.xz_skew_factor           (float)
- *  718  M852 K    planner.yz_skew_factor           (float)
+ *  714  M852 I    planner.xy_skew_factor           (float)
+ *  718  M852 J    planner.xz_skew_factor           (float)
+ *  722  M852 K    planner.yz_skew_factor           (float)
  *
- *  722                                   Minimum end-point
- * 2251 (722 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
+ *  726                                   Minimum end-point
+ * 2255 (726 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -290,7 +290,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::eeprom_error;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    int MarlinSettings::meshes_begin;
+    int16_t MarlinSettings::meshes_begin;
   #endif
 
   /**
@@ -1256,7 +1256,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int MarlinSettings::calc_num_meshes() {
+    uint16_t MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
 
       if (meshes_begin <= 0) return 0;
@@ -1264,10 +1264,10 @@ void MarlinSettings::postprocess() {
       return (meshes_end - meshes_begin) / sizeof(ubl.z_values);
     }
 
-    void MarlinSettings::store_mesh(int8_t slot) {
+    void MarlinSettings::store_mesh(const int8_t slot) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        const int a = calc_num_meshes();
+        const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           #if ENABLED(EEPROM_CHITCHAT)
             ubl_invalid_slot(a);
@@ -1280,11 +1280,10 @@ void MarlinSettings::postprocess() {
         }
 
         uint16_t crc = 0;
-        bool status;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
 
         HAL::PersistentStore::access_start();
-        status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        const bool status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
@@ -1304,7 +1303,7 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    void MarlinSettings::load_mesh(int8_t slot, void *into /* = 0 */) {
+    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=NULL*/) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1320,10 +1319,9 @@ void MarlinSettings::postprocess() {
         uint16_t crc = 0;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
         uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
-        uint16_t status;
 
         HAL::PersistentStore::access_start();
-        status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        const uint16_t status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
@@ -1373,16 +1371,12 @@ void MarlinSettings::reset() {
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
-
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    new_z_fade_height = 0.0;
-  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -1405,7 +1399,14 @@ void MarlinSettings::reset() {
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
-  // Applies to all MBL and ABL
+  //
+  // Global Leveling
+  //
+
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    new_z_fade_height = 0.0;
+  #endif
+
   #if HAS_LEVELING
     reset_bed_level();
   #endif
@@ -1466,10 +1467,6 @@ void MarlinSettings::reset() {
     lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
 
-  #if HAS_LCD_CONTRAST
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
-  #endif
-
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
       HOTEND_LOOP()
@@ -1491,6 +1488,10 @@ void MarlinSettings::reset() {
     thermalManager.bedKp = DEFAULT_bedKp;
     thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
     thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
+  #endif
+
+  #if HAS_LCD_CONTRAST
+    lcd_contrast = DEFAULT_LCD_CONTRAST;
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -1577,10 +1578,6 @@ void MarlinSettings::reset() {
     uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
