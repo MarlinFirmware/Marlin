@@ -612,21 +612,12 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define DEFAULT_XJERK                 20.0
-//#define DEFAULT_YJERK                 20.0
-//#define DEFAULT_ZJERK                  0.4
-//#define DEFAULT_EJERK                  5.0
-
 // ANET A6 Firmware V2.0 defaults (jerk):
-// Vxy-jerk: 20, Vz-jerk: +000.30, Ve-jerk: 10
-#define DEFAULT_XJERK                 20.0
-#define DEFAULT_YJERK                 20.0
+// Vxy-jerk: 10, Vz-jerk: +000.30, Ve-jerk: 10
+#define DEFAULT_XJERK                 10.0
+#define DEFAULT_YJERK                 10.0
 #define DEFAULT_ZJERK                  0.3
 #define DEFAULT_EJERK                 10.0
-//#define DEFAULT_XJERK                 20.0
-//#define DEFAULT_YJERK                 20.0
-//#define DEFAULT_ZJERK                  0.3
-//#define DEFAULT_EJERK                  5.0
 
 //===========================================================================
 //============================= Z Probe Options =============================
