@@ -4740,8 +4740,9 @@ void home_all_axes() { gcode_G28(true); }
 
       stepper.synchronize();
 
-      // Disable auto bed leveling during G29
-      planner.leveling_active = false;
+      // Disable auto bed leveling during G29.
+      // Be formal so G29 can be done successively without G28.
+      set_bed_leveling_enabled(false);
 
       if (!dryrun) {
         // Re-orient the current position without leveling
@@ -4755,7 +4756,7 @@ void home_all_axes() { gcode_G28(true); }
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
         if (DEPLOY_PROBE()) {
-          planner.leveling_active = abl_should_enable;
+          set_bed_leveling_enabled(abl_should_enable);
           return;
         }
       #endif
@@ -4772,10 +4773,6 @@ void home_all_axes() { gcode_G28(true); }
           || left_probe_bed_position != bilinear_start[X_AXIS]
           || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
-          if (dryrun) {
-            // Before reset bed level, re-enable to correct the position
-            planner.leveling_active = abl_should_enable;
-          }
           // Reset grid to 0.0 or "not probed". (Also disables ABL)
           reset_bed_level();
 
@@ -4819,7 +4816,7 @@ void home_all_axes() { gcode_G28(true); }
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
         #endif
-        planner.leveling_active = abl_should_enable;
+        set_bed_leveling_enabled(abl_should_enable);
         g29_in_progress = false;
         #if ENABLED(LCD_BED_LEVELING)
           lcd_wait_for_move = false;
@@ -5022,7 +5019,7 @@ void home_all_axes() { gcode_G28(true); }
             measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
             if (isnan(measured_z)) {
-              planner.leveling_active = abl_should_enable;
+              set_bed_leveling_enabled(abl_should_enable);
               break;
             }
 
@@ -5058,7 +5055,7 @@ void home_all_axes() { gcode_G28(true); }
           yProbe = points[i].y;
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
           if (isnan(measured_z)) {
-            planner.leveling_active = abl_should_enable;
+            set_bed_leveling_enabled(abl_should_enable);
             break;
           }
           points[i].z = measured_z;
@@ -5081,7 +5078,7 @@ void home_all_axes() { gcode_G28(true); }
 
       // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
       if (STOW_PROBE()) {
-        planner.leveling_active = abl_should_enable;
+        set_bed_leveling_enabled(abl_should_enable);
         measured_z = NAN;
       }
     }
