@@ -292,15 +292,11 @@ void GcodeSuite::G29() {
 
     #endif
 
-    #if HAS_LEVELING
-
-      // Jettison bed leveling data
-      if (parser.seen('J')) {
-        reset_bed_level();
-        return;
-      }
-
-    #endif
+    // Jettison bed leveling data
+    if (parser.seen('J')) {
+      reset_bed_level();
+      return;
+    }
 
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
@@ -383,24 +379,16 @@ void GcodeSuite::G29() {
     #endif // ABL_GRID
 
     if (verbose_level > 0) {
-      SERIAL_PROTOCOLLNPGM("G29 Auto Bed Leveling");
-      if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
+      SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling");
+      if (dryrun) SERIAL_PROTOCOLPGM(" (DRYRUN)");
+      SERIAL_EOL();
     }
 
     stepper.synchronize();
 
-    // Disable auto bed leveling during G29
+    // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
     set_bed_leveling_enabled(false);
-
-    if (!dryrun) {
-      // Re-orient the current position without leveling
-      // based on where the steppers are positioned.
-      set_current_from_steppers_for_axis(ALL_AXES);
-
-      // Sync the planner to where the steppers stopped
-      SYNC_PLAN_POSITION_KINEMATIC();
-    }
 
     #if HAS_BED_PROBE
       // Deploy the probe. Probe will raise if needed.
@@ -583,9 +571,10 @@ void GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
       // Probe at 3 arbitrary points
-      if (abl_probe_index < 3) {
+      if (abl_probe_index < abl2) {
         xProbe = points[abl_probe_index].x;
         yProbe = points[abl_probe_index].y;
+        _manual_goto_xy(xProbe, yProbe);
         #if HAS_SOFTWARE_ENDSTOPS
           // Disable software endstops to allow manual adjustment
           // If G29 is not completed, they will not be re-enabled
