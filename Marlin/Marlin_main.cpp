@@ -4490,7 +4490,7 @@ void home_all_axes() { gcode_G28(true); }
       const uint8_t old_debug_flags = marlin_debug_flags;
       if (query) marlin_debug_flags |= DEBUG_LEVELING;
       if (DEBUGGING(LEVELING)) {
-        DEBUG_POS(">>> gcode_G29", current_position);
+        DEBUG_POS(">>> G29", current_position);
         log_machine_info();
       }
       marlin_debug_flags = old_debug_flags;
@@ -4552,12 +4552,10 @@ void home_all_axes() { gcode_G28(true); }
                           abl_grid_points_y = GRID_MAX_POINTS_Y;
       #endif
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(PROBE_MANUALLY)
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-          ABL_VAR int abl2;
-        #else // Bilinear
-          int constexpr abl2 = GRID_MAX_POINTS;
-        #endif
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        ABL_VAR int abl2;
+      #elif ENABLED(PROBE_MANUALLY) // Bilinear
+        int constexpr abl2 = GRID_MAX_POINTS;
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -4575,7 +4573,9 @@ void home_all_axes() { gcode_G28(true); }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
-      int constexpr abl2 = 3;
+      #if ENABLED(PROBE_MANUALLY)
+        int constexpr abl2 = 3; // used to show total points
+      #endif
 
       // Probe at 3 arbitrary points
       ABL_VAR vector_3 points[3] = {
@@ -4624,7 +4624,7 @@ void home_all_axes() { gcode_G28(true); }
                  j = parser.byteval('J', -1);
 
           if (!isnan(rx) && !isnan(ry)) {
-            // Get nearest i / j from x / y
+            // Get nearest i / j from rx / ry
             i = (rx - bilinear_start[X_AXIS] + 0.5 * xGridSpacing) / xGridSpacing;
             j = (ry - bilinear_start[Y_AXIS] + 0.5 * yGridSpacing) / yGridSpacing;
             i = constrain(i, 0, GRID_MAX_POINTS_X - 1);
@@ -4637,22 +4637,18 @@ void home_all_axes() { gcode_G28(true); }
               bed_level_virt_interpolate();
             #endif
             set_bed_leveling_enabled(abl_should_enable);
-            report_current_position();
+            if (abl_should_enable) report_current_position();
           }
           return;
         } // parser.seen('W')
 
       #endif
 
-      #if HAS_LEVELING
-
-        // Jettison bed leveling data
-        if (parser.seen('J')) {
-          reset_bed_level();
-          return;
-        }
-
-      #endif
+      // Jettison bed leveling data
+      if (parser.seen('J')) {
+        reset_bed_level();
+        return;
+      }
 
       verbose_level = parser.intval('V');
       if (!WITHIN(verbose_level, 0, 4)) {
@@ -4682,6 +4678,7 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         abl2 = abl_grid_points_x * abl_grid_points_y;
+        mean = 0;
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -4734,8 +4731,9 @@ void home_all_axes() { gcode_G28(true); }
       #endif // ABL_GRID
 
       if (verbose_level > 0) {
-        SERIAL_PROTOCOLLNPGM("G29 Auto Bed Leveling");
-        if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
+        SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling");
+        if (dryrun) SERIAL_PROTOCOLPGM(" (DRYRUN)");
+        SERIAL_EOL();
       }
 
       stepper.synchronize();
@@ -4743,15 +4741,6 @@ void home_all_axes() { gcode_G28(true); }
       // Disable auto bed leveling during G29.
       // Be formal so G29 can be done successively without G28.
       set_bed_leveling_enabled(false);
-
-      if (!dryrun) {
-        // Re-orient the current position without leveling
-        // based on where the steppers are positioned.
-        set_current_from_steppers_for_axis(ALL_AXES);
-
-        // Sync the planner to where the steppers stopped
-        SYNC_PLAN_POSITION_KINEMATIC();
-      }
 
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
@@ -4934,9 +4923,10 @@ void home_all_axes() { gcode_G28(true); }
       #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
         // Probe at 3 arbitrary points
-        if (abl_probe_index < 3) {
+        if (abl_probe_index < abl2) {
           xProbe = points[abl_probe_index].x;
           yProbe = points[abl_probe_index].y;
+          _manual_goto_xy(xProbe, yProbe);
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
@@ -4973,6 +4963,8 @@ void home_all_axes() { gcode_G28(true); }
     #else // !PROBE_MANUALLY
     {
       const bool stow_probe_after_each = parser.boolval('E');
+
+      measured_z = 0;
 
       #if ABL_GRID
 
@@ -5307,7 +5299,7 @@ void home_all_axes() { gcode_G28(true); }
     if (!faux) clean_up_after_endstop_or_probe_move();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G29");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
     #endif
 
     report_current_position();
