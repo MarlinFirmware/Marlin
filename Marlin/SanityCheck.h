@@ -113,7 +113,7 @@
   #error "FILAMENT_CHANGE_XY_FEEDRATE is now NOZZLE_PARK_XY_FEEDRATE. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_Z_FEEDRATE)
   #error "FILAMENT_CHANGE_Z_FEEDRATE is now NOZZLE_PARK_Z_FEEDRATE. Please update your configuration."
-#elif defined(PAUSE_PARK_X_POS) defined(PAUSE_PARK_Y_POS)
+#elif defined(PAUSE_PARK_X_POS) || defined(PAUSE_PARK_Y_POS)
   #error "PAUSE_PARK_[XY]_POS is now set with NOZZLE_PARK_POINT. Please update your configuration."
 #elif defined(PAUSE_PARK_Z_ADD)
   #error "PAUSE_PARK_Z_ADD is now set with NOZZLE_PARK_POINT. Please update your configuration."
