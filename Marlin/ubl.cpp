@@ -51,6 +51,59 @@
     safe_delay(10);
   }
 
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
+
+    static void debug_echo_axis(const AxisEnum axis) {
+      if (current_position[axis] == destination[axis])
+        SERIAL_ECHOPGM("-------------");
+      else
+        SERIAL_ECHO_F(destination[X_AXIS], 6);
+    }
+
+    void debug_current_and_destination(const char *title) {
+
+      // if the title message starts with a '!' it is so important, we are going to
+      // ignore the status of the g26_debug_flag
+      if (*title != '!' && !g26_debug_flag) return;
+
+      const float de = destination[E_AXIS] - current_position[E_AXIS];
+
+      if (de == 0.0) return; // Printing moves only
+
+      const float dx = destination[X_AXIS] - current_position[X_AXIS],
+                  dy = destination[Y_AXIS] - current_position[Y_AXIS],
+                  xy_dist = HYPOT(dx, dy);
+
+      if (xy_dist == 0.0) return;
+
+      SERIAL_ECHOPGM("   fpmm=");
+      const float fpmm = de / xy_dist;
+      SERIAL_ECHO_F(fpmm, 6);
+
+      SERIAL_ECHOPGM("    current=( ");
+      SERIAL_ECHO_F(current_position[X_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Y_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Z_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[E_AXIS], 6);
+      SERIAL_ECHOPGM(" )   destination=( ");
+      debug_echo_axis(X_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Y_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Z_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(E_AXIS);
+      SERIAL_ECHOPGM(" )   ");
+      SERIAL_ECHO(title);
+      SERIAL_EOL();
+
+    }
+
+  #endif // UBL_DEVEL_DEBUGGING
+
   int8_t unified_bed_leveling::storage_slot;
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -67,17 +120,19 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
+    ubl_cnt++;  // Debug counter to ensure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
   void unified_bed_leveling::reset() {
+    const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
     storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
+    if (was_enabled) report_current_position();
   }
 
   void unified_bed_leveling::invalidate() {
@@ -172,7 +227,7 @@
     uint8_t error_flag = 0;
 
     if (settings.calc_num_meshes() < 1) {
-      SERIAL_PROTOCOLLNPGM("?Insufficient EEPROM storage for a mesh of this size.");
+      SERIAL_PROTOCOLLNPGM("?Mesh too big for EEPROM.");
       error_flag++;
     }
 

@@ -123,8 +123,8 @@
     for (uint8_t s = 0; s < strokes; s++)
       for (uint8_t i = 0; i < NOZZLE_CLEAN_CIRCLE_FN; i++)
         do_blocking_move_to_xy(
-          middle.x + sin((M_2_PI / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
-          middle.y + cos((M_2_PI / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
+          middle.x + sin((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
+          middle.y + cos((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
         );
 
     // Let's be safe
@@ -161,23 +161,24 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t &z_action) {
-    const point_t park = NOZZLE_PARK_POINT;
+  void Nozzle::park(const uint8_t &z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
+    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
+    const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height
-        do_blocking_move_to_z(park.z);
+        do_blocking_move_to_z(park.z, fr_z);
         break;
 
       case 2: // Raise by Z-park height
-        do_blocking_move_to_z(min(current_position[Z_AXIS] + park.z, Z_MAX_POS));
+        do_blocking_move_to_z(min(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
         break;
 
       default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(max(park.z, current_position[Z_AXIS]));
+        do_blocking_move_to_z(max(park.z, current_position[Z_AXIS]), fr_z);
     }
 
-    do_blocking_move_to_xy(park.x, park.y);
+    do_blocking_move_to_xy(park.x, park.y, fr_xy);
   }
 
 #endif // NOZZLE_PARK_FEATURE
