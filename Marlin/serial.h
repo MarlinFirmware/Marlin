@@ -26,7 +26,7 @@
 #include "MarlinConfig.h"
 
 #ifdef USBCON
-  #include "HardwareSerial.h"
+  #include <HardwareSerial.h>
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL bluetoothSerial
   #else

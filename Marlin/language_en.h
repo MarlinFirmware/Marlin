@@ -813,8 +813,8 @@
 #ifndef MSG_DELTA_HEIGHT_CALIBRATE
   #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
-#ifndef MSG_DELTA_DIAG_ROG
-  #define MSG_DELTA_DIAG_ROG                  _UxGT("Diag Rod")
+#ifndef MSG_DELTA_DIAG_ROD
+  #define MSG_DELTA_DIAG_ROD                  _UxGT("Diag Rod")
 #endif
 #ifndef MSG_DELTA_HEIGHT
   #define MSG_DELTA_HEIGHT                    _UxGT("Height")

@@ -145,10 +145,10 @@
  * LCD / Controller
  *
  * Only the following displays are supported:
- *  ANET_KEYPAD_LCD
+ *  ZONESTAR_LCD
  *  ANET_FULL_GRAPHICS_LCD
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-*/
+ */
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   #define LCD_SDSS           28
@@ -209,7 +209,7 @@
  * ===================== LCD PINOUTS ==================================
  * ====================================================================
  *
- *   Anet V1.0 controller           | ANET_KEYPAD_LCD   | ANET_FULL_      | RepRapDiscount Full      | Thingiverse RepRap wiring
+ *   Anet V1.0 controller           | ZONESTAR_LCD      | ANET_FULL_      | RepRapDiscount Full      | Thingiverse RepRap wiring
  *   physical   logical   alt       |                   | GRAPHICS_LCD    | Graphics Display Wiring  | http://www.thingiverse
  *     pin        pin     functions |                   |                 |                          | .com/thing:2103748
  *------------------------------------------------------------------------------------------------------------------------

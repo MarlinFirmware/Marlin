@@ -317,7 +317,7 @@ void Endstops::update() {
         _ENDSTOP_HIT(AXIS, MINMAX); \
         stepper.endstop_triggered(_AXIS(AXIS)); \
       } \
-    } while(0)
+    }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
