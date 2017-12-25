@@ -1434,6 +1434,12 @@
 //
 
 //
+// Original RADDS LCD Display+Encoder+SDCardReader
+// http://doku.radds.org/dokumentation/lcd-display/
+//
+//#define RADDS_DISPLAY
+
+//
 // ULTIMAKER Controller.
 //
 //#define ULTIMAKERCONTROLLER
