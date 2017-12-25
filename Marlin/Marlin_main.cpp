@@ -2502,27 +2502,25 @@ static void clean_up_after_endstop_or_probe_move() {
    * Reset calibration results to zero.
    */
   void reset_bed_level() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+    #endif
     set_bed_leveling_enabled(false);
     #if ENABLED(MESH_BED_LEVELING)
       if (leveling_is_valid()) {
         mbl.reset();
         mbl.has_mesh = false;
       }
-    #else
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-      #endif
-      #if ABL_PLANAR
-        planner.bed_level_matrix.set_to_identity();
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
-        bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-            z_values[x][y] = NAN;
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.reset();
-      #endif
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+      ubl.reset();
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
+      bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          z_values[x][y] = NAN;
+    #elif ABL_PLANAR
+      planner.bed_level_matrix.set_to_identity();
     #endif
   }
 
@@ -6497,6 +6495,10 @@ inline void gcode_M17() {
   ) {
     if (move_away_flag) return false; // already paused
 
+    #ifdef ACTION_ON_PAUSE
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    #endif
+
     if (!DEBUGGING(DRYRUN) && unload_length != 0) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!thermalManager.allow_cold_extrude &&
@@ -6727,6 +6729,10 @@ inline void gcode_M17() {
     #if ENABLED(ULTIPANEL)
       // Show status screen
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+    #endif
+
+    #ifdef ACTION_ON_RESUME
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
     #endif
 
     #if ENABLED(SDSUPPORT)
@@ -8600,7 +8606,6 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *    Z = override Z raise
    */
   inline void gcode_M125() {
-    point_t park_point = NOZZLE_PARK_POINT;
 
     // Initial retract before move to filament change position
     const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
@@ -8609,16 +8614,14 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       #endif
     ;
 
-    // Lift Z axis
-    if (parser.seenval('Z'))
-      park_point.z = parser.linearval('Z');
+    point_t park_point = NOZZLE_PARK_POINT;
 
     // Move XY axes to filament change position or given position
-    if (parser.seenval('X'))
-      park_point.x = parser.linearval('X');
+    if (parser.seenval('X')) park_point.x = parser.linearval('X');
+    if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-    if (parser.seenval('Y'))
-      park_point.y = parser.linearval('Y');
+    // Lift Z axis
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
@@ -9638,7 +9641,7 @@ void quickstop_stepper() {
 
         #if ENABLED(EEPROM_SETTINGS)
           const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.storage_slot;
-          const int16_t a = settings.calc_num_meshes();
+          const uint16_t a = settings.calc_num_meshes();
 
           if (!a) {
             SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
