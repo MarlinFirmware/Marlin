@@ -608,7 +608,7 @@
     if (parser.seen('L')) {     // Load Current Mesh Data
       g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
-      uint16_t a = settings.calc_num_meshes();
+      int16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
@@ -650,7 +650,7 @@
         return;
       }
 
-      uint16_t a = settings.calc_num_meshes();
+      int16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
@@ -1327,7 +1327,7 @@
    * use cases for the users. So we can wait and see what to do with it.
    */
   void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-    uint16_t a = settings.calc_num_meshes();
+    int16_t a = settings.calc_num_meshes();
 
     if (!a) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");

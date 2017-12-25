@@ -9630,7 +9630,7 @@ void quickstop_stepper() {
 
         #if ENABLED(EEPROM_SETTINGS)
           const int8_t storage_slot = parser.has_value() ? parser.value_int() : ubl.storage_slot;
-          const uint16_t a = settings.calc_num_meshes();
+          const int16_t a = settings.calc_num_meshes();
 
           if (!a) {
             SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
