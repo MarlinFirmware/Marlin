@@ -84,6 +84,15 @@ void AnycubicTFTClass::ReadOutageEEPromData() {
 
 }
 
+void AnycubicTFTClass::KillTFT()
+{
+  ANYCUBIC_SERIAL_PROTOCOLPGM("J11"); // J11 Kill
+  ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Kill command... J11");
+#endif
+}
+
 
 void AnycubicTFTClass::StartPrint(){
   if (TFTstate==ANYCUBIC_TFT_STATE_SDPAUSE) {
@@ -494,11 +503,6 @@ void AnycubicTFTClass::GetCommandFromTFT()
             }
             break;
           case 12: // A12 kill
-            ANYCUBIC_SERIAL_PROTOCOLPGM("J11"); // J11 Kill
-            ANYCUBIC_SERIAL_ENTER();
-#ifdef ANYCUBIC_TFT_DEBUG
-            SERIAL_ECHOLNPGM("TFT Serial Debug: Kill command... J11");
-#endif
             kill(PSTR(MSG_KILLED));
             break;
           case 13: // A13 SELECTION FILE
@@ -528,10 +532,10 @@ void AnycubicTFTClass::GetCommandFromTFT()
             if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE) && (card.isFileOpen()))
             {
               StartPrint();
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J06"); // J06 hotend heating
+              ANYCUBIC_SERIAL_PROTOCOLPGM("J04"); // J04 Starting Print
               ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
-              SERIAL_ECHOLNPGM("TFT Serial Debug: Hotend heating... J06");
+              SERIAL_ECHOLNPGM("TFT Serial Debug: Starting SD Print... J04");
 #endif
             }
             break;
@@ -842,22 +846,49 @@ void AnycubicTFTClass::CommandScan()
   }
 }
 
+void AnycubicTFTClass::HeatingStart()
+{
+  ANYCUBIC_SERIAL_PROTOCOLPGM("J06"); // J07 hotend heating start
+  ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Nozzle is heating... J06");
+#endif
+}
+
 void AnycubicTFTClass::HeatingDone()
 {
   ANYCUBIC_SERIAL_PROTOCOLPGM("J07"); // J07 hotend heating done
   ANYCUBIC_SERIAL_ENTER();
-  if(card.sdprinting)
+#ifdef ANYCUBIC_TFT_DEBUG
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Nozzle heating is done... J07");
+#endif
+
+  if(TFTstate==ANYCUBIC_TFT_STATE_SDPRINT)
   {
     ANYCUBIC_SERIAL_PROTOCOLPGM("J04"); // J04 printing from sd card
     ANYCUBIC_SERIAL_ENTER();
-    TFTstate=ANYCUBIC_TFT_STATE_SDPRINT;
+#ifdef ANYCUBIC_TFT_DEBUG
+    SERIAL_ECHOLNPGM("TFT Serial Debug: Continuing SD print after heating... J04");
+#endif
   }
 }
 
-void AnycubicTFTClass::HotbedHeatingDone()
+void AnycubicTFTClass::BedHeatingStart()
+{
+  ANYCUBIC_SERIAL_PROTOCOLPGM("J08"); // J08 hotbed heating start
+  ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed heating is done... J08");
+#endif
+}
+
+void AnycubicTFTClass::BedHeatingDone()
 {
   ANYCUBIC_SERIAL_PROTOCOLPGM("J09"); // J09 hotbed heating done
   ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed is heating... J09");
+#endif
 }
 
 

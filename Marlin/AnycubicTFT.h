@@ -33,9 +33,8 @@ char *itostr2(const uint8_t &x);
 #define ANYCUBIC_TFT_STATE_SDPRINT        1
 #define ANYCUBIC_TFT_STATE_SDPAUSE        2
 #define ANYCUBIC_TFT_STATE_SDPAUSE_REQ    3
-#define ANYCUBIC_TFT_STATE_SDPRINT_HEAT   4
-#define ANYCUBIC_TFT_STATE_SDPAUSE_OOF    5
-#define ANYCUBIC_TFT_STATE_SDSTOP_REQ     6
+#define ANYCUBIC_TFT_STATE_SDPAUSE_OOF    4
+#define ANYCUBIC_TFT_STATE_SDSTOP_REQ     5
 #define ANYCUBIC_TFT_STATE_SDOUTAGE       99
 
 
@@ -44,9 +43,12 @@ public:
   AnycubicTFTClass();
   void Setup();
   void CommandScan();
-  void HotbedHeatingDone();
+  void BedHeatingStart();
+  void BedHeatingDone();
   void HeatingDone();
+  void HeatingStart();
   void FilamentRunout();
+  void KillTFT();
   
 private:
   char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];

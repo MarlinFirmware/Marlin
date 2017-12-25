@@ -7547,6 +7547,10 @@ inline void gcode_M109() {
   }
   else return;
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.HeatingStart();
+#endif
+
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
@@ -7702,6 +7706,10 @@ inline void gcode_M109() {
     }
     else return;
 
+#ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.BedHeatingStart();
+#endif
+
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
       // Loop until the temperature has stabilized
@@ -7807,7 +7815,7 @@ inline void gcode_M109() {
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
     #ifdef ANYCUBIC_TFT_MODEL
-    AnycubicTFT.HotbedHeatingDone();
+    AnycubicTFT.BedHeatingDone();
     #endif
     
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
@@ -13357,6 +13365,11 @@ void kill(const char* lcd_msg) {
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
+  #endif
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Kill AnycubicTFT
+    AnycubicTFT.KillTFT();
   #endif
 
   _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
