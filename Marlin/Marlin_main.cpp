@@ -10009,6 +10009,7 @@ inline void gcode_M502() {
    *  U[distance] - Retract distance for removal (negative value) (manual reload)
    *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
    *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
+   *  T[toolhead] - Select extruder for filament change
    *
    *  Default values are used for omitted arguments.
    *
@@ -10019,6 +10020,18 @@ inline void gcode_M502() {
     #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
       // Don't allow filament change without homing first
       if (axis_unhomed_error()) home_all_axes();
+    #endif
+
+    #if EXTRUDERS > 1
+      // Change toolhead if specified
+      uint8_t active_extruder_before_filament_change = -1;
+      if (parser.seen('T')) {
+        const uint8_t extruder = parser.value_byte();
+        if (active_extruder != extruder) {
+          active_extruder_before_filament_change = active_extruder;
+          tool_change(extruder, 0, true);
+        }
+      }
     #endif
 
     // Initial retract before move to filament change position
@@ -10072,6 +10085,12 @@ inline void gcode_M502() {
       wait_for_filament_reload(beep_count);
       resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
     }
+
+    #if EXTRUDERS > 1
+      // Restore toolhead if it was changed
+      if (active_extruder_before_filament_change >= 0)
+        tool_change(active_extruder_before_filament_change, 0, true);
+    #endif
 
     // Resume the print job timer if it was running
     if (job_running) print_job_timer.start();
