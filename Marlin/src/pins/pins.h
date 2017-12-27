@@ -825,4 +825,14 @@
 
 #include "../HAL/HAL_spi_pins.h"
 
+// Override DOGLCD_SCK and DOGLCD_MOSI for software SPI
+#if ENABLED(LCD_SOFTWARE_SPI)
+  #if PIN_EXISTS(DOGLCD_SOFT_SCK) && PIN_EXISTS(DOGLCD_SOFT_MOSI)
+    #define DOGLCD_SCK  LCD_SOFT_SCK
+    #define DOGLCD_MOSI LCD_SOFT_MOSI
+  #else
+    #error "LCD_SOFTWARE_SPI requires LCD_SOFT_SCK and LCD_SOFT_MOSI pins."
+  #endif
+#endif
+
 #endif // __PINS_H__
