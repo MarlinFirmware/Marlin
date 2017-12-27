@@ -177,7 +177,10 @@ uint16_t max_display_update_time = 0;
   void lcd_control_temperature_preheat_material1_settings_menu();
   void lcd_control_temperature_preheat_material2_settings_menu();
   void lcd_control_motion_menu();
-  void lcd_control_filament_menu();
+
+  #if DISABLED(NO_VOLUMETRICS)
+    void lcd_control_filament_menu();
+  #endif
 
   #if ENABLED(LCD_INFO_MENU)
     #if ENABLED(PRINTCOUNTER)
@@ -3134,7 +3137,12 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-    MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
+
+    #if DISABLED(NO_VOLUMETRICS)
+      MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
+    #elif ENABLED(LIN_ADVANCE)
+      MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
+    #endif
 
     #if HAS_LCD_CONTRAST
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
@@ -3623,20 +3631,19 @@ void kill_screen(const char* lcd_msg) {
     END_MENU();
   }
 
-  /**
-   *
-   * "Control" > "Filament" submenu
-   *
-   */
-  void lcd_control_filament_menu() {
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
+  #if DISABLED(NO_VOLUMETRICS)
+    /**
+     *
+     * "Control" > "Filament" submenu
+     *
+     */
+    void lcd_control_filament_menu() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
 
-    #if ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
-    #endif
-
-    #if DISABLED(NO_VOLUMETRICS)
+      #if ENABLED(LIN_ADVANCE)
+        MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
+      #endif
 
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
@@ -3659,10 +3666,9 @@ void kill_screen(const char* lcd_msg) {
         #endif // EXTRUDERS > 1
       }
 
-    #endif // !NO_VOLUMETRICS
-
-    END_MENU();
-  }
+      END_MENU();
+    }
+  #endif // !NO_VOLUMETRICS
 
   /**
    *
