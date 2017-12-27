@@ -365,7 +365,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
       ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
@@ -548,6 +548,10 @@ void idle(
       lastUpdateMillis = millis();
     }
   #endif
+
+  #ifdef HAL_IDLETASK
+    HAL_idletask();
+  #endif
 }
 
 /**
@@ -632,6 +636,10 @@ void stop() {
  *    • status LEDs
  */
 void setup() {
+
+  #ifdef HAL_INIT
+    HAL_init();
+  #endif
 
   #if ENABLED(MAX7219_DEBUG)
     Max7219_init();

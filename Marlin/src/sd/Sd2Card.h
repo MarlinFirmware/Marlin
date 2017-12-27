@@ -71,7 +71,8 @@ uint8_t const SD_CARD_ERROR_CMD0 = 0x01,                // timeout error for com
               SD_CARD_ERROR_WRITE_TIMEOUT = 0x17,       // timeout occurred during write programming
               SD_CARD_ERROR_SCK_RATE = 0x18,            // incorrect rate selected
               SD_CARD_ERROR_INIT_NOT_CALLED = 0x19,     // init() not called
-              SD_CARD_ERROR_CRC = 0x20;                 // crc check error
+              SD_CARD_ERROR_CMD59 = 0x1A,               // card returned an error for CMD59 (CRC_ON_OFF)
+              SD_CARD_ERROR_READ_CRC = 0x1B;            // invalid read CRC
 
 // card types
 uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 SD card
@@ -196,8 +197,8 @@ class Sd2Card {
 
   bool readData(uint8_t* dst, uint16_t count);
   bool readRegister(uint8_t cmd, void* buf);
-  void chipSelectHigh();
-  void chipSelectLow();
+  void chipDeselect();
+  void chipSelect();
   void type(uint8_t value) { type_ = value; }
   bool waitNotBusy(uint16_t timeoutMillis);
   bool writeData(uint8_t token, const uint8_t* src);

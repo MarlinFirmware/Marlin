@@ -32,6 +32,9 @@
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
 
+bool report_tmc_status = false;
+char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1", "E2", "E3", "E4" };
+
 template<typename TMC>
 void tmc_get_current(TMC &st, const char name[]) {
   SERIAL_ECHO(name);

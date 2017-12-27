@@ -540,7 +540,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // If the move is only in Z/E don't split up the move
     if (!xdiff && !ydiff) {
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
-      return false;
+      return false; // caller will update current_position
     }
 
     // Fail if attempting move outside printable radius
@@ -587,7 +587,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
                   inverse_secs = inv_segment_length * _feedrate_mm_s;
@@ -611,43 +611,34 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       }
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
+
       #if ENABLED(DELTA)
-        DELTA_RAW_IK(); // Delta can inline its kinematics
+        DELTA_IK(raw); // Delta can inline its kinematics
       #else
         inverse_kinematics(raw);
       #endif
-
       ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
 
-      #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
-        // Use ratio between the length of the move and the larger angle change
-        const float adiff = abs(delta[A_AXIS] - oldA),
-                    bdiff = abs(delta[B_AXIS] - oldB);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * inverse_secs, active_extruder);
-        oldA = delta[A_AXIS];
-        oldB = delta[B_AXIS];
+        // i.e., Complete the angular vector in the given time.
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+        oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
       #else
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder);
       #endif
     }
 
-    // Since segment_distance is only approximate,
-    // the final move must be to the exact destination.
-
-    #if IS_SCARA && ENABLED(SCARA_FEEDRATE_SCALING)
-      // For SCARA scale the feed rate from mm/s to degrees/s
-      // With segments > 1 length is 1 segment, otherwise total length
+    // Ensure last segment arrives at target location.
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
       inverse_kinematics(rtarget);
       ADJUST_DELTA(rtarget);
-      const float adiff = abs(delta[A_AXIS] - oldA),
-                  bdiff = abs(delta[B_AXIS] - oldB);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], max(adiff, bdiff) * inverse_secs, active_extruder);
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
     #else
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
     #endif
 
-    return false;
+    return false; // caller will update current_position
   }
 
 #else // !IS_KINEMATIC
@@ -739,7 +730,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           return true;                                                                    // all moves, including Z-only moves.
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
           segmented_line_to_destination(MMS_SCALED(feedrate_mm_s));
-          return false;
+          return false; // caller will update current_position
         #else
           /**
            * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
@@ -758,7 +749,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #endif // HAS_MESH
 
     buffer_line_to_destination(MMS_SCALED(feedrate_mm_s));
-    return false;
+    return false; // caller will update current_position
   }
 
 #endif // !IS_KINEMATIC

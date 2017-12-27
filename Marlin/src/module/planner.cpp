@@ -105,7 +105,7 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
-float Planner::e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow percentage and volumetric multiplier combine to scale E movement
 
 #if DISABLED(NO_VOLUMETRICS)
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -1075,6 +1075,9 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
       block_buffer_runtime_us += segment_time_us;
     CRITICAL_SECTION_END
   #endif
+
+  block->nominal_speed = block->millimeters * inverse_secs;           //   (mm/sec) Always > 0
+  block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static float filwidth_e_count = 0, filwidth_delay_dist = 0;

@@ -169,9 +169,6 @@
   #else
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card)
   #endif
-#elif ENABLED(U8GLIB_ST7920) && defined(__arm__)
-  // RepRap Discount Full Graphics Smart Controller on an ARM target
-    U8GLIB_ST7920_128X64_CUSTOM_SW_SPI u8g;
 
 #elif ENABLED(U8GLIB_ST7920)
   // RepRap Discount Full Graphics Smart Controller
@@ -190,6 +187,7 @@
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
     //U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
     U8GLIB_LM6059_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
+    
 #elif ENABLED(U8GLIB_ST7565_64128N)
   // The MaKrPanel, Mini Viki, and Viki 2.0, ST7565 controller
     //U8GLIB_64128N_2X_HAL u8g(DOGLCD_CS, DOGLCD_A0);  // using HW-SPI
