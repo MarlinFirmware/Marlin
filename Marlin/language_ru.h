@@ -296,11 +296,9 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Сила привода")
 #define MSG_DAC_PERCENT                     _UxGT("Привод %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Записи DAC EEPROM")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ПЕЧАТЬ ОСТАНОВЛЕНА")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ПЕЧАТЬ ОСТАНОВЛЕНА")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ОПЦИИ ВОЗОБНОВЛЕНИЯ:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Выдавить ещё")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Возобновить печать")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Мин. температура")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Сопла: ")
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -329,7 +327,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1    _UxGT("Вставь и нажми")
   #define MSG_FILAMENT_CHANGE_HEATING_1   _UxGT("Нагрев...")
   #define MSG_FILAMENT_CHANGE_LOAD_1      _UxGT("Загрузка...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1   _UxGT("Выдавливание...")
   #define MSG_FILAMENT_CHANGE_RESUME_1    _UxGT("Возобновление...")
 #endif // LCD_HEIGHT < 4
 

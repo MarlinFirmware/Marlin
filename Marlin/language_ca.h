@@ -219,11 +219,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Força motor")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeix mes")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Repren impressió")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Temp minima es ")
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -244,8 +240,6 @@
   #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Espereu...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperant carrega")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("de filament")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperant per")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extreure filament")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperant per")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("reprendre")
 #else // LCD_HEIGHT < 4
@@ -254,7 +248,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insereix i prem")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Escalfant...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Carregant...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrudint...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Reprenent...")
 #endif // LCD_HEIGHT < 4
 

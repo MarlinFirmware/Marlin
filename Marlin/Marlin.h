@@ -175,6 +175,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
+void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
@@ -430,6 +431,8 @@ void report_current_position();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
+  extern float filament_change_unload_length[EXTRUDERS],
+               filament_change_load_length[EXTRUDERS];
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
