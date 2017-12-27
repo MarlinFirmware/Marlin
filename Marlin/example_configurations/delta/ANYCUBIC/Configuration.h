@@ -64,7 +64,7 @@
  * For all the other delta parameters,
  * I recommend to get them from autocalibration
  */
-#define USER_DELTA_HEIGHT 240
+#define DELTA_HEIGHT 240
 
 /* Steppers Direction
  * Uncomment if for some reason you stepper move backwards
