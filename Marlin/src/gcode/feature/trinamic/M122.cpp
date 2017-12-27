@@ -110,8 +110,7 @@ static void drv_status_print_hex(const char name[], const uint32_t drv_status) {
 #if ENABLED(HAVE_TMC2208)
   static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
     switch(i) {
-      case TMC_TSTEP:
-        {
+      case TMC_TSTEP: {
           uint32_t data = 0;
           st.TSTEP(&data);
           MYSERIAL.print(data);
@@ -159,14 +158,12 @@ static void tmc_status(TMC &st, TMC_AxisEnum axis, const TMC_debug_enum i, const
     case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); break;
 
     case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-    case TMC_TPWMTHRS:
-      {
+    case TMC_TPWMTHRS: {
         uint32_t tpwmthrs_val = st.TPWMTHRS();
         SERIAL_ECHO(tpwmthrs_val);
       }
       break;
-    case TMC_TPWMTHRS_MMS:
-      {
+    case TMC_TPWMTHRS_MMS: {
         uint32_t tpwmthrs_val = st.TPWMTHRS();
         tpwmthrs_val ? SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm)) : SERIAL_ECHO('-');
       }

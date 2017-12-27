@@ -128,8 +128,7 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
       break;
     case U8G_DEV_MSG_STOP:
       break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
@@ -202,8 +201,7 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
       break;
     case U8G_DEV_MSG_STOP:
       break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
