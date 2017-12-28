@@ -5,24 +5,23 @@
 # Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
 
-[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+[[ $# < 2 ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
 
-MFINFO=$(mfinfo) || exit 1
+MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 REPO=${INFO[2]}
 TARG=${INFO[3]}
-BRANCH=${INFO[5]}
+CURR=${INFO[5]}
 
 git add .
 git commit -m "patch"
 
-if [[ $BRANCH == $TARG ]]; then
+if [[ $CURR == $TARG ]]; then
   if [[ $REPO == "MarlinDocumentation" ]]; then
-    git rebase -i HEAD~2
+    git rebase -i HEAD~2 && git push -f
   else
     echo "Don't alter the PR Target branch."; exit 1
   fi
 else
-  mfrb
-  git push -f
+  mfrb "$@" && git push -f
 fi

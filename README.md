@@ -17,15 +17,26 @@ Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/
 
 Click on the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues) and [Pull Requests](https://github.com/MarlinFirmware/Marlin/pulls) links above at any time to see what we're currently working on.
 
-To submit patches and new features for Marlin 1.1 check out the [bugfix-1.1.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x) branch, add your commits, and submit a Pull Request back to the `bugfix-1.1.x` branch. Periodically that branch will form the basis for the next minor release.
+Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.7.)
 
-Note that our "bugfix" branch will always contain the latest patches to the current release version. These patches may not be widely tested. As always, when using "nightly" builds of Marlin, proceed with full caution.
+## Recent Changes
+- Internally always use native machine space
+- Initial UBL LCD Menu
+- New optimized G-code parser singleton
+- Initial `M3`/`M4`/`M5` Spindle and Laser support
+- Added `M421 Q` to offset a mesh point
+- Refinements to `G26` and `G33`
+- Added `M80 S` to query the power state
+- "Cancel Print" now shuts off heaters
+- Added `EXTRAPOLATE_BEYOND_GRID` option for mesh-based leveling
 
 ## Current Status: In Development
 
 Marlin development has reached an important milestone with its first stable release in over 2 years. During this period we focused on cleaning up the code and making it more modern, consistent, readable, and sensible.
 
-## Future Development
+- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 1.1.x life-cycle. We've opted for a simplified branch structure while we work on the maintainability and encapsulation of code modules. Version 2.0 and beyond should improve on separation of bug fixes and cutting-edge development.
+- Follow the proper coding style to gain points with the maintainers. See our [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) page for more information.
+- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues). The "naive" question is often the one we forget to ask.
 
 Marlin 1.1 is the last "flat" version of Marlin!
 
@@ -44,37 +55,42 @@ Arduino IDE now has support for folder hierarchies, so Marlin 1.2 will have a [h
 ## Credits
 
 The current Marlin dev team consists of:
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - English
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - English
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - English
- - Andreas Hardtung [[@AnHardt](https://github.com/AnHardt)] - Deutsch, English
- - Nico Tonnhofer [[@Wurstnase](https://github.com/Wurstnase)] - Deutsch, English
- - Jochen Groppe [[@CONSULitAS](https://github.com/CONSULitAS)] - Deutsch, English
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portuguese, English
- - Bo Hermannsen [[@boelle](https://github.com/boelle)] - Danish, English
- - Bob Cousins [[@bobc](https://github.com/bobc)] - English
- - [[@maverikou](https://github.com/maverikou)]
- - Chris Palmer [[@nophead](https://github.com/nophead)]
- - [[@paclema](https://github.com/paclema)]
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)]
- - David Braam [[@daid](https://github.com/daid)]
- - Bernhard Kubicek [[@bkubicek](https://github.com/bkubicek)]
+ - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)]
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)]
+ - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]
 
-More features have been added by:
- - Alberto Cotronei [[@MagoKimbra](https://github.com/MagoKimbra)] - English, Italian
- - Thomas Moore [[@tcm0116](https://github.com/tcm0116)]
- - Ernesto Martinez [[@emartinez167](https://github.com/emartinez167)]
- - Petr Zahradnik [[@clexpert](https://github.com/clexpert)]
- - Kai [[@Kaibob2](https://github.com/Kaibob2)]
+Notable contributors include:
+ - Alberto Cotronei [[@MagoKimbra](https://github.com/MagoKimbra)]
+ - Andreas Hardtung [[@AnHardt](https://github.com/AnHardt)]
+ - Bernhard Kubicek [[@bkubicek](https://github.com/bkubicek)]
+ - Bob Cousins [[@bobc](https://github.com/bobc)]
+ - Chris Palmer [[@nophead](https://github.com/nophead)]
+ - David Braam [[@daid](https://github.com/daid)]
  - Edward Patel [[@epatel](https://github.com/epatel)]
- - F. Malpartida [[@fmalpartida](https://github.com/fmalpartida)] - English, Spanish
- - [[@esenapaj](https://github.com/esenapaj)] - English, Japanese
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)]
+ - Ernesto Martinez [[@emartinez167](https://github.com/emartinez167)]
+ - F. Malpartida [[@fmalpartida](https://github.com/fmalpartida)]
+ - Jochen Groppe [[@CONSULitAS](https://github.com/CONSULitAS)]
+ - João Brazio [[@jbrazio](https://github.com/jbrazio)]
+ - Kai [[@Kaibob2](https://github.com/Kaibob2)]
+ - Luc Van Daele[[@LVD-AC](https://github.com/LVD-AC)]
+ - Nico Tonnhofer [[@Wurstnase](https://github.com/Wurstnase)]
+ - Petr Zahradnik [[@clexpert](https://github.com/clexpert)]
+ - Thomas Moore [[@tcm0116](https://github.com/tcm0116)]
+ - [[@alexxy](https://github.com/alexxy)]
+ - [[@android444](https://github.com/android444)]
  - [[@benlye](https://github.com/benlye)]
+ - [[@bgort](https://github.com/bgort)]
+ - [[@Grogyan](https://github.com/Grogyan)]
+ - [[@marcio-ao](https://github.com/marcio-ao)]
+ - [[@maverikou](https://github.com/maverikou)]
+ - [[@oysteinkrog](https://github.com/oysteinkrog)]
+ - [[@p3p](https://github.com/p3p)]
+ - [[@paclema](https://github.com/paclema)]
+ - [[@paulusjacobus](https://github.com/paulusjacobus)]
+ - [[@psavva](https://github.com/psavva)]
  - [[@Tannoo](https://github.com/Tannoo)]
  - [[@teemuatlut](https://github.com/teemuatlut)]
- - [[@bgort](https://github.com/bgort)]
- - Luc Van Daele[[@LVD-AC](https://github.com/LVD-AC)] - Dutch, French, English
- - [[@paulusjacobus](https://github.com/paulusjacobus)]
  - ...and many others
 
 ## License

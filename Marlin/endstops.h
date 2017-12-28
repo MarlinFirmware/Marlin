@@ -28,6 +28,7 @@
 #define ENDSTOPS_H
 
 #include "enum.h"
+#include "MarlinConfig.h"
 
 class Endstops {
 
@@ -36,14 +37,22 @@ class Endstops {
     static bool enabled, enabled_globally;
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       static uint16_t
     #else
       static byte
     #endif
         current_endstop_bits, old_endstop_bits;
 
-    Endstops() {};
+    Endstops() {
+      enable_globally(
+        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+          true
+        #else
+          false
+        #endif
+      );
+    };
 
     /**
      * Initialize the endstop pins
@@ -85,6 +94,12 @@ class Endstops {
 
   private:
 
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      static void test_dual_x_endstops(const EndstopEnum es1, const EndstopEnum es2);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static void test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2);
+    #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static void test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2);
     #endif

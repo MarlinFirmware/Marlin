@@ -30,6 +30,12 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
+#define en 1234
+#if LCD_LANGUAGE == en
+  #define NOT_EXTENDED_ISO10646_1_5X7
+#endif
+#undef en
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
 #endif
@@ -356,6 +362,64 @@
   #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Step-By-Step UBL")
 #endif
 
+#ifndef MSG_LED_CONTROL
+  #define MSG_LED_CONTROL                     _UxGT("LED Control")
+#endif
+#ifndef MSG_LEDS_ON
+  #define MSG_LEDS_ON                         _UxGT("Lights On")
+#endif
+#ifndef MSG_LEDS_OFF
+  #define MSG_LEDS_OFF                        _UxGT("Lights Off")
+#endif
+#ifndef MSG_LED_PRESETS
+  #define MSG_LED_PRESETS                     _UxGT("Light Presets")
+#endif
+#ifndef MSG_SET_LEDS_RED
+  #define MSG_SET_LEDS_RED                    _UxGT("Lights Red")
+#endif
+#ifndef MSG_SET_LEDS_ORANGE
+  #define MSG_SET_LEDS_ORANGE                 _UxGT("Lights Orange")
+#endif
+#ifndef MSG_SET_LEDS_YELLOW
+  #define MSG_SET_LEDS_YELLOW                 _UxGT("Lights Yellow")
+#endif
+#ifndef MSG_SET_LEDS_GREEN
+  #define MSG_SET_LEDS_GREEN                  _UxGT("Lights Green")
+#endif
+#ifndef MSG_SET_LEDS_BLUE
+  #define MSG_SET_LEDS_BLUE                   _UxGT("Lights Blue")
+#endif
+#ifndef MSG_SET_LEDS_INDIGO
+  #define MSG_SET_LEDS_INDIGO                 _UxGT("Lights Indigo")
+#endif
+#ifndef MSG_SET_LEDS_VIOLET
+  #define MSG_SET_LEDS_VIOLET                 _UxGT("Lights Violet")
+#endif
+#ifndef MSG_SET_LEDS_WHITE
+  #define MSG_SET_LEDS_WHITE                  _UxGT("Lights White")
+#endif
+#ifndef MSG_SET_LEDS_DEFAULT
+  #define MSG_SET_LEDS_DEFAULT                _UxGT("Lights Default")
+#endif
+#ifndef MSG_CUSTOM_LEDS
+  #define MSG_CUSTOM_LEDS                     _UxGT("Custom Lights")
+#endif
+#ifndef MSG_INTENSITY_R
+  #define MSG_INTENSITY_R                     _UxGT("Red Intensity")
+#endif
+#ifndef MSG_INTENSITY_G
+  #define MSG_INTENSITY_G                     _UxGT("Green Intensity")
+#endif
+#ifndef MSG_INTENSITY_B
+  #define MSG_INTENSITY_B                     _UxGT("Blue Intensity")
+#endif
+#ifndef MSG_INTENSITY_W
+  #define MSG_INTENSITY_W                     _UxGT("White Intensity")
+#endif
+#ifndef MSG_LED_BRIGHTNESS
+  #define MSG_LED_BRIGHTNESS                  _UxGT("Brightness")
+#endif
+
 #ifndef MSG_MOVING
   #define MSG_MOVING                          _UxGT("Moving...")
 #endif
@@ -397,6 +461,9 @@
 #endif
 #ifndef MSG_FAN_SPEED
   #define MSG_FAN_SPEED                       _UxGT("Fan speed")
+#endif
+#ifndef MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra fan speed")
 #endif
 #ifndef MSG_FLOW
   #define MSG_FLOW                            _UxGT("Flow")
@@ -612,7 +679,10 @@
   #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVERF
-  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+  #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet V")
+#endif
+#ifndef MSG_CONTROL_RETRACT_RECOVER_SWAPF
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #endif
 #ifndef MSG_AUTORETRACT
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
@@ -628,6 +698,9 @@
 #endif
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
+#endif
+#ifndef MSG_SKEW_FACTOR
+  #define MSG_SKEW_FACTOR                     _UxGT("Skew Factor")
 #endif
 #ifndef MSG_BLTOUCH
   #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -740,8 +813,8 @@
 #ifndef MSG_DELTA_HEIGHT_CALIBRATE
   #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
 #endif
-#ifndef MSG_DELTA_DIAG_ROG
-  #define MSG_DELTA_DIAG_ROG                  _UxGT("Diag Rod")
+#ifndef MSG_DELTA_DIAG_ROD
+  #define MSG_DELTA_DIAG_ROD                  _UxGT("Diag Rod")
 #endif
 #ifndef MSG_DELTA_HEIGHT
   #define MSG_DELTA_HEIGHT                    _UxGT("Height")

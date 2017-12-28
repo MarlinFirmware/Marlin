@@ -30,8 +30,6 @@
 
 #define BOARD_NAME "Scoovo X9H"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
