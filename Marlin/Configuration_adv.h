@@ -906,33 +906,6 @@
 #endif
 
 /**
- * Advanced Pause Feature
- * Experimental feature for filament change support and for parking the nozzle when paused.
- * Adds the GCode M600 for initiating filament change.
- * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
- *
- * Requires an LCD display.
- * Requires NOZZLE_PARK_FEATURE.
- * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
- */
-//#define ADVANCED_PAUSE_FEATURE
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
-  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload feedrate
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload length - 0 for manual unloading
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load feedrate
-  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load length
-  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude length - 0 for manual extrusion
-  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle after time limit in seconds
-  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
-  #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
-  //#define PARK_HEAD_ON_PAUSE                // Go to position on pause, return to print position on resume
-  //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
-#endif
-
-/**
  * Clean Nozzle Feature -- EXPERIMENTAL
  *
  * Adds the G12 command to perform a nozzle cleaning process.
@@ -970,6 +943,7 @@
  * Attention: EXPERIMENTAL. G-code arguments may change.
  *
  */
+
 //#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -992,6 +966,33 @@
 
   // Moves the nozzle to the initial position
   #define NOZZLE_CLEAN_GOBACK
+#endif
+
+/**
+ * Advanced Pause Feature
+ * Experimental feature for filament change support and for parking the nozzle when paused.
+ * Adds the GCode M600 for initiating filament change.
+ * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
+ *
+ * Requires an LCD display.
+ * Requires NOZZLE_PARK_FEATURE.
+ * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
+ */
+//#define ADVANCED_PAUSE_FEATURE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
+  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload feedrate
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload length - 0 for manual unloading
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load feedrate
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load length
+  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude length - 0 for manual extrusion
+  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle after time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
+  #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
+  //#define PARK_HEAD_ON_PAUSE                // Go to position on pause, return to print position on resume
+  //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 // !End Advanced Pause! 
 
