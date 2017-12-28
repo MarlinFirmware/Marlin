@@ -866,8 +866,47 @@
  */
 //#define EXTRA_FAN_SPEED
 
+//===========================================================================
+//========================= ADVANCED PAUSE ==================================
+//===========================================================================
+
 /**
- * Advanced Pause
+ * Filament Runout Sensor
+ * A mechanical or opto endstop is used to check for the presence of filament.
+ *
+ * RAMPS-based boards use SERVO3_PIN.
+ * For other boards you may need to define FIL_RUNOUT_PIN.
+ * By default the firmware assumes HIGH = has filament, LOW = ran out
+ */
+//#define FILAMENT_RUNOUT_SENSOR
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+  #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+  #define FILAMENT_RUNOUT_SCRIPT "M600"
+#endif
+
+/**
+ * Nozzle Park
+ *
+ * Park the nozzle at the given XYZ position on idle or G27.
+ *
+ * The "P" parameter controls the action applied to the Z axis:
+ *
+ *    P0  (Default) If Z is below park Z raise the nozzle.
+ *    P1  Raise the nozzle always to Z-park height.
+ *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
+ */
+//#define NOZZLE_PARK_FEATURE
+
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  // Specify a park position as { X, Y, Z }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+#endif
+
+/**
+ * Advanced Pause Feature
  * Experimental feature for filament change support and for parking the nozzle when paused.
  * Adds the GCode M600 for initiating filament change.
  * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
@@ -903,7 +942,68 @@
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 
-// @section tmc
+/**
+ * Clean Nozzle Feature -- EXPERIMENTAL
+ *
+ * Adds the G12 command to perform a nozzle cleaning process.
+ *
+ * Parameters:
+ *   P  Pattern
+ *   S  Strokes / Repetitions
+ *   T  Triangles (P1 only)
+ *
+ * Patterns:
+ *   P0  Straight line (default). This process requires a sponge type material
+ *       at a fixed bed location. "S" specifies strokes (i.e. back-forth motions)
+ *       between the start / end points.
+ *
+ *   P1  Zig-zag pattern between (X0, Y0) and (X1, Y1), "T" specifies the
+ *       number of zig-zag triangles to do. "S" defines the number of strokes.
+ *       Zig-zags are done in whichever is the narrower dimension.
+ *       For example, "G12 P1 S1 T3" will execute:
+ *
+ *          --
+ *         |  (X0, Y1) |     /\        /\        /\     | (X1, Y1)
+ *         |           |    /  \      /  \      /  \    |
+ *       A |           |   /    \    /    \    /    \   |
+ *         |           |  /      \  /      \  /      \  |
+ *         |  (X0, Y0) | /        \/        \/        \ | (X1, Y0)
+ *          --         +--------------------------------+
+ *                       |________|_________|_________|
+ *                           T1        T2        T3
+ *
+ *   P2  Circular pattern with middle at NOZZLE_CLEAN_CIRCLE_MIDDLE.
+ *       "R" specifies the radius. "S" specifies the stroke count.
+ *       Before starting, the nozzle moves to NOZZLE_CLEAN_START_POINT.
+ *
+ *   Caveats: The ending Z should be the same as starting Z.
+ * Attention: EXPERIMENTAL. G-code arguments may change.
+ *
+ */
+//#define NOZZLE_CLEAN_FEATURE
+
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  // Default number of pattern repetitions
+  #define NOZZLE_CLEAN_STROKES  12
+
+  // Default number of triangles
+  #define NOZZLE_CLEAN_TRIANGLES  3
+
+  // Specify positions as { X, Y, Z }
+  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_END_POINT   {100, 60, (Z_MIN_POS + 1)}
+
+  // Circular pattern radius
+  #define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
+  // Circular pattern circle fragments number
+  #define NOZZLE_CLEAN_CIRCLE_FN 10
+  // Middle point of circle
+  #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
+
+  // Moves the nozzle to the initial position
+  #define NOZZLE_CLEAN_GOBACK
+#endif
+// !End Advanced Pause! 
 
 /**
  * Enable this section if you have TMC26X motor drivers.
