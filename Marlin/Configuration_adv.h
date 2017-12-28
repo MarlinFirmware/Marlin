@@ -905,6 +905,7 @@
   #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 
+// @section tmc
 /**
  * Advanced Pause Feature
  * Experimental feature for filament change support and for parking the nozzle when paused.
