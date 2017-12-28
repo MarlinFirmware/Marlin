@@ -128,6 +128,13 @@
  * NO_PROBE or NC_PROBE if it's a normally open or normally close probe
  * If your Z probe is a switch, just uncomment NC_PROBE or NO_PROBE
  * the code assumes your z probe is connected to the z-min pin
+ * 
+ * For switches:
+ * COM to GROUND [G], NC or NO to Signal [S] on board
+ * 
+ * For inductive sensors USING A VOLTAGE DIVIDER!!:
+ * Normally closed -> 5[V] when not triggered, 0[V] when triggered (LJ12A3-4-Z/BX)
+ * Normally open -> 0[V] when not triggered, 5[V] when triggered (LJ12A3-4-Z/BY)
  */
 //#define BLTOUCH
 //#define INDUCTIVE
@@ -736,10 +743,10 @@
   #define ENDSTOPPULLUP_ZMAX
   //#define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
-  #if ENABLED(BLTOUCH) || ENABLED(INDUCTIVE_PROBE)
+  #if ENABLED(BLTOUCH) || ENABLED(INDUCTIVE)
     //#define ENDSTOPPULLUP_ZMIN
     //#define ENDSTOPPULLUP_ZMIN_PROBE
-  #else
+  #else // Switches need pullups
     #define ENDSTOPPULLUP_ZMIN
     #define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
@@ -748,7 +755,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#if ENABLED(NC_PROBE) || ENABLED(BLTOUCH)
+#if (ENABLED(INDUCTIVE) && ENABLED(NO_PROBE)) || ENABLED(BLTOUCH) || (ENABLED(NC_PROBE) && DISABLED(INDUCTIVE))
   #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #else
   #define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
@@ -756,7 +763,7 @@
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#if ENABLED(BLTOUCH) || ENABLED(NC_PROBE)
+#if (ENABLED(INDUCTIVE) && ENABLED(NO_PROBE)) || ENABLED(BLTOUCH) || (ENABLED(NC_PROBE) && DISABLED(INDUCTIVE))
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #else
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
