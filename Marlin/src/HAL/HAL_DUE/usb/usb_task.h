@@ -66,33 +66,37 @@ void usb_task_msc_disable(void);
  *
  * \retval true if cdc startup is successfully done
  */
-bool usb_task_cdc_enable(uint8_t port);
+bool usb_task_cdc_enable(const uint8_t port);
 
 /*! \brief Closes the communication port
  * This is called by CDC interface when USB Host disable it.
  */
-void usb_task_cdc_disable(uint8_t port);
+void usb_task_cdc_disable(const uint8_t port);
 
 /*! \brief Save new DTR state to change led behavior.
  * The DTR notify that the terminal have open or close the communication port.
  */
-void usb_task_cdc_set_dtr(uint8_t port, bool b_enable);
+void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable);
 
 /*! \brief Called by UDC when USB Host request a extra string different
  * of this specified in USB device descriptor
  */
 bool usb_task_extra_string(void);
 
+/*! \brief Called by UDC when USB Host performs unknown requests
+ */
+bool usb_task_other_requests(void);
+
 /*! \brief Called by CDC interface
  * Callback running when CDC device have received data
  */
-void usb_task_cdc_rx_notify(uint8_t port);
+void usb_task_cdc_rx_notify(const uint8_t port);
 
 /*! \brief Configures communication line
  *
  * \param cfg      line configuration
  */
-void usb_task_cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg); 
+void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg);
 
 /* The USB device interrupt
  */

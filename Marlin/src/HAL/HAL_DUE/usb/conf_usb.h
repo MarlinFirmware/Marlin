@@ -47,7 +47,11 @@
 #ifndef _CONF_USB_H_
 #define _CONF_USB_H_
 
+#undef UNUSED                           /* To avoid a macro clash as macros.h already defines it */
+#include "../../../core/macros.h"       /* For ENABLED()/DISABLED() */
+#include "../../../../Configuration.h"  /* For CUSTOM_MACHINE_NAME definition - We just need the name, no C++ allowed! */
 #include "compiler.h"
+
 
 /**
  * USB Device Configuration
@@ -61,15 +65,15 @@
 #define  USB_DEVICE_MINOR_VERSION         0
 #define  USB_DEVICE_POWER                 100 // Consumption on Vbus line (mA)
 #define  USB_DEVICE_ATTR                  \
-	(USB_CONFIG_ATTR_SELF_POWERED)
+  (USB_CONFIG_ATTR_SELF_POWERED)
 // (USB_CONFIG_ATTR_BUS_POWERED)
-//	(USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_SELF_POWERED)
-//	(USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_BUS_POWERED)
+//  (USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_SELF_POWERED)
+//  (USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_BUS_POWERED)
 
 //! USB Device string definitions (Optional)
-#define  USB_DEVICE_MANUFACTURE_NAME      "MARLIN 3D"
-#define  USB_DEVICE_PRODUCT_NAME          "CDC and MSC"
-#define  USB_DEVICE_SERIAL_NAME           "123985739853" // Disk SN for MSC
+#define  USB_DEVICE_MANUFACTURE_NAME      "marlinfw.org"
+#define  USB_DEVICE_PRODUCT_NAME          CUSTOM_MACHINE_NAME
+#define  USB_DEVICE_SERIAL_NAME           "123985739853"
 
 /**
  * Device speeds support
@@ -94,10 +98,11 @@
  * @{
  */
 #define  UDC_VBUS_EVENT(b_vbus_high)
-#define  UDC_SOF_EVENT()                  
-#define  UDC_SUSPEND_EVENT()              
-#define  UDC_RESUME_EVENT()               
-#define  UDC_GET_EXTRA_STRING()           usb_task_extra_string()
+#define  UDC_SOF_EVENT()
+#define  UDC_SUSPEND_EVENT()
+#define  UDC_RESUME_EVENT()
+#define  UDC_GET_EXTRA_STRING()         usb_task_extra_string()
+#define  USB_DEVICE_SPECIFIC_REQUEST()  usb_task_other_requests()
 //@}
 
 /**
@@ -246,30 +251,30 @@
  */
 //! USB Interfaces descriptor structure
 #define UDI_COMPOSITE_DESC_T \
-	usb_iad_desc_t       udi_cdc_iad; \
-	udi_cdc_comm_desc_t  udi_cdc_comm; \
-	udi_cdc_data_desc_t  udi_cdc_data; \
-	udi_msc_desc_t       udi_msc
+  usb_iad_desc_t       udi_cdc_iad; \
+  udi_cdc_comm_desc_t  udi_cdc_comm; \
+  udi_cdc_data_desc_t  udi_cdc_data; \
+  udi_msc_desc_t       udi_msc
 
 //! USB Interfaces descriptor value for Full Speed
 #define UDI_COMPOSITE_DESC_FS \
-	.udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
-	.udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
-	.udi_cdc_data  = UDI_CDC_DATA_DESC_0_FS, \
-	.udi_msc       = UDI_MSC_DESC_FS
+  .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
+  .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
+  .udi_cdc_data  = UDI_CDC_DATA_DESC_0_FS, \
+  .udi_msc       = UDI_MSC_DESC_FS
 
 //! USB Interfaces descriptor value for High Speed
 #define UDI_COMPOSITE_DESC_HS \
-	.udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
-	.udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
-	.udi_cdc_data  = UDI_CDC_DATA_DESC_0_HS, \
-	.udi_msc       = UDI_MSC_DESC_HS
+  .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
+  .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
+  .udi_cdc_data  = UDI_CDC_DATA_DESC_0_HS, \
+  .udi_msc       = UDI_MSC_DESC_HS
 
 //! USB Interface APIs
 #define UDI_COMPOSITE_API \
-	&udi_api_cdc_comm, \
-	&udi_api_cdc_data, \
-	&udi_api_msc
+  &udi_api_cdc_comm, \
+  &udi_api_cdc_data, \
+  &udi_api_msc
 //@}
 
 
