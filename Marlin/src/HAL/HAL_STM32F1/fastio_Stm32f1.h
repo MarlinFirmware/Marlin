@@ -31,9 +31,9 @@
 
 #include <libmaple/gpio.h>
 
-#define READ(IO)              (gpio_read_bit(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit) ? HIGH : LOW)
-#define WRITE(IO, v)          do{ gpio_write_bit(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit, v); } while (0)
-#define TOGGLE(IO)            do{ gpio_toggle_bit(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit); } while (0)
+#define READ(IO)              (PIN_MAP[IO].gpio_device->regs->IDR & (1U << PIN_MAP[IO].gpio_bit) ? HIGH : LOW)
+#define WRITE(IO, v)          (PIN_MAP[IO].gpio_device->regs->BSRR = (1U << PIN_MAP[IO].gpio_bit) << (16 * !(bool)v))
+#define TOGGLE(IO)            (PIN_MAP[IO].gpio_device->regs->ODR = PIN_MAP[IO].gpio_device->regs->ODR ^ (1U << PIN_MAP[IO].gpio_bit))
 #define WRITE_VAR(IO, v)      WRITE(io, v)
 
 #define _GET_MODE(IO)         (gpio_get_mode(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit))
@@ -48,6 +48,10 @@
 #define GET_OUTPUT(IO)        (_GET_MODE(IO) == GPIO_OUTPUT_PP)
 #define GET_TIMER(IO)         (PIN_MAP[IO].timer_device != NULL)
 
-#define OUT_WRITE(IO, v) { _SET_OUTPUT(IO); WRITE(IO, v); }
+#define OUT_WRITE(IO, v)      { _SET_OUTPUT(IO); WRITE(IO, v); }
+/*
+ * TODO: Write a macro to test if PIN is PWM or not.
+ */
+#define PWM_PIN(p)            true
 
 #endif	/* _FASTIO_STM32F1_H */

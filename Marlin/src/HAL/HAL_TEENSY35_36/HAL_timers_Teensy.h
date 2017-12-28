@@ -57,6 +57,9 @@ typedef uint32_t hal_timer_t;
 #define STEPPER_TIMER STEP_TIMER_NUM // Alias?
 #define STEPPER_TIMER_PRESCALE 0 // Not defined anywhere else!
 
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+
 #define HAL_TIMER_RATE         (FTM0_TIMER_RATE)
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000)
@@ -75,23 +78,30 @@ typedef uint32_t hal_timer_t;
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
-  switch(timer_num) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
+  switch (timer_num) {
     case 0: FTM0_C0V = count; break;
     case 1: FTM1_C0V = count; break;
   }
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
-  switch(timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+  switch (timer_num) {
     case 0: return FTM0_C0V;
     case 1: return FTM1_C0V;
   }
   return 0;
 }
 
-static FORCE_INLINE uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
-  switch(timer_num) {
+FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+  switch (timer_num) {
+    case 0: FTM0_CNT = count;
+    case 1: FTM1_CNT = count;
+  }
+}
+
+FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
+  switch (timer_num) {
     case 0: return FTM0_CNT;
     case 1: return FTM1_CNT;
   }

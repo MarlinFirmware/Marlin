@@ -99,8 +99,8 @@
   #include "HAL/HAL_endstop_interrupts.h"
 #endif
 
-#if ENABLED(HAVE_TMC2130)
-  #include "feature/tmc2130.h"
+#if HAS_TRINAMIC
+  #include "feature/tmc_util.h"
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -365,7 +365,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
       ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
@@ -445,7 +445,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      gcode.refresh_cmd_timeout()
+      gcode.refresh_cmd_timeout();
 
       const float olde = current_position[E_AXIS];
       current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
@@ -489,8 +489,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     handle_status_leds();
   #endif
 
-  #if ENABLED(HAVE_TMC2130)
-    tmc2130_checkOverTemp();
+  #if ENABLED(MONITOR_DRIVER_STATUS)
+    monitor_tmc_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
@@ -547,6 +547,10 @@ void idle(
       I2CPEM.update();
       lastUpdateMillis = millis();
     }
+  #endif
+
+  #ifdef HAL_IDLETASK
+    HAL_idletask();
   #endif
 }
 
@@ -632,6 +636,10 @@ void stop() {
  *    • status LEDs
  */
 void setup() {
+
+  #ifdef HAL_INIT
+    HAL_init();
+  #endif
 
   #if ENABLED(MAX7219_DEBUG)
     Max7219_init();
@@ -775,8 +783,8 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
   #endif
 
-  #if ENABLED(NEOPIXEL_LED)
-    setup_neopixel();
+  #if HAS_COLOR_LEDS
+    leds.setup();
   #endif
 
   #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)

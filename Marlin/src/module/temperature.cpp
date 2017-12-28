@@ -49,10 +49,6 @@
   #include "../feature/filwidth.h"
 #endif
 
-#ifdef K1 // Defined in Configuration.h in the PID settings
-  #define K2 (1.0-K1)
-#endif
-
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
@@ -603,7 +599,7 @@ float Temperature::get_pid_output(const int8_t e) {
   #if ENABLED(PIDTEMP)
     #if DISABLED(PID_OPENLOOP)
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
-      dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
+      dTerm[HOTEND_INDEX] = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + PID_K1 * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
       #if HEATER_IDLE_HANDLER
         if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
@@ -700,7 +696,7 @@ float Temperature::get_pid_output(const int8_t e) {
       temp_iState_bed += pid_error_bed;
       iTerm_bed = bedKi * temp_iState_bed;
 
-      dTerm_bed = K2 * bedKd * (current_temperature_bed - temp_dState_bed) + K1 * dTerm_bed;
+      dTerm_bed = PID_K2 * bedKd * (current_temperature_bed - temp_dState_bed) + PID_K1 * dTerm_bed;
       temp_dState_bed = current_temperature_bed;
 
       pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
@@ -744,17 +740,6 @@ float Temperature::get_pid_output(const int8_t e) {
  *  - Apply filament width to the extrusion rate (may move)
  *  - Update the heated bed PID output value
  */
-
-/**
- * The following line SOMETIMES results in the dreaded "unable to find a register to spill in class 'POINTER_REGS'"
- * compile error.
- *    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
- *
- * This is due to a bug in the C++ compiler used by the Arduino IDE from 1.6.10 to at least 1.8.1.
- *
- * The work around is to add the compiler flag "__attribute__((__optimize__("O2")))" to the declaration for manage_heater()
- */
-//void Temperature::manage_heater()  __attribute__((__optimize__("O2")));
 void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
@@ -809,18 +794,16 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  // Control the extruder rate based on the width sensor
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    /**
+     * Filament Width Sensor dynamically sets the volumetric multiplier
+     * based on a delayed measurement of the filament diameter.
+     */
     if (filament_sensor) {
       meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-
-      // Get the delayed info and add 100 to reconstitute to a percent of
-      // the nominal filament diameter then square it to get an area
-      const float vmroot = measurement_delay[meas_shift_index] * 0.01 + 1.0;
-      planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vmroot <= 0.1 ? 0.01 : sq(vmroot);
-      planner.refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
+      planner.calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index]);
     }
   #endif // FILAMENT_WIDTH_SENSOR
 
@@ -982,7 +965,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
   HOTEND_LOOP()
     current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
-  current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
+  #if HAS_TEMP_BED
+    current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
+  #endif
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = Temperature::analog2temp(redundant_temperature_raw, 1);
   #endif
@@ -1008,12 +993,18 @@ void Temperature::updateTemperaturesFromRawValues() {
     return current_raw_filwidth * 5.0 * (1.0 / 16383.0);
   }
 
-  // Convert raw Filament Width to a ratio
-  int Temperature::widthFil_to_size_ratio() {
-    float temp = filament_width_meas;
-    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  // Assume a bad sensor reading
-    else NOMORE(temp, MEASURED_UPPER_LIMIT);
-    return filament_width_nominal / temp * 100;
+  /**
+   * Convert Filament Width (mm) to a simple ratio
+   * and reduce to an 8 bit value.
+   *
+   * A nominal width of 1.75 and measured width of 1.73
+   * gives (100 * 1.75 / 1.73) for a ratio of 101 and
+   * a return value of 1.
+   */
+  int8_t Temperature::widthFil_to_size_ratio() {
+    if (FABS(filament_width_nominal - filament_width_meas) <= FILWIDTH_ERROR_MARGIN)
+      return int(100.0 * filament_width_nominal / filament_width_meas) - 100;
+    return 0;
   }
 
 #endif
@@ -1357,7 +1348,7 @@ void Temperature::init() {
     millis_t Temperature::thermal_runaway_bed_timer;
   #endif
 
-  void Temperature::thermal_runaway_protection(Temperature::TRState* state, millis_t* timer, float current, float target, int heater_id, int period_seconds, int hysteresis_degc) {
+  void Temperature::thermal_runaway_protection(Temperature::TRState * const state, millis_t * const timer, const float current, const float target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
 
     static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
 
@@ -1592,7 +1583,7 @@ void Temperature::set_current_temp_raw() {
 /**
  * Timer 0 is shared with millies so don't change the prescaler.
  *
- * This ISR uses the compare method so it runs at the base
+ * On AVR this ISR uses the compare method so it runs at the base
  * frequency (16 MHz / 64 / 256 = 976.5625 Hz), but at the TCNT0 set
  * in OCR0B above (128 or halfway between OVFs).
  *

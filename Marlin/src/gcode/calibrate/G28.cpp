@@ -205,23 +205,21 @@ void GcodeSuite::G28(const bool always_home_all) {
         #endif
       }
 
-    #else
-
-      if (home_all || homeX || homeY) {
-        // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        destination[Z_AXIS] = Z_HOMING_HEIGHT;
-        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING))
-              SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-          #endif
-
-          do_blocking_move_to_z(destination[Z_AXIS]);
-        }
-      }
-
     #endif
+
+    if (home_all || homeX || homeY) {
+      // Raise Z before homing any other axes and z is not already high enough (never lower z)
+      destination[Z_AXIS] = Z_HOMING_HEIGHT;
+      if (destination[Z_AXIS] > current_position[Z_AXIS]) {
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING))
+            SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
+        #endif
+
+        do_blocking_move_to_z(destination[Z_AXIS]);
+      }
+    }
 
     #if ENABLED(QUICK_HOME)
 
@@ -327,6 +325,15 @@ void GcodeSuite::G28(const bool always_home_all) {
   lcd_refresh();
 
   report_current_position();
+  #if ENABLED(NANODLP_Z_SYNC)
+    #if ENABLED(NANODLP_ALL_AXIS)
+      #define _HOME_SYNC true                 // For any axis, output sync text.
+    #else
+      #define _HOME_SYNC (home_all || homeZ)  // Only for Z-axis
+    #endif
+    if (_HOME_SYNC)
+      SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");

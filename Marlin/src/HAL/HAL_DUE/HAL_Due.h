@@ -40,21 +40,13 @@
 //
 // Defines
 //
-
-#if SERIAL_PORT == -1
-  #define MYSERIAL SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 2
-  #define MYSERIAL customizedSerial
-#elif SERIAL_PORT == 3
+#if SERIAL_PORT >= -1 && SERIAL_PORT <= 4
   #define MYSERIAL customizedSerial
 #endif
 
 // We need the previous define before the include, or compilation bombs...
 #include "MarlinSerial_Due.h"
+#include "MarlinSerialUSB_Due.h"
 
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
@@ -158,5 +150,17 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+// Enable hooks into idle and setup for USB stack
+#define HAL_IDLETASK 1
+#define HAL_INIT 1
+#ifdef __cplusplus
+extern "C" {
+#endif
+void HAL_idletask(void);
+void HAL_init(void);
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _HAL_DUE_H

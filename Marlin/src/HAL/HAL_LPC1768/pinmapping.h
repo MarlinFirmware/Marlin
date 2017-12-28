@@ -239,7 +239,7 @@ constexpr pin_t pin_map[] = {
   P_NC,  P_NC,  P_NC,  P_NC,  P4_28, P4_29, P_NC,  P_NC
 };
 
-constexpr int8_t NUM_DIGITAL_PINS = COUNT(pin_map);
+constexpr uint8_t NUM_DIGITAL_PINS = COUNT(pin_map);
 
 constexpr pin_t adc_pin_table[] = {
   P0_23, P0_24, P0_25, P0_26, P1_30, P1_31,

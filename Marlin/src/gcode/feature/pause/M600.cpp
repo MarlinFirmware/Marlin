@@ -24,13 +24,14 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-#include "../../../feature/pause.h"
-
 #include "../../gcode.h"
+#include "../../../feature/pause.h"
 #include "../../../module/motion.h"
-#include "../../parser.h"
-
 #include "../../../module/printcounter.h"
+
+#if EXTRUDERS > 1
+  #include "../../../module/tool_change.h"
+#endif
 
 /**
  * M600: Pause for filament change
@@ -42,15 +43,29 @@
  *  U[distance] - Retract distance for removal (negative value) (manual reload)
  *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
+ *  T[toolhead] - Select extruder for filament change
  *
  *  Default values are used for omitted arguments.
  *
  */
 void GcodeSuite::M600() {
+  point_t park_point = NOZZLE_PARK_POINT;
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
     if (axis_unhomed_error()) home_all_axes();
+  #endif
+
+  #if EXTRUDERS > 1
+    // Change toolhead if specified
+    uint8_t active_extruder_before_filament_change = -1;
+    if (parser.seen('T')) {
+      const uint8_t extruder = parser.value_byte();
+      if (active_extruder != extruder) {
+        active_extruder_before_filament_change = active_extruder;
+        tool_change(extruder, 0, true);
+      }
+    }
   #endif
 
   // Initial retract before move to filament change position
@@ -60,24 +75,17 @@ void GcodeSuite::M600() {
     #endif
   ;
 
-  // Lift Z axis
-  const float z_lift = parser.linearval('Z', 0
-    #ifdef PAUSE_PARK_Z_ADD
-      + PAUSE_PARK_Z_ADD
-    #endif
-  );
+  // Move XY axes to filament change position or given position
+  if (parser.seenval('X')) park_point.x = parser.linearval('X');
+  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-  // Move XY axes to filament exchange position
-  const float x_pos = parser.linearval('X', 0
-    #ifdef PAUSE_PARK_X_POS
-      + PAUSE_PARK_X_POS
-    #endif
-  );
-  const float y_pos = parser.linearval('Y', 0
-    #ifdef PAUSE_PARK_Y_POS
-      + PAUSE_PARK_Y_POS
-    #endif
-  );
+  // Lift Z axis
+  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+
+  #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
+    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+  #endif
 
   // Unload filament
   const float unload_length = parser.seen('U') ? parser.value_axis_units(E_AXIS) : 0
@@ -103,10 +111,16 @@ void GcodeSuite::M600() {
 
   const bool job_running = print_job_timer.isRunning();
 
-  if (pause_print(retract, z_lift, x_pos, y_pos, unload_length, beep_count, true)) {
+  if (pause_print(retract, park_point, unload_length, beep_count, true)) {
     wait_for_filament_reload(beep_count);
     resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
   }
+
+  #if EXTRUDERS > 1
+    // Restore toolhead if it was changed
+    if (active_extruder_before_filament_change >= 0)
+      tool_change(active_extruder_before_filament_change, 0, true);
+  #endif
 
   // Resume the print job timer if it was running
   if (job_running) print_job_timer.start();

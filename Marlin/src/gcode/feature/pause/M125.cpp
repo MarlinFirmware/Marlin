@@ -49,7 +49,6 @@
  *    Z = override Z raise
  */
 void GcodeSuite::M125() {
-
   // Initial retract before move to filament change position
   const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
     #ifdef PAUSE_PARK_RETRACT_LENGTH
@@ -57,36 +56,25 @@ void GcodeSuite::M125() {
     #endif
   ;
 
-  // Lift Z axis
-  const float z_lift = parser.linearval('Z')
-    #ifdef PAUSE_PARK_Z_ADD
-      + PAUSE_PARK_Z_ADD
-    #endif
-  ;
+  point_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  const float x_pos = parser.linearval('X')
-    #ifdef PAUSE_PARK_X_POS
-      + PAUSE_PARK_X_POS
-    #endif
-    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
-      + (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0)
-    #endif
-  ;
-  const float y_pos = parser.linearval('Y')
-    #ifdef PAUSE_PARK_Y_POS
-      + PAUSE_PARK_Y_POS
-    #endif
-    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
-      + (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0)
-    #endif
-  ;
+  if (parser.seenval('X')) park_point.x = parser.linearval('X');
+  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+
+  // Lift Z axis
+  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+
+  #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
+    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+  #endif
 
   #if DISABLED(SDSUPPORT)
     const bool job_running = print_job_timer.isRunning();
   #endif
 
-  if (pause_print(retract, z_lift, x_pos, y_pos)) {
+  if (pause_print(retract, park_point)) {
     #if DISABLED(SDSUPPORT)
       // Wait for lcd click or M108
       wait_for_filament_reload();

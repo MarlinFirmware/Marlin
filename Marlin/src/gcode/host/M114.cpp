@@ -28,7 +28,7 @@
 
 #if ENABLED(M114_DETAIL)
 
-  void report_xyze(const float pos[XYZE], const uint8_t n = 4, const uint8_t precision = 3) {
+  void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
     for (uint8_t i = 0; i < n; i++) {
       SERIAL_CHAR(' ');
@@ -39,7 +39,7 @@
     SERIAL_EOL();
   }
 
-  inline void report_xyz(const float pos[XYZ]) { report_xyze(pos, 3); }
+  inline void report_xyz(const float pos[]) { report_xyze(pos, 3); }
 
   void report_current_position_detail() {
 
@@ -80,8 +80,13 @@
     #endif
 
     SERIAL_PROTOCOLPGM("Stepper:");
-    const float step_count[XYZE] = { stepper.position(X_AXIS), stepper.position(Y_AXIS), stepper.position(Z_AXIS), stepper.position(E_AXIS) };
-    report_xyze(step_count, 4, 0);
+    LOOP_XYZE(i) {
+      SERIAL_CHAR(' ');
+      SERIAL_CHAR(axis_codes[i]);
+      SERIAL_CHAR(':');
+      SERIAL_PROTOCOL(stepper.position((AxisEnum)i));
+    }
+    SERIAL_EOL();
 
     #if IS_SCARA
       const float deg[XYZ] = {
