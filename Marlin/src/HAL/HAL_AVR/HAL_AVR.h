@@ -100,14 +100,24 @@ extern "C" {
 
 
 // timers
-#define STEP_TIMER_NUM OCR1A
-#define TEMP_TIMER_NUM 0
-#define TEMP_TIMER_FREQUENCY (F_CPU / 64.0 / 256.0)
-
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
-#define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
-#define STEPPER_TIMER_PRESCALE  INT0_PRESCALER
 #define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
+
+#define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
+
+#define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
+#define STEPPER_TIMER_PRESCALE  8
+
+#define STEP_TIMER_NUM          1
+#define TIMER_OCR_1             OCR1A
+#define TIMER_COUNTER_1         TCNT1
+
+#define TEMP_TIMER_NUM          0
+#define TIMER_OCR_0             OCR0A
+#define TIMER_COUNTER_0         TCNT0
+
+#define PULSE_TIMER_NUM         TEMP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE    8
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
@@ -115,15 +125,14 @@ extern "C" {
 #define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
 #define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
 
-//void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
-#define HAL_timer_start(timer_num,frequency)
+#define HAL_timer_start(timer_num, frequency)
 
-//void HAL_timer_set_count(const uint8_t timer_num, const uint16_t count);
-#define HAL_timer_set_count(timer, count) timer = (count)
+#define _CAT(a, ...) a ## __VA_ARGS__
+#define HAL_timer_set_count(timer, count) (_CAT(TIMER_OCR_, timer) = count)
+#define HAL_timer_get_count(timer) _CAT(TIMER_OCR_, timer)
+#define HAL_timer_set_current_count(timer, count) (_CAT(TIMER_COUNTER_, timer) = count)
+#define HAL_timer_get_current_count(timer) _CAT(TIMER_COUNTER_, timer)
 
-#define HAL_timer_get_current_count(timer) timer
-
-//void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_prologue(timer_num)
 
 #define HAL_STEP_TIMER_ISR ISR(TIMER1_COMPA_vect)

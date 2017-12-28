@@ -36,13 +36,14 @@
 #define NEOPIXEL_IS_RGBW !NEOPIXEL_IS_RGB
 
 #if NEOPIXEL_IS_RGB
-  #define NEO_WHITE 255, 255, 255
+  #define NEO_WHITE 255, 255, 255, 0
 #else
   #define NEO_WHITE 0, 0, 0, 255
 #endif
 
 void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
+//bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 
 extern Adafruit_NeoPixel pixels;
 

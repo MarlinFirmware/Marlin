@@ -51,7 +51,7 @@ void GcodeSuite::M502() {
    * M503: print settings currently in memory
    */
   void GcodeSuite::M503() {
-    (void)settings.report(parser.boolval('S'));
+    (void)settings.report(parser.seen('S') && !parser.value_bool());
   }
 
 #endif // !DISABLE_M503

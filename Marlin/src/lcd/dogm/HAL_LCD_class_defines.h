@@ -62,7 +62,6 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB
 };
 
 
-
 extern u8g_dev_t u8g_dev_sh1106_128x64_2x_i2c_2_wire;
 class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
   public:

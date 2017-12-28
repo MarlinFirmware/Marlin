@@ -32,6 +32,7 @@
 #endif
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
+#include "../HAL/HAL_SanityCheck.h"
 
 // Include all core headers
 #include "../core/enum.h"

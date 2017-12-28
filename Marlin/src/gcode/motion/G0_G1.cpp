@@ -78,8 +78,12 @@ void GcodeSuite::G0_G1(
     #endif
 
     #if ENABLED(NANODLP_Z_SYNC)
-      // If G0/G1 command include Z-axis, wait for move and output sync text.
-      if (parser.seenval('Z')) {
+      #if ENABLED(NANODLP_ALL_AXIS)
+        #define _MOVE_SYNC true                 // For any move wait and output sync message
+      #else
+        #define _MOVE_SYNC parser.seenval('Z')  // Only for Z move
+      #endif
+      if (_MOVE_SYNC) {
         stepper.synchronize();
         SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
       }

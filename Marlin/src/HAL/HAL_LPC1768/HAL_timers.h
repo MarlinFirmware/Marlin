@@ -53,6 +53,9 @@ typedef uint32_t hal_timer_t;
 #define HAL_TEMP_TIMER_RATE    1000000
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
@@ -77,7 +80,7 @@ typedef uint32_t hal_timer_t;
 void HAL_timer_init(void);
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
   switch (timer_num) {
     case 0:
       LPC_TIM0->MR0 = count;
@@ -92,7 +95,7 @@ static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const hal_
   }
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->MR0;
     case 1: return LPC_TIM1->MR0;
@@ -100,7 +103,14 @@ static FORCE_INLINE hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return 0;
 }
 
-static FORCE_INLINE hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+  switch (timer_num) {
+    case 0: LPC_TIM0->TC = count; break;
+    case 1: LPC_TIM1->TC = count; break;
+  }
+}
+
+FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->TC;
     case 1: return LPC_TIM1->TC;

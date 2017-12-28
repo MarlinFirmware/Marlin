@@ -128,13 +128,17 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
         // so compensation will give the right stepper counts.
         planner.unapply_leveling(current_position);
 
+      SYNC_PLAN_POSITION_KINEMATIC();
+
     #endif // OLDSCHOOL_ABL
   }
 }
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const float zfh) {
+  void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+
+    if (planner.z_fade_height == zfh) return; // do nothing if no change
 
     const bool level_active = planner.leveling_active;
 
@@ -145,6 +149,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.set_z_fade_height(zfh);
 
     if (level_active) {
+      const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         set_bed_leveling_enabled(true);  // turn back on after changing fade height
       #else
@@ -155,7 +160,10 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
             Z_AXIS
           #endif
         );
+        SYNC_PLAN_POSITION_KINEMATIC();
       #endif
+      if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
+        report_current_position();
     }
   }
 
@@ -165,27 +173,25 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
  * Reset calibration results to zero.
  */
 void reset_bed_level() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+  #endif
   set_bed_leveling_enabled(false);
   #if ENABLED(MESH_BED_LEVELING)
     if (leveling_is_valid()) {
       mbl.reset();
       mbl.has_mesh = false;
     }
-  #else
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-    #endif
-    #if ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
-      bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          z_values[x][y] = NAN;
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.reset();
-    #endif
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    ubl.reset();
+  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
+    bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        z_values[x][y] = NAN;
+  #elif ABL_PLANAR
+    planner.bed_level_matrix.set_to_identity();
   #endif
 }
 

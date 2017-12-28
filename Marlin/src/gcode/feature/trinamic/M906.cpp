@@ -22,54 +22,67 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(HAVE_TMC2130)
+#if HAS_TRINAMIC
 
 #include "../../gcode.h"
-#include "../../../feature/tmc2130.h"
+#include "../../../feature/tmc_util.h"
 #include "../../../module/stepper_indirection.h"
-
-inline void tmc2130_get_current(TMC2130Stepper &st, const char name) {
-  SERIAL_CHAR(name);
-  SERIAL_ECHOPGM(" axis driver current: ");
-  SERIAL_ECHOLN(st.getCurrent());
-}
-inline void tmc2130_set_current(TMC2130Stepper &st, const char name, const int mA) {
-  st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
-  tmc2130_get_current(st, name);
-}
+#include "../../../module/planner.h"
 
 /**
  * M906: Set motor current in milliamps using axis codes X, Y, Z, E
  * Report driver currents when no axis specified
- *
- * S1: Enable automatic current control
- * S0: Disable
  */
-void GcodeSuite::M906() {
+inline void GcodeSuite::M906() {
   uint16_t values[XYZE];
   LOOP_XYZE(i)
     values[i] = parser.intval(axis_codes[i]);
 
-  #if ENABLED(X_IS_TMC2130)
-    if (values[X_AXIS]) tmc2130_set_current(stepperX, 'X', values[X_AXIS]);
-    else tmc2130_get_current(stepperX, 'X');
+  #if X_IS_TRINAMIC
+    if (values[X_AXIS]) tmc_set_current(stepperX, extended_axis_codes[TMC_X], values[X_AXIS]);
+    else tmc_get_current(stepperX, extended_axis_codes[TMC_X]);
   #endif
-  #if ENABLED(Y_IS_TMC2130)
-    if (values[Y_AXIS]) tmc2130_set_current(stepperY, 'Y', values[Y_AXIS]);
-    else tmc2130_get_current(stepperY, 'Y');
+  #if X2_IS_TRINAMIC
+    if (values[X_AXIS]) tmc_set_current(stepperX2, extended_axis_codes[TMC_X2], values[X_AXIS]);
+    else tmc_get_current(stepperX2, extended_axis_codes[TMC_X2]);
   #endif
-  #if ENABLED(Z_IS_TMC2130)
-    if (values[Z_AXIS]) tmc2130_set_current(stepperZ, 'Z', values[Z_AXIS]);
-    else tmc2130_get_current(stepperZ, 'Z');
+  #if Y_IS_TRINAMIC
+    if (values[Y_AXIS]) tmc_set_current(stepperY, extended_axis_codes[TMC_Y], values[Y_AXIS]);
+    else tmc_get_current(stepperY, extended_axis_codes[TMC_Y]);
   #endif
-  #if ENABLED(E0_IS_TMC2130)
-    if (values[E_AXIS]) tmc2130_set_current(stepperE0, 'E', values[E_AXIS]);
-    else tmc2130_get_current(stepperE0, 'E');
+  #if Y2_IS_TRINAMIC
+    if (values[Y_AXIS]) tmc_set_current(stepperY2, extended_axis_codes[TMC_Y2], values[Y_AXIS]);
+    else tmc_get_current(stepperY2, extended_axis_codes[TMC_Y2]);
+  #endif
+  #if Z_IS_TRINAMIC
+    if (values[Z_AXIS]) tmc_set_current(stepperZ, extended_axis_codes[TMC_Z], values[Z_AXIS]);
+    else tmc_get_current(stepperZ, extended_axis_codes[TMC_Z]);
+  #endif
+  #if Z2_IS_TRINAMIC
+    if (values[Z_AXIS]) tmc_set_current(stepperZ2, extended_axis_codes[TMC_Z2], values[Z_AXIS]);
+    else tmc_get_current(stepperZ2, extended_axis_codes[TMC_Z2]);
+  #endif
+  #if E0_IS_TRINAMIC
+    if (values[E_AXIS]) tmc_set_current(stepperE0, extended_axis_codes[TMC_E0], values[E_AXIS]);
+    else tmc_get_current(stepperE0, extended_axis_codes[TMC_E0]);
+  #endif
+  #if E1_IS_TRINAMIC
+    if (values[E_AXIS]) tmc_set_current(stepperE1, extended_axis_codes[TMC_E1], values[E_AXIS]);
+    else tmc_get_current(stepperE1, extended_axis_codes[TMC_E1]);
+  #endif
+  #if E2_IS_TRINAMIC
+    if (values[E_AXIS]) tmc_set_current(stepperE2, extended_axis_codes[TMC_E2], values[E_AXIS]);
+    else tmc_get_current(stepperE2, extended_axis_codes[TMC_E2]);
+  #endif
+  #if E3_IS_TRINAMIC
+    if (values[E_AXIS]) tmc_set_current(stepperE3, extended_axis_codes[TMC_E3], values[E_AXIS]);
+    else tmc_get_current(stepperE3, extended_axis_codes[TMC_E3]);
+  #endif
+  #if E4_IS_TRINAMIC
+    if (values[E_AXIS]) tmc_set_current(stepperE4, extended_axis_codes[TMC_E4], values[E_AXIS]);
+    else tmc_get_current(stepperE4, extended_axis_codes[TMC_E4]);
   #endif
 
-  #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
-    if (parser.seen('S')) auto_current_control = parser.value_bool();
-  #endif
 }
 
-#endif // HAVE_TMC2130
+#endif // HAS_TRINAMIC

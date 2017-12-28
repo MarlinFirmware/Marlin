@@ -45,17 +45,13 @@
  *   M150 P          ; Set LED full brightness
  */
 void GcodeSuite::M150() {
-  set_led_color(
+  leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-    #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
-      , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-      #if ENABLED(NEOPIXEL_LED)
-        , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
-      #endif
-    #endif
-  );
+    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+    parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+  ));
 }
 
 #endif // HAS_COLOR_LEDS

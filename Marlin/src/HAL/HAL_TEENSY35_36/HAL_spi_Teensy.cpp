@@ -56,7 +56,7 @@ uint8_t spiRec(void) {
   uint8_t returnByte = SPI.transfer(0xFF);
   SPI.endTransaction();
   return returnByte;
-//  SPDR = 0XFF;
+//  SPDR = 0xFF;
 //  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 //  return SPDR;
 }
@@ -67,11 +67,11 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
 //if (nbyte-- == 0) return;
-//  SPDR = 0XFF;
+//  SPDR = 0xFF;
 //for (uint16_t i = 0; i < nbyte; i++) {
 //  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 //  buf[i] = SPDR;
-//  SPDR = 0XFF;
+//  SPDR = 0xFF;
 //}
 //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 //buf[nbyte] = SPDR;

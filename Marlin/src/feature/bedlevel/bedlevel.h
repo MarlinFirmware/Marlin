@@ -47,7 +47,7 @@ void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh);
+  void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
@@ -72,8 +72,8 @@ void reset_bed_level();
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define _GET_MESH_X(I) bilinear_start[X_AXIS] + I * bilinear_grid_spacing[X_AXIS]
-  #define _GET_MESH_Y(J) bilinear_start[Y_AXIS] + J * bilinear_grid_spacing[Y_AXIS]
+  #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
+  #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
   #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
   #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)

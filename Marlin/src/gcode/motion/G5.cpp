@@ -27,7 +27,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 
-void plan_cubic_move(const float offset[4]) {
+void plan_cubic_move(const float (&offset)[4]) {
   cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
 
   // As far as the parser is concerned, the position is now == destination. In reality the
@@ -62,7 +62,7 @@ void GcodeSuite::G5() {
 
     get_destination_from_command();
 
-    const float offset[] = {
+    const float offset[4] = {
       parser.linearval('I'),
       parser.linearval('J'),
       parser.linearval('P'),

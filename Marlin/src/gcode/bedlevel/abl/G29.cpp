@@ -285,21 +285,18 @@ void GcodeSuite::G29() {
             bed_level_virt_interpolate();
           #endif
           set_bed_leveling_enabled(abl_should_enable);
+          if (abl_should_enable) report_current_position();
         }
         return;
       } // parser.seen('W')
 
     #endif
 
-    #if HAS_LEVELING
-
-      // Jettison bed leveling data
-      if (parser.seen('J')) {
-        reset_bed_level();
-        return;
-      }
-
-    #endif
+    // Jettison bed leveling data
+    if (parser.seen('J')) {
+      reset_bed_level();
+      return;
+    }
 
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
@@ -382,28 +379,21 @@ void GcodeSuite::G29() {
     #endif // ABL_GRID
 
     if (verbose_level > 0) {
-      SERIAL_PROTOCOLLNPGM("G29 Auto Bed Leveling");
-      if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
+      SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling");
+      if (dryrun) SERIAL_PROTOCOLPGM(" (DRYRUN)");
+      SERIAL_EOL();
     }
 
     stepper.synchronize();
 
-    // Disable auto bed leveling during G29
-    planner.leveling_active = false;
-
-    if (!dryrun) {
-      // Re-orient the current position without leveling
-      // based on where the steppers are positioned.
-      set_current_from_steppers_for_axis(ALL_AXES);
-
-      // Sync the planner to where the steppers stopped
-      SYNC_PLAN_POSITION_KINEMATIC();
-    }
+    // Disable auto bed leveling during G29.
+    // Be formal so G29 can be done successively without G28.
+    set_bed_leveling_enabled(false);
 
     #if HAS_BED_PROBE
       // Deploy the probe. Probe will raise if needed.
       if (DEPLOY_PROBE()) {
-        planner.leveling_active = abl_should_enable;
+        set_bed_leveling_enabled(abl_should_enable);
         return;
       }
     #endif
@@ -420,10 +410,6 @@ void GcodeSuite::G29() {
         || left_probe_bed_position != bilinear_start[X_AXIS]
         || front_probe_bed_position != bilinear_start[Y_AXIS]
       ) {
-        if (dryrun) {
-          // Before reset bed level, re-enable to correct the position
-          planner.leveling_active = abl_should_enable;
-        }
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
 
@@ -467,7 +453,7 @@ void GcodeSuite::G29() {
       #if HAS_SOFTWARE_ENDSTOPS
         soft_endstops_enabled = enable_soft_endstops;
       #endif
-      planner.leveling_active = abl_should_enable;
+      set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
       #if ENABLED(LCD_BED_LEVELING)
         lcd_wait_for_move = false;
@@ -585,9 +571,10 @@ void GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
       // Probe at 3 arbitrary points
-      if (abl_probe_index < 3) {
+      if (abl_probe_index < abl2) {
         xProbe = points[abl_probe_index].x;
         yProbe = points[abl_probe_index].y;
+        _manual_goto_xy(xProbe, yProbe);
         #if HAS_SOFTWARE_ENDSTOPS
           // Disable software endstops to allow manual adjustment
           // If G29 is not completed, they will not be re-enabled
@@ -672,7 +659,7 @@ void GcodeSuite::G29() {
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
           if (isnan(measured_z)) {
-            planner.leveling_active = abl_should_enable;
+            set_bed_leveling_enabled(abl_should_enable);
             break;
           }
 
@@ -708,7 +695,7 @@ void GcodeSuite::G29() {
         yProbe = points[i].y;
         measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
         if (isnan(measured_z)) {
-          planner.leveling_active = abl_should_enable;
+          set_bed_leveling_enabled(abl_should_enable);
           break;
         }
         points[i].z = measured_z;
@@ -731,7 +718,7 @@ void GcodeSuite::G29() {
 
     // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
     if (STOW_PROBE()) {
-      planner.leveling_active = abl_should_enable;
+      set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
     }
   }

@@ -25,7 +25,6 @@
 #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
-#include "../../module/parser.h"
 #include "../../lcd/ultralcd.h"
 #include "../../sd/cardreader.h"
 
