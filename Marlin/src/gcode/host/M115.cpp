@@ -27,6 +27,7 @@
   static void cap_line(const char * const name, bool ena=false) {
     SERIAL_PROTOCOLPGM("Cap:");
     serialprintPGM(name);
+    SERIAL_CHAR(':');
     SERIAL_PROTOCOLLN(int(ena ? 1 : 0));
   }
 #endif
