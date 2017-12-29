@@ -3618,6 +3618,7 @@ void kill_screen(const char* lcd_msg) {
     END_MENU();
   }
 
+  #if DISABLED(NO_VOLUMETRICS)
   /**
    *
    * "Control" > "Filament" submenu
@@ -3654,6 +3655,7 @@ void kill_screen(const char* lcd_msg) {
 
     END_MENU();
   }
+  #endif // !NO_VOLUMETRICS
 
   /**
    *
