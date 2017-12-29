@@ -31,7 +31,7 @@
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
@@ -48,6 +48,29 @@ public:
                swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 
   FWRetract() { reset(); }
+
+  static void reset();
+
+  static void refresh_autoretract() {
+    for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+  }
+
+  static void enable_autoretract(const bool enable) {
+    autoretract_enabled = enable;
+    refresh_autoretract();
+  }
+
+  static void retract(const bool retracting
+    #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
+      , bool swapping = false
+    #endif
+  );
+};
+
+extern FWRetract fwretract;
+
+#endif // FWRETRACT_H
+
 
   static void reset();
 
