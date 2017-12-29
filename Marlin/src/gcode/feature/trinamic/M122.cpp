@@ -334,6 +334,6 @@ void _M122() {
 }
 
 // We need to call M122 from monitor_tmc_driver() as well but GcodeSuite::M122 is private.
-inline void GcodeSuite::M122() { _M122(); }
+void GcodeSuite::M122() { _M122(); }
 
 #endif // TMC_DEBUG
