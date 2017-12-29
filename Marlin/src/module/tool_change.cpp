@@ -533,73 +533,73 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         select_multiplexed_stepper(tmp_extruder);
       #endif
  
-    // SINGLENOZZLE tool change 
-    #if ENABLED(SINGLENOZZLE)
-    //Load/unload statuses 
-    static bool single_nozzle_load_status[EXTRUDERS]={0};
-    static bool single_nozzle_not_initialised=true;
-    const float old_feedrate_mm_s = feedrate_mm_s;
+      // SINGLENOZZLE tool change 
+      #if ENABLED(SINGLENOZZLE)
+      //Load/unload statuses 
+      static bool single_nozzle_load_status[EXTRUDERS]={0};
+      static bool single_nozzle_not_initialised=true;
+      const float old_feedrate_mm_s = feedrate_mm_s;
 	  
-    set_destination_from_current();
-    stepper.synchronize(); 
-    feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
+      set_destination_from_current();
+      stepper.synchronize(); 
+      feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
 	  
-    //If cold , then rejected and buzzer bip
-    if(!thermalManager.tooColdToExtrude(0)){
-      SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      return;
-    }
+      //If cold , then rejected and buzzer bip
+      if(!thermalManager.tooColdToExtrude(0)){
+        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        return;
+      }
 		
-    // For first time use just load
-    if (single_nozzle_not_initialised){
-		  
-      // Set the new active extruder
-      active_extruder = tmp_extruder;
-		
-      //Only tmp_extruder is loaded
-      current_position[E_AXIS] -= SINGLENOZZLE_LOAD_LENGTH;
-      sync_plan_position_e();
-      prepare_move_to_destination();
-		
-      //Applying statuses
-      single_nozzle_load_status[tmp_extruder]=true;
-      single_nozzle_not_initialised=false;
-    }
-	  
-    else {
-      // if loaded and not the same extruder	  
-      if(single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder){
-		  
-        //unload the active extruder
-        current_position[E_AXIS] += SINGLENOZZLE_LOAD_LENGTH;
-        sync_plan_position_e();
-        prepare_move_to_destination();
-		  
-        //Applying statuses
-        single_nozzle_load_status[active_extruder]=false;
+      // For first time use just load
+      if (single_nozzle_not_initialised){
 		  
         // Set the new active extruder
         active_extruder = tmp_extruder;
-		  
-        //load the active extruder 
+		
+        //Only tmp_extruder is loaded
         current_position[E_AXIS] -= SINGLENOZZLE_LOAD_LENGTH;
         sync_plan_position_e();
         prepare_move_to_destination();
-		  
+		
         //Applying statuses
-        single_nozzle_load_status[active_extruder]==true;
+        single_nozzle_load_status[tmp_extruder]=true;
+        single_nozzle_not_initialised=false;
+      }
+	  
+      else {
+        // if loaded and not the same extruder	  
+        if(single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder){
 		  
-        // Restore original feedrate
-        feedrate_mm_s = old_feedrate_mm_s;
-     }
-   } 
+          //unload the active extruder
+          current_position[E_AXIS] += SINGLENOZZLE_LOAD_LENGTH;
+          sync_plan_position_e();
+          prepare_move_to_destination();
+		  
+          //Applying statuses
+          single_nozzle_load_status[active_extruder]=false;
+		  
+          // Set the new active extruder
+          active_extruder = tmp_extruder;
+		  
+          //load the active extruder 
+          current_position[E_AXIS] -= SINGLENOZZLE_LOAD_LENGTH;
+          sync_plan_position_e();
+          prepare_move_to_destination();
+		  
+          //Applying statuses
+          single_nozzle_load_status[active_extruder]==true;
+		  
+          // Restore original feedrate
+          feedrate_mm_s = old_feedrate_mm_s;
+        }
+      } 
 	  	  
-   #else
+      #else
 		  
       // Set the new active extruder
       active_extruder = tmp_extruder;
 	  
-   #endif //SINGLENOZZLE
+      #endif //SINGLENOZZLE
 
     #endif // HOTENDS <= 1
 
