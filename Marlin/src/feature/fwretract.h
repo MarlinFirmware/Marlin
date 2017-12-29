@@ -31,7 +31,7 @@
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
@@ -61,7 +61,7 @@ public:
   }
 
   static void retract(const bool retracting
-    #if EXTRUDERS > 1
+    #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
       , bool swapping = false
     #endif
   );
