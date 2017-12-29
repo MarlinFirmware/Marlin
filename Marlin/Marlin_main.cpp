@@ -8445,6 +8445,7 @@ inline void gcode_M114() {
   static void cap_line(const char * const name, bool ena=false) {
     SERIAL_PROTOCOLPGM("Cap:");
     serialprintPGM(name);
+    SERIAL_PROTOCOLPGM(":");
     SERIAL_PROTOCOLLN(int(ena ? 1 : 0));
   }
 #endif
