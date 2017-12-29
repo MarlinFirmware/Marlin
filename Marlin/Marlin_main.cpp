@@ -6426,10 +6426,7 @@ inline void gcode_M17() {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   static float resume_position[XYZE];
-  static bool move_away_flag = false;
-  #if ENABLED(SDSUPPORT)
-    static bool sd_print_paused = false;
-  #endif
+  static int8_t did_pause_print = 0;
 
   static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
     static millis_t next_buzz = 0;
@@ -6482,7 +6479,7 @@ inline void gcode_M17() {
   static bool pause_print(const float &retract, const point_t &park_point, const float &unload_length = 0,
                           const int8_t max_beep_count = 0, const bool show_lcd = false
   ) {
-    if (move_away_flag) return false; // already paused
+    if (did_pause_print) return false; // already paused
 
     #ifdef ACTION_ON_PAUSE
       SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
@@ -6502,13 +6499,13 @@ inline void gcode_M17() {
     }
 
     // Indicate that the printer is paused
-    move_away_flag = true;
+    ++did_pause_print;
 
     // Pause the print job and timer
     #if ENABLED(SDSUPPORT)
       if (card.sdprinting) {
         card.pauseSDPrint();
-        sd_print_paused = true;
+        ++did_pause_print;
       }
     #endif
     print_job_timer.pause();
@@ -6627,7 +6624,7 @@ inline void gcode_M17() {
   static void resume_print(const float &load_length = 0, const float &initial_extrude_length = 0, const int8_t max_beep_count = 0) {
     bool nozzle_timed_out = false;
 
-    if (!move_away_flag) return;
+    if (!did_pause_print) return;
 
     // Re-enable the heaters if they timed out
     HOTEND_LOOP() {
@@ -6724,14 +6721,14 @@ inline void gcode_M17() {
       SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
     #endif
 
+    --did_pause_print;
+
     #if ENABLED(SDSUPPORT)
-      if (sd_print_paused) {
+      if (did_pause_print) {
         card.startFileprint();
-        sd_print_paused = false;
+        --did_pause_print;
       }
     #endif
-
-    move_away_flag = false;
   }
 #endif // ADVANCED_PAUSE_FEATURE
 
@@ -14050,7 +14047,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   // Prevent steppers timing-out in the middle of M600
   #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
-    #define MOVE_AWAY_TEST !move_away_flag
+    #define MOVE_AWAY_TEST !did_pause_print
   #else
     #define MOVE_AWAY_TEST true
   #endif
