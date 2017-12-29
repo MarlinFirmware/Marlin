@@ -22,8 +22,13 @@
 #define AnycubicTFT_h
 
 #include <stdio.h>
+#include "MarlinConfig.h"
 
 char *itostr2(const uint8_t &x);
+
+#ifndef ULTRA_LCD
+char* itostr3(const int);
+#endif
 
 #define TFTBUFSIZE 4
 #define TFT_MAX_CMD_SIZE 96

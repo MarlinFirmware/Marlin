@@ -25,6 +25,7 @@
 #include "Arduino.h"
 
 #include "MarlinConfig.h"
+#include "Marlin.h"
 #include "cardreader.h"
 #include "planner.h"
 #include "temperature.h"
@@ -47,6 +48,22 @@ char *itostr2(const uint8_t &x)
   _conv[2]=0;
   return _conv;
 }
+
+#ifndef ULTRA_LCD
+#define DIGIT(n) ('0' + (n))
+#define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
+#define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
+#define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
+
+
+char* itostr3(const int x) {
+  int xx = x;
+  _conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
+  _conv[5] = RJDIGIT(xx, 10);
+  _conv[6] = DIGIMOD(xx, 1);
+  return &_conv[4];
+}
+#endif
 
 AnycubicTFTClass::AnycubicTFTClass() {
 }
