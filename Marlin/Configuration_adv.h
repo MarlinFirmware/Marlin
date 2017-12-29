@@ -1,53 +1,47 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+# Marlin 3D Printer Firmware
 
-/**
- * Configuration_adv.h
- *
- * Advanced settings.
- * Only change these if you know exactly what you're doing.
- * Some of these settings can damage your printer if improperly set!
- *
- * Basic settings can be found in Configuration.h
- *
- */
-#ifndef CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H_VERSION 010107
+[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 
-// @section temperature
+<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
-//===========================================================================
-//=============================Thermal Settings  ============================
-//===========================================================================
+Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
+Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
-#if DISABLED(PIDTEMPBED)
-  #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
-  #if ENABLED(BED_LIMIT_SWITCHING)
-    #define BED_HYSTERESIS 2 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
-  #endif
-#endif
+## Bugfix Branch
 
-/**
+__Not for production use. Use with caution!__
+
+This branch is used to accumulate patches to the latest 1.1.x release version. Periodically this branch will form the basis for the next minor 1.1.x release.
+
+Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.7.)
+
+## Recent Changes
+- Internally always use native machine space
+- Initial UBL LCD Menu
+- New optimized G-code parser singleton
+- Initial `M3`/`M4`/`M5` Spindle and Laser support
+- Added `M421 Q` to offset a mesh point
+- Refinements to `G26` and `G33`
+- Added `M80 S` to query the power state
+- "Cancel Print" now shuts off heaters
+- Added `EXTRAPOLATE_BEYOND_GRID` option for mesh-based leveling
+
+## Submitting Patches
+
+Proposed patches should be submitted as a Pull Request against this branch ([bugfix-1.1.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x)).
+
+- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 1.1.x life-cycle. We've opted for a simplified branch structure while we work on the maintainability and encapsulation of code modules. Version 2.0 and beyond should improve on separation of bug fixes and cutting-edge development.
+- Follow the proper coding style to gain points with the maintainers. See our [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) page for more information.
+- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues). The "naive" question is often the one we forget to ask.
+
+### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+
+## Credits
+
+The current Marlin dev team consists of:
+ - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)]
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)]
  * Thermal Protection provides additional protection to your printer from damage
  * and fire. Marlin always includes safe min and max temperature ranges which
  * protect against a broken or disconnected thermistor wire.
@@ -866,8 +860,48 @@
  */
 //#define EXTRA_FAN_SPEED
 
+//===========================================================================
+//========================= Advanced Pause ==================================
+//===========================================================================
+
 /**
- * Advanced Pause
+ * Filament Runout Sensor
+ * A mechanical or opto endstop is used to check for the presence of filament.
+ *
+ * RAMPS-based boards use SERVO3_PIN.
+ * For other boards you may need to define FIL_RUNOUT_PIN.
+ * By default the firmware assumes HIGH = has filament, LOW = ran out
+ */
+//#define FILAMENT_RUNOUT_SENSOR
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+  #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+  #define FILAMENT_RUNOUT_SCRIPT "M600"
+#endif
+
+/**
+ * Nozzle Park
+ *
+ * Park the nozzle at the given XYZ position on idle or G27.
+ *
+ * The "P" parameter controls the action applied to the Z axis:
+ *
+ *    P0  (Default) If Z is below park Z raise the nozzle.
+ *    P1  Raise the nozzle always to Z-park height.
+ *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
+ */
+//#define NOZZLE_PARK_FEATURE
+
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  // Specify a park position as { X, Y, Z }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+#endif
+
+// @section tmc
+/**
+ * Advanced Pause Feature
  * Experimental feature for filament change support and for parking the nozzle when paused.
  * Adds the GCode M600 for initiating filament change.
  * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
@@ -879,31 +913,83 @@
 //#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
-  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
-                                              // It is a short retract used immediately after print interrupt before move to filament exchange position
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
-                                              // Longer length for bowden printers to unload filament from whole bowden tube,
-                                              // shorter length for printers without bowden to unload filament from extruder only,
-                                              // 0 to disable unloading for manual unloading
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
-                                              // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
-                                              // Short or zero length for printers without bowden where loading is not used
+  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload feedrate
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload length - 0 for manual unloading
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load feedrate
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load length
   #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude filament length in mm after filament is loaded over the hotend,
-                                              // 0 to disable for manual extrusion
-                                              // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
-                                              // or until outcoming filament color is not clear for filament color change
-  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude length - 0 for manual extrusion
+  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle after time limit in seconds
   #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
-                                              // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
-  //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
+  //#define PARK_HEAD_ON_PAUSE                // Go to position on pause, return to print position on resume
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 
-// @section tmc
+/**
+ * Clean Nozzle Feature -- EXPERIMENTAL
+ *
+ * Adds the G12 command to perform a nozzle cleaning process.
+ *
+ * Parameters:
+ *   P  Pattern
+ *   S  Strokes / Repetitions
+ *   T  Triangles (P1 only)
+ *
+ * Patterns:
+ *   P0  Straight line (default). This process requires a sponge type material
+ *       at a fixed bed location. "S" specifies strokes (i.e. back-forth motions)
+ *       between the start / end points.
+ *
+ *   P1  Zig-zag pattern between (X0, Y0) and (X1, Y1), "T" specifies the
+ *       number of zig-zag triangles to do. "S" defines the number of strokes.
+ *       Zig-zags are done in whichever is the narrower dimension.
+ *       For example, "G12 P1 S1 T3" will execute:
+ *
+ *          --
+ *         |  (X0, Y1) |     /\        /\        /\     | (X1, Y1)
+ *         |           |    /  \      /  \      /  \    |
+ *       A |           |   /    \    /    \    /    \   |
+ *         |           |  /      \  /      \  /      \  |
+ *         |  (X0, Y0) | /        \/        \/        \ | (X1, Y0)
+ *          --         +--------------------------------+
+ *                       |________|_________|_________|
+ *                           T1        T2        T3
+ *
+ *   P2  Circular pattern with middle at NOZZLE_CLEAN_CIRCLE_MIDDLE.
+ *       "R" specifies the radius. "S" specifies the stroke count.
+ *       Before starting, the nozzle moves to NOZZLE_CLEAN_START_POINT.
+ *
+ *   Caveats: The ending Z should be the same as starting Z.
+ * Attention: EXPERIMENTAL. G-code arguments may change.
+ *
+ */
+
+//#define NOZZLE_CLEAN_FEATURE
+
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  // Default number of pattern repetitions
+  #define NOZZLE_CLEAN_STROKES  12
+
+  // Default number of triangles
+  #define NOZZLE_CLEAN_TRIANGLES  3
+
+  // Specify positions as { X, Y, Z }
+  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_END_POINT   {100, 60, (Z_MIN_POS + 1)}
+
+  // Circular pattern radius
+  #define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
+  // Circular pattern circle fragments number
+  #define NOZZLE_CLEAN_CIRCLE_FN 10
+  // Middle point of circle
+  #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
+
+  // Moves the nozzle to the initial position
+  #define NOZZLE_CLEAN_GOBACK
+#endif
+// !End Advanced Pause! 
 
 /**
  * Enable this section if you have TMC26X motor drivers.
