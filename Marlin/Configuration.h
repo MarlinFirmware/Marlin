@@ -21,7 +21,7 @@
  */
 
 /**
- * Configuration.h 
+ * Configuration.h
  *
  * Basic settings such as:
  *
