@@ -32,11 +32,11 @@
  * G10 - Retract filament according to settings of M207
  */
 void GcodeSuite::G10() {
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     const bool rs = parser.boolval('S');
   #endif
   fwretract.retract(true
-    #if EXTRUDERS > 1
+    #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
       , rs
     #endif
   );
@@ -48,3 +48,4 @@ void GcodeSuite::G10() {
 void GcodeSuite::G11() { fwretract.retract(false); }
 
 #endif // FWRETRACT
+
