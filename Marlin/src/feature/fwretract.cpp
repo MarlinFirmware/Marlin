@@ -38,7 +38,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // private:
 
-#if EXTRUDERS > 1
+#if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
   bool FWRetract::retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
 #endif
 
@@ -68,7 +68,7 @@ void FWRetract::reset() {
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
-    #if EXTRUDERS > 1
+    #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
       retracted_swap[i] = false;
     #endif
   }
@@ -89,7 +89,7 @@ void FWRetract::reset() {
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
 void FWRetract::retract(const bool retracting
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     , bool swapping /* =false */
   #endif
 ) {
@@ -100,7 +100,7 @@ void FWRetract::retract(const bool retracting
   if (retracted[active_extruder] == retracting) return;
 
   // Prevent two swap-retract or recovers in a row
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     // Allow G10 S1 only after G10
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
@@ -174,7 +174,7 @@ void FWRetract::retract(const bool retracting
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && ENABLED(FW_SWAPPING)
     if (swapping) retracted_swap[active_extruder] = retracting;
   #endif
 
