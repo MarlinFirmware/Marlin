@@ -845,6 +845,7 @@
  */
 //#define FWRETRACT  // ONLY PARTIALLY TESTED
 #if ENABLED(FWRETRACT)
+  //#define FW_SWAPPING                   // Allow swapping 'For separated extruders or mixing , but not for singlenozzle with toolchange process'
   #define MIN_AUTORETRACT 0.1             // When auto-retract is on, convert E moves of this length and over
   #define MAX_AUTORETRACT 10.0            // Upper limit for auto-retract conversion
   #define RETRACT_LENGTH 3                // Default retract length (positive mm)
