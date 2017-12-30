@@ -1261,14 +1261,14 @@ void kill_screen(const char* lcd_msg) {
       #else
         char *command_M600;
         switch (extruder) {
-          case 0: command_M600 = PSTR("M600 B0 T0"); break;
-          case 1: command_M600 = PSTR("M600 B0 T1"); break;
+          case 0: command_M600 = (char *) PSTR("M600 B0 T0"); break;
+          case 1: command_M600 = (char *) PSTR("M600 B0 T1"); break;
           #if EXTRUDERS > 2
-            case 2: command_M600 = PSTR("M600 B0 T2"); break;
+            case 2: command_M600 = (char *) PSTR("M600 B0 T2"); break;
             #if EXTRUDERS > 3
-              case 3: command_M600 = PSTR("M600 B0 T3"); break;
+              case 3: command_M600 = (char *)  PSTR("M600 B0 T3"); break;
               #if EXTRUDERS > 4
-                case 4: command_M600 = PSTR("M600 B0 T4"); break;
+                case 4: command_M600 = (char *) PSTR("M600 B0 T4"); break;
               #endif
             #endif
           #endif
