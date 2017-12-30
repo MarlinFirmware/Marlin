@@ -141,6 +141,14 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
+// Tool Change Automation - First Tool Change just load and initialise
+//#define SINGLENOZZLE_TOOL_CHANGE
+#if ENABLED(SINGLENOZZLE_TOOL_CHANGE)
+  // Tool Change settings
+  #define SINGLENOZZLE_LOAD_LENGTH 50  // mm
+  #define SINGLENOZZLE_UNLOAD_FEEDRATE 3000 // mm/s
+  #define SINGLENOZZLE_LOAD_FEEDRATE 1500
+#endif
 
 /**
  * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.

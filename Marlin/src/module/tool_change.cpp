@@ -22,6 +22,7 @@
 
 #include "tool_change.h"
 
+#include "temperature.h"
 #include "motion.h"
 #include "planner.h"
 #include "stepper.h"
@@ -531,9 +532,83 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         select_multiplexed_stepper(tmp_extruder);
       #endif
-
-      // Set the new active extruder
-      active_extruder = tmp_extruder;
+ 
+      // SINGLENOZZLE tool change 
+      #if ENABLED(SINGLENOZZLE_TOOL_CHANGE)
+        // Load/unload statuses 
+        static bool single_nozzle_load_status[EXTRUDERS] = {0};
+        static bool single_nozzle_not_initialised = true;
+	
+        set_destination_from_current();
+        stepper.synchronize();
+	
+        if (!thermalManager.tooColdToExtrude(0)) {
+          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+          return;
+        }
+		
+        // First time use just load
+        if (single_nozzle_not_initialised) {
+		  
+          // Save original feedrate
+          const float old_feedrate_mm_s = feedrate_mm_s;
+		
+	  // Set the new active extruder
+          active_extruder = tmp_extruder;
+		
+          // Only loading
+          feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
+          current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
+          sync_plan_position_e();
+          prepare_move_to_destination();
+		
+          // Applying statuses
+          single_nozzle_load_status[tmp_extruder] = true;
+          single_nozzle_not_initialised = false;
+		
+          // Restore original feedrate
+          feedrate_mm_s = old_feedrate_mm_s;
+        }
+	  
+        else {
+          // If loaded and not the same extruder	  
+          if (single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder) {
+		  
+            // Save original feedrate
+            const float old_feedrate_mm_s = feedrate_mm_s;
+            		  
+	    // Unload the active extruder
+            feedrate_mm_s = SINGLENOZZLE_UNLOAD_FEEDRATE; 
+            current_position[E_AXIS] += (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
+            sync_plan_position_e();
+            prepare_move_to_destination();
+		  
+            // Applying statuses
+            single_nozzle_load_status[active_extruder]=false;
+		  
+            // Set the new active extruder
+            active_extruder = tmp_extruder;
+		  
+            // Load the active extruder
+            feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE; 
+            current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
+            sync_plan_position_e();
+            prepare_move_to_destination();
+		  
+            // Applying statuses
+            single_nozzle_load_status[active_extruder] = true;
+		  
+            // Restore original feedrate
+            feedrate_mm_s = old_feedrate_mm_s;
+          }
+        } 
+	  	  
+      #else
+		  
+        // Set the new active extruder
+        active_extruder = tmp_extruder;
+	  
+      #endif //SINGLENOZZLE
 
     #endif // HOTENDS <= 1
 
