@@ -20,7 +20,7 @@
  *
  */
 
-// 10k thermistor
+// R25 = 10 kOhm, beta25 = 3950 K, 4.7 kOhm pull-up, Generic 10k thermistor
 const short temptable_4[][2] PROGMEM = {
   { OV(   1), 430 },
   { OV(  54), 137 },
