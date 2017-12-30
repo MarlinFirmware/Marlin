@@ -567,7 +567,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 	  
         else {
           // If loaded and not the same extruder	  
-          if(single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder) {
+          if (single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder) {
 		  
             // Unload the active extruder
             current_position[E_AXIS] += (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
