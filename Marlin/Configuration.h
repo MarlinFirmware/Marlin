@@ -141,7 +141,7 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
-// Automated Tool Change - First Tool Change just load and initialise
+// Tool Change Automation - First Tool Change just load and initialise
 //#define SINGLENOZZLE_TOOL_CHANGE
 #if ENABLED(SINGLENOZZLE_TOOL_CHANGE)
   // Tool Change settings
