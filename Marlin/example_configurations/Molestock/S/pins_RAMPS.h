@@ -214,7 +214,8 @@
 #define HEATER_0_PIN     RAMPS_D10_PIN
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-  #define FAN_PIN        RAMPS_D9_PIN
+  //#define FAN_PIN        RAMPS_D9_PIN
+  #define FAN_PIN        -1                    //TFs mod - disable fan from 9 to -1 (D9 is used for extruder cooling)
   #define HEATER_BED_PIN RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
   #define HEATER_1_PIN   RAMPS_D9_PIN
