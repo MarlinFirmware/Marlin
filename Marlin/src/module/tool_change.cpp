@@ -555,7 +555,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // Set the new active extruder
           active_extruder = tmp_extruder;
 		
-          // Only tmp_extruder is loaded
+          // Only loading
           current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
           sync_plan_position_e();
           prepare_move_to_destination();
