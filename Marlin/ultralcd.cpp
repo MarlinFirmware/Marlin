@@ -160,6 +160,8 @@ uint16_t max_display_update_time = 0;
     extern bool powersupply_on;
   #endif
 
+  bool no_reentry = false;
+
   ////////////////////////////////////////////
   ///////////////// Menu Tree ////////////////
   ////////////////////////////////////////////
@@ -564,14 +566,13 @@ uint16_t max_display_update_time = 0;
   // done. ** This blocks the command queue! **
   //
   void _lcd_synchronize() {
-    static bool no_reentry = false;
     if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
     if (no_reentry) return;
     // Make this the current handler till all moves are done
     no_reentry = true;
     const screenFunc_t old_screen = currentScreen;
     lcd_goto_screen(_lcd_synchronize);
-    stepper.synchronize();
+    stepper.synchronize(); // idle() is called until moves complete
     no_reentry = false;
     lcd_goto_screen(old_screen);
   }
@@ -1269,12 +1270,12 @@ void kill_screen(const char* lcd_msg) {
               case 3: command_M600 = PSTR("M600 B0 T3"); break;
               #if EXTRUDERS > 4
                 case 4: command_M600 = PSTR("M600 B0 T4"); break;
-              #endif
-            #endif
-          #endif
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
         }
         enqueue_and_echo_commands_P(command_M600);
-      #endif
+      #endif // EXTRUDERS > 1
     }
 
     #if EXTRUDERS > 1
@@ -1286,10 +1287,10 @@ void kill_screen(const char* lcd_msg) {
           void lcd_enqueue_filament_change_e3() { lcd_enqueue_filament_change(3); }
           #if EXTRUDERS > 4
             void lcd_enqueue_filament_change_e4() { lcd_enqueue_filament_change(4); }
-          #endif
-        #endif
-      #endif
-    #endif
+          #endif // EXTRUDERS > 4
+        #endif // EXTRUDERS > 3
+      #endif // EXTRUDERS > 2
+    #endif // EXTRUDERS > 1
 
   #endif // ADVANCED_PAUSE_FEATURE
 
@@ -1448,9 +1449,9 @@ void kill_screen(const char* lcd_msg) {
             #if EXTRUDERS > 4
               if (!thermalManager.tooColdToExtrude(4))
                 MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E5, lcd_enqueue_filament_change_e4);
-            #endif
-          #endif
-        #endif
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
       #else
         if (!thermalManager.tooColdToExtrude(active_extruder))
           MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
@@ -1734,6 +1735,20 @@ void kill_screen(const char* lcd_msg) {
     thermalManager.disable_all_heaters();
     lcd_return_to_status();
   }
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
+
+    /**
+     * If the queue is full, the command will fail, so we have to loop
+     * with idle() to make sure the command has been enqueued.
+     */
+    void lcd_enqueue_command_sram(char * const cmd) {
+      no_reentry = true;
+      while (enqueue_and_echo_command(cmd)) idle();
+      no_reentry = false;
+    }
+
+  #endif
 
   #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
 
@@ -2058,10 +2073,10 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_commands_P(PSTR("G28"));
       #if HAS_TEMP_BED
         sprintf_P(UBL_LCD_GCODE, PSTR("M190 S%i"), custom_bed_temp);
-        enqueue_and_echo_command(UBL_LCD_GCODE);
+        lcd_enqueue_command_sram(UBL_LCD_GCODE);
       #endif
       sprintf_P(UBL_LCD_GCODE, PSTR("M109 S%i"), custom_hotend_temp);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
       enqueue_and_echo_commands_P(PSTR("G29 P1"));
     }
 
@@ -2092,7 +2107,7 @@ void kill_screen(const char* lcd_msg) {
       const int ind = ubl_height_amount > 0 ? 9 : 10;
       strcpy_P(UBL_LCD_GCODE, PSTR("G29 P6 C -"));
       sprintf_P(&UBL_LCD_GCODE[ind], PSTR(".%i"), abs(ubl_height_amount));
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
     }
 
     /**
@@ -2142,8 +2157,9 @@ void kill_screen(const char* lcd_msg) {
           0
         #endif
       ;
-      sprintf_P(UBL_LCD_GCODE, PSTR("G28\nG26 C B%i H%i P"), temp, custom_hotend_temp);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      sprintf_P(UBL_LCD_GCODE, PSTR("G26 C B%i H%i P"), temp, custom_hotend_temp);
+      lcd_enqueue_command_sram("G28");
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
     }
 
     /**
@@ -2176,7 +2192,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_grid_level_cmd() {
       char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 J%i"), side_points);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
     }
 
     /**
@@ -2217,16 +2233,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_fillin_amount_cmd() {
       char UBL_LCD_GCODE[16];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i"), ubl_fillin_amount);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
-    }
-
-    /**
-     * UBL Smart Fill-in Command
-     */
-    void _lcd_ubl_smart_fillin_cmd() {
-      char UBL_LCD_GCODE[12];
-      sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 T0"));
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
     }
 
     /**
@@ -2243,7 +2250,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_BUILD_MESH_MENU);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_FILLIN_AMOUNT, &ubl_fillin_amount, 0, 9, _lcd_ubl_fillin_amount_cmd);
-      MENU_ITEM(function, MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
+      MENU_ITEM(gcode, MSG_UBL_SMART_FILLIN, PSTR("G29 P3 T0"));
       MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
       MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
@@ -2316,22 +2323,20 @@ void kill_screen(const char* lcd_msg) {
      * UBL Load Mesh Command
      */
     void _lcd_ubl_load_mesh_cmd() {
-      char UBL_LCD_GCODE[25];
+      char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_LOADED "."), ubl_storage_slot);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      enqueue_and_echo_commands_P(PSTR("M117 " MSG_MESH_LOADED "."));
     }
 
     /**
      * UBL Save Mesh Command
      */
     void _lcd_ubl_save_mesh_cmd() {
-      char UBL_LCD_GCODE[25];
+      char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
-      sprintf_P(UBL_LCD_GCODE, PSTR("M117 " MSG_MESH_SAVED "."), ubl_storage_slot);
-      enqueue_and_echo_command(UBL_LCD_GCODE);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      enqueue_and_echo_commands_P(PSTR("M117 " MSG_MESH_SAVED "."));
     }
 
     /**
@@ -2377,12 +2382,11 @@ void kill_screen(const char* lcd_msg) {
      * UBL LCD "radar" map point editing
      */
     void _lcd_ubl_map_lcd_edit_cmd() {
-      char ubl_lcd_gcode [50], str[10], str2[10];
-
+      char UBL_LCD_GCODE[50], str[10], str2[10];
       dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
       dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
-      snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
-      enqueue_and_echo_command(ubl_lcd_gcode);
+      snprintf_P(UBL_LCD_GCODE, sizeof(UBL_LCD_GCODE), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
+      lcd_enqueue_command_sram(UBL_LCD_GCODE);
     }
 
     /**
@@ -2530,7 +2534,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_LEVEL_BED);
       MENU_ITEM(gcode, "1 " MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));
-      MENU_ITEM(function, "2 " MSG_UBL_SMART_FILLIN, _lcd_ubl_smart_fillin_cmd);
+      MENU_ITEM(gcode, "2 " MSG_UBL_SMART_FILLIN, PSTR("G29 P3 T0"));
       MENU_ITEM(submenu, "3 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
       MENU_ITEM(gcode, "4 " MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
       MENU_ITEM(submenu, "5 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
@@ -2658,9 +2662,9 @@ void kill_screen(const char* lcd_msg) {
               #if EXTRUDERS > 4
                 if (!thermalManager.tooColdToExtrude(4))
                   MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E5, lcd_enqueue_filament_change_e4);
-              #endif
-            #endif
-          #endif
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
         #else
           if (!thermalManager.tooColdToExtrude(active_extruder))
             MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
@@ -3011,7 +3015,7 @@ void kill_screen(const char* lcd_msg) {
       }
       encoderPosition = 0;
     }
-    if (lcdDrawUpdate && !processing_manual_move) {
+    if (lcdDrawUpdate) {
       PGM_P pos_label;
       #if E_MANUAL == 1
         pos_label = PSTR(MSG_MOVE_E);
@@ -3275,7 +3279,7 @@ void kill_screen(const char* lcd_msg) {
           autotune_temp[e]
         #endif
       );
-      enqueue_and_echo_command(cmd);
+      lcd_enqueue_command_sram(cmd);
     }
 
   #endif // PID_AUTOTUNE_MENU
@@ -4711,7 +4715,7 @@ void lcd_update() {
     if (UBL_CONDITION && LCD_CLICKED) {
       if (!wait_for_unclick) {           // If not waiting for a debounce release:
         wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks
-        lcd_clicked = !wait_for_user;    //  Keep the click if not waiting for a user-click
+        lcd_clicked = !wait_for_user && !no_reentry; //  Keep the click if not waiting for a user-click
         wait_for_user = false;           //  Any click clears wait for user
         lcd_quick_feedback();            //  Always make a click sound
       }
