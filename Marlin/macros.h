@@ -28,6 +28,13 @@
 #define ABC  3
 #define XYZ  3
 
+#define _XMIN_ 100
+#define _YMIN_ 200
+#define _ZMIN_ 300
+#define _XMAX_ 101
+#define _YMAX_ 201
+#define _ZMAX_ 301
+
 #define FORCE_INLINE __attribute__((always_inline)) inline
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
@@ -110,7 +117,11 @@
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
+#define CIRCLE_AREA(R) (M_PI * sq(R))
+#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+
 #define SIGN(a) ((a>0)-(a<0))
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -176,6 +187,9 @@
 
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
+
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 
 #define NOOP do{} while(0)
 

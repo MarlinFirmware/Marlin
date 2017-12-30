@@ -111,7 +111,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000 //115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -119,12 +119,12 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_RAMPS_14_EEB
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Molestock A1"
+#define CUSTOM_MACHINE_NAME "Molestock A1 D"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -134,7 +134,7 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5]
-#define EXTRUDERS 1
+#define EXTRUDERS 2
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -212,8 +212,8 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-//#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+//#define HOTEND_OFFSET_X {0.0, 18.63} // (in mm) for each extruder, offset of the hotend on the X axis
+//#define HOTEND_OFFSET_Y {0.0, 0.38}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // @section machine
 
@@ -287,7 +287,7 @@
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
 #define TEMP_SENSOR_0 1
-#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_1 1
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -418,7 +418,7 @@
 // It also enables the M302 command to set the minimum extrusion temperature
 // or to allow moving the extruder regardless of the hotend temperature.
 // *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
-//#define PREVENT_COLD_EXTRUSION
+#define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 170
 
 // This option prevents a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -500,7 +500,7 @@
 
   #if ENABLED(DELTA_AUTO_CALIBRATION) || ENABLED(DELTA_CALIBRATION_MENU)
     // Set the radius for the calibration probe points - max 0.9 * DELTA_PRINTABLE_RADIUS for non-eccentric probes
-    #define DELTA_CALIBRATION_RADIUS 115 // mm
+    #define DELTA_CALIBRATION_RADIUS 115.0 // mm
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.025
   #endif
@@ -512,7 +512,7 @@
   #define DELTA_DIAGONAL_ROD 276.7 // mm
 
   // height from z=0 to home position
-  #define DELTA_HEIGHT 228.10 // get this value from auto calibrate
+  #define DELTA_HEIGHT 231.90 // get this value from auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { -2.00, -2.13, -2.20 } // get these from auto calibrate
 
@@ -763,7 +763,7 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER   0        // Z probe to nozzle X offset: -left  +right
 #define Y_PROBE_OFFSET_FROM_EXTRUDER  11        // Z probe to nozzle Y offset: -front +behind
-#define Z_PROBE_OFFSET_FROM_EXTRUDER  -5.59     // Z probe to nozzle Z offset: -below (always!)
+#define Z_PROBE_OFFSET_FROM_EXTRUDER  -5.12     // Z probe to nozzle Z offset: -below (always!)
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -794,15 +794,25 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE Z_PROBE_SPEED_FAST
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 20.0 // Move the probe near Z belt
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X  20.0 // Move the probe near Z belt
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y 135.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE Z_PROBE_SPEED_FAST
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 0.0  // Deploy the probe into measuring position
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X  -5.0 // Deploy the probe into measuring position
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y 135.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z 100.0
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE Z_PROBE_SPEED_SLOW
+
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_X 0.0  // Deploy the probe into measuring position
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Y 135.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE Z_PROBE_SPEED_FAST
+
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_X 0.0  // Deploy the probe into measuring position
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Y 135.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE Z_PROBE_SPEED_FAST
 
   #define Z_PROBE_ALLEN_KEY_STOW_1_X -59.5 // Move the probe into parking position
   #define Z_PROBE_ALLEN_KEY_STOW_1_Y 141.0
@@ -821,14 +831,19 @@
 
   #define Z_PROBE_ALLEN_KEY_STOW_4_X   0  // Move effector into center position
   #define Z_PROBE_ALLEN_KEY_STOW_4_Y   0
-  #define Z_PROBE_ALLEN_KEY_STOW_4_Z 100
+  #define Z_PROBE_ALLEN_KEY_STOW_4_Z 150
   #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE Z_PROBE_SPEED_FAST
+
+  #define Z_PROBE_ALLEN_KEY_STOW_5_X   0  // Move effector into center position
+  #define Z_PROBE_ALLEN_KEY_STOW_5_Y   0
+  #define Z_PROBE_ALLEN_KEY_STOW_5_Z 150
+  #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE Z_PROBE_SPEED_FAST
 
   // extra out of bed position (integer only)
   #define EXTRA_POS_1_X  -80   // positions for filling the nozzle
-  #define EXTRA_POS_1_Y -109   // positions for filling the nozzle
+  #define EXTRA_POS_1_Y -113   // positions for filling the nozzle
   #define EXTRA_POS_2_X  -74   // positions for wiping the nozzle
-  #define EXTRA_POS_2_Y -101   // positions for wiping the nozzle
+  #define EXTRA_POS_2_Y  -95   // positions for wiping the nozzle
 
 /**
  * For allen key z-probe deploy and stow on some deltas is necessary to
@@ -887,7 +902,7 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true // DELTA does not invert
+#define INVERT_X_DIR true // Molestock does invert
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
 
@@ -898,7 +913,7 @@
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
+#define INVERT_E1_DIR true
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -1025,7 +1040,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
 
   // Set the boundaries for probing (where the probe can reach).
   #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS - 17.5)
@@ -1034,13 +1049,13 @@
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
   // contours of the bed more closely than edge-to-edge straight moves.
-  #define SEGMENT_LEVELED_MOVES
-  #define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
+  //#define SEGMENT_LEVELED_MOVES
+  //#define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
 
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  #define G26_MESH_VALIDATION   // Enable G26 mesh validation
+  //#define G26_MESH_VALIDATION   // Enable G26 mesh validation
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE     0.4   // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT    0.2   // (mm) Default layer height for the G26 Mesh Validation Tool.
@@ -1154,7 +1169,7 @@
  * Useful to retract or move the Z probe out of the way.
  */
 //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
-#define Z_PROBE_END_SCRIPT "G1 X0 Y0 Z100 F12000"
+#define Z_PROBE_END_SCRIPT "G1 X0 Y0 Z150 F12000"
 
 
 // @section homing
@@ -1260,7 +1275,7 @@
 //
 #define EEPROM_SETTINGS   // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
-//#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
+#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
 //
 // Host Keepalive

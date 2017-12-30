@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="io.sloeber.core.toolChain.release.1788939819">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.1788939819" moduleId="org.eclipse.cdt.core.settings" name="Release">
+		<cconfiguration id="io.sloeber.core.toolChain.release.725970294">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.725970294" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -12,61 +12,61 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.1788939819" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="io.sloeber.core.toolChain.release.1788939819.117549184" name="/" resourcePath="">
-						<toolChain id="io.sloeber.core.toolChain.release.2000849814" name="Arduino Toolchain( Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.797023525" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
-							<builder buildPath="${workspace_loc:/Marlin_1_1_x}/Release" id="io.sloeber.sketch.builder.266460693" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
-							<tool id="io.sloeber.tool.sketch.compiler.cpp.868227380" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
-								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.1655815735" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal_I2C}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib/src}&quot;"/>
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.725970294" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="io.sloeber.core.toolChain.release.725970294.480357882" name="/" resourcePath="">
+						<toolChain id="io.sloeber.core.toolChain.release.509621170" name="Arduino Toolchain( Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1683400425" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
+							<builder buildPath="${workspace_loc:/Marlin_1_1_7}/Release" id="io.sloeber.sketch.builder.1390737174" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
+							<tool id="io.sloeber.tool.sketch.compiler.cpp.1961898363" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.1719653134" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Adafruit_NeoPixel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire/src}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.cpp.sketch.input.75660090" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
+								<inputType id="io.sloeber.compiler.cpp.sketch.input.1528263490" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.compiler.c.1793135743" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
-								<option id="io.sloeber.compiler.c.sketch.option.incpath.406518524" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal_I2C}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib/src}&quot;"/>
+							<tool id="io.sloeber.tool.compiler.c.532602982" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
+								<option id="io.sloeber.compiler.c.sketch.option.incpath.414214157" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Adafruit_NeoPixel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire/src}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.c.sketch.input.202709836" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
+								<inputType id="io.sloeber.compiler.c.sketch.input.1638539744" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.sketch.compiler.s.524075916" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
-								<option id="io.sloeber.compiler.asm.sketch.option.incpath.1836507077" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal_I2C}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/Wire/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/LiquidCrystal/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_x/libraries/U8glib/src}&quot;"/>
+							<tool id="io.sloeber.tool.sketch.compiler.s.1764124947" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
+								<option id="io.sloeber.compiler.asm.sketch.option.incpath.1145194491" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Adafruit_NeoPixel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/LiquidCrystal/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/U8glib/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Marlin_1_1_7/libraries/Wire/src}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.S.sketch.input.1351359601" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
+								<inputType id="io.sloeber.compiler.S.sketch.input.1178014020" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.ar.316391797" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
-							<tool id="io.sloeber.tool.combine.917175641" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
-							<tool id="io.sloeber.tool.objcopy.eep.534691848" name="Arduino tool objcopy command" superClass="io.sloeber.tool.objcopy.eep"/>
-							<tool id="io.sloeber.tool.size.967660537" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
+							<tool id="io.sloeber.tool.ar.1599472410" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
+							<tool id="io.sloeber.tool.combine.1938742444" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
+							<tool id="io.sloeber.tool.objcopy.eep.2008696613" name="Arduino tool objcopy command" superClass="io.sloeber.tool.objcopy.eep"/>
+							<tool id="io.sloeber.tool.size.1731769411" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*|libraries/?*/c*/?*|libraries/?*/d*/?*|libraries/?*/D*/?*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="libraries/Adafruit_NeoPixel/.github|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries/**/._*|libraries/?*/utility/*/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -74,11 +74,12 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="Marlin_1_1_x.null.1691005378" name="Marlin_1_1_x"/>
+		<project id="Marlin_1_1_7.null.1445074950" name="Marlin_1_1_7"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope"/>
 </cproject>

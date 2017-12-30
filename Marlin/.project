@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Marlin_1_1_x</name>
+	<name>Marlin_1_1_7</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -42,14 +42,14 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.6.20/variants/mega</locationURI>
 		</link>
 		<link>
+			<name>libraries/Adafruit_NeoPixel</name>
+			<type>2</type>
+			<location>D:/Data/Dokumenty/Arduino/libraries/Adafruit_NeoPixel</location>
+		</link>
+		<link>
 			<name>libraries/LiquidCrystal</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/LiquidCrystal/1.0.7</locationURI>
-		</link>
-		<link>
-			<name>libraries/LiquidCrystal_I2C</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/LiquidCrystal_I2C/1.1.2</locationURI>
 		</link>
 		<link>
 			<name>libraries/U8glib</name>

@@ -224,6 +224,7 @@
 #elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
   #define HEATER_1_PIN   RAMPS_D9_PIN
   #define HEATER_BED_PIN RAMPS_D8_PIN
+  #define FAN_PIN        6                     //TFs mod - add fan pin to RAMPS FAN EXTENDER second pin
 #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
   #define FAN_PIN        RAMPS_D9_PIN
   #define FAN1_PIN       RAMPS_D8_PIN
@@ -255,7 +256,7 @@
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 //#define FIL_RUNOUT_PIN      4
-#define FIL_RUNOUT_PIN        4 // TFs mod for Molestock S2 delta (need 14)
+#define FIL_RUNOUT_PIN        14 // TFs mod for Molestock S2 delta (need 3 or 14)
 
 #ifndef PS_ON_PIN
   #define PS_ON_PIN        12
