@@ -539,12 +539,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         static bool single_nozzle_load_status[EXTRUDERS] = {0};
         static bool single_nozzle_not_initialised = true;
 	
-        const float old_feedrate_mm_s = feedrate_mm_s;
-	  
         set_destination_from_current();
-        stepper.synchronize(); 
-        feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
-	  
+        stepper.synchronize();
+	
         if (!thermalManager.tooColdToExtrude(0)) {
           SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
           return;
@@ -553,24 +550,35 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // First time use just load
         if (single_nozzle_not_initialised) {
 		  
-          // Set the new active extruder
+          // Save original feedrate
+          const float old_feedrate_mm_s = feedrate_mm_s;
+		
+	  // Set the new active extruder
           active_extruder = tmp_extruder;
 		
           // Only loading
-          current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
+          feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
+	  current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
           sync_plan_position_e();
           prepare_move_to_destination();
 		
           // Applying statuses
           single_nozzle_load_status[tmp_extruder] = true;
           single_nozzle_not_initialised = false;
+		
+          // Restore original feedrate
+          feedrate_mm_s = old_feedrate_mm_s;
         }
 	  
         else {
           // If loaded and not the same extruder	  
           if (single_nozzle_load_status[active_extruder] && tmp_extruder != active_extruder) {
 		  
-            // Unload the active extruder
+            // Save original feedrate
+            const float old_feedrate_mm_s = feedrate_mm_s;
+            		  
+	    // Unload the active extruder
+            feedrate_mm_s = SINGLENOZZLE_UNLOAD_FEEDRATE; 
             current_position[E_AXIS] += (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
             sync_plan_position_e();
             prepare_move_to_destination();
@@ -581,7 +589,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             // Set the new active extruder
             active_extruder = tmp_extruder;
 		  
-            // Load the active extruder 
+            // Load the active extruder
+            feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE; 
             current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
             sync_plan_position_e();
             prepare_move_to_destination();
