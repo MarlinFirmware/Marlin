@@ -558,7 +558,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 		
           // Only loading
           feedrate_mm_s = SINGLENOZZLE_LOAD_FEEDRATE;
-	  current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
+          current_position[E_AXIS] -= (SINGLENOZZLE_LOAD_LENGTH) / planner.e_factor[active_extruder];
           sync_plan_position_e();
           prepare_move_to_destination();
 		
