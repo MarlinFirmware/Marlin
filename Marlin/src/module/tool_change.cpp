@@ -538,6 +538,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // Load/unload statuses 
         static bool single_nozzle_load_status[EXTRUDERS] = {0};
         static bool single_nozzle_not_initialised = true;
+	
         const float old_feedrate_mm_s = feedrate_mm_s;
 	  
         set_destination_from_current();
