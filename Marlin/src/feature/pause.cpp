@@ -54,7 +54,6 @@ static float resume_position[XYZE];
 
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"
-  static bool sd_print_paused = false;
 #endif
 
 #if HAS_BUZZER
@@ -107,12 +106,12 @@ void do_pause_e_move(const float &length, const float fr) {
 
 // public:
 
-bool move_away_flag = false;
+uint8_t did_pause_print = 0;
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/,
                  const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
 ) {
-  if (move_away_flag) return false; // already paused
+  if (did_pause_print) return false; // already paused
 
   #ifdef ACTION_ON_PAUSE
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
@@ -132,13 +131,13 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   }
 
   // Indicate that the printer is paused
-  move_away_flag = true;
+  ++did_pause_print;
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
     if (IS_SD_PRINTING) {
       card.pauseSDPrint();
-      sd_print_paused = true;
+      ++did_pause_print;
     }
   #endif
   print_job_timer.pause();
@@ -256,7 +255,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
 void resume_print(const float &load_length/*=0*/, const float &initial_extrude_length/*=0*/, const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
-  if (!move_away_flag) return;
+  if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
   HOTEND_LOOP() {
@@ -350,14 +349,14 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
 
+  --did_pause_print;
+
   #if ENABLED(SDSUPPORT)
-    if (sd_print_paused) {
+    if (did_pause_print) {
       card.startFileprint();
-      sd_print_paused = false;
+      --did_pause_print;
     }
   #endif
-
-  move_away_flag = false;
 }
 
 #endif // ADVANCED_PAUSE_FEATURE || PARK_HEAD_ON_PAUSE

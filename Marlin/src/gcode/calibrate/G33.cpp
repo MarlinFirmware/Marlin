@@ -491,7 +491,7 @@ void GcodeSuite::G33() {
 
   // Report settings
 
-  const char *checkingac = PSTR("Checking... AC"); // TODO: Make translatable string
+  PGM_P checkingac = PSTR("Checking... AC"); // TODO: Make translatable string
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
   SERIAL_EOL();
@@ -673,7 +673,7 @@ void GcodeSuite::G33() {
       }
     }
     else {                                                       // dry run
-      const char *enddryrun = PSTR("End DRY-RUN");
+      PGM_P enddryrun = PSTR("End DRY-RUN");
       serialprintPGM(enddryrun);
       SERIAL_PROTOCOL_SP(35);
       SERIAL_PROTOCOLPGM("std dev:");
