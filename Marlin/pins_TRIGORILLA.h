@@ -6,18 +6,20 @@
 #define BOARD_NAME         "TRIGORILLA"
 #define LARGE_FLASH        true
 
-// Divers
+// Misc PINs
 #define BUZZER 			   31
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
+#define Z_MIN_PROBE_PIN     2
+#define FIL_RUNOUT_PIN	   19
 
 #ifdef OutageTest
-	#define OUTAGETEST_PIN       79
-	#define OUTAGECON_PIN        58
+	#define OUTAGETEST_PIN  79
+	#define OUTAGECON_PIN   58
 #endif
 
-// Moteurs
+// Steppers
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
@@ -43,57 +45,57 @@
 #define E0_ENABLE_PIN      24
 
 // EndStops
-#define Z_TEST 2
-
-#define FIL_RUNOUT_PIN	   19
-
 #define X_MIN_PIN           3
-#define Y_MIN_PIN          42 // Origine 42.
+#define Y_MIN_PIN          42
 #define Z_MIN_PIN          18
 
 #define X_MAX_PIN          43
 #define Y_MAX_PIN          -1 
-#define Z_MAX_PIN          2 
+#define Z_MAX_PIN          -1
 
 // Fans
-#define FAN_PIN               9 
-#define FAN2_PIN             44
-#define CONTROLLER_FAN_PIN    7
+#define FAN_PIN             9
+#define FAN2_PIN           44
+#define CONTROLLER_FAN_PIN  7
 
 // Heaters
-#define HEATER_0_PIN       10 // Extrudeur 1.
-#define HEATER_1_PIN       45 // Extrudeur 2.
+#define HEATER_0_PIN       10
+#define HEATER_1_PIN       45
 #define HEATER_BED_PIN      8
 
-// Sondes température
-#define TEMP_0_PIN         13   // Température Ext1.
-#define TEMP_1_PIN         15   // Température Ext2.
-#define TEMP_2_PIN         12   // Température Ext3.
-#define TEMP_BED_PIN       14   // Température Bed. 
+// Temperatursensoren
+#define TEMP_0_PIN         13
+#define TEMP_1_PIN         15
+#define TEMP_2_PIN         12
+#define TEMP_BED_PIN       14
 
 // Servos
 #ifdef NUM_SERVOS
-	//#define SERVO0_PIN         11
+	#define SERVO0_PIN      11
 	
 	#if NUM_SERVOS > 1
-		#define SERVO1_PIN         6
+		#define SERVO1_PIN    6
 	#endif
 	
 	#if NUM_SERVOS > 2
-		#define SERVO2_PIN         5
+		#define SERVO2_PIN    5
 	#endif
 	
 	#if NUM_SERVOS > 3
-		#define SERVO3_PIN         4
+		#define SERVO3_PIN    4
 	#endif
 #endif	
 
+#if defined(ANYCUBIC_TFT_MODEL)
+  #define BEEPER_PIN       31
+  #define SD_DETECT_PIN    49
+#endif
 
 // LCD
-#if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
-	#define KILL_PIN           41
-	#else
-	#define KILL_PIN           -1
+#if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(ANYCUBIC_TFT_MODEL)
+	#define KILL_PIN        41
+#else
+	#define KILL_PIN        -1
 #endif
 
 #ifdef ULTRA_LCD

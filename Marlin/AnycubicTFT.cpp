@@ -76,6 +76,11 @@ void AnycubicTFTClass::Setup() {
   delay(10);
   ANYCUBIC_SERIAL_PROTOCOLPGM("J12"); // J12 Ready
   ANYCUBIC_SERIAL_ENTER();
+
+#if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+  pinMode(SD_DETECT_PIN, INPUT);
+  WRITE(SD_DETECT_PIN, HIGH);
+#endif
   
 #if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
   pinMode(FIL_RUNOUT_PIN,INPUT);
@@ -206,8 +211,9 @@ void AnycubicTFTClass::CheckSDCardChange()
     
     if (LastSDstatus)
     {
+      card.initsd();
       MyFileNrCnt=GetFileNr();
-      ANYCUBIC_SERIAL_PROTOCOLPGM("J00"); // J01 SD Card inserted
+      ANYCUBIC_SERIAL_PROTOCOLPGM("J00"); // J00 SD Card inserted
       ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
       SERIAL_ECHOLNPGM("TFT Serial Debug: SD card inserted... J00");
@@ -578,7 +584,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
             }
             else if((CodeSeen('C'))&&(!planner.movesplanned()))
             {
-              if((READ(Z_TEST)==0)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RASE Z AXIS
+              if((current_position[Z_AXIS]<10)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RASE Z AXIS
               tempvalue=constrain(CodeValue(),0,275);
               thermalManager.setTargetHotend(tempvalue,0);
             }
@@ -690,7 +696,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 23: // A23 preheat pla
             if((!planner.movesplanned())&& (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
-              if((READ(Z_TEST)==0)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); // RAISE Z AXIS
+              if((current_position[Z_AXIS]<10)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); // RAISE Z AXIS
               thermalManager.setTargetBed(50);
               thermalManager.setTargetHotend(200, 0);
               ANYCUBIC_SERIAL_SUCC_START;
@@ -700,7 +706,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 24:// A24 preheat abs
             if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
-              if((READ(Z_TEST)==0)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RAISE Z AXIS
+              if((current_position[Z_AXIS]<10)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RAISE Z AXIS
               thermalManager.setTargetBed(80);
               thermalManager.setTargetHotend(240, 0);
               
@@ -796,27 +802,28 @@ void AnycubicTFTClass::GetCommandFromTFT()
             
             break;
           case 31: // A31 zoffset
-            /*
             if((!planner.movesplanned())&&(TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
-              
-              if((READ(Z_TEST)==0))
-                z_offset_auto_test();
+              float new_z_offset=zprobe_zoffset;
+              char value[30];
+              //if((current_position[Z_AXIS]<10))
+              //  z_offset_auto_test();
 
-              if(TFTcode_seen('S')){
+              if(CodeSeen('S')){
                 ANYCUBIC_SERIAL_PROTOCOLPGM("A9V ");
-                ANYCUBIC_SERIAL_PROTOCOL(int(Current_z_offset*100));
+                ANYCUBIC_SERIAL_PROTOCOL(int(new_z_offset*100));
                 ANYCUBIC_SERIAL_ENTER();
               }
-              if(TFTcode_seen('D'))
+              if(CodeSeen('D'))
               {
-                Current_z_offset=(TFTcode_value()/100);
-                SaveMyZoffset();
+                new_z_offset=(CodeValue()/100.0);
+                sprintf_P(value,PSTR("M851 Z%0.2f"),new_z_offset);
+                enqueue_and_echo_command(value); // Apply Z-Probe offset
+                enqueue_and_echo_commands_P(PSTR("M500")); // Save to EEPROM
               }
             }
-            TFT_SERIAL_ENTER();
+            ANYCUBIC_SERIAL_ENTER();
             break;
-            */
           case 32: // A32 clean leveling beep flag
             if(CodeSeen('S')) {
 #ifdef ANYCUBIC_TFT_DEBUG
@@ -895,7 +902,7 @@ void AnycubicTFTClass::BedHeatingStart()
   ANYCUBIC_SERIAL_PROTOCOLPGM("J08"); // J08 hotbed heating start
   ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
-  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed heating is done... J08");
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed is heating... J08");
 #endif
 }
 
@@ -904,7 +911,7 @@ void AnycubicTFTClass::BedHeatingDone()
   ANYCUBIC_SERIAL_PROTOCOLPGM("J09"); // J09 hotbed heating done
   ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
-  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed is heating... J09");
+  SERIAL_ECHOLNPGM("TFT Serial Debug: Bed heating is done... J09");
 #endif
 }
 
