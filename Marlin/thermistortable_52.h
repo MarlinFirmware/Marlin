@@ -20,6 +20,7 @@
  *
  */
 
+// R25 = 200 kOhm, beta25 = 4338 K, 1 kOhm pull-up,
 // 200k ATC Semitec 204GT-2 (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
