@@ -111,6 +111,9 @@
   #define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000) / 1000)
 
   typedef uint8_t (*pfnSpiTransfer) (uint8_t b);
+  typedef void    (*pfnSpiRxBlock)(uint8_t* buf, uint32_t nbyte);
+  typedef void    (*pfnSpiTxBlock)(const uint8_t* buf, uint32_t nbyte);
+
 
   /* ---------------- Macros to be able to access definitions from asm */
 
@@ -183,26 +186,32 @@
       /* Bit 0 */
       " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
       " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " nop"  "\n\t"
+      " nop" "\n\t"                                             /* Result will be 0 */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
 
-      : [mosi_mask]"+r"( MOSI_MASK ),
-        [mosi_port]"+r"( MOSI_PORT_PLUS30 ),
-        [sck_mask]"+r"( SCK_MASK ),
-        [sck_port]"+r"( SCK_PORT_PLUS30 ),
-        [idx]"+r"( idx ),
-        [txval]"+r"( bout )
-      :
+      : [idx]"+r"( idx )
+      : [txval]"r"( bout ) ,
+        [mosi_mask]"r"( MOSI_MASK ),
+        [mosi_port]"r"( MOSI_PORT_PLUS30 ),
+        [sck_mask]"r"( SCK_MASK ),
+        [sck_port]"r"( SCK_PORT_PLUS30 )
       : "cc"
     );
 
     return 0;
   }
 
+ // Calculates the bit band alias address and returns a pointer address to word.
+ // addr: The byte address of bitbanding bit.
+ // bit:  The bit position of bitbanding bit.
+#define BITBAND_ADDRESS(addr, bit) \
+    (((uint32_t)(addr) & 0xF0000000) + 0x02000000 + ((uint32_t)(addr)&0xFFFFF)*32 + (bit)*4)
+
   // run at ~8 .. ~10Mhz - Rx version (Tx line not altered)
   static uint8_t spiTransferRx0(uint8_t bout) { // using Mode 0
-    int bin = 0, work = 0;
-    register uint32_t MISO_PORT_PLUS3C = ((uint32_t) PORT(MISO_PIN)) + 0x3C;  /* PDSR of port */
+    register uint32_t bin;
+    register uint32_t work;
+    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
     register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
     register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
     UNUSED(bout);
@@ -213,70 +222,61 @@
 
       /* bit 7 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#7,#1" "\n\t"                /* Store read bit as the bit 7 */
 
       /* bit 6 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#6,#1" "\n\t"                /* Store read bit as the bit 6 */
 
       /* bit 5 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#5,#1" "\n\t"                /* Store read bit as the bit 5 */
 
       /* bit 4 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#4,#1" "\n\t"                /* Store read bit as the bit 4 */
 
       /* bit 3 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#3,#1" "\n\t"                /* Store read bit as the bit 3 */
 
       /* bit 2 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#2,#1" "\n\t"                /* Store read bit as the bit 2 */
 
       /* bit 1 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#1,#1" "\n\t"                /* Store read bit as the bit 1 */
 
       /* bit 0 */
       " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[miso_port]]" "\n\t"              /* PDSR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
       " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " lsrs %[work],%[work],%[miso_shift]" "\n\t"      /* Isolate input into carry */
-      " adc %[bin],%[bin],%[bin]" "\n\t"                /* Shift left result and add the carry */
+      " bfi %[bin],%[work],#0,#1" "\n\t"                /* Store read bit as the bit 0 */
 
-      : [miso_port]"+r"( MISO_PORT_PLUS3C ),
-        [sck_mask]"+r"( SCK_MASK ),
-        [sck_port]"+r"( SCK_PORT_PLUS30 ),
-        [bin]"+r"(bin),
+      : [bin]"+r"(bin),
         [work]"+r"(work)
-      : [miso_shift]"M"( PIN_SHIFT(MISO_PIN) + 1 )      /* So we move to the carry */
+      : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
+        [sck_mask]"r"( SCK_MASK ),
+        [sck_port]"r"( SCK_PORT_PLUS30 )
       : "cc"
     );
 
-    return (uint8_t)bin;
+    return bin;
   }
 
   // run at ~4Mhz
@@ -317,9 +317,181 @@
     return b;
   }
 
-  // Pointers to generic functions
+  // Pointers to generic functions for byte transfers
   static pfnSpiTransfer spiTransferTx = spiTransferX;
   static pfnSpiTransfer spiTransferRx = spiTransferX;
+
+  // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
+  static void spiTxBlock0(const uint8_t* ptr, uint32_t todo) {
+    register uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
+    register uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
+    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    register uint32_t work;
+    register uint32_t txval;
+
+    /* The software SPI routine */
+    __asm__ __volatile__(
+      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+
+      " loop%=:" "\n\t"
+      " ldrb.w %[txval], [%[ptr]], #1" "\n\t"                   /* Load value to send, increment buffer */
+      " mvn %[txval],%[txval]" "\n\t"                           /* Negate value */
+
+      /* Bit 7 */
+      " ubfx %[work],%[txval],#7,#1" "\n\t"                     /* Place bit 7 in bit 0 of work*/
+
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#6,#1" "\n\t"                     /* Place bit 6 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 6 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#5,#1" "\n\t"                     /* Place bit 5 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 5 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#4,#1" "\n\t"                     /* Place bit 4 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 4 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#3,#1" "\n\t"                     /* Place bit 3 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 3 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#2,#1" "\n\t"                     /* Place bit 2 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 2 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#1,#1" "\n\t"                     /* Place bit 1 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 1 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " ubfx %[work],%[txval],#0,#1" "\n\t"                     /* Place bit 0 in bit 0 of work*/
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+
+      /* Bit 0 */
+      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
+      " subs %[todo],#1" "\n\t"                                 /* Decrement count of pending words to send, update status */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      " bne.n loop%=" "\n\t"                                    /* Repeat until done */
+
+      : [ptr]"+r" ( ptr ) ,
+        [todo]"+r" ( todo ) ,
+        [work]"+r"( work ) ,
+        [txval]"+r"( txval )
+      : [mosi_mask]"r"( MOSI_MASK ),
+        [mosi_port]"r"( MOSI_PORT_PLUS30 ),
+        [sck_mask]"r"( SCK_MASK ),
+        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : "cc"
+    );
+  }
+
+  static void spiRxBlock0(uint8_t* ptr, uint32_t todo) {
+    register uint32_t bin;
+    register uint32_t work;
+    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
+    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+
+    /* The software SPI routine */
+    __asm__ __volatile__(
+      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+
+      " loop%=:" "\n\t"
+
+      /* bit 7 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#7,#1" "\n\t"                /* Store read bit as the bit 7 */
+
+      /* bit 6 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#6,#1" "\n\t"                /* Store read bit as the bit 6 */
+
+      /* bit 5 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#5,#1" "\n\t"                /* Store read bit as the bit 5 */
+
+      /* bit 4 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#4,#1" "\n\t"                /* Store read bit as the bit 4 */
+
+      /* bit 3 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#3,#1" "\n\t"                /* Store read bit as the bit 3 */
+
+      /* bit 2 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#2,#1" "\n\t"                /* Store read bit as the bit 2 */
+
+      /* bit 1 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#1,#1" "\n\t"                /* Store read bit as the bit 1 */
+
+      /* bit 0 */
+      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
+      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
+      " bfi %[bin],%[work],#0,#1" "\n\t"                /* Store read bit as the bit 0 */
+
+      " subs %[todo],#1" "\n\t"                         /* Decrement count of pending words to send, update status */
+      " strb.w %[bin], [%[ptr]], #1" "\n\t"             /* Store read value into buffer, increment buffer pointer */
+      " bne.n loop%=" "\n\t"                            /* Repeat until done */
+
+      : [ptr]"+r"(ptr),
+        [todo]"+r"(todo),
+        [bin]"+r"(bin),
+        [work]"+r"(work)
+      : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
+        [sck_mask]"r"( SCK_MASK ),
+        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : "cc"
+    );
+  }
+
+  static void spiTxBlockX(const uint8_t* buf, uint32_t todo) {
+    do {
+      (void) spiTransferTx(*buf++);
+    } while (--todo);
+  }
+
+  static void spiRxBlockX(uint8_t* buf, uint32_t todo) {
+    do {
+      *buf++ = spiTransferRx(0xff);
+    } while (--todo);
+  }
+
+  // Pointers to generic functions for block tranfers
+  static pfnSpiTxBlock spiTxBlock = spiTxBlockX;
+  static pfnSpiRxBlock spiRxBlock = spiRxBlockX;
 
   void spiBegin() {
     SET_OUTPUT(SS_PIN);
@@ -327,6 +499,38 @@
     SET_OUTPUT(SCK_PIN);
     SET_INPUT(MISO_PIN);
     SET_OUTPUT(MOSI_PIN);
+  }
+
+  uint8_t spiRec() {
+    WRITE(SS_PIN, LOW);
+    WRITE(MOSI_PIN, 1); /* Output 1s 1*/
+    uint8_t b = spiTransferRx(0xFF);
+    WRITE(SS_PIN, HIGH);
+    return b;
+  }
+
+  void spiRead(uint8_t* buf, uint16_t nbyte) {
+    uint32_t todo = nbyte;
+    if (todo == 0) return;
+
+    WRITE(SS_PIN, LOW);
+    WRITE(MOSI_PIN, 1); /* Output 1s 1*/
+    spiRxBlock(buf,nbyte);
+    WRITE(SS_PIN, HIGH);
+  }
+
+  void spiSend(uint8_t b) {
+    WRITE(SS_PIN, LOW);
+    (void) spiTransferTx(b);
+    WRITE(SS_PIN, HIGH);
+  }
+
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+
+    WRITE(SS_PIN, LOW);
+    (void) spiTransferTx(token);
+    spiTxBlock(buf,512);
+    WRITE(SS_PIN, HIGH);
   }
 
   /**
@@ -344,56 +548,27 @@
       case 0:
         spiTransferTx = spiTransferTx0;
         spiTransferRx = spiTransferRx0;
+        spiTxBlock = spiTxBlock0;
+        spiRxBlock = spiRxBlock0;
         break;
       case 1:
         spiTransferTx = spiTransfer1;
         spiTransferRx = spiTransfer1;
+        spiTxBlock = spiTxBlockX;
+        spiRxBlock = spiRxBlockX;
         break;
       default:
         spiDelayCyclesX4 = (F_CPU/1000000) >> (6 - spiRate);
         spiTransferTx = spiTransferX;
         spiTransferRx = spiTransferX;
+        spiTxBlock = spiTxBlockX;
+        spiRxBlock = spiRxBlockX;
         break;
     }
 
     WRITE(SS_PIN, HIGH);
     WRITE(MOSI_PIN, HIGH);
     WRITE(SCK_PIN, LOW);
-  }
-
-  uint8_t spiRec() {
-    WRITE(SS_PIN, LOW);
-    WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-    uint8_t b = spiTransferRx(0xFF);
-    WRITE(SS_PIN, HIGH);
-    return b;
-  }
-
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
-    if (nbyte == 0) return;
-    WRITE(SS_PIN, LOW);
-    WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-    for (int i = 0; i < nbyte; i++) {
-      buf[i] = spiTransferRx(0xff);
-    }
-    WRITE(SS_PIN, HIGH);
-  }
-
-  void spiSend(uint8_t b) {
-    WRITE(SS_PIN, LOW);
-    (void) spiTransferTx(b);
-    WRITE(SS_PIN, HIGH);
-  }
-
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
-
-    WRITE(SS_PIN, LOW);
-    (void) spiTransferTx(token);
-
-    for (uint16_t i = 0; i < 512; i++) {
-      (void) spiTransferTx(buf[i]);
-    }
-    WRITE(SS_PIN, HIGH);
   }
 
   #pragma GCC reset_options
