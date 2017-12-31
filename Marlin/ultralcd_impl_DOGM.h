@@ -858,6 +858,16 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
+
+  //Added by Lars
+static void lcd_implementation_draw_line(uint8_t row, const char* line)
+{
+	u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
+	lcd_printPGM(line);
+}
+
+	
+
   // Draw a menu item with an editable value
   static void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm) {
 

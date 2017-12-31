@@ -250,7 +250,7 @@
     #define ENCODER_STEPS_PER_MENU_ITEM STD_ENCODER_STEPS_PER_MENU_ITEM
   #endif
   #ifndef ENCODER_FEEDRATE_DEADZONE
-    #define ENCODER_FEEDRATE_DEADZONE 6
+    #define ENCODER_FEEDRATE_DEADZONE 2
   #endif
 
   // Shift register panels
