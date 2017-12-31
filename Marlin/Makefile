@@ -304,13 +304,8 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
 SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
 endif
-CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp \
-	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp \
-	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
-	temperature.cpp cardreader.cpp configuration_store.cpp \
-	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp least_squares_fit.cpp endstops.cpp stopwatch.cpp utility.cpp \
-	printcounter.cpp nozzle.cpp serial.cpp gcode.cpp Max7219_Debug_LEDs.cpp
+CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
+CXXSRC += $(wildcard *.cpp)
 ifeq ($(NEOPIXEL), 1)
 CXXSRC += Adafruit_NeoPixel.cpp
 endif
@@ -332,7 +327,7 @@ endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
 LD_PREFIX=-nodefaultlibs
-LD_SUFFIX=-lm -lgcc -lc -lgcc
+LD_SUFFIX=-lm -lgcc -lc -lgcc -L$(ARDUINO_INSTALL_DIR)/hardware/tools/avr/avr/lib/avr6 -l$(MCU)
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct source files for that version

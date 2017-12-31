@@ -59,8 +59,6 @@
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -125,7 +123,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN        69   // K7
+#define TEMP_BED_PIN        15   // K7 - 69 / ADC15 - 15
 
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus

@@ -29,8 +29,6 @@
 #endif
 
 #define BOARD_NAME         "Cheaptronic v1.0"
-#define LARGE_FLASH        true
-
 //
 // Limit Switches
 //
