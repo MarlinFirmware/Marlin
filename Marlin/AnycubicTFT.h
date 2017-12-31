@@ -27,7 +27,8 @@
 char *itostr2(const uint8_t &x);
 
 #ifndef ULTRA_LCD
-char* itostr3(const int);
+char *itostr3(const int);
+char *ftostr32(const float &);
 #endif
 
 #define TFTBUFSIZE 4

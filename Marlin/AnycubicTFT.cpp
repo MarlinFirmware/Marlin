@@ -63,6 +63,18 @@ char* itostr3(const int x) {
   _conv[6] = DIGIMOD(xx, 1);
   return &_conv[4];
 }
+
+// Convert signed float to fixed-length string with 023.45 / -23.45 format
+char *ftostr32(const float &x) {
+  long xx = x * 100;
+  _conv[1] = MINUSOR(xx, DIGIMOD(xx, 10000));
+  _conv[2] = DIGIMOD(xx, 1000);
+  _conv[3] = DIGIMOD(xx, 100);
+  _conv[4] = '.';
+  _conv[5] = DIGIMOD(xx, 10);
+  _conv[6] = DIGIMOD(xx, 1);
+  return &_conv[1];
+}
 #endif
 
 AnycubicTFTClass::AnycubicTFTClass() {
@@ -387,6 +399,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
         int16_t a_command;
         TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindw], 'A');
         a_command=((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], NULL))));
+        
 #ifdef ANYCUBIC_TFT_DEBUG
         if ((a_command>7) && (a_command != 20)) // No debugging of status polls, please!
           SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
@@ -399,16 +412,19 @@ void AnycubicTFTClass::GetCommandFromTFT()
             ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(thermalManager.degHotend(0) + 0.5)));
             ANYCUBIC_SERIAL_ENTER();
             break;
+            
           case 1: //A1  GET HOTEND TARGET TEMP
             ANYCUBIC_SERIAL_PROTOCOLPGM("A1V ");
             ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(thermalManager.degTargetHotend(0) + 0.5)));
             ANYCUBIC_SERIAL_ENTER();
             break;
+            
           case 2: //A2 GET HOTBED TEMP
             ANYCUBIC_SERIAL_PROTOCOLPGM("A2V ");
             ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(thermalManager.degBed() + 0.5)));
             ANYCUBIC_SERIAL_ENTER();
             break;
+            
           case 3: //A3 GET HOTBED TARGET TEMP
             ANYCUBIC_SERIAL_PROTOCOLPGM("A3V ");
             ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(thermalManager.degTargetBed() + 0.5)));
@@ -418,9 +434,10 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 4://A4 GET FAN SPEED
           {
             unsigned int temp;
-            //   temp=((fanSpeed*100)/256+1);
-            temp=((fanSpeeds[0]*100)/179+1);//MAX 70%
+            
+            temp=((fanSpeeds[0]*100)/255);
             temp=constrain(temp,0,100);
+            
             ANYCUBIC_SERIAL_PROTOCOLPGM("A4V ");
             ANYCUBIC_SERIAL_PROTOCOL(temp);
             ANYCUBIC_SERIAL_ENTER();
@@ -575,29 +592,30 @@ void AnycubicTFTClass::GetCommandFromTFT()
             //                          ANYCUBIC_SERIAL_ENTER();
             break;
           case 16: // A16 set hotend temp
-          {
-            unsigned int tempvalue;
-            if(CodeSeen('S'))
             {
-              tempvalue=constrain(CodeValue(),0,275);
-              thermalManager.setTargetHotend(tempvalue,0);
+              unsigned int tempvalue;
+              if(CodeSeen('S'))
+              {
+                tempvalue=constrain(CodeValue(),0,275);
+                thermalManager.setTargetHotend(tempvalue,0);
+              }
+              else if((CodeSeen('C'))&&(!planner.movesplanned()))
+              {
+                if((current_position[Z_AXIS]<10))
+                  enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RASE Z AXIS
+                tempvalue=constrain(CodeValue(),0,275);
+                thermalManager.setTargetHotend(tempvalue,0);
+              }
             }
-            else if((CodeSeen('C'))&&(!planner.movesplanned()))
-            {
-              if((current_position[Z_AXIS]<10)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); //RASE Z AXIS
-              tempvalue=constrain(CodeValue(),0,275);
-              thermalManager.setTargetHotend(tempvalue,0);
-            }
-          }
             //  ANYCUBIC_SERIAL_ENTER();
             break;
           case 17:// A17 set heated bed temp
-          {
-            unsigned int tempbed;
-            if(CodeSeen('S')){tempbed=constrain(CodeValue(),0,150);
-              thermalManager.setTargetBed(tempbed);
+            {
+              unsigned int tempbed;
+              if(CodeSeen('S')){tempbed=constrain(CodeValue(),0,150);
+                thermalManager.setTargetBed(tempbed);
+              }
             }
-          }
             //  ANYCUBIC_SERIAL_ENTER();
             break;
           case 18:// A18 set fan speed
@@ -614,7 +632,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 19: // A19 stop stepper drivers
             if((!planner.movesplanned())&&(!card.sdprinting))
             {
-              //                            quickStop();
+              quickstop_stepper();
               disable_X();
               disable_Y();
               disable_Z();
@@ -624,14 +642,13 @@ void AnycubicTFTClass::GetCommandFromTFT()
             break;
           case 20:// A20 read printing speed
           {
-            
-            //                              if(CodeSeen('S')){
-            //                              feedmultiply=constrain(CodeValue(),40,999);}
-            //                              else{
-            //                                  ANYCUBIC_SERIAL_PROTOCOLPGM("A20V ");
-            //                                  ANYCUBIC_SERIAL_PROTOCOL(feedmultiply);
-            //                                  ANYCUBIC_SERIAL_ENTER();
-            //                              }
+            if(CodeSeen('S')){
+              feedrate_percentage=constrain(CodeValue(),40,999);}
+            else{
+              ANYCUBIC_SERIAL_PROTOCOLPGM("A20V ");
+              ANYCUBIC_SERIAL_PROTOCOL(feedrate_percentage);
+              ANYCUBIC_SERIAL_ENTER();
+            }
           }
             break;
           case 21: // A21 all home
@@ -804,24 +821,33 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 31: // A31 zoffset
             if((!planner.movesplanned())&&(TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
-              float new_z_offset=zprobe_zoffset;
+#if HAS_BED_PROBE
               char value[30];
+              char *s_zoffset;
               //if((current_position[Z_AXIS]<10))
               //  z_offset_auto_test();
 
               if(CodeSeen('S')){
                 ANYCUBIC_SERIAL_PROTOCOLPGM("A9V ");
-                ANYCUBIC_SERIAL_PROTOCOL(int(new_z_offset*100));
+                ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
                 ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+                SERIAL_ECHOPGM("TFT sending current z-probe offset data... <");
+                SERIAL_ECHOPGM("A9V ");
+                SERIAL_ECHO(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
+                SERIAL_ECHOLNPGM(">");
+#endif
               }
               if(CodeSeen('D'))
               {
-                new_z_offset=(CodeValue()/100.0);
-                sprintf_P(value,PSTR("M851 Z%0.2f"),new_z_offset);
+                s_zoffset=ftostr32(float(CodeValue())/100.0);
+                sprintf_P(value,PSTR("M851 Z"));
+                strcat(value,s_zoffset);
                 enqueue_and_echo_command(value); // Apply Z-Probe offset
                 enqueue_and_echo_commands_P(PSTR("M500")); // Save to EEPROM
               }
             }
+#endif
             ANYCUBIC_SERIAL_ENTER();
             break;
           case 32: // A32 clean leveling beep flag
