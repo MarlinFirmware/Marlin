@@ -491,7 +491,7 @@
   #endif
 
   #define _L6470_INIT(A) do{ \
-    stepper##A.init(A##_K_VAL); \
+    stepper##A.init(); \
     stepper##A.softFree(); \
     stepper##A.setMicroSteps(A##_MICROSTEPS); \
     stepper##A.setOverCurrent(A##_OVERCURRENT); \

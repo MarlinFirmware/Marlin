@@ -125,9 +125,6 @@
 // Show extra position information in M114
 //#define M114_DETAIL
 
-// Show extra position information in M114
-//#define M114_DETAIL
-
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
@@ -442,6 +439,20 @@
 
 // Uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 #define DIGIPOT_I2C
+
+#if ENABLED(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A)  // Default to settings in pins_XXXX.h files
+  /**
+   * Common slave addresses:
+   *
+   *                    A   (A shifted)   B   (B shifted)  IC
+   * Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
+   * AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
+   * MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
+   */
+  #define DIGIPOT_I2C_ADDRESS_A 0x2F  // unshifted slave address for DIGIPOT (5E <- 2F << 1)
+  //#define DIGIPOT_I2C_ADDRESS_B 0x2D  // one DIGIPOT on this board
+#endif
+
 #define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 5 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
 // Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
@@ -1178,57 +1189,46 @@
   //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
-  #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define X_OVERCURRENT   2000 // maxc current in mA. If the current goes over this value, the driver will switch off
   #define X_STALLCURRENT  1500 // current in mA where the driver will detect a stall
 
   #define X2_MICROSTEPS     16
-  #define X2_K_VAL          50
   #define X2_OVERCURRENT  2000
   #define X2_STALLCURRENT 1500
 
   #define Y_MICROSTEPS      16
-  #define Y_K_VAL           50
   #define Y_OVERCURRENT   2000
   #define Y_STALLCURRENT  1500
 
   #define Y2_MICROSTEPS     16
-  #define Y2_K_VAL          50
   #define Y2_OVERCURRENT  2000
   #define Y2_STALLCURRENT 1500
 
   #define Z_MICROSTEPS      16
-  #define Z_K_VAL           50
   #define Z_OVERCURRENT   2000
   #define Z_STALLCURRENT  1500
 
   #define Z2_MICROSTEPS     16
-  #define Z2_K_VAL          50
   #define Z2_OVERCURRENT  2000
   #define Z2_STALLCURRENT 1500
 
   #define E0_MICROSTEPS     16
-  #define E0_K_VAL          50
   #define E0_OVERCURRENT  2000
   #define E0_STALLCURRENT 1500
 
   #define E1_MICROSTEPS     16
-  #define E1_K_VAL          50
   #define E1_OVERCURRENT  2000
   #define E1_STALLCURRENT 1500
 
   #define E2_MICROSTEPS     16
-  #define E2_K_VAL          50
   #define E2_OVERCURRENT  2000
   #define E2_STALLCURRENT 1500
 
   #define E3_MICROSTEPS     16
-  #define E3_K_VAL          50
   #define E3_OVERCURRENT  2000
   #define E3_STALLCURRENT 1500
 
   #define E4_MICROSTEPS     16
-  #define E4_K_VAL          50
   #define E4_OVERCURRENT  2000
   #define E4_STALLCURRENT 1500
 
@@ -1439,6 +1439,7 @@
 /**
  * Specify an action command to send to the host when the printer is killed.
  * Will be sent in the form '//action:ACTION_ON_KILL', e.g. '//action:poweroff'.
+ * The host must be configured to handle the action command.
  */
 //#define ACTION_ON_KILL "poweroff"
 
