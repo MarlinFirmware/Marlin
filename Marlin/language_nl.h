@@ -226,11 +226,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Motorstroom")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")  //accepted English term in Dutch
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC Opslaan")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeer meer")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Hervat print")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ") //accepeted English term
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -254,9 +250,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament te")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("laden")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("filament te")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("extruderen")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor print")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("om verder")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("te gaan")
@@ -273,8 +266,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("en druk knop")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("inladen...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extrudering")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("printing...")
 #endif // LCD_HEIGHT < 4

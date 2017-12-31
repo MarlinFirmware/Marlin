@@ -228,12 +228,8 @@
 
 #define MSG_DRIVE_STRENGTH                  _UxGT("Sürücü Gücü")                                        // Sürücü Gücü
 #define MSG_DAC_PERCENT                     _UxGT("Sürücü %")                                           // Sürücü %
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("Seçenekler:")                                        // Seçenekler:
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Daha Akıt")                                          // Daha Akıt
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Baskıyı sürdür")                                     // Baskıyı sürdür
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Sıcaklık")                                      // Min. Sıcaklık:
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozül: ")                                          //   Nozül:
 
 #if LCD_HEIGHT >= 4
@@ -252,8 +248,6 @@
   #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Lütfen Bekleyin...")                               // Lütfen Bekleyin...
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Bekleniyor")                                       // Bekleniyor
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filamanın yüklenmesi")                             // filamanın yüklenmesi
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Bekleniyor")                                       // Bekleniyor
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("filaman akması")                                   // filaman akması
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Baskının sürdürülmesini")                          // Baskının sürdürülmesini
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("bekle")                                            // bekle
 #else // LCD_HEIGHT < 4
@@ -262,7 +256,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Çıkartılıyor...")                                  // Çıkartılıyor...
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Yükle ve bas")                                     // Yükle ve bas
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Yüklüyor...")                                      // Yüklüyor...
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Akıtılıyor...")                                    // Akıtılıyor...
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Sürdürülüyor...")                                  // Sürdürülüyor...
 #endif // LCD_HEIGHT < 4
 
