@@ -32,6 +32,21 @@ class MarlinSettings {
     static void reset();
     static bool save();
 
+    FORCE_INLINE static bool init_eeprom() {
+      bool success = true;
+      reset();
+      #if ENABLED(EEPROM_SETTINGS)
+        if ((success = save())) {
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            success = load(); // UBL uses load() to know the end of EEPROM
+          #elif ENABLED(EEPROM_CHITCHAT)
+            report();
+          #endif
+        }
+      #endif
+      return success;
+    }
+
     #if ENABLED(EEPROM_SETTINGS)
       static bool load();
 
