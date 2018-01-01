@@ -845,9 +845,9 @@ void AnycubicTFTClass::GetCommandFromTFT()
                 strcat(value,s_zoffset);
                 enqueue_and_echo_command(value); // Apply Z-Probe offset
                 enqueue_and_echo_commands_P(PSTR("M500")); // Save to EEPROM
-              }
-            }
+              }            
 #endif
+			}
             ANYCUBIC_SERIAL_ENTER();
             break;
           case 32: // A32 clean leveling beep flag
