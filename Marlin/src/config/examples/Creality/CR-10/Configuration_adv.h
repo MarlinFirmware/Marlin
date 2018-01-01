@@ -473,6 +473,9 @@
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
+// Leave out seldom-used LCD menu items to recover some Program Memory
+//#define SLIM_LCD_MENUS
+
 // Scroll a longer status message into view
 #define STATUS_MESSAGE_SCROLLING
 
@@ -659,7 +662,7 @@
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 10  // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR  10 // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.

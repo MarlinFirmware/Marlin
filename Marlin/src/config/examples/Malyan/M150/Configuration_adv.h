@@ -473,6 +473,9 @@
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
+// Leave out seldom-used LCD menu items to recover some Program Memory
+//#define SLIM_LCD_MENUS
+
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
 
@@ -577,6 +580,9 @@
 
   // This allows hosts to request long names for files and folders with M33
   #define LONG_FILENAME_HOST_SUPPORT
+
+  // Enable this option to scroll long filenames in the SD card menu
+  //#define SCROLL_LONG_FILENAMES
 
   /**
    * This option allows you to abort SD printing when any endstop is triggered.
