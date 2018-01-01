@@ -47,6 +47,7 @@
 
 #include "conf_usb.h"
 #include "udc.h"
+#include <Arduino.h>
 
 static volatile bool main_b_msc_enable = false;
 static volatile bool main_b_cdc_enable = false;
@@ -252,6 +253,7 @@ bool usb_task_other_requests(void) {
 
   return true;
 }
+
 
 void HAL_init(void) {
   uint16_t *ptr;
