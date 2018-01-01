@@ -171,7 +171,7 @@
 /* Bed Margin For Probing
  * Margin around perimiter of bed for probing 
  */
-#define BED_MARGIN 0
+#define BED_MARGIN 10
 
 /* Baudrate
  * If your using Linux, set this to 115200, to Linux doesn't like
@@ -704,7 +704,11 @@
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // get these from auto calibrate
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS 101.31 //mm  Get this value from auto calibrate
+  #if ENABLED(LINEAR_PLUS)
+    #define DELTA_RADIUS 134.34 //mm  Get this value from auto calibrate
+  #else
+    #define DELTA_RADIUS 101.31 //mm  Get this value from auto calibrate
+  #endif
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
