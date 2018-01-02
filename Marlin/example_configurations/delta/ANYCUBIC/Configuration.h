@@ -1534,7 +1534,7 @@
   // Specify a park position as { X, Y, Z }
   #define NOZZLE_PARK_POINT { 0, 0, Z_MAX_POS } // An undocumented feature is that the Z point is added to the current postion in the pause menu (G27 P2 NOZZLE_PARK_POINT.Z)
   #define NOZZLE_PARK_XY_FEEDRATE 225   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+  #define NOZZLE_PARK_Z_FEEDRATE 200      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 
 /**
