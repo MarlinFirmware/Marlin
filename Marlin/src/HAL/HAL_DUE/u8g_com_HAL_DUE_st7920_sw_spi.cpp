@@ -106,12 +106,10 @@ static void spiSend_sw_DUE(uint8_t val) { // 800KHz
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
     else
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
-//    val = val << 1;
-    __delay_4cycles(12);
-    SCK_pPio->PIO_SODR = SCK_dwMask;
-    __delay_4cycles(30); // 16 dead, 17 garbage, 18/0 dim 900kHz, 19/1 dim 825k, 20/1 dim 800k, 21/2 dim 725KHz
     val = val << 1;
-//__delay_4cycles(18);    
+    __delay_4cycles(2);
+    SCK_pPio->PIO_SODR = SCK_dwMask;
+    __delay_4cycles(22);
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
 }
@@ -153,13 +151,9 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
       u8g_SetPILevel_DUE(u8g, U8G_PI_SCK, 0);
       u8g_SetPIOutput_DUE(u8g, U8G_PI_SCK);
       u8g_SetPILevel_DUE(u8g, U8G_PI_MOSI, 0);
+      u8g_SetPILevel_DUE(u8g, U8G_PI_MOSI, 1);
       u8g_SetPIOutput_DUE(u8g, U8G_PI_MOSI);
-      
-      SCK_pPio->PIO_CODR = SCK_dwMask;   //SCK low - needed at power up but not after reset
-      MOSI_pPio->PIO_CODR = MOSI_dwMask; //MOSI low - needed at power up but not after reset
-      
       u8g_Delay(5);
-
       u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
       break;
 
