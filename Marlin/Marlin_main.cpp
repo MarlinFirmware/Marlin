@@ -9837,6 +9837,18 @@ inline void gcode_M502() {
   }
 #endif
 
+#if ENABLED(EEPROM_SETTINGS)
+  /**
+   * M504: Validate EEPROM Contents
+   */
+  inline void gcode_M504() {
+    if (settings.validate()) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM("EEPROM OK");
+    }
+  }
+#endif
+
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 
   /**
@@ -12049,6 +12061,9 @@ void process_parsed_command() {
       case 502: gcode_M502(); break;                              // M502: Revert Settings to defaults
       #if DISABLED(DISABLE_M503)
         case 503: gcode_M503(); break;                            // M503: Report Settings (in SRAM)
+      #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        case 504: gcode_M504(); break;                            // M504: Validate EEPROM
       #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
