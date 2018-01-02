@@ -244,11 +244,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       ;
       const int8_t watch_temp_period =
         #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? THERMAL_PROTECTION_BED_PERIOD : THERMAL_PROTECTION_PERIOD
+          hotend < 0 ? WATCH_BED_TEMP_PERIOD : WATCH_TEMP_PERIOD
         #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          THERMAL_PROTECTION_BED_PERIOD
+          WATCH_BED_TEMP_PERIOD
         #else
-          THERMAL_PROTECTION_PERIOD
+          WATCH_TEMP_PERIOD
         #endif
       ;
       const int8_t watch_temp_increase =
@@ -437,7 +437,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
             next_watch_temp = input + watch_temp_increase;
             temp_change_ms = ms + watch_temp_period * 1000UL;
           }
-          else if ((!heated && ELAPSED(ms, temp_change_ms)) || (heated && input < temp - MAX_OVERSHOOT_PID_AUTOTUNE))
+          else if (!heated && ELAPSED(ms, temp_change_ms))
+            _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+          else if (heated && input < temp - MAX_OVERSHOOT_PID_AUTOTUNE)
             _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
         #endif
       } // every 2 seconds
@@ -834,10 +836,8 @@ void Temperature::manage_heater() {
     #endif
 
     #if HEATER_IDLE_HANDLER
-      if (bed_idle_timeout_exceeded)
-      {
+      if (bed_idle_timeout_exceeded) {
         soft_pwm_amount_bed = 0;
-
         #if DISABLED(PIDTEMPBED)
           WRITE_HEATER_BED(LOW);
         #endif
@@ -847,23 +847,17 @@ void Temperature::manage_heater() {
     {
       #if ENABLED(PIDTEMPBED)
         soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-
-      #elif ENABLED(BED_LIMIT_SWITCHING)
+      #else
         // Check if temperature is within the correct band
         if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-          if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
-            soft_pwm_amount_bed = 0;
-          else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
-            soft_pwm_amount_bed = MAX_BED_POWER >> 1;
-        }
-        else {
-          soft_pwm_amount_bed = 0;
-          WRITE_HEATER_BED(LOW);
-        }
-      #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-        // Check if temperature is within the correct range
-        if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-          soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
+          #if ENABLED(BED_LIMIT_SWITCHING)
+            if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
+              soft_pwm_amount_bed = 0;
+            else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
+              soft_pwm_amount_bed = MAX_BED_POWER >> 1;
+          #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+            soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
+          #endif
         }
         else {
           soft_pwm_amount_bed = 0;
@@ -878,7 +872,7 @@ void Temperature::manage_heater() {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
-float Temperature::analog2temp(int raw, uint8_t e) {
+float Temperature::analog2temp(const int raw, const uint8_t e) {
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     if (e > HOTENDS)
   #else
@@ -919,39 +913,41 @@ float Temperature::analog2temp(int raw, uint8_t e) {
   return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 }
 
-// Derived from RepRap FiveD extruder::getTemperature()
-// For bed temperature measurement.
-float Temperature::analog2tempBed(const int raw) {
-  #if ENABLED(BED_USES_THERMISTOR)
-    float celsius = 0;
-    byte i;
+#if HAS_TEMP_BED
+  // Derived from RepRap FiveD extruder::getTemperature()
+  // For bed temperature measurement.
+  float Temperature::analog2tempBed(const int raw) {
+    #if ENABLED(BED_USES_THERMISTOR)
+      float celsius = 0;
+      byte i;
 
-    for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
-      if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
-        celsius  = PGM_RD_W(BEDTEMPTABLE[i - 1][1]) +
-                   (raw - PGM_RD_W(BEDTEMPTABLE[i - 1][0])) *
-                   (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i - 1][1])) /
-                   (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i - 1][0]));
-        break;
+      for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
+        if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
+          celsius  = PGM_RD_W(BEDTEMPTABLE[i - 1][1]) +
+                     (raw - PGM_RD_W(BEDTEMPTABLE[i - 1][0])) *
+                     (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i - 1][1])) /
+                     (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i - 1][0]));
+          break;
+        }
       }
-    }
 
-    // Overflow: Set to last value in the table
-    if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i - 1][1]);
+      // Overflow: Set to last value in the table
+      if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i - 1][1]);
 
-    return celsius;
+      return celsius;
 
-  #elif defined(BED_USES_AD595)
+    #elif defined(BED_USES_AD595)
 
-    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
+      return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 
-  #else
+    #else
 
-    UNUSED(raw);
-    return 0;
+      UNUSED(raw);
+      return 0;
 
-  #endif
-}
+    #endif
+  }
+#endif // HAS_TEMP_BED
 
 /**
  * Get the raw values into the actual temperatures.
@@ -1236,24 +1232,26 @@ void Temperature::init() {
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
 
-  #ifdef BED_MINTEMP
-    while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
-      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-        bed_minttemp_raw += OVERSAMPLENR;
-      #else
-        bed_minttemp_raw -= OVERSAMPLENR;
-      #endif
-    }
-  #endif // BED_MINTEMP
-  #ifdef BED_MAXTEMP
-    while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
-      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-        bed_maxttemp_raw -= OVERSAMPLENR;
-      #else
-        bed_maxttemp_raw += OVERSAMPLENR;
-      #endif
-    }
-  #endif // BED_MAXTEMP
+  #if HAS_TEMP_BED
+    #ifdef BED_MINTEMP
+      while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+        #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+          bed_minttemp_raw += OVERSAMPLENR;
+        #else
+          bed_minttemp_raw -= OVERSAMPLENR;
+        #endif
+      }
+    #endif // BED_MINTEMP
+    #ifdef BED_MAXTEMP
+      while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
+        #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+          bed_maxttemp_raw -= OVERSAMPLENR;
+        #else
+          bed_maxttemp_raw += OVERSAMPLENR;
+        #endif
+      }
+    #endif // BED_MAXTEMP
+  #endif // HAS_TEMP_BED
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
@@ -1348,7 +1346,7 @@ void Temperature::init() {
     millis_t Temperature::thermal_runaway_bed_timer;
   #endif
 
-  void Temperature::thermal_runaway_protection(Temperature::TRState * const state, millis_t * const timer, const float current, const float target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
+  void Temperature::thermal_runaway_protection(Temperature::TRState * const state, millis_t * const timer, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
 
     static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
 
@@ -1371,22 +1369,22 @@ void Temperature::init() {
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
-      if (heater_id >= 0 && heater_idle_timeout_exceeded[heater_id]) {
+      if ((heater_id >= 0 && heater_idle_timeout_exceeded[heater_id])
+        #if HAS_TEMP_BED
+          || (heater_id < 0 && bed_idle_timeout_exceeded)
+        #endif
+      ) {
         *state = TRInactive;
         tr_target_temperature[heater_index] = 0;
       }
-      #if HAS_TEMP_BED
-        else if (heater_id < 0 && bed_idle_timeout_exceeded) {
-          *state = TRInactive;
-          tr_target_temperature[heater_index] = 0;
-        }
-      #endif
       else
     #endif
-    // If the target temperature changes, restart
-    if (tr_target_temperature[heater_index] != target) {
-      tr_target_temperature[heater_index] = target;
-      *state = target > 0 ? TRFirstHeating : TRInactive;
+    {
+      // If the target temperature changes, restart
+      if (tr_target_temperature[heater_index] != target) {
+        tr_target_temperature[heater_index] = target;
+        *state = target > 0 ? TRFirstHeating : TRInactive;
+      }
     }
 
     switch (*state) {
@@ -2172,19 +2170,19 @@ void Temperature::isr() {
       );
     #endif
     #if HAS_TEMP_BED
-      print_heater_state(degBed(), degTargetBed(),
+      print_heater_state(degBed(), degTargetBed()
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          rawBedTemp(),
+          , rawBedTemp()
         #endif
-        -1 // BED
+        , -1 // BED
       );
     #endif
     #if HOTENDS > 1
-      HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e),
+      HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          rawHotendTemp(e),
+          , rawHotendTemp(e)
         #endif
-        e
+        , e
       );
     #endif
     SERIAL_PROTOCOLPGM(" @:");
