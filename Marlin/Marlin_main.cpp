@@ -850,7 +850,7 @@ static bool drain_injected_commands_P() {
  */
 void enqueue_and_echo_commands_P(const char * const pgcode) {
   injected_commands_P = pgcode;
-  drain_injected_commands_P(); // first command executed asap (when possible)
+  (void)drain_injected_commands_P(); // first command executed asap (when possible)
 }
 
 /**
@@ -895,6 +895,18 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   }
   return false;
 }
+
+#if HAS_QUEUE_NOW
+  void enqueue_and_echo_command_now(const char* cmd, bool say_ok/*=false*/) {
+    while (!enqueue_and_echo_command(cmd, say_ok)) idle();
+  }
+  #if HAS_LCD_QUEUE_NOW
+    void enqueue_and_echo_commands_P_now(const char * const pgcode) {
+      enqueue_and_echo_commands_P(pgcode);
+      while (drain_injected_commands_P()) idle();
+    }
+  #endif
+#endif
 
 void setup_killpin() {
   #if HAS_KILL

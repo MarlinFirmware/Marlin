@@ -201,6 +201,16 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a sing
 void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
+#define HAS_LCD_QUEUE_NOW (ENABLED(ULTIPANEL) && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)))
+#define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
+#if HAS_QUEUE_NOW
+  // Return only when commands are actually enqueued
+  void enqueue_and_echo_command_now(const char* cmd, bool say_ok=false);
+  #if HAS_LCD_QUEUE_NOW
+    void enqueue_and_echo_commands_P_now(const char * const cmd);
+  #endif
+#endif
+
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
