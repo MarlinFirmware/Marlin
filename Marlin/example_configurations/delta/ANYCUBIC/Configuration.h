@@ -816,9 +816,9 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if ENABLED(DUALEXTRUDER)
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 25, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 125, 125 }
 #else
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 125 }
 #endif
 /**
  * Default Max Acceleration (change/s) change = mm/s
