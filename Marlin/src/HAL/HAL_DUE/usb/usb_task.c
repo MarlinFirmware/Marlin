@@ -254,7 +254,6 @@ bool usb_task_other_requests(void) {
 }
 
 #include <Arduino.h>
-
 void HAL_init(void) {
   uint16_t *ptr;
 
