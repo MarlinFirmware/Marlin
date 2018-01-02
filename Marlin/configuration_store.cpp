@@ -287,11 +287,12 @@ void MarlinSettings::postprocess() {
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
   #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
+  #define EEPROM_READ_ALWAYS(VAR) read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, true)
   #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
 
   const char version[4] = EEPROM_VERSION;
 
-  bool MarlinSettings::eeprom_error;
+  bool MarlinSettings::eeprom_error, MarlinSettings::validating;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     int16_t MarlinSettings::meshes_begin;
@@ -319,11 +320,11 @@ void MarlinSettings::postprocess() {
     };
   }
 
-  void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
+  void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool force/*=false*/) {
     if (eeprom_error) return;
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
-      *value = c;
+      if (!validating || force) *value = c;
       crc16(crc, &c, 1);
       pos++;
       value++;
@@ -745,6 +746,9 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_WRITE(dummy);
     #endif
 
+    //
+    // Validate CRC
+    //
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
@@ -765,6 +769,9 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
+    //
+    // UBL Mesh
+    //
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
       if (ubl.storage_slot >= 0)
         store_mesh(ubl.storage_slot);
@@ -776,16 +783,16 @@ void MarlinSettings::postprocess() {
   /**
    * M501 - Retrieve Configuration
    */
-  bool MarlinSettings::load() {
+  bool MarlinSettings::_load() {
     uint16_t working_crc = 0;
 
     EEPROM_START();
 
     char stored_ver[4];
-    EEPROM_READ(stored_ver);
+    EEPROM_READ_ALWAYS(stored_ver);
 
     uint16_t stored_crc;
-    EEPROM_READ(stored_crc);
+    EEPROM_READ_ALWAYS(stored_crc);
 
     // Version has to match or defaults are used
     if (strncmp(version, stored_ver, 3) != 0) {
@@ -799,7 +806,8 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
         SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
       #endif
-      reset();
+      if (!validating) reset();
+      eeprom_error = true;
     }
     else {
       float dummy = 0;
@@ -811,7 +819,7 @@ void MarlinSettings::postprocess() {
 
       // Number of esteppers may change
       uint8_t esteppers;
-      EEPROM_READ(esteppers);
+      EEPROM_READ_ALWAYS(esteppers);
 
       //
       // Planner Motion
@@ -826,7 +834,7 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(tmp1);
       EEPROM_READ(tmp2);
       EEPROM_READ(tmp3);
-      LOOP_XYZE_N(i) {
+      if (!validating) LOOP_XYZE_N(i) {
         planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
         planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
         planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
@@ -875,21 +883,23 @@ void MarlinSettings::postprocess() {
 
       bool leveling_is_on;
       uint8_t mesh_num_x, mesh_num_y;
-      EEPROM_READ(leveling_is_on);
+      EEPROM_READ_ALWAYS(leveling_is_on);
       EEPROM_READ(dummy);
-      EEPROM_READ(mesh_num_x);
-      EEPROM_READ(mesh_num_y);
+      EEPROM_READ_ALWAYS(mesh_num_x);
+      EEPROM_READ_ALWAYS(mesh_num_y);
 
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.has_mesh = leveling_is_on;
-        mbl.z_offset = dummy;
+        if (!validating) {
+          mbl.has_mesh = leveling_is_on;
+          mbl.z_offset = dummy;
+        }
         if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
           // EEPROM data fits the current mesh
           EEPROM_READ(mbl.z_values);
         }
         else {
           // EEPROM data is stale
-          mbl.reset();
+          if (!validating) mbl.reset();
           for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
         }
       #else
@@ -917,11 +927,11 @@ void MarlinSettings::postprocess() {
       //
 
       uint8_t grid_max_x, grid_max_y;
-      EEPROM_READ(grid_max_x);                       // 1 byte
-      EEPROM_READ(grid_max_y);                       // 1 byte
+      EEPROM_READ_ALWAYS(grid_max_x);                       // 1 byte
+      EEPROM_READ_ALWAYS(grid_max_y);                       // 1 byte
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
-          set_bed_leveling_enabled(false);
+          if (!validating) set_bed_leveling_enabled(false);
           EEPROM_READ(bilinear_grid_spacing);        // 2 ints
           EEPROM_READ(bilinear_start);               // 2 ints
           EEPROM_READ(z_values);                     // 9 to 256 floats
@@ -1013,7 +1023,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy); // Kp
           if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
             // do not need to scale PID values as the values in EEPROM are already scaled
-            PID_PARAM(Kp, e) = dummy;
+            if (!validating) PID_PARAM(Kp, e) = dummy;
             EEPROM_READ(PID_PARAM(Ki, e));
             EEPROM_READ(PID_PARAM(Kd, e));
             #if ENABLED(PID_EXTRUSION_SCALING)
@@ -1047,7 +1057,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(PIDTEMPBED)
         EEPROM_READ(dummy); // bedKp
         if (dummy != DUMMY_PID_VALUE) {
-          thermalManager.bedKp = dummy;
+          if (!validating) thermalManager.bedKp = dummy;
           EEPROM_READ(thermalManager.bedKi);
           EEPROM_READ(thermalManager.bedKd);
         }
@@ -1092,7 +1102,8 @@ void MarlinSettings::postprocess() {
 
         for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
           EEPROM_READ(dummy);
-          if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
+          if (!validating && q < COUNT(planner.filament_size))
+            planner.filament_size[q] = dummy;
         }
 
       #else
@@ -1105,55 +1116,48 @@ void MarlinSettings::postprocess() {
       //
       // TMC2130 Stepper Current
       //
-
-      uint16_t val;
       #if HAS_TRINAMIC
+        #define SET_CURR(N,Q) stepper##Q.setCurrent(val[N], R_SENSE, HOLD_MULTIPLIER)
+        uint16_t val[11];
         EEPROM_READ(val);
-        #if X_IS_TRINAMIC
-          stepperX.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if Y_IS_TRINAMIC
-          stepperY.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if Z_IS_TRINAMIC
-          stepperZ.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if X2_IS_TRINAMIC
-          stepperX2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if Y2_IS_TRINAMIC
-          stepperY2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if Z2_IS_TRINAMIC
-          stepperZ2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if E0_IS_TRINAMIC
-          stepperE0.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if E1_IS_TRINAMIC
-          stepperE1.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if E2_IS_TRINAMIC
-          stepperE2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if E3_IS_TRINAMIC
-          stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
-        EEPROM_READ(val);
-        #if E4_IS_TRINAMIC
-          stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
-        #endif
+        if (!validating) {
+          #if X_IS_TRINAMIC
+            SET_CURR(0, X);
+          #endif
+          #if Y_IS_TRINAMIC
+            SET_CURR(1, Y);
+          #endif
+          #if Z_IS_TRINAMIC
+            SET_CURR(2, Z);
+          #endif
+          #if X2_IS_TRINAMIC
+            SET_CURR(3, X2);
+          #endif
+          #if Y2_IS_TRINAMIC
+            SET_CURR(4, Y2);
+          #endif
+          #if Z2_IS_TRINAMIC
+            SET_CURR(5, Z2);
+          #endif
+          #if E0_IS_TRINAMIC
+            SET_CURR(6, E0);
+          #endif
+          #if E1_IS_TRINAMIC
+            SET_CURR(7, E1);
+          #endif
+          #if E2_IS_TRINAMIC
+            SET_CURR(8, E2);
+          #endif
+          #if E3_IS_TRINAMIC
+            SET_CURR(9, E3);
+          #endif
+          #if E4_IS_TRINAMIC
+            SET_CURR(10, E4);
+          #endif
+        }
       #else
-        for (uint8_t q = 11; q--;) EEPROM_READ(val);
+        uint16_t val;
+        for (uint8_t q=11; q--;) EEPROM_READ(val);
       #endif
 
       /*
@@ -1164,19 +1168,23 @@ void MarlinSettings::postprocess() {
       int16_t thrs;
       #if ENABLED(SENSORLESS_HOMING)
         EEPROM_READ(thrs);
-        #if ENABLED(X_IS_TMC2130)
-          stepperX.sgt(thrs);
-        #endif
-        #if ENABLED(X2_IS_TMC2130)
-          stepperX2.sgt(thrs);
-        #endif
+        if (!validating) {
+          #if ENABLED(X_IS_TMC2130)
+            stepperX.sgt(thrs);
+          #endif
+          #if ENABLED(X2_IS_TMC2130)
+            stepperX2.sgt(thrs);
+          #endif
+        }
         EEPROM_READ(thrs);
-        #if ENABLED(Y_IS_TMC2130)
-          stepperY.sgt(thrs);
-        #endif
-        #if ENABLED(Y2_IS_TMC2130)
-          stepperY2.sgt(thrs);
-        #endif
+        if (!validating) {
+          #if ENABLED(Y_IS_TMC2130)
+            stepperY.sgt(thrs);
+          #endif
+          #if ENABLED(Y2_IS_TMC2130)
+            stepperY2.sgt(thrs);
+          #endif
+        }
       #else
         for (uint8_t q = 0; q < 2; q++) EEPROM_READ(thrs);
       #endif
@@ -1209,7 +1217,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        (void)select_coordinate_system(-1); // Go back to machine space
+        if (!validating) (void)select_coordinate_system(-1); // Go back to machine space
         EEPROM_READ(coordinate_system);                  // 27 floats
       #else
         for (uint8_t q = 27; q--;) EEPROM_READ(dummy);
@@ -1239,27 +1247,30 @@ void MarlinSettings::postprocess() {
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
           EEPROM_READ(dummy);
-          if (q < COUNT(filament_change_unload_length)) filament_change_unload_length[q] = dummy;
+          if (!validating && q < COUNT(filament_change_unload_length)) filament_change_unload_length[q] = dummy;
         }
         for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
           EEPROM_READ(dummy);
-          if (q < COUNT(filament_change_load_length)) filament_change_load_length[q] = dummy;
+          if (!validating && q < COUNT(filament_change_load_length)) filament_change_load_length[q] = dummy;
         }
       #else
         for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
       #endif
 
       if (working_crc == stored_crc) {
-        postprocess();
-        #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_ECHO_START();
-          SERIAL_ECHO(version);
-          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
-          SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-          SERIAL_ECHOLNPGM(")");
-        #endif
+        if (!validating) {
+          postprocess();
+          #if ENABLED(EEPROM_CHITCHAT)
+            SERIAL_ECHO_START();
+            SERIAL_ECHO(version);
+            SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
+            SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
+            SERIAL_ECHOLNPGM(")");
+          #endif
+        }
       }
       else {
+        eeprom_error = true;
         #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ERROR_START();
           SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
@@ -1268,7 +1279,7 @@ void MarlinSettings::postprocess() {
           SERIAL_ERROR(working_crc);
           SERIAL_ERRORLNPGM(" (calculated)!");
         #endif
-        reset();
+        if (!validating) reset();
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1277,43 +1288,59 @@ void MarlinSettings::postprocess() {
                                                       // disrupting the mesh data
         ubl.report_state();
 
-        if (!ubl.sanity_check()) {
-          SERIAL_EOL();
-          #if ENABLED(EEPROM_CHITCHAT)
-            ubl.echo_name();
-            SERIAL_ECHOLNPGM(" initialized.\n");
-          #endif
-        }
-        else {
-          #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_PROTOCOLPGM("?Can't enable ");
-            ubl.echo_name();
-            SERIAL_PROTOCOLLNPGM(".");
-          #endif
-          ubl.reset();
-        }
+        if (!validating) {
+          if (!ubl.sanity_check()) {
+            SERIAL_EOL();
+            #if ENABLED(EEPROM_CHITCHAT)
+              ubl.echo_name();
+              SERIAL_ECHOLNPGM(" initialized.\n");
+            #endif
+          }
+          else {
+            eeprom_error = true;
+            #if ENABLED(EEPROM_CHITCHAT)
+              SERIAL_PROTOCOLPGM("?Can't enable ");
+              ubl.echo_name();
+              SERIAL_PROTOCOLLNPGM(".");
+            #endif
+            ubl.reset();
+          }
 
-        if (ubl.storage_slot >= 0) {
-          load_mesh(ubl.storage_slot);
-          #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHOPAIR("Mesh ", ubl.storage_slot);
-            SERIAL_ECHOLNPGM(" loaded from storage.");
-          #endif
-        }
-        else {
-          ubl.reset();
-          #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHOLNPGM("UBL System reset()");
-          #endif
+          if (ubl.storage_slot >= 0) {
+            load_mesh(ubl.storage_slot);
+            #if ENABLED(EEPROM_CHITCHAT)
+              SERIAL_ECHOPAIR("Mesh ", ubl.storage_slot);
+              SERIAL_ECHOLNPGM(" loaded from storage.");
+            #endif
+          }
+          else {
+            ubl.reset();
+            #if ENABLED(EEPROM_CHITCHAT)
+              SERIAL_ECHOLNPGM("UBL System reset()");
+            #endif
+          }
         }
       #endif
     }
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
-      report();
+      if (!validating) report();
     #endif
 
     return !eeprom_error;
+  }
+
+  bool MarlinSettings::validate() {
+    validating = true;
+    const bool success = _load();
+    validating = false;
+    return success;
+  }
+
+  bool MarlinSettings::load() {
+    if (validate()) return _load();
+    reset();
+    return true;
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)

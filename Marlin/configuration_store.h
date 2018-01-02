@@ -30,7 +30,7 @@ class MarlinSettings {
     MarlinSettings() { }
 
     static void reset();
-    static bool save();
+    static bool save();   // Return 'true' if data was saved
 
     FORCE_INLINE static bool init_eeprom() {
       bool success = true;
@@ -48,7 +48,8 @@ class MarlinSettings {
     }
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool load();
+      static bool load();     // Return 'true' if data was loaded ok
+      static bool validate(); // Return 'true' if EEPROM data is ok
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -77,7 +78,8 @@ class MarlinSettings {
     static void postprocess();
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool eeprom_error;
+
+      static bool eeprom_error, validating;
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -87,8 +89,9 @@ class MarlinSettings {
 
       #endif
 
+      static bool _load();
       static void write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc);
-      static void read_data(int &pos, uint8_t *value, uint16_t size, uint16_t *crc);
+      static void read_data(int &pos, uint8_t *value, uint16_t size, uint16_t *crc, const bool force=false);
     #endif
 };
 
