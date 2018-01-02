@@ -508,7 +508,8 @@ class Temperature {
     #endif
 
     #if HEATER_IDLE_HANDLER
-      static void start_heater_idle_timer(uint8_t e, millis_t timeout_ms) {
+
+      static void start_heater_idle_timer(const uint8_t e, const millis_t timeout_ms) {
         #if HOTENDS == 1
           UNUSED(e);
         #endif
@@ -535,7 +536,7 @@ class Temperature {
       }
 
       #if HAS_TEMP_BED
-        static void start_bed_idle_timer(millis_t timeout_ms) {
+        static void start_bed_idle_timer(const millis_t timeout_ms) {
           bed_idle_timeout_ms = millis() + timeout_ms;
           bed_idle_timeout_exceeded = false;
         }
@@ -550,7 +551,8 @@ class Temperature {
 
         FORCE_INLINE static bool is_bed_idle() { return bed_idle_timeout_exceeded; }
       #endif
-    #endif
+
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_HOTEND || HAS_TEMP_BED
       static void print_heaterstates();
@@ -592,7 +594,7 @@ class Temperature {
 
       typedef enum TRState { TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
 
-      static void thermal_runaway_protection(TRState * const state, millis_t * const timer, const float current, const float target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
+      static void thermal_runaway_protection(TRState * const state, millis_t * const timer, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         static TRState thermal_runaway_state_machine[HOTENDS];

@@ -830,10 +830,8 @@ void Temperature::manage_heater() {
     #endif
 
     #if HEATER_IDLE_HANDLER
-      if (bed_idle_timeout_exceeded)
-      {
+      if (bed_idle_timeout_exceeded) {
         soft_pwm_amount_bed = 0;
-
         #if DISABLED(PIDTEMPBED)
           WRITE_HEATER_BED(LOW);
         #endif
@@ -843,23 +841,17 @@ void Temperature::manage_heater() {
     {
       #if ENABLED(PIDTEMPBED)
         soft_pwm_amount_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-
-      #elif ENABLED(BED_LIMIT_SWITCHING)
+      #else
         // Check if temperature is within the correct band
         if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-          if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
-            soft_pwm_amount_bed = 0;
-          else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
-            soft_pwm_amount_bed = MAX_BED_POWER >> 1;
-        }
-        else {
-          soft_pwm_amount_bed = 0;
-          WRITE_HEATER_BED(LOW);
-        }
-      #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-        // Check if temperature is within the correct range
-        if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
-          soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
+          #if ENABLED(BED_LIMIT_SWITCHING)
+            if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
+              soft_pwm_amount_bed = 0;
+            else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
+              soft_pwm_amount_bed = MAX_BED_POWER >> 1;
+          #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+            soft_pwm_amount_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
+          #endif
         }
         else {
           soft_pwm_amount_bed = 0;
@@ -1257,7 +1249,7 @@ void Temperature::init() {
         #endif
       }
     #endif // BED_MAXTEMP
-  #endif //HAS_TEMP_BED
+  #endif // HAS_TEMP_BED
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
@@ -1311,7 +1303,7 @@ void Temperature::init() {
     millis_t Temperature::thermal_runaway_bed_timer;
   #endif
 
-  void Temperature::thermal_runaway_protection(Temperature::TRState * const state, millis_t * const timer, const float current, const float target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
+  void Temperature::thermal_runaway_protection(Temperature::TRState * const state, millis_t * const timer, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
 
     static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
 
@@ -1334,22 +1326,22 @@ void Temperature::init() {
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
-      if (heater_id >= 0 && heater_idle_timeout_exceeded[heater_id]) {
+      if ((heater_id >= 0 && heater_idle_timeout_exceeded[heater_id])
+        #if HAS_TEMP_BED
+          || (heater_id < 0 && bed_idle_timeout_exceeded)
+        #endif
+      ) {
         *state = TRInactive;
         tr_target_temperature[heater_index] = 0;
       }
-      #if HAS_TEMP_BED
-        else if (heater_id < 0 && bed_idle_timeout_exceeded) {
-          *state = TRInactive;
-          tr_target_temperature[heater_index] = 0;
-        }
-      #endif
       else
     #endif
-    // If the target temperature changes, restart
-    if (tr_target_temperature[heater_index] != target) {
-      tr_target_temperature[heater_index] = target;
-      *state = target > 0 ? TRFirstHeating : TRInactive;
+    {
+      // If the target temperature changes, restart
+      if (tr_target_temperature[heater_index] != target) {
+        tr_target_temperature[heater_index] = target;
+        *state = target > 0 ? TRFirstHeating : TRInactive;
+      }
     }
 
     switch (*state) {
