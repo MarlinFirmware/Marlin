@@ -1258,8 +1258,8 @@ void kill_screen(const char* lcd_msg) {
 
   // Refresh the E factor after changing flow
   inline void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
-  #if EXTRUDERS > 1
-    inline void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+  inline void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+  #if EXTRUDERS > 1    
     inline void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
     #if EXTRUDERS > 2
       inline void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
@@ -1352,7 +1352,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if EXTRUDERS == 1
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-    #else // EXTRUDERS > 1
+    #elif EXTRUDERS > 1
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N1, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N2, &planner.flow_percentage[1], 10, 999, _lcd_refresh_e_factor_1);
@@ -2932,7 +2932,7 @@ void kill_screen(const char* lcd_msg) {
       PGM_P pos_label;
       #if E_MANUAL == 1
         pos_label = PSTR(MSG_MOVE_E);
-      #else
+      #elif E_MANUAL > 1
         switch (eindex) {
           default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
