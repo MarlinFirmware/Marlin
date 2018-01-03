@@ -3011,20 +3011,22 @@ void kill_screen(const char* lcd_msg) {
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
   void lcd_move_get_y_amount()        { _lcd_move_distance_menu(Y_AXIS, lcd_move_y); }
   void lcd_move_get_z_amount()        { _lcd_move_distance_menu(Z_AXIS, lcd_move_z); }
-  void lcd_move_get_e_amount()        { _lcd_move_distance_menu(E_AXIS, lcd_move_e); }
-  #if E_MANUAL > 1
-    void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
-    void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
-    #if E_MANUAL > 2
-      void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS, lcd_move_e2); }
-      #if E_MANUAL > 3
-        void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
-        #if E_MANUAL > 4
-          void lcd_move_get_e4_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e4); }
-        #endif // E_MANUAL > 4
-      #endif // E_MANUAL > 3
-    #endif // E_MANUAL > 2
-  #endif // E_MANUAL > 1
+  #if EXTRUDERS > 0
+    void lcd_move_get_e_amount()        { _lcd_move_distance_menu(E_AXIS, lcd_move_e); }
+    #if E_MANUAL > 1
+      void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
+      void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
+      #if E_MANUAL > 2
+        void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS, lcd_move_e2); }
+        #if E_MANUAL > 3
+          void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
+          #if E_MANUAL > 4
+            void lcd_move_get_e4_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e4); }
+          #endif // E_MANUAL > 4
+        #endif // E_MANUAL > 3
+      #endif // E_MANUAL > 2
+    #endif // E_MANUAL > 1
+  #endif  //EXTRUDERS > 0
 
   /**
    *
