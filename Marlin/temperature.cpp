@@ -217,8 +217,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
    * Alternately heat and cool the nozzle, observing its behavior to
    * determine the best PID values to achieve a stable temperature.
    */
-  void Temperature::PID_autotune(const float temp, const int8_t hotend, const int8_t ncycles, const bool set_result/*=false*/) {
-    float input = 0.0;
+  void Temperature::PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result/*=false*/) {
+    float current = 0.0;
     int cycles = 0;
     bool heating = true;
 
@@ -230,34 +230,19 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           workKp = 0, workKi = 0, workKd = 0,
           max = 0, min = 10000;
 
+    #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
+    #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+      #define TV(B,H) (hotend < 0 ? (B) : (H))
+    #elif HAS_TP_BED
+      #define TV(B,H) (B)
+    #else
+      #define TV(B,H) (H)
+    #endif
+
     #if WATCH_THE_BED || WATCH_HOTENDS
-      const float watch_temp_target = temp -
-        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          (hotend < 0 ? (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1) : (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))
-        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)
-        #else
-          (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)
-        #endif
-      ;
-      const int8_t watch_temp_period =
-        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? WATCH_BED_TEMP_PERIOD : WATCH_TEMP_PERIOD
-        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          WATCH_BED_TEMP_PERIOD
-        #else
-          WATCH_TEMP_PERIOD
-        #endif
-      ;
-      const int8_t watch_temp_increase =
-        #if ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED) && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-          hotend < 0 ? WATCH_BED_TEMP_INCREASE : WATCH_TEMP_INCREASE
-        #elif ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED)
-          WATCH_BED_TEMP_INCREASE
-        #else
-          WATCH_TEMP_INCREASE
-        #endif
-      ;
+      const int8_t watch_temp_period = TV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD),
+                   watch_temp_increase = TV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
+      const float watch_temp_target = target - float(watch_temp_increase + TV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
       millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
       float next_watch_temp = 0.0;
       bool heated = false;
@@ -298,7 +283,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       soft_pwm_amount_bed = bias = d = (MAX_BED_POWER) >> 1;
     #endif
 
-    wait_for_heatup = true;
+    wait_for_heatup = true; // Can be interrupted with M108
 
     // PID Tuning loop
     while (wait_for_heatup) {
@@ -308,7 +293,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       if (temp_meas_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
 
-        input =
+        // Get the current temperature and constrain it
+        current =
           #if HAS_PID_FOR_BOTH
             hotend < 0 ? current_temperature_bed : current_temperature[hotend]
           #elif ENABLED(PIDTEMP)
@@ -317,9 +303,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
             current_temperature_bed
           #endif
         ;
-
-        NOLESS(max, input);
-        NOMORE(min, input);
+        NOLESS(max, current);
+        NOMORE(min, current);
 
         #if HAS_AUTO_FAN
           if (ELAPSED(ms, next_auto_fan_check_ms)) {
@@ -328,7 +313,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
           }
         #endif
 
-        if (heating && input > temp) {
+        if (heating && current > target) {
           if (ELAPSED(ms, t2 + 5000UL)) {
             heating = false;
             #if HAS_PID_FOR_BOTH
@@ -343,11 +328,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
             #endif
             t1 = ms;
             t_high = t1 - t2;
-            max = temp;
+            max = target;
           }
         }
 
-        if (!heating && input < temp) {
+        if (!heating && current < target) {
           if (ELAPSED(ms, t1 + 5000UL)) {
             heating = true;
             t2 = ms;
@@ -411,41 +396,48 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
               soft_pwm_amount_bed = (bias + d) >> 1;
             #endif
             cycles++;
-            min = temp;
+            min = target;
           }
         }
       }
+
+      // Did the temperature overshoot very far?
       #define MAX_OVERSHOOT_PID_AUTOTUNE 20
-      if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
+      if (current > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         break;
       }
-      // Every 2 seconds...
+
+      // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
           print_heaterstates();
           SERIAL_EOL();
         #endif
-
         next_temp_ms = ms + 2000UL;
 
+        // Make sure heating is actually working
         #if WATCH_THE_BED || WATCH_HOTENDS
-          if (!heated && input > next_watch_temp) {
-            if (input > watch_temp_target) heated = true;
-            next_watch_temp = input + watch_temp_increase;
-            temp_change_ms = ms + watch_temp_period * 1000UL;
+          if (!heated) {                                          // If not yet reached target...
+            if (current > next_watch_temp) {                      // Over the watch temp?
+              next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
+              temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
+              if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
+            }
+            else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+              _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
           }
-          else if (!heated && ELAPSED(ms, temp_change_ms))
-            _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
-          else if (heated && input < temp - MAX_OVERSHOOT_PID_AUTOTUNE)
+          else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
             _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
         #endif
       } // every 2 seconds
+
       // Timeout after 20 minutes since the last undershoot/overshoot cycle
       if (((ms - t1) + (ms - t2)) > (20L * 60L * 1000L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         break;
       }
+
       if (cycles > ncycles) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
 
