@@ -1,4 +1,4 @@
-/**
+/*
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -33,11 +33,18 @@
 
 #ifdef __AVR__
 
+
+#define _SPI_MODE_MASK 0x0C  // CPOL = bit 3, CPHA = bit 2 on SPCR
+#define _SPI_CLOCK_MASK 0x03  // SPR1 = bit 1, SPR0 = bit 0 on SPCR
+#define _SPI_2XCLOCK_MASK 0x01  // SPI2X = bit 0 on SPSR
+
+
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
+#include "../../core/serial.h"
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -94,7 +101,9 @@ void spiBegin (void) {
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
   }
-  //------------------------------------------------------------------------------
+
+ 
+    //------------------------------------------------------------------------------
   /** SPI receive a byte */
   uint8_t spiRec(void) {
     SPDR = 0xFF;
@@ -132,6 +141,71 @@ void spiBegin (void) {
     }
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
+
+
+  /** begin spi transaction */
+  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
+  // Clock settings are defined as follows. Note that this shows SPI2X
+    // inverted, so the bits form increasing numbers. Also note that
+    // fosc/64 appears twice
+    // SPR1 SPR0 ~SPI2X Freq
+    //   0    0     0   fosc/2
+    //   0    0     1   fosc/4
+    //   0    1     0   fosc/8
+    //   0    1     1   fosc/16
+    //   1    0     0   fosc/32
+    //   1    0     1   fosc/64
+    //   1    1     0   fosc/64
+    //   1    1     1   fosc/128
+
+    // We find the fastest clock that is less than or equal to the
+    // given clock rate. The clock divider that results in clock_setting
+    // is 2 ^^ (clock_div + 1). If nothing is slow enough, we'll use the
+    // slowest (128 == 2 ^^ 7, so clock_div = 6).
+    uint8_t clockDiv;
+    
+        // When the clock is known at compiletime, use this if-then-else
+        // cascade, which the compiler knows how to completely optimize
+        // away. When clock is not known, use a loop instead, which generates
+        // shorter code.
+        if (__builtin_constant_p(spiClock)) {
+          if (spiClock >= F_CPU / 2) {
+            clockDiv = 0;
+          } else if (spiClock >= F_CPU / 4) {
+            clockDiv = 1;
+          } else if (spiClock >= F_CPU / 8) {
+            clockDiv = 2;
+          } else if (spiClock >= F_CPU / 16) {
+            clockDiv = 3;
+          } else if (spiClock >= F_CPU / 32) {
+            clockDiv = 4;
+          } else if (spiClock >= F_CPU / 64) {
+            clockDiv = 5;
+          } else {
+            clockDiv = 6;
+          }
+        } else {
+          uint32_t clockSetting = F_CPU / 2;
+          clockDiv = 0;
+          while (clockDiv < 6 && spiClock < clockSetting) {
+            clockSetting /= 2;
+            clockDiv++;
+          }
+        }
+    
+        // Compensate for the duplicate fosc/64
+        if (clockDiv == 6)
+          clockDiv = 7;
+    
+        // Invert the SPI2X bit
+        clockDiv ^= 0x1;
+    
+        SPCR = _BV(SPE) | _BV(MSTR) | ((bitOrder == SPI_LSBFIRST) ? _BV(DORD) : 0) |
+          (dataMode << CPHA) | ((clockDiv >> 1) << SPR0);
+        SPSR = clockDiv | 0x01;          
+  }
+
+  
        //------------------------------------------------------------------------------
 #else  // SOFTWARE_SPI
        //------------------------------------------------------------------------------
@@ -143,6 +217,12 @@ void spiBegin (void) {
     // nothing to do
     UNUSED(spiRate);
   }
+
+  /** Begin SPI transaction, set clock, bit order, data mode */
+  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
+    // nothing to do
+    UNUSED(spiBeginTransaction);
+  }    
 
   //------------------------------------------------------------------------------
   /** Soft SPI receive byte */
@@ -207,6 +287,7 @@ void spiBegin (void) {
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);
   }
+  
 #endif  // SOFTWARE_SPI
 
 
