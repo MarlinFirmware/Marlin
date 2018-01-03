@@ -160,8 +160,7 @@
           return u8g_i2c_stop(), 0;
         {
           register uint8_t *ptr = (uint8_t *)arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             if ( u8g_i2c_send_byte(*ptr++) == 0 )
               return u8g_i2c_stop(), 0;
             arg_val--;
@@ -176,8 +175,7 @@
           return u8g_i2c_stop(), 0;
         {
           register uint8_t *ptr = (uint8_t *)arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             if ( u8g_i2c_send_byte(u8g_pgm_read(ptr)) == 0 )
               return 0;
             ptr++;

@@ -45,7 +45,7 @@ void GcodeSuite::M18_M84() {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
-    bool all_axis = !((parser.seen('X')) || (parser.seen('Y')) || (parser.seen('Z')) || (parser.seen('E')));
+    bool all_axis = !(parser.seen('X') || parser.seen('Y') || parser.seen('Z') || parser.seen('E'));
     if (all_axis) {
       stepper.finish_and_disable();
     }
@@ -59,7 +59,7 @@ void GcodeSuite::M18_M84() {
       #endif
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
       ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }

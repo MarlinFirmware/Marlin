@@ -45,8 +45,8 @@
     #endif
   ;
 
-  #if ENABLED(HAVE_TMC2130)
-    #include "../../feature/tmc2130.h"
+  #if HAS_TRINAMIC
+    #include "../../feature/tmc_util.h"
   #endif
 
   /**
@@ -75,6 +75,11 @@
     #if ENABLED(HAVE_TMC2130)
       delay(100);
       tmc2130_init(); // Settings only stick when the driver has power
+    #endif
+
+    #if ENABLED(HAVE_TMC2208)
+      delay(100);
+      tmc2208_init();
     #endif
 
     powersupply_on = true;

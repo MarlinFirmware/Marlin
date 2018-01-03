@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V46"
+#define EEPROM_VERSION "V47"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V46 EEPROM Layout:
+ * V47 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -141,7 +141,7 @@
  *  539  M200 D    parser.volumetric_enabled        (bool)
  *  540  M200 T D  planner.filament_size            (float x5) (T0..3)
  *
- * HAVE_TMC2130:                                    22 bytes
+ * HAS_TRINAMIC:                                    22 bytes
  *  560  M906 X    Stepper X current                (uint16_t)
  *  562  M906 Y    Stepper Y current                (uint16_t)
  *  564  M906 Z    Stepper Z current                (uint16_t)
@@ -154,25 +154,29 @@
  *  578  M906 E3   Stepper E3 current               (uint16_t)
  *  580  M906 E4   Stepper E4 current               (uint16_t)
  *
+ * SENSORLESS HOMING                                4 bytes
+ *  582  M914 X    Stepper X and X2 threshold       (int16_t)
+ *  584  M914 Y    Stepper Y and Y2 threshold       (int16_t)
+ *
  * LIN_ADVANCE:                                     8 bytes
- *  582  M900 K    extruder_advance_k               (float)
- *  586  M900 WHD  advance_ed_ratio                 (float)
+ *  586  M900 K    extruder_advance_k               (float)
+ *  590  M900 WHD  advance_ed_ratio                 (float)
  *
  * HAS_MOTOR_CURRENT_PWM:
- *  590  M907 X    Stepper XY current               (uint32_t)
- *  594  M907 Z    Stepper Z current                (uint32_t)
- *  598  M907 E    Stepper E current                (uint32_t)
+ *  594  M907 X    Stepper XY current               (uint32_t)
+ *  598  M907 Z    Stepper Z current                (uint32_t)
+ *  602  M907 E    Stepper E current                (uint32_t)
  *
  * CNC_COORDINATE_SYSTEMS                           108 bytes
- *  602  G54-G59.3 coordinate_system                (float x 27)
+ *  606  G54-G59.3 coordinate_system                (float x 27)
  *
  * SKEW_CORRECTION:                                 12 bytes
- *  710  M852 I    planner.xy_skew_factor           (float)
- *  714  M852 J    planner.xz_skew_factor           (float)
- *  718  M852 K    planner.yz_skew_factor           (float)
+ *  714  M852 I    planner.xy_skew_factor           (float)
+ *  718  M852 J    planner.xz_skew_factor           (float)
+ *  722  M852 K    planner.yz_skew_factor           (float)
  *
- *  722                                   Minimum end-point
- * 2251 (722 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
+ *  726                                   Minimum end-point
+ * 2255 (726 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -216,14 +220,12 @@ MarlinSettings settings;
   float new_z_fade_height;
 #endif
 
-#if ENABLED(CNC_COORDINATE_SYSTEMS)
-  bool position_changed;
-#endif
-
 /**
  * Post-process after Retrieve or Reset
  */
 void MarlinSettings::postprocess() {
+  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
@@ -233,15 +235,16 @@ void MarlinSettings::postprocess() {
     recalc_delta_settings();
   #endif
 
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
-  planner.refresh_positioning();
-
   #if ENABLED(PIDTEMP)
     thermalManager.updatePID();
   #endif
 
-  planner.calculate_volumetric_multipliers();
+  #if DISABLED(NO_VOLUMETRICS)
+    planner.calculate_volumetric_multipliers();
+  #else
+    for (uint8_t i = COUNT(planner.e_factor); i--;)
+      planner.refresh_e_factor(i);
+  #endif
 
   #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
     // Software endstops depend on home_offset
@@ -249,7 +252,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(new_z_fade_height);
+    set_z_fade_height(new_z_fade_height, false); // false = no report
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -265,12 +268,13 @@ void MarlinSettings::postprocess() {
     fwretract.refresh_autoretract();
   #endif
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    if (position_changed) {
-      report_current_position();
-      position_changed = false;
-    }
-  #endif
+  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // and init stepper.count[], planner.position[] with current_position
+  planner.refresh_positioning();
+
+  // Various factors can change the current position
+  if (memcmp(oldpos, current_position, sizeof(oldpos)))
+    report_current_position();
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -289,7 +293,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::eeprom_error;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    int MarlinSettings::meshes_begin;
+    int16_t MarlinSettings::meshes_begin;
   #endif
 
   /**
@@ -304,11 +308,14 @@ void MarlinSettings::postprocess() {
     EEPROM_START();
 
     eeprom_error = false;
-
-    EEPROM_WRITE(ver);     // invalidate data first
+    #if ENABLED(FLASH_EEPROM_EMULATION)
+      EEPROM_SKIP(ver);   // Flash doesn't allow rewriting without erase
+    #else
+      EEPROM_WRITE(ver);  // invalidate data first
+    #endif
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
-    working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
+    working_crc = 0; // clear before first "real data"
 
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
@@ -342,7 +349,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float zfh = planner.z_fade_height;
     #else
-      const float zfh = 0.0;
+      const float zfh = 10.0;
     #endif
     EEPROM_WRITE(zfh);
 
@@ -536,78 +543,85 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(fwretract.swap_retract_recover_feedrate_mm_s);
     #endif
 
-    EEPROM_WRITE(parser.volumetric_enabled);
+    //
+    // Volumetric & Filament Size
+    //
+    #if DISABLED(NO_VOLUMETRICS)
 
-    // Save filament sizes
-    for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-      if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
-      EEPROM_WRITE(dummy);
-    }
+      EEPROM_WRITE(parser.volumetric_enabled);
 
-    // Save TMC2130 Configuration, and placeholder values
+      // Save filament sizes
+      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+        if (q < COUNT(planner.filament_size)) dummy = planner.filament_size[q];
+        EEPROM_WRITE(dummy);
+      }
+
+    #endif
+
+    // Save TMC2130 or TMC2208 Configuration, and placeholder values
     uint16_t val;
-    #if ENABLED(HAVE_TMC2130)
-      #if ENABLED(X_IS_TMC2130)
+    #if HAS_TRINAMIC
+      #if X_IS_TRINAMIC
         val = stepperX.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y_IS_TMC2130)
+      #if Y_IS_TRINAMIC
         val = stepperY.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z_IS_TMC2130)
+      #if Z_IS_TRINAMIC
         val = stepperZ.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(X2_IS_TMC2130)
+      #if X2_IS_TRINAMIC
         val = stepperX2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Y2_IS_TMC2130)
+      #if Y2_IS_TRINAMIC
         val = stepperY2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(Z2_IS_TMC2130)
+      #if Z2_IS_TRINAMIC
         val = stepperZ2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E0_IS_TMC2130)
+      #if E0_IS_TRINAMIC
         val = stepperE0.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E1_IS_TMC2130)
+      #if E1_IS_TRINAMIC
         val = stepperE1.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E2_IS_TMC2130)
+      #if E2_IS_TRINAMIC
         val = stepperE2.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E3_IS_TMC2130)
+      #if E3_IS_TRINAMIC
         val = stepperE3.getCurrent();
       #else
         val = 0;
       #endif
       EEPROM_WRITE(val);
-      #if ENABLED(E4_IS_TMC2130)
+      #if E4_IS_TRINAMIC
         val = stepperE4.getCurrent();
       #else
         val = 0;
@@ -616,6 +630,28 @@ void MarlinSettings::postprocess() {
     #else
       val = 0;
       for (uint8_t q = 11; q--;) EEPROM_WRITE(val);
+    #endif
+
+    //
+    // TMC2130 Sensorless homing threshold
+    //
+    int16_t thrs;
+    #if ENABLED(SENSORLESS_HOMING)
+      #if ENABLED(X_IS_TMC2130)
+        thrs = stepperX.sgt();
+      #else
+        thrs = 0;
+      #endif
+      EEPROM_WRITE(thrs);
+      #if ENABLED(Y_IS_TMC2130)
+        thrs = stepperY.sgt();
+      #else
+        thrs = 0;
+      #endif
+      EEPROM_WRITE(thrs);
+    #else
+      thrs = 0;
+      for (uint8_t q = 2; q--;) EEPROM_WRITE(thrs);
     #endif
 
     //
@@ -725,7 +761,7 @@ void MarlinSettings::postprocess() {
       float dummy = 0;
       bool dummyb;
 
-      working_crc = 0; //clear before reading first "real data"
+      working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       // Number of esteppers may change
       uint8_t esteppers;
@@ -913,7 +949,6 @@ void MarlinSettings::postprocess() {
       #if DISABLED(ULTIPANEL)
         int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
       #endif
-
       EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
       EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
       EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
@@ -1005,65 +1040,94 @@ void MarlinSettings::postprocess() {
       //
       // Volumetric & Filament Size
       //
+      #if DISABLED(NO_VOLUMETRICS)
 
-      EEPROM_READ(parser.volumetric_enabled);
-      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-        EEPROM_READ(dummy);
-        if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
-      }
+        EEPROM_READ(parser.volumetric_enabled);
+
+        for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+          EEPROM_READ(dummy);
+          if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
+        }
+
+      #endif
 
       //
       // TMC2130 Stepper Current
       //
 
       uint16_t val;
-      #if ENABLED(HAVE_TMC2130)
+      #if HAS_TRINAMIC
         EEPROM_READ(val);
-        #if ENABLED(X_IS_TMC2130)
+        #if X_IS_TRINAMIC
           stepperX.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y_IS_TMC2130)
+        #if Y_IS_TRINAMIC
           stepperY.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z_IS_TMC2130)
+        #if Z_IS_TRINAMIC
           stepperZ.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(X2_IS_TMC2130)
+        #if X2_IS_TRINAMIC
           stepperX2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Y2_IS_TMC2130)
+        #if Y2_IS_TRINAMIC
           stepperY2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(Z2_IS_TMC2130)
+        #if Z2_IS_TRINAMIC
           stepperZ2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E0_IS_TMC2130)
+        #if E0_IS_TRINAMIC
           stepperE0.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E1_IS_TMC2130)
+        #if E1_IS_TRINAMIC
           stepperE1.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E2_IS_TMC2130)
+        #if E2_IS_TRINAMIC
           stepperE2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E3_IS_TMC2130)
+        #if E3_IS_TRINAMIC
           stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
         EEPROM_READ(val);
-        #if ENABLED(E4_IS_TMC2130)
+        #if E4_IS_TRINAMIC
           stepperE4.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
         #endif
       #else
         for (uint8_t q = 11; q--;) EEPROM_READ(val);
+      #endif
+
+      /*
+       * TMC2130 Sensorless homing threshold.
+       * X and X2 use the same value
+       * Y and Y2 use the same value
+       */
+      int16_t thrs;
+      #if ENABLED(SENSORLESS_HOMING)
+        EEPROM_READ(thrs);
+        #if ENABLED(X_IS_TMC2130)
+          stepperX.sgt(thrs);
+        #endif
+        #if ENABLED(X2_IS_TMC2130)
+          stepperX2.sgt(thrs);
+        #endif
+        EEPROM_READ(thrs);
+        #if ENABLED(Y_IS_TMC2130)
+          stepperY.sgt(thrs);
+        #endif
+        #if ENABLED(Y2_IS_TMC2130)
+          stepperY2.sgt(thrs);
+        #endif
+      #else
+        for (uint8_t q = 0; q < 2; q++) EEPROM_READ(thrs);
       #endif
 
       //
@@ -1094,7 +1158,7 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        position_changed = gcode.select_coordinate_system(-1); // Go back to machine space
+        (void)gcode.select_coordinate_system(-1); // Go back to machine space
         EEPROM_READ(gcode.coordinate_system);                  // 27 floats
       #else
         for (uint8_t q = 27; q--;) EEPROM_READ(dummy);
@@ -1195,7 +1259,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int MarlinSettings::calc_num_meshes() {
+    uint16_t MarlinSettings::calc_num_meshes() {
       //obviously this will get more sophisticated once we've added an actual MAT
 
       if (meshes_begin <= 0) return 0;
@@ -1203,10 +1267,10 @@ void MarlinSettings::postprocess() {
       return (meshes_end - meshes_begin) / sizeof(ubl.z_values);
     }
 
-    void MarlinSettings::store_mesh(int8_t slot) {
+    void MarlinSettings::store_mesh(const int8_t slot) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        const int a = calc_num_meshes();
+        const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           #if ENABLED(EEPROM_CHITCHAT)
             ubl_invalid_slot(a);
@@ -1219,11 +1283,10 @@ void MarlinSettings::postprocess() {
         }
 
         uint16_t crc = 0;
-        bool status;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
 
         HAL::PersistentStore::access_start();
-        status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        const bool status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
@@ -1243,7 +1306,7 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    void MarlinSettings::load_mesh(int8_t slot, void *into /* = 0 */) {
+    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=NULL*/) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1259,10 +1322,9 @@ void MarlinSettings::postprocess() {
         uint16_t crc = 0;
         int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
         uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
-        uint16_t status;
 
         HAL::PersistentStore::access_start();
-        status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        const uint16_t status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
@@ -1312,16 +1374,12 @@ void MarlinSettings::reset() {
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
-
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    new_z_fade_height = 0.0;
-  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -1344,7 +1402,14 @@ void MarlinSettings::reset() {
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
-  // Applies to all MBL and ABL
+  //
+  // Global Leveling
+  //
+
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    new_z_fade_height = 0.0;
+  #endif
+
   #if HAS_LEVELING
     reset_bed_level();
   #endif
@@ -1405,10 +1470,6 @@ void MarlinSettings::reset() {
     lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
 
-  #if HAS_LCD_CONTRAST
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
-  #endif
-
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
       HOTEND_LOOP()
@@ -1432,19 +1493,27 @@ void MarlinSettings::reset() {
     thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
   #endif
 
+  #if HAS_LCD_CONTRAST
+    lcd_contrast = DEFAULT_LCD_CONTRAST;
+  #endif
+
   #if ENABLED(FWRETRACT)
     fwretract.reset();
   #endif
 
-  parser.volumetric_enabled =
-    #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-      true
-    #else
-      false
-    #endif
-  ;
-  for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
-    planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+  #if DISABLED(NO_VOLUMETRICS)
+
+    parser.volumetric_enabled =
+      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+        true
+      #else
+        false
+      #endif
+    ;
+    for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+      planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+
+  #endif
 
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -1454,36 +1523,52 @@ void MarlinSettings::reset() {
     #endif
   );
 
-  #if ENABLED(HAVE_TMC2130)
+  #if X_IS_TRINAMIC
+    stepperX.setCurrent(X_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Y_IS_TRINAMIC
+    stepperY.setCurrent(Y_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Z_IS_TRINAMIC
+    stepperZ.setCurrent(Z_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if X2_IS_TRINAMIC
+    stepperX2.setCurrent(X2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Y2_IS_TRINAMIC
+    stepperY2.setCurrent(Y2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if Z2_IS_TRINAMIC
+    stepperZ2.setCurrent(Z2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E0_IS_TRINAMIC
+    stepperE0.setCurrent(E0_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E1_IS_TRINAMIC
+    stepperE1.setCurrent(E1_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E2_IS_TRINAMIC
+    stepperE2.setCurrent(E2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E3_IS_TRINAMIC
+    stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+  #if E4_IS_TRINAMIC
+    stepperE4.setCurrent(E4_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  #endif
+
+  #if ENABLED(SENSORLESS_HOMING)
     #if ENABLED(X_IS_TMC2130)
-      stepperX.setCurrent(X_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      stepperY.setCurrent(Y_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Z_IS_TMC2130)
-      stepperZ.setCurrent(Z_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX.sgt(X_HOMING_SENSITIVITY);
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      stepperX2.setCurrent(X2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX2.sgt(X_HOMING_SENSITIVITY);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      stepperY.sgt(Y_HOMING_SENSITIVITY);
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      stepperY2.setCurrent(Y2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(Z2_IS_TMC2130)
-      stepperZ2.setCurrent(Z2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E0_IS_TMC2130)
-      stepperE0.setCurrent(E0_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E1_IS_TMC2130)
-      stepperE1.setCurrent(E1_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E2_IS_TMC2130)
-      stepperE2.setCurrent(E2_CURRENT, R_SENSE, HOLD_MULTIPLIER);
-    #endif
-    #if ENABLED(E3_IS_TMC2130)
-      stepperE3.setCurrent(E3_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperY2.sgt(Y_HOMING_SENSITIVITY);
     #endif
   #endif
 
@@ -1496,10 +1581,6 @@ void MarlinSettings::reset() {
     uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
@@ -1527,7 +1608,7 @@ void MarlinSettings::reset() {
    *
    * Unless specifically disabled, M503 is available even without EEPROM
    */
-  void MarlinSettings::report(bool forReplay) {
+  void MarlinSettings::report(const bool forReplay) {
 
     /**
      * Announce current units, in case inches are being displayed
@@ -1566,46 +1647,50 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    /**
-     * Volumetric extrusion M200
-     */
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPGM("Filament settings:");
-      if (parser.volumetric_enabled)
-        SERIAL_EOL();
-      else
-        SERIAL_ECHOLNPGM(" Disabled");
-    }
+    #if DISABLED(NO_VOLUMETRICS)
 
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-    SERIAL_EOL();
-    #if EXTRUDERS > 1
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
-      SERIAL_EOL();
-      #if EXTRUDERS > 2
+      /**
+       * Volumetric extrusion M200
+       */
+      if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
-        SERIAL_EOL();
-        #if EXTRUDERS > 3
-          CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
+        SERIAL_ECHOPGM("Filament settings:");
+        if (parser.volumetric_enabled)
           SERIAL_EOL();
-          #if EXTRUDERS > 4
-            CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
-            SERIAL_EOL();
-          #endif // EXTRUDERS > 4
-        #endif // EXTRUDERS > 3
-      #endif // EXTRUDERS > 2
-    #endif // EXTRUDERS > 1
+        else
+          SERIAL_ECHOLNPGM(" Disabled");
+      }
 
-    if (!parser.volumetric_enabled) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("  M200 D0");
-    }
+      SERIAL_ECHOPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
+      SERIAL_EOL();
+      #if EXTRUDERS > 1
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
+        SERIAL_EOL();
+        #if EXTRUDERS > 2
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
+          SERIAL_EOL();
+          #if EXTRUDERS > 3
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
+            SERIAL_EOL();
+            #if EXTRUDERS > 4
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
+              SERIAL_EOL();
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+
+      if (!parser.volumetric_enabled) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("  M200 D0");
+      }
+
+    #endif // !NO_VOLUMETRICS
 
     if (!forReplay) {
       CONFIG_ECHO_START;
@@ -1962,35 +2047,63 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       SERIAL_ECHO("  M906");
+      #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
+        SERIAL_ECHOPAIR(" X ", stepperX.getCurrent());
+      #endif
+      #if ENABLED(Y_IS_TMC2130) || ENABLED(Y_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Y ", stepperY.getCurrent());
+      #endif
+      #if ENABLED(Z_IS_TMC2130) || ENABLED(Z_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Z ", stepperZ.getCurrent());
+      #endif
+      #if ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" X2 ", stepperX2.getCurrent());
+      #endif
+      #if ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Y2 ", stepperY2.getCurrent());
+      #endif
+      #if ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" Z2 ", stepperZ2.getCurrent());
+      #endif
+      #if ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E0 ", stepperE0.getCurrent());
+      #endif
+      #if ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E1 ", stepperE1.getCurrent());
+      #endif
+      #if ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E2 ", stepperE2.getCurrent());
+      #endif
+      #if ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E3 ", stepperE3.getCurrent());
+      #endif
+      #if ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208)
+        SERIAL_ECHOPAIR(" E4 ", stepperE4.getCurrent());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    /**
+     * TMC2130 Sensorless homing thresholds
+     */
+    #if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Sensorless homing threshold:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHO("  M914");
       #if ENABLED(X_IS_TMC2130)
-        SERIAL_ECHOPAIR(" X", stepperX.getCurrent());
-      #endif
-      #if ENABLED(Y_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Y", stepperY.getCurrent());
-      #endif
-      #if ENABLED(Z_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Z", stepperZ.getCurrent());
+        SERIAL_ECHOPAIR(" X", stepperX.sgt());
       #endif
       #if ENABLED(X2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" X2", stepperX2.getCurrent());
+        SERIAL_ECHOPAIR(" X2 ", stepperX2.sgt());
       #endif
-      #if ENABLED(Y2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Y2", stepperY2.getCurrent());
+      #if ENABLED(Y_IS_TMC2130)
+        SERIAL_ECHOPAIR(" Y", stepperY.sgt());
       #endif
-      #if ENABLED(Z2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" Z2", stepperZ2.getCurrent());
-      #endif
-      #if ENABLED(E0_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E0", stepperE0.getCurrent());
-      #endif
-      #if ENABLED(E1_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E1", stepperE1.getCurrent());
-      #endif
-      #if ENABLED(E2_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E2", stepperE2.getCurrent());
-      #endif
-      #if ENABLED(E3_IS_TMC2130)
-        SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
+      #if ENABLED(X2_IS_TMC2130)
+        SERIAL_ECHOPAIR(" Y2 ", stepperY2.sgt());
       #endif
       SERIAL_EOL();
     #endif

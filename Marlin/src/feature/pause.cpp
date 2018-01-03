@@ -46,6 +46,7 @@
 #endif
 
 #include "../libs/buzzer.h"
+#include "../libs/nozzle.h"
 
 // private:
 
@@ -53,7 +54,6 @@ static float resume_position[XYZE];
 
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"
-  static bool sd_print_paused = false;
 #endif
 
 #if HAS_BUZZER
@@ -106,14 +106,18 @@ void do_pause_e_move(const float &length, const float fr) {
 
 // public:
 
-bool move_away_flag = false;
+uint8_t did_pause_print = 0;
 
-bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                        const float &unload_length/*=0*/ , const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/,
+                 const int8_t max_beep_count/*=0*/, const bool show_lcd/*=false*/
 ) {
-  if (move_away_flag) return false; // already paused
+  if (did_pause_print) return false; // already paused
 
-  if (!DEBUGGING(DRYRUN) && (unload_length != 0 || retract != 0)) {
+  #ifdef ACTION_ON_PAUSE
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+  #endif
+
+  if (!DEBUGGING(DRYRUN) && unload_length != 0) {
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (!thermalManager.allow_cold_extrude &&
           thermalManager.degTargetHotend(active_extruder) < thermalManager.extrude_min_temp) {
@@ -127,13 +131,13 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   }
 
   // Indicate that the printer is paused
-  move_away_flag = true;
+  ++did_pause_print;
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
     if (IS_SD_PRINTING) {
       card.pauseSDPrint();
-      sd_print_paused = true;
+      ++did_pause_print;
     }
   #endif
   print_job_timer.pause();
@@ -149,14 +153,11 @@ bool pause_print(const float &retract, const float &z_lift, const float &x_pos, 
   COPY(resume_position, current_position); // Save current position for later
 
   // Initial retract before move to filament change position
-  if (retract) do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+  if (retract && !thermalManager.tooColdToExtrude(active_extruder))
+    do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-  // Lift Z axis
-  if (z_lift > 0)
-    do_blocking_move_to_z(current_position[Z_AXIS] + z_lift, PAUSE_PARK_Z_FEEDRATE);
-
-  // Move XY axes to filament exchange position
-  do_blocking_move_to_xy(x_pos, y_pos, PAUSE_PARK_XY_FEEDRATE);
+  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  Nozzle::park(2, park_point);
 
   if (unload_length != 0) {
     if (show_lcd) {
@@ -254,7 +255,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
 void resume_print(const float &load_length/*=0*/, const float &initial_extrude_length/*=0*/, const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
-  if (!move_away_flag) return;
+  if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
   HOTEND_LOOP() {
@@ -296,28 +297,30 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
 
   #if ENABLED(ULTIPANEL) && ADVANCED_PAUSE_EXTRUDE_LENGTH > 0
 
-    float extrude_length = initial_extrude_length;
+    if (!thermalManager.tooColdToExtrude(active_extruder)) {
+      float extrude_length = initial_extrude_length;
 
-    do {
-      if (extrude_length > 0) {
-        // "Wait for filament extrude"
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
+      do {
+        if (extrude_length > 0) {
+          // "Wait for filament extrude"
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_EXTRUDE);
 
-        // Extrude filament to get into hotend
-        do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-      }
+          // Extrude filament to get into hotend
+          do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+        }
 
-      // Show "Extrude More" / "Resume" menu and wait for reply
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = false;
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
-      while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-      KEEPALIVE_STATE(IN_HANDLER);
+        // Show "Extrude More" / "Resume" menu and wait for reply
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = false;
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION);
+        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+        KEEPALIVE_STATE(IN_HANDLER);
 
-      extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
+        extrude_length = ADVANCED_PAUSE_EXTRUDE_LENGTH;
 
-      // Keep looping if "Extrude More" was selected
-    } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+        // Keep looping if "Extrude More" was selected
+      } while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE);
+    }
 
   #endif
 
@@ -330,8 +333,8 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
   planner.set_e_position_mm((current_position[E_AXIS] = resume_position[E_AXIS]));
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], PAUSE_PARK_XY_FEEDRATE);
-  do_blocking_move_to_z(resume_position[Z_AXIS], PAUSE_PARK_Z_FEEDRATE);
+  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+  do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     filament_ran_out = false;
@@ -342,14 +345,18 @@ void resume_print(const float &load_length/*=0*/, const float &initial_extrude_l
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif
 
-  #if ENABLED(SDSUPPORT)
-    if (sd_print_paused) {
-      card.startFileprint();
-      sd_print_paused = false;
-    }
+  #ifdef ACTION_ON_RESUME
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
 
-  move_away_flag = false;
+  --did_pause_print;
+
+  #if ENABLED(SDSUPPORT)
+    if (did_pause_print) {
+      card.startFileprint();
+      --did_pause_print;
+    }
+  #endif
 }
 
 #endif // ADVANCED_PAUSE_FEATURE || PARK_HEAD_ON_PAUSE

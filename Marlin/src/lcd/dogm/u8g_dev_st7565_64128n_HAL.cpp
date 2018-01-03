@@ -149,8 +149,7 @@ uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       break;
     case U8G_DEV_MSG_STOP:
       break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_data_start);
         u8g_WriteByte(u8g, dev, 0x0b0 | pb->p.page); /* select current page (ST7565R) */
@@ -187,8 +186,7 @@ uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
       break;
     case U8G_DEV_MSG_STOP:
       break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
+    case U8G_DEV_MSG_PAGE_NEXT: {
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_data_start);

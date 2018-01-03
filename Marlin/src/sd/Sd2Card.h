@@ -46,21 +46,21 @@ uint16_t const SD_INIT_TIMEOUT = 2000,    // init timeout ms
                SD_WRITE_TIMEOUT = 600;    // write time out ms
 
 // SD card errors
-uint8_t const SD_CARD_ERROR_CMD0 = 0X1,                 // timeout error for command CMD0 (initialize card in SPI mode)
-              SD_CARD_ERROR_CMD8 = 0X2,                 // CMD8 was not accepted - not a valid SD card
-              SD_CARD_ERROR_CMD12 = 0X3,                // card returned an error response for CMD12 (write stop)
-              SD_CARD_ERROR_CMD17 = 0X4,                // card returned an error response for CMD17 (read block)
-              SD_CARD_ERROR_CMD18 = 0X5,                // card returned an error response for CMD18 (read multiple block)
-              SD_CARD_ERROR_CMD24 = 0X6,                // card returned an error response for CMD24 (write block)
-              SD_CARD_ERROR_CMD25 = 0X7,                // WRITE_MULTIPLE_BLOCKS command failed
-              SD_CARD_ERROR_CMD58 = 0X8,                // card returned an error response for CMD58 (read OCR)
-              SD_CARD_ERROR_ACMD23 = 0X9,               // SET_WR_BLK_ERASE_COUNT failed
-              SD_CARD_ERROR_ACMD41 = 0XA,               // ACMD41 initialization process timeout
-              SD_CARD_ERROR_BAD_CSD = 0XB,              // card returned a bad CSR version field
-              SD_CARD_ERROR_ERASE = 0XC,                // erase block group command failed
-              SD_CARD_ERROR_ERASE_SINGLE_BLOCK = 0XD,   // card not capable of single block erase
-              SD_CARD_ERROR_ERASE_TIMEOUT = 0XE,        // Erase sequence timed out
-              SD_CARD_ERROR_READ = 0XF,                 // card returned an error token instead of read data
+uint8_t const SD_CARD_ERROR_CMD0 = 0x01,                // timeout error for command CMD0 (initialize card in SPI mode)
+              SD_CARD_ERROR_CMD8 = 0x02,                // CMD8 was not accepted - not a valid SD card
+              SD_CARD_ERROR_CMD12 = 0x03,               // card returned an error response for CMD12 (write stop)
+              SD_CARD_ERROR_CMD17 = 0x04,               // card returned an error response for CMD17 (read block)
+              SD_CARD_ERROR_CMD18 = 0x05,               // card returned an error response for CMD18 (read multiple block)
+              SD_CARD_ERROR_CMD24 = 0x06,               // card returned an error response for CMD24 (write block)
+              SD_CARD_ERROR_CMD25 = 0x07,               // WRITE_MULTIPLE_BLOCKS command failed
+              SD_CARD_ERROR_CMD58 = 0x08,               // card returned an error response for CMD58 (read OCR)
+              SD_CARD_ERROR_ACMD23 = 0x09,              // SET_WR_BLK_ERASE_COUNT failed
+              SD_CARD_ERROR_ACMD41 = 0x0A,              // ACMD41 initialization process timeout
+              SD_CARD_ERROR_BAD_CSD = 0x0B,             // card returned a bad CSR version field
+              SD_CARD_ERROR_ERASE = 0x0C,               // erase block group command failed
+              SD_CARD_ERROR_ERASE_SINGLE_BLOCK = 0x0D,  // card not capable of single block erase
+              SD_CARD_ERROR_ERASE_TIMEOUT = 0x0E,       // Erase sequence timed out
+              SD_CARD_ERROR_READ = 0x0F,                // card returned an error token instead of read data
               SD_CARD_ERROR_READ_REG = 0x10,            // read CID or CSD failed
               SD_CARD_ERROR_READ_TIMEOUT = 0x11,        // timeout while waiting for start of read data
               SD_CARD_ERROR_STOP_TRAN = 0x12,           // card did not accept STOP_TRAN_TOKEN
@@ -71,7 +71,8 @@ uint8_t const SD_CARD_ERROR_CMD0 = 0X1,                 // timeout error for com
               SD_CARD_ERROR_WRITE_TIMEOUT = 0x17,       // timeout occurred during write programming
               SD_CARD_ERROR_SCK_RATE = 0x18,            // incorrect rate selected
               SD_CARD_ERROR_INIT_NOT_CALLED = 0x19,     // init() not called
-              SD_CARD_ERROR_CRC = 0x20;                 // crc check error
+              SD_CARD_ERROR_CMD59 = 0x1A,               // card returned an error for CMD59 (CRC_ON_OFF)
+              SD_CARD_ERROR_READ_CRC = 0x1B;            // invalid read CRC
 
 // card types
 uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 SD card
@@ -196,8 +197,8 @@ class Sd2Card {
 
   bool readData(uint8_t* dst, uint16_t count);
   bool readRegister(uint8_t cmd, void* buf);
-  void chipSelectHigh();
-  void chipSelectLow();
+  void chipDeselect();
+  void chipSelect();
   void type(uint8_t value) { type_ = value; }
   bool waitNotBusy(uint16_t timeoutMillis);
   bool writeData(uint8_t token, const uint8_t* src);

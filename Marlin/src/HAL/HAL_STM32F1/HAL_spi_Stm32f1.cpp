@@ -37,7 +37,7 @@
 // --------------------------------------------------------------------------
 
 #include "../HAL.h"
-#include "../SPI.h"
+#include "SPI.h"
 #include "pins_arduino.h"
 #include "spi_pins.h"
 #include "../../core/macros.h"
@@ -79,8 +79,8 @@ void spiBegin() {
   #if !PIN_EXISTS(SS)
     #error "SS_PIN not defined!"
   #endif
-  SET_OUTPUT(SS_PIN);
   WRITE(SS_PIN, HIGH);
+  SET_OUTPUT(SS_PIN);
 }
 
 /**
@@ -94,12 +94,12 @@ void spiBegin() {
 void spiInit(uint8_t spiRate) {
   uint8_t  clock;
   switch (spiRate) {
-  case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2 ;  break;
-  case SPI_HALF_SPEED:    clock =  SPI_CLOCK_DIV4 ; break;
-  case SPI_QUARTER_SPEED: clock =  SPI_CLOCK_DIV8 ; break;
-  case SPI_EIGHTH_SPEED:  clock =  SPI_CLOCK_DIV16; break;
-  case SPI_SPEED_5:       clock =   SPI_CLOCK_DIV32;  break;
-  case SPI_SPEED_6:       clock =   SPI_CLOCK_DIV64;  break;
+  case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2 ; break;
+  case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
+  case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
+  case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
+  case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
+  case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
   default:
     clock = SPI_CLOCK_DIV2; // Default from the SPI library
   }

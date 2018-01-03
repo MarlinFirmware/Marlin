@@ -465,9 +465,9 @@ void GcodeSuite::process_parsed_command() {
         #endif
       #endif
 
-      case 200: // M200: Set filament diameter, E to cubic units
-        M200();
-        break;
+      #if DISABLED(NO_VOLUMETRICS)
+        case 200: M200(); break;  // M200: Set filament diameter, E to cubic units
+      #endif
 
       case 201: M201(); break;  // M201: Set max acceleration for print moves (units/s^2)
 
@@ -657,7 +657,8 @@ void GcodeSuite::process_parsed_command() {
         #endif
       #endif
 
-      #if ENABLED(HAVE_TMC2130)
+      #if HAVE_TRINAMIC
+        case 122: M122(); break;
         case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         case 911: M911(); break;    // M911: Report TMC2130 prewarn triggered flags
         case 912: M912(); break;    // M912: Clear TMC2130 prewarn triggered flags

@@ -150,22 +150,18 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], arg_val);
       break;
 
-    case U8G_COM_MSG_WRITE_SEQ:
-      {
+    case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
-        while( arg_val > 0 )
-        {
+        while (arg_val > 0) {
           u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], *ptr++);
           arg_val--;
         }
       }
       break;
 
-      case U8G_COM_MSG_WRITE_SEQ_P:
-      {
+      case U8G_COM_MSG_WRITE_SEQ_P: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
-        while( arg_val > 0 )
-        {
+        while (arg_val > 0) {
           u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], u8g_pgm_read(ptr));
           ptr++;
           arg_val--;

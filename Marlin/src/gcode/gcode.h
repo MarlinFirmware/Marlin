@@ -130,6 +130,7 @@
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
+ * M122 - Debug stepper (Requires HAVE_TMC2130 or HAVE_TMC2208)
  * M125 - Save current position and move to filament change position. (Requires PARK_HEAD_ON_PAUSE)
  * M126 - Solenoid Air Valve Open. (Requires BARICUDA)
  * M127 - Solenoid Air Valve Closed. (Requires BARICUDA)
@@ -218,8 +219,8 @@
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
  * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
- * M911 - Report stepper driver overtemperature pre-warn condition. (Requires HAVE_TMC2130)
- * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130)
+ * M911 - Report stepper driver overtemperature pre-warn condition. (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130 or HAVE_TMC2208)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
  *
@@ -282,7 +283,7 @@ public:
   static void process_parsed_command();
   static void process_next_command();
 
-  static FORCE_INLINE void home_all_axes() { G28(true); }
+  FORCE_INLINE static void home_all_axes() { G28(true); }
 
   /**
    * Multi-stepper support for M92, M201, M203
@@ -727,7 +728,10 @@ private:
     static void M900();
   #endif
 
-  #if ENABLED(HAVE_TMC2130)
+  #if HAS_TRINAMIC
+    #if ENABLED(TMC_DEBUG)
+      static void M122();
+    #endif
     static void M906();
     static void M911();
     static void M912();
@@ -736,6 +740,9 @@ private:
     #endif
     #if ENABLED(SENSORLESS_HOMING)
       static void M914();
+    #endif
+    #if ENABLED(TMC_Z_CALIBRATION)
+      static void M915();
     #endif
   #endif
 

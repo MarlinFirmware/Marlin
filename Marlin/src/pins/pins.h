@@ -151,14 +151,11 @@
   #include "pins_MEGATRONICS.h"       // ATmega2560
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"     // ATmega2560
-#elif MB(MEGATRONICS_3)
-  #include "pins_MEGATRONICS_3.h"     // ATmega2560
-#elif MB(MEGATRONICS_31)
-  #define MEGATRONICS_31
+#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31)
   #include "pins_MEGATRONICS_3.h"     // ATmega2560
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"             // ATmega2560
-#elif MB(MINIRAMBO)
+#elif MB(MINIRAMBO) || MB(MINIRAMBO_10A)
   #include "pins_MINIRAMBO.h"         // ATmega2560
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"           // ATmega2560
@@ -322,6 +319,14 @@
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"
+#elif MB(STM3R_MINI)
+  #include "pins_STM3R_MINI.h"
+#elif MB(MALYAN_M200)
+  #include "pins_MALYAN_M200.h"
+#elif MB(BEAST)
+  #include "pins_BEAST.h"
+#elif MB(CHITU3D)
+  #include "pins_CHITU3D.h"
 #elif MB(MKS_SBASE)
   #include "pins_MKS_SBASE.h"
 #elif MB(AZSMZ_MINI)

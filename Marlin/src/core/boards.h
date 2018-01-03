@@ -90,10 +90,11 @@
 #define BOARD_MEGATRONICS_31    704   // Megatronics v3.1
 #define BOARD_RAMBO             301   // Rambo
 #define BOARD_MINIRAMBO         302   // Mini-Rambo
+#define BOARD_MINIRAMBO_10A     303   // Mini-Rambo 1.0a
 #define BOARD_ELEFU_3           21    // Elefu Ra Board (v3)
 #define BOARD_LEAPFROG          999   // Leapfrog
 #define BOARD_MEGACONTROLLER    310   // Mega controller
-#define BOARD_SCOOVO_X9H        303   // abee Scoovo X9H
+#define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 
@@ -193,6 +194,9 @@
 //
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_STM32F1R         1800   // STM3R Libmaple based STM32F1 controller
+#define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
+#define BOARD_BEAST            1802  // STM32FxxxVxT6 Libmaple based stm32f4 controller
+#define BOARD_STM3R_MINI       1803  // STM32 Libmaple based stm32f1 controller
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

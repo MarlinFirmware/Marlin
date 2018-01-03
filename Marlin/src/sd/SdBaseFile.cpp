@@ -601,7 +601,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t ofla
   // search for file
 
   while (dirFile->curPosition_ < dirFile->fileSize_) {
-    index = 0XF & (dirFile->curPosition_ >> 5);
+    index = 0xF & (dirFile->curPosition_ >> 5);
     p = dirFile->readDirCache();
     if (!p) return false;
 
@@ -705,7 +705,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag) {
     return false;
   }
   // open cached entry
-  return openCachedEntry(index & 0XF, oflag);
+  return openCachedEntry(index & 0xF, oflag);
 }
 
 // open a cached directory entry. Assumes vol_ is initialized
@@ -775,7 +775,7 @@ bool SdBaseFile::openNext(SdBaseFile* dirFile, uint8_t oflag) {
   vol_ = dirFile->vol_;
 
   while (1) {
-    index = 0XF & (dirFile->curPosition_ >> 5);
+    index = 0xF & (dirFile->curPosition_ >> 5);
 
     // read entry into cache
     p = dirFile->readDirCache();
@@ -1100,7 +1100,7 @@ dir_t* SdBaseFile::readDirCache() {
   if (!isDir()) return 0;
 
   // index of entry in cache
-  i = (curPosition_ >> 5) & 0XF;
+  i = (curPosition_ >> 5) & 0xF;
 
   // use read to locate and cache block
   if (read() < 0) return 0;

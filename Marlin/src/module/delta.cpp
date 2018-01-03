@@ -121,7 +121,7 @@ void recalc_delta_settings() {
   }while(0)
 
 void inverse_kinematics(const float raw[XYZ]) {
-  DELTA_RAW_IK();
+  DELTA_IK(raw);
   // DELTA_DEBUG();
 }
 

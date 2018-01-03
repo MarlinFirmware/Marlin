@@ -23,6 +23,15 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+  static void cap_line(const char * const name, bool ena=false) {
+    SERIAL_PROTOCOLPGM("Cap:");
+    serialprintPGM(name);
+    SERIAL_CHAR(':');
+    SERIAL_PROTOCOLLN(int(ena ? 1 : 0));
+  }
+#endif
+
 /**
  * M115: Capabilities string
  */
@@ -32,86 +41,92 @@ void GcodeSuite::M115() {
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
     // SERIAL_XON_XOFF
-    #if ENABLED(SERIAL_XON_XOFF)
-      SERIAL_PROTOCOLLNPGM("Cap:SERIAL_XON_XOFF:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:SERIAL_XON_XOFF:0");
-    #endif
+    cap_line(PSTR("SERIAL_XON_XOFF")
+      #if ENABLED(SERIAL_XON_XOFF)
+        , true
+      #endif
+    );
 
     // EEPROM (M500, M501)
-    #if ENABLED(EEPROM_SETTINGS)
-      SERIAL_PROTOCOLLNPGM("Cap:EEPROM:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:EEPROM:0");
-    #endif
+    cap_line(PSTR("EEPROM")
+      #if ENABLED(EEPROM_SETTINGS)
+        , true
+      #endif
+    );
+
+    // Volumetric Extrusion (M200)
+    cap_line(PSTR("VOLUMETRIC")
+      #if DISABLED(NO_VOLUMETRICS)
+        , true
+      #endif
+    );
 
     // AUTOREPORT_TEMP (M155)
-    #if ENABLED(AUTO_REPORT_TEMPERATURES)
-      SERIAL_PROTOCOLLNPGM("Cap:AUTOREPORT_TEMP:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:AUTOREPORT_TEMP:0");
-    #endif
+    cap_line(PSTR("AUTOREPORT_TEMP")
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        , true
+      #endif
+    );
 
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
-    SERIAL_PROTOCOLLNPGM("Cap:PROGRESS:0");
+    cap_line(PSTR("PROGRESS"));
 
     // Print Job timer M75, M76, M77
-    SERIAL_PROTOCOLLNPGM("Cap:PRINT_JOB:1");
+    cap_line(PSTR("PRINT_JOB"), true);
 
     // AUTOLEVEL (G29)
-    #if HAS_AUTOLEVEL
-      SERIAL_PROTOCOLLNPGM("Cap:AUTOLEVEL:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:AUTOLEVEL:0");
-    #endif
+    cap_line(PSTR("AUTOLEVEL")
+      #if HAS_AUTOLEVEL
+        , true
+      #endif
+    );
 
     // Z_PROBE (G30)
-    #if HAS_BED_PROBE
-      SERIAL_PROTOCOLLNPGM("Cap:Z_PROBE:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:Z_PROBE:0");
-    #endif
+    cap_line(PSTR("Z_PROBE")
+      #if HAS_BED_PROBE
+        , true
+      #endif
+    );
 
     // MESH_REPORT (M420 V)
-    #if HAS_LEVELING
-      SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:LEVELING_DATA:0");
-    #endif
+    cap_line(PSTR("LEVELING_DATA")
+      #if HAS_LEVELING
+        , true
+      #endif
+    );
 
     // BUILD_PERCENT (M73)
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:BUILD_PERCENT:0");
-    #endif
+    cap_line(PSTR("BUILD_PERCENT")
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        , true
+      #endif
+    );
 
     // SOFTWARE_POWER (M80, M81)
-    #if HAS_POWER_SWITCH
-      SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:0");
-    #endif
+    cap_line(PSTR("SOFTWARE_POWER")
+      #if HAS_POWER_SWITCH
+        , true
+      #endif
+    );
 
     // CASE LIGHTS (M355)
-    #if HAS_CASE_LIGHT
-      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:1");
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
-        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:1");
-      }
-      else
-        SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:0");
-      SERIAL_PROTOCOLLNPGM("Cap:CASE_LIGHT_BRIGHTNESS:0");
-    #endif
+    cap_line(PSTR("TOGGLE_LIGHTS")
+      #if HAS_CASE_LIGHT
+        , true
+      #endif
+    );
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS")
+      #if HAS_CASE_LIGHT
+        , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+      #endif
+    );
 
     // EMERGENCY_PARSER (M108, M112, M410)
-    #if ENABLED(EMERGENCY_PARSER)
-      SERIAL_PROTOCOLLNPGM("Cap:EMERGENCY_PARSER:1");
-    #else
-      SERIAL_PROTOCOLLNPGM("Cap:EMERGENCY_PARSER:0");
-    #endif
+    cap_line(PSTR("EMERGENCY_PARSER")
+      #if ENABLED(EMERGENCY_PARSER)
+        , true
+      #endif
+    );
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

@@ -118,22 +118,18 @@
         spiSend((uint8_t)arg_val);
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ:
-        {
+      case U8G_COM_MSG_WRITE_SEQ: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             spiSend(*ptr++);
             arg_val--;
           }
         }
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ_P:
-        {
+      case U8G_COM_MSG_WRITE_SEQ_P: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             spiSend(*ptr++);
             arg_val--;
           }

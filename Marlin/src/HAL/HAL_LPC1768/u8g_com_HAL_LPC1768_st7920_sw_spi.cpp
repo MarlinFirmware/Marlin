@@ -170,22 +170,18 @@
         u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ:
-        {
+      case U8G_COM_MSG_WRITE_SEQ: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
             arg_val--;
           }
         }
         break;
 
-        case U8G_COM_MSG_WRITE_SEQ_P:
-        {
+        case U8G_COM_MSG_WRITE_SEQ_P: {
           uint8_t *ptr = (uint8_t*) arg_ptr;
-          while( arg_val > 0 )
-          {
+          while (arg_val > 0) {
             u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
             arg_val--;
           }

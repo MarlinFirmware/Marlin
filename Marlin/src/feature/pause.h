@@ -28,10 +28,12 @@
 #ifndef _PAUSE_H_
 #define _PAUSE_H_
 
-extern bool move_away_flag;
+#include "../libs/nozzle.h"
 
-bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                        const float &unload_length=0 , const int8_t max_beep_count=0, const bool show_lcd=false
+extern bool did_pause_print;
+
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0,
+                 const int8_t max_beep_count=0, const bool show_lcd=false
 );
 
 void wait_for_filament_reload(const int8_t max_beep_count=0);

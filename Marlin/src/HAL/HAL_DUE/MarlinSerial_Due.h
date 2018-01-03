@@ -31,11 +31,9 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <WString.h>
+#if SERIAL_PORT >= 0
 
-#ifndef SERIAL_PORT
-  #define SERIAL_PORT 0
-#endif
+#include <WString.h>
 
 #define DEC 10
 #define HEX 16
@@ -55,17 +53,13 @@
   #define TX_BUFFER_SIZE 32
 #endif
 
-#if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
-  #error "XON/XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
-#endif
-
-#if !IS_POWER_OF_2(RX_BUFFER_SIZE) || RX_BUFFER_SIZE < 2
-  #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
-#endif
-
-#if TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
-  #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
-#endif
+//#if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
+//  #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
+//#elif RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
+//  #error "RX_BUFFER_SIZE must be a power of 2 greater than 1."
+//#elif TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
+//  #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
+//#endif
 
 #if RX_BUFFER_SIZE > 256
   typedef uint16_t ring_buffer_pos_t;
@@ -107,10 +101,10 @@ public:
     FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
   #endif
 
-  static FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
-  static FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  static FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  static FORCE_INLINE void print(const char* str) { write(str); }
+  FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
+  FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+  FORCE_INLINE static void print(const char* str) { write(str); }
 
   static void print(char, int = BYTE);
   static void print(unsigned char, int = BYTE);
@@ -138,5 +132,7 @@ private:
 };
 
 extern MarlinSerial customizedSerial;
+
+#endif // SERIAL_PORT >= 0
 
 #endif // MARLINSERIAL_DUE_H

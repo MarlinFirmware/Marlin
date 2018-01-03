@@ -27,7 +27,7 @@
 
 #if ENABLED(U8GLIB_ST7920)
 
-#ifndef U8G_HAL_LINKS
+#if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
