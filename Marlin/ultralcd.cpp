@@ -3127,8 +3127,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(EEPROM_SETTINGS)
 
     static void lcd_init_eeprom() {
-      lcd_factory_settings();
-      settings.save();
+      lcd_completion_feedback(settings.init_eeprom());
       lcd_goto_previous_menu();
     }
 
