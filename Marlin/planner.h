@@ -155,11 +155,14 @@ class Planner {
 
     static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
 
-    static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
-                 filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-                 volumetric_area_nominal,           // Nominal cross-sectional area
-                 volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
-                                                    // May be auto-adjusted by a filament width sensor
+    static float e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+
+    #if DISABLED(NO_VOLUMETRICS)
+      static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                   volumetric_area_nominal,           // Nominal cross-sectional area
+                   volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+                                                      // May be auto-adjusted by a filament width sensor
+    #endif
 
     static float max_feedrate_mm_s[XYZE_N],         // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
@@ -188,7 +191,9 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_k, advance_ed_ratio;
+      static float extruder_advance_k, advance_ed_ratio,
+                   position_float[XYZE],
+                   lin_dist_xy, lin_dist_e;
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
@@ -273,7 +278,11 @@ class Planner {
     static void refresh_positioning();
 
     FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = volumetric_multiplier[e] * flow_percentage[e] * 0.01;
+      e_factor[e] = (flow_percentage[e] * 0.01
+        #if DISABLED(NO_VOLUMETRICS)
+          * volumetric_multiplier[e]
+        #endif
+      );
     }
 
     // Manage fans, paste pressure, etc.
@@ -293,12 +302,16 @@ class Planner {
       void calculate_volumetric_for_width_sensor(const int8_t encoded_ratio);
     #endif
 
-    FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
-      filament_size[e] = v;
-      // make sure all extruders have some sane value for the filament size
-      for (uint8_t i = 0; i < COUNT(filament_size); i++)
-        if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    }
+    #if DISABLED(NO_VOLUMETRICS)
+
+      FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
+        filament_size[e] = v;
+        // make sure all extruders have some sane value for the filament size
+        for (uint8_t i = 0; i < COUNT(filament_size); i++)
+          if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+      }
+
+    #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
