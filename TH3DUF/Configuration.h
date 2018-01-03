@@ -11,7 +11,7 @@
 * There are other features in the TH3D Extras section so look there for V6 Hotend,
 * Bootscreen settings, Titan Extruder and more. You only need to edit this file.
 * 
-* For the Tornado and CR-10S select Tools > Board > Arduino Mega 2560
+* For the Tornado, TAZ5, and CR-10S select Tools > Board > Arduino Mega 2560
 * For the Ender 2 and CR-10 select Tools > Board > Sanguino(1284P Boards)
 * 
 * Then select the COM port your printer is on from the Tools menu.
