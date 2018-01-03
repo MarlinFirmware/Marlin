@@ -200,6 +200,8 @@ uint16_t max_display_update_time = 0;
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       void lcd_change_filament_menu();
+    #else
+      void lcd_temp_menu_e0_filament_change();
     #endif
     void lcd_advanced_pause_option_menu();
     void lcd_advanced_pause_init_message();
