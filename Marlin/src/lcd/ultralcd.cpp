@@ -2707,11 +2707,7 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)       
-      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , advanced_filament_loading);
-    #endif
-	  
-    END_MENU();
-    }
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , advanced_filament_loading); 
     #endif // ADVANCED_PAUSE_FEATURE
 
     #if TEMP_SENSOR_0 != 0
