@@ -1253,7 +1253,7 @@ void kill_screen(const char* lcd_msg) {
         const uint8_t extruder
       #endif
     ) {
-      #if ENABLED(PREVENT_COLD_EXTRUSION)
+      #if ENABLED(PREVENT_COLD_EXTRUSION) && DISABLED (FILAMENT_LOAD_UNLOAD_MENU)
         if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
           lcd_save_previous_screen();
           lcd_goto_screen(lcd_advanced_pause_toocold_menu);
