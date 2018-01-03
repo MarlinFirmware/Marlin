@@ -488,7 +488,11 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
-const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#if EXTRUDERS > 0
+  const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#else
+  const char axis_codes[XYZ] = { 'X', 'Y', 'Z' };
+#endif
 
 // Number of characters read in the current line of serial input
 static int serial_count = 0;
@@ -13355,7 +13359,7 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
+  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE) && EXTRUDERS > 0
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
