@@ -799,7 +799,7 @@ void Temperature::manage_heater() {
       meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-      calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index])
+      planner.calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index]);
     }
   #endif // FILAMENT_WIDTH_SENSOR
 
@@ -1000,7 +1000,7 @@ void Temperature::updateTemperaturesFromRawValues() {
    * a return value of 1.
    */
   int8_t Temperature::widthFil_to_size_ratio() {
-    if (WITHIN(filament_width_meas, MEASURED_LOWER_LIMIT, MEASURED_UPPER_LIMIT))
+    if (FABS(filament_width_nominal - filament_width_meas) <= FILWIDTH_ERROR_MARGIN)
       return int(100.0 * filament_width_nominal / filament_width_meas) - 100;
     return 0;
   }
