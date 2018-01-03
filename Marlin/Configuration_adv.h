@@ -904,6 +904,12 @@
                                               // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
   //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
+  // LOAD/UNLOAD MENU - (Need LCD)
+  #define FILAMENT_LOAD_UNLOAD_MENU   
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)			
+    #define FILAMENT_LOAD_UNLOAD_FEED_LENGTH     10 // Length by click - one or more click to load 
+    #define FILAMENT_TOOLCHANGE_SWAP_LENGTH      50 // Unload distance for changing tool without ejection - 2 clicks or more for ejection
+  #endif
 #endif
 
 // @section tmc
