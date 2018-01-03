@@ -1352,21 +1352,21 @@ void kill_screen(const char* lcd_msg) {
 	 void lcd_toolchange_extruder_e4() { lcd_enqueue_filament_change(44); }
       #endif
     #endif
-			
-    #if EXTRUDERS > 1
-      void lcd_enqueue_filament_change_e0() { lcd_enqueue_filament_change(0); }
-      void lcd_enqueue_filament_change_e1() { lcd_enqueue_filament_change(1); }
-      #if EXTRUDERS > 2
-        void lcd_enqueue_filament_change_e2() { lcd_enqueue_filament_change(2); }
-        #if EXTRUDERS > 3
-          void lcd_enqueue_filament_change_e3() { lcd_enqueue_filament_change(3); }
-          #if EXTRUDERS > 4
-            void lcd_enqueue_filament_change_e4() { lcd_enqueue_filament_change(4); }
-          #endif // EXTRUDERS > 4
-        #endif // EXTRUDERS > 3
-      #endif // EXTRUDERS > 2
-    #endif // EXTRUDERS > 1
-
+    #if DISABLED (FILAMENT_LOAD_UNLOAD_MENU)		
+      #if EXTRUDERS > 1
+        void lcd_enqueue_filament_change_e0() { lcd_enqueue_filament_change(0); }
+        void lcd_enqueue_filament_change_e1() { lcd_enqueue_filament_change(1); }
+        #if EXTRUDERS > 2
+          void lcd_enqueue_filament_change_e2() { lcd_enqueue_filament_change(2); }
+          #if EXTRUDERS > 3
+            void lcd_enqueue_filament_change_e3() { lcd_enqueue_filament_change(3); }
+            #if EXTRUDERS > 4
+              void lcd_enqueue_filament_change_e4() { lcd_enqueue_filament_change(4); }
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+    #endif
   #endif // ADVANCED_PAUSE_FEATURE
 
   // First Fan Speed title in "Tune" and "Control>Temperature" menus
