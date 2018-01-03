@@ -1316,7 +1316,7 @@ void kill_screen(const char* lcd_msg) {
 	    return;
 	}
   #endif
-			
+      #if DISABLED (FILAMENT_LOAD_UNLOAD_MENU)		
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
 
       #if EXTRUDERS <= 1
@@ -1338,8 +1338,8 @@ void kill_screen(const char* lcd_msg) {
         }
         enqueue_and_echo_commands_P(command_M600);
       #endif // EXTRUDERS > 1
+    #endif
     }
-
     #if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
       void lcd_unload_extruder() { lcd_enqueue_filament_change(10); }
       void lcd_load_extruder() { lcd_enqueue_filament_change(20); }
