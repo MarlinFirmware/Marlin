@@ -392,6 +392,8 @@
 #define TEMP_SENSOR_4 0
 #if ENABLED(AC_BED)
   #define TEMP_SENSOR_BED 0
+#elif ENABLED(TAZ5)
+  #define TEMP_SENSOR_BED 7
 #else
   #define TEMP_SENSOR_BED 5
 #endif
