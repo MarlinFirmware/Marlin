@@ -4176,79 +4176,78 @@ void kill_screen(const char* lcd_msg) {
       } \
       ++_thisItemNr; \
     }while(0)
-//-------------------------------
-/**
- *
- * "Filament " submenu items
- *
- */		
-void advanced_filament_loading() {	
 
-  START_MENU();
-  //
-  // ^ Main
-  //
-  MENU_BACK(MSG_MAIN);
-  if (!thermalManager.tooColdToExtrude(active_extruder)) {
-   #if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
-     if (!thermalManager.tooColdToExtrude(active_extruder)) {																				
-       #if EXTRUDERS > 1										
-         switch (active_extruder) {
-           case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
-           case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
+  /**
+   *
+   * "Filament " submenu items
+   *
+   */		
+    void advanced_filament_loading() {	
+      START_MENU();
+      //
+      // ^ Main
+      //
+      MENU_BACK(MSG_MAIN);
+      if (!thermalManager.tooColdToExtrude(active_extruder)) {
+       #if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
+         if (!thermalManager.tooColdToExtrude(active_extruder)) {																				
+           #if EXTRUDERS > 1										
+             switch (active_extruder) {
+               case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
+               case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
+               #if EXTRUDERS > 2
+               case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
+               #endif
+               #if EXTRUDERS > 3
+               case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
+               #endif
+               #if EXTRUDERS > 4
+               case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
+               #endif	
+             }
+             MENU_ITEM(function,MSG_FILAMENT_CHANGE_UNLOAD_2, lcd_unload_extruder);
+             MENU_ITEM(function,MSG_FILAMENT_CHANGE_INSERT_1, lcd_load_extruder);
+             MENU_ITEM(function,MSG_FILAMENT_CHANGE_EXTRUDE_2, lcd_extrude_extruder);	
+             if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);					
+             if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
+           #endif
            #if EXTRUDERS > 2
-           case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
+             if (active_extruder !=2) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E3, lcd_toolchange_extruder_e2);
            #endif
            #if EXTRUDERS > 3
-           case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
+             if (active_extruder !=3) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E4, lcd_toolchange_extruder_e3);
            #endif
            #if EXTRUDERS > 4
-           case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
-           #endif	
-         }
-         MENU_ITEM(function,MSG_FILAMENT_CHANGE_UNLOAD_2, lcd_unload_extruder);
-         MENU_ITEM(function,MSG_FILAMENT_CHANGE_INSERT_1, lcd_load_extruder);
-         MENU_ITEM(function,MSG_FILAMENT_CHANGE_EXTRUDE_2, lcd_extrude_extruder);	
-         if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);					
-         if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
-       #endif
-       #if EXTRUDERS > 2
-         if (active_extruder !=2) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E3, lcd_toolchange_extruder_e2);
-       #endif
-       #if EXTRUDERS > 3
-         if (active_extruder !=3) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E4, lcd_toolchange_extruder_e3);
-       #endif
-       #if EXTRUDERS > 4
-         if (active_extruder !=4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_toolchange_extruder_e4);
-       #endif										
-       }
-  }
-  #endif
-  #if DISABLED (FILAMENT_LOAD_UNLOAD_MENU)			
-    #if EXTRUDERS > 1
-      if (!thermalManager.tooColdToExtrude(0))
-        MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E1, lcd_enqueue_filament_change_e0);
-      if (!thermalManager.tooColdToExtrude(1))
-        MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E2, lcd_enqueue_filament_change_e1);
-      #if EXTRUDERS > 2
-        if (!thermalManager.tooColdToExtrude(2))
-	  MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E3, lcd_enqueue_filament_change_e2);
-        #if EXTRUDERS > 3
-	  if (!thermalManager.tooColdToExtrude(3))
-	    MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E4, lcd_enqueue_filament_change_e3);
-	  #if EXTRUDERS > 4
-	  if (!thermalManager.tooColdToExtrude(4))
-	    MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E5, lcd_enqueue_filament_change_e4);
-	  #endif // EXTRUDERS > 4
-        #endif // EXTRUDERS > 3
-      #endif // EXTRUDERS > 2
-    #else
-      if (!thermalManager.tooColdToExtrude(active_extruder))
-        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
-    #endif
-  #endif						
-END_MENU();
-}	
+             if (active_extruder !=4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_toolchange_extruder_e4);
+           #endif										
+           }
+      }
+      #endif
+      #if DISABLED (FILAMENT_LOAD_UNLOAD_MENU)			
+        #if EXTRUDERS > 1
+          if (!thermalManager.tooColdToExtrude(0))
+            MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E1, lcd_enqueue_filament_change_e0);
+          if (!thermalManager.tooColdToExtrude(1))
+            MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E2, lcd_enqueue_filament_change_e1);
+          #if EXTRUDERS > 2
+            if (!thermalManager.tooColdToExtrude(2))
+	      MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E3, lcd_enqueue_filament_change_e2);
+            #if EXTRUDERS > 3
+	      if (!thermalManager.tooColdToExtrude(3))
+	        MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E4, lcd_enqueue_filament_change_e3);
+	      #if EXTRUDERS > 4
+	      if (!thermalManager.tooColdToExtrude(4))
+	        MENU_ITEM(function, MSG_FILAMENTCHANGE " " MSG_E5, lcd_enqueue_filament_change_e4);
+	      #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        #else
+          if (!thermalManager.tooColdToExtrude(active_extruder))
+            MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+        #endif
+      #endif						
+    END_MENU();
+    }	
     void lcd_advanced_pause_toocold_menu() {
       START_MENU();
       STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
