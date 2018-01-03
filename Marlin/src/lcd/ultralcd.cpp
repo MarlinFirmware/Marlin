@@ -2713,9 +2713,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 	  
     END_MENU();
-  }
-        #endif
-      }
+    }
     #endif // ADVANCED_PAUSE_FEATURE
 
     #if TEMP_SENSOR_0 != 0
