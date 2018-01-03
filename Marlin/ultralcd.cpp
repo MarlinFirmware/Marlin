@@ -1301,7 +1301,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if HOTENDS == 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    #else // HOTENDS > 1
+    #elif HOTENDS > 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
       #if HOTENDS > 2
@@ -3261,7 +3261,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if HOTENDS == 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    #else // HOTENDS > 1
+    #elif HOTENDS > 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
       #if HOTENDS > 2
@@ -3324,7 +3324,7 @@ void kill_screen(const char* lcd_msg) {
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
-    #if ENABLED(PIDTEMP)
+    #if ENABLED(PIDTEMP) && HOTENDS > 0
 
       #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
@@ -3370,12 +3370,17 @@ void kill_screen(const char* lcd_msg) {
     //
     // Preheat Material 1 conf
     //
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+    #if HOTENDS > 0
+      MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+    #endif
 
     //
     // Preheat Material 2 conf
     //
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
+    #if HOTENDS > 0
+      MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
+    #endif
+    
     END_MENU();
   }
 
