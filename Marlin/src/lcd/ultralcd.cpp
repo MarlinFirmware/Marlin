@@ -1246,14 +1246,13 @@ void kill_screen(const char* lcd_msg) {
     #endif
   }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void lcd_enqueue_filament_change(
       #if EXTRUDERS > 1
         const uint8_t extruder
       #endif
     ) {
-
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
           lcd_save_previous_screen();
@@ -1262,61 +1261,61 @@ void kill_screen(const char* lcd_msg) {
         }
       #endif
 
-			#if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
-			  if (extruder >=10) {
-					set_destination_from_current();
-					const float old_feedrate_mm_s = feedrate_mm_s;
-					// Toolchange
-					#if  EXTRUDERS > 1
-						if (extruder >=40 && (extruder-40) != active_extruder) {
-							char *command;
-							switch (extruder-40) {
-								case 0: command = PSTR("T0"); break;							
-								case 1: command = PSTR("T1"); break;
-								#if EXTRUDERS > 2
-									case 2: command = PSTR("T2"); break;
-									#if EXTRUDERS > 3
-										case 3: command = PSTR("T3"); break;
-										#if EXTRUDERS > 4
-											case 4: command = PSTR("T4"); break;
-										#endif // EXTRUDERS > 4
-									#endif // EXTRUDERS > 3
-								#endif // EXTRUDERS > 2
-							}
-							enqueue_and_echo_commands_P(command);
-							lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-						}
-					#endif	
-					else
-						// Extrude
-						if (extruder >=30) {
-							current_position[E_AXIS] -=  ADVANCED_PAUSE_EXTRUDE_LENGTH / planner.e_factor[active_extruder];
-							sync_plan_position_e();
-							feedrate_mm_s = ADVANCED_PAUSE_EXTRUDE_FEEDRATE;
-							prepare_move_to_destination();
-							feedrate_mm_s = old_feedrate_mm_s;
-						}
-						else
-							// Load
-							if (extruder >=20) {
-								current_position[E_AXIS] -=  FILAMENT_LOAD_UNLOAD_FEED_LENGTH  / planner.e_factor[active_extruder];
-								sync_plan_position_e();
-								feedrate_mm_s = FILAMENT_CHANGE_LOAD_FEEDRATE;
-								prepare_move_to_destination();
-								feedrate_mm_s = old_feedrate_mm_s;
-							}
-							else
-							// Unload/swap
-							if (extruder >=10) {
-								current_position[E_AXIS] +=  FILAMENT_TOOLCHANGE_SWAP_LENGTH / planner.e_factor[active_extruder];
-								sync_plan_position_e();
-								feedrate_mm_s = FILAMENT_CHANGE_UNLOAD_FEEDRATE;
-								prepare_move_to_destination();
-								feedrate_mm_s = old_feedrate_mm_s;
-							}
-				return;
-				}
-			#endif
+      #if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
+        if (extruder >=10) {
+	  set_destination_from_current();
+	  const float old_feedrate_mm_s = feedrate_mm_s;
+	  // Toolchange
+	  #if  EXTRUDERS > 1
+	    if (extruder >=40 && (extruder-40) != active_extruder) {
+	      char *command;
+	      switch (extruder-40) {
+		case 0: command = PSTR("T0"); break;							
+		case 1: command = PSTR("T1"); break;
+		#if EXTRUDERS > 2
+		  case 2: command = PSTR("T2"); break;
+		  #if EXTRUDERS > 3
+		    case 3: command = PSTR("T3"); break;
+		    #if EXTRUDERS > 4
+		      case 4: command = PSTR("T4"); break;
+		    #endif // EXTRUDERS > 4
+		  #endif // EXTRUDERS > 3
+		#endif // EXTRUDERS > 2
+	      }
+	      enqueue_and_echo_commands_P(command);
+	      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+	  }
+	#endif	
+	else
+	// Extrude
+	if (extruder >=30) {
+	  current_position[E_AXIS] -=  ADVANCED_PAUSE_EXTRUDE_LENGTH / planner.e_factor[active_extruder];
+	  sync_plan_position_e();
+	  feedrate_mm_s = ADVANCED_PAUSE_EXTRUDE_FEEDRATE;
+	  prepare_move_to_destination();
+	  feedrate_mm_s = old_feedrate_mm_s;
+	}
+	else
+	  // Load
+	  if (extruder >=20) {
+	    current_position[E_AXIS] -=  FILAMENT_LOAD_UNLOAD_FEED_LENGTH  / planner.e_factor[active_extruder];
+	    sync_plan_position_e();
+	    feedrate_mm_s = FILAMENT_CHANGE_LOAD_FEEDRATE;
+	    prepare_move_to_destination();
+	    feedrate_mm_s = old_feedrate_mm_s;
+	  }
+	  else
+	  // Unload/swap
+	    if (extruder >=10) {
+	      current_position[E_AXIS] +=  FILAMENT_TOOLCHANGE_SWAP_LENGTH / planner.e_factor[active_extruder];
+	      sync_plan_position_e();
+	      feedrate_mm_s = FILAMENT_CHANGE_UNLOAD_FEEDRATE;
+	      prepare_move_to_destination();
+	      feedrate_mm_s = old_feedrate_mm_s;
+	    }
+	    return;
+	}
+  #endif
 			
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
 
@@ -1341,19 +1340,18 @@ void kill_screen(const char* lcd_msg) {
       #endif // EXTRUDERS > 1
     }
 
-		#if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
-
-			void lcd_unload_extruder() { lcd_enqueue_filament_change(10); }
-			void lcd_load_extruder() { lcd_enqueue_filament_change(20); }
-			void lcd_extrude_extruder() { lcd_enqueue_filament_change(30); }
-			#if EXTRUDERS > 1
-				void lcd_toolchange_extruder_e0() { lcd_enqueue_filament_change(40); }
-				void lcd_toolchange_extruder_e1() { lcd_enqueue_filament_change(41); }
-				void lcd_toolchange_extruder_e2() { lcd_enqueue_filament_change(42); }
-				void lcd_toolchange_extruder_e3() { lcd_enqueue_filament_change(43); }
-				void lcd_toolchange_extruder_e4() { lcd_enqueue_filament_change(44); }
-			#endif
-		#endif
+    #if ENABLED (FILAMENT_LOAD_UNLOAD_MENU)
+      void lcd_unload_extruder() { lcd_enqueue_filament_change(10); }
+      void lcd_load_extruder() { lcd_enqueue_filament_change(20); }
+      void lcd_extrude_extruder() { lcd_enqueue_filament_change(30); }
+      #if EXTRUDERS > 1
+	 void lcd_toolchange_extruder_e0() { lcd_enqueue_filament_change(40); }
+	 void lcd_toolchange_extruder_e1() { lcd_enqueue_filament_change(41); }
+	 void lcd_toolchange_extruder_e2() { lcd_enqueue_filament_change(42); }
+	 void lcd_toolchange_extruder_e3() { lcd_enqueue_filament_change(43); }
+	 void lcd_toolchange_extruder_e4() { lcd_enqueue_filament_change(44); }
+      #endif
+    #endif
 			
     #if EXTRUDERS > 1
       void lcd_enqueue_filament_change_e0() { lcd_enqueue_filament_change(0); }
