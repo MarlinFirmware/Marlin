@@ -311,7 +311,7 @@
   #elif ENABLED(EZOUT_ENABLE)
     #define CUSTOM_MACHINE_NAME "TH3D EZOut"
   #else
-    #define CUSTOM_MACHINE_NAME "TH3D 118.U1"
+    #define CUSTOM_MACHINE_NAME "TH3D U1.B1"
   #endif
 #endif
 

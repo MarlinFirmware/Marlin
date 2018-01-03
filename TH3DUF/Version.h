@@ -35,7 +35,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "118.U1 TH3D"
+  #define SHORT_BUILD_VERSION "U1.B1"
 
   /**
    * Verbose version identifier which should contain a reference to the location
