@@ -27,7 +27,7 @@
 
 // Pin list updated from 25 JUL 2017 Re-ARM branch   - max length of pin name is 24
 
-#line 0 // set __LINE__ to a known value for both passes
+#line 31 // set __LINE__ to a known value for both passes
 
 #if defined(EXT_AUX_A0) &&  EXT_AUX_A0 >= 0 &&  EXT_AUX_A0 < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(EXT_AUX_A0, __LINE__ )
@@ -50,11 +50,13 @@
 #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) &&  MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(MAIN_VOLTAGE_MEASURE_PIN, __LINE__ )
 #endif
-#if defined(TC1) &&  TC1 >= 0 &&  TC1 < NUM_ANALOG_INPUTS
-  REPORT_NAME_ANALOG(TC1, __LINE__ )
-#endif
-#if defined(TC2) &&  TC2 >= 0 &&  TC2 < NUM_ANALOG_INPUTS
-  REPORT_NAME_ANALOG(TC2, __LINE__ )
+#if !defined(ARDUINO_ARCH_SAM)  //TC1 & TC2 are macros in the SAM tool chain
+  #if defined(TC1) &&  TC1 >= 0 &&  TC1 < NUM_ANALOG_INPUTS
+    REPORT_NAME_ANALOG(TC1, __LINE__ )
+  #endif
+  #if defined(TC2) &&  TC2 >= 0 &&  TC2 < NUM_ANALOG_INPUTS
+    REPORT_NAME_ANALOG(TC2, __LINE__ )
+  #endif
 #endif
 #if PIN_EXISTS(TEMP_0) &&  TEMP_0_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(TEMP_0_PIN, __LINE__ )

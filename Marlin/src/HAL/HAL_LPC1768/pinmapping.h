@@ -248,8 +248,12 @@ constexpr pin_t adc_pin_table[] = {
   #endif
 };
 
-constexpr int16_t NUM_ANALOG_INPUTS = COUNT(adc_pin_table);
-
+#if SERIAL_PORT != 0
+  #define NUM_ANALOG_INPUTS 8
+#else
+  #define NUM_ANALOG_INPUTS 6
+#endif
+  
 // P0.6 thru P0.9 are for the onboard SD card
 // P0.29 and P0.30 are for the USB port
 #define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09, P0_29, P0_30
