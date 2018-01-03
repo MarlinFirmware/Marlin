@@ -265,6 +265,48 @@
   #define Z_MAX_POS 400
 #endif //end tornado
 
+//TAZ5 Model Settings
+#if ENABLED(TAZ5)
+  #define BAUDRATE 250000
+  #define V6_HOTEND
+
+  #define X_MIN_ENDSTOP_INVERTING true
+  #define Y_MIN_ENDSTOP_INVERTING true
+  #define Z_MIN_ENDSTOP_INVERTING true
+  #define X_MAX_ENDSTOP_INVERTING false
+  #define Y_MAX_ENDSTOP_INVERTING false
+  #define Z_MAX_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true
+
+  #define DEFAULT_AXIS_STEPS_PER_UNIT {100.5,100.5,1600,830}
+
+  #define DEFAULT_MAX_FEEDRATE {300, 300, 3, 25}
+
+  #define DEFAULT_MAX_ACCELERATION {9000,9000,100,10000}
+
+  #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
+  #define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves  
+  
+  #define DEFAULT_XJERK                  8.0
+  #define DEFAULT_YJERK                  8.0
+  #define DEFAULT_ZJERK                  0.4
+  #define DEFAULT_EJERK                  5.0
+  
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR true
+  #define INVERT_Z_DIR false
+  #define INVERT_E0_DIR true
+  
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_RAMBO
+  #endif
+
+  #define X_BED_SIZE 295
+  #define Y_BED_SIZE 295
+  #define Z_MAX_POS 250
+#endif //end taz5
+
 #if ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5)
   #if ENABLED(CR10_VOLCANO)
     #define X_PROBE_OFFSET_FROM_EXTRUDER 30
@@ -299,6 +341,13 @@
   #if ENABLED(TORNADO_OEM)
     #define X_PROBE_OFFSET_FROM_EXTRUDER -37
     #define Y_PROBE_OFFSET_FROM_EXTRUDER -10
+  #endif
+#endif
+
+#if ENABLED(TAZ5)
+  #if ENABLED(TAZ5_OEM)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -52
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 15
   #endif
 #endif
 
@@ -574,7 +623,7 @@
   #define SPEAKER
 #endif
 
-#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(TORNADO)
+#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(TORNADO) || ENABLED(TAZ5)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 

@@ -63,11 +63,18 @@
 #define TEMP_SENSOR_AD595_OFFSET 0.0
 #define TEMP_SENSOR_AD595_GAIN   1.0
 
-//#define USE_CONTROLLER_FAN
-#if ENABLED(USE_CONTROLLER_FAN)
-  //#define CONTROLLER_FAN_PIN FAN1_PIN  // Set a custom pin for the controller fan
-  #define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED 255        // 255 == full speed
+#if ENABLED(TAZ5)
+  #define USE_CONTROLLER_FAN
+  #if ENABLED(USE_CONTROLLER_FAN)
+    #define CONTROLLER_FAN_PIN 2  // Set a custom pin for the controller fan
+    #define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
+    #define CONTROLLERFAN_SPEED 255        // 255 == full speed
+  #endif
+  #define FAN_KICKSTART_TIME 100
+  #define FAN_MIN_PWM 70
+  #define DIGIPOT_MOTOR_CURRENT { ((950 -750)/5+135), ((950 -750)/5+135), ((1275 -750)/5+135), ((750 -750)/5+135), ((750 -750)/5+135) }
+  #define DIGIPOT_I2C_NUM_CHANNELS 8
+  #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  
 #endif
 
 // When first starting the main fan, run it at full speed for the

@@ -110,6 +110,19 @@
 //#define TORNADO_BOOT
 
 //===========================================================================
+// Lulzbot TAZ5 Options
+//===========================================================================
+//#define TAZ5
+
+// EZABL Settings - Uncomment #define EZABL_ENABLE and uncomment your mount 
+// type you are using to enable EZABL Bed Leveing features
+//#define EZABL_ENABLE
+
+// Probe Mounts
+//#define TAZ5_OEM
+//#define CUSTOM_PROBE
+
+//===========================================================================
 // TH3D EXTRAS
 //===========================================================================
 
