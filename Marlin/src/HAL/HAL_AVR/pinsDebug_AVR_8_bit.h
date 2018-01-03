@@ -29,6 +29,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
+
 #if AVR_AT90USB1286_FAMILY
   // Working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
@@ -57,6 +59,7 @@
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
 #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
+#define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
 
 void PRINT_ARRAY_NAME(uint8_t x) {
   char *name_mem_pointer = (char*)pgm_read_ptr(&pin_array[x].name);

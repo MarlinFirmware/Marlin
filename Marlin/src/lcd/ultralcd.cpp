@@ -1748,9 +1748,15 @@ void kill_screen(const char* lcd_msg) {
      * If the queue is full, the command will fail, so we have to loop
      * with idle() to make sure the command has been enqueued.
      */
-    void lcd_enqueue_command_sram(char * const cmd) {
+    void lcd_enqueue_command(char * const cmd) {
       no_reentry = true;
-      while (enqueue_and_echo_command(cmd)) idle();
+      enqueue_and_echo_command_now(cmd);
+      no_reentry = false;
+    }
+
+    void lcd_enqueue_commands_P(const char * const cmd) {
+      no_reentry = true;
+      enqueue_and_echo_commands_P_now(cmd);
       no_reentry = false;
     }
 
@@ -2079,10 +2085,10 @@ void kill_screen(const char* lcd_msg) {
       enqueue_and_echo_commands_P(PSTR("G28"));
       #if HAS_TEMP_BED
         sprintf_P(UBL_LCD_GCODE, PSTR("M190 S%i"), custom_bed_temp);
-        lcd_enqueue_command_sram(UBL_LCD_GCODE);
+        lcd_enqueue_command(UBL_LCD_GCODE);
       #endif
       sprintf_P(UBL_LCD_GCODE, PSTR("M109 S%i"), custom_hotend_temp);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
       enqueue_and_echo_commands_P(PSTR("G29 P1"));
     }
 
@@ -2113,7 +2119,7 @@ void kill_screen(const char* lcd_msg) {
       const int ind = ubl_height_amount > 0 ? 9 : 10;
       strcpy_P(UBL_LCD_GCODE, PSTR("G29 P6 C -"));
       sprintf_P(&UBL_LCD_GCODE[ind], PSTR(".%i"), abs(ubl_height_amount));
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
     /**
@@ -2164,8 +2170,8 @@ void kill_screen(const char* lcd_msg) {
         #endif
       ;
       sprintf_P(UBL_LCD_GCODE, PSTR("G26 C B%i H%i P"), temp, custom_hotend_temp);
-      lcd_enqueue_command_sram("G28");
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_commands_P(PSTR("G28"));
+      lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
     /**
@@ -2198,7 +2204,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_grid_level_cmd() {
       char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 J%i"), side_points);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
     /**
@@ -2239,7 +2245,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_fillin_amount_cmd() {
       char UBL_LCD_GCODE[16];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i"), ubl_fillin_amount);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
     /**
@@ -2331,7 +2337,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_load_mesh_cmd() {
       char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 L%i"), ubl_storage_slot);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
       enqueue_and_echo_commands_P(PSTR("M117 " MSG_MESH_LOADED "."));
     }
 
@@ -2341,7 +2347,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_save_mesh_cmd() {
       char UBL_LCD_GCODE[10];
       sprintf_P(UBL_LCD_GCODE, PSTR("G29 S%i"), ubl_storage_slot);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
       enqueue_and_echo_commands_P(PSTR("M117 " MSG_MESH_SAVED "."));
     }
 
@@ -2392,7 +2398,7 @@ void kill_screen(const char* lcd_msg) {
       dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
       dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
       snprintf_P(UBL_LCD_GCODE, sizeof(UBL_LCD_GCODE), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
-      lcd_enqueue_command_sram(UBL_LCD_GCODE);
+      lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
     /**
@@ -3203,8 +3209,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(EEPROM_SETTINGS)
 
     static void lcd_init_eeprom() {
-      lcd_factory_settings();
-      settings.save();
+      lcd_completion_feedback(settings.init_eeprom());
       lcd_goto_previous_menu();
     }
 
@@ -3230,7 +3235,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     #if HAS_LCD_CONTRAST
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, (int16_t*) &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
@@ -3287,7 +3292,7 @@ void kill_screen(const char* lcd_msg) {
           autotune_temp[e]
         #endif
       );
-      lcd_enqueue_command_sram(cmd);
+      lcd_enqueue_command(cmd);
     }
 
   #endif // PID_AUTOTUNE_MENU

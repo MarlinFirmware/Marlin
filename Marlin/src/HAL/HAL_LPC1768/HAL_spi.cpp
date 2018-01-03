@@ -299,6 +299,13 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
   // Write from buffer to SPI
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
   }
+
+  /** Begin SPI transaction, set clock, bit order, data mode */
+  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
+    // TODO: to be implemented
+    
+  }    
+  
 #endif // ENABLED(LPC_SOFTWARE_SPI)
 
 #endif // TARGET_LPC1768

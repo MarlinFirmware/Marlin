@@ -30,7 +30,7 @@
 
 #include "../libs/nozzle.h"
 
-extern bool did_pause_print;
+extern uint8_t did_pause_print;
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0,
                  const int8_t max_beep_count=0, const bool show_lcd=false
