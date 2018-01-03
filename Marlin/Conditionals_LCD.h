@@ -374,7 +374,12 @@
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
    *
    */
-  #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
+  #if EXTRUDERS == 0         // No hotend, one thermistor, no XY offset
+    #define HOTENDS       0
+    #undef TEMP_SENSOR_1_AS_REDUNDANT
+    #undef HOTEND_OFFSET_X
+    #undef HOTEND_OFFSET_Y
+  #elif ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
     #define HOTENDS       1
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
