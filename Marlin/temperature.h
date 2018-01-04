@@ -41,7 +41,7 @@
 
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 
-#if HOTENDS == 1
+#if HOTENDS <= 1
   #define HOTEND_INDEX  0
   #define EXTRUDER_IDX  0
 #else
