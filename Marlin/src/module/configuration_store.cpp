@@ -1804,36 +1804,35 @@ void MarlinSettings::reset() {
       }
     #endif
 
-    #if ENABLED(MESH_BED_LEVELING)
+    /**
+     * Bed Leveling
+     */
+    #if HAS_LEVELING
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_valid() ? 1 : 0);
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
-      #endif
-      SERIAL_EOL();
-      for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
-        for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+      #if ENABLED(MESH_BED_LEVELING)
+
+        if (!forReplay) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
-          SERIAL_ECHOPAIR(" Y", (int)py + 1);
-          SERIAL_ECHOPGM(" Z");
-          SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
-          SERIAL_EOL();
+          SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         }
-      }
 
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        ubl.echo_name();
-        SERIAL_ECHOLNPGM(":");
-      }
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          ubl.echo_name();
+          SERIAL_ECHOLNPGM(":");
+        }
+
+      #elif HAS_ABL
+
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOLNPGM("Auto Bed Leveling:");
+        }
+
+      #endif
+
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -1841,29 +1840,32 @@ void MarlinSettings::reset() {
       #endif
       SERIAL_EOL();
 
-      if (!forReplay) {
-        SERIAL_EOL();
-        ubl.report_state();
+      #if ENABLED(MESH_BED_LEVELING)
 
-        SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
-        SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
-        SERIAL_ECHOLNPGM(" meshes.\n");
-      }
+        for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+          for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
+            SERIAL_ECHOPAIR(" Y", (int)py + 1);
+            SERIAL_ECHOPGM(" Z");
+            SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
+            SERIAL_EOL();
+          }
+        }
 
-    #elif HAS_ABL
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Auto Bed Leveling:");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
+        if (!forReplay) {
+          SERIAL_EOL();
+          ubl.report_state();
+          SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
+          SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
+          SERIAL_ECHOLNPGM(" meshes.\n");
+        }
+
       #endif
-      SERIAL_EOL();
 
-    #endif
+    #endif // HAS_LEVELING
 
     #if ENABLED(DELTA)
       if (!forReplay) {
@@ -2042,7 +2044,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 stepper driver current
      */
-    #if ENABLED(HAVE_TMC2130)
+    #if HAS_TRINAMIC
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Stepper driver current:");
@@ -2088,7 +2090,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 Sensorless homing thresholds
      */
-    #if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(SENSORLESS_HOMING)
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Sensorless homing threshold:");
