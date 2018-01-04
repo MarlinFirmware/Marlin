@@ -404,7 +404,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       }
 
       // Did the temperature overshoot very far?
-      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #define MAX_OVERSHOOT_PID_AUTOTUNE 40
       if (current > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         break;
