@@ -10297,7 +10297,7 @@ inline void gcode_M502() {
   inline void gcode_M701() {
     point_t park_point = NOZZLE_PARK_POINT;
 
-    if (get_target_extruder_from_command(200)) return;
+    if (get_target_extruder_from_command(701)) return;
 
     // Z axis lift
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
