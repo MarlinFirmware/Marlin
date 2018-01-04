@@ -31,11 +31,15 @@
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1  && DISABLED(SINGLENOZZLE_SPOOL_SWAP)
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
 public:
+  #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+  #endif
+  
   static bool autoretract_enabled,                 // M209 S - Autoretract switch
               retracted[EXTRUDERS];                // Which extruders are currently retracted
   static float retract_length,                     // M207 S - G10 Retract length
