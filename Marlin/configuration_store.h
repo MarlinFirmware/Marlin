@@ -94,6 +94,7 @@ class MarlinSettings {
       static bool _load();
       static void write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc);
       static void read_data(int &pos, uint8_t *value, uint16_t size, uint16_t *crc, const bool force=false);
+      static bool size_error(const uint16_t size);
     #endif
 };
 
