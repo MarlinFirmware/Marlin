@@ -55,7 +55,7 @@
 
 */
 
-#ifdef __SAM3X8E__
+#ifdef ARDUINO_ARCH_SAM
 
 #include <U8glib.h>
 #include <Arduino.h>
@@ -106,10 +106,10 @@ static void spiSend_sw_DUE(uint8_t val) { // 800KHz
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
     else
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
-    val = val << 1;
-    __delay_4cycles(2);
+    __delay_4cycles(1);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    __delay_4cycles(22);
+    __delay_4cycles(19); // 16 dead, 17 garbage, 18/0 900kHz, 19/1 825k, 20/1 800k, 21/2 725KHz
+    val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
 }
@@ -129,8 +129,8 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
        /* data */
       spiSend_sw_DUE(0x0fa);
 
-    for( i = 0; i < 4; i++ )   // give the controller some time to process the data
-      u8g_10MicroDelay();      // 2 is bad, 3 is OK, 4 is safe
+    for (i = 0; i < 4; i++)   // give the controller some time to process the data
+      u8g_10MicroDelay();     // 2 is bad, 3 is OK, 4 is safe
   }
 
   spiSend_sw_DUE(val & 0x0f0);
@@ -151,9 +151,13 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
       u8g_SetPILevel_DUE(u8g, U8G_PI_SCK, 0);
       u8g_SetPIOutput_DUE(u8g, U8G_PI_SCK);
       u8g_SetPILevel_DUE(u8g, U8G_PI_MOSI, 0);
-      u8g_SetPILevel_DUE(u8g, U8G_PI_MOSI, 1);
       u8g_SetPIOutput_DUE(u8g, U8G_PI_MOSI);
+      
+      SCK_pPio->PIO_CODR = SCK_dwMask;   //SCK low - needed at power up but not after reset
+      MOSI_pPio->PIO_CODR = MOSI_dwMask; //MOSI low - needed at power up but not after reset
+      
       u8g_Delay(5);
+
       u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
       break;
 
@@ -198,7 +202,5 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   }
   return 1;
 }
-
-#pragma GCC reset_options
 
 #endif  //ARDUINO_ARCH_SAM
