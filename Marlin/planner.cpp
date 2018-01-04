@@ -158,7 +158,9 @@ uint32_t Planner::cutoff_long;
 float Planner::previous_speed[NUM_AXIS],
       Planner::previous_nominal_speed;
 
-#if ENABLED(DISABLE_INACTIVE_EXTRUDER) && EXTRUDER > 0
+#if  && EXTRUDER > 0
+  uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS];
+#elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
   uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
 #endif
 
