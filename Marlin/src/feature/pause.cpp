@@ -36,7 +36,10 @@
 #include "../module/stepper.h"
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
-#include "../feature/fwretract.h"
+
+#if ENABLED(FWRETRACT)
+  #include "../feature/fwretract.h"
+#endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "../feature/runout.h"
