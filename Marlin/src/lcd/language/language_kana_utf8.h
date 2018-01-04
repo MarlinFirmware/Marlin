@@ -204,10 +204,7 @@
 #define MSG_INFO_PSU                        _UxGT("デンゲンシュベツ")                // "Power Supply"
 #define MSG_DRIVE_STRENGTH                  _UxGT("モータークドウリョク")              // "Drive Strength"
 #define MSG_DAC_PERCENT                     _UxGT("DACシュツリョク %")               // "Driver %"
-#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EPROM                     // "DAC EEPROM Write"
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("サラニオシダス")                 // "Extrude more"
+#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EEPROM                    // "DAC EEPROM Write"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("コウカンヲカイシシマス")            // "Wait for start"
 #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("シバラクオマチクダサイ")            // "of the filament"
@@ -217,8 +214,6 @@
 #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("クリックスルトゾッコウシマス")         // "and press button"
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("フィラメントソウテンチュウ")          // "Wait for"
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("シバラクオマチクダサイ")            // "filament load"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("フィラメントオシダシチュウ")          // "Wait for"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("シバラクオマチクダサイ")            // "filament extrude"
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("プリントヲサイカイシマス")           // "Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("シバラクオマチクダサイ")            // "to resume"
 
