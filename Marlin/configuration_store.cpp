@@ -589,79 +589,71 @@ void MarlinSettings::postprocess() {
 
     #endif
 
+    //
     // Save TMC2130 or TMC2208 Configuration, and placeholder values
-    uint16_t val;
-    #if HAS_TRINAMIC
-      #if X_IS_TRINAMIC
-        val = stepperX.getCurrent();
+    //
+    uint16_t currents[11] = {
+      #if HAS_TRINAMIC
+        #if X_IS_TRINAMIC
+          stepperX.getCurrent(),
+        #else
+          0,
+        #endif
+        #if Y_IS_TRINAMIC
+          stepperY.getCurrent(),
+        #else
+          0,
+        #endif
+        #if Z_IS_TRINAMIC
+          stepperZ.getCurrent(),
+        #else
+          0,
+        #endif
+        #if X2_IS_TRINAMIC
+          stepperX2.getCurrent(),
+        #else
+          0,
+        #endif
+        #if Y2_IS_TRINAMIC
+          stepperY2.getCurrent(),
+        #else
+          0,
+        #endif
+        #if Z2_IS_TRINAMIC
+          stepperZ2.getCurrent(),
+        #else
+          0,
+        #endif
+        #if E0_IS_TRINAMIC
+          stepperE0.getCurrent(),
+        #else
+          0,
+        #endif
+        #if E1_IS_TRINAMIC
+          stepperE1.getCurrent(),
+        #else
+          0,
+        #endif
+        #if E2_IS_TRINAMIC
+          stepperE2.getCurrent(),
+        #else
+          0,
+        #endif
+        #if E3_IS_TRINAMIC
+          stepperE3.getCurrent(),
+        #else
+          0,
+        #endif
+        #if E4_IS_TRINAMIC
+          stepperE4.getCurrent()
+        #else
+          0
+        #endif
       #else
-        val = 0;
+        0
       #endif
-      EEPROM_WRITE(val);
-      #if Y_IS_TRINAMIC
-        val = stepperY.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if Z_IS_TRINAMIC
-        val = stepperZ.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if X2_IS_TRINAMIC
-        val = stepperX2.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if Y2_IS_TRINAMIC
-        val = stepperY2.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if Z2_IS_TRINAMIC
-        val = stepperZ2.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if E0_IS_TRINAMIC
-        val = stepperE0.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if E1_IS_TRINAMIC
-        val = stepperE1.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if E2_IS_TRINAMIC
-        val = stepperE2.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if E3_IS_TRINAMIC
-        val = stepperE3.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-      #if E4_IS_TRINAMIC
-        val = stepperE4.getCurrent();
-      #else
-        val = 0;
-      #endif
-      EEPROM_WRITE(val);
-    #else
-      val = 0;
-      for (uint8_t q = 11; q--;) EEPROM_WRITE(val);
-    #endif
+    };
+    EEPROM_WRITE(currents);
 
     //
     // TMC2130 Sensorless homing threshold
