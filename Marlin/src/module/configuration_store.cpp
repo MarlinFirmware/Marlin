@@ -2038,7 +2038,7 @@ void MarlinSettings::reset() {
       #else
         SERIAL_ECHO("  M852 S");
         SERIAL_ECHO_F(planner.xy_skew_factor, 6);
-        SERIAL_ECHO("\n");
+        SERIAL_EOL();
       #endif
     #endif
 
