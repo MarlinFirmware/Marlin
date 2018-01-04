@@ -30,6 +30,12 @@
 
 #include "../libs/nozzle.h"
 
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+  extern bool swap_spool_enabled;
+  extern int16_t swap_spool_stop;
+		extern int16_t fansp;
+#endif
+
 extern bool move_away_flag;
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0,
