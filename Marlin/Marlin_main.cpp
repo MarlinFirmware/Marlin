@@ -6783,13 +6783,25 @@ inline void gcode_M17() {
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
     #endif
 
-    // Set extruder to saved position
-    destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS];
-    planner.set_e_position_mm(current_position[E_AXIS]);
+    // Intelligent resuming
+    #if ENABLED(FWRETRACT)
+      // If retracted before goto pause
+      if (retracted[active_extruder])
+        do_pause_e_move(-retract_length, retract_feedrate_mm_s);
+    #else
+      // If resume_position negative
+      if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+    #endif
 
     // Move XY to starting position, then Z
     do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+
+    // Set Z_AXIS to saved position
     do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+
+    // Now all extrusion positions are resumed and ready to be confirmed
+    // Set extruder to saved position
+    planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]));
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
