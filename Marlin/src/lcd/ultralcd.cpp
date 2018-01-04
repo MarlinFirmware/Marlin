@@ -303,35 +303,39 @@ uint16_t max_display_update_time = 0;
       if (encoderLine == _thisItemNr && lcd_clicked) { \
         lcd_clicked = false
 
-  #define _MENU_ITEM_PART_2(TYPE, LABEL, ...) \
+  #define _MENU_ITEM_PART_2(TYPE, PLABEL, ...) \
         menu_action_ ## TYPE(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
+        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ## __VA_ARGS__); \
     } \
     ++_thisItemNr
 
-  #define MENU_ITEM(TYPE, LABEL, ...) do { \
+  #define MENU_ITEM_P(TYPE, PLABEL, ...) do { \
       _skipStatic = false; \
       _MENU_ITEM_PART_1(TYPE, ## __VA_ARGS__); \
-      _MENU_ITEM_PART_2(TYPE, LABEL, ## __VA_ARGS__); \
+      _MENU_ITEM_PART_2(TYPE, PLABEL, ## __VA_ARGS__); \
     }while(0)
+
+  #define MENU_ITEM(TYPE, LABEL, ...) MENU_ITEM_P(TYPE, PSTR(LABEL), ## __VA_ARGS__)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
 
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
-  #define STATIC_ITEM(LABEL, ...) \
+  #define STATIC_ITEM_P(LABEL, ...) \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
         ++encoderLine; \
       } \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
+        lcd_implementation_drawmenu_static(_lcdLineNr, LABEL, ## __VA_ARGS__); \
     } \
     ++_thisItemNr
+
+  #define STATIC_ITEM(LABEL, ...) STATIC_ITEM_P(PSTR(LABEL), ## __VA_ARGS__)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -343,11 +347,11 @@ uint16_t max_display_update_time = 0;
     /**
      * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
      */
-    #define MENU_MULTIPLIER_ITEM(type, label, ...) do { \
-        _MENU_ITEM_PART_1(type, ## __VA_ARGS__); \
+    #define MENU_MULTIPLIER_ITEM(TYPE, LABEL, ...) do { \
+        _MENU_ITEM_PART_1(TYPE, ## __VA_ARGS__); \
         encoderRateMultiplierEnabled = true; \
         lastEncoderMovementMillis = 0; \
-        _MENU_ITEM_PART_2(type, label, ## __VA_ARGS__); \
+        _MENU_ITEM_PART_2(TYPE, PSTR(LABEL), ## __VA_ARGS__); \
       }while(0)
 
   #else // !ENCODER_RATE_MULTIPLIER
@@ -355,14 +359,14 @@ uint16_t max_display_update_time = 0;
   #endif // !ENCODER_RATE_MULTIPLIER
 
   #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-  #define MENU_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
-  #define MENU_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
-    #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
-    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #else // !ENCODER_RATE_MULTIPLIER
-    #define MENU_MULTIPLIER_ITEM_EDIT(type, label, ...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## __VA_ARGS__)
-    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, ...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #endif // !ENCODER_RATE_MULTIPLIER
 
   /**
