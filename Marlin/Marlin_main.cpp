@@ -10078,7 +10078,9 @@ inline void gcode_M502() {
 
     if (!ijk) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(MSG_SKEW_FACTOR " XY: ", planner.xy_skew_factor);
+      SERIAL_ECHO(MSG_SKEW_FACTOR " XY: ");
+      SERIAL_ECHO_F(planner.xy_skew_factor, 6);
+      SERIAL_ECHO("\n");      
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHOPAIR(" XZ: ", planner.xz_skew_factor);
         SERIAL_ECHOLNPAIR(" YZ: ", planner.yz_skew_factor);
