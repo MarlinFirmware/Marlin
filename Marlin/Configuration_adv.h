@@ -906,6 +906,50 @@
   //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
 
+//===========================================================================
+//====================== SINGLENOZZLE Advanced Feature ======================
+//===========================================================================
+
+// Multiple sensors Filament Runout 
+// Utility for Spool Swapping - One sensor for each extruder read
+// To have Filament Runout still active when changing tool after runout 
+#define FILAMENT_RUNOUT_MULTI_PIN 
+#if ENABLED(FILAMENT_RUNOUT_MULTI_PIN) 
+  #define FIL_RUNOUT_SENSORS 2 //Numbers of sensors
+//#define FIL_RUNOUT_PIN -1    // On Extruder 0
+//#define FIL_RUNOUT2_PIN -1   // On Extruder 1
+  #define FIL_RUNOUT3_PIN -1   // On Extruder 2
+  #define FIL_RUNOUT4_PIN -1   // On Extruder 3
+  #define FIL_RUNOUT5_PIN -1   // On Extruder 4
+#endif	
+
+/**
+ * Spool_Swap 
+ *  Finish or Swap a spool and begin another by swapping to next extruder automaticly 
+ *  M600 : S[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
+ *    Go to NOZZLE_PARK and swap extruders
+ *    Copy Flow + Fwretract
+ *    Normal M600 run after max swap reached
+ * 
+ * LCD display required for manual menus.
+ *   (Swapping on/off /Number of swapping / Run swapping )
+ * 
+ * Requires FILAMENT_RUNOUT_MULTI_PIN + NOZZLE_PARK_FEATURE + ADVANCED_PAUSE_FEATURE.
+ * Requires 2 or more extruders.
+ * Requires Single nozzle system for many reasons (quality of no offset/only one heater/nozzle and more ...)
+ *
+ */
+#define SINGLENOZZLE_SPOOL_SWAP
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+  // All feedrate are in ADVANCED_PAUSE_FEATURE
+  #define SPOOL_SWAP_LOAD_LENGTH     RETRACT_LENGTH_SWAP // Must not be ejected 
+  #define SPOOL_SWAP_EXTRUDE_LENGTH  20                  // Just a little extrusion because 'same color'
+  #define SPOOL_SWAP_FANSPEED        120                 //Blowing to cold the purged filament in the park
+  #define SPOOL_SWAP_FAN             0
+  #define SPOOL_SWAP_DWELL     4*1000   
+#endif
+
+// End SINGLENOZZLE Advanced Feature
 // @section tmc
 
 /**
