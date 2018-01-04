@@ -2211,26 +2211,26 @@ void MarlinSettings::reset() {
       }
       CONFIG_ECHO_START;
       #if EXTRUDERS == 1
-        SERIAL_ECHOPAIR("  M603 U", LINEAR_UNIT(filament_change_unload_length[0]));
-        SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOPAIR("  M603 L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[0]));
       #else
-        SERIAL_ECHOPAIR("  M603 T0 U", LINEAR_UNIT(filament_change_unload_length[0]));
-        SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOPAIR("  M603 T0 L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[0]));
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M603 T1 U", LINEAR_UNIT(filament_change_unload_length[1]));
-        SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[1]));
+        SERIAL_ECHOPAIR("  M603 T1 L", LINEAR_UNIT(filament_change_load_length[1]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[1]));
         #if EXTRUDERS > 2
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M603 T2 U", LINEAR_UNIT(filament_change_unload_length[2]));
-          SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[2]));
+          SERIAL_ECHOPAIR("  M603 T2 L", LINEAR_UNIT(filament_change_load_length[2]));
+          SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[2]));
           #if EXTRUDERS > 3
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M603 T3 U", LINEAR_UNIT(filament_change_unload_length[3]));
-            SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[3]));
+            SERIAL_ECHOPAIR("  M603 T3 L", LINEAR_UNIT(filament_change_load_length[3]));
+            SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[3]));
             #if EXTRUDERS > 4
               CONFIG_ECHO_START;
-              SERIAL_ECHOPAIR("  M603 T4 U", LINEAR_UNIT(filament_change_unload_length[4]));
-              SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(filament_change_load_length[4]));
+              SERIAL_ECHOPAIR("  M603 T4 L", LINEAR_UNIT(filament_change_load_length[4]));
+              SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[4]));
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
         #endif // EXTRUDERS > 2
