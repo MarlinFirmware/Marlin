@@ -240,8 +240,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
     #endif
 
     #if WATCH_THE_BED || WATCH_HOTENDS
-      const int8_t watch_temp_period = TV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD),
-                   watch_temp_increase = TV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
+      const uint16_t watch_temp_period = TV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
+      const uint8_t watch_temp_increase = TV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
       const float watch_temp_target = target - float(watch_temp_increase + TV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
       millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
       float next_watch_temp = 0.0;
