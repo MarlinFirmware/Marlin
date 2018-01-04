@@ -53,7 +53,7 @@
 /**
  * Minimal Z height (in mm) before homing (G28) for Z clearance above the bed, clamps, ...
  */
-#define Z_HOMING_HEIGHT 4
+#define Z_HOMING_HEIGHT 5
 
 /**
  * Primary Extruder steps per mm (plugged in to E0 port on controller)
