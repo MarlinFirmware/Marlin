@@ -179,6 +179,16 @@ void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
+void sync_plan_position();
+void sync_plan_position_e();
+
+#if IS_KINEMATIC
+  void sync_plan_position_kinematic();
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
+#else
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
+#endif
+
 void FlushSerialRequestResend();
 void ok_to_send();
 
@@ -447,18 +457,6 @@ void report_current_position();
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
-#endif
-
-#if ENABLED(FWRETRACT)
-  extern bool autoretract_enabled;                 // M209 S - Autoretract switch
-  extern float retract_length,                     // M207 S - G10 Retract length
-               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-               retract_zlift,                      // M207 Z - G10 Retract hop size
-               retract_recover_length,             // M208 S - G11 Recover length
-               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-               swap_retract_length,                // M207 W - G10 Swap Retract length
-               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
 #endif
 
 // Print job timer

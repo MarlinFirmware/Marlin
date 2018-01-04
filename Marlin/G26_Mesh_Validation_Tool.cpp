@@ -136,7 +136,6 @@
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
   #endif
-  inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
   // Private functions
 
