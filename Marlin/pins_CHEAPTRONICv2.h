@@ -74,7 +74,7 @@
 #define TEMP_0_PIN         15
 #define TEMP_1_PIN         13
 #define TEMP_2_PIN         14
-#define TEMP_3_PIN         11   // oshould be used for chamber temperature control
+#define TEMP_3_PIN         11   // should be used for chamber temperature control
 #define TEMP_BED_PIN       12
 
 //
