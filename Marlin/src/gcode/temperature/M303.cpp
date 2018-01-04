@@ -26,7 +26,7 @@
 /**
  * M303: PID relay autotune
  *
- *       S<temperature> sets the target temperature. (default 150C)
+ *       S<temperature> sets the target temperature. (default 150C / 70C)
  *       E<extruder> (-1 for the bed) (default 0)
  *       C<cycles>
  *       U<bool> with a non-zero value will apply the result to current settings

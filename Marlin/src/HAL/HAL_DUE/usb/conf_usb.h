@@ -72,7 +72,11 @@
 
 //! USB Device string definitions (Optional)
 #define  USB_DEVICE_MANUFACTURE_NAME      "marlinfw.org"
-#define  USB_DEVICE_PRODUCT_NAME          CUSTOM_MACHINE_NAME
+#ifdef CUSTOM_MACHINE_NAME
+  #define  USB_DEVICE_PRODUCT_NAME        CUSTOM_MACHINE_NAME
+#else
+  #define  USB_DEVICE_PRODUCT_NAME        "3D Printer"
+#endif
 #define  USB_DEVICE_SERIAL_NAME           "123985739853"
 
 /**

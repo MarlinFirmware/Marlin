@@ -72,8 +72,8 @@
 #define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL ? 1 : 0)
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
 #define IS_ANALOG(P) (((P) >= analogInputToDigitalPin(0)) && ((P) <= analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
-#define pwm_status(pin) ((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM) && \
-                        ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM)
+#define pwm_status(pin) (((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM) && \
+                        ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM))
 #define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
 
 bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
