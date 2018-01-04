@@ -332,7 +332,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   void MarlinSettings::write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
-    if (eeprom_error) return;
+    if (eeprom_error) { pos += size; return; }
     while (size--) {
       uint8_t * const p = (uint8_t * const)pos;
       uint8_t v = *value;
@@ -354,7 +354,7 @@ void MarlinSettings::postprocess() {
   }
 
   void MarlinSettings::read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool force/*=false*/) {
-    if (eeprom_error) return;
+    if (eeprom_error) { pos += size; return; }
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
       if (!validating || force) *value = c;
@@ -362,6 +362,15 @@ void MarlinSettings::postprocess() {
       pos++;
       value++;
     } while (--size);
+  }
+
+  bool MarlinSettings::size_error(const uint16_t size) {
+    if (size != datasize()) {
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM("EEPROM datasize error.");
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -780,7 +789,7 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Validate CRC
+    // Validate CRC and Data Size
     //
     if (!eeprom_error) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
@@ -799,6 +808,8 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
         SERIAL_ECHOLNPGM(")");
       #endif
+
+      eeprom_error |= size_error(eeprom_size);
     }
 
     //
@@ -1289,19 +1300,13 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
       #endif
 
-      if (working_crc == stored_crc) {
-        if (!validating) {
-          postprocess();
-          #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHO_START();
-            SERIAL_ECHO(version);
-            SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
-            SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-            SERIAL_ECHOLNPGM(")");
-          #endif
-        }
+      eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
+      if (eeprom_error) {
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)));
+        SERIAL_ECHOLNPAIR(" Size: ", datasize());
       }
-      else {
+      else if (working_crc != stored_crc) {
         eeprom_error = true;
         #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ERROR_START();
@@ -1311,7 +1316,19 @@ void MarlinSettings::postprocess() {
           SERIAL_ERROR(working_crc);
           SERIAL_ERRORLNPGM(" (calculated)!");
         #endif
-        if (!validating) reset();
+      }
+      else if (!validating) {
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_ECHO_START();
+          SERIAL_ECHO(version);
+          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
+          SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
+          SERIAL_ECHOLNPGM(")");
+        #endif
+      }
+
+      if (!validating) {
+        if (eeprom_error) reset(); else postprocess();
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
