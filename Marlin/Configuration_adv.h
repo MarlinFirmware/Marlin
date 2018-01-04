@@ -923,7 +923,7 @@
 /**
  * Spool_Swap 
  *  Finish or Swap a spool and begin another by swapping to next extruder automaticly 
- *  M600 : T[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
+ *  M600 : S[int]: 0=disable : 1/2/3/4/5 Enable the max number of swapping
  *    Go to NOZZLE_PARK and swap extruders
  *    Copy Flow + Fwretract
  *    Normal M600 run after max swap reached
