@@ -3759,23 +3759,23 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
   #endif // !NO_VOLUMETRICS
-  /**
-	 *
-  	* "Spool swapping "  submenu
-	 	*
-	 	*/					
-		#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
-		 	void spool_swap_submenu() {
-		  	START_MENU();
-          MENU_BACK(MSG_MAIN);								  
-          MENU_ITEM_EDIT(bool,MSG_SWAP_SPOOL, &swap_spool_enabled);
-          #if FIL_RUNOUT_SENSORS > 2 // not usefull if only 2 extruders because only one possibility of swapping
-              MENU_ITEM_EDIT(int3,MSG_SWAP_SPOOL_STOP, &swap_spool_stop,active_extruder,FIL_RUNOUT_SENSORS-1);
-          #endif						
-          MENU_ITEM(gcode, "-> " MSG_SWAP_SPOOL, PSTR("M600"));
-          END_MENU();
-				}
-		#endif
+/**
+*
+* "Spool swapping "  submenu
+*
+*/					
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+void spool_swap_submenu() {
+START_MENU();
+MENU_BACK(MSG_MAIN);								  
+MENU_ITEM_EDIT(bool,MSG_SWAP_SPOOL, &swap_spool_enabled);
+#if FIL_RUNOUT_SENSORS > 2 // not usefull if only 2 extruders because only one possibility of swapping
+MENU_ITEM_EDIT(int3,MSG_SWAP_SPOOL_STOP, &swap_spool_stop,active_extruder,FIL_RUNOUT_SENSORS-1);
+#endif						
+MENU_ITEM(gcode, "-> " MSG_SWAP_SPOOL, PSTR("M600"));
+END_MENU();
+}
+#endif
 
 /**
 *
