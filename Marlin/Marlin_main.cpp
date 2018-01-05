@@ -9936,7 +9936,7 @@ inline void gcode_M502() {
       SERIAL_ECHO_START();
       SERIAL_ECHO(MSG_SKEW_FACTOR " XY: ");
       SERIAL_ECHO_F(planner.xy_skew_factor, 6);
-      SERIAL_EOL();     
+      SERIAL_EOL();
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHOPAIR(" XZ: ", planner.xz_skew_factor);
         SERIAL_ECHOLNPAIR(" YZ: ", planner.yz_skew_factor);
