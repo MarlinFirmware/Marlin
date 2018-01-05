@@ -560,6 +560,13 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       }
 
+    #else
+
+      const bool volumetric_enabled = false;
+      dummy = DEFAULT_NOMINAL_FILAMENT_DIA;
+      EEPROM_WRITE(volumetric_enabled);
+      for (uint8_t q = MAX_EXTRUDERS; q--;) EEPROM_WRITE(dummy);
+
     #endif
 
     //
@@ -1063,6 +1070,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(dummy);
           if (q < COUNT(planner.filament_size)) planner.filament_size[q] = dummy;
         }
+
+      #else
+
+        EEPROM_READ(dummyb);
+        for (uint8_t q=MAX_EXTRUDERS; q--;) EEPROM_READ(dummy);
 
       #endif
 
