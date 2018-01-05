@@ -143,7 +143,7 @@ extern "C" {
  * USB_DEVICE_ATTACH_AUTO_DISABLE:
  * \code #define USB_DEVICE_ATTACH_AUTO_DISABLE \endcode
  * User C file contains:
- * \code  
+ * \code
 	// Authorize VBUS monitoring
 	if (!udc_include_vbus_monitoring()) {
 	  // Implement custom VBUS monitoring via GPIO or other
@@ -159,7 +159,7 @@ extern "C" {
  * USB_DEVICE_ATTACH_AUTO_DISABLE:
  * \code #define USB_DEVICE_ATTACH_AUTO_DISABLE \endcode
  * User C file contains:
- * \code  
+ * \code
 	Event VBUS present() // VBUS interrupt or GPIO interrupt or ..
 	{
 	  // Authorize battery charging, but wait key press to start USB.
@@ -446,7 +446,7 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc(void);
 	#  define CONF_CLOCK_DFLL_LOOP_MODE               SYSTEM_CLOCK_DFLL_LOOP_MODE_USB_RECOVERY
 	#  define CONF_CLOCK_DFLL_ON_DEMAND               true
 
-	// Set this to true to configure the GCLK when running clocks_init. 
+	// Set this to true to configure the GCLK when running clocks_init.
 	// If set to false, none of the GCLK generators will be configured in clocks_init().
 	#  define CONF_CLOCK_CONFIGURE_GCLK               true
 

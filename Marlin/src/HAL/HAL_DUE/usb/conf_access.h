@@ -59,14 +59,14 @@
 #else
   #define LUN_0              DISABLE
 #endif
-#define LUN_1                DISABLE   
-#define LUN_2                DISABLE   
-#define LUN_3                DISABLE   
+#define LUN_1                DISABLE
+#define LUN_2                DISABLE
+#define LUN_3                DISABLE
 #define LUN_4                DISABLE
 #define LUN_5                DISABLE
 #define LUN_6                DISABLE
 #define LUN_7                DISABLE
-#define LUN_USB              DISABLE   
+#define LUN_USB              DISABLE
 //! @}
 
 /*! \name LUN 0 Definitions
@@ -93,10 +93,10 @@
  * \warning Be careful not to waste time in order not to disturb the functions.
  */
 //! @{
-#define memory_start_read_action(nb_sectors)    
-#define memory_stop_read_action()               
-#define memory_start_write_action(nb_sectors)   
-#define memory_stop_write_action()              
+#define memory_start_read_action(nb_sectors)
+#define memory_stop_read_action()
+#define memory_start_write_action(nb_sectors)
+#define memory_stop_write_action()
 //! @}
 
 /*! \name Activation of Interface Features

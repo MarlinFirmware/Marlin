@@ -43,8 +43,8 @@
 /*
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
- 
-#ifdef ARDUINO_ARCH_SAM 
+
+#ifdef ARDUINO_ARCH_SAM
 
 #include "conf_usb.h"
 #include "usb_protocol.h"

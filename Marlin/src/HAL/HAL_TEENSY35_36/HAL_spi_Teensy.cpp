@@ -105,8 +105,7 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
   spiConfig = SPISettings(spiClock, bitOrder, dataMode);
 
-  SPI.beginTransaction(spiConfig);    
-}    
+  SPI.beginTransaction(spiConfig);
+}
 
-
-#endif
+#endif // __MK64FX512__ || __MK66FX1M0__

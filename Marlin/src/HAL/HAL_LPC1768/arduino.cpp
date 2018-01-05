@@ -136,7 +136,7 @@ void analogWrite(pin_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255
     digitalWrite(pin, value);
   }
   else {
-    if (LPC1768_PWM_attach_pin(pin, 1, LPC_PWM1->MR0,  0xff))   
+    if (LPC1768_PWM_attach_pin(pin, 1, LPC_PWM1->MR0, 0xFF))
       LPC1768_PWM_write(pin, map(value, 0, 255, 1, LPC_PWM1->MR0));  // map 1-254 onto PWM range
     else {                                                                 // out of PWM channels
       if (!out_of_PWM_slots) MYSERIAL.printf(".\nWARNING - OUT OF PWM CHANNELS\n.\n");  //only warn once

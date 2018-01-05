@@ -66,7 +66,7 @@ typedef uint32_t hal_timer_t;
 #define HAL_STEP_TIMER_ISR  extern "C" void TIMER0_IRQHandler(void)
 #define HAL_TEMP_TIMER_ISR  extern "C" void TIMER1_IRQHandler(void)
 
-// PWM timer 
+// PWM timer
 #define HAL_PWM_TIMER      LPC_TIM3
 #define HAL_PWM_TIMER_ISR  extern "C" void TIMER3_IRQHandler(void)
 #define HAL_PWM_TIMER_IRQn TIMER3_IRQn
