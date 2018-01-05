@@ -11865,18 +11865,10 @@ void process_parsed_command() {
       #endif
 
       #if HOTENDS > 0
-        case 104: // M104: Set hot end temperature
-          gcode_M104();
-          break;
+        case 104: gcode_M104(); break;                              // M104: Set Hotend Temperature
       #endif
-
-      case 110: // M110: Set Current Line Number
-        gcode_M110();
-        break;
-
-      case 111: // M111: Set debug level
-        gcode_M111();
-        break;
+      case 110: gcode_M110(); break;                              // M110: Set Current Line Number
+      case 111: gcode_M111(); break;                              // M111: Set Debug Flags
 
       #if DISABLED(EMERGENCY_PARSER)
 
@@ -11916,9 +11908,7 @@ void process_parsed_command() {
       #endif
 
       #if HOTENDS > 0
-        case 109: // M109: Wait for hotend temperature to reach target
-          gcode_M109();
-          break;
+        case 109: gcode_M109(); break;                              // M109: Set Hotend Temperature. Wait for target.
       #endif
 
       #if HAS_TEMP_BED
