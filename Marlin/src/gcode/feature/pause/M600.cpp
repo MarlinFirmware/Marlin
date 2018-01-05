@@ -38,23 +38,23 @@
   #include "../../../feature/fwretract.h"
   #include "../../../module/temperature.h" 
   #include "../../../module/planner.h"
-		#include "../../../module/stepper.h"   
-  
-  bool swap_spool_enabled = 0;
-  int16_t swap_spool_stop = 1;
-		int16_t fansp=fanSpeeds[SPOOL_SWAP_FAN];
+#include "../../../module/stepper.h"   
 
-		// Extrude function
-		void swap_spool_e_move(const float &length, const float fr) {
-				current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-				set_destination_from_current();
-				#if IS_KINEMATIC
-						planner.buffer_line_kinematic(destination, fr, active_extruder);
-				#else
-						buffer_line_to_destination(fr);
-				#endif
-				stepper.synchronize();
-		}
+bool swap_spool_enabled = 0;
+int16_t swap_spool_stop = 1;
+int16_t fansp=fanSpeeds[SPOOL_SWAP_FAN];
+
+// Extrude function
+void swap_spool_e_move(const float &length, const float fr) {
+current_position[E_AXIS] += length / planner.e_factor[active_extruder];
+set_destination_from_current();
+#if IS_KINEMATIC
+planner.buffer_line_kinematic(destination, fr, active_extruder);
+#else
+buffer_line_to_destination(fr);
+#endif
+stepper.synchronize();
+}
 #endif
 
 /**
@@ -73,119 +73,119 @@
  *
  */
 void GcodeSuite::M600() {
-  #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
-    const int swap_spool_tmp = parser.intval('S',(FIL_RUNOUT_SENSORS));  
-    // Swap Spool managing 
-    // Applying number or next extruders
-    // M600 S0/S1/2/3/4 Enable/Disable     
-    if (swap_spool_tmp<FIL_RUNOUT_SENSORS) {
-      if (swap_spool_tmp>0) {
-        // Activate or deactivate if next extruder available
-        swap_spool_enabled = true ;
-        //Apply max number of swapping 
-        swap_spool_stop = swap_spool_tmp;
-      }
-      // Deactivate in all case if no next extruders available
-      else {
-							swap_spool_enabled=false;
-							
-							#if FIL_RUNOUT_SENSORS <2 // not usefull if only 2 extruders because only one possibility of swapping
-       swap_spool_stop = 1;
-							#endif
-						}
-      return ;  
-    } 
-				
-				#if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // Don't allow filament change without homing first
-    if (axis_unhomed_error()) home_all_axes();
-				#endif
-				
-    // Next tool 	
-    if (swap_spool_enabled) {
-						// Init
-						stepper.synchronize();
-						const int swap_spool_tmp = parser.intval('S',(FIL_RUNOUT_SENSORS));             
-						float resume_position[XYZE];
-						int16_t fansp=fanSpeeds[SPOOL_SWAP_FAN];
-						int16_t swap_spool_stop=0;
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+const int swap_spool_tmp = parser.intval('S',(FIL_RUNOUT_SENSORS));  
+// Swap Spool managing 
+// Applying number or next extruders
+// M600 S0/S1/2/3/4 Enable/Disable     
+if (swap_spool_tmp<FIL_RUNOUT_SENSORS) {
+if (swap_spool_tmp>0) {
+// Activate or deactivate if next extruder available
+swap_spool_enabled = true ;
+//Apply max number of swapping 
+swap_spool_stop = swap_spool_tmp;
+}
+// Deactivate in all case if no next extruders available
+else {
+swap_spool_enabled=false;
 
-						// Save current position
-						COPY(resume_position, current_position);
+#if FIL_RUNOUT_SENSORS <2 // not usefull if only 2 extruders because only one possibility of swapping
+swap_spool_stop = 1;
+#endif
+}
+return ;  
+} 
 
-						// Same flow after tool change
-						planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
-										
-						// If negative position then Adjustment of the unload length
-						#if ENABLED(FWRETRACT)	
-								if (fwretract.retracted[active_extruder]) {																		
-										swap_spool_e_move( - fwretract.swap_retract_length 
-												+ fwretract.retracted[active_extruder] ? fwretract.retract_length : 0 
-												, fwretract.retract_feedrate_mm_s); 
-								}							
-						#else							
-								if (resume_position[E_AXIS]<0) 
-										swap_spool_e_move( - SPOOL_SWAP_LOAD_LENGTH - resume_position[E_AXIS], FILAMENT_CHANGE_UNLOAD_FEEDRATE);								
-								else swap_spool_e_move(-SPOOL_SWAP_LOAD_LENGTH, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
-						#endif						
-      						
-						// Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-						Nozzle::park(2, NOZZLE_PARK_POINT);						
-				
-						// Set the new active extruder
-						active_extruder++;
+#if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
+// Don't allow filament change without homing first
+if (axis_unhomed_error()) home_all_axes();
+#endif
 
-						// Load filament
-						swap_spool_e_move(SPOOL_SWAP_LOAD_LENGTH, FILAMENT_CHANGE_LOAD_FEEDRATE);
+// Next tool 	
+if (swap_spool_enabled) {
+// Init
+stepper.synchronize();
+const int swap_spool_tmp = parser.intval('S',(FIL_RUNOUT_SENSORS));             
+float resume_position[XYZE];
+int16_t fansp=fanSpeeds[SPOOL_SWAP_FAN];
+int16_t swap_spool_stop=0;
 
-						// Start blowing
-						#if (SPOOL_SWAP_FANSPEED >0 && SPOOL_SWAP_FAN < FAN_COUNT)
-								fansp=fanSpeeds[SPOOL_SWAP_FAN];
-								fanSpeeds[SPOOL_SWAP_FAN]=SPOOL_SWAP_FANSPEED ;
-						#endif
+// Save current position
+COPY(resume_position, current_position);
 
-						// Extrusion/purge
-						swap_spool_e_move(SPOOL_SWAP_EXTRUDE_LENGTH, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);  
-						// Extruder purged = initialisation = 0
-						planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;
+// Same flow after tool change
+planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
 
-						// Resume blowing after delay
-						#ifdef SPOOL_SWAP_DWELL
-								delay(SPOOL_SWAP_DWELL);
-						#endif
-						#if (SPOOL_SWAP_FANSPEED >0 && SPOOL_SWAP_FAN < FAN_COUNT)
-								fanSpeeds[SPOOL_SWAP_FAN]=fansp;
-						#endif
-											
-						// Intelligent resuming						
-						#if ENABLED(FWRETRACT)
-						// If retracted before goto pause
-						if (fwretract.retracted[active_extruder]) {																		
-										swap_spool_e_move( - fwretract.retract_length , fwretract.retract_feedrate_mm_s); 
-								}
-						#else    
-								// If resume_position negative
-								if (resume_position[E_AXIS]<0) swap_spool_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
-						#endif
-						
-						// Move XY to starting position, then Z
-						do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+// If negative position then Adjustment of the unload length
+#if ENABLED(FWRETRACT)	
+if (fwretract.retracted[active_extruder]) {																		
+swap_spool_e_move( - fwretract.swap_retract_length 
++ fwretract.retracted[active_extruder] ? fwretract.retract_length : 0 
+, fwretract.retract_feedrate_mm_s); 
+}							
+#else							
+if (resume_position[E_AXIS]<0) 
+swap_spool_e_move( - SPOOL_SWAP_LOAD_LENGTH - resume_position[E_AXIS], FILAMENT_CHANGE_UNLOAD_FEEDRATE);								
+else swap_spool_e_move(-SPOOL_SWAP_LOAD_LENGTH, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+#endif						
 
-						//Set Z_AXIS to saved position  
-						do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
-						
-						//Now all extrusion positions are resumed and ready to be confirmed
-						//Set extruder to saved position
-						planner.set_e_position_mm(destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]);
+// Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+Nozzle::park(2, NOZZLE_PARK_POINT);						
 
-						//Managing if swap next time
-						if (active_extruder >= (EXTRUDERS-1)) swap_spool_enabled = false ;
-						if (swap_spool_stop <= active_extruder) swap_spool_enabled = false ;
-						
-						return;
-				}     
-		#endif //end SPOOL_SWAP
-  
+// Set the new active extruder
+active_extruder++;
+
+// Load filament
+swap_spool_e_move(SPOOL_SWAP_LOAD_LENGTH, FILAMENT_CHANGE_LOAD_FEEDRATE);
+
+// Start blowing
+#if (SPOOL_SWAP_FANSPEED >0 && SPOOL_SWAP_FAN < FAN_COUNT)
+fansp=fanSpeeds[SPOOL_SWAP_FAN];
+fanSpeeds[SPOOL_SWAP_FAN]=SPOOL_SWAP_FANSPEED ;
+#endif
+
+// Extrusion/purge
+swap_spool_e_move(SPOOL_SWAP_EXTRUDE_LENGTH, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);  
+// Extruder purged = initialisation = 0
+planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;
+
+// Resume blowing after delay
+#ifdef SPOOL_SWAP_DWELL
+delay(SPOOL_SWAP_DWELL);
+#endif
+#if (SPOOL_SWAP_FANSPEED >0 && SPOOL_SWAP_FAN < FAN_COUNT)
+fanSpeeds[SPOOL_SWAP_FAN]=fansp;
+#endif
+
+// Intelligent resuming						
+#if ENABLED(FWRETRACT)
+// If retracted before goto pause
+if (fwretract.retracted[active_extruder]) {																		
+swap_spool_e_move( - fwretract.retract_length , fwretract.retract_feedrate_mm_s); 
+}
+#else    
+// If resume_position negative
+if (resume_position[E_AXIS]<0) swap_spool_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+#endif
+
+// Move XY to starting position, then Z
+do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+
+//Set Z_AXIS to saved position  
+do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+
+//Now all extrusion positions are resumed and ready to be confirmed
+//Set extruder to saved position
+planner.set_e_position_mm(destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]);
+
+//Managing if swap next time
+if (active_extruder >= (EXTRUDERS-1)) swap_spool_enabled = false ;
+if (swap_spool_stop <= active_extruder) swap_spool_enabled = false ;
+
+return;
+}     
+#endif //end SPOOL_SWAP
+
   point_t park_point = NOZZLE_PARK_POINT;
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
