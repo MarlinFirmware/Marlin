@@ -89,25 +89,25 @@ void HardwareSerial::begin(uint32_t baudrate) {
     PINSEL_ConfigPin(&PinCfg);
   }
 
-	/* Initialize UART Configuration parameter structure to default state:
-	 * Baudrate = 9600bps
-	 * 8 data bit
-	 * 1 Stop bit
-	 * None parity
-	 */
-	UART_ConfigStructInit(&UARTConfigStruct);
+  /* Initialize UART Configuration parameter structure to default state:
+   * Baudrate = 9600bps
+   * 8 data bit
+   * 1 Stop bit
+   * None parity
+   */
+  UART_ConfigStructInit(&UARTConfigStruct);
 
-	// Re-configure baudrate
-	UARTConfigStruct.Baud_rate = baudrate;
+  // Re-configure baudrate
+  UARTConfigStruct.Baud_rate = baudrate;
 
-	// Initialize eripheral with given to corresponding parameter
+  // Initialize eripheral with given to corresponding parameter
   UART_Init(UARTx, &UARTConfigStruct);
 
   // Enable and reset the TX and RX FIFOs
   UART_FIFOConfigStructInit(&FIFOConfig);
   UART_FIFOConfig(UARTx, &FIFOConfig);
 
-	// Enable UART Transmit
+  // Enable UART Transmit
   UART_TxCmd(UARTx, ENABLE);
 
   // Configure Interrupts
@@ -234,9 +234,9 @@ void HardwareSerial::IRQHandler() {
   uint8_t LSRValue, byte;
 
   IIRValue = UART_GetIntId(UARTx);
-  IIRValue &= UART_IIR_INTID_MASK;		/* check bit 1~3, interrupt identification */
+  IIRValue &= UART_IIR_INTID_MASK;    /* check bit 1~3, interrupt identification */
 
-  if ( IIRValue == UART_IIR_INTID_RLS )		/* Receive Line Status */
+  if ( IIRValue == UART_IIR_INTID_RLS )   /* Receive Line Status */
   {
     LSRValue = UART_GetLineStatus(UARTx);
 
@@ -246,13 +246,13 @@ void HardwareSerial::IRQHandler() {
       /* There are errors or break interrupt */
       /* Read LSR will clear the interrupt */
       Status = LSRValue;
-      byte = UART_ReceiveByte(UARTx);		/* Dummy read on RX to clear
+      byte = UART_ReceiveByte(UARTx);   /* Dummy read on RX to clear
                                            interrupt, then bail out */
       return;
     }
   }
 
-  if ( IIRValue == UART_IIR_INTID_RDA )	/* Receive Data Available */
+  if ( IIRValue == UART_IIR_INTID_RDA ) /* Receive Data Available */
   {
     /* Clear the FIFO */
     while ( UART_Receive(UARTx, &byte, 1, NONE_BLOCKING) ) {
@@ -265,10 +265,10 @@ void HardwareSerial::IRQHandler() {
         break;
     }
   }
-  else if ( IIRValue == UART_IIR_INTID_CTI )	/* Character timeout indicator */
+  else if ( IIRValue == UART_IIR_INTID_CTI )  /* Character timeout indicator */
   {
     /* Character Time-out indicator */
-    Status |= 0x100;		/* Bit 9 as the CTI error */
+    Status |= 0x100;    /* Bit 9 as the CTI error */
   }
 
   #if TX_BUFFER_SIZE > 0
@@ -302,12 +302,12 @@ extern "C" {
 #endif
 
 /*****************************************************************************
-** Function name:		UART0_IRQHandler
+** Function name:   UART0_IRQHandler
 **
-** Descriptions:		UART0 interrupt handler
+** Descriptions:    UART0 interrupt handler
 **
-** parameters:			None
-** Returned value:		None
+** parameters:      None
+** Returned value:  None
 **
 *****************************************************************************/
 void UART0_IRQHandler (void)
@@ -316,12 +316,12 @@ void UART0_IRQHandler (void)
 }
 
 /*****************************************************************************
-** Function name:		UART1_IRQHandler
+** Function name:   UART1_IRQHandler
 **
-** Descriptions:		UART1 interrupt handler
+** Descriptions:    UART1 interrupt handler
 **
-** parameters:			None
-** Returned value:		None
+** parameters:      None
+** Returned value:  None
 **
 *****************************************************************************/
 void UART1_IRQHandler (void)
@@ -330,12 +330,12 @@ void UART1_IRQHandler (void)
 }
 
 /*****************************************************************************
-** Function name:		UART2_IRQHandler
+** Function name:   UART2_IRQHandler
 **
-** Descriptions:		UART2 interrupt handler
+** Descriptions:    UART2 interrupt handler
 **
-** parameters:			None
-** Returned value:		None
+** parameters:      None
+** Returned value:  None
 **
 *****************************************************************************/
 void UART2_IRQHandler (void)
@@ -344,12 +344,12 @@ void UART2_IRQHandler (void)
 }
 
 /*****************************************************************************
-** Function name:		UART3_IRQHandler
+** Function name:   UART3_IRQHandler
 **
-** Descriptions:		UART3 interrupt handler
+** Descriptions:    UART3 interrupt handler
 **
-** parameters:			None
-** Returned value:		None
+** parameters:      None
+** Returned value:  None
 **
 *****************************************************************************/
 void UART3_IRQHandler (void)
