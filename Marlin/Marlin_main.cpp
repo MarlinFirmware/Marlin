@@ -277,6 +277,10 @@
   #include "planner_bezier.h"
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "fwretract.h"
+#endif
+
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -573,24 +577,6 @@ uint8_t target_extruder;
           baricuda_e_to_p_pressure = 0;
 #endif
 
-#if ENABLED(FWRETRACT)                      // Initialized by settings.load()...
-  bool autoretract_enabled,                 // M209 S - Autoretract switch
-       retracted[EXTRUDERS] = { false };    // Which extruders are currently retracted
-  float retract_length,                     // M207 S - G10 Retract length
-        retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-        retract_zlift,                      // M207 Z - G10 Retract hop size
-        retract_recover_length,             // M208 S - G11 Recover length
-        retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-        swap_retract_length,                // M207 W - G10 Swap Retract length
-        swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-        swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
-  #if EXTRUDERS > 1
-    bool retracted_swap[EXTRUDERS] = { false }; // Which extruders are swap-retracted
-  #else
-    constexpr bool retracted_swap[1] = { false };
-  #endif
-#endif // FWRETRACT
-
 #if HAS_POWER_SWITCH
   bool powersupply_on =
     #if ENABLED(PS_DEFAULT_OFF)
@@ -782,22 +768,15 @@ void sync_plan_position() {
   #endif
   planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
-inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
+void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
 #if IS_KINEMATIC
-
   inline void sync_plan_position_kinematic() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
     #endif
     planner.set_position_mm_kinematic(current_position);
   }
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
-
-#else
-
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
-
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -3099,129 +3078,6 @@ static void homeaxis(const AxisEnum axis) {
   #endif
 } // homeaxis()
 
-#if ENABLED(FWRETRACT)
-
-  /**
-   * Retract or recover according to firmware settings
-   *
-   * This function handles retract/recover moves for G10 and G11,
-   * plus auto-retract moves sent from G0/G1 when E-only moves are done.
-   *
-   * To simplify the logic, doubled retract/recover moves are ignored.
-   *
-   * Note: Z lift is done transparently to the planner. Aborting
-   *       a print between G10 and G11 may corrupt the Z position.
-   *
-   * Note: Auto-retract will apply the set Z hop in addition to any Z hop
-   *       included in the G-code. Use M207 Z0 to to prevent double hop.
-   */
-  void retract(const bool retracting
-    #if EXTRUDERS > 1
-      , bool swapping = false
-    #endif
-  ) {
-
-    static float hop_amount = 0.0;  // Total amount lifted, for use in recover
-
-    // Prevent two retracts or recovers in a row
-    if (retracted[active_extruder] == retracting) return;
-
-    // Prevent two swap-retract or recovers in a row
-    #if EXTRUDERS > 1
-      // Allow G10 S1 only after G10
-      if (swapping && retracted_swap[active_extruder] == retracting) return;
-      // G11 priority to recover the long retract if activated
-      if (!retracting) swapping = retracted_swap[active_extruder];
-    #else
-      const bool swapping = false;
-    #endif
-
-    /* // debugging
-      SERIAL_ECHOLNPAIR("retracting ", retracting);
-      SERIAL_ECHOLNPAIR("swapping ", swapping);
-      SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
-      for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-        SERIAL_ECHOPAIR("retracted[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted[i]);
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
-      }
-      SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
-      SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-    //*/
-
-    const bool has_zhop = retract_zlift > 0.01;     // Is there a hop set?
-    const float old_feedrate_mm_s = feedrate_mm_s;
-
-    // The current position will be the destination for E and Z moves
-    set_destination_from_current();
-    stepper.synchronize();  // Wait for buffered moves to complete
-
-    const float renormalize = 1.0 / planner.e_factor[active_extruder];
-
-    if (retracting) {
-      // Retract by moving from a faux E position back to the current E position
-      feedrate_mm_s = retract_feedrate_mm_s;
-      current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) * renormalize;
-      sync_plan_position_e();
-      prepare_move_to_destination();
-
-      // Is a Z hop set, and has the hop not yet been done?
-      if (has_zhop && !hop_amount) {
-        hop_amount += retract_zlift;                        // Carriage is raised for retraction hop
-        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
-        current_position[Z_AXIS] -= retract_zlift;          // Pretend current pos is lower. Next move raises Z.
-        SYNC_PLAN_POSITION_KINEMATIC();                     // Set the planner to the new position
-        prepare_move_to_destination();                      // Raise up to the old current pos
-        feedrate_mm_s = retract_feedrate_mm_s;              // Restore feedrate
-      }
-    }
-    else {
-      // If a hop was done and Z hasn't changed, undo the Z hop
-      if (hop_amount) {
-        current_position[Z_AXIS] += retract_zlift;          // Pretend current pos is lower. Next move raises Z.
-        SYNC_PLAN_POSITION_KINEMATIC();                     // Set the planner to the new position
-        feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
-        prepare_move_to_destination();                      // Raise up to the old current pos
-        hop_amount = 0.0;                                   // Clear hop
-      }
-
-      // A retract multiplier has been added here to get faster swap recovery
-      feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
-
-      const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
-      current_position[E_AXIS] -= move_e * renormalize;
-      sync_plan_position_e();
-      prepare_move_to_destination();                        // Recover E
-    }
-
-    feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
-
-    retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
-
-    // If swap retract/recover update the retracted_swap flag too
-    #if EXTRUDERS > 1
-      if (swapping) retracted_swap[active_extruder] = retracting;
-    #endif
-
-    /* // debugging
-      SERIAL_ECHOLNPAIR("retracting ", retracting);
-      SERIAL_ECHOLNPAIR("swapping ", swapping);
-      SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
-      for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-        SERIAL_ECHOPAIR("retracted[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted[i]);
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
-      }
-      SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
-      SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
-    //*/
-
-  }
-
-#endif // FWRETRACT
-
 #if ENABLED(MIXING_EXTRUDER)
 
   void normalize_mix() {
@@ -3355,14 +3211,14 @@ inline void gcode_G0_G1(
 
     #if ENABLED(FWRETRACT)
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
-        // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
-        if (autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
+        // When M209 Autoretract is enabled, convert E-only moves to firmware retract/prime moves
+        if (fwretract.autoretract_enabled && parser.seen('E') && !(parser.seen('X') || parser.seen('Y') || parser.seen('Z'))) {
           const float echange = destination[E_AXIS] - current_position[E_AXIS];
-          // Is this a retract or recover move?
-          if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && retracted[active_extruder] == (echange > 0.0)) {
-            current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/recover from calculations
+          // Is this a retract or prime move?
+          if (WITHIN(FABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
+            current_position[E_AXIS] = destination[E_AXIS]; // Hide a G1-based retract/prime from calculations
             sync_plan_position_e();                         // AND from the planner
-            return retract(echange < 0.0);                  // Firmware-based retract/recover (double-retract ignored)
+            return fwretract.retract(echange < 0.0);        // Firmware-based retract/prime (double-retract ignored)
           }
         }
       }
@@ -3558,9 +3414,9 @@ inline void gcode_G4() {
   inline void gcode_G10() {
     #if EXTRUDERS > 1
       const bool rs = parser.boolval('S');
-      retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
+      fwretract.retracted_swap[active_extruder] = rs; // Use 'S' for swap, default to false
     #endif
-    retract(true
+    fwretract.retract(true
       #if EXTRUDERS > 1
         , rs
       #endif
@@ -3570,7 +3426,7 @@ inline void gcode_G4() {
   /**
    * G11 - Recover filament according to settings of M208
    */
-  inline void gcode_G11() { retract(false); }
+  inline void gcode_G11() { fwretract.retract(false); }
 
 #endif // FWRETRACT
 
@@ -6786,8 +6642,8 @@ inline void gcode_M17() {
     // Intelligent resuming
     #if ENABLED(FWRETRACT)
       // If retracted before goto pause
-      if (retracted[active_extruder])
-        do_pause_e_move(-retract_length, retract_feedrate_mm_s);
+      if (fwretract.retracted[active_extruder])
+        do_pause_e_move(-retract_length, fwretract.retract_feedrate_mm_s);
     #else
       // If resume_position negative
       if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
@@ -9029,10 +8885,10 @@ inline void gcode_M205() {
    *   Z[units]     retract_zlift
    */
   inline void gcode_M207() {
-    if (parser.seen('S')) retract_length = parser.value_axis_units(E_AXIS);
-    if (parser.seen('F')) retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-    if (parser.seen('Z')) retract_zlift = parser.value_linear_units();
-    if (parser.seen('W')) swap_retract_length = parser.value_axis_units(E_AXIS);
+    if (parser.seen('S')) fwretract.retract_length = parser.value_axis_units(E_AXIS);
+    if (parser.seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+    if (parser.seen('Z')) fwretract.retract_zlift = parser.value_linear_units();
+    if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
   }
 
   /**
@@ -9044,10 +8900,10 @@ inline void gcode_M205() {
    *   R[units/min] swap_retract_recover_feedrate_mm_s
    */
   inline void gcode_M208() {
-    if (parser.seen('S')) retract_recover_length = parser.value_axis_units(E_AXIS);
-    if (parser.seen('F')) retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-    if (parser.seen('R')) swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-    if (parser.seen('W')) swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+    if (parser.seen('S')) fwretract.retract_recover_length = parser.value_axis_units(E_AXIS);
+    if (parser.seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+    if (parser.seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+    if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
   }
 
   /**
@@ -9058,8 +8914,8 @@ inline void gcode_M205() {
   inline void gcode_M209() {
     if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
       if (parser.seen('S')) {
-        autoretract_enabled = parser.value_bool();
-        for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+        fwretract.autoretract_enabled = parser.value_bool();
+        for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
       }
     }
   }
