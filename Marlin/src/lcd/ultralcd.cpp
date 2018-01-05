@@ -41,7 +41,7 @@
 
 #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
   #include "../feature/pause.h"
-	void spool_swap_submenu() ;	
+ void spool_swap_submenu() ;	
 #endif
 
 #if ENABLED(PRINTCOUNTER) && ENABLED(LCD_INFO_MENU)
@@ -3226,8 +3226,8 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
     #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
-			MENU_ITEM(submenu, MSG_SWAP_SPOOL, spool_swap_submenu); 
-		#endif
+      MENU_ITEM(submenu, MSG_SWAP_SPOOL, spool_swap_submenu); 
+    #endif
     #if DISABLED(NO_VOLUMETRICS)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
@@ -3777,33 +3777,33 @@ void kill_screen(const char* lcd_msg) {
 				}
 		#endif
 
-  /**
-   *
-   * "Control" > "Retract" submenu
-   *
-   */
-  #if ENABLED(FWRETRACT)
+/**
+*
+* "Control" > "Retract" submenu
+*
+*/
+#if ENABLED(FWRETRACT)
 
-    void lcd_control_retract_menu() {
-      START_MENU();
-      MENU_BACK(MSG_CONTROL);
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
-      MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &fwretract.retract_length, 0, 100);
-      #if EXTRUDERS > 1
-        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);
-      #endif
-      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.retract_feedrate_mm_s, 1, 999);
-      MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &fwretract.retract_zlift, 0, 999);
-      MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &fwretract.retract_recover_length, -100, 100);
-      #if EXTRUDERS > 1
-        MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.swap_retract_recover_length, -100, 100);
-      #endif
-      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.retract_recover_feedrate_mm_s, 1, 999);
-      #if EXTRUDERS > 1
-        MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.swap_retract_recover_feedrate_mm_s, 1, 999);
-      #endif
-      END_MENU();
-    }
+void lcd_control_retract_menu() {
+START_MENU();
+MENU_BACK(MSG_CONTROL);
+MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
+MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &fwretract.retract_length, 0, 100);
+#if EXTRUDERS > 1
+MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);
+#endif
+MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.retract_feedrate_mm_s, 1, 999);
+MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &fwretract.retract_zlift, 0, 999);
+MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &fwretract.retract_recover_length, -100, 100);
+#if EXTRUDERS > 1
+MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.swap_retract_recover_length, -100, 100);
+#endif
+MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.retract_recover_feedrate_mm_s, 1, 999);
+#if EXTRUDERS > 1
+MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.swap_retract_recover_feedrate_mm_s, 1, 999);
+#endif
+END_MENU();
+}
 
   #endif // FWRETRACT
 
