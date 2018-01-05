@@ -308,12 +308,6 @@
 
   void unified_bed_leveling::G29() {
 
-    if (!settings.calc_num_meshes()) {
-      SERIAL_PROTOCOLLNPGM("?Enable EEPROM and init with");
-      SERIAL_PROTOCOLLNPGM("M502, M500, M501 in that order.\n");
-      return;
-    }
-
     if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
 
     // Check for commands that require the printer to be homed
@@ -1273,8 +1267,8 @@
       SERIAL_EOL();
       safe_delay(50);
 
-      SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.get_start_of_meshes()));
-      SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.get_end_of_meshes()));
+      SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
+      SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
       safe_delay(50);
 
       SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
@@ -1283,7 +1277,7 @@
       SERIAL_EOL();
       safe_delay(25);
 
-      SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.get_end_of_meshes() - settings.get_start_of_meshes())));
+      SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
       safe_delay(50);
 
       SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
