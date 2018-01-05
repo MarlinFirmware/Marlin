@@ -38,13 +38,10 @@ class MarlinSettings {
       bool success = true;
       reset();
       #if ENABLED(EEPROM_SETTINGS)
-        if ((success = save())) {
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            success = load(); // UBL uses load() to know the end of EEPROM
-          #elif ENABLED(EEPROM_CHITCHAT)
-            report();
-          #endif
-        }
+        success = save();
+        #if ENABLED(EEPROM_CHITCHAT)
+          if (success) report();
+        #endif
       #endif
       return success;
     }
@@ -55,8 +52,8 @@ class MarlinSettings {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
-        FORCE_INLINE static int16_t get_start_of_meshes() { return meshes_begin; }
-        FORCE_INLINE static int16_t get_end_of_meshes() { return meshes_end; }
+        static int16_t meshes_start_index();
+        FORCE_INLINE static int16_t meshes_end_index() { return meshes_end; }
         static uint16_t calc_num_meshes();
         static void store_mesh(const int8_t slot);
         static void load_mesh(const int8_t slot, void * const into=NULL);
@@ -85,7 +82,6 @@ class MarlinSettings {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
-        static int16_t meshes_begin;
         const static int16_t meshes_end = E2END - 128; // 128 is a placeholder for the size of the MAT; the MAT will always
                                                        // live at the very end of the eeprom
 

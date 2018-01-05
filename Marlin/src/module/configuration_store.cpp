@@ -343,10 +343,6 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    int16_t MarlinSettings::meshes_begin;
-  #endif
-
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
       SERIAL_ERROR_START();
@@ -1337,9 +1333,6 @@ void MarlinSettings::postprocess() {
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        meshes_begin = (eeprom_index + 32) & 0xFFF8;  // Pad the end of configuration data so it
-                                                      // can float up or down a little bit without
-                                                      // disrupting the mesh data
         ubl.report_state();
 
         if (!validating) {
@@ -1408,12 +1401,13 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
+    int16_t MarlinSettings::meshes_start_index() {
+      return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
+                                                          // or down a little bit without disrupting the mesh data
+    }
+
     uint16_t MarlinSettings::calc_num_meshes() {
-      //obviously this will get more sophisticated once we've added an actual MAT
-
-      if (meshes_begin <= 0) return 0;
-
-      return (meshes_end - meshes_begin) / sizeof(ubl.z_values);
+      return (meshes_end - meshes_start_index()) / sizeof(ubl.z_values);
     }
 
     void MarlinSettings::store_mesh(const int8_t slot) {
