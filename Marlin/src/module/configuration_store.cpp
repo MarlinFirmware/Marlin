@@ -40,6 +40,10 @@
 #define EEPROM_VERSION "V48"
 #define EEPROM_OFFSET 100
 
+// Check the integrity of data offsets.
+// Can be disabled for production build.
+//#define DEBUG_EEPROM_READWRITE
+
 #include "configuration_store.h"
 #include "endstops.h"
 #include "planner.h"
@@ -323,7 +327,17 @@ void MarlinSettings::postprocess() {
   #define EEPROM_WRITE(VAR) HAL::PersistentStore::write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) HAL::PersistentStore::read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating)
   #define EEPROM_READ_ALWAYS(VAR) HAL::PersistentStore::read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_read_error = true; }while(0)
+  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_error = true; }while(0)
+
+  #if ENABLED(DEBUG_EEPROM_READWRITE)
+    #define _FIELD_TEST(FIELD)                                          \
+      EEPROM_ASSERT(                                                    \
+        eeprom_error || eeprom_index == offsetof(SettingsData, FIELD),  \
+        "Field " STRINGIFY(FIELD) " mismatch."                          \
+      )
+  #else
+    #define _FIELD_TEST(FIELD) NOOP
+  #endif
 
   const char version[4] = EEPROM_VERSION;
 
@@ -363,6 +377,8 @@ void MarlinSettings::postprocess() {
 
     working_crc = 0; // clear before first "real data"
 
+    _FIELD_TEST(esteppers);
+
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
@@ -377,6 +393,9 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
     EEPROM_WRITE(planner.min_segment_time_us);
     EEPROM_WRITE(planner.max_jerk);
+
+    _FIELD_TEST(home_offset);
+
     #if !HAS_HOME_OFFSET
       const float home_offset[XYZ] = { 0 };
     #endif
@@ -426,6 +445,8 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
+    _FIELD_TEST(zprobe_zoffset);
+
     #if !HAS_BED_PROBE
       const float zprobe_zoffset = 0;
     #endif
@@ -470,6 +491,8 @@ void MarlinSettings::postprocess() {
       for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummy);
     #endif // AUTO_BED_LEVELING_BILINEAR
 
+    _FIELD_TEST(planner_leveling_active);
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       EEPROM_WRITE(planner.leveling_active);
       EEPROM_WRITE(ubl.storage_slot);
@@ -482,6 +505,7 @@ void MarlinSettings::postprocess() {
 
     // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
+      _FIELD_TEST(delta_height);
       EEPROM_WRITE(delta_height);              // 1 float
       EEPROM_WRITE(delta_endstop_adj);         // 3 floats
       EEPROM_WRITE(delta_radius);              // 1 float
@@ -491,6 +515,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
 
     #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+      _FIELD_TEST(x_endstop_adj);
       // Write dual endstops in X, Y, Z order. Unused = 0.0
       dummy = 0.0f;
       #if ENABLED(X_DUAL_ENDSTOPS)
@@ -517,6 +542,8 @@ void MarlinSettings::postprocess() {
       dummy = 0.0f;
       for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
     #endif
+
+    _FIELD_TEST(lcd_preheat_hotend_temp);
 
     #if DISABLED(ULTIPANEL)
       constexpr int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
@@ -567,6 +594,8 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(thermalManager.bedKd);
     #endif
 
+    _FIELD_TEST(lcd_contrast);
+
     #if !HAS_LCD_CONTRAST
       const uint16_t lcd_contrast = 32;
     #endif
@@ -592,6 +621,7 @@ void MarlinSettings::postprocess() {
     //
     // Volumetric & Filament Size
     //
+    _FIELD_TEST(parser_volumetric_enabled);
     #if DISABLED(NO_VOLUMETRICS)
 
       EEPROM_WRITE(parser.volumetric_enabled);
@@ -614,6 +644,7 @@ void MarlinSettings::postprocess() {
     //
     // Save TMC2130 or TMC2208 Configuration, and placeholder values
     //
+    _FIELD_TEST(tmc_stepper_current);
     uint16_t currents[11] = {
       #if HAS_TRINAMIC
         #if X_IS_TRINAMIC
@@ -702,7 +733,7 @@ void MarlinSettings::postprocess() {
     //
     // Linear Advance
     //
-
+    _FIELD_TEST(planner_extruder_advance_k);
     #if ENABLED(LIN_ADVANCE)
       EEPROM_WRITE(planner.extruder_advance_k);
       EEPROM_WRITE(planner.advance_ed_ratio);
@@ -722,7 +753,7 @@ void MarlinSettings::postprocess() {
     //
     // CNC Coordinate Systems
     //
-
+    _FIELD_TEST(coordinate_system);
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
       EEPROM_WRITE(coordinate_system); // 27 floats
     #else
@@ -733,7 +764,7 @@ void MarlinSettings::postprocess() {
     //
     // Skew correction factors
     //
-
+    _FIELD_TEST(planner_xy_skew_factor);
     #if ENABLED(SKEW_CORRECTION)
       EEPROM_WRITE(planner.xy_skew_factor);
       EEPROM_WRITE(planner.xz_skew_factor);
@@ -746,6 +777,7 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
+    _FIELD_TEST(filament_change_unload_length);
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
         if (q < COUNT(filament_change_unload_length)) dummy = filament_change_unload_length[q];
