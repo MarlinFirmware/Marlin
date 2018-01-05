@@ -38,7 +38,10 @@
 #include "../module/configuration_store.h"
 
 #include "../Marlin.h"
-
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+  #include "../feature/pause.h"
+  void spool_swap_submenu() ;	
+#endif
 #if ENABLED(PRINTCOUNTER) && ENABLED(LCD_INFO_MENU)
   #include "../libs/duration_t.h"
 #endif
@@ -3220,7 +3223,11 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-
+    
+    #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+      MENU_ITEM(submenu, MSG_SWAP_SPOOL, spool_swap_submenu); 
+    #endif
+    
     #if DISABLED(NO_VOLUMETRICS)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
@@ -3752,6 +3759,40 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
   #endif // !NO_VOLUMETRICS
+
+/**
+*
+* "Spool swapping "  submenu
+*
+*/					
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+void spool_swap_submenu() {
+START_MENU();
+MENU_BACK(MSG_MAIN);								  
+MENU_ITEM_EDIT(bool,MSG_SWAP_SPOOL, &swap_spool_enabled);
+#if FIL_RUNOUT_SENSORS > 2 // not usefull if only 2 extruders because only one possibility of swapping
+MENU_ITEM_EDIT(int3,MSG_SWAP_SPOOL_STOP, &swap_spool_stop,active_extruder,FIL_RUNOUT_SENSORS-1);
+#endif						
+MENU_ITEM(gcode, "-> " MSG_SWAP_SPOOL, PSTR("M600"));
+END_MENU();
+}
+#endif/**
+*
+* "Spool swapping "  submenu
+*
+*/					
+#if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
+void spool_swap_submenu() {
+START_MENU();
+MENU_BACK(MSG_MAIN);								  
+MENU_ITEM_EDIT(bool,MSG_SWAP_SPOOL, &swap_spool_enabled);
+#if FIL_RUNOUT_SENSORS > 2 // not usefull if only 2 extruders because only one possibility of swapping
+MENU_ITEM_EDIT(int3,MSG_SWAP_SPOOL_STOP, &swap_spool_stop,active_extruder,FIL_RUNOUT_SENSORS-1);
+#endif						
+MENU_ITEM(gcode, "-> " MSG_SWAP_SPOOL, PSTR("M600"));
+END_MENU();
+}
+#endif
 
   /**
    *
