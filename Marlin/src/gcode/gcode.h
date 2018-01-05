@@ -271,8 +271,8 @@ public:
     static WorkspacePlane workspace_plane;
   #endif
 
+  #define MAX_COORDINATE_SYSTEMS 9
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    #define MAX_COORDINATE_SYSTEMS 9
     static int8_t active_coordinate_system;
     static float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
     static bool select_coordinate_system(const int8_t _new);
