@@ -33,7 +33,7 @@
 #if ENABLED(SINGLENOZZLE_SPOOL_SWAP)
   extern bool swap_spool_enabled;
   extern int16_t swap_spool_stop;
-		extern int16_t fansp;
+  extern int16_t fansp;
 #endif
 
 extern bool move_away_flag;
