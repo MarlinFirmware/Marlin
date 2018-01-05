@@ -86,8 +86,8 @@
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      */
-    destination[X_AXIS] = LOGICAL_X_POSITION(Z_SAFE_HOMING_X_POINT);
-    destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
+    destination[X_AXIS] = Z_SAFE_HOMING_X_POINT;
+    destination[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
@@ -95,7 +95,7 @@
       destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
-    if (position_is_reachable_xy(destination[X_AXIS], destination[Y_AXIS])) {
+    if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
@@ -205,23 +205,21 @@ void GcodeSuite::G28(const bool always_home_all) {
         #endif
       }
 
-    #else
-
-      if (home_all || homeX || homeY) {
-        // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
-        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING))
-              SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-          #endif
-
-          do_blocking_move_to_z(destination[Z_AXIS]);
-        }
-      }
-
     #endif
+
+    if (home_all || homeX || homeY) {
+      // Raise Z before homing any other axes and z is not already high enough (never lower z)
+      destination[Z_AXIS] = Z_HOMING_HEIGHT;
+      if (destination[Z_AXIS] > current_position[Z_AXIS]) {
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING))
+            SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
+        #endif
+
+        do_blocking_move_to_z(destination[Z_AXIS]);
+      }
+    }
 
     #if ENABLED(QUICK_HOME)
 
@@ -251,7 +249,7 @@ void GcodeSuite::G28(const bool always_home_all) {
         HOMEAXIS(X);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x_pos = RAW_X_POSITION(current_position[X_AXIS]);
+        inactive_extruder_x_pos = current_position[X_AXIS];
 
         // Home the 1st (left) extruder
         active_extruder = 0;
@@ -316,18 +314,26 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1
-    tool_change(old_tool_index, 0,
-      #if ENABLED(PARKING_EXTRUDER)
-        false // fetch the previous toolhead
-      #else
-        true
-      #endif
-    );
+    #if ENABLED(PARKING_EXTRUDER)
+      #define NO_FETCH false // fetch the previous toolhead
+    #else
+      #define NO_FETCH true
+    #endif
+    tool_change(old_tool_index, 0, NO_FETCH);
   #endif
 
   lcd_refresh();
 
   report_current_position();
+  #if ENABLED(NANODLP_Z_SYNC)
+    #if ENABLED(NANODLP_ALL_AXIS)
+      #define _HOME_SYNC true                 // For any axis, output sync text.
+    #else
+      #define _HOME_SYNC (home_all || homeZ)  // Only for Z-axis
+    #endif
+    if (_HOME_SYNC)
+      SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");

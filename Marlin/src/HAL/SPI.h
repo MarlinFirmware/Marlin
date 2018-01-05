@@ -28,11 +28,7 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-//#include "../inc/MarlinConfig.h"
-
 #include <stdint.h>
-
-#ifndef SPI_FULL_SPEED
 
 /**
  * SPI speed where 0 <= index <= 6
@@ -59,6 +55,14 @@
 #define SPI_SPEED_5         5   // Set SCK rate to 1/32 of max rate
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
 
+#define SPI_LSBFIRST 0
+#define SPI_MSBFIRST 1
+
+#define SPI_DATAMODE_0 0x00
+#define SPI_DATAMODE_1 0x04
+#define SPI_DATAMODE_2 0x08
+#define SPI_DATAMODE_3 0x0C
+
 // Standard SPI functions
 /** Initialise SPI bus */
 void spiBegin(void);
@@ -72,7 +76,7 @@ uint8_t spiRec(void);
 void spiRead(uint8_t* buf, uint16_t nbyte);
 /** Write token and then write from 512 byte buffer to SPI (for SD card) */
 void spiSendBlock(uint8_t token, const uint8_t* buf);
-
-#endif // SPI_FULL_SPEED
+/** Begin SPI transaction, set clock, bit order, data mode */
+void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
 
 #endif // _SPI_H_

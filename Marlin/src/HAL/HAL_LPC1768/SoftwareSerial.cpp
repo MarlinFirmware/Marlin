@@ -1,33 +1,34 @@
 /*
-SoftwareSerial.cpp (formerly NewSoftSerial.cpp) -
-Multi-instance software serial library for Arduino/Wiring
--- Interrupt-driven receive and other improvements by ladyada
-   (http://ladyada.net)
--- Tuning, circular buffer, derivation from class Print/Stream,
-   multi-instance support, porting to 8MHz processors,
-   various optimizations, PROGMEM delay tables, inverse logic and
-   direct port writing by Mikal Hart (http://www.arduiniana.org)
--- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
--- 20MHz processor support by Garrett Mace (http://www.macetech.com)
--- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-The latest version of this library can always be found at
-http://arduiniana.org.
-*/
+ * SoftwareSerial.cpp (formerly NewSoftSerial.cpp)
+ *
+ * Multi-instance software serial library for Arduino/Wiring
+ * -- Interrupt-driven receive and other improvements by ladyada
+ *    (http://ladyada.net)
+ * -- Tuning, circular buffer, derivation from class Print/Stream,
+ *    multi-instance support, porting to 8MHz processors,
+ *    various optimizations, PROGMEM delay tables, inverse logic and
+ *    direct port writing by Mikal Hart (http://www.arduiniana.org)
+ * -- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
+ * -- 20MHz processor support by Garrett Mace (http://www.macetech.com)
+ * -- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * The latest version of this library can always be found at
+ * http://arduiniana.org.
+ */
 
 #ifdef TARGET_LPC1768
 
@@ -38,7 +39,7 @@ http://arduiniana.org.
 #include "../../inc/MarlinConfig.h"
 #include <stdint.h>
 #include <stdarg.h>
-#include "arduino.h"
+#include "include/arduino.h"
 #include "pinmapping.h"
 #include "fastio.h"
 #include "SoftwareSerial.h"
@@ -212,7 +213,7 @@ extern "C" void intWrapper() {
 //
 // Constructor
 //
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) :
+SoftwareSerial::SoftwareSerial(pin_t receivePin, pin_t transmitPin, bool inverse_logic /* = false */) :
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
@@ -233,7 +234,7 @@ SoftwareSerial::~SoftwareSerial()
   end();
 }
 
-void SoftwareSerial::setTX(uint8_t tx)
+void SoftwareSerial::setTX(pin_t tx)
 {
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
@@ -246,7 +247,7 @@ void SoftwareSerial::setTX(uint8_t tx)
 
 }
 
-void SoftwareSerial::setRX(uint8_t rx)
+void SoftwareSerial::setRX(pin_t rx)
 {
   pinMode(rx, INPUT_PULLUP); // pullup for normal logic!
   //if (!_inverse_logic)

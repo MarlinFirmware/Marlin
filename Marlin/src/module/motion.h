@@ -138,9 +138,7 @@ void line_to_current_position();
  * Move the planner to the position stored in the destination array, which is
  * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
  */
-void line_to_destination(const float fr_mm_s);
-
-inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
+void buffer_line_to_destination(const float fr_mm_s);
 
 #if IS_KINEMATIC
   void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0.0);
@@ -175,6 +173,7 @@ void clean_up_after_endstop_or_probe_move();
       || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
       || ENABLED(NOZZLE_PARK_FEATURE)                                              \
       || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
+      || HAS_M206_COMMAND                                                          \
     ) || ENABLED(NO_MOTION_BEFORE_HOMING)
 
 #if HAS_AXIS_UNHOMED_ERR
@@ -217,14 +216,14 @@ void homeaxis(const AxisEnum axis);
   #define WORKSPACE_OFFSET(AXIS) 0
 #endif
 
-#define LOGICAL_POSITION(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
-#define RAW_POSITION(POS, AXIS)     ((POS) - WORKSPACE_OFFSET(AXIS))
+#define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
+#define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - WORKSPACE_OFFSET(AXIS))
 
 #if HAS_POSITION_SHIFT || DISABLED(DELTA)
-  #define LOGICAL_X_POSITION(POS)   LOGICAL_POSITION(POS, X_AXIS)
-  #define LOGICAL_Y_POSITION(POS)   LOGICAL_POSITION(POS, Y_AXIS)
-  #define RAW_X_POSITION(POS)       RAW_POSITION(POS, X_AXIS)
-  #define RAW_Y_POSITION(POS)       RAW_POSITION(POS, Y_AXIS)
+  #define LOGICAL_X_POSITION(POS)   NATIVE_TO_LOGICAL(POS, X_AXIS)
+  #define LOGICAL_Y_POSITION(POS)   NATIVE_TO_LOGICAL(POS, Y_AXIS)
+  #define RAW_X_POSITION(POS)       LOGICAL_TO_NATIVE(POS, X_AXIS)
+  #define RAW_Y_POSITION(POS)       LOGICAL_TO_NATIVE(POS, Y_AXIS)
 #else
   #define LOGICAL_X_POSITION(POS)   (POS)
   #define LOGICAL_Y_POSITION(POS)   (POS)
@@ -232,9 +231,8 @@ void homeaxis(const AxisEnum axis);
   #define RAW_Y_POSITION(POS)       (POS)
 #endif
 
-#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
-#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
-#define RAW_CURRENT_POSITION(A)     RAW_##A##_POSITION(current_position[A##_AXIS])
+#define LOGICAL_Z_POSITION(POS)     NATIVE_TO_LOGICAL(POS, Z_AXIS)
+#define RAW_Z_POSITION(POS)         LOGICAL_TO_NATIVE(POS, Z_AXIS)
 
 /**
  * position_is_reachable family of functions
@@ -242,7 +240,7 @@ void homeaxis(const AxisEnum axis);
 
 #if IS_KINEMATIC // (DELTA or SCARA)
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable(const float &rx, const float &ry) {
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
     #elif IS_SCARA
@@ -257,38 +255,30 @@ void homeaxis(const AxisEnum axis);
     #endif
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
 
     // Both the nozzle and the probe must be able to reach the point.
     // This won't work on SCARA since the probe offset rotates with the arm.
 
-    return position_is_reachable_raw_xy(rx, ry)
-        && position_is_reachable_raw_xy(rx - X_PROBE_OFFSET_FROM_EXTRUDER, ry - Y_PROBE_OFFSET_FROM_EXTRUDER);
+    return position_is_reachable(rx, ry)
+        && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
   }
 
 #else // CARTESIAN
 
-  inline bool position_is_reachable_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable(const float &rx, const float &ry) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
           && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
   }
 
-  inline bool position_is_reachable_by_probe_raw_xy(const float &rx, const float &ry) {
+  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       // Add 0.001 margin to deal with float imprecision
       return WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
           && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
   }
 
 #endif // CARTESIAN
-
-FORCE_INLINE bool position_is_reachable_by_probe_xy(const float &lx, const float &ly) {
-  return position_is_reachable_by_probe_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
-
-FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
-  return position_is_reachable_raw_xy(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
-}
 
 /**
  * Dual X Carriage / Dual Nozzle
@@ -302,6 +292,12 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
  */
 #if ENABLED(DUAL_X_CARRIAGE)
 
+  enum DualXMode {
+    DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
+    DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
+    DXC_DUPLICATION_MODE
+  };
+
   extern DualXMode dual_x_carriage_mode;
   extern float inactive_extruder_x_pos,           // used in mode 0 & 1
                raised_parked_position[XYZE],      // used in mode 1
@@ -314,7 +310,13 @@ FORCE_INLINE bool position_is_reachable_xy(const float &lx, const float &ly) {
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#endif // DUAL_X_CARRIAGE
+#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+
+  enum DualXMode {
+    DXC_DUPLICATION_MODE = 2
+  };
+
+#endif
 
 #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
   void update_software_endstops(const AxisEnum axis);

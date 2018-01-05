@@ -59,8 +59,6 @@
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -126,7 +124,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN        69   // K7
+#define TEMP_BED_PIN        15   // K7 - 69 / ADC15 - 15
 
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus
@@ -272,63 +270,3 @@
 #define SPINDLE_LASER_ENABLE_PIN 66  // K4   Pin should have a pullup!
 #define SPINDLE_LASER_PWM_PIN     8  // H5   MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          67  // K5
-
-
-
-
-// Check if all pins are defined in mega/pins_arduino.h
-#include <Arduino.h>
-static_assert(NUM_DIGITAL_PINS > MAX_PIN, "add missing pins to [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h based on fastio.h"
-                                          "to digital_pin_to_port_PGM, digital_pin_to_bit_mask_PGM, digital_pin_to_timer_PGM, NUM_DIGITAL_PINS, see below");
-
-/* in [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h
-change:
-#define NUM_DIGITAL_PINS            70
-to:
-#define NUM_DIGITAL_PINS            80
-
-to digital_pin_to_port_PGM add at the end:
-const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
-....
-        PG      , // PG 4 ** 70 **
-        PG      , // PG 3 ** 71 **
-        PJ      , // PJ 2 ** 72 **
-        PJ      , // PJ 3 ** 73 **
-        PJ      , // PJ 7 ** 74 **
-        PJ      , // PJ 4 ** 75 **
-        PJ      , // PJ 5 ** 76 **
-        PJ      , // PJ 6 ** 77 **
-        PE      , // PE 2 ** 78 **
-        PE      , // PE 6 ** 79 **
-};
-
-to digital_pin_to_bit_mask_PGM  add at the end:
-const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
-....
-        _BV( 4 )        , // PG 4 ** 70 **
-        _BV( 3 )        , // PG 3 ** 71 **
-        _BV( 2 )        , // PJ 2 ** 72 **
-        _BV( 3 )        , // PJ 3 ** 73 **
-        _BV( 7 )        , // PJ 7 ** 74 **
-        _BV( 4 )        , // PJ 4 ** 75 **
-        _BV( 5 )        , // PJ 5 ** 76 **
-        _BV( 6 )        , // PJ 6 ** 77 **
-        _BV( 2 )        , // PE 2 ** 78 **
-        _BV( 6 )        , // PE 6 ** 79 **
-};
-
-to digital_pin_to_timer_PGM add at the end:
-const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
-....
-        NOT_ON_TIMER    , // PG 4 ** 70 **
-        NOT_ON_TIMER    , // PG 3 ** 71 **
-        NOT_ON_TIMER    , // PJ 2 ** 72 **
-        NOT_ON_TIMER    , // PJ 3 ** 73 **
-        NOT_ON_TIMER    , // PJ 7 ** 74 **
-        NOT_ON_TIMER    , // PJ 4 ** 75 **
-        NOT_ON_TIMER    , // PJ 5 ** 76 **
-        NOT_ON_TIMER    , // PJ 6 ** 77 **
-        NOT_ON_TIMER    , // PE 2 ** 78 **
-        NOT_ON_TIMER    , // PE 6 ** 79 **
-};
-*/

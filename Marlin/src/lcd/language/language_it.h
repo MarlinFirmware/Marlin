@@ -301,11 +301,9 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Scrivi DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("STAMPA IN PAUSA")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("STAMPA IN PAUSA")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("OPZIONI:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Estrudi ancora")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Riprendi stampa")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Temp minima è ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Ugello: ")
 
 #if LCD_HEIGHT >= 4
@@ -326,9 +324,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("il caricamento")
   #define MSG_FILAMENT_CHANGE_LOAD_3        _UxGT("del filamento")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Attendere")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     _UxGT("l'estrusione")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3     _UxGT("del filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("la ripresa")
   #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("della stampa")
@@ -339,7 +334,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserisci e premi")
   #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Riscaldamento...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Caricamento...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Estrusione...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Ripresa...")
 #endif // LCD_HEIGHT < 4
 

@@ -30,7 +30,14 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "Arduino.h"
+// _BV is re-defined in Arduino.h
+#undef _BV
+
+#include <Arduino.h>
+
+// Redefine sq macro defined by teensy3/wiring.h
+#undef sq
+#define sq(x) ((x)*(x))
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"

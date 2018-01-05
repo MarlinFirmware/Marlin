@@ -130,7 +130,7 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
   stepper.synchronize();  // Wait for buffered moves to complete
 
-  const float renormalize = 100.0 / planner.flow_percentage[active_extruder] / planner.volumetric_multiplier[active_extruder];
+  const float renormalize = 1.0 / planner.e_factor[active_extruder];
 
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
@@ -153,7 +153,7 @@ void FWRetract::retract(const bool retracting
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (hop_amount) {
-      current_position[Z_AXIS] -= retract_zlift;          // Pretend current pos is lower. Next move raises Z.
+      current_position[Z_AXIS] += retract_zlift;          // Pretend current pos is lower. Next move raises Z.
       SYNC_PLAN_POSITION_KINEMATIC();                     // Set the planner to the new position
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       prepare_move_to_destination();                      // Raise up to the old current pos

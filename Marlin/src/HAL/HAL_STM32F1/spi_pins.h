@@ -1,21 +1,21 @@
 /**
-* Marlin 3D Printer Firmware
-* Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
@@ -27,7 +27,7 @@
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
- * Available chip select pins for HW SPI are 4 10 52 77
+ * Any PIN can be used for Chip Select (SS)
  */
 #define SCK_PIN   PA5
 #define MISO_PIN  PA6

@@ -32,6 +32,7 @@
 // --------------------------------------------------------------------------
 
 #include "../HAL.h"
+#include <STM32ADC.h>
 
 //#include <Wire.h>
 
@@ -60,6 +61,59 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
+STM32ADC adc(ADC1);
+
+uint8 adc_pins[] = {
+  #if HAS_TEMP_0
+    TEMP_0_PIN,
+  #endif
+  #if HAS_TEMP_1
+    TEMP_1_PIN
+  #endif
+  #if HAS_TEMP_2
+    TEMP_2_PIN,
+  #endif
+  #if HAS_TEMP_3
+    TEMP_3_PIN,
+  #endif
+  #if HAS_TEMP_4
+    TEMP_4_PIN,
+  #endif
+  #if HAS_TEMP_BED
+    TEMP_BED_PIN,
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH_PIN,
+  #endif
+};
+
+enum TEMP_PINS {
+  #if HAS_TEMP_0
+    TEMP_0,
+  #endif
+  #if HAS_TEMP_1
+    TEMP_1,
+  #endif
+  #if HAS_TEMP_2
+    TEMP_2,
+  #endif
+  #if HAS_TEMP_3
+    TEMP_3,
+  #endif
+  #if HAS_TEMP_4
+    TEMP_4,
+  #endif
+  #if HAS_TEMP_BED
+    TEMP_BED,
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH,
+  #endif
+    ADC_PIN_COUNT
+};
+
+uint16_t HAL_adc_results[ADC_PIN_COUNT];
+
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -126,9 +180,44 @@ extern "C" {
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
+// Init the AD in continuous capture mode
+void HAL_adc_init(void) {
+  // configure the ADC
+  adc.calibrate();
+  adc.setSampleRate(ADC_SMPR_41_5); // ?
+  adc.setPins(adc_pins, ADC_PIN_COUNT);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
+  adc.setScanMode();
+  adc.setContinuous();
+  adc.startConversion();
+}
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  HAL_adc_result = (analogRead(adc_pin) >> 2) & 0x3ff; // shift to get 10 bits only.
+  TEMP_PINS pin_index;
+  switch (adc_pin) {
+    #if HAS_TEMP_0
+      case TEMP_0_PIN: pin_index = TEMP_0; break;
+    #endif
+    #if HAS_TEMP_1
+      case TEMP_1_PIN: pin_index = TEMP_1; break;
+    #endif
+    #if HAS_TEMP_2
+      case TEMP_2_PIN: pin_index = TEMP_2; break;
+    #endif
+    #if HAS_TEMP_3
+      case TEMP_3_PIN: pin_index = TEMP_3; break;
+    #endif
+    #if HAS_TEMP_4
+      case TEMP_4_PIN: pin_index = TEMP_4; break;
+    #endif
+    #if HAS_TEMP_BED
+      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #endif
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      case FILWIDTH_PIN: pin_index = FILWIDTH; break;
+    #endif
+  }
+  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
 uint16_t HAL_adc_get_result(void) {

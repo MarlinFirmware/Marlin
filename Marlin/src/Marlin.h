@@ -22,15 +22,15 @@
 #ifndef __MARLIN_H__
 #define __MARLIN_H__
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "inc/MarlinConfig.h"
 
 #ifdef DEBUG_GCODE_PARSER
   #include "gcode/parser.h"
 #endif
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void stop();
 
@@ -159,6 +159,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
+void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
@@ -186,16 +187,6 @@ extern volatile bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if HAS_SERVOS
-  #include "HAL/servo.h"
-  extern HAL_SERVO_LIB servo[NUM_SERVOS];
-  #define MOVE_SERVO(I, P) servo[I].move(P)
-  #if HAS_Z_SERVO_ENDSTOP
-    #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
-    #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
-  #endif
-#endif
-
 #if FAN_COUNT > 0
   extern int16_t fanSpeeds[FAN_COUNT];
   #if ENABLED(EXTRA_FAN_SPEED)
@@ -206,10 +197,6 @@ extern millis_t max_inactive_time, stepper_inactive_time;
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];
   #endif
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)

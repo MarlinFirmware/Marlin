@@ -21,20 +21,20 @@
  */
 
 /**
- * M49.cpp - Unified Bed Leveling
+ * M49.cpp - Toggle the G26 debug flag
  */
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(UBL_G26_MESH_VALIDATION)
+#if ENABLED(G26_MESH_VALIDATION)
 
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
 void GcodeSuite::M49() {
-  ubl.g26_debug_flag ^= true;
-  SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-  serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
+  g26_debug_flag ^= true;
+  SERIAL_PROTOCOLPGM("G26 Debug: ");
+  serialprintPGM(g26_debug_flag ? PSTR("On\n") : PSTR("Off\n"));
 }
 
-#endif // UBL_G26_MESH_VALIDATION
+#endif // G26_MESH_VALIDATION

@@ -29,6 +29,19 @@
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../core/serial.h"
+#endif
+
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
+    zprobe_zoffset += offs;
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+  }
+#endif
+
 /**
  * M290: Babystepping
  */
@@ -36,23 +49,18 @@ void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
     for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
       if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
-        float offs = constrain(parser.value_axis_units(a), -2, 2);
+        const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
+        thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS) {
-            zprobe_zoffset += offs;
-            refresh_zprobe_zoffset(true); // 'true' to not babystep
-          }
+          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_zprobe_zoffset(offs);
         #endif
-        thermalManager.babystep_axis(a, offs * planner.axis_steps_per_mm[a]);
       }
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
-      float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
+      const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
+      thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        zprobe_zoffset += offs;
-        refresh_zprobe_zoffset(); // This will babystep the axis
-      #else
-        thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
+        if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
       #endif
     }
   #endif

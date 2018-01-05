@@ -35,7 +35,8 @@
 #define _YMAX_ 201
 #define _ZMAX_ 301
 
-#define FORCE_INLINE __attribute__((always_inline)) inline
+#define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
+#define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
 #define _Os          __attribute__((optimize("Os")))
@@ -43,10 +44,8 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
-
 // Clock speed factors
-#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
-#define INT0_PRESCALER 8
+#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
 
 // Highly granular delays for step pulses, etc.
 #define DELAY_0_NOP NOOP
@@ -96,6 +95,9 @@
 #define STRINGIFY(M) STRINGIFY_(M)
 
 // Macros for bit masks
+#ifndef _BV
+  #define _BV(n)  (1<<(n))
+#endif
 #define TEST(n,b) (((n)&_BV(b))!=0)
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))

@@ -31,6 +31,7 @@
 #define LANGUAGE_EU_H
 
 #define DISPLAY_CHARSET_ISO10646_1
+#define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prest.")
 #define MSG_BACK                            _UxGT("Atzera")
@@ -224,12 +225,10 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Idatzi DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("HARIZPIA ALDATU")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("HARIZPIA ALDATU")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ALDAKETA AUKERAK:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Gehiago estruitu")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Inprima. jarraitu")
 
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Tenp Minimoa ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Pita: ")
 
 #endif // LANGUAGE_EU_H

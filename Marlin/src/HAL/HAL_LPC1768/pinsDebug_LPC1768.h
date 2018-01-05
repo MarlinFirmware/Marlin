@@ -22,23 +22,23 @@
 
 /**
  * Support routines for LPC1768
-*/
-
-/**
- * translation of routines & variables used by pinsDebug.h
  */
 
+/**
+ * Translation of routines & variables used by pinsDebug.h
+ */
+
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define pwm_details(pin) pin = pin    // do nothing  // print PWM details
 #define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
 #define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
 #define digitalRead_mod(p)  digitalRead(p)
-#define digitalPinToPort_DEBUG(p)  0
-#define digitalPinToBitMask_DEBUG(pin) 0
-#define PRINT_PORT(p) SERIAL_ECHO_SP(10);
+#define PRINT_PORT(p)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%d.%02d"), LPC1768_PIN_PORT(p), LPC1768_PIN_PIN(p)); SERIAL_ECHO(buffer);} while (0)
+#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // active ADC function/mode/code values for PINSEL registers
 constexpr int8_t ADC_pin_mode(pin_t pin) {

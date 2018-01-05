@@ -42,7 +42,7 @@
 
   #define U8GLIB_ST7565_64128N
 
-#elif ENABLED(ANET_KEYPAD_LCD)
+#elif ENABLED(ZONESTAR_LCD)
 
   #define REPRAPWORLD_KEYPAD
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
@@ -53,7 +53,12 @@
   // this helps to implement ADC_KEYPAD menus
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #define ENCODER_FEEDRATE_DEADZONE 2
   #define REVERSE_MENU_DIRECTION
+
+#elif ENABLED(RADDS_DISPLAY)
+  #define ULTIPANEL
+  #define ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
 
@@ -70,18 +75,18 @@
   #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN  75
-    #define LCD_CONTRAST_MAX 115
-    #define DEFAULT_LCD_CONTRAST 95
+    #define LCD_CONTRAST_MIN      75
+    #define LCD_CONTRAST_MAX     115
+    #define DEFAULT_LCD_CONTRAST  95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN 0
-    #define LCD_CONTRAST_MAX 255
+    #define LCD_CONTRAST_MIN       0
+    #define LCD_CONTRAST_MAX     255
     #define DEFAULT_LCD_CONTRAST 140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN  90
-    #define LCD_CONTRAST_MAX 130
+    #define LCD_CONTRAST_MIN      90
+    #define LCD_CONTRAST_MAX     130
     #define DEFAULT_LCD_CONTRAST 110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
@@ -129,6 +134,11 @@
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #define U8GLIB_SH1106
 
+#elif ENABLED(MKS_12864OLED_SSD1306)
+
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #define U8GLIB_SSD1306
+
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
@@ -159,7 +169,7 @@
 
 #endif
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI)
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(LCD_FOR_MELZI) || ENABLED(SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define U8GLIB_ST7920
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -311,7 +321,7 @@
   #define LCD_STR_FILAM_DIA   "\xf8"
   #define LCD_STR_FILAM_MUL   "\xa4"
 #else
-  /* Custom characters defined in the first 8 characters of the LCD */
+  // Custom characters defined in the first 8 characters of the LCD
   #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
   #define LCD_DEGREE_CHAR      0x01
   #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
@@ -468,13 +478,6 @@
 #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
 /**
- * UBL has its own manual probing, so this just causes trouble.
- */
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #undef PROBE_MANUALLY
-#endif
-
-/**
  * Set a flag for any enabled probe
  */
 #define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE))
@@ -491,12 +494,10 @@
 #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
 #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED))
 
-  // For Re-ARM boards, always use the USB Emulated Serial Port unless RE_ARM_FORCE_SERIAL_PORT is defined
-  #if MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_14_RE_ARM_SF)
-    #ifndef RE_ARM_FORCE_SERIAL_PORT
-      #undef SERIAL_PORT
-      #define SERIAL_PORT -1
-    #endif
-  #endif
+// For Re-ARM boards, always use the USB Emulated Serial Port unless RE_ARM_FORCE_SERIAL_PORT is defined
+#if !defined(RE_ARM_FORCE_SERIAL_PORT) && (MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_14_RE_ARM_SF))
+  #undef SERIAL_PORT
+  #define SERIAL_PORT -1
+#endif
 
 #endif // CONDITIONALS_LCD_H

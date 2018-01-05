@@ -28,14 +28,51 @@
 #ifndef _PAUSE_H_
 #define _PAUSE_H_
 
-extern bool move_away_flag;
+#include "../libs/nozzle.h"
 
-bool pause_print(const float &retract, const float &z_lift, const float &x_pos, const float &y_pos,
-                        const float &unload_length=0 , const int8_t max_beep_count=0, const bool show_lcd=false
-);
+#include "../inc/MarlinConfigPre.h"
+
+enum AdvancedPauseMode {
+  ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+  ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
+  ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
+};
+
+enum AdvancedPauseMessage {
+  ADVANCED_PAUSE_MESSAGE_INIT,
+  ADVANCED_PAUSE_MESSAGE_UNLOAD,
+  ADVANCED_PAUSE_MESSAGE_INSERT,
+  ADVANCED_PAUSE_MESSAGE_LOAD,
+  ADVANCED_PAUSE_MESSAGE_PURGE,
+  ADVANCED_PAUSE_MESSAGE_OPTION,
+  ADVANCED_PAUSE_MESSAGE_RESUME,
+  ADVANCED_PAUSE_MESSAGE_STATUS,
+  ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
+  ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
+};
+
+enum AdvancedPauseMenuResponse {
+  ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
+  ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
+  ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
+};
+
+extern AdvancedPauseMenuResponse advanced_pause_menu_response;
+
+extern float filament_change_unload_length[EXTRUDERS],
+             filament_change_load_length[EXTRUDERS];
+
+extern uint8_t did_pause_print;
+
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false);
 
 void wait_for_filament_reload(const int8_t max_beep_count=0);
 
-void resume_print(const float &load_length=0, const float &initial_extrude_length=0, const int8_t max_beep_count=0);
+void resume_print(const float &load_length=0, const float &extrude_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0);
+
+bool load_filament(const float &load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0, const bool show_lcd=false,
+                          const bool pause_for_user=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
+
+bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
 
 #endif // _PAUSE_H_

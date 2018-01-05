@@ -53,6 +53,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_ENDSTOP
+  #include "../module/servo.h"
   const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
 
@@ -106,8 +107,8 @@ inline void do_probe_raise(const float z_raise) {
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float logical[XYZ], const float &fr_mm_s) {
-    do_blocking_move_to(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], fr_mm_s);
+  FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
+    do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
   }
 
   void run_deploy_moves_script() {
@@ -506,13 +507,12 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
 }
 
 /**
- * @details Used by probe_pt to do a single Z probe.
+ * @details Used by probe_pt to do a single Z probe at the current position.
  *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
  *
- * @param  short_move Flag for a shorter probe move towards the bed
  * @return The raw Z position where the probe was triggered
  */
-static float run_z_probe(const bool short_move=true) {
+static float run_z_probe() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -521,13 +521,15 @@ static float run_z_probe(const bool short_move=true) {
   // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
   gcode.refresh_cmd_timeout();
 
-  #if ENABLED(PROBE_DOUBLE_TOUCH)
+  // Double-probing does a fast probe followed by a slow probe
+  #if MULTIPLE_PROBING == 2
 
     // Do a first probe at the fast speed
     if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
 
+    float first_probe_z = current_position[Z_AXIS];
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      float first_probe_z = current_position[Z_AXIS];
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
     #endif
 
@@ -549,26 +551,49 @@ static float run_z_probe(const bool short_move=true) {
     }
   #endif
 
-  // move down slowly to find bed
-  if (do_probe_move(-10 + (short_move ? 0 : -(Z_MAX_LENGTH)), Z_PROBE_SPEED_SLOW)) return NAN;
+  #if MULTIPLE_PROBING > 2
+    float probes_total = 0;
+    for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
+  #endif
+
+      // Move down slowly to find bed, not too far
+      if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+
+  #if MULTIPLE_PROBING > 2
+      probes_total += current_position[Z_AXIS];
+      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    }
+  #endif
+
+  #if MULTIPLE_PROBING > 2
+
+    // Return the average value of all probes
+    return probes_total * (1.0 / (MULTIPLE_PROBING));
+
+  #elif MULTIPLE_PROBING == 2
+
+    const float z2 = current_position[Z_AXIS];
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("2nd Probe Z:", z2);
+        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - z2);
+      }
+    #endif
+
+    // Return a weighted average of the fast and slow probes
+    return (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
+
+  #else
+
+    // Return the single probe result
+    return current_position[Z_AXIS];
+
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
   #endif
-
-  // Debug: compare probe heights
-  #if ENABLED(PROBE_DOUBLE_TOUCH) && ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("2nd Probe Z:", current_position[Z_AXIS]);
-      SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
-    }
-  #endif
-
-  return RAW_CURRENT_POSITION(Z) + zprobe_zoffset
-    #if ENABLED(DELTA)
-      + home_offset[Z_AXIS] // Account for delta height adjustment
-    #endif
-  ;
 }
 
 /**
@@ -580,46 +605,44 @@ static float run_z_probe(const bool short_move=true) {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t verbose_level, const bool printable/*=true*/) {
+float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool probe_relative/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> probe_pt(", lx);
-      SERIAL_ECHOPAIR(", ", ly);
+      SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
+      SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
       SERIAL_ECHOPAIR(", ", stow ? "" : "no ");
       SERIAL_ECHOLNPGM("stow)");
       DEBUG_POS("", current_position);
     }
   #endif
 
-  const float nx = lx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ly - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  // TODO: Adapt for SCARA, where the offset rotates
+  float nx = rx, ny = ry;
+  if (probe_relative) {
+    if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
+    nx -= (X_PROBE_OFFSET_FROM_EXTRUDER);                     // Get the nozzle position
+    ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
+  }
+  else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
 
-  if (printable
-    ? !position_is_reachable_xy(nx, ny)
-    : !position_is_reachable_by_probe_xy(lx, ly)
-  ) return NAN;
-
+  const float nz =
+    #if ENABLED(DELTA)
+      // Move below clip height or xy move will be aborted by do_blocking_move_to
+      min(current_position[Z_AXIS], delta_clip_start_height)
+    #else
+      current_position[Z_AXIS]
+    #endif
+  ;
 
   const float old_feedrate_mm_s = feedrate_mm_s;
-
-  #if ENABLED(DELTA)
-    if (current_position[Z_AXIS] > delta_clip_start_height)
-      do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-
-  #if HAS_SOFTWARE_ENDSTOPS
-    // Store the status of the soft endstops and disable if we're probing a non-printable location
-    static bool enable_soft_endstops = soft_endstops_enabled;
-    if (!printable) soft_endstops_enabled = false;
-  #endif
-
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
-  // Move the probe to the given XY
-  do_blocking_move_to_xy(nx, ny);
+  // Move the probe to the starting XYZ
+  do_blocking_move_to(nx, ny, nz);
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe(printable);
+    measured_z = run_z_probe() + zprobe_zoffset;
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
@@ -627,16 +650,11 @@ float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t 
       if (STOW_PROBE()) measured_z = NAN;
   }
 
-  #if HAS_SOFTWARE_ENDSTOPS
-    // Restore the soft endstop status
-    soft_endstops_enabled = enable_soft_endstops;
-  #endif
-
   if (verbose_level > 2) {
     SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL_F(lx, 3);
+    SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 3);
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL_F(ly, 3);
+    SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 3);
     SERIAL_PROTOCOLPGM(" Z: ");
     SERIAL_PROTOCOL_F(measured_z, 3);
     SERIAL_EOL();
@@ -655,42 +673,6 @@ float probe_pt(const float &lx, const float &ly, const bool stow, const uint8_t 
   }
 
   return measured_z;
-}
-
-void refresh_zprobe_zoffset(const bool no_babystep/*=false*/) {
-  static float last_zoffset = NAN;
-
-  if (!isnan(last_zoffset)) {
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(BABYSTEP_ZPROBE_OFFSET) || ENABLED(DELTA)
-      const float diff = zprobe_zoffset - last_zoffset;
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Correct bilinear grid for new probe offset
-      if (diff) {
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-            z_values[x][y] -= diff;
-      }
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_interpolate();
-      #endif
-    #endif
-
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      if (!no_babystep && planner.leveling_active)
-        thermalManager.babystep_axis(Z_AXIS, -LROUND(diff * planner.axis_steps_per_mm[Z_AXIS]));
-    #else
-      UNUSED(no_babystep);
-    #endif
-
-    #if ENABLED(DELTA) // correct the delta_height
-      home_offset[Z_AXIS] -= diff;
-    #endif
-  }
-
-  last_zoffset = zprobe_zoffset;
 }
 
 #if HAS_Z_SERVO_ENDSTOP

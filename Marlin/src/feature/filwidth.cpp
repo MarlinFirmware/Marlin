@@ -29,8 +29,8 @@
 bool filament_sensor = false;                                 // M405/M406 turns filament sensor control ON/OFF.
 float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
       filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
-uint8_t meas_delay_cm = MEASUREMENT_DELAY_CM,                 // Distance delay setting
-        measurement_delay[MAX_MEASUREMENT_DELAY + 1];         // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
-int8_t filwidth_delay_index[2] = { 0, -1 };                   // Indexes into ring buffer
+uint8_t meas_delay_cm = MEASUREMENT_DELAY_CM;                 // Distance delay setting
+int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1],          // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+       filwidth_delay_index[2] = { 0, -1 };                   // Indexes into ring buffer
 
 #endif // FILAMENT_WIDTH_SENSOR

@@ -609,43 +609,43 @@ void Endstops::update() {
 
     if (endstop_change) {
       #if HAS_X_MIN
-        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("  X_MIN:", !!TEST(current_endstop_bits_local, X_MIN));
+        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("  X_MIN:", TEST(current_endstop_bits_local, X_MIN));
       #endif
       #if HAS_X_MAX
-        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", !!TEST(current_endstop_bits_local, X_MAX));
+        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", TEST(current_endstop_bits_local, X_MAX));
       #endif
       #if HAS_Y_MIN
-        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", !!TEST(current_endstop_bits_local, Y_MIN));
+        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", TEST(current_endstop_bits_local, Y_MIN));
       #endif
       #if HAS_Y_MAX
-        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", !!TEST(current_endstop_bits_local, Y_MAX));
+        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", TEST(current_endstop_bits_local, Y_MAX));
       #endif
       #if HAS_Z_MIN
-        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", !!TEST(current_endstop_bits_local, Z_MIN));
+        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", TEST(current_endstop_bits_local, Z_MIN));
       #endif
       #if HAS_Z_MAX
-        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", !!TEST(current_endstop_bits_local, Z_MAX));
+        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", TEST(current_endstop_bits_local, Z_MAX));
       #endif
       #if HAS_Z_MIN_PROBE_PIN
-        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", !!TEST(current_endstop_bits_local, Z_MIN_PROBE));
+        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", TEST(current_endstop_bits_local, Z_MIN_PROBE));
       #endif
       #if HAS_X2_MIN
-        if (TEST(endstop_change, X2_MIN)) SERIAL_PROTOCOLPAIR("  X2_MIN:", !!TEST(current_endstop_bits_local, X2_MIN));
+        if (TEST(endstop_change, X2_MIN)) SERIAL_PROTOCOLPAIR("  X2_MIN:", TEST(current_endstop_bits_local, X2_MIN));
       #endif
       #if HAS_X2_MAX
-        if (TEST(endstop_change, X2_MAX)) SERIAL_PROTOCOLPAIR("  X2_MAX:", !!TEST(current_endstop_bits_local, X2_MAX));
+        if (TEST(endstop_change, X2_MAX)) SERIAL_PROTOCOLPAIR("  X2_MAX:", TEST(current_endstop_bits_local, X2_MAX));
       #endif
       #if HAS_Y2_MIN
-        if (TEST(endstop_change, Y2_MIN)) SERIAL_PROTOCOLPAIR("  Y2_MIN:", !!TEST(current_endstop_bits_local, Y2_MIN));
+        if (TEST(endstop_change, Y2_MIN)) SERIAL_PROTOCOLPAIR("  Y2_MIN:", TEST(current_endstop_bits_local, Y2_MIN));
       #endif
       #if HAS_Y2_MAX
-        if (TEST(endstop_change, Y2_MAX)) SERIAL_PROTOCOLPAIR("  Y2_MAX:", !!TEST(current_endstop_bits_local, Y2_MAX));
+        if (TEST(endstop_change, Y2_MAX)) SERIAL_PROTOCOLPAIR("  Y2_MAX:", TEST(current_endstop_bits_local, Y2_MAX));
       #endif
       #if HAS_Z2_MIN
-        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", !!TEST(current_endstop_bits_local, Z2_MIN));
+        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", TEST(current_endstop_bits_local, Z2_MIN));
       #endif
       #if HAS_Z2_MAX
-        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", !!TEST(current_endstop_bits_local, Z2_MAX));
+        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", TEST(current_endstop_bits_local, Z2_MAX));
       #endif
       SERIAL_PROTOCOLPGM("\n\n");
       analogWrite(LED_PIN, local_LED_status);

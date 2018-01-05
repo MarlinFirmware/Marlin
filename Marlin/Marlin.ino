@@ -54,8 +54,11 @@
 #endif
 
 #if ENABLED(HAVE_TMC2130)
-  #include <SPI.h>
   #include <TMC2130Stepper.h>
+#endif
+
+#if ENABLED(HAVE_TMC2208)
+  #include <TMC2208Stepper.h>
 #endif
 
 #if ENABLED(HAVE_L6470DRIVER)

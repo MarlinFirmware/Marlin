@@ -32,8 +32,6 @@ void GcodeSuite::M304() {
   if (parser.seen('I')) thermalManager.bedKi = scalePID_i(parser.value_float());
   if (parser.seen('D')) thermalManager.bedKd = scalePID_d(parser.value_float());
 
-  thermalManager.updatePID();
-
   SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(" p:", thermalManager.bedKp);
   SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.bedKi));

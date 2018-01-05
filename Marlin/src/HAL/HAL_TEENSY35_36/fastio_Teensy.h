@@ -23,7 +23,7 @@
 /**
  * Fast I/O Routines for Teensy 3.5 and Teensy 3.6
  * Use direct port manipulation to save scads of processor time.
- * Contributed by Triffid_Hunter. Modified by Kliment and the Marlin team.
+ * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
 #ifndef _FASTIO_TEENSY_H

@@ -44,20 +44,9 @@ void GcodeSuite::G42() {
       return;
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      #define _GET_MESH_X(I) bilinear_start[X_AXIS] + I * bilinear_grid_spacing[X_AXIS]
-      #define _GET_MESH_Y(J) bilinear_start[Y_AXIS] + J * bilinear_grid_spacing[Y_AXIS]
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
-      #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
-    #elif ENABLED(MESH_BED_LEVELING)
-      #define _GET_MESH_X(I) mbl.index_to_xpos[I]
-      #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
-    #endif
-
     set_destination_from_current();
-    if (hasI) destination[X_AXIS] = LOGICAL_X_POSITION(_GET_MESH_X(ix));
-    if (hasJ) destination[Y_AXIS] = LOGICAL_Y_POSITION(_GET_MESH_Y(iy));
+    if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
+    if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
     if (parser.boolval('P')) {
       if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
       if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;

@@ -96,13 +96,15 @@
 #define TEMP_0_PIN          1   // Analog Input
 #define TEMP_1_PIN          2   // Analog Input
 #define TEMP_2_PIN          3   // Analog Input
+#define TEMP_3_PIN         -1   // fewer compiler warnings
+#define TEMP_4_PIN         -1   // fewer compiler warnings
 #define TEMP_BED_PIN        0   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS            53
+  #define MAX6675_SS       53
 #else
-  #define MAX6675_SS            49
+  #define MAX6675_SS       49
 #endif
 
 //

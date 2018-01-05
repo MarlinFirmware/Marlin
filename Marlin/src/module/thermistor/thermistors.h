@@ -26,6 +26,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #define OVERSAMPLENR 16
+#define OV(N) int16_t((N) * (OVERSAMPLENR))
 
 #define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n)
 
@@ -37,7 +38,7 @@
 #define PtB -5.775E-7
 #define PtRt(T,R0) ((R0)*(1.0+(PtA)*(T)+(PtB)*(T)*(T)))
 #define PtAdVal(T,R0,Rup) (short)(1024/(Rup/PtRt(T,R0)+1))
-#define PtLine(T,R0,Rup) { PtAdVal(T,R0,Rup)*OVERSAMPLENR, T },
+#define PtLine(T,R0,Rup) { OV(PtAdVal(T,R0,Rup)), T },
 
 #if ANY_THERMISTOR_IS(1) // 100k bed thermistor
   #include "thermistor_1.h"

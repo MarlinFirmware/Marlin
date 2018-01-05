@@ -31,6 +31,7 @@
 
 #if HAS_Z_SERVO_ENDSTOP
   #include "../../module/probe.h"
+  #include "../../module/servo.h"
 #endif
 
 inline void toggle_pins() {
@@ -259,8 +260,8 @@ void GcodeSuite::M43() {
   }
 
   // Get the range of pins to test or watch
-  const uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-                last_pin = parser.seenval('P') ? first_pin : NUM_DIGITAL_PINS - 1;
+  uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
+          last_pin = parser.seenval('P') ? first_pin : NUMBER_PINS_TOTAL - 1;
 
   if (first_pin > last_pin) return;
 
@@ -269,6 +270,10 @@ void GcodeSuite::M43() {
   // Watch until click, M108, or reset
   if (parser.boolval('W')) {
     SERIAL_PROTOCOLLNPGM("Watching pins");
+
+    #ifdef ARDUINO_ARCH_SAM
+      NOLESS(first_pin, 2);  // don't hijack the UART pins
+    #endif
     uint8_t pin_state[last_pin - first_pin + 1];
     for (uint8_t i = first_pin; i <= last_pin; i++) {
       pin_t pin = GET_PIN_MAP_PIN(i);

@@ -44,11 +44,28 @@ enum DebugFlags {
   DEBUG_ALL           = 0xFF
 };
 
+#if ENABLED(EMERGENCY_PARSER)
+  enum e_parser_state {
+    state_RESET,
+    state_N,
+    state_M,
+    state_M1,
+    state_M10,
+    state_M108,
+    state_M11,
+    state_M112,
+    state_M4,
+    state_M41,
+    state_M410,
+    state_IGNORE // to '\n'
+  };
+#endif
+
 //todo: HAL: breaks encapsulation
 // For AVR only, define a serial interface based on configuration
 #ifdef __AVR__
   #ifdef USBCON
-    #include "HardwareSerial.h"
+    #include <HardwareSerial.h>
     #if ENABLED(BLUETOOTH)
       #define MYSERIAL bluetoothSerial
     #else

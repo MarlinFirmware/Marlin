@@ -20,17 +20,11 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#ifndef _MARLIN_CONFIG_H_
+#define _MARLIN_CONFIG_H_
 
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "Version.h"
-#include "../HAL/SPI.h"
-#include "../../Configuration.h"
-#include "Conditionals_LCD.h"
-#include "../../Configuration_adv.h"
-#include "Conditionals_adv.h"
+#include "MarlinConfigPre.h"
+
 #include "../HAL/HAL.h"
 #include "../pins/pins.h"
 #if defined(__AVR__) && !defined(USBCON)
@@ -38,12 +32,12 @@
 #endif
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
+#include "../HAL/HAL_SanityCheck.h"
 
 // Include all core headers
 #include "../core/enum.h"
 #include "../core/language.h"
-#include "../core/types.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
 
-#endif // MARLIN_CONFIG_H
+#endif // _MARLIN_CONFIG_H_

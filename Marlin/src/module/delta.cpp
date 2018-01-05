@@ -38,7 +38,8 @@
 #include "../Marlin.h"
 
 // Initialized by settings.load()
-float delta_endstop_adj[ABC] = { 0 },
+float delta_height,
+      delta_endstop_adj[ABC] = { 0 },
       delta_radius,
       delta_diagonal_rod,
       delta_segments_per_second,
@@ -55,24 +56,26 @@ float delta_safe_distance_from_top();
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
-void recalc_delta_settings(const float radius, const float diagonal_rod, const float tower_angle_trim[ABC]) {
+void recalc_delta_settings() {
   const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
               drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
-  delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]); // front left tower
-  delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + tower_angle_trim[A_AXIS])) * (radius + trt[A_AXIS]);
-  delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]); // front right tower
-  delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + tower_angle_trim[B_AXIS])) * (radius + trt[B_AXIS]);
-  delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]); // back middle tower
-  delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + tower_angle_trim[C_AXIS])) * (radius + trt[C_AXIS]);
-  delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + drt[A_AXIS]);
-  delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + drt[B_AXIS]);
-  delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + drt[C_AXIS]);
+  delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]); // front left tower
+  delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]);
+  delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]); // front right tower
+  delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]);
+  delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]); // back middle tower
+  delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]);
+  delta_diagonal_rod_2_tower[A_AXIS] = sq(delta_diagonal_rod + drt[A_AXIS]);
+  delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
+  delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
+  update_software_endstops(Z_AXIS);
+  axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
 }
 
 /**
  * Delta Inverse Kinematics
  *
- * Calculate the tower positions for a given logical
+ * Calculate the tower positions for a given machine
  * position, storing the result in the delta[] array.
  *
  * This is an expensive calculation, requiring 3 square
@@ -117,8 +120,8 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
     SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
   }while(0)
 
-void inverse_kinematics(const float logical[XYZ]) {
-  DELTA_LOGICAL_IK();
+void inverse_kinematics(const float raw[XYZ]) {
+  DELTA_IK(raw);
   // DELTA_DEBUG();
 }
 
@@ -127,14 +130,10 @@ void inverse_kinematics(const float logical[XYZ]) {
  * effector has the full range of XY motion.
  */
 float delta_safe_distance_from_top() {
-  float cartesian[XYZ] = {
-    LOGICAL_X_POSITION(0),
-    LOGICAL_Y_POSITION(0),
-    LOGICAL_Z_POSITION(0)
-  };
+  float cartesian[XYZ] = { 0, 0, 0 };
   inverse_kinematics(cartesian);
   float distance = delta[A_AXIS];
-  cartesian[Y_AXIS] = LOGICAL_Y_POSITION(DELTA_PRINTABLE_RADIUS);
+  cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
   return FABS(distance - delta[A_AXIS]);
 }
@@ -228,14 +227,13 @@ bool home_delta() {
   sync_plan_position();
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (DELTA_HEIGHT + home_offset[Z_AXIS] + 10);
+  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
   feedrate_mm_s = homing_feedrate(X_AXIS);
   line_to_current_position();
   stepper.synchronize();
 
   // If an endstop was not hit, then damage can occur if homing is continued.
-  // This can occur if the delta height (DELTA_HEIGHT + home_offset[Z_AXIS]) is
-  // not set correctly.
+  // This can occur if the delta height not set correctly.
   if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
     LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
     SERIAL_ERROR_START();

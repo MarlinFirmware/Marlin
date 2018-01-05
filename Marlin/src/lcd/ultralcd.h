@@ -29,13 +29,25 @@
 
   #include "../Marlin.h"
 
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #include "../feature/pause.h"
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    extern bool lcd_external_control;
+  #else
+    constexpr bool lcd_external_control = false;
+  #endif
+
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-  #if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+  #if ENABLED(LCD_BED_LEVELING)
     extern bool lcd_wait_for_move;
+  #else
+    constexpr bool lcd_wait_for_move = false;
   #endif
 
   int16_t lcd_strlen(const char* s);
@@ -108,7 +120,14 @@
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
+      extern uint8_t active_extruder;
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
+                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+                                           const uint8_t extruder=active_extruder);
+    #endif // ADVANCED_PAUSE_FEATURE
+
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -118,8 +137,8 @@
       float lcd_z_offset_edit();
     #endif
 
-    #if ENABLED(DELTA_CALIBRATION_MENU)
-      float lcd_probe_pt(const float &lx, const float &ly);
+    #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
+      float lcd_probe_pt(const float &rx, const float &ry);
     #endif
 
   #else
@@ -158,20 +177,19 @@
 
     #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
     #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
-    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
     #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
     #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
-    #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
     #if ENABLED(ADC_KEYPAD)
-      #define REPRAPWORLD_KEYPAD_MOVE_HOME  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
-      #define KEYPAD_EN_C                   EN_REPRAPWORLD_KEYPAD_MIDDLE
+      #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_F1
+      #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_MIDDLE
     #else
-      #define REPRAPWORLD_KEYPAD_MOVE_HOME  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
-      #define KEYPAD_EN_C                   EN_REPRAPWORLD_KEYPAD_F1
+      #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_MIDDLE
+      #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_F1
     #endif
+    #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
     #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
 
     #if BUTTON_EXISTS(ENC)
@@ -197,7 +215,14 @@
     #define LCD_CLICKED false
   #endif
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool is_lcd_clicked();
+    void wait_for_release();
+  #endif
+
 #else // no LCD
+
+  constexpr bool lcd_wait_for_move = false;
 
   inline void lcd_update() {}
   inline void lcd_init() {}

@@ -53,7 +53,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klick für Start")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nächste Koordinate")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Fertig")
-#define MSG_Z_FADE_HEIGHT                   _UxGT("Niv. Ausblendhöhe")
+#define MSG_Z_FADE_HEIGHT                   _UxGT("Ausblendhöhe")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Setze Homeversatz")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Homeversatz aktiv")
 #define MSG_SET_ORIGIN                      _UxGT("Setze Nullpunkt") //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
@@ -77,6 +77,8 @@
 #define MSG_MOVE_AXIS                       _UxGT("Bewegen")
 #define MSG_BED_LEVELING                    _UxGT("Bett Nivellierung")
 #define MSG_LEVEL_BED                       _UxGT("Bett nivellieren")
+#define MSG_LEVEL_CORNERS                   _UxGT("Ecken nivellieren")
+#define MSG_NEXT_CORNER                     _UxGT("Nächste Ecke")
 #define MSG_EDITING_STOPPED                 _UxGT("Netzbearb. angeh.")
 #define MSG_USER_MENU                       _UxGT("Benutzer Menü")
 #define MSG_MOVING                          _UxGT("In Bewegung...")
@@ -306,11 +308,9 @@
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("DRUCK PAUSIERT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("DRUCK PAUSIERT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("FORTS. OPTIONEN:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude mehr")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Drucke weiter")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Temperatur ist ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Düse: ")
 
 #if LCD_HEIGHT >= 4
@@ -331,9 +331,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("Laden des")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("Filaments")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Warte auf")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("Extrusion des")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("Filaments")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("Fortsetzung des")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("Druckes...")
@@ -344,7 +341,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Laden und Klick")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heizen...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Laden...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrudieren...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Fortsetzen...")
 #endif // LCD_HEIGHT < 4
 

@@ -23,14 +23,17 @@
 #ifndef __BEDLEVEL_H__
 #define __BEDLEVEL_H__
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "mbl/mesh_bed_leveling.h"
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl/ubl.h"
-#elif HAS_ABL
-  #include "abl/abl.h"
+typedef struct {
+  int8_t x_index, y_index;
+  float distance; // When populated, the distance from the search location
+} mesh_index_pair;
+
+#if ENABLED(G26_MESH_VALIDATION)
+  extern bool g26_debug_flag;
+#else
+  constexpr bool g26_debug_flag = false;
 #endif
 
 #if ENABLED(PROBE_MANUALLY)
@@ -44,7 +47,7 @@ void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh);
+  void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
@@ -66,6 +69,25 @@ void reset_bed_level();
 
 #if HAS_PROBING_PROCEDURE
   void out_of_range_error(const char* p_edge);
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
+  #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
+  #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
+#elif ENABLED(MESH_BED_LEVELING)
+  #define _GET_MESH_X(I) mbl.index_to_xpos[I]
+  #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
+#endif
+
+#if ENABLED(MESH_BED_LEVELING)
+  #include "mbl/mesh_bed_leveling.h"
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl/ubl.h"
+#elif HAS_ABL
+  #include "abl/abl.h"
 #endif
 
 #endif // __BEDLEVEL_H__

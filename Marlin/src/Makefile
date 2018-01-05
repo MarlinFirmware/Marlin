@@ -300,20 +300,19 @@ SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
 	wiring_shift.c WInterrupts.c hooks.c
+
 ifeq ($(HARDWARE_VARIANT), Teensy)
 SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
 endif
-CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin.cpp \
-	MarlinSerial.cpp sd/Sd2Card.cpp sd/SdBaseFile.cpp sd/SdFatUtil.cpp \
-	sd/SdFile.cpp sd/SdVolume.cpp module/planner.cpp module/stepper.cpp \
-	module/temperature.cpp sd/cardreader.cpp module/configuration_store.cpp \
-	HAL/watchdog.cpp SPI.cpp HAL/servo.cpp Tone.cpp lcd/ultralcd.cpp libs/digipot_mcp4451.cpp \
-	feature/dac/dac_mcp4728.cpp libs/vector_3.cpp libs/least_squares_fit.cpp module/endstops.cpp libs/stopwatch.cpp core/utility.cpp \
-	module/printcounter.cpp libs/nozzle.cpp core/serial.cpp gcode/parser.cpp feature/Max7219_Debug_LEDs.cpp
+
+CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
+CXXSRC += $(wildcard *.cpp)
+
 ifeq ($(NEOPIXEL), 1)
 CXXSRC += Adafruit_NeoPixel.cpp
 endif
+
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else

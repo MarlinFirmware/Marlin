@@ -35,9 +35,11 @@
 #include "HAL_Due.h"
 #include "InterruptVectors_Due.h"
 
-/* The relocated Exception/Interrupt Table - Must be aligned to 128bytes,
-   as bits 0-6 on VTOR register are reserved and must be set to 0 */
-__attribute__ ((aligned(128)))
+/* The relocated Exception/Interrupt Table - According to the ARM
+   reference manual, alignment to 128 bytes should suffice, but in
+   practice, we need alignment to 256 bytes to make this work in all
+   cases */
+__attribute__ ((aligned(256)))
 static DeviceVectors ram_tab = { NULL };
 
 /**
@@ -74,7 +76,7 @@ static pfnISR_Handler* get_relocated_table_addr(void) {
 
 pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler) {
   // Get the address of the relocated table
-  const pfnISR_Handler *isrtab = get_relocated_table_addr();
+  pfnISR_Handler *isrtab = get_relocated_table_addr();
 
   // Disable global interrupts
   CRITICAL_SECTION_START;

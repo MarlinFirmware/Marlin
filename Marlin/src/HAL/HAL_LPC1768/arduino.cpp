@@ -22,10 +22,10 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfig.h"
 #include "LPC1768_PWM.h"
-
 #include <lpc17xx_pinsel.h>
+
+#include "../../inc/MarlinConfig.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable
@@ -72,8 +72,7 @@ extern "C" void delay(const int msec) {
 // IO functions
 // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode(pin_t pin, uint8_t mode) {
-  if (!VALID_PIN(pin))
-    return;
+  if (!VALID_PIN(pin)) return;
 
   PINSEL_CFG_Type config = { LPC1768_PIN_PORT(pin),
                              LPC1768_PIN_PIN(pin),
@@ -100,8 +99,7 @@ void pinMode(pin_t pin, uint8_t mode) {
 }
 
 void digitalWrite(pin_t pin, uint8_t pin_status) {
-  if (!VALID_PIN(pin))
-    return;
+  if (!VALID_PIN(pin)) return;
 
   if (pin_status)
     LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOSET = LPC_PIN(LPC1768_PIN_PIN(pin));
@@ -120,19 +118,17 @@ void digitalWrite(pin_t pin, uint8_t pin_status) {
 }
 
 bool digitalRead(pin_t pin) {
-  if (!VALID_PIN(pin)) {
-    return false;
-  }
+  if (!VALID_PIN(pin)) return false;
+
   return LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
 }
 
 void analogWrite(pin_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255: HIGH
+  if (!VALID_PIN(pin)) return;
+
   #define MR0_MARGIN 200       // if channel value too close to MR0 the system locks up
 
   static bool out_of_PWM_slots = false;
-
-  if (!VALID_PIN(pin))
-    return;
 
   uint value = MAX(MIN(pwm_value, 255), 0);
   if (value == 0 || value == 255) {  // treat as digital pin
@@ -140,8 +136,8 @@ void analogWrite(pin_t pin, int pwm_value) {  // 1 - 254: pwm_value, 0: LOW, 255
     digitalWrite(pin, value);
   }
   else {
-    if (LPC1768_PWM_attach_pin(pin, 1, (LPC_PWM1->MR0 - MR0_MARGIN),  0xff))   // locks up if get too close to MR0 value
-      LPC1768_PWM_write(pin, map(value, 1, 254, 1, (LPC_PWM1->MR0 - MR0_MARGIN)));  // map 1-254 onto PWM range
+    if (LPC1768_PWM_attach_pin(pin, 1, LPC_PWM1->MR0, 0xFF))
+      LPC1768_PWM_write(pin, map(value, 0, 255, 1, LPC_PWM1->MR0));  // map 1-254 onto PWM range
     else {                                                                 // out of PWM channels
       if (!out_of_PWM_slots) MYSERIAL.printf(".\nWARNING - OUT OF PWM CHANNELS\n.\n");  //only warn once
       out_of_PWM_slots = true;

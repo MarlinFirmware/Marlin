@@ -21,9 +21,9 @@
  */
 
 /**
- * Fast I/O Routines
+ * Fast I/O Routines for AVR
  * Use direct port manipulation to save scads of processor time.
- * Contributed by Triffid_Hunter. Modified by Kliment and the Marlin team.
+ * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
 #ifndef _FASTIO_ARDUINO_H_
@@ -53,10 +53,6 @@
   #include "fastio_1281.h"
 #else
   #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
-#endif
-
-#ifndef _BV
-  #define _BV(bit) (1UL << (bit))
 #endif
 
 /**

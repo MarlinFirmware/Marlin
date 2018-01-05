@@ -37,15 +37,15 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
+#if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_PLUS_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
-#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB)
+#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_PLUS_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB)
   #define IS_RAMPS_EEB
-#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF)
+#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_PLUS_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF)
   #define IS_RAMPS_EFF
-#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF)
+#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_PLUS_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF)
   #define IS_RAMPS_EEF
-#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF)
+#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_PLUS_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF)
   #define IS_RAMPS_SF
 #endif
 
@@ -75,6 +75,16 @@
   #include "pins_RAMPS.h"
 #elif MB(RAMPS_14_SF)
   #include "pins_RAMPS.h"
+#elif MB(RAMPS_PLUS_EFB)
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EEB)
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EFF)
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_EEF)
+  #include "pins_RAMPS_PLUS.h"
+#elif MB(RAMPS_PLUS_SF)
+  #include "pins_RAMPS_PLUS.h"
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
@@ -94,6 +104,8 @@
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"            // ATmega1280, ATmega2560
+#elif MB(MKS_GEN_L)
+  #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560 (MKS_13)
 #elif MB(FELIX2)
@@ -139,14 +151,11 @@
   #include "pins_MEGATRONICS.h"       // ATmega2560
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"     // ATmega2560
-#elif MB(MEGATRONICS_3)
-  #include "pins_MEGATRONICS_3.h"     // ATmega2560
-#elif MB(MEGATRONICS_31)
-  #define MEGATRONICS_31
+#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31)
   #include "pins_MEGATRONICS_3.h"     // ATmega2560
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"             // ATmega2560
-#elif MB(MINIRAMBO)
+#elif MB(MINIRAMBO) || MB(MINIRAMBO_10A)
   #include "pins_MINIRAMBO.h"         // ATmega2560
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"           // ATmega2560
@@ -167,6 +176,8 @@
 
 #elif MB(MINITRONICS)
   #include "pins_MINITRONICS.h"       // ATmega1281
+#elif MB(SILVER_GATE)
+  #include "pins_SILVER_GATE.h"       // ATmega2561
 
 //
 // Sanguinololu and Derivatives - ATmega644P, ATmega1284P
@@ -264,6 +275,8 @@
   #include "pins_DUE3DOM_MINI.h"
 #elif MB(RADDS)
   #include "pins_RADDS.h"
+#elif MB(RURAMPS4D)
+  #include "pins_RURAMPS4D.h"
 #elif MB(RAMPS_FD_V1)
   #include "pins_RAMPS_FD_V1.h"
 #elif MB(RAMPS_FD_V2)
@@ -298,16 +311,30 @@
   #include "pins_RAMPS4DUE.h"
 #elif MB(RAMPS4DUE_SF)
   #include "pins_RAMPS4DUE.h"
+#elif MB(ULTRATRONICS_PRO)
+  #include "pins_ULTRATRONICS_PRO.h"
+#elif MB(ARCHIM2)
+  #include "pins_ARCHIM2.h"
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"
+#elif MB(STM3R_MINI)
+  #include "pins_STM3R_MINI.h"
+#elif MB(MALYAN_M200)
+  #include "pins_MALYAN_M200.h"
+#elif MB(BEAST)
+  #include "pins_BEAST.h"
+#elif MB(CHITU3D)
+  #include "pins_CHITU3D.h"
 #elif MB(MKS_SBASE)
   #include "pins_MKS_SBASE.h"
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"
 #elif MB(AZTEEG_X5_GT)
   #include "pins_AZTEEG_X5_GT.h"
+#elif MB(BIQU_BQ111_A4)
+  #include "pins_BIQU_BQ111_A4.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -473,9 +500,6 @@
   #define MAX_EXTRUDERS 5
 #endif
 
-// Marlin needs to account for pins that equal -1
-#define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
-
 //
 // Assign auto fan pins if needed
 //
@@ -529,7 +553,7 @@
   #endif // EXTRUDERS > 2
 #endif // EXTRUDERS > 1
 
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
@@ -537,16 +561,16 @@
 
 #if HOTENDS > 1
   #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
   #if HOTENDS > 2
     #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
     #if HOTENDS > 3
       #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
+      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
       #if HOTENDS > 4
         #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),
+        #define _H4_PINS HEATER_4_PIN, analogInputToDigitalPin(TEMP_4_PIN),
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
@@ -567,7 +591,7 @@
   #endif // MIXING_STEPPERS > 2
 #endif // MIXING_STEPPERS > 1
 
-#define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
+#define BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
 
 //
 // Assign endstop pins for boards with only 3 connectors
@@ -713,7 +737,7 @@
 #endif
 
 #ifndef HAL_SENSITIVE_PINS
-#define HAL_SENSITIVE_PINS
+  #define HAL_SENSITIVE_PINS
 #endif
 
 #define SENSITIVE_PINS { \
