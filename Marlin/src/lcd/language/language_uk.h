@@ -204,9 +204,6 @@
 #define MSG_DAC_PERCENT                     _UxGT("% мотору")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Запис ЦАП на ПЗП")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Екструдувати")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Відновити друк")
 
 #if LCD_HEIGHT >= 4
@@ -221,9 +218,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("продовження...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Зачекайте на")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("ввід волокна")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Зачекайте на")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("екструзію")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("волокна")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Зачекайте на")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("відновлення")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("друку")
@@ -233,7 +227,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Вивід...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Вставте і нат.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ввід...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Екструзія...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Відновлення...")
 #endif // LCD_HEIGHT < 4
 

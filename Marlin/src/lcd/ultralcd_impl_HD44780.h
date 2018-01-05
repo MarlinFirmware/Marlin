@@ -803,7 +803,6 @@ static void lcd_implementation_status_screen() {
 
       // If the first line has two extruder temps,
       // show more temperatures on the next line
-      // instead of 
 
       #if HOTENDS > 2 || (HOTENDS > 1 && TEMP_SENSOR_BED)
 
@@ -954,10 +953,10 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-    static void lcd_implementation_hotend_status(const uint8_t row) {
+    static void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder=active_extruder) {
       if (row < LCD_HEIGHT) {
         lcd.setCursor(LCD_WIDTH - 9, row);
-        _draw_heater_status(active_extruder, LCD_STR_THERMOMETER[0], lcd_blink());
+        _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
 
