@@ -215,9 +215,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Sila %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Zapisz DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ZMIEN FILAMENT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ZMIEN FILAMENT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ZMIEN OPCJE:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ekstruduj wiecej")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Wznow drukowanie")
 
 #if LCD_HEIGHT >= 4
@@ -231,8 +230,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -241,7 +238,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 
@@ -256,8 +252,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -266,7 +260,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 

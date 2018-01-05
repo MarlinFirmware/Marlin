@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V47"
+#define EEPROM_VERSION "V48"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V47 EEPROM Layout:
+ * V48 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM CRC16                               (uint16_t)
@@ -139,7 +139,7 @@
  *
  * Volumetric Extrusion:                            21 bytes
  *  539  M200 D    parser.volumetric_enabled        (bool)
- *  540  M200 T D  planner.filament_size            (float x5) (T0..3)
+ *  540  M200 T D  planner.filament_size            (float x5) (T0..4)
  *
  * HAS_TRINAMIC:                                    22 bytes
  *  560  M906 X    Stepper X current                (uint16_t)
@@ -154,7 +154,7 @@
  *  578  M906 E3   Stepper E3 current               (uint16_t)
  *  580  M906 E4   Stepper E4 current               (uint16_t)
  *
- * SENSORLESS HOMING                                4 bytes
+ * SENSORLESS_HOMING:                               4 bytes
  *  582  M914 X    Stepper X and X2 threshold       (int16_t)
  *  584  M914 Y    Stepper Y and Y2 threshold       (int16_t)
  *
@@ -167,7 +167,7 @@
  *  598  M907 Z    Stepper Z current                (uint32_t)
  *  602  M907 E    Stepper E current                (uint32_t)
  *
- * CNC_COORDINATE_SYSTEMS                           108 bytes
+ * CNC_COORDINATE_SYSTEMS:                          108 bytes
  *  606  G54-G59.3 coordinate_system                (float x 27)
  *
  * SKEW_CORRECTION:                                 12 bytes
@@ -175,8 +175,12 @@
  *  718  M852 J    planner.xz_skew_factor           (float)
  *  722  M852 K    planner.yz_skew_factor           (float)
  *
- *  726                                   Minimum end-point
- * 2255 (726 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
+ * ADVANCED_PAUSE_FEATURE:                          40 bytes
+ *  726  M603 T U  filament_change_unload_length    (float x 5) (T0..4)
+ *  746  M603 T L  filament_change_load_length      (float x 5) (T0..4)
+ *
+ *  766                                   Minimum end-point
+ * 2295 (766 + 208 + 36 + 9 + 288 + 988)  Maximum end-point
  *
  * ========================================================================
  * meshes_begin (between max and min end-point, directly above)
@@ -698,6 +702,23 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
 
+    //
+    // Advanced Pause filament load & unload lengths
+    //
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+        if (q < COUNT(filament_change_unload_length)) dummy = filament_change_unload_length[q];
+        EEPROM_WRITE(dummy);
+      }
+      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+        if (q < COUNT(filament_change_load_length)) dummy = filament_change_load_length[q];
+        EEPROM_WRITE(dummy);
+      }
+    #else
+      dummy = 0.0f;
+      for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_WRITE(dummy);
+    #endif
+
     if (!eeprom_error) {
       #if ENABLED(EEPROM_CHITCHAT)
         const int eeprom_size = eeprom_index;
@@ -1183,6 +1204,23 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
       #endif
 
+      //
+      // Advanced Pause filament load & unload lengths
+      //
+
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+          EEPROM_READ(dummy);
+          if (q < COUNT(filament_change_unload_length)) filament_change_unload_length[q] = dummy;
+        }
+        for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+          EEPROM_READ(dummy);
+          if (q < COUNT(filament_change_load_length)) filament_change_load_length[q] = dummy;
+        }
+      #else
+        for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
+      #endif
+
       if (working_crc == stored_crc) {
         postprocess();
         #if ENABLED(EEPROM_CHITCHAT)
@@ -1593,6 +1631,13 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    for (uint8_t e = 0; e < E_STEPPERS; e++) {
+      filament_change_unload_length[e] = FILAMENT_CHANGE_UNLOAD_LENGTH;
+      filament_change_load_length[e] = FILAMENT_CHANGE_LOAD_LENGTH;
+    }
+  #endif
+
   postprocess();
 
   #if ENABLED(EEPROM_CHITCHAT)
@@ -1804,36 +1849,35 @@ void MarlinSettings::reset() {
       }
     #endif
 
-    #if ENABLED(MESH_BED_LEVELING)
+    /**
+     * Bed Leveling
+     */
+    #if HAS_LEVELING
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", leveling_is_valid() ? 1 : 0);
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
-      #endif
-      SERIAL_EOL();
-      for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
-        for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+      #if ENABLED(MESH_BED_LEVELING)
+
+        if (!forReplay) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
-          SERIAL_ECHOPAIR(" Y", (int)py + 1);
-          SERIAL_ECHOPGM(" Z");
-          SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
-          SERIAL_EOL();
+          SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         }
-      }
 
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        ubl.echo_name();
-        SERIAL_ECHOLNPGM(":");
-      }
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          ubl.echo_name();
+          SERIAL_ECHOLNPGM(":");
+        }
+
+      #elif HAS_ABL
+
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOLNPGM("Auto Bed Leveling:");
+        }
+
+      #endif
+
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -1841,29 +1885,32 @@ void MarlinSettings::reset() {
       #endif
       SERIAL_EOL();
 
-      if (!forReplay) {
-        SERIAL_EOL();
-        ubl.report_state();
+      #if ENABLED(MESH_BED_LEVELING)
 
-        SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
-        SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
-        SERIAL_ECHOLNPGM(" meshes.\n");
-      }
+        for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+          for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
+            SERIAL_ECHOPAIR(" Y", (int)py + 1);
+            SERIAL_ECHOPGM(" Z");
+            SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
+            SERIAL_EOL();
+          }
+        }
 
-    #elif HAS_ABL
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Auto Bed Leveling:");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M420 S", planner.leveling_active ? 1 : 0);
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.z_fade_height));
+        if (!forReplay) {
+          SERIAL_EOL();
+          ubl.report_state();
+          SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
+          SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
+          SERIAL_ECHOLNPGM(" meshes.\n");
+        }
+
       #endif
-      SERIAL_EOL();
 
-    #endif
+    #endif // HAS_LEVELING
 
     #if ENABLED(DELTA)
       if (!forReplay) {
@@ -2045,7 +2092,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 stepper driver current
      */
-    #if ENABLED(HAVE_TMC2130)
+    #if HAS_TRINAMIC
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Stepper driver current:");
@@ -2091,7 +2138,7 @@ void MarlinSettings::reset() {
     /**
      * TMC2130 Sensorless homing thresholds
      */
-    #if ENABLED(HAVE_TMC2130) && ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(SENSORLESS_HOMING)
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Sensorless homing threshold:");
@@ -2137,6 +2184,42 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
       SERIAL_EOL();
     #endif
+
+    /**
+     * Advanced Pause filament load & unload lengths
+     */
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Filament load/unload lengths:");
+      }
+      CONFIG_ECHO_START;
+      #if EXTRUDERS == 1
+        SERIAL_ECHOPAIR("  M603 L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[0]));
+      #else
+        SERIAL_ECHOPAIR("  M603 T0 L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[0]));
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M603 T1 L", LINEAR_UNIT(filament_change_load_length[1]));
+        SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[1]));
+        #if EXTRUDERS > 2
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  M603 T2 L", LINEAR_UNIT(filament_change_load_length[2]));
+          SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[2]));
+          #if EXTRUDERS > 3
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR("  M603 T3 L", LINEAR_UNIT(filament_change_load_length[3]));
+            SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[3]));
+            #if EXTRUDERS > 4
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR("  M603 T4 L", LINEAR_UNIT(filament_change_load_length[4]));
+              SERIAL_ECHOLNPAIR(" U", LINEAR_UNIT(filament_change_unload_length[4]));
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS == 1
+    #endif // ADVANCED_PAUSE_FEATURE
   }
 
 #endif // !DISABLE_M503

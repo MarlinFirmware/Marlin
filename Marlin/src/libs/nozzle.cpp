@@ -162,7 +162,7 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t &z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
+  void Nozzle::park(const uint8_t z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
     const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
     const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
