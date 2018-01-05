@@ -249,6 +249,8 @@ typedef struct SettingsDataStruct {
 
 MarlinSettings settings;
 
+uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
+
 /**
  * Post-process after Retrieve or Reset
  */
@@ -330,6 +332,15 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     int16_t MarlinSettings::meshes_begin;
   #endif
+
+  bool MarlinSettings::size_error(const uint16_t size) {
+    if (size != datasize()) {
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM("EEPROM datasize error.");
+      return true;
+    }
+    return false;
+  }
 
   /**
    * M500 - Store Configuration
@@ -750,7 +761,7 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Validate CRC
+    // Validate CRC and Data Size
     //
     if (!eeprom_error) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
@@ -769,6 +780,8 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
         SERIAL_ECHOLNPGM(")");
       #endif
+
+      eeprom_error |= size_error(eeprom_size);
     }
     EEPROM_FINISH();
 
@@ -1260,19 +1273,14 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
       #endif
 
-      if (working_crc == stored_crc) {
-        if (!validating) {
-          postprocess();
-          #if ENABLED(EEPROM_CHITCHAT)
-            SERIAL_ECHO_START();
-            SERIAL_ECHO(version);
-            SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
-            SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-            SERIAL_ECHOLNPGM(")");
-          #endif
-        }
+      eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
+      if (eeprom_error) {
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)));
+        SERIAL_ECHOLNPAIR(" Size: ", datasize());
       }
-      else {
+      else if (working_crc != stored_crc) {
+        eeprom_error = true;
         #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ERROR_START();
           SERIAL_ERRORPGM("EEPROM CRC mismatch - (stored) ");
@@ -1281,7 +1289,19 @@ void MarlinSettings::postprocess() {
           SERIAL_ERROR(working_crc);
           SERIAL_ERRORLNPGM(" (calculated)!");
         #endif
-        reset();
+      }
+      else if (!validating) {
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_ECHO_START();
+          SERIAL_ECHO(version);
+          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
+          SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
+          SERIAL_ECHOLNPGM(")");
+        #endif
+      }
+
+      if (!validating) {
+        if (eeprom_error) reset(); else postprocess();
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
