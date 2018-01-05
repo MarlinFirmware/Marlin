@@ -40,7 +40,7 @@
 // XSTEP,YSTEP ... must be adapted with M92 accordingly (128/16 => multiply by factor 8).
 */
 #define X_MS1_PIN           5   // Digital 3  / Pin 5   / PE3
-#define X_MS2_PIN           6   // Digital 6  / Pin 14  / PH3      
+#define X_MS2_PIN           6   // Digital 6  / Pin 14  / PH3
 #define Y_MS1_PIN           59  // Analog 5   / Pin 92  / PF5
 #define Y_MS2_PIN           58  // Analog 4   / Pin 93  / PF4
 #define Z_MS1_PIN           22  // Digital 22 / Pin 78  / PA0

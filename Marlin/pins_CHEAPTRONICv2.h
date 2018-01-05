@@ -110,7 +110,7 @@
 // Other board specific pins
 //
 #define FIL_RUNOUT_PIN     37   // board input labeled as F-DET
-#define Z_MIN_PROBE_PIN    36   // additional external board input labeled as E-SENS (should be used for Z-probe)  
+#define Z_MIN_PROBE_PIN    36   // additional external board input labeled as E-SENS (should be used for Z-probe)
 #define LED_PIN            13
 #define SPINDLE_ENABLE_PIN  4   // additional PWM pin 1 at JP1 connector - should be used for laser control too
 #define EXT_2               5   // additional PWM pin 2 at JP1 connector
