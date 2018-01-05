@@ -605,7 +605,7 @@ static float run_z_probe() {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool probe_relative/*=true*/) {
+float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool probe_relative/*=true*/, const bool leveling/*=false*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
@@ -642,7 +642,13 @@ float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t 
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe() + zprobe_zoffset;
+    measured_z = run_z_probe() +
+      #if Z_HOME_DIR <= 0
+        zprobe_zoffset
+      #else
+        (leveling ? 0 : zprobe_zoffset)
+      #endif
+    ;
 
     if (!stow)
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
