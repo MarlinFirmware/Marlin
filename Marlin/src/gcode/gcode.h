@@ -681,6 +681,9 @@ private:
   #if DISABLED(DISABLE_M503)
     static void M503();
   #endif
+  #if ENABLED(EEPROM_SETTINGS)
+    static void M504();
+  #endif
 
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     static void M540();
