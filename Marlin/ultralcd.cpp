@@ -3614,7 +3614,18 @@ void kill_screen(const char* lcd_msg) {
     }
 
   #endif // !SLIM_LCD_MENUS
-
+  
+  #if ENABLED(LIVE_Z_OFFSET_ADJUST)
+  float zprobe_zoffset_old = 0.0;
+  void _live_apply_z_offset(){
+      float zprobe_zoffset_diff = zprobe_zoffset_old - zprobe_zoffset;
+      if(WITHIN(current_position[Z_AXIS]-zprobe_zoffset_diff, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)){
+        current_position[Z_AXIS] -= zprobe_zoffset_diff;
+        do_blocking_move_to_z(current_position[Z_AXIS]);
+        zprobe_zoffset_old = zprobe_zoffset;
+      }
+  }
+  #endif
   /**
    *
    * "Control" > "Motion" submenu
@@ -3628,7 +3639,12 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     #elif HAS_BED_PROBE
-      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #if ENABLED(LIVE_Z_OFFSET_ADJUST)
+        zprobe_zoffset_old = zprobe_zoffset;
+        MENU_ITEM_EDIT_CALLBACK(float32, MSG_LIVE_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, _live_apply_z_offset, true);
+      #else
+        MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);    
+      #endif    
     #endif
 
     #if DISABLED(SLIM_LCD_MENUS)
