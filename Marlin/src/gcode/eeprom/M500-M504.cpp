@@ -55,3 +55,15 @@ void GcodeSuite::M502() {
   }
 
 #endif // !DISABLE_M503
+
+#if ENABLED(EEPROM_SETTINGS)
+  /**
+   * M504: Validate EEPROM Contents
+   */
+  void GcodeSuite::M504() {
+    if (settings.validate()) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM("EEPROM OK");
+    }
+  }
+#endif
