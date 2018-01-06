@@ -506,7 +506,7 @@ HAL_PWM_TIMER_ISR {
   if (first_active_entry) next_MR1_val = LPC_PWM1_MR0 + 1;  // empty table so disable MR1 interrupt
   HAL_PWM_TIMER->MR1 = MAX(next_MR1_val, HAL_PWM_TIMER->TC + PWM_LPC1768_ISR_SAFETY_FACTOR); // set next
   in_PWM_isr = false;
-  
+
   exit_PWM_ISR:
   return;
 }

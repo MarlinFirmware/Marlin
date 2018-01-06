@@ -43,7 +43,7 @@
 /*
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
- 
+
 #ifdef ARDUINO_ARCH_SAM
 
 #include "compiler.h"

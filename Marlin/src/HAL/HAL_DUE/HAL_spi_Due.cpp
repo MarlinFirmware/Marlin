@@ -574,9 +574,9 @@
   /** Begin SPI transaction, set clock, bit order, data mode */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // TODO: to be implemented
-    
-  }    
-  
+
+  }
+
   #pragma GCC reset_options
 
 #else
@@ -777,9 +777,8 @@
   /** Begin SPI transaction, set clock, bit order, data mode */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // TODO: to be implemented
-    
-  }    
-  
+  }
+
 #endif // ENABLED(SOFTWARE_SPI)
 
 #endif // ARDUINO_ARCH_SAM

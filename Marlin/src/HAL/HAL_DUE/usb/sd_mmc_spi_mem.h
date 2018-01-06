@@ -113,7 +113,7 @@ extern Ctrl_status    sd_mmc_spi_read_capacity(uint32_t *nb_sector);
  *
  * \return \c true if unload/load done success.
  */
-extern bool sd_mmc_spi_unload(bool unload); 
+extern bool sd_mmc_spi_unload(bool unload);
 
 //!
 //! @brief This function returns the write protected status of the memory.

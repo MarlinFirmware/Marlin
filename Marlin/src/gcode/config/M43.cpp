@@ -270,7 +270,7 @@ void GcodeSuite::M43() {
   // Watch until click, M108, or reset
   if (parser.boolval('W')) {
     SERIAL_PROTOCOLLNPGM("Watching pins");
-    
+
     #ifdef ARDUINO_ARCH_SAM
       NOLESS(first_pin, 2);  // don't hijack the UART pins
     #endif

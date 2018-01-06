@@ -246,7 +246,7 @@ static inline void osc_wait_ready(uint8_t id)
 	while (!osc_is_ready(id)) {
 		/* Do nothing */
 	}
-} 
+}
 
 //! @}
 
