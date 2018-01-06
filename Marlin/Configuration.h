@@ -1688,6 +1688,9 @@
 // Support for PCA9632 PWM LED driver
 //#define PCA9632
 
+// Support for Live Z Offset Changing
+#define LIVE_Z_OFFSET_ADJUST
+
 /**
  * RGB LED / LED Strip Control
  *
