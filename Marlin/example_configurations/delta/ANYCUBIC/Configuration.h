@@ -710,8 +710,10 @@
   #endif
 
   // Center-to-center distance of the holes in the diagonal push rods.
-  #if ENABLED(LINEAR_PLUS)
+  #if ENABLED(LINEAR_PLUS) && DISABLED(UPGRADED)
     #define DELTA_DIAGONAL_ROD 271.5 // mm
+  #elif ENABLED(LINEAR_PLUS) && ENABLED(UPGRADED)
+    #define DELTA_DIAGONAL_ROD 268.0 // mm
   #else
     #define DELTA_DIAGONAL_ROD 218 // mm
   #endif
