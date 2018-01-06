@@ -23,7 +23,7 @@
 /**
  * Config file for Anycubic Kossel 3D Printer
  * This settings should work with most of Anycubic Kossel 3D printers
- * pulley, linear, linear plus non upgraded models.
+ * pulley, linear, linear plus upgraded and non upgraded models.
  * Most of the settings you could be interested in, should be here,
  * or in the Configuration_adv.h file.
  * If not fell free to edit the rest of the file, but be sure you know
@@ -34,25 +34,28 @@
  *  2. Heat Bed
  *  3. Delta Height
  *  4. Towers' Steppers Direction
- *  5. Extruder Count
- *  6. Dual Extrusion Nozzle Type
- *  7. Second Nozzle Offset
- *  8. Extruder(s) Stepper Direction
- *  9. Extruder Steps Per Millimeter
- * 10. Graphic Controller type
- * 11. RGB LED strip
- * 12. Printer Z-Probe Type
- * 13. Z-Probe Offset From The Nozzle
- * 14. Bed Leveling Type
- * 15. Autolevel / Autocalibration Grid Points
- * 16. Bed Margin For Probing
- * 17. ...
+ *  5. Printer Z-Probe Type
+ *  6. Z-Probe Offset From The Nozzle
+ *  7. Bed Leveling Type
+ *  8. Autolevel / Autocalibration Grid Points
+ *  9. Bed Margin For Probing
+ * 10. Extruder Count
+ * 11. Dual Extrusion Nozzle Type
+ * 12. Second Nozzle Offset
+ * 13. Extruder(s) Stepper Direction
+ * 14. Extruder Steps Per Millimeter
+ * 15. Graphic Controller type
+ * 16. RGB LED strip
+ * 17. Baudrate
  */
 
 /* 3D Printer Model
- * Leave commented if you have pulley or linear model
+ * Leave commented if you have pulley or linear non upgraded model
+ * Uncomment LINEAR_PLUS for lineal plus models
+ * Uncomment UPGRADED for the upgraded models
  */
 //#define LINEAR_PLUS
+//#define UPGRADED
 
 /* Heat Bed
  * Uncomment if you have a heat bed on your printer
@@ -62,14 +65,80 @@
 /* Delta Height
  * Printable height of your printer in mm
  * For all the other delta parameters,
- * I recommend to get them from autocalibration
+ * I recommend to get them from autocalibration 
+ * NEEDS EEPROM CLEAR!!
  */
 #define DELTA_HEIGHT 240
 
 /* Steppers Direction
- * Uncomment if for some reason you stepper move backwards
+ * Uncomment if your stepper move backwards
+ * Enable for TMC2100 if you didn't made any change to the stock cables
  */
 //#define INVERT_MOTORS
+
+/* Printer Z-Probe Type
+ * Probe for autoleveling and/or autocalibration
+ * Uncomment PROBE_MANUALLY if you don't have one
+ *
+ * If your Z probe is an inductive sensor uncomment both INDUCTIVE and the
+ * NO_PROBE or NC_PROBE if it's a normally open or normally close probe
+ *
+ * If your Z probe is a switch, just uncomment NC_PROBE or NO_PROBE
+ *
+ * The code assumes your z probe is connected to the z-min pin
+ * 
+ * For switches:
+ * COM to GROUND [G], NC or NO to Signal [S] on the board
+ * Anycubic upgraded probe V1 Normally Open
+ * Anycubic upgraded probe V2 Normally Closed
+ * 
+ * For inductive sensors USING A VOLTAGE DIVIDER!!:
+ * Normally closed -> 5[V] when not triggered, 0[V] when triggered (LJ12A3-4-Z/BX)
+ * Normally open -> 0[V] when not triggered, 5[V] when triggered (LJ12A3-4-Z/BY)
+ */
+//#define BLTOUCH
+//#define INDUCTIVE
+//#define NO_PROBE
+//#define NC_PROBE
+#define PROBE_MANUALLY
+
+/* Z-Probe Offset From The Nozzle
+ * Using scoth tape fix a piece of paper to your bed, then home
+ * your printer, now using the move menu take Z to 0
+ * and mark the 0 position, then move the x and y axis until your
+ * probe is on the mark, write here the values for x and y
+ * on the info screen of the printer.
+ * NEEDS EEPROM CLEAR!!
+ */
+#define ZPROBE_X_OFFSET        0
+#define ZPROBE_Y_OFFSET        0
+#define ZPROBE_Z_OFFSET        0
+
+/* Bed Leveling Type
+ * Type of bed leveling you want to use.
+ * You can choose one, even if you don't have a z probe (Manual probing)
+ * or not use one at all.
+ */
+//#define AUTO_BED_LEVELING_LINEAR
+//#define AUTO_BED_LEVELING_BILINEAR
+
+/* Autolevel / Autocalibration Grid Points
+ * Number of points to probe on autolevel / autocalibration routines
+ * min 3 max 7
+ * A higher the value means better results
+ * Keep a low value for manual leveling
+ */
+#define GRID_POINTS        5
+
+/* Bed Margin For Probing
+ * Margin around perimiter of bed for probing
+ * both for autocalibration and autolevel
+ * The bigger the radius to probe (smaller margin),
+ * the more accurate results you get.
+ * Start with a high value, and reduce according to your setup
+ * NEEDS EEPROM CLEAR!!
+ */
+#define BED_MARGIN 10
 
 /* Extruder Count
  * If your using 2 Extruders, uncomment this line
@@ -100,6 +169,7 @@
 
 /* Extruder Steps Per Millimeter
  * Put on this section your calibrated steps per millimiter
+ * NEEDS EEPROM CLEAR!!
  */
 #define E0_STEPS 96
 //#define E1_STEPS 96
@@ -121,61 +191,9 @@
 //#define LED_PIN_G 12
 //#define LED_PIN_B 12
 
-/* Printer Z-Probe Type
- * Probe for autoleveling and/or autocalibration
- * Leave commented if you don't have one
- * If your probe is an inductive sensor uncomment both INDUCTIVE and the
- * NO_PROBE or NC_PROBE if it's a normally open or normally close probe
- * If your Z probe is a switch, just uncomment NC_PROBE or NO_PROBE
- * the code assumes your z probe is connected to the z-min pin
- * 
- * For switches:
- * COM to GROUND [G], NC or NO to Signal [S] on board
- * 
- * For inductive sensors USING A VOLTAGE DIVIDER!!:
- * Normally closed -> 5[V] when not triggered, 0[V] when triggered (LJ12A3-4-Z/BX)
- * Normally open -> 0[V] when not triggered, 5[V] when triggered (LJ12A3-4-Z/BY)
- */
-//#define BLTOUCH
-//#define INDUCTIVE
-//#define NO_PROBE
-//#define NC_PROBE
-#define PROBE_MANUALLY
-
-/* Z-Probe Offset From The Nozzle
- * Using scoth tape fix a piece of paper to your bed, then home
- * your printer, now using the move menu take Z to 0
- * and mark the 0 position, then move the x and y axis until your
- * probe is on the mark, write here the values for x and y
- * on the info screen of the printer.
- */
-#define ZPROBE_X_OFFSET        0
-#define ZPROBE_Y_OFFSET        0
-#define ZPROBE_Z_OFFSET        0
-
-/* Bed Leveling Type
- * Type of bed leveling you want to use.
- * You can choose one, even if you don't have a z probe (Manual probing)
- * or not use one at all.
- */
-//#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
-
-/* Autolevel / Autocalibration Grid Points
- * Number of points to probe on autolevel / autocalib routines
- * min 3 max 7
- * Keep a low value for manual leveling
- */
-#define GRID_POINTS        3
-
-/* Bed Margin For Probing
- * Margin around perimiter of bed for probing 
- */
-#define BED_MARGIN 10
-
 /* Baudrate
  * If your using Linux, set this to 115200, to Linux doesn't like
- * non-standar baudrates
+ * non-standard baudrates
  * If your using Windows you probably need to set this to 250000
  */
 #define BAUDRATE 115200

@@ -182,10 +182,13 @@
  *
  * The fan will turn on automatically whenever any stepper is enabled
  * and turn off after a set period after all steppers are turned off.
+ * 
+ * To enable just uncomment the next line, all the TRIGORILLA board pins
+ * definitions are all ready done
  */
 //#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-  //#define CONTROLLER_FAN_PIN FAN1_PIN  // Set a custom pin for the controller fan
+  #define CONTROLLER_FAN_PIN FAN1_PIN    // FAN1 slot on the TRIGORILLA board
   #define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED 255        // 255 == full speed
 #endif
@@ -214,7 +217,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN FAN2_PIN
+#define E0_AUTO_FAN_PIN FAN2_PIN // FAN2 slot on the TRIGORRILA board
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
