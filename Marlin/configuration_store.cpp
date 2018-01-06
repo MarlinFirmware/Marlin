@@ -328,10 +328,10 @@ void MarlinSettings::postprocess() {
   #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START(); SERIAL_ERRORLNPGM(ERR); eeprom_error = true; }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
-    #define _FIELD_TEST(FIELD)                                          \
-      EEPROM_ASSERT(                                                    \
-        eeprom_error || eeprom_index == offsetof(SettingsData, FIELD),  \
-        "Field " STRINGIFY(FIELD) " mismatch."                          \
+    #define _FIELD_TEST(FIELD) \
+      EEPROM_ASSERT( \
+        eeprom_error || eeprom_index == offsetof(SettingsData, FIELD) + EEPROM_OFFSET, \
+        "Field " STRINGIFY(FIELD) " mismatch." \
       )
   #else
     #define _FIELD_TEST(FIELD) NOOP
@@ -388,7 +388,7 @@ void MarlinSettings::postprocess() {
    */
   bool MarlinSettings::save() {
     float dummy = 0.0f;
-    char ver[4] = "000";
+    char ver[4] = "ERR";
 
     uint16_t working_crc = 0;
 
@@ -867,7 +867,7 @@ void MarlinSettings::postprocess() {
 
     // Version has to match or defaults are used
     if (strncmp(version, stored_ver, 3) != 0) {
-      if (stored_ver[0] != 'V') {
+      if (stored_ver[3] != '\0') {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
