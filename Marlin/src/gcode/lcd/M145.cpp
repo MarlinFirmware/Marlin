@@ -43,10 +43,12 @@ void GcodeSuite::M145() {
   }
   else {
     int v;
-    if (parser.seenval('H')) {
-      v = parser.value_int();
-      lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-    }
+    #if HOTENDS > 0
+      if (parser.seenval('H')) {
+        v = parser.value_int();
+        lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+      }
+    #endif
     if (parser.seenval('F')) {
       v = parser.value_int();
       lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
