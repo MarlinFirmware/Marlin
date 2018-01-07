@@ -52,9 +52,12 @@
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
-#else
+#elif HOTENDS > 0
   static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
   static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN);
+#else
+  static void* heater_ttbl_map[HOTENDS];
+  static uint8_t heater_ttbllen_map[HOTENDS];
 #endif
 
 Temperature thermalManager;
@@ -1344,12 +1347,12 @@ void Temperature::init() {
 
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
 
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+  #if ENABLED(THERMAL_PROTECTION_HOTENDS) && HOTENDS > 0
     Temperature::TRState Temperature::thermal_runaway_state_machine[HOTENDS] = { TRInactive };
     millis_t Temperature::thermal_runaway_timer[HOTENDS] = { 0 };
   #endif
 
-  #if HAS_THERMALLY_PROTECTED_BED && HOTENDS > 0
+  #if HAS_THERMALLY_PROTECTED_BED
     Temperature::TRState Temperature::thermal_runaway_bed_state_machine = TRInactive;
     millis_t Temperature::thermal_runaway_bed_timer;
   #endif
