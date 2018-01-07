@@ -4242,6 +4242,7 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
+        mbl.has_mesh = true; // set since user manually entered a mesh point
         break;
 
       case MeshSetZOffset:
