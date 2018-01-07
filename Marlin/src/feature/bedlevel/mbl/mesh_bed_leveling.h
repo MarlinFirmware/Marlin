@@ -47,6 +47,8 @@ public:
 
   mesh_bed_leveling();
 
+  static void report_mesh();
+
   static void reset();
 
   static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
@@ -105,15 +107,13 @@ public:
       #endif
     ;
   }
+
+  // Support functions, which may be embedded in the class later
+  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
+    void line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+  #endif
 };
 
 extern mesh_bed_leveling mbl;
-
-// Support functions, which may be embedded in the class later
-#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-  void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
-#endif
-
-void mbl_mesh_report();
 
 #endif // _MESH_BED_LEVELING_H_

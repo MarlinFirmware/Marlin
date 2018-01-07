@@ -81,7 +81,7 @@ void GcodeSuite::G29() {
     case MeshReport:
       if (leveling_is_valid()) {
         SERIAL_PROTOCOLLNPAIR("State: ", planner.leveling_active ? MSG_ON : MSG_OFF);
-        mbl_mesh_report();
+        mbl.report_mesh();
       }
       else
         SERIAL_PROTOCOLLNPGM("Mesh bed leveling has no data.");
