@@ -2374,7 +2374,7 @@ static void clean_up_after_endstop_or_probe_move() {
   bool leveling_is_valid() {
     return
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.has_mesh
+        mbl.has_mesh()
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
         !!bilinear_grid_spacing[X_AXIS]
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2503,10 +2503,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
     set_bed_leveling_enabled(false);
     #if ENABLED(MESH_BED_LEVELING)
-      if (leveling_is_valid()) {
-        mbl.reset();
-        mbl.has_mesh = false;
-      }
+      mbl.reset();
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
       ubl.reset();
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -4184,7 +4181,6 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           BUZZ(100, 659);
           BUZZ(100, 698);
-          mbl.has_mesh = true;
 
           home_all_axes();
           set_bed_leveling_enabled(true);
@@ -4233,7 +4229,6 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_CHAR('Z'); echo_not_entered();
           return;
         }
-        mbl.has_mesh = true; // set since user manually entered a mesh point
         break;
 
       case MeshSetZOffset:
