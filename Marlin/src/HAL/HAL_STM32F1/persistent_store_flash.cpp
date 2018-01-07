@@ -93,13 +93,13 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   return true;
 }
 
-void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
+void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (uint16_t i = 0; i < size; i++) {
     byte* accessPoint = (byte*)(pageBase + pos + i);
-    value[i] = *accessPoint;
+    uint8_t c = *accessPoint;
+    if (writing) value[i] = c;
+    crc16(crc, &c, 1);
   }
-
-  crc16(crc, value, size);
   pos += ((size + 1) & ~1);
 }
 
