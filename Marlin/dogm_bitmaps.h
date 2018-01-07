@@ -114,7 +114,14 @@
 #define STATUS_SCREENWIDTH     115 // Width in pixels
 #define STATUS_SCREENHEIGHT     19 // Height in pixels
 
-#if HAS_TEMP_BED
+#ifdef CUSTOM_STATUS_SCREEN_FILE
+  #undef STATUS_SCREENWIDTH
+
+  // This file must define STATUS_SCREENWIDTH and status_screen{0,1}_bmp.
+  // It can also define STATUS_SCREEN_X, STATUS_SCREEN_{BED,FAN}_TEXT_X and
+  // STATUS_SCREEN_HOTEND_TEXT_X(i) to modify draw locations.
+  #include CUSTOM_STATUS_SCREEN_FILE
+#elif HAS_TEMP_BED
   #if HOTENDS == 0
     const unsigned char status_screen0_bmp[] PROGMEM = {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xE0,
@@ -561,3 +568,16 @@
     0x0C,0x00  // 0000110000000000
   };
 #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
+
+#ifndef STATUS_SCREEN_X
+  #define STATUS_SCREEN_X 9
+#endif
+#ifndef STATUS_SCREEN_HOTEND_TEXT_X
+  #define STATUS_SCREEN_HOTEND_TEXT_X(i) (5 + (i) * 25)
+#endif
+#ifndef STATUS_SCREEN_BED_TEXT_X
+  #define STATUS_SCREEN_BED_TEXT_X 81
+#endif
+#ifndef STATUS_SCREEN_FAN_TEXT_X
+  #define STATUS_SCREEN_FAN_TEXT_X 104
+#endif
