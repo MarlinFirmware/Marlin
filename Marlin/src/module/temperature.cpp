@@ -61,11 +61,18 @@ Temperature thermalManager;
 
 // public:
 
-float Temperature::current_temperature[HOTENDS] = { 0.0 },
-      Temperature::current_temperature_bed = 0.0;
-int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
-        Temperature::target_temperature[HOTENDS] = { 0 },
-        Temperature::current_temperature_bed_raw = 0;
+#if HOTENDS > 0
+  float Temperature::current_temperature[HOTENDS] = { 0.0 };
+  int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
+          Temperature::target_temperature[HOTENDS] = { 0 };
+#else
+  float Temperature::current_temperature[HOTENDS];
+  int16_t Temperature::current_temperature_raw[HOTENDS],
+          Temperature::target_temperature[HOTENDS];
+#endif
+
+float Temperature::current_temperature_bed = 0.0;
+int16_t Temperature::current_temperature_bed_raw = 0;
 
 #if HAS_HEATER_BED
   int16_t Temperature::target_temperature_bed = 0;
@@ -96,8 +103,13 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #endif
 
 #if WATCH_HOTENDS
-  uint16_t Temperature::watch_target_temp[HOTENDS] = { 0 };
-  millis_t Temperature::watch_heater_next_ms[HOTENDS] = { 0 };
+  #if HOTENDS > 0  
+    uint16_t Temperature::watch_target_temp[HOTENDS] = { 0 };
+    millis_t Temperature::watch_heater_next_ms[HOTENDS] = { 0 };
+  #else
+    uint16_t Temperature::watch_target_temp[HOTENDS];
+    millis_t Temperature::watch_heater_next_ms[HOTENDS];
+  #endif
 #endif
 
 #if WATCH_THE_BED
@@ -119,7 +131,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 volatile bool Temperature::temp_meas_ready = false;
 
-#if ENABLED(PIDTEMP)
+#if ENABLED(PIDTEMP)  && HOTENDS > 0
   float Temperature::temp_iState[HOTENDS] = { 0 },
         Temperature::temp_dState[HOTENDS] = { 0 },
         Temperature::pTerm[HOTENDS],
@@ -152,10 +164,12 @@ uint16_t Temperature::raw_temp_value[MAX_EXTRUDERS] = { 0 },
          Temperature::raw_temp_bed_value = 0;
 
 // Init min and max temp with extreme values to prevent false errors during startup
-int16_t Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP, HEATER_4_RAW_LO_TEMP),
-        Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP, HEATER_4_RAW_HI_TEMP),
-        Temperature::minttemp[HOTENDS] = { 0 },
-        Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
+#if HOTENDS > 0
+  int16_t Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP, HEATER_4_RAW_LO_TEMP),
+          Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP, HEATER_4_RAW_HI_TEMP),
+          Temperature::minttemp[HOTENDS] = { 0 },
+          Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
+#endif
 
 #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
@@ -1184,45 +1198,47 @@ void Temperature::init() {
       else \
         maxttemp_raw[NR] += OVERSAMPLENR; \
     }
-
-  #ifdef HEATER_0_MINTEMP
-    TEMP_MIN_ROUTINE(0);
-  #endif
-  #ifdef HEATER_0_MAXTEMP
-    TEMP_MAX_ROUTINE(0);
-  #endif
-  #if HOTENDS > 1
-    #ifdef HEATER_1_MINTEMP
-      TEMP_MIN_ROUTINE(1);
+  
+  #if HOTENDS > 0
+    #ifdef HEATER_0_MINTEMP
+      TEMP_MIN_ROUTINE(0);
     #endif
-    #ifdef HEATER_1_MAXTEMP
-      TEMP_MAX_ROUTINE(1);
+    #ifdef HEATER_0_MAXTEMP
+      TEMP_MAX_ROUTINE(0);
     #endif
-    #if HOTENDS > 2
-      #ifdef HEATER_2_MINTEMP
-        TEMP_MIN_ROUTINE(2);
+    #if HOTENDS > 1
+      #ifdef HEATER_1_MINTEMP
+        TEMP_MIN_ROUTINE(1);
       #endif
-      #ifdef HEATER_2_MAXTEMP
-        TEMP_MAX_ROUTINE(2);
+      #ifdef HEATER_1_MAXTEMP
+        TEMP_MAX_ROUTINE(1);
       #endif
-      #if HOTENDS > 3
-        #ifdef HEATER_3_MINTEMP
-          TEMP_MIN_ROUTINE(3);
+      #if HOTENDS > 2
+        #ifdef HEATER_2_MINTEMP
+          TEMP_MIN_ROUTINE(2);
         #endif
-        #ifdef HEATER_3_MAXTEMP
-          TEMP_MAX_ROUTINE(3);
+        #ifdef HEATER_2_MAXTEMP
+          TEMP_MAX_ROUTINE(2);
         #endif
-        #if HOTENDS > 4
-          #ifdef HEATER_4_MINTEMP
-            TEMP_MIN_ROUTINE(4);
+        #if HOTENDS > 3
+          #ifdef HEATER_3_MINTEMP
+            TEMP_MIN_ROUTINE(3);
           #endif
-          #ifdef HEATER_4_MAXTEMP
-            TEMP_MAX_ROUTINE(4);
+          #ifdef HEATER_3_MAXTEMP
+            TEMP_MAX_ROUTINE(3);
           #endif
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
+          #if HOTENDS > 4
+            #ifdef HEATER_4_MINTEMP
+              TEMP_MIN_ROUTINE(4);
+            #endif
+            #ifdef HEATER_4_MAXTEMP
+              TEMP_MAX_ROUTINE(4);
+            #endif
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  #endif // HOTENDS > 0
 
   #if HAS_TEMP_BED
     #ifdef BED_MINTEMP
@@ -1333,7 +1349,7 @@ void Temperature::init() {
     millis_t Temperature::thermal_runaway_timer[HOTENDS] = { 0 };
   #endif
 
-  #if HAS_THERMALLY_PROTECTED_BED
+  #if HAS_THERMALLY_PROTECTED_BED && HOTENDS > 0
     Temperature::TRState Temperature::thermal_runaway_bed_state_machine = TRInactive;
     millis_t Temperature::thermal_runaway_bed_timer;
   #endif
@@ -1424,7 +1440,7 @@ void Temperature::disable_all_heaters() {
     WRITE_HEATER_ ##NR (LOW); \
   }
 
-  #if HAS_TEMP_HOTEND
+  #if HAS_TEMP_HOTEND && HOTENDS > 0
     DISABLE_HEATER(0);
     #if HOTENDS > 1
       DISABLE_HEATER(1);
