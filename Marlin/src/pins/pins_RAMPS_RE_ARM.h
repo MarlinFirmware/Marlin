@@ -94,6 +94,15 @@
 #define E2_ENABLE_PIN      P4_29  // (30)
 
 //
+// Software SPI pins for TMC2130 stepper drivers
+//
+#if ENABLED(TMC_USE_SW_SPI)
+  #define TMC_SW_MOSI      P1_00  // ETH
+  #define TMC_SW_MISO      P1_08  // ETH
+  #define TMC_SW_SCK       P1_09  // ETH
+#endif
+
+//
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //

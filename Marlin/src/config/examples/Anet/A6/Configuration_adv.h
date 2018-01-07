@@ -1086,6 +1086,12 @@
   #define E4_MICROSTEPS       16
 
   /**
+   * Use software SPI for TMC2130.
+   * SW SPI pins are defined the respective pins files.
+   */
+  //#define TMC_USE_SW_SPI
+
+  /**
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */

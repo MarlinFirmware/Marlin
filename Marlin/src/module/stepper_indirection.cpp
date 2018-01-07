@@ -137,7 +137,11 @@
   #include "planner.h"
   #include "../core/enum.h"
 
-  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST((uint8_t)ST##_ENABLE_PIN, (uint8_t)ST##_DIR_PIN, (uint8_t)ST##_STEP_PIN, (uint8_t)ST##_CS_PIN)
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+  #else
+    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
+  #endif
 
   // Stepper objects of TMC2130 steppers used
   #if ENABLED(X_IS_TMC2130)
