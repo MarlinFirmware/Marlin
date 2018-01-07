@@ -362,9 +362,11 @@ void GcodeSuite::process_parsed_command() {
         case 100: M100(); break;  // M100: Free Memory Report
       #endif
 
-      case 104: M104(); break;    // M104: Set hot end temperature
-      case 109: M109(); break;    // M109: Wait for hotend temperature to reach target
-
+      #if HOTENDS > 0
+        case 104: M104(); break;    // M104: Set hot end temperature
+        case 109: M109(); break;    // M109: Wait for hotend temperature to reach target
+      #endif
+        
       case 110: M110(); break;    // M110: Set Current Line Number
 
       case 111: M111(); break;    // M111: Set debug level
