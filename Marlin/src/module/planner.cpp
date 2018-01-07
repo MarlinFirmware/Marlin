@@ -107,6 +107,10 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
   int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
   float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow percentage and volumetric multiplier combine to scale E movement
+#else
+  int16_t Planner::flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
+
+  float Planner::e_factor[EXTRUDERS]; // The flow percentage and volumetric multiplier combine to scale E movement
 #endif
 
 #if DISABLED(NO_VOLUMETRICS)
