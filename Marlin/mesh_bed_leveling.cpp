@@ -20,9 +20,11 @@
  *
  */
 
-#include "mesh_bed_leveling.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(MESH_BED_LEVELING)
+
+  #include "mesh_bed_leveling.h"
 
   mesh_bed_leveling mbl;
 
