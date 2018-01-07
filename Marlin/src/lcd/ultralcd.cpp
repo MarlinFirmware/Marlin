@@ -1268,8 +1268,8 @@ void kill_screen(const char* lcd_msg) {
 
   // Refresh the E factor after changing flow
   inline void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
-  #if EXTRUDERS > 1
-    inline void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+  inline void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+  #if EXTRUDERS > 1    
     inline void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
     #if EXTRUDERS > 2
       inline void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
@@ -1311,7 +1311,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if HOTENDS == 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    #else // HOTENDS > 1
+    #elif HOTENDS > 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
       #if HOTENDS > 2
@@ -1362,7 +1362,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if EXTRUDERS == 1
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-    #else // EXTRUDERS > 1
+    #elif EXTRUDERS > 1
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N1, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N2, &planner.flow_percentage[1], 10, 999, _lcd_refresh_e_factor_1);
@@ -2960,7 +2960,7 @@ void kill_screen(const char* lcd_msg) {
       PGM_P pos_label;
       #if E_MANUAL == 1
         pos_label = PSTR(MSG_MOVE_E);
-      #else
+      #elif E_MANUAL > 1
         switch (eindex) {
           default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
@@ -3157,7 +3157,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 
-    #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if (DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)) && EXTRUDERS > 0
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
@@ -3293,7 +3293,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if HOTENDS == 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    #else // HOTENDS > 1
+    #elif HOTENDS > 1
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
       #if HOTENDS > 2
@@ -3356,7 +3356,7 @@ void kill_screen(const char* lcd_msg) {
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
-    #if ENABLED(PIDTEMP)
+    #if ENABLED(PIDTEMP) && HOTENDS > 0
 
       #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
@@ -3399,7 +3399,7 @@ void kill_screen(const char* lcd_msg) {
 
     #endif // PIDTEMP
 
-    #if DISABLED(SLIM_LCD_MENUS)
+    #if DISABLED(SLIM_LCD_MENUS) && HOTENDS > 0
       //
       // Preheat Material 1 conf
       //
@@ -3509,21 +3509,23 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &planner.max_feedrate_mm_s[Y_AXIS], 1, 999);
       MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Z, &planner.max_feedrate_mm_s[Z_AXIS], 1, 999);
 
-      #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
-        MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
-        MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
-        #if E_STEPPERS > 2
-          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
-          #if E_STEPPERS > 3
-            MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
-            #if E_STEPPERS > 4
-              MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
-            #endif // E_STEPPERS > 4
-          #endif // E_STEPPERS > 3
-        #endif // E_STEPPERS > 2
-      #else
-        MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
+      #if EXTRUDERS > 0
+        #if ENABLED(DISTINCT_E_FACTORS)
+          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
+          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
+          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
+          #if E_STEPPERS > 2
+            MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
+            #if E_STEPPERS > 3
+              MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
+              #if E_STEPPERS > 4
+                MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
+              #endif // E_STEPPERS > 4
+            #endif // E_STEPPERS > 3
+          #endif // E_STEPPERS > 2
+        #else
+          MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS], 1, 999);
+        #endif
       #endif
 
       // M205 S Min Feedrate
@@ -3553,22 +3555,24 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &planner.max_acceleration_mm_per_s2[X_AXIS], 100, 99000, _reset_acceleration_rates);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &planner.max_acceleration_mm_per_s2[Y_AXIS], 100, 99000, _reset_acceleration_rates);
       MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &planner.max_acceleration_mm_per_s2[Z_AXIS], 10, 99000, _reset_acceleration_rates);
-
-      #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
-        MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
-        MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
-        #if E_STEPPERS > 2
-          MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
-          #if E_STEPPERS > 3
-            MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
-            #if E_STEPPERS > 4
-              MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
-            #endif // E_STEPPERS > 4
-          #endif // E_STEPPERS > 3
-        #endif // E_STEPPERS > 2
-      #else
-        MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
+      
+      #if EXTRUDERS > 0
+        #if ENABLED(DISTINCT_E_FACTORS)
+          MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
+          MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
+          MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
+          #if E_STEPPERS > 2
+            MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
+            #if E_STEPPERS > 3
+              MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
+              #if E_STEPPERS > 4
+                MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
+              #endif // E_STEPPERS > 4
+            #endif // E_STEPPERS > 3
+          #endif // E_STEPPERS > 2
+        #else
+          MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
+        #endif
       #endif
 
       END_MENU();
@@ -3586,7 +3590,9 @@ void kill_screen(const char* lcd_msg) {
       #else
         MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 0.1, 990);
       #endif
-      MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+      #if EXTRUDERS > 0
+        MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+      #endif
 
       END_MENU();
     }
@@ -3600,23 +3606,25 @@ void kill_screen(const char* lcd_msg) {
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_YSTEPS, &planner.axis_steps_per_mm[Y_AXIS], 5, 9999, _planner_refresh_positioning);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ZSTEPS, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999, _planner_refresh_positioning);
 
-      #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
-        #if E_STEPPERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
-          #if E_STEPPERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
-            #if E_STEPPERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
-            #endif // E_STEPPERS > 4
-          #endif // E_STEPPERS > 3
-        #endif // E_STEPPERS > 2
-      #else
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+      #IF EXTRUDERS > 0
+        #if ENABLED(DISTINCT_E_FACTORS)
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
+          #if E_STEPPERS > 2
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
+            #if E_STEPPERS > 3
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
+              #if E_STEPPERS > 4
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+              #endif // E_STEPPERS > 4
+            #endif // E_STEPPERS > 3
+          #endif // E_STEPPERS > 2
+        #else
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+        #endif
       #endif
-
+      
       END_MENU();
     }
 
