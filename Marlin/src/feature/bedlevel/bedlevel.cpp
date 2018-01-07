@@ -49,7 +49,7 @@
 bool leveling_is_valid() {
   return
     #if ENABLED(MESH_BED_LEVELING)
-      mbl.has_mesh
+      mbl.has_mesh()
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       !!bilinear_grid_spacing[X_AXIS]
     #elif ENABLED(AUTO_BED_LEVELING_UBL)

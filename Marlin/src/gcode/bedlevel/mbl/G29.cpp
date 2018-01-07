@@ -136,7 +136,6 @@ void GcodeSuite::G29() {
         SERIAL_PROTOCOLLNPGM("Mesh probing done.");
         BUZZ(100, 659);
         BUZZ(100, 698);
-        mbl.has_mesh = true;
 
         gcode.home_all_axes();
         set_bed_leveling_enabled(true);
@@ -185,9 +184,6 @@ void GcodeSuite::G29() {
         SERIAL_CHAR('Z'); echo_not_entered();
         return;
       }
-
-      mbl.has_mesh = true; // set since user manually entered a mesh point
-
       break;
 
     case MeshSetZOffset:
