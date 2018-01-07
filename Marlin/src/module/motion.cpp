@@ -874,7 +874,7 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   gcode.refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
+  #if (ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)) && EXTRUDERS > 0
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
@@ -895,7 +895,7 @@ void prepare_move_to_destination() {
       }
     }
 
-  #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
+  #endif // (PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE) && EXTRUDERS > 0
 
   #if ENABLED(DUAL_X_CARRIAGE)
     if (dual_x_carriage_unpark()) return;
