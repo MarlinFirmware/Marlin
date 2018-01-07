@@ -39,7 +39,6 @@ enum MeshLevelingState {
 
 class mesh_bed_leveling {
 public:
-  static bool has_mesh;
   static float z_offset,
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                index_to_xpos[GRID_MAX_POINTS_X],
@@ -47,7 +46,10 @@ public:
 
   mesh_bed_leveling();
 
+  static void report_mesh();
+
   static void reset();
+
 
   static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
