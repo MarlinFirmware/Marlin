@@ -66,8 +66,6 @@ private:
   char *TFTstrchr_pointer;
   char TFTstate=ANYCUBIC_TFT_STATE_IDLE;
   char FlagResumFromOutage=0;
-  uint16_t MyFileNrCnt=0;
-  uint16_t fileoutputcnt=0;
   uint16_t filenumber=0;
   unsigned long starttime=0;
   unsigned long stoptime=0;
@@ -89,7 +87,6 @@ private:
   
   float CodeValue();
   bool CodeSeen(char);
-  uint16_t GetFileNr();
   void Ls();
   void StartPrint();
   void PausePrint();
@@ -98,6 +95,10 @@ private:
   void GetCommandFromTFT();
   void CheckSDCardChange();
   void CheckHeaterError();
+  void HandleSpecialMenu();
+  
+  char     SelectedDirectory[30];
+  uint8_t  SpecialMenu=false;
 
 #if ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
   char FilamentTestStatus=false;

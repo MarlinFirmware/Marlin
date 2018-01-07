@@ -106,6 +106,9 @@ void AnycubicTFTClass::Setup() {
 #endif
   }
 #endif
+  
+  SelectedDirectory[0]=0;
+  SpecialMenu=false;
 }
 
 void AnycubicTFTClass::WriteOutageEEPromData() {
@@ -176,42 +179,102 @@ bool AnycubicTFTClass::CodeSeen(char code)
   return (TFTstrchr_pointer != NULL);  //Return True if a character was found
 }
 
-uint16_t AnycubicTFTClass::GetFileNr()
+void AnycubicTFTClass::HandleSpecialMenu()
 {
-  
-  if(card.cardOK)
-  {
-    return card.getnrfilenames();
+  if(strcmp(SelectedDirectory, "<special menu>")==0) {
+    SpecialMenu=true;
+  } else if (strcmp(SelectedDirectory, "<auto tune hotend pid>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Auto Tune PID");
+    enqueue_and_echo_commands_P(PSTR("M303 C8 S200"));
+  } else if (strcmp(SelectedDirectory, "<auto bed leveling>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Auto Bed Leveling");
+    enqueue_and_echo_commands_P(PSTR("G28\nG29"));
+  } else if (strcmp(SelectedDirectory, "<save eeprom>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Save EEPROM");
+    enqueue_and_echo_commands_P(PSTR("M500"));
+  } else if (strcmp(SelectedDirectory, "<read eeprom>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Read EEPROM");
+    enqueue_and_echo_commands_P(PSTR("M501"));
+  } else if (strcmp(SelectedDirectory, "<exit>")==0) {
+    SpecialMenu=false;
   }
-  return 0;
 }
 
 void AnycubicTFTClass::Ls()
 {
-  if(card.cardOK)
+  if (SpecialMenu) {
+    switch (filenumber) {
+      case 0: // First Page
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Exit>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Exit>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
+        break;
+
+      case 4: // Second Page
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Read EEPROM>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Read EEPROM>");
+        break;
+        
+      default:
+        break;
+    }
+  }
+  else if(card.cardOK)
   {
-    uint8_t cnt=0;
-    for(cnt=0; cnt<card.getnrfilenames(); cnt++){
-      card.getfilename(cnt);
+    uint16_t cnt=filenumber;
+    uint16_t max_files;
+    uint16_t dir_files=card.getnrfilenames();
+    
+    if((dir_files-filenumber)<4)
+    {
+      max_files=dir_files;
+    } else {
+      max_files=filenumber+3;
+    }
       
-      if((MyFileNrCnt-filenumber)<4)
+    for(cnt=filenumber; cnt<=max_files; cnt++)
+    {
+      if (cnt==0) // Special Entry
       {
-        if(fileoutputcnt<MyFileNrCnt-filenumber)
-        {
+        if(strcmp(card.getWorkDirName(), "/") == 0) {
+          ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special Menu>");
+          ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special Menu>");
+          SERIAL_PROTOCOL(cnt);
+          SERIAL_PROTOCOLLNPGM("<Special_Menu>");
+        } else {
+          ANYCUBIC_SERIAL_PROTOCOLLNPGM("/..");
+          ANYCUBIC_SERIAL_PROTOCOLLNPGM("/..");
+          SERIAL_PROTOCOL(cnt);
+          SERIAL_PROTOCOLLNPGM("/..");
+        }
+      } else {
+        card.getfilename(cnt-1);
+//      card.getfilename(cnt);
+      
+        if(card.filenameIsDir) {
+          ANYCUBIC_SERIAL_PROTOCOLPGM("/");
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
+          ANYCUBIC_SERIAL_PROTOCOLPGM("/");
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          SERIAL_PROTOCOL(cnt);
+          SERIAL_PROTOCOLPGM("/");
+          SERIAL_PROTOCOLLN(card.longFilename);
+        } else {
           ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
           ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          SERIAL_PROTOCOL(cnt);
+          SERIAL_PROTOCOLLN(card.longFilename);
         }
       }
-      else if((fileoutputcnt>=((MyFileNrCnt-4)-filenumber))&&(fileoutputcnt<MyFileNrCnt-filenumber))
-      {
-        ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
-        ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
-      }
-      fileoutputcnt++;
     }
-    if(fileoutputcnt>=MyFileNrCnt)
-      fileoutputcnt=0;
-    
+  } else {
+    ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special_Menu>");
+    ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special_Menu>");
   }
 }
 
@@ -224,7 +287,6 @@ void AnycubicTFTClass::CheckSDCardChange()
     if (LastSDstatus)
     {
       card.initsd();
-      MyFileNrCnt=GetFileNr();
       ANYCUBIC_SERIAL_PROTOCOLPGM("J00"); // J00 SD Card inserted
       ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
@@ -495,7 +557,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
             break;
           }
           case 8: // A8 GET  SD LIST
-            MyFileNrCnt=0;
+            SelectedDirectory[0]=0;
             if(!IS_SD_INSERTED)
             {
               ANYCUBIC_SERIAL_PROTOCOLPGM("J02");
@@ -503,8 +565,6 @@ void AnycubicTFTClass::GetCommandFromTFT()
             }
             else
             {
-              MyFileNrCnt=GetFileNr();
-              
               if(CodeSeen('S'))
                 filenumber=CodeValue();
               
@@ -549,21 +609,29 @@ void AnycubicTFTClass::GetCommandFromTFT()
             if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
               starpos = (strchr(TFTstrchr_pointer + 4,'*'));
-              if(starpos!=NULL)
-                *(starpos-1)='\0';
-              card.openFile(TFTstrchr_pointer + 4,true);
-              if (card.isFileOpen()) {
-                ANYCUBIC_SERIAL_PROTOCOLPGM("J20"); // J20 Open successful
-                ANYCUBIC_SERIAL_ENTER();
-#ifdef ANYCUBIC_TFT_DEBUG
-                SERIAL_ECHOLNPGM("TFT Serial Debug: File open successful... J20");
-#endif
+              if (TFTstrchr_pointer[4] == '/') {
+                strcpy(SelectedDirectory, TFTstrchr_pointer+5);
+              } else if (TFTstrchr_pointer[4] == '<') {
+                strcpy(SelectedDirectory, TFTstrchr_pointer+4);
               } else {
-                ANYCUBIC_SERIAL_PROTOCOLPGM("J21"); // J21 Open failed
-                ANYCUBIC_SERIAL_ENTER();
+                SelectedDirectory[0]=0;
+                
+                if(starpos!=NULL)
+                  *(starpos-1)='\0';
+                card.openFile(TFTstrchr_pointer + 4,true);
+                if (card.isFileOpen()) {
+                  ANYCUBIC_SERIAL_PROTOCOLPGM("J20"); // J20 Open successful
+                  ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
-                SERIAL_ECHOLNPGM("TFT Serial Debug: File open failed... J21");
+                  SERIAL_ECHOLNPGM("TFT Serial Debug: File open successful... J20");
 #endif
+                } else {
+                  ANYCUBIC_SERIAL_PROTOCOLPGM("J21"); // J21 Open failed
+                  ANYCUBIC_SERIAL_ENTER();
+#ifdef ANYCUBIC_TFT_DEBUG
+                  SERIAL_ECHOLNPGM("TFT Serial Debug: File open failed... J21");
+#endif
+                }
               }
               ANYCUBIC_SERIAL_ENTER();
             }
@@ -744,7 +812,22 @@ void AnycubicTFTClass::GetCommandFromTFT()
             }
             break;
           case 26: // A26 refresh SD
-            card.initsd();
+            if (SelectedDirectory[0]==0) {
+              card.initsd();
+            } else {
+              if ((SelectedDirectory[0] == '.') && (SelectedDirectory[1] == '.')) {
+                card.updir();
+              } else {
+                if (SelectedDirectory[0] == '<') {
+                  HandleSpecialMenu();
+                } else {
+                  card.chdir(SelectedDirectory);
+                }
+              }
+            }
+
+            SelectedDirectory[0]=0;
+            
             if(!IS_SD_INSERTED)
             {
               ANYCUBIC_SERIAL_PROTOCOLPGM("J02"); // J02 SD Card initilized
