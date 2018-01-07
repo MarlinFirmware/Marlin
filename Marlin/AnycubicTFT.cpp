@@ -145,7 +145,7 @@ void AnycubicTFTClass::StartPrint(){
 void AnycubicTFTClass::PausePrint(){
   card.pauseSDPrint();
   TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE_REQ;
-  
+#ifdef ANYCUBIC_FILAMENT_RUNOUT_SENSOR  
   if(FilamentTestStatus) {
     ANYCUBIC_SERIAL_PROTOCOLPGM("J05");// J05 pausing
     ANYCUBIC_SERIAL_ENTER();
@@ -160,6 +160,7 @@ void AnycubicTFTClass::PausePrint(){
     SERIAL_ECHOLNPGM("TFT Serial Debug: Filament runout while printing... J23");
 #endif
   }
+#endif
 }
 
 void AnycubicTFTClass::StopPrint(){
@@ -361,10 +362,12 @@ void AnycubicTFTClass::StateHandler()
   case ANYCUBIC_TFT_STATE_SDPAUSE:
     break;
   case ANYCUBIC_TFT_STATE_SDPAUSE_OOF:
+#ifdef ANYCUBIC_FILAMENT_RUNOUT_SENSOR
     if(!FilamentTestStatus) {
       // We got filament again
       TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE;
     }
+#endif
     break;
   case ANYCUBIC_TFT_STATE_SDPAUSE_REQ:
     if((!card.sdprinting) && (!planner.movesplanned())){
@@ -372,13 +375,14 @@ void AnycubicTFTClass::StateHandler()
 #ifndef ADVANCED_PAUSE_FEATURE
       enqueue_and_echo_commands_P(PSTR("G91\nG1 Z10 F240\nG90"));
 #endif
+#ifdef ANYCUBIC_FILAMENT_RUNOUT_SENSOR
       if(FilamentTestStatus) {
         TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE;
       } else {
         // Pause because of "out of filament"
         TFTstate=ANYCUBIC_TFT_STATE_SDPAUSE_OOF;
       }
-      
+#endif      
       ANYCUBIC_SERIAL_PROTOCOLPGM("J18");// J18 pausing print done
       ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
