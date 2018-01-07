@@ -38,7 +38,7 @@
 /**
  * M104: Set hot end temperature
  */
-#IF HOTENDS > 0
+#if HOTENDS > 0
   void GcodeSuite::M104() {
     if (get_target_extruder_from_command()) return;
     if (DEBUGGING(DRYRUN)) return;
