@@ -53,7 +53,11 @@ enum AxisEnum {
 
 #define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
-#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#if EXTRUDERS > 0
+  #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#else
+  #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
+#endif
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
 
 typedef enum {
