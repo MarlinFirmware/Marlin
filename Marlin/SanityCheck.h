@@ -1016,7 +1016,7 @@ static_assert(1 >= 0
   #error "TEMP_0_PIN not defined for this board."
 #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#elif TEMP_SENSOR_0 == 0
+#elif TEMP_SENSOR_0 == 0 && HOTENDS > 0
   #error "TEMP_SENSOR_0 is required."
 #endif
 
@@ -1516,14 +1516,20 @@ static_assert(1 >= 0
 #endif
 
 /**
- * Require 4 or more elements in per-axis initializers
+ * Require 3 or more elements in per-axis initializers
  */
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
-static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
+#if EXTRUDERS == 0
+  static_assert(COUNT(sanity_arr_1) >= XYZ, "DEFAULT_AXIS_STEPS_PER_UNIT requires only 3 elements with extruder.");
+  static_assert(COUNT(sanity_arr_2) >= XYZ, "DEFAULT_MAX_FEEDRATE requires only 3 elements  with no extruder.");
+  static_assert(COUNT(sanity_arr_3) >= XYZ, "DEFAULT_MAX_ACCELERATION requires only 3 elements with no extruder.");
+#else
+  static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
+  static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
+  static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
+#endif
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements.");

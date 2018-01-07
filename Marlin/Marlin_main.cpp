@@ -495,7 +495,11 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
-const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#if EXTRUDERS > 0
+  const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#else
+  const char axis_codes[XYZ] = { 'X', 'Y', 'Z'};
+#endif
 
 // Number of characters read in the current line of serial input
 static int serial_count = 0;
@@ -11847,7 +11851,9 @@ void process_parsed_command() {
         case 100: gcode_M100(); break;                            // M100: Free Memory Report
       #endif
 
-      case 104: gcode_M104(); break;                              // M104: Set Hotend Temperature
+      #if HOTENDS > 0
+        case 104: gcode_M104(); break;                            // M104: Set Hotend Temperature
+      #endif
       case 110: gcode_M110(); break;                              // M110: Set Current Line Number
       case 111: gcode_M111(); break;                              // M111: Set Debug Flags
 
@@ -11869,7 +11875,9 @@ void process_parsed_command() {
         case 155: gcode_M155(); break;                            // M155: Set Temperature Auto-report Interval
       #endif
 
-      case 109: gcode_M109(); break;                              // M109: Set Hotend Temperature. Wait for target.
+      #if HOTENDS > 0
+        case 109: gcode_M109(); break;                            // M109: Set Hotend Temperature. Wait for target.
+      #endif
 
       #if HAS_TEMP_BED
         case 190: gcode_M190(); break;                            // M190: Set Bed Temperature. Wait for target.
@@ -13061,7 +13069,7 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
+  #if (ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)) && EXTRUDERS > 0
 
     if (!DEBUGGING(DRYRUN)) {
       if (destination[E_AXIS] != current_position[E_AXIS]) {
