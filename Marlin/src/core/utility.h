@@ -11,6 +11,7 @@
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
+
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -25,7 +26,11 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#if EXTRUDERS > 0
+  constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#else
+  constexpr char axis_codes[XYZ] = { 'X', 'Y', 'Z'};
+#endif
 
 void safe_delay(millis_t ms);
 
