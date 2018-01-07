@@ -79,6 +79,11 @@ script:
   #
   # Build with the default configurations
   #
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
@@ -98,6 +103,11 @@ script:
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
   - opt_set_adv FANMUX0_PIN 53
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test a probeless build of AUTO_BED_LEVELING_UBL
@@ -105,6 +115,11 @@ script:
   - restore_configs
   - opt_enable AUTO_BED_LEVELING_UBL DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS EEPROM_CHITCHAT G3D_PANEL
   - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING NANODLP_Z_SYNC
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Add a Sled Z Probe, use UBL Cartesian moves
@@ -112,6 +127,11 @@ script:
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test a Servo Probe
@@ -122,12 +142,22 @@ script:
   - opt_set NUM_SERVOS 1
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test MESH_BED_LEVELING feature, with LCD
   #
   - restore_configs
   - opt_enable MESH_BED_LEVELING G26_MESH_EDITING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test MINIRAMBO for PWM_MOTOR_CURRENT
@@ -149,6 +179,11 @@ script:
   - opt_enable_adv ADVANCED_PAUSE_FEATURE FILAMENT_LOAD_UNLOAD_GCODES PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
   - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
   - opt_set_adv I2C_SLAVE_ADDRESS 63
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
@@ -162,6 +197,11 @@ script:
   - opt_set TEMP_SENSOR_4 999
   - opt_set TEMP_SENSOR_BED 1
   - opt_enable_adv LIN_ADVANCE
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Mixing Extruder with 5 steppers
@@ -170,6 +210,11 @@ script:
   - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
   - opt_enable MIXING_EXTRUDER
   - opt_set MIXING_STEPPERS 5
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test DUAL_X_CARRIAGE
@@ -180,6 +225,11 @@ script:
   - opt_set TEMP_SENSOR_1 1
   - opt_enable USE_XMAX_PLUG
   - opt_enable_adv DUAL_X_CARRIAGE
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
@@ -199,12 +249,22 @@ script:
   - opt_set NUM_SERVOS 1
   - opt_set TEMP_SENSOR_1 1
   - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Enable COREXY
   #
   - restore_configs
   - opt_enable COREXY
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Test many less common options
@@ -223,6 +283,11 @@ script:
   - opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
   - opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
   - opt_enable USE_XMAX_PLUG
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   ######## Other Standard LCD/Panels ##############
@@ -251,6 +316,11 @@ script:
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
@@ -262,6 +332,11 @@ script:
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
   - opt_set_adv SDSORT_CACHE_NAMES true
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
@@ -269,6 +344,11 @@ script:
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
   - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # REPRAPWORLD_KEYPAD
@@ -282,6 +362,11 @@ script:
   #
   - restore_configs
   - opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   ######## I2C LCD/PANELS ##############
@@ -312,6 +397,11 @@ script:
   #
   - restore_configs
   - opt_enable LCM1602
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   #
@@ -325,6 +415,11 @@ script:
   # Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
   - use_example_configs delta/generic
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
@@ -332,11 +427,21 @@ script:
   - use_example_configs delta/generic
   - opt_disable DISABLE_MIN_ENDSTOPS
   - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Delta Config (FLSUN AC because it's complex)
   #
   - use_example_configs delta/FLSUN/auto_calibrate
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # Makibox Config  need to check board type for Teensy++ 2.0
@@ -350,6 +455,11 @@ script:
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
   - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG SENSORLESS_HOMING
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # TMC2208 Config
@@ -357,6 +467,11 @@ script:
   - restore_configs
   - opt_enable_adv HAVE_TMC2208 X_IS_TMC2208 Y_IS_TMC2208 Z_IS_TMC2208
   - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG
+  - opt_set EXTRUDERS 0
+  - opt_set DEFAULT_AXIS_STEPS_PER_UNIT "{ 80, 80, 4000 }"
+  - opt_set DEFAULT_MAX_FEEDRATE        "{ 300, 300, 5 }"
+  - opt_set DEFAULT_MAX_ACCELERATION    "{ 3000, 3000, 100 }"
+  - opt_disable_adv ADVANCED_PAUSE_FEATURE
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
