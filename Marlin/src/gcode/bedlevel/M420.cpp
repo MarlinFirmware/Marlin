@@ -100,7 +100,7 @@ void GcodeSuite::M420() {
           #endif
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
-          mbl_mesh_report();
+          mbl.report_mesh();
         #endif
       }
     #endif

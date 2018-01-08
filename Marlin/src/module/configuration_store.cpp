@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V48"
+#define EEPROM_VERSION "V49"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -114,7 +114,6 @@ typedef struct SettingsDataStruct {
   //
   // MESH_BED_LEVELING
   //
-  bool mbl_has_mesh;                                    // mbl.has_mesh
   float mbl_z_offset;                                   // mbl.z_offset
   uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   #if ENABLED(MESH_BED_LEVELING)
@@ -297,7 +296,6 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     refresh_bed_level();
-    //set_bed_leveling_enabled(leveling_is_on);
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -425,16 +423,13 @@ void MarlinSettings::postprocess() {
         "MBL Z array is the wrong size."
       );
       const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
-      EEPROM_WRITE(mbl.has_mesh);
       EEPROM_WRITE(mbl.z_offset);
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
       EEPROM_WRITE(mbl.z_values);
     #else // For disabled MBL write a default mesh
-      const bool leveling_is_on = false;
       dummy = 0.0f;
       const uint8_t mesh_num_x = 3, mesh_num_y = 3;
-      EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(dummy); // z_offset
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
@@ -925,18 +920,13 @@ void MarlinSettings::postprocess() {
       // Mesh (Manual) Bed Leveling
       //
 
-      bool leveling_is_on;
       uint8_t mesh_num_x, mesh_num_y;
-      EEPROM_READ_ALWAYS(leveling_is_on);
       EEPROM_READ(dummy);
       EEPROM_READ_ALWAYS(mesh_num_x);
       EEPROM_READ_ALWAYS(mesh_num_y);
 
       #if ENABLED(MESH_BED_LEVELING)
-        if (!validating) {
-          mbl.has_mesh = leveling_is_on;
-          mbl.z_offset = dummy;
-        }
+        if (!validating) mbl.z_offset = dummy;
         if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
           // EEPROM data fits the current mesh
           EEPROM_READ(mbl.z_values);
