@@ -38,10 +38,10 @@
 #define DEBUG_LED   DIO31 /* led D5 red */
 
 // SPI
-#define SCK         DIO21  //  9
-#define MISO        DIO23  // 11
-#define MOSI        DIO22  // 10
-#define SS          DIO20  //  8
+#define PIN_SCK     DIO21  //  9
+#define PIN_MISO    DIO23  // 11
+#define PIN_MOSI    DIO22  // 10
+#define PIN_SS      DIO20  //  8
 
 // Digital I/O
 

@@ -85,8 +85,11 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
   uint8_t cnt = 0;
 
   // Read the next entry from a directory
+#ifdef USE_NEW_SD_FAT_LIB
+  while (parent.readDir(&p) > 0) {
+#else
   while (parent.readDir(p, longFilename) > 0) {
-
+#endif
     // If the entry is a directory and the action is LS_SerialPrint
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
@@ -111,7 +114,11 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       // Get a new directory object using the full path
       // and dive recursively into it.
       SdFile dir;
-      if (!dir.open(parent, lfilename, O_READ)) {
+      #ifdef USE_NEW_SD_FAT_LIB
+        if (!dir.open(&parent, lfilename, O_READ)) {
+      #else
+        if (!dir.open(parent, lfilename, O_READ)) {
+      #endif
         if (lsAction == LS_SerialPrint) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
@@ -211,7 +218,11 @@ void CardReader::ls() {
 
       // Open the sub-item as the new dive parent
       SdFile dir;
-      if (!dir.open(diveDir, segment, O_READ)) {
+      #ifdef USE_NEW_SD_FAT_LIB
+        if (!dir.open(&diveDir, segment, O_READ)) {
+      #else
+        if (!dir.open(diveDir, segment, O_READ)) {
+      #endif
         SERIAL_EOL();
         SERIAL_ECHO_START();
         SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
@@ -237,19 +248,32 @@ void CardReader::initsd() {
     #define SPI_SPEED SPI_FULL_SPEED
   #endif
 
-  if (!card.init(SPI_SPEED, SDSS)
-    #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !card.init(SPI_SPEED, LCD_SDSS)
-    #endif
-  ) {
-    //if (!card.init(SPI_HALF_SPEED,SDSS))
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
-  }
-  else if (!volume.init(&card)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_SD_VOL_INIT_FAIL);
-  }
+  #ifdef USE_NEW_SD_FAT_LIB
+    if (
+      #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
+        !volume.begin(LCD_SDSS, SPI_SPEED)
+      #else
+        !volume.begin(SDSS, SPI_SPEED)
+      #endif
+    ) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
+    }
+  #else
+    if (!card.init(SPI_SPEED, SDSS)
+      #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
+        && !card.init(SPI_SPEED, LCD_SDSS)
+      #endif
+    ) {
+      //if (!card.init(SPI_HALF_SPEED,SDSS))
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
+    }
+    else if (!volume.init(&card)) {
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_SD_VOL_INIT_FAIL);
+    }
+  #endif
   else if (!root.openRoot(&volume)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_SD_OPENROOT_FAIL);
@@ -306,7 +330,11 @@ void CardReader::openLogFile(char* name) {
 }
 
 void appendAtom(SdFile &file, char *& dst, uint8_t &cnt) {
-  file.getFilename(dst);
+  #ifdef USE_NEW_SD_FAT_LIB
+    file.getSFN(dst);
+  #else
+    file.getFilename(dst);
+  #endif
   while (*dst && cnt < MAXPATHNAMELENGTH) { dst++; cnt++; }
   if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
 }
@@ -511,7 +539,12 @@ void CardReader::write_command(char *buf) {
   char* npos = NULL;
   char* end = buf + strlen(buf) - 1;
 
-  file.writeError = false;
+  #ifdef USE_NEW_SD_FAT_LIB
+    file.clearWriteError();
+  #else
+    file.writeError = false;
+  #endif
+  
   if ((npos = strchr(buf, 'N')) != NULL) {
     begin = strchr(npos, ' ') + 1;
     end = strchr(npos, '*') - 1;
@@ -520,7 +553,11 @@ void CardReader::write_command(char *buf) {
   end[2] = '\n';
   end[3] = '\0';
   file.write(begin);
-  if (file.writeError) {
+  #ifdef USE_NEW_SD_FAT_LIB
+    if (file.getWriteError()) {
+  #else
+    if (file.writeError) {
+  #endif
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_SD_ERR_WRITE_TO_FILE);
   }
@@ -546,7 +583,11 @@ void CardReader::checkautostart(bool force) {
   root.rewind();
 
   bool found = false;
-  while (root.readDir(p, NULL) > 0) {
+  #ifdef USE_NEW_SD_FAT_LIB
+    while (root.readDir(&p) > 0) {
+  #else
+    while (root.readDir(p, NULL) > 0) {
+  #endif  
     for (int8_t i = (int8_t)strlen((char*)p.name); i--;) p.name[i] = tolower(p.name[i]);
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
       openAndPrintFile(autoname);
@@ -611,7 +652,11 @@ void CardReader::chdir(const char * relpath) {
 
   if (workDir.isOpen()) parent = &workDir;
 
-  if (!newDir.open(*parent, relpath, O_READ)) {
+  #ifdef USE_NEW_SD_FAT_LIB
+    if (!newDir.open(parent, relpath, O_READ)) {
+  #else
+    if (!newDir.open(*parent, relpath, O_READ)) {
+  #endif
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_SD_CANT_ENTER_SUBDIR);
     SERIAL_ECHOLN(relpath);
