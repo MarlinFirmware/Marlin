@@ -383,6 +383,11 @@ void report_current_position();
   float bilinear_z_offset(const float raw[XYZ]);
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+  typedef float (*element_2d_fn)(const uint8_t, const uint8_t);
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const element_2d_fn fn);
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   typedef struct { double A, B, D; } linear_fit;
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
