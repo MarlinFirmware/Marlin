@@ -1332,6 +1332,16 @@
 //#define SDSUPPORT
 
 /**
+ *  Use the new SdFat library from the Arduino repository
+ *  SdFat library must be added if enabled (https://github.com/greiman/SdFat)
+ *  Also speed can be increased if ENABLE_EXTENDED_TRANSFER_CLASS is set 
+ *  in SdFatConfig.h (in SdFat library)
+ *  *** Beta, use with caution *** 
+ *   
+ */ 
+//#define USE_NEW_SD_FAT_LIB
+
+/**
  * SD CARD: SPI SPEED
  *
  * Enable one of the following items for a slower SPI transfer speed.

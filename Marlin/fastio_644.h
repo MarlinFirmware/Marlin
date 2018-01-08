@@ -45,10 +45,10 @@
 #define TXD1        DIO11
 
 // SPI
-#define SCK         DIO7
-#define MISO        DIO6
-#define MOSI        DIO5
-#define SS          DIO4
+#define PIN_SCK     DIO7
+#define PIN_MISO    DIO6
+#define PIN_MOSI    DIO5
+#define PIN_SS      DIO4
 
 // TWI (I2C)
 #define SCL         DIO16
