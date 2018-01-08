@@ -346,6 +346,37 @@
   #endif
 
   /**
+   * Allow Zero Extruders throughout Marlin
+   */
+  #if EXTRUDERS
+    #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+    #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
+  #else
+    #undef XYZE
+    #define XYZE 3
+    #define LOOP_XYZE(VAR) LOOP_XYZ(VAR)
+    #define LOOP_XYZE_N(VAR) LOOP_XYZ(VAR)
+    #undef DISTINCT_E_FACTORS
+    #undef PIDTEMP
+    #undef AUTOTEMP
+    #undef PREVENT_COLD_EXTRUSION
+    #undef PREVENT_LENGTHY_EXTRUDE
+    #undef THERMAL_PROTECTION_HOTENDS
+    #undef THERMAL_PROTECTION_PERIOD
+    #undef WATCH_TEMP_PERIOD
+    #undef HEATER_0_USES_MAX6675
+    #undef HEATER_0_USES_AD595
+    #undef HEATER_0_USES_THERMISTOR
+    #undef TEMP_SENSOR_1_AS_REDUNDANT
+    #undef LIN_ADVANCE
+    #undef DISABLE_INACTIVE_EXTRUDER
+    #undef FILAMENT_WIDTH_SENSOR
+    #undef FILAMENT_RUNOUT_SENSOR
+    #undef FWRETRACT
+    #define NO_VOLUMETRICS
+  #endif
+
+  /**
    * Flags for PID handling
    */
   #define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))

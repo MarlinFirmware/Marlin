@@ -502,7 +502,7 @@ volatile bool wait_for_heatup = true;
 #if EXTRUDERS > 0
   const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 #else
-  const char axis_codes[XYZ] = { 'X', 'Y', 'Z'};
+  const char axis_codes[XYZ] = { 'X', 'Y', 'Z' };
 #endif
 
 // Number of characters read in the current line of serial input
@@ -7485,6 +7485,7 @@ inline void gcode_M77() { print_job_timer.stop(); }
   }
 #endif
 
+#if HOTENDS
 /**
  * M104: Set hot end temperature
  */
@@ -7526,110 +7527,6 @@ inline void gcode_M104() {
     planner.autotemp_M104_M109();
   #endif
 }
-
-/**
- * M105: Read hot end and bed temperature
- */
-inline void gcode_M105() {
-  if (get_target_extruder_from_command(105)) return;
-
-  #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-    SERIAL_PROTOCOLPGM(MSG_OK);
-    thermalManager.print_heaterstates();
-  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-  #endif
-
-  SERIAL_EOL();
-}
-
-#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-
-  /**
-   * M155: Set temperature auto-report interval. M155 S<seconds>
-   */
-  inline void gcode_M155() {
-    if (parser.seenval('S'))
-      thermalManager.set_auto_report_interval(parser.value_byte());
-  }
-
-#endif // AUTO_REPORT_TEMPERATURES
-
-#if FAN_COUNT > 0
-
-  /**
-   * M106: Set Fan Speed
-   *
-   *  S<int>   Speed between 0-255
-   *  P<index> Fan index, if more than one fan
-   *
-   * With EXTRA_FAN_SPEED enabled:
-   *
-   *  T<int>   Restore/Use/Set Temporary Speed:
-   *           1     = Restore previous speed after T2
-   *           2     = Use temporary speed set with T3-255
-   *           3-255 = Set the speed for use with T2
-   */
-  inline void gcode_M106() {
-    const uint8_t p = parser.byteval('P');
-    if (p < FAN_COUNT) {
-      #if ENABLED(EXTRA_FAN_SPEED)
-        const int16_t t = parser.intval('T');
-        if (t > 0) {
-          switch (t) {
-            case 1:
-              fanSpeeds[p] = old_fanSpeeds[p];
-              break;
-            case 2:
-              old_fanSpeeds[p] = fanSpeeds[p];
-              fanSpeeds[p] = new_fanSpeeds[p];
-              break;
-            default:
-              new_fanSpeeds[p] = min(t, 255);
-              break;
-          }
-          return;
-        }
-      #endif // EXTRA_FAN_SPEED
-      const uint16_t s = parser.ushortval('S', 255);
-      fanSpeeds[p] = min(s, 255);
-    }
-  }
-
-  /**
-   * M107: Fan Off
-   */
-  inline void gcode_M107() {
-    const uint16_t p = parser.ushortval('P');
-    if (p < FAN_COUNT) fanSpeeds[p] = 0;
-  }
-
-#endif // FAN_COUNT > 0
-
-#if DISABLED(EMERGENCY_PARSER)
-
-  /**
-   * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
-   */
-  inline void gcode_M108() { wait_for_heatup = false; }
-
-
-  /**
-   * M112: Emergency Stop
-   */
-  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
-
-
-  /**
-   * M410: Quickstop - Abort all planned moves
-   *
-   * This will stop the carriages mid-move, so most likely they
-   * will be out of sync with the stepper position after this.
-   */
-  inline void gcode_M410() { quickstop_stepper(); }
-
-#endif
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -7792,7 +7689,121 @@ inline void gcode_M109() {
   #endif
 }
 
+#endif // HOTENDS
+
+/**
+ * M105: Read hot end and bed temperature
+ */
+inline void gcode_M105() {
+  if (get_target_extruder_from_command(105)) return;
+
+  #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+    SERIAL_PROTOCOLPGM(MSG_OK);
+    thermalManager.print_heaterstates();
+  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+    SERIAL_ERROR_START();
+    SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
+  #endif
+
+  SERIAL_EOL();
+}
+
+#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+
+  /**
+   * M155: Set temperature auto-report interval. M155 S<seconds>
+   */
+  inline void gcode_M155() {
+    if (parser.seenval('S'))
+      thermalManager.set_auto_report_interval(parser.value_byte());
+  }
+
+#endif // AUTO_REPORT_TEMPERATURES
+
+#if FAN_COUNT > 0
+
+  /**
+   * M106: Set Fan Speed
+   *
+   *  S<int>   Speed between 0-255
+   *  P<index> Fan index, if more than one fan
+   *
+   * With EXTRA_FAN_SPEED enabled:
+   *
+   *  T<int>   Restore/Use/Set Temporary Speed:
+   *           1     = Restore previous speed after T2
+   *           2     = Use temporary speed set with T3-255
+   *           3-255 = Set the speed for use with T2
+   */
+  inline void gcode_M106() {
+    const uint8_t p = parser.byteval('P');
+    if (p < FAN_COUNT) {
+      #if ENABLED(EXTRA_FAN_SPEED)
+        const int16_t t = parser.intval('T');
+        if (t > 0) {
+          switch (t) {
+            case 1:
+              fanSpeeds[p] = old_fanSpeeds[p];
+              break;
+            case 2:
+              old_fanSpeeds[p] = fanSpeeds[p];
+              fanSpeeds[p] = new_fanSpeeds[p];
+              break;
+            default:
+              new_fanSpeeds[p] = min(t, 255);
+              break;
+          }
+          return;
+        }
+      #endif // EXTRA_FAN_SPEED
+      const uint16_t s = parser.ushortval('S', 255);
+      fanSpeeds[p] = min(s, 255);
+    }
+  }
+
+  /**
+   * M107: Fan Off
+   */
+  inline void gcode_M107() {
+    const uint16_t p = parser.ushortval('P');
+    if (p < FAN_COUNT) fanSpeeds[p] = 0;
+  }
+
+#endif // FAN_COUNT > 0
+
+#if DISABLED(EMERGENCY_PARSER)
+
+  /**
+   * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
+   */
+  inline void gcode_M108() { wait_for_heatup = false; }
+
+
+  /**
+   * M112: Emergency Stop
+   */
+  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
+
+
+  /**
+   * M410: Quickstop - Abort all planned moves
+   *
+   * This will stop the carriages mid-move, so most likely they
+   * will be out of sync with the stepper position after this.
+   */
+  inline void gcode_M410() { quickstop_stepper(); }
+
+#endif
+
 #if HAS_TEMP_BED
+
+  /**
+   * M140: Set bed temperature
+   */
+  inline void gcode_M140() {
+    if (DEBUGGING(DRYRUN)) return;
+    if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+  }
 
   #ifndef MIN_COOLING_SLOPE_DEG_BED
     #define MIN_COOLING_SLOPE_DEG_BED 1.50
@@ -8018,14 +8029,6 @@ inline void gcode_M111() {
 
 #endif // BARICUDA
 
-/**
- * M140: Set bed temperature
- */
-inline void gcode_M140() {
-  if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
-}
-
 #if ENABLED(ULTIPANEL)
 
   /**
@@ -8044,10 +8047,12 @@ inline void gcode_M140() {
     }
     else {
       int v;
-      if (parser.seenval('H')) {
-        v = parser.value_int();
-        lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-      }
+      #if HOTENDS
+        if (parser.seenval('H')) {
+          v = parser.value_int();
+          lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+        }
+      #endif
       if (parser.seenval('F')) {
         v = parser.value_int();
         lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
@@ -8693,20 +8698,22 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
  *    X = Max X Jerk (units/sec^2)
  *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
+ *    B = Min Segment Time (µs) (Requires SLOWDOWN)
  */
 inline void gcode_M205() {
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
   if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
   if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+  #if ENABLED(SLOWDOWN)
+    if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
+  #endif
 }
 
 #if HAS_M206_COMMAND
@@ -8959,6 +8966,8 @@ inline void gcode_M211() {
 
 #endif // HOTENDS > 1
 
+#if HOTENDS
+
 /**
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
  */
@@ -8976,6 +8985,8 @@ inline void gcode_M221() {
     planner.refresh_e_factor(target_extruder);
   }
 }
+
+#endif // HOTENDS
 
 /**
  * M226: Wait until the specified pin reaches the state required (M226 P<pin> S<state>)
@@ -10835,20 +10846,20 @@ inline void invalid_extruder_error(const uint8_t e) {
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+void tool_change(const uint8_t new_tool_index, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
-    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-      return invalid_extruder_error(tmp_extruder);
+    if (new_tool_index >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(new_tool_index);
 
     // T0-Tnnn: Switch virtual tool by changing the mix
     for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
-      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
+      mixing_factor[j] = mixing_virtual_tool_mix[new_tool_index][j];
 
-  #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #elif HOTENDS // HOTENDS && (!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1)
 
-    if (tmp_extruder >= EXTRUDERS)
-      return invalid_extruder_error(tmp_extruder);
+    if (new_tool_index >= EXTRUDERS)
+      return invalid_extruder_error(new_tool_index);
 
     #if HOTENDS > 1
 
@@ -10856,7 +10867,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-      if (tmp_extruder != active_extruder) {
+      if (new_tool_index != active_extruder) {
         if (!no_move && axis_unhomed_error()) {
           no_move = true;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -10910,11 +10921,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           }
 
           // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
-          current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
-          current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+          current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][new_tool_index];
+          current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][new_tool_index];
 
           // Activate the new extruder ahead of calling set_axis_is_at_home!
-          active_extruder = tmp_extruder;
+          active_extruder = new_tool_index;
 
           // This function resets the max/min values - the current position may be overwritten below.
           set_axis_is_at_home(X_AXIS);
@@ -10975,14 +10986,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
-            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][new_tool_index];
             float z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
             if (!no_move) {
 
               const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
                           midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + hotend_offset[X_AXIS][active_extruder],
-                          grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
-                                    + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
+                          grabpos = parkingposx[new_tool_index] + hotend_offset[X_AXIS][active_extruder]
+                                    + (new_tool_index == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
               /**
                *  Steps:
                *    1. Raise Z-Axis to give enough clearance
@@ -11042,21 +11053,21 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
                 pe_activate_magnet(active_extruder); //just save power for inverted magnets
               #endif
-              pe_activate_magnet(tmp_extruder);
+              pe_activate_magnet(new_tool_index);
 
               // STEP 6
-              current_position[X_AXIS] = grabpos + (tmp_extruder == 0 ? (+10) : (-10));
+              current_position[X_AXIS] = grabpos + (new_tool_index == 0 ? (+10) : (-10));
               planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
               current_position[X_AXIS] = grabpos;
               #if ENABLED(DEBUG_LEVELING_FEATURE)
-                SERIAL_ECHOLNPAIR("(6) Unpark extruder ", tmp_extruder);
+                SERIAL_ECHOLNPAIR("(6) Unpark extruder ", new_tool_index);
                 if (DEBUGGING(LEVELING)) DEBUG_POS("Move UnparkPos", current_position);
               #endif
               planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
               stepper.synchronize();
 
               // Step 7
-              current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
+              current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][new_tool_index];
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 SERIAL_ECHOLNPGM("(7) Move midway between hotends");
                 if (DEBUGGING(LEVELING)) DEBUG_POS("Move midway to new extruder", current_position);
@@ -11069,12 +11080,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             }
             else { // nomove == true
               // Only engage magnetic field for new extruder
-              pe_activate_magnet(tmp_extruder);
+              pe_activate_magnet(new_tool_index);
               #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
                 pe_activate_magnet(active_extruder); // Just save power for inverted magnets
               #endif
             }
-            current_position[Z_AXIS] -= hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]; // Apply Zoffset
+            current_position[Z_AXIS] -= hotend_offset[Z_AXIS][new_tool_index] - hotend_offset[Z_AXIS][active_extruder]; // Apply Zoffset
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) DEBUG_POS("Applying Z-offset", current_position);
@@ -11085,13 +11096,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(SWITCHING_NOZZLE)
             #define DONT_SWITCH (SWITCHING_EXTRUDER_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
-            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
+            const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][new_tool_index],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
 
             // Always raise by some amount (destination copied from current_position earlier)
             current_position[Z_AXIS] += z_raise;
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-            move_nozzle_servo(tmp_extruder);
+            move_nozzle_servo(new_tool_index);
           #endif
 
           /**
@@ -11119,8 +11130,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
            */
           #if ABL_PLANAR
             // Offset extruder, make sure to apply the bed level rotation matrix
-            vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
-                                               hotend_offset[Y_AXIS][tmp_extruder],
+            vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][new_tool_index],
+                                               hotend_offset[Y_AXIS][new_tool_index],
                                                0),
                      act_offset_vec = vector_3(hotend_offset[X_AXIS][active_extruder],
                                                hotend_offset[Y_AXIS][active_extruder],
@@ -11148,8 +11159,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #else // !ABL_PLANAR
 
             const float xydiff[2] = {
-              hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-              hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
+              hotend_offset[X_AXIS][new_tool_index] - hotend_offset[X_AXIS][active_extruder],
+              hotend_offset[Y_AXIS][new_tool_index] - hotend_offset[Y_AXIS][active_extruder]
             };
 
             #if ENABLED(MESH_BED_LEVELING)
@@ -11187,7 +11198,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           current_position[Y_AXIS] += xydiff[Y_AXIS];
 
           // Set the new active extruder
-          active_extruder = tmp_extruder;
+          active_extruder = new_tool_index;
 
         #endif // !DUAL_X_CARRIAGE
 
@@ -11215,7 +11226,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             do_blocking_move_to_z(destination[Z_AXIS], planner.max_feedrate_mm_s[Z_AXIS]);
           }
         #endif
-      } // (tmp_extruder != active_extruder)
+      } // (new_tool_index != active_extruder)
 
       stepper.synchronize();
 
@@ -11232,14 +11243,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       UNUSED(no_move);
 
       #if ENABLED(MK2_MULTIPLEXER)
-        if (tmp_extruder >= E_STEPPERS)
-          return invalid_extruder_error(tmp_extruder);
+        if (new_tool_index >= E_STEPPERS)
+          return invalid_extruder_error(new_tool_index);
 
-        select_multiplexed_stepper(tmp_extruder);
+        select_multiplexed_stepper(new_tool_index);
       #endif
 
       // Set the new active extruder
-      active_extruder = tmp_extruder;
+      active_extruder = new_tool_index;
 
     #endif // HOTENDS <= 1
 
@@ -11255,7 +11266,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
-  #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #else // HOTENDS && (!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1)
+    UNUSED(new_tool_index);
+    UNUSED(fr_mm_s);
+    UNUSED(no_move);
+  #endif
 }
 
 /**
@@ -11264,11 +11279,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
  */
-inline void gcode_T(const uint8_t tmp_extruder) {
+inline void gcode_T(const uint8_t new_tool_index) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> gcode_T(", tmp_extruder);
+      SERIAL_ECHOPAIR(">>> gcode_T(", new_tool_index);
       SERIAL_CHAR(')');
       SERIAL_EOL();
       DEBUG_POS("BEFORE", current_position);
@@ -11277,15 +11292,19 @@ inline void gcode_T(const uint8_t tmp_extruder) {
 
   #if HOTENDS == 1 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
 
-    tool_change(tmp_extruder);
+    tool_change(new_tool_index);
 
   #elif HOTENDS > 1
 
     tool_change(
-      tmp_extruder,
+      new_tool_index,
       MMM_TO_MMS(parser.linearval('F')),
-      (tmp_extruder == active_extruder) || parser.boolval('S')
+      (new_tool_index == active_extruder) || parser.boolval('S')
     );
+
+  #elif DISABLED(DEBUG_LEVELING_FEATURE)
+
+    UNUSED(new_tool_index);
 
   #endif
 
@@ -11455,9 +11474,15 @@ void process_parsed_command() {
         case 100: gcode_M100(); break;                            // M100: Free Memory Report
       #endif
 
-      #if HOTENDS > 0
+      #if HOTENDS
         case 104: gcode_M104(); break;                            // M104: Set Hotend Temperature
+        case 109: gcode_M109(); break;                            // M109: Set Hotend Temperature. Wait for target.
       #endif
+      #if HAS_TEMP_BED
+        case 140: gcode_M140(); break;                            // M140: Set Bed Temperature
+        case 190: gcode_M190(); break;                            // M190: Set Bed Temperature. Wait for target.
+      #endif
+
       case 110: gcode_M110(); break;                              // M110: Set Current Line Number
       case 111: gcode_M111(); break;                              // M111: Set Debug Flags
 
@@ -11471,20 +11496,10 @@ void process_parsed_command() {
         case 113: gcode_M113(); break;                            // M113: Set Host Keepalive Interval
       #endif
 
-      case 140: gcode_M140(); break;                              // M140: Set Bed Temperature
-
       case 105: gcode_M105(); KEEPALIVE_STATE(NOT_BUSY); return;  // M105: Report Temperatures (and say "ok")
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
         case 155: gcode_M155(); break;                            // M155: Set Temperature Auto-report Interval
-      #endif
-
-      #if HOTENDS > 0
-        case 109: gcode_M109(); break;                            // M109: Set Hotend Temperature. Wait for target.
-      #endif
-
-      #if HAS_TEMP_BED
-        case 190: gcode_M190(); break;                            // M190: Set Bed Temperature. Wait for target.
       #endif
 
       #if FAN_COUNT > 0
@@ -11578,8 +11593,11 @@ void process_parsed_command() {
         case 218: gcode_M218(); break;                            // M218: Set Tool Offset
       #endif
 
-      case 220: gcode_M220(); break;                              // M220: Set Feedrate Percentage
-      case 221: gcode_M221(); break;                              // M221: Set Flow Percentage
+      #if HOTENDS
+        case 220: gcode_M220(); break;                            // M220: Set Feedrate Percentage
+        case 221: gcode_M221(); break;                            // M221: Set Flow Percentage
+      #endif
+
       case 226: gcode_M226(); break;                              // M226: Wait for Pin State
 
       #if defined(CHDK) || HAS_PHOTOGRAPH
@@ -12249,8 +12267,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
                 segment_distance[XYZE] = {
                   xdiff * inv_segments,
                   ydiff * inv_segments,
-                  zdiff * inv_segments,
-                  ediff * inv_segments
+                  zdiff * inv_segments
+                  #if XYZE == 4
+                    , ediff * inv_segments
+                  #endif
                 };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
@@ -12474,8 +12494,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
                 segment_distance[XYZE] = {
                   xdiff * inv_segments,
                   ydiff * inv_segments,
-                  zdiff * inv_segments,
-                  ediff * inv_segments
+                  zdiff * inv_segments
+                  #if XYZE == 4
+                    , ediff * inv_segments
+                  #endif
                 };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);

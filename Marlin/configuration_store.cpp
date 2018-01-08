@@ -285,7 +285,7 @@ void MarlinSettings::postprocess() {
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
-  #else
+  #elif EXTRUDERS
     for (uint8_t i = COUNT(planner.e_factor); i--;)
       planner.refresh_e_factor(i);
   #endif
@@ -418,7 +418,12 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.travel_acceleration);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
-    EEPROM_WRITE(planner.min_segment_time_us);
+    #if DISABLED(SLOWDOWN)
+      const uint32_t min_seg_time = DEFAULT_MINSEGMENTTIME;
+      EEPROM_WRITE(min_seg_time);
+    #else
+      EEPROM_WRITE(planner.min_segment_time_us);
+    #endif
     EEPROM_WRITE(planner.max_jerk);
 
     _FIELD_TEST(home_offset);
@@ -932,7 +937,12 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
-      EEPROM_READ(planner.min_segment_time_us);
+      #if DISABLED(SLOWDOWN)
+        uint32_t min_seg_time;
+        EEPROM_READ(min_seg_time);
+      #else
+        EEPROM_READ(planner.min_segment_time_us);
+      #endif
       EEPROM_READ(planner.max_jerk);
 
       //
@@ -1565,7 +1575,9 @@ void MarlinSettings::reset() {
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
+  #if ENABLED(SLOWDOWN)
+    planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
+  #endif
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
@@ -1959,13 +1971,20 @@ void MarlinSettings::reset() {
     SERIAL_ECHOLNPAIR(" T", LINEAR_UNIT(planner.travel_acceleration));
 
     if (!forReplay) {
+      #if ENABLED(SLOWDOWN)
+        #define B_WORD "B<min_segment_time_us> "
+      #else
+        #define B_WORD
+      #endif
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> B<min_segment_time_us> X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> " B_WORD "X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M205 S", LINEAR_UNIT(planner.min_feedrate_mm_s));
     SERIAL_ECHOPAIR(" T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
-    SERIAL_ECHOPAIR(" B", planner.min_segment_time_us);
+    #if ENABLED(SLOWDOWN)
+      SERIAL_ECHOPAIR(" B", planner.min_segment_time_us);
+    #endif
     SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
     SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
     SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));

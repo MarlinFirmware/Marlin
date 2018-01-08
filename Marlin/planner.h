@@ -149,13 +149,16 @@ class Planner {
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
                             block_buffer_tail;      // Index of the busy block, if any
 
-    #if ENABLED(DISTINCT_E_FACTORS)
-      static uint8_t last_extruder;                 // Respond to extruder change
-    #endif
+    #if EXTRUDERS
 
-    static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
+      #if ENABLED(DISTINCT_E_FACTORS)
+        static uint8_t last_extruder;                 // Respond to extruder change
+      #endif
+      static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
+      static float e_factor[EXTRUDERS],               // The flow percentage and volumetric multiplier combine to scale E movement
+                   retract_acceleration;              // (M204 T) Retract acceleration (mm/s^2) applies to E-only moves
 
-    static float e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+    #endif // EXTRUDERS
 
     #if DISABLED(NO_VOLUMETRICS)
       static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -170,12 +173,13 @@ class Planner {
     static uint32_t max_acceleration_steps_per_s2[XYZE_N],
                     max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override
 
-    static uint32_t min_segment_time_us; // Use 'M205 B<µs>' to override
+    #if ENABLED(SLOWDOWN)
+      static uint32_t min_segment_time_us;  // (M205 B<µs>) Minimum time for a segment
+    #endif
     static float min_feedrate_mm_s,
-                 acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-                 retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-                 travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-                 max_jerk[XYZE],       // The largest speed change requiring no acceleration
+                 acceleration,              // (M204 S) Normal acceleration (mm/s^2) Default acceleration for all printing moves.
+                 travel_acceleration,       // (M204 M) Travel acceleration (mm/s^2)  DEFAULT ACCELERATION for all NON printing moves.
+                 max_jerk[XYZE],            // The largest speed change requiring no acceleration
                  min_travel_feedrate_mm_s;
 
     #if HAS_LEVELING
@@ -245,7 +249,7 @@ class Planner {
        * Counters to manage disabling inactive extruders
        */
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
-    #endif // DISABLE_INACTIVE_EXTRUDER
+    #endif
 
     #ifdef XY_FREQUENCY_LIMIT
       // Used for the frequency limit
@@ -277,13 +281,15 @@ class Planner {
     static void reset_acceleration_rates();
     static void refresh_positioning();
 
-    FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = (flow_percentage[e] * 0.01
-        #if DISABLED(NO_VOLUMETRICS)
-          * volumetric_multiplier[e]
-        #endif
-      );
-    }
+    #if EXTRUDERS
+      FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
+        e_factor[e] = (flow_percentage[e] * 0.01
+          #if DISABLED(NO_VOLUMETRICS)
+            * volumetric_multiplier[e]
+          #endif
+        );
+      }
+    #endif // EXTRUDERS
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();

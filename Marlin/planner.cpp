@@ -92,9 +92,11 @@ float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
 
-int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
-
-float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow percentage and volumetric multiplier combine to scale E movement
+#if EXTRUDERS
+  int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
+  float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0), // The flow percentage and volumetric multiplier combine to scale E movement
+        Planner::retract_acceleration;                           // (M204 T) Retract acceleration (mm/s^2) applies to E-only moves
+#endif
 
 #if DISABLED(NO_VOLUMETRICS)
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -105,12 +107,13 @@ float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow perce
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
          Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
-uint32_t Planner::min_segment_time_us;
+#if ENABLED(SLOWDOWN)
+  uint32_t Planner::min_segment_time_us;
+#endif
 
 // Initialized by settings.load()
 float Planner::min_feedrate_mm_s,
       Planner::acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-      Planner::retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
       Planner::travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
       Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
       Planner::min_travel_feedrate_mm_s;
@@ -722,7 +725,9 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
                 db = target[Y_AXIS] - position[Y_AXIS],
                 dc = target[Z_AXIS] - position[Z_AXIS];
 
-  int32_t de = target[E_AXIS] - position[E_AXIS];
+  #if EXTRUDERS
+    int32_t de = target[E_AXIS] - position[E_AXIS];
+  #endif
 
   /* <-- add a slash to enable
     SERIAL_ECHOPAIR("  _buffer_steps FR:", fr_mm_s);
@@ -785,10 +790,14 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     if (db < 0) SBI(dm, Y_AXIS);
     if (dc < 0) SBI(dm, Z_AXIS);
   #endif
-  if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * e_factor[extruder];
-  const int32_t esteps = abs(esteps_float) + 0.5;
+  #if EXTRUDERS
+    if (de < 0) SBI(dm, E_AXIS);
+    const float esteps_float = de * e_factor[extruder];
+    const int32_t esteps = abs(esteps_float) + 0.5;
+  #else
+    constexpr int32_t esteps = 0;
+  #endif
 
   // Calculate the buffer head after we push this byte
   const uint8_t next_buffer_head = next_block_index(block_buffer_head);
@@ -827,8 +836,14 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     block->steps[Z_AXIS] = labs(dc);
   #endif
 
-  block->steps[E_AXIS] = esteps;
-  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], esteps);
+  block->step_event_count =
+    #if EXTRUDERS
+      MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], esteps);
+      block->steps[E_AXIS] = esteps
+    #else
+      MAX3(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS])
+    #endif
+  ;
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
@@ -879,105 +894,113 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     #endif
   #endif
 
-  // Enable extruder(s)
-  if (esteps) {
+  #if EXTRUDERS
 
-    #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+    // Enable extruder(s)
+    if (esteps) {
 
-      #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
+      #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-      for (uint8_t i = 0; i < EXTRUDERS; i++)
-        if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
+        #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
 
-      switch(extruder) {
-        case 0:
-          enable_E0();
-          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-            if (extruder_duplication_enabled) {
+        for (uint8_t i = 0; i < EXTRUDERS; i++)
+          if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
+
+        switch(extruder) {
+          case 0:
+            enable_E0();
+            g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
+            #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+              if (extruder_duplication_enabled) {
+                enable_E1();
+                g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+              }
+            #endif
+            #if EXTRUDERS > 1
+              DISABLE_IDLE_E(1);
+              #if EXTRUDERS > 2
+                DISABLE_IDLE_E(2);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                  #endif // EXTRUDERS > 4
+                #endif // EXTRUDERS > 3
+              #endif // EXTRUDERS > 2
+            #endif // EXTRUDERS > 1
+          break;
+          #if EXTRUDERS > 1
+            case 1:
               enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            }
-          #endif
-          #if EXTRUDERS > 1
-            DISABLE_IDLE_E(1);
+              DISABLE_IDLE_E(0);
+              #if EXTRUDERS > 2
+                DISABLE_IDLE_E(2);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                  #endif // EXTRUDERS > 4
+                #endif // EXTRUDERS > 3
+              #endif // EXTRUDERS > 2
+            break;
             #if EXTRUDERS > 2
-              DISABLE_IDLE_E(2);
+              case 2:
+                enable_E2();
+                g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
+                DISABLE_IDLE_E(0);
+                DISABLE_IDLE_E(1);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                  #endif
+                #endif
+              break;
               #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
+                case 3:
+                  enable_E3();
+                  g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
+                  DISABLE_IDLE_E(0);
+                  DISABLE_IDLE_E(1);
+                  DISABLE_IDLE_E(2);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                  #endif
+                break;
                 #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
+                  case 4:
+                    enable_E4();
+                    g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
+                    DISABLE_IDLE_E(0);
+                    DISABLE_IDLE_E(1);
+                    DISABLE_IDLE_E(2);
+                    DISABLE_IDLE_E(3);
+                  break;
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
           #endif // EXTRUDERS > 1
-        break;
-        #if EXTRUDERS > 1
-          case 1:
-            enable_E1();
-            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            DISABLE_IDLE_E(0);
-            #if EXTRUDERS > 2
-              DISABLE_IDLE_E(2);
-              #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                #endif // EXTRUDERS > 4
-              #endif // EXTRUDERS > 3
-            #endif // EXTRUDERS > 2
-          break;
-          #if EXTRUDERS > 2
-            case 2:
-              enable_E2();
-              g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-              DISABLE_IDLE_E(0);
-              DISABLE_IDLE_E(1);
-              #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                #endif
-              #endif
-            break;
-            #if EXTRUDERS > 3
-              case 3:
-                enable_E3();
-                g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-                DISABLE_IDLE_E(0);
-                DISABLE_IDLE_E(1);
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                #endif
-              break;
-              #if EXTRUDERS > 4
-                case 4:
-                  enable_E4();
-                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
-                  DISABLE_IDLE_E(0);
-                  DISABLE_IDLE_E(1);
-                  DISABLE_IDLE_E(2);
-                  DISABLE_IDLE_E(3);
-                break;
-              #endif // EXTRUDERS > 4
-            #endif // EXTRUDERS > 3
-          #endif // EXTRUDERS > 2
-        #endif // EXTRUDERS > 1
-      }
-    #else
-      enable_E0();
-      enable_E1();
-      enable_E2();
-      enable_E3();
-      enable_E4();
-    #endif
-  }
+        }
+      #else
+        enable_E0();
+        enable_E1();
+        enable_E2();
+        enable_E3();
+        enable_E4();
+      #endif
+    }
 
-  if (esteps)
-    NOLESS(fr_mm_s, min_feedrate_mm_s);
-  else
+    if (esteps)
+      NOLESS(fr_mm_s, min_feedrate_mm_s);
+    else
+      NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
+
+  #else
+
     NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
+
+  #endif
 
   /**
    * This part of the code calculates the total length of the movement.
@@ -1014,10 +1037,17 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
     delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
   #endif
-  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
+
+  #if EXTRUDERS
+    delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
+  #endif
 
   if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
-    block->millimeters = FABS(delta_mm[E_AXIS]);
+    #if EXTRUDERS
+      block->millimeters = FABS(delta_mm[E_AXIS]);
+    #else
+      return;
+    #endif
   }
   else {
     block->millimeters = SQRT(
@@ -1193,13 +1223,17 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
       LIMIT_ACCEL_LONG(X_AXIS, 0);
       LIMIT_ACCEL_LONG(Y_AXIS, 0);
       LIMIT_ACCEL_LONG(Z_AXIS, 0);
-      LIMIT_ACCEL_LONG(E_AXIS, ACCEL_IDX);
+      #if EXTRUDERS
+        LIMIT_ACCEL_LONG(E_AXIS, ACCEL_IDX);
+      #endif
     }
     else {
       LIMIT_ACCEL_FLOAT(X_AXIS, 0);
       LIMIT_ACCEL_FLOAT(Y_AXIS, 0);
       LIMIT_ACCEL_FLOAT(Z_AXIS, 0);
-      LIMIT_ACCEL_FLOAT(E_AXIS, ACCEL_IDX);
+      #if EXTRUDERS
+        LIMIT_ACCEL_FLOAT(E_AXIS, ACCEL_IDX);
+      #endif
     }
   }
   block->acceleration_steps_per_s2 = accel;
@@ -1425,17 +1459,23 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   const int32_t target[XYZE] = {
     LROUND(a * axis_steps_per_mm[X_AXIS]),
     LROUND(b * axis_steps_per_mm[Y_AXIS]),
-    LROUND(c * axis_steps_per_mm[Z_AXIS]),
-    LROUND(e * axis_steps_per_mm[E_AXIS_N])
+    LROUND(c * axis_steps_per_mm[Z_AXIS])
+    #if XYZE == 4
+      , LROUND(e * axis_steps_per_mm[E_AXIS_N])
+    #endif
   };
 
-  // DRYRUN prevents E moves from taking place
-  if (DEBUGGING(DRYRUN)) {
-    position[E_AXIS] = target[E_AXIS];
-    #if ENABLED(LIN_ADVANCE)
-      position_float[E_AXIS] = e;
-    #endif
-  }
+  #if EXTRUDERS
+    // DRYRUN prevents E moves from taking place
+    if (DEBUGGING(DRYRUN)) {
+      position[E_AXIS] = target[E_AXIS];
+      #if ENABLED(LIN_ADVANCE)
+        position_float[E_AXIS] = e;
+      #endif
+    }
+  #else
+    UNUSED(e);
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     lin_dist_e = e - position_float[E_AXIS];
@@ -1503,7 +1543,11 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   if (!blocks_queued()) {
 
     #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
-    const int32_t between[XYZE] = { _BETWEEN(X), _BETWEEN(Y), _BETWEEN(Z), _BETWEEN(E) };
+    const int32_t between[XYZE] = { _BETWEEN(X), _BETWEEN(Y), _BETWEEN(Z)
+      #if XYZE == 4
+        , _BETWEEN(E)
+      #endif
+    };
     DISABLE_STEPPER_DRIVER_INTERRUPT();
 
     #if ENABLED(LIN_ADVANCE)
