@@ -1181,7 +1181,7 @@ void MarlinSettings::postprocess() {
       // TMC2130 Stepper Current
       //
       #if HAS_TRINAMIC
-        #define SET_CURR(N,Q) stepper##Q.setCurrent(val[N], R_SENSE, HOLD_MULTIPLIER)
+        #define SET_CURR(N,Q) stepper##Q.setCurrent(val[N] ? val[N] : Q##_CURRENT, R_SENSE, HOLD_MULTIPLIER)
         uint16_t val[11];
         EEPROM_READ(val);
         if (!validating) {
