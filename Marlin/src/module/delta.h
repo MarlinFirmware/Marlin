@@ -27,7 +27,8 @@
 #ifndef __DELTA_H__
 #define __DELTA_H__
 
-extern float delta_endstop_adj[ABC],
+extern float delta_height,
+             delta_endstop_adj[ABC],
              delta_radius,
              delta_diagonal_rod,
              delta_segments_per_second,
@@ -42,12 +43,12 @@ extern float delta_tower[ABC][2],
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
-void recalc_delta_settings(const float radius, const float diagonal_rod, const float tower_angle_trim[ABC]);
+void recalc_delta_settings();
 
 /**
  * Delta Inverse Kinematics
  *
- * Calculate the tower positions for a given logical
+ * Calculate the tower positions for a given machine
  * position, storing the result in the delta[] array.
  *
  * This is an expensive calculation, requiring 3 square
@@ -75,29 +76,20 @@ void recalc_delta_settings(const float radius, const float diagonal_rod, const f
 #endif
 
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
-  delta_diagonal_rod_2_tower[T] - HYPOT2(   \
-      delta_tower[T][X_AXIS] - raw[X_AXIS], \
-      delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
-    )                                       \
+#define DELTA_Z(V,T) V[Z_AXIS] + _SQRT(   \
+  delta_diagonal_rod_2_tower[T] - HYPOT2( \
+      delta_tower[T][X_AXIS] - V[X_AXIS], \
+      delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
+    )                                     \
   )
 
-#define DELTA_RAW_IK() do {        \
-  delta[A_AXIS] = DELTA_Z(A_AXIS); \
-  delta[B_AXIS] = DELTA_Z(B_AXIS); \
-  delta[C_AXIS] = DELTA_Z(C_AXIS); \
+#define DELTA_IK(V) do {        \
+  delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
+  delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
+  delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
 }while(0)
 
-#define DELTA_LOGICAL_IK() do {      \
-  const float raw[XYZ] = {           \
-    RAW_X_POSITION(logical[X_AXIS]), \
-    RAW_Y_POSITION(logical[Y_AXIS]), \
-    RAW_Z_POSITION(logical[Z_AXIS])  \
-  };                                 \
-  DELTA_RAW_IK();                    \
-}while(0)
-
-void inverse_kinematics(const float logical[XYZ]);
+void inverse_kinematics(const float raw[XYZ]);
 
 /**
  * Calculate the highest Z position where the

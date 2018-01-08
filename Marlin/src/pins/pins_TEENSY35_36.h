@@ -1,15 +1,33 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /****************************************************************************************
 * Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0) Breadboard pin assignments
 * Requires the Teensyduino software with Teensy 3.5 or Teensy 3.6 selected in Arduino IDE!
 * http://www.pjrc.com/teensy/teensyduino.html
-*
 ****************************************************************************************/
-#if MOTHERBOARD == 841 // BOARD_TEENSY35_36
-#define KNOWN_BOARD 1
-#define AT90USB 1286  // Disable MarlinSerial etc.
 
 #if !IS_32BIT_TEENSY
-  #error Oops!  Make sure you have 'Teensy 3.5' or 'Teensy 3.6' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy 3.5' or 'Teensy 3.6' selected from the 'Tools -> Boards' menu."
 #endif
 
 #if IS_TEENSY35
@@ -18,12 +36,11 @@
   #define BOARD_NAME "Teensy3.6"
 #endif
 
-#define LARGE_FLASH        true
+#define AT90USB 1286   // Disable MarlinSerial etc.
 #define USBCON //1286  // Disable MarlinSerial etc.
-
 /*
-teemuatlut plan for Teensy3.5 and Teensy3.6:
 
+  teemuatlut plan for Teensy3.5 and Teensy3.6:
                                                      USB
                                           GND |-----#####-----| VIN 5V
       X_STEP_PIN          MOSI1   RX1       0 |     #####     | Analog GND
@@ -84,7 +101,6 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 
 #define HEATER_0_PIN       30
 #define HEATER_1_PIN       36
-#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     31
 #define FAN_PIN             2
 
@@ -93,26 +109,26 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 #define Z_STOP_PIN         28
 
 #define TEMP_0_PIN          2 // Extruder / Analog pin numbering: 2 => A2
-#define TEMP_BED_PIN        1 // Bed / Analog pin numbering
 #define TEMP_1_PIN          0
-#define TEMP_2_PIN         -1
+#define TEMP_BED_PIN        1 // Bed / Analog pin numbering
 
-#define SDPOWER            -1
-#define SD_DETECT_PIN      -1
 #define SDSS               39 // 8
 #define LED_PIN            13
 #define PS_ON_PIN           1
-#define KILL_PIN           -1
 #define ALARM_PIN          -1
 
 #define FILWIDTH_PIN        6
 #define SOL1_PIN           28
 
+#if 0
+// Pretty sure this is obsolete!
+// Please use Marlin 1.1.x pins files as reference for new pins files.
 #ifndef SDSUPPORT
   // these are defined in the SD library if building with SD support
   #define SCK_PIN          13
   #define MISO_PIN         12
   #define MOSI_PIN         11
+#endif
 #endif
 
 #ifdef ULTRA_LCD
@@ -126,5 +142,3 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
   #define BTN_EN2          47
   #define BTN_ENC          48
 #endif
-
-#endif  // MOTHERBOARD == 841 (Teensy3.5 and Teensy3.6)

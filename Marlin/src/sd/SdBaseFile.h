@@ -21,208 +21,198 @@
  */
 
 /**
+ * \file
+ * \brief SdBaseFile class
+ */
+
+/**
  * Arduino SdFat Library
  * Copyright (C) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
+#ifndef _SDBASEFILE_H_
+#define _SDBASEFILE_H_
 
-#ifndef SDBASEFILE_H
-#define SDBASEFILE_H
-/**
- * \file
- * \brief SdBaseFile class
- */
 
 #include "SdFatConfig.h"
 #include "SdVolume.h"
 
 #include <stdint.h>
 
-//------------------------------------------------------------------------------
 /**
  * \struct filepos_t
  * \brief internal type for istream
  * do not use in user apps
  */
 struct filepos_t {
-  /** stream position */
-  uint32_t position;
-  /** cluster for position */
-  uint32_t cluster;
+  uint32_t position;  // stream byte position
+  uint32_t cluster;   // cluster of position
   filepos_t() : position(0), cluster(0) {}
 };
 
 // use the gnu style oflag in open()
-/** open() oflag for reading */
-uint8_t const O_READ = 0x01;
-/** open() oflag - same as O_IN */
-uint8_t const O_RDONLY = O_READ;
-/** open() oflag for write */
-uint8_t const O_WRITE = 0x02;
-/** open() oflag - same as O_WRITE */
-uint8_t const O_WRONLY = O_WRITE;
-/** open() oflag for reading and writing */
-uint8_t const O_RDWR = (O_READ | O_WRITE);
-/** open() oflag mask for access modes */
-uint8_t const O_ACCMODE = (O_READ | O_WRITE);
-/** The file offset shall be set to the end of the file prior to each write. */
-uint8_t const O_APPEND = 0x04;
-/** synchronous writes - call sync() after each write */
-uint8_t const O_SYNC = 0x08;
-/** truncate the file to zero length */
-uint8_t const O_TRUNC = 0x10;
-/** set the initial position at the end of the file */
-uint8_t const O_AT_END = 0x20;
-/** create the file if nonexistent */
-uint8_t const O_CREAT = 0x40;
-/** If O_CREAT and O_EXCL are set, open() shall fail if the file exists */
-uint8_t const O_EXCL = 0x80;
+uint8_t const O_READ = 0x01,                    // open() oflag for reading
+              O_RDONLY = O_READ,                // open() oflag - same as O_IN
+              O_WRITE = 0x02,                   // open() oflag for write
+              O_WRONLY = O_WRITE,               // open() oflag - same as O_WRITE
+              O_RDWR = (O_READ | O_WRITE),      // open() oflag for reading and writing
+              O_ACCMODE = (O_READ | O_WRITE),   // open() oflag mask for access modes
+              O_APPEND = 0x04,                  // The file offset shall be set to the end of the file prior to each write.
+              O_SYNC = 0x08,                    // Synchronous writes - call sync() after each write
+              O_TRUNC = 0x10,                   // Truncate the file to zero length
+              O_AT_END = 0x20,                  // Set the initial position at the end of the file
+              O_CREAT = 0x40,                   // Create the file if nonexistent
+              O_EXCL = 0x80;                    // If O_CREAT and O_EXCL are set, open() shall fail if the file exists
 
 // SdBaseFile class static and const definitions
+
 // flags for ls()
-/** ls() flag to print modify date */
-uint8_t const LS_DATE = 1;
-/** ls() flag to print file size */
-uint8_t const LS_SIZE = 2;
-/** ls() flag for recursive list of subdirectories */
-uint8_t const LS_R = 4;
+uint8_t const LS_DATE = 1,    // ls() flag to print modify date
+              LS_SIZE = 2,    // ls() flag to print file size
+              LS_R = 4;       // ls() flag for recursive list of subdirectories
 
 
 // flags for timestamp
-/** set the file's last access date */
-uint8_t const T_ACCESS = 1;
-/** set the file's creation date and time */
-uint8_t const T_CREATE = 2;
-/** Set the file's write date and time */
-uint8_t const T_WRITE = 4;
-// values for type_
-/** This file has not been opened. */
-uint8_t const FAT_FILE_TYPE_CLOSED = 0;
-/** A normal file */
-uint8_t const FAT_FILE_TYPE_NORMAL = 1;
-/** A FAT12 or FAT16 root directory */
-uint8_t const FAT_FILE_TYPE_ROOT_FIXED = 2;
-/** A FAT32 root directory */
-uint8_t const FAT_FILE_TYPE_ROOT32 = 3;
-/** A subdirectory file*/
-uint8_t const FAT_FILE_TYPE_SUBDIR = 4;
-/** Test value for directory type */
-uint8_t const FAT_FILE_TYPE_MIN_DIR = FAT_FILE_TYPE_ROOT_FIXED;
+uint8_t const T_ACCESS = 1,   // Set the file's last access date
+              T_CREATE = 2,   // Set the file's creation date and time
+              T_WRITE = 4;    // Set the file's write date and time
 
-/** date field for FAT directory entry
+// values for type_
+uint8_t const FAT_FILE_TYPE_CLOSED = 0,                           // This file has not been opened.
+              FAT_FILE_TYPE_NORMAL = 1,                           // A normal file
+              FAT_FILE_TYPE_ROOT_FIXED = 2,                       // A FAT12 or FAT16 root directory
+              FAT_FILE_TYPE_ROOT32 = 3,                           // A FAT32 root directory
+              FAT_FILE_TYPE_SUBDIR = 4,                           // A subdirectory file
+              FAT_FILE_TYPE_MIN_DIR = FAT_FILE_TYPE_ROOT_FIXED;   // Test value for directory type
+
+/**
+ * date field for FAT directory entry
  * \param[in] year [1980,2107]
  * \param[in] month [1,12]
  * \param[in] day [1,31]
  *
  * \return Packed date for dir_t entry.
  */
-static inline uint16_t FAT_DATE(uint16_t year, uint8_t month, uint8_t day) {
-  return (year - 1980) << 9 | month << 5 | day;
-}
-/** year part of FAT directory date field
+static inline uint16_t FAT_DATE(uint16_t year, uint8_t month, uint8_t day) { return (year - 1980) << 9 | month << 5 | day; }
+
+/**
+ * year part of FAT directory date field
  * \param[in] fatDate Date in packed dir format.
  *
  * \return Extracted year [1980,2107]
  */
-static inline uint16_t FAT_YEAR(uint16_t fatDate) {
-  return 1980 + (fatDate >> 9);
-}
-/** month part of FAT directory date field
+static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9); }
+
+/**
+ * month part of FAT directory date field
  * \param[in] fatDate Date in packed dir format.
  *
  * \return Extracted month [1,12]
  */
-static inline uint8_t FAT_MONTH(uint16_t fatDate) {
-  return (fatDate >> 5) & 0XF;
-}
-/** day part of FAT directory date field
+static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0XF; }
+
+/**
+ * day part of FAT directory date field
  * \param[in] fatDate Date in packed dir format.
  *
  * \return Extracted day [1,31]
  */
-static inline uint8_t FAT_DAY(uint16_t fatDate) {
-  return fatDate & 0x1F;
-}
-/** time field for FAT directory entry
+static inline uint8_t FAT_DAY(uint16_t fatDate) { return fatDate & 0x1F; }
+
+/**
+ * time field for FAT directory entry
  * \param[in] hour [0,23]
  * \param[in] minute [0,59]
  * \param[in] second [0,59]
  *
  * \return Packed time for dir_t entry.
  */
-static inline uint16_t FAT_TIME(uint8_t hour, uint8_t minute, uint8_t second) {
-  return hour << 11 | minute << 5 | second >> 1;
-}
-/** hour part of FAT directory time field
+static inline uint16_t FAT_TIME(uint8_t hour, uint8_t minute, uint8_t second) { return hour << 11 | minute << 5 | second >> 1; }
+
+/**
+ * hour part of FAT directory time field
  * \param[in] fatTime Time in packed dir format.
  *
  * \return Extracted hour [0,23]
  */
-static inline uint8_t FAT_HOUR(uint16_t fatTime) {
-  return fatTime >> 11;
-}
-/** minute part of FAT directory time field
+static inline uint8_t FAT_HOUR(uint16_t fatTime) { return fatTime >> 11; }
+
+/**
+ * minute part of FAT directory time field
  * \param[in] fatTime Time in packed dir format.
  *
  * \return Extracted minute [0,59]
  */
-static inline uint8_t FAT_MINUTE(uint16_t fatTime) {
-  return (fatTime >> 5) & 0x3F;
-}
-/** second part of FAT directory time field
+static inline uint8_t FAT_MINUTE(uint16_t fatTime) { return (fatTime >> 5) & 0x3F; }
+
+/**
+ * second part of FAT directory time field
  * Note second/2 is stored in packed time.
  *
  * \param[in] fatTime Time in packed dir format.
  *
  * \return Extracted second [0,58]
  */
-static inline uint8_t FAT_SECOND(uint16_t fatTime) {
-  return 2 * (fatTime & 0x1F);
-}
-/** Default date for file timestamps is 1 Jan 2000 */
+static inline uint8_t FAT_SECOND(uint16_t fatTime) { return 2 * (fatTime & 0x1F); }
+
+// Default date for file timestamps is 1 Jan 2000
 uint16_t const FAT_DEFAULT_DATE = ((2000 - 1980) << 9) | (1 << 5) | 1;
-/** Default time for file timestamp is 1 am */
+// Default time for file timestamp is 1 am
 uint16_t const FAT_DEFAULT_TIME = (1 << 11);
-//------------------------------------------------------------------------------
+
 /**
  * \class SdBaseFile
  * \brief Base class for SdFile with Print and C++ streams.
  */
 class SdBaseFile {
  public:
-  /** Create an instance. */
   SdBaseFile() : writeError(false), type_(FAT_FILE_TYPE_CLOSED) {}
   SdBaseFile(const char* path, uint8_t oflag);
-  ~SdBaseFile() {if (isOpen()) close();}
+  ~SdBaseFile() { if (isOpen()) close(); }
+
   /**
    * writeError is set to true if an error occurs during a write().
    * Set writeError to false before calling print() and/or write() and check
    * for true after calls to print() and/or write().
    */
   bool writeError;
-  //----------------------------------------------------------------------------
+
   // helpers for stream classes
-  /** get position for streams
+
+  /**
+   * get position for streams
    * \param[out] pos struct to receive position
    */
   void getpos(filepos_t* pos);
-  /** set position for streams
+
+  /**
+   * set position for streams
    * \param[out] pos struct with value for new position
    */
   void setpos(filepos_t* pos);
-  //----------------------------------------------------------------------------
+
   bool close();
   bool contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock);
   bool createContiguous(SdBaseFile* dirFile,
                         const char* path, uint32_t size);
-  /** \return The current cluster number for a file or directory. */
-  uint32_t curCluster() const {return curCluster_;}
-  /** \return The current position for a file or directory. */
-  uint32_t curPosition() const {return curPosition_;}
-  /** \return Current working directory */
-  static SdBaseFile* cwd() {return cwd_;}
-  /** Set the date/time callback function
+  /**
+   * \return The current cluster number for a file or directory.
+   */
+  uint32_t curCluster() const { return curCluster_; }
+
+  /**
+   * \return The current position for a file or directory.
+   */
+  uint32_t curPosition() const { return curPosition_; }
+
+  /**
+   * \return Current working directory
+   */
+  static SdBaseFile* cwd() { return cwd_; }
+
+  /**
+   * Set the date/time callback function
    *
    * \param[in] dateTime The user's call back function.  The callback
    * function is of the form:
@@ -253,35 +243,55 @@ class SdBaseFile {
     void (*dateTime)(uint16_t* date, uint16_t* time)) {
     dateTime_ = dateTime;
   }
-  /**  Cancel the date/time callback function. */
-  static void dateTimeCallbackCancel() {dateTime_ = 0;}
+
+  /**
+   * Cancel the date/time callback function.
+   */
+  static void dateTimeCallbackCancel() { dateTime_ = 0; }
   bool dirEntry(dir_t* dir);
   static void dirName(const dir_t& dir, char* name);
   bool exists(const char* name);
   int16_t fgets(char* str, int16_t num, char* delim = 0);
-  /** \return The total number of bytes in a file or directory. */
-  uint32_t fileSize() const {return fileSize_;}
-  /** \return The first cluster number for a file or directory. */
-  uint32_t firstCluster() const {return firstCluster_;}
-  bool getFilename(char* name);
-  /** \return True if this is a directory else false. */
-  bool isDir() const {return type_ >= FAT_FILE_TYPE_MIN_DIR;}
-  /** \return True if this is a normal file else false. */
-  bool isFile() const {return type_ == FAT_FILE_TYPE_NORMAL;}
-  /** \return True if this is an open file/directory else false. */
-  bool isOpen() const {return type_ != FAT_FILE_TYPE_CLOSED;}
-  /** \return True if this is a subdirectory else false. */
-  bool isSubDir() const {return type_ == FAT_FILE_TYPE_SUBDIR;}
-  /** \return True if this is the root directory. */
-  bool isRoot() const {
-    return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32;
-  }
+
+  /**
+   * \return The total number of bytes in a file or directory.
+   */
+  uint32_t fileSize() const { return fileSize_; }
+
+  /**
+   * \return The first cluster number for a file or directory.
+   */
+  uint32_t firstCluster() const { return firstCluster_; }
+
+  /**
+   * \return True if this is a directory else false.
+   */
+  bool isDir() const { return type_ >= FAT_FILE_TYPE_MIN_DIR; }
+
+  /**
+   * \return True if this is a normal file else false.
+   */
+  bool isFile() const { return type_ == FAT_FILE_TYPE_NORMAL; }
+
+  /**
+   * \return True if this is an open file/directory else false.
+   */
+  bool isOpen() const { return type_ != FAT_FILE_TYPE_CLOSED; }
+
+  /**
+   * \return True if this is a subdirectory else false.
+   */
+  bool isSubDir() const { return type_ == FAT_FILE_TYPE_SUBDIR; }
+
+  /**
+   * \return True if this is the root directory.
+   */
+  bool isRoot() const { return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32; }
+
+  bool getFilename(char * const name);
   void ls(uint8_t flags = 0, uint8_t indent = 0);
+
   bool mkdir(SdBaseFile* dir, const char* path, bool pFlag = true);
-  // alias for backward compactability
-  bool makeDir(SdBaseFile* dir, const char* path) {
-    return mkdir(dir, path, false);
-  }
   bool open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag);
   bool open(SdBaseFile* dirFile, const char* path, uint8_t oflag);
   bool open(const char* path, uint8_t oflag = O_READ);
@@ -296,53 +306,58 @@ class SdBaseFile {
   int8_t readDir(dir_t* dir, char* longFilename);
   static bool remove(SdBaseFile* dirFile, const char* path);
   bool remove();
-  /** Set the file's current position to zero. */
-  void rewind() {seekSet(0);}
+
+  /**
+   * Set the file's current position to zero.
+   */
+  void rewind() { seekSet(0); }
   bool rename(SdBaseFile* dirFile, const char* newPath);
   bool rmdir();
-  // for backward compatibility
-  bool rmDir() {return rmdir();}
   bool rmRfStar();
-  /** Set the files position to current position + \a pos. See seekSet().
+
+  /**
+   * Set the files position to current position + \a pos. See seekSet().
    * \param[in] offset The new position in bytes from the current position.
    * \return true for success or false for failure.
    */
-  bool seekCur(int32_t offset) {
-    return seekSet(curPosition_ + offset);
-  }
-  /** Set the files position to end-of-file + \a offset. See seekSet().
+  bool seekCur(const int32_t offset) { return seekSet(curPosition_ + offset); }
+
+  /**
+   * Set the files position to end-of-file + \a offset. See seekSet().
    * \param[in] offset The new position in bytes from end-of-file.
    * \return true for success or false for failure.
    */
-  bool seekEnd(int32_t offset = 0) {return seekSet(fileSize_ + offset);}
-  bool seekSet(uint32_t pos);
+  bool seekEnd(const int32_t offset = 0) { return seekSet(fileSize_ + offset); }
+  bool seekSet(const uint32_t pos);
   bool sync();
   bool timestamp(SdBaseFile* file);
   bool timestamp(uint8_t flag, uint16_t year, uint8_t month, uint8_t day,
                  uint8_t hour, uint8_t minute, uint8_t second);
-  /** Type of file.  You should use isFile() or isDir() instead of type()
-   * if possible.
+
+  /**
+   * Type of file. Use isFile() or isDir() instead of type() if possible.
    *
    * \return The file or directory type.
    */
-  uint8_t type() const {return type_;}
+  uint8_t type() const { return type_; }
   bool truncate(uint32_t size);
-  /** \return SdVolume that contains this file. */
-  SdVolume* volume() const {return vol_;}
+
+  /**
+   * \return SdVolume that contains this file.
+   */
+  SdVolume* volume() const { return vol_; }
   int16_t write(const void* buf, uint16_t nbyte);
-  //------------------------------------------------------------------------------
+
  private:
-  // allow SdFat to set cwd_
-  friend class SdFat;
-  // global pointer to cwd dir
-  static SdBaseFile* cwd_;
+  friend class SdFat;           // allow SdFat to set cwd_
+  static SdBaseFile* cwd_;      // global pointer to cwd dir
+
   // data time callback function
   static void (*dateTime_)(uint16_t* date, uint16_t* time);
+
   // bits defined in flags_
-  // should be 0x0F
-  static uint8_t const F_OFLAG = (O_ACCMODE | O_APPEND | O_SYNC);
-  // sync of directory entry required
-  static uint8_t const F_FILE_DIR_DIRTY = 0x80;
+  static uint8_t const F_OFLAG = (O_ACCMODE | O_APPEND | O_SYNC),   // should be 0x0F
+                       F_FILE_DIR_DIRTY = 0x80;                     // sync of directory entry required
 
   // private data
   uint8_t   flags_;         // See above for definition of flags_ bits
@@ -356,8 +371,11 @@ class SdBaseFile {
   uint32_t  firstCluster_;  // first cluster of file
   SdVolume* vol_;           // volume where file is located
 
-  /** experimental don't use */
-  bool openParent(SdBaseFile* dir);
+  /**
+   * EXPERIMENTAL - Don't use!
+   */
+  //bool openParent(SdBaseFile* dir);
+
   // private functions
   bool addCluster();
   bool addDirCluster();
@@ -368,61 +386,48 @@ class SdBaseFile {
   bool open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t oflag);
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
-  //------------------------------------------------------------------------------
-  // to be deleted
-  static void printDirName(const dir_t& dir,
-                           uint8_t width, bool printSlash);
-  //------------------------------------------------------------------------------
-  // Deprecated functions  - suppress cpplint warnings with NOLINT comment
-#if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
+
+// Deprecated functions
+#if ALLOW_DEPRECATED_FUNCTIONS
  public:
-  /** \deprecated Use:
+
+  /**
+   * \deprecated Use:
    * bool contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock);
    * \param[out] bgnBlock the first block address for the file.
    * \param[out] endBlock the last  block address for the file.
    * \return true for success or false for failure.
    */
-  bool contiguousRange(uint32_t& bgnBlock, uint32_t& endBlock) {  // NOLINT
+  bool contiguousRange(uint32_t& bgnBlock, uint32_t& endBlock) {
     return contiguousRange(&bgnBlock, &endBlock);
   }
-  /** \deprecated Use:
-    * bool createContiguous(SdBaseFile* dirFile,
-    *   const char* path, uint32_t size)
-    * \param[in] dirFile The directory where the file will be created.
-    * \param[in] path A path with a valid DOS 8.3 file name.
-    * \param[in] size The desired file size.
-    * \return true for success or false for failure.
-    */
-  bool createContiguous(SdBaseFile& dirFile,  // NOLINT
-                        const char* path, uint32_t size) {
+
+  /**
+   * \deprecated Use:
+   * bool createContiguous(SdBaseFile* dirFile, const char* path, uint32_t size)
+   * \param[in] dirFile The directory where the file will be created.
+   * \param[in] path A path with a valid DOS 8.3 file name.
+   * \param[in] size The desired file size.
+   * \return true for success or false for failure.
+   */
+  bool createContiguous(SdBaseFile& dirFile, const char* path, uint32_t size) {
     return createContiguous(&dirFile, path, size);
   }
-  /** \deprecated Use:
+
+  /**
+   * \deprecated Use:
    * static void dateTimeCallback(
    *   void (*dateTime)(uint16_t* date, uint16_t* time));
    * \param[in] dateTime The user's call back function.
    */
   static void dateTimeCallback(
-    void (*dateTime)(uint16_t &date, uint16_t &time)) {  // NOLINT
+    void (*dateTime)(uint16_t &date, uint16_t &time)) {
     oldDateTime_ = dateTime;
     dateTime_ = dateTime ? oldToNew : 0;
   }
-  /** \deprecated Use: bool dirEntry(dir_t* dir);
-   * \param[out] dir Location for return of the file's directory entry.
-   * \return true for success or false for failure.
-   */
-  bool dirEntry(dir_t& dir) {return dirEntry(&dir);}  // NOLINT
-  /** \deprecated Use:
-   * bool mkdir(SdBaseFile* dir, const char* path);
-   * \param[in] dir An open SdFat instance for the directory that will contain
-   * the new directory.
-   * \param[in] path A path with a valid 8.3 DOS name for the new directory.
-   * \return true for success or false for failure.
-   */
-  bool mkdir(SdBaseFile& dir, const char* path) {  // NOLINT
-    return mkdir(&dir, path);
-  }
-  /** \deprecated Use:
+
+  /**
+   * \deprecated Use:
    * bool open(SdBaseFile* dirFile, const char* path, uint8_t oflag);
    * \param[in] dirFile An open SdFat instance for the directory containing the
    * file to be opened.
@@ -431,20 +436,23 @@ class SdBaseFile {
    * OR of flags O_READ, O_WRITE, O_TRUNC, and O_SYNC.
    * \return true for success or false for failure.
    */
-  bool open(SdBaseFile& dirFile, // NOLINT
-            const char* path, uint8_t oflag) {
+  bool open(SdBaseFile& dirFile, const char* path, uint8_t oflag) {
     return open(&dirFile, path, oflag);
   }
-  /** \deprecated  Do not use in new apps
+
+  /**
+   * \deprecated  Do not use in new apps
    * \param[in] dirFile An open SdFat instance for the directory containing the
    * file to be opened.
    * \param[in] path A path with a valid 8.3 DOS name for a file to be opened.
    * \return true for success or false for failure.
    */
-  bool open(SdBaseFile& dirFile, const char* path) {  // NOLINT
+  bool open(SdBaseFile& dirFile, const char* path) {
     return open(dirFile, path, O_RDWR);
   }
-  /** \deprecated Use:
+
+  /**
+   * \deprecated Use:
    * bool open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag);
    * \param[in] dirFile An open SdFat instance for the directory.
    * \param[in] index The \a index of the directory entry for the file to be
@@ -453,35 +461,39 @@ class SdBaseFile {
    * OR of flags O_READ, O_WRITE, O_TRUNC, and O_SYNC.
    * \return true for success or false for failure.
    */
-  bool open(SdBaseFile& dirFile, uint16_t index, uint8_t oflag) {  // NOLINT
+  bool open(SdBaseFile& dirFile, uint16_t index, uint8_t oflag) {
     return open(&dirFile, index, oflag);
   }
-  /** \deprecated Use: bool openRoot(SdVolume* vol);
+
+  /**
+   * \deprecated Use: bool openRoot(SdVolume* vol);
    * \param[in] vol The FAT volume containing the root directory to be opened.
    * \return true for success or false for failure.
    */
-  bool openRoot(SdVolume& vol) {return openRoot(&vol);}  // NOLINT
-  /** \deprecated Use: int8_t readDir(dir_t* dir);
+  bool openRoot(SdVolume& vol) { return openRoot(&vol); }
+
+  /**
+   * \deprecated Use: int8_t readDir(dir_t* dir);
    * \param[out] dir The dir_t struct that will receive the data.
    * \return bytes read for success zero for eof or -1 for failure.
    */
-  int8_t readDir(dir_t& dir, char* longFilename) {return readDir(&dir, longFilename);}  // NOLINT
-  /** \deprecated Use:
+  int8_t readDir(dir_t& dir, char* longFilename) {
+    return readDir(&dir, longFilename);
+  }
+
+  /**
+   * \deprecated Use:
    * static uint8_t remove(SdBaseFile* dirFile, const char* path);
    * \param[in] dirFile The directory that contains the file.
    * \param[in] path The name of the file to be removed.
    * \return true for success or false for failure.
    */
-  static bool remove(SdBaseFile& dirFile, const char* path) {  // NOLINT
-    return remove(&dirFile, path);
-  }
-  //------------------------------------------------------------------------------
-  // rest are private
+  static bool remove(SdBaseFile& dirFile, const char* path) { return remove(&dirFile, path); }
+
  private:
-  static void (*oldDateTime_)(uint16_t &date, uint16_t &time);  // NOLINT
-  static void oldToNew(uint16_t* date, uint16_t* time) {
-    uint16_t d;
-    uint16_t t;
+  static void (*oldDateTime_)(uint16_t &date, uint16_t &time);
+  static void oldToNew(uint16_t * const date, uint16_t * const time) {
+    uint16_t d, t;
     oldDateTime_(d, t);
     *date = d;
     *time = t;
@@ -489,4 +501,4 @@ class SdBaseFile {
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
 
-#endif // SDBASEFILE_H
+#endif // _SDBASEFILE_H_

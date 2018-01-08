@@ -147,8 +147,26 @@ static bool drain_injected_commands_P() {
  */
 void enqueue_and_echo_commands_P(const char * const pgcode) {
   injected_commands_P = pgcode;
-  drain_injected_commands_P(); // first command executed asap (when possible)
+  (void)drain_injected_commands_P(); // first command executed asap (when possible)
 }
+
+#if HAS_QUEUE_NOW
+  /**
+   * Enqueue and return only when commands are actually enqueued
+   */
+  void enqueue_and_echo_command_now(const char* cmd, bool say_ok/*=false*/) {
+    while (!enqueue_and_echo_command(cmd, say_ok)) idle();
+  }
+  #if HAS_LCD_QUEUE_NOW
+    /**
+     * Enqueue from program memory and return only when commands are actually enqueued
+     */
+    void enqueue_and_echo_commands_P_now(const char * const pgcode) {
+      enqueue_and_echo_commands_P(pgcode);
+      while (drain_injected_commands_P()) idle();
+    }
+  #endif
+#endif
 
 /**
  * Send an "ok" message to the host, indicating
@@ -230,18 +248,17 @@ inline void get_serial_commands() {
      */
     if (serial_char == '\n' || serial_char == '\r') {
 
-      serial_comment_mode = false; // end of line == end of comment
+      serial_comment_mode = false;                      // end of line == end of comment
 
-      if (!serial_count) continue; // skip empty lines
+      if (!serial_count) continue;                      // Skip empty lines
 
-      serial_line_buffer[serial_count] = 0; // terminate string
-      serial_count = 0; //reset buffer
+      serial_line_buffer[serial_count] = 0;             // Terminate string
+      serial_count = 0;                                 // Reset buffer
 
       char* command = serial_line_buffer;
 
-      while (*command == ' ') command++; // skip any leading spaces
-      char *npos = (*command == 'N') ? command : NULL, // Require the N parameter to start the line
-           *apos = strchr(command, '*');
+      while (*command == ' ') command++;                // Skip leading spaces
+      char *npos = (*command == 'N') ? command : NULL;  // Require the N parameter to start the line
 
       if (npos) {
 
@@ -259,15 +276,14 @@ inline void get_serial_commands() {
           return;
         }
 
+        char *apos = strrchr(command, '*');
         if (apos) {
-          byte checksum = 0, count = 0;
-          while (command[count] != '*') checksum ^= command[count++];
-
+          uint8_t checksum = 0, count = uint8_t(apos - command);
+          while (count) checksum ^= command[--count];
           if (strtol(apos + 1, NULL, 10) != checksum) {
             gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
             return;
           }
-          // if no errors, continue parsing
         }
         else {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
@@ -275,11 +291,6 @@ inline void get_serial_commands() {
         }
 
         gcode_LastN = gcode_N;
-        // if no errors, continue parsing
-      }
-      else if (apos) { // No '*' without 'N'
-        gcode_line_error(PSTR(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM), false);
-        return;
       }
 
       // Movement commands alert when stopped
@@ -368,19 +379,25 @@ inline void get_serial_commands() {
           || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode)
       ) {
         if (card_eof) {
-          SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+
           card.printingHasFinished();
-          #if ENABLED(PRINTER_EVENT_LEDS)
-            LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-            set_led_color(0, 255, 0); // Green
-            #if HAS_RESUME_CONTINUE
-              enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
-            #else
-              safe_delay(1000);
+
+          if (card.sdprinting)
+            sd_count = 0; // If a sub-file was printing, continue from call point
+          else {
+            SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+            #if ENABLED(PRINTER_EVENT_LEDS)
+              LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
+              leds.set_green();
+              #if HAS_RESUME_CONTINUE
+                enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
+              #else
+                safe_delay(1000);
+              #endif
+              leds.set_off();
             #endif
-            set_led_color(0, 0, 0);   // OFF
-          #endif
-          card.checkautostart(true);
+            card.checkautostart(true);
+          }
         }
         else if (n == -1) {
           SERIAL_ERROR_START();

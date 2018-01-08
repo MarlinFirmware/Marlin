@@ -25,7 +25,7 @@
 #if HAS_SERVOS
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for servo[]
+#include "../../module/servo.h"
 
 /**
  * M280: Get or set servo position. P<index> [S<angle>]

@@ -64,11 +64,23 @@
   #include "../../module/endstops.h"
 
   /**
-   * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
+   * M666: For a Dual Endstop setup, set offsets for any 2nd endstops.
    */
   void GcodeSuite::M666() {
-    if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Z Endstop Adjustment set to (mm):", endstops.z_endstop_adj);
+    SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      if (parser.seen('X')) endstops.x_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" X", endstops.x_endstop_adj);
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      if (parser.seen('Y')) endstops.y_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" Y", endstops.y_endstop_adj);
+    #endif
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
+      SERIAL_ECHOPAIR(" Z", endstops.z_endstop_adj);
+    #endif
+    SERIAL_EOL();
   }
 
 #endif

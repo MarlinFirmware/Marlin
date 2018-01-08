@@ -31,7 +31,7 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if HAS_COLOR_LEDS
+#if ENABLED(PRINTER_EVENT_LEDS)
   #include "../../feature/leds/leds.h"
 #endif
 
@@ -190,9 +190,10 @@ void GcodeSuite::M109() {
         const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
         if (blue != old_blue) {
           old_blue = blue;
-          set_led_color(255, 0, blue
-            #if ENABLED(NEOPIXEL_RGBW_LED)
-              , 0, true
+          leds.set_color(
+            MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
+            #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+              , true
             #endif
           );
         }
@@ -230,11 +231,7 @@ void GcodeSuite::M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_RGBW_LED)
-        set_led_color(0, 0, 0, 255);  // Turn on the WHITE LED
-      #else
-        set_led_color(255, 255, 255); // Set LEDs All On
-      #endif
+      leds.set_white();
     #endif
   }
 

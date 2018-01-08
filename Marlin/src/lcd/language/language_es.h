@@ -31,6 +31,7 @@
 #define LANGUAGE_ES_H
 
 #define DISPLAY_CHARSET_ISO10646_1
+#define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_BACK                            _UxGT("Atras")
@@ -225,12 +226,10 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escribe DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("IMPR. PAUSADA")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("IMPR. PAUSADA")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("OPC. REINICIO:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mas")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resumir imp.")
 
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Temp Minima es ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Boquilla: ")
 
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando iniciar")
@@ -253,8 +252,6 @@
 #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filamento expulsado")
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado por")
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("Cargar filamento")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("Extruir filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima boton para")

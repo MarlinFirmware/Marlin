@@ -38,7 +38,7 @@ float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
 
 void scara_set_axis_is_at_home(const AxisEnum axis);
 
-void inverse_kinematics(const float logical[XYZ]);
+void inverse_kinematics(const float raw[XYZ]);
 void forward_kinematics_SCARA(const float &a, const float &b);
 
 void scara_report_positions();

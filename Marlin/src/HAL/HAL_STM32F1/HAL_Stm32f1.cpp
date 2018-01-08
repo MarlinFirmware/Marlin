@@ -51,7 +51,6 @@
 // --------------------------------------------------------------------------
 // Variables
 // --------------------------------------------------------------------------
-STM32ADC adc(ADC1);
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -62,6 +61,7 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
+STM32ADC adc(ADC1);
 
 uint8 adc_pins[] = {
   #if HAS_TEMP_0
@@ -87,8 +87,7 @@ uint8 adc_pins[] = {
   #endif
 };
 
-enum TEMP_PINS
-{
+enum TEMP_PINS {
   #if HAS_TEMP_0
     TEMP_0,
   #endif
@@ -137,6 +136,7 @@ void sei(void) { interrupts(); }
 */
 
 void HAL_clear_reset_source(void) { }
+
 /**
  * TODO: Check this and change or remove.
  * currently returns 1 that's equal to poweron reset.
@@ -181,60 +181,43 @@ extern "C" {
 // ADC
 // --------------------------------------------------------------------------
 // Init the AD in continuous capture mode
-void HAL_adc_init(void)
-{
+void HAL_adc_init(void) {
   // configure the ADC
   adc.calibrate();
-  adc.setSampleRate(ADC_SMPR_1_5); // ?
+  adc.setSampleRate(ADC_SMPR_41_5); // ?
   adc.setPins(adc_pins, ADC_PIN_COUNT);
-  adc.setDMA(HAL_adc_results, ADC_PIN_COUNT, (DMA_MINC_MODE | DMA_CIRC_MODE), NULL);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();
 }
 
-void HAL_adc_start_conversion (uint8_t adc_pin) {
-  TEMP_PINS pin_index = TEMP_0;
-
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
+  TEMP_PINS pin_index;
   switch (adc_pin) {
-  #if HAS_TEMP_0
-    case TEMP_0_PIN:
-        pin_index = TEMP_0;
-        break;
-  #endif
-  #if HAS_TEMP_1
-    case TEMP_1_PIN:
-    pin_index = TEMP_1;
-    break;
-  #endif
-  #if HAS_TEMP_2
-    case TEMP_2_PIN:
-    pin_index = TEMP_2;
-    break;
-  #endif
-  #if HAS_TEMP_3
-    case TEMP_3_PIN:
-    pin_index = TEMP_3;
-    break;
-  #endif
-  #if HAS_TEMP_4
-    case TEMP_4_PIN:
-    pin_index = TEMP_4;
-    break;
-  #endif
-  #if HAS_TEMP_BED
-    case TEMP_BED_PIN:
-    pin_index = TEMP_BED;
-    break;
-  #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    case FILWIDTH_PIN:
-    pin_index = FILWIDTH;
-    break;
-  #endif
+    #if HAS_TEMP_0
+      case TEMP_0_PIN: pin_index = TEMP_0; break;
+    #endif
+    #if HAS_TEMP_1
+      case TEMP_1_PIN: pin_index = TEMP_1; break;
+    #endif
+    #if HAS_TEMP_2
+      case TEMP_2_PIN: pin_index = TEMP_2; break;
+    #endif
+    #if HAS_TEMP_3
+      case TEMP_3_PIN: pin_index = TEMP_3; break;
+    #endif
+    #if HAS_TEMP_4
+      case TEMP_4_PIN: pin_index = TEMP_4; break;
+    #endif
+    #if HAS_TEMP_BED
+      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #endif
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      case FILWIDTH_PIN: pin_index = FILWIDTH; break;
+    #endif
   }
-
-  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2)& 0x3ff; // shift to get 10 bits only.
+  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
 uint16_t HAL_adc_get_result(void) {

@@ -43,11 +43,10 @@ void GcodeSuite::M206() {
       set_home_offset((AxisEnum)i, parser.value_linear_units());
 
   #if ENABLED(MORGAN_SCARA)
-    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_linear_units()); // Theta
-    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_linear_units()); // Psi
+    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
-  SYNC_PLAN_POSITION_KINEMATIC();
   report_current_position();
 }
 
@@ -63,32 +62,27 @@ void GcodeSuite::M206() {
  *       Use M206 to set these values directly.
  */
 void GcodeSuite::M428() {
-  bool err = false;
+  if (axis_unhomed_error()) return;
+
+  float diff[XYZ];
   LOOP_XYZ(i) {
-    if (axis_homed[i]) {
-      const float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
-                  diff = base - RAW_POSITION(current_position[i], i);
-      if (WITHIN(diff, -20, 20)) {
-        set_home_offset((AxisEnum)i, diff);
-      }
-      else {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
-        LCD_ALERTMESSAGEPGM("Err: Too far!");
-        BUZZ(200, 40);
-        err = true;
-        break;
-      }
+    diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
+    if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
+      diff[i] = -current_position[i];
+    if (!WITHIN(diff[i], -20, 20)) {
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+      LCD_ALERTMESSAGEPGM("Err: Too far!");
+      BUZZ(200, 40);
+      return;
     }
   }
 
-  if (!err) {
-    SYNC_PLAN_POSITION_KINEMATIC();
-    report_current_position();
-    LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
-    BUZZ(100, 659);
-    BUZZ(100, 698);
-  }
+  LOOP_XYZ(i) set_home_offset((AxisEnum)i, diff[i]);
+  report_current_position();
+  LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
+  BUZZ(100, 659);
+  BUZZ(100, 698);
 }
 
 #endif // HAS_M206_COMMAND

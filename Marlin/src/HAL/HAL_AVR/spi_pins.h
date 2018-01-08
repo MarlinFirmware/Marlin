@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#ifndef _SPI_PINS_H_
+#define _SPI_PINS_H_
 
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
@@ -67,4 +67,4 @@
 #endif
 
 
-#endif /* SPI_PINS_H_ */
+#endif // _SPI_PINS_H_

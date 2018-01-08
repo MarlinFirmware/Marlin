@@ -31,7 +31,17 @@
 
 #include "../../sd/cardreader.h"
 
+#if ENABLED(NANODLP_Z_SYNC)
+  #include "../../module/stepper.h"
+#endif
+
 extern float destination[XYZE];
+
+#if ENABLED(NO_MOTION_BEFORE_HOMING)
+  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+#else
+  #define G0_G1_CONDITION true
+#endif
 
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
@@ -41,7 +51,7 @@ void GcodeSuite::G0_G1(
     bool fast_move/*=false*/
   #endif
 ) {
-  if (MOTION_CONDITIONS) {
+  if (IsRunning() && G0_G1_CONDITION) {
     get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT)
@@ -65,6 +75,18 @@ void GcodeSuite::G0_G1(
       fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
     #else
       prepare_move_to_destination();
+    #endif
+
+    #if ENABLED(NANODLP_Z_SYNC)
+      #if ENABLED(NANODLP_ALL_AXIS)
+        #define _MOVE_SYNC true                 // For any move wait and output sync message
+      #else
+        #define _MOVE_SYNC parser.seenval('Z')  // Only for Z move
+      #endif
+      if (_MOVE_SYNC) {
+        stepper.synchronize();
+        SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+      }
     #endif
   }
 }

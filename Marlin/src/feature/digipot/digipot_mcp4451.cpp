@@ -25,7 +25,6 @@
 #if ENABLED(DIGIPOT_I2C) && DISABLED(DIGIPOT_MCP4018)
 
 #include "Stream.h"
-#include "utility/twi.h"
 #include <Wire.h>
 
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
@@ -52,7 +51,7 @@ static void i2c_send(const byte addr, const byte a, const byte b) {
 void digipot_i2c_set_current(const uint8_t channel, const float current) {
   // these addresses are specific to Azteeg X3 Pro, can be set to others,
   // In this case first digipot is at address A0=0, A1= 0, second one is at A0=0, A1= 1
-  const byte addr = channel < 4 ? 0x2C : 0x2E; // channel 0-3 vs 4-7
+  const byte addr = channel < 4 ? DIGIPOT_I2C_ADDRESS_A : DIGIPOT_I2C_ADDRESS_B; // channel 0-3 vs 4-7
 
   // Initial setup
   i2c_send(addr, 0x40, 0xFF);

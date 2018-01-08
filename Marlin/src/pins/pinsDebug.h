@@ -20,8 +20,8 @@
  *
  */
 
-#define MAX_NAME_LENGTH  35    // one place to specify the format of all the sources of names
-                               // "-" left justify, "35" minimum width of name, pad with blanks
+#define MAX_NAME_LENGTH  39    // one place to specify the format of all the sources of names
+                               // "-" left justify, "39" minimum width of name, pad with blanks
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
@@ -43,10 +43,10 @@
 #define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 49
+#line 47
 
 // manually add pins that have names that are macros which don't play well with these macros
-#if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
+#if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY || defined(ARDUINO_ARCH_SAM))
   static const char RXD_NAME[] PROGMEM = { "RXD" };
   static const char TXD_NAME[] PROGMEM = { "TXD" };
 #endif
@@ -68,7 +68,7 @@
 
 typedef struct {
   const char * const name;
-  uint8_t pin;
+  pin_t pin;
   bool is_digital;
 } PinInfo;
 
@@ -85,7 +85,7 @@ const PinInfo pin_array[] PROGMEM = {
 
   // manually add pins ...
   #if SERIAL_PORT == 0
-    #if AVR_ATmega2560_FAMILY
+    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
       { RXD_NAME, 0, true },
       { TXD_NAME, 1, true },
     #elif AVR_ATmega1284_FAMILY
@@ -95,7 +95,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 101
+  #line 99
 
 };
 
@@ -109,18 +109,18 @@ static void print_input_or_output(const bool isout) {
 
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
-  char buffer[30];   // for the sprintf statements
+inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = false, const char *start_string = "") {
+  char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
   for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
-      GET_PIN_INFO(pin);
       if (found) multi_name_pin = true;
       found = true;
       if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
-        sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);     // digital pin number
+        sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
         SERIAL_ECHO(buffer);
+        PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (IS_ANALOG(pin)) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
@@ -130,7 +130,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
       }
       else {
         SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(26 + strlen(start_string));  // add padding if not the first instance found
+        SERIAL_ECHO_SP(MULTI_NAME_PAD + strlen(start_string));  // add padding if not the first instance found
       }
       PRINT_ARRAY_NAME(x);
       if (extended) {
@@ -151,7 +151,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
             else
           #endif
           {
-            if (!GET_ARRAY_IS_DIGITAL(x)) {
+            if (!GET_ARRAY_IS_DIGITAL(pin)) {
               sprintf_P(buffer, PSTR("Analog in = %5d"), analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
               SERIAL_ECHO(buffer);
             }
@@ -180,8 +180,9 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
   } // end of for loop
 
   if (!found) {
-    sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);
+    sprintf_P(buffer, PSTR("%sPIN: "), start_string);
     SERIAL_ECHO(buffer);
+    PRINT_PIN(pin);
     PRINT_PORT(pin);
     if (IS_ANALOG(pin)) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number

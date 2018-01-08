@@ -21,16 +21,15 @@
  */
 
 /**
- * blinkm.h - Library for controlling a BlinkM over i2c
- * Created by Tim Koster, August 21 2013.
+ * blinkm.h - Control a BlinkM over i2c
  */
 
-#ifndef __BLINKM_H__
-#define __BLINKM_H__
+#ifndef _BLINKM_H_
+#define _BLINKM_H_
 
-#include "Arduino.h"
-#include <Wire.h>
+struct LEDColor;
+typedef LEDColor LEDColor;
 
-void blinkm_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b);
+void blinkm_set_led_color(const LEDColor &color);
 
-#endif // __BLINKM_H__
+#endif // _BLINKM_H_

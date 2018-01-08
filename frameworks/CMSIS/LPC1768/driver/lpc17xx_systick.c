@@ -73,7 +73,7 @@ void SYSTICK_InternalInit(uint32_t time)
 	 * 1/SystemCoreClock * (2^24) * 1000 (ms)
 	 */
 	//check time value is available or not
-	maxtime = (1<<24)/(SystemCoreClock / 1000) ;
+	maxtime = (1<<24)/(SystemCoreClock / 1000);
 	if(time > maxtime)
 		//Error loop
 		while(1);
@@ -105,7 +105,7 @@ void SYSTICK_ExternalInit(uint32_t freq, uint32_t time)
 	 * 1/freq * (2^24) * 1000 (ms)
 	 */
 	//check time value is available or not
-	maxtime = (1<<24)/(freq / 1000) ;
+	maxtime = (1<<24)/(freq / 1000);
 	if (time>maxtime)
 		//Error Loop
 		while(1);

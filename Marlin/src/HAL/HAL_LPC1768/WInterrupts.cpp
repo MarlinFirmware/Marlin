@@ -1,26 +1,25 @@
-/*
-  Copyright (c) 2011-2012 Arduino.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+/**
+ * Copyright (c) 2011-2012 Arduino.  All right reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 #ifdef TARGET_LPC1768
 
-#include "../../core/macros.h"
-#include "../HAL.h"
-#include "arduino.h"
+#include "../../inc/MarlinConfig.h"
+#include "include/arduino.h"
 #include "pinmapping.h"
 //#include "HAL_timers.h"
 #include "fastio.h"
@@ -46,7 +45,7 @@ static void __initialize() {
   NVIC_EnableIRQ(EINT3_IRQn);
 }
 
-void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) {
+void attachInterrupt(const pin_t pin, void (*callback)(void), uint32_t mode) {
   static int enabled = 0;
 
   if (!INTERRUPT_PIN(pin)) return;
@@ -55,8 +54,8 @@ void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) 
     __initialize();
     ++enabled;
   }
-  uint8_t myport = pin_map[pin].port,
-          mypin = pin_map[pin].pin;
+  uint8_t myport = LPC1768_PIN_PORT(pin),
+          mypin = LPC1768_PIN_PIN(pin);
 
   if (myport == 0)
     callbacksP0[mypin] = callback;
@@ -67,11 +66,11 @@ void attachInterrupt(const uint32_t pin, void (*callback)(void), uint32_t mode) 
   GpioEnableInt(myport,mypin,mode);
 }
 
-void detachInterrupt(const uint32_t pin) {
+void detachInterrupt(const pin_t pin) {
   if (!INTERRUPT_PIN(pin)) return;
 
-  const uint8_t myport = pin_map[pin].port,
-                mypin = pin_map[pin].pin;
+  const uint8_t myport = LPC1768_PIN_PORT(pin),
+                mypin = LPC1768_PIN_PIN(pin);
 
   // Disable interrupt
   GpioDisableInt(myport, mypin);

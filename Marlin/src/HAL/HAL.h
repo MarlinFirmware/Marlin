@@ -29,24 +29,23 @@
 #ifndef _HAL_H
 #define _HAL_H
 
-#include "src/inc/SPI.h"
+#include "SPI.h"
+
+#define CPU_32_BIT
 
 #ifdef __AVR__
+  #undef CPU_32_BIT
   #include "HAL_AVR/HAL_AVR.h"
 #elif defined(ARDUINO_ARCH_SAM)
-  #define CPU_32_BIT
   #include "HAL_DUE/HAL_Due.h"
   #include "math_32bit.h"
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-  #define CPU_32_BIT
   #include "HAL_TEENSY35_36/HAL_Teensy.h"
   #include "math_32bit.h"
 #elif defined(TARGET_LPC1768)
-  #define CPU_32_BIT
   #include "math_32bit.h"
   #include "HAL_LPC1768/HAL.h"
-#elif defined(__STM32F1__)
-  #define CPU_32_BIT
+#elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "math_32bit.h"
   #include "HAL_STM32F1/HAL_Stm32f1.h"
 #else

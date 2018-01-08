@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
-  #include "../../module/stepper.h"
+  #include "../../module/motion.h"
 #endif
 
 #if PLANNER_LEVELING
@@ -36,33 +36,26 @@
 
 #if ENABLED(PROBE_MANUALLY)
   bool g29_in_progress = false;
-  #if ENABLED(LCD_BED_LEVELING)
-    #include "../../lcd/ultralcd.h"
-  #endif
+#endif
+
+#if ENABLED(LCD_BED_LEVELING)
+  #include "../../lcd/ultralcd.h"
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  bool g26_debug_flag; // = false
 #endif
 
 bool leveling_is_valid() {
   return
     #if ENABLED(MESH_BED_LEVELING)
-      mbl.has_mesh()
+      mbl.has_mesh
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       !!bilinear_grid_spacing[X_AXIS]
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
       true
     #else // 3POINT, LINEAR
       true
-    #endif
-  ;
-}
-
-bool leveling_is_active() {
-  return
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.active()
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.state.active
-    #else // OLDSCHOOL_ABL
-      planner.abl_enabled
     #endif
   ;
 }
@@ -82,7 +75,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     constexpr bool can_change = true;
   #endif
 
-  if (can_change && enable != leveling_is_active()) {
+  if (can_change && enable != planner.leveling_active) {
 
     #if ENABLED(MESH_BED_LEVELING)
 
@@ -90,23 +83,23 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
         planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
 
       const bool enabling = enable && leveling_is_valid();
-      mbl.set_active(enabling);
+      planner.leveling_active = enabling;
       if (enabling) planner.unapply_leveling(current_position);
 
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
       #if PLANNER_LEVELING
-        if (ubl.state.active) {                       // leveling from on to off
+        if (planner.leveling_active) {                   // leveling from on to off
           // change unleveled current_position to physical current_position without moving steppers.
           planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-          ubl.state.active = false;                   // disable only AFTER calling apply_leveling
+          planner.leveling_active = false;                   // disable only AFTER calling apply_leveling
         }
         else {                                        // leveling from off to on
-          ubl.state.active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
+          planner.leveling_active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
           // change physical current_position to unleveled current_position without moving steppers.
           planner.unapply_leveling(current_position);
         }
       #else
-        ubl.state.active = enable;                    // just flip the bit, current_position will be wrong until next move.
+        planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
       #endif
 
     #else // OLDSCHOOL_ABL
@@ -118,7 +111,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
       #endif
 
       // Enable or disable leveling compensation in the planner
-      planner.abl_enabled = enable;
+      planner.leveling_active = enable;
 
       if (!enable)
         // When disabling just get the current position from the steppers.
@@ -135,31 +128,31 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
         // so compensation will give the right stepper counts.
         planner.unapply_leveling(current_position);
 
+      SYNC_PLAN_POSITION_KINEMATIC();
+
     #endif // OLDSCHOOL_ABL
   }
 }
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const float zfh) {
+  void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
 
-    const bool level_active = leveling_is_active();
+    if (planner.z_fade_height == zfh) return; // do nothing if no change
+
+    const bool level_active = planner.leveling_active;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
+      if (level_active) set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
+    #endif
 
-      if (level_active)
-        set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
-      if (level_active)
+    planner.set_z_fade_height(zfh);
+
+    if (level_active) {
+      const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
         set_bed_leveling_enabled(true);  // turn back on after changing fade height
-
-    #else
-
-      planner.z_fade_height = zfh;
-      planner.inverse_z_fade_height = RECIPROCAL(zfh);
-
-      if (level_active) {
+      #else
         set_current_from_steppers_for_axis(
           #if ABL_PLANAR
             ALL_AXES
@@ -167,8 +160,11 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
             Z_AXIS
           #endif
         );
-      }
-    #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
+      #endif
+      if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
+        report_current_position();
+    }
   }
 
 #endif // ENABLE_LEVELING_FADE_HEIGHT
@@ -177,27 +173,25 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
  * Reset calibration results to zero.
  */
 void reset_bed_level() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+  #endif
   set_bed_leveling_enabled(false);
   #if ENABLED(MESH_BED_LEVELING)
     if (leveling_is_valid()) {
       mbl.reset();
-      mbl.set_has_mesh(false);
+      mbl.has_mesh = false;
     }
-  #else
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-    #endif
-    #if ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
-      bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          z_values[x][y] = NAN;
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.reset();
-    #endif
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    ubl.reset();
+  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
+    bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        z_values[x][y] = NAN;
+  #elif ABL_PLANAR
+    planner.bed_level_matrix.set_to_identity();
   #endif
 }
 
@@ -273,30 +267,20 @@ void reset_bed_level() {
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
-  void _manual_goto_xy(const float &x, const float &y) {
-    const float old_feedrate_mm_s = feedrate_mm_s;
+  void _manual_goto_xy(const float &rx, const float &ry) {
+
     #if MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MANUAL_PROBE_HEIGHT);
-      line_to_current_position();
+      do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
+      do_blocking_move_to_z(prev_z);
+    #else
+      do_blocking_move_to_xy(rx, ry);
     #endif
 
-    feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-    current_position[X_AXIS] = LOGICAL_X_POSITION(x);
-    current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
-    line_to_current_position();
+    current_position[X_AXIS] = rx;
+    current_position[Y_AXIS] = ry;
 
-    #if MANUAL_PROBE_HEIGHT > 0
-      feedrate_mm_s = homing_feedrate(Z_AXIS);
-      current_position[Z_AXIS] = prev_z; // move back to the previous Z.
-      line_to_current_position();
-    #endif
-
-    feedrate_mm_s = old_feedrate_mm_s;
-    stepper.synchronize();
-
-    #if ENABLED(PROBE_MANUALLY) && ENABLED(LCD_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
     #endif
   }

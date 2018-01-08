@@ -24,11 +24,13 @@ extern "C" {
 #include <chanfs/ff.h>
 }
 
+#include "../../inc/MarlinConfig.h"
+#include "HAL.h"
 #include "fastio.h"
 #include "HAL_timers.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "arduino.h"
+#include "include/arduino.h"
 #include "serial.h"
 #include "LPC1768_PWM.h"
 
@@ -69,25 +71,35 @@ extern "C" void SystemPostInit() {
 }
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
-extern HalSerial usb_serial;
+
 int main(void) {
 
   (void)MSC_SD_Init(0);
+
   USB_Init();                               // USB Initialization
   USB_Connect(TRUE);                        // USB Connect
 
-  volatile uint32_t usb_timeout = millis() + 2000;
-  while (!USB_Configuration && millis() < usb_timeout) {
+  const uint32_t usb_timeout = millis() + 2000;
+  while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
-    TOGGLE(13);     // Flash fast while USB initialisation completes
+
+    #if PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);     // Flash fast while USB initialisation completes
+    #endif
   }
 
-  debug_frmwrk_init();
-  usb_serial.printf("\n\nRe-ARM (LPC1768 @ %dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+  // Only initialize the debug framework if using the USB emulated serial port
+  if ((HalSerial*) &MYSERIAL == &usb_serial)
+    debug_frmwrk_init();
+
+  MYSERIAL.begin(BAUDRATE);
+  MYSERIAL.printf("\n\nLPC1768 (%dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+  #if TX_BUFFER_SIZE > 0
+    MYSERIAL.flushTX();
+  #endif
 
   HAL_timer_init();
 
-  extern void LPC1768_PWM_init();
   LPC1768_PWM_init();
 
   setup();

@@ -32,6 +32,7 @@
 
 #define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
+#define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_SD_INSERTED                     _UxGT("Tarxeta inserida")
@@ -213,9 +214,6 @@
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Garda DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mais")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Segue traballo")
 
 #if LCD_HEIGHT >= 4
@@ -232,9 +230,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Agarde pola")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("carga do")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamento")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Agarde pola")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extrusion do")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Agarde para")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("seguir co")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("traballo")
@@ -244,7 +239,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Descargando...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Introduza e click")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Cargando...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extruindo...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Seguindo...")
 #endif // LCD_HEIGHT < 4
 

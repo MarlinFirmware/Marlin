@@ -30,7 +30,14 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "Arduino.h"
+// _BV is re-defined in Arduino.h
+#undef _BV
+
+#include <Arduino.h>
+
+// Redefine sq macro defined by teensy3/wiring.h
+#undef sq
+#define sq(x) ((x)*(x))
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"
@@ -63,6 +70,8 @@
 #endif
 
 #define HAL_SERVO_LIB libServo
+
+typedef int8_t pin_t;
 
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
@@ -138,6 +147,10 @@ uint16_t HAL_adc_get_result(void);
   void HAL_enable_AdcFreerun(void);
   //void HAL_disable_AdcFreerun(uint8_t chan);
 */
+
+#define GET_PIN_MAP_PIN(index) index
+#define GET_PIN_MAP_INDEX(pin) pin
+#define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 // --------------------------------------------------------------------------
 //

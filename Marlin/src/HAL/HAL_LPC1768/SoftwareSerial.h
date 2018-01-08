@@ -1,38 +1,39 @@
 /*
-SoftwareSerial.h (formerly NewSoftSerial.h) -
-Multi-instance software serial library for Arduino/Wiring
--- Interrupt-driven receive and other improvements by ladyada
-   (http://ladyada.net)
--- Tuning, circular buffer, derivation from class Print/Stream,
-   multi-instance support, porting to 8MHz processors,
-   various optimizations, PROGMEM delay tables, inverse logic and
-   direct port writing by Mikal Hart (http://www.arduiniana.org)
--- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
--- 20MHz processor support by Garrett Mace (http://www.macetech.com)
--- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-The latest version of this library can always be found at
-http://arduiniana.org.
-*/
+ * SoftwareSerial.h (formerly NewSoftSerial.h)
+ *
+ * Multi-instance software serial library for Arduino/Wiring
+ * -- Interrupt-driven receive and other improvements by ladyada
+ *    (http://ladyada.net)
+ * -- Tuning, circular buffer, derivation from class Print/Stream,
+ *    multi-instance support, porting to 8MHz processors,
+ *    various optimizations, PROGMEM delay tables, inverse logic and
+ *    direct port writing by Mikal Hart (http://www.arduiniana.org)
+ * -- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
+ * -- 20MHz processor support by Garrett Mace (http://www.macetech.com)
+ * -- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * The latest version of this library can always be found at
+ * http://arduiniana.org.
+ */
 
 #ifndef SOFTWARESERIAL_H
 #define SOFTWARESERIAL_H
 
-#include "arduino.h"
+#include "include/arduino.h"
 #include <stdint.h>
 //#include "serial.h"
 #include <Stream.h>
@@ -48,8 +49,8 @@ class SoftwareSerial : public Stream
 {
 private:
   // per object data
-  uint8_t _receivePin;
-  uint8_t _transmitPin;
+  pin_t _receivePin;
+  pin_t _transmitPin;
 //  uint32_t _receiveBitMask; // for rx interrupts
   uint32_t _receivePort;
   uint32_t _receivePortPin;
@@ -74,8 +75,8 @@ private:
   void recv();
   uint32_t rx_pin_read();
   void tx_pin_write(uint8_t pin_state);
-  void setTX(uint8_t transmitPin);
-  void setRX(uint8_t receivePin);
+  void setTX(pin_t transmitPin);
+  void setRX(pin_t receivePin);
   void setRxIntMsk(bool enable);
 
   // private static method for timing
@@ -84,7 +85,7 @@ private:
 public:
   // public methods
 
-  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
+  SoftwareSerial(pin_t receivePin, pin_t transmitPin, bool inverse_logic = false);
   ~SoftwareSerial();
   void begin(long speed);
   bool listen();

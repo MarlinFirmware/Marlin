@@ -20,26 +20,29 @@
  *
  */
 
-/*
-  Servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
-  Copyright (c) 2009 Michael Margolis.  All right reserved.
+/**
+ * ServoTimers.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+ * Copyright (c) 2009 Michael Margolis.  All right reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
+#ifndef _SERVOTIMERS_H_
+#define _SERVOTIMERS_H_
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-/*
+/**
  * Defines for 16 bit timers used with  Servo library
  *
  * If _useTimerX is defined then TimerX is a 16 bit timer on the current board
@@ -52,7 +55,7 @@
  * --------------------
  */
 
-#define TRIM_DURATION       2    // compensation ticks to trim adjust for digitalWrite delays
+#define TRIM_DURATION       2   // compensation ticks to trim adjust for digitalWrite delays
 #define PRESCALER           8   // timer prescaler
 
 // Say which 16 bit timers can be used and in what order
@@ -88,3 +91,5 @@ typedef enum {
   #endif
   _Nbr_16timers
 } timer16_Sequence_t;
+
+#endif // _SERVOTIMERS_H_

@@ -56,6 +56,11 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
   GcodeSuite::WorkspacePlane GcodeSuite::workspace_plane = PLANE_XY;
 #endif
 
+#if ENABLED(CNC_COORDINATE_SYSTEMS)
+  int8_t GcodeSuite::active_coordinate_system = -1; // machine space
+  float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+#endif
+
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -88,8 +93,10 @@ bool GcodeSuite::get_target_extruder_from_command() {
  */
 void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i]))
-      destination[i] = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+    if (parser.seen(axis_codes[i])) {
+      const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+      destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
+    }
     else
       destination[i] = current_position[i];
   }
@@ -125,25 +132,10 @@ void GcodeSuite::dwell(millis_t time) {
 #endif
 
 /**
- * Process a single command and dispatch it to its handler
- * This is called from the main loop()
+ * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_next_command() {
-  char * const current_command = command_queue[cmd_queue_index_r];
-
-  if (DEBUGGING(ECHO)) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLN(current_command);
-    #if ENABLED(M100_FREE_MEMORY_WATCHER)
-      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
-    #endif
-  }
-
+void GcodeSuite::process_parsed_command() {
   KEEPALIVE_STATE(IN_HANDLER);
-
-  // Parse the next command in the queue
-  parser.parse(current_command);
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
@@ -215,7 +207,7 @@ void GcodeSuite::process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 26: // G26: Mesh Validation Pattern generation
           G26();
           break;
@@ -350,8 +342,12 @@ void GcodeSuite::process_next_command() {
         case 48: M48(); break;    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
+      #if ENABLED(G26_MESH_VALIDATION)
         case 49: M49(); break;    // M49: Turn on or off G26 debug flag for verbose output
+      #endif
+
+      #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        case 73: M73(); break;    // M73: Set progress percentage (for display on LCD)
       #endif
 
       case 75: M75(); break;      // M75: Start print timer
@@ -403,8 +399,7 @@ void GcodeSuite::process_next_command() {
       #endif
 
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        case 125: // M125: Store current position and move to filament change position
-          M125(); break;
+        case 125: M125(); break;  // M125: Store current position and move to filament change position
       #endif
 
       #if ENABLED(BARICUDA)
@@ -469,9 +464,9 @@ void GcodeSuite::process_next_command() {
         #endif
       #endif
 
-      case 200: // M200: Set filament diameter, E to cubic units
-        M200();
-        break;
+      #if DISABLED(NO_VOLUMETRICS)
+        case 200: M200(); break;  // M200: Set filament diameter, E to cubic units
+      #endif
 
       case 201: M201(); break;  // M201: Set max acceleration for print moves (units/s^2)
 
@@ -519,6 +514,10 @@ void GcodeSuite::process_next_command() {
 
       #if HAS_SERVOS
         case 280: M280(); break;  // M280: Set servo position absolute
+      #endif
+
+      #if ENABLED(BABYSTEPPING)
+        case 290: M290(); break;  // M290: Babystepping
       #endif
 
       #if HAS_BUZZER
@@ -611,6 +610,9 @@ void GcodeSuite::process_next_command() {
       #if DISABLED(DISABLE_M503)
         case 503: M503(); break;  // M503: print settings currently in memory
       #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        case 504: M504(); break;  // M504: Validate EEPROM contents
+      #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
         case 540: M540(); break;  // M540: Set abort on endstop hit for SD printing
@@ -621,6 +623,12 @@ void GcodeSuite::process_next_command() {
           M851();
           break;
       #endif // HAS_BED_PROBE
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        case 852: // M852: Set Skew factors
+          M852();
+          break;
+      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: // M600: Pause for filament change
@@ -651,7 +659,8 @@ void GcodeSuite::process_next_command() {
         #endif
       #endif
 
-      #if ENABLED(HAVE_TMC2130)
+      #if HAVE_TRINAMIC
+        case 122: M122(); break;
         case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         case 911: M911(); break;    // M911: Report TMC2130 prewarn triggered flags
         case 912: M912(); break;    // M912: Clear TMC2130 prewarn triggered flags
@@ -701,6 +710,27 @@ void GcodeSuite::process_next_command() {
   KEEPALIVE_STATE(NOT_BUSY);
 
   ok_to_send();
+}
+
+/**
+ * Process a single command and dispatch it to its handler
+ * This is called from the main loop()
+ */
+void GcodeSuite::process_next_command() {
+  char * const current_command = command_queue[cmd_queue_index_r];
+
+  if (DEBUGGING(ECHO)) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLN(current_command);
+    #if ENABLED(M100_FREE_MEMORY_WATCHER)
+      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
+      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+    #endif
+  }
+
+  // Parse the next command in the queue
+  parser.parse(current_command);
+  process_parsed_command();
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

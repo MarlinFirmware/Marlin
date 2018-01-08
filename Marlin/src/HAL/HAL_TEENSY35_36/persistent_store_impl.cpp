@@ -28,24 +28,25 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
-        return false;
+        return true;
       }
     }
     crc16(crc, &v, 1);
     pos++;
     value++;
   };
-  return true;
+  return false;
 }
 
-void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
+bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((unsigned char*)pos);
-    *value = c;
+    if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
     value++;
   } while (--size);
+  return false;
 }
 
 } // PersistentStore

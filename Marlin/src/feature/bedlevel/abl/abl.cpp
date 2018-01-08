@@ -259,7 +259,7 @@ void refresh_bed_level() {
 #endif
 
 // Get the Z adjustment for non-linear bed leveling
-float bilinear_z_offset(const float logical[XYZ]) {
+float bilinear_z_offset(const float raw[XYZ]) {
 
   static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
                last_x = -999.999, last_y = -999.999;
@@ -269,8 +269,8 @@ float bilinear_z_offset(const float logical[XYZ]) {
                 last_gridx = -99, last_gridy = -99;
 
   // XY relative to the probed area
-  const float x = RAW_X_POSITION(logical[X_AXIS]) - bilinear_start[X_AXIS],
-              y = RAW_Y_POSITION(logical[Y_AXIS]) - bilinear_start[Y_AXIS];
+  const float rx = raw[X_AXIS] - bilinear_start[X_AXIS],
+              ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
     // Keep using the last grid box
@@ -280,9 +280,9 @@ float bilinear_z_offset(const float logical[XYZ]) {
     #define FAR_EDGE_OR_BOX 1
   #endif
 
-  if (last_x != x) {
-    last_x = x;
-    ratio_x = x * ABL_BG_FACTOR(X_AXIS);
+  if (last_x != rx) {
+    last_x = rx;
+    ratio_x = rx * ABL_BG_FACTOR(X_AXIS);
     const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
     ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
 
@@ -295,11 +295,11 @@ float bilinear_z_offset(const float logical[XYZ]) {
     nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
   }
 
-  if (last_y != y || last_gridx != gridx) {
+  if (last_y != ry || last_gridx != gridx) {
 
-    if (last_y != y) {
-      last_y = y;
-      ratio_y = y * ABL_BG_FACTOR(Y_AXIS);
+    if (last_y != ry) {
+      last_y = ry;
+      ratio_y = ry * ABL_BG_FACTOR(Y_AXIS);
       const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
       ratio_y -= gy;
 
@@ -322,7 +322,7 @@ float bilinear_z_offset(const float logical[XYZ]) {
       d4 = ABL_BG_GRID(nextx, nexty) - z3;  // right-back (delta)
     }
 
-    // Bilinear interpolate. Needed since y or gridx has changed.
+    // Bilinear interpolate. Needed since ry or gridx has changed.
                 L = z1 + d2 * ratio_y;   // Linear interp. LF -> LB
     const float R = z3 + d4 * ratio_y;   // Linear interp. RF -> RB
 
@@ -335,10 +335,10 @@ float bilinear_z_offset(const float logical[XYZ]) {
   static float last_offset = 0;
   if (FABS(last_offset - offset) > 0.2) {
     SERIAL_ECHOPGM("Sudden Shift at ");
-    SERIAL_ECHOPAIR("x=", x);
+    SERIAL_ECHOPAIR("x=", rx);
     SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
     SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
-    SERIAL_ECHOPAIR(" y=", y);
+    SERIAL_ECHOPAIR(" y=", ry);
     SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
     SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
     SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
@@ -357,15 +357,16 @@ float bilinear_z_offset(const float logical[XYZ]) {
   return offset;
 }
 
-#if !IS_KINEMATIC
+#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
+  #define CELL_INDEX(A,V) ((V - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
   void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
+    // Get current and destination cells for this line
     int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
@@ -375,37 +376,42 @@ float bilinear_z_offset(const float logical[XYZ]) {
     cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
     cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
 
+    // Start and end in the same cell? No split needed.
     if (cx1 == cx2 && cy1 == cy2) {
-      // Start and end on same mesh square
-      line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      buffer_line_to_destination(fr_mm_s);
+      set_current_from_destination();
       return;
     }
 
     #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
     float normalized_dist, end[XYZE];
-
-    // Split at the left/front border of the right/top square
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+
+    // Crosses on the X and not already split on this X?
+    // The x_splits flags are insurance against rounding errors.
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
+      // Split on the X grid line
+      CBI(x_splits, gcx);
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
+      destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
-      CBI(x_splits, gcx);
     }
+    // Crosses on the Y and not already split on this Y?
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
+      // Split on the Y grid line
+      CBI(y_splits, gcy);
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
+      destination[Y_AXIS] = bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy;
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
-      CBI(y_splits, gcy);
     }
     else {
-      // Already split on a border
-      line_to_destination(fr_mm_s);
-      set_current_to_destination();
+      // Must already have been split on these border(s)
+      // This should be a rare case.
+      buffer_line_to_destination(fr_mm_s);
+      set_current_from_destination();
       return;
     }
 
@@ -420,6 +426,6 @@ float bilinear_z_offset(const float logical[XYZ]) {
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#endif // !IS_KINEMATIC
+#endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
 #endif // AUTO_BED_LEVELING_BILINEAR

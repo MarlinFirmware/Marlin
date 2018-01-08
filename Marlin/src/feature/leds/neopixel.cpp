@@ -26,11 +26,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(NEOPIXEL_RGBW_LED)
+#if ENABLED(NEOPIXEL_LED)
 
 #include "neopixel.h"
 
-Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
 
 void set_neopixel_color(const uint32_t color) {
   for (uint16_t i = 0; i < pixels.numPixels(); ++i)
@@ -39,34 +39,43 @@ void set_neopixel_color(const uint32_t color) {
 }
 
 void setup_neopixel() {
-  pixels.setBrightness(255); // 0 - 255 range
+  SET_OUTPUT(NEOPIXEL_PIN);
+  pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
   pixels.begin();
   pixels.show(); // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-    delay(2000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
-    delay(2000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
-    delay(2000);
+    safe_delay(1000);
     set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
-    delay(2000);
+    safe_delay(1000);
   #endif
-  set_neopixel_color(pixels.Color(0, 0, 0, 255));    // white
+
+  #if ENABLED(LED_USER_PRESET_STARTUP)
+    set_neopixel_color(pixels.Color(LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE, LED_USER_PRESET_WHITE));
+  #else
+    set_neopixel_color(pixels.Color(0, 0, 0, 0));
+  #endif
 }
 
-bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const bool isSequence) {
+#if 0
+bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {
   const uint32_t color = pixels.Color(r, g, b, w);
-  static uint16_t nextLed = 0;
-  if (!isSequence)
+  pixels.setBrightness(p);
+  #if !ENABLED(NEOPIXEL_IS_SEQUENTIAL)
     set_neopixel_color(color);
-  else {
+    return false;
+  #else
+    static uint16_t nextLed = 0;
     pixels.setPixelColor(nextLed, color);
     pixels.show();
     if (++nextLed >= pixels.numPixels()) nextLed = 0;
     return true;
-  }
-  return false;
+  #endif
 }
+#endif
 
-#endif // NEOPIXEL_RGBW_LED
+#endif // NEOPIXEL_LED

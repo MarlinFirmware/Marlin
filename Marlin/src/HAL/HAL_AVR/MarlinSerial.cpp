@@ -61,12 +61,12 @@
   #endif
 
   #if ENABLED(SERIAL_XON_XOFF)
-    uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
     constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80;  // XON / XOFF Character was sent
     constexpr uint8_t XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
     // XON / XOFF character definitions
     constexpr uint8_t XON_CHAR  = 17;
     constexpr uint8_t XOFF_CHAR = 19;
+    uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
   #endif
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
@@ -84,7 +84,7 @@
     // Currently looking for: M108, M112, M410
     // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
 
-    FORCE_INLINE void emergency_parser(const unsigned char c) {
+    FORCE_INLINE void emergency_parser(const uint8_t c) {
 
       static e_parser_state state = state_RESET;
 
@@ -169,18 +169,21 @@
   #endif // EMERGENCY_PARSER
 
   FORCE_INLINE void store_rxd_char() {
+
     const ring_buffer_pos_t h = rx_buffer.head,
                             i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+    // Read the character
+    const uint8_t c = M_UDRx;
 
     // If the character is to be stored at the index just before the tail
     // (such that the head would advance to the current tail), the buffer is
     // critical, so don't write the character or advance the head.
     if (i != rx_buffer.tail) {
-      rx_buffer.buffer[h] = M_UDRx;
+      rx_buffer.buffer[h] = c;
       rx_buffer.head = i;
     }
     else {
-      (void)M_UDRx;
       #if ENABLED(SERIAL_STATS_DROPPED_RX)
         if (!++rx_dropped_bytes) ++rx_dropped_bytes;
       #endif
@@ -482,8 +485,6 @@
   #else // TX_BUFFER_SIZE == 0
 
     void MarlinSerial::write(const uint8_t c) {
-      while (!TEST(M_UCSRxA, M_UDREx)) { /* nada */ }
-      M_UDRx = c;
       #if ENABLED(SERIAL_XON_XOFF)
         // Do a priority insertion of an XON/XOFF char, if needed.
         const uint8_t state = xon_xoff_state;
@@ -496,7 +497,7 @@
     }
 
     void MarlinSerial::writeNoHandshake(const uint8_t c) {
-      while (!TEST(M_UCSRxA, M_UDREx)) ;
+      while (!TEST(M_UCSRxA, M_UDREx)) { /* nada */ }
       M_UDRx = c;
     }
 

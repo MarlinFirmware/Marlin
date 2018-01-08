@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CARDREADER_H
-#define CARDREADER_H
+#ifndef _CARDREADER_H_
+#define _CARDREADER_H_
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
@@ -35,15 +35,17 @@ public:
 
   void initsd();
   void write_command(char *buf);
-  //files auto[0-9].g on the sd card are performed in a row
-  //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
+  // Files auto[0-9].g on the sd card are performed in sequence.
+  // This is to delay autostart and hence the initialisation of
+  // the sd card to some seconds after the normal init, so the
+  // device is available soon after a reset.
 
   int16_t write(const void* buf, const uint16_t& nbyte);
   int16_t read(void* buf, const uint16_t& nbyte);
   void checkautostart(bool x);
-  void openFile(char* name, bool read, bool push_current=false);
+  void openFile(char* name, const bool read, const bool subcall=false);
   void openLogFile(char* name);
-  void removeFile(char* name);
+  void removeFile(const char * const name);
   void closefile(bool store_location=false);
   void release();
   void openAndPrintFile(const char *name);
@@ -63,7 +65,7 @@ public:
 
   void ls();
   void chdir(const char *relpath);
-  void updir();
+  int8_t updir();
   void setroot();
 
   uint16_t get_num_Files();
@@ -86,6 +88,7 @@ public:
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
+  Sd2Card& getSd2Card() { return card; }
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
@@ -110,6 +113,12 @@ private:
       uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
+    #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+      #define SORTED_LONGNAME_MAXLEN ((SDSORT_CACHE_VFATS) * (FILENAME_LENGTH) + 1)
+    #else
+      #define SORTED_LONGNAME_MAXLEN LONG_FILENAME_LENGTH
+    #endif
+
     // Cache filenames to speed up SD menus.
     #if ENABLED(SDSORT_USES_RAM)
 
@@ -119,10 +128,10 @@ private:
           char **sortshort, **sortnames;
         #else
           char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-          char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+          char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
         #endif
       #elif DISABLED(SDSORT_USES_STACK)
-        char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+        char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
       #endif
 
       // Folder sorting uses an isDir array when caching items.
@@ -147,8 +156,7 @@ private:
   uint8_t file_subcall_ctr;
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
-  uint32_t filesize;
-  uint32_t sdpos;
+  uint32_t filesize, sdpos;
 
   millis_t next_autostart_ms;
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
@@ -184,4 +192,4 @@ private:
 
 extern CardReader card;
 
-#endif // CARDREADER_H
+#endif // _CARDREADER_H_

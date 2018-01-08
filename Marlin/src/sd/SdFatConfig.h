@@ -21,20 +21,19 @@
  */
 
 /**
+ * SdFatConfig.h
  * Arduino SdFat Library
  * Copyright (C) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
 
-/**
- * \file
- * \brief configuration definitions
- */
-#ifndef SDFATCONFIG_H
-#define SDFATCONFIG_H
+#ifndef _SDFATCONFIG_H_
+#define _SDFATCONFIG_H_
 
-//------------------------------------------------------------------------------
+#include "../inc/MarlinConfig.h"
+
+
 /**
  * To use multiple SD cards set USE_MULTIPLE_CARDS nonzero.
  *
@@ -43,7 +42,7 @@
  * Each card requires about 550 bytes of SRAM so use of a Mega is recommended.
  */
 #define USE_MULTIPLE_CARDS 0
-//------------------------------------------------------------------------------
+
 /**
  * Call flush for endl if ENDL_CALLS_FLUSH is nonzero
  *
@@ -62,30 +61,30 @@
  * all data to be written to the SD.
  */
 #define ENDL_CALLS_FLUSH 0
-//------------------------------------------------------------------------------
+
 /**
  * Allow use of deprecated functions if ALLOW_DEPRECATED_FUNCTIONS is nonzero
  */
 #define ALLOW_DEPRECATED_FUNCTIONS 1
-//------------------------------------------------------------------------------
+
 /**
  * Allow FAT12 volumes if FAT12_SUPPORT is nonzero.
  * FAT12 has not been well tested.
  */
 #define FAT12_SUPPORT 0
-//------------------------------------------------------------------------------
+
 /**
  * SPI init rate for SD initialization commands. Must be 5 (F_CPU/64)
  * or 6 (F_CPU/128).
  */
 #define SPI_SD_INIT_RATE 5
-//------------------------------------------------------------------------------
+
 /**
  * Set the SS pin high for hardware SPI.  If SS is chip select for another SPI
  * device this will disable that device during the SD init phase.
  */
 #define SET_SPI_SS_HIGH 1
-//------------------------------------------------------------------------------
+
 /**
  * Define MEGA_SOFT_SPI nonzero to use software SPI on Mega Arduinos.
  * Pins used are SS 10, MOSI 11, MISO 12, and SCK 13.
@@ -95,36 +94,29 @@
  * but many SD cards will fail with GPS Shield V1.0.
  */
 #define MEGA_SOFT_SPI 0
-//------------------------------------------------------------------------------
-/**
- * Set USE_SOFTWARE_SPI nonzero to always use software SPI.
- */
+
+// Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
 #define USE_SOFTWARE_SPI 0
-// define software SPI pins so Mega can use unmodified 168/328 shields
-/** Software SPI chip select pin for the SD */
-#define SOFT_SPI_CS_PIN 10
-/** Software SPI Master Out Slave In pin */
-#define SOFT_SPI_MOSI_PIN 11
-/** Software SPI Master In Slave Out pin */
-#define SOFT_SPI_MISO_PIN 12
-/** Software SPI Clock pin */
-#define SOFT_SPI_SCK_PIN 13
-//------------------------------------------------------------------------------
+
+// Define software SPI pins so Mega can use unmodified 168/328 shields
+#define SOFT_SPI_CS_PIN   10 // Software SPI chip select pin for the SD
+#define SOFT_SPI_MOSI_PIN 11 // Software SPI Master Out Slave In pin
+#define SOFT_SPI_MISO_PIN 12 // Software SPI Master In Slave Out pin
+#define SOFT_SPI_SCK_PIN  13 // Software SPI Clock pin
+
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
  * a pure virtual function is called.
  */
 #define USE_CXA_PURE_VIRTUAL 1
 
-/** Number of UTF-16 characters per entry */
-#define FILENAME_LENGTH 13
-
 /**
- * Defines for long (vfat) filenames
+ * Defines for 8.3 and long (vfat) filenames
  */
-/** Number of VFAT entries used. Every entry has 13 UTF-16 characters */
-#define MAX_VFAT_ENTRIES (2)
-/** Total size of the buffer used to store the long filenames */
-#define LONG_FILENAME_LENGTH (FILENAME_LENGTH*MAX_VFAT_ENTRIES+1)
 
-#endif // SDFATCONFIG_H
+#define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
+
+// Total bytes needed to store a single long filename
+#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * MAX_VFAT_ENTRIES + 1)
+
+#endif // _SDFATCONFIG_H_

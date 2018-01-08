@@ -32,7 +32,7 @@
   extern int bilinear_grid_spacing[2], bilinear_start[2];
   extern float bilinear_grid_factor[2],
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float logical[XYZ]);
+  float bilinear_z_offset(const float raw[XYZ]);
 
   void extrapolate_unprobed_bed_level();
   void print_bilinear_leveling_grid();
@@ -42,7 +42,7 @@
     void bed_level_virt_interpolate();
   #endif
 
-  #if !IS_KINEMATIC
+  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
     void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
   #endif
 

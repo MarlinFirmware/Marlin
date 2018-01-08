@@ -41,18 +41,6 @@
 // Save 130 bytes with non-duplication of PSTR
 void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
-void mesh_probing_done() {
-  mbl.set_has_mesh(true);
-  gcode.home_all_axes();
-  set_bed_leveling_enabled(true);
-  #if ENABLED(MESH_G28_REST_ORIGIN)
-    current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
-    set_destination_to_current();
-    line_to_destination(homing_feedrate(Z_AXIS));
-    stepper.synchronize();
-  #endif
-}
-
 /**
  * G29: Mesh-based Z probe, probes a grid and produces a
  *      mesh to compensate for variable bed height
@@ -92,7 +80,7 @@ void GcodeSuite::G29() {
   switch (state) {
     case MeshReport:
       if (leveling_is_valid()) {
-        SERIAL_PROTOCOLLNPAIR("State: ", leveling_is_active() ? MSG_ON : MSG_OFF);
+        SERIAL_PROTOCOLLNPAIR("State: ", planner.leveling_active ? MSG_ON : MSG_OFF);
         mbl_mesh_report();
       }
       else
@@ -102,7 +90,7 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+      enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
       break;
 
     case MeshNext:
@@ -139,7 +127,7 @@ void GcodeSuite::G29() {
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+        current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         stepper.synchronize();
 
@@ -148,7 +136,21 @@ void GcodeSuite::G29() {
         SERIAL_PROTOCOLLNPGM("Mesh probing done.");
         BUZZ(100, 659);
         BUZZ(100, 698);
-        mesh_probing_done();
+        mbl.has_mesh = true;
+
+        gcode.home_all_axes();
+        set_bed_leveling_enabled(true);
+
+        #if ENABLED(MESH_G28_REST_ORIGIN)
+          current_position[Z_AXIS] = Z_MIN_POS;
+          set_destination_from_current();
+          buffer_line_to_destination(homing_feedrate(Z_AXIS));
+          stepper.synchronize();
+        #endif
+
+        #if ENABLED(LCD_BED_LEVELING)
+          lcd_wait_for_move = false;
+        #endif
       }
       break;
 
@@ -177,19 +179,20 @@ void GcodeSuite::G29() {
         return;
       }
 
-      if (parser.seenval('Z')) {
+      if (parser.seenval('Z'))
         mbl.z_values[px][py] = parser.value_linear_units();
-      }
       else {
         SERIAL_CHAR('Z'); echo_not_entered();
         return;
       }
+
+      mbl.has_mesh = true; // set since user manually entered a mesh point
+
       break;
 
     case MeshSetZOffset:
-      if (parser.seenval('Z')) {
+      if (parser.seenval('Z'))
         mbl.z_offset = parser.value_linear_units();
-      }
       else {
         SERIAL_CHAR('Z'); echo_not_entered();
         return;
@@ -201,6 +204,11 @@ void GcodeSuite::G29() {
       break;
 
   } // switch(state)
+
+  if (state == MeshStart || state == MeshNext) {
+    SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
+  }
 
   report_current_position();
 }

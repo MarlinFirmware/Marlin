@@ -24,6 +24,11 @@
  * Polish for HD44780 display - no accented characters
  */
 
+#ifndef LANGUAGE_PL_HD44780_H
+#define LANGUAGE_PL_HD44780_H
+
+#define NOT_EXTENDED_ISO10646_1_5X7
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta wlozona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunieta")
@@ -40,6 +45,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Nastepny punkt")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Wypoziomowano!")
+#define MSG_USER_MENU                       _UxGT("Wlasne Polecenia")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
 #define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
@@ -209,9 +215,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Sila %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Zapisz DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ZMIEN FILAMENT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ZMIEN FILAMENT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ZMIEN OPCJE:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ekstruduj wiecej")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Wznow drukowanie")
 
 #if LCD_HEIGHT >= 4
@@ -225,8 +230,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -235,7 +238,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 
@@ -250,8 +252,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -260,6 +260,7 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
+
+#endif  // LANGUAGE_PL_HD44780_H

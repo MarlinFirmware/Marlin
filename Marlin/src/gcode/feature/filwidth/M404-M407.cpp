@@ -36,6 +36,7 @@
 void GcodeSuite::M404() {
   if (parser.seen('W')) {
     filament_width_nominal = parser.value_linear_units();
+    planner.volumetric_area_nominal = CIRCLE_AREA(filament_width_nominal * 0.5);
   }
   else {
     SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
@@ -55,7 +56,7 @@ void GcodeSuite::M405() {
   }
 
   if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
-    const uint8_t temp_ratio = thermalManager.widthFil_to_size_ratio() - 100; // -100 to scale within a signed byte
+    const int8_t temp_ratio = thermalManager.widthFil_to_size_ratio();
 
     for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
       measurement_delay[i] = temp_ratio;
@@ -64,11 +65,6 @@ void GcodeSuite::M405() {
   }
 
   filament_sensor = true;
-
-  //SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
-  //SERIAL_PROTOCOL(filament_width_meas);
-  //SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
-  //SERIAL_PROTOCOL(planner.flow_percentage[active_extruder]);
 }
 
 /**

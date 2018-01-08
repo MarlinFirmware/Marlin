@@ -61,6 +61,7 @@
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
+// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian
@@ -129,7 +130,6 @@
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define MSG_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
-#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
 #define MSG_FILE_PRINTED                    "Done printing file"
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
@@ -144,18 +144,26 @@
 #define MSG_BUSY_PROCESSING                 "busy: processing"
 #define MSG_BUSY_PAUSED_FOR_USER            "busy: paused for user"
 #define MSG_BUSY_PAUSED_FOR_INPUT           "busy: paused for input"
+#define MSG_Z_MOVE_COMP                     "Z_move_comp"
 #define MSG_RESEND                          "Resend: "
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
+#define MSG_X2_MIN                          "x2_min: "
+#define MSG_X2_MAX                          "x2_max: "
 #define MSG_Y_MIN                           "y_min: "
 #define MSG_Y_MAX                           "y_max: "
+#define MSG_Y2_MIN                          "y2_min: "
+#define MSG_Y2_MAX                          "y2_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
+#define MSG_PROBE_Z_OFFSET                  "Probe Z Offset"
+#define MSG_SKEW_MIN                        "min_skew_factor: "
+#define MSG_SKEW_MAX                        "max_skew_factor: "
 #define MSG_FILAMENT_RUNOUT_SENSOR          "filament: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M355_NONE                   "No case light"
@@ -197,7 +205,15 @@
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
 #define MSG_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define MSG_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
-#define MSG_TOO_COLD_FOR_M600               "M600 Hotend too cold to change filament"
+#define MSG_HOTEND_TOO_COLD                 "Hotend too cold"
+
+#define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
+#define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
+#define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
+#define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
+#define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
+#define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
+
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"

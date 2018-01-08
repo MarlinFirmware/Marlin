@@ -25,23 +25,9 @@
 
 #include "../inc/MarlinConfig.h"
 
-//todo: HAL: breaks encapsulation
-// For AVR only, define a serial interface based on configuration
-#ifdef __AVR__
-  #ifdef USBCON
-    #include "HardwareSerial.h"
-    #if ENABLED(BLUETOOTH)
-      #define MYSERIAL bluetoothSerial
-    #else
-      #define MYSERIAL Serial
-    #endif // BLUETOOTH
-  #else
-    #include "../HAL/HAL_AVR/MarlinSerial.h"
-    #define MYSERIAL customizedSerial
-  #endif
+#if HAS_ABL && ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../libs/vector_3.h"
 #endif
-
-#include "../libs/vector_3.h"
 
 /**
  * Define debug bit-masks
@@ -57,6 +43,44 @@ enum DebugFlags {
   DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
   DEBUG_ALL           = 0xFF
 };
+
+#if ENABLED(EMERGENCY_PARSER)
+  enum e_parser_state {
+    state_RESET,
+    state_N,
+    state_M,
+    state_M1,
+    state_M10,
+    state_M108,
+    state_M11,
+    state_M112,
+    state_M4,
+    state_M41,
+    state_M410,
+    state_IGNORE // to '\n'
+  };
+#endif
+
+//todo: HAL: breaks encapsulation
+// For AVR only, define a serial interface based on configuration
+#ifdef __AVR__
+  #ifdef USBCON
+    #include <HardwareSerial.h>
+    #if ENABLED(BLUETOOTH)
+      #define MYSERIAL bluetoothSerial
+    #else
+      #define MYSERIAL Serial
+    #endif // BLUETOOTH
+  #else
+    #include "../HAL/HAL_AVR/MarlinSerial.h"
+    #define MYSERIAL customizedSerial
+  #endif
+#endif
+
+#ifdef ARDUINO_ARCH_SAM
+  // To pull the Serial port definitions and overrides
+  #include "../HAL/HAL_DUE/MarlinSerial_Due.h"
+#endif
 
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -108,7 +132,6 @@ void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 

@@ -103,6 +103,7 @@ void GcodeSuite::M3_M4(bool is_M3) {
       const float spindle_laser_power = parser.floatval('S');
       if (spindle_laser_power == 0) {
         WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                                    // turn spindle off (active low)
+        analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);                           // only write low byte
         delay_for_power_down();
       }
       else {
@@ -130,6 +131,9 @@ void GcodeSuite::M3_M4(bool is_M3) {
 void GcodeSuite::M5() {
   stepper.synchronize();
   WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
+  #if ENABLED(SPINDLE_LASER_PWM)
+    analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);
+  #endif
   delay_for_power_down();
 }
 

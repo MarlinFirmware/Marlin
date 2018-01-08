@@ -31,11 +31,6 @@
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 #define BOARD_NAME "Marlin for STM32"
 
-#define LARGE_FLASH true
-
-// Enable I2C_EEPROM for testing
-#define I2C_EEPROM
-
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
@@ -105,7 +100,7 @@
 #define HEATER_BED2_PIN    -1    // BED2
 #define HEATER_BED3_PIN    -1    // BED3
 
-#define FAN_PIN            PB1
+#define FAN_PIN            -1 // (Sprinter config)
 
 //
 // Temperature Sensors

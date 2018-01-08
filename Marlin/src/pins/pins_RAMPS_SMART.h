@@ -84,30 +84,14 @@
 //
 // LCD / Controller
 //
-// Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel (not tested)
-#if ENABLED(VIKI2)
-  #undef BEEPER_PIN
+// Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
+#if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN       66
-
-  // Pins for DOGM SPI LCD Support
-  #undef DOGLCD_A0
   #define DOGLCD_A0        59
-
-  #undef DOGLCD_A0
   #define DOGLCD_CS        44
-
-  #undef BTN_EN1
   #define BTN_EN1          58
-
-  #undef BTN_EN2
   #define BTN_EN2          40
-
-  #undef BTN_ENC
   #define BTN_ENC          67
-
-  #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49 // Pin 49 for display sd interface, 72 for easy adapter board
-
-  #undef KILL_PIN
   #define KILL_PIN         42
 #endif

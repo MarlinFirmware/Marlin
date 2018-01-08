@@ -40,13 +40,13 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define HAL_TIMER_TYPE uint32_t
+typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
 #define STEP_TIMER_NUM 3  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 4  // index of timer to use for temperature
 
-#define HAL_TIMER_RATE         ((F_CPU) / 2.0)  // frequency of timers peripherals
+#define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
@@ -63,6 +63,9 @@
 
 #define HAL_STEP_TIMER_ISR  void TC3_Handler()
 #define HAL_TEMP_TIMER_ISR  void TC4_Handler()
+
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 // --------------------------------------------------------------------------
 // Types
@@ -87,17 +90,22 @@ extern const tTimerConfig TimerConfig[];
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-static FORCE_INLINE void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC = count;
 }
 
-static FORCE_INLINE HAL_TIMER_TYPE HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC;
 }
 
-static FORCE_INLINE uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+  const tTimerConfig *pConfig = &TimerConfig[timer_num];
+  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_CV = count;
+}
+
+FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_CV;
 }
@@ -107,7 +115,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 
 //void HAL_timer_isr_prologue(const uint8_t timer_num);
 
-static FORCE_INLINE void HAL_timer_isr_prologue(const uint8_t timer_num) {
+FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   const tTimerConfig *pConfig = &TimerConfig[timer_num];
   // Reading the status register clears the interrupt flag
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_SR;

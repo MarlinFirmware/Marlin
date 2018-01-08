@@ -100,17 +100,18 @@ uint8_t mcp4728_setGain_all(uint8_t value) {
  */
 uint16_t mcp4728_getValue(uint8_t channel) { return mcp4728_values[channel]; }
 
+#if 0
 /**
  * Steph: Might be useful in the future
  * Return Vout
- *
+ */
 uint16_t mcp4728_getVout(uint8_t channel) {
   uint32_t vref = 2048,
            vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
   if (vOut > defaultVDD) vOut = defaultVDD;
   return vOut;
 }
-*/
+#endif
 
 /**
  * Returns DAC values as a 0-100 percentage of drive strength

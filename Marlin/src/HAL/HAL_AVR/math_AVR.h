@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MATH_AVR_H
-#define MATH_AVR_H
+#ifndef _MATH_AVR_H_
+#define _MATH_AVR_H_
 
 /**
  * Optimized math functions for AVR
@@ -109,4 +109,4 @@
                )
 
 
-#endif
+#endif // _MATH_AVR_H_
