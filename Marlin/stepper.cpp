@@ -135,7 +135,11 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 long Stepper::acceleration_time, Stepper::deceleration_time;
 
 volatile long Stepper::count_position[NUM_AXIS] = { 0 };
-volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
+volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1
+  #if NUM_AXIS == 4
+    , 1
+  #endif
+};
 
 #if ENABLED(MIXING_EXTRUDER)
   long Stepper::counter_m[MIXING_STEPPERS];

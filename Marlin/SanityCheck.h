@@ -412,6 +412,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller or EMERGENCY_PARSER."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
+  #elif !EXTRUDERS
+    #error "ADVANCED_PAUSE_FEATURE currently requires at least one EXTRUDER."
   #elif ENABLED(PARK_HEAD_ON_PAUSE) && DISABLED(SDSUPPORT) && DISABLED(NEWPANEL) && DISABLED(EMERGENCY_PARSER)
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #elif ENABLED(HOME_BEFORE_FILAMENT_CHANGE) && DISABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
@@ -1010,13 +1012,14 @@ static_assert(1 >= 0
 /**
  * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
  */
-#if !HAS_HEATER_0
+#if !HOTENDS
+#elif !HAS_HEATER_0
   #error "HEATER_0_PIN not defined for this board."
 #elif !PIN_EXISTS(TEMP_0) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
   #error "TEMP_0_PIN not defined for this board."
 #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#elif TEMP_SENSOR_0 == 0 && HOTENDS > 0
+#elif TEMP_SENSOR_0 == 0
   #error "TEMP_SENSOR_0 is required."
 #endif
 
@@ -1072,14 +1075,6 @@ static_assert(1 >= 0
   #elif TEMP_SENSOR_4 != 0
     #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
   #endif
-#elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_2 != 0
-  #error "TEMP_SENSOR_2 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_3 != 0
-  #error "TEMP_SENSOR_3 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_4 != 0
-  #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
@@ -1521,14 +1516,14 @@ static_assert(1 >= 0
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
-#if EXTRUDERS == 0
-  static_assert(COUNT(sanity_arr_1) >= XYZ, "DEFAULT_AXIS_STEPS_PER_UNIT requires only 3 elements with extruder.");
-  static_assert(COUNT(sanity_arr_2) >= XYZ, "DEFAULT_MAX_FEEDRATE requires only 3 elements  with no extruder.");
-  static_assert(COUNT(sanity_arr_3) >= XYZ, "DEFAULT_MAX_ACCELERATION requires only 3 elements with no extruder.");
-#else
+#if EXTRUDERS
   static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
   static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
   static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
+#else
+  static_assert(COUNT(sanity_arr_1) >= XYZ, "DEFAULT_AXIS_STEPS_PER_UNIT requires only 3 elements with extruder.");
+  static_assert(COUNT(sanity_arr_2) >= XYZ, "DEFAULT_MAX_FEEDRATE requires only 3 elements  with no extruder.");
+  static_assert(COUNT(sanity_arr_3) >= XYZ, "DEFAULT_MAX_ACCELERATION requires only 3 elements with no extruder.");
 #endif
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements.");

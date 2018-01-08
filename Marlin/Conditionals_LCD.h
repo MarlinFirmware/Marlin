@@ -403,7 +403,10 @@
   /**
    * DISTINCT_E_FACTORS affects how some E factors are accessed
    */
-  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #if !EXTRUDERS
+    #define XYZE_N XYZ
+    #define E_AXIS_N -999
+  #elif ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
     #define XYZE_N (XYZ + E_STEPPERS)
     #define E_AXIS_N (E_AXIS + extruder)
   #else
@@ -411,6 +414,30 @@
     #define XYZE_N XYZE
     #define E_AXIS_N E_AXIS
   #endif
+
+  /**
+   * Throw out unused temp sensors
+   */
+  #if HOTENDS < 5
+    #undef TEMP_SENSOR_4
+    #define TEMP_SENSOR_4 0
+    #if HOTENDS < 4
+      #undef TEMP_SENSOR_3
+      #define TEMP_SENSOR_3 0
+      #if HOTENDS < 3
+        #undef TEMP_SENSOR_2
+        #define TEMP_SENSOR_2 0
+        #if HOTENDS < 2 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+          #undef TEMP_SENSOR_1
+          #define TEMP_SENSOR_1 0
+          #if !HOTENDS
+            #undef TEMP_SENSOR_0
+            #define TEMP_SENSOR_0 0
+          #endif // !HOTENDS
+        #endif // HOTENDS < 2
+      #endif // HOTENDS < 3
+    #endif // HOTENDS < 4
+  #endif // HOTENDS < 5
 
   /**
    * The BLTouch Probe emulates a servo probe

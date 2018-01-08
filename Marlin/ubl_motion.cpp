@@ -36,6 +36,14 @@
     extern void set_current_from_destination();
   #endif
 
+  #if EXTRUDERS
+    #define ARRAY_COPY_XYZE(VAR) { VAR[X_AXIS], VAR[Y_AXIS], VAR[Z_AXIS], VAR[E_AXIS] }
+    #define BUFFER_SEGMENT(X, Y, Z, E, F, T) planner.buffer_segment(X, Y, Z, E, F, T)
+  #else
+    #define ARRAY_COPY_XYZE(VAR) { VAR[X_AXIS], VAR[Y_AXIS], VAR[Z_AXIS] }
+    #define BUFFER_SEGMENT(X, Y, Z, E, F, T) planner.buffer_segment(X, Y, Z, 0, F, T)
+  #endif
+
   #if !UBL_SEGMENTED
 
     void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, const uint8_t extruder) {
@@ -46,8 +54,8 @@
        */
       #if ENABLED(SKEW_CORRECTION)
         // For skew correction just adjust the destination point and we're done
-        float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
-              end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
+        float start[XYZE] = ARRAY_COPY_XYZE(current_position),
+              end[XYZE] = ARRAY_COPY_XYZE(destination);
         planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
         planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
       #else
@@ -64,7 +72,9 @@
         SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
         SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
         SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
-        SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
+        #if EXTRUDERS
+          SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
+        #endif
         SERIAL_CHAR(')');
         SERIAL_EOL();
         debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
@@ -83,7 +93,7 @@
           // Note: There is no Z Correction in this case. We are off the grid and don't know what
           // a reasonable correction would be.
 
-          planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
+          BUFFER_SEGMENT(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
           set_current_from_destination();
 
           if (g26_debug_flag)
@@ -127,7 +137,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
+        BUFFER_SEGMENT(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
 
         if (g26_debug_flag)
           debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
@@ -168,11 +178,14 @@
       const bool use_x_dist = adx > ady;
 
       float on_axis_distance = use_x_dist ? dx : dy,
-            e_position = end[E_AXIS] - start[E_AXIS],
             z_position = end[Z_AXIS] - start[Z_AXIS];
 
-      const float e_normalized_dist = e_position / on_axis_distance,
-                  z_normalized_dist = z_position / on_axis_distance;
+      const float z_normalized_dist = z_position / on_axis_distance;
+
+      #if EXTRUDERS
+        float e_position = end[E_AXIS] - start[E_AXIS];
+        const float e_normalized_dist = e_position / on_axis_distance;
+      #endif
 
       int current_xi = cell_start_xi,
           current_yi = cell_start_yi;
@@ -223,15 +236,19 @@
           if (ry != start[Y_AXIS]) {
             if (!inf_normalized_flag) {
               on_axis_distance = use_x_dist ? rx - start[X_AXIS] : ry - start[Y_AXIS];
-              e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+              #if EXTRUDERS
+                e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+              #endif
               z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
             }
             else {
-              e_position = end[E_AXIS];
+              #if EXTRUDERS
+                e_position = end[E_AXIS];
+              #endif
               z_position = end[Z_AXIS];
             }
 
-            planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+            BUFFER_SEGMENT(rx, ry, z_position + z0, e_position, feed_rate, extruder);
           } //else printf("FIRST MOVE PRUNED  ");
         }
 
@@ -287,15 +304,19 @@
           if (rx != start[X_AXIS]) {
             if (!inf_normalized_flag) {
               on_axis_distance = use_x_dist ? rx - start[X_AXIS] : ry - start[Y_AXIS];
-              e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
+              #if EXTRUDERS
+                e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
+              #endif
               z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
             }
             else {
-              e_position = end[E_AXIS];
+              #if EXTRUDERS
+                e_position = end[E_AXIS];
+              #endif
               z_position = end[Z_AXIS];
             }
 
-            planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+            BUFFER_SEGMENT(rx, ry, z_position + z0, e_position, feed_rate, extruder);
           } //else printf("FIRST MOVE PRUNED  ");
         }
 
@@ -350,14 +371,18 @@
 
           if (!inf_normalized_flag) {
             on_axis_distance = use_x_dist ? rx - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+              #if EXTRUDERS
+                e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+              #endif
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end[E_AXIS];
+            #if EXTRUDERS
+              e_position = end[E_AXIS];
+            #endif
             z_position = end[Z_AXIS];
           }
-          planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
+          BUFFER_SEGMENT(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
           current_yi += dyi;
           yi_cnt--;
         }
@@ -377,15 +402,19 @@
 
           if (!inf_normalized_flag) {
             on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : ry - start[Y_AXIS];
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+            #if EXTRUDERS
+              e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+            #endif
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end[E_AXIS];
+            #if EXTRUDERS
+              e_position = end[E_AXIS];
+            #endif
             z_position = end[Z_AXIS];
           }
 
-          planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
+          BUFFER_SEGMENT(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
           current_xi += dxi;
           xi_cnt--;
         }
@@ -414,7 +443,7 @@
     inline void _O2 ubl_buffer_segment_raw(const float (&in_raw)[XYZE], const float &fr) {
 
       #if ENABLED(SKEW_CORRECTION)
-        float raw[XYZE] = { in_raw[X_AXIS], in_raw[Y_AXIS], in_raw[Z_AXIS], in_raw[E_AXIS] };
+        float raw[XYZE] = ARRAY_COPY_XYZE(in_raw);
         planner.skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
       #else
         const float (&raw)[XYZE] = in_raw;
@@ -423,7 +452,7 @@
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
         DELTA_IK(raw);
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
+        BUFFER_SEGMENT(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
@@ -436,11 +465,11 @@
         scara_oldB = delta[B_AXIS];
         float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
 
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
+        BUFFER_SEGMENT(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
 
       #else // CARTESIAN
 
-        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
+        BUFFER_SEGMENT(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
 
       #endif
     }
@@ -471,8 +500,10 @@
       const float total[XYZE] = {
         rtarget[X_AXIS] - current_position[X_AXIS],
         rtarget[Y_AXIS] - current_position[Y_AXIS],
-        rtarget[Z_AXIS] - current_position[Z_AXIS],
-        rtarget[E_AXIS] - current_position[E_AXIS]
+        rtarget[Z_AXIS] - current_position[Z_AXIS]
+        #if XYZE == 4
+          , rtarget[E_AXIS] - current_position[E_AXIS]
+        #endif
       };
 
       const float cartesian_xy_mm = HYPOT(total[X_AXIS], total[Y_AXIS]);  // total horizontal xy distance
@@ -498,19 +529,16 @@
       const float diff[XYZE] = {
         total[X_AXIS] * inv_segments,
         total[Y_AXIS] * inv_segments,
-        total[Z_AXIS] * inv_segments,
-        total[E_AXIS] * inv_segments
+        total[Z_AXIS] * inv_segments
+        #if XYZE == 4
+          , total[E_AXIS] * inv_segments
+        #endif
       };
 
       // Note that E segment distance could vary slightly as z mesh height
       // changes for each segment, but small enough to ignore.
 
-      float raw[XYZE] = {
-        current_position[X_AXIS],
-        current_position[Y_AXIS],
-        current_position[Z_AXIS],
-        current_position[E_AXIS]
-      };
+      float raw[XYZE] = ARRAY_COPY_XYZE(current_position);
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
       if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling
