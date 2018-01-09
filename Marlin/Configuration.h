@@ -339,12 +339,12 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 500
-#define HEATER_1_MAXTEMP 500
+#define HEATER_0_MAXTEMP 550
+#define HEATER_1_MAXTEMP 550
 #define HEATER_2_MAXTEMP 200
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
-#define BED_MAXTEMP 300
+#define BED_MAXTEMP 250
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -363,15 +363,15 @@
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders) turned on by AH on dec 6th 2017
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
-  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+  #define PID_FUNCTIONAL_RANGE 999 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // AON-M2
-  #define  DEFAULT_Kp 24.58
-  #define  DEFAULT_Ki 2.81
-  #define  DEFAULT_Kd 53.76
+  #define  DEFAULT_Kp 15
+  #define  DEFAULT_Ki 1
+  #define  DEFAULT_Kd 50
 
 
 #endif // PIDTEMP
@@ -789,7 +789,7 @@
 
 // The size of the print bed
 #define X_BED_SIZE 540
-#define Y_BED_SIZE 495
+#define Y_BED_SIZE 480
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -797,7 +797,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 640
+#define Z_MAX_POS 550 // investigate max travel distance and confirm
 
 /**
  * Software Endstops
