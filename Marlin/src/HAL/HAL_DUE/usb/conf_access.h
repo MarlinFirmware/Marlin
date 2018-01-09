@@ -48,7 +48,8 @@
 #define _CONF_ACCESS_H_
 
 #include "compiler.h"
-
+#include "../../../core/macros.h"
+#include "../../../../Configuration.h"
 
 /*! \name Activation of Logical Unit Numbers
  */
