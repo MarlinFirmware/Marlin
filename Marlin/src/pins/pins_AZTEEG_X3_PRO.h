@@ -78,7 +78,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  15
+  #define Z_MIN_PROBE_PIN   12 /// exp1: d12 pin assigned to zprobe
 #endif
 
 //
@@ -88,7 +88,7 @@
 #define X_MIN_PIN		3
 #define X_MAX_PIN		2
 #define Y_MIN_PIN		14
-#define Y_MAX_PIN		15 // NOZZLE BED PROBE
+#define Y_MAX_PIN		15
 #define Z_MIN_PIN		18
 #define Z_MAX_PIN		19
 
