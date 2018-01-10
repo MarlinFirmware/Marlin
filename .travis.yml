@@ -31,6 +31,8 @@ install:
   - pip install -U platformio
 
 before_script:
+  # Update PlatformIO packages
+  - platformio update
   #
   # Change current working directory to the build dir
   - cd ${TRAVIS_BUILD_DIR}
