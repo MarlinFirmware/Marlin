@@ -1148,13 +1148,15 @@
    */
   //#define TMC_DEBUG
 
-  /*
-   * Enable M915 Z axis calibration.
-   * Marlin will first adjust Z stepper current and then drive
-   * the Z axis to its' physical maximum. Finally it will home
-   * the Z axis to account for the lost steps. Use
-   * M915 S### to specify the current and
-   * M925 Z## to specify the extra Z height that's added to Z_MAX_POS.
+  /**
+   * M915 Z Axis Calibration
+   *
+   * - Adjust Z stepper current,
+   * - Drive the Z axis to its physical maximum, and
+   * - Home Z to account for the lost steps.
+   *
+   * Use M915 Snn to specify the current.
+   * Use M925 Znn to add extra Z height to Z_MAX_POS.
    */
   //#define TMC_Z_CALIBRATION
   #if ENABLED(TMC_Z_CALIBRATION)
