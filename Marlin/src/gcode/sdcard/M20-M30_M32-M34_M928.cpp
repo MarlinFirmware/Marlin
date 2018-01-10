@@ -34,13 +34,25 @@
   #include "../queue.h"
 #endif
 
+#if NUM_SERIAL > 1
+  #include "../../gcode/queue.h"
+#endif
+
 /**
  * M20: List SD card to serial output
  */
 void GcodeSuite::M20() {
-  SERIAL_PROTOCOLLNPGM(MSG_BEGIN_FILE_LIST);
-  card.ls();
-  SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
+  #if NUM_SERIAL > 1
+    const int16_t port = command_queue_port[cmd_queue_index_r];
+  #endif
+
+  SERIAL_PROTOCOLLNPGM_P(port, MSG_BEGIN_FILE_LIST);
+  card.ls(
+    #if NUM_SERIAL > 1
+      port
+    #endif
+  );
+  SERIAL_PROTOCOLLNPGM_P(port, MSG_END_FILE_LIST);
 }
 
 /**
@@ -97,7 +109,13 @@ void GcodeSuite::M26() {
 /**
  * M27: Get SD Card status
  */
-void GcodeSuite::M27() { card.getStatus(); }
+void GcodeSuite::M27() { 
+  card.getStatus(
+    #if NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r]
+    #endif
+  );
+}
 
 /**
  * M28: Start SD Write
@@ -164,7 +182,11 @@ void GcodeSuite::M32() {
    *   /Miscellaneous/Armchair/Armchair.gcode
    */
   void GcodeSuite::M33() {
-    card.printLongPath(parser.string_arg);
+    card.printLongPath(parser.string_arg
+      #if NUM_SERIAL > 1
+        , command_queue_port[cmd_queue_index_r]
+      #endif
+    );
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT

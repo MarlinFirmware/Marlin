@@ -49,11 +49,19 @@ public:
   void openAndPrintFile(const char *name);
   void startFileprint();
   void stopSDPrint();
-  void getStatus();
+  void getStatus(
+    #if NUM_SERIAL > 1
+      const int8_t port = -1
+    #endif
+  );
   void printingHasFinished();
 
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-    void printLongPath(char *path);
+    void printLongPath(char *path
+      #if NUM_SERIAL > 1
+        , const int8_t port = -1
+      #endif
+    );
   #endif
 
   void getfilename(uint16_t nr, const char* const match=NULL);
@@ -61,7 +69,11 @@ public:
 
   void getAbsFilename(char *t);
 
-  void ls();
+  void ls(
+    #if NUM_SERIAL > 1
+      const int8_t port = -1
+    #endif
+  );
   void chdir(const char *relpath);
   int8_t updir();
   void setroot();
@@ -162,7 +174,11 @@ private:
   LsAction lsAction; //stored for recursion.
   uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
-  void lsDive(const char *prepend, SdFile parent, const char * const match=NULL);
+  void lsDive(const char *prepend, SdFile parent, const char * const match=NULL  
+    #if NUM_SERIAL > 1
+      , const int8_t port = -1
+    #endif
+  );
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     void flush_presort();

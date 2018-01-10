@@ -24,25 +24,41 @@
 #include "../../module/configuration_store.h"
 #include "../../inc/MarlinConfig.h"
 
+#if NUM_SERIAL > 1
+  #include "../../gcode/queue.h"
+#endif
+
 /**
  * M500: Store settings in EEPROM
  */
 void GcodeSuite::M500() {
-  (void)settings.save();
+  (void)settings.save(
+    #if ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r]
+    #endif
+  );
 }
 
 /**
  * M501: Read settings from EEPROM
  */
 void GcodeSuite::M501() {
-  (void)settings.load();
+  (void)settings.load(
+    #if ENABLED(EEPROM_SETTINGS) && ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r]
+    #endif
+  );
 }
 
 /**
  * M502: Revert to default settings
  */
 void GcodeSuite::M502() {
-  (void)settings.reset();
+  (void)settings.reset(
+    #if ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r]
+    #endif
+  );
 }
 
 #if DISABLED(DISABLE_M503)
@@ -51,7 +67,11 @@ void GcodeSuite::M502() {
    * M503: print settings currently in memory
    */
   void GcodeSuite::M503() {
-    (void)settings.report(parser.seen('S') && !parser.value_bool());
+    (void)settings.report(parser.seen('S') && !parser.value_bool()
+      #if NUM_SERIAL > 1
+        , command_queue_port[cmd_queue_index_r]
+      #endif
+    );
   }
 
 #endif // !DISABLE_M503

@@ -47,6 +47,12 @@
 #include "watchdog_AVR.h"
 #include "math_AVR.h"
 
+#ifdef USBCON
+  #include "HardwareSerial.h"
+#else
+  #include "MarlinSerial.h"
+#endif
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
@@ -78,6 +84,18 @@ typedef int8_t pin_t;
 // --------------------------------------------------------------------------
 
 //extern uint8_t MCUSR;
+
+#define NUM_SERIAL 1
+
+#ifdef USBCON
+  #if ENABLED(BLUETOOTH)
+    #define MYSERIAL0 bluetoothSerial
+  #else
+    #define MYSERIAL0 Serial
+  #endif
+#else
+  #define MYSERIAL0 customizedSerial
+#endif
 
 // --------------------------------------------------------------------------
 // Public functions

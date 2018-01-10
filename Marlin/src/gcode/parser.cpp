@@ -32,6 +32,10 @@
   #include "../libs/hex_print_routines.h"
 #endif
 
+#if NUM_SERIAL > 1
+  #include "queue.h"
+#endif
+
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
@@ -265,10 +269,13 @@ void GCodeParser::parse(char *p) {
 #endif // CNC_COORDINATE_SYSTEMS
 
 void GCodeParser::unknown_command_error() {
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);
-  SERIAL_CHAR('"');
-  SERIAL_EOL();
+  #if NUM_SERIAL > 1
+    const int16_t port = command_queue_port[cmd_queue_index_r];
+  #endif
+  SERIAL_ECHO_START_P(port);
+  SERIAL_ECHOPAIR_P(port, MSG_UNKNOWN_COMMAND, command_ptr);
+  SERIAL_CHAR_P(port, '"');
+  SERIAL_EOL_P(port);
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)

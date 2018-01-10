@@ -69,19 +69,44 @@ extern "C" volatile uint32_t _millis;
 #define ST7920_DELAY_2 DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP
 #define ST7920_DELAY_3 DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP;DELAY_5_NOP
 
-//Serial override
 extern HalSerial usb_serial;
 
+#if !WITHIN(SERIAL_PORT, -1, 3)
+  #error "SERIAL_PORT must be from -1 to 3"
+#endif
+
 #if SERIAL_PORT == -1
-  #define MYSERIAL usb_serial
+  #define MYSERIAL0 usb_serial
 #elif SERIAL_PORT == 0
-  #define MYSERIAL Serial
+  #define MYSERIAL0 Serial
 #elif SERIAL_PORT == 1
-  #define MYSERIAL Serial1
+  #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL Serial2
+  #define MYSERIAL0 Serial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL Serial3
+  #define MYSERIAL0 Serial3
+#endif
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 3)
+    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #elif SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+  #endif
+  #define NUM_SERIAL 2
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL1 usb_serial
+  #elif SERIAL_PORT_2 == 0
+    #define MYSERIAL1 Serial
+  #elif SERIAL_PORT_2 == 1
+    #define MYSERIAL1 Serial1
+  #elif SERIAL_PORT_2 == 2
+    #define MYSERIAL1 Serial2
+  #elif SERIAL_PORT_2 == 3
+    #define MYSERIAL1 Serial3
+  #endif
+#else
+  #define NUM_SERIAL 1
 #endif
 
 #define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq();
