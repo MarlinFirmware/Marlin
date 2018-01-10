@@ -736,24 +736,23 @@ void MarlinSettings::postprocess() {
     //
     // TMC2130 Sensorless homing threshold
     //
-    int16_t thrs;
-    #if ENABLED(SENSORLESS_HOMING)
-      #if ENABLED(X_IS_TMC2130)
-        thrs = stepperX.sgt();
+    int16_t thrs[2] = {
+      #if ENABLED(SENSORLESS_HOMING)
+        #if ENABLED(X_IS_TMC2130)
+          stepperX.sgt(),
+        #else
+          0,
+        #endif
+        #if ENABLED(Y_IS_TMC2130)
+          stepperY.sgt()
+        #else
+          0
+        #endif
       #else
-        thrs = 0;
+        0
       #endif
-      EEPROM_WRITE(thrs);
-      #if ENABLED(Y_IS_TMC2130)
-        thrs = stepperY.sgt();
-      #else
-        thrs = 0;
-      #endif
-      EEPROM_WRITE(thrs);
-    #else
-      thrs = 0;
-      for (uint8_t q = 2; q--;) EEPROM_WRITE(thrs);
-    #endif
+    };
+    EEPROM_WRITE(thrs);
 
     //
     // Linear Advance
@@ -775,8 +774,8 @@ void MarlinSettings::postprocess() {
     #if HAS_MOTOR_CURRENT_PWM
       for (uint8_t q = 3; q--;) EEPROM_WRITE(stepper.motor_current_setting[q]);
     #else
-      const uint32_t dummyui32 = 0;
-      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummyui32);
+      const uint32_t dummyui32[3] = { 0 };
+      EEPROM_WRITE(dummyui32);
     #endif
 
     //
@@ -1261,28 +1260,23 @@ void MarlinSettings::postprocess() {
        * X and X2 use the same value
        * Y and Y2 use the same value
        */
-      int16_t thrs;
+      int16_t thrs[2];
+      EEPROM_READ(thrs);
       #if ENABLED(SENSORLESS_HOMING)
-        EEPROM_READ(thrs);
         if (!validating) {
           #if ENABLED(X_IS_TMC2130)
-            stepperX.sgt(thrs);
+            stepperX.sgt(thrs[0]);
           #endif
           #if ENABLED(X2_IS_TMC2130)
-            stepperX2.sgt(thrs);
+            stepperX2.sgt(thrs[0]);
           #endif
-        }
-        EEPROM_READ(thrs);
-        if (!validating) {
           #if ENABLED(Y_IS_TMC2130)
-            stepperY.sgt(thrs);
+            stepperY.sgt(thrs[1]);
           #endif
           #if ENABLED(Y2_IS_TMC2130)
-            stepperY2.sgt(thrs);
+            stepperY2.sgt(thrs[1]);
           #endif
         }
-      #else
-        for (uint8_t q = 0; q < 2; q++) EEPROM_READ(thrs);
       #endif
 
       //
@@ -1308,8 +1302,8 @@ void MarlinSettings::postprocess() {
       #if HAS_MOTOR_CURRENT_PWM
         for (uint8_t q = 3; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
       #else
-        uint32_t dummyui32;
-        for (uint8_t q = 3; q--;) EEPROM_READ(dummyui32);
+        uint32_t dummyui32[3];
+        EEPROM_READ(dummyui32);
       #endif
 
       //

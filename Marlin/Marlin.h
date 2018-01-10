@@ -59,6 +59,8 @@ void idle(
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
+extern const char axis_codes[XYZE];
+
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   extern bool extruder_duplication_enabled;
 #endif
