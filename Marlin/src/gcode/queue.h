@@ -51,6 +51,13 @@ extern uint8_t commands_in_queue, // Count of commands in the queue
 
 extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
+/*
+ * The port that the command was received on
+ */
+#if NUM_SERIAL > 1
+  extern int16_t command_queue_port[BUFSIZE];
+#endif
+
 /**
  * Initialization of queue for setup()
  */

@@ -275,8 +275,8 @@
   #elif TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
     #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
   #endif
-#elif ENABLED(SERIAL_XON_XOFF)
-  #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
+#elif ENABLED(SERIAL_XON_XOFF) || ENABLED(SERIAL_STATS_MAX_RX_QUEUED) || ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
 /**
@@ -1489,6 +1489,12 @@ static_assert(1 >= 0
 
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+#endif
+
+#include "../feature/tmc_macros.h"
+
+#if ENABLED(TMC_Z_CALIBRATION) && !Z_IS_TRINAMIC && !Z2_IS_TRINAMIC
+  #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
 #endif
 
 /**

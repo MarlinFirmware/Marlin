@@ -35,56 +35,6 @@
 bool report_tmc_status = false;
 char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1", "E2", "E3", "E4" };
 
-template<typename TMC>
-void tmc_get_current(TMC &st, const char name[]) {
-  SERIAL_ECHO(name);
-  SERIAL_ECHOPGM(" axis driver current: ");
-  SERIAL_ECHOLN(st.getCurrent());
-}
-template<typename TMC>
-void tmc_set_current(TMC &st, const char name[], const int mA) {
-  st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
-  tmc_get_current(st, name);
-}
-
-template<typename TMC>
-void tmc_report_otpw(TMC &st, const char name[]) {
-  SERIAL_ECHO(name);
-  SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
-  serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
-  SERIAL_EOL();
-}
-template<typename TMC>
-void tmc_clear_otpw(TMC &st, const char name[]) {
-  st.clear_otpw();
-  SERIAL_ECHO(name);
-  SERIAL_ECHOLNPGM(" prewarn flag cleared");
-}
-
-template<typename TMC>
-void tmc_get_pwmthrs(TMC &st, const char name[], const uint16_t spmm) {
-  SERIAL_ECHO(name);
-  SERIAL_ECHOPGM(" stealthChop max speed set to ");
-  SERIAL_ECHOLN(12650000UL * st.microsteps() / (256 * st.TPWMTHRS() * spmm));
-}
-template<typename TMC>
-void tmc_set_pwmthrs(TMC &st, const char name[], const int32_t thrs, const uint32_t spmm) {
-  st.TPWMTHRS(12650000UL * st.microsteps() / (256 * thrs * spmm));
-  tmc_get_pwmthrs(st, name, spmm);
-}
-
-template<typename TMC>
-void tmc_get_sgt(TMC &st, const char name[]) {
-  SERIAL_ECHO(name);
-  SERIAL_ECHOPGM(" driver homing sensitivity set to ");
-  MYSERIAL.println(st.sgt(), DEC);
-}
-template<typename TMC>
-void tmc_set_sgt(TMC &st, const char name[], const int8_t sgt_val) {
-  st.sgt(sgt_val);
-  tmc_get_sgt(st, name);
-}
-
 /*
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
@@ -196,12 +146,12 @@ void tmc_set_sgt(TMC &st, const char name[], const int8_t sgt_val) {
       const uint32_t pwm_scale = get_pwm_scale(st);
       SERIAL_ECHO(axisID);
       SERIAL_ECHOPAIR(":", pwm_scale);
-      SERIAL_ECHO(" |0b"); MYSERIAL.print(get_status_response(st), BIN);
+      SERIAL_ECHO(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
       SERIAL_ECHO("| ");
       if (data.is_error) SERIAL_ECHO('E');
       else if (data.is_ot) SERIAL_ECHO('O');
       else if (data.is_otpw) SERIAL_ECHO('W');
-      else if (otpw_cnt>0) MYSERIAL.print(otpw_cnt, DEC);
+      else if (otpw_cnt>0) SERIAL_PRINT(otpw_cnt, DEC);
       else if (st.flag_otpw) SERIAL_ECHO('F');
       SERIAL_ECHO("\t");
     }

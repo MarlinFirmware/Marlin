@@ -48,7 +48,7 @@
 #define _CONF_ACCESS_H_
 
 #include "compiler.h"
-
+#include "../../../inc/MarlinConfigPre.h"
 
 /*! \name Activation of Logical Unit Numbers
  */

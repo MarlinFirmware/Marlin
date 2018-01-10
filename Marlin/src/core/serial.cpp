@@ -27,25 +27,37 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
+#if NUM_SERIAL > 1
+  void serialprintPGM_P(const int8_t p, const char * str) {
+    while (char ch = pgm_read_byte(str++)) SERIAL_CHAR_P(p, ch);
+  }
+
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, const char *v)   { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, char v)          { serialprintPGM_P(p, s_P); SERIAL_CHAR_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, int v)           { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, long v)          { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, float v)         { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, double v)        { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned int v)  { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+
+  void serial_spaces_P(const int8_t p, uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR_P(p, ' '); }
+#endif
 
 void serialprintPGM(const char * str) {
-  #ifdef TARGET_LPC1768
-    MYSERIAL.print(str);
-  #else
-    while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
-  #endif
+  while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
 }
 
-void serial_echopair_P(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
-void serial_echopair_P(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
+void serial_echopair_PGM(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) MYSERIAL.write(' '); }
+void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 

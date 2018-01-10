@@ -66,9 +66,9 @@ void PRINT_ARRAY_NAME(uint8_t x) {
   for (uint8_t y = 0; y < MAX_NAME_LENGTH; y++) {
     char temp_char = pgm_read_byte(name_mem_pointer + y);
     if (temp_char != 0)
-      MYSERIAL.write(temp_char);
+      SERIAL_CHAR(temp_char);
     else {
-      for (uint8_t i = 0; i < MAX_NAME_LENGTH - y; i++) MYSERIAL.write(' ');
+      for (uint8_t i = 0; i < MAX_NAME_LENGTH - y; i++) SERIAL_CHAR(' ');
       break;
     }
   }

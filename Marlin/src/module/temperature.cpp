@@ -2121,18 +2121,21 @@ void Temperature::isr() {
 
   #include "../gcode/gcode.h"
 
-  void print_heater_state(const float &c, const float &t,
+  static void print_heater_state(const float &c, const float &t
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      const float r,
+      , const float r
     #endif
-    const int8_t e=-2
+    #if NUM_SERIAL > 1
+      , const int8_t port=-1
+    #endif
+    , const int8_t e=-2
   ) {
     #if !(HAS_TEMP_BED && HAS_TEMP_HOTEND) && HOTENDS <= 1
       UNUSED(e);
     #endif
 
-    SERIAL_PROTOCOLCHAR(' ');
-    SERIAL_PROTOCOLCHAR(
+    SERIAL_PROTOCOLCHAR_P(port, ' ');
+    SERIAL_PROTOCOLCHAR_P(port,
       #if HAS_TEMP_BED && HAS_TEMP_HOTEND
         e == -1 ? 'B' : 'T'
       #elif HAS_TEMP_HOTEND
@@ -2142,22 +2145,29 @@ void Temperature::isr() {
       #endif
     );
     #if HOTENDS > 1
-      if (e >= 0) SERIAL_PROTOCOLCHAR('0' + e);
+      if (e >= 0) SERIAL_PROTOCOLCHAR_P(port, '0' + e);
     #endif
-    SERIAL_PROTOCOLCHAR(':');
-    SERIAL_PROTOCOL(c);
-    SERIAL_PROTOCOLPAIR(" /" , t);
+    SERIAL_PROTOCOLCHAR_P(port, ':');
+    SERIAL_PROTOCOL_P(port, c);
+    SERIAL_PROTOCOLPAIR_P(port, " /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
-      SERIAL_PROTOCOLCHAR(')');
+      SERIAL_PROTOCOLPAIR_P(port, " (", r / OVERSAMPLENR);
+      SERIAL_PROTOCOLCHAR_P(port, ')');
     #endif
   }
 
-  void Temperature::print_heaterstates() {
+  void Temperature::print_heaterstates(
+    #if NUM_SERIAL > 1
+      const int8_t port
+    #endif
+  ) {
     #if HAS_TEMP_HOTEND
       print_heater_state(degHotend(gcode.target_extruder), degTargetHotend(gcode.target_extruder)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(gcode.target_extruder)
+        #endif
+        #if NUM_SERIAL > 1
+          , port
         #endif
       );
     #endif
@@ -2165,6 +2175,9 @@ void Temperature::isr() {
       print_heater_state(degBed(), degTargetBed()
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawBedTemp()
+        #endif
+        #if NUM_SERIAL > 1
+          , port
         #endif
         , -1 // BED
       );
@@ -2174,20 +2187,23 @@ void Temperature::isr() {
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(e)
         #endif
+        #if NUM_SERIAL > 1
+          , port
+        #endif
         , e
       );
     #endif
-    SERIAL_PROTOCOLPGM(" @:");
-    SERIAL_PROTOCOL(getHeaterPower(gcode.target_extruder));
+    SERIAL_PROTOCOLPGM_P(port, " @:");
+    SERIAL_PROTOCOL_P(port, getHeaterPower(gcode.target_extruder));
     #if HAS_TEMP_BED
-      SERIAL_PROTOCOLPGM(" B@:");
-      SERIAL_PROTOCOL(getHeaterPower(-1));
+      SERIAL_PROTOCOLPGM_P(port, " B@:");
+      SERIAL_PROTOCOL_P(port, getHeaterPower(-1));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
-        SERIAL_PROTOCOLPAIR(" @", e);
-        SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL(getHeaterPower(e));
+        SERIAL_PROTOCOLPAIR_P(port, " @", e);
+        SERIAL_PROTOCOLCHAR_P(port, ':');
+        SERIAL_PROTOCOL_P(port, getHeaterPower(e));
       }
     #endif
   }
