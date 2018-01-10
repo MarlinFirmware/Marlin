@@ -146,28 +146,64 @@ public:
     }
   }
 
+  #define DEC 10
+  #define HEX 16
+  #define OCT 8
+  #define BIN 2
+  #define BYTE 0
+
+
+  void print_bin(uint32_t value, uint8_t num_digits) {
+    uint32_t mask = 1 << (num_digits -1);
+    for (uint8_t i = 0; i < num_digits; i++) {
+      if (!(i % 4) && i)    printf(" ");
+      if (!(i % 16)  && i)  printf(" ");
+      if (value & mask)     printf("1");
+      else                  printf("0");
+      value <<= 1;
+    }
+  }
+
   void print(const char value[]) {
     printf("%s" , value);
   }
-  void print(char value, int = 0) {
-    printf("%c" , value);
+  void print(char value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,8);
+    else if (nbase == OCT) printf("%3o", value);
+    else if (nbase == HEX) printf("%2X", value);
+    else if (nbase == DEC ) printf("%d", value);
+    else printf("%c" , value);
   }
-  void print(unsigned char value, int = 0) {
-    printf("%u" , value);
+  void print(unsigned char value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,8);
+    else if (nbase == OCT) printf("%3o", value);
+    else if (nbase == HEX) printf("%2X", value);
+    else printf("%u" , value);
   }
-  void print(int value, int = 0) {
-    printf("%d" , value);
+  void print(int value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,16);
+    else if (nbase == OCT) printf("%6o", value);
+    else if (nbase == HEX) printf("%4X", value);
+    else printf("%d", value);
   }
-  void print(unsigned int value, int = 0) {
-    printf("%u" , value);
+  void print(unsigned int value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,16);
+    else if (nbase == OCT) printf("%6o", value);
+    else if (nbase == HEX) printf("%4X", value);
+    else printf("%u" , value);
   }
-  void print(long value, int = 0) {
-    printf("%ld" , value);
+  void print(long value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,32);
+    else if (nbase == OCT) printf("%11o", value);
+    else if (nbase == HEX) printf("%8X", value);
+    else printf("%ld" , value);
   }
-  void print(unsigned long value, int = 0) {
-    printf("%lu" , value);
+  void print(unsigned long value, int nbase = BYTE) {
+    if (nbase == BIN) print_bin(value,32);
+    else if (nbase == OCT) printf("%11o", value);
+    else if (nbase == HEX) printf("%8X", value);
+    else printf("%lu" , value);
   }
-
   void print(float value, int round = 6) {
     printf("%f" , value);
   }
@@ -175,26 +211,34 @@ public:
     printf("%f" , value );
   }
 
+
+
   void println(const char value[]) {
     printf("%s\n" , value);
   }
-  void println(char value, int = 0) {
-    printf("%c\n" , value);
+  void println(char value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
-  void println(unsigned char value, int = 0) {
-    printf("%u\r\n" , value);
+  void println(unsigned char value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
-  void println(int value, int = 0) {
-    printf("%d\n" , value);
+  void println(int value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
-  void println(unsigned int value, int = 0) {
-    printf("%u\n" , value);
+  void println(unsigned int value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
-  void println(long value, int = 0) {
-    printf("%ld\n" , value);
+  void println(long value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
-  void println(unsigned long value, int = 0) {
-    printf("%lu\n" , value);
+  void println(unsigned long value, int nbase = BYTE) {
+    print(value, nbase);
+    println();
   }
   void println(float value, int round = 6) {
     printf("%f\n" , value );
@@ -205,6 +249,7 @@ public:
   void println(void) {
     print('\n');
   }
+
   volatile RingBuffer<uint8_t, 128> receive_buffer;
   volatile RingBuffer<uint8_t, 128> transmit_buffer;
   volatile bool host_connected;
