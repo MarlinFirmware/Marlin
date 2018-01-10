@@ -33,7 +33,7 @@
  * M906: Set motor current in milliamps using axis codes X, Y, Z, E
  * Report driver currents when no axis specified
  */
-inline void GcodeSuite::M906() {
+void GcodeSuite::M906() {
   uint16_t values[XYZE];
   LOOP_XYZE(i)
     values[i] = parser.intval(axis_codes[i]);

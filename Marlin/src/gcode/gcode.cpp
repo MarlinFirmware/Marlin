@@ -659,8 +659,10 @@ void GcodeSuite::process_parsed_command() {
         #endif
       #endif
 
-      #if HAVE_TRINAMIC
-        case 122: M122(); break;
+      #if HAS_TRINAMIC
+        #if ENABLED(TMC_DEBUG)
+          case 122: M122(); break;
+        #endif
         case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         case 911: M911(); break;    // M911: Report TMC2130 prewarn triggered flags
         case 912: M912(); break;    // M912: Clear TMC2130 prewarn triggered flags
@@ -669,6 +671,9 @@ void GcodeSuite::process_parsed_command() {
         #endif
         #if ENABLED(SENSORLESS_HOMING)
           case 914: M914(); break;  // M914: Set SENSORLESS_HOMING sensitivity.
+        #endif
+        #if ENABLED(TMC_Z_CALIBRATION)
+          case 915: M915(); break;  // M915: TMC Z axis calibration.
         #endif
       #endif
 

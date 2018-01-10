@@ -28,12 +28,13 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper_indirection.h"
 #include "../../../module/planner.h"
+#include "../../queue.h"
 
 /**
  * M911: Report TMC stepper driver overtemperature pre-warn flag
  * The flag is held by the library and persist until manually cleared by M912
  */
-inline void GcodeSuite::M911() {
+void GcodeSuite::M911() {
   #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperX, extended_axis_codes[TMC_X]);
   #endif
@@ -51,7 +52,7 @@ inline void GcodeSuite::M911() {
 /**
  * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
  */
-inline void GcodeSuite::M912() {
+void GcodeSuite::M912() {
   const bool clearX = parser.seen(axis_codes[X_AXIS]), clearY = parser.seen(axis_codes[Y_AXIS]), clearZ = parser.seen(axis_codes[Z_AXIS]), clearE = parser.seen(axis_codes[E_AXIS]),
            clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
   #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
@@ -78,7 +79,7 @@ inline void GcodeSuite::M912() {
  * M913: Set HYBRID_THRESHOLD speed.
  */
 #if ENABLED(HYBRID_THRESHOLD)
-  inline void GcodeSuite::M913() {
+  void GcodeSuite::M913() {
     uint16_t values[XYZE];
     LOOP_XYZE(i)
       values[i] = parser.intval(axis_codes[i]);
@@ -137,7 +138,7 @@ inline void GcodeSuite::M912() {
  * M914: Set SENSORLESS_HOMING sensitivity.
  */
 #if ENABLED(SENSORLESS_HOMING)
-  inline void GcodeSuite::M914() {
+  void GcodeSuite::M914() {
     #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
       if (parser.seen(axis_codes[X_AXIS])) tmc_set_sgt(stepperX, extended_axis_codes[TMC_X], parser.value_int());
       else tmc_get_sgt(stepperX, extended_axis_codes[TMC_X]);
@@ -160,8 +161,8 @@ inline void GcodeSuite::M912() {
 /**
  * TMC Z axis calibration routine
  */
-#if ENABLED(TMC_Z_CALIBRATION) && (Z_IS_TRINAMIC || Z2_IS_TRINAMIC)
-  inline void GcodeSuite::M915() {
+#if ENABLED(TMC_Z_CALIBRATION)
+  void GcodeSuite::M915() {
     uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT;
     uint16_t _z = parser.seenval('Z') ? parser.value_int() : CALIBRATION_EXTRA_HEIGHT;
 
@@ -170,25 +171,33 @@ inline void GcodeSuite::M912() {
       return;
     }
 
-    uint16_t Z_current_1 = stepperZ.getCurrent();
-    uint16_t Z2_current_1 = stepperZ.getCurrent();
+    #if Z_IS_TRINAMIC
+      uint16_t Z_current_1 = stepperZ.getCurrent();
+      stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if Z2_IS_TRINAMIC
+      uint16_t Z2_current_1 = stepperZ2.getCurrent();
+      stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+    #endif
 
-    stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
-    stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
     SERIAL_ECHOPAIR("\nCalibration current: Z", _rms);
 
     soft_endstops_enabled = false;
 
     do_blocking_move_to_z(Z_MAX_POS+_z);
 
-    stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
-    stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #if Z_IS_TRINAMIC
+      stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if Z2_IS_TRINAMIC
+      stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #endif
 
     do_blocking_move_to_z(Z_MAX_POS);
     soft_endstops_enabled = true;
 
     SERIAL_ECHOLNPGM("\nHoming Z because we lost steps");
-    home_z_safely();
+    enqueue_and_echo_commands_P(PSTR("G28 Z"));
   }
 #endif
 

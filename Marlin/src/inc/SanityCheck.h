@@ -1491,6 +1491,12 @@ static_assert(1 >= 0
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
 #endif
 
+#include "../feature/tmc_macros.h"
+
+#if ENABLED(TMC_Z_CALIBRATION) && !Z_IS_TRINAMIC && !Z2_IS_TRINAMIC
+  #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
+#endif
+
 /**
  * Make sure HAVE_L6470DRIVER is warranted
  */
