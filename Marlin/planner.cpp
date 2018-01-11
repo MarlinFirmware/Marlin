@@ -1341,7 +1341,8 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
   const float v_allowable = max_allowable_speed(-block->acceleration, MINIMUM_PLANNER_SPEED, block->millimeters);
-  block->entry_speed = min(vmax_junction, v_allowable);
+  // If stepper ISR is disabled, this indicates buffer_segment wants to add a splitted block. In this case start with the max. allowed speed to avoid an interrupted first move.
+  block->entry_speed = TEST(TIMSK1, OCIE1A) ? MINIMUM_PLANNER_SPEED : min(vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
@@ -1386,9 +1387,6 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
       );
 
   #endif // LIN_ADVANCE
-
-  const float bnsr = 1.0 / block->nominal_speed;
-  calculate_trapezoid_for_block(block, block->entry_speed * bnsr, safe_speed * bnsr);
 
   // Move buffer head
   block_buffer_head = next_buffer_head;
