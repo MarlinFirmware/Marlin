@@ -41,7 +41,12 @@
 #if ENABLED(HAVE_TMCDRIVER)
 
   #include <SPI.h>
-  #include <TMC26XStepper.h>
+  
+  #if defined(STM32F7)
+    #include "../HAL/HAL_STM32F7/TMC2660.h"
+  #else
+    #include <TMC26XStepper.h>
+  #endif
 
   #define _TMC_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_ENABLE_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
 

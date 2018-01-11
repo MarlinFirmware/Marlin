@@ -199,6 +199,12 @@
 #define BOARD_BEAST            1802  // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM3R_MINI       1803  // STM32 Libmaple based stm32f1 controller
 
+//
+// ARM Cortex M7
+//
+#define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
+
+
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif // __BOARDS_H

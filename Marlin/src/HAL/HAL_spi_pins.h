@@ -34,9 +34,14 @@
 
 #elif defined(TARGET_LPC1768)
   #include "HAL_LPC1768/spi_pins.h"
+
 #elif defined(__STM32F1__)
-    #include "HAL_STM32F1/spi_pins.h"
-#else
+  #include "HAL_STM32F1/spi_pins.h"
+
+#elif defined(STM32F7)
+  #include "HAL_STM32F7/spi_pins.h"
+
+	#else
   #error "Unsupported Platform!"
 #endif
 
