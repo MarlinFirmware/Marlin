@@ -29,7 +29,22 @@
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
-#include "SdFile.h"
+#if ENABLED(USE_NEW_SD_FAT_LIB)
+  /** Number of UTF-16 characters per entry */
+  #define FILENAME_LENGTH 13
+  /**
+  * Defines for long (vfat) filenames
+  */
+  /** Number of VFAT entries used. Every entry has 13 UTF-16 characters */
+  #define MAX_VFAT_ENTRIES (2)
+  /** Total size of the buffer used to store the long filenames */
+  #define LONG_FILENAME_LENGTH (FILENAME_LENGTH*MAX_VFAT_ENTRIES+1)
+
+  #include <SdFat.h>
+#else
+  #include "SdFile.h"
+#endif
+
 #include "types.h"
 #include "enum.h"
 
@@ -88,7 +103,14 @@ public:
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
   FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
-  FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
+  FORCE_INLINE char* getWorkDirName() { 
+    #if ENABLED(USE_NEW_SD_FAT_LIB)
+      workDir.getSFN(filename); 
+    #else
+      workDir.getFilename(filename);
+    #endif
+    return filename; 
+  }
 
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
@@ -148,8 +170,21 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  Sd2Card card;
-  SdVolume volume;
+  #if ENABLED(USE_NEW_SD_FAT_LIB)
+    /* if ENABLE_EXTENDED_TRANSFER_CLASS is enabled SdFatEX will be used.
+    * This class uses extended multi-block SD I/O for better performance.
+    * the SPI bus may not be shared with other devices in this mode.
+    */
+    #if ENABLE_EXTENDED_TRANSFER_CLASS
+      SdFatEX volume;
+    #else
+      SdFat volume;
+    #endif
+  #else
+    Sd2Card card;
+    SdVolume volume;
+  #endif
+
   SdFile file;
 
   #define SD_PROCEDURE_DEPTH 1

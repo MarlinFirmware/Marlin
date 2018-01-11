@@ -28,7 +28,7 @@
  */
 #include "MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if ENABLED(SDSUPPORT) && DISABLED(USE_NEW_SD_FAT_LIB)
 
 #include "Sd2Card.h"
 
