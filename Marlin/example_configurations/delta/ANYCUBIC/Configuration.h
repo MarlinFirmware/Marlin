@@ -950,7 +950,7 @@
  */
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  #define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 #endif
 
 /**
@@ -962,7 +962,7 @@
  */
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 //#define PROBING_FANS_OFF          // Turn fans off when probing
-//#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
@@ -1002,10 +1002,10 @@
 #define XY_PROBE_SPEED 4000
 
 // Speed for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
+#define Z_PROBE_SPEED_FAST (HOMING_FEEDRATE_Z / 4)
 
 // Speed for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 3)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
