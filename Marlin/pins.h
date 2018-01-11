@@ -197,6 +197,8 @@
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
 #elif MB(CREALITY_ENDER)
   #include "pins_CREALITY_ENDER.h"    // ATmega1284P
+#elif MB(MELZI_TRONXY)
+  #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P
 #elif MB(STB_11)
   #include "pins_STB_11.h"            // ATmega644P, ATmega1284P
 #elif MB(AZTEEG_X1)
@@ -275,6 +277,9 @@
 #ifndef Z_MS2_PIN
   #define Z_MS2_PIN -1
 #endif
+#ifndef Z_MS3_PIN
+  #define Z_MS3_PIN -1
+#endif
 #ifndef E0_MS1_PIN
   #define E0_MS1_PIN -1
 #endif
@@ -299,11 +304,17 @@
 #ifndef E3_MS2_PIN
   #define E3_MS2_PIN -1
 #endif
+#ifndef E3_MS3_PIN
+  #define E3_MS3_PIN -1
+#endif
 #ifndef E4_MS1_PIN
   #define E4_MS1_PIN -1
 #endif
 #ifndef E4_MS2_PIN
   #define E4_MS2_PIN -1
+#endif
+#ifndef E4_MS3_PIN
+  #define E4_MS3_PIN -1
 #endif
 
 #ifndef E0_STEP_PIN
