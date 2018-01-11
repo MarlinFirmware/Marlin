@@ -1642,11 +1642,10 @@
 //#define CR10_STOCKDISPLAY
 
 //
-// MKS OLED 1.3" 128 x 64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
 // http://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
-// If there is a pixel shift, try the other controller.
 //
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller

@@ -67,13 +67,13 @@ enum DebugFlags {
   #ifdef USBCON
     #include <HardwareSerial.h>
     #if ENABLED(BLUETOOTH)
-      #define MYSERIAL bluetoothSerial
+      #define MYSERIAL0 bluetoothSerial
     #else
-      #define MYSERIAL Serial
+      #define MYSERIAL0 Serial
     #endif // BLUETOOTH
   #else
     #include "../HAL/HAL_AVR/MarlinSerial.h"
-    #define MYSERIAL customizedSerial
+    #define MYSERIAL0 customizedSerial
   #endif
 #elif defined(ARDUINO_ARCH_SAM)
   // To pull the Serial port definitions and overrides

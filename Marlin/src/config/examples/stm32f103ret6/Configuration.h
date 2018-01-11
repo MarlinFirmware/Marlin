@@ -94,7 +94,7 @@
 // @section machine
 
 /**
- * Select which serial port on the board will be used for communication with the host.
+ * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
  * Serial port 0 is always used by the Arduino bootloader regardless of this setting.
  *
