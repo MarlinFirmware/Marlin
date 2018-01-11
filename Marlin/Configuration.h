@@ -341,7 +341,7 @@
 // You should use MINTEMP for thermistor short/failure protection.
 #define HEATER_0_MAXTEMP 500
 #define HEATER_1_MAXTEMP 500
-#define HEATER_2_MAXTEMP 150
+#define HEATER_2_MAXTEMP 200
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
 #define BED_MAXTEMP 300
