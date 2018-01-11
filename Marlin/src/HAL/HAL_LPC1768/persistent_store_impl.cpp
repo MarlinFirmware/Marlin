@@ -27,6 +27,8 @@
 
 #include "../persistent_store_api.h"
 
+// BYTE is defined in HardwareSerial.h, which conflicts with the typedef in the chanfs includes
+#undef BYTE
 #include "chanfs/diskio.h"
 #include "chanfs/ff.h"
 
