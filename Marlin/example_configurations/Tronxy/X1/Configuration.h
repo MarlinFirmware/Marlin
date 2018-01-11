@@ -94,7 +94,7 @@
 // @section machine
 
 /**
- * Select which serial port on the board will be used for communication with the host.
+ * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
  * Serial port 0 is always used by the Arduino bootloader regardless of this setting.
  *
@@ -1627,11 +1627,10 @@
 //#define CR10_STOCKDISPLAY
 
 //
-// MKS OLED 1.3" 128 x 64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
 // http://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
-// If there is a pixel shift, try the other controller.
 //
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
