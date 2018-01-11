@@ -28,7 +28,8 @@ before_install:
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
 
 install:
-  - pip install -U platformio
+  #- pip install -U platformio
+  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
 
 before_script:
   # Update PlatformIO packages
