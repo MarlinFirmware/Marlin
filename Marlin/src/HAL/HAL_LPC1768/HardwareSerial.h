@@ -77,8 +77,6 @@ public:
   #define HEX 16
   #define OCT 8
   #define BIN 2
-  #define BYTE 0
-
 
   void print_bin(uint32_t value, uint8_t num_digits) {
     uint32_t mask = 1 << (num_digits -1);
@@ -94,38 +92,38 @@ public:
   void print(const char value[]) {
     printf("%s" , value);
   }
-  void print(char value, int nbase = BYTE) {
+  void print(char value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,8);
     else if (nbase == OCT) printf("%3o", value);
     else if (nbase == HEX) printf("%2X", value);
     else if (nbase == DEC ) printf("%d", value);
     else printf("%c" , value);
   }
-  void print(unsigned char value, int nbase = BYTE) {
+  void print(unsigned char value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,8);
     else if (nbase == OCT) printf("%3o", value);
     else if (nbase == HEX) printf("%2X", value);
     else printf("%u" , value);
   }
-  void print(int value, int nbase = BYTE) {
+  void print(int value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,16);
     else if (nbase == OCT) printf("%6o", value);
     else if (nbase == HEX) printf("%4X", value);
     else printf("%d", value);
   }
-  void print(unsigned int value, int nbase = BYTE) {
+  void print(unsigned int value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,16);
     else if (nbase == OCT) printf("%6o", value);
     else if (nbase == HEX) printf("%4X", value);
     else printf("%u" , value);
   }
-  void print(long value, int nbase = BYTE) {
+  void print(long value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,32);
     else if (nbase == OCT) printf("%11o", value);
     else if (nbase == HEX) printf("%8X", value);
     else printf("%ld" , value);
   }
-  void print(unsigned long value, int nbase = BYTE) {
+  void print(unsigned long value, int nbase = 0) {
     if (nbase == BIN) print_bin(value,32);
     else if (nbase == OCT) printf("%11o", value);
     else if (nbase == HEX) printf("%8X", value);
@@ -143,27 +141,27 @@ public:
   void println(const char value[]) {
     printf("%s\n" , value);
   }
-  void println(char value, int nbase = BYTE) {
+  void println(char value, int nbase = 0) {
     print(value, nbase);
     println();
   }
-  void println(unsigned char value, int nbase = BYTE) {
+  void println(unsigned char value, int nbase = 0) {
     print(value, nbase);
     println();
   }
-  void println(int value, int nbase = BYTE) {
+  void println(int value, int nbase = 0) {
     print(value, nbase);
     println();
   }
-  void println(unsigned int value, int nbase = BYTE) {
+  void println(unsigned int value, int nbase = 0) {
     print(value, nbase);
     println();
   }
-  void println(long value, int nbase = BYTE) {
+  void println(long value, int nbase = 0) {
     print(value, nbase);
     println();
   }
-  void println(unsigned long value, int nbase = BYTE) {
+  void println(unsigned long value, int nbase = 0) {
     print(value, nbase);
     println();
   }

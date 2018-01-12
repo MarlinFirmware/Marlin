@@ -39,7 +39,6 @@
 #define HEX 16
 #define OCT 8
 #define BIN 2
-#define BYTE 0
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
@@ -106,8 +105,8 @@ public:
   FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
   FORCE_INLINE static void print(const char* str) { write(str); }
 
-  static void print(char, int = BYTE);
-  static void print(unsigned char, int = BYTE);
+  static void print(char, int = 0);
+  static void print(unsigned char, int = 0);
   static void print(int, int = DEC);
   static void print(unsigned int, int = DEC);
   static void print(long, int = DEC);
@@ -116,8 +115,8 @@ public:
 
   static void println(const String& s);
   static void println(const char[]);
-  static void println(char, int = BYTE);
-  static void println(unsigned char, int = BYTE);
+  static void println(char, int = 0);
+  static void println(unsigned char, int = 0);
   static void println(int, int = DEC);
   static void println(unsigned int, int = DEC);
   static void println(long, int = DEC);
