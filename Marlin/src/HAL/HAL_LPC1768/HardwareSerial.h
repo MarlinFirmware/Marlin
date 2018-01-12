@@ -77,8 +77,6 @@ public:
   #define HEX 16
   #define OCT 8
   #define BIN 2
-  #define BYTE 0
-
 
   void print_bin(uint32_t value, uint8_t num_digits) {
     uint32_t mask = 1 << (num_digits -1);
