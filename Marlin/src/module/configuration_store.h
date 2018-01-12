@@ -116,7 +116,7 @@ class MarlinSettings {
       );
       static bool size_error(const uint16_t size
         #if ADD_PORT_ARG
-          const int8_t port=-1
+          , const int8_t port=-1
         #endif
       );
     #endif
