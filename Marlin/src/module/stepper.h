@@ -93,6 +93,10 @@ class Stepper {
       static bool locked_z_motor, locked_z2_motor;
     #endif
 
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static bool locked_y_motor, locked_y2_motor;
+    #endif
+
     // Counter variables for the Bresenham line tracer
     static long counter_X, counter_Y, counter_Z, counter_E;
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
@@ -250,6 +254,11 @@ class Stepper {
       FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_z_lock(const bool state) { locked_z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_z2_motor = state; }
+    #endif
+
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static FORCE_INLINE void set_y_lock(const bool state) { locked_y_motor = state; }
+      static FORCE_INLINE void set_y2_lock(const bool state) { locked_y2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)

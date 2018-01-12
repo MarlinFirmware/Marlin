@@ -106,6 +106,11 @@ int16_t Stepper::cleaning_buffer_counter = 0;
   bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  bool Stepper::locked_y_motor = false;
+  bool Stepper::locked_y2_motor = false;
+#endif
+
 long Stepper::counter_X = 0,
      Stepper::counter_Y = 0,
      Stepper::counter_Z = 0,

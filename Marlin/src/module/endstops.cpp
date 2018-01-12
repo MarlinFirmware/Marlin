@@ -64,6 +64,10 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
   float Endstops::z_endstop_adj; // Initialized by settings.load()
 #endif
 
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  float Endstops::y_endstop_adj;
+#endif
+
 /**
  * Class and Instance Methods
  */
@@ -307,6 +311,20 @@ void Endstops::M119() {
         stepper.kill_current_block();
     }
   }
+#endif
+
+#if ENABLED(Y_DUAL_ENDSTOPS)
+
+  // Pass the result of the endstop test
+  void Endstops::test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2) {
+    byte y_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Y, bit 1 for Y2
+    if (y_test && stepper.current_block->steps[Y_AXIS] > 0) {
+      SBI(endstop_hit_bits, Y_MIN);
+      if (!stepper.performing_homing || (y_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
+        stepper.kill_current_block();
+    }
+  }
+
 #endif
 
 // Check endstops - Called from ISR!

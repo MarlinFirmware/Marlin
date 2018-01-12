@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS)
 
 #include "../gcode.h"
 
