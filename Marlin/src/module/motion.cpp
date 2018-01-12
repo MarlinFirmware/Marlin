@@ -1167,6 +1167,11 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
+  // Set a flag for Y motor locking
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) stepper.set_homing_flag(true);
+  #endif
+
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
     #if ENABLED(X_IS_TMC2130)
@@ -1241,6 +1246,27 @@ void homeaxis(const AxisEnum axis) {
         stepper.set_homing_flag_z(false);
       }
     #endif
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    if (axis == Y_AXIS) {
+      float adj = FABS(endstops.y_endstop_adj);
+      bool lockY1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockY1 = (endstops.y_endstop_adj > 0);
+      }
+      else
+        lockY1 = (endstops.y_endstop_adj < 0);
+
+      if (lockY1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+
+      // Move to the adjusted endstop height
+      do_homing_move(axis, adj);
+
+      if (lockY1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
+      stepper.set_homing_flag(false);
+    } // Y_AXIS
   #endif
 
   #if IS_SCARA

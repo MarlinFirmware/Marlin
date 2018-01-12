@@ -1681,6 +1681,16 @@ void MarlinSettings::reset(
       );
     #endif
 
+  #elif ENABLED(Y_DUAL_ENDSTOPS)
+
+    endstops.y_endstop_adj =
+      #ifdef Y_DUAL_ENDSTOPS_ADJUSTMENT
+        Y_DUAL_ENDSTOPS_ADJUSTMENT
+      #else
+        0
+      #endif
+    ;
+
   #endif
 
   #if ENABLED(ULTIPANEL)
