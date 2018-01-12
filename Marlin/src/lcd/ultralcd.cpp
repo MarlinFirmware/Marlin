@@ -3166,6 +3166,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     #if HAS_LCD_CONTRAST
+      // please don't remove the "(int16_t*)" - it's needed for the VIKI2 display  --- see PR #9132 before changing it
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
@@ -5243,7 +5244,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #if HAS_LCD_CONTRAST
 
-  void set_lcd_contrast(const uint16_t value) {
+  void set_lcd_contrast(const int16_t value) {
     lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
     u8g.setContrast(lcd_contrast);
   }
