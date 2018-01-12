@@ -42,6 +42,10 @@
   #include "../../lcd/ultralcd.h"
 #endif
 
+#if HAS_BED_PROBE && Z_HOME_DIR > 0
+  #include "../../module/probe.h"
+#endif
+
 #if ENABLED(G26_MESH_VALIDATION)
   bool g26_debug_flag; // = false
 #endif
@@ -76,6 +80,11 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
   #endif
 
   if (can_change && enable != planner.leveling_active) {
+
+    // If a probe is present and the printer homes away from the bed, account for the probe offset.
+    #if HAS_BED_PROBE && Z_HOME_DIR > 0
+      current_position[Z_AXIS] += (enable ? -1 : 1) * zprobe_zoffset;;
+    #endif
 
     #if ENABLED(MESH_BED_LEVELING)
 
@@ -128,9 +137,9 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
         // so compensation will give the right stepper counts.
         planner.unapply_leveling(current_position);
 
-      SYNC_PLAN_POSITION_KINEMATIC();
-
     #endif // OLDSCHOOL_ABL
+
+    SYNC_PLAN_POSITION_KINEMATIC();
   }
 }
 

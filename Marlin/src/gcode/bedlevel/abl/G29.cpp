@@ -656,7 +656,7 @@ void GcodeSuite::G29() {
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level, true, true);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -693,7 +693,7 @@ void GcodeSuite::G29() {
         // Retain the last probe position
         xProbe = points[i].x;
         yProbe = points[i].y;
-        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level, true, true);
         if (isnan(measured_z)) {
           set_bed_leveling_enabled(abl_should_enable);
           break;

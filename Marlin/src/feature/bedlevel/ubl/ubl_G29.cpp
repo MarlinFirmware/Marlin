@@ -389,11 +389,11 @@
           restore_ubl_active_state_and_leave();
         }
         else { // grid_size == 0 : A 3-Point leveling has been requested
-          float z3, z2, z1 = probe_pt(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false, g29_verbose_level);
+          float z3, z2, z1 = probe_pt(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false, g29_verbose_level, true, true);
           if (!isnan(z1)) {
-            z2 = probe_pt(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false, g29_verbose_level);
+            z2 = probe_pt(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false, g29_verbose_level, true, true);
             if (!isnan(z2))
-              z3 = probe_pt(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true, g29_verbose_level);
+              z3 = probe_pt(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true, g29_verbose_level, true, true);
           }
 
           if (isnan(z1) || isnan(z2) || isnan(z3)) { // probe_pt will return NAN if unreachable
@@ -789,7 +789,7 @@
           const float rawx = mesh_index_to_xpos(location.x_index),
                       rawy = mesh_index_to_ypos(location.y_index);
 
-          const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
+          const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level, true, true); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
 
@@ -1649,7 +1649,7 @@
         const float rx = float(x_min) + ix * dx;
         for (int8_t iy = 0; iy < g29_grid_size; iy++) {
           const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
-          float measured_z = probe_pt(rx, ry, parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
+          float measured_z = probe_pt(rx, ry, parser.seen('E'), g29_verbose_level, true, true); // TODO: Needs error handling
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_CHAR('(');
