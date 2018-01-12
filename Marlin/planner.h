@@ -536,7 +536,8 @@ class Planner {
           block_t* next = &block_buffer[next_block_index(block_buffer_tail)];
           if (TEST(block->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE))
             return NULL;
-        } else if (TEST(block->flag, BLOCK_BIT_RECALCULATE))
+        }
+        else if (TEST(block->flag, BLOCK_BIT_RECALCULATE))
           return NULL;
         
         #if ENABLED(ULTRA_LCD)
