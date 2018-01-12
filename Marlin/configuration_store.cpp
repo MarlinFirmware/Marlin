@@ -189,7 +189,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_LCD_CONTRAST
   //
-  uint16_t lcd_contrast;                                // M250 C
+  int16_t lcd_contrast;                                // M250 C
 
   //
   // FWRETRACT
@@ -618,7 +618,7 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(lcd_contrast);
 
     #if !HAS_LCD_CONTRAST
-      const uint16_t lcd_contrast = 32;
+      const int16_t lcd_contrast = 32;
     #endif
     EEPROM_WRITE(lcd_contrast);
 
@@ -1159,7 +1159,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lcd_contrast);
 
       #if !HAS_LCD_CONTRAST
-        uint16_t lcd_contrast;
+        int16_t lcd_contrast;
       #endif
       EEPROM_READ(lcd_contrast);
 
