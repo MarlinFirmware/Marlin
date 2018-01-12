@@ -10288,7 +10288,7 @@ inline void gcode_M502() {
 #if HAS_TRINAMIC
   #if ENABLED(TMC_DEBUG)
     inline void gcode_M122() {
-      if (parser.seen('S')) 
+      if (parser.seen('S'))
         tmc_set_report_status(parser.value_bool());
       else
         tmc_report_all();
