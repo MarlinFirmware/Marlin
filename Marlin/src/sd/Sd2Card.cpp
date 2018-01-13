@@ -345,7 +345,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
       errorCode_ = 0;
     }
-  return false;
+    return false;
   #else
     if (cardCommand(CMD17, blockNumber)) {
       error(SD_CARD_ERROR_CMD17);
