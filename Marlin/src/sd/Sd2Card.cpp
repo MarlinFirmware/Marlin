@@ -339,21 +339,22 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else if (readData(dst, 512))
         return true;
 
+      chipDeselect();
       if (!--retryCnt) break;
 
-      chipDeselect();
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
       errorCode_ = 0;
     }
+  return false;
   #else
-    if (cardCommand(CMD17, blockNumber))
+    if (cardCommand(CMD17, blockNumber)) {
       error(SD_CARD_ERROR_CMD17);
+      chipDeselect();
+      return false;
+    }
     else
       return readData(dst, 512);
   #endif
-
-  chipDeselect();
-  return false;
 }
 
 /**
