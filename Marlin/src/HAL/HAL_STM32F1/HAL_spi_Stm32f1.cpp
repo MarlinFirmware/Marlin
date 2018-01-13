@@ -166,7 +166,8 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 
 /** Begin SPI transaction, set clock, bit order, data mode */
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-  spiConfig = SPISettings(spiClock, bitOrder, dataMode);
+  //spiConfig = SPISettings(spiClock, bitOrder, dataMode);
+  spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
 
   SPI.beginTransaction(spiConfig);
 }
