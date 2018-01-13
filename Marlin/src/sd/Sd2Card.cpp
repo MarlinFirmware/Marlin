@@ -41,6 +41,8 @@
 #include "../Marlin.h"
 
 #if ENABLED(SD_CHECK_AND_RETRY)
+  static bool crcSupported = true;
+
   #ifdef FAST_CRC
     static const uint8_t crctab7[] PROGMEM = {
       0x00,0x09,0x12,0x1b,0x24,0x2d,0x36,0x3f,0x48,0x41,0x5a,0x53,0x6c,0x65,0x7e,0x77,
@@ -267,10 +269,7 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
   }
 
 #if ENABLED(SD_CHECK_AND_RETRY)
-  if (cardCommand( CMD59, 1 ) != R1_IDLE_STATE) {
-    error(SD_CARD_ERROR_CMD59);
-    goto FAIL;
-  }
+  crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
 #endif
 
   // check SD version
@@ -450,7 +449,7 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
 #if ENABLED(SD_CHECK_AND_RETRY)
   {
     uint16_t recvCrc = (spiRec() << 8) | spiRec();
-    if (recvCrc != CRC_CCITT(dst, count)) {
+    if (crcSupported && recvCrc != CRC_CCITT(dst, count)) {
       error(SD_CARD_ERROR_READ_CRC);
       goto FAIL;
     }
