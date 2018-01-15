@@ -78,13 +78,17 @@ extern HalSerial usb_serial;
 #if SERIAL_PORT == -1
   #define MYSERIAL0 usb_serial
 #elif SERIAL_PORT == 0
+  extern HardwareSerial Serial;
   #define MYSERIAL0 Serial
 #elif SERIAL_PORT == 1
+  extern HardwareSerial Serial1;
   #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 2
+  extern HardwareSerial Serial2;
   #define MYSERIAL0 Serial2
 #elif SERIAL_PORT == 3
   #define MYSERIAL0 Serial3
+  extern HardwareSerial Serial3;
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -97,12 +101,16 @@ extern HalSerial usb_serial;
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usb_serial
   #elif SERIAL_PORT_2 == 0
+    extern HardwareSerial Serial;
     #define MYSERIAL1 Serial
   #elif SERIAL_PORT_2 == 1
+    extern HardwareSerial Serial1;
     #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 2
+    extern HardwareSerial Serial2;
     #define MYSERIAL1 Serial2
   #elif SERIAL_PORT_2 == 3
+    extern HardwareSerial Serial3;
     #define MYSERIAL1 Serial3
   #endif
 #else
