@@ -61,25 +61,6 @@ enum DebugFlags {
   };
 #endif
 
-//todo: HAL: breaks encapsulation
-// For AVR only, define a serial interface based on configuration
-#ifdef __AVR__
-  #ifdef USBCON
-    #include <HardwareSerial.h>
-    #if ENABLED(BLUETOOTH)
-      #define MYSERIAL0 bluetoothSerial
-    #else
-      #define MYSERIAL0 Serial
-    #endif // BLUETOOTH
-  #else
-    #include "../HAL/HAL_AVR/MarlinSerial.h"
-    #define MYSERIAL0 customizedSerial
-  #endif
-#elif defined(ARDUINO_ARCH_SAM)
-  // To pull the Serial port definitions and overrides
-  #include "../HAL/HAL_DUE/MarlinSerial_Due.h"
-#endif
-
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
 
@@ -116,13 +97,13 @@ extern const char errormagic[] PROGMEM;
   #endif
 
   #define SERIAL_EOL_P(p) SERIAL_CHAR_P(p,'\n')
-  
+
   #define SERIAL_PROTOCOLCHAR_P(p,x)              SERIAL_CHAR_P(p,x)
   #define SERIAL_PROTOCOLPGM_P(p,x)               (serialprintPGM_P(p,PSTR(x)))
   #define SERIAL_PROTOCOLLNPGM_P(p,x)             (serialprintPGM_P(p,PSTR(x "\n")))
   #define SERIAL_PROTOCOLPAIR_P(p, pre, value)    (serial_echopair_PGM_P(p,PSTR(pre),(value)))
   #define SERIAL_PROTOCOLLNPAIR_P(p, pre, value)  do { SERIAL_PROTOCOLPAIR_P(p, pre, value); SERIAL_EOL_P(p); } while(0)
-  
+
   #define SERIAL_ECHO_START_P(p)             (serialprintPGM_P(p,echomagic))
   #define SERIAL_ECHO_P(p,x)                 SERIAL_PROTOCOL_P(p,x)
   #define SERIAL_ECHOPGM_P(p,x)              SERIAL_PROTOCOLPGM_P(p,x)
@@ -131,13 +112,13 @@ extern const char errormagic[] PROGMEM;
   #define SERIAL_ECHOPAIR_P(p,pre,value)     SERIAL_PROTOCOLPAIR_P(p, pre, value)
   #define SERIAL_ECHOLNPAIR_P(p,pre, value)  SERIAL_PROTOCOLLNPAIR_P(p, pre, value)
   #define SERIAL_ECHO_F_P(p,x,y)             SERIAL_PROTOCOL_F_P(p,x,y)
-  
+
   #define SERIAL_ERROR_START_P(p)            (serialprintPGM_P(p,errormagic))
   #define SERIAL_ERROR_P(p,x)                SERIAL_PROTOCOL_P(p,x)
   #define SERIAL_ERRORPGM_P(p,x)             SERIAL_PROTOCOLPGM_P(p,x)
   #define SERIAL_ERRORLN_P(p,x)              SERIAL_PROTOCOLLN_P(p,x)
   #define SERIAL_ERRORLNPGM_P(p,x)           SERIAL_PROTOCOLLNPGM_P(p,x)
-  
+
   // These macros compensate for float imprecision
   #define SERIAL_PROTOCOLPAIR_F_P(p, pre, value)    SERIAL_PROTOCOLPAIR_P(p, pre, FIXFLOAT(value))
   #define SERIAL_PROTOCOLLNPAIR_F_P(p, pre, value)  SERIAL_PROTOCOLLNPAIR_P(p, pre, FIXFLOAT(value))
@@ -168,7 +149,7 @@ extern const char errormagic[] PROGMEM;
   #define SERIAL_PROTOCOL_F_P(p,x,y)  SERIAL_PROTOCOL_F(x,y)
   #define SERIAL_PROTOCOLLN_P(p,x)    SERIAL_PROTOCOLLN(x)
   #define SERIAL_PRINT_P(p,x,b)       SERIAL_PRINT(x,b)
-  #define SERIAL_PRINTLN_P(p,x,b)     SERIAL_PRINTLN(x,b) 
+  #define SERIAL_PRINTLN_P(p,x,b)     SERIAL_PRINTLN(x,b)
   #define SERIAL_PRINTF_P(p,args...)  SERIAL_PRINTF(args)
 
   #define SERIAL_CHAR(x)              MYSERIAL0.write(x)
@@ -187,13 +168,13 @@ extern const char errormagic[] PROGMEM;
   #endif
 
   #define SERIAL_EOL_P(p) SERIAL_EOL()
-  
+
   #define SERIAL_PROTOCOLCHAR_P(p,x)              SERIAL_PROTOCOLCHAR(x)
   #define SERIAL_PROTOCOLPGM_P(p,x)               SERIAL_PROTOCOLPGM(x)
   #define SERIAL_PROTOCOLLNPGM_P(p,x)             SERIAL_PROTOCOLLNPGM(x)
   #define SERIAL_PROTOCOLPAIR_P(p, pre, value)    SERIAL_PROTOCOLPAIR(pre, value)
   #define SERIAL_PROTOCOLLNPAIR_P(p, pre, value)  SERIAL_PROTOCOLLNPAIR(pre, value)
-  
+
   #define SERIAL_ECHO_START_P(p)             SERIAL_ECHO_START()
   #define SERIAL_ECHO_P(p,x)                 SERIAL_ECHO(x)
   #define SERIAL_ECHOPGM_P(p,x)              SERIAL_ECHOPGM(x)
@@ -202,13 +183,13 @@ extern const char errormagic[] PROGMEM;
   #define SERIAL_ECHOPAIR_P(p,pre,value)     SERIAL_ECHOPAIR(pre, value)
   #define SERIAL_ECHOLNPAIR_P(p,pre, value)  SERIAL_ECHOLNPAIR(pre, value)
   #define SERIAL_ECHO_F_P(p,x,y)             SERIAL_ECHO_F(x,y)
-  
+
   #define SERIAL_ERROR_START_P(p)            SERIAL_ERROR_START()
   #define SERIAL_ERROR_P(p,x)                SERIAL_ERROR(x)
   #define SERIAL_ERRORPGM_P(p,x)             SERIAL_ERRORPGM(x)
   #define SERIAL_ERRORLN_P(p,x)              SERIAL_ERRORLN(x)
   #define SERIAL_ERRORLNPGM_P(p,x)           SERIAL_ERRORLNPGM(x)
-  
+
   // These macros compensate for float imprecision
   #define SERIAL_PROTOCOLPAIR_F_P(p, pre, value)    SERIAL_PROTOCOLPAIR_F(pre, value)
   #define SERIAL_PROTOCOLLNPAIR_F_P(p, pre, value)  SERIAL_PROTOCOLLNPAIR_F(pre, value)

@@ -67,6 +67,14 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   }
 }
 
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: return NVIC_IS_ENABLED(IRQ_FTM0);
+    case 1: return NVIC_IS_ENABLED(IRQ_FTM1);
+  }
+  return false;
+}
+
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch(timer_num) {
     case 0:

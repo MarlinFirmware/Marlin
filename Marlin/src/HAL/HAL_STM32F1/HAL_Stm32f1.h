@@ -109,7 +109,7 @@
   #define analogInputToDigitalPin(p) (p)
 #endif
 
-#define CRITICAL_SECTION_START	noInterrupts();
+#define CRITICAL_SECTION_START  noInterrupts();
 #define CRITICAL_SECTION_END    interrupts();
 
 // On AVR this is in math.h?

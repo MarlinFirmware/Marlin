@@ -109,7 +109,7 @@ void GcodeSuite::M26() {
 /**
  * M27: Get SD Card status
  */
-void GcodeSuite::M27() { 
+void GcodeSuite::M27() {
   card.getStatus(
     #if NUM_SERIAL > 1
       command_queue_port[cmd_queue_index_r]

@@ -26,8 +26,8 @@
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
-#ifndef	_FASTIO_STM32F1_H
-#define	_FASTIO_STM32F1_H
+#ifndef _FASTIO_STM32F1_H
+#define _FASTIO_STM32F1_H
 
 #include <libmaple/gpio.h>
 
@@ -49,9 +49,9 @@
 #define GET_TIMER(IO)         (PIN_MAP[IO].timer_device != NULL)
 
 #define OUT_WRITE(IO, v)      { _SET_OUTPUT(IO); WRITE(IO, v); }
-/*
+/**
  * TODO: Write a macro to test if PIN is PWM or not.
  */
 #define PWM_PIN(p)            true
 
-#endif	/* _FASTIO_STM32F1_H */
+#endif // _FASTIO_STM32F1_H

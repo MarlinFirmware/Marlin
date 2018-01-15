@@ -254,7 +254,7 @@ static bool serial_data_available() {
 static int read_serial(const int index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
-    #if NUM_SERIAL > 1 
+    #if NUM_SERIAL > 1
       case 1: return MYSERIAL1.read();
     #endif
     default: return -1;

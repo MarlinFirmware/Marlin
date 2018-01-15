@@ -31,8 +31,6 @@
 #define DEFAULT_MACHINE_NAME "STM3R Mini"
 #define BOARD_NAME "Marlin for STM32"
 
-#define LARGE_FLASH true
-
 // Enable I2C_EEPROM for testing
 #define I2C_EEPROM
 
