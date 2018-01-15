@@ -195,12 +195,15 @@
     #define SPINDLE_DIR_PIN           P1_19   // (5)
   #endif
 #endif
+
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX0_PIN         P0_03   // ( 0) Z_CS_PIN
-#define E_MUX1_PIN         P0_02   // ( 1) E0_CS_PIN
-#define E_MUX2_PIN         P0_26   // (63) E1_CS_PIN
+#if ENABLED(MK2_MULTIPLEXER)
+  #define E_MUX0_PIN         P0_03   // ( 0) Z_CS_PIN
+  #define E_MUX1_PIN         P0_02   // ( 1) E0_CS_PIN
+  #define E_MUX2_PIN         P0_26   // (63) E1_CS_PIN
+#endif
 
 /**
  * LCD / Controller

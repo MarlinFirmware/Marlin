@@ -109,11 +109,11 @@ constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) 
 // ******************
 #define P_NC -1
 
-#if SERIAL_PORT != 3
+#if SERIAL_PORT != 3 && SERIAL_PORT_2 != 3
   #define P0_00 LPC1768_PIN(PORT(0), PIN( 0), INTERRUPT(1), PWM(0), ADC_NONE)
   #define P0_01 LPC1768_PIN(PORT(0), PIN( 1), INTERRUPT(1), PWM(0), ADC_NONE)
 #endif
-#if SERIAL_PORT != 0
+#if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
   #define P0_02 LPC1768_PIN(PORT(0), PIN( 2), INTERRUPT(1), PWM(0), ADC_CHAN(7))
   #define P0_03 LPC1768_PIN(PORT(0), PIN( 3), INTERRUPT(1), PWM(0), ADC_CHAN(6))
 #endif
@@ -123,11 +123,11 @@ constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) 
 #define P0_07   LPC1768_PIN(PORT(0), PIN( 7), INTERRUPT(1), PWM(0), ADC_NONE)
 #define P0_08   LPC1768_PIN(PORT(0), PIN( 8), INTERRUPT(1), PWM(0), ADC_NONE)
 #define P0_09   LPC1768_PIN(PORT(0), PIN( 9), INTERRUPT(1), PWM(0), ADC_NONE)
-#if SERIAL_PORT != 2
+#if SERIAL_PORT != 2 && SERIAL_PORT_2 != 2
   #define P0_10 LPC1768_PIN(PORT(0), PIN(10), INTERRUPT(1), PWM(0), ADC_NONE)
   #define P0_11 LPC1768_PIN(PORT(0), PIN(11), INTERRUPT(1), PWM(0), ADC_NONE)
 #endif
-#if SERIAL_PORT != 1
+#if SERIAL_PORT != 1 && SERIAL_PORT_2 != 1
   #define P0_15 LPC1768_PIN(PORT(0), PIN(15), INTERRUPT(1), PWM(0), ADC_NONE)
   #define P0_16 LPC1768_PIN(PORT(0), PIN(16), INTERRUPT(1), PWM(0), ADC_NONE)
 #endif
@@ -190,33 +190,32 @@ constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) 
 
 // Pin index for M43 and M226
 constexpr pin_t pin_map[] = {
-  #if SERIAL_PORT != 3
+  #if SERIAL_PORT != 3 && SERIAL_PORT_2 != 3
     P0_00, P0_01,
   #else
     P_NC,  P_NC,
   #endif
-  #if SERIAL_PORT != 0
-                  P0_02, P0_03,
+  #if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
+    P0_02, P0_03,
   #else
-                  P_NC,  P_NC,
+    P_NC,  P_NC,
   #endif
-                                P0_04, P0_05, P0_06, P0_07,
-    P0_08, P0_09,
-  #if SERIAL_PORT != 2
-                  P0_10, P0_11,
+  P0_04, P0_05, P0_06, P0_07,
+  P0_08, P0_09,
+  #if SERIAL_PORT != 2 && SERIAL_PORT_2 != 2
+    P0_10, P0_11,
   #else
-                  P_NC,  P_NC,
+    P_NC,  P_NC,
   #endif
-                                P_NC,  P_NC,  P_NC,
-  #if SERIAL_PORT != 1
-                                                     P0_15,
-    P0_16,
+  P_NC,  P_NC,  P_NC,
+  #if SERIAL_PORT != 1 && SERIAL_PORT_2 != 1
+    P0_15, P0_16,
   #else
-                                                     P_NC,
-    P_NC,
+    P_NC, P_NC,
   #endif
-           P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
-    P0_24, P0_25, P0_26, P0_27, P0_28, P0_29, P0_30, P_NC,
+
+  P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
+  P0_24, P0_25, P0_26, P0_27, P0_28, P0_29, P0_30, P_NC,
 
   P1_00, P1_01, P_NC,  P_NC,  P1_04, P_NC,  P_NC,  P_NC,
   P1_08, P1_09, P1_10, P_NC,  P_NC,  P_NC,  P1_14, P1_15,
@@ -243,7 +242,7 @@ constexpr uint8_t NUM_DIGITAL_PINS = COUNT(pin_map);
 
 constexpr pin_t adc_pin_table[] = {
   P0_23, P0_24, P0_25, P0_26, P1_30, P1_31,
-  #if SERIAL_PORT != 0
+  #if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
     P0_03, P0_02
   #endif
 };
