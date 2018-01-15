@@ -61,25 +61,6 @@ enum DebugFlags {
   };
 #endif
 
-//todo: HAL: breaks encapsulation
-// For AVR only, define a serial interface based on configuration
-#ifdef __AVR__
-  #ifdef USBCON
-    #include <HardwareSerial.h>
-    #if ENABLED(BLUETOOTH)
-      #define MYSERIAL0 bluetoothSerial
-    #else
-      #define MYSERIAL0 Serial
-    #endif // BLUETOOTH
-  #else
-    #include "../HAL/HAL_AVR/MarlinSerial.h"
-    #define MYSERIAL0 customizedSerial
-  #endif
-#elif defined(ARDUINO_ARCH_SAM)
-  // To pull the Serial port definitions and overrides
-  #include "../HAL/HAL_DUE/MarlinSerial_Due.h"
-#endif
-
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
 
