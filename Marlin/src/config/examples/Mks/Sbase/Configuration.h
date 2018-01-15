@@ -92,6 +92,9 @@
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
 
+// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+//#define CUSTOM_STATUS_SCREEN_IMAGE
+
 // @section machine
 
 /**
