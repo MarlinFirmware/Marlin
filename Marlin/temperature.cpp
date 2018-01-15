@@ -2200,6 +2200,7 @@ void Temperature::isr() {
       SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
       SERIAL_PROTOCOLCHAR(')');
     #endif
+    safe_delay(2);
   }
 
   extern uint8_t target_extruder;
