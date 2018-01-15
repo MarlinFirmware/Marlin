@@ -73,7 +73,7 @@
 
 #define STEPPER_ENABLE_PIN _STM32_PIN(PORTE, 0)
 
-#define X_STEP_PIN         _STM32_PIN(PORTC, 6)	//96, 39 in arduino
+#define X_STEP_PIN         _STM32_PIN(PORTC, 6) //96, 39 in arduino
 #define X_DIR_PIN          _STM32_PIN(PORTC, 7)
 #define X_ENABLE_PIN       _STM32_PIN(PORTC, 8)
 
@@ -111,17 +111,17 @@
 
 
 
-#define SCK_PIN				_STM32_PIN(PORTA, 5)
-#define MISO_PIN			_STM32_PIN(PORTA, 6)
-#define MOSI_PIN			_STM32_PIN(PORTA, 7)
+#define SCK_PIN            _STM32_PIN(PORTA, 5)
+#define MISO_PIN           _STM32_PIN(PORTA, 6)
+#define MOSI_PIN           _STM32_PIN(PORTA, 7)
 
-#define SPI1_SCK_PIN		_STM32_PIN(PORTA, 5)
-#define SPI1_MISO_PIN      	_STM32_PIN(PORTA, 6)
-#define SPI1_MOSI_PIN      	_STM32_PIN(PORTA, 7)
+#define SPI1_SCK_PIN       _STM32_PIN(PORTA, 5)
+#define SPI1_MISO_PIN      _STM32_PIN(PORTA, 6)
+#define SPI1_MOSI_PIN      _STM32_PIN(PORTA, 7)
 
-#define SPI6_SCK_PIN       	_STM32_PIN(PORTG, 13)
-#define SPI6_MISO_PIN      	_STM32_PIN(PORTG, 12)
-#define SPI6_MOSI_PIN      	_STM32_PIN(PORTG, 14)
+#define SPI6_SCK_PIN       _STM32_PIN(PORTG, 13)
+#define SPI6_MISO_PIN      _STM32_PIN(PORTG, 12)
+#define SPI6_MOSI_PIN      _STM32_PIN(PORTG, 14)
 
 
 
@@ -130,36 +130,36 @@
 // Temperature Sensors
 //
 
-#define TEMP_0_PIN       	_STM32_PIN(PORTC, 3)   // Analog Input
-#define TEMP_1_PIN       	_STM32_PIN(PORTC, 2)   // Analog Input
-#define TEMP_2_PIN       	_STM32_PIN(PORTC, 1)   // Analog Input
-#define TEMP_3_PIN       	_STM32_PIN(PORTC, 0)   // Analog Input
+#define TEMP_0_PIN         _STM32_PIN(PORTC, 3)   // Analog Input
+#define TEMP_1_PIN         _STM32_PIN(PORTC, 2)   // Analog Input
+#define TEMP_2_PIN         _STM32_PIN(PORTC, 1)   // Analog Input
+#define TEMP_3_PIN         _STM32_PIN(PORTC, 0)   // Analog Input
 
-#define TEMP_BED_PIN     	_STM32_PIN(PORTF, 10)  // Analog Input
+#define TEMP_BED_PIN       _STM32_PIN(PORTF, 10)  // Analog Input
 
-#define TEMP_5_PIN       	_STM32_PIN(PORTE, 12)  // Analog Input, Probe temp
+#define TEMP_5_PIN         _STM32_PIN(PORTE, 12)  // Analog Input, Probe temp
 
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        _STM32_PIN(PORTD, 15)
-#define HEATER_1_PIN        _STM32_PIN(PORTD, 14)
-#define HEATER_BED_PIN      _STM32_PIN(PORTF,  6)
+#define HEATER_0_PIN       _STM32_PIN(PORTD, 15)
+#define HEATER_1_PIN       _STM32_PIN(PORTD, 14)
+#define HEATER_BED_PIN     _STM32_PIN(PORTF,  6)
 
-#define FAN_PIN             _STM32_PIN(PORTD, 13)
-#define FAN1_PIN            _STM32_PIN(PORTA, 0)
-#define FAN2_PIN            _STM32_PIN(PORTA, 1)
+#define FAN_PIN            _STM32_PIN(PORTD, 13)
+#define FAN1_PIN           _STM32_PIN(PORTA, 0)
+#define FAN2_PIN           _STM32_PIN(PORTA, 1)
 
-//#define E0_AUTO_FAN_PIN 	_STM32_PIN(PORTA, 1)
+//#define E0_AUTO_FAN_PIN  _STM32_PIN(PORTA, 1)
 
 //
 // Misc. Functions
 //
 
-//#define CASE_LIGHT_PIN_CI   _STM32_PIN(PORTF, 13)  //
-//#define CASE_LIGHT_PIN_DO   _STM32_PIN(PORTF, 14)  //
-//#define NEOPIXEL_PIN		_STM32_PIN(PORTF, 13)
+//#define CASE_LIGHT_PIN_CI _STM32_PIN(PORTF, 13)  //
+//#define CASE_LIGHT_PIN_DO _STM32_PIN(PORTF, 14)  //
+//#define NEOPIXEL_PIN     _STM32_PIN(PORTF, 13)
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
@@ -172,37 +172,37 @@
 // Servos
 //
 
-#define SERVO0_PIN 		   _STM32_PIN(PORTE, 13)  
-#define SERVO1_PIN 		   _STM32_PIN(PORTE, 14)  
+#define SERVO0_PIN         _STM32_PIN(PORTE, 13)  
+#define SERVO1_PIN         _STM32_PIN(PORTE, 14)  
 
 
 #define SDSS               _STM32_PIN(PORTA, 8)
-#define SS_PIN			   _STM32_PIN(PORTA, 8)
-#define LED_PIN            _STM32_PIN(PORTA, 2)			//Alive
+#define SS_PIN             _STM32_PIN(PORTA, 8)
+#define LED_PIN            _STM32_PIN(PORTA, 2)         //Alive
 #define PS_ON_PIN          _STM32_PIN(PORTA, 3)
-#define KILL_PIN           -1//_STM32_PIN(PORTD, 5)		//EXP2-10
-#define PWR_LOSS		   _STM32_PIN(PORTG, 5)			//Power loss / nAC_FAULT
+#define KILL_PIN           -1//_STM32_PIN(PORTD, 5)     //EXP2-10
+#define PWR_LOSS           _STM32_PIN(PORTG, 5)         //Power loss / nAC_FAULT
 
 //
 //MAX7219_DEBUG
 //
-#define MAX7219_CLK_PIN   _STM32_PIN(PORTG, 10)		//EXP1-1
-#define MAX7219_DIN_PIN   _STM32_PIN(PORTD, 7)		//EXP1-3
-#define MAX7219_LOAD_PIN   _STM32_PIN(PORTD, 1)		//EXP1-5
+#define MAX7219_CLK_PIN    _STM32_PIN(PORTG, 10)     //EXP1-1
+#define MAX7219_DIN_PIN    _STM32_PIN(PORTD, 7)      //EXP1-3
+#define MAX7219_LOAD_PIN   _STM32_PIN(PORTD, 1)     //EXP1-5
 
 //#define NEOPIXEL_PIN    4
   
 //
 // LCD / Controller
 //
-//#define SD_DETECT_PIN      -1 //_STM32_PIN(PORTB, 6))		//EXP2-4
-#define BEEPER_PIN         _STM32_PIN(PORTG, 10)		//EXP1-1
-#define LCD_PINS_RS        _STM32_PIN(PORTG, 9)			//EXP1-4
-#define LCD_PINS_ENABLE    _STM32_PIN(PORTD, 7)			//EXP1-3
-#define LCD_PINS_D4        _STM32_PIN(PORTD, 1)			//EXP1-5
-#define LCD_PINS_D5        _STM32_PIN(PORTF, 0)			//EXP1-6
-#define LCD_PINS_D6        _STM32_PIN(PORTD, 3)			//EXP1-7
-#define LCD_PINS_D7        _STM32_PIN(PORTD, 4)			//EXP1-8
-#define BTN_EN1            _STM32_PIN(PORTD, 6)			//EXP2-5
-#define BTN_EN2            _STM32_PIN(PORTD, 0)			//EXP2-3
-#define BTN_ENC            _STM32_PIN(PORTG, 11)		//EXP1-2
+//#define SD_DETECT_PIN      -1 //_STM32_PIN(PORTB, 6))     //EXP2-4
+#define BEEPER_PIN         _STM32_PIN(PORTG, 10)        //EXP1-1
+#define LCD_PINS_RS        _STM32_PIN(PORTG, 9)         //EXP1-4
+#define LCD_PINS_ENABLE    _STM32_PIN(PORTD, 7)         //EXP1-3
+#define LCD_PINS_D4        _STM32_PIN(PORTD, 1)         //EXP1-5
+#define LCD_PINS_D5        _STM32_PIN(PORTF, 0)         //EXP1-6
+#define LCD_PINS_D6        _STM32_PIN(PORTD, 3)         //EXP1-7
+#define LCD_PINS_D7        _STM32_PIN(PORTD, 4)         //EXP1-8
+#define BTN_EN1            _STM32_PIN(PORTD, 6)         //EXP2-5
+#define BTN_EN2            _STM32_PIN(PORTD, 0)         //EXP2-3
+#define BTN_ENC            _STM32_PIN(PORTG, 11)        //EXP1-2
