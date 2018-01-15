@@ -31,8 +31,6 @@
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 #define BOARD_NAME "Chitu3d Marlin"
 
-#define LARGE_FLASH true
-
 // Enable I2C_EEPROM for testing
 //#define I2C_EEPROM
 
