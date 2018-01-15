@@ -20,21 +20,33 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#ifdef STM32F7
 
-#if ENABLED(TMC_DEBUG)
+#include "../../inc/MarlinConfig.h"
 
-#include "../../gcode.h"
-#include "../../../feature/tmc_util.h"
+#if ENABLED(USE_WATCHDOG)
 
-/**
- * M122: Debug TMC drivers
- */
-void GcodeSuite::M122() {
-  if (parser.seen('S'))
-    tmc_set_report_status(parser.value_bool());
-  else
-    tmc_report_all();
-}
+  #include "watchdog_STM32F7.h"
 
-#endif // TMC_DEBUG
+  IWDG_HandleTypeDef hiwdg;
+
+  void watchdog_init() {
+    hiwdg.Instance = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_32; //32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
+    hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
+      //Error_Handler();
+    }
+  }
+
+  void watchdog_reset() {
+    /* Refresh IWDG: reload counter */
+    if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
+      /* Refresh Error */
+      //Error_Handler();
+    }
+  }
+
+#endif // USE_WATCHDOG
+
+#endif // STM32F7

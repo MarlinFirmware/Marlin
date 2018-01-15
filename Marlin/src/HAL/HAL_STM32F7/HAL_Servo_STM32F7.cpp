@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,21 +21,32 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#ifdef STM32F7
 
-#if ENABLED(TMC_DEBUG)
+#include "../../../src/inc/MarlinConfig.h"
 
-#include "../../gcode.h"
-#include "../../../feature/tmc_util.h"
+#if HAS_SERVOS
 
-/**
- * M122: Debug TMC drivers
- */
-void GcodeSuite::M122() {
-  if (parser.seen('S'))
-    tmc_set_report_status(parser.value_bool());
-  else
-    tmc_report_all();
+#include "HAL_Servo_STM32F7.h"
+
+int8_t libServo::attach(const int pin) {
+  if (this->servoIndex >= MAX_SERVOS) return -1;
+  return Servo::attach(pin);
 }
 
-#endif // TMC_DEBUG
+int8_t libServo::attach(const int pin, const int min, const int max) {
+  return Servo::attach(pin, min, max);
+}
+
+void libServo::move(const int value) {
+  if (this->attach(0) >= 0) {
+    this->write(value);
+    delay(SERVO_DELAY);
+    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
+      this->detach();
+    #endif
+  }
+}
+#endif // HAS_SERVOS
+
+#endif // STM32F7

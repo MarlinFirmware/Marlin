@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,21 +21,21 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#ifndef HAL_SERVO_STM32F7_H
+#define HAL_SERVO_STM32F7_H
 
-#if ENABLED(TMC_DEBUG)
+#include <../../libraries/Servo/src/Servo.h>
 
-#include "../../gcode.h"
-#include "../../../feature/tmc_util.h"
+// Inherit and expand on the official library
+class libServo : public Servo {
+public:
+    int8_t attach(const int pin);
+    int8_t attach(const int pin, const int min, const int max);
+    void move(const int value);
+private:
+    uint16_t min_ticks;
+    uint16_t max_ticks;
+    uint8_t servoIndex;               // index into the channel data for this servo
+};
 
-/**
- * M122: Debug TMC drivers
- */
-void GcodeSuite::M122() {
-  if (parser.seen('S'))
-    tmc_set_report_status(parser.value_bool());
-  else
-    tmc_report_all();
-}
-
-#endif // TMC_DEBUG
+#endif // HAL_SERVO_STM32F7_H
