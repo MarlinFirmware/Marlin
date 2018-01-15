@@ -71,6 +71,8 @@
   #include "fwretract.h"
 #endif
 
+#pragma pack(push, 1) // No padding between variables
+
 typedef struct PID { float Kp, Ki, Kd; } PID;
 typedef struct PIDC { float Kp, Ki, Kd, Kc; } PIDC;
 
@@ -170,9 +172,9 @@ typedef struct SettingsDataStruct {
   //
   // ULTIPANEL
   //
-  int lcd_preheat_hotend_temp[2],                       // M145 S0 H
-      lcd_preheat_bed_temp[2],                          // M145 S0 B
-      lcd_preheat_fan_speed[2];                         // M145 S0 F
+  int16_t lcd_preheat_hotend_temp[2],                   // M145 S0 H
+          lcd_preheat_bed_temp[2],                      // M145 S0 B
+          lcd_preheat_fan_speed[2];                     // M145 S0 F
 
   //
   // PIDTEMP
@@ -246,6 +248,8 @@ typedef struct SettingsDataStruct {
         filament_change_load_length[MAX_EXTRUDERS];     // M603 T L
 
 } SettingsData;
+
+#pragma pack(pop)
 
 MarlinSettings settings;
 
