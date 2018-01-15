@@ -21,10 +21,9 @@
  */
 
 /**
- * Tongue-in-cheek placeholder for a more Marlin-specific bitmap
- * The joke is that every "CR-10" has different branding!
- * Made using The Gimp and...
- *  - http://www.digole.com/tools/PicturetoC_Hex_converter.php
+ * Make your own bitmap to show at boot time!
+ * This one was made using The Gimp and...
+ *  - http://marlinfw.org/tools/u8glib/converter.html
  */
 #include <avr/pgmspace.h>
 
