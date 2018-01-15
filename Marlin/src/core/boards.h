@@ -115,6 +115,7 @@
 #define BOARD_MELZI_MAKR3D      66    // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_MELZI_CREALITY    89    // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_MELZI_MALYAN      92    // Melzi Malyan M150 board
+#define BOARD_CREALITY_ENDER    601   // Creality Ender
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
 
