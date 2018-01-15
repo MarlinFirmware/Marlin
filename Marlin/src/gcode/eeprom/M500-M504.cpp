@@ -68,7 +68,7 @@ void GcodeSuite::M502() {
    */
   void GcodeSuite::M503() {
     (void)settings.report(parser.seen('S') && !parser.value_bool()
-      #if NUM_SERIAL > 1
+      #if ADD_PORT_ARG
         , command_queue_port[cmd_queue_index_r]
       #endif
     );
