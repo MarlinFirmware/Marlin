@@ -37,7 +37,7 @@
  */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-#define CONFIGURATION_H_VERSION 010107
+#define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -59,14 +59,14 @@
 //============================= DELTA Printer ===============================
 //===========================================================================
 // For a Delta printer start with one of the configuration files in the
-// example_configurations/delta directory and customize for your machine.
+// config/examples/delta directory and customize for your machine.
 //
 
 //===========================================================================
 //============================= SCARA Printer ===============================
 //===========================================================================
 // For a SCARA printer start with the configuration files in
-// example_configurations/SCARA and customize for your machine.
+// config/examples/SCARA and customize for your machine.
 //
 
 // @section info
