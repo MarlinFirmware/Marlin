@@ -379,7 +379,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
           if (tpwmthrs_val)
             SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm));
           else
-           SERIAL_CHAR('-');
+            SERIAL_CHAR('-');
         }
         break;
       case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
