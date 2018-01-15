@@ -20,7 +20,8 @@
  *
  */
 
-// Generic Silicon Heat Pad with NTC 100K thermistor ( Beta 25/50 3950K)
+// R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up,
+// Generic Silicon Heat Pad with NTC 100K thermistor
 //
 // Many of the generic silicon heat pads use the MGB18-104F39050L32 Thermistor   It is used for various
 // wattage and voltage heat pads.  This table is correct if this part is used.   It has been

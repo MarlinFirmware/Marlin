@@ -285,10 +285,7 @@
 #else
   #define MSG_DAC_PERCENT                   "DAC\xbc\xad\xc2\xd8\xae\xb8"                                      // "DACｼｭﾂﾘｮｸ" ("Driver %")
 #endif
-#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EPROM                                                    // "ﾒﾓﾘﾍｶｸﾉｳ" ("DAC EEPROM Write")
-#define MSG_FILAMENT_CHANGE_HEADER          "PRINT PAUSED"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   "RESUME OPTIONS:"
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "\xbb\xd7\xc6\xb5\xbc\xc0\xde\xbd"                                 // "ｻﾗﾆｵｼﾀﾞｽ" ("Extrude more")
+#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EEPROM                                                   // "ﾒﾓﾘﾍｶｸﾉｳ" ("DAC EEPROM Write")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "\xcc\xdf\xd8\xdd\xc4\xbb\xb2\xb6\xb2"                             // "ﾌﾟﾘﾝﾄｻｲｶｲ" ("Resume print")
 
 #if LCD_HEIGHT >= 4
@@ -301,8 +298,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_2      "\xb8\xd8\xaf\xb8\xbd\xd9\xc4\xbf\xde\xaf\xba\xb3\xbc\xcf\xbd"     // "ｸﾘｯｸｽﾙﾄｿﾞｯｺｳｼﾏｽ" ("and press button")
   #define MSG_FILAMENT_CHANGE_LOAD_1        "\xcc\xa8\xd7\xd2\xdd\xc4\xbf\xb3\xc3\xdd\xc1\xad\xb3"             // "ﾌｨﾗﾒﾝﾄｿｳﾃﾝﾁｭｳ" ("Wait for")
   #define MSG_FILAMENT_CHANGE_LOAD_2        "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("filament load")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "\xcc\xa8\xd7\xd2\xdd\xc4\xb5\xbc\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄｵｼﾀﾞｼﾁｭｳ" ("Wait for")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("filament extrude")
   #define MSG_FILAMENT_CHANGE_RESUME_1      "\xcc\xdf\xd8\xdd\xc4\xa6\xbb\xb2\xb6\xb2\xbc\xcf\xbd"             // "ﾌﾟﾘﾝﾄｦｻｲｶｲｼﾏｽ" ("Wait for print")
   #define MSG_FILAMENT_CHANGE_RESUME_2      "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("to resume")
 #else // LCD_HEIGHT < 4
@@ -315,7 +310,6 @@
     #define MSG_FILAMENT_CHANGE_INSERT_1    "\xbf\xb3\xc6\xad\xb3\xbc\x2c\xb8\xd8\xaf\xb8\xbe\xd6"                     // "ｿｳﾆｭｳｼ,ｸﾘｯｸｾﾖ" ("Insert and Click")
   #endif
   #define MSG_FILAMENT_CHANGE_LOAD_1        "\xcc\xa8\xd7\xd2\xdd\xc4\xbf\xb3\xc3\xdd\xc1\xad\xb3"             // "ﾌｨﾗﾒﾝﾄｿｳﾃﾝﾁｭｳ" ("Loading...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "\xcc\xa8\xd7\xd2\xdd\xc4\xb5\xbc\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄｵｼﾀﾞｼﾁｭｳ" ("Extruding...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      "\xcc\xdf\xd8\xdd\xc4\xa6\xbb\xb2\xb6\xb2\xbc\xcf\xbd"             // "ﾌﾟﾘﾝﾄｦｻｲｶｲｼﾏｽ" ("Resuming...")
 #endif // LCD_HEIGHT < 4
 

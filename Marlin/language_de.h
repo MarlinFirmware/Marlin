@@ -308,11 +308,9 @@
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("DRUCK PAUSIERT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("DRUCK PAUSIERT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("FORTS. OPTIONEN:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude mehr")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Drucke weiter")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. Temperatur ist ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Düse: ")
 
 #if LCD_HEIGHT >= 4
@@ -333,9 +331,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("Laden des")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("Filaments")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Warte auf")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("Extrusion des")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("Filaments")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("Fortsetzung des")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("Druckes...")
@@ -346,7 +341,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Laden und Klick")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heizen...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Laden...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrudieren...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Fortsetzen...")
 #endif // LCD_HEIGHT < 4
 
