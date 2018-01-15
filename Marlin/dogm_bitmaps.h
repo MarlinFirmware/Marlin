@@ -114,13 +114,14 @@
 #define STATUS_SCREENWIDTH     115 // Width in pixels
 #define STATUS_SCREENHEIGHT     19 // Height in pixels
 
-#ifdef CUSTOM_STATUS_SCREEN_FILE
+#if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #undef STATUS_SCREENWIDTH
 
   // This file must define STATUS_SCREENWIDTH and status_screen{0,1}_bmp.
   // It can also define STATUS_SCREEN_X, STATUS_SCREEN_{BED,FAN}_TEXT_X and
   // STATUS_SCREEN_HOTEND_TEXT_X(i) to modify draw locations.
-  #include CUSTOM_STATUS_SCREEN_FILE
+  #include "_Statusscreen.h"
+
 #elif HAS_TEMP_BED
   #if HOTENDS == 0
     const unsigned char status_screen0_bmp[] PROGMEM = {

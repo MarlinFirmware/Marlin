@@ -92,9 +92,8 @@
 //
 #define SHOW_CUSTOM_BOOTSCREEN
 
-// Set this to a file name (relative the ultralcd_impl_DOGM.h file) to read a
-// customized status screen bitmap.
-#define CUSTOM_STATUS_SCREEN_FILE "_Statusscreen.h"
+// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+#define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
 
