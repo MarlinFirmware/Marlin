@@ -37,10 +37,10 @@
   #elif defined(__STM32F1__)
     #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
 
-	#elif defined(STM32F7)
+  #elif defined(STM32F7)
     #include "HAL_STM32F7/SanityCheck_STM32F7.h"
 
-	#else
+#else
   #error Unsupported Platform!
 #endif
 

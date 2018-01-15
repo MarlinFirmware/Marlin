@@ -20,8 +20,8 @@
  *
  */
 
-
 #ifdef STM32F7
+
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -71,12 +71,12 @@ tTimerConfig timerConfig[NUM_HARDWARE_TIMERS];
 
 bool timers_initialised[NUM_HARDWARE_TIMERS] = {false};
 
-void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
-  if(!timers_initialised[timer_num]) {
+  if (!timers_initialised[timer_num]) {
     switch (timer_num) {
       case STEP_TIMER_NUM:
-      //STEPPER TIMER TIM5 //use a 32bit timer 
+      //STEPPER TIMER TIM5 //use a 32bit timer
       __HAL_RCC_TIM5_CLK_ENABLE();
       timerConfig[0].timerdef.Instance               = TIM5;
       timerConfig[0].timerdef.Init.Prescaler         = (STEPPER_TIMER_PRESCALE);
@@ -92,8 +92,8 @@ void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
       //TEMP TIMER TIM7 // any available 16bit Timer (1 already used for PWM)
       __HAL_RCC_TIM7_CLK_ENABLE();
       timerConfig[1].timerdef.Instance               = TIM7;
-      timerConfig[1].timerdef.Init.Prescaler         = (TEMP_TIMER_PRESCALE); 
-      timerConfig[1].timerdef.Init.CounterMode       = TIM_COUNTERMODE_UP;   
+      timerConfig[1].timerdef.Init.Prescaler         = (TEMP_TIMER_PRESCALE);
+      timerConfig[1].timerdef.Init.CounterMode       = TIM_COUNTERMODE_UP;
       timerConfig[1].timerdef.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
       timerConfig[1].IRQ_Id = TIM7_IRQn;
       timerConfig[1].callback = (uint32_t)TC7_Handler;
@@ -103,52 +103,48 @@ void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
     timers_initialised[timer_num] = true;
   }
 
-  timerConfig[timer_num].timerdef.Init.Period =  ((HAL_TIMER_RATE / timerConfig[timer_num].timerdef.Init.Prescaler) / (frequency)) - 1;
+  timerConfig[timer_num].timerdef.Init.Period = (((HAL_TIMER_RATE) / timerConfig[timer_num].timerdef.Init.Prescaler) / frequency) - 1;
 
-  if(HAL_TIM_Base_Init(&timerConfig[timer_num].timerdef)  == HAL_OK ){
+  if (HAL_TIM_Base_Init(&timerConfig[timer_num].timerdef) == HAL_OK)
     HAL_TIM_Base_Start_IT(&timerConfig[timer_num].timerdef);
-  } 
-
 }
 
 //forward the interrupt
-extern "C" void TIM5_IRQHandler()
-{
-    ((void(*)(void))timerConfig[0].callback)();
+extern "C" void TIM5_IRQHandler() {
+  ((void(*)(void))timerConfig[0].callback)();
 }
-extern "C" void TIM7_IRQHandler()
-{
-    ((void(*)(void))timerConfig[1].callback)();
+extern "C" void TIM7_IRQHandler() {
+  ((void(*)(void))timerConfig[1].callback)();
 }
 
-void HAL_timer_set_count (uint8_t timer_num, uint32_t count) {
+void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
   __HAL_TIM_SetAutoreload(&timerConfig[timer_num].timerdef, count);
 }
 
-void HAL_timer_set_current_count (uint8_t timer_num, uint32_t count) {
+void HAL_timer_set_current_count(const uint8_t timer_num, const uint32_t count) {
   __HAL_TIM_SetAutoreload(&timerConfig[timer_num].timerdef, count);
 }
 
-void HAL_timer_enable_interrupt (uint8_t timer_num) {
+void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   HAL_NVIC_EnableIRQ(timerConfig[timer_num].IRQ_Id);
 }
 
-void HAL_timer_disable_interrupt (uint8_t timer_num) {
+void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   HAL_NVIC_DisableIRQ(timerConfig[timer_num].IRQ_Id);
 }
 
-hal_timer_t HAL_timer_get_count (uint8_t timer_num) {
+hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return __HAL_TIM_GetAutoreload(&timerConfig[timer_num].timerdef);
 }
 
-uint32_t HAL_timer_get_current_count(uint8_t timer_num) {
+uint32_t HAL_timer_get_current_count(const uint8_t timer_num) {
   return __HAL_TIM_GetCounter(&timerConfig[timer_num].timerdef);
 }
 
-void HAL_timer_isr_prologue (uint8_t timer_num) {
+void HAL_timer_isr_prologue(const uint8_t timer_num) {
   if (__HAL_TIM_GET_FLAG(&timerConfig[timer_num].timerdef, TIM_FLAG_UPDATE) == SET) {
     __HAL_TIM_CLEAR_FLAG(&timerConfig[timer_num].timerdef, TIM_FLAG_UPDATE);
   }
 }
 
-#endif 
+#endif // STM32F7

@@ -41,7 +41,7 @@
 #elif defined(STM32F7)
   #include "HAL_STM32F7/spi_pins.h"
 
-	#else
+#else
   #error "Unsupported Platform!"
 #endif
 

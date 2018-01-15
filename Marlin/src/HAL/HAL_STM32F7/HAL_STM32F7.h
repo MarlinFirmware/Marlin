@@ -57,7 +57,7 @@
   #error "SERIAL_PORT must be from -1 to 6"
 #endif
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB	
+  #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 SerialUART1
 #elif SERIAL_PORT == 2
@@ -79,7 +79,7 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == -1 
+  #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 SerialUART1
@@ -98,7 +98,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#define _BV(bit) 	(1 << (bit))
+#define _BV(bit) (1 << (bit))
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -107,7 +107,7 @@
   #define analogInputToDigitalPin(p) (p)
 #endif
 
-#define CRITICAL_SECTION_START	noInterrupts();
+#define CRITICAL_SECTION_START  noInterrupts();
 #define CRITICAL_SECTION_END    interrupts();
 
 // On AVR this is in math.h?

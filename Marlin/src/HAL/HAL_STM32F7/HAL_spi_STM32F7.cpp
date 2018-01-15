@@ -82,20 +82,17 @@ void spiBegin(void) {
   #if !PIN_EXISTS(SS)
     #error SS_PIN not defined!
   #endif
- 
+
   SET_OUTPUT(SS_PIN);
   WRITE(SS_PIN, HIGH);
-  
 }
-
-
 
 /** Configure SPI for specified SPI speed */
 void spiInit(uint8_t spiRate) {
   // Use datarates Marlin uses
   uint32_t clock;
   switch (spiRate) {
-  case SPI_FULL_SPEED:    clock = 20000000; break;	//13.9mhz=20000000	6.75mhz=10000000	3.38mhz=5000000	.833mhz=1000000
+  case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
   case SPI_HALF_SPEED:    clock =  5000000; break;
   case SPI_QUARTER_SPEED: clock =  2500000; break;
   case SPI_EIGHTH_SPEED:  clock =  1250000; break;
@@ -107,8 +104,6 @@ void spiInit(uint8_t spiRate) {
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
   SPI.begin();
 }
-
-
 
 /**
  * @brief  Receives a single byte from the SPI port.
@@ -133,8 +128,6 @@ uint8_t spiRec(void) {
  *
  * @details Uses DMA
  */
-
-
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
@@ -162,16 +155,12 @@ void spiSend(uint8_t b) {
  *
  * @details Use DMA
  */
- 
-
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
   SPI.endTransaction();
 }
-
-
 
 #endif // SOFTWARE_SPI
 

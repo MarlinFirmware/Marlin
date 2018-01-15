@@ -18,7 +18,7 @@
  */
 
 #ifdef STM32F7
- 
+
 /**
  * Description: functions for I2C connected external EEPROM.
  * Not platform dependent.

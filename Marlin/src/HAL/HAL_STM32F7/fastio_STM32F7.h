@@ -26,10 +26,10 @@
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
-#ifndef	_FASTIO_STM32F7_H
-#define	_FASTIO_STM32F7_H
+#ifndef _FASTIO_STM32F7_H
+#define _FASTIO_STM32F7_H
 
-#define _BV(bit) 	(1 << (bit))
+#define _BV(bit) (1 << (bit))
 
 #define READ(IO)              digitalRead(IO)
 #define WRITE(IO, v)          digitalWrite(IO,v)
@@ -38,17 +38,17 @@
 
 #define _GET_MODE(IO)
 #define _SET_MODE(IO,M)       pinMode(IO, M)
-#define _SET_OUTPUT(IO)       pinMode(IO, OUTPUT)								/*!< Output Push Pull Mode & GPIO_NOPULL   */
+#define _SET_OUTPUT(IO)       pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
 
-#define SET_INPUT(IO)         _SET_MODE(IO, INPUT)								/*!< Input Floating Mode                   */
-#define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, INPUT_PULLUP)						/*!< Input with Pull-up activation         */
-#define SET_INPUT_PULLDOW(IO) _SET_MODE(IO, INPUT_PULLDOWN)						/*!< Input with Pull-down activation       */
-#define SET_OUTPUT(IO)        do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)	
+#define SET_INPUT(IO)         _SET_MODE(IO, INPUT)                              /*!< Input Floating Mode                   */
+#define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
+#define SET_INPUT_PULLDOW(IO) _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
+#define SET_OUTPUT(IO)        do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
 
-#define GET_INPUT(IO)         
-#define GET_OUTPUT(IO)        
-#define GET_TIMER(IO)         
+#define GET_INPUT(IO)
+#define GET_OUTPUT(IO)
+#define GET_TIMER(IO)
 
 #define OUT_WRITE(IO, v) { _SET_OUTPUT(IO); WRITE(IO, v); }
 
-#endif	/* _FASTIO_STM32F7_H */
+#endif // _FASTIO_STM32F7_H

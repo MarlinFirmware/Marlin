@@ -20,8 +20,6 @@
  *
  */
 
-
-
 #ifndef _HAL_TIMERS_STM32F7_H
 #define _HAL_TIMERS_STM32F7_H
 
@@ -35,16 +33,15 @@
 // Defines
 // --------------------------------------------------------------------------
 
-
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define hal_timer_t uint32_t	//hal_timer_t uint32_t		//TODO: One is 16-bit, one 32-bit - does this need to be checked?
-#define HAL_TIMER_TYPE_MAX 0xFFFF	
+#define hal_timer_t uint32_t  // TODO: One is 16-bit, one 32-bit - does this need to be checked?
+#define HAL_TIMER_TYPE_MAX 0xFFFF
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
 
-#define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq()/2)  // frequency of timer peripherals
+#define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq() / 2)  // frequency of timer peripherals
 #define STEPPER_TIMER_PRESCALE 54            // was 40,prescaler for setting stepper timer, 2Mhz
 #define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
@@ -55,11 +52,11 @@
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt (STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt (STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt (TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt (TEMP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
 #define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 // TODO change this
@@ -86,27 +83,23 @@ typedef struct {
 
 //extern const tTimerConfig timerConfig[];
 
-
-
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
 
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
-void HAL_timer_enable_interrupt(uint8_t timer_num);
-void HAL_timer_disable_interrupt(uint8_t timer_num);
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
+void HAL_timer_enable_interrupt(const uint8_t timer_num);
+void HAL_timer_disable_interrupt(const uint8_t timer_num);
 
+void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count);
+hal_timer_t HAL_timer_get_count(const uint8_t timer_num);
+uint32_t HAL_timer_get_current_count(const uint8_t timer_num);
 
-
-void HAL_timer_set_count (uint8_t timer_num, uint32_t count);
-hal_timer_t HAL_timer_get_count (uint8_t timer_num);
-uint32_t HAL_timer_get_current_count(uint8_t timer_num);
-
-void HAL_timer_set_current_count (uint8_t timer_num, uint32_t count);		//New
+void HAL_timer_set_current_count(const uint8_t timer_num, const uint32_t count); // New
 /*FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
   // To do ??
 }*/
 
-void HAL_timer_isr_prologue (uint8_t timer_num);
+void HAL_timer_isr_prologue(const uint8_t timer_num);
 
 #endif // _HAL_TIMERS_STM32F7_H
