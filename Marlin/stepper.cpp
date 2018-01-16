@@ -733,11 +733,8 @@ void Stepper::isr() {
 
     #endif // LIN_ADVANCE
   }
-  else if (step_events_completed >= (uint32_t)current_block->decelerate_after && current_block->step_event_count != (uint32_t)current_block->decelerate_after) {
+  else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
     uint16_t step_rate;
-    // If we are entering the deceleration phase for the first time, we have to see how long we have been decelerating up to now. Equals last acceleration time interval.
-    if (!deceleration_time)
-      deceleration_time = calc_timer_interval(acc_step_rate);
     MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
     if (step_rate < acc_step_rate) { // Still decelerating?
