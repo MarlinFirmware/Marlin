@@ -70,6 +70,21 @@ typedef struct LEDColor {
       #endif
     #endif
   {}
+  LEDColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
+    #if HAS_WHITE_LED
+      , w(rgbw[3])
+      #if ENABLED(NEOPIXEL_LED)
+        , i(NEOPIXEL_BRIGHTNESS)
+      #endif
+    #endif
+  {}
+  LEDColor& operator=(const uint8_t (&rgbw)[4]) {
+    r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
+    #if HAS_WHITE_LED
+      w = rgbw[3];
+    #endif
+    return *this;
+  }
   LEDColor& operator=(const LEDColor &right) {
     if (this != &right) memcpy(this, &right, sizeof(LEDColor));
     return *this;

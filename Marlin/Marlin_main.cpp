@@ -10608,26 +10608,44 @@ inline void gcode_M907() {
 #endif // HAS_MICROSTEPS
 
 #if HAS_CASE_LIGHT
+
   #ifndef INVERT_CASE_LIGHT
     #define INVERT_CASE_LIGHT false
   #endif
   uint8_t case_light_brightness;  // LCD routine wants INT
   bool case_light_on;
 
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+    LEDColor case_light_color =
+      #ifdef CASE_LIGHT_NEOPIXEL_COLOR
+        CASE_LIGHT_NEOPIXEL_COLOR
+      #else
+        { 255, 255, 255, 255 }
+      #endif
+    ;
+  #endif
+
   void update_case_light() {
-    pinMode(CASE_LIGHT_PIN, OUTPUT); // digitalWrite doesn't set the port mode
-    if (case_light_on) {
+    const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
+
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+
+      leds.set_color(
+        MakeLEDColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
+        false
+      );
+
+    #else // !CASE_LIGHT_USE_NEOPIXEL
+
+      SET_OUTPUT(CASE_LIGHT_PIN);
       if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
-        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 - case_light_brightness : case_light_brightness);
-      else
-        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? LOW : HIGH);
-    }
-    else {
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
-        analogWrite(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? 255 : 0);
-      else
-        WRITE(CASE_LIGHT_PIN, INVERT_CASE_LIGHT ? HIGH : LOW);
-    }
+        analogWrite(CASE_LIGHT_PIN, n10ct);
+      else {
+        const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
+        WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
+      }
+
+    #endif // !CASE_LIGHT_USE_NEOPIXEL
   }
 #endif // HAS_CASE_LIGHT
 

@@ -1621,6 +1621,10 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "LED_CONTROL_MENU requires an LCD controller."
 #endif
 
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL) && DISABLED(NEOPIXEL_LED)
+  #error "CASE_LIGHT_USE_NEOPIXEL requires NEOPIXEL_LED."
+#endif
+
 #if ENABLED(SKEW_CORRECTION)
   #if !defined(XY_SKEW_FACTOR) && !(defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD))
     #error "SKEW_CORRECTION requires XY_SKEW_FACTOR or XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD."
