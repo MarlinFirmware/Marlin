@@ -606,7 +606,7 @@ static void lcd_implementation_status_screen() {
 
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
-      bool has_days = (elapsed.value > 60*60*24L);
+      bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
       u8g.setPrintPos(SD_DURATION_X, 48);
       lcd_print(buffer);
