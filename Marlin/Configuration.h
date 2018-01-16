@@ -181,7 +181,7 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 
 /**
  * Extra movement of X axis. Can help with probing more of the bed.
