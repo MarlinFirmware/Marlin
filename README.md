@@ -9,7 +9,7 @@ For complete Marlin documentation click over to the [Marlin Homepage <marlinfw.o
 
 ## Stable Release Branch
 
-This Release branch contains the latest tagged version of Marlin (currently 1.1.6 – October 2017).
+This Release branch contains the latest tagged version of Marlin (currently 1.1.8 – December 2017).
 
 Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/Marlin/tree/1.0.2-2) (December 2016) and [1.0.1](https://github.com/MarlinFirmware/Marlin/tree/1.0.1) (December 2014). Any version of Marlin prior to 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
 
@@ -17,26 +17,15 @@ Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/
 
 Click on the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues) and [Pull Requests](https://github.com/MarlinFirmware/Marlin/pulls) links above at any time to see what we're currently working on.
 
-Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.7.)
+To submit patches and new features for Marlin 1.1 check out the [bugfix-1.1.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-1.1.x) branch, add your commits, and submit a Pull Request back to the `bugfix-1.1.x` branch. Periodically that branch will form the basis for the next minor release.
 
-## Recent Changes
-- Internally always use native machine space
-- Initial UBL LCD Menu
-- New optimized G-code parser singleton
-- Initial `M3`/`M4`/`M5` Spindle and Laser support
-- Added `M421 Q` to offset a mesh point
-- Refinements to `G26` and `G33`
-- Added `M80 S` to query the power state
-- "Cancel Print" now shuts off heaters
-- Added `EXTRAPOLATE_BEYOND_GRID` option for mesh-based leveling
+Note that our "bugfix" branch will always contain the latest patches to the current release version. These patches may not be widely tested. As always, when using "nightly" builds of Marlin, proceed with full caution.
 
 ## Current Status: In Development
 
 Marlin development has reached an important milestone with its first stable release in over 2 years. During this period we focused on cleaning up the code and making it more modern, consistent, readable, and sensible.
 
-- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 1.1.x life-cycle. We've opted for a simplified branch structure while we work on the maintainability and encapsulation of code modules. Version 2.0 and beyond should improve on separation of bug fixes and cutting-edge development.
-- Follow the proper coding style to gain points with the maintainers. See our [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) page for more information.
-- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues). The "naive" question is often the one we forget to ask.
+## Future Development
 
 Marlin 1.1 is the last "flat" version of Marlin!
 
@@ -81,6 +70,7 @@ Notable contributors include:
  - [[@android444](https://github.com/android444)]
  - [[@benlye](https://github.com/benlye)]
  - [[@bgort](https://github.com/bgort)]
+ - [[@ejtagle](https://github.com/ejtagle)]
  - [[@Grogyan](https://github.com/Grogyan)]
  - [[@marcio-ao](https://github.com/marcio-ao)]
  - [[@maverikou](https://github.com/maverikou)]
