@@ -895,6 +895,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   #endif
 
   #if EXTRUDERS
+<<<<<<< HEAD
 
     // Enable extruder(s)
     if (esteps) {
@@ -906,6 +907,19 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
         for (uint8_t i = 0; i < EXTRUDERS; i++)
           if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
+=======
+
+    // Enable extruder(s)
+    if (esteps) {
+
+      #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+
+        #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
+
+        for (uint8_t i = 0; i < EXTRUDERS; i++)
+          if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
+
+>>>>>>> b3ee97335a3f8f87541b0654c76556e7acd73daf
         switch(extruder) {
           case 0:
             enable_E0();
