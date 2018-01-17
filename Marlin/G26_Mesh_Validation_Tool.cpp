@@ -166,7 +166,7 @@
       if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
       lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
       #if ENABLED(ULTIPANEL)
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
       #endif
       wait_for_release();
       return true;
@@ -280,7 +280,7 @@
         strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
                                                             // So... We cheat to get a message up.
         lcd_setstatusPGM(PSTR("Done Priming"), 99);
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
         lcd_external_control = false;
       }
       else
@@ -288,7 +288,7 @@
     {
       #if ENABLED(ULTRA_LCD)
         lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
       #endif
       set_destination_from_current();
       destination[E_AXIS] += g26_prime_length;
@@ -483,7 +483,7 @@
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
           lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
-          lcd_quick_feedback();
+          lcd_quick_feedback(true);
           lcd_external_control = true;
       #endif
           thermalManager.setTargetBed(g26_bed_temp);
@@ -503,7 +503,7 @@
       #if ENABLED(ULTRA_LCD)
         }
         lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
       #endif
     #endif
 
@@ -525,7 +525,7 @@
 
     #if ENABLED(ULTRA_LCD)
       lcd_reset_status();
-      lcd_quick_feedback();
+      lcd_quick_feedback(true);
     #endif
 
     return G26_OK;
