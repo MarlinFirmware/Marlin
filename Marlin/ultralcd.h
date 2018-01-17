@@ -95,7 +95,7 @@
 
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
-    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
