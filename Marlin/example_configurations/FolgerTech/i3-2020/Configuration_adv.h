@@ -1562,7 +1562,7 @@
  * Fully assembled MAX7219 boards can be found on the internet for under $2(US).
  * For example, see https://www.ebay.com/sch/i.html?_nkw=332349290049
  */
-//#define MAX7219_DEBUG
+#define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
 //#define MAX7219_CLK_PIN   64  // on RAMPS       // Configuration of the 3 pins to control the display
 //#define MAX7219_DIN_PIN   57  // on RAMPS

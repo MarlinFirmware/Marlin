@@ -32,6 +32,7 @@
   #include "stepper.h"
   #include "planner.h"
   #include "gcode.h"
+  #include "serial.h"
   #include "bitmap_flags.h"
 
   #include <math.h>
@@ -451,10 +452,8 @@
               SERIAL_PROTOCOL(g29_y_pos);
               SERIAL_PROTOCOLLNPGM(").\n");
             }
-SERIAL_ECHO("Going into probe_entire_mesh()\n");
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
-SERIAL_ECHO("Back from probe_entire_mesh()\n");
             break;
 
         #endif // HAS_BED_PROBE
@@ -579,7 +578,6 @@ SERIAL_ECHO("Back from probe_entire_mesh()\n");
 
         case 6: shift_mesh_height(); break;
       }
-SERIAL_ECHO("at end of if (parser.seen('P')) {\n");
     }
 
     //
@@ -796,7 +794,9 @@ SERIAL_ECHO("at end of if (parser.seen('P')) {\n");
           const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
-
+        MYSERIAL.flush();  // G29 P2's take a long time to complete.   PronterFace can
+                           // over run the serial character buffer with M105's without
+                           // this fix
       } while (location.x_index >= 0 && --max_iterations);
 
       STOW_PROBE();
@@ -1037,6 +1037,9 @@ SERIAL_ECHO("at end of if (parser.seen('P')) {\n");
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
           SERIAL_EOL();
         }
+        MYSERIAL.flush();  // G29 P2's take a long time to complete.   PronterFace can
+                           // over run the serial character buffer with M105's without
+                           // this fix
       } while (location.x_index >= 0 && location.y_index >= 0);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
@@ -1548,6 +1551,9 @@ SERIAL_ECHO("at end of if (parser.seen('P')) {\n");
             do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
+          MYSERIAL.flush();  // G29 P2's take a long time to complete.   PronterFace can
+                             // over run the serial character buffer with M105's without
+                             // this fix
         } while (!is_lcd_clicked());
 
         if (!lcd_map_control) lcd_return_to_status();

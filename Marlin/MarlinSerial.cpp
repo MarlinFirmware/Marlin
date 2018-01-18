@@ -385,7 +385,7 @@
     // reading rx_buffer_head and updating rx_buffer_tail, the previous rx_buffer_head
     // may be written to rx_buffer_tail, making the buffer appear full rather than empty.
     CRITICAL_SECTION_START;
-      rx_buffer.head = rx_buffer.tail;
+      rx_buffer.head = rx_buffer.tail = 0;
     CRITICAL_SECTION_END;
 
     #if ENABLED(SERIAL_XON_XOFF)
