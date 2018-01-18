@@ -28,6 +28,8 @@
 
 #include "../HAL.h"
 #include <rom/rtc.h>
+#include <driver/adc.h>
+#include <esp_adc_cal.h>
 
 // --------------------------------------------------------------------------
 // Externals
@@ -36,6 +38,8 @@
 // --------------------------------------------------------------------------
 // Local defines
 // --------------------------------------------------------------------------
+
+#define V_REF 1100
 
 // --------------------------------------------------------------------------
 // Types
@@ -54,6 +58,8 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
+
+esp_adc_cal_characteristics_t characteristics;
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -85,12 +91,30 @@ int freeMemory() {
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
+#define ADC1_CHANNEL(pin) ADC1_GPIO##pin_CHANNEL
+
+adc1_channel_t get_channel(int pin) {
+  switch (pin) {
+    case 36: return ADC1_GPIO36_CHANNEL;
+    case 39: return ADC1_GPIO39_CHANNEL;
+  }
+
+  return ADC1_CHANNEL_MAX;
+}
 
 void HAL_adc_init() {
+  // Configure ADC
+  adc1_config_width(ADC_WIDTH_12Bit);
+  adc1_config_channel_atten(get_channel(36), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(39), ADC_ATTEN_11db);
+
+  // Calculate ADC characteristics i.e. gain and offset factors
+  esp_adc_cal_get_characteristics(V_REF, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, &characteristics);
 }
 
 void HAL_adc_start_conversion (uint8_t adc_pin) {
-  HAL_adc_result = analogRead(adc_pin);
+  uint32_t mv = adc1_to_voltage(get_channel(adc_pin), &characteristics);
+  HAL_adc_result = mv*1023.0/3300.0;
 }
 
 int pin_to_channel[40] = {};
