@@ -68,6 +68,8 @@
     uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
   #endif
 
+  void clear_command_queue();
+
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     uint8_t rx_dropped_bytes = 0;
   #endif
@@ -386,6 +388,7 @@
     // may be written to rx_buffer_tail, making the buffer appear full rather than empty.
     CRITICAL_SECTION_START;
       rx_buffer.head = rx_buffer.tail = 0;
+      clear_command_queue();
     CRITICAL_SECTION_END;
 
     #if ENABLED(SERIAL_XON_XOFF)
