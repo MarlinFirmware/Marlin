@@ -437,6 +437,9 @@ inline bool turn_on_heaters() {
             SERIAL_EOL();
           }
           idle();
+          MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
+                             // over run the serial character buffer with M105's without
+                             // this fix
         }
     #if ENABLED(ULTRA_LCD)
       }
@@ -459,6 +462,10 @@ inline bool turn_on_heaters() {
       SERIAL_EOL();
     }
     idle();
+
+    MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
+                       // over run the serial character buffer with M105's without
+                       // this fix
   }
 
   #if ENABLED(ULTRA_LCD)
@@ -680,12 +687,12 @@ void GcodeSuite::G26() {
   set_bed_leveling_enabled(!parser.seen('D'));
 
   if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
-SERIAL_PROTOCOLLNPGM("! move nozzle to Z_CLEARANCE_BETWEEN_PROBES height.");
-SERIAL_ECHOLNPAIR("  Z at:", current_position[Z_AXIS]);
+//  SERIAL_PROTOCOLLNPGM("! move nozzle to Z_CLEARANCE_BETWEEN_PROBES height.");
+//  SERIAL_ECHOLNPAIR("  Z at:", current_position[Z_AXIS]);
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     stepper.synchronize();
     set_current_from_destination();
-SERIAL_ECHOLNPAIR("  Z now at:", current_position[Z_AXIS]);
+//  SERIAL_ECHOLNPAIR("  Z now at:", current_position[Z_AXIS]);
   }
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
@@ -711,14 +718,14 @@ SERIAL_ECHOLNPAIR("  Z now at:", current_position[Z_AXIS]);
 
   // Move nozzle to the specified height for the first layer
   set_destination_from_current();
-SERIAL_PROTOCOLLNPGM("! moving nozzle to 1st layer height.");
-SERIAL_ECHOLNPAIR("  Z1 at:", current_position[Z_AXIS]);
+//SERIAL_PROTOCOLLNPGM("! moving nozzle to 1st layer height.");
+//SERIAL_ECHOLNPAIR("  Z1 at:", current_position[Z_AXIS]);
 
   destination[Z_AXIS] = g26_layer_height;
   move_to(destination, 0.0);
-  stepper.synchronize();
-  set_destination_from_current();
-SERIAL_ECHOLNPAIR("  Z2 at:", current_position[Z_AXIS]);
+//stepper.synchronize();
+//set_destination_from_current();
+//SERIAL_ECHOLNPAIR("  Z2 at:", current_position[Z_AXIS]);
   move_to(destination, g26_ooze_amount);
 
   #if ENABLED(ULTRA_LCD)
@@ -823,11 +830,17 @@ SERIAL_ECHOLNPAIR("  Z2 at:", current_position[Z_AXIS]);
         //}
 
         print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
+        MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
+                           // over run the serial character buffer with M105's without
+                           // this fix
 
       }
       if (look_for_lines_to_connect())
         goto LEAVE;
     }
+    MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
+                       // over run the serial character buffer with M105's without
+                       // this fix
   } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
   LEAVE:
