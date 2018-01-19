@@ -36,6 +36,7 @@
   #include "../../../module/planner.h"
   #include "../../../module/probe.h"
   #include "../../../gcode/gcode.h"
+  #include "../../../core/serial.h"
   #include "../../../gcode/parser.h"
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "../../../libs/least_squares_fit.h"
@@ -59,8 +60,6 @@
 
   extern float meshedit_done;
   extern long babysteps_done;
-  //extern bool set_probe_deployed(bool);
-  //extern void set_bed_leveling_enabled(bool);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -720,7 +719,7 @@
           }
         }
       }
-      safe_delay(5);
+      safe_delay(15);
       return false;
     }
 
@@ -754,6 +753,7 @@
             while (is_lcd_clicked()) idle();
             lcd_external_control = false;
             restore_ubl_active_state_and_leave();
+            lcd_quick_feedback(true);
             safe_delay(50);  // Debounce the Encoder wheel
             return;
           }
@@ -771,6 +771,9 @@
           const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
+        MYSERIAL0.flush(); // G29 P2's take a long time to complete.   PronterFace can
+                           // over run the serial character buffer with M105's without
+                           // this fix
 
       } while (location.x_index >= 0 && --max_iterations);
 
@@ -853,6 +856,7 @@
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
       lcd_external_control = false;
       KEEPALIVE_STATE(IN_HANDLER);
+      lcd_quick_feedback(true);
       ubl.restore_ubl_active_state_and_leave();
     }
 
@@ -908,9 +912,12 @@
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
           SERIAL_EOL();
         }
+        MYSERIAL0.flush(); // G29 P2's take a long time to complete.   PronterFace can
+                           // over run the serial character buffer with M105's without
+                           // this fix
       } while (location.x_index >= 0 && location.y_index >= 0);
 
-      if (do_ubl_mesh_map) display_map(g29_map_type);
+      if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       restore_ubl_active_state_and_leave();
       KEEPALIVE_STATE(IN_HANDLER);
@@ -1035,12 +1042,12 @@
 
   static uint8_t ubl_state_at_invocation = 0;
 
-  #ifdef UBL_DEVEL_DEBUGGING
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
     static uint8_t ubl_state_recursion_chk = 0;
   #endif
 
   void unified_bed_leveling::save_ubl_active_state_and_disable() {
-    #ifdef UBL_DEVEL_DEBUGGING
+    #if ENABLED(UBL_DEVEL_DEBUGGING)
       ubl_state_recursion_chk++;
       if (ubl_state_recursion_chk != 1) {
         SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
@@ -1056,7 +1063,7 @@
   }
 
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
-    #ifdef UBL_DEVEL_DEBUGGING
+    #if ENABLED(UBL_DEVEL_DEBUGGING)
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
         #if ENABLED(NEWPANEL)
@@ -1110,11 +1117,12 @@
     SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);
     safe_delay(50);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
+    safe_delay(50);
     SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-    safe_delay(25);
+    safe_delay(50);
     SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
     SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
-    safe_delay(25);
+    safe_delay(50);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
@@ -1139,7 +1147,7 @@
     SERIAL_EOL();
     safe_delay(50);
 
-    #ifdef UBL_DEVEL_DEBUGGING
+    #if ENABLED(UBL_DEVEL_DEBUGGING)
       SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
       SERIAL_EOL();
       SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
@@ -1352,6 +1360,7 @@
       lcd_return_to_status();
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
       LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
+      lcd_quick_feedback(true);
     }
 
     void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {
@@ -1417,6 +1426,9 @@
             do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
+          MYSERIAL0.flush(); // G29 P2's take a long time to complete.   PronterFace can
+                             // over run the serial character buffer with M105's without
+                             // this fix
         } while (!is_lcd_clicked());
 
         if (!lcd_map_control) lcd_return_to_status();
@@ -1426,9 +1438,6 @@
         // Let's work on specifying a proper API for the LCD ASAP, OK?
         lcd_external_control = true;
 
-        // this sequence to detect an is_lcd_clicked() debounce it and leave if it is
-        // a Press and Hold is repeated in a lot of places (including G26_Mesh_Validation.cpp).   This
-        // should be redone and compressed.
         if (click_and_hold(abort_fine_tune))
           goto FINE_TUNE_EXIT;
 
