@@ -6508,6 +6508,7 @@ inline void gcode_M17() {
       #if ENABLED(ULTIPANEL)
         if (show_lcd) // Show status screen
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+          LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       #endif
 
       return false; // unable to reach safe temperature
@@ -10043,15 +10044,11 @@ inline void gcode_M502() {
     );
 
     // Lift Z axis
-    if (parser.seenval('Z'))
-      park_point.z = parser.linearval('Z');
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
     // Move XY axes to filament change position or given position
-    if (parser.seenval('X'))
-      park_point.x = parser.linearval('X');
-
-    if (parser.seenval('Y'))
-      park_point.y = parser.linearval('Y');
+    if (parser.seenval('X')) park_point.x = parser.linearval('X');
+    if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
     #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
       park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
