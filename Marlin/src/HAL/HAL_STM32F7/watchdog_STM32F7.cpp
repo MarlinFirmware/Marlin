@@ -20,38 +20,33 @@
  *
  */
 
-#include "../gcode.h"
-#include "../../module/configuration_store.h"
+#ifdef STM32F7
+
 #include "../../inc/MarlinConfig.h"
 
-/**
- * M500: Store settings in EEPROM
- */
-void GcodeSuite::M500() {
-  (void)settings.save();
-}
+#if ENABLED(USE_WATCHDOG)
 
-/**
- * M501: Read settings from EEPROM
- */
-void GcodeSuite::M501() {
-  (void)settings.load();
-}
+  #include "watchdog_STM32F7.h"
 
-/**
- * M502: Revert to default settings
- */
-void GcodeSuite::M502() {
-  (void)settings.reset();
-}
+  IWDG_HandleTypeDef hiwdg;
 
-#if DISABLED(DISABLE_M503)
-
-  /**
-   * M503: print settings currently in memory
-   */
-  void GcodeSuite::M503() {
-    (void)settings.report(parser.seen('S') && !parser.value_bool());
+  void watchdog_init() {
+    hiwdg.Instance = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_32; //32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
+    hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
+      //Error_Handler();
+    }
   }
 
-#endif // !DISABLE_M503
+  void watchdog_reset() {
+    /* Refresh IWDG: reload counter */
+    if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
+      /* Refresh Error */
+      //Error_Handler();
+    }
+  }
+
+#endif // USE_WATCHDOG
+
+#endif // STM32F7

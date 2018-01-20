@@ -64,9 +64,12 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
         c1 = z_values[x1][y1], c2 = z_values[x2][y2];
 
   // Treat far unprobed points as zero, near as equal to far
-  if (isnan(a2)) a2 = 0.0; if (isnan(a1)) a1 = a2;
-  if (isnan(b2)) b2 = 0.0; if (isnan(b1)) b1 = b2;
-  if (isnan(c2)) c2 = 0.0; if (isnan(c1)) c1 = c2;
+  if (isnan(a2)) a2 = 0.0;
+  if (isnan(a1)) a1 = a2;
+  if (isnan(b2)) b2 = 0.0;
+  if (isnan(b1)) b1 = b2;
+  if (isnan(c2)) c2 = 0.0;
+  if (isnan(c1)) c1 = c2;
 
   const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 

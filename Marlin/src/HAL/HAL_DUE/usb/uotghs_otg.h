@@ -136,17 +136,17 @@ void otg_dual_disable(void);
 	} while (0)
   //! Enable USB macro
 #define otg_enable()                        (Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_USBE))
-  //! Disable USB macro                     
+  //! Disable USB macro
 #define otg_disable()                       (Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_USBE))
 #define Is_otg_enabled()                    (Tst_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_USBE))
 
-  //! Enable OTG pad                        
+  //! Enable OTG pad
 #define otg_enable_pad()                    (Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_OTGPADE))
-  //! Disable OTG pad                       
+  //! Disable OTG pad
 #define otg_disable_pad()                   (Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_OTGPADE))
 #define Is_otg_pad_enabled()                (Tst_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_OTGPADE))
 
-  //! Check Clock Usable               
+  //! Check Clock Usable
   //! For parts with HS feature, this one corresponding at UTMI clock
 #define Is_otg_clock_usable()               (Tst_bits(UOTGHS->UOTGHS_SR, UOTGHS_SR_CLKUSABLE))
 

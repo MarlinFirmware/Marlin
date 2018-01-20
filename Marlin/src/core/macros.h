@@ -120,6 +120,7 @@
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
 #define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
+#define LIMIT(v,n1,n2) do{ if (v < n1) v = n1; else if (v > n2) v = n2; }while(0)
 
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__

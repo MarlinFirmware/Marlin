@@ -45,7 +45,7 @@
  */
 
 #ifdef ARDUINO_ARCH_SAM
- 
+
 #include "sysclk.h"
 
 /// @cond 0

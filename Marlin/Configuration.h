@@ -91,6 +91,10 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
+
+// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+//#define CUSTOM_STATUS_SCREEN_IMAGE
+
 // @section machine
 
 /**
@@ -101,6 +105,15 @@
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 #define SERIAL_PORT 0
+
+/**
+ * Select a secondary serial port on the board to use for communication with the host.
+ * This allows the connection of wireless adapters (for instance) to non-default port pins.
+ * Serial port -1 is the USB emulated serial port, if avaialble.
+ *
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
+#define SERIAL_PORT_2 -1
 
 /**
  * This setting determines the communication speed of the printer.
@@ -253,7 +266,7 @@
  *     2 : 200k thermistor - ATC Semitec 204GT-2 (4.7k pullup)
  *     3 : Mendel-parts thermistor (4.7k pullup)
  *     4 : 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
- *     5 : 100K thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (4.7k pullup)
+ *     5 : 100K thermistor - ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan & J-Head) (4.7k pullup)
  *     6 : 100k EPCOS - Not as accurate as table 1 (created using a fluke thermocouple) (4.7k pullup)
  *     7 : 100k Honeywell thermistor 135-104LAG-J01 (4.7k pullup)
  *    71 : 100k Honeywell thermistor 135-104LAF-J01 (4.7k pullup)
@@ -1633,12 +1646,11 @@
 //#define CR10_STOCKDISPLAY
 
 //
-// MKS OLED 1.3" 128x64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
 // http://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
-// If there is a pixel shift, try the other controller.
-
+//
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 

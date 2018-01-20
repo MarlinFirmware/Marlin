@@ -159,6 +159,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
+void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
@@ -196,15 +197,6 @@ extern millis_t max_inactive_time, stepper_inactive_time;
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];
   #endif
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  enum AdvancedPauseMenuResponse {
-    ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
-    ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
-    ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
-  };
-  extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)

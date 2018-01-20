@@ -29,6 +29,10 @@
 
   #include "../Marlin.h"
 
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #include "../feature/pause.h"
+  #endif
+
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     extern bool lcd_external_control;
   #else
@@ -80,8 +84,8 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    extern uint16_t lcd_contrast;
-    void set_lcd_contrast(const uint16_t value);
+    extern int16_t lcd_contrast;
+    void set_lcd_contrast(const int16_t value);
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
@@ -112,24 +116,15 @@
 
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
-    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      enum AdvancedPauseMessage {
-        ADVANCED_PAUSE_MESSAGE_INIT,
-        ADVANCED_PAUSE_MESSAGE_UNLOAD,
-        ADVANCED_PAUSE_MESSAGE_INSERT,
-        ADVANCED_PAUSE_MESSAGE_LOAD,
-        ADVANCED_PAUSE_MESSAGE_EXTRUDE,
-        ADVANCED_PAUSE_MESSAGE_OPTION,
-        ADVANCED_PAUSE_MESSAGE_RESUME,
-        ADVANCED_PAUSE_MESSAGE_STATUS,
-        ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
-        ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
-      };
-      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
-    #endif
+      extern uint8_t active_extruder;
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
+                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+                                           const uint8_t extruder=active_extruder);
+    #endif // ADVANCED_PAUSE_FEATURE
 
     #if ENABLED(G26_MESH_VALIDATION)
       void lcd_chirp();

@@ -45,7 +45,7 @@
  */
 
 #ifdef ARDUINO_ARCH_SAM
- 
+
 #include "conf_usb.h"
 #include "usb_protocol.h"
 #include "udd.h"

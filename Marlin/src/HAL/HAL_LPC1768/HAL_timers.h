@@ -58,6 +58,8 @@ typedef uint32_t hal_timer_t;
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
@@ -65,6 +67,11 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_STEP_TIMER_ISR  extern "C" void TIMER0_IRQHandler(void)
 #define HAL_TEMP_TIMER_ISR  extern "C" void TIMER1_IRQHandler(void)
+
+// PWM timer
+#define HAL_PWM_TIMER      LPC_TIM3
+#define HAL_PWM_TIMER_ISR  extern "C" void TIMER3_IRQHandler(void)
+#define HAL_PWM_TIMER_IRQn TIMER3_IRQn
 
 // --------------------------------------------------------------------------
 // Types
@@ -120,6 +127,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 
 #endif // _HAL_TIMERS_DUE_H

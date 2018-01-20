@@ -39,7 +39,6 @@ enum MeshLevelingState {
 
 class mesh_bed_leveling {
 public:
-  static bool has_mesh;
   static float z_offset,
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                index_to_xpos[GRID_MAX_POINTS_X],
@@ -47,7 +46,16 @@ public:
 
   mesh_bed_leveling();
 
+  static void report_mesh();
+
   static void reset();
+
+  FORCE_INLINE static bool has_mesh() {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        if (z_values[x][y]) return true;
+    return false;
+  }
 
   static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
@@ -105,15 +113,13 @@ public:
       #endif
     ;
   }
+
+  // Support functions, which may be embedded in the class later
+  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
+    void line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+  #endif
 };
 
 extern mesh_bed_leveling mbl;
-
-// Support functions, which may be embedded in the class later
-#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-  void mesh_line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
-#endif
-
-void mbl_mesh_report();
 
 #endif // _MESH_BED_LEVELING_H_
