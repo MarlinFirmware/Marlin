@@ -411,8 +411,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-          //print_heaterstates();
-          //SERIAL_EOL();
+          print_heaterstates();
+          SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
 
@@ -2200,7 +2200,7 @@ void Temperature::isr() {
       SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
       SERIAL_PROTOCOLCHAR(')');
     #endif
-    safe_delay(2);
+    delay(2);       // Don't use safe_delay because it breaks PID_autotune
   }
 
   extern uint8_t target_extruder;
