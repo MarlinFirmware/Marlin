@@ -94,8 +94,11 @@ bool GcodeSuite::get_target_extruder_from_command() {
 void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
-      const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
-      destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
+      const float v = parser.value_axis_units((AxisEnum)i);
+      if (axis_relative_modes[i] || relative_mode)
+        destination[i] = (current_position[i] + v);
+      else
+        destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
