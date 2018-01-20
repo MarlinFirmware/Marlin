@@ -28,9 +28,12 @@ before_install:
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
 
 install:
-  - pip install -U platformio
+  #- pip install -U platformio
+  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
 
 before_script:
+  # Update PlatformIO packages
+  - platformio update
   #
   # Change current working directory to the build dir
   - cd ${TRAVIS_BUILD_DIR}
@@ -122,7 +125,7 @@ script:
   - opt_enable ULTIMAKERCONTROLLER SDSUPPORT
   - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632 USE_XMAX_PLUG
   - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
-  - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
+  - opt_enable_adv ADVANCED_PAUSE_FEATURE FILAMENT_LOAD_UNLOAD_GCODES PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
   - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
@@ -434,4 +437,13 @@ script:
   - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
   - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
   - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # Enable VIKI2, SDSUPPORT
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - opt_enable VIKI2 SDSUPPORT
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

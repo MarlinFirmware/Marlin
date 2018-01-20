@@ -174,14 +174,14 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
 /**
  * \page udi_msc_quickstart Quick start guide for USB device Mass Storage module (UDI MSC)
  *
- * This is the quick start guide for the \ref udi_msc_group 
- * "USB device interface MSC module (UDI MSC)" with step-by-step instructions on 
+ * This is the quick start guide for the \ref udi_msc_group
+ * "USB device interface MSC module (UDI MSC)" with step-by-step instructions on
  * how to configure and use the modules in a selection of use cases.
  *
  * The use cases contain several code fragments. The code fragments in the
  * steps for setup can be copied into a custom initialization function, while
  * the steps for usage can be copied into, e.g., the main application function.
- * 
+ *
  * \section udi_msc_basic_use_case Basic use case
  * In this basic use case, the "USB MSC (Single Interface Device)" module is used.
  * The "USB MSC (Composite Device)" module usage is described in \ref udi_msc_use_cases
@@ -246,7 +246,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *   - \code #define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
 	extern bool my_callback_msc_enable(void); \endcode
  *     \note After the device enumeration (detecting and identifying USB devices),
- *     the USB host starts the device configuration. When the USB MSC interface 
+ *     the USB host starts the device configuration. When the USB MSC interface
  *     from the device is accepted by the host, the USB host enables this interface and the
  *     UDI_MSC_ENABLE_EXT() callback function is called and return true.
  *     Thus, when this event is received, the tasks which call
@@ -256,7 +256,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *     \note When the USB device is unplugged or is reset by the USB host, the USB
  *     interface is disabled and the UDI_MSC_DISABLE_EXT() callback function
  *     is called. Thus, it is recommended to disable the task which is called udi_msc_process_trans().
- * -# The MSC is automatically linked with memory control access component 
+ * -# The MSC is automatically linked with memory control access component
  * which provides the memories interfaces. However, the memory data transfers
  * must be done outside USB interrupt routine. This is done in the MSC process
  * ("udi_msc_process_trans()") called by main loop:
@@ -288,7 +288,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * In this use case, the "USB MSC (Composite Device)" module is used to
  * create a USB composite device. Thus, this USB module can be associated with
  * another "Composite Device" module, like "USB HID Mouse (Composite Device)".
- * 
+ *
  * Also, you can refer to application note
  * <A href="http://www.atmel.com/dyn/resources/prod_documents/doc8445.pdf">
  * AVR4902 ASF - USB Composite Device</A>.

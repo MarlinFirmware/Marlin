@@ -193,6 +193,10 @@
   #include "pins_MELZI_MAKR3D.h"      // ATmega644P, ATmega1284P
 #elif MB(MELZI_CREALITY)
   #include "pins_MELZI_CREALITY.h"    // ATmega644P, ATmega1284P
+#elif MB(MELZI_MALYAN)
+  #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
+#elif MB(CREALITY_ENDER)
+  #include "pins_CREALITY_ENDER.h"    // ATmega1284P
 #elif MB(STB_11)
   #include "pins_STB_11.h"            // ATmega644P, ATmega1284P
 #elif MB(AZTEEG_X1)
@@ -335,6 +339,8 @@
   #include "pins_AZTEEG_X5_GT.h"
 #elif MB(BIQU_BQ111_A4)
   #include "pins_BIQU_BQ111_A4.h"
+#elif MB(THE_BORG)
+  #include "pins_THE_BORG.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

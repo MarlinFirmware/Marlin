@@ -198,9 +198,12 @@
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
+ * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
+ * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s> A<rod A trim mm> B<rod B trim mm> C<rod C trim mm> I<tower A trim angle> J<tower B trim angle> K<tower C trim angle>" (Requires DELTA)
  * M666 - Set delta endstop adjustment. (Requires DELTA)
- * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
+ * M701 - Load filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M702 - Unload filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
@@ -268,8 +271,8 @@ public:
     static WorkspacePlane workspace_plane;
   #endif
 
+  #define MAX_COORDINATE_SYSTEMS 9
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    #define MAX_COORDINATE_SYSTEMS 9
     static int8_t active_coordinate_system;
     static float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
     static bool select_coordinate_system(const int8_t _new);
@@ -678,6 +681,9 @@ private:
   #if DISABLED(DISABLE_M503)
     static void M503();
   #endif
+  #if ENABLED(EEPROM_SETTINGS)
+    static void M504();
+  #endif
 
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     static void M540();
@@ -685,6 +691,7 @@ private:
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
+    static void M603();
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
@@ -699,7 +706,8 @@ private:
     static void M666();
   #endif
 
-  #if ENABLED(MK2_MULTIPLEXER)
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+    static void M701();
     static void M702();
   #endif
 

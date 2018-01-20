@@ -25,20 +25,53 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
+
 class MarlinSettings {
   public:
     MarlinSettings() { }
 
-    static void reset();
-    static bool save();
+    static uint16_t datasize();
+
+    static void reset(
+      #if ADD_PORT_ARG
+        const int8_t port=-1
+      #endif
+    );
+    static bool save(
+      #if ADD_PORT_ARG
+        const int8_t port=-1
+      #endif
+    );   // Return 'true' if data was saved
+
+    FORCE_INLINE static bool init_eeprom() {
+      bool success = true;
+      reset();
+      #if ENABLED(EEPROM_SETTINGS)
+        success = save();
+        #if ENABLED(EEPROM_CHITCHAT)
+          if (success) report();
+        #endif
+      #endif
+      return success;
+    }
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool load();
+      static bool load(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      );     // Return 'true' if data was loaded ok
+      static bool validate(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      ); // Return 'true' if EEPROM data is ok
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
-        FORCE_INLINE static int16_t get_start_of_meshes() { return meshes_begin; }
-        FORCE_INLINE static int16_t get_end_of_meshes() { return meshes_end; }
+        static int16_t meshes_start_index();
+        FORCE_INLINE static int16_t meshes_end_index() { return meshes_end; }
         static uint16_t calc_num_meshes();
         static void store_mesh(const int8_t slot);
         static void load_mesh(const int8_t slot, void * const into=NULL);
@@ -52,7 +85,11 @@ class MarlinSettings {
     #endif
 
     #if DISABLED(DISABLE_M503)
-      static void report(const bool forReplay=false);
+      static void report(const bool forReplay=false
+        #if ADD_PORT_ARG
+          , const int8_t port=-1
+        #endif
+      );
     #else
       FORCE_INLINE
       static void report(const bool forReplay=false) { UNUSED(forReplay); }
@@ -62,16 +99,26 @@ class MarlinSettings {
     static void postprocess();
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool eeprom_error;
+
+      static bool eeprom_error, validating;
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
-        static int16_t meshes_begin;
         const static int16_t meshes_end = E2END - 128; // 128 is a placeholder for the size of the MAT; the MAT will always
                                                        // live at the very end of the eeprom
 
       #endif
 
+      static bool _load(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      );
+      static bool size_error(const uint16_t size
+        #if ADD_PORT_ARG
+          , const int8_t port=-1
+        #endif
+      );
     #endif
 };
 

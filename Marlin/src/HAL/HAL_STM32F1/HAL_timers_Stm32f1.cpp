@@ -93,7 +93,7 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
  * TODO: Calculate Timer prescale value, so we get the 32bit to adjust
  */
 
-void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   nvic_irq_num irq_num;
   switch (timer_num) {
     case 1: irq_num = NVIC_TIMER1_CC; break;
@@ -135,7 +135,7 @@ void HAL_timer_start(uint8_t timer_num, uint32_t frequency) {
   }
 }
 
-void HAL_timer_enable_interrupt(uint8_t timer_num) {
+void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
@@ -148,7 +148,7 @@ void HAL_timer_enable_interrupt(uint8_t timer_num) {
   }
 }
 
-void HAL_timer_disable_interrupt(uint8_t timer_num) {
+void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
@@ -159,6 +159,14 @@ void HAL_timer_disable_interrupt(uint8_t timer_num) {
     default:
       break;
   }
+}
+
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
+  switch (timer_num) {
+    case STEP_TIMER_NUM: return bool(TIM_DIER(STEP_TIMER_DEV) & STEP_TIMER_CHAN);
+    case TEMP_TIMER_NUM: return bool(TIM_DIER(TEMP_TIMER_DEV) & TEMP_TIMER_CHAN);
+  }
+  return false;
 }
 
 #endif // __STM32F1__

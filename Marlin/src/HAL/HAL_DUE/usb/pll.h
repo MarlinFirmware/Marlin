@@ -273,8 +273,8 @@ static inline int pll_wait_for_lock(unsigned int pll_id)
 	}
 
 	return 0;
-} 
- 
+}
+
 //! @}
 
 /// @cond 0

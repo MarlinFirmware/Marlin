@@ -40,147 +40,254 @@
  * \asf_license_stop
  *
  */
-/*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+
+// Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
 
 #ifdef ARDUINO_ARCH_SAM
 
 #include "conf_usb.h"
 #include "udc.h"
+#include <Arduino.h>
 
 static volatile bool main_b_msc_enable = false;
 static volatile bool main_b_cdc_enable = false;
 
-void HAL_init(void) {
-	udd_disable();
-	UDD_SetStack(&USBD_ISR);
+void HAL_idletask(void) {
+  // Attend SD card access from the USB MSD -- Prioritize access to improve speed
+  int delay = 2;
+  while (main_b_msc_enable && --delay > 0) {
+    if (udi_msc_process_trans()) delay = 10000;
 
-	// Start USB stack to authorize VBus monitoring
-	udc_start();
+    // Reset the watchdog, just to be sure
+    REG_WDT_CR = WDT_CR_WDRSTT | WDT_CR_KEY(0xA5);
+  }
 }
 
-void HAL_idletask(void)
-{
+bool usb_task_msc_enable(void)                { return ((main_b_msc_enable = true)); }
+void usb_task_msc_disable(void)               { main_b_msc_enable = false; }
+bool usb_task_msc_isenabled(void)             { return main_b_msc_enable; }
 
-	// Attend SD card access from the USB MSD -- Priotize access to improve speed
-	int delay = 2;
-	while (main_b_msc_enable && --delay > 0 ) {
-		if (udi_msc_process_trans()) {
-			delay = 10000;
-		}
-		
-		/* Reset the watchdog, just to be sure */
-		REG_WDT_CR = WDT_CR_WDRSTT | WDT_CR_KEY(0xA5);
-	}
-}
-
-/*! \brief Example of extra USB string management
- * This feature is available for single or composite device
- * which want implement additional USB string than
- * Manufacture, Product and serial number ID.
- *
- * return true, if the string ID requested is know and managed by this functions
- */
-bool usb_task_extra_string(void)
-{
-	static uint8_t udi_cdc_name[] = "CDC interface";
-	static uint8_t udi_msc_name[] = "MSC interface";
-
-	struct extra_strings_desc_t{
-		usb_str_desc_t header;
-		le16_t string[Max(sizeof(udi_cdc_name)-1, sizeof(udi_msc_name)-1)];
-	};
-	static UDC_DESC_STORAGE struct extra_strings_desc_t extra_strings_desc = {
-		.header.bDescriptorType = USB_DT_STRING
-	};
-
-	uint8_t i;
-	uint8_t *str;
-	uint8_t str_lgt=0;
-
-	// Link payload pointer to the string corresponding at request
-	switch (udd_g_ctrlreq.req.wValue & 0xff) {
-	case UDI_CDC_IAD_STRING_ID:
-		str_lgt = sizeof(udi_cdc_name)-1;
-		str = udi_cdc_name;
-		break;
-	case UDI_MSC_STRING_ID:
-		str_lgt = sizeof(udi_msc_name)-1;
-		str = udi_msc_name;
-		break;
-	default:
-		return false;
-	}
-
-	if (str_lgt!=0) {
-		for( i=0; i<str_lgt; i++) {
-			extra_strings_desc.string[i] = cpu_to_le16((le16_t)str[i]);
-		}
-		extra_strings_desc.header.bLength = 2+ (str_lgt)*2;
-		udd_g_ctrlreq.payload_size = extra_strings_desc.header.bLength;
-		udd_g_ctrlreq.payload = (uint8_t *) &extra_strings_desc;
-	}
-
-	// if the string is larger than request length, then cut it
-	if (udd_g_ctrlreq.payload_size > udd_g_ctrlreq.req.wLength) {
-		udd_g_ctrlreq.payload_size = udd_g_ctrlreq.req.wLength;
-	}
-	return true;
-}
-
-bool usb_task_msc_enable(void)
-{
-	main_b_msc_enable = true;
-	return true;
-}
-
-void usb_task_msc_disable(void)
-{
-	main_b_msc_enable = false;
-}
-
-bool usb_task_msc_isenabled(void)
-{
-	return main_b_msc_enable;
-}
-
-bool usb_task_cdc_enable(uint8_t port)
-{
-	main_b_cdc_enable = true;
-	return true;
-}
-
-void usb_task_cdc_disable(uint8_t port)
-{
-	main_b_cdc_enable = false;
-}
-
-bool usb_task_cdc_isenabled(void)
-{
-	return main_b_cdc_enable;
-}
+bool usb_task_cdc_enable(const uint8_t port)  { return ((main_b_cdc_enable = true)); }
+void usb_task_cdc_disable(const uint8_t port) { main_b_cdc_enable = false; }
+bool usb_task_cdc_isenabled(void)             { return main_b_cdc_enable; }
 
 /*! \brief Called by CDC interface
  * Callback running when CDC device have received data
  */
-void usb_task_cdc_rx_notify(uint8_t port)
-{
-}
+void usb_task_cdc_rx_notify(const uint8_t port) { }
 
 /*! \brief Configures communication line
  *
  * \param cfg      line configuration
  */
-void usb_task_cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg)
-{
+void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg) { }
+
+void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable) {
+  if (b_enable) {
+  } else {
+  }
 }
 
-void usb_task_cdc_set_dtr(uint8_t port, bool b_enable)
-{
-	if (b_enable) {
-	} else {
-	}
+/// Microsoft WCID descriptor
+typedef struct USB_MicrosoftCompatibleDescriptor_Interface {
+  uint8_t bFirstInterfaceNumber;
+  uint8_t reserved1;
+  uint8_t compatibleID[8];
+  uint8_t subCompatibleID[8];
+  uint8_t reserved2[6];
+} __attribute__((packed)) USB_MicrosoftCompatibleDescriptor_Interface;
+
+typedef struct USB_MicrosoftCompatibleDescriptor {
+  uint32_t dwLength;
+  uint16_t bcdVersion;
+  uint16_t wIndex;
+  uint8_t bCount;
+  uint8_t reserved[7];
+  USB_MicrosoftCompatibleDescriptor_Interface interfaces[];
+} __attribute__((packed)) USB_MicrosoftCompatibleDescriptor;
+
+// 3D Printer compatible descriptor
+static USB_MicrosoftCompatibleDescriptor microsoft_compatible_id_descriptor = {
+  .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) +
+              1*sizeof(USB_MicrosoftCompatibleDescriptor_Interface),
+  .bcdVersion = 0x0100,
+  .wIndex = 0x0004,
+  .bCount = 1,
+  .reserved = {0, 0, 0, 0, 0, 0, 0},
+  .interfaces = {
+    {
+      .bFirstInterfaceNumber = 0,
+      .reserved1 = 1,
+      .compatibleID = "3DPRINT",
+      .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
+      .reserved2 = {0, 0, 0, 0, 0, 0},
+    }
+  }
+};
+
+#define xstr(s) str(s)
+#define str(s) #s
+
+#define MS3DPRINT_CONFIG      u"MS3DPrintConfig"
+#define MS3DPRINT_CONFIG_DATA \
+  u"Base=SD\0"\
+  u"Job3DOutputAreaWidth=" xstr(X_BED_SIZE) "000\0"\
+  u"Job3DOutputAreaDepth=" xstr(Y_BED_SIZE) "000\0"\
+  u"Job3DOutputAreaHeight=" xstr(Z_MAX_POS) "000\0"\
+  u"filamentdiameter=1750\0"
+
+typedef struct USB_MicrosoftExtendedPropertiesDescriptor {
+  uint32_t  dwLength;
+  uint16_t  bcdVersion;
+  uint16_t  wIndex;
+  uint16_t  bCount;
+  uint32_t  dwPropertySize;
+  uint32_t  dwPropertyDataType;
+  uint16_t  wPropertyNameLength;
+  uint16_t  PropertyName[sizeof(MS3DPRINT_CONFIG)/sizeof(uint16_t)];
+  uint32_t  dwPropertyDataLength;
+  uint16_t  PropertyData[sizeof(MS3DPRINT_CONFIG_DATA)/sizeof(uint16_t)];
+} __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor;
+
+static USB_MicrosoftExtendedPropertiesDescriptor microsoft_extended_properties_descriptor = {
+  .dwLength = sizeof(USB_MicrosoftExtendedPropertiesDescriptor),
+  .bcdVersion = 0x0100,
+  .wIndex = 0x0005,
+  .bCount = 1,
+
+  .dwPropertySize = 4 + 4 + 2 + 4 + sizeof(MS3DPRINT_CONFIG) + sizeof(MS3DPRINT_CONFIG_DATA),
+  .dwPropertyDataType = 7, // (1=REG_SZ, 4=REG_DWORD, 7=REG_MULTI_SZ)
+  .wPropertyNameLength = sizeof(MS3DPRINT_CONFIG),
+  .PropertyName = MS3DPRINT_CONFIG,
+  .dwPropertyDataLength = sizeof(MS3DPRINT_CONFIG_DATA),
+  .PropertyData = MS3DPRINT_CONFIG_DATA
+};
+
+/**************************************************************************************************
+** WCID configuration information
+** Hooked into UDC via UDC_GET_EXTRA_STRING #define.
+*/
+bool usb_task_extra_string(void) {
+  static uint8_t udi_msft_magic[] = "MSFT100\xEE";
+  static uint8_t udi_cdc_name[] = "CDC interface";
+  static uint8_t udi_msc_name[] = "MSC interface";
+
+  struct extra_strings_desc_t {
+    usb_str_desc_t header;
+    le16_t string[Max(Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msc_name) - 1), sizeof(udi_msft_magic) - 1)];
+  };
+  static UDC_DESC_STORAGE struct extra_strings_desc_t extra_strings_desc = {
+    .header.bDescriptorType = USB_DT_STRING
+  };
+
+  uint8_t *str;
+  uint8_t str_lgt = 0;
+
+  // Link payload pointer to the string corresponding at request
+  switch (udd_g_ctrlreq.req.wValue & 0xff) {
+  case UDI_CDC_IAD_STRING_ID:
+    str_lgt = sizeof(udi_cdc_name) - 1;
+    str = udi_cdc_name;
+    break;
+  case UDI_MSC_STRING_ID:
+    str_lgt = sizeof(udi_msc_name) - 1;
+    str = udi_msc_name;
+    break;
+  case 0xEE:
+    str_lgt = sizeof(udi_msft_magic) - 1;
+    str = udi_msft_magic;
+    break;
+  default:
+    return false;
+  }
+
+  for (uint8_t i = 0; i < str_lgt; i++)
+    extra_strings_desc.string[i] = cpu_to_le16((le16_t)str[i]);
+
+  extra_strings_desc.header.bLength = 2 + str_lgt * 2;
+  udd_g_ctrlreq.payload_size = extra_strings_desc.header.bLength;
+  udd_g_ctrlreq.payload = (uint8_t*)&extra_strings_desc;
+
+  // if the string is larger than request length, then cut it
+  if (udd_g_ctrlreq.payload_size > udd_g_ctrlreq.req.wLength) {
+    udd_g_ctrlreq.payload_size = udd_g_ctrlreq.req.wLength;
+  }
+
+  return true;
 }
 
-#endif
+/**************************************************************************************************
+** Handle device requests that the ASF stack doesn't
+*/
+bool usb_task_other_requests(void) {
+  uint8_t* ptr = 0;
+  uint16_t size = 0;
+
+  if (Udd_setup_type() == USB_REQ_TYPE_VENDOR) {
+    //if (udd_g_ctrlreq.req.bRequest == 0x30)
+    if (1) {
+      if (udd_g_ctrlreq.req.wIndex == 0x04) {
+        ptr = (uint8_t*)&microsoft_compatible_id_descriptor;
+        size = (udd_g_ctrlreq.req.wLength);
+        if (size > microsoft_compatible_id_descriptor.dwLength)
+          size = microsoft_compatible_id_descriptor.dwLength;
+      }
+      else if (udd_g_ctrlreq.req.wIndex == 0x05) {
+        ptr = (uint8_t*)&microsoft_extended_properties_descriptor;
+        size = (udd_g_ctrlreq.req.wLength);
+        if (size > microsoft_extended_properties_descriptor.dwLength)
+          size = microsoft_extended_properties_descriptor.dwLength;
+      }
+      else
+        return false;
+    }
+  }
+
+  udd_g_ctrlreq.payload_size = size;
+  if (size == 0) {
+    udd_g_ctrlreq.callback = 0;
+    udd_g_ctrlreq.over_under_run = 0;
+  }
+  else
+    udd_g_ctrlreq.payload = ptr;
+
+  return true;
+}
+
+
+void HAL_init(void) {
+  uint16_t *ptr;
+
+  udd_disable();
+  UDD_SetStack(&USBD_ISR);
+
+  // Start USB stack to authorize VBus monitoring
+  udc_start();
+
+  // Patch in filament diameter - Be careful: String is in UNICODE (2bytes per char)
+  ptr = &microsoft_extended_properties_descriptor.PropertyData[0];
+  while (ptr[0] || ptr[1]) { // Double 0 flags end of resource
+
+    // Found the filamentdiameter= unicode string
+    if (ptr[0] == 'r' && ptr[1] == '=') {
+      char diam[16];
+      char *sptr;
+
+      // Patch in the filament diameter
+      sprintf_P(diam, PSTR("%d"), (int)((DEFAULT_NOMINAL_FILAMENT_DIA) * 1000.0));
+
+      // And copy it to the proper place, expanding it to unicode
+      sptr = &diam[0];
+      ptr += 2;
+      while (*sptr) *ptr++ = *sptr++;
+
+      // Done!
+      break;
+    }
+
+    // Go to the next character
+    ptr++;
+  }
+}
+
+#endif // ARDUINO_ARCH_SAM

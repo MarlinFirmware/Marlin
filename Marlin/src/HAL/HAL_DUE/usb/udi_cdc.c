@@ -977,7 +977,7 @@ static iram_size_t udi_cdc_multi_read_no_polling(uint8_t port, void* buf, iram_s
 	if (!udi_cdc_data_running) {
 		return 0;
 	}
-	
+
 	//Get number of available data
 	// Check available data
 	flags = cpu_irq_save(); // to protect udi_cdc_rx_pos & udi_cdc_rx_buf_sel
@@ -995,7 +995,7 @@ static iram_size_t udi_cdc_multi_read_no_polling(uint8_t port, void* buf, iram_s
 		flags = cpu_irq_save(); // to protect udi_cdc_rx_pos
 		udi_cdc_rx_pos[port] += size;
 		cpu_irq_restore(flags);
-		
+
 		ptr_buf += size;
 		udi_cdc_rx_start(port);
 	}
@@ -1036,7 +1036,7 @@ iram_size_t udi_cdc_multi_get_free_tx_buffer(uint8_t port)
 			buf_sel_nb = 0;
 		}
 	}
-	retval = UDI_CDC_TX_BUFFERS - buf_sel_nb;  
+	retval = UDI_CDC_TX_BUFFERS - buf_sel_nb;
 	cpu_irq_restore(flags);
 	return retval;
 }

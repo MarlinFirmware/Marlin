@@ -25,10 +25,15 @@
 #include "../../inc/MarlinConfig.h"
 #include "HardwareSerial.h"
 
-HardwareSerial Serial = HardwareSerial(LPC_UART0);
-HardwareSerial Serial1 = HardwareSerial((LPC_UART_TypeDef *) LPC_UART1);
-HardwareSerial Serial2 = HardwareSerial(LPC_UART2);
-HardwareSerial Serial3 = HardwareSerial(LPC_UART3);
+#if SERIAL_PORT == 0 || SERIAL_PORT_2 == 0
+  HardwareSerial Serial = HardwareSerial(LPC_UART0);
+#elif SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
+  HardwareSerial Serial1 = HardwareSerial((LPC_UART_TypeDef *) LPC_UART1);
+#elif SERIAL_PORT == 2 || SERIAL_PORT_2 == 2
+  HardwareSerial Serial2 = HardwareSerial(LPC_UART2);
+#elif SERIAL_PORT == 3 || SERIAL_PORT_2 == 3
+  HardwareSerial Serial3 = HardwareSerial(LPC_UART3);
+#endif
 
 void HardwareSerial::begin(uint32_t baudrate) {
 
@@ -37,9 +42,7 @@ void HardwareSerial::begin(uint32_t baudrate) {
   UART_FIFO_CFG_Type FIFOConfig;
 
   if (UARTx == LPC_UART0) {
-    /*
-    * Initialize UART0 pin connect
-    */
+    // Initialize UART0 pin connect
     PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
@@ -48,11 +51,8 @@ void HardwareSerial::begin(uint32_t baudrate) {
     PINSEL_ConfigPin(&PinCfg);
     PinCfg.Pinnum = 3;
     PINSEL_ConfigPin(&PinCfg);
-  }
-  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
-    /*
-    * Initialize UART1 pin connect
-    */
+  } else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+    // Initialize UART1 pin connect
     PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
@@ -61,11 +61,8 @@ void HardwareSerial::begin(uint32_t baudrate) {
     PINSEL_ConfigPin(&PinCfg);
     PinCfg.Pinnum = 16;
     PINSEL_ConfigPin(&PinCfg);
-  }
-  else if (UARTx == LPC_UART2) {
-    /*
-    * Initialize UART2 pin connect
-    */
+  } else if (UARTx == LPC_UART2) {
+    // Initialize UART2 pin connect
     PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
@@ -74,11 +71,8 @@ void HardwareSerial::begin(uint32_t baudrate) {
     PINSEL_ConfigPin(&PinCfg);
     PinCfg.Pinnum = 11;
     PINSEL_ConfigPin(&PinCfg);
-  }
-  else if (UARTx == LPC_UART3) {
-    /*
-    * Initialize UART2 pin connect
-    */
+  } else if (UARTx == LPC_UART3) {
+    // Initialize UART2 pin connect
     PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
@@ -89,39 +83,35 @@ void HardwareSerial::begin(uint32_t baudrate) {
     PINSEL_ConfigPin(&PinCfg);
   }
 
-	/* Initialize UART Configuration parameter structure to default state:
-	 * Baudrate = 9600bps
-	 * 8 data bit
-	 * 1 Stop bit
-	 * None parity
-	 */
-	UART_ConfigStructInit(&UARTConfigStruct);
+  /* Initialize UART Configuration parameter structure to default state:
+   * Baudrate = 9600bps
+   * 8 data bit
+   * 1 Stop bit
+   * None parity
+   */
+  UART_ConfigStructInit(&UARTConfigStruct);
 
-	// Re-configure baudrate
-	UARTConfigStruct.Baud_rate = baudrate;
+  // Re-configure baudrate
+  UARTConfigStruct.Baud_rate = baudrate;
 
-	// Initialize eripheral with given to corresponding parameter
+  // Initialize eripheral with given to corresponding parameter
   UART_Init(UARTx, &UARTConfigStruct);
 
   // Enable and reset the TX and RX FIFOs
   UART_FIFOConfigStructInit(&FIFOConfig);
   UART_FIFOConfig(UARTx, &FIFOConfig);
 
-	// Enable UART Transmit
+  // Enable UART Transmit
   UART_TxCmd(UARTx, ENABLE);
 
   // Configure Interrupts
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
   UART_IntConfig(UARTx, UART_INTCFG_RLS, ENABLE);
 
-  if (UARTx == LPC_UART0)
-    NVIC_EnableIRQ(UART0_IRQn);
-  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1)
-    NVIC_EnableIRQ(UART1_IRQn);
-  else if (UARTx == LPC_UART2)
-    NVIC_EnableIRQ(UART2_IRQn);
-  else if (UARTx == LPC_UART3)
-    NVIC_EnableIRQ(UART3_IRQn);
+  if (UARTx == LPC_UART0) NVIC_EnableIRQ(UART0_IRQn);
+  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) NVIC_EnableIRQ(UART1_IRQn);
+  else if (UARTx == LPC_UART2) NVIC_EnableIRQ(UART2_IRQn);
+  else if (UARTx == LPC_UART3) NVIC_EnableIRQ(UART3_IRQn);
 
   RxQueueWritePos = RxQueueReadPos = 0;
   #if TX_BUFFER_SIZE > 0
@@ -132,14 +122,14 @@ void HardwareSerial::begin(uint32_t baudrate) {
 int HardwareSerial::peek() {
   int byte = -1;
 
-  /* Temporarily lock out UART receive interrupts during this read so the UART receive
-     interrupt won't cause problems with the index values */
+  // Temporarily lock out UART receive interrupts during this read so the UART receive
+  // interrupt won't cause problems with the index values
   UART_IntConfig(UARTx, UART_INTCFG_RBR, DISABLE);
 
   if (RxQueueReadPos != RxQueueWritePos)
     byte = RxBuffer[RxQueueReadPos];
 
-  /* Re-enable UART interrupts */
+  // Re-enable UART interrupts
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
 
   return byte;
@@ -148,8 +138,8 @@ int HardwareSerial::peek() {
 int HardwareSerial::read() {
   int byte = -1;
 
-  /* Temporarily lock out UART receive interrupts during this read so the UART receive
-     interrupt won't cause problems with the index values */
+  // Temporarily lock out UART receive interrupts during this read so the UART receive
+  // interrupt won't cause problems with the index values
   UART_IntConfig(UARTx, UART_INTCFG_RBR, DISABLE);
 
   if (RxQueueReadPos != RxQueueWritePos) {
@@ -157,53 +147,52 @@ int HardwareSerial::read() {
     RxQueueReadPos = (RxQueueReadPos + 1) % RX_BUFFER_SIZE;
   }
 
-  /* Re-enable UART interrupts */
+  // Re-enable UART interrupts
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
 
   return byte;
 }
 
 size_t HardwareSerial::write(uint8_t send) {
-  #if TX_BUFFER_SIZE > 0
-    size_t   bytes = 0;
-    uint32_t fifolvl = 0;
+#if TX_BUFFER_SIZE > 0
+  size_t bytes = 0;
+  uint32_t fifolvl = 0;
 
-    /* If the Tx Buffer is full, wait for space to clear */
-    if ((TxQueueWritePos+1) % TX_BUFFER_SIZE == TxQueueReadPos) flushTX();
+  // If the Tx Buffer is full, wait for space to clear
+  if ((TxQueueWritePos+1) % TX_BUFFER_SIZE == TxQueueReadPos) flushTX();
 
-    /* Temporarily lock out UART transmit interrupts during this read so the UART transmit interrupt won't
-       cause problems with the index values */
-    UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
+  // Temporarily lock out UART transmit interrupts during this read so the UART transmit interrupt won't
+  // cause problems with the index values
+  UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
 
-    /* LPC17xx.h incorrectly defines FIFOLVL as a uint8_t, when it's actually a 32-bit register */
-    if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1)
-      fifolvl = *(reinterpret_cast<volatile uint32_t *>(&((LPC_UART1_TypeDef *) UARTx)->FIFOLVL));
-    else
-      fifolvl = *(reinterpret_cast<volatile uint32_t *>(&UARTx->FIFOLVL));
+  // LPC17xx.h incorrectly defines FIFOLVL as a uint8_t, when it's actually a 32-bit register
+  if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+    fifolvl = *(reinterpret_cast<volatile uint32_t *>(&((LPC_UART1_TypeDef *) UARTx)->FIFOLVL));
+  } else fifolvl = *(reinterpret_cast<volatile uint32_t *>(&UARTx->FIFOLVL));
 
-    /* If the queue is empty and there's space in the FIFO, immediately send the byte */
-    if (TxQueueWritePos == TxQueueReadPos && fifolvl < UART_TX_FIFO_SIZE) {
-      bytes = UART_Send(UARTx, &send, 1, BLOCKING);
-    }
-    /* Otherwiise, write the byte to the transmit buffer */
-    else if ((TxQueueWritePos+1) % TX_BUFFER_SIZE != TxQueueReadPos) {
-      TxBuffer[TxQueueWritePos] = send;
-      TxQueueWritePos = (TxQueueWritePos+1) % TX_BUFFER_SIZE;
-      bytes++;
-    }
+  // If the queue is empty and there's space in the FIFO, immediately send the byte
+  if (TxQueueWritePos == TxQueueReadPos && fifolvl < UART_TX_FIFO_SIZE) {
+    bytes = UART_Send(UARTx, &send, 1, BLOCKING);
+  }
+  // Otherwiise, write the byte to the transmit buffer
+  else if ((TxQueueWritePos+1) % TX_BUFFER_SIZE != TxQueueReadPos) {
+    TxBuffer[TxQueueWritePos] = send;
+    TxQueueWritePos = (TxQueueWritePos+1) % TX_BUFFER_SIZE;
+    bytes++;
+  }
 
-    /* Re-enable the TX Interrupt */
-    UART_IntConfig(UARTx, UART_INTCFG_THRE, ENABLE);
+  // Re-enable the TX Interrupt
+  UART_IntConfig(UARTx, UART_INTCFG_THRE, ENABLE);
 
-    return bytes;
-  #else
-    return UART_Send(UARTx, &send, 1, BLOCKING);
-  #endif
+  return bytes;
+#else
+  return UART_Send(UARTx, &send, 1, BLOCKING);
+#endif
 }
 
 #if TX_BUFFER_SIZE > 0
   void HardwareSerial::flushTX() {
-    /* Wait for the tx buffer and FIFO to drain */
+    // Wait for the tx buffer and FIFO to drain
     while (TxQueueWritePos != TxQueueReadPos && UART_CheckBusy(UARTx) == SET);
   }
 #endif
@@ -234,65 +223,58 @@ void HardwareSerial::IRQHandler() {
   uint8_t LSRValue, byte;
 
   IIRValue = UART_GetIntId(UARTx);
-  IIRValue &= UART_IIR_INTID_MASK;		/* check bit 1~3, interrupt identification */
+  IIRValue &= UART_IIR_INTID_MASK; // check bit 1~3, interrupt identification
 
-  if ( IIRValue == UART_IIR_INTID_RLS )		/* Receive Line Status */
-  {
+  // Receive Line Status
+  if (IIRValue == UART_IIR_INTID_RLS) {
     LSRValue = UART_GetLineStatus(UARTx);
 
-    /* Receive Line Status */
-    if ( LSRValue & (UART_LSR_OE|UART_LSR_PE|UART_LSR_FE|UART_LSR_RXFE|UART_LSR_BI) )
-    {
-      /* There are errors or break interrupt */
-      /* Read LSR will clear the interrupt */
+    // Receive Line Status
+    if (LSRValue & (UART_LSR_OE | UART_LSR_PE | UART_LSR_FE | UART_LSR_RXFE | UART_LSR_BI)) {
+      // There are errors or break interrupt
+      // Read LSR will clear the interrupt
       Status = LSRValue;
-      byte = UART_ReceiveByte(UARTx);		/* Dummy read on RX to clear
-                                           interrupt, then bail out */
+      byte = UART_ReceiveByte(UARTx); // Dummy read on RX to clear interrupt, then bail out
       return;
     }
   }
 
-  if ( IIRValue == UART_IIR_INTID_RDA )	/* Receive Data Available */
-  {
-    /* Clear the FIFO */
-    while ( UART_Receive(UARTx, &byte, 1, NONE_BLOCKING) ) {
-      if ((RxQueueWritePos+1) % RX_BUFFER_SIZE != RxQueueReadPos)
-      {
+  // Receive Data Available
+  if (IIRValue == UART_IIR_INTID_RDA) {
+    // Clear the FIFO
+    while (UART_Receive(UARTx, &byte, 1, NONE_BLOCKING)) {
+      if ((RxQueueWritePos + 1) % RX_BUFFER_SIZE != RxQueueReadPos) {
         RxBuffer[RxQueueWritePos] = byte;
-        RxQueueWritePos = (RxQueueWritePos+1) % RX_BUFFER_SIZE;
-      }
-      else
+        RxQueueWritePos = (RxQueueWritePos + 1) % RX_BUFFER_SIZE;
+      } else
         break;
     }
-  }
-  else if ( IIRValue == UART_IIR_INTID_CTI )	/* Character timeout indicator */
-  {
-    /* Character Time-out indicator */
-    Status |= 0x100;		/* Bit 9 as the CTI error */
+    // Character timeout indicator
+  } else if (IIRValue == UART_IIR_INTID_CTI) {
+    // Character Time-out indicator
+    Status |= 0x100; // Bit 9 as the CTI error
   }
 
   #if TX_BUFFER_SIZE > 0
     if (IIRValue == UART_IIR_INTID_THRE) {
-      /* Disable THRE interrupt */
+      // Disable THRE interrupt
       UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
 
-      /* Wait for FIFO buffer empty */
+      // Wait for FIFO buffer empty
       while (UART_CheckBusy(UARTx) == SET);
 
-      /* Transfer up to UART_TX_FIFO_SIZE bytes of data */
+      // Transfer up to UART_TX_FIFO_SIZE bytes of data
       for (int i = 0; i < UART_TX_FIFO_SIZE && TxQueueWritePos != TxQueueReadPos; i++) {
-        /* Move a piece of data into the transmit FIFO */
-        if (UART_Send(UARTx, &TxBuffer[TxQueueReadPos], 1, NONE_BLOCKING))
+        // Move a piece of data into the transmit FIFO
+        if (UART_Send(UARTx, &TxBuffer[TxQueueReadPos], 1, NONE_BLOCKING)) {
           TxQueueReadPos = (TxQueueReadPos+1) % TX_BUFFER_SIZE;
-        else
-          break;
+        } else break;
       }
 
-      /* If there is no more data to send, disable the transmit interrupt - else enable it or keep it enabled */
-      if (TxQueueWritePos == TxQueueReadPos)
+      // If there is no more data to send, disable the transmit interrupt - else enable it or keep it enabled
+      if (TxQueueWritePos == TxQueueReadPos) {
         UART_IntConfig(UARTx, UART_INTCFG_THRE, DISABLE);
-      else
-        UART_IntConfig(UARTx, UART_INTCFG_THRE, ENABLE);
+      } else UART_IntConfig(UARTx, UART_INTCFG_THRE, ENABLE);
     }
   #endif
 }
@@ -301,60 +283,28 @@ void HardwareSerial::IRQHandler() {
 extern "C" {
 #endif
 
-/*****************************************************************************
-** Function name:		UART0_IRQHandler
-**
-** Descriptions:		UART0 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
-*****************************************************************************/
-void UART0_IRQHandler (void)
-{
-  Serial.IRQHandler();
+void UART0_IRQHandler(void) {
+  #if SERIAL_PORT == 0 || SERIAL_PORT_2 == 0
+    Serial.IRQHandler();
+  #endif
 }
 
-/*****************************************************************************
-** Function name:		UART1_IRQHandler
-**
-** Descriptions:		UART1 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
-*****************************************************************************/
-void UART1_IRQHandler (void)
-{
-  Serial1.IRQHandler();
+void UART1_IRQHandler(void) {
+  #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
+    Serial1.IRQHandler();
+  #endif
 }
 
-/*****************************************************************************
-** Function name:		UART2_IRQHandler
-**
-** Descriptions:		UART2 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
-*****************************************************************************/
-void UART2_IRQHandler (void)
-{
-  Serial2.IRQHandler();
+void UART2_IRQHandler(void) {
+  #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2
+    Serial2.IRQHandler();
+  #endif
 }
 
-/*****************************************************************************
-** Function name:		UART3_IRQHandler
-**
-** Descriptions:		UART3 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
-*****************************************************************************/
-void UART3_IRQHandler (void)
-{
-  Serial3.IRQHandler();
+void UART3_IRQHandler(void) {
+  #if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3
+    Serial3.IRQHandler();
+  #endif
 }
 
 #ifdef __cplusplus

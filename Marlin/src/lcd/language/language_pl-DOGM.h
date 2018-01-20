@@ -213,9 +213,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Siła %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Zapisz DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ZMIEŃ FILAMENT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ZMIEŃ FILAMENT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ZMIEŃ OPCJE:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ekstruduj więcej")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Wznów drukowanie")
 
 #if LCD_HEIGHT >= 4
@@ -229,8 +228,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuować...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("włożenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzję filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -239,7 +236,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Włóż i naciśnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ładowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 

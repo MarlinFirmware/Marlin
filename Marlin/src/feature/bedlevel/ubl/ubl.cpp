@@ -36,13 +36,27 @@
 
   uint8_t ubl_cnt = 0;
 
-  void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
+  void unified_bed_leveling::echo_name(
+    #if NUM_SERIAL > 1
+      const int8_t port/*= -1*/
+    #endif
+  ) {
+    SERIAL_PROTOCOLPGM_P(port, "Unified Bed Leveling");
+  }
 
-  void unified_bed_leveling::report_state() {
-    echo_name();
-    SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_PROTOCOLPGM("in");
-    SERIAL_PROTOCOLLNPGM("active.");
+  void unified_bed_leveling::report_state(
+    #if NUM_SERIAL > 1
+      const int8_t port/*= -1*/
+    #endif
+  ) {
+    echo_name(
+      #if NUM_SERIAL > 1
+        port
+      #endif
+    );
+    SERIAL_PROTOCOLPGM_P(port, " System v" UBL_VERSION " ");
+    if (!planner.leveling_active) SERIAL_PROTOCOLPGM_P(port, "in");
+    SERIAL_PROTOCOLLNPGM_P(port, "active.");
     safe_delay(50);
   }
 
@@ -198,10 +212,7 @@
         }
         idle();
         if (map_type == 1 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
-
-        #if TX_BUFFER_SIZE > 0
-          MYSERIAL.flushTX();
-        #endif
+        SERIAL_FLUSHTX();
         safe_delay(15);
         if (map_type == 0) {
           SERIAL_CHAR(is_current ? ']' : ' ');

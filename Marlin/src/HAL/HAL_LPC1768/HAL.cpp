@@ -22,14 +22,9 @@
 
 #include "../../inc/MarlinConfig.h"
 
-extern "C" {
-  //#include <lpc17xx_adc.h>
-  //#include <lpc17xx_pinsel.h>
-}
-
 HalSerial usb_serial;
 
-//u8glib required fucntions
+// U8glib required functions
 extern "C" void u8g_xMicroDelay(uint16_t val) {
   delayMicroseconds(val);
 }
@@ -85,7 +80,7 @@ void HAL_adc_enable_channel(int ch) {
   pin_t pin = analogInputToDigitalPin(ch);
 
   if (pin == -1) {
-    MYSERIAL.printf("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
+    SERIAL_PRINTF("%sINVALID ANALOG PORT:%d\n", errormagic, ch);
     kill(MSG_KILLED);
   }
 
@@ -97,32 +92,30 @@ void HAL_adc_enable_channel(int ch) {
                               pin_port == 1                        ? 3 : 10;
 
   switch (pin_sel_register) {
-    case 1 :
+    case 1:
       LPC_PINCON->PINSEL1 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL1 |=  (0x1 << pinsel_start_bit);
       break;
-    case 3 :
+    case 3:
       LPC_PINCON->PINSEL3 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL3 |=  (0x3 << pinsel_start_bit);
       break;
-    case 0 :
+    case 0:
       LPC_PINCON->PINSEL0 &= ~(0x3 << pinsel_start_bit);
       LPC_PINCON->PINSEL0 |=  (0x2 << pinsel_start_bit);
       break;
   };
 }
 
-uint8_t active_adc = 0;
 void HAL_adc_start_conversion(const uint8_t ch) {
   if (analogInputToDigitalPin(ch) == -1) {
-    MYSERIAL.printf("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
+    SERIAL_PRINTF("HAL: HAL_adc_start_conversion: invalid channel %d\n", ch);
     return;
   }
 
   LPC_ADC->ADCR &= ~0xFF; // Reset
   SBI(LPC_ADC->ADCR, ch); // Select Channel
   SBI(LPC_ADC->ADCR, 24); // Start conversion
-  active_adc = ch;
 }
 
 bool HAL_adc_finished(void) {
@@ -130,44 +123,131 @@ bool HAL_adc_finished(void) {
 }
 
 // possible config options if something similar is extended to more platforms.
-#define ADC_USE_MEDIAN_FILTER      // filter out erroneous readings
-#define ADC_USE_LOWPASS_FILTER     // filter out high frequency noise
-#define ADC_LOWPASS_K_VALUE 4      // how much to smooth out noise (1:8)
+#define ADC_USE_MEDIAN_FILTER          // Filter out erroneous readings
+#define ADC_MEDIAN_FILTER_SIZE    (23) // Higher values increase step delay (phase shift),
+                                       // (ADC_MEDIAN_FILTER_SIZE + 1) / 2 sample step delay (12 samples @ 500Hz: 24ms phase shift)
+                                       // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
+                                       // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
+#define ADC_USE_LOWPASS_FILTER         // Filter out high frequency noise
+#define ADC_LOWPASS_K_VALUE       (6)  // Higher values increase rise time
+                                       // Rise time sample delays for 100% signal convergence on full range step
+                                       // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
+                                       // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
+                                       // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
+
+
+// Sourced from https://embeddedgurus.com/stack-overflow/tag/median-filter/
 struct MedianFilter {
-  uint16_t values[3];
-  uint8_t next_val;
-  MedianFilter() {
-    next_val = 0;
-    values[0] = values[1] = values[2] = 0;
-  }
-  uint16_t update(uint16_t value) {
-    values[next_val++] = value;
-    next_val = next_val % 3;
-    return max(min(values[0], values[1]), min(max(values[0], values[1]), values[2]));     //median
+  #define STOPPER 0                // Smaller than any datum
+  struct Pair {
+    Pair   *point;                 // Pointers forming list linked in sorted order
+    uint16_t  value;               // Values to sort
+  };
+
+  Pair buffer[ADC_MEDIAN_FILTER_SIZE] = {}; // Buffer of nwidth pairs
+  Pair *datpoint = buffer;                  // Pointer into circular buffer of data
+  Pair small = {NULL, STOPPER};             // Chain stopper
+  Pair big = {&small, 0};                   // Pointer to head (largest) of linked list.
+
+  uint16_t update(uint16_t datum) {
+    Pair *successor;                        // Pointer to successor of replaced data item
+    Pair *scan;                             // Pointer used to scan down the sorted list
+    Pair *scanold;                          // Previous value of scan
+    Pair *median;                           // Pointer to median
+    uint16_t i;
+
+    if (datum == STOPPER) {
+      datum = STOPPER + 1;                  // No stoppers allowed.
+    }
+
+    if ( (++datpoint - buffer) >= ADC_MEDIAN_FILTER_SIZE) {
+      datpoint = buffer;                    // Increment and wrap data in pointer.
+    }
+
+    datpoint->value = datum;                // Copy in new datum
+    successor = datpoint->point;            // Save pointer to old value's successor
+    median = &big;                          // Median initially to first in chain
+    scanold = NULL;                         // Scanold initially null.
+    scan = &big;                            // Points to pointer to first (largest) datum in chain
+
+    // Handle chain-out of first item in chain as special case
+    if (scan->point == datpoint) {
+      scan->point = successor;
+    }
+    scanold = scan;                         // Save this pointer and
+    scan = scan->point ;                    // step down chain
+
+    // Loop through the chain, normal loop exit via break.
+    for (i = 0 ; i < ADC_MEDIAN_FILTER_SIZE; ++i) {
+      // Handle odd-numbered item in chain
+      if (scan->point == datpoint) {
+        scan->point = successor;            // Chain out the old datum
+      }
+
+      if (scan->value < datum) {            // If datum is larger than scanned value
+        datpoint->point = scanold->point;   // Chain it in here
+        scanold->point = datpoint;          // Mark it chained in
+        datum = STOPPER;
+      }
+
+      // Step median pointer down chain after doing odd-numbered element
+      median = median->point;               // Step median pointer
+      if (scan == &small) {
+        break;                              // Break at end of chain
+      }
+      scanold = scan;                       // Save this pointer and
+      scan = scan->point;                   // step down chain
+
+      // Handle even-numbered item in chain.
+      if (scan->point == datpoint) {
+        scan->point = successor;
+      }
+
+      if (scan->value < datum) {
+        datpoint->point = scanold->point;
+        scanold->point = datpoint;
+        datum = STOPPER;
+      }
+
+      if (scan == &small) {
+        break;
+      }
+
+      scanold = scan;
+      scan = scan->point;
+    }
+    return median->value;
   }
 };
 
-uint16_t lowpass_filter(uint16_t value) {
-  const uint8_t k_data_shift = ADC_LOWPASS_K_VALUE;
-  static uint32_t data_delay[NUM_ANALOG_INPUTS] = { 0 };
-  uint32_t &active_filter = data_delay[active_adc];
-  active_filter = active_filter - (active_filter >> k_data_shift) + value;
-  return (uint16_t)(active_filter >> k_data_shift);
-}
+struct LowpassFilter {
+  uint32_t data_delay = 0;
+  uint16_t update(uint16_t value) {
+    data_delay = data_delay - (data_delay >> ADC_LOWPASS_K_VALUE) + value;
+    return (uint16_t)(data_delay >> ADC_LOWPASS_K_VALUE);
+  }
+};
 
 uint16_t HAL_adc_get_result(void) {
-  uint32_t data = LPC_ADC->ADGDR;
-  CBI(LPC_ADC->ADCR, 24);    // Stop conversion
-  if (data & ADC_OVERRUN) return 0;
+  uint32_t adgdr = LPC_ADC->ADGDR;
+  CBI(LPC_ADC->ADCR, 24);                    // Stop conversion
+
+  if (adgdr & ADC_OVERRUN) return 0;
+  uint16_t data = (adgdr >> 4) & 0xFFF;      // copy the 12bit data value
+  uint8_t adc_channel = (adgdr >> 24) & 0x7; // copy the  3bit used channel
+
   #ifdef ADC_USE_MEDIAN_FILTER
     static MedianFilter median_filter[NUM_ANALOG_INPUTS];
-    data = median_filter[active_adc].update((uint16_t)data);
+    data = median_filter[adc_channel].update(data);
   #endif
+
   #ifdef ADC_USE_LOWPASS_FILTER
-    data = lowpass_filter((uint16_t)data);
+    static LowpassFilter lowpass_filter[NUM_ANALOG_INPUTS];
+    data = lowpass_filter[adc_channel].update(data);
   #endif
-  return ((data >> 6) & 0x3ff);    // 10bit
+
+  return ((data >> 2) & 0x3ff);    // return 10bit value as Marlin expects
 }
 
 #define SBIT_CNTEN     0
@@ -187,8 +267,8 @@ void HAL_pwm_init(void) {
   LPC_PWM1->TCR = _BV(SBIT_CNTEN) | _BV(SBIT_PWMEN);
   LPC_PWM1->PR  =  0x0;               // No prescalar
   LPC_PWM1->MCR = _BV(SBIT_PWMMR0R);  // Reset on PWMMR0, reset TC if it matches MR0
-  LPC_PWM1->MR0 = 255;                /* set PWM cycle(Ton+Toff)=255) */
-  LPC_PWM1->MR5 = 0;                  /* Set 50% Duty Cycle for the channels */
+  LPC_PWM1->MR0 = 255;                // set PWM cycle(Ton+Toff)=255)
+  LPC_PWM1->MR5 = 0;                  // Set 50% Duty Cycle for the channels
   LPC_PWM1->MR6 = 0;
 
   // Trigger the latch Enable Bits to load the new Match Values MR0, MR5, MR6

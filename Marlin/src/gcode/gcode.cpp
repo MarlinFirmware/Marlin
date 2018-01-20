@@ -399,8 +399,7 @@ void GcodeSuite::process_parsed_command() {
       #endif
 
       #if ENABLED(PARK_HEAD_ON_PAUSE)
-        case 125: // M125: Store current position and move to filament change position
-          M125(); break;
+        case 125: M125(); break;  // M125: Store current position and move to filament change position
       #endif
 
       #if ENABLED(BARICUDA)
@@ -611,6 +610,9 @@ void GcodeSuite::process_parsed_command() {
       #if DISABLED(DISABLE_M503)
         case 503: M503(); break;  // M503: print settings currently in memory
       #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        case 504: M504(); break;  // M504: Validate EEPROM contents
+      #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
         case 540: M540(); break;  // M540: Set abort on endstop hit for SD printing
@@ -657,8 +659,10 @@ void GcodeSuite::process_parsed_command() {
         #endif
       #endif
 
-      #if HAVE_TRINAMIC
-        case 122: M122(); break;
+      #if HAS_TRINAMIC
+        #if ENABLED(TMC_DEBUG)
+          case 122: M122(); break;
+        #endif
         case 906: M906(); break;    // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         case 911: M911(); break;    // M911: Report TMC2130 prewarn triggered flags
         case 912: M912(); break;    // M912: Clear TMC2130 prewarn triggered flags
@@ -667,6 +671,9 @@ void GcodeSuite::process_parsed_command() {
         #endif
         #if ENABLED(SENSORLESS_HOMING)
           case 914: M914(); break;  // M914: Set SENSORLESS_HOMING sensitivity.
+        #endif
+        #if ENABLED(TMC_Z_CALIBRATION)
+          case 915: M915(); break;  // M915: TMC Z axis calibration.
         #endif
       #endif
 
