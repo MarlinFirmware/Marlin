@@ -1260,7 +1260,7 @@
   #undef SDSORT_USES_RAM
   #undef SDSORT_USES_STACK
   #undef SDSORT_CACHE_NAMES
-  #define SDSORT_LIMIT       256
+  #define SDSORT_LIMIT       64
   #define SDSORT_USES_RAM    true
   #define SDSORT_USES_STACK  false
   #define SDSORT_CACHE_NAMES true
