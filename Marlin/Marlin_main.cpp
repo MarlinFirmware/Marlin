@@ -6301,6 +6301,15 @@ inline void gcode_M17() {
     }
   #endif
 
+  /**
+   * Ensure a safe temperature for extrusion
+   *
+   * - Fail if the TARGET temperature is too low
+   * - Display LCD placard with temperature status
+   * - Return when heating is done or aborted
+   *
+   * Returns 'true' if heating was completed, 'false' for abort
+   */
   static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT) {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -6325,7 +6334,19 @@ inline void gcode_M17() {
     return status;
   }
 
-  static bool load_filament(const float &load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0,
+  /**
+   * Load filament into the hotend
+   *
+   * - Fail if the a safe temperature was not reached
+   * - If pausing for confirmation, wait for a click or M108
+   * - Show "wait for load" placard
+   * - Load and purge filament
+   * - Show "Purge more" / "Continue" menu
+   * - Return when "Continue" is selected
+   *
+   * Returns 'true' if load was completed, 'false' for abort
+   */
+  static bool load_filament(const float &load_length=0, const float &purge_length=0, const int8_t max_beep_count=0,
                             const bool show_lcd=false, const bool pause_for_user=false,
                             const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
@@ -6368,15 +6389,15 @@ inline void gcode_M17() {
     }
 
     #if ENABLED(ULTIPANEL)
-      if (show_lcd) // Show "load" message
+      if (show_lcd) // Show "wait for load" message
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
     #endif
 
     // Load filament
-    do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
+    if (load_length) do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
 
     do {
-      if (extrude_length > 0) {
+      if (purge_length > 0) {
         // "Wait for filament purge"
         #if ENABLED(ULTIPANEL)
           if (show_lcd)
@@ -6384,10 +6405,10 @@ inline void gcode_M17() {
         #endif
 
         // Extrude filament to get into hotend
-        do_pause_e_move(extrude_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+        do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
       }
 
-      // Show "Extrude More" / "Resume" menu and wait for reply
+      // Show "Purge More" / "Resume" menu and wait for reply
       #if ENABLED(ULTIPANEL)
         if (show_lcd) {
           KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -6398,7 +6419,7 @@ inline void gcode_M17() {
         }
       #endif
 
-      // Keep looping if "Extrude More" was selected
+      // Keep looping if "Purge More" was selected
     } while (
       #if ENABLED(ULTIPANEL)
         show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
@@ -6410,6 +6431,16 @@ inline void gcode_M17() {
     return true;
   }
 
+  /**
+   * Unload filament from the hotend
+   *
+   * - Fail if the a safe temperature was not reached
+   * - Show "wait for unload" placard
+   * - Retract, pause, then unload filament
+   * - Disable E stepper (on most machines)
+   *
+   * Returns 'true' if unload was completed, 'false' for abort
+   */
   static bool unload_filament(const float &unload_length, const bool show_lcd=false,
                               const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
@@ -6450,16 +6481,24 @@ inline void gcode_M17() {
     return true;
   }
 
+  /**
+   * Pause procedure
+   *
+   * - Abort if already paused
+   * - Send host action for pause, if configured
+   * - Abort if TARGET temperature is too low
+   * - Display "wait for start of filament change" (if a length was specified)
+   * - Initial retract, if current temperature is hot enough
+   * - Park the nozzle at the given position
+   * - Call unload_filament (if a length was specified)
+   *
+   * Returns 'true' if pause was completed, 'false' for abort
+   */
   static bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false) {
     if (did_pause_print) return false; // already paused
 
     #ifdef ACTION_ON_PAUSE
       SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-    #endif
-
-    #if ENABLED(ULTIPANEL)
-      if (show_lcd) // Show initial message
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
     #endif
 
     if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
@@ -6481,7 +6520,7 @@ inline void gcode_M17() {
     #if ENABLED(SDSUPPORT)
       if (card.sdprinting) {
         card.pauseSDPrint();
-        ++did_pause_print;
+        ++did_pause_print; // Indicate SD pause also
       }
     #endif
     print_job_timer.pause();
@@ -6506,6 +6545,13 @@ inline void gcode_M17() {
     return true;
   }
 
+  /**
+   * - Show "Insert filament and press button to continue"
+   * - Wait for a click before returning
+   * - Heaters can time out, reheated before accepting a click
+   *
+   * Used by M125 and M600
+   */
   static void wait_for_filament_reload(const int8_t max_beep_count=0) {
     bool nozzle_timed_out = false;
 
@@ -6592,12 +6638,29 @@ inline void gcode_M17() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  static void resume_print(const float &load_length=0, const float &extrude_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0) {
-    bool nozzle_timed_out = false;
-
+  /**
+   * Resume or Start print procedure
+   *
+   * - Abort if not paused
+   * - Reset heater idle timers
+   * - Load filament if specified, but only if:
+   *   - a nozzle timed out, or
+   *   - the nozzle is already heated.
+   * - Display "wait for print to resume"
+   * - Re-prime the nozzle...
+   *   -  FWRETRACT: Recover/prime from the prior G10.
+   *   - !FWRETRACT: Retract by resume_position[E], if negative.
+   *                 Not sure how this logic comes into use.
+   * - Move the nozzle back to resume_position
+   * - Sync the planner E to resume_position[E]
+   * - Send host action for resume, if configured
+   * - Resume the current SD print job, if any
+   */
+  static void resume_print(const float &load_length=0, const float &purge_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0) {
     if (!did_pause_print) return;
 
     // Re-enable the heaters if they timed out
+    bool nozzle_timed_out = false;
     HOTEND_LOOP() {
       nozzle_timed_out |= thermalManager.is_heater_idle(e);
       thermalManager.reset_heater_idle_timer(e);
@@ -6605,7 +6668,7 @@ inline void gcode_M17() {
 
     if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
       // Load the new filament
-      load_filament(load_length, extrude_length, max_beep_count, true, nozzle_timed_out);
+      load_filament(load_length, purge_length, max_beep_count, true, nozzle_timed_out);
     }
 
     #if ENABLED(ULTIPANEL)
@@ -6619,7 +6682,7 @@ inline void gcode_M17() {
       if (fwretract.retracted[active_extruder])
         do_pause_e_move(-fwretract.retract_length, fwretract.retract_feedrate_mm_s);
     #else
-      // If resume_position negative
+      // If resume_position is negative
       if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
     #endif
 
@@ -8521,11 +8584,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   inline void gcode_M125() {
 
     // Initial retract before move to filament change position
-    const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+    const float retract = -FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
       #ifdef PAUSE_PARK_RETRACT_LENGTH
-        - (PAUSE_PARK_RETRACT_LENGTH)
+        + (PAUSE_PARK_RETRACT_LENGTH)
       #endif
-    ;
+    );
 
     point_t park_point = NOZZLE_PARK_POINT;
 
@@ -10150,7 +10213,7 @@ inline void gcode_M502() {
     const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                       filament_change_load_length[target_extruder]);
 
-    // Show initial message
+    // Show initial "wait for load" message
     #if ENABLED(ULTIPANEL)
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
     #endif
