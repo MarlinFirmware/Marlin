@@ -95,7 +95,9 @@ typedef struct SettingsDataStruct {
             planner_max_feedrate_mm_s[XYZE_N];          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
   uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N]; // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
   float     planner_acceleration,                       // M204 P     planner.acceleration
+  #if EXTRUDERS > 0
             planner_retract_acceleration,               // M204 R     planner.retract_acceleration
+  #endif
             planner_travel_acceleration,                // M204 T     planner.travel_acceleration
             planner_min_feedrate_mm_s,                  // M205 S     planner.min_feedrate_mm_s
             planner_min_travel_feedrate_mm_s;           // M205 T     planner.min_travel_feedrate_mm_s
@@ -405,29 +407,40 @@ void MarlinSettings::postprocess() {
     working_crc = 0; // clear before first "real data"
 
     _FIELD_TEST(esteppers);
-
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
+    _FIELD_TEST(planner_axis_steps_per_mm);
     EEPROM_WRITE(planner.axis_steps_per_mm);
+    _FIELD_TEST(planner_max_feedrate_mm_s);
     EEPROM_WRITE(planner.max_feedrate_mm_s);
-    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
+    _FIELD_TEST(planner_max_acceleration_mm_per_s2);
+    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);    
 
-    EEPROM_WRITE(planner.acceleration);
-    EEPROM_WRITE(planner.retract_acceleration);
+    _FIELD_TEST(planner_acceleration);
+    EEPROM_WRITE(planner.acceleration);    
+    #if EXTRUDERS > 0
+      _FIELD_TEST(planner_retract_acceleration);
+      EEPROM_WRITE(planner.retract_acceleration);      
+    #endif
+    _FIELD_TEST(planner_travel_acceleration);
     EEPROM_WRITE(planner.travel_acceleration);
+    _FIELD_TEST(planner_min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
+    _FIELD_TEST(planner_min_travel_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
+    
+    _FIELD_TEST(planner_min_segment_time_us);
     #if DISABLED(SLOWDOWN)
       const uint32_t min_seg_time = DEFAULT_MINSEGMENTTIME;
       EEPROM_WRITE(min_seg_time);
     #else
       EEPROM_WRITE(planner.min_segment_time_us);
-    #endif
+    #endif    
+    _FIELD_TEST(planner_max_jerk);
     EEPROM_WRITE(planner.max_jerk);
 
     _FIELD_TEST(home_offset);
-
     #if !HAS_HOME_OFFSET
       const float home_offset[XYZ] = { 0 };
     #endif
@@ -435,14 +448,16 @@ void MarlinSettings::postprocess() {
 
     #if HOTENDS > 1
       // Skip hotend 0 which must be 0
+      _FIELD_TEST(hotend_offset);
       for (uint8_t e = 1; e < HOTENDS; e++)
-        LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+        LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);      
     #endif
 
     //
     // Global Leveling
     //
 
+    _FIELD_TEST(planner_z_fade_height);
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float zfh = planner.z_fade_height;
     #else
@@ -933,7 +948,9 @@ void MarlinSettings::postprocess() {
       }
 
       EEPROM_READ(planner.acceleration);
-      EEPROM_READ(planner.retract_acceleration);
+      #if EXTRUDERS > 0
+        EEPROM_READ(planner.retract_acceleration);
+      #endif
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
@@ -1571,7 +1588,9 @@ void MarlinSettings::reset() {
   }
 
   planner.acceleration = DEFAULT_ACCELERATION;
-  planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  #if EXTRUDERS > 0  
+    planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  #endif
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
@@ -1581,7 +1600,9 @@ void MarlinSettings::reset() {
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-  planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+  #if EXTRUDERS > 0  
+    planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -1963,11 +1984,17 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
+      #if EXTRUDERS > 0  
+        SERIAL_ECHOLNPGM("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
+      #else
+        SERIAL_ECHOLNPGM("Acceleration (units/s2): P<print_accel> T<travel_accel>");
+      #endif
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M204 P", LINEAR_UNIT(planner.acceleration));
-    SERIAL_ECHOPAIR(" R", LINEAR_UNIT(planner.retract_acceleration));
+    #if EXTRUDERS > 0  
+      SERIAL_ECHOPAIR(" R", LINEAR_UNIT(planner.retract_acceleration));
+    #endif
     SERIAL_ECHOLNPAIR(" T", LINEAR_UNIT(planner.travel_acceleration));
 
     if (!forReplay) {
@@ -1977,7 +2004,11 @@ void MarlinSettings::reset() {
         #define B_WORD
       #endif
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> " B_WORD "X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      #if EXTRUDERS > 0  
+        SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> " B_WORD "X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      #else
+        SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> " B_WORD "X<max_xy_jerk> Z<max_z_jerk>");
+      #endif
     }
     CONFIG_ECHO_START;
     SERIAL_ECHOPAIR("  M205 S", LINEAR_UNIT(planner.min_feedrate_mm_s));
@@ -1988,7 +2019,9 @@ void MarlinSettings::reset() {
     SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
     SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
     SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
-    SERIAL_ECHOLNPAIR(" E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+    #if EXTRUDERS > 0  
+      SERIAL_ECHOLNPAIR(" E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+    #endif
 
     #if HAS_M206_COMMAND
       if (!forReplay) {

@@ -193,8 +193,14 @@
       const float m = dy / dx,
                   c = start[Y_AXIS] - m * start[X_AXIS];
 
-      const bool inf_normalized_flag = (isinf(e_normalized_dist) != 0),
-                 inf_m_flag = (isinf(m) != 0);
+      #if EXTRUDERS
+        const bool inf_normalized_flag = (isinf(e_normalized_dist) != 0);
+      #else
+        const bool inf_normalized_flag = true;
+      #endif
+      
+      const bool inf_m_flag = (isinf(m) != 0);
+
       /**
        * This block handles vertical lines. These are lines that stay within the same
        * X Cell column. They do not need to be perfectly vertical. They just can

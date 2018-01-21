@@ -409,22 +409,34 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
       if (blink || !is_idle)
     #endif
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
+    #if HOTENDS
+      _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
+    #else
+      _draw_centered_temp(thermalManager.degTargetBed() + 0.5, x, 7); }
+    #endif
 
   if (PAGE_CONTAINS(21, 28))
-    _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
+    #if HOTENDS
+      _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
+    #else
+      _draw_centered_temp(thermalManager.degBed() + 0.5, x, 28);
+    #endif
 
   if (PAGE_CONTAINS(17, 20)) {
     const uint8_t h = isBed ? 7 : 8,
                   y = isBed ? 18 : 17;
-    if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
-      u8g.setColorIndex(0); // white on black
-      u8g.drawBox(x + h, y, 2, 2);
-      u8g.setColorIndex(1); // black on white
-    }
-    else {
-      u8g.drawBox(x + h, y, 2, 2);
-    }
+    #if HOTENDS
+      if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
+    #else
+      if (thermalManager.isHeatingBed()) {
+    #endif
+        u8g.setColorIndex(0); // white on black
+        u8g.drawBox(x + h, y, 2, 2);
+        u8g.setColorIndex(1); // black on white
+      }
+      else {
+        u8g.drawBox(x + h, y, 2, 2);
+      }
   }
 }
 
@@ -496,7 +508,7 @@ static void lcd_implementation_status_screen() {
 
     u8g.drawBitmapP(
       STATUS_SCREEN_X, 1,
-      (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
+      (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,      
       #if HAS_FAN0
         blink && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp
       #else

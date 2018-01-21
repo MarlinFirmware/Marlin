@@ -484,15 +484,19 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Single Stepper Dual Extruder with switching servo
  */
-#if ENABLED(SWITCHING_EXTRUDER) && NUM_SERVOS < 1
-  #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+#if ENABLED(SWITCHING_EXTRUDER)
+  #if NUM_SERVOS < 1
+    #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+  #elif EXTRUDERS != 1
+    #error "SWITCHING_EXTRUDER currently only supports one stepper"
+  #endif
 #endif
 
 /**
  * Mixing Extruder requirements
  */
 #if ENABLED(MIXING_EXTRUDER)
-  #if EXTRUDERS > 1
+  #if EXTRUDERS != 1
     #error "MIXING_EXTRUDER currently only supports one extruder."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
@@ -961,7 +965,7 @@ static_assert(1 >= 0
  * Dual X Carriage requirements
  */
 #if ENABLED(DUAL_X_CARRIAGE)
-  #if EXTRUDERS == 1
+  #if EXTRUDERS <= 1
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
   #elif CORE_IS_XY || CORE_IS_XZ
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, or COREZX."

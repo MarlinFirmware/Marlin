@@ -185,9 +185,13 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     // FIXME. The following two are wrong, since the parameter t is
     // not linear in the distance.
     bez_target[Z_AXIS] = interp(position[Z_AXIS], target[Z_AXIS], t);
-    bez_target[E_AXIS] = interp(position[E_AXIS], target[E_AXIS], t);
+    #if EXTRUDERS
+      bez_target[E_AXIS] = interp(position[E_AXIS], target[E_AXIS], t);
+    #endif
     clamp_to_software_endstops(bez_target);
-    planner.buffer_line_kinematic(bez_target, fr_mm_s, extruder);
+    #if EXTRUDERS
+      planner.buffer_line_kinematic(bez_target, fr_mm_s, extruder);
+    #endif
   }
 }
 

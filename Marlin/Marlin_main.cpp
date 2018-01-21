@@ -8336,14 +8336,25 @@ void report_current_position() {
 
     SERIAL_PROTOCOLPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
-    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], stepper.get_axis_position_mm(E_AXIS) };
+    #if EXTRUDERS > 0
+      const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], stepper.get_axis_position_mm(E_AXIS) };
+    #else
+      const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS] };
+    #endif
     report_xyze(from_steppers);
 
-    const float diff[XYZE] = {
-      from_steppers[X_AXIS] - leveled[X_AXIS],
-      from_steppers[Y_AXIS] - leveled[Y_AXIS],
-      from_steppers[Z_AXIS] - leveled[Z_AXIS],
-      from_steppers[E_AXIS] - current_position[E_AXIS]
+    #if EXTRUDERS > 0
+      const float diff[XYZE] = {
+        from_steppers[X_AXIS] - leveled[X_AXIS],
+        from_steppers[Y_AXIS] - leveled[Y_AXIS],
+        from_steppers[Z_AXIS] - leveled[Z_AXIS],
+        from_steppers[E_AXIS] - current_position[E_AXIS]
+    #else
+      const float diff[XYZE] = {
+        from_steppers[X_AXIS] - leveled[X_AXIS],
+        from_steppers[Y_AXIS] - leveled[Y_AXIS],
+        from_steppers[Z_AXIS] - leveled[Z_AXIS]
+    #endif
     };
     SERIAL_PROTOCOLPGM("Differ: ");
     report_xyze(diff);
@@ -8683,10 +8694,12 @@ inline void gcode_M204() {
     planner.acceleration = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Setting Print Acceleration: ", planner.acceleration);
   }
-  if (parser.seen('R')) {
-    planner.retract_acceleration = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
-  }
+  #if EXTRUDERS > 0  
+    if (parser.seen('R')) {
+      planner.retract_acceleration = parser.value_linear_units();
+      SERIAL_ECHOLNPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
+    }
+  #endif
   if (parser.seen('T')) {
     planner.travel_acceleration = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Setting Travel Acceleration: ", planner.travel_acceleration);
@@ -8710,7 +8723,9 @@ inline void gcode_M205() {
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
   if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
-  if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+  #if EXTRUDERS
+    if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+  #endif
   #if ENABLED(SLOWDOWN)
     if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   #endif
@@ -8964,7 +8979,7 @@ inline void gcode_M211() {
     SERIAL_EOL();
   }
 
-#endif // HOTENDS > 1
+#endif //HOTENDS > 1
 
 #if HOTENDS
 
@@ -8986,7 +9001,7 @@ inline void gcode_M221() {
   }
 }
 
-#endif // HOTENDS
+#endif //HOTENDS
 
 /**
  * M226: Wait until the specified pin reaches the state required (M226 P<pin> S<state>)

@@ -2517,9 +2517,13 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_UBL_LEVEL_BED);
       MENU_ITEM(gcode, "1 " MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));
       MENU_ITEM(gcode, "2 " MSG_UBL_SMART_FILLIN, PSTR("G29 P3 T0"));
-      MENU_ITEM(submenu, "3 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      #if HOTENDS
+        MENU_ITEM(submenu, "3 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      #endif
       MENU_ITEM(gcode, "4 " MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
-      MENU_ITEM(submenu, "5 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      #if HOTENDS
+        MENU_ITEM(submenu, "5 " MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+      #endif
       MENU_ITEM(gcode, "6 " MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
       MENU_ITEM(function, "7 " MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
       END_MENU();
@@ -2655,12 +2659,14 @@ void kill_screen(const char* lcd_msg) {
     //
     // Preheat for Material 1 and 2
     //
-    #if TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED
-      MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
-      MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
-    #elif HOTENDS
-      MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
-      MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
+    #if HOTENDS
+      #if TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED
+        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
+        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
+      #else
+        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
+        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
+      #endif
     #endif
 
     //
@@ -3194,7 +3200,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 
-    #if (DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE))  && EXTRUDERS > 0
+    #if (DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE))  && EXTRUDERS
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
@@ -3237,7 +3243,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if ENABLED(PID_AUTOTUNE_MENU)
+  #if ENABLED(PID_AUTOTUNE_MENU) && (HOTENDS || ENABLED(PIDTEMPBED))
 
     #if ENABLED(PIDTEMP)
       int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
@@ -3582,7 +3588,7 @@ void kill_screen(const char* lcd_msg) {
       // M204 P Acceleration
       MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
 
-      #if HOTENDS
+      #if EXTRUDERS //HOTENDS
         // M204 R Retract Acceleration
         MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.retract_acceleration, 100, 99000);
       #endif
@@ -3962,11 +3968,13 @@ void kill_screen(const char* lcd_msg) {
     void lcd_info_thermistors_menu() {
       if (use_click()) { return lcd_goto_previous_menu(); }
       START_SCREEN();
-      #define THERMISTOR_ID TEMP_SENSOR_0
-      #include "thermistornames.h"
-      STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
-      STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP), false);
-      STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP), false);
+      #if TEMP_SENSOR_0
+        #define THERMISTOR_ID TEMP_SENSOR_0
+        #include "thermistornames.h"
+        STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP), false);
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP), false);
+      #endif
 
       #if TEMP_SENSOR_1
         #undef THERMISTOR_ID
@@ -4074,7 +4082,9 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_MAIN);
       MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, lcd_info_printer_menu);        // Printer Info >
       MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info >
-      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors >
+      #if TEMP_SENSOR_0 || TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED
+        MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors >
+      #endif
       #if ENABLED(PRINTCOUNTER)
         MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics >
       #endif

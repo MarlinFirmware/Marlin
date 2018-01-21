@@ -738,7 +738,9 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    _draw_heater_status(0, -1, blink);
+    #if HOTENDS > 0
+      _draw_heater_status(0, -1, blink);
+    #endif //HOTENDS > 0
 
     //
     // Hotend 1 or Bed Temperature
@@ -761,7 +763,9 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+    #if HOTENDS > 0
+      _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+    #endif //HOTENDS > 0
 
     //
     // Hotend 1 or Bed Temperature
