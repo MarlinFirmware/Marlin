@@ -43,13 +43,13 @@
 
 #include "Marlin.h"
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if DAC_STEPPER_CURRENT
 
   #include "stepper_dac.h"
 
   bool dac_present = false;
-  const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-  uint8_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
+  const uint8_t dac_order[DAC_STEPPER_CURRENT] = DAC_STEPPER_ORDER;
+  uint8_t dac_channel_pct[DAC_STEPPER_CURRENT] = DAC_MOTOR_CURRENT_DEFAULT;
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
