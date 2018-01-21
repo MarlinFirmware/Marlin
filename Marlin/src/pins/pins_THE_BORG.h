@@ -56,9 +56,9 @@
 #define X_MAX_PIN          _STM32_PIN(PORTE, 10)
 #define Y_MIN_PIN          _STM32_PIN(PORTE, 7)
 #define Y_MAX_PIN          _STM32_PIN(PORTE, 8)
-#define Z_MIN_PIN          _STM32_PIN(PORTF, 15) 
+#define Z_MIN_PIN          _STM32_PIN(PORTF, 15)
 #define Z_MAX_PIN          _STM32_PIN(PORTG, 0)
-#define E_MIN_PIN          _STM32_PIN(PORTE, 2)  
+#define E_MIN_PIN          _STM32_PIN(PORTE, 2)
 #define E_MAX_PIN          _STM32_PIN(PORTE, 3)
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -165,15 +165,15 @@
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 
-#define E_MUX0_PIN         _STM32_PIN(PORTG, 3)  
+#define E_MUX0_PIN         _STM32_PIN(PORTG, 3)
 #define E_MUX1_PIN         _STM32_PIN(PORTG, 4)
 
 //
 // Servos
 //
 
-#define SERVO0_PIN         _STM32_PIN(PORTE, 13)  
-#define SERVO1_PIN         _STM32_PIN(PORTE, 14)  
+#define SERVO0_PIN         _STM32_PIN(PORTE, 13)
+#define SERVO1_PIN         _STM32_PIN(PORTE, 14)
 
 
 #define SDSS               _STM32_PIN(PORTA, 8)
@@ -191,7 +191,7 @@
 #define MAX7219_LOAD_PIN   _STM32_PIN(PORTD, 1)     //EXP1-5
 
 //#define NEOPIXEL_PIN    4
-  
+
 //
 // LCD / Controller
 //

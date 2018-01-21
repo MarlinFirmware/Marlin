@@ -174,7 +174,7 @@ private:
   LsAction lsAction; //stored for recursion.
   uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
-  void lsDive(const char *prepend, SdFile parent, const char * const match=NULL  
+  void lsDive(const char *prepend, SdFile parent, const char * const match=NULL
     #if NUM_SERIAL > 1
       , const int8_t port = -1
     #endif

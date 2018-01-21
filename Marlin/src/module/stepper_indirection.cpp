@@ -41,7 +41,7 @@
 #if ENABLED(HAVE_TMCDRIVER)
 
   #include <SPI.h>
-  
+
   #ifdef STM32F7
     #include "../HAL/HAL_STM32F7/TMC2660.h"
   #else

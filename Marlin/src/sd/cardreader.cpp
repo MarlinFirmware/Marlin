@@ -180,7 +180,7 @@ void CardReader::ls(
 ) {
   lsAction = LS_SerialPrint;
   root.rewind();
-  lsDive("", root  
+  lsDive("", root
     #if NUM_SERIAL > 1
       , NULL, port
     #endif
