@@ -22,11 +22,12 @@
 
 #ifndef WATCHDOG_ESP32_H
 #define WATCHDOG_ESP32_H
+#include <esp_task_wdt.h>
 
 // Initialize watchdog with a 4 second interrupt time
 void watchdog_init();
 
 // Reset watchdog.
-inline void watchdog_reset() {};
+inline void watchdog_reset() {esp_task_wdt_feed();};
 
 #endif /* WATCHDOG_ESP32_H */
