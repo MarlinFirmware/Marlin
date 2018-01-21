@@ -137,34 +137,28 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM:
-      timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
-      break;
-    case TEMP_TIMER_NUM:
-      timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
-      break;
-    default:
-      break;
+    case STEP_TIMER_NUM: ENABLE_STEPPER_DRIVER_INTERRUPT(); break;
+    case TEMP_TIMER_NUM: ENABLE_TEMPERATURE_INTERRUPT(); break;
+    default: break;
   }
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM:
-      timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN);
-      break;
-    case TEMP_TIMER_NUM:
-      timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
-      break;
-    default:
-      break;
+    case STEP_TIMER_NUM: DISABLE_STEPPER_DRIVER_INTERRUPT(); break;
+    case TEMP_TIMER_NUM: DISABLE_TEMPERATURE_INTERRUPT(); break;
+    default: break;
   }
+}
+
+static inline bool timer_irq_enabled(const timer_dev * const dev, const uint8 interrupt) {
+  return bool(*bb_perip(&(dev->regs).adv->DIER, interrupt));
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM: return bool(TIM_DIER(STEP_TIMER_DEV) & STEP_TIMER_CHAN);
-    case TEMP_TIMER_NUM: return bool(TIM_DIER(TEMP_TIMER_DEV) & TEMP_TIMER_CHAN);
+    case STEP_TIMER_NUM: return timer_irq_enabled(STEP_TIMER_DEV, STEP_TIMER_CHAN);
+    case TEMP_TIMER_NUM: return timer_irq_enabled(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
   }
   return false;
 }

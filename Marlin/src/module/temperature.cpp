@@ -2154,7 +2154,7 @@ void Temperature::isr() {
       SERIAL_PROTOCOLPAIR_P(port, " (", r / OVERSAMPLENR);
       SERIAL_PROTOCOLCHAR_P(port, ')');
     #endif
-    safe_delay(2);
+    delay(2);
   }
 
   void Temperature::print_heaterstates(

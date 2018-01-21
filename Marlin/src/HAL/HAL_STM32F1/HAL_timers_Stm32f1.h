@@ -83,7 +83,7 @@ typedef uint16_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 
 #define HAL_timer_get_current_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
-#define HAL_timer_set_current_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num, (uint16)count))
+#define HAL_timer_set_current_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num), (uint16)count)
 
 
 #define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
