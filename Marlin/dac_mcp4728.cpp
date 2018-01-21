@@ -33,7 +33,7 @@
 #include "dac_mcp4728.h"
 #include "enum.h"
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if DAC_STEPPER_CURRENT
 
 uint16_t mcp4728_values[XYZE];
 

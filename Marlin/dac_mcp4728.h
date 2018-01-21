@@ -29,7 +29,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if DAC_STEPPER_CURRENT
 #include "Wire.h"
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref

@@ -309,7 +309,7 @@
   #include "tmc_util.h"
 #endif
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if DAC_STEPPER_CURRENT
   #include "stepper_dac.h"
 #endif
 
@@ -10565,7 +10565,7 @@ inline void gcode_M907() {
     for (uint8_t i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (parser.seen('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, parser.value_float());
   #endif
 
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if DAC_STEPPER_CURRENT
     if (parser.seen('S')) {
       const float dac_percent = parser.value_float();
       for (uint8_t i = 0; i <= 4; i++) dac_current_percent(i, dac_percent);
@@ -10574,7 +10574,7 @@ inline void gcode_M907() {
   #endif
 }
 
-#if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+#if HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
 
   /**
    * M908: Control digital trimpot directly (M908 P<pin> S<current>)
@@ -10594,7 +10594,7 @@ inline void gcode_M907() {
     #endif
   }
 
-  #if ENABLED(DAC_STEPPER_CURRENT) // As with Printrbot RevF
+  #if DAC_STEPPER_CURRENT // As with Printrbot RevF
 
     inline void gcode_M909() { dac_print_values(); }
 
@@ -11757,9 +11757,9 @@ void process_parsed_command() {
 
       case 907: gcode_M907(); break;                              // M907: Set Digital Trimpot Motor Current using axis codes.
 
-      #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+      #if HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
         case 908: gcode_M908(); break;                            // M908: Direct Control Digital Trimpot
-        #if ENABLED(DAC_STEPPER_CURRENT)
+        #if DAC_STEPPER_CURRENT
           case 909: gcode_M909(); break;                          // M909: Print Digipot/DAC current value (As with Printrbot RevF)
           case 910: gcode_M910(); break;                          // M910: Commit Digipot/DAC value to External EEPROM (As with Printrbot RevF)
         #endif
@@ -13613,7 +13613,7 @@ void setup() {
     digipot_i2c_init();
   #endif
 
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if DAC_STEPPER_CURRENT
     dac_init();
   #endif
 

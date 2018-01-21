@@ -145,7 +145,7 @@ uint16_t max_display_update_time = 0;
   bool drawing_screen = false;
 #endif
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if DAC_STEPPER_CURRENT
   #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
   uint8_t driverPercent[XYZE];
 #endif
@@ -217,7 +217,7 @@ uint16_t max_display_update_time = 0;
     void lcd_advanced_pause_resume_message();
   #endif
 
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if DAC_STEPPER_CURRENT
     void dac_driver_commit();
     void dac_driver_getValues();
     void lcd_dac_menu();
@@ -1413,7 +1413,7 @@ void kill_screen(const char* lcd_msg) {
    * "Driver current control" submenu items
    *
    */
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if DAC_STEPPER_CURRENT
 
     void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
 
@@ -3212,7 +3212,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
-    #if ENABLED(DAC_STEPPER_CURRENT)
+    #if DAC_STEPPER_CURRENT
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
     #endif
     #if HAS_MOTOR_CURRENT_PWM
