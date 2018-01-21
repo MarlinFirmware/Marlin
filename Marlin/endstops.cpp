@@ -441,7 +441,7 @@ void Endstops::update() {
           #endif
           test_dual_x_endstops(X_MAX, X2_MAX);
         #else
-          if (X_MIN_TEST) UPDATE_ENDSTOP(X, MAX);
+          if (X_MAX_TEST) UPDATE_ENDSTOP(X, MAX);
         #endif
 
       #endif
