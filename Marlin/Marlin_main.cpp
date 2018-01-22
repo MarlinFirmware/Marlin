@@ -6271,7 +6271,7 @@ inline void gcode_M17() {
   void do_pause_e_move(const float &length, const float &fr) {
     set_destination_from_current();
     destination[E_AXIS] += length / planner.e_factor[active_extruder];
-    buffer_line_to_destination(fr);
+    planner.buffer_line_kinematic(destination, fr, active_extruder);
     stepper.synchronize();
     set_current_from_destination();
   }
@@ -6532,8 +6532,11 @@ inline void gcode_M17() {
     if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
       do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-    Nozzle::park(2, park_point);
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (!axis_unhomed_error())
+    #endif
+        // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+        Nozzle::park(2, park_point);
 
     // Unload the filament
     if (unload_length)
@@ -10197,6 +10200,11 @@ inline void gcode_M502() {
   inline void gcode_M701() {
     point_t park_point = NOZZLE_PARK_POINT;
 
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      // Only raise Z if the machine is homed
+      if (axis_unhomed_error()) park_point.z = 0;
+    #endif
+
     if (get_target_extruder_from_command(701)) return;
 
     // Z axis lift
@@ -10253,6 +10261,11 @@ inline void gcode_M502() {
    */
   inline void gcode_M702() {
     point_t park_point = NOZZLE_PARK_POINT;
+
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      // Only raise Z if the machine is homed
+      if (axis_unhomed_error()) park_point.z = 0;
+    #endif
 
     if (get_target_extruder_from_command(702)) return;
 
