@@ -1030,9 +1030,9 @@
 
   // Set the boundaries for probing (where the probe can reach).
   //#define LEFT_PROBE_BED_POSITION 15
-  //#define RIGHT_PROBE_BED_POSITION 170
-  //#define FRONT_PROBE_BED_POSITION 20
-  //#define BACK_PROBE_BED_POSITION 170
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 15)
+  //#define FRONT_PROBE_BED_POSITION 15
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 15)
 
   // ANET A6
   //#define LEFT_PROBE_BED_POSITION 20

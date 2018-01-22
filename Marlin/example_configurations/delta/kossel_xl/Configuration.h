@@ -934,8 +934,8 @@
  * - Use 'M211' to set software endstops on/off or report current state
  */
 
-//#define MIN_SOFTWARE_ENDSTOPS
 // Min software endstops constrain movement within minimum coordinate bounds
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -1051,13 +1051,13 @@
   #define GRID_MAX_POINTS_X 5
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
+  // The Z probe minimum outer margin (to validate G29 parameters).
+  #define MIN_PROBE_EDGE 10
+
   #define LEFT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
   #define RIGHT_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
   #define FRONT_PROBE_BED_POSITION - (DELTA_PROBEABLE_RADIUS - 20)
   #define BACK_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS - 40
-
-  // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 10
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST

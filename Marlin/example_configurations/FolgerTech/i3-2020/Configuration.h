@@ -810,8 +810,8 @@
  * - Use 'M211' to set software endstops on/off or report current state
  */
 
-//#define MIN_SOFTWARE_ENDSTOPS
 // Min software endstops constrain movement within minimum coordinate bounds
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
