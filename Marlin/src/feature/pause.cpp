@@ -287,7 +287,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   COPY(resume_position, current_position);
 
   // Initial retract before move to filament change position
-  if (retract && !thermalManager.tooColdToExtrude(active_extruder))
+  if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
@@ -397,7 +397,7 @@ void resume_print(const float &load_length/*=0*/, const float &extrude_length/*=
     thermalManager.reset_heater_idle_timer(e);
   }
 
-  if (nozzle_timed_out || !thermalManager.tooColdToExtrude(active_extruder)) {
+  if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
     // Load the new filament
     load_filament(load_length, extrude_length, max_beep_count, true, nozzle_timed_out);
   }
