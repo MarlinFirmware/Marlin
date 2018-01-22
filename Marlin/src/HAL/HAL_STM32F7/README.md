@@ -1,17 +1,17 @@
 # This HAL is for the STM32F765 board "The Borg" used with STM32Generic Arduino core by danieleff.
 
-# Original core is located at: 
+# Original core is located at:
 
 https://github.com/danieleff/STM32GENERIC
 
 but i have not committed the changes needed for the Borg there yet, so please use:
 
-https://github.com/Spawn32/STM32GENERIC 
+https://github.com/Spawn32/STM32GENERIC
 
 Unzip it into [Arduino]/hardware folder
 
 
-Download the latest GNU ARM Embedded Toolchain: 
+Download the latest GNU ARM Embedded Toolchain:
 
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 

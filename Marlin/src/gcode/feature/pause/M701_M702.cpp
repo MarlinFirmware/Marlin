@@ -59,7 +59,7 @@ void GcodeSuite::M701() {
   const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                     filament_change_load_length[target_extruder]);
 
-  // Show initial message
+  // Show initial "wait for load" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
   #endif
@@ -112,7 +112,7 @@ void GcodeSuite::M702() {
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  // Show initial message
+  // Show initial "wait for unload" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, target_extruder);
   #endif

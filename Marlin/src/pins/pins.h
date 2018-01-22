@@ -364,6 +364,46 @@
 #ifndef Z_MS2_PIN
   #define Z_MS2_PIN -1
 #endif
+#ifndef Z_MS3_PIN
+  #define Z_MS3_PIN -1
+#endif
+#ifndef E0_MS1_PIN
+  #define E0_MS1_PIN -1
+#endif
+#ifndef E0_MS2_PIN
+  #define E0_MS2_PIN -1
+#endif
+#ifndef E1_MS1_PIN
+  #define E1_MS1_PIN -1
+#endif
+#ifndef E1_MS2_PIN
+  #define E1_MS2_PIN -1
+#endif
+#ifndef E2_MS1_PIN
+  #define E2_MS1_PIN -1
+#endif
+#ifndef E2_MS2_PIN
+  #define E2_MS2_PIN -1
+#endif
+#ifndef E3_MS1_PIN
+  #define E3_MS1_PIN -1
+#endif
+#ifndef E3_MS2_PIN
+  #define E3_MS2_PIN -1
+#endif
+#ifndef E3_MS3_PIN
+  #define E3_MS3_PIN -1
+#endif
+#ifndef E4_MS1_PIN
+  #define E4_MS1_PIN -1
+#endif
+#ifndef E4_MS2_PIN
+  #define E4_MS2_PIN -1
+#endif
+#ifndef E4_MS3_PIN
+  #define E4_MS3_PIN -1
+#endif
+
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN -1
 #endif
@@ -373,12 +413,6 @@
 #ifndef E0_ENABLE_PIN
   #define E0_ENABLE_PIN -1
 #endif
-#ifndef E0_MS1_PIN
-  #define E0_MS1_PIN -1
-#endif
-#ifndef E0_MS2_PIN
-  #define E0_MS2_PIN -1
-#endif
 #ifndef E1_STEP_PIN
   #define E1_STEP_PIN -1
 #endif
@@ -387,12 +421,6 @@
 #endif
 #ifndef E1_ENABLE_PIN
   #define E1_ENABLE_PIN -1
-#endif
-#ifndef E1_MS1_PIN
-  #define E1_MS1_PIN -1
-#endif
-#ifndef E1_MS2_PIN
-  #define E1_MS2_PIN -1
 #endif
 #ifndef E2_STEP_PIN
   #define E2_STEP_PIN -1
@@ -539,7 +567,7 @@
     #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
     #if EXTRUDERS > 4 // Tools 4 and 5 use E2
       #undef _E2_PINS
-      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN,
     #endif
   #endif
 #elif EXTRUDERS > 1
@@ -547,13 +575,13 @@
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
   #if EXTRUDERS > 2
     #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN,
     #if EXTRUDERS > 3
       #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
+      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, E3_MS1_PIN, E3_MS2_PIN,
       #if EXTRUDERS > 4
         #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
+        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN,
       #endif // EXTRUDERS > 4
     #endif // EXTRUDERS > 3
   #endif // EXTRUDERS > 2
@@ -582,16 +610,16 @@
   #endif // HOTENDS > 2
 #elif ENABLED(MIXING_EXTRUDER)
   #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
   #if MIXING_STEPPERS > 2
     #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
+    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN,
     #if MIXING_STEPPERS > 3
       #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
+      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, E3_MS1_PIN, E3_MS2_PIN,
       #if MIXING_STEPPERS > 4
         #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN,
+        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN,
       #endif // MIXING_STEPPERS > 4
     #endif // MIXING_STEPPERS > 3
   #endif // MIXING_STEPPERS > 2

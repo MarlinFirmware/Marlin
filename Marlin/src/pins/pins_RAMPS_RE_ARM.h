@@ -195,6 +195,7 @@
     #define SPINDLE_DIR_PIN           P1_19   // (5)
   #endif
 #endif
+
 //
 // Průša i3 MK2 Multiplexer Support
 //
