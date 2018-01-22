@@ -1249,7 +1249,7 @@
     #endif
   #endif
 #endif
-  
+
 // Nozzle park
 #if ENABLED(NOZZLE_PARK_FEATURE) && ENABLED(DELTA)
   #undef NOZZLE_PARK_Z_FEEDRATE
