@@ -41,7 +41,7 @@
  *  L[distance] - Extrude distance for insertion, for the specified extruder
  *
  */
-inline void GcodeSuite::M603() {
+void GcodeSuite::M603() {
 
   if (get_target_extruder_from_command()) return;
 

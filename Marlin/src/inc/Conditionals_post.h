@@ -1249,6 +1249,12 @@
     #endif
   #endif
 #endif
+  
+// Nozzle park
+#if ENABLED(NOZZLE_PARK_FEATURE) && ENABLED(DELTA)
+  #undef NOZZLE_PARK_Z_FEEDRATE
+  #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
+#endif
 
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // because of a bug in the shared SPI implementation. (See #8122)
