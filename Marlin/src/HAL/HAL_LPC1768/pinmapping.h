@@ -196,25 +196,27 @@ constexpr pin_t pin_map[] = {
     P_NC,  P_NC,
   #endif
   #if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
-    P0_02, P0_03,
+                  P0_02, P0_03,
   #else
-    P_NC,  P_NC,
+                  P_NC,  P_NC,
   #endif
-  P0_04, P0_05, P0_06, P0_07,
-  P0_08, P0_09,
+                                P0_04, P0_05, P0_06, P0_07,
+    P0_08, P0_09,
   #if SERIAL_PORT != 2 && SERIAL_PORT_2 != 2
-    P0_10, P0_11,
+                  P0_10, P0_11,
   #else
-    P_NC,  P_NC,
+                  P_NC,  P_NC,
   #endif
-  P_NC,  P_NC,  P_NC,
+                                P_NC,  P_NC,  P_NC,
   #if SERIAL_PORT != 1 && SERIAL_PORT_2 != 1
-    P0_15, P0_16,
+                                                     P0_15,
+    P0_16,
   #else
-    P_NC, P_NC,
+                                                     P_NC,
+    P_NC,
   #endif
 
-  P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
+         P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
   P0_24, P0_25, P0_26, P0_27, P0_28, P0_29, P0_30, P_NC,
 
   P1_00, P1_01, P_NC,  P_NC,  P1_04, P_NC,  P_NC,  P_NC,
