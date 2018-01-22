@@ -1421,7 +1421,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       if (!validating) report(
-        #if NUM_SERIAL > 1
+        #if ADD_PORT_ARG
           port
         #endif
       );
@@ -1432,13 +1432,13 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::validate(
-    #if NUM_SERIAL > 1
+    #if ADD_PORT_ARG
       const int8_t port/*=-1*/
     #endif
   ) {
     validating = true;
     const bool success = _load(
-      #if NUM_SERIAL > 1
+      #if ADD_PORT_ARG
         port
       #endif
     );
@@ -1838,7 +1838,7 @@ void MarlinSettings::reset(
    * Unless specifically disabled, M503 is available even without EEPROM
    */
   void MarlinSettings::report(const bool forReplay
-    #if NUM_SERIAL > 1
+    #if ADD_PORT_ARG
       , const int8_t port/*=-1*/
     #endif
   ) {
