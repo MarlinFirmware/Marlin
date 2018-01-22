@@ -68,14 +68,6 @@ class Endstops {
       typedef byte esbits_t;
     #endif
 
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      static float z_endstop_adj;
-    #endif
-
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      static float y_endstop_adj;
-    #endif
-
     static esbits_t current_endstop_bits, old_endstop_bits;
 
     Endstops() {
@@ -149,10 +141,6 @@ class Endstops {
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static void test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2);
-    #endif
-
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      static void test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2);
     #endif
 };
 

@@ -78,8 +78,7 @@ void GcodeSuite::G92() {
           if (i == E_AXIS) {
             didE = true;
             current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
-          }
-          else {
+          } else {
             position_shift[i] += d;       // Other axes simply offset the coordinate space
             update_software_endstops((AxisEnum)i);
           }
@@ -101,12 +100,12 @@ void GcodeSuite::G92() {
 
     if(adjust_z == 0){
       //nothing
-    }else{
+    } else {
       if(adjust_z > 0){
         do_blocking_move_to_z(curr_z + Z_ADJUST_HOP_DISTANCE + adjust_z, HOMING_FEEDRATE_Z);
         do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
 
-      }else{//adjust_z < 0
+      } else {//adjust_z < 0
         do_blocking_move_to_z(curr_z + Z_ADJUST_HOP_DISTANCE, HOMING_FEEDRATE_Z);
         do_blocking_move_to_z(curr_z + adjust_z, HOMING_FEEDRATE_Z);
       }
@@ -117,14 +116,15 @@ void GcodeSuite::G92() {
       else
         secondaryZTO += adjust_z;
     }
-      //report
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("adjust_z(now): ", adjust_z);
-      SERIAL_ECHOLNPAIR("primaryZTO: ", primaryZTO);
-      SERIAL_ECHOLNPAIR("secondaryZTO: ", secondaryZTO);
+
+    //report
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR("adjust_z(now): ", adjust_z);
+    SERIAL_ECHOLNPAIR("primaryZTO: ", primaryZTO);
+    SERIAL_ECHOLNPAIR("secondaryZTO: ", secondaryZTO);
   }
 
-  bool didR = parser.seenval('R')
+  bool didR = parser.seenval('R');
   if (didR){
     primaryZTO = 0;
     secondaryZTO = 0;
