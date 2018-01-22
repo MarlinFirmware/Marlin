@@ -261,8 +261,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
 
     #if ENABLED(ULTIPANEL)
-      if (show_lcd) // Show status screen
+      if (show_lcd) { // Show status screen
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
+        LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
+      }
     #endif
 
     return false; // unable to reach safe temperature
