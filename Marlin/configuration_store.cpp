@@ -2230,8 +2230,11 @@ void MarlinSettings::reset() {
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHO("  M852 I");
         SERIAL_ECHO_F(LINEAR_UNIT(planner.xy_skew_factor), 6);
-        SERIAL_ECHOPAIR(" J", LINEAR_UNIT(planner.xz_skew_factor));
-        SERIAL_ECHOLNPAIR(" K", LINEAR_UNIT(planner.yz_skew_factor));
+        SERIAL_ECHOPGM(" J");
+        SERIAL_ECHO_F(LINEAR_UNIT(planner.xz_skew_factor), 6);
+        SERIAL_ECHOPGM(" K");
+        SERIAL_ECHO_F(LINEAR_UNIT(planner.yz_skew_factor), 6);
+        SERIAL_EOL();
       #else
         SERIAL_ECHO("  M852 S");
         SERIAL_ECHO_F(LINEAR_UNIT(planner.xy_skew_factor), 6);
