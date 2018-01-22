@@ -1510,17 +1510,17 @@ static_assert(1 >= 0
  * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
 #if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       ENABLED( X_HARDWARE_SERIAL  ) \
-    || ENABLED( X2_HARDWARE_SERIAL ) \
-    || ENABLED( Y_HARDWARE_SERIAL  ) \
-    || ENABLED( Y2_HARDWARE_SERIAL ) \
-    || ENABLED( Z_HARDWARE_SERIAL  ) \
-    || ENABLED( Z2_HARDWARE_SERIAL ) \
-    || ENABLED( E0_HARDWARE_SERIAL ) \
-    || ENABLED( E1_HARDWARE_SERIAL ) \
-    || ENABLED( E2_HARDWARE_SERIAL ) \
-    || ENABLED( E3_HARDWARE_SERIAL ) \
-    || ENABLED( E4_HARDWARE_SERIAL ) )
+       defined(X_HARDWARE_SERIAL ) \
+    || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) \
+    || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) \
+    || defined(Z2_HARDWARE_SERIAL) \
+    || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) \
+    || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) \
+    || defined(E4_HARDWARE_SERIAL) )
   #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
 
