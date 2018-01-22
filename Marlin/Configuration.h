@@ -925,10 +925,10 @@
   #define MIN_PROBE_EDGE 10
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 100
-  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 100)
-  #define FRONT_PROBE_BED_POSITION 100
-  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 100)
+  #define LEFT_PROBE_BED_POSITION 110
+  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 50)
+  #define FRONT_PROBE_BED_POSITION 60
+  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
