@@ -6535,8 +6535,8 @@ inline void gcode_M17() {
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (!axis_unhomed_error())
     #endif
-    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-    Nozzle::park(2, park_point);
+        // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+        Nozzle::park(2, park_point);
 
     // Unload the filament
     if (unload_length)
