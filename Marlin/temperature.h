@@ -196,6 +196,9 @@ class Temperature {
       FORCE_INLINE static bool targetTooColdToExtrude(const uint8_t e) { UNUSED(e); return false; }
     #endif
 
+    FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
+    FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
+
   private:
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)

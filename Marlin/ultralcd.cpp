@@ -1394,7 +1394,7 @@ void kill_screen(const char* lcd_msg) {
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-        if (!thermalManager.targetTooColdToExtrude(active_extruder))
+        if (thermalManager.targetHotEnoughToExtrude(active_extruder))
           MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
         else
           MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
@@ -2599,7 +2599,7 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (!thermalManager.targetTooColdToExtrude(active_extruder))
+          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
             MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
           else
             MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
@@ -4272,21 +4272,21 @@ void kill_screen(const char* lcd_msg) {
 
             // Unload filament
             #if E_STEPPERS == 1
-              if (!thermalManager.targetTooColdToExtrude(active_extruder))
+              if (thermalManager.targetHotEnoughToExtrude(active_extruder))
                 MENU_ITEM(gcode, MSG_FILAMENTUNLOAD, PSTR("M702"));
               else
                 MENU_ITEM(submenu, MSG_FILAMENTUNLOAD, lcd_temp_menu_e0_filament_unload);
             #else
               #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-                if (!thermalManager.targetTooColdToExtrude(0)
+                if (thermalManager.targetHotEnoughToExtrude(0)
                   #if E_STEPPERS > 1
-                    && !thermalManager.targetTooColdToExtrude(1)
+                    && thermalManager.targetHotEnoughToExtrude(1)
                     #if E_STEPPERS > 2
-                      && !thermalManager.targetTooColdToExtrude(2)
+                      && thermalManager.targetHotEnoughToExtrude(2)
                       #if E_STEPPERS > 3
-                        && !thermalManager.targetTooColdToExtrude(3)
+                        && thermalManager.targetHotEnoughToExtrude(3)
                         #if E_STEPPERS > 4
-                          && !thermalManager.targetTooColdToExtrude(4)
+                          && thermalManager.targetHotEnoughToExtrude(4)
                         #endif // E_STEPPERS > 4
                       #endif // E_STEPPERS > 3
                     #endif // E_STEPPERS > 2
@@ -4296,26 +4296,26 @@ void kill_screen(const char* lcd_msg) {
               else
                 MENU_ITEM(submenu, MSG_FILAMENTUNLOAD_ALL, lcd_unload_filament_all_temp_menu);
               #endif
-              if (!thermalManager.targetTooColdToExtrude(0))
+              if (thermalManager.targetHotEnoughToExtrude(0))
                 MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E1, PSTR("M702 T0"));
               else
                 MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E1, lcd_temp_menu_e0_filament_unload);
-              if (!thermalManager.targetTooColdToExtrude(1))
+              if (thermalManager.targetHotEnoughToExtrude(1))
                 MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E2, PSTR("M702 T1"));
               else
                 MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E2, lcd_temp_menu_e1_filament_unload);
               #if E_STEPPERS > 2
-                if (!thermalManager.targetTooColdToExtrude(2))
+                if (thermalManager.targetHotEnoughToExtrude(2))
                   MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E3, PSTR("M702 T2"));
                 else
                   MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E3, lcd_temp_menu_e2_filament_unload);
                 #if E_STEPPERS > 3
-                  if (!thermalManager.targetTooColdToExtrude(3))
+                  if (thermalManager.targetHotEnoughToExtrude(3))
                     MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E4, PSTR("M702 T3"));
                   else
                     MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E4, lcd_temp_menu_e3_filament_unload);
                   #if E_STEPPERS > 4
-                    if (!thermalManager.targetTooColdToExtrude(4))
+                    if (thermalManager.targetHotEnoughToExtrude(4))
                       MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E5, PSTR("M702 T4"));
                     else
                       MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E5, lcd_temp_menu_e4_filament_unload);
