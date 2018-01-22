@@ -108,6 +108,7 @@
 #define TEMP_1_PIN          1   // Analog Input
 #define TEMP_2_PIN          2   // Analog Input
 #define TEMP_3_PIN          3   // Analog Input
+#define TEMP_4_PIN          5   // dummy so will compile when PINS_DEBUGGING is enabled
 #define TEMP_BED_PIN        4   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
