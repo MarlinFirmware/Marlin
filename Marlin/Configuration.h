@@ -150,7 +150,7 @@
 #define EXTRUDERS 3
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -704,7 +704,7 @@
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING 2
+// #define MULTIPLE_PROBING 1
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -925,10 +925,10 @@
   #define MIN_PROBE_EDGE 10
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 15
-  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 15)
-  #define FRONT_PROBE_BED_POSITION 15
-  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 15)
+  #define LEFT_PROBE_BED_POSITION 100
+  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 100)
+  #define FRONT_PROBE_BED_POSITION 100
+  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 100)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
