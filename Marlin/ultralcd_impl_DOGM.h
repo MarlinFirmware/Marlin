@@ -386,6 +386,10 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
 
+#ifndef HEAT_INDICATOR_X
+  #define HEAT_INDICATOR_X 8
+#endif
+
 FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -415,7 +419,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
 
   if (PAGE_CONTAINS(17, 20)) {
-    const uint8_t h = isBed ? 7 : 8,
+    const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
                   y = isBed ? 18 : 17;
     if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
       u8g.setColorIndex(0); // white on black
