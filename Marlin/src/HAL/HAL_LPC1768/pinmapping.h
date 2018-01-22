@@ -215,7 +215,6 @@ constexpr pin_t pin_map[] = {
                                                      P_NC,
     P_NC,
   #endif
-
            P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
     P0_24, P0_25, P0_26, P0_27, P0_28, P0_29, P0_30, P_NC,
 
