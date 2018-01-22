@@ -1362,12 +1362,8 @@ bool get_target_extruder_from_command(const uint16_t code) {
 
 #if HAS_M206_COMMAND
   /**
-   * Change the home offset for an axis, update the current
-   * position and the software endstops to retain the same
-   * relative distance to the new home.
-   *
-   * Since this changes the current_position, code should
-   * call sync_plan_position soon after this.
+   * Change the home offset for an axis.
+   * Also refreshes the workspace offset.
    */
   static void set_home_offset(const AxisEnum axis, const float v) {
     home_offset[axis] = v;
