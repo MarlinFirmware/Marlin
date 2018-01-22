@@ -10202,8 +10202,7 @@ inline void gcode_M502() {
 
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       // Only raise Z if the machine is homed
-      if (axis_unhomed_error())
-        park_point.z = 0;
+      if (axis_unhomed_error()) park_point.z = 0;
     #endif
 
     if (get_target_extruder_from_command(701)) return;
@@ -10265,8 +10264,7 @@ inline void gcode_M502() {
 
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       // Only raise Z if the machine is homed
-      if (axis_unhomed_error())
-        park_point.z = 0;
+      if (axis_unhomed_error()) park_point.z = 0;
     #endif
 
     if (get_target_extruder_from_command(702)) return;
