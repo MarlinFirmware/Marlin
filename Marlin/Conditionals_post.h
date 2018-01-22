@@ -1169,4 +1169,10 @@
     #endif
   #endif
 
+  // Nozzle park
+  #if ENABLED(NOZZLE_PARK_FEATURE) && ENABLED(DELTA)
+    #undef NOZZLE_PARK_Z_FEEDRATE
+    #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
+  #endif
+
 #endif // CONDITIONALS_POST_H
