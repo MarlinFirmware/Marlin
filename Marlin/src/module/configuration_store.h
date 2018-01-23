@@ -25,14 +25,24 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
+
 class MarlinSettings {
   public:
     MarlinSettings() { }
 
     static uint16_t datasize();
 
-    static void reset();
-    static bool save();   // Return 'true' if data was saved
+    static void reset(
+      #if ADD_PORT_ARG
+        const int8_t port=-1
+      #endif
+    );
+    static bool save(
+      #if ADD_PORT_ARG
+        const int8_t port=-1
+      #endif
+    );   // Return 'true' if data was saved
 
     FORCE_INLINE static bool init_eeprom() {
       bool success = true;
@@ -47,8 +57,16 @@ class MarlinSettings {
     }
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool load();     // Return 'true' if data was loaded ok
-      static bool validate(); // Return 'true' if EEPROM data is ok
+      static bool load(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      );     // Return 'true' if data was loaded ok
+      static bool validate(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      ); // Return 'true' if EEPROM data is ok
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -67,7 +85,11 @@ class MarlinSettings {
     #endif
 
     #if DISABLED(DISABLE_M503)
-      static void report(const bool forReplay=false);
+      static void report(const bool forReplay=false
+        #if ADD_PORT_ARG
+          , const int8_t port=-1
+        #endif
+      );
     #else
       FORCE_INLINE
       static void report(const bool forReplay=false) { UNUSED(forReplay); }
@@ -87,8 +109,16 @@ class MarlinSettings {
 
       #endif
 
-      static bool _load();
-      static bool size_error(const uint16_t size);
+      static bool _load(
+        #if ADD_PORT_ARG
+          const int8_t port=-1
+        #endif
+      );
+      static bool size_error(const uint16_t size
+        #if ADD_PORT_ARG
+          , const int8_t port=-1
+        #endif
+      );
     #endif
 };
 

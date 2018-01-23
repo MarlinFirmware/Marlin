@@ -28,9 +28,12 @@ before_install:
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
 
 install:
-  - pip install -U platformio
+  #- pip install -U platformio
+  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
 
 before_script:
+  # Update PlatformIO packages
+  - platformio update
   #
   # Change current working directory to the build dir
   - cd ${TRAVIS_BUILD_DIR}
@@ -63,7 +66,7 @@ script:
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
   - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
-  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU
+  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU CASE_LIGHT_ENABLE CASE_LIGHT_USE_NEOPIXEL
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
   - opt_set_adv FANMUX0_PIN 53
@@ -434,4 +437,13 @@ script:
   - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
   - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
   - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # Enable VIKI2, SDSUPPORT
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - opt_enable VIKI2 SDSUPPORT
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

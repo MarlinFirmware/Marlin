@@ -62,8 +62,6 @@ typedef uint16_t hal_timer_t;
 #define STEP_TIMER_DEV TIMER_DEV(STEP_TIMER_NUM)
 #define TEMP_TIMER_DEV TIMER_DEV(TEMP_TIMER_NUM)
 
-
-
 //STM32_HAVE_TIMER(n);
 
 #define HAL_TIMER_RATE         (F_CPU)  // frequency of timers peripherals
@@ -79,12 +77,13 @@ typedef uint16_t hal_timer_t;
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
 
 #define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 #define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 
 #define HAL_timer_get_current_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
-#define HAL_timer_set_current_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num, (uint16)count))
+#define HAL_timer_set_current_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num), (uint16)count)
 
 
 #define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
@@ -113,9 +112,10 @@ static HardwareTimer TempTimer(TEMP_TIMER_NUM);
 // Public functions
 // --------------------------------------------------------------------------
 
-void HAL_timer_start(uint8_t timer_num, uint32_t frequency);
-void HAL_timer_enable_interrupt(uint8_t timer_num);
-void HAL_timer_disable_interrupt(uint8_t timer_num);
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
+void HAL_timer_enable_interrupt(const uint8_t timer_num);
+void HAL_timer_disable_interrupt(const uint8_t timer_num);
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 /**
  * NOTE: By default libmaple sets ARPE = 1, which means the Auto reload register is preloaded (will only update with an update event)

@@ -23,6 +23,10 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
+#if NUM_SERIAL > 1
+  #include "../../gcode/queue.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(const char * const name, bool ena=false) {
     SERIAL_PROTOCOLPGM("Cap:");
@@ -36,7 +40,14 @@
  * M115: Capabilities string
  */
 void GcodeSuite::M115() {
-  SERIAL_PROTOCOLLNPGM(MSG_M115_REPORT);
+  #if NUM_SERIAL > 1
+    const int8_t port = command_queue_port[cmd_queue_index_r];
+    #define CAPLINE(STR,...) cap_line(PSTR(STR), port, __VA_ARGS__)
+  #else
+    #define CAPLINE(STR,...) cap_line(PSTR(STR), __VA_ARGS__)
+  #endif
+
+  SERIAL_PROTOCOLLNPGM_P(port, MSG_M115_REPORT);
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 

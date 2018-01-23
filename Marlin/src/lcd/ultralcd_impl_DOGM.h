@@ -230,7 +230,7 @@
 
 #include "utf_mapper.h"
 
-uint16_t lcd_contrast; // Initialized by settings.load()
+int16_t lcd_contrast; // Initialized by settings.load()
 static char currentfont = 0;
 
 // The current graphical page being rendered
@@ -324,7 +324,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
     u8g.firstPage();
     do {
-      u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+      u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
       lcd_setFont(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
         u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
@@ -365,7 +365,6 @@ static void lcd_implementation_init() {
   #elif ENABLED(LCD_SCREEN_ROT_270)
     u8g.setRot270();  // Rotate screen by 270°
   #endif
-
 }
 
 // The kill screen is displayed for unrecoverable conditions
@@ -394,6 +393,10 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const
   lcd_print(itostr3(temp));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
+
+#ifndef HEAT_INDICATOR_X
+  #define HEAT_INDICATOR_X 8
+#endif
 
 FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
@@ -424,7 +427,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
 
   if (PAGE_CONTAINS(17, 20)) {
-    const uint8_t h = isBed ? 7 : 8,
+    const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
                   y = isBed ? 18 : 17;
     if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
       u8g.setColorIndex(0); // white on black
@@ -490,8 +493,6 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-//#define DOGM_SD_PERCENT
-
 static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
@@ -505,7 +506,9 @@ static void lcd_implementation_status_screen() {
 
   if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
 
-    u8g.drawBitmapP(9, 1, STATUS_SCREENBYTEWIDTH, STATUS_SCREENHEIGHT,
+    u8g.drawBitmapP(
+      STATUS_SCREEN_X, 1,
+      (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
       #if HAS_FAN0
         blink && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp
       #else
@@ -521,11 +524,11 @@ static void lcd_implementation_status_screen() {
 
   if (PAGE_UNDER(28)) {
     // Extruders
-    HOTEND_LOOP() _draw_heater_status(5 + e * 25, e, blink);
+    HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
 
     // Heated bed
     #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(81, -1, blink);
+      _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
     #endif
 
     #if HAS_FAN0
@@ -533,7 +536,7 @@ static void lcd_implementation_status_screen() {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
-          u8g.setPrintPos(104, 27);
+          u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, 27);
           lcd_print(itostr3(per));
           u8g.print('%');
         }
@@ -615,7 +618,7 @@ static void lcd_implementation_status_screen() {
 
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
-      bool has_days = (elapsed.value > 60*60*24L);
+      bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
       u8g.setPrintPos(SD_DURATION_X, 48);
       lcd_print(buffer);

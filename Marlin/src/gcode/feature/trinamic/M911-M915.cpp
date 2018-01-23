@@ -28,12 +28,13 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper_indirection.h"
 #include "../../../module/planner.h"
+#include "../../queue.h"
 
 /**
  * M911: Report TMC stepper driver overtemperature pre-warn flag
  * The flag is held by the library and persist until manually cleared by M912
  */
-inline void GcodeSuite::M911() {
+void GcodeSuite::M911() {
   #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperX, extended_axis_codes[TMC_X]);
   #endif
@@ -51,7 +52,7 @@ inline void GcodeSuite::M911() {
 /**
  * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
  */
-inline void GcodeSuite::M912() {
+void GcodeSuite::M912() {
   const bool clearX = parser.seen(axis_codes[X_AXIS]), clearY = parser.seen(axis_codes[Y_AXIS]), clearZ = parser.seen(axis_codes[Z_AXIS]), clearE = parser.seen(axis_codes[E_AXIS]),
            clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
   #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
@@ -78,57 +79,46 @@ inline void GcodeSuite::M912() {
  * M913: Set HYBRID_THRESHOLD speed.
  */
 #if ENABLED(HYBRID_THRESHOLD)
-  inline void GcodeSuite::M913() {
+  void GcodeSuite::M913() {
     uint16_t values[XYZE];
-    LOOP_XYZE(i)
-      values[i] = parser.intval(axis_codes[i]);
+    LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
+
+    #define TMC_SET_GET_PWMTHRS(P,Q) do { \
+      if (values[P##_AXIS]) tmc_set_pwmthrs(stepper##Q, extended_axis_codes[TMC_##Q], values[P##_AXIS], planner.axis_steps_per_mm[P##_AXIS]); \
+      else tmc_get_pwmthrs(stepper##Q, extended_axis_codes[TMC_##Q], planner.axis_steps_per_mm[P##_AXIS]); } while(0)
 
     #if X_IS_TRINAMIC
-      if (values[X_AXIS]) tmc_set_pwmthrs(stepperX, extended_axis_codes[TMC_X], values[X_AXIS], planner.axis_steps_per_mm[X_AXIS]);
-      else tmc_get_pwmthrs(stepperX, extended_axis_codes[TMC_X], planner.axis_steps_per_mm[X_AXIS]);
+      TMC_SET_GET_PWMTHRS(X,X);
     #endif
     #if X2_IS_TRINAMIC
-      if (values[X_AXIS]) tmc_set_pwmthrs(stepperX2, extended_axis_codes[TMC_X2], values[X_AXIS], planner.axis_steps_per_mm[X_AXIS]);
-      else tmc_get_pwmthrs(stepperX, extended_axis_codes[TMC_X2], planner.axis_steps_per_mm[X_AXIS]);
+      TMC_SET_GET_PWMTHRS(X,X2);
     #endif
-
     #if Y_IS_TRINAMIC
-      if (values[Y_AXIS]) tmc_set_pwmthrs(stepperY, extended_axis_codes[TMC_Y], values[Y_AXIS], planner.axis_steps_per_mm[Y_AXIS]);
-      else tmc_get_pwmthrs(stepperY, extended_axis_codes[TMC_Y], planner.axis_steps_per_mm[Y_AXIS]);
+      TMC_SET_GET_PWMTHRS(Y,Y);
     #endif
     #if Y2_IS_TRINAMIC
-      if (values[Y_AXIS]) tmc_set_pwmthrs(stepperY2, extended_axis_codes[TMC_Y2], values[Y_AXIS], planner.axis_steps_per_mm[Y_AXIS]);
-      else tmc_get_pwmthrs(stepperY, extended_axis_codes[TMC_Y2], planner.axis_steps_per_mm[Y_AXIS]);
+      TMC_SET_GET_PWMTHRS(Y,Y2);
     #endif
-
     #if Z_IS_TRINAMIC
-      if (values[Z_AXIS]) tmc_set_pwmthrs(stepperZ, extended_axis_codes[TMC_Z], values[Z_AXIS], planner.axis_steps_per_mm[Z_AXIS]);
-      else tmc_get_pwmthrs(stepperZ, extended_axis_codes[TMC_Z], planner.axis_steps_per_mm[Z_AXIS]);
+      TMC_SET_GET_PWMTHRS(Z,Z);
     #endif
     #if Z2_IS_TRINAMIC
-      if (values[Z_AXIS]) tmc_set_pwmthrs(stepperZ2, extended_axis_codes[TMC_Z2], values[Z_AXIS], planner.axis_steps_per_mm[Z_AXIS]);
-      else tmc_get_pwmthrs(stepperZ, extended_axis_codes[TMC_Z2], planner.axis_steps_per_mm[Z_AXIS]);
+      TMC_SET_GET_PWMTHRS(Z,Z2);
     #endif
-
     #if E0_IS_TRINAMIC
-      if (values[E_AXIS]) tmc_set_pwmthrs(stepperE0, extended_axis_codes[TMC_E0], values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
-      else tmc_get_pwmthrs(stepperE0, extended_axis_codes[TMC_E0], planner.axis_steps_per_mm[E_AXIS]);
+      TMC_SET_GET_PWMTHRS(E,E0);
     #endif
     #if E1_IS_TRINAMIC
-      if (values[E_AXIS]) tmc_set_pwmthrs(stepperE1, extended_axis_codes[TMC_E1], values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
-      else tmc_get_pwmthrs(stepperE1, extended_axis_codes[TMC_E1], planner.axis_steps_per_mm[E_AXIS]);
+      TMC_SET_GET_PWMTHRS(E,E1);
     #endif
     #if E2_IS_TRINAMIC
-      if (values[E_AXIS]) tmc_set_pwmthrs(stepperE2, extended_axis_codes[TMC_E2], values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
-      else tmc_get_pwmthrs(stepperE2, extended_axis_codes[TMC_E2], planner.axis_steps_per_mm[E_AXIS]);
+      TMC_SET_GET_PWMTHRS(E,E2);
     #endif
     #if E3_IS_TRINAMIC
-      if (values[E_AXIS]) tmc_set_pwmthrs(stepperE3, extended_axis_codes[TMC_E3], values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
-      else tmc_get_pwmthrs(stepperE3, extended_axis_codes[TMC_E3], planner.axis_steps_per_mm[E_AXIS]);
+      TMC_SET_GET_PWMTHRS(E,E3);
     #endif
     #if E4_IS_TRINAMIC
-      if (values[E_AXIS]) tmc_set_pwmthrs(stepperE4, extended_axis_codes[TMC_E4], values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
-      else tmc_get_pwmthrs(stepperE4, extended_axis_codes[TMC_E4], planner.axis_steps_per_mm[E_AXIS]);
+      TMC_SET_GET_PWMTHRS(E,E4);
     #endif
   }
 #endif // HYBRID_THRESHOLD
@@ -137,22 +127,22 @@ inline void GcodeSuite::M912() {
  * M914: Set SENSORLESS_HOMING sensitivity.
  */
 #if ENABLED(SENSORLESS_HOMING)
-  inline void GcodeSuite::M914() {
+  void GcodeSuite::M914() {
+    #define TMC_SET_GET_SGT(P,Q) do { \
+      if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, extended_axis_codes[TMC_##Q], parser.value_int()); \
+      else tmc_get_sgt(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
+
     #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-      if (parser.seen(axis_codes[X_AXIS])) tmc_set_sgt(stepperX, extended_axis_codes[TMC_X], parser.value_int());
-      else tmc_get_sgt(stepperX, extended_axis_codes[TMC_X]);
+      TMC_SET_GET_SGT(X,X);
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      if (parser.seen(axis_codes[X_AXIS])) tmc_set_sgt(stepperX2, extended_axis_codes[TMC_X2], parser.value_int());
-      else tmc_get_sgt(stepperX2, extended_axis_codes[TMC_X2]);
+      TMC_SET_GET_SGT(X,X2);
     #endif
     #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-      if (parser.seen(axis_codes[Y_AXIS])) tmc_set_sgt(stepperY, extended_axis_codes[TMC_Y], parser.value_int());
-      else tmc_get_sgt(stepperY, extended_axis_codes[TMC_Y]);
+      TMC_SET_GET_SGT(Y,Y);
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      if (parser.seen(axis_codes[Y_AXIS])) tmc_set_sgt(stepperY2, extended_axis_codes[TMC_Y2], parser.value_int());
-      else tmc_get_sgt(stepperY2, extended_axis_codes[TMC_Y2]);
+      TMC_SET_GET_SGT(Y,Y2);
     #endif
   }
 #endif // SENSORLESS_HOMING
@@ -160,8 +150,8 @@ inline void GcodeSuite::M912() {
 /**
  * TMC Z axis calibration routine
  */
-#if ENABLED(TMC_Z_CALIBRATION) && (Z_IS_TRINAMIC || Z2_IS_TRINAMIC)
-  inline void GcodeSuite::M915() {
+#if ENABLED(TMC_Z_CALIBRATION)
+  void GcodeSuite::M915() {
     uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT;
     uint16_t _z = parser.seenval('Z') ? parser.value_int() : CALIBRATION_EXTRA_HEIGHT;
 
@@ -170,25 +160,33 @@ inline void GcodeSuite::M912() {
       return;
     }
 
-    uint16_t Z_current_1 = stepperZ.getCurrent();
-    uint16_t Z2_current_1 = stepperZ.getCurrent();
+    #if Z_IS_TRINAMIC
+      uint16_t Z_current_1 = stepperZ.getCurrent();
+      stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if Z2_IS_TRINAMIC
+      uint16_t Z2_current_1 = stepperZ2.getCurrent();
+      stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+    #endif
 
-    stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
-    stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
     SERIAL_ECHOPAIR("\nCalibration current: Z", _rms);
 
     soft_endstops_enabled = false;
 
     do_blocking_move_to_z(Z_MAX_POS+_z);
 
-    stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
-    stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #if Z_IS_TRINAMIC
+      stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if Z2_IS_TRINAMIC
+      stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
+    #endif
 
     do_blocking_move_to_z(Z_MAX_POS);
     soft_endstops_enabled = true;
 
     SERIAL_ECHOLNPGM("\nHoming Z because we lost steps");
-    home_z_safely();
+    enqueue_and_echo_commands_P(PSTR("G28 Z"));
   }
 #endif
 

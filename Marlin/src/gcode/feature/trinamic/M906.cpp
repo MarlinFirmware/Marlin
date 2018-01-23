@@ -27,62 +27,52 @@
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper_indirection.h"
-#include "../../../module/planner.h"
 
 /**
  * M906: Set motor current in milliamps using axis codes X, Y, Z, E
  * Report driver currents when no axis specified
  */
-inline void GcodeSuite::M906() {
+void GcodeSuite::M906() {
   uint16_t values[XYZE];
-  LOOP_XYZE(i)
-    values[i] = parser.intval(axis_codes[i]);
+  LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
+
+  #define TMC_SET_GET_CURRENT(P,Q) do { \
+    if (values[P##_AXIS]) tmc_set_current(stepper##Q, extended_axis_codes[TMC_##Q], values[P##_AXIS]); \
+    else tmc_get_current(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
 
   #if X_IS_TRINAMIC
-    if (values[X_AXIS]) tmc_set_current(stepperX, extended_axis_codes[TMC_X], values[X_AXIS]);
-    else tmc_get_current(stepperX, extended_axis_codes[TMC_X]);
+    TMC_SET_GET_CURRENT(X,X);
   #endif
   #if X2_IS_TRINAMIC
-    if (values[X_AXIS]) tmc_set_current(stepperX2, extended_axis_codes[TMC_X2], values[X_AXIS]);
-    else tmc_get_current(stepperX2, extended_axis_codes[TMC_X2]);
+    TMC_SET_GET_CURRENT(X,X2);
   #endif
   #if Y_IS_TRINAMIC
-    if (values[Y_AXIS]) tmc_set_current(stepperY, extended_axis_codes[TMC_Y], values[Y_AXIS]);
-    else tmc_get_current(stepperY, extended_axis_codes[TMC_Y]);
+    TMC_SET_GET_CURRENT(Y,Y);
   #endif
   #if Y2_IS_TRINAMIC
-    if (values[Y_AXIS]) tmc_set_current(stepperY2, extended_axis_codes[TMC_Y2], values[Y_AXIS]);
-    else tmc_get_current(stepperY2, extended_axis_codes[TMC_Y2]);
+    TMC_SET_GET_CURRENT(Y,Y2);
   #endif
   #if Z_IS_TRINAMIC
-    if (values[Z_AXIS]) tmc_set_current(stepperZ, extended_axis_codes[TMC_Z], values[Z_AXIS]);
-    else tmc_get_current(stepperZ, extended_axis_codes[TMC_Z]);
+    TMC_SET_GET_CURRENT(Z,Z);
   #endif
   #if Z2_IS_TRINAMIC
-    if (values[Z_AXIS]) tmc_set_current(stepperZ2, extended_axis_codes[TMC_Z2], values[Z_AXIS]);
-    else tmc_get_current(stepperZ2, extended_axis_codes[TMC_Z2]);
+    TMC_SET_GET_CURRENT(Z,Z2);
   #endif
   #if E0_IS_TRINAMIC
-    if (values[E_AXIS]) tmc_set_current(stepperE0, extended_axis_codes[TMC_E0], values[E_AXIS]);
-    else tmc_get_current(stepperE0, extended_axis_codes[TMC_E0]);
+    TMC_SET_GET_CURRENT(E,E0);
   #endif
   #if E1_IS_TRINAMIC
-    if (values[E_AXIS]) tmc_set_current(stepperE1, extended_axis_codes[TMC_E1], values[E_AXIS]);
-    else tmc_get_current(stepperE1, extended_axis_codes[TMC_E1]);
+    TMC_SET_GET_CURRENT(E,E1);
   #endif
   #if E2_IS_TRINAMIC
-    if (values[E_AXIS]) tmc_set_current(stepperE2, extended_axis_codes[TMC_E2], values[E_AXIS]);
-    else tmc_get_current(stepperE2, extended_axis_codes[TMC_E2]);
+    TMC_SET_GET_CURRENT(E,E2);
   #endif
   #if E3_IS_TRINAMIC
-    if (values[E_AXIS]) tmc_set_current(stepperE3, extended_axis_codes[TMC_E3], values[E_AXIS]);
-    else tmc_get_current(stepperE3, extended_axis_codes[TMC_E3]);
+    TMC_SET_GET_CURRENT(E,E3);
   #endif
   #if E4_IS_TRINAMIC
-    if (values[E_AXIS]) tmc_set_current(stepperE4, extended_axis_codes[TMC_E4], values[E_AXIS]);
-    else tmc_get_current(stepperE4, extended_axis_codes[TMC_E4]);
+    TMC_SET_GET_CURRENT(E,E4);
   #endif
-
 }
 
 #endif // HAS_TRINAMIC
