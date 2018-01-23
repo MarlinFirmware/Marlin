@@ -615,6 +615,19 @@ uint8_t target_extruder;
   int bilinear_grid_spacing[2], bilinear_start[2];
   float bilinear_grid_factor[2],
         z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt[A]
+    #define ABL_BG_FACTOR(A)  bilinear_grid_factor_virt[A]
+    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
+    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
+    #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
+  #else
+    #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
+    #define ABL_BG_FACTOR(A)  bilinear_grid_factor[A]
+    #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
+    #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
+    #define ABL_BG_GRID(X,Y)  z_values[X][Y]
+  #endif
 #endif
 
 #if IS_SCARA
@@ -2419,7 +2432,7 @@ static void clean_up_after_endstop_or_probe_move() {
             planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
             planner.leveling_active = false;                   // disable only AFTER calling apply_leveling
           }
-          else {                                        // leveling from off to on
+          else {                                               // leveling from off to on
             planner.leveling_active = true;                    // enable BEFORE calling unapply_leveling, otherwise ignored
             // change physical current_position to unleveled current_position without moving steppers.
             planner.unapply_leveling(current_position);
@@ -3640,6 +3653,10 @@ inline void gcode_G4() {
       #endif
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          if (planner.z_fade_height)
+            SERIAL_ECHOLNPAIR("Z Fade: ", planner.z_fade_height);
+        #endif
         #if ABL_PLANAR
           const float diff[XYZ] = {
             stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
@@ -3655,10 +3672,25 @@ inline void gcode_G4() {
           SERIAL_ECHOPGM(" Z");
           if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
           SERIAL_ECHO(diff[Z_AXIS]);
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          SERIAL_ECHOPAIR("UBL Adjustment Z", stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]);
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          SERIAL_ECHOPAIR("ABL Adjustment Z", bilinear_z_offset(current_position));
+        #else
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            SERIAL_ECHOPGM("UBL Adjustment Z");
+            const float rz = ubl.get_z_correction(current_position[X_AXIS], current_position[Y_AXIS]);
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+            SERIAL_ECHOPAIR("Bilinear Grid X", bilinear_start[X_AXIS]);
+            SERIAL_ECHOPAIR(" Y", bilinear_start[Y_AXIS]);
+            SERIAL_ECHOPAIR(" W", ABL_BG_SPACING(X_AXIS));
+            SERIAL_ECHOLNPAIR(" H", ABL_BG_SPACING(Y_AXIS));
+            SERIAL_ECHOPGM("ABL Adjustment Z");
+            const float rz = bilinear_z_offset(current_position);
+          #endif
+          SERIAL_ECHO(ftostr43sign(rz, '+'));
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            if (planner.z_fade_height) {
+              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(current_position[Z_AXIS]), '+'));
+              SERIAL_CHAR(')');
+            }
+          #endif
         #endif
       }
       else
@@ -3670,10 +3702,16 @@ inline void gcode_G4() {
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
-        float rz = current_position[Z_AXIS];
-        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], rz);
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", rz);
+        SERIAL_ECHOPAIR("MBL Adjustment Z", ftostr43sign(mbl.get_z(current_position[X_AXIS], current_position[Y_AXIS], 1.0), '+'));
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          if (planner.z_fade_height) {
+            SERIAL_ECHOPAIR(" (", ftostr43sign(
+              mbl.get_z(current_position[X_AXIS], current_position[Y_AXIS], planner.fade_scaling_factor_for_z(current_position[Z_AXIS])), '+'
+            ));
+            SERIAL_CHAR(')');
+          }
+        #endif
       }
       else
         SERIAL_ECHOPGM(" (disabled)");
@@ -11943,20 +11981,6 @@ void ok_to_send() {
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt[A]
-    #define ABL_BG_FACTOR(A)  bilinear_grid_factor_virt[A]
-    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
-    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
-    #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
-  #else
-    #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
-    #define ABL_BG_FACTOR(A)  bilinear_grid_factor[A]
-    #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
-    #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
-    #define ABL_BG_GRID(X,Y)  z_values[X][Y]
-  #endif
 
   // Get the Z adjustment for non-linear bed leveling
   float bilinear_z_offset(const float raw[XYZ]) {
