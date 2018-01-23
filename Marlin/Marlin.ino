@@ -50,7 +50,11 @@
 
 #if ENABLED(HAVE_TMCDRIVER)
   #include <SPI.h>
-  #include <TMC26XStepper.h>
+  #if defined(STM32F7)
+    #include "src/HAL/HAL_STM32F7/TMC2660.h"
+  #else
+    #include <TMC26XStepper.h>
+  #endif
 #endif
 
 #if ENABLED(HAVE_TMC2130)

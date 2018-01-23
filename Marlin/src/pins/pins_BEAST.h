@@ -21,7 +21,7 @@
  */
 
 #if !defined(__STM32F1__) && !defined(__STM32F4__)
-    #error "Oops!  Make sure you have an STM32F1/4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have an STM32F1/4 board selected from the 'Tools -> Boards' menu."
 #endif
 
 /**
@@ -30,8 +30,6 @@
 
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 #define BOARD_NAME "Marlin for STM32"
-
-#define LARGE_FLASH true
 
 // Enable I2C_EEPROM for testing
 #define I2C_EEPROM

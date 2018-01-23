@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef HAL_SERIAL_H_
-#define HAL_SERIAL_H_
+#ifndef _HAL_SERIAL_H_
+#define _HAL_SERIAL_H_
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -30,7 +30,7 @@ extern "C" {
 #include <debug_frmwrk.h>
 }
 
-/*
+/**
  * Generic RingBuffer
  * T type of the buffer array
  * S size of the buffer (must be power of 2)
@@ -39,45 +39,32 @@ extern "C" {
  */
 template <typename T, uint32_t S> class RingBuffer {
 public:
-  RingBuffer() {
-    index_read = 0;
-    index_write = 0;
-  }
+  RingBuffer() { index_read = index_write = 0; }
+  uint32_t available() volatile { return buffer_mask & (index_write - index_read); }
+  uint32_t free() volatile      { return buffer_size - available(); }
+  bool empty() volatile         { return (buffer_mask & index_read) == (buffer_mask & index_write); }
+  bool full() volatile          { return index_read == buffer_mask & (index_write + 1); }
+  void clear() volatile         { index_read = index_write = 0; }
   bool peek(T *value) volatile {
-    if(value == 0 || available() == 0)
+    if (value == 0 || available() == 0)
       return false;
     *value = buffer[buffer_mask & index_read];
     return true;
   }
-  uint32_t available() volatile {
-    return buffer_mask & (index_write - index_read);
-  }
-  uint32_t free() volatile {
-    return buffer_size - available();
-  }
-  T read() volatile {
-    if((buffer_mask & index_read) == (buffer_mask & index_write)) return T(-1);
+  int read() volatile {
+    if ((buffer_mask & index_read) == (buffer_mask & index_write)) return -1;
     T val = buffer[buffer_mask & index_read];
     ++index_read;
     return val;
   }
-  bool write( T value) volatile {
+  bool write(T value) volatile {
     uint32_t next_head = buffer_mask & (index_write + 1);
-    if(next_head != index_read) {
+    if (next_head != index_read) {
       buffer[buffer_mask & index_write] = value;
       index_write = next_head;
       return true;
     }
     return false;
-  }
-  bool empty() volatile {
-    return (buffer_mask & index_read) == (buffer_mask & index_write);
-  }
-  bool full() volatile {
-    return index_read == buffer_mask & (index_write + 1);
-  }
-  void clear() volatile {
-    index_read = index_write = 0;
   }
 
 private:
@@ -90,42 +77,35 @@ private:
 
 class HalSerial {
 public:
-  HalSerial() {
-    host_connected = false;
-  }
+  HalSerial() { host_connected = false; }
 
   void begin(int32_t baud) {
   }
 
-  char read() {
-    return (char)receive_buffer.read();
+  int peek() {
+    uint8_t value;
+    return receive_buffer.peek(&value) ? value : -1;
   }
 
-  void write(char c) {
-    _DBC(c); //Duplicate output over uart0
-    if(host_connected) transmit_buffer.write((uint8_t)c);
-  }
+  int read() { return receive_buffer.read(); }
 
-  operator bool() {
-    return host_connected;
-  }
+  size_t write(char c) { return host_connected ? transmit_buffer.write((uint8_t)c) : 0; }
+
+  operator bool() { return host_connected; }
 
   uint16_t available() {
     return (uint16_t)receive_buffer.available();
   }
 
-  void flush() {
-    receive_buffer.clear();
-  }
+  void flush() { receive_buffer.clear(); }
 
   uint8_t availableForWrite(void){
     return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
   }
 
   void flushTX(void){
-    if(host_connected) {
-      while(transmit_buffer.available());
-    }
+    if (host_connected)
+      while (transmit_buffer.available()) { /* nada */ }
   }
 
   void printf(const char *format, ...) {
@@ -135,7 +115,6 @@ public:
     int length = vsnprintf((char *) buffer, 256, (char const *) format, vArgs);
     va_end(vArgs);
     if (length > 0 && length < 256) {
-      _DBG(buffer); //Duplicate output over uart0
       if (host_connected) {
         for (int i = 0; i < length;) {
           if (transmit_buffer.write(buffer[i])) {
@@ -146,69 +125,77 @@ public:
     }
   }
 
-  void print(const char value[]) {
-    printf("%s" , value);
-  }
-  void print(char value, int = 0) {
-    printf("%c" , value);
-  }
-  void print(unsigned char value, int = 0) {
-    printf("%u" , value);
-  }
-  void print(int value, int = 0) {
-    printf("%d" , value);
-  }
-  void print(unsigned int value, int = 0) {
-    printf("%u" , value);
-  }
-  void print(long value, int = 0) {
-    printf("%ld" , value);
-  }
-  void print(unsigned long value, int = 0) {
-    printf("%lu" , value);
+  #define DEC 10
+  #define HEX 16
+  #define OCT 8
+  #define BIN 2
+
+  void print_bin(uint32_t value, uint8_t num_digits) {
+    uint32_t mask = 1 << (num_digits -1);
+    for (uint8_t i = 0; i < num_digits; i++) {
+      if (!(i % 4) && i)    write(' ');
+      if (!(i % 16)  && i)  write(' ');
+      if (value & mask)     write('1');
+      else                  write('0');
+      value <<= 1;
+    }
   }
 
-  void print(float value, int round = 6) {
-    printf("%f" , value);
+  void print(const char value[]) { printf("%s" , value); }
+  void print(char value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 8);
+    else if (nbase == OCT) printf("%3o", value);
+    else if (nbase == HEX) printf("%2X", value);
+    else if (nbase == DEC ) printf("%d", value);
+    else printf("%c" , value);
   }
-  void print(double value, int round = 6) {
-    printf("%f" , value );
+  void print(unsigned char value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 8);
+    else if (nbase == OCT) printf("%3o", value);
+    else if (nbase == HEX) printf("%2X", value);
+    else printf("%u" , value);
   }
+  void print(int value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 16);
+    else if (nbase == OCT) printf("%6o", value);
+    else if (nbase == HEX) printf("%4X", value);
+    else printf("%d", value);
+  }
+  void print(unsigned int value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 16);
+    else if (nbase == OCT) printf("%6o", value);
+    else if (nbase == HEX) printf("%4X", value);
+    else printf("%u" , value);
+  }
+  void print(long value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 32);
+    else if (nbase == OCT) printf("%11o", value);
+    else if (nbase == HEX) printf("%8X", value);
+    else printf("%ld" , value);
+  }
+  void print(unsigned long value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 32);
+    else if (nbase == OCT) printf("%11o", value);
+    else if (nbase == HEX) printf("%8X", value);
+    else printf("%lu" , value);
+  }
+  void print(float value, int round = 6)  { printf("%f" , value); }
+  void print(double value, int round = 6) { printf("%f" , value); }
 
-  void println(const char value[]) {
-    printf("%s\n" , value);
-  }
-  void println(char value, int = 0) {
-    printf("%c\n" , value);
-  }
-  void println(unsigned char value, int = 0) {
-    printf("%u\r\n" , value);
-  }
-  void println(int value, int = 0) {
-    printf("%d\n" , value);
-  }
-  void println(unsigned int value, int = 0) {
-    printf("%u\n" , value);
-  }
-  void println(long value, int = 0) {
-    printf("%ld\n" , value);
-  }
-  void println(unsigned long value, int = 0) {
-    printf("%lu\n" , value);
-  }
-  void println(float value, int round = 6) {
-    printf("%f\n" , value );
-  }
-  void println(double value, int round = 6) {
-    printf("%f\n" , value );
-  }
-  void println(void) {
-    print('\n');
-  }
+  void println(const char value[]) { printf("%s\n" , value); }
+  void println(char value, int nbase = 0) { print(value, nbase); println(); }
+  void println(unsigned char value, int nbase = 0) { print(value, nbase); println(); }
+  void println(int value, int nbase = 0) { print(value, nbase); println(); }
+  void println(unsigned int value, int nbase = 0) { print(value, nbase); println(); }
+  void println(long value, int nbase = 0) { print(value, nbase); println(); }
+  void println(unsigned long value, int nbase = 0) { print(value, nbase); println(); }
+  void println(float value, int round = 6) { printf("%f\n" , value); }
+  void println(double value, int round = 6) { printf("%f\n" , value); }
+  void println(void) { print('\n'); }
+
   volatile RingBuffer<uint8_t, 128> receive_buffer;
   volatile RingBuffer<uint8_t, 128> transmit_buffer;
   volatile bool host_connected;
 };
 
-
-#endif /* MARLIN_SRC_HAL_HAL_SERIAL_H_ */
+#endif // _HAL_SERIAL_H_

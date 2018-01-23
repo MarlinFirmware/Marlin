@@ -37,7 +37,7 @@
 #undef en
 
 #ifndef WELCOME_MSG
-  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
+  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
 #endif
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
@@ -932,7 +932,7 @@
 #ifndef MSG_DAC_EEPROM_WRITE
   #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
 #endif
-#ifndef MSG_FILAMENT_CHANGE_HEADER
+#ifndef MSG_FILAMENT_CHANGE_HEADER_PAUSE
   #define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("PRINT PAUSED")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER_LOAD
@@ -958,6 +958,9 @@
 #endif
 #ifndef MSG_ERR_PROBING_FAILED
   #define MSG_ERR_PROBING_FAILED              _UxGT("Probing failed")
+#endif
+#ifndef MSG_M600_TOO_COLD
+  #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")
 #endif
 
 //

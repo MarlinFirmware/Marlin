@@ -336,7 +336,10 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
+    if ((IS_SD_PRINTING || print_job_timer.isRunning())
+      && READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING
+      && thermalManager.targetHotEnoughToExtrude(active_extruder)
+    )
       handle_filament_runout();
   #endif
 
@@ -669,9 +672,22 @@ void setup() {
     disableStepperDrivers();
   #endif
 
-  MYSERIAL.begin(BAUDRATE);
-  uint32_t serial_connect_timeout = millis() + 1000;
-  while(!MYSERIAL && PENDING(millis(), serial_connect_timeout));
+  #if NUM_SERIAL > 0
+    MYSERIAL0.begin(BAUDRATE);
+    #if NUM_SERIAL > 1
+      MYSERIAL1.begin(BAUDRATE);
+    #endif
+  #endif
+
+  #if NUM_SERIAL > 0
+    uint32_t serial_connect_timeout = millis() + 1000UL;
+    while(!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #if NUM_SERIAL > 1
+      serial_connect_timeout = millis() + 1000UL;
+      while(!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #endif
+  #endif
+
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 

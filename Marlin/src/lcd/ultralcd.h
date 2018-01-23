@@ -84,8 +84,8 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    extern uint16_t lcd_contrast;
-    void set_lcd_contrast(const uint16_t value);
+    extern int16_t lcd_contrast;
+    void set_lcd_contrast(const int16_t value);
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
@@ -116,7 +116,7 @@
 
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
-    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)

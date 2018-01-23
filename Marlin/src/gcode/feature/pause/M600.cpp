@@ -56,7 +56,7 @@ void GcodeSuite::M600() {
 
   if (get_target_extruder_from_command()) return;
 
-  // Show initial message
+  // Show initial "wait for start" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif

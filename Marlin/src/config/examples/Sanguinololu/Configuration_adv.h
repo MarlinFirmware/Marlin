@@ -223,6 +223,17 @@
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 /**
+ * Part-Cooling Fan Multiplexer
+ *
+ * This feature allows you to digitally multiplex the fan output.
+ * The multiplexer is automatically switched at tool-change.
+ * Set FANMUX[012]_PINs below for up to 2, 4, or 8 multiplexed fans.
+ */
+#define FANMUX0_PIN -1
+#define FANMUX1_PIN -1
+#define FANMUX2_PIN -1
+
+/**
  * M355 Case Light on-off / brightness
  */
 //#define CASE_LIGHT_ENABLE
@@ -232,6 +243,10 @@
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
   //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+    #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
+  #endif
 #endif
 
 //===========================================================================
@@ -602,6 +617,9 @@
  * printing performance versus fast display updates.
  */
 #if ENABLED(DOGLCD)
+  // Show SD percentage next to the progress bar
+  //#define DOGM_SD_PERCENT
+
   // Enable to save many cycles by drawing a hollow frame on the Info Screen
   #define XYZ_HOLLOW_FRAME
 
@@ -1136,6 +1154,22 @@
    * M122 S0/1 will enable continous reporting.
    */
   //#define TMC_DEBUG
+
+  /**
+   * M915 Z Axis Calibration
+   *
+   * - Adjust Z stepper current,
+   * - Drive the Z axis to its physical maximum, and
+   * - Home Z to account for the lost steps.
+   *
+   * Use M915 Snn to specify the current.
+   * Use M925 Znn to add extra Z height to Z_MAX_POS.
+   */
+  //#define TMC_Z_CALIBRATION
+  #if ENABLED(TMC_Z_CALIBRATION)
+    #define CALIBRATION_CURRENT 250
+    #define CALIBRATION_EXTRA_HEIGHT 10
+  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.

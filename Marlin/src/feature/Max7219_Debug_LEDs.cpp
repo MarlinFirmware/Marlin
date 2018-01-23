@@ -237,13 +237,13 @@ void Max7219_init() {
 
   for (x = 0; x <= 7; x++)        // Do an aesthetically pleasing pattern to fully test
     for (y = 0; y <= 7; y++) {    // the Max7219 module and LEDs. First, turn them
-      Max7219_LED_On(x, y);       // all on.
+      Max7219_LED_On(y, x);       // all on.
       delay(3);
     }
 
   for (x = 0; x <= 7; x++)        // Now, turn them all off.
     for (y = 0; y <= 7; y++) {
-      Max7219_LED_Off(x, y);
+      Max7219_LED_Off(y, x);
       delay(3);                   // delay() is OK here. Max7219_init() is only called from
     }                             // setup() and nothing is running yet.
 
@@ -251,13 +251,13 @@ void Max7219_init() {
 
   for (x = 8; x--;)               // Now, do the same thing from the opposite direction
     for (y = 0; y <= 7; y++) {
-      Max7219_LED_On(x, y);
+      Max7219_LED_On(y, x);
       delay(2);
     }
 
   for (x = 8; x--;)
     for (y = 0; y <= 7; y++) {
-      Max7219_LED_Off(x, y);
+      Max7219_LED_Off(y, x);
       delay(2);
     }
 }
@@ -295,15 +295,15 @@ void Max7219_idle_tasks() {
     static int16_t last_head_cnt = 0;
     if (last_head_cnt != head) {
       if (last_head_cnt < 8)
-        Max7219_LED_Off(last_head_cnt, MAX7219_DEBUG_STEPPER_HEAD);
+        Max7219_LED_Off(MAX7219_DEBUG_STEPPER_HEAD, last_head_cnt);
       else
-        Max7219_LED_Off(last_head_cnt - 8, MAX7219_DEBUG_STEPPER_HEAD + 1);
+        Max7219_LED_Off(MAX7219_DEBUG_STEPPER_HEAD + 1, last_head_cnt - 8);
 
       last_head_cnt = head;
       if (head < 8)
-        Max7219_LED_On(head, MAX7219_DEBUG_STEPPER_HEAD);
+        Max7219_LED_On(MAX7219_DEBUG_STEPPER_HEAD, head);
       else
-        Max7219_LED_On(head - 8, MAX7219_DEBUG_STEPPER_HEAD + 1);
+        Max7219_LED_On(MAX7219_DEBUG_STEPPER_HEAD + 1, head - 8);
     }
   #endif
 
@@ -311,15 +311,15 @@ void Max7219_idle_tasks() {
     static int16_t last_tail_cnt = 0;
     if (last_tail_cnt != tail) {
       if (last_tail_cnt < 8)
-        Max7219_LED_Off(last_tail_cnt, MAX7219_DEBUG_STEPPER_TAIL);
+        Max7219_LED_Off(MAX7219_DEBUG_STEPPER_TAIL, last_tail_cnt);
       else
-        Max7219_LED_Off(last_tail_cnt - 8, MAX7219_DEBUG_STEPPER_TAIL + 1);
+        Max7219_LED_Off(MAX7219_DEBUG_STEPPER_TAIL + 1, last_tail_cnt - 8);
 
       last_tail_cnt = tail;
       if (tail < 8)
-        Max7219_LED_On(tail, MAX7219_DEBUG_STEPPER_TAIL);
+        Max7219_LED_On(MAX7219_DEBUG_STEPPER_TAIL, tail);
       else
-        Max7219_LED_On(tail - 8, MAX7219_DEBUG_STEPPER_TAIL + 1);
+        Max7219_LED_On(MAX7219_DEBUG_STEPPER_TAIL + 1, tail - 8);
     }
   #endif
 
@@ -336,10 +336,10 @@ void Max7219_idle_tasks() {
                     en = max(current_depth, last_depth);
       if (current_depth < last_depth)
         for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
-          Max7219_LED_Off(i / 2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+          Max7219_LED_Off(MAX7219_DEBUG_STEPPER_QUEUE + (i & 1), i / 2);
       else
         for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
-          Max7219_LED_On(i / 2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+          Max7219_LED_On(MAX7219_DEBUG_STEPPER_QUEUE + (i & 1), i / 2);
 
       last_depth = current_depth;
     }

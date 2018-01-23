@@ -21,7 +21,7 @@
  */
 
 // 100k ParCan thermistor (104GT-2)
-// ATC Semitec 104GT-2 (Used in ParCan)
+// ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 const short temptable_5[][2] PROGMEM = {

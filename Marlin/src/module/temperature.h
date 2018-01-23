@@ -90,7 +90,7 @@ enum ADCSensorState {
 
 #if HAS_PID_HEATING
   #define PID_K2 (1.0-PID_K1)
-  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (F_CPU / 64.0 / 256.0))
+  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
 
   // Apply the scale factors to the PID values
   #define scalePID_i(i)   ( (i) * PID_dT )
@@ -187,6 +187,9 @@ class Temperature {
       FORCE_INLINE static bool tooColdToExtrude(const uint8_t e) { UNUSED(e); return false; }
       FORCE_INLINE static bool targetTooColdToExtrude(const uint8_t e) { UNUSED(e); return false; }
     #endif
+
+    FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
+    FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
   private:
 
@@ -547,7 +550,11 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-      static void print_heaterstates();
+      static void print_heaterstates(
+        #if NUM_SERIAL > 1
+          const int8_t port = -1
+        #endif
+      );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;

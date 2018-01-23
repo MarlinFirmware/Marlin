@@ -88,14 +88,13 @@ int main(void) {
     #endif
   }
 
-  // Only initialize the debug framework if using the USB emulated serial port
-  if ((HalSerial*) &MYSERIAL == &usb_serial)
-    debug_frmwrk_init();
-
-  MYSERIAL.begin(BAUDRATE);
-  MYSERIAL.printf("\n\nLPC1768 (%dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
-  #if TX_BUFFER_SIZE > 0
-    MYSERIAL.flushTX();
+  #if NUM_SERIAL > 0
+    MYSERIAL0.begin(BAUDRATE);
+    #if NUM_SERIAL > 1
+      MYSERIAL1.begin(BAUDRATE);
+    #endif
+    SERIAL_PRINTF("\n\nLPC1768 (%dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+    SERIAL_FLUSHTX();
   #endif
 
   HAL_timer_init();

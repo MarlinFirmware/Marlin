@@ -50,6 +50,11 @@
 void GcodeSuite::M701() {
   point_t park_point = NOZZLE_PARK_POINT;
 
+  #if ENABLED(NO_MOTION_BEFORE_HOMING)
+    // Only raise Z if the machine is homed
+    if (axis_unhomed_error()) park_point.z = 0;
+  #endif
+
   if (get_target_extruder_from_command()) return;
 
   // Z axis lift
@@ -59,7 +64,7 @@ void GcodeSuite::M701() {
   const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                     filament_change_load_length[target_extruder]);
 
-  // Show initial message
+  // Show initial "wait for load" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
   #endif
@@ -107,12 +112,17 @@ void GcodeSuite::M701() {
 void GcodeSuite::M702() {
   point_t park_point = NOZZLE_PARK_POINT;
 
+  #if ENABLED(NO_MOTION_BEFORE_HOMING)
+    // Only raise Z if the machine is homed
+    if (axis_unhomed_error()) park_point.z = 0;
+  #endif
+
   if (get_target_extruder_from_command()) return;
 
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  // Show initial message
+  // Show initial "wait for unload" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, target_extruder);
   #endif
