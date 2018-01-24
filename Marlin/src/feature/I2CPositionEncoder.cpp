@@ -116,7 +116,7 @@ void I2CPositionEncoder::update() {
 
           SERIAL_ECHOPGM("New position reads as ");
           SERIAL_ECHO(get_position());
-          SERIAL_ECHOPGM("(");
+          SERIAL_CHAR('(');
           SERIAL_ECHO(mm_from_count(get_position()));
           SERIAL_ECHOLNPGM(")");
         #endif
