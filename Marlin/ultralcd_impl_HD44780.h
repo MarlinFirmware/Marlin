@@ -312,16 +312,29 @@ static void lcd_set_custom_characters(
     B00000
   };
 
-  const static PROGMEM byte feedrate[8] = {
-    B11100,
-    B10000,
-    B11000,
-    B10111,
-    B00101,
-    B00110,
-    B00101,
-    B00000
-  };
+  #if ENABLED(LCD_SHOW_FANSPEED)
+    const static PROGMEM byte fanspeed[8] = {
+      B11100,
+      B10000,
+      B11011,
+      B10100,
+      B00111,
+      B00001,
+      B00110,
+      B00000
+    };
+  #else
+    const static PROGMEM byte feedrate[8] = {
+      B11100,
+      B10000,
+      B11000,
+      B10111,
+      B00101,
+      B00110,
+      B00101,
+      B00000
+    };
+  #endif
 
   const static PROGMEM byte clock[8] = {
     B00000,
@@ -406,7 +419,13 @@ static void lcd_set_custom_characters(
       createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
       createChar_P(LCD_DEGREE_CHAR, degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
-      createChar_P(LCD_FEEDRATE_CHAR, feedrate);
+      createChar_P(
+        #if ENABLED(LCD_SHOW_FANSPEED)
+          LCD_FANSPEED_CHAR, fanspeed
+        #else
+          LCD_FEEDRATE_CHAR, feedrate
+        #endif
+      );
       createChar_P(LCD_CLOCK_CHAR, clock);
 
       #if ENABLED(LCD_PROGRESS_BAR)
@@ -859,8 +878,23 @@ static void lcd_implementation_status_screen() {
   #if LCD_HEIGHT > 3
 
     lcd.setCursor(0, 2);
-    lcd.print((char)LCD_FEEDRATE_CHAR);
-    lcd.print(itostr3(feedrate_percentage));
+    #if ENABLED(LCD_SHOW_FANSPEED)
+      lcd.print((char)LCD_FANSPEED_CHAR);
+      lcd.print(itostr3(
+        100 * fanSpeeds[
+          #if HAS_FAN0
+            0
+          #elif HAS_FAN1
+            1
+          #elif HAS_FAN2
+            2
+          #endif
+        ] / 255
+      ));
+    #else
+      lcd.print((char)LCD_FEEDRATE_CHAR);
+      lcd.print(itostr3(feedrate_percentage));
+    #endif
     lcd.write('%');
 
     #if LCD_WIDTH >= 20 && ENABLED(SDSUPPORT)
