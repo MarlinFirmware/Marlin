@@ -1066,8 +1066,11 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     // last entry if DIR_NAME_FREE
     if (dir->name[0] == DIR_NAME_FREE) return 0;
 
-    // skip empty entries and entry for .  and ..
-    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') continue;
+    // skip deleted entry and entry for .  and ..
+    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') {
+      if (longFilename != NULL) longFilename[0] = '\0';     // Invalidate erased file long name, if any
+      continue;
+    }
 
     // Fill the long filename if we have a long filename entry.
     // Long filename entries are stored before the short filename.
