@@ -1,4 +1,4 @@
-/*
+/**
  * TwoWire.h - TWI/I2C library for Arduino & Wiring
  * Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
  *
@@ -19,39 +19,49 @@
  * Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
  */
 
-// Modified for use with the mcp4451 digipot routine
-
-#ifdef TARGET_LPC1768
-
-#ifndef TwoWire_h
-#define TwoWire_h
+#ifndef _TWOWIRE_H_
+#define _TWOWIRE_H_
 
 #include <inttypes.h>
 
+#define BUFFER_LENGTH 32
+
 class TwoWire {
+  private:
+    static uint8_t rxBuffer[];
+    static uint8_t rxBufferIndex;
+    static uint8_t rxBufferLength;
+
+    static uint8_t txAddress;
+    static uint8_t txBuffer[];
+    static uint8_t txBufferIndex;
+    static uint8_t txBufferLength;
+
+    static uint8_t transmitting;
+
   public:
-    //TwoWire();
+    TwoWire();
     void begin();
     void beginTransmission(uint8_t);
+    void beginTransmission(int);
     uint8_t endTransmission(void);
-    size_t write(uint8_t);
+    uint8_t endTransmission(uint8_t);
+
+    uint8_t requestFrom(uint8_t, uint8_t);
+    uint8_t requestFrom(int, int);
+
+    virtual size_t write(uint8_t);
+    virtual size_t write(const uint8_t *, size_t);
+    virtual int available(void);
+    virtual int read(void);
+    virtual int peek(void);
+
+    inline size_t write(unsigned long n) { return write((uint8_t)n); }
+    inline size_t write(long n) { return write((uint8_t)n); }
+    inline size_t write(unsigned int n) { return write((uint8_t)n); }
+    inline size_t write(int n) { return write((uint8_t)n); }
 };
 
-//extern TwoWire Wire;
+extern TwoWire Wire;
 
-TwoWire Wire;
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-extern "C" uint8_t digipot_mcp4451_start(uint8_t sla);
-extern "C" void digipot_mcp4451_init(void);
-extern "C" uint8_t digipot_mcp4451_send_byte(uint8_t data);
-
-
-void TwoWire::beginTransmission(uint8_t sla) { digipot_mcp4451_start(sla);}
-void TwoWire::begin(void) {digipot_mcp4451_init();}
-size_t TwoWire::write(uint8_t data) {return digipot_mcp4451_send_byte(data);}
-uint8_t TwoWire::endTransmission(void) {return 1;}
-
-#endif
-#endif  // TARGET_LPC1768
+#endif // _TWOWIRE_H_

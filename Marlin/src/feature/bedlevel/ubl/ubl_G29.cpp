@@ -1095,7 +1095,7 @@
     SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOL("planner.z_fade_height : ");
+      SERIAL_PROTOCOLPGM("planner.z_fade_height : ");
       SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
       SERIAL_EOL();
     #endif
@@ -1732,7 +1732,7 @@
           d = t + normal.z * z1;
           SERIAL_ECHOPGM("D from 1st point: ");
           SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHO("   Z error: ");
+          SERIAL_ECHOPGM("   Z error: ");
           SERIAL_ECHO_F(normal.z*z1-get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y),6);
           SERIAL_EOL();
 
@@ -1741,7 +1741,7 @@
           SERIAL_EOL();
           SERIAL_ECHOPGM("D from 2nd point: ");
           SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHO("   Z error: ");
+          SERIAL_ECHOPGM("   Z error: ");
           SERIAL_ECHO_F(normal.z*z2-get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y),6);
           SERIAL_EOL();
 
@@ -1749,7 +1749,7 @@
           d = t + normal.z * z3;
           SERIAL_ECHOPGM("D from 3rd point: ");
           SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHO("   Z error: ");
+          SERIAL_ECHOPGM("   Z error: ");
           SERIAL_ECHO_F(normal.z*z3-get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y),6);
           SERIAL_EOL();
 
@@ -1766,7 +1766,7 @@
 
           SERIAL_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT );
           SERIAL_ECHOPAIR(",", Z_SAFE_HOMING_Y_POINT );
-          SERIAL_ECHO(") = ");
+          SERIAL_ECHOPGM(") = ");
           SERIAL_ECHO_F( get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT),6);
           SERIAL_EOL();
 */

@@ -29,7 +29,7 @@
 #ifndef _FASTIO_STM32F7_H
 #define _FASTIO_STM32F7_H
 
-#define _BV(bit) (1 << (bit))
+#define _BV(b) (1UL << (b))
 
 #define READ(IO)              digitalRead(IO)
 #define WRITE(IO, v)          digitalWrite(IO,v)
