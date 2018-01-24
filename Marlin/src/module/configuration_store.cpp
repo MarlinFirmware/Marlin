@@ -2266,7 +2266,7 @@ void MarlinSettings::reset(
       }
       CONFIG_ECHO_START;
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        SERIAL_ECHO_P(port, "  M852 I");
+        SERIAL_ECHOPGM_P(port, "  M852 I");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_ECHOPGM_P(port, " J");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xz_skew_factor), 6);
@@ -2274,7 +2274,7 @@ void MarlinSettings::reset(
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.yz_skew_factor), 6);
         SERIAL_EOL_P(port);
        #else
-        SERIAL_ECHO_P(port, "  M852 S");
+        SERIAL_ECHOPGM_P(port, "  M852 S");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_EOL_P(port);
       #endif
@@ -2289,7 +2289,7 @@ void MarlinSettings::reset(
         SERIAL_ECHOLNPGM_P(port, "Stepper driver current:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHO_P(port, "  M906");
+      SERIAL_ECHOPGM_P(port, "  M906");
       #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
         SERIAL_ECHOPAIR_P(port, " X ", stepperX.getCurrent());
       #endif
@@ -2335,7 +2335,7 @@ void MarlinSettings::reset(
         SERIAL_ECHOLNPGM_P(port, "Sensorless homing threshold:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHO_P(port, "  M914");
+      SERIAL_ECHOPGM_P(port, "  M914");
       #if ENABLED(X_IS_TMC2130)
         SERIAL_ECHOPAIR_P(port, " X", stepperX.sgt());
       #endif
