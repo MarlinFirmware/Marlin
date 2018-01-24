@@ -108,6 +108,18 @@ public:
 
   #if ENABLED(FASTER_GCODE_PARSER)
 
+    FORCE_INLINE static bool valid_signless(const char * const p) {
+      return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
+    }
+
+    FORCE_INLINE static bool valid_float(const char * const p) {
+      return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
+    }
+
+    FORCE_INLINE static bool valid_int(const char * const p) {
+      return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
+    }
+
     // Set the flag and pointer for a parameter
     static void set(const char c, char * const ptr
       #if ENABLED(DEBUG_GCODE_PARSER)
@@ -133,7 +145,10 @@ public:
       const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST(codebits[PARAM_IND(ind)], PARAM_BIT(ind));
-      if (b) value_ptr = param[ind] ? command_ptr + param[ind] : (char*)NULL;
+      if (b) {
+        const char * const ptr = command_ptr + param[ind];
+        value_ptr = param[ind] && valid_float(ptr) ? ptr : (char*)NULL;
+      }
       return b;
     }
 
@@ -148,7 +163,7 @@ public:
     static bool seen(const char c) {
       const char *p = strchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
+      if (b) value_ptr = valid_float(&p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
 
@@ -212,7 +227,7 @@ public:
   inline static uint8_t value_byte() { return (uint8_t)constrain(value_long(), 0, 255); }
 
   // Bool is true with no value or non-zero
-  inline static bool value_bool() { return !has_value() || value_byte(); }
+  inline static bool value_bool() { return !has_value() || !!value_byte(); }
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
