@@ -211,13 +211,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-      {
-        set(code, has_num ? p : NULL            // Set parameter exists and pointer (NULL for no number)
-          #if ENABLED(DEBUG_GCODE_PARSER)
-            , debug
-          #endif
-        );
-      }
+        set(code, has_num ? p : NULL);          // Set parameter exists and pointer (NULL for no number)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg

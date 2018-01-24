@@ -116,17 +116,13 @@ public:
     }
 
     // Set the flag and pointer for a parameter
-    static void set(const char c, char * const ptr
-      #if ENABLED(DEBUG_GCODE_PARSER)
-        , const bool debug=false
-      #endif
-    ) {
+    static void set(const char c, char * const ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI(codebits, ind);                        // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) {
+        if (codenum == 800) {
           const uint16_t * const adr = (uint16_t*)&codebits;
           SERIAL_ECHOPAIR("Set bit ", (int)ind);
           SERIAL_ECHOPAIR(" of codebits (", hex_address((void*)adr[1]));
@@ -143,6 +139,11 @@ public:
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST(codebits, ind);
       if (b) {
+        #if ENABLED(DEBUG_GCODE_PARSER)
+          if (codenum == 800) {
+            SERIAL_CHAR('\''); SERIAL_CHAR(c); SERIAL_ECHOLNPGM("' is seen");
+          }
+        #endif
         char * const ptr = command_ptr + param[ind];
         value_ptr = param[ind] && valid_float(ptr) ? ptr : (char*)NULL;
       }
