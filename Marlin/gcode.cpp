@@ -53,7 +53,7 @@ int GCodeParser::codenum;
 
 #if ENABLED(FASTER_GCODE_PARSER)
   // Optimized Parameters
-  byte GCodeParser::codebits[4];   // found bits
+  uint32_t GCodeParser::codebits;  // found bits
   uint8_t GCodeParser::param[26];  // parameter offsets from command_ptr
 #else
   char *GCodeParser::command_args; // start of parameters
@@ -76,7 +76,7 @@ void GCodeParser::reset() {
     subcode = 0;                        // No command sub-code
   #endif
   #if ENABLED(FASTER_GCODE_PARSER)
-    ZERO(codebits);                     // No codes yet
+    codebits = 0;                       // No codes yet
     //ZERO(param);                      // No parameters (should be safe to comment out this line)
   #endif
 }
