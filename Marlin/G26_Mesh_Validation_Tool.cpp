@@ -733,10 +733,10 @@
      * Declare and generate a sin() & cos() table to be used during the circle drawing. This will lighten
      * the CPU load and make the arc drawing faster and more smooth
      */
-    float sin_table[360 / 30 + 1], cos_table[360 / 30 + 1];
-    for (i = 0; i <= 360 / 30; i++) {
-      cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos(RADIANS(valid_trig_angle(i * 30.0)));
-      sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin(RADIANS(valid_trig_angle(i * 30.0)));
+    float sin_table[360 / 15 + 1], cos_table[360 / 15 + 1];
+    for (i = 0; i <= 360 / 15; i++) {
+      cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos(RADIANS(valid_trig_angle(i * 15.0)));
+      sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin(RADIANS(valid_trig_angle(i * 15.0)));
     }
 
     do {
@@ -762,31 +762,32 @@
           SERIAL_EOL();
         }
 
-        start_angle = 0.0;    // assume it is going to be a full circle
-        end_angle   = 360.0;
+        // start and end the circle at an 45 degree angle to avoid lines crossing start-/end-points
+        start_angle = -45.0;    // assume it is going to be a full circle
+        end_angle   = 315.0;
         if (xi == 0) {       // Check for bottom edge
-          start_angle = -90.0;
-          end_angle   =  90.0;
+          start_angle = -75.0;
+          end_angle   =  75.0;
           if (yi == 0)        // it is an edge, check for the two left corners
-            start_angle = 0.0;
+            start_angle = 15.0;
           else if (yi == GRID_MAX_POINTS_Y - 1)
-            end_angle = 0.0;
+            end_angle = -15.0;
         }
         else if (xi == GRID_MAX_POINTS_X - 1) { // Check for top edge
-          start_angle =  90.0;
-          end_angle   = 270.0;
+          start_angle = 105.0;
+          end_angle   = 255.0;
           if (yi == 0)                  // it is an edge, check for the two right corners
-            end_angle = 180.0;
+            end_angle = 165.0;
           else if (yi == GRID_MAX_POINTS_Y - 1)
-            start_angle = 180.0;
+            start_angle = 195.0;
         }
         else if (yi == 0) {
-          start_angle =   0.0;         // only do the top   side of the cirlce
-          end_angle   = 180.0;
+          start_angle =  15.0;         // only do the top   side of the circle
+          end_angle   = 165.0;
         }
         else if (yi == GRID_MAX_POINTS_Y - 1) {
-          start_angle = 180.0;         // only do the bottom side of the cirlce
-          end_angle   = 360.0;
+          start_angle = 195.0;         // only do the bottom side of the circle
+          end_angle   = 345.0;
         }
 
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
@@ -795,14 +796,14 @@
             if (user_canceled()) goto LEAVE;              // Check if the user wants to stop the Mesh Validation
           #endif
 
-          int tmp_div_30 = tmp / 30.0;
-          if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
-          if (tmp_div_30 > 11) tmp_div_30 -= 360 / 30;
+          int tmp_div_15 = tmp / 15.0;
+          while (tmp_div_15 < 0) tmp_div_15 += 360 / 15;
+          while (tmp_div_15 >= 360 / 15) tmp_div_15 -= 360 / 15;
 
-          float rx = circle_x + cos_table[tmp_div_30],    // for speed, these are now a lookup table entry
-                ry = circle_y + sin_table[tmp_div_30],
-                xe = circle_x + cos_table[tmp_div_30 + 1],
-                ye = circle_y + sin_table[tmp_div_30 + 1];
+          float rx = circle_x + cos_table[tmp_div_15],    // for speed, these are now a lookup table entry
+                ry = circle_y + sin_table[tmp_div_15],
+                xe = circle_x + cos_table[tmp_div_15 + 1],
+                ye = circle_y + sin_table[tmp_div_15 + 1];
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
             if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
