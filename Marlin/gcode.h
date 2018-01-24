@@ -123,10 +123,9 @@ public:
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
-          const uint16_t * const adr = (uint16_t*)&codebits;
           SERIAL_ECHOPAIR("Set bit ", (int)ind);
-          SERIAL_ECHOPAIR(" of codebits (", hex_address((void*)adr[1]));
-          print_hex_word(adr[0]);
+          SERIAL_ECHOPAIR(" of codebits (", hex_address((void*)(codebits >> 16)));
+          print_hex_word((uint16_t)(codebits & 0xFFFF));
           SERIAL_ECHOLNPAIR(") | param = ", (int)param[ind]);
         }
       #endif
