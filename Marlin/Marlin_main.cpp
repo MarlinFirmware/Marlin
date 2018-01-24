@@ -8391,7 +8391,7 @@ void report_current_position() {
       LOGICAL_Y_POSITION(current_position[Y_AXIS]),
       LOGICAL_Z_POSITION(current_position[Z_AXIS])
     };
-    report_xyze(logical);
+    report_xyz(logical);
 
     SERIAL_PROTOCOLPGM("Raw:    ");
     report_xyz(current_position);
