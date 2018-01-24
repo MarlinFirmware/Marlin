@@ -282,7 +282,7 @@ void GCodeParser::unknown_command_error() {
     #else
       SERIAL_ECHOPAIR(" args: \"", command_args);
     #endif
-    SERIAL_ECHOPGM("\"");
+    SERIAL_CHAR('"');
     if (string_arg) {
       SERIAL_ECHOPGM(" string: \"");
       SERIAL_ECHO(string_arg);

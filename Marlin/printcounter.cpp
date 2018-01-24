@@ -140,7 +140,7 @@ void PrintCounter::showStats() {
 
   SERIAL_ECHOPGM("Filament used: ");
   SERIAL_ECHO(this->data.filamentUsed / 1000);
-  SERIAL_ECHOPGM("m");
+  SERIAL_CHAR('m');
 
   SERIAL_EOL();
 }
