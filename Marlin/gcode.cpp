@@ -189,14 +189,7 @@ void GCodeParser::parse(char *p) {
 
       while (*p == ' ') p++;                    // Skip spaces between parameters & values
 
-      const bool has_num = NUMERIC(p[0])                            // [0-9]
-                        || (p[0] == '.' && NUMERIC(p[1]))           // .[0-9]
-                        || (
-                              (p[0] == '-' || p[0] == '+') && (     // [-+]
-                                NUMERIC(p[1])                       //     [0-9]
-                                || (p[1] == '.' && NUMERIC(p[2]))   //     .[0-9]
-                              )
-                            );
+      const bool has_num = valid_float(p);
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
