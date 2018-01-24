@@ -98,17 +98,13 @@ public:
   #if ENABLED(FASTER_GCODE_PARSER)
 
     // Set the flag and pointer for a parameter
-    static void set(const char c, char * const ptr
-      #if ENABLED(DEBUG_GCODE_PARSER)
-        , const bool debug=false
-      #endif
-    ) {
+    static void set(const char c, char * const ptr) {
       const uint8_t ind = LETTER_OFF(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI(codebits[PARAM_IND(ind)], PARAM_BIT(ind));        // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) {
+        if (codenum == 800) {
           SERIAL_ECHOPAIR("Set bit ", (int)PARAM_BIT(ind));
           SERIAL_ECHOPAIR(" of index ", (int)PARAM_IND(ind));
           SERIAL_ECHOLNPAIR(" | param = ", (int)param[ind]);
