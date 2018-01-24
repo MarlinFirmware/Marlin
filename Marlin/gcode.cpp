@@ -276,7 +276,7 @@ void GCodeParser::unknown_command_error() {
     SERIAL_ECHO(codenum);
     SERIAL_ECHOLNPGM(")");
     #if ENABLED(FASTER_GCODE_PARSER)
-      SERIAL_ECHO(" args: \"");
+      SERIAL_ECHOPGM(" args: \"");
       for (char c = 'A'; c <= 'Z'; ++c)
         if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
     #else

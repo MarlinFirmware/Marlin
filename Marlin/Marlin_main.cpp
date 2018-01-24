@@ -9165,7 +9165,7 @@ inline void gcode_M226() {
     }
     else {
       SERIAL_ERROR_START();
-      SERIAL_ERRORLN("Bad i2c request");
+      SERIAL_ERRORLNPGM("Bad i2c request");
     }
   }
 
@@ -9296,7 +9296,7 @@ inline void gcode_M226() {
     }
     else {
       SERIAL_ERROR_START();
-      SERIAL_ERRORLN(MSG_INVALID_EXTRUDER);
+      SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER);
     }
   }
 
@@ -10786,10 +10786,10 @@ inline void gcode_M355() {
     // always report case light status
     SERIAL_ECHO_START();
     if (!case_light_on) {
-      SERIAL_ECHOLN("Case light: off");
+      SERIAL_ECHOLNPGM("Case light: off");
     }
     else {
-      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLN("Case light: on");
+      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
       else SERIAL_ECHOLNPAIR("Case light: ", (int)case_light_brightness);
     }
 
@@ -10912,7 +10912,7 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
   SERIAL_CHAR(' ');
-  SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+  SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
 
 #if ENABLED(PARKING_EXTRUDER)
