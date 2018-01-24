@@ -92,6 +92,18 @@ public:
 
   #if ENABLED(FASTER_GCODE_PARSER)
 
+    FORCE_INLINE static bool valid_signless(const char * const p) {
+      return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
+    }
+
+    FORCE_INLINE static bool valid_float(const char * const p) {
+      return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
+    }
+
+    FORCE_INLINE static bool valid_int(const char * const p) {
+      return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
+    }
+
     // Set the flag and pointer for a parameter
     static void set(const char c, char * const ptr) {
       const uint8_t ind = LETTER_BIT(c);
@@ -130,9 +142,9 @@ public:
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static bool seen(const char c) {
-      char *p = strchr(command_args, c);
+      const char *p = strchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = DECIMAL_SIGNED(p[1]) ? &p[1] : (char*)NULL;
+      if (b) value_ptr = valid_float(&p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
 
@@ -196,7 +208,7 @@ public:
   inline static uint8_t value_byte() { return (uint8_t)constrain(value_long(), 0, 255); }
 
   // Bool is true with no value or non-zero
-  inline static bool value_bool() { return !has_value() || value_byte(); }
+  inline static bool value_bool() { return !has_value() || !!value_byte(); }
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
