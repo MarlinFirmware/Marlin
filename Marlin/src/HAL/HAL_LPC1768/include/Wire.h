@@ -49,7 +49,7 @@ class TwoWire {
 
     uint8_t requestFrom(uint8_t, uint8_t);
     uint8_t requestFrom(int, int);
-    
+
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
     virtual int available(void);

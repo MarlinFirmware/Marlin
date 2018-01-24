@@ -98,7 +98,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#define _BV(bit) (1 << (bit))
+#define _BV(b) (1UL << (b))
 
 /**
  * TODO: review this to return 1 for pins that are not analog input

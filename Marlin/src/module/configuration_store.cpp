@@ -1502,7 +1502,7 @@ void MarlinSettings::postprocess() {
         HAL::PersistentStore::access_finish();
 
         if (status)
-          SERIAL_PROTOCOL("?Unable to save mesh data.\n");
+          SERIAL_PROTOCOLPGM("?Unable to save mesh data.\n");
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
@@ -1540,7 +1540,7 @@ void MarlinSettings::postprocess() {
         HAL::PersistentStore::access_finish();
 
         if (status)
-          SERIAL_PROTOCOL("?Unable to load mesh data.\n");
+          SERIAL_PROTOCOLPGM("?Unable to load mesh data.\n");
 
         #if ENABLED(EEPROM_CHITCHAT)
           else
