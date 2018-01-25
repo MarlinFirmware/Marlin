@@ -106,9 +106,15 @@
 #define MSG_SELECT                          _UxGT("センタク")                     // "Select"
 #define MSG_ACC                             _UxGT("カソクド mm/s2")               // "Accel"
 #define MSG_JERK                            _UxGT("ヤクド mm/s")                  // "Jerk"
-#define MSG_VX_JERK                         _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
-#define MSG_VY_JERK                         _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
-#define MSG_VZ_JERK                         _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Aジク ヤクド mm/s")             // "Va-jerk"
+  #define MSG_VB_JERK                       _UxGT("Bジク ヤクド mm/s")             // "Vb-jerk"
+  #define MSG_VC_JERK                       _UxGT("Cジク ヤクド mm/s")             // "Vc-jerk"
+#else
+  #define MSG_VA_JERK                       _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
+  #define MSG_VB_JERK                       _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
+  #define MSG_VC_JERK                       _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
+#endif
 #define MSG_VE_JERK                         _UxGT("エクストルーダー ヤクド")          // "Ve-jerk"
 #define MSG_VMAX                            _UxGT("サイダイオクリソクド ")            // "Vmax "
 #define MSG_VMIN                            _UxGT("サイショウオクリソクド")           // "Vmin"
