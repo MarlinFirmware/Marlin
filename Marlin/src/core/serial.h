@@ -67,11 +67,6 @@ extern uint8_t marlin_debug_flags;
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
-<<<<<<< HEAD
-#define SERIAL_START do { for (int i = 0; i < WAIT_FOR_SERIAL_STARTUP; i++) { if(!MYSERIAL) { watchdog_reset(); delay(1000);} } } while (0)
-
-#define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
-=======
 #if TX_BUFFER_SIZE < 1
   #define SERIAL_FLUSHTX_P(p)
   #define SERIAL_FLUSHTX()
@@ -211,7 +206,6 @@ extern const char errormagic[] PROGMEM;
   #define serialprintPGM_P(p,s)     serialprintPGM(s)
 #endif
 
->>>>>>> db031d5d768246a8576c74ba8f67cc30411a6133
 #define SERIAL_EOL() SERIAL_CHAR('\n')
 
 #define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
