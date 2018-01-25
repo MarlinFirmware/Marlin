@@ -44,6 +44,7 @@
 
 #if ENABLED(DELTA)
   #include "../module/delta.h"
+  #include "../module/stepper.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -469,6 +470,15 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
     probing_pause(true);
   #endif
 
+  #if ENABLED(DELTA)
+    const float z_start = current_position[Z_AXIS];
+    const long steps_start[ABC] = {
+      stepper.position(A_AXIS),
+      stepper.position(B_AXIS),
+      stepper.position(C_AXIS)
+    };
+  #endif
+
   // Move down until probe triggered
   do_blocking_move_to_z(z, MMM_TO_MMS(fr_mm_m));
 
@@ -493,11 +503,21 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
   // Clear endstop flags
   endstops.hit_on_purpose();
 
-  // Get Z where the steppers were interrupted
-  set_current_from_steppers_for_axis(Z_AXIS);
+  if (probe_triggered) {
+    // Get Z where the steppers were interrupted
+    #if ENABLED(DELTA)
+      float z_dist = 0.0;
+      LOOP_ABC(i)
+        z_dist += FABS(steps_start[i] - stepper.position((AxisEnum)i)) / planner.axis_steps_per_mm[i];
+      
+      current_position[Z_AXIS] = z_start - (z_dist / ABC);
+    #else
+      set_current_from_steppers_for_axis(Z_AXIS);
+    #endif
 
-  // Tell the planner where we actually are
-  SYNC_PLAN_POSITION_KINEMATIC();
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();
+  }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
