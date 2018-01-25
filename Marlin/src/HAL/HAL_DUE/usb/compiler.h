@@ -105,7 +105,7 @@
  * \brief Marking \a v as a unused parameter or value.
  */
 #ifndef UNUSED
-#define UNUSED(v)          (void)(v)
+#define UNUSED(x) (void) (x)
 #endif
 
 /**
@@ -444,8 +444,8 @@ typedef struct
 #define ENABLE    1
 #ifndef __cplusplus
 #if !defined(__bool_true_false_are_defined)
-#define false     0
-#define true      1
+#define false 0
+#define true 1
 #endif
 #endif
 #ifndef PASS
@@ -455,10 +455,10 @@ typedef struct
 #define FAIL      1
 #endif
 #ifndef LOW
-#define LOW       0
+#define LOW  0x0
 #endif
 #ifndef HIGH
-#define HIGH      1
+#define HIGH 0x1
 #endif
 //! @}
 
