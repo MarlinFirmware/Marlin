@@ -420,27 +420,11 @@
     }
   }
 
-#ifdef BOOT_LOADER_EXTRACTION
-  /* dumps the boot loader to sd. */
-  void dump_bootlader() {
-    card.initsd();
-  	card.openFile((char *)"LOADER.BIN",false);
-    watchdog_reset();
-    card.write (((byte*)(0x08000000)), 0x2000);
-  	card.closefile();
-    card.release();
-  }
-#endif
-
   // The malyan LCD actually runs as a separate MCU on Serial 1.
   // This code's job is to siphon the weird curly-brace commands from
   // it and translate into gcode, which then gets injected into
   // the command queue where possible.
   void lcd_init() {
-    #ifdef BOOT_LOADER_EXTRACTION
-      dump_bootlader();
-    #endif
-
     inbound_count = 0;
     LCD_SERIAL.begin(500000);
 
