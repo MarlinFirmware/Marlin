@@ -1055,8 +1055,9 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
   // if not a directory file or miss-positioned return an error
   if (!isDir() || (0x1F & curPosition_)) return -1;
 
-  //If we have a longFilename buffer, mark it as invalid. If we find a long filename it will be filled automaticly.
-  if (longFilename != NULL) longFilename[0] = '\0';
+  // If we have a longFilename buffer, mark it as invalid.
+  // If a long filename is found it will be filled automatically.
+  if (longFilename) longFilename[0] = '\0';
 
   while (1) {
 
@@ -1066,12 +1067,15 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     // last entry if DIR_NAME_FREE
     if (dir->name[0] == DIR_NAME_FREE) return 0;
 
-    // skip empty entries and entry for .  and ..
-    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') continue;
+    // skip deleted entry and entry for .  and ..
+    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') {
+      if (longFilename) longFilename[0] = '\0';     // Invalidate erased file long name, if any
+      continue;
+    }
 
     // Fill the long filename if we have a long filename entry.
     // Long filename entries are stored before the short filename.
-    if (longFilename != NULL && DIR_IS_LONG_NAME(dir)) {
+    if (longFilename && DIR_IS_LONG_NAME(dir)) {
       vfat_t* VFAT = (vfat_t*)dir;
       // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
       if (VFAT->firstClusterLow == 0) {
