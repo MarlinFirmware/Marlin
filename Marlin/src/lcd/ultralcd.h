@@ -220,6 +220,23 @@
     void wait_for_release();
   #endif
 
+#else // MALYAN LCD
+#if ENABLED(MALYAN_LCD)
+
+  constexpr bool lcd_wait_for_move = false;
+
+  void lcd_update();
+  void lcd_init();
+  bool lcd_hasstatus();
+  void lcd_setstatus(const char* const message, const bool persist=false);
+  void lcd_setstatusPGM(const char* const message, const int8_t level=0);
+  void lcd_setalertstatusPGM(const char* message);
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
+  void lcd_buttons_update();
+  void lcd_reset_alert_level();
+  bool lcd_detected();
+  void lcd_refresh();
+
 #else // no LCD
 
   constexpr bool lcd_wait_for_move = false;
@@ -236,6 +253,7 @@
   inline bool lcd_detected() { return true; }
   inline void lcd_refresh() {}
 
+#endif // MALYAN_LCD
 #endif // ULTRA_LCD
 
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
