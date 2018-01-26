@@ -94,8 +94,10 @@ bool GcodeSuite::get_target_extruder_from_command() {
 void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
-      const float v = parser.value_axis_units((AxisEnum)i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
-      destination[i] = i == E_AXIS ? v : LOGICAL_TO_NATIVE(v, i);
+      const float v = parser.value_axis_units((AxisEnum)i);
+      destination[i] = (axis_relative_modes[i] || relative_mode)
+        ? current_position[i] + v
+        : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
@@ -631,17 +633,17 @@ void GcodeSuite::process_parsed_command() {
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        case 600: // M600: Pause for filament change
-          M600();
-          break;
+        case 600: M600(); break;  // M600: Pause for Filament Change
+        case 603: M603(); break;  // M603: Configure Filament Change
       #endif // ADVANCED_PAUSE_FEATURE
 
       #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
         case 605: M605(); break;  // M605: Set Dual X Carriage movement mode
       #endif
 
-      #if ENABLED(MK2_MULTIPLEXER)
-        case 702: M702(); break;  // M702: Unload all extruders
+      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        case 701: M701(); break;  // M701: Load Filament
+        case 702: M702(); break;  // M702: Unload Filament
       #endif
 
       #if ENABLED(LIN_ADVANCE)

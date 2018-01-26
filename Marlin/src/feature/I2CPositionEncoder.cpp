@@ -37,6 +37,7 @@
 #include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
+#include "binary.h"
 
 #include <Wire.h>
 
@@ -116,7 +117,7 @@ void I2CPositionEncoder::update() {
 
           SERIAL_ECHOPGM("New position reads as ");
           SERIAL_ECHO(get_position());
-          SERIAL_ECHOPGM("(");
+          SERIAL_CHAR('(');
           SERIAL_ECHO(mm_from_count(get_position()));
           SERIAL_ECHOLNPGM(")");
         #endif

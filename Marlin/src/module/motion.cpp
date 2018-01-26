@@ -1357,12 +1357,14 @@ void homeaxis(const AxisEnum axis) {
 
     #if ENABLED(DELTA)
       switch(axis) {
-        case X_AXIS:
-        case Y_AXIS:
-          // Get a minimum radius for clamping
-          soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
-          soft_endstop_radius_2 = sq(soft_endstop_radius);
-          break;
+        #if HAS_SOFTWARE_ENDSTOPS
+          case X_AXIS:
+          case Y_AXIS:
+            // Get a minimum radius for clamping
+            soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+            soft_endstop_radius_2 = sq(soft_endstop_radius);
+            break;
+        #endif
         case Z_AXIS:
           delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
         default: break;
@@ -1374,15 +1376,10 @@ void homeaxis(const AxisEnum axis) {
 
 #if HAS_M206_COMMAND
   /**
-   * Change the home offset for an axis, update the current
-   * position and the software endstops to retain the same
-   * relative distance to the new home.
-   *
-   * Since this changes the current_position, code should
-   * call sync_plan_position soon after this.
+   * Change the home offset for an axis.
+   * Also refreshes the workspace offset.
    */
   void set_home_offset(const AxisEnum axis, const float v) {
-    current_position[axis] += v - home_offset[axis];
     home_offset[axis] = v;
     update_software_endstops(axis);
   }

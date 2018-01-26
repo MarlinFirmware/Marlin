@@ -266,11 +266,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
     #endif
 
     if (!WITHIN(hotend, _BOT_HOTEND, _TOP_HOTEND)) {
-      SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
+      SERIAL_ECHOLNPGM(MSG_PID_BAD_EXTRUDER_NUM);
       return;
     }
 
-    SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
+    SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_START);
 
     disable_all_heaters(); // switch off all heaters.
 
@@ -2154,7 +2154,7 @@ void Temperature::isr() {
       SERIAL_PROTOCOLPAIR_P(port, " (", r / OVERSAMPLENR);
       SERIAL_PROTOCOLCHAR_P(port, ')');
     #endif
-    safe_delay(2);
+    delay(2);
   }
 
   void Temperature::print_heaterstates(

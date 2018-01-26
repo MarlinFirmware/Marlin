@@ -50,11 +50,11 @@
  */
 void GcodeSuite::M125() {
   // Initial retract before move to filament change position
-  const float retract = parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
+  const float retract = -FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
     #ifdef PAUSE_PARK_RETRACT_LENGTH
-      - (PAUSE_PARK_RETRACT_LENGTH)
+      + (PAUSE_PARK_RETRACT_LENGTH)
     #endif
-  ;
+  );
 
   point_t park_point = NOZZLE_PARK_POINT;
 
