@@ -29,9 +29,13 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+//#define DEBUG_GCODE_PARSER
+
 #include "../inc/MarlinConfig.h"
 
-//#define DEBUG_GCODE_PARSER
+#if ENABLED(DEBUG_GCODE_PARSER)
+  #include "../libs/hex_print_routines.h"
+#endif
 
 /**
  * GCode parser
