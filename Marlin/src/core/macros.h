@@ -95,9 +95,8 @@
 #define STRINGIFY(M) STRINGIFY_(M)
 
 // Macros for bit masks
-#ifndef _BV
-  #define _BV(n)  (1<<(n))
-#endif
+#undef _BV // Marlin needs 32-bit unsigned!
+#define _BV(b) (1UL << (b))
 #define TEST(n,b) (((n)&_BV(b))!=0)
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))

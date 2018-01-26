@@ -911,7 +911,7 @@
 
   #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5)
   #define _SKEW_SIDE(a,b,c) tan(M_PI*0.5-acos((sq(a)-sq(b)-sq(c))/(2*c*b)))
-  #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(a,_GET_SIDE(a,b,c),c)
+  #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(float(a),_GET_SIDE(float(a),float(b),float(c)),float(c))
 
   #ifndef XY_SKEW_FACTOR
     constexpr float XY_SKEW_FACTOR = (
@@ -1248,6 +1248,12 @@
       #define LED_USER_PRESET_BRIGHTNESS 255
     #endif
   #endif
+#endif
+
+// Nozzle park
+#if ENABLED(NOZZLE_PARK_FEATURE) && ENABLED(DELTA)
+  #undef NOZZLE_PARK_Z_FEEDRATE
+  #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
 #endif
 
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768

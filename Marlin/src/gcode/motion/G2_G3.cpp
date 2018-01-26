@@ -86,7 +86,8 @@ void plan_arc(
   if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis])
     angular_travel = RADIANS(360);
 
-  const float mm_of_travel = HYPOT(angular_travel * radius, FABS(linear_travel));
+  const float flat_mm = radius * angular_travel,
+              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : flat_mm;
   if (mm_of_travel < 0.001) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));

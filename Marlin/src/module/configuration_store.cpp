@@ -1421,7 +1421,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       if (!validating) report(
-        #if NUM_SERIAL > 1
+        #if ADD_PORT_ARG
           port
         #endif
       );
@@ -1432,13 +1432,13 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::validate(
-    #if NUM_SERIAL > 1
+    #if ADD_PORT_ARG
       const int8_t port/*=-1*/
     #endif
   ) {
     validating = true;
     const bool success = _load(
-      #if NUM_SERIAL > 1
+      #if ADD_PORT_ARG
         port
       #endif
     );
@@ -1502,7 +1502,7 @@ void MarlinSettings::postprocess() {
         HAL::PersistentStore::access_finish();
 
         if (status)
-          SERIAL_PROTOCOL("?Unable to save mesh data.\n");
+          SERIAL_PROTOCOLPGM("?Unable to save mesh data.\n");
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
 
@@ -1540,7 +1540,7 @@ void MarlinSettings::postprocess() {
         HAL::PersistentStore::access_finish();
 
         if (status)
-          SERIAL_PROTOCOL("?Unable to load mesh data.\n");
+          SERIAL_PROTOCOLPGM("?Unable to load mesh data.\n");
 
         #if ENABLED(EEPROM_CHITCHAT)
           else
@@ -1838,7 +1838,7 @@ void MarlinSettings::reset(
    * Unless specifically disabled, M503 is available even without EEPROM
    */
   void MarlinSettings::report(const bool forReplay
-    #if NUM_SERIAL > 1
+    #if ADD_PORT_ARG
       , const int8_t port/*=-1*/
     #endif
   ) {
@@ -2266,12 +2266,15 @@ void MarlinSettings::reset(
       }
       CONFIG_ECHO_START;
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        SERIAL_ECHO_P(port, "  M852 I");
+        SERIAL_ECHOPGM_P(port, "  M852 I");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
-        SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.xz_skew_factor));
-        SERIAL_ECHOLNPAIR_P(port, " K", LINEAR_UNIT(planner.yz_skew_factor));
-      #else
-        SERIAL_ECHO_P(port, "  M852 S");
+        SERIAL_ECHOPGM_P(port, " J");
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xz_skew_factor), 6);
+        SERIAL_ECHOPGM_P(port, " K");
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.yz_skew_factor), 6);
+        SERIAL_EOL_P(port);
+       #else
+        SERIAL_ECHOPGM_P(port, "  M852 S");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_EOL_P(port);
       #endif
@@ -2286,7 +2289,7 @@ void MarlinSettings::reset(
         SERIAL_ECHOLNPGM_P(port, "Stepper driver current:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHO_P(port, "  M906");
+      SERIAL_ECHOPGM_P(port, "  M906");
       #if ENABLED(X_IS_TMC2130) || ENABLED(X_IS_TMC2208)
         SERIAL_ECHOPAIR_P(port, " X ", stepperX.getCurrent());
       #endif
@@ -2332,7 +2335,7 @@ void MarlinSettings::reset(
         SERIAL_ECHOLNPGM_P(port, "Sensorless homing threshold:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHO_P(port, "  M914");
+      SERIAL_ECHOPGM_P(port, "  M914");
       #if ENABLED(X_IS_TMC2130)
         SERIAL_ECHOPAIR_P(port, " X", stepperX.sgt());
       #endif
