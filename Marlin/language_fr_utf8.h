@@ -95,7 +95,7 @@
 #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Editer maille perso")
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Réglage fin maille")
-#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Termier maille")
+#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Terminer maille")
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Créer maille perso")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Créer maille")
 #define MSG_UBL_BUILD_PLA_MESH              _UxGT("Créer maille PLA")
@@ -146,7 +146,7 @@
 #define MSG_MOVE_01MM                       _UxGT("Dépl. 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Dépl. 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Dépl. 10mm")
-#define MSG_SPEED                           _UxGT(" Vitesse")
+#define MSG_SPEED                           _UxGT("Vitesse")
 #define MSG_BED_Z                           _UxGT("Lit Z")
 #define MSG_NOZZLE                          _UxGT("Buse")
 #define MSG_BED                             _UxGT("Lit")
