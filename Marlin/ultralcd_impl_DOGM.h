@@ -62,10 +62,6 @@
   #include "ubl.h"
 #endif
 
-#if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-  #include "_Bootscreen.h"
-#endif
-
 // Only Western languages support big / small fonts
 #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
   #undef USE_BIG_EDIT_FONT
@@ -283,17 +279,14 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
-    #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
-      #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
-    #endif
-
     void lcd_custom_bootscreen() {
       u8g.firstPage();
       do {
         u8g.drawBitmapP(
-          (128 - (CUSTOM_BOOTSCREEN_BMPWIDTH))  /2,
-          ( 64 - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) /2,
-          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp);
+          (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH))  / 2,
+          (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2,
+          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp
+        );
       } while (u8g.nextPage());
       safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
@@ -305,25 +298,29 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       lcd_custom_bootscreen();
     #endif
 
-    #if ENABLED(START_BMPHIGH)
-      constexpr uint8_t offy = 0;
-    #else
-      constexpr uint8_t offy = DOG_CHAR_HEIGHT;
-    #endif
+    constexpr uint8_t offy =
+      #if ENABLED(START_BMPHIGH)
+        (LCD_PIXEL_HEIGHT - (START_BMPHEIGHT)) / 2
+      #else
+        DOG_CHAR_HEIGHT
+      #endif
+    ;
 
-    const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2,
-                  txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
+    const uint8_t width = u8g.getWidth(), height = u8g.getHeight(),
+                  offx = (width - (START_BMPWIDTH)) / 2;
 
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
       lcd_setFont(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
-        u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
+        const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH);
+        u8g.drawStr(txt1X, (height + DOG_CHAR_HEIGHT) / 2, STRING_SPLASH_LINE1);
       #else
-        const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-        u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-        u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+        const uint8_t txt1X = (width - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2,
+                      txt2X = (width - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+        u8g.drawStr(txt1X, height - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+        u8g.drawStr(txt2X, height - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
       #endif
     } while (u8g.nextPage());
     safe_delay(BOOTSCREEN_TIMEOUT);
@@ -361,14 +358,15 @@ static void lcd_implementation_init() {
 
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
+  const uint8_t h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {
     lcd_setFont(FONT_MENU);
-    u8g.setPrintPos(0, u8g.getHeight()/4*1);
+    u8g.setPrintPos(0, h4 * 1);
     lcd_print_utf(lcd_status_message);
-    u8g.setPrintPos(0, u8g.getHeight()/4*2);
+    u8g.setPrintPos(0, h4 * 2);
     lcd_printPGM(PSTR(MSG_HALTED));
-    u8g.setPrintPos(0, u8g.getHeight()/4*3);
+    u8g.setPrintPos(0, h4 * 3);
     lcd_printPGM(PSTR(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
@@ -380,9 +378,9 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 //
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
-  const uint8_t degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
-  u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
-  lcd_print(itostr3(temp));
+  const char * const str = itostr3(temp);
+  u8g.setPrintPos(x - (str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1) * DOG_CHAR_WIDTH / 2, y);
+  lcd_print(str);
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
 
@@ -489,23 +487,54 @@ static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
 
+  #if FAN_ANIM_FRAMES > 2
+    static bool old_blink;
+    static uint8_t fan_frame;
+    if (old_blink != blink) {
+      old_blink = blink;
+      if (!fanSpeeds[0] || ++fan_frame >= FAN_ANIM_FRAMES) fan_frame = 0;
+    }
+  #endif
+
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 
   //
   // Fan Animation
   //
+  // Draws the whole heading image as a B/W bitmap rather than
+  // drawing the elements separately.
+  // This was done as an optimization, as it was slower to draw
+  // multiple parts compared to a single bitmap.
+  //
+  // The bitmap:
+  // - May be offset in X
+  // - Includes all nozzle(s), bed(s), and the fan.
+  //
+  // TODO:
+  //
+  // - Only draw the whole header on the first
+  //   entry to the status screen. Nozzle, bed, and
+  //   fan outline bits don't change.
+  //
 
   if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
 
     u8g.drawBitmapP(
-      STATUS_SCREEN_X, 1,
+      STATUS_SCREEN_X, STATUS_SCREEN_Y,
       (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
       #if HAS_FAN0
-        blink && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp
-      #else
-        status_screen0_bmp
+        #if FAN_ANIM_FRAMES > 2
+          fan_frame == 1 ? status_screen1_bmp :
+          fan_frame == 2 ? status_screen2_bmp :
+          #if FAN_ANIM_FRAMES > 3
+            fan_frame == 3 ? status_screen3_bmp :
+          #endif
+        #else
+          blink && fanSpeeds[0] ? status_screen1_bmp :
+        #endif
       #endif
+      status_screen0_bmp
     );
 
   }
@@ -528,7 +557,7 @@ static void lcd_implementation_status_screen() {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
-          u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, 27);
+          u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
           lcd_print(itostr3(per));
           u8g.print('%');
         }
@@ -1051,8 +1080,8 @@ static void lcd_implementation_status_screen() {
       }
 
       // Print plot position
-      if (PAGE_CONTAINS(64 - (INFO_FONT_HEIGHT - 1), 64)) {
-        u8g.setPrintPos(5, 64);
+      if (PAGE_CONTAINS(LCD_PIXEL_HEIGHT - (INFO_FONT_HEIGHT - 1), LCD_PIXEL_HEIGHT)) {
+        u8g.setPrintPos(5, LCD_PIXEL_HEIGHT);
         lcd_print('(');
         u8g.print(x_plot);
         lcd_print(',');
@@ -1060,7 +1089,7 @@ static void lcd_implementation_status_screen() {
         lcd_print(')');
 
         // Show the location value
-        u8g.setPrintPos(74, 64);
+        u8g.setPrintPos(74, LCD_PIXEL_HEIGHT);
         lcd_print("Z:");
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
