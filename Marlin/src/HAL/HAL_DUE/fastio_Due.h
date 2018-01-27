@@ -89,6 +89,7 @@
 #define _SET_OUTPUT(IO) do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
                             PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, \
                                           g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
+                            g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\               
                         }while(0)
 
 /// set pin as input with pullup mode
