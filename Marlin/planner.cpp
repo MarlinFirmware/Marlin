@@ -1400,8 +1400,8 @@ void Planner::check_axes_activity() {
                             && de > 0;
 
     if (block->use_advance_lead) {
-      const float e_accel = (target_float[E_AXIS] - position_float[E_AXIS]) / SQRT(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])) * block->acceleration;
-      block->advance_speed = 2000000 / (extruder_advance_V * 0.01 * sq(e_accel) * axis_steps_per_mm[E_AXIS]);
+      const float e_accel_sq = sq(target_float[E_AXIS] - position_float[E_AXIS]) / (sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])) * sq(block->acceleration);
+      block->advance_speed = 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS]); // 2000000 / (extruder_advance_V * 0.01 * e_accel_sq * axis_steps_per_mm[E_AXIS]) == 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS])
       /*SERIAL_ECHO(e_accel);
       SERIAL_ECHO(';');
       SERIAL_ECHOLN(extruder_advance_V * 0.01 * sq(e_accel));*/
