@@ -2249,7 +2249,7 @@ static void clean_up_after_endstop_or_probe_move() {
       float z = Z_CLEARANCE_DEPLOY_PROBE;
       if (zprobe_zoffset < 0) z -= zprobe_zoffset;
 
-      if (z < current_position[Z_AXIS]) {
+      if (z + Z_PROBE_HYSTERESIS < current_position[Z_AXIS]) {
 
         // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
         if (!do_probe_move(z, Z_PROBE_SPEED_FAST))
