@@ -2,13 +2,11 @@
 
 __Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
 
-Do not use the configuration files in the main Marlin folder. Copy the configuration
-files from the "example configurations/TEVO Tarantula" folder.
-
 Open configuration.h file in a text editor and make the changes at the top (EasyConfig)
 section of the file. You should not have to make any other changes.
 
 See [this video](https://youtu.be/-sQ8p00pG5E) for an excellent tutorial on using this firmware.
+(NOTE: It is no longer necessary to copy the configuration files from the example configurations folder).
 
 Do you have a configuration for the Tarantula that is not covered in the EasyConfig? Would
 you like to share it with others by having it added to the EasyConfig?

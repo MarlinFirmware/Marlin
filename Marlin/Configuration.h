@@ -1,16 +1,4 @@
 //======================================================================
-/******************* DO NOT USE THIS FILE!!! ***************************
-
-    Copy both of the configuration files from the TEVO Tarantula folder
-    in the src\config\examples folder into the main Marlin folder.
-
-    This file is set up for my specific printer and probably will not
-    work on your printer!
-
-***********************************************************************/
-//======================================================================
-
-//======================================================================
 /**************** TEVO TARANTULA EASY CONFIG ***************************
             Original idea by terryb.print3d@gmail.com
              Modified by jb.github@rcairgallery.com
@@ -46,7 +34,7 @@
  */
 //#define LARGE_BED
 #define SDSUPPORT
-#define CHANGE_Y_DIRECTION      // If your bed homes in the wrong direction (it should move front to back) enable this.
+//#define CHANGE_Y_DIRECTION      // If your bed homes in the wrong direction (it should move front to back) enable this.
 //#define CHANGE_X_DIRECTION      // If your X carriage homes in the wrong direction (it should move right to left) enable this.
 //#define CHANGE_Z_DIRECTION      // If your Z homes in the wrong direction (it should move top to bottom) enable this.
 //#define HOTEND_E3DV6            // Genuine E3D v6 hotend.
@@ -59,19 +47,19 @@
  * Offset from endpoints to get nozzle to 0,0 (front/left of bed)
  * (How to center prints: https://github.com/JimBrown/MarlinTarantula/wiki/How-to-center-your-prints-(EasyConfig))
  */
-#define NOZZLE_X          -2
-#define NOZZLE_Y          -4
+#define NOZZLE_X          0
+#define NOZZLE_Y          0
 
 /**
  * Minimal Z height (in mm) before homing (G28) for Z clearance above the bed, clamps, ...
  */
-#define Z_HOMING_HEIGHT 4
+#define Z_HOMING_HEIGHT 5
 
 /**
  * Primary Extruder steps per mm (plugged in to E0 port on controller)
  * (How to calibrate: https://toms3d.org/2014/04/06/3d-printing-guides-calibrating-your-extruder/)
  */
-#define E0_STEPS      97.097 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
+#define E0_STEPS      100 // Stock extruder. If you have a Tevo Titan, try 400 then calibrate.
 //#define CHANGE_E0_DIRECTION   // If your extruder is going backwards, enable this.
 
 /**
@@ -84,7 +72,7 @@
  * Z-Probe type (must be none or one of them)
  * If a Z-Probe type is selected, a Bed Leveling type other than MANUAL must be selected.
  */
-#define BLTOUCH         // ANTClabs BLTouch sensor (might also work with clones)
+//#define BLTOUCH         // ANTClabs BLTouch sensor (might also work with clones)
 //#define SN04          // Green sensor
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
@@ -97,24 +85,24 @@
 //#define TRIPOINT
 //#define LINEAR
 //#define BILINEAR
-#define UBL
-//#define MANUAL
+//#define UBL
+#define MANUAL
 
 /**
  * Z-Probe offset from nozzle (https://github.com/JimBrown/MarlinTarantula/wiki/How-to-determine-your-Z-Probe-offset)
  * Use only one of Left/Right and Front/Behind. Others must be 0 (zero)
  * If you have a dual nozzle the offsets are calculated from the primary nozzle (the one plugged in to E0)
  */
-#define SENSOR_LEFT        1
+#define SENSOR_LEFT        0
 #define SENSOR_RIGHT       0
-#define SENSOR_FRONT       36
+#define SENSOR_FRONT       0
 #define SENSOR_BEHIND      0
 
 /**
  * Number of grid points in each direction
  * Minimum 3. Maximum 15 for UBL. Maximum 7 for MANUAL
  */
-#define GRID_POINTS        15
+#define GRID_POINTS        3
 
 /**
  * Margin around perimiter of bed for probing (will not probe outside this margin)
@@ -173,7 +161,7 @@
  * Fan Soft PWM. Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
  * which is not as annoying as with the hardware PWM. Redo PID Autotune.
  */
-#define SOFT_PWM
+//#define SOFT_PWM
 
 /**
  * Enable this to provide a realtime control over the head position via the LCD menu system that works while printing.
@@ -194,8 +182,8 @@
  * Extra movement of Y axis. Can help with probing more of the bed.
  * Set both to 0 (zero) if you do not have a Z-Probe.
  */
-#define XTRA_BED_FRONT    55  // Distance bed can move towards the front past Y = 200 (Y=280 for large bed)
-#define XTRA_BED_BACK     5  // Distance bed can move towards the back past Y = 0
+#define XTRA_BED_FRONT    0  // Distance bed can move towards the front past Y = 200
+#define XTRA_BED_BACK     0  // Distance bed can move towards the back past Y = 0
 
 /************************ END OF EASY CONFIG ***************************
 //======================================================================
@@ -1095,7 +1083,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE + XTRA_BED_RIGHT
 #define Y_MAX_POS Y_BED_SIZE + XTRA_BED_FRONT
-#define Z_MAX_POS 180
+#define Z_MAX_POS 200
 
 /**
  * Software Endstops
@@ -1721,7 +1709,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
