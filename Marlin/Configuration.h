@@ -79,6 +79,10 @@
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
+//@section Aon Debug Mode
+//turn off before shipping firmware
+#define AON_DEBUG_MODE
+
 //
 // *** VENDORS PLEASE READ *****************************************************
 //
@@ -541,7 +545,17 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 499*1.0, 499*1.0, 15*1.0, 30 } 
+
+#if defined(AON_DEBUG_MODE)
+    #define X_MAX_FEEDRATE_SCALAR 1.0
+    #define Y_MAX_FEEDRATE_SCALAR 1.0
+    #define Z_MAX_FEEDRATE_SCALAR 1.0
+    #define E_MAX_FEEDRATE_SCALAR 1.0
+    #define DEFAULT_MAX_FEEDRATE          { 499*X_MAX_FEEDRATE_SCALAR, 499*Y_MAX_FEEDRATE_SCALAR, 15*Z_MAX_FEEDRATE_SCALAR, 30*E_MAX_FEEDRATE_SCALAR } 
+#else
+  #define DEFAULT_MAX_FEEDRATE          { 499, 499, 15, 30 } 
+#endif
+
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
