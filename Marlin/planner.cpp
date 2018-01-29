@@ -1384,7 +1384,7 @@ void Planner::check_axes_activity() {
      *
      * Use LIN_ADVANCE for blocks if all these are true:
      *
-     * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS]) : This is a print move
+     * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) : This is a print move
      *
      * extruder_advance_V                 : There is an advance offset set.
      *
@@ -1394,17 +1394,20 @@ void Planner::check_axes_activity() {
      *                                      The math is good, but we must avoid retract moves with advance!
      * de > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
      */
-    block->use_advance_lead =  esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS])
+    block->use_advance_lead =  esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
                             && extruder_advance_V
                             && (uint32_t)esteps != block->step_event_count
                             && de > 0;
 
     if (block->use_advance_lead) {
-      const float e_accel_sq = sq(target_float[E_AXIS] - position_float[E_AXIS]) / (sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])) * sq(block->acceleration);
-      block->advance_speed = 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS]); // 2000000 / (extruder_advance_V * 0.01 * e_accel_sq * axis_steps_per_mm[E_AXIS]) == 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS])
-      /*SERIAL_ECHO(e_accel);
-      SERIAL_ECHO(';');
-      SERIAL_ECHOLN(extruder_advance_V * 0.01 * sq(e_accel));*/
+      float e_accel;
+      if (block->step_event_count == block->steps[X_AXIS])
+        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[X_AXIS];
+      else if (block->step_event_count == block->steps[Y_AXIS])
+        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[Y_AXIS];
+      else if (block->step_event_count == block->steps[Z_AXIS])
+        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[Z_AXIS];
+      block->advance_speed = 200000000 / (extruder_advance_V * sq(e_accel) * axis_steps_per_mm[E_AXIS]); // 2000000 / (extruder_advance_V * 0.01 * e_accel_sq * axis_steps_per_mm[E_AXIS]) == 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS])
 
       const float jerklimit = 2000000 / (max_jerk[E_AXIS] * axis_steps_per_mm[E_AXIS]);
       if (block->advance_speed < jerklimit) {
