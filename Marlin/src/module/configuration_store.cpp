@@ -2278,9 +2278,12 @@ void MarlinSettings::reset(
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHO_P(port, "  M852 I");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
-        SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.xz_skew_factor));
-        SERIAL_ECHOLNPAIR_P(port, " K", LINEAR_UNIT(planner.yz_skew_factor));
-      #else
+        SERIAL_ECHOPGM_P(port, " J");
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xz_skew_factor), 6);
+        SERIAL_ECHOPGM_P(port, " K");
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.yz_skew_factor), 6);
+        SERIAL_EOL_P(port);
+       #else
         SERIAL_ECHO_P(port, "  M852 S");
         SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_EOL_P(port);

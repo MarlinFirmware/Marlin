@@ -119,7 +119,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 static void do_pause_e_move(const float &length, const float &fr) {
   set_destination_from_current();
   destination[E_AXIS] += length / planner.e_factor[active_extruder];
-  buffer_line_to_destination(fr);
+  planner.buffer_line_kinematic(destination, fr, active_extruder);
   stepper.synchronize();
   set_current_from_destination();
 }
@@ -137,8 +137,8 @@ static void do_pause_e_move(const float &length, const float &fr) {
  * Returns 'true' if load was completed, 'false' for abort
  */
 bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
-                          const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
-                          const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
+                   const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
+                   const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
   #if DISABLED(ULTIPANEL)
     UNUSED(show_lcd);
@@ -232,7 +232,7 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
  * Returns 'true' if unload was completed, 'false' for abort
  */
 bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
-                            const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
+                     const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
   if (!ensure_safe_temperature(mode)) {
     #if ENABLED(ULTIPANEL)
@@ -336,8 +336,11 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-  Nozzle::park(2, park_point);
+  #if ENABLED(NO_MOTION_BEFORE_HOMING)
+    if (!axis_unhomed_error())
+  #endif
+      // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+      Nozzle::park(2, park_point);
 
   // Unload the filament
   if (unload_length)
