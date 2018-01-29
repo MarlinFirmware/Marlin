@@ -1402,11 +1402,11 @@ void Planner::check_axes_activity() {
     if (block->use_advance_lead) {
       float e_accel;
       if (block->step_event_count == block->steps[X_AXIS])
-        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[X_AXIS];
+        e_accel = abs((target_float[E_AXIS] - position_float[E_AXIS]) / (target_float[X_AXIS] - position_float[X_AXIS])) * block->acceleration_steps_per_s2 * steps_to_mm[X_AXIS];
       else if (block->step_event_count == block->steps[Y_AXIS])
-        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[Y_AXIS];
+        e_accel = abs((target_float[E_AXIS] - position_float[E_AXIS]) / (target_float[Y_AXIS] - position_float[Y_AXIS])) * block->acceleration_steps_per_s2 * steps_to_mm[Y_AXIS];
       else if (block->step_event_count == block->steps[Z_AXIS])
-        e_accel = abs(((target_float[E_AXIS] - position_float[E_AXIS]) * axis_steps_per_mm[E_AXIS_N]) / ((target_float[X_AXIS] - position_float[X_AXIS]) * axis_steps_per_mm[X_AXIS])) * block->acceleration_steps_per_s2 * axis_steps_per_mm[Z_AXIS];
+        e_accel = abs((target_float[E_AXIS] - position_float[E_AXIS]) / (target_float[Z_AXIS] - position_float[Z_AXIS])) * block->acceleration_steps_per_s2 * steps_to_mm[Z_AXIS];
       block->advance_speed = 200000000 / (extruder_advance_V * sq(e_accel) * axis_steps_per_mm[E_AXIS]); // 2000000 / (extruder_advance_V * 0.01 * e_accel_sq * axis_steps_per_mm[E_AXIS]) == 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS])
 
       const float jerklimit = 2000000 / (max_jerk[E_AXIS] * axis_steps_per_mm[E_AXIS]);

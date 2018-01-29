@@ -106,7 +106,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
            Stepper::nextAdvanceISR = ADV_NEVER,
            Stepper::eISR_Rate = ADV_NEVER;
 
-  volatile int Stepper::e_steps[E_STEPPERS];
+  int8_t Stepper::e_steps[E_STEPPERS];
 
 #endif // LIN_ADVANCE
 
@@ -746,6 +746,10 @@ void Stepper::isr() {
   if (all_steps_done) {
     current_block = NULL;
     planner.discard_current_block();
+    
+    #if ENABLED(LIN_ADVANCE)
+      eISR_Rate = ADV_NEVER;
+    #endif
   }
   #if DISABLED(LIN_ADVANCE)
     _ENABLE_ISRs(); // re-enable ISRs

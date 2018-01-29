@@ -125,8 +125,7 @@ class Stepper {
 
       static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
       #define _NEXT_ISR(T) nextMainISR = T
-      static volatile int e_steps[E_STEPPERS];
-      static int final_estep_rate;
+      static int8_t e_steps[E_STEPPERS];
       
     #else // !LIN_ADVANCE
 
