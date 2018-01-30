@@ -231,6 +231,10 @@ void Endstops::report_state() {
       }
     #endif
   }
+
+//
+// filament runout sensor code. It will crash if Material lack pins are set to -1
+//
   
   #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
     static bool lack_checked_e0=0;//lack of materia
@@ -256,12 +260,13 @@ void Endstops::report_state() {
             {
               lack_checked_e0=0;
             }
+          #endif  
         }
-          #endif
           #if (EXTRUDERS == 2)
             if (planner.lack_materia_sensor_state[1] == true) 
             {
               #if defined(E1_MATERIAL_LACK_PIN) && E1_MATERIAL_LACK_PIN > -1
+
                 if(READ(E1_MATERIAL_LACK_PIN)^planner.lack_materia_sensor_norm[1])
                 {
                   if(lack_checked_e1==0)
@@ -275,7 +280,6 @@ void Endstops::report_state() {
                   lack_checked_e1=0;
                 }
               #endif
-         
             }
           #endif
       }
