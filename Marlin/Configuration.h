@@ -93,11 +93,22 @@
 //#define SHOW_CUSTOM_BOOTSCREEN
 // @section machine
 
-// @section Raise3D N-Series settings
-#define N2PLUS //valid options N1, N2, N2PLUS
+// *** Raise3D N-Series settings ***********************************************
+
+// @Bed Settings
+#define N2PLUS //This sets the Bed size. valid options N1, N2, N2PLUS. 
+#define CUSTOM_Z_SIZE 260 // This is for a custom Z size if you have a reduced Z height due to leveling bed or custom extruders. 
+
+// @Extruder Settings
+// The following settings are for setting the EXTRUDER STEP-E settings without
+// having to go down and mess with it later in the firmware.
+// Default OEM settings is 94 for the Stock Extruder. 
+// Bondtech Drive Gear on Stock Extruder is 140. 
+// Bondtech QR Universal is 476.5(for right side bowden setup)
+// Bondtech DUAL BMG is 415.
+#define EXT0_STEPE 94 // (left side) Set EXT0 STEPE here. 
+#define EXT1_STEPE 94 // (right side) Set EXT1 STEPE here.
 #define DUAL  //Comment this line to get single head version firmware.
-#define EXT0_STEPE 94 // (left side) Set EXT0 STEPE here. default is 94. bondtech is 140.
-#define EXT1_STEPE 94 // (right side) Set EXT1 STEPE here. default is 94. bondtech is 140. bondtech QR universal is 476.5
 
 /**
  * Select which serial port on the board will be used for communication with the host.
@@ -824,6 +835,11 @@
 
 #ifndef Z_BED_SIZE 
   #define Z_BED_SIZE 200
+#endif
+
+#ifdef CUSTOM_Z_SIZE
+  #undef Z_BED_SIZE
+  #define Z_BED_SIZE CUSTOM_Z_SIZE
 #endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
