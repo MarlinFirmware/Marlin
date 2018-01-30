@@ -1574,4 +1574,24 @@
                               // Default behaviour is limited to Z axis only.
 #endif
 
+
+/**
+ * 
+ * RaiseTouch Features 
+ * 
+ * The RaiseTouch has some spefic functions that it handles when the features are enabled. 
+ * These include a fast stop feature and a Filament Runout Sensor.
+ * At this time I am not sure how to impliment the fast stop feature as they changed the Kill() function somehow.
+ *
+ */
+#define RAISETOUCH_FILAMENT_RUNOUT_SENSOR
+#if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+  //#define RAISETOUCH_E0_FILAMENT_SENSOR
+  //#define RAISETOUCH_E1_FILAMENT_SENSOR
+  #define ENDSTOPPULLUP_E0_LACK
+  #define ENDSTOPPULLUP_E1_LACK
+  const bool E0_LACK_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+  const bool E1_LACK_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+#endif
+
 #endif // CONFIGURATION_ADV_H

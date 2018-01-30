@@ -7804,6 +7804,10 @@ inline void gcode_M109() {
         else
           SERIAL_PROTOCOLCHAR('?');
       #endif
+      #if ENABLED(RAISETOUCH)
+        SERIAL_PROTOCOLPGM(" D:");
+        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder),1);
+      #endif
       SERIAL_EOL();
     }
 
@@ -7933,6 +7937,16 @@ inline void gcode_M109() {
       now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
+        #if ENABLED(RAISETOUCH)
+          SERIAL_PROTOCOLPGM("T:");
+          SERIAL_PROTOCOL(thermalManager.degHotend(active_extruder));
+          SERIAL_PROTOCOLPGM(" E:");
+          SERIAL_PROTOCOL((int)active_extruder);
+          SERIAL_PROTOCOLPGM(" B:");
+          SERIAL_PROTOCOL(thermalManager.degBed());
+          SERIAL_PROTOCOLPGM(" D:");
+          SERIAL_PROTOCOL(thermalManager.degTargetBed());
+        #endif        
         thermalManager.print_heaterstates();
         #if TEMP_BED_RESIDENCY_TIME > 0
           SERIAL_PROTOCOLPGM(" W:");
@@ -8571,12 +8585,91 @@ inline void gcode_M119() { endstops.M119(); }
 /**
  * M120: Enable endstops and set non-homing endstop state to "enabled"
  */
-inline void gcode_M120() { endstops.enable_globally(true); }
-
+inline void gcode_M120() { 
+  #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+   if (parser.seen('S')) {
+      int sensor_set = parser.value_ushort();
+      SERIAL_ECHO("FRS");
+      SERIAL_ECHO(sensor_set);
+      SERIAL_ECHO(": ");
+      if (sensor_set == 0) {
+        SERIAL_ECHO("On");
+        planner.lack_materia_sensor_state[0] = true;
+        }
+      else 
+        if (sensor_set == 1) {
+          SERIAL_ECHO("On");        
+          planner.lack_materia_sensor_state[1] = true; 
+         }
+        else {
+          SERIAL_ECHOLN(MSG_INVALID_SENSOR_STATE);
+        }
+    }
+    if (parser.seen('N')) {
+      int normally_set = parser.value_ushort();
+      SERIAL_ECHO("FRS");
+      SERIAL_ECHO(normally_set);
+      SERIAL_ECHO(": ");
+      if (normally_set == 0) {
+        SERIAL_ECHO("OPEN");
+        planner.lack_materia_sensor_norm[0]=true;
+        }
+      else
+        if (normally_set == 1) {
+          SERIAL_ECHO("OPEN");
+          planner.lack_materia_sensor_norm[1]=true;
+         }
+        else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_NORMAL); }
+    }
+    else 
+      endstops.enable_globally(true); 
+  #else  
+    endstops.enable_globally(true); 
+  #endif
+}
 /**
  * M121: Disable endstops and set non-homing endstop state to "disabled"
  */
-inline void gcode_M121() { endstops.enable_globally(false); }
+inline void gcode_M121() { 
+ #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+   if (parser.seen('S')) {
+      int sensor_set = parser.value_ushort();
+      SERIAL_ECHO("FRS");
+      SERIAL_ECHO(sensor_set);
+      SERIAL_ECHO(": ");
+      if (sensor_set == 0) {
+        SERIAL_ECHO("Off");
+        planner.lack_materia_sensor_state[0] = false;
+        }
+      else 
+        if (sensor_set == 1) {
+          SERIAL_ECHO("Off");        
+          planner.lack_materia_sensor_state[1] = false; 
+         }
+        else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_STATE); }
+    }
+    if (parser.seen('N')) {
+      int normally_set = parser.value_ushort();
+      SERIAL_ECHO("FRS");
+      SERIAL_ECHO(normally_set);
+      SERIAL_ECHO(": ");
+      if (normally_set == 0) {
+        SERIAL_ECHO("CLOSED");
+        planner.lack_materia_sensor_norm[0]=false;
+        }
+      else
+        if (normally_set == 1) {
+          SERIAL_ECHO("CLOSE");
+          planner.lack_materia_sensor_norm[1]=false;
+         }
+        else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_NORMAL); }
+    }
+    else 
+      endstops.enable_globally(false); 
+  #else    
+    endstops.enable_globally(false);
+  #endif
+}
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
 
@@ -12497,6 +12590,17 @@ void ok_to_send() {
     }
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
     SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
+  #endif
+  #if ENABLED(RAISETOUCH)
+    SERIAL_PROTOCOL(':');
+     if (planner.block_buffer_tail == planner.block_buffer_head)
+        {
+          SERIAL_PROTOCOL(0);
+        }
+     else
+        {
+          SERIAL_PROTOCOL((planner.block_buffer_head - planner.block_buffer_tail + BLOCK_BUFFER_SIZE)%BLOCK_BUFFER_SIZE);
+        }
   #endif
   SERIAL_EOL();
 }

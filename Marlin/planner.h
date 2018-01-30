@@ -196,6 +196,11 @@ class Planner {
                    lin_dist_xy, lin_dist_e;
     #endif
 
+    #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+      static bool lack_materia_sensor_state[2];
+      static bool lack_materia_sensor_norm[2];
+    #endif
+
     #if ENABLED(SKEW_CORRECTION)
       #if ENABLED(SKEW_CORRECTION_GCODE)
         static float xy_skew_factor;

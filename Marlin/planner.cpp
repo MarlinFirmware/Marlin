@@ -149,6 +149,11 @@ float Planner::min_feedrate_mm_s,
   bool Planner::autotemp_enabled = false;
 #endif
 
+#if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+  bool Planner::lack_materia_sensor_state[];
+  bool Planner::lack_materia_sensor_norm[];
+#endif
+
 // private:
 
 int32_t Planner::position[NUM_AXIS] = { 0 };

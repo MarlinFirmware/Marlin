@@ -417,6 +417,15 @@
   #define MAX_EXTRUDERS 5
 #endif
 
+#if ENABLED (RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+  #ifndef E0_MATERIAL_LACK_PIN
+    #define E0_MATERIAL_LACK_PIN  -1
+  #endif
+  #ifndef E1_MATERIAL_LACK_PIN
+    #define E1_MATERIAL_LACK_PIN  -1
+  #endif
+#endif
+
 // Marlin needs to account for pins that equal -1
 #define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
 
