@@ -904,10 +904,6 @@ void prepare_move_to_destination() {
 
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
-  #if ENABLED(DUAL_X_CARRIAGE)
-    if (dual_x_carriage_unpark()) return;
-  #endif
-
   if (
     #if UBL_SEGMENTED
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
