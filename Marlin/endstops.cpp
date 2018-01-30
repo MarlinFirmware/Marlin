@@ -339,18 +339,26 @@ void Endstops::M119() {
   #endif
 
   #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
-    #if ENABLED(RAISETOUCH_E0_FILAMENT_SENSOR)
-      #if defined(E0_MATERIAL_LACK_PIN) && E0_MATERIAL_LACK_PIN > -1
-        SERIAL_PROTOCOLPGM("e0_lack: ");
-        SERIAL_PROTOCOLLN(((READ(E0_MATERIAL_LACK_PIN)^E0_LACK_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
-      #endif
+    #if defined(E0_MATERIAL_LACK_PIN) && E0_MATERIAL_LACK_PIN > -1
+      SERIAL_PROTOCOLPGM("e0_lack: ");
+      SERIAL_PROTOCOLLN(((READ(E0_MATERIAL_LACK_PIN)^planner.lack_materia_sensor_norm[0])?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+      SERIAL_PROTOCOLPGM("Sensor State: ");
+      if (planner.lack_materia_sensor_state[0] == false) { SERIAL_PROTOCOLLN(MSG_SENSOR_STATE_OFF); }
+      if (planner.lack_materia_sensor_state[0] == true) { SERIAL_PROTOCOLLN(MSG_SENSOR_STATE_ON); }
+      SERIAL_ECHO("Normal State: ");
+      if (planner.lack_materia_sensor_norm[0] == false) { SERIAL_PROTOCOLLN(MSG_SENSOR_NORMAL_STATE_CLOSED); }
+      if (planner.lack_materia_sensor_norm[0] == true) { SERIAL_PROTOCOLLN(MSG_SENSOR_NORMAL_STATE_OPEN); } 
     #endif
-    #if ENABLED(RAISETOUCH_E1_FILAMENT_SENSOR) 
-      #if ENABLED(DUAL)
-        #if defined(E1_MATERIAL_LACK_PIN) && E1_MATERIAL_LACK_PIN > -1
-          SERIAL_PROTOCOLPGM("e1_lack: ");
-          SERIAL_PROTOCOLLN(((READ(E1_MATERIAL_LACK_PIN)^E1_LACK_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
-        #endif
+    #if EXTRUDERS == 2
+      #if defined(E1_MATERIAL_LACK_PIN) && E1_MATERIAL_LACK_PIN > -1
+        SERIAL_PROTOCOLPGM("e1_lack: ");
+        SERIAL_PROTOCOLLN(((READ(E1_MATERIAL_LACK_PIN)^planner.lack_materia_sensor_norm[1])?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+        SERIAL_PROTOCOLPGM("Sensor State: ");
+        if (planner.lack_materia_sensor_state[0] == false) { SERIAL_PROTOCOLLN(MSG_SENSOR_STATE_OFF); }
+        if (planner.lack_materia_sensor_state[0] == true) { SERIAL_PROTOCOLLN(MSG_SENSOR_STATE_ON); }
+        SERIAL_ECHO("Normal State: ");
+        if (planner.lack_materia_sensor_norm[0] == false) { SERIAL_PROTOCOLLN(MSG_SENSOR_NORMAL_STATE_CLOSED); }
+        if (planner.lack_materia_sensor_norm[0] == true) { SERIAL_PROTOCOLLN(MSG_SENSOR_NORMAL_STATE_OPEN); } 
       #endif
     #endif
   #endif

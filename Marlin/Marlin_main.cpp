@@ -7806,7 +7806,7 @@ inline void gcode_M109() {
       #endif
       #if ENABLED(RAISETOUCH)
         SERIAL_PROTOCOLPGM(" D:");
-        SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder),1);
+        SERIAL_PROTOCOL(thermalManager.degTargetHotend(target_extruder));
       #endif
       SERIAL_EOL();
     }
@@ -8593,12 +8593,12 @@ inline void gcode_M120() {
       SERIAL_ECHO(sensor_set);
       SERIAL_ECHO(": ");
       if (sensor_set == 0) {
-        SERIAL_ECHO("On");
+        SERIAL_ECHOLN("On");
         planner.lack_materia_sensor_state[0] = true;
         }
       else 
         if (sensor_set == 1) {
-          SERIAL_ECHO("On");        
+          SERIAL_ECHOLN("On");        
           planner.lack_materia_sensor_state[1] = true; 
          }
         else {
@@ -8611,12 +8611,12 @@ inline void gcode_M120() {
       SERIAL_ECHO(normally_set);
       SERIAL_ECHO(": ");
       if (normally_set == 0) {
-        SERIAL_ECHO("OPEN");
+        SERIAL_ECHOLN("OPEN");
         planner.lack_materia_sensor_norm[0]=true;
         }
       else
         if (normally_set == 1) {
-          SERIAL_ECHO("OPEN");
+          SERIAL_ECHOLN("OPEN");
           planner.lack_materia_sensor_norm[1]=true;
          }
         else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_NORMAL); }
@@ -8638,12 +8638,12 @@ inline void gcode_M121() {
       SERIAL_ECHO(sensor_set);
       SERIAL_ECHO(": ");
       if (sensor_set == 0) {
-        SERIAL_ECHO("Off");
+        SERIAL_ECHOLN("Off");
         planner.lack_materia_sensor_state[0] = false;
         }
       else 
         if (sensor_set == 1) {
-          SERIAL_ECHO("Off");        
+          SERIAL_ECHOLN("Off");        
           planner.lack_materia_sensor_state[1] = false; 
          }
         else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_STATE); }
@@ -8654,12 +8654,12 @@ inline void gcode_M121() {
       SERIAL_ECHO(normally_set);
       SERIAL_ECHO(": ");
       if (normally_set == 0) {
-        SERIAL_ECHO("CLOSED");
+        SERIAL_ECHOLN("CLOSED");
         planner.lack_materia_sensor_norm[0]=false;
         }
       else
         if (normally_set == 1) {
-          SERIAL_ECHO("CLOSE");
+          SERIAL_ECHOLN("CLOSE");
           planner.lack_materia_sensor_norm[1]=false;
          }
         else { SERIAL_ECHOLN(MSG_INVALID_SENSOR_NORMAL); }
