@@ -97,7 +97,7 @@
 
 // @Bed Settings
 #define N2PLUS //This sets the Bed size. valid options N1, N2, N2PLUS. 
-#define CUSTOM_Z_SIZE 260 // This is for a custom Z size if you have a reduced Z height due to leveling bed or custom extruders. 
+//#define CUSTOM_Z_SIZE 260 // This is for a custom Z size if you have a reduced Z height due to leveling bed or custom extruders. 
 
 // @Extruder Settings
 // The following settings are for setting the EXTRUDER STEP-E settings without
