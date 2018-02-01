@@ -32,6 +32,8 @@
  * Please note that using the high-res version takes 402Bytes of PROGMEM.
  */
 
+#include <binary.h>
+
 //#define START_BMPHIGH
 
 #if ENABLED(SHOW_BOOTSCREEN)

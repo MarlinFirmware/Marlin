@@ -37,7 +37,7 @@
 #include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
-#include "binary.h"
+#include <binary.h>
 
 #include <Wire.h>
 
