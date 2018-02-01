@@ -4496,7 +4496,8 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-        if (parser.seen('W')) {
+        const bool seen_w = parser.seen('W');
+        if (seen_w) {
           if (!leveling_is_valid()) {
             SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM("No bilinear grid");
@@ -4534,10 +4535,14 @@ void home_all_axes() { gcode_G28(true); }
           return;
         } // parser.seen('W')
 
+      #else
+
+        constexpr bool seen_w = false;
+
       #endif
 
       // Jettison bed leveling data
-      if (parser.seen('J')) {
+      if (!seen_w && parser.seen('J')) {
         reset_bed_level();
         return;
       }
