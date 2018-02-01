@@ -6,9 +6,9 @@ For the stock Mega i3 with Ultrabase you find a configuration in the example sec
 
 The following defines have been added:
 
-ANYCUBIC_TFT_MODEL - Enable the display support
-ANYCUBIC_FILAMENT_RUNOUT_SENSOR - Enable the Mega filament runout sensor
-ANYCUBIC_TFT_DEBUG - Enable addition debugging messages on the terminal
+- ANYCUBIC_TFT_MODEL - Enable the display support
+- ANYCUBIC_FILAMENT_RUNOUT_SENSOR - Enable the Mega filament runout sensor
+- ANYCUBIC_TFT_DEBUG - Enable addition debugging messages on the terminal
 
 ## Differences to the stock firmware
 
