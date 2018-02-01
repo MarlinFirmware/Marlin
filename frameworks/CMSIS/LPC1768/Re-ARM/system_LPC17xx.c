@@ -496,7 +496,20 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
         break;
     }
   }
+}
 
+// detect 17x[4-8] (100MHz) or 17x9 (120MHz)
+static int can_120MHz() {
+  #define IAP_LOCATION 0x1FFF1FF1
+  uint32_t command[1];
+  uint32_t result[5];
+  typedef void (*IAP)(uint32_t*, uint32_t*);
+  IAP iap = (IAP) IAP_LOCATION;
+
+  command[0] = 54;
+  iap(command, result);
+
+  return result[1] & 0x00100000;
 }
 
 /**
@@ -508,7 +521,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-
 void SystemInit (void)
 {
 #if (CLOCK_SETUP)                       /* Clock Setup                        */
@@ -546,9 +558,15 @@ void SystemInit (void)
 
   LPC_SC->CCLKCFG   = 0x00000002;       /* Setup CPU Clock Divider            */
 
-  LPC_SC->PLL0CFG   = 0x00010018;     // 100MHz
-  LPC_SC->PLL0FEED  = 0xAA;
-  LPC_SC->PLL0FEED  = 0x55;
+  if(can_120MHz()) {
+    LPC_SC->PLL0CFG   = 0x0000000E;     /* configure PLL0                     */
+    LPC_SC->PLL0FEED  = 0xAA;
+    LPC_SC->PLL0FEED  = 0x55;
+  } else {
+    LPC_SC->PLL0CFG   = 0x00010018;     // 100MHz
+    LPC_SC->PLL0FEED  = 0xAA;
+    LPC_SC->PLL0FEED  = 0x55;
+  }
 
   LPC_SC->PLL0CON   = 0x01;             /* PLL0 Enable                        */
   LPC_SC->PLL0FEED  = 0xAA;

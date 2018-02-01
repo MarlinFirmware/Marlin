@@ -70,6 +70,20 @@ extern "C" void SystemPostInit() {
   }
 }
 
+// detect 17x[4-8] (100MHz) or 17x9 (120MHz)
+static bool isLPC1769() {
+    #define IAP_LOCATION 0x1FFF1FF1
+    uint32_t command[1];
+    uint32_t result[5];
+    typedef void (*IAP)(uint32_t*, uint32_t*);
+    IAP iap = (IAP) IAP_LOCATION;
+
+    command[0] = 54;
+    iap(command, result);
+
+    return ((result[1] & 0x00100000) != 0);
+}
+
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 
 int main(void) {
@@ -93,7 +107,7 @@ int main(void) {
     #if NUM_SERIAL > 1
       MYSERIAL1.begin(BAUDRATE);
     #endif
-    SERIAL_PRINTF("\n\nLPC1768 (%dMhz) UART0 Initialised\n", SystemCoreClock / 1000000);
+    SERIAL_PRINTF("\n\n%s (%dMhz) UART0 Initialised\n", isLPC1769() ? "LPC1769" : "LPC1768", SystemCoreClock / 1000000);
     SERIAL_FLUSHTX();
   #endif
 
