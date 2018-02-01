@@ -28,11 +28,11 @@ extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_hw_spi;
 class U8GLIB_64128N_2X_HAL : public U8GLIB
 {
   public:
-    U8GLIB_64128N_2X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
-      : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_sw_spi, sck, mosi, cs, a0, reset)
+    U8GLIB_64128N_2X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE)
+      : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset)
       { }
-    U8GLIB_64128N_2X_HAL(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
-      : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_hw_spi, cs, a0, reset)
+    U8GLIB_64128N_2X_HAL(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE)
+      : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_hw_spi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset)
       { }
 };
 
@@ -42,11 +42,11 @@ extern u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi;
 class U8GLIB_ST7920_128X64_4X_HAL : public U8GLIB
 {
   public:
-    U8GLIB_ST7920_128X64_4X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t reset = U8G_PIN_NONE)
-      : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_sw_spi, sck, mosi, cs, U8G_PIN_NONE, reset)    // a0 = U8G_PIN_NONE
+    U8GLIB_ST7920_128X64_4X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE)
+      : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)    // a0 = U8G_PIN_NONE
       { }
-    U8GLIB_ST7920_128X64_4X_HAL(uint8_t cs, uint8_t reset = U8G_PIN_NONE)
-      : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_hw_spi, cs, U8G_PIN_NONE, reset)   // a0 = U8G_PIN_NONE
+    U8GLIB_ST7920_128X64_4X_HAL(pin_t cs, pin_t reset = U8G_PIN_NONE)
+      : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_hw_spi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)   // a0 = U8G_PIN_NONE
       { }
 };
 
@@ -56,8 +56,8 @@ extern u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi;
 class U8GLIB_ST7920_128X64_RRD : public U8GLIB
 {
   public:
-    U8GLIB_ST7920_128X64_RRD(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t reset = U8G_PIN_NONE)
-      : U8GLIB(&u8g_dev_st7920_128x64_rrd_sw_spi, sck, mosi, cs, U8G_PIN_NONE, reset)   // a0 = U8G_PIN_NONE
+    U8GLIB_ST7920_128X64_RRD(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE)
+      : U8GLIB(&u8g_dev_st7920_128x64_rrd_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)   // a0 = U8G_PIN_NONE
       { }
 };
 
