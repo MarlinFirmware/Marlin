@@ -58,52 +58,12 @@
 #ifdef TARGET_LPC1768
 
   #include <U8glib.h>
+  #include "SoftwareSPI.h"
 
-  #include <lpc17xx_pinsel.h>
+  #define SPI_SPEED 3  // About 1 MHz
 
-  #define LPC_PORT_OFFSET         (0x0020)
-  #define LPC_PIN(pin)            (1UL << pin)
-  #define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
-
-
-  uint8_t SCK_pin_ST7920_HAL, SCK_port_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL, MOSI_port_ST7920_HAL;
-
-
-  #define SPI_SPEED 4  //20: 200KHz 5:750KHz 4:1MHz 3:1.5MHz 2:3-4MHz
-
-  static void spiSend_sw(uint8_t val)
-  {
-    for (uint8_t i = 0; i < 8; i++) {
-
-      if (val & 0x80)
-        for (uint8_t j = 0; j < SPI_SPEED; j++) {
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOSET = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOSET = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOSET = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-        }
-      else
-        for (uint8_t j = 0; j < SPI_SPEED; j++) {
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOCLR = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOCLR = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-          LPC_GPIO(MOSI_port_ST7920_HAL)->FIOCLR = LPC_PIN(MOSI_pin_ST7920_HAL_HAL);
-        }
-
-      for (uint8_t j = 0; j < SPI_SPEED; j++) {
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOSET = LPC_PIN(SCK_pin_ST7920_HAL);
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOSET = LPC_PIN(SCK_pin_ST7920_HAL);
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOSET = LPC_PIN(SCK_pin_ST7920_HAL);
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOSET = LPC_PIN(SCK_pin_ST7920_HAL);
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOSET = LPC_PIN(SCK_pin_ST7920_HAL);
-      }
-
-      for (uint8_t j = 0; j < SPI_SPEED; j++) {
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOCLR = LPC_PIN(SCK_pin_ST7920_HAL);
-        LPC_GPIO(SCK_port_ST7920_HAL)->FIOCLR = LPC_PIN(SCK_pin_ST7920_HAL);
-      }
-      val = val << 1;
-    }
-  }
-
+  static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
+  static uint8_t SPI_speed = 0;
   static uint8_t rs_last_state = 255;
 
   static void u8g_com_LPC1768_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val)
@@ -115,39 +75,38 @@
 
       if ( rs == 0 )
         /* command */
-        spiSend_sw(0x0f8);
+        swSpiTransfer(0x0f8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
       else
          /* data */
-        spiSend_sw(0x0fa);
+         swSpiTransfer(0x0fa, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
 
       for( i = 0; i < 4; i++ )   // give the controller some time to process the data
         u8g_10MicroDelay();      // 2 is bad, 3 is OK, 4 is safe
     }
 
-    spiSend_sw(val & 0x0f0);
-    spiSend_sw(val << 4);
+    swSpiTransfer(val & 0x0f0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+    swSpiTransfer(val << 4, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
   }
-
 
   uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
   {
     switch(msg)
     {
       case U8G_COM_MSG_INIT:
-        #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
-        #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
-        SCK_pin_ST7920_HAL = LPC1768_PIN_PIN(u8g->pin_list[U8G_PI_SCK]);
-        SCK_port_ST7920_HAL = LPC1768_PIN_PORT(u8g->pin_list[U8G_PI_SCK]);
-        MOSI_pin_ST7920_HAL_HAL = LPC1768_PIN_PIN(u8g->pin_list[U8G_PI_MOSI]);
-        MOSI_port_ST7920_HAL = LPC1768_PIN_PORT(u8g->pin_list[U8G_PI_MOSI]);
+        SCK_pin_ST7920_HAL = u8g->pin_list[U8G_PI_SCK];
+        MOSI_pin_ST7920_HAL_HAL = u8g->pin_list[U8G_PI_MOSI];
 
-        u8g_SetPILevel(u8g, U8G_PI_CS, 0);
         u8g_SetPIOutput(u8g, U8G_PI_CS);
-        u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
         u8g_SetPIOutput(u8g, U8G_PI_SCK);
-        u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
         u8g_SetPIOutput(u8g, U8G_PI_MOSI);
         u8g_Delay(5);
+
+        SPI_speed = swSpiInit(SPI_SPEED, SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL);
+
+        u8g_SetPILevel(u8g, U8G_PI_CS, 0);
+        u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
+        u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
+
         u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
         break;
 
