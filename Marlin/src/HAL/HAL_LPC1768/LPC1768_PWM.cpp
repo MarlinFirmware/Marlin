@@ -166,11 +166,13 @@ void LPC1768_PWM_init(void) {
   LPC_SC->PCLKSEL0 &= ~(0x3 << PCLK_PWM1);
   LPC_SC->PCLKSEL0 |= (LPC_PWM1_PCLKSEL0 << PCLK_PWM1);
 
+  uint32_t PR = (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_PWM1) / 1000000) - 1;      // Prescalar to create 1 MHz output
+
   LPC_PWM1->MR0  = LPC_PWM1_MR0;                                          // TC resets every 19,999 + 1 cycles - sets PWM cycle(Ton+Toff) to 20 mS
   // MR0 must be set before TCR enables the PWM
   LPC_PWM1->TCR  = _BV(SBIT_CNTEN) | _BV(SBIT_CNTRST) | _BV(SBIT_PWMEN);  // Enable counters, reset counters, set mode to PWM
   CBI(LPC_PWM1->TCR, SBIT_CNTRST);                                        // Take counters out of reset
-  LPC_PWM1->PR   =  LPC_PWM1_PR;
+  LPC_PWM1->PR   = PR;
   LPC_PWM1->MCR  = _BV(SBIT_PWMMR0R) | _BV(0);                            // Reset TC if it matches MR0, disable all interrupts except for MR0
   LPC_PWM1->CTCR = 0;                                                     // Disable counter mode (enable PWM mode)
   LPC_PWM1->LER  = 0x07F;                                                 // Set the latch Enable Bits to load the new Match Values for MR0 - MR6
@@ -179,7 +181,7 @@ void LPC1768_PWM_init(void) {
   ////  interrupt controlled PWM setup
 
   LPC_SC->PCONP |= 1 << 23;  // power on timer3
-  HAL_PWM_TIMER->PR = LPC_PWM1_PR;
+  HAL_PWM_TIMER->PR = PR;
   HAL_PWM_TIMER->MCR = 0x0B;              // Interrupt on MR0 & MR1, reset on MR0
   HAL_PWM_TIMER->MR0 = LPC_PWM1_MR0;
   HAL_PWM_TIMER->MR1 = 0;
