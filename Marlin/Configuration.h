@@ -547,7 +547,7 @@
 #ifdef DUAL
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 200*16/4, EXT0_STEPE , EXT1_STEPE }
   #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25, 25 }
-  #define DEFAULT_MAX_ACCELERATION      { 9000, 9000, 100, 10000, 10000 }
+  #define DEFAULT_MAX_ACCELERATION      { 4500, 4500, 100, 10000, 10000 }
 #else
 
 /**
@@ -570,7 +570,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 9000, 9000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 4500, 4500, 100, 10000 }
 #endif
 
 /**
